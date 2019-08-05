@@ -1,0 +1,84 @@
+export enum HDWalletErrorType {
+    ActionCancelled = 'ActionCancelled',
+    DeviceDisconnected = 'DeviceDisconnected',
+    PopupClosedError = 'PopupClosedError',
+    ConflictingApp = 'ConflictingApp',
+    SelectApp = 'SelectApp',
+    WrongApp = 'WrongApp',
+    FirmwareUpdateRequired = 'FirmwareUpdateRequired',
+    WebUSBNotAvailable = 'WebUSBNotAvailable',
+    WebUSBCouldNotPair = 'WebUSBCouldNotPair'
+}
+
+export class HDWalletError extends Error {
+    type: HDWalletErrorType
+
+    constructor (message: string, type: HDWalletErrorType) {
+        super(message)
+        Error.captureStackTrace(this, this.constructor)
+        this.name = type
+        this.type = type
+    }
+}
+
+export class ActionCancelled extends HDWalletError {
+    constructor () {
+        super('Action cancelled', HDWalletErrorType.ActionCancelled)
+    }
+}
+
+export class DeviceDisconnected extends HDWalletError {
+    constructor () {
+        super('Device disconnected', HDWalletErrorType.DeviceDisconnected)
+    }
+}
+
+export class PopupClosedError extends HDWalletError {
+    constructor () {
+        super('TrezorConnect popup closed', HDWalletErrorType.PopupClosedError)
+    }
+}
+
+export class ConflictingApp extends HDWalletError {
+    model: string
+
+    constructor (model: string) {
+        super(`Conflicting Application: Another wallet is trying to connect with your ${model}.`,
+              HDWalletErrorType.ConflictingApp)
+        this.model = model
+    }
+}
+
+export class SelectApp extends HDWalletError {
+    constructor (model: string, app: string) {
+        super(`Please open the ${app} app on your ${model}.`,
+              HDWalletErrorType.SelectApp)
+    }
+}
+
+export class WrongApp extends HDWalletError {
+    constructor (model: string, app: string) {
+        super(`Wrong app selected. Please open the ${app} app on your ${model}.`,
+              HDWalletErrorType.WrongApp)
+    }
+}
+
+export class FirmwareUpdateRequired extends HDWalletError {
+    constructor (model: string, minVer: string) {
+        super(`Firmware ${minVer} or later is required to use your ${model} with this client. Please update your device.`,
+              HDWalletErrorType.FirmwareUpdateRequired)
+    }
+}
+
+export class WebUSBNotAvailable extends HDWalletError {
+    constructor () {
+        super(`WebUSB is not available in this browser. We recommend trying Chrome.`,
+              HDWalletErrorType.WebUSBNotAvailable)
+    }
+}
+
+export class WebUSBCouldNotPair extends HDWalletError {
+    constructor (model: string, message: string) {
+        super(`Could not pair ${model}: ${message}`, HDWalletErrorType.WebUSBCouldNotPair)
+    }
+}

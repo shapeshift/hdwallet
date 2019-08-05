@@ -1,0 +1,199 @@
+<html class="no-js" lang="">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>HDWallet | Sandbox</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.3.0/milligram.min.css" />
+  <style>
+    .modale:before {
+      content: "";
+      display: none;
+      background: rgba(0, 0, 0, 0.6);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 10;
+    }
+    .opened:before {
+      display: block;
+    }
+    .opened .modal-dialog {
+      -webkit-transform: translate(0, 0);
+      -ms-transform: translate(0, 0);
+      transform: translate(0, 0);
+      top: 20%;
+    }
+    .modal-dialog {
+      background: #fefefe;
+      border: #333333 solid 0px;
+      border-radius: 5px;
+      margin-left: -200px;
+      text-align:center;
+      position: fixed;
+      left: 50%;
+      top: -100%;
+      z-index: 11;
+      width: 360px;
+      box-shadow:0 5px 10px rgba(0,0,0,0.3);
+      -webkit-transform: translate(0, -500%);
+      -ms-transform: translate(0, -500%);
+      transform: translate(0, -500%);
+      -webkit-transition: -webkit-transform 0.3s ease-out;
+      -moz-transition: -moz-transform 0.3s ease-out;
+      -o-transition: -o-transform 0.3s ease-out;
+      transition: transform 0.3s ease-out;
+    }
+    .modal-body {
+      padding: 20px;
+    }
+    .modal-body input{
+      width:200px;
+      padding:8px;
+      border:1px solid #ddd;
+      color:#888;
+      outline:0;
+      font-size:14px;
+      font-weight:bold
+    }
+    .modal-header,
+    .modal-footer {
+      padding: 10px 20px;
+    }
+    .modal-header {
+      border-bottom: #eeeeee solid 1px;
+    }
+    .modal-header h2 {
+      font-size: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container" style="padding-top:8em;">
+    <h4>Select</h4>
+    <button id='keepkey'>Pair KeepKey</button>
+    <button id='kkemu'>Pair Emulator</button>
+    <button id='trezor'>Pair Trezor</button>
+    <button id='ledger'>Pair Ledger</button>
+    <select id='keyring' style="height: 100px" size="4"></select>
+  </div>
+  <div class="container" style="padding-top:8em;">
+    <h4>DebugLink</h4>
+    <button class='button-outline' id='yes'>Yes</button>
+    <button class='button-outline' id='no'>No</button>
+    <button class='button-outline' id='cancel'>Cancel</button>
+  </div>
+  <div class="container" style="padding-top:8em;">
+    <h4>Manage</h4>
+    <button class="button button-outline" id='getVendor'>Vendor</button>
+    <button class="button button-outline" id='getModel'>Model</button>
+    <button class="button button-outline" id='getLabel'>Label</button>
+    <button class="button button-outline" id='getXpubs'>Xpubs</button>
+    <button class="button button-outline" id='doPing'>Ping</button>
+    <button class="button button-outline" id='doWipe'>Wipe</button>
+    <button class="button button-outline" id='doLoadDevice'>Load</button>
+    <input type="text" id="manageResults" />
+  </div>
+  <div class="container" style="padding-top:8em;">
+    <h4>Ethereum</h4>
+    <button class="button button-outline" id='ethAddr'>Address</button>
+    <button class="button button-outline" id='ethTx'>Tx</button>
+    <button class="button button-outline" id='ethSign'>Sign</button>
+    <button class="button button-outline" id='ethVerify'>Verify</button>
+    <input type="text" id="ethResults" />
+  </div>
+  <div class="container" style="padding-top:8em;">
+    <h4>Bitcoin</h4>
+    <button class="button button-outline" id='btcAddr'>Address</button>
+    <button class="button button-outline" id='btcTx'>Tx</button>
+    <button class="button button-outline" id='btcSign'>Sign</button>
+    <button class="button button-outline" id='btcVerify'>Verify</button>
+    <input type="text" id="btcResults" />
+  </div>
+
+  <div class="container" style="padding-top:8em;">
+    <h4>Bitcoin (segwit)</h4>
+    <button class="button button-outline" id='btcAddrSegWit'>Address (p2wsh)</button>
+    <button class="button button-outline" id='btcAddrSegWitNative'>Address (bech32)</button>
+    <button class="button button-outline" id='btcTxSegWit'>Tx Segwit</button>
+    <button class="button button-outline" id='btcTxSegWitNative'>Tx Segwit (Native)</button>
+    <input type="text" id="btcResultsSegWit" />
+  </div>
+
+  <div class="container" style="padding-top:8em;">
+    <h4>Litecoin</h4>
+    <button class="button button-outline" id='ltcAddr'>Address</button>
+    <button class="button button-outline" id='ltcTx'>Tx</button>
+    <button class="button button-outline" id='ltcSign'>Sign</button>
+    <input type="text" id="ltcResults" />
+  </div>
+  <div class="container" style="padding-top:8em;">
+    <h4>Dogecoin</h4>
+    <button class="button button-outline" id='dogeAddr'>Address</button>
+    <button class="button button-outline" id='dogeTx'>Tx</button>
+    <input type="text" id="dogeResults" />
+  </div>
+  <div class="container" style="padding-top:8em;">
+    <h4>Bitcoin Cash</h4>
+    <button class="button button-outline" id='bchAddr'>Address</button>
+    <button class="button button-outline" id='bchTx'>Tx</button>
+    <input type="text" id="bchResults" />
+  </div>
+  <div class="container" style="padding-top:8em;">
+    <h4>Dash</h4>
+    <button class="button button-outline" id='dashAddr'>Address</button>
+    <button class="button button-outline" id='dashTx'>Tx</button>
+    <input type="text" id="dashResults" />
+  </div>
+
+  <div id="#pinModal" class="modale" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Enter PIN</h3>
+        <p>Use the PIN layout shown on your device to find the location to press on this PIN pad.</p>
+      </div>
+      <div class="modal-body">
+        <button onclick="handlePinDigit(7)" class="button button-outline">&#x25CF;</button>&nbsp;
+        <button onclick="handlePinDigit(8)" class="button button-outline">&#x25CF;</button>&nbsp;
+        <button onclick="handlePinDigit(9)" class="button button-outline">&#x25CF;</button><br>
+        <button onclick="handlePinDigit(4)" class="button button-outline">&#x25CF;</button>&nbsp;
+        <button onclick="handlePinDigit(5)" class="button button-outline">&#x25CF;</button>&nbsp;
+        <button onclick="handlePinDigit(6)" class="button button-outline">&#x25CF;</button><br>
+        <button onclick="handlePinDigit(1)" class="button button-outline">&#x25CF;</button>&nbsp;
+        <button onclick="handlePinDigit(2)" class="button button-outline">&#x25CF;</button>&nbsp;
+        <button onclick="handlePinDigit(3)" class="button button-outline">&#x25CF;</button><br>
+        <input id="#pinInput" type="text" style="-webkit-text-security: disc;"/>
+        <button onclick="handlePinDigit('')" class="button button-outline">x</button>
+      </div>
+      <div class="modal-footer">
+        <button class="button button-outline" onclick="pinEntered()">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="#passphraseModal" class="modale" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Enter Passphrase</h3>
+        <p>Enter your BIP39 Passphrase.</p>
+      </div>
+      <div class="modal-body">
+        <form><input id="#passphraseInput" type="password" autocomplete="bip39-passphrase"/></form>
+      </div>
+      <div class="modal-footer">
+        <button class="button button-outline" onclick="passphraseEntered()">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/debug@4.0.1/dist/debug.js"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+  <script src="./index.ts"></script>
+</body>
+</html>

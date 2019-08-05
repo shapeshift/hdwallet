@@ -1,0 +1,56 @@
+digraph D {
+  label = "HDWallet Internal Package Dependencies"
+
+  hdwalletcore [label="hdwallet-core", shape=box]
+
+  subgraph cluster_0 {
+    label = "Legend"
+
+    package [label="package", shape=box]
+    webpackage [label="web package", shape=box, fillcolor="aquamarine", style=filled]
+    nodepackage [label="node package", shape=box, fillcolor="darkseagreen1", style=filled]
+    chromepackage [label="chrome package", shape=box, fillcolor="bisque", style=filled]
+  }
+
+  subgraph cluster_1 {
+    label = "KeepKey"
+
+    hdwalletkeepkey [label="hdwallet-keepkey", shape=box]
+    hdwalletkeepkey -> hdwalletcore
+
+    hdwalletkeepkeywebusb [label="hdwallet-keepkey-webusb", shape=box, fillcolor="aquamarine", style=filled]
+    hdwalletkeepkeywebusb -> hdwalletkeepkey
+    hdwalletkeepkeynodewebusb [label="hdwallet-keepkey-nodewebusb", shape=box, fillcolor="darkseagreen1", style=filled]
+    hdwalletkeepkeynodewebusb -> hdwalletkeepkey
+    hdwalletkeepkeytcp [label="hdwallet-keepkey-tcp", shape=box]
+    hdwalletkeepkeytcp -> hdwalletkeepkey
+    hdwalletkeepkeynodehid [label="hdwallet-keepkey-nodehid", shape=box, fillcolor="darkseagreen1", style=filled]
+    hdwalletkeepkeynodehid -> hdwalletkeepkey
+    hdwalletkeepkeychromeusb [label="hdwallet-keepkey-chromeusb", shape=box, fillcolor="bisque", style=filled]
+    hdwalletkeepkeychromeusb -> hdwalletkeepkey
+  }
+
+  subgraph cluster_2 {
+    label = "Trezor"
+
+    hdwallettrezor [label="hdwallet-trezor", shape=box]
+    hdwallettrezor -> hdwalletcore
+
+    hdwallettrezorconnect [label="hdwallet-trezor-connect", shape=box, fillcolor="darkseagreen1", style=filled]
+    hdwallettrezorconnect -> hdwallettrezor
+  }
+
+  subgraph cluster_3 {
+    label = "Ledger"
+
+    hdwalletledger [label="hdwallet-ledger", shape=box]
+    hdwalletledger -> hdwalletcore
+
+    hdwalletledgerwebusb [label="hdwallet-ledger-webusb", shape=box, fillcolor="darkseagreen1", style=filled]
+    hdwalletledgerwebusb -> hdwalletledger
+
+    hdwalletledgeru2f [label="hdwallet-ledger-u2f", shape=box, fillcolor="darkseagreen1", style=filled]
+    hdwalletledgeru2f -> hdwalletledger
+  }
+}
+

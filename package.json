@@ -1,0 +1,55 @@
+{
+  "name": "@shapeshift/hdwallet",
+  "version": "2.6.6",
+  "main": "index.js",
+  "private": true,
+  "repository": "https://github.com/shapeshift/hdwallet",
+  "author": "ShapeShift Open Source <oss@shapeshift.io>",
+  "license": "MIT",
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "examples/*",
+      "integration/*"
+    ],
+    "nohoist": [
+      "**/@types/w3c-web-usb",
+      "**/@types/w3c-web-usb/**",
+      "**/@types/chrome",
+      "**/@types/chrome/**",
+      "**/examples/test/**"
+    ]
+  },
+  "scripts": {
+    "clean": "rm -rf coverage test-report && lerna run clean && lerna clean && rm -rf node_modules && yarn cache clean",
+    "build": "lerna run build --scope @shapeshift/hdwallet-core && yarn build:wallets && yarn build:transports",
+    "build:chromeusb": "lerna run build --scope @shapeshift/keepkey-chromeusb --include-filtered-dependencies",
+    "build:hid": "lerna run build --scope @shapeshift/hdwallet-keepkey-nodehid --include-filtered-dependencies",
+    "build:transports": "lerna run build --scope @shapeshift/hdwallet-keepkey-webusb --scope @shapeshift/hdwallet-keepkey-tcp --scope @shapeshift/hdwallet-keepkey-nodewebusb --scope @shapeshift/hdwallet-ledger-webusb --scope @shapeshift/hdwallet-ledger-u2f",
+    "build:wallets": "lerna run build --scope @shapeshift/hdwallet-keepkey --scope @shapeshift/hdwallet-trezor --scope @shapeshift/hdwallet-ledger",
+    "build:webusb": "lerna run build --scope @shapeshift/hdwallet-keepkey-webusb --scope @shapeshift/hdwallet-ledger-webusb --include-filtered-dependencies",
+    "dev:all": "lerna run dev --scope @shapeshift/hdwallet-keepkey-webusb --scope @shapeshift/hdwallet-keepkey-nodewebusb --scope @shapeshift/hdwallet-ledger-webusb --scope @shapeshift/hdwallet-ledger-u2f --scope @shapeshift/hdwallet-trezor-connect --include-filtered-dependencies --parallel",
+    "dev:chromeusb": "lerna run dev --scope chromeusb-app --parallel --include-filtered-dependencies",
+    "dev:sandbox": "lerna run dev --scope sandbox --parallel --include-filtered-dependencies",
+    "dev:webusb": "lerna run dev --scope webusb --parallel --include-filtered-dependencies",
+    "test": "yarn run jest --verbose --config jest.config.js --coverage",
+    "lerna:version": "lerna version"
+  },
+  "devDependencies": {
+    "jest-junit": "^6.4.0",
+    "lerna": "^3.13.0",
+    "standard": "^12.0.1",
+    "typedoc": "^0.14.2",
+    "typescript": "^3.3.3",
+    "typescript-eslint-parser": "^22.0.0"
+  },
+  "standard": {
+    "parser": "typescript-eslint-parser",
+    "plugins": [
+      "typescript"
+    ]
+  },
+  "resolutions": {
+    "**/whatwg-fetch": "^2.0.4"
+  }
+}

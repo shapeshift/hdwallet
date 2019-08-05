@@ -1,0 +1,30 @@
+{
+  "name": "@shapeshift/hdwallet-trezor",
+  "version": "0.1.0",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "main": "dist/index.js",
+  "source": "src/index.ts",
+  "umd:main": "dist/index.umd.js",
+  "module": "dist/index.m.js",
+  "scripts": {
+    "build": "microbundle --name=trezorHDWallet",
+    "build:browser": "microbundle --target=web --external=none --name=trezorHDWallet",
+    "build:docs": "typedoc --out docs --target es6 --theme minimal --mode file src",
+    "clean": "rm -rf dist .rts2_*",
+    "dev": "microbundle watch --name=trezorHDWallet",
+    "dev:browser": "microbundle watch --target=web --external=none --name=trezorHDWallet",
+    "prepublishOnly": "yarn clean && yarn build"
+  },
+  "dependencies": {
+    "@shapeshift/hdwallet-core": "^0.1.0",
+    "ethereumjs-tx": "^1.3.7",
+    "eventemitter2": "^5.0.1"
+  },
+  "devDependencies": {
+    "@types/ethereumjs-tx": "^1.0.1",
+    "microbundle": "^0.11.0"
+  }
+}

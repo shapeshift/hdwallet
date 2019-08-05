@@ -1,0 +1,25 @@
+{
+  "name": "sandbox",
+  "version": "0.1.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "dev": "parcel index.html --https",
+    "clean": "rm -rf dist .cache"
+  },
+  "dependencies": {
+    "@shapeshift/hdwallet-core": "^0.1.0",
+    "@shapeshift/hdwallet-keepkey-tcp": "^0.1.0",
+    "@shapeshift/hdwallet-keepkey-webusb": "^0.1.0",
+    "@shapeshift/hdwallet-ledger": "^0.1.0",
+    "@shapeshift/hdwallet-ledger-webusb": "^0.1.0",
+    "@shapeshift/hdwallet-trezor": "^0.1.0",
+    "@shapeshift/hdwallet-trezor-connect": "^0.1.0",
+    "debug": "^4.1.1",
+    "parcel-bundler": "^1.11.2"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.2"
+  }
+}

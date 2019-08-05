@@ -1,0 +1,17 @@
+{
+  "lerna": "2.11.0",
+  "version": "2.14.2",
+  "npmClient": "yarn",
+  "useWorkspaces": true,
+  "command": {
+    "publish": {
+      "message": "chore(release): publish %v"
+    }
+  },
+  "ignoreChanges": [
+    "**/__fixtures__/**",
+    "**/__tests__/**",
+    "**/*.md",
+    "**/.env"
+  ]
+}

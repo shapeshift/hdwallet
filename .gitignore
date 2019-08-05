@@ -1,0 +1,16 @@
+node_modules
+coverage
+.nyc_output
+.DS_Store
+*.log
+.vscode
+.idea
+compiled
+.awcache
+.rts2_cache*
+*.proto
+example/js/vendor
+dist
+.rpt2_*
+.cache
+.npmrc
