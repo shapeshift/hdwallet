@@ -13,7 +13,7 @@ import {
   slip44ByCoin,
   stripHexPrefix,
   addressNListToBIP32,
- } from '@shapeshift/hdwallet-core'
+ } from '@shapeshiftoss/hdwallet-core'
 
 import { TrezorTransport } from './transport'
 

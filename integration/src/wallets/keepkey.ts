@@ -9,10 +9,10 @@ import {
   supportsETH,
   bip32ToAddressNList,
   ActionCancelled,
-} from '@shapeshift/hdwallet-core'
-import { KeepKeyHDWallet, isKeepKey } from '@shapeshift/hdwallet-keepkey'
-import { NodeWebUSBKeepKeyAdapter } from '@shapeshift/hdwallet-keepkey-nodewebusb'
-import { TCPKeepKeyAdapter } from '@shapeshift/hdwallet-keepkey-tcp'
+} from '@shapeshiftoss/hdwallet-core'
+import { KeepKeyHDWallet, isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
+import { NodeWebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-nodewebusb'
+import { TCPKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-tcp'
 import * as debug from 'debug'
 
 const log = debug.default('keepkey')

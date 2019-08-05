@@ -1,7 +1,7 @@
 import {
   DebugLinkWallet,
   Constructor,
- } from '@shapeshift/hdwallet-core'
+ } from '@shapeshiftoss/hdwallet-core'
 
 import { TrezorTransport } from './transport'
 

@@ -7,19 +7,19 @@ import {
   supportsDebugLink,
   bip32ToAddressNList,
   Events
- } from '@shapeshift/hdwallet-core'
+ } from '@shapeshiftoss/hdwallet-core'
 
-import { isKeepKey } from '@shapeshift/hdwallet-keepkey'
+import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 
-import { WebUSBKeepKeyAdapter } from '@shapeshift/hdwallet-keepkey-webusb'
-import { TCPKeepKeyAdapter } from '@shapeshift/hdwallet-keepkey-tcp'
-import { TrezorAdapter } from '@shapeshift/hdwallet-trezor-connect'
-import { WebUSBLedgerAdapter } from '@shapeshift/hdwallet-ledger-webusb'
+import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
+import { TCPKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-tcp'
+import { TrezorAdapter } from '@shapeshiftoss/hdwallet-trezor-connect'
+import { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
 import {
   BTCInputScriptType,
   BTCOutputScriptType,
   BTCOutputAddressType, BitcoinTx, BitcoinInput, BitcoinOutput
-} from '@shapeshift/hdwallet-core/src/bitcoin'
+} from '@shapeshiftoss/hdwallet-core/src/bitcoin'
 
 const keyring = new Keyring()
 
@@ -37,7 +37,7 @@ keyring.onAny((event: string[], ...values: any[]) => {
 const trezorAdapter = TrezorAdapter.useKeyring(keyring, {
   debug: false,
   manifest: {
-    email: 'oss@shapeshift.io',
+    email: 'oss@shapeshiftoss.io',
     appUrl: 'https://shapeshift.com'
   }
 })

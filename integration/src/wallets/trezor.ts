@@ -6,14 +6,14 @@ import {
   supportsETH,
   bip32ToAddressNList,
   Keyring,
-} from '@shapeshift/hdwallet-core'
+} from '@shapeshiftoss/hdwallet-core'
 import {
   create as createTrezor,
   TrezorConnectResponse,
   TrezorTransport,
   TrezorHDWallet,
   isTrezor,
-} from '@shapeshift/hdwallet-trezor'
+} from '@shapeshiftoss/hdwallet-trezor'
 
 export class MockTransport extends TrezorTransport {
   memoized = new Map()

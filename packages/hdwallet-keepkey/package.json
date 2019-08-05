@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshift/hdwallet-keepkey",
+  "name": "@shapeshiftoss/hdwallet-keepkey",
   "version": "0.1.0",
   "license": "MIT",
   "publishConfig": {
@@ -19,7 +19,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshift/hdwallet-core": "^0.1.0",
+    "@shapeshiftoss/hdwallet-core": "^0.1.0",
     "@keepkey/device-protocol": "^6.1.6",
     "@types/eventemitter2": "^4.1.0",
     "eip55": "^1.0.3",

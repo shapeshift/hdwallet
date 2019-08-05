@@ -18,7 +18,7 @@ import {
   base64toHEX,
   slip44ByCoin,
   BTCInputScriptType,
- } from '@shapeshift/hdwallet-core'
+ } from '@shapeshiftoss/hdwallet-core'
 
 import { KeepKeyTransport } from './transport'
 

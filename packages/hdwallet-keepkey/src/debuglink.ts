@@ -2,7 +2,7 @@ import {
   DebugLinkWallet,
   Constructor,
   DEFAULT_TIMEOUT,
- } from '@shapeshift/hdwallet-core'
+ } from '@shapeshiftoss/hdwallet-core'
 
 import { KeepKeyTransport } from './transport'
 

@@ -1,5 +1,5 @@
-import { create as createLedger } from '@shapeshift/hdwallet-ledger'
-import { Events, Keyring, HDWallet, WebUSBNotAvailable } from '@shapeshift/hdwallet-core'
+import { create as createLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { Events, Keyring, HDWallet, WebUSBNotAvailable } from '@shapeshiftoss/hdwallet-core'
 import { LedgerDevice, LedgerWebUsbTransport } from './transport'
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
 

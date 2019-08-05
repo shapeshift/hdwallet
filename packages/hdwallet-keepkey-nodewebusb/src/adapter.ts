@@ -1,5 +1,5 @@
-import { Keyring, HDWallet, FirmwareUpdateRequired } from '@shapeshift/hdwallet-core'
-import { create as createKeepKey } from '@shapeshift/hdwallet-keepkey'
+import { Keyring, HDWallet, FirmwareUpdateRequired } from '@shapeshiftoss/hdwallet-core'
+import { create as createKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { NodeWebUSBKeepKeyTransport } from './transport'
 import { VENDOR_ID, WEBUSB_PRODUCT_ID, HID_PRODUCT_ID } from './utils'
 

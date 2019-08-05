@@ -7,8 +7,8 @@ import {
   BTCOutputAddressType,
   BTCOutputScriptType,
   Coin
-} from '@shapeshift/hdwallet-core'
-import { isLedger } from '@shapeshift/hdwallet-ledger'
+} from '@shapeshiftoss/hdwallet-core'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 
 import { each } from '../utils'
 

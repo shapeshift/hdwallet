@@ -15,7 +15,7 @@ import {
   WrongApp,
   SelectApp,
   ActionCancelled,
-} from '@shapeshift/hdwallet-core'
+} from '@shapeshiftoss/hdwallet-core'
 import { LedgerBTCWallet } from './bitcoin'
 import { LedgerETHWallet } from './ethereum'
 import { LedgerTransport } from './transport'

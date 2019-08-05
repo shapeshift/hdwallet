@@ -1,4 +1,4 @@
-import { HDWallet } from '@shapeshift/hdwallet-core'
+import { HDWallet } from '@shapeshiftoss/hdwallet-core'
 
 import { btcTests } from './bitcoin'
 import { ethTests } from './ethereum'

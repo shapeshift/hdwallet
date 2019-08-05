@@ -22,7 +22,7 @@ electon/node apps.
 
 ## Installation
 ```bash
-yarn add @shapeshift/hdwallet
+yarn add @shapeshiftoss/hdwallet
 ```
 
 
@@ -31,9 +31,9 @@ yarn add @shapeshift/hdwallet
 You can import the generated bundle to use each of the component libraries:
 
 ```javascript
-import { HDWallet, isKeepKey, isTrezor, ... } from '@shapeshift/hdwallet-core'
-import { KeepKeyHDWallet } from '@shapeshift/hdwallet-keepkey'
-import { WebUSBKeepKeyAdapter } from '@shapeshift/hdwallet-keepkey-webusb'
+import { HDWallet, isKeepKey, isTrezor, ... } from '@shapeshiftoss/hdwallet-core'
+import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
+import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 ```
 
 
@@ -43,7 +43,7 @@ The recommended way to use the library is through a `Keyring` singleton,
 which manages connected devices:
 
 ```javascript
-import { Keyring } from '@shapeshift/hdwallet-core'
+import { Keyring } from '@shapeshiftoss/hdwallet-core'
 const keyring = new Keyring()
 ```
 
@@ -51,8 +51,8 @@ To add in support for a given wallet type, add in the relevant `Transport`
 adapter by calling `useKeyring()` on it:
 
 ```javascript
-import { WebUSBKeepKeyAdapter } from '@shapeshift/hdwallet-keepkey-webusb'
-import { TrezorAdapter } from '@shapeshift/hdwallet-trezor-connect'
+import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
+import { TrezorAdapter } from '@shapeshiftoss/hdwallet-trezor-connect'
 
 const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring)
 

@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshift/hdwallet-ledger-webusb",
+  "name": "@shapeshiftoss/hdwallet-ledger-webusb",
   "version": "0.1.0",
   "license": "MIT",
   "publishConfig": {
@@ -16,8 +16,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshift/hdwallet-core": "^0.1.0",
-    "@shapeshift/hdwallet-ledger": "^0.1.0",
+    "@shapeshiftoss/hdwallet-core": "^0.1.0",
+    "@shapeshiftoss/hdwallet-ledger": "^0.1.0",
     "@ledgerhq/hw-app-btc": "^4.48.0",
     "@ledgerhq/hw-app-eth": "^4.48.0",
     "@ledgerhq/hw-transport": "^4.48.0",

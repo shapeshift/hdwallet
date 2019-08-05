@@ -24,7 +24,7 @@ import {
   base64toHEX,
   slip44ByCoin,
   satsFromStr,
- } from '@shapeshift/hdwallet-core'
+ } from '@shapeshiftoss/hdwallet-core'
 
 import { KeepKeyTransport } from './transport'
 

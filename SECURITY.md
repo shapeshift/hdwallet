@@ -9,7 +9,7 @@ to the ShapeShift security team.
 ## Reporting a Vulnerability
 
 If you would like to disclose a vulnerability to ShapeShift, we encourage you
-to send a new email to security@shapeshift.io with the word **[VULNERABILITY]** in
+to send a new email to security@shapeshiftoss.io with the word **[VULNERABILITY]** in
 the subject line.
 
 Please include the following information in your email:

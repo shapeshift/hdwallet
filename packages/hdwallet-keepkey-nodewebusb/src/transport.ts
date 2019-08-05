@@ -1,6 +1,6 @@
 /// <reference path="../node_modules/@types/w3c-web-usb/index.d.ts" />
-import { SEGMENT_SIZE, KeepKeyTransport } from '@shapeshift/hdwallet-keepkey'
-import { ConflictingApp, FirmwareUpdateRequired, Keyring } from '@shapeshift/hdwallet-core'
+import { SEGMENT_SIZE, KeepKeyTransport } from '@shapeshiftoss/hdwallet-keepkey'
+import { ConflictingApp, FirmwareUpdateRequired, Keyring } from '@shapeshiftoss/hdwallet-core'
 import { randomBytes, createHash } from 'crypto'
 import * as ByteBuffer from 'bytebuffer'
 const { default: { concat, wrap } } = ByteBuffer as any

@@ -5,7 +5,7 @@ import {
   supportsBTC,
   BTCInputScriptType,
   Coin
-} from '@shapeshift/hdwallet-core'
+} from '@shapeshiftoss/hdwallet-core'
 
 import { each } from '../utils'
 

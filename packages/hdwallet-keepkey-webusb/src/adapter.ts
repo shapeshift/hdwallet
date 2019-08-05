@@ -5,8 +5,8 @@ import {
   FirmwareUpdateRequired,
   WebUSBNotAvailable,
   WebUSBCouldNotPair
-} from '@shapeshift/hdwallet-core'
-import { create as createWebUSBKeepKey } from '@shapeshift/hdwallet-keepkey'
+} from '@shapeshiftoss/hdwallet-core'
+import { create as createWebUSBKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { WebUSBKeepKeyTransport } from './transport'
 import { VENDOR_ID, WEBUSB_PRODUCT_ID, HID_PRODUCT_ID } from './utils'
 

@@ -9,13 +9,13 @@
     "clean": "rm -rf dist .cache"
   },
   "dependencies": {
-    "@shapeshift/hdwallet-core": "^0.1.0",
-    "@shapeshift/hdwallet-keepkey-tcp": "^0.1.0",
-    "@shapeshift/hdwallet-keepkey-webusb": "^0.1.0",
-    "@shapeshift/hdwallet-ledger": "^0.1.0",
-    "@shapeshift/hdwallet-ledger-webusb": "^0.1.0",
-    "@shapeshift/hdwallet-trezor": "^0.1.0",
-    "@shapeshift/hdwallet-trezor-connect": "^0.1.0",
+    "@shapeshiftoss/hdwallet-core": "^0.1.0",
+    "@shapeshiftoss/hdwallet-keepkey-tcp": "^0.1.0",
+    "@shapeshiftoss/hdwallet-keepkey-webusb": "^0.1.0",
+    "@shapeshiftoss/hdwallet-ledger": "^0.1.0",
+    "@shapeshiftoss/hdwallet-ledger-webusb": "^0.1.0",
+    "@shapeshiftoss/hdwallet-trezor": "^0.1.0",
+    "@shapeshiftoss/hdwallet-trezor-connect": "^0.1.0",
     "debug": "^4.1.1",
     "parcel-bundler": "^1.11.2"
   },

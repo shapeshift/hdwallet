@@ -1,8 +1,8 @@
 /// <reference path="../node_modules/@types/chrome/index.d.ts" />
 /// <reference path="../node_modules/@types/w3c-web-usb/index.d.ts" />
 
-import { Keyring } from '@shapeshift/hdwallet-core'
-import { SEGMENT_SIZE, KeepKeyTransport } from '@shapeshift/hdwallet-keepkey'
+import { Keyring } from '@shapeshiftoss/hdwallet-core'
+import { SEGMENT_SIZE, KeepKeyTransport } from '@shapeshiftoss/hdwallet-keepkey'
 import * as ByteBuffer from 'bytebuffer'
 import { VENDOR_ID, WEBUSB_PRODUCT_ID, HID_PRODUCT_ID, makePromise } from './utils'
 

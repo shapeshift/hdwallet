@@ -17,7 +17,7 @@ import {
   Constructor,
   fromHexString,
   slip44ByCoin,
-} from '@shapeshift/hdwallet-core'
+} from '@shapeshiftoss/hdwallet-core'
 import { LedgerTransport } from './transport'
 import {
   translateScriptType,

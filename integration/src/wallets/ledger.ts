@@ -5,14 +5,14 @@ import {
   supportsBTC,
   supportsETH,
   Keyring,
-} from '@shapeshift/hdwallet-core'
+} from '@shapeshiftoss/hdwallet-core'
 import {
   create as createLedger,
   LedgerTransport,
   LedgerHDWallet,
   LedgerResponse,
   isLedger,
-} from '@shapeshift/hdwallet-ledger'
+} from '@shapeshiftoss/hdwallet-ledger'
 
 export class MockTransport extends LedgerTransport {
   memoized = new Map()

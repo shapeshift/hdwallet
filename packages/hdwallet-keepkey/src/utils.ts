@@ -1,7 +1,7 @@
 import {
   BTCInputScriptType,
   BTCOutputScriptType,
-} from '@shapeshift/hdwallet-core'
+} from '@shapeshiftoss/hdwallet-core'
 
 import * as ProtoTypes from '@keepkey/device-protocol/lib/types_pb'
 

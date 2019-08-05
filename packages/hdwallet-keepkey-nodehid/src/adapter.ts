@@ -1,5 +1,5 @@
-import { Keyring, Events } from '@shapeshift/hdwallet-core'
-import { create as createHIDKeepKey } from '@shapeshift/hdwallet-keepkey'
+import { Keyring, Events } from '@shapeshiftoss/hdwallet-core'
+import { create as createHIDKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { HIDKeepKeyTransport } from './transport'
 import * as HID from 'node-hid'
 import { VENDOR_ID, PRODUCT_ID } from './utils'

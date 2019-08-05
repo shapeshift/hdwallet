@@ -1,5 +1,5 @@
-import { HDWallet, Keyring } from '@shapeshift/hdwallet-core'
-import { create as createKeepKey } from '@shapeshift/hdwallet-keepkey'
+import { HDWallet, Keyring } from '@shapeshiftoss/hdwallet-core'
+import { create as createKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { TCPKeepKeyTransport } from './transport'
 
 export class TCPKeepKeyAdapter {

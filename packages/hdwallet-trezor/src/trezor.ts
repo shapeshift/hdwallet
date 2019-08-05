@@ -14,7 +14,7 @@ import {
   ActionCancelled,
   DeviceDisconnected,
   PopupClosedError,
-} from '@shapeshift/hdwallet-core'
+} from '@shapeshiftoss/hdwallet-core'
 import { TrezorBTCWallet } from './bitcoin'
 import { TrezorETHWallet } from './ethereum'
 import { TrezorTransport } from './transport'

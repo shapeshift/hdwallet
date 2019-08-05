@@ -3,8 +3,8 @@ import {
   HDWallet,
   ETHWallet,
   supportsETH
-} from '@shapeshift/hdwallet-core'
-import { isLedger } from '@shapeshift/hdwallet-ledger'
+} from '@shapeshiftoss/hdwallet-core'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = 'alcohol woman abuse must during monitor noble actual mixed trade anger aisle'
 

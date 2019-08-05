@@ -1,5 +1,5 @@
-import { Coin, makeEvent, Keyring } from '@shapeshift/hdwallet-core'
-import { LedgerTransport } from '@shapeshift/hdwallet-ledger'
+import { Coin, makeEvent, Keyring } from '@shapeshiftoss/hdwallet-core'
+import { LedgerTransport } from '@shapeshiftoss/hdwallet-ledger'
 import Eth from '@ledgerhq/hw-app-eth'
 import Btc from '@ledgerhq/hw-app-btc'
 

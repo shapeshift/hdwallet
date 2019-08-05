@@ -22,7 +22,7 @@ import {
   toHexString,
   stripHexPrefixAndLower,
   slip44ByCoin
-} from '@shapeshift/hdwallet-core'
+} from '@shapeshiftoss/hdwallet-core'
 import { LedgerTransport } from './transport'
 
 /**

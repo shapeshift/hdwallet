@@ -3,7 +3,7 @@ import bs58 from "bs58"
 import { padStart } from "lodash"
 import {
   BTCInputScriptType
-} from '@shapeshift/hdwallet-core'
+} from '@shapeshiftoss/hdwallet-core'
 import { Buffer } from "buffer";
 
 export const getderivationModeFromFormat = (format:string):string => {

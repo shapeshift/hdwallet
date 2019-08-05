@@ -1,4 +1,4 @@
-import { Coin, Transport, Keyring } from '@shapeshift/hdwallet-core'
+import { Coin, Transport, Keyring } from '@shapeshiftoss/hdwallet-core'
 
 export type LedgerDevice = {
   path: string,

@@ -1,5 +1,5 @@
-import { SEGMENT_SIZE, KeepKeyTransport } from '@shapeshift/hdwallet-keepkey'
-import { ConflictingApp, FirmwareUpdateRequired, Keyring } from '@shapeshift/hdwallet-core'
+import { SEGMENT_SIZE, KeepKeyTransport } from '@shapeshiftoss/hdwallet-keepkey'
+import { ConflictingApp, FirmwareUpdateRequired, Keyring } from '@shapeshiftoss/hdwallet-core'
 import * as ByteBuffer from 'bytebuffer'
 
 const {
