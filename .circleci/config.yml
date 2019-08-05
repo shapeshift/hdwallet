@@ -12,7 +12,7 @@ orbs:
         description: Get deps and persist to workspace
         executor: node
         steps:
-          - run: sudo apt-get install libudev-dev libusb-dev
+          - run: sudo apt-get install libudev-dev libusb-dev libusb-1.0
           - checkout
           - run:
               name: Authenticate with registry
