@@ -369,23 +369,23 @@ export const networksUtil = {
     handleFeePerByte: false,
     areTransactionTimestamped: true
   },
-  133: {
-    name: "zcash",
-    satoshi: 8,
-    unit: "ZEC",
-    apiName: "zec",
-    bitcoinjs: {
-      messagePrefix: "Zcash Signed Message:",
-      bip32: { public: 76067358, private: 87393172 },
-      pubKeyHash: 7352,
-      scriptHash: 7357,
-      wif: 128
-    },
-    isSegwitSupported: false,
-    handleFeePerByte: false,
-    areTransactionTimestamped: undefined,
-    expiryHeight: Buffer.from("00000000", "hex")
-  },
+  //133: {
+  //  name: "zcash",
+  //  satoshi: 8,
+  //  unit: "ZEC",
+  //  apiName: "zec",
+  //  bitcoinjs: {
+  //    messagePrefix: "Zcash Signed Message:",
+  //    bip32: { public: 76067358, private: 87393172 },
+  //    pubKeyHash: 7352,
+  //    scriptHash: 7357,
+  //    wif: 128
+  //  },
+  //  isSegwitSupported: false,
+  //  handleFeePerByte: false,
+  //  areTransactionTimestamped: undefined,
+  //  expiryHeight: Buffer.from("00000000", "hex")
+  //},
   141: {
     name: "komodo",
     satoshi: 8,
