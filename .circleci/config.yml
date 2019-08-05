@@ -39,7 +39,6 @@ orbs:
       build:
         description: Build all modules
         executor: node
-        resource_class: large
         steps:
           - checkout
           - attach_workspace:
@@ -86,7 +85,6 @@ orbs:
       test:
         description: Run tests
         executor: node
-        resource_class: large
         environment:
           JEST_JUNIT_OUTPUT: "test-results/js-test-results.xml"
         steps:
@@ -105,7 +103,6 @@ orbs:
       release-packages:
         description: Build and release local dependency packages
         executor: node
-        resource_class: large
         steps:
           - checkout
           - attach_workspace:
