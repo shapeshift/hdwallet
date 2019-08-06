@@ -5,7 +5,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "dev": "parcel index.html --https",
+    "dev": "yarn parcel index.html --https",
     "clean": "rm -rf dist .cache"
   },
   "dependencies": {
