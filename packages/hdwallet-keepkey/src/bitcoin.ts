@@ -48,7 +48,8 @@ const supportedCoins = [
   'BitcoinGold',
   'Litecoin',
   'Dash',
-  'Dogecoin'
+  'DigiByte',
+  'Dogecoin',
 ]
 
 const segwitCoins = [
@@ -470,6 +471,7 @@ export function KeepKeyBTCWallet<TBase extends Constructor>(Base: TBase) {
         'Bitcoin':  [bip44, bip49, bip84],
         'Litecoin': [bip44, bip49, bip84],
         'Dash': [bip44],
+        'DigiByte': [bip44, bip49, bip84],
         'Dogecoin': [bip44],
         'Testnet': [bip44, bip49, bip84],
         'BitcoinCash': [bip44, btcLegacy],

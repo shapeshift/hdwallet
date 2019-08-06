@@ -21,7 +21,6 @@ import {
 import { LedgerTransport } from './transport'
 import {
   translateScriptType,
-  getSymbolFromName,
   networksUtil
 } from './utils'
 import {
@@ -36,6 +35,7 @@ const supportedCoins = [
   'BitcoinCash',
   'Litecoin',
   'Dash',
+  'DigiByte',
   'Dogecoin'
 ]
 

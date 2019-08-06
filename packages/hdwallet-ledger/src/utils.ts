@@ -18,33 +18,6 @@ export const getderivationModeFromFormat = (format:string):string => {
   return derivationMode
 }
 
-export const getSymbolFromName = (name: string):string => {
-  let coin
-  switch (name) {
-    case "Bitcoin":
-      coin = "Btc"
-      break;
-    case "Litecoin":
-      coin = "Ltc"
-      break;
-    case "BitcoinCash":
-      coin = "Bch"
-      break;
-    case "Ethereum":
-      coin = "Eth"
-      break;
-    case "Dogecoin":
-      coin = "Doge"
-      break;
-    case "Dash":
-      coin = "Dash"
-      break;
-    default:
-      throw Error("unknown coin!")
-  }
-  return coin
-}
-
 export const translateScriptType = (scriptType: BTCInputScriptType): string => ({
   [BTCInputScriptType.SpendAddress]: 'legacy',
   [BTCInputScriptType.CashAddr]: 'legacy',

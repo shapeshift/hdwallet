@@ -31,6 +31,7 @@ function translateCoin (coin: Coin): string {
     'BitcoinCash': 'bch',
     'BitcoinGold': 'btg',
     'Dash': 'dash',
+    'DigiByte': 'dgb',
     'Testnet': 'testnet',
     'Dogecoin': 'doge',
   }[coin]
