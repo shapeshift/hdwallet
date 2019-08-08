@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger-u2f",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -16,12 +16,12 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^0.1.0",
-    "@shapeshiftoss/hdwallet-ledger": "^0.1.0",
     "@ledgerhq/hw-app-btc": "^4.48.0",
     "@ledgerhq/hw-app-eth": "^4.48.0",
     "@ledgerhq/hw-transport": "^4.48.0",
     "@ledgerhq/hw-transport-u2f": "^4.48.0",
+    "@shapeshiftoss/hdwallet-core": "^0.2.0",
+    "@shapeshiftoss/hdwallet-ledger": "^0.2.0",
     "bytebuffer": "^5.0.1",
     "eventemitter2": "^5.0.1"
   },
