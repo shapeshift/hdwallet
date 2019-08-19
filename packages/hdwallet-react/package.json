@@ -28,6 +28,7 @@
     "ts-invariant": "^0.4.4"
   },
   "devDependencies": {
+    "@types/react": "^16.9.2",
     "microbundle": "^0.11.0"
   }
 }
