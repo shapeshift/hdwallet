@@ -106,7 +106,6 @@ export class HDWalletProvider extends React.Component<HDWalletProviderProps> {
   };
 
   render() {
-    console.log({ pairedDevices: this.state.pairedDevices });
     return (
       <HDWalletContext.Provider
         value={{
