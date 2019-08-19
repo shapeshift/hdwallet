@@ -7,12 +7,6 @@ import { getHDWalletContext } from "./HDWalletContext";
 
 const HDWalletContext = getHDWalletContext();
 
-export const withHDWallet = (BaseComponent: any) => (props: any) => (
-  <HDWalletContext.Consumer>
-    {hdWallet => <BaseComponent {...props} hdWallet={hdWallet} />}
-  </HDWalletContext.Consumer>
-);
-
 type Adapter = any;
 
 interface HDWalletProviderProps {
