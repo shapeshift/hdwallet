@@ -1,15 +1,15 @@
 import React from "react";
 import { HDWalletConsumer } from "../context/HDWalletConsumer";
+import { HDWalletContextValue } from "../context/HDWalletContext";
 import hoistNonReactStatics from "hoist-non-react-statics";
-import { Keyring } from "@shapeshiftoss/hdwallet-core";
 
 function getDisplayName<P>(WrappedComponent: React.ComponentType<P>) {
   return WrappedComponent.displayName || WrappedComponent.name || "Component";
 }
 
-type WithHDWallet<P> = P & { keyring: Keyring<any> };
+type WithHDWallet<P> = P & { hdWallet: HDWalletContextValue };
 
-export function withHDWallet<TProps, TResult = any>(
+export function withHDWallet<TProps>(
   WrappedComponent: React.ComponentType<WithHDWallet<Omit<TProps, "hdWallet">>>
 ): React.ComponentClass<Omit<TProps, "hdWallet">> {
   const withDisplayName = `withHDWallet(${getDisplayName(WrappedComponent)})`;

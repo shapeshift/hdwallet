@@ -3,14 +3,15 @@ import { Keyring, HDWallet, Events } from "@shapeshiftoss/hdwallet-core";
 import { WebUSBKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-webusb";
 import { TrezorAdapter } from "@shapeshiftoss/hdwallet-trezor-connect";
 
-const defaultValue = {};
+import { getHDWalletContext } from "./HDWalletContext";
 
-const HDWalletContext = React.createContext(defaultValue);
+const HDWalletContext = getHDWalletContext();
 
-export const withHDWallet = (BaseComponent: any) => (props: any) =>
+export const withHDWallet = (BaseComponent: any) => (props: any) => (
   <HDWalletContext.Consumer>
     {hdWallet => <BaseComponent {...props} hdWallet={hdWallet} />}
-  </HDWalletContext.Consumer>;
+  </HDWalletContext.Consumer>
+);
 
 type Adapter = any;
 

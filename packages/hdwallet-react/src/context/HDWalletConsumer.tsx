@@ -1,22 +1,10 @@
 import React from "react";
-import {
-  Keyring,
-  HDWallet
-  // Events
-} from "@shapeshiftoss/hdwallet-core";
 
-import { WebUSBKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-webusb";
-import { TrezorAdapter } from "@shapeshiftoss/hdwallet-trezor-connect";
-
-import { getHDWalletContext } from "./HDWalletContext";
+import { getHDWalletContext, HDWalletContextValue } from "./HDWalletContext";
 import { invariant } from "ts-invariant";
 
 export interface HDWalletConsumerProps {
-  children: (
-    keyring: Keyring,
-    pairedDevices: { [index: string]: HDWallet },
-    getAdapter: () => WebUSBKeepKeyAdapter | TrezorAdapter | any
-  ) => React.ReactChild | null;
+  children: (hdWallet: HDWalletContextValue) => React.ReactChild | null;
 }
 
 export const HDWalletConsumer: React.FC<HDWalletConsumerProps> = props => {
@@ -29,7 +17,7 @@ export const HDWalletConsumer: React.FC<HDWalletConsumerProps> = props => {
           'Could not find "keyring" in the context of HDWalletConsumer. ' +
             "Wrap the root component in an <HDWalletProvider>."
         );
-        return props.children(context.keyring);
+        return props.children({ ...context });
       }}
     </HDWalletContext.Consumer>
   );
