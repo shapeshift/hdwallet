@@ -11,7 +11,9 @@ import { TrezorAdapter } from "@shapeshiftoss/hdwallet-trezor-connect";
 export interface HDWalletContextValue {
   keyring: Keyring;
   pairedDevices: { [index: string]: HDWallet };
-  getAdapter: () => WebUSBKeepKeyAdapter | TrezorAdapter | any;
+  getAdapter: (
+    adapterName: string
+  ) => WebUSBKeepKeyAdapter | TrezorAdapter | any;
 }
 
 let hdWalletContext: React.Context<HDWalletContextValue>;
