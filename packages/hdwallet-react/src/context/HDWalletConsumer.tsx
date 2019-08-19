@@ -1,7 +1,7 @@
 import React from "react";
 import {
-  Keyring
-  HDWallet,
+  Keyring,
+  HDWallet
   // Events
 } from "@shapeshiftoss/hdwallet-core";
 

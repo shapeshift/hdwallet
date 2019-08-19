@@ -24,6 +24,7 @@
     "@shapeshiftoss/hdwallet-trezor": "^0.2.0",
     "@shapeshiftoss/hdwallet-trezor-connect": "^0.2.0",
     "hoist-non-react-statics": "^3.3.0",
+    "react": "^16.9.0",
     "ts-invariant": "^0.4.4"
   },
   "devDependencies": {
