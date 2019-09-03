@@ -22,7 +22,10 @@ electon/node apps.
 
 ## Installation
 ```bash
-yarn add @shapeshiftoss/hdwallet
+yarn add @shapeshiftoss/hdwallet-core
+yarn add @shapeshiftoss/hdwallet-keepkey-webusb
+yarn add @shapeshiftoss/hdwallet-trezor-connect
+yarn add @shapeshiftoss/hdwallet-ledger-webusb
 ```
 
 
