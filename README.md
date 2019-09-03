@@ -112,7 +112,7 @@ yarn build
 yarn test
 ```
 
-The integration tests have been set up to run either against a pyhsical KeepKey
+The integration tests have been set up to run either against a physical KeepKey
 with debug firmware on it, or in CI pointed at a dockerized version of the
 emulator.  Trezor and Ledger tests run against mocks of their respective
 transport layers.
