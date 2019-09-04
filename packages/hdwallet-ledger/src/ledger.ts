@@ -15,6 +15,7 @@ import {
   WrongApp,
   SelectApp,
   ActionCancelled,
+  applyMixins,
 } from '@shapeshiftoss/hdwallet-core'
 import { LedgerBTCWallet } from './bitcoin'
 import { LedgerETHWallet } from './ethereum'
@@ -213,11 +214,17 @@ export class LedgerHDWallet extends HDWallet {
   }
 }
 
+export interface LedgerHDWallet extends LedgerBTCWallet, LedgerETHWallet {}
+
+let mixinsApplied = false
+
 export function create (transport: LedgerTransport): LedgerHDWallet {
-  let LDGR: Constructor = LedgerHDWallet
-
-  LDGR = LedgerETHWallet(LDGR)
-  LDGR = LedgerBTCWallet(LDGR)
-
-  return <LedgerHDWallet>new LDGR(transport)
+  if (!mixinsApplied) {
+    applyMixins(LedgerHDWallet, [LedgerBTCWallet, LedgerETHWallet])
+    mixinsApplied = true
+  }
+  let wallet = <LedgerHDWallet>new LedgerHDWallet(transport)
+  wallet._supportsBTC = true
+  wallet._supportsETH = true
+  return wallet
 }

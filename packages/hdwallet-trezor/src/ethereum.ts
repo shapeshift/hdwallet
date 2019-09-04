@@ -21,12 +21,8 @@ import { TrezorTransport } from './transport'
 import * as Ethereumjs from 'ethereumjs-tx'
 const { default: EthereumTx } = Ethereumjs as any
 
- /**
-  * Mixin Constructor that adds ETH support to a TrezorHDWallet
-  */
-export function TrezorETHWallet<TBase extends Constructor>(Base: TBase) {
-  return class TrezorETHWallet extends Base implements ETHWallet {
-    _supportsETH: boolean = true
+export class TrezorETHWallet {
+    _supportsETH: boolean
     transport: TrezorTransport
 
     /**
@@ -34,7 +30,7 @@ export function TrezorETHWallet<TBase extends Constructor>(Base: TBase) {
      * from (or is) TrezorHDWallet, so we'll just pretend this is there, and
      * know that it'll work out at runtime.
      */
-    handleError: (response: any, message: string) => void
+    protected handleError: (response: any, message: string) => void
 
     public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
       return true
@@ -128,5 +124,4 @@ export function TrezorETHWallet<TBase extends Constructor>(Base: TBase) {
         description: "Trezor"
       }]
     }
-  }
 }

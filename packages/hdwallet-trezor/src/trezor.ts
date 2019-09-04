@@ -14,6 +14,7 @@ import {
   ActionCancelled,
   DeviceDisconnected,
   PopupClosedError,
+  applyMixins,
 } from '@shapeshiftoss/hdwallet-core'
 import { TrezorBTCWallet } from './bitcoin'
 import { TrezorETHWallet } from './ethereum'
@@ -209,14 +210,17 @@ export class TrezorHDWallet extends HDWallet {
   }
 }
 
+export interface TrezorHDWallet extends TrezorBTCWallet, TrezorETHWallet, TrezorDebugLinkWallet {}
+
+let mixinsApplied = false
+
 export function create (transport: TrezorTransport, debuglink: boolean): TrezorHDWallet {
-  let TRZR: Constructor = TrezorHDWallet
-
-  if (debuglink)
-    TRZR = TrezorDebugLinkWallet(TRZR)
-
-  TRZR = TrezorBTCWallet(TRZR)
-  TRZR = TrezorETHWallet(TRZR)
-
-  return (<TrezorHDWallet>new TRZR(transport))
+  if (!mixinsApplied) {
+    applyMixins(TrezorHDWallet, [TrezorBTCWallet, TrezorETHWallet, TrezorDebugLinkWallet])
+    mixinsApplied = true
+  }
+  let wallet = <TrezorHDWallet>new TrezorHDWallet(transport)
+  wallet._supportsBTC = true
+  wallet._supportsETH = true
+  return wallet
 }

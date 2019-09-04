@@ -75,9 +75,8 @@ function translateOutputScriptType (scriptType: BTCOutputScriptType): string {
  /**
   * Mixin Constructor that adds BTC support to a TrezorHDWallet
   */
-export function TrezorBTCWallet<TBase extends Constructor>(Base: TBase) {
-  return class TrezorBTCWallet extends Base implements BTCWallet {
-    _supportsBTC: boolean = true
+export class TrezorBTCWallet {
+    _supportsBTC: boolean
     transport: TrezorTransport
 
     /**
@@ -85,7 +84,7 @@ export function TrezorBTCWallet<TBase extends Constructor>(Base: TBase) {
      * from (or is) TrezorHDWallet, so we'll just pretend this is there, and
      * know that it'll work out at runtime.
      */
-    handleError: (response: any, message: string) => void
+    protected handleError: (response: any, message: string) => void
 
     public async btcSupportsCoin (coin: Coin): Promise<boolean> {
       return translateCoin(coin) !== undefined
@@ -244,5 +243,4 @@ export function TrezorBTCWallet<TBase extends Constructor>(Base: TBase) {
       // a single account (otherwise change is represented as an output).
       return msg.length == 1
     }
-  }
 }

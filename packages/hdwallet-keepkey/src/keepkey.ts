@@ -20,6 +20,7 @@ import {
   LONG_TIMEOUT,
   DEFAULT_TIMEOUT,
   BTCInputScriptType,
+  applyMixins,
 } from "@shapeshiftoss/hdwallet-core";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
@@ -40,6 +41,7 @@ export function isKeepKey(wallet: any): wallet is KeepKeyHDWallet {
 }
 
 export class KeepKeyHDWallet extends HDWallet {
+  _supportsDebugLink: boolean
   _isKeepKey: boolean = true;
   transport: KeepKeyTransport;
   features?: Messages.Features.AsObject;
@@ -47,6 +49,7 @@ export class KeepKeyHDWallet extends HDWallet {
   constructor(transport: KeepKeyTransport) {
     super();
     this.transport = transport;
+    this._supportsDebugLink = transport.debugLink
   }
 
   public async getDeviceID(): Promise<string> {
@@ -459,12 +462,17 @@ export class KeepKeyHDWallet extends HDWallet {
   }
 }
 
+export interface KeepKeyHDWallet extends KeepKeyBTCWallet, KeepKeyETHWallet, KeepKeyDebugLinkWallet {}
+
+let mixinsApplied = false
+
 export function create(transport: KeepKeyTransport): KeepKeyHDWallet {
-  let KK: Constructor = KeepKeyHDWallet;
-
-  KK = KeepKeyDebugLinkWallet(KK);
-  KK = KeepKeyBTCWallet(KK);
-  KK = KeepKeyETHWallet(KK);
-
-  return <KeepKeyHDWallet>new KK(transport);
+  if (!mixinsApplied) {
+    applyMixins(KeepKeyHDWallet, [KeepKeyBTCWallet, KeepKeyETHWallet, KeepKeyDebugLinkWallet])
+    mixinsApplied = true
+  }
+  let wallet = <KeepKeyHDWallet>new KeepKeyHDWallet(transport)
+  wallet._supportsBTC = true
+  wallet._supportsETH = true
+  return wallet
 }

@@ -46,15 +46,11 @@ const segwitCoins = [
   'Testnet'
 ]
 
-/**
- * Mixin Constructor that adds BTC support to a LedgerHDWallet
- */
-export function LedgerBTCWallet<TBase extends Constructor> (Base: TBase) {
-  return class LedgerBTCWallet extends Base implements BTCWallet {
-    _supportsBTC: boolean = true
+export class LedgerBTCWallet {
+    _supportsBTC: boolean
     transport: LedgerTransport
 
-    handleError: (response: any, message: string) => void
+    protected handleError: (response: any, message: string) => void
 
     public async btcSupportsCoin (coin: Coin): Promise<boolean> {
       return supportedCoins.includes(coin)
@@ -239,5 +235,4 @@ export function LedgerBTCWallet<TBase extends Constructor> (Base: TBase) {
     public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
       return true
     }
-  }
 }

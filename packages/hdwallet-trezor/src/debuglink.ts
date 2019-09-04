@@ -5,12 +5,8 @@ import {
 
 import { TrezorTransport } from './transport'
 
- /**
-  * Mixin Constructor that adds DebugLink support to a TrezorHDWallet
-  */
-export function TrezorDebugLinkWallet<TBase extends Constructor>(Base: TBase) {
-  return class TrezorDebugLinkWallet extends Base implements DebugLinkWallet {
-    _supportsDebugLink: boolean = true
+export class TrezorDebugLinkWallet {
+    _supportsDebugLink: boolean
     transport: TrezorTransport
 
     public async pressYes (): Promise<void> {
@@ -24,5 +20,4 @@ export function TrezorDebugLinkWallet<TBase extends Constructor>(Base: TBase) {
     public async press (isYes: boolean): Promise<void> {
       await this.transport.call('debugLinkDecision', { yes_no: isYes }) 
     }
-  }
 }

@@ -18,7 +18,7 @@ import {
   base64toHEX,
   slip44ByCoin,
   BTCInputScriptType,
- } from '@shapeshiftoss/hdwallet-core'
+} from '@shapeshiftoss/hdwallet-core'
 
 import { KeepKeyTransport } from './transport'
 
@@ -39,12 +39,7 @@ import {
 
 import * as EIP55 from 'eip55'
 
- /**
-  * Mixin Constructor that adds ETH support to a KeepKeyHDWallet
-  */
-export function KeepKeyETHWallet<TBase extends Constructor>(Base: TBase) {
-  return class KeepKeyETHWallet extends Base implements ETHWallet {
-    _supportsETH: boolean = true
+export class KeepKeyETHWallet {
     transport: KeepKeyTransport
 
     public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
@@ -212,5 +207,4 @@ export function KeepKeyETHWallet<TBase extends Constructor>(Base: TBase) {
       const success = event.proto as ProtoMessages.Success
       return success.getMessage() === 'Message verified'
     }
-  }
 }

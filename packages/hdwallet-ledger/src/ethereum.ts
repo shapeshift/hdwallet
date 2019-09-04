@@ -25,15 +25,11 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 import { LedgerTransport } from './transport'
 
-/**
- * Mixin Constructor that adds ETH support to a LedgerHDWallet
- */
-export function LedgerETHWallet<TBase extends Constructor>(Base: TBase) {
-  return class LedgerETHWallet extends Base implements ETHWallet {
-    _supportsETH: boolean = true
+export class LedgerETHWallet {
+    _supportsETH: boolean
     transport: LedgerTransport
 
-    handleError: (response: any, message: string) => void
+    protected handleError: (response: any, message: string) => void
 
     public async ethSupportsNetwork(chain_id: number): Promise<boolean> {
       return chain_id === 1
@@ -135,5 +131,4 @@ export function LedgerETHWallet<TBase extends Constructor>(Base: TBase) {
 
       return stripHexPrefixAndLower(msg.address) === pubToAddress(pubKey).toString('hex')
     }
-  }
 }

@@ -236,8 +236,7 @@ async function ensureCoinSupport(wallet: BTCWallet, coin: Coin): Promise<void> {
  /**
   * Mixin Constructor that adds BTC support to a KeepKeyHDWallet
   */
-export function KeepKeyBTCWallet<TBase extends Constructor>(Base: TBase) {
-  return class KeepKeyBTCWallet extends Base implements BTCWallet {
+export class KeepKeyBTCWallet {
     _supportsBTC: boolean = true
     transport: KeepKeyTransport
 
@@ -547,5 +546,4 @@ export function KeepKeyBTCWallet<TBase extends Constructor>(Base: TBase) {
 
       return true
     }
-  }
 }

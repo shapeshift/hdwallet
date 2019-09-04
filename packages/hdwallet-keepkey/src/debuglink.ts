@@ -2,20 +2,14 @@ import {
   DebugLinkWallet,
   Constructor,
   DEFAULT_TIMEOUT,
- } from '@shapeshiftoss/hdwallet-core'
+} from '@shapeshiftoss/hdwallet-core'
 
 import { KeepKeyTransport } from './transport'
 
 import * as ProtoMessages from '@keepkey/device-protocol/lib/messages_pb'
 
- /**
-  * Mixin Constructor that adds DebugLink support to a KeepKeyHDWallet
-  */
-export function KeepKeyDebugLinkWallet<TBase extends Constructor>(Base: TBase) {
-  return class KeepKeyDebugLinkWallet extends Base implements DebugLinkWallet {
-    get _supportsDebugLink(): boolean {
-      return this.transport.debugLink
-    }
+export class KeepKeyDebugLinkWallet {
+    _supportsDebugLink: boolean
     transport: KeepKeyTransport
 
     public async pressYes (): Promise<void> {
@@ -38,5 +32,4 @@ export function KeepKeyDebugLinkWallet<TBase extends Constructor>(Base: TBase) {
         /*noWait=*/true
       )
     }
-  }
 }
