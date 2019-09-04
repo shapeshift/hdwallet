@@ -47,6 +47,8 @@ async function getEmulator (keyring: Keyring) {
   return undefined
 }
 
+let autoButton = true
+
 export async function createWallet (): Promise<HDWallet> {
   const keyring = new Keyring()
 
@@ -56,7 +58,7 @@ export async function createWallet (): Promise<HDWallet> {
     throw new Error("No suitable test KeepKey found")
 
   wallet.transport.on(Events.BUTTON_REQUEST, async () => {
-    if (supportsDebugLink(wallet)) {
+    if (autoButton && supportsDebugLink(wallet)) {
       await wallet.pressYes()
     }
   })
@@ -146,6 +148,8 @@ export function selfTest (get: () => HDWallet): void {
   test('cancel works', async () => {
     if (!wallet) return
 
+    autoButton = false
+
     expect(wallet.btcGetAddress({
       coin: "Bitcoin",
       addressNList: bip32ToAddressNList("m/44'/0'/0'/0/0"),
@@ -153,6 +157,8 @@ export function selfTest (get: () => HDWallet): void {
     })).rejects.toThrow(ActionCancelled)
 
     await wallet.cancel()
+
+    autoButton = true
   }, TIMEOUT)
 
   it('cancel is idempotent', async () => {
