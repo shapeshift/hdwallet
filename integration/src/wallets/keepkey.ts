@@ -153,7 +153,7 @@ export function selfTest (get: () => HDWallet): void {
     expect(wallet.btcGetAddress({
       coin: "Bitcoin",
       addressNList: bip32ToAddressNList("m/44'/0'/0'/0/0"),
-      showDisplay: false
+      showDisplay: true
     })).rejects.toThrow(ActionCancelled)
 
     await wallet.cancel()
@@ -170,7 +170,7 @@ export function selfTest (get: () => HDWallet): void {
     expect(wallet.btcGetAddress({
       coin: "Bitcoin",
       addressNList: bip32ToAddressNList("m/44'/0'/0'/0/0"),
-      showDisplay: false
+      showDisplay: true
     })).resolves.toEqual("1JAd7XCBzGudGpJQSDSfpmJhiygtLQWaGL")
   }, TIMEOUT)
 }
