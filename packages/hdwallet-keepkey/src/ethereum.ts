@@ -39,22 +39,19 @@ import {
 
 import * as EIP55 from 'eip55'
 
-export class KeepKeyETHWallet {
-  transport: KeepKeyTransport
-
-  public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
+  export async function keepkey_ethSupportsNetwork (chain_id: number): Promise<boolean> {
     return true
   }
 
-  public async ethSupportsSecureTransfer (): Promise<boolean> {
+  export async function keepkey_ethSupportsSecureTransfer (): Promise<boolean> {
     return true
   }
 
-  public async ethSupportsNativeShapeShift (): Promise<boolean> {
+  export async function keepkey_ethSupportsNativeShapeShift (): Promise<boolean> {
     return true
   }
 
-  public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
+  export function keepkey_ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
     return [{
       hardenedPath: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx ],
       relPath: [ 0, 0 ],
@@ -62,8 +59,8 @@ export class KeepKeyETHWallet {
     }]
   }
 
-  public async ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx> {
-    return this.transport.lockDuring(async () => {
+  export async function keepkey_ethSignTx (transport: KeepKeyTransport, msg: ETHSignTx): Promise<ETHSignedTx> {
+    return transport.lockDuring(async () => {
       const est: ProtoMessages.EthereumSignTx = new ProtoMessages.EthereumSignTx()
       est.setAddressNList(msg.addressNList)
       est.setNonce(arrayify(msg.nonce))
@@ -115,7 +112,7 @@ export class KeepKeyETHWallet {
       }
 
       let response: ProtoMessages.EthereumTxRequest
-      let nextResponse = await this.transport.call(ProtoMessages.MessageType.MESSAGETYPE_ETHEREUMSIGNTX, est, LONG_TIMEOUT, /*omitLock=*/true)
+      let nextResponse = await transport.call(ProtoMessages.MessageType.MESSAGETYPE_ETHEREUMSIGNTX, est, LONG_TIMEOUT, /*omitLock=*/true)
       if (nextResponse.message_enum === ProtoMessages.MessageType.MESSAGETYPE_FAILURE) {
         throw nextResponse
       }
@@ -127,7 +124,7 @@ export class KeepKeyETHWallet {
           dataChunk = dataRemaining.slice(0, dataLength)
           dataRemaining = dataRemaining.slice(dataLength, dataRemaining.length)
 
-          nextResponse = await this.transport.call(ProtoMessages.MessageType.MESSAGETYPE_ETHEREUMSIGNTX, est, LONG_TIMEOUT, /*omitLock=*/true)
+          nextResponse = await transport.call(ProtoMessages.MessageType.MESSAGETYPE_ETHEREUMSIGNTX, est, LONG_TIMEOUT, /*omitLock=*/true)
           if (nextResponse.message_enum === ProtoMessages.MessageType.MESSAGETYPE_FAILURE) {
             throw nextResponse
           }
@@ -166,11 +163,11 @@ export class KeepKeyETHWallet {
     })
   }
 
-  public async ethGetAddress (msg: ETHGetAddress): Promise<string> {
+  export async function keepkey_ethGetAddress (transport: KeepKeyTransport, msg: ETHGetAddress): Promise<string> {
     const getAddr = new ProtoMessages.EthereumGetAddress()
     getAddr.setAddressNList(msg.addressNList)
     getAddr.setShowDisplay(msg.showDisplay !== false)
-    const response = await this.transport.call(ProtoMessages.MessageType.MESSAGETYPE_ETHEREUMGETADDRESS, getAddr, LONG_TIMEOUT)
+    const response = await transport.call(ProtoMessages.MessageType.MESSAGETYPE_ETHEREUMGETADDRESS, getAddr, LONG_TIMEOUT)
     const ethAddress = response.proto as ProtoMessages.EthereumAddress
 
     if(response.message_type === Events.FAILURE) throw response
@@ -186,11 +183,11 @@ export class KeepKeyETHWallet {
     return address
   }
 
-  public async ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage> {
+  export async function keepkey_ethSignMessage (transport: KeepKeyTransport, msg: ETHSignMessage): Promise<ETHSignedMessage> {
     const m = new ProtoMessages.EthereumSignMessage()
     m.setAddressNList(msg.addressNList)
     m.setMessage(toUTF8Array(msg.message))
-    const response = await this.transport.call(ProtoMessages.MessageType.MESSAGETYPE_ETHEREUMSIGNMESSAGE, m, LONG_TIMEOUT) as Event
+    const response = await transport.call(ProtoMessages.MessageType.MESSAGETYPE_ETHEREUMSIGNMESSAGE, m, LONG_TIMEOUT) as Event
     const sig = response.proto as ProtoMessages.EthereumMessageSignature
     return {
       address: EIP55.encode('0x' + toHexString(sig.getAddress_asU8())), // FIXME: this should be done in the firmware
@@ -198,13 +195,12 @@ export class KeepKeyETHWallet {
     }
   }
 
-  public async ethVerifyMessage (msg: ETHVerifyMessage): Promise<boolean> {
+  export async function keepkey_ethVerifyMessage (transport: KeepKeyTransport, msg: ETHVerifyMessage): Promise<boolean> {
     const m = new ProtoMessages.EthereumVerifyMessage()
     m.setAddress(arrayify(msg.address))
     m.setSignature(arrayify(msg.signature))
     m.setMessage(toUTF8Array(msg.message))
-    const event = await this.transport.call(ProtoMessages.MessageType.MESSAGETYPE_ETHEREUMVERIFYMESSAGE, m, LONG_TIMEOUT) as Event
+    const event = await transport.call(ProtoMessages.MessageType.MESSAGETYPE_ETHEREUMVERIFYMESSAGE, m, LONG_TIMEOUT) as Event
     const success = event.proto as ProtoMessages.Success
     return success.getMessage() === 'Message verified'
   }
-}

@@ -233,19 +233,12 @@ async function ensureCoinSupport(wallet: BTCWallet, coin: Coin): Promise<void> {
     throw new Error(`'${coin} is not supported in this firmware version`)
 }
 
- /**
-  * Mixin Constructor that adds BTC support to a KeepKeyHDWallet
-  */
-export class KeepKeyBTCWallet {
-  _supportsBTC: boolean = true
-  transport: KeepKeyTransport
-
-  public async btcSupportsCoin (coin: Coin): Promise<boolean> {
+  export async function keepkey_btcSupportsCoin (coin: Coin): Promise<boolean> {
     // FIXME: inspect the CoinTable to determine which coins are actually supported by the device.
     return supportedCoins.includes(coin)
   }
 
-  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
+  export async function keepkey_btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
     if (!supportedCoins.includes(coin))
       return false
     if (!segwitCoins.includes(coin) && scriptType === BTCInputScriptType.SpendP2SHWitness)
@@ -255,8 +248,8 @@ export class KeepKeyBTCWallet {
     return true
   }
 
-  public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
-    await ensureCoinSupport(this, msg.coin)
+  export async function keepkey_btcGetAddress (wallet: BTCWallet, transport: KeepKeyTransport, msg: BTCGetAddress): Promise<string> {
+    await ensureCoinSupport(wallet, msg.coin)
 
     const addr = new Messages.GetAddress()
     addr.setAddressNList(msg.addressNList)
@@ -264,7 +257,7 @@ export class KeepKeyBTCWallet {
     addr.setShowDisplay(msg.showDisplay || false)
     addr.setScriptType(translateInputScriptType(msg.scriptType || BTCInputScriptType.SpendAddress))
 
-    const response = await this.transport.call(Messages.MessageType.MESSAGETYPE_GETADDRESS, addr, LONG_TIMEOUT) as Event
+    const response = await transport.call(Messages.MessageType.MESSAGETYPE_GETADDRESS, addr, LONG_TIMEOUT) as Event
 
     if(response.message_type === Events.FAILURE) throw response
     if(response.message_type === Events.CANCEL) throw response
@@ -273,9 +266,9 @@ export class KeepKeyBTCWallet {
     return btcAddress.getAddress()
   }
 
-  public async btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx> {
-    return this.transport.lockDuring(async () => {
-      await ensureCoinSupport(this, msg.coin)
+  export async function keepkey_btcSignTx (wallet: BTCWallet, transport: KeepKeyTransport, msg: BTCSignTx): Promise<BTCSignedTx> {
+    return transport.lockDuring(async () => {
+      await ensureCoinSupport(wallet, msg.coin)
       const txmap = prepareSignTx(msg.coin, msg.inputs, msg.outputs)
 
       // Prepare and send initial message
@@ -288,7 +281,7 @@ export class KeepKeyBTCWallet {
 
       let responseType: number
       let response: any
-      const { message_enum, proto } = await this.transport.call(Messages.MessageType.MESSAGETYPE_SIGNTX, tx, LONG_TIMEOUT, /*omitLock=*/true) as Event // 5 Minute timeout
+      const { message_enum, proto } = await transport.call(Messages.MessageType.MESSAGETYPE_SIGNTX, tx, LONG_TIMEOUT, /*omitLock=*/true) as Event // 5 Minute timeout
       responseType = message_enum
       response = proto
 
@@ -355,7 +348,7 @@ export class KeepKeyBTCWallet {
             }
             txAck = new Messages.TxAck()
             txAck.setTx(msg)
-            let message = await this.transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, LONG_TIMEOUT, /*omitLock=*/true) as Event // 5 Minute timeout
+            let message = await transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, LONG_TIMEOUT, /*omitLock=*/true) as Event // 5 Minute timeout
             responseType = message.message_enum
             response = message.proto
             continue
@@ -366,7 +359,7 @@ export class KeepKeyBTCWallet {
             msg.setInputsList([currentTx.getInputsList()[txRequest.getDetails().getRequestIndex()]])
             txAck = new Messages.TxAck()
             txAck.setTx(msg)
-            let message = await this.transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, LONG_TIMEOUT, /*omitLock=*/true) as Event // 5 Minute timeout
+            let message = await transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, LONG_TIMEOUT, /*omitLock=*/true) as Event // 5 Minute timeout
             responseType = message.message_enum
             response = message.proto
             continue
@@ -382,7 +375,7 @@ export class KeepKeyBTCWallet {
             }
             txAck = new Messages.TxAck()
             txAck.setTx(msg)
-            let message = await this.transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, LONG_TIMEOUT, /*omitLock=*/true) as Event // 5 Minute timeout
+            let message = await transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, LONG_TIMEOUT, /*omitLock=*/true) as Event // 5 Minute timeout
             responseType = message.message_enum
             response = message.proto
             continue
@@ -395,7 +388,7 @@ export class KeepKeyBTCWallet {
             msg.setExtraData(currentTx.getExtraData_asU8().slice(offset, offset + length))
             txAck = new Messages.TxAck()
             txAck.setTx(msg)
-            let message = await this.transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, LONG_TIMEOUT, /*omitLock=*/true) as Event // 5 Minute timeout
+            let message = await transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, LONG_TIMEOUT, /*omitLock=*/true) as Event // 5 Minute timeout
             responseType = message.message_enum
             response = message.proto
             continue
@@ -417,22 +410,22 @@ export class KeepKeyBTCWallet {
     })
   }
 
-  public async btcSupportsSecureTransfer (): Promise<boolean> {
+  export async function keepkey_btcSupportsSecureTransfer (): Promise<boolean> {
     return true
   }
 
-  public async btcSupportsNativeShapeShift (): Promise<boolean> {
+  export async function keepkey_btcSupportsNativeShapeShift (): Promise<boolean> {
     return true
   }
 
-  public async btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage> {
-    await ensureCoinSupport(this, msg.coin)
+  export async function keepkey_btcSignMessage (wallet: BTCWallet, transport: KeepKeyTransport, msg: BTCSignMessage): Promise<BTCSignedMessage> {
+    await ensureCoinSupport(wallet, msg.coin)
     const sign = new Messages.SignMessage()
     sign.setAddressNList(msg.addressNList)
     sign.setMessage(toUTF8Array(msg.message))
     sign.setCoinName(msg.coin || 'Bitcoin')
     sign.setScriptType(translateInputScriptType(msg.scriptType || BTCInputScriptType.SpendAddress))
-    const event = await this.transport.call(Messages.MessageType.MESSAGETYPE_SIGNMESSAGE, sign, LONG_TIMEOUT) as Event
+    const event = await transport.call(Messages.MessageType.MESSAGETYPE_SIGNMESSAGE, sign, LONG_TIMEOUT) as Event
     const messageSignature = event.proto as Messages.MessageSignature
     return {
       address: messageSignature.getAddress(),
@@ -440,19 +433,19 @@ export class KeepKeyBTCWallet {
     }
   }
 
-  public async btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean> {
-    await ensureCoinSupport(this, msg.coin)
+  export async function keepkey_btcVerifyMessage (wallet: BTCWallet, transport: KeepKeyTransport, msg: BTCVerifyMessage): Promise<boolean> {
+    await ensureCoinSupport(wallet, msg.coin)
     const verify = new Messages.VerifyMessage()
     verify.setAddress(msg.address)
     verify.setSignature(arrayify('0x' + msg.signature))
     verify.setMessage(toUTF8Array(msg.message))
     verify.setCoinName(msg.coin)
-    let event = await this.transport.call(Messages.MessageType.MESSAGETYPE_VERIFYMESSAGE, verify)
+    let event = await transport.call(Messages.MessageType.MESSAGETYPE_VERIFYMESSAGE, verify)
     const success = event.proto as Messages.Success
     return success.getMessage() === "Message verified"
   }
 
-  public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
+  export function keepkey_btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
     const slip44 = slip44ByCoin(msg.coin)
     const bip44 = legacyAccount(slip44, msg.accountIdx)
     const bip49 = segwitAccount(slip44, msg.accountIdx)
@@ -484,7 +477,7 @@ export class KeepKeyBTCWallet {
     return paths
   }
 
-  public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
+  export function keepkey_btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
     if (msg.length < 1)
       return false
 
@@ -546,4 +539,3 @@ export class KeepKeyBTCWallet {
 
     return true
   }
-}

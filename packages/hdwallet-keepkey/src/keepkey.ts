@@ -20,7 +20,23 @@ import {
   LONG_TIMEOUT,
   DEFAULT_TIMEOUT,
   BTCInputScriptType,
-  applyMixins,
+  BTCGetAddress,
+  BTCSignTx,
+  BTCSignedTx,
+  BTCSignMessage,
+  BTCVerifyMessage,
+  BTCAccountPath,
+  BTCSignedMessage,
+  BTCGetAccountPaths,
+  ETHSignTx,
+  ETHSignedTx,
+  ETHGetAddress,
+  ETHSignMessage,
+  ETHSignedMessage,
+  ETHVerifyMessage,
+  ETHGetAccountPath,
+  ETHAccountPath,
+  DebugLinkWallet,
 } from "@shapeshiftoss/hdwallet-core";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
@@ -32,17 +48,39 @@ import {
 } from './utils'
 
 import { KeepKeyDebugLinkWallet } from "./debuglink";
-import { KeepKeyBTCWallet } from "./bitcoin";
-import { KeepKeyETHWallet } from "./ethereum";
+import { 
+  keepkey_btcSupportsCoin,
+  keepkey_btcSupportsScriptType,
+  keepkey_btcGetAddress,
+  keepkey_btcSignTx,
+  keepkey_btcSupportsSecureTransfer,
+  keepkey_btcSupportsNativeShapeShift,
+  keepkey_btcSignMessage,
+  keepkey_btcVerifyMessage,
+  keepkey_btcGetAccountPaths,
+  keepkey_btcIsSameAccount, 
+} from "./bitcoin";
+import {
+  keepkey_ethSignTx,
+  keepkey_ethGetAddress,
+  keepkey_ethSignMessage,
+  keepkey_ethVerifyMessage,
+  keepkey_ethSupportsNetwork,
+  keepkey_ethSupportsSecureTransfer,
+  keepkey_ethSupportsNativeShapeShift,
+  keepkey_ethGetAccountPaths,
+} from "./ethereum";
 import { KeepKeyTransport } from "./transport";
 
 export function isKeepKey(wallet: any): wallet is KeepKeyHDWallet {
   return typeof wallet === 'object' && wallet._isKeepKey !== undefined
 }
 
-export class KeepKeyHDWallet extends HDWallet {
+export class KeepKeyHDWallet extends HDWallet implements BTCWallet, ETHWallet, DebugLinkWallet {
   _supportsDebugLink: boolean
   _isKeepKey: boolean = true;
+  _supportsETH: boolean = true;
+  _supportsBTC: boolean = true;
   transport: KeepKeyTransport;
   features?: Messages.Features.AsObject;
 
@@ -157,6 +195,27 @@ export class KeepKeyHDWallet extends HDWallet {
       msg,
       LONG_TIMEOUT
     );
+  }
+
+  public async pressYes (): Promise<void> {
+    return this.press(true)
+  }
+  
+  public async pressNo (): Promise<void> {
+    return this.press(false)
+  }
+  
+  public async press (isYes: boolean): Promise<void> {
+    let decision = new Messages.DebugLinkDecision()
+    decision.setYesNo(isYes)
+  
+    await this.transport.callDebugLink(
+      Messages.MessageType.MESSAGETYPE_DEBUGLINKDECISION,
+      decision,
+      DEFAULT_TIMEOUT,
+      /*omitLock=*/false,
+      /*noWait=*/true
+    )
   }
 
   public async hasOnDevicePinEntry(): Promise<boolean> {
@@ -460,19 +519,81 @@ export class KeepKeyHDWallet extends HDWallet {
       wipeDevice
     );
   }
+
+  public async btcSupportsCoin (coin: Coin): Promise<boolean> {
+    return keepkey_btcSupportsCoin(coin)
+  }
+
+  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> { 
+    return keepkey_btcSupportsScriptType(coin, scriptType)
+  }
+
+  public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
+    return keepkey_btcGetAddress(this, this.transport, msg)
+  }
+
+  public async btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx> {
+    return keepkey_btcSignTx(this, this.transport, msg)
+  }
+
+  public async btcSupportsSecureTransfer (): Promise<boolean> {
+    return keepkey_btcSupportsSecureTransfer()
+  }
+
+  public async btcSupportsNativeShapeShift (): Promise<boolean> {
+    return keepkey_btcSupportsNativeShapeShift()
+  }
+
+  public async btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage> {
+    return keepkey_btcSignMessage(this, this.transport, msg)
+  }
+
+  public async btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean> {
+    return keepkey_btcVerifyMessage(this, this.transport, msg)
+  }
+
+  public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
+    return keepkey_btcGetAccountPaths(msg)
+  }
+
+  public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
+    return keepkey_btcIsSameAccount(msg)
+  }
+
+
+  public async ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx> {
+    return keepkey_ethSignTx(this.transport, msg)
+  }
+
+  public async ethGetAddress (msg: ETHGetAddress): Promise<string> {
+    return keepkey_ethGetAddress(this.transport, msg)
+  }
+
+  public async ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage> {
+    return keepkey_ethSignMessage(this.transport, msg)
+  }
+
+  public async ethVerifyMessage (msg: ETHVerifyMessage): Promise<boolean> {
+    return keepkey_ethVerifyMessage(this.transport, msg)
+  }
+
+  public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
+    return keepkey_ethSupportsNetwork(chain_id)
+  }
+
+  public async ethSupportsSecureTransfer (): Promise<boolean> {
+    return keepkey_ethSupportsSecureTransfer()
+  }
+
+  public async ethSupportsNativeShapeShift (): Promise<boolean> {
+    return keepkey_ethSupportsNativeShapeShift()
+  }
+
+  public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
+    return keepkey_ethGetAccountPaths(msg)
+  }
 }
 
-export interface KeepKeyHDWallet extends KeepKeyBTCWallet, KeepKeyETHWallet, KeepKeyDebugLinkWallet {}
-
-let mixinsApplied = false
-
 export function create(transport: KeepKeyTransport): KeepKeyHDWallet {
-  if (!mixinsApplied) {
-    applyMixins(KeepKeyHDWallet, [KeepKeyBTCWallet, KeepKeyETHWallet, KeepKeyDebugLinkWallet])
-    mixinsApplied = true
-  }
-  let wallet = <KeepKeyHDWallet>new KeepKeyHDWallet(transport)
-  wallet._supportsBTC = true
-  wallet._supportsETH = true
-  return wallet
+  return new KeepKeyHDWallet(transport)
 }

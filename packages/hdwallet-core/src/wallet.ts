@@ -90,7 +90,7 @@ export type Coin = string
  }
  ```
  */
-export function supportsBTC(wallet: HDWallet | CoinWallets): wallet is BTCWallet {
+export function supportsBTC(wallet: any): wallet is BTCWallet {
   return (wallet as HDWallet)._supportsBTC !== undefined
 }
 
@@ -104,11 +104,11 @@ export function supportsBTC(wallet: HDWallet | CoinWallets): wallet is BTCWallet
  }
  ```
  */
-export function supportsETH(wallet: HDWallet | CoinWallets): wallet is ETHWallet {
+export function supportsETH(wallet: any): wallet is ETHWallet {
   return (wallet as HDWallet)._supportsETH !== undefined
 }
 
-export function supportsDebugLink(wallet: HDWallet | CoinWallets): wallet is DebugLinkWallet {
+export function supportsDebugLink(wallet: any): wallet is DebugLinkWallet {
   return (wallet as HDWallet)._supportsDebugLink !== undefined
 }
 
