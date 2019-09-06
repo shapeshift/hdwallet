@@ -69,14 +69,16 @@ export function isLedger (wallet: HDWallet): wallet is LedgerHDWallet {
   return typeof wallet === 'object' && wallet._isLedger !== undefined
 }
 
-export class LedgerHDWallet extends HDWallet implements BTCWallet, ETHWallet {
+export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
+  _supportsDebugLink: boolean = false
   _supportsBTC: boolean = true
   _supportsETH: boolean = true
+  _isKeepKey: boolean = false
+  _isTrezor: boolean = false
   _isLedger: boolean = true
   transport: LedgerTransport
 
   constructor (transport: LedgerTransport) {
-    super()
     this.transport = transport
   }
 

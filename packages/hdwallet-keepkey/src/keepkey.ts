@@ -76,16 +76,17 @@ export function isKeepKey(wallet: any): wallet is KeepKeyHDWallet {
   return typeof wallet === 'object' && wallet._isKeepKey !== undefined
 }
 
-export class KeepKeyHDWallet extends HDWallet implements BTCWallet, ETHWallet, DebugLinkWallet {
+export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLinkWallet {
   _supportsDebugLink: boolean
   _isKeepKey: boolean = true;
+  _isLedger: boolean = false;
+  _isTrezor: boolean = false;
   _supportsETH: boolean = true;
   _supportsBTC: boolean = true;
   transport: KeepKeyTransport;
   features?: Messages.Features.AsObject;
 
   constructor(transport: KeepKeyTransport) {
-    super();
     this.transport = transport;
     this._supportsDebugLink = transport.debugLink
   }

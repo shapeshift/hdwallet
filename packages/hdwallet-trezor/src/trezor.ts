@@ -61,15 +61,17 @@ export function isTrezor(wallet: HDWallet): wallet is TrezorHDWallet {
   return typeof wallet === 'object' && wallet._isTrezor !== undefined
 }
 
-export class TrezorHDWallet extends HDWallet implements BTCWallet, ETHWallet {
+export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
+  _supportsDebugLink: boolean = false
   _supportsBTC: boolean = true
   _supportsETH: boolean = true
   _isTrezor: boolean = true
+  _isKeepKey: boolean = false
+  _isLedger: boolean = false
   transport: TrezorTransport
   featuresCache: any
 
   constructor(transport: TrezorTransport) {
-    super()
     this.transport = transport
   }
 
