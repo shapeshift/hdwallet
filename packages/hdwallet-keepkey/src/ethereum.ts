@@ -39,19 +39,19 @@ import {
 
 import * as EIP55 from 'eip55'
 
-export async function keepkey_ethSupportsNetwork (chain_id: number): Promise<boolean> {
+export async function ethSupportsNetwork (chain_id: number): Promise<boolean> {
   return true
 }
 
-export async function keepkey_ethSupportsSecureTransfer (): Promise<boolean> {
+export async function ethSupportsSecureTransfer (): Promise<boolean> {
   return true
 }
 
-export async function keepkey_ethSupportsNativeShapeShift (): Promise<boolean> {
+export async function ethSupportsNativeShapeShift (): Promise<boolean> {
   return true
 }
 
-export function keepkey_ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
+export function ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
   return [{
     hardenedPath: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx ],
     relPath: [ 0, 0 ],
@@ -59,7 +59,7 @@ export function keepkey_ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAc
   }]
 }
 
-export async function keepkey_ethSignTx (transport: KeepKeyTransport, msg: ETHSignTx): Promise<ETHSignedTx> {
+export async function ethSignTx (transport: KeepKeyTransport, msg: ETHSignTx): Promise<ETHSignedTx> {
   return transport.lockDuring(async () => {
     const est: ProtoMessages.EthereumSignTx = new ProtoMessages.EthereumSignTx()
     est.setAddressNList(msg.addressNList)
@@ -163,7 +163,7 @@ export async function keepkey_ethSignTx (transport: KeepKeyTransport, msg: ETHSi
   })
 }
 
-export async function keepkey_ethGetAddress (transport: KeepKeyTransport, msg: ETHGetAddress): Promise<string> {
+export async function ethGetAddress (transport: KeepKeyTransport, msg: ETHGetAddress): Promise<string> {
   const getAddr = new ProtoMessages.EthereumGetAddress()
   getAddr.setAddressNList(msg.addressNList)
   getAddr.setShowDisplay(msg.showDisplay !== false)
@@ -183,7 +183,7 @@ export async function keepkey_ethGetAddress (transport: KeepKeyTransport, msg: E
   return address
 }
 
-export async function keepkey_ethSignMessage (transport: KeepKeyTransport, msg: ETHSignMessage): Promise<ETHSignedMessage> {
+export async function ethSignMessage (transport: KeepKeyTransport, msg: ETHSignMessage): Promise<ETHSignedMessage> {
   const m = new ProtoMessages.EthereumSignMessage()
   m.setAddressNList(msg.addressNList)
   m.setMessage(toUTF8Array(msg.message))
@@ -195,7 +195,7 @@ export async function keepkey_ethSignMessage (transport: KeepKeyTransport, msg: 
   }
 }
 
-export async function keepkey_ethVerifyMessage (transport: KeepKeyTransport, msg: ETHVerifyMessage): Promise<boolean> {
+export async function ethVerifyMessage (transport: KeepKeyTransport, msg: ETHVerifyMessage): Promise<boolean> {
   const m = new ProtoMessages.EthereumVerifyMessage()
   m.setAddress(arrayify(msg.address))
   m.setSignature(arrayify(msg.signature))

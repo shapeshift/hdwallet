@@ -233,12 +233,12 @@ async function ensureCoinSupport(wallet: BTCWallet, coin: Coin): Promise<void> {
     throw new Error(`'${coin} is not supported in this firmware version`)
 }
 
-export async function keepkey_btcSupportsCoin (coin: Coin): Promise<boolean> {
+export async function btcSupportsCoin (coin: Coin): Promise<boolean> {
   // FIXME: inspect the CoinTable to determine which coins are actually supported by the device.
   return supportedCoins.includes(coin)
 }
 
-export async function keepkey_btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
+export async function btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
   if (!supportedCoins.includes(coin))
     return false
   if (!segwitCoins.includes(coin) && scriptType === BTCInputScriptType.SpendP2SHWitness)
@@ -248,7 +248,7 @@ export async function keepkey_btcSupportsScriptType (coin: Coin, scriptType: BTC
   return true
 }
 
-export async function keepkey_btcGetAddress (wallet: BTCWallet, transport: KeepKeyTransport, msg: BTCGetAddress): Promise<string> {
+export async function btcGetAddress (wallet: BTCWallet, transport: KeepKeyTransport, msg: BTCGetAddress): Promise<string> {
   await ensureCoinSupport(wallet, msg.coin)
 
   const addr = new Messages.GetAddress()
@@ -266,7 +266,7 @@ export async function keepkey_btcGetAddress (wallet: BTCWallet, transport: KeepK
   return btcAddress.getAddress()
 }
 
-export async function keepkey_btcSignTx (wallet: BTCWallet, transport: KeepKeyTransport, msg: BTCSignTx): Promise<BTCSignedTx> {
+export async function btcSignTx (wallet: BTCWallet, transport: KeepKeyTransport, msg: BTCSignTx): Promise<BTCSignedTx> {
   return transport.lockDuring(async () => {
     await ensureCoinSupport(wallet, msg.coin)
     const txmap = prepareSignTx(msg.coin, msg.inputs, msg.outputs)
@@ -410,15 +410,15 @@ export async function keepkey_btcSignTx (wallet: BTCWallet, transport: KeepKeyTr
   })
 }
 
-export async function keepkey_btcSupportsSecureTransfer (): Promise<boolean> {
+export async function btcSupportsSecureTransfer (): Promise<boolean> {
   return true
 }
 
-export async function keepkey_btcSupportsNativeShapeShift (): Promise<boolean> {
+export async function btcSupportsNativeShapeShift (): Promise<boolean> {
   return true
 }
 
-export async function keepkey_btcSignMessage (wallet: BTCWallet, transport: KeepKeyTransport, msg: BTCSignMessage): Promise<BTCSignedMessage> {
+export async function btcSignMessage (wallet: BTCWallet, transport: KeepKeyTransport, msg: BTCSignMessage): Promise<BTCSignedMessage> {
   await ensureCoinSupport(wallet, msg.coin)
   const sign = new Messages.SignMessage()
   sign.setAddressNList(msg.addressNList)
@@ -433,7 +433,7 @@ export async function keepkey_btcSignMessage (wallet: BTCWallet, transport: Keep
   }
 }
 
-export async function keepkey_btcVerifyMessage (wallet: BTCWallet, transport: KeepKeyTransport, msg: BTCVerifyMessage): Promise<boolean> {
+export async function btcVerifyMessage (wallet: BTCWallet, transport: KeepKeyTransport, msg: BTCVerifyMessage): Promise<boolean> {
   await ensureCoinSupport(wallet, msg.coin)
   const verify = new Messages.VerifyMessage()
   verify.setAddress(msg.address)
@@ -445,7 +445,7 @@ export async function keepkey_btcVerifyMessage (wallet: BTCWallet, transport: Ke
   return success.getMessage() === "Message verified"
 }
 
-export function keepkey_btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
+export function btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
   const slip44 = slip44ByCoin(msg.coin)
   const bip44 = legacyAccount(slip44, msg.accountIdx)
   const bip49 = segwitAccount(slip44, msg.accountIdx)
@@ -477,7 +477,7 @@ export function keepkey_btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCA
   return paths
 }
 
-export function keepkey_btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
+export function btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
   if (msg.length < 1)
     return false
 

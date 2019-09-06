@@ -11,7 +11,7 @@ import {
 import { LedgerTransport } from './transport'
 import { Buffer } from "buffer";
 
-export function ledger_handleError (transport: LedgerTransport, result: any, message: string): void {
+export function handleError (transport: LedgerTransport, result: any, message: string): void {
   if (result.success)
     return
 

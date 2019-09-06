@@ -32,29 +32,9 @@ import {
   ETHGetAccountPath,
   ETHAccountPath,
 } from '@shapeshiftoss/hdwallet-core'
-import { ledger_handleError } from './utils'
-import {
-  ledger_btcSupportsCoin,
-  ledger_btcSupportsScriptType,
-  ledger_btcGetAddress,
-  ledger_btcSignTx,
-  ledger_btcSupportsSecureTransfer,
-  ledger_btcSupportsNativeShapeShift,
-  ledger_btcSignMessage,
-  ledger_btcVerifyMessage,
-  ledger_btcGetAccountPaths,
-  ledger_btcIsSameAccount, 
-} from './bitcoin'
-import {
-  ledger_ethSignTx,
-  ledger_ethGetAddress,
-  ledger_ethSignMessage,
-  ledger_ethVerifyMessage,
-  ledger_ethSupportsNetwork,
-  ledger_ethSupportsSecureTransfer,
-  ledger_ethSupportsNativeShapeShift,
-  ledger_ethGetAccountPaths,
-} from './ethereum'
+import { handleError } from './utils'
+import * as Btc from './bitcoin'
+import * as Eth from './ethereum'
 import { LedgerTransport } from './transport'
 import {
   compressPublicKey,
@@ -124,7 +104,7 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
         format
       }
       const res1 = await this.transport.call('Btc', 'getWalletPublicKey', prevBip32path, opts)
-      ledger_handleError(this.transport, res1, 'Unable to obtain public key from device.')
+      handleError(this.transport, res1, 'Unable to obtain public key from device.')
 
       let { payload: { publicKey } } = res1
       publicKey = compressPublicKey(publicKey)
@@ -135,7 +115,7 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
       const fingerprint: number = ((result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3]) >>> 0
 
       const res2 = await this.transport.call('Btc', 'getWalletPublicKey', bip32path, opts)
-      ledger_handleError(this.transport, res2, 'Unable to obtain public key from device.')
+      handleError(this.transport, res2, 'Unable to obtain public key from device.')
 
       publicKey = res2.payload.publicKey
       const chainCode: string = res2.payload.chainCode
@@ -223,76 +203,76 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
 
 
   public async btcSupportsCoin (coin: Coin): Promise<boolean> {
-    return ledger_btcSupportsCoin(coin)
+    return Btc.btcSupportsCoin(coin)
   }
 
   public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> { 
-    return ledger_btcSupportsScriptType(coin, scriptType)
+    return Btc.btcSupportsScriptType(coin, scriptType)
   }
 
   public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
-    return ledger_btcGetAddress(this.transport, msg)
+    return Btc.btcGetAddress(this.transport, msg)
   }
 
   public async btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx> {
-    return ledger_btcSignTx(this, this.transport, msg)
+    return Btc.btcSignTx(this, this.transport, msg)
   }
 
   public async btcSupportsSecureTransfer (): Promise<boolean> {
-    return ledger_btcSupportsSecureTransfer()
+    return Btc.btcSupportsSecureTransfer()
   }
 
   public async btcSupportsNativeShapeShift (): Promise<boolean> {
-    return ledger_btcSupportsNativeShapeShift()
+    return Btc.btcSupportsNativeShapeShift()
   }
 
   public async btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage> {
-    return ledger_btcSignMessage(this, this.transport, msg)
+    return Btc.btcSignMessage(this, this.transport, msg)
   }
 
   public async btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean> {
-    return ledger_btcVerifyMessage(msg)
+    return Btc.btcVerifyMessage(msg)
   }
 
   public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
-    return ledger_btcGetAccountPaths(msg)
+    return Btc.btcGetAccountPaths(msg)
   }
 
   public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
-    return ledger_btcIsSameAccount(msg)
+    return Btc.btcIsSameAccount(msg)
   }
 
 
   public async ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx> {
-    return ledger_ethSignTx(this.transport, msg)
+    return Eth.ethSignTx(this.transport, msg)
   }
 
   public async ethGetAddress (msg: ETHGetAddress): Promise<string> {
-    return ledger_ethGetAddress(this.transport, msg)
+    return Eth.ethGetAddress(this.transport, msg)
   }
 
   public async ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage> {
-    return ledger_ethSignMessage(this.transport, msg)
+    return Eth.ethSignMessage(this.transport, msg)
   }
 
   public async ethVerifyMessage (msg: ETHVerifyMessage): Promise<boolean> {
-    return ledger_ethVerifyMessage(msg)
+    return Eth.ethVerifyMessage(msg)
   }
 
   public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
-    return ledger_ethSupportsNetwork(chain_id)
+    return Eth.ethSupportsNetwork(chain_id)
   }
 
   public async ethSupportsSecureTransfer (): Promise<boolean> {
-    return ledger_ethSupportsSecureTransfer()
+    return Eth.ethSupportsSecureTransfer()
   }
 
   public async ethSupportsNativeShapeShift (): Promise<boolean> {
-    return ledger_ethSupportsNativeShapeShift()
+    return Eth.ethSupportsNativeShapeShift()
   }
 
   public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
-    return ledger_ethGetAccountPaths(msg)
+    return Eth.ethGetAccountPaths(msg)
   }
 }
 

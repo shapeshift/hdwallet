@@ -6,7 +6,7 @@ import {
 
 import { TrezorTransport } from './transport'
 
-export function trezor_handleError (transport: TrezorTransport, result: any, message: string): void {
+export function handleError (transport: TrezorTransport, result: any, message: string): void {
   if (result.success)
     return
 

@@ -23,22 +23,22 @@ import {
   stripHexPrefixAndLower,
   slip44ByCoin
 } from '@shapeshiftoss/hdwallet-core'
-import { ledger_handleError } from './utils'
+import { handleError } from './utils'
 import { LedgerTransport } from './transport'
 
-export async function ledger_ethSupportsNetwork(chain_id: number): Promise<boolean> {
+export async function ethSupportsNetwork(chain_id: number): Promise<boolean> {
   return chain_id === 1
 }
 
-export async function ledger_ethGetAddress(transport: LedgerTransport, msg: ETHGetAddress): Promise<string> {
+export async function ethGetAddress(transport: LedgerTransport, msg: ETHGetAddress): Promise<string> {
   const bip32path = addressNListToBIP32(msg.addressNList)
   const res = await transport.call('Eth', 'getAddress', bip32path, !!msg.showDisplay)
-  ledger_handleError(transport, res, 'Unable to obtain ETH address from device.')
+  handleError(transport, res, 'Unable to obtain ETH address from device.')
 
   return res.payload.address
 }
 
-export async function ledger_ethSignTx(transport: LedgerTransport, msg: ETHSignTx): Promise<ETHSignedTx> {
+export async function ethSignTx(transport: LedgerTransport, msg: ETHSignTx): Promise<ETHSignedTx> {
   const bip32path = addressNListToBIP32(msg.addressNList)
   const txParams = {
     to: msg.to,
@@ -57,7 +57,7 @@ export async function ledger_ethSignTx(transport: LedgerTransport, msg: ETHSignT
 
   const res = await transport.call('Eth', 'signTransaction', bip32path,
     utx.serialize().toString('hex'))
-  ledger_handleError(transport, res, 'Could not sign ETH tx with Ledger')
+  handleError(transport, res, 'Could not sign ETH tx with Ledger')
 
   const { v, r, s } = res.payload
 
@@ -76,15 +76,15 @@ export async function ledger_ethSignTx(transport: LedgerTransport, msg: ETHSignT
   }
 }
 
-export async function ledger_ethSupportsSecureTransfer(): Promise<boolean> {
+export async function ethSupportsSecureTransfer(): Promise<boolean> {
   return false
 }
 
-export async function ledger_ethSupportsNativeShapeShift(): Promise<boolean> {
+export async function ethSupportsNativeShapeShift(): Promise<boolean> {
   return false
 }
 
-export function ledger_ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
+export function ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
   return [{
     hardenedPath: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx ],
     relPath: [ 0, 0 ],
@@ -96,17 +96,17 @@ export function ledger_ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAcc
   }]
 }
 
-export async function ledger_ethSignMessage(transport: LedgerTransport, msg: ETHSignMessage): Promise<ETHSignedMessage> {
+export async function ethSignMessage(transport: LedgerTransport, msg: ETHSignMessage): Promise<ETHSignedMessage> {
   const bip32path = addressNListToBIP32(msg.addressNList)
   const res = await transport.call('Eth', 'signPersonalMessage', bip32path,
     Buffer.from(msg.message).toString('hex'))
-  ledger_handleError(transport, res, 'Could not sign ETH message with device')
+  handleError(transport, res, 'Could not sign ETH message with device')
 
   let { v, r, s } = res.payload
   v = v - 27
   v = v.toString(16).padStart(2, '0')
   const addressRes = await transport.call('Eth', 'getAddress', bip32path, false)
-  ledger_handleError(transport, addressRes, 'Unable to obtain ETH address from device.')
+  handleError(transport, addressRes, 'Unable to obtain ETH address from device.')
 
   return {
     address: addressRes.payload.address,
@@ -115,7 +115,7 @@ export async function ledger_ethSignMessage(transport: LedgerTransport, msg: ETH
 }
 
 // Adapted from https://github.com/kvhnuke/etherwallet/blob/2a5bc0db1c65906b14d8c33ce9101788c70d3774/app/scripts/controllers/signMsgCtrl.js#L118
-export async function ledger_ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean> {
+export async function ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean> {
   const sigb = new Buffer(stripHexPrefixAndLower(msg.signature), 'hex')
   if (sigb.length !== 65) {
     return false

@@ -47,29 +47,8 @@ import {
   translateInputScriptType,
 } from './utils'
 
-import { KeepKeyDebugLinkWallet } from "./debuglink";
-import { 
-  keepkey_btcSupportsCoin,
-  keepkey_btcSupportsScriptType,
-  keepkey_btcGetAddress,
-  keepkey_btcSignTx,
-  keepkey_btcSupportsSecureTransfer,
-  keepkey_btcSupportsNativeShapeShift,
-  keepkey_btcSignMessage,
-  keepkey_btcVerifyMessage,
-  keepkey_btcGetAccountPaths,
-  keepkey_btcIsSameAccount, 
-} from "./bitcoin";
-import {
-  keepkey_ethSignTx,
-  keepkey_ethGetAddress,
-  keepkey_ethSignMessage,
-  keepkey_ethVerifyMessage,
-  keepkey_ethSupportsNetwork,
-  keepkey_ethSupportsSecureTransfer,
-  keepkey_ethSupportsNativeShapeShift,
-  keepkey_ethGetAccountPaths,
-} from "./ethereum";
+import * as Btc from "./bitcoin";
+import * as Eth from "./ethereum"
 import { KeepKeyTransport } from "./transport";
 
 export function isKeepKey(wallet: any): wallet is KeepKeyHDWallet {
@@ -522,76 +501,76 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   }
 
   public async btcSupportsCoin (coin: Coin): Promise<boolean> {
-    return keepkey_btcSupportsCoin(coin)
+    return Btc.btcSupportsCoin(coin)
   }
 
   public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> { 
-    return keepkey_btcSupportsScriptType(coin, scriptType)
+    return Btc.btcSupportsScriptType(coin, scriptType)
   }
 
   public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
-    return keepkey_btcGetAddress(this, this.transport, msg)
+    return Btc.btcGetAddress(this, this.transport, msg)
   }
 
   public async btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx> {
-    return keepkey_btcSignTx(this, this.transport, msg)
+    return Btc.btcSignTx(this, this.transport, msg)
   }
 
   public async btcSupportsSecureTransfer (): Promise<boolean> {
-    return keepkey_btcSupportsSecureTransfer()
+    return Btc.btcSupportsSecureTransfer()
   }
 
   public async btcSupportsNativeShapeShift (): Promise<boolean> {
-    return keepkey_btcSupportsNativeShapeShift()
+    return Btc.btcSupportsNativeShapeShift()
   }
 
   public async btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage> {
-    return keepkey_btcSignMessage(this, this.transport, msg)
+    return Btc.btcSignMessage(this, this.transport, msg)
   }
 
   public async btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean> {
-    return keepkey_btcVerifyMessage(this, this.transport, msg)
+    return Btc.btcVerifyMessage(this, this.transport, msg)
   }
 
   public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
-    return keepkey_btcGetAccountPaths(msg)
+    return Btc.btcGetAccountPaths(msg)
   }
 
   public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
-    return keepkey_btcIsSameAccount(msg)
+    return Btc.btcIsSameAccount(msg)
   }
 
 
   public async ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx> {
-    return keepkey_ethSignTx(this.transport, msg)
+    return Eth.ethSignTx(this.transport, msg)
   }
 
   public async ethGetAddress (msg: ETHGetAddress): Promise<string> {
-    return keepkey_ethGetAddress(this.transport, msg)
+    return Eth.ethGetAddress(this.transport, msg)
   }
 
   public async ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage> {
-    return keepkey_ethSignMessage(this.transport, msg)
+    return Eth.ethSignMessage(this.transport, msg)
   }
 
   public async ethVerifyMessage (msg: ETHVerifyMessage): Promise<boolean> {
-    return keepkey_ethVerifyMessage(this.transport, msg)
+    return Eth.ethVerifyMessage(this.transport, msg)
   }
 
   public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
-    return keepkey_ethSupportsNetwork(chain_id)
+    return Eth.ethSupportsNetwork(chain_id)
   }
 
   public async ethSupportsSecureTransfer (): Promise<boolean> {
-    return keepkey_ethSupportsSecureTransfer()
+    return Eth.ethSupportsSecureTransfer()
   }
 
   public async ethSupportsNativeShapeShift (): Promise<boolean> {
-    return keepkey_ethSupportsNativeShapeShift()
+    return Eth.ethSupportsNativeShapeShift()
   }
 
   public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
-    return keepkey_ethGetAccountPaths(msg)
+    return Eth.ethGetAccountPaths(msg)
   }
 }
 

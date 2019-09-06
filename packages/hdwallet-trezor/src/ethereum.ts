@@ -15,18 +15,18 @@ import {
   addressNListToBIP32,
  } from '@shapeshiftoss/hdwallet-core'
 
-import { trezor_handleError } from './utils'
+import { handleError } from './utils'
 import { TrezorTransport } from './transport'
 
 // @ts-ignore
 import * as Ethereumjs from 'ethereumjs-tx'
 const { default: EthereumTx } = Ethereumjs as any
 
-export async function trezor_ethSupportsNetwork (chain_id: number): Promise<boolean> {
+export async function ethSupportsNetwork (chain_id: number): Promise<boolean> {
   return true
 }
 
-export async function trezor_ethGetAddress (transport: TrezorTransport, msg: ETHGetAddress): Promise<string> {
+export async function ethGetAddress (transport: TrezorTransport, msg: ETHGetAddress): Promise<string> {
   console.assert(!msg.showDisplay || !!msg.address,
     "HDWalletTrezor::ethGetAddress: expected address is required for showDisplay")
   let args: any = {
@@ -36,11 +36,11 @@ export async function trezor_ethGetAddress (transport: TrezorTransport, msg: ETH
   if (msg.address)
     args.address = msg.address
   let res = await transport.call('ethereumGetAddress', args)
-  trezor_handleError(transport, res, "Could not get ETH address from Trezor")
+  handleError(transport, res, "Could not get ETH address from Trezor")
   return res.payload.address
 }
 
-export async function trezor_ethSignTx (wallet: ETHWallet, transport: TrezorTransport, msg: ETHSignTx): Promise<ETHSignedTx> {
+export async function ethSignTx (wallet: ETHWallet, transport: TrezorTransport, msg: ETHSignTx): Promise<ETHSignedTx> {
   if (msg.toAddressNList !== undefined && !await this.ethSupportsSecureTransfer())
     throw new Error("Trezor does not support SecureTransfer")
 
@@ -62,7 +62,7 @@ export async function trezor_ethSignTx (wallet: ETHWallet, transport: TrezorTran
     transaction: utx
   })
 
-  trezor_handleError(transport, res, "Could not sign ETH transaction with Trezor")
+  handleError(transport, res, "Could not sign ETH transaction with Trezor")
 
   const tx = new EthereumTx(utx)
   tx.v = res.payload.v
@@ -77,37 +77,37 @@ export async function trezor_ethSignTx (wallet: ETHWallet, transport: TrezorTran
   }
 }
 
-export async function trezor_ethSignMessage (transport: TrezorTransport, msg: ETHSignMessage): Promise<ETHSignedMessage> {
+export async function ethSignMessage (transport: TrezorTransport, msg: ETHSignMessage): Promise<ETHSignedMessage> {
   let res = await transport.call('ethereumSignMessage', {
     path: msg.addressNList,
     message: msg.message
   })
-  trezor_handleError(transport, res, "Could not sign ETH message with Trezor")
+  handleError(transport, res, "Could not sign ETH message with Trezor")
   return {
     address: res.payload.address,
     signature: '0x' + res.payload.signature
   }
 }
 
-export async function trezor_ethVerifyMessage (transport: TrezorTransport, msg: ETHVerifyMessage): Promise<boolean> {
+export async function ethVerifyMessage (transport: TrezorTransport, msg: ETHVerifyMessage): Promise<boolean> {
   let res = await transport.call('ethereumVerifyMessage', {
     address: msg.address,
     message: msg.message,
     signature: stripHexPrefix(msg.signature)
   })
-  trezor_handleError(transport, res, "Could not verify ETH message with Trezor")
+  handleError(transport, res, "Could not verify ETH message with Trezor")
   return res.payload.message === "Message verified"
 }
 
-export async function trezor_ethSupportsSecureTransfer (): Promise<boolean> {
+export async function ethSupportsSecureTransfer (): Promise<boolean> {
   return false
 }
 
-export async function trezor_ethSupportsNativeShapeShift (): Promise<boolean> {
+export async function ethSupportsNativeShapeShift (): Promise<boolean> {
   return false
 }
 
-export function trezor_ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
+export function ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
   return [{
     hardenedPath: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + 0 ],
     relPath: [ 0, msg.accountIdx ],

@@ -32,29 +32,9 @@ import {
   ETHGetAccountPath,
   ETHAccountPath,
 } from '@shapeshiftoss/hdwallet-core'
-import { trezor_handleError } from './utils'
-import {
-  trezor_btcSupportsCoin,
-  trezor_btcSupportsScriptType,
-  trezor_btcGetAddress,
-  trezor_btcSignTx,
-  trezor_btcSupportsSecureTransfer,
-  trezor_btcSupportsNativeShapeShift,
-  trezor_btcSignMessage,
-  trezor_btcVerifyMessage,
-  trezor_btcGetAccountPaths,
-  trezor_btcIsSameAccount, 
-} from './bitcoin'
-import {
-  trezor_ethSignTx,
-  trezor_ethGetAddress,
-  trezor_ethSignMessage,
-  trezor_ethVerifyMessage,
-  trezor_ethSupportsNetwork,
-  trezor_ethSupportsSecureTransfer,
-  trezor_ethSupportsNativeShapeShift,
-  trezor_ethGetAccountPaths,
-} from './ethereum'
+import { handleError } from './utils'
+import * as Btc from './bitcoin'
+import * as Eth from './ethereum'
 import { TrezorTransport } from './transport'
 
 export function isTrezor(wallet: HDWallet): wallet is TrezorHDWallet {
@@ -106,7 +86,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
     if (cached && this.featuresCache)
       return this.featuresCache
     let res = await this.transport.call('getFeatures', {})
-    trezor_handleError(this.transport, res, "Could not get Trezor features")
+    handleError(this.transport, res, "Could not get Trezor features")
     this.cacheFeatures(res.payload)
     return res.payload
   }
@@ -125,7 +105,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
         }
       })
     })
-    trezor_handleError(this.transport, res, "Could not load xpubs from Trezor")
+    handleError(this.transport, res, "Could not load xpubs from Trezor")
     return res.payload.map(result => { return {
       xpub: result.xpub
     }})
@@ -177,7 +157,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
 
   public async wipe (): Promise<void> {
     let res = await this.transport.call('wipeDevice', {})
-    trezor_handleError(this.transport, res, "Could not wipe Trezor")
+    handleError(this.transport, res, "Could not wipe Trezor")
   }
 
   public async reset (msg: ResetDevice): Promise<void> {
@@ -187,7 +167,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
       pinProtection: msg.pin,
       passphraseProtection: msg.passphrase
     })
-    trezor_handleError(this.transport, res, "Could not reset Trezor")
+    handleError(this.transport, res, "Could not reset Trezor")
   }
 
   public async cancel (): Promise<void> {
@@ -207,7 +187,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
       passphraseProtection: msg.passphrase,
       label: msg.label
     })
-    trezor_handleError(this.transport, res, "Could not load seed into Trezor")
+    handleError(this.transport, res, "Could not load seed into Trezor")
   }
 
   public async hasOnDevicePinEntry (): Promise<boolean> {
@@ -233,76 +213,76 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
   }
 
   public async btcSupportsCoin (coin: Coin): Promise<boolean> {
-    return trezor_btcSupportsCoin(coin)
+    return Btc.btcSupportsCoin(coin)
   }
 
   public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> { 
-    return trezor_btcSupportsScriptType(coin, scriptType)
+    return Btc.btcSupportsScriptType(coin, scriptType)
   }
 
   public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
-    return trezor_btcGetAddress(this.transport, msg)
+    return Btc.btcGetAddress(this.transport, msg)
   }
 
   public async btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx> {
-    return trezor_btcSignTx(this, this.transport, msg)
+    return Btc.btcSignTx(this, this.transport, msg)
   }
 
   public async btcSupportsSecureTransfer (): Promise<boolean> {
-    return trezor_btcSupportsSecureTransfer()
+    return Btc.btcSupportsSecureTransfer()
   }
 
   public async btcSupportsNativeShapeShift (): Promise<boolean> {
-    return trezor_btcSupportsNativeShapeShift()
+    return Btc.btcSupportsNativeShapeShift()
   }
 
   public async btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage> {
-    return trezor_btcSignMessage(this.transport, msg)
+    return Btc.btcSignMessage(this.transport, msg)
   }
 
   public async btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean> {
-    return trezor_btcVerifyMessage(this.transport, msg)
+    return Btc.btcVerifyMessage(this.transport, msg)
   }
 
   public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
-    return trezor_btcGetAccountPaths(msg)
+    return Btc.btcGetAccountPaths(msg)
   }
 
   public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
-    return trezor_btcIsSameAccount(msg)
+    return Btc.btcIsSameAccount(msg)
   }
 
 
   public async ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx> {
-    return trezor_ethSignTx(this, this.transport, msg)
+    return Eth.ethSignTx(this, this.transport, msg)
   }
 
   public async ethGetAddress (msg: ETHGetAddress): Promise<string> {
-    return trezor_ethGetAddress(this.transport, msg)
+    return Eth.ethGetAddress(this.transport, msg)
   }
 
   public async ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage> {
-    return trezor_ethSignMessage(this.transport, msg)
+    return Eth.ethSignMessage(this.transport, msg)
   }
 
   public async ethVerifyMessage (msg: ETHVerifyMessage): Promise<boolean> {
-    return trezor_ethVerifyMessage(this.transport, msg)
+    return Eth.ethVerifyMessage(this.transport, msg)
   }
 
   public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
-    return trezor_ethSupportsNetwork(chain_id)
+    return Eth.ethSupportsNetwork(chain_id)
   }
 
   public async ethSupportsSecureTransfer (): Promise<boolean> {
-    return trezor_ethSupportsSecureTransfer()
+    return Eth.ethSupportsSecureTransfer()
   }
 
   public async ethSupportsNativeShapeShift (): Promise<boolean> {
-    return trezor_ethSupportsNativeShapeShift()
+    return Eth.ethSupportsNativeShapeShift()
   }
 
   public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
-    return trezor_ethGetAccountPaths(msg)
+    return Eth.ethGetAccountPaths(msg)
   }
 }
 

@@ -18,7 +18,7 @@ import {
   fromHexString,
   slip44ByCoin,
 } from '@shapeshiftoss/hdwallet-core'
-import { ledger_handleError } from './utils'
+import { handleError } from './utils'
 import { LedgerTransport } from './transport'
 import {
   translateScriptType,
@@ -47,11 +47,11 @@ const segwitCoins = [
   'Testnet'
 ]
 
-export async function ledger_btcSupportsCoin (coin: Coin): Promise<boolean> {
+export async function btcSupportsCoin (coin: Coin): Promise<boolean> {
   return supportedCoins.includes(coin)
 }
 
-export async function ledger_btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
+export async function btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
   const supported = {
     Bitcoin: [
       BTCInputScriptType.SpendAddress,
@@ -66,7 +66,7 @@ export async function ledger_btcSupportsScriptType (coin: Coin, scriptType: BTCI
   return !!supported[coin] && supported[coin].includes(scriptType)
 }
 
-export async function ledger_btcGetAddress (transport: LedgerTransport, msg: BTCGetAddress): Promise<string> {
+export async function btcGetAddress (transport: LedgerTransport, msg: BTCGetAddress): Promise<string> {
   const bip32path = addressNListToBIP32(msg.addressNList)
   const opts = {
     verify: !!msg.showDisplay,
@@ -74,7 +74,7 @@ export async function ledger_btcGetAddress (transport: LedgerTransport, msg: BTC
   }
 
   const res = await transport.call('Btc', 'getWalletPublicKey', bip32path, opts)
-  ledger_handleError(transport, res, 'Unable to obtain BTC address from device')
+  handleError(transport, res, 'Unable to obtain BTC address from device')
 
   return res.payload.bitcoinAddress
 }
@@ -115,7 +115,7 @@ export async function ledger_btcGetAddress (transport: LedgerTransport, msg: BTC
     * expiryHeight Buffer is an optional Buffer for zec overwinter / sapling Txs
 
  */
-export async function ledger_btcSignTx (wallet: BTCWallet, transport: LedgerTransport, msg: BTCSignTx): Promise<BTCSignedTx> {
+export async function btcSignTx (wallet: BTCWallet, transport: LedgerTransport, msg: BTCSignTx): Promise<BTCSignedTx> {
   let supportsShapeShift = await wallet.btcSupportsNativeShapeShift()
   let supportsSecureTransfer = await wallet.btcSupportsSecureTransfer()
   let slip44 = slip44ByCoin(msg.coin)
@@ -163,19 +163,19 @@ export async function ledger_btcSignTx (wallet: BTCWallet, transport: LedgerTran
   return {serializedTx:signedTx.payload,signatures:[]}
 }
 
-export async function ledger_btcSupportsSecureTransfer (): Promise<boolean> {
+export async function btcSupportsSecureTransfer (): Promise<boolean> {
   return false
 }
 
-export async function ledger_btcSupportsNativeShapeShift (): Promise<boolean> {
+export async function btcSupportsNativeShapeShift (): Promise<boolean> {
   return false
 }
 
-export async function ledger_btcSignMessage (wallet: BTCWallet, transport: LedgerTransport, msg: BTCSignMessage): Promise<BTCSignedMessage> {
+export async function btcSignMessage (wallet: BTCWallet, transport: LedgerTransport, msg: BTCSignMessage): Promise<BTCSignedMessage> {
   const bip32path = addressNListToBIP32(msg.addressNList)
 
   const res = await transport.call('Btc', 'signMessageNew', bip32path, Buffer.from(msg.message).toString("hex"))
-  ledger_handleError(transport, res, 'Could not sign message with device')
+  handleError(transport, res, 'Could not sign message with device')
   const v = res.payload['v'] + 27 + 4
 
   const signature = Buffer.from(v.toString(16) + res.payload['r'] + res.payload['s'], 'hex').toString('hex')
@@ -193,12 +193,12 @@ export async function ledger_btcSignMessage (wallet: BTCWallet, transport: Ledge
   }
 }
 
-export async function ledger_btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean> {
+export async function btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean> {
   const signature = Base64.fromByteArray(fromHexString(msg.signature))
   return verify(msg.message, msg.address, signature)
 }
 
-export function ledger_btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
+export function btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
   const slip44 = slip44ByCoin(msg.coin)
   const bip49 = {
     scriptType: BTCInputScriptType.SpendP2SHWitness,
@@ -226,6 +226,6 @@ export function ledger_btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAc
   return paths
 }
 
-export function ledger_btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
+export function btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
   return true
 }

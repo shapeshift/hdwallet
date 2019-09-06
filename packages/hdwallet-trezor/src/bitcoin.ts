@@ -19,7 +19,7 @@ import {
   addressNListToBIP32,
 } from '@shapeshiftoss/hdwallet-core'
 
-import { trezor_handleError } from './utils'
+import { handleError } from './utils'
 import { TrezorTransport } from './transport'
 
 import Base64 from 'base64-js'
@@ -73,11 +73,11 @@ function translateOutputScriptType (scriptType: BTCOutputScriptType): string {
   throw new Error(`Un-handled enum entry: '${scriptType}'`)
 }
 
-export async function trezor_btcSupportsCoin (coin: Coin): Promise<boolean> {
+export async function btcSupportsCoin (coin: Coin): Promise<boolean> {
   return translateCoin(coin) !== undefined
 }
 
-export async function trezor_btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
+export async function btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
   if (translateCoin(coin) === undefined)
     return false
   if (!segwitCoins.includes(coin) && scriptType === BTCInputScriptType.SpendP2SHWitness)
@@ -87,7 +87,7 @@ export async function trezor_btcSupportsScriptType (coin: Coin, scriptType: BTCI
   return true
 }
 
-export async function trezor_btcGetAddress (transport: TrezorTransport, msg: BTCGetAddress): Promise<string> {
+export async function btcGetAddress (transport: TrezorTransport, msg: BTCGetAddress): Promise<string> {
   console.assert(!msg.showDisplay || !!msg.address,
     "HDWalletTrezor::btcGetAddress: expected address is required for showDisplay")
   let args: any = {
@@ -100,12 +100,12 @@ export async function trezor_btcGetAddress (transport: TrezorTransport, msg: BTC
   // TODO: TrezorConnect doesn't support setting scriptType on getAddress
   let res = await transport.call('getAddress', args)
 
-  trezor_handleError(transport, res, "Could not get address from Trezor")
+  handleError(transport, res, "Could not get address from Trezor")
 
   return res.payload.address
 }
 
-export async function trezor_btcSignTx (wallet: BTCWallet, transport: TrezorTransport, msg: BTCSignTx): Promise<BTCSignedTx> {
+export async function btcSignTx (wallet: BTCWallet, transport: TrezorTransport, msg: BTCSignTx): Promise<BTCSignedTx> {
   let supportsShapeShift = await wallet.btcSupportsNativeShapeShift()
   let supportsSecureTransfer = await wallet.btcSupportsSecureTransfer()
 
@@ -153,7 +153,7 @@ export async function trezor_btcSignTx (wallet: BTCWallet, transport: TrezorTran
     push: false
   })
 
-  trezor_handleError(transport, res, "Could not sign transaction with Trezor")
+  handleError(transport, res, "Could not sign transaction with Trezor")
 
   return {
     signatures: res.payload.signatures,
@@ -161,22 +161,22 @@ export async function trezor_btcSignTx (wallet: BTCWallet, transport: TrezorTran
   }
 }
 
-export async function trezor_btcSupportsSecureTransfer (): Promise<boolean> {
+export async function btcSupportsSecureTransfer (): Promise<boolean> {
   return false
 }
 
-export async function trezor_btcSupportsNativeShapeShift (): Promise<boolean> {
+export async function btcSupportsNativeShapeShift (): Promise<boolean> {
   return false
 }
 
-export async function trezor_btcSignMessage (transport: TrezorTransport, msg: BTCSignMessage): Promise<BTCSignedMessage> {
+export async function btcSignMessage (transport: TrezorTransport, msg: BTCSignMessage): Promise<BTCSignedMessage> {
   let res = await transport.call('signMessage', {
     path: msg.addressNList,
     message: msg.message,
     coin: translateCoin(msg.coin)
   })
 
-  trezor_handleError(transport, res, "Could not sign message with Trezor")
+  handleError(transport, res, "Could not sign message with Trezor")
 
   return {
     address: res.payload.address,
@@ -184,7 +184,7 @@ export async function trezor_btcSignMessage (transport: TrezorTransport, msg: BT
   }
 }
 
-export async function trezor_btcVerifyMessage (transport: TrezorTransport, msg: BTCVerifyMessage): Promise<boolean> {
+export async function btcVerifyMessage (transport: TrezorTransport, msg: BTCVerifyMessage): Promise<boolean> {
   let res = await transport.call('verifyMessage', {
     address: msg.address,
     message: msg.message,
@@ -192,12 +192,12 @@ export async function trezor_btcVerifyMessage (transport: TrezorTransport, msg: 
     coin: translateCoin(msg.coin)
   })
 
-  trezor_handleError(transport, res, "Could not sign message with Trezor")
+  handleError(transport, res, "Could not sign message with Trezor")
 
   return res.payload.message === "Message verified"
 }
 
-export function trezor_btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
+export function btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
   const slip44 = slip44ByCoin(msg.coin)
   const bip44 = {
     scriptType: BTCInputScriptType.SpendAddress,
@@ -225,7 +225,7 @@ export function trezor_btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAc
   return paths
 }
 
-export function trezor_btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
+export function btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
   // Trezor does not support mixed-mode segwit, and only lets you spend from
   // a single account (otherwise change is represented as an output).
   return msg.length == 1
