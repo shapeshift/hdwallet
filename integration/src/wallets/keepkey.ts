@@ -11,7 +11,7 @@ import {
   ActionCancelled,
   HDWalletInfo,
 } from '@shapeshiftoss/hdwallet-core'
-import { KeepKeyHDWallet, KeepKeyHDWalletInfo, isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
+import { KeepKeyHDWallet, KeepKeyHDWalletInfo, isKeepKey, info } from '@shapeshiftoss/hdwallet-keepkey'
 import { NodeWebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-nodewebusb'
 import { TCPKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-tcp'
 import * as debug from 'debug'
@@ -51,7 +51,7 @@ async function getEmulator (keyring: Keyring) {
 let autoButton = true
 
 export function createInfo (): HDWalletInfo {
-  return new KeepKeyHDWalletInfo()
+  return info()
 }
 
 export async function createWallet (): Promise<HDWallet> {

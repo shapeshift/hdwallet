@@ -1,9 +1,13 @@
 import {
   BTCInputScriptType,
-  BTCWallet
+  BTCWallet,
+  BTCWalletInfo,
 } from './bitcoin'
 
-import { ETHWallet } from './ethereum'
+import {
+  ETHWallet,
+  ETHWalletInfo,
+} from './ethereum'
 import { DebugLinkWallet } from './debuglink'
 import { Transport } from './transport';
 
@@ -94,6 +98,10 @@ export function supportsBTC(wallet: any): wallet is BTCWallet {
   return (wallet as HDWallet)._supportsBTC !== undefined
 }
 
+export function infoBTC(info: any): info is BTCWalletInfo {
+  return (info as HDWalletInfo)._supportsBTCInfo !== undefined
+}
+
 /**
  * Type guard for ETHWallet Support
  *
@@ -106,6 +114,10 @@ export function supportsBTC(wallet: any): wallet is BTCWallet {
  */
 export function supportsETH(wallet: any): wallet is ETHWallet {
   return (wallet as HDWallet)._supportsETH !== undefined
+}
+
+export function infoETH(info: any): info is ETHWalletInfo {
+  return (info as HDWalletInfo)._supportsETHInfo !== undefined
 }
 
 export function supportsDebugLink(wallet: any): wallet is DebugLinkWallet {
@@ -163,6 +175,7 @@ export interface HDWallet extends HDWalletInfo {
   _isTrezor: boolean
 
   transport: Transport
+  info: HDWalletInfo
 
   /**
    * Retrieve the wallet's unique ID

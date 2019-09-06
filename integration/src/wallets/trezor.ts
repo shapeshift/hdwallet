@@ -6,6 +6,7 @@ import {
   supportsETH,
   bip32ToAddressNList,
   Keyring,
+  HDWalletInfo,
 } from '@shapeshiftoss/hdwallet-core'
 import {
   create as createTrezor,
@@ -13,6 +14,7 @@ import {
   TrezorTransport,
   TrezorHDWallet,
   isTrezor,
+  info,
 } from '@shapeshiftoss/hdwallet-trezor'
 
 export class MockTransport extends TrezorTransport {
@@ -183,6 +185,10 @@ export async function createWallet (): Promise<HDWallet> {
   let keyring = new Keyring()
   let transport = new MockTransport(keyring)
   return createTrezor(transport as TrezorTransport, true)
+}
+
+export function createInfo (): HDWalletInfo {
+  return info()
 }
 
 export function selfTest (get: () => HDWallet): void {

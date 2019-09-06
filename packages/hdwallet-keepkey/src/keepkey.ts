@@ -145,12 +145,15 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   _isTrezor: boolean = false;
   _supportsETH: boolean = true;
   _supportsBTC: boolean = true;
+
   transport: KeepKeyTransport;
   features?: Messages.Features.AsObject;
+  info: KeepKeyHDWalletInfo & HDWalletInfo
 
   constructor(transport: KeepKeyTransport) {
     this.transport = transport;
     this._supportsDebugLink = transport.debugLink
+    this.info = new KeepKeyHDWalletInfo()
   }
 
   public async getDeviceID(): Promise<string> {
@@ -584,11 +587,11 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   }
 
   public async btcSupportsCoin (coin: Coin): Promise<boolean> {
-    return Btc.btcSupportsCoin(coin)
+    return this.info.btcSupportsCoin(coin)
   }
 
   public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> { 
-    return Btc.btcSupportsScriptType(coin, scriptType)
+    return this.info.btcSupportsScriptType(coin, scriptType)
   }
 
   public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
@@ -600,11 +603,11 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   }
 
   public async btcSupportsSecureTransfer (): Promise<boolean> {
-    return Btc.btcSupportsSecureTransfer()
+    return this.info.btcSupportsSecureTransfer()
   }
 
   public async btcSupportsNativeShapeShift (): Promise<boolean> {
-    return Btc.btcSupportsNativeShapeShift()
+    return this.info.btcSupportsNativeShapeShift()
   }
 
   public async btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage> {
@@ -616,7 +619,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   }
 
   public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
-    return Btc.btcGetAccountPaths(msg)
+    return this.info.btcGetAccountPaths(msg)
   }
 
   public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
@@ -625,7 +628,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     // if (firmware_version.lt('6.0.2') && msg.length > 1)
     //  return false
 
-    return Btc.btcIsSameAccount(msg)
+    return this.info.btcIsSameAccount(msg)
   }
 
 
@@ -646,19 +649,19 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   }
 
   public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
-    return Eth.ethSupportsNetwork(chain_id)
+    return this.info.ethSupportsNetwork(chain_id)
   }
 
   public async ethSupportsSecureTransfer (): Promise<boolean> {
-    return Eth.ethSupportsSecureTransfer()
+    return this.info.ethSupportsSecureTransfer()
   }
 
   public async ethSupportsNativeShapeShift (): Promise<boolean> {
-    return Eth.ethSupportsNativeShapeShift()
+    return this.info.ethSupportsNativeShapeShift()
   }
 
   public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
-    return Eth.ethGetAccountPaths(msg)
+    return this.info.ethGetAccountPaths(msg)
   }
 }
 

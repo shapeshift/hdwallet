@@ -133,10 +133,13 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
   _isKeepKey: boolean = false
   _isTrezor: boolean = false
   _isLedger: boolean = true
+
   transport: LedgerTransport
+  info: LedgerHDWalletInfo & HDWalletInfo
 
   constructor (transport: LedgerTransport) {
     this.transport = transport
+    this.info = new LedgerHDWalletInfo()
   }
 
   public async initialize (): Promise<any> {
@@ -280,11 +283,11 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
 
 
   public async btcSupportsCoin (coin: Coin): Promise<boolean> {
-    return Btc.btcSupportsCoin(coin)
+    return this.info.btcSupportsCoin(coin)
   }
 
   public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> { 
-    return Btc.btcSupportsScriptType(coin, scriptType)
+    return this.info.btcSupportsScriptType(coin, scriptType)
   }
 
   public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
@@ -296,11 +299,11 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
   }
 
   public async btcSupportsSecureTransfer (): Promise<boolean> {
-    return Btc.btcSupportsSecureTransfer()
+    return this.info.btcSupportsSecureTransfer()
   }
 
   public async btcSupportsNativeShapeShift (): Promise<boolean> {
-    return Btc.btcSupportsNativeShapeShift()
+    return this.info.btcSupportsNativeShapeShift()
   }
 
   public async btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage> {
@@ -312,11 +315,11 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
   }
 
   public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
-    return Btc.btcGetAccountPaths(msg)
+    return this.info.btcGetAccountPaths(msg)
   }
 
   public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
-    return Btc.btcIsSameAccount(msg)
+    return this.info.btcIsSameAccount(msg)
   }
 
 
@@ -337,19 +340,19 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
   }
 
   public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
-    return Eth.ethSupportsNetwork(chain_id)
+    return this.info.ethSupportsNetwork(chain_id)
   }
 
   public async ethSupportsSecureTransfer (): Promise<boolean> {
-    return Eth.ethSupportsSecureTransfer()
+    return this.info.ethSupportsSecureTransfer()
   }
 
   public async ethSupportsNativeShapeShift (): Promise<boolean> {
-    return Eth.ethSupportsNativeShapeShift()
+    return this.info.ethSupportsNativeShapeShift()
   }
 
   public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
-    return Eth.ethGetAccountPaths(msg)
+    return this.info.ethGetAccountPaths(msg)
   }
 }
 
