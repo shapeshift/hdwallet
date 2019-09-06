@@ -138,11 +138,3 @@ export function satsFromStr (coins: string): number {
   let exponent = index > 0 ? 8 - (coins.length - index - 1) : 8
   return Number(coins.replace(/\./g, '')) * 10 ** exponent
 }
-
-export function applyMixins(derivedCtor: any, baseCtors: any[]): void {
-  baseCtors.forEach(baseCtor => {
-    Object.getOwnPropertyNames(baseCtor.prototype).forEach(name => {
-      Object.defineProperty(derivedCtor.prototype, name, Object.getOwnPropertyDescriptor(baseCtor.prototype, name))
-    })
-  })
-}
