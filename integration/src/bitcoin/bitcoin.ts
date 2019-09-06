@@ -156,13 +156,13 @@ export function bitcoinTests (get: () => HDWallet): void {
 
     test('btcSupportsSecureTransfer()', async () => {
       if (!wallet) return
-      expect(typeof wallet.btcSupportsSecureTransfer() === typeof true).toBeTruthy()
+      expect(typeof (await wallet.btcSupportsSecureTransfer()) === typeof true).toBeTruthy()
       // TODO: write a testcase that exercise secure transfer, if the wallet claims to support it.
     }, TIMEOUT)
 
     test('btcSupportsNativeShapeShift()', async () => {
       if (!wallet) return
-      expect(typeof wallet.btcSupportsNativeShapeShift() === typeof true)
+      expect(typeof (await wallet.btcSupportsNativeShapeShift()) === typeof true)
       // TODO: write a testcase that exercises native shapeshift, if the wallet claims to support it.
     }, TIMEOUT)
 
