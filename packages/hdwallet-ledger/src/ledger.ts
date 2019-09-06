@@ -55,9 +55,6 @@ export function isLedger (wallet: HDWallet): wallet is LedgerHDWallet {
 export class LedgerHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo {
   _supportsBTCInfo: boolean = true
   _supportsETHInfo: boolean = true
-  _isKeepKeyInfo: boolean = false
-  _isTrezorInfo: boolean = false
-  _isLedgerInfo: boolean = true
 
   public getVendor (): string {
     return "Ledger"

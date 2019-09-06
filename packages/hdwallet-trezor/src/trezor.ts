@@ -47,9 +47,6 @@ export function isTrezor(wallet: HDWallet): wallet is TrezorHDWallet {
 export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo {
   _supportsBTCInfo: boolean = true
   _supportsETHInfo: boolean = true
-  _isKeepKeyInfo: boolean = false
-  _isTrezorInfo: boolean = true
-  _isLedgerInfo: boolean = false
 
   public getVendor (): string {
     return "Trezor"

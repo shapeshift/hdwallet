@@ -61,9 +61,6 @@ export function isKeepKey(wallet: any): wallet is KeepKeyHDWallet {
 export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo {
   _supportsBTCInfo: boolean = true
   _supportsETHInfo: boolean = true
-  _isKeepKeyInfo: boolean = true
-  _isTrezorInfo: boolean = false
-  _isLedgerInfo: boolean = false
 
   public getVendor (): string {
     return "KeepKey"
@@ -136,9 +133,6 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
 export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLinkWallet {
   _supportsETHInfo: boolean = true
   _supportsBTCInfo: boolean = true
-  _isKeepKeyInfo: boolean = true
-  _isTrezorInfo: boolean = false
-  _isLedgerInfo: boolean = false
   _supportsDebugLink: boolean
   _isKeepKey: boolean = true;
   _isLedger: boolean = false;
