@@ -12,13 +12,49 @@ import {
   Pong,
   Constructor,
   makeEvent,
-  WrongApp,
-  SelectApp,
-  ActionCancelled,
-  applyMixins,
+  BTCWallet,
+  ETHWallet,
+  BTCInputScriptType,
+  BTCGetAddress,
+  BTCSignTx,
+  BTCSignedTx,
+  BTCSignMessage,
+  BTCVerifyMessage,
+  BTCAccountPath,
+  BTCSignedMessage,
+  BTCGetAccountPaths,
+  ETHSignTx,
+  ETHSignedTx,
+  ETHGetAddress,
+  ETHSignMessage,
+  ETHSignedMessage,
+  ETHVerifyMessage,
+  ETHGetAccountPath,
+  ETHAccountPath,
 } from '@shapeshiftoss/hdwallet-core'
-import { LedgerBTCWallet } from './bitcoin'
-import { LedgerETHWallet } from './ethereum'
+import { ledger_handleError } from './utils'
+import {
+  ledger_btcSupportsCoin,
+  ledger_btcSupportsScriptType,
+  ledger_btcGetAddress,
+  ledger_btcSignTx,
+  ledger_btcSupportsSecureTransfer,
+  ledger_btcSupportsNativeShapeShift,
+  ledger_btcSignMessage,
+  ledger_btcVerifyMessage,
+  ledger_btcGetAccountPaths,
+  ledger_btcIsSameAccount, 
+} from './bitcoin'
+import {
+  ledger_ethSignTx,
+  ledger_ethGetAddress,
+  ledger_ethSignMessage,
+  ledger_ethVerifyMessage,
+  ledger_ethSupportsNetwork,
+  ledger_ethSupportsSecureTransfer,
+  ledger_ethSupportsNativeShapeShift,
+  ledger_ethGetAccountPaths,
+} from './ethereum'
 import { LedgerTransport } from './transport'
 import {
   compressPublicKey,
@@ -33,7 +69,9 @@ export function isLedger (wallet: any): wallet is LedgerHDWallet {
   return typeof wallet === 'object' && wallet._isLedger !== undefined
 }
 
-export class LedgerHDWallet extends HDWallet {
+export class LedgerHDWallet extends HDWallet implements BTCWallet, ETHWallet {
+  _supportsBTC: boolean = true
+  _supportsETH: boolean = true
   _isLedger: boolean = true
   transport: LedgerTransport
 
@@ -84,7 +122,7 @@ export class LedgerHDWallet extends HDWallet {
         format
       }
       const res1 = await this.transport.call('Btc', 'getWalletPublicKey', prevBip32path, opts)
-      this.handleError(res1, 'Unable to obtain public key from device.')
+      ledger_handleError(this.transport, res1, 'Unable to obtain public key from device.')
 
       let { payload: { publicKey } } = res1
       publicKey = compressPublicKey(publicKey)
@@ -95,7 +133,7 @@ export class LedgerHDWallet extends HDWallet {
       const fingerprint: number = ((result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3]) >>> 0
 
       const res2 = await this.transport.call('Btc', 'getWalletPublicKey', bip32path, opts)
-      this.handleError(res2, 'Unable to obtain public key from device.')
+      ledger_handleError(this.transport, res2, 'Unable to obtain public key from device.')
 
       publicKey = res2.payload.publicKey
       const chainCode: string = res2.payload.chainCode
@@ -181,50 +219,82 @@ export class LedgerHDWallet extends HDWallet {
     return
   }
 
-  protected handleError (result: any, message: string): void {
-    if (result.success)
-      return
 
-    if (result.payload && result.payload.error) {
 
-      // No app selected
-      if (result.payload.error.includes('0x6700') ||
-          result.payload.error.includes('0x6982')) {
-        throw new SelectApp('Ledger', result.coin)
-      }
+  public async btcSupportsCoin (coin: Coin): Promise<boolean> {
+    return ledger_btcSupportsCoin(coin)
+  }
 
-      // Wrong app selected
-      if (result.payload.error.includes('0x6d00')) {
-        throw new WrongApp('Ledger', result.coin)
-      }
+  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> { 
+    return ledger_btcSupportsScriptType(coin, scriptType)
+  }
 
-      // User selected x instead of ✓
-      if (result.payload.error.includes('0x6985')) {
-        throw new ActionCancelled()
-      }
+  public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
+    return ledger_btcGetAddress(this.transport, msg)
+  }
 
-      this.transport.emit(`ledger.${result.coin}.${result.method}.call`, makeEvent({
-        message_type: 'ERROR',
-        from_wallet: true,
-        message
-      }))
+  public async btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx> {
+    return ledger_btcSignTx(this, this.transport, msg)
+  }
 
-      throw new Error(`${message}: '${result.payload.error}'`)
-    }
+  public async btcSupportsSecureTransfer (): Promise<boolean> {
+    return ledger_btcSupportsSecureTransfer()
+  }
+
+  public async btcSupportsNativeShapeShift (): Promise<boolean> {
+    return ledger_btcSupportsNativeShapeShift()
+  }
+
+  public async btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage> {
+    return ledger_btcSignMessage(this, this.transport, msg)
+  }
+
+  public async btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean> {
+    return ledger_btcVerifyMessage(msg)
+  }
+
+  public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
+    return ledger_btcGetAccountPaths(msg)
+  }
+
+  public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
+    return ledger_btcIsSameAccount(msg)
+  }
+
+
+  public async ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx> {
+    return ledger_ethSignTx(this.transport, msg)
+  }
+
+  public async ethGetAddress (msg: ETHGetAddress): Promise<string> {
+    return ledger_ethGetAddress(this.transport, msg)
+  }
+
+  public async ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage> {
+    return ledger_ethSignMessage(this.transport, msg)
+  }
+
+  public async ethVerifyMessage (msg: ETHVerifyMessage): Promise<boolean> {
+    return ledger_ethVerifyMessage(msg)
+  }
+
+  public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
+    return ledger_ethSupportsNetwork(chain_id)
+  }
+
+  public async ethSupportsSecureTransfer (): Promise<boolean> {
+    return ledger_ethSupportsSecureTransfer()
+  }
+
+  public async ethSupportsNativeShapeShift (): Promise<boolean> {
+    return ledger_ethSupportsNativeShapeShift()
+  }
+
+  public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
+    return ledger_ethGetAccountPaths(msg)
   }
 }
 
-export interface LedgerHDWallet extends LedgerBTCWallet, LedgerETHWallet {}
-
-let mixinsApplied = false
-
 export function create (transport: LedgerTransport): LedgerHDWallet {
-  if (!mixinsApplied) {
-    applyMixins(LedgerHDWallet, [LedgerBTCWallet, LedgerETHWallet])
-    mixinsApplied = true
-  }
-  let wallet = <LedgerHDWallet>new LedgerHDWallet(transport)
-  wallet._supportsBTC = true
-  wallet._supportsETH = true
-  return wallet
+  return new LedgerHDWallet(transport)
 }
