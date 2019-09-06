@@ -77,25 +77,25 @@ export interface ETHVerifyMessage {
   signature: string
 }
 
-export abstract class ETHWallet {
-  _supportsETH: boolean = true
+export interface ETHWallet {
+  _supportsETH: boolean
 
-  public abstract async ethSupportsNetwork (chain_id: number): Promise<boolean>
-  public abstract async ethGetAddress (msg: ETHGetAddress): Promise<string>
-  public abstract async ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx>
-  public abstract async ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage>
-  public abstract async ethVerifyMessage (msg: ETHVerifyMessage): Promise<boolean>
+  ethSupportsNetwork (chain_id: number): Promise<boolean>
+  ethGetAddress (msg: ETHGetAddress): Promise<string>
+  ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx>
+  ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage>
+  ethVerifyMessage (msg: ETHVerifyMessage): Promise<boolean>
 
   /**
    * Does the device support internal transfers without the user needing to
    * confirm the destination address?
    */
-  public abstract async ethSupportsSecureTransfer (): Promise<boolean>
+  ethSupportsSecureTransfer (): Promise<boolean>
 
   /**
    * Does the device support `/sendamountProto2` style ShapeShift trades?
    */
-  public abstract async ethSupportsNativeShapeShift (): Promise<boolean>
+  ethSupportsNativeShapeShift (): Promise<boolean>
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order
@@ -104,5 +104,5 @@ export abstract class ETHWallet {
    * Note that this is the location of the ETH address in the tree, not the
    * location of its corresponding xpub.
    */
-  public abstract ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath>
+  ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath>
 }

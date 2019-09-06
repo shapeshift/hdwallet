@@ -150,26 +150,26 @@ export interface BTCAccountPath {
   addressNList: BIP32Path
 }
 
-export abstract class BTCWallet {
-  _supportsBTC: boolean = true
+export interface BTCWallet {
+  _supportsBTC: boolean
 
-  public abstract async btcSupportsCoin (coin: Coin): Promise<boolean>
-  public abstract async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean>
-  public abstract async btcGetAddress (msg: BTCGetAddress): Promise<string>
-  public abstract async btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx>
-  public abstract async btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage>
-  public abstract async btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean>
+  btcSupportsCoin (coin: Coin): Promise<boolean>
+  btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean>
+  btcGetAddress (msg: BTCGetAddress): Promise<string>
+  btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx>
+  btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage>
+  btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean>
 
   /**
    * Does the device support internal transfers without the user needing to
    * confirm the destination address?
    */
-  public abstract async btcSupportsSecureTransfer (): Promise<boolean>
+  btcSupportsSecureTransfer (): Promise<boolean>
 
   /**
    * Does the device support `/sendamountProto2` style ShapeShift trades?
    */
-  public abstract async btcSupportsNativeShapeShift (): Promise<boolean>
+  btcSupportsNativeShapeShift (): Promise<boolean>
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order
@@ -189,12 +189,12 @@ export abstract class BTCWallet {
       p2sh-p2wsh m/44'/0'/a'
    ```
    */
-  public abstract btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath>
+  btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath>
 
   /**
    * Does the device support spending from the combined accounts?
    * The list is assumed to contain unique entries.
    */
-  public abstract btcIsSameAccount (msg: Array<BTCAccountPath>): boolean
+  btcIsSameAccount (msg: Array<BTCAccountPath>): boolean
 }
 

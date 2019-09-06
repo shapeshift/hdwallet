@@ -2,9 +2,46 @@ import { crypto } from "bitcoinjs-lib"
 import bs58 from "bs58"
 import { padStart } from "lodash"
 import {
-  BTCInputScriptType
+  BTCInputScriptType,
+  WrongApp,
+  SelectApp,
+  ActionCancelled,
+  makeEvent,
 } from '@shapeshiftoss/hdwallet-core'
+import { LedgerTransport } from './transport'
 import { Buffer } from "buffer";
+
+export function handleError (transport: LedgerTransport, result: any, message: string): void {
+  if (result.success)
+    return
+
+  if (result.payload && result.payload.error) {
+
+    // No app selected
+    if (result.payload.error.includes('0x6700') ||
+        result.payload.error.includes('0x6982')) {
+      throw new SelectApp('Ledger', result.coin)
+    }
+
+    // Wrong app selected
+    if (result.payload.error.includes('0x6d00')) {
+      throw new WrongApp('Ledger', result.coin)
+    }
+
+    // User selected x instead of ✓
+    if (result.payload.error.includes('0x6985')) {
+      throw new ActionCancelled()
+    }
+
+    transport.emit(`ledger.${result.coin}.${result.method}.call`, makeEvent({
+      message_type: 'ERROR',
+      from_wallet: true,
+      message
+    }))
+
+    throw new Error(`${message}: '${result.payload.error}'`)
+  }
+}
 
 export const getderivationModeFromFormat = (format:string):string => {
   let derivationMode
