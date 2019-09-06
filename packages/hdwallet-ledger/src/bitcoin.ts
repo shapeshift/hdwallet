@@ -160,7 +160,10 @@ export async function btcSignTx (wallet: BTCWallet, transport: LedgerTransport, 
   //sign createPaymentTransaction
   let signedTx = await transport.call('Btc', 'createPaymentTransactionNew', inputs, paths, undefined, outputScriptHex, null, networksUtil[slip44].sigHash, segwit)
 
-  return {serializedTx:signedTx.payload,signatures:[]}
+  return {
+    serializedTx: signedTx.payload,
+    signatures:[]
+  }
 }
 
 export async function btcSupportsSecureTransfer (): Promise<boolean> {
