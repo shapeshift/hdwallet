@@ -77,14 +77,13 @@ export interface ETHVerifyMessage {
   signature: string
 }
 
-export interface ETHWallet {
-  _supportsETH: boolean
+export interface ETHWalletInfo {
+  _supportsETHInfo: boolean
 
+  /**
+   * Does the device support the Ethereum network with the given chain_id?
+   */
   ethSupportsNetwork (chain_id: number): Promise<boolean>
-  ethGetAddress (msg: ETHGetAddress): Promise<string>
-  ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx>
-  ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage>
-  ethVerifyMessage (msg: ETHVerifyMessage): Promise<boolean>
 
   /**
    * Does the device support internal transfers without the user needing to
@@ -105,4 +104,13 @@ export interface ETHWallet {
    * location of its corresponding xpub.
    */
   ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath>
+}
+
+export interface ETHWallet extends ETHWalletInfo {
+  _supportsETH: boolean
+
+  ethGetAddress (msg: ETHGetAddress): Promise<string>
+  ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx>
+  ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage>
+  ethVerifyMessage (msg: ETHVerifyMessage): Promise<boolean>
 }
