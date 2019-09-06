@@ -57,7 +57,7 @@ import {
 } from './ethereum'
 import { TrezorTransport } from './transport'
 
-export function isTrezor(wallet: any): wallet is TrezorHDWallet {
+export function isTrezor(wallet: HDWallet): wallet is TrezorHDWallet {
   return typeof wallet === 'object' && wallet._isTrezor !== undefined
 }
 

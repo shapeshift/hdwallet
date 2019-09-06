@@ -65,7 +65,7 @@ import {
   translateScriptType
 } from './utils'
 
-export function isLedger (wallet: any): wallet is LedgerHDWallet {
+export function isLedger (wallet: HDWallet): wallet is LedgerHDWallet {
   return typeof wallet === 'object' && wallet._isLedger !== undefined
 }
 
