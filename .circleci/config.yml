@@ -45,7 +45,7 @@ orbs:
               at: .
           - restore_cache:
               keys:
-                - cache-v2-{{ checksum "yarn.lock" }}
+                - cache-v3-{{ checksum "yarn.lock" }}
           - run: yarn --cache-folder .yarn-cache
           - run:
               no_output_timeout: 30m
@@ -56,7 +56,7 @@ orbs:
               paths:
                 - packages/*/dist
           - save_cache:
-              key: cache-v2-{{ checksum "yarn.lock" }}
+              key: cache-v3-{{ checksum "yarn.lock" }}
               paths:
                 - "packages/hdwallet-core/.rts2_cache_cjs"
                 - "packages/hdwallet-core/.rts2_cache_es"
@@ -93,7 +93,7 @@ orbs:
               at: .
           - restore_cache:
               keys:
-                - cache-v2-{{ checksum "yarn.lock" }}
+                - cache-v3-{{ checksum "yarn.lock" }}
           - run: yarn --cache-folder .yarn-cache
           - run:
               name: Run tests
