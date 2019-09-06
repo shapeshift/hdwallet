@@ -220,7 +220,6 @@ export class LedgerHDWallet extends HDWallet implements BTCWallet, ETHWallet {
   }
 
 
-
   public async btcSupportsCoin (coin: Coin): Promise<boolean> {
     return ledger_btcSupportsCoin(coin)
   }

@@ -14,18 +14,56 @@ import {
   ActionCancelled,
   DeviceDisconnected,
   PopupClosedError,
-  applyMixins,
+  BTCInputScriptType,
+  BTCGetAddress,
+  BTCSignTx,
+  BTCSignedTx,
+  BTCSignMessage,
+  BTCVerifyMessage,
+  BTCAccountPath,
+  BTCSignedMessage,
+  BTCGetAccountPaths,
+  ETHSignTx,
+  ETHSignedTx,
+  ETHGetAddress,
+  ETHSignMessage,
+  ETHSignedMessage,
+  ETHVerifyMessage,
+  ETHGetAccountPath,
+  ETHAccountPath,
 } from '@shapeshiftoss/hdwallet-core'
-import { TrezorBTCWallet } from './bitcoin'
-import { TrezorETHWallet } from './ethereum'
+import { trezor_handleError } from './utils'
+import {
+  trezor_btcSupportsCoin,
+  trezor_btcSupportsScriptType,
+  trezor_btcGetAddress,
+  trezor_btcSignTx,
+  trezor_btcSupportsSecureTransfer,
+  trezor_btcSupportsNativeShapeShift,
+  trezor_btcSignMessage,
+  trezor_btcVerifyMessage,
+  trezor_btcGetAccountPaths,
+  trezor_btcIsSameAccount, 
+} from './bitcoin'
+import {
+  trezor_ethSignTx,
+  trezor_ethGetAddress,
+  trezor_ethSignMessage,
+  trezor_ethVerifyMessage,
+  trezor_ethSupportsNetwork,
+  trezor_ethSupportsSecureTransfer,
+  trezor_ethSupportsNativeShapeShift,
+  trezor_ethGetAccountPaths,
+} from './ethereum'
 import { TrezorTransport } from './transport'
-import { TrezorDebugLinkWallet } from './debuglink'
 
 export function isTrezor(wallet: any): wallet is TrezorHDWallet {
   return typeof wallet === 'object' && wallet._isTrezor !== undefined
 }
 
-export class TrezorHDWallet extends HDWallet {
+export class TrezorHDWallet extends HDWallet implements BTCWallet, ETHWallet {
+  _supportsBTC: boolean = true
+  _supportsETH: boolean = true
   _isTrezor: boolean = true
   transport: TrezorTransport
   featuresCache: any
@@ -66,7 +104,7 @@ export class TrezorHDWallet extends HDWallet {
     if (cached && this.featuresCache)
       return this.featuresCache
     let res = await this.transport.call('getFeatures', {})
-    this.handleError(res, "Could not get Trezor features")
+    trezor_handleError(this.transport, res, "Could not get Trezor features")
     this.cacheFeatures(res.payload)
     return res.payload
   }
@@ -85,7 +123,7 @@ export class TrezorHDWallet extends HDWallet {
         }
       })
     })
-    this.handleError(res, "Could not load xpubs from Trezor")
+    trezor_handleError(this.transport, res, "Could not load xpubs from Trezor")
     return res.payload.map(result => { return {
       xpub: result.xpub
     }})
@@ -137,7 +175,7 @@ export class TrezorHDWallet extends HDWallet {
 
   public async wipe (): Promise<void> {
     let res = await this.transport.call('wipeDevice', {})
-    this.handleError(res, "Could not wipe Trezor")
+    trezor_handleError(this.transport, res, "Could not wipe Trezor")
   }
 
   public async reset (msg: ResetDevice): Promise<void> {
@@ -147,7 +185,7 @@ export class TrezorHDWallet extends HDWallet {
       pinProtection: msg.pin,
       passphraseProtection: msg.passphrase
     })
-    this.handleError(res, "Could not reset Trezor")
+    trezor_handleError(this.transport, res, "Could not reset Trezor")
   }
 
   public async cancel (): Promise<void> {
@@ -167,7 +205,7 @@ export class TrezorHDWallet extends HDWallet {
       passphraseProtection: msg.passphrase,
       label: msg.label
     })
-    this.handleError(res, "Could not load seed into Trezor")
+    trezor_handleError(this.transport, res, "Could not load seed into Trezor")
   }
 
   public async hasOnDevicePinEntry (): Promise<boolean> {
@@ -192,35 +230,80 @@ export class TrezorHDWallet extends HDWallet {
     return false
   }
 
-  protected handleError (result: any, message: string): void {
-    if (result.success)
-      return
+  public async btcSupportsCoin (coin: Coin): Promise<boolean> {
+    return trezor_btcSupportsCoin(coin)
+  }
 
-    if (result.payload.code === "Failure_ActionCancelled")
-      throw new ActionCancelled()
+  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> { 
+    return trezor_btcSupportsScriptType(coin, scriptType)
+  }
 
-    if (result.payload.error === "device disconnected during action" ||
-        result.payload.error === "Device disconnected")
-      throw new DeviceDisconnected()
+  public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
+    return trezor_btcGetAddress(this.transport, msg)
+  }
 
-    if (result.payload.error === "Popup closed")
-      throw new PopupClosedError()
+  public async btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx> {
+    return trezor_btcSignTx(this, this.transport, msg)
+  }
 
-    throw new Error(`${message}: '${result.payload.error}'`)
+  public async btcSupportsSecureTransfer (): Promise<boolean> {
+    return trezor_btcSupportsSecureTransfer()
+  }
+
+  public async btcSupportsNativeShapeShift (): Promise<boolean> {
+    return trezor_btcSupportsNativeShapeShift()
+  }
+
+  public async btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage> {
+    return trezor_btcSignMessage(this.transport, msg)
+  }
+
+  public async btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean> {
+    return trezor_btcVerifyMessage(this.transport, msg)
+  }
+
+  public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
+    return trezor_btcGetAccountPaths(msg)
+  }
+
+  public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
+    return trezor_btcIsSameAccount(msg)
+  }
+
+
+  public async ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx> {
+    return trezor_ethSignTx(this, this.transport, msg)
+  }
+
+  public async ethGetAddress (msg: ETHGetAddress): Promise<string> {
+    return trezor_ethGetAddress(this.transport, msg)
+  }
+
+  public async ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage> {
+    return trezor_ethSignMessage(this.transport, msg)
+  }
+
+  public async ethVerifyMessage (msg: ETHVerifyMessage): Promise<boolean> {
+    return trezor_ethVerifyMessage(this.transport, msg)
+  }
+
+  public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
+    return trezor_ethSupportsNetwork(chain_id)
+  }
+
+  public async ethSupportsSecureTransfer (): Promise<boolean> {
+    return trezor_ethSupportsSecureTransfer()
+  }
+
+  public async ethSupportsNativeShapeShift (): Promise<boolean> {
+    return trezor_ethSupportsNativeShapeShift()
+  }
+
+  public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
+    return trezor_ethGetAccountPaths(msg)
   }
 }
 
-export interface TrezorHDWallet extends TrezorBTCWallet, TrezorETHWallet, TrezorDebugLinkWallet {}
-
-let mixinsApplied = false
-
 export function create (transport: TrezorTransport, debuglink: boolean): TrezorHDWallet {
-  if (!mixinsApplied) {
-    applyMixins(TrezorHDWallet, [TrezorBTCWallet, TrezorETHWallet, TrezorDebugLinkWallet])
-    mixinsApplied = true
-  }
-  let wallet = <TrezorHDWallet>new TrezorHDWallet(transport)
-  wallet._supportsBTC = true
-  wallet._supportsETH = true
-  return wallet
+  return new TrezorHDWallet(transport)
 }
