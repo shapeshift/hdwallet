@@ -5,6 +5,7 @@ import {
   supportsBTC,
   supportsETH,
   Keyring,
+  HDWalletInfo,
 } from '@shapeshiftoss/hdwallet-core'
 import {
   create as createLedger,
@@ -12,6 +13,7 @@ import {
   LedgerHDWallet,
   LedgerResponse,
   isLedger,
+  info,
 } from '@shapeshiftoss/hdwallet-ledger'
 
 export class MockTransport extends LedgerTransport {
@@ -103,6 +105,10 @@ export class MockTransport extends LedgerTransport {
 
 export function name (): string {
   return 'Ledger'
+}
+
+export function createInfo (): HDWalletInfo {
+  return info()
 }
 
 export async function createWallet (): Promise<HDWallet> {

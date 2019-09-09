@@ -1,7 +1,9 @@
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import {
+  HDWallet,
+  HDWalletInfo
+} from '@shapeshiftoss/hdwallet-core'
 
-
-
+export type InfoCreater = () => HDWalletInfo
 export type Creater = () => Promise<HDWallet>
 export type Getter = () => HDWallet
 export type Suite = (get: Getter) => void
@@ -15,6 +17,11 @@ export interface WalletSuite {
    * Fetch a short description of the HDWallet implementation being tested.
    */
   name: () => string
+
+  /**
+   * Construct an insance of the HDWalletInfo to test against.
+   */
+  createInfo: InfoCreater
 
   /**
    * Construct an instance of the HDWallet to test against.

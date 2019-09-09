@@ -1,9 +1,13 @@
 import {
   BTCInputScriptType,
-  BTCWallet
+  BTCWallet,
+  BTCWalletInfo,
 } from './bitcoin'
 
-import { ETHWallet } from './ethereum'
+import {
+  ETHWallet,
+  ETHWalletInfo,
+} from './ethereum'
 import { DebugLinkWallet } from './debuglink'
 import { Transport } from './transport';
 
@@ -94,6 +98,10 @@ export function supportsBTC(wallet: any): wallet is BTCWallet {
   return (wallet as HDWallet)._supportsBTC !== undefined
 }
 
+export function infoBTC(info: any): info is BTCWalletInfo {
+  return (info as HDWalletInfo)._supportsBTCInfo !== undefined
+}
+
 /**
  * Type guard for ETHWallet Support
  *
@@ -108,11 +116,56 @@ export function supportsETH(wallet: any): wallet is ETHWallet {
   return (wallet as HDWallet)._supportsETH !== undefined
 }
 
+export function infoETH(info: any): info is ETHWalletInfo {
+  return (info as HDWalletInfo)._supportsETHInfo !== undefined
+}
+
 export function supportsDebugLink(wallet: any): wallet is DebugLinkWallet {
   return (wallet as HDWallet)._supportsDebugLink !== undefined
 }
 
-export interface HDWallet {
+export interface HDWalletInfo {
+  _supportsETHInfo: boolean
+  _supportsBTCInfo: boolean
+
+  /**
+   * Retrieve the wallet's vendor string.
+   */
+  getVendor (): string
+
+  /**
+   * Does the wallet need the user to enter their pin through the device?
+   */
+  hasOnDevicePinEntry (): Promise<boolean>
+
+  /**
+   * Does the wallet need the user to enter their passphrase through the device?
+   */
+  hasOnDevicePassphrase (): Promise<boolean>
+
+  /**
+   * Does the wallet have a screen for displaying addresses / confirming?
+   */
+  hasOnDeviceDisplay (): Promise<boolean>
+
+  /**
+   * Does the wallet use a recovery method that does not involve communicating
+   * with the host? Eg. for a KeepKey, this is `false` since we use Ciphered
+   * Recovery, but for a Ledger it's `true` since you enter words using only
+   * the device.
+   */
+  hasOnDeviceRecovery (): Promise<boolean>
+
+  /**
+   * Does the device support `/sendamountProto2` style native ShapeShift
+   * integration for the given pair?
+   */
+  hasNativeShapeShift (srcCoin: Coin, dstCoin: Coin): Promise<boolean>
+}
+
+export interface HDWallet extends HDWalletInfo {
+  _supportsETHInfo: boolean
+  _supportsBTCInfo: boolean
   _supportsBTC: boolean
   _supportsETH: boolean
   _supportsDebugLink: boolean
@@ -122,16 +175,12 @@ export interface HDWallet {
   _isTrezor: boolean
 
   transport: Transport
+  info: HDWalletInfo
 
   /**
    * Retrieve the wallet's unique ID
    */
   getDeviceID (): Promise<string>
-
-  /**
-   * Retrieve the wallet's vendor string.
-   */
-  getVendor (): string
 
   /**
    * Retrieve the name of the model of wallet, eg 'KeepKey' or 'Trezor One'
@@ -220,33 +269,4 @@ export interface HDWallet {
    * or if you really really know what you're doing on an **airgapped** machine.
    */
   loadDevice (msg: LoadDevice): Promise<void>
-
-  /**
-   * Does the wallet need the user to enter their pin through the device?
-   */
-  hasOnDevicePinEntry (): Promise<boolean>
-
-  /**
-   * Does the wallet need the user to enter their passphrase through the device?
-   */
-  hasOnDevicePassphrase (): Promise<boolean>
-
-  /**
-   * Does the wallet have a screen for displaying addresses / confirming?
-   */
-  hasOnDeviceDisplay (): Promise<boolean>
-
-  /**
-   * Does the wallet use a recovery method that does not involve communicating
-   * with the host? Eg. for a KeepKey, this is `false` since we use Ciphered
-   * Recovery, but for a Ledger it's `true` since you enter words using only
-   * the device.
-   */
-  hasOnDeviceRecovery (): Promise<boolean>
-
-  /**
-   * Does the device support `/sendamountProto2` style native ShapeShift
-   * integration for the given pair?
-   */
-  hasNativeShapeShift (srcCoin: Coin, dstCoin: Coin): Promise<boolean>
 }

@@ -6,7 +6,9 @@ import {
   BTCInputScriptType,
   BTCOutputAddressType,
   BTCOutputScriptType,
-  Coin
+  Coin,
+  BTCWalletInfo,
+  infoBTC,
 } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 
@@ -22,13 +24,19 @@ const TIMEOUT = 60 * 1000
 export function bitcoinTests (get: () => HDWallet): void {
 
   let wallet: BTCWallet & HDWallet
+  let info: BTCWalletInfo
 
   describe('Bitcoin', () => {
 
     beforeAll(() => {
       let w = get()
-      if (supportsBTC(w))
+      if (supportsBTC(w)) {
         wallet = w
+        if (!infoBTC(w.info)) {
+          throw new Error("wallet info does not _supportsBTCInfo?")
+        }
+        info = w.info
+      }
     })
 
     beforeEach(async () => {
@@ -40,7 +48,9 @@ export function bitcoinTests (get: () => HDWallet): void {
     test('btcSupportsCoin()', async () => {
       if (!wallet) return
       expect(wallet.btcSupportsCoin('Bitcoin')).toBeTruthy()
+      expect(await info.btcSupportsCoin('Bitcoin')).toBeTruthy()
       expect(wallet.btcSupportsCoin('Testnet')).toBeTruthy()
+      expect(await info.btcSupportsCoin('Testnet')).toBeTruthy()
     }, TIMEOUT)
 
     test('btcGetAddress()', async () => {
@@ -59,7 +69,9 @@ export function bitcoinTests (get: () => HDWallet): void {
         let expected = args[4] as string
 
         if (!await wallet.btcSupportsCoin(coin)) return
+        expect(await info.btcSupportsCoin(coin)).toBeTruthy()
         if (!await wallet.btcSupportsScriptType(coin, scriptType)) return
+        expect(await info.btcSupportsScriptType(coin, scriptType)).toBeTruthy()
         let res = await wallet.btcGetAddress({
           addressNList: bip32ToAddressNList(path),
           coin: coin,
@@ -157,12 +169,18 @@ export function bitcoinTests (get: () => HDWallet): void {
     test('btcSupportsSecureTransfer()', async () => {
       if (!wallet) return
       expect(typeof (await wallet.btcSupportsSecureTransfer()) === typeof true).toBeTruthy()
+      if (await wallet.btcSupportsSecureTransfer()) {
+        expect(await info.btcSupportsSecureTransfer()).toBeTruthy()
+      }
       // TODO: write a testcase that exercise secure transfer, if the wallet claims to support it.
     }, TIMEOUT)
 
     test('btcSupportsNativeShapeShift()', async () => {
       if (!wallet) return
       expect(typeof (await wallet.btcSupportsNativeShapeShift()) === typeof true)
+      if (await wallet.btcSupportsNativeShapeShift()) {
+        expect(await info.btcSupportsNativeShapeShift()).toBeTruthy()
+      }
       // TODO: write a testcase that exercises native shapeshift, if the wallet claims to support it.
     }, TIMEOUT)
 
@@ -185,8 +203,10 @@ export function bitcoinTests (get: () => HDWallet): void {
         if (!wallet) return
         if (!await wallet.btcSupportsCoin(coin))
           return
+        expect(await info.btcSupportsCoin(coin)).toBeTruthy()
         if (!await wallet.btcSupportsScriptType(coin, scriptType))
           return
+        expect(await info.btcSupportsScriptType(coin, scriptType)).toBeTruthy()
         let paths = wallet.btcGetAccountPaths({ coin: coin, accountIdx: accountIdx, scriptType: scriptType })
         expect(paths.length > 0).toBeTruthy()
         if (scriptType !== undefined)

@@ -31,6 +31,9 @@ import {
   ETHVerifyMessage,
   ETHGetAccountPath,
   ETHAccountPath,
+  HDWalletInfo,
+  BTCWalletInfo,
+  ETHWalletInfo,
 } from '@shapeshiftoss/hdwallet-core'
 import { handleError } from './utils'
 import * as Btc from './bitcoin'
@@ -41,18 +44,94 @@ export function isTrezor(wallet: HDWallet): wallet is TrezorHDWallet {
   return typeof wallet === 'object' && wallet._isTrezor !== undefined
 }
 
+export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo {
+  _supportsBTCInfo: boolean = true
+  _supportsETHInfo: boolean = true
+
+  public getVendor (): string {
+    return "Trezor"
+  }
+
+  public async btcSupportsCoin (coin: Coin): Promise<boolean> {
+    return Btc.btcSupportsCoin(coin)
+  }
+
+  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> { 
+    return Btc.btcSupportsScriptType(coin, scriptType)
+  }
+
+  public async btcSupportsSecureTransfer (): Promise<boolean> {
+    return Btc.btcSupportsSecureTransfer()
+  }
+
+  public async btcSupportsNativeShapeShift (): Promise<boolean> {
+    return Btc.btcSupportsNativeShapeShift()
+  }
+
+  public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
+    return Btc.btcGetAccountPaths(msg)
+  }
+
+  public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
+    return Btc.btcIsSameAccount(msg)
+  }
+
+  public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
+    return Eth.ethSupportsNetwork(chain_id)
+  }
+
+  public async ethSupportsSecureTransfer (): Promise<boolean> {
+    return Eth.ethSupportsSecureTransfer()
+  }
+
+  public async ethSupportsNativeShapeShift (): Promise<boolean> {
+    return Eth.ethSupportsNativeShapeShift()
+  }
+
+  public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
+    return Eth.ethGetAccountPaths(msg)
+  }
+
+  public async hasOnDevicePinEntry (): Promise<boolean> {
+    return true
+  }
+
+  public async hasOnDevicePassphrase (): Promise<boolean> {
+    return true
+  }
+
+  public async hasOnDeviceDisplay (): Promise<boolean> {
+    return true
+  }
+
+  public async hasOnDeviceRecovery (): Promise<boolean> {
+    // Not really meaningful since TrezorConnect doesn't expose recovery yet
+    return true
+  }
+
+  public async hasNativeShapeShift (srcCoin: Coin, dstCoin: Coin): Promise<boolean> {
+    // It doesn't... yet?
+    return false
+  }
+}
+
 export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
+  _supportsETHInfo: boolean = true
+  _supportsBTCInfo: boolean = true
   _supportsDebugLink: boolean = false
   _supportsBTC: boolean = true
   _supportsETH: boolean = true
   _isTrezor: boolean = true
   _isKeepKey: boolean = false
   _isLedger: boolean = false
+
   transport: TrezorTransport
   featuresCache: any
+  info: TrezorHDWalletInfo & HDWalletInfo
 
   constructor(transport: TrezorTransport) {
     this.transport = transport
+    this.info = new TrezorHDWalletInfo()
   }
 
   public async initialize (): Promise<any> {
@@ -213,11 +292,11 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
   }
 
   public async btcSupportsCoin (coin: Coin): Promise<boolean> {
-    return Btc.btcSupportsCoin(coin)
+    return this.info.btcSupportsCoin(coin)
   }
 
   public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> { 
-    return Btc.btcSupportsScriptType(coin, scriptType)
+    return this.info.btcSupportsScriptType(coin, scriptType)
   }
 
   public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
@@ -229,11 +308,11 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
   }
 
   public async btcSupportsSecureTransfer (): Promise<boolean> {
-    return Btc.btcSupportsSecureTransfer()
+    return this.info.btcSupportsSecureTransfer()
   }
 
   public async btcSupportsNativeShapeShift (): Promise<boolean> {
-    return Btc.btcSupportsNativeShapeShift()
+    return this.info.btcSupportsNativeShapeShift()
   }
 
   public async btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage> {
@@ -249,7 +328,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
   }
 
   public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
-    return Btc.btcIsSameAccount(msg)
+    return this.info.btcIsSameAccount(msg)
   }
 
 
@@ -270,20 +349,24 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
   }
 
   public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
-    return Eth.ethSupportsNetwork(chain_id)
+    return this.info.ethSupportsNetwork(chain_id)
   }
 
   public async ethSupportsSecureTransfer (): Promise<boolean> {
-    return Eth.ethSupportsSecureTransfer()
+    return this.info.ethSupportsSecureTransfer()
   }
 
   public async ethSupportsNativeShapeShift (): Promise<boolean> {
-    return Eth.ethSupportsNativeShapeShift()
+    return this.info.ethSupportsNativeShapeShift()
   }
 
   public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
-    return Eth.ethGetAccountPaths(msg)
+    return this.info.ethGetAccountPaths(msg)
   }
+}
+
+export function info (): TrezorHDWalletInfo {
+  return new TrezorHDWalletInfo()
 }
 
 export function create (transport: TrezorTransport, debuglink: boolean): TrezorHDWallet {

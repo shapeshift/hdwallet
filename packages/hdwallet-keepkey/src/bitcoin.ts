@@ -481,11 +481,6 @@ export function btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
   if (msg.length < 1)
     return false
 
-  // TODO: mixed-mode segwit was added in v6.0.2
-  // https://github.com/keepkey/keepkey-firmware/pull/81
-  // if (firmware_version.lt('6.0.2') && msg.length > 1)
-  //  return false
-
   if (msg.length > 3)
     return false
 

@@ -150,15 +150,19 @@ export interface BTCAccountPath {
   addressNList: BIP32Path
 }
 
-export interface BTCWallet {
-  _supportsBTC: boolean
+export interface BTCWalletInfo {
+  _supportsBTCInfo: boolean
 
+  /**
+   * Does the device support the given UTXO coin? 
+   */
   btcSupportsCoin (coin: Coin): Promise<boolean>
+
+  /**
+   * Does the device support the given script type for the given coin?
+   * Assumes that `btcSupportsCoin(coin)` for the given coin.
+   */
   btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean>
-  btcGetAddress (msg: BTCGetAddress): Promise<string>
-  btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx>
-  btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage>
-  btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean>
 
   /**
    * Does the device support internal transfers without the user needing to
@@ -198,3 +202,11 @@ export interface BTCWallet {
   btcIsSameAccount (msg: Array<BTCAccountPath>): boolean
 }
 
+export interface BTCWallet extends BTCWalletInfo {
+  _supportsBTC: boolean
+
+  btcGetAddress (msg: BTCGetAddress): Promise<string>
+  btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx>
+  btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage>
+  btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean>
+}
