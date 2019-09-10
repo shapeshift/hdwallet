@@ -20,7 +20,8 @@ orbs:
           - restore_cache:
               name: Restore Yarn Package Cache
               keys:
-                - yarn-packages-{{ checksum "yarn.lock" }}
+                - cache-v4-{{ checksum "yarn.lock" }}
+                - cache-v4-
           - run: yarn --frozen-lockfile --cache-folder ./.yarn-cache
           - persist_to_workspace:
               root: .
@@ -30,7 +31,7 @@ orbs:
                 - .yarn-cache
           - save_cache:
               name: Save Yarn Package Cache
-              key: yarn-packages-{{ checksum "yarn.lock" }}
+              key: cache-v4-{{ checksum "yarn.lock" }}
               paths:
                 - .yarn-cache
           - run:
@@ -45,7 +46,8 @@ orbs:
               at: .
           - restore_cache:
               keys:
-                - cache-v3-{{ checksum "yarn.lock" }}
+                - cache-v4-{{ checksum "yarn.lock" }}
+                - cache-v4-
           - run: yarn --cache-folder .yarn-cache
           - run:
               no_output_timeout: 30m
@@ -56,32 +58,26 @@ orbs:
               paths:
                 - packages/*/dist
           - save_cache:
-              key: cache-v3-{{ checksum "yarn.lock" }}
+              key: cache-v4-{{ checksum "yarn.lock" }}
               paths:
                 - "packages/hdwallet-core/.rts2_cache_cjs"
                 - "packages/hdwallet-core/.rts2_cache_es"
                 - "packages/hdwallet-core/.rts2_cache_umd"
-                - "packages/hdwallet-core/dist"
                 - "packages/hdwallet-keepkey/.rts2_cache_cjs"
                 - "packages/hdwallet-keepkey/.rts2_cache_es"
                 - "packages/hdwallet-keepkey/.rts2_cache_umd"
-                - "packages/hdwallet-keepkey/dist"
                 - "packages/hdwallet-trezor/.rts2_cache_cjs"
                 - "packages/hdwallet-trezor/.rts2_cache_es"
                 - "packages/hdwallet-trezor/.rts2_cache_umd"
-                - "packages/hdwallet-trezor/dist"
                 - "packages/hdwallet-keepkey-chromeusb/.rts2_cache_cjs"
                 - "packages/hdwallet-keepkey-chromeusb/.rts2_cache_es"
                 - "packages/hdwallet-keepkey-chromeusb/.rts2_cache_umd"
-                - "packages/hdwallet-keepkey-chromeusb/dist"
                 - "packages/hdwallet-keepkey-nodehid/.rts2_cache_cjs"
                 - "packages/hdwallet-keepkey-nodehid/.rts2_cache_es"
                 - "packages/hdwallet-keepkey-nodehid/.rts2_cache_umd"
-                - "packages/hdwallet-keepkey-nodehid/dist"
                 - "packages/hdwallet-keepkey-webusb/.rts2_cache_cjs"
                 - "packages/hdwallet-keepkey-webusb/.rts2_cache_es"
                 - "packages/hdwallet-keepkey-webusb/.rts2_cache_umd"
-                - "packages/hdwallet-keepkey-webusb/dist"
       test:
         description: Run tests
         executor: node
@@ -93,7 +89,8 @@ orbs:
               at: .
           - restore_cache:
               keys:
-                - cache-v3-{{ checksum "yarn.lock" }}
+                - cache-v4-{{ checksum "yarn.lock" }}
+                - cache-v4-
           - run: yarn --cache-folder .yarn-cache
           - run:
               name: Run tests
