@@ -21,6 +21,13 @@ import {
   BTCOutputAddressType, BitcoinTx, BitcoinInput, BitcoinOutput
 } from '@shapeshiftoss/hdwallet-core/src/bitcoin'
 
+import * as btcTxJson from './json/btcTx.json'
+import * as btcBech32TxJson from './json/btcBech32Tx.json'
+import * as btcSegWitTxJson from './json/btcSegWitTx.json'
+import * as dashTxJson from './json/dashTx.json'
+import * as dogeTxJson from './json/dogeTx.json'
+import * as ltcTxJson from './json/ltcTx.json'
+
 const keyring = new Keyring()
 
 const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring)
@@ -395,9 +402,8 @@ $ethVerify.on('click', async (e) => {
 
 /*
       Bitcoin
-        * segwit: true
+        * segwit: false
         * mutltisig: true
-        * Bech32
 
 */
 const $btcAddr = $('#btcAddr')
@@ -435,9 +441,6 @@ $btcTx.on('click', async (e) => {
     const response = await fetch(lookup)
     const data = await response.json()
     const hex = data[0].hex
-    const txLookup = 'https://btc.coinquery.com/api/tx/'+txid
-    const responseTx = await fetch(txLookup)
-    const tx = await responseTx.json()
 
     let inputs = [{
       addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
@@ -445,7 +448,7 @@ $btcTx.on('click', async (e) => {
       amount: 14657949219,
       vout: 0,
       txid: txid,
-      tx,
+      tx: btcTxJson,
       hex
     }]
 
@@ -548,9 +551,6 @@ $ltcTx.on('click', async (e) => {
     const response = await fetch(lookup)
     const data = await response.json()
     const hex = data[0].hex
-    const txLookup = 'https://ltc.coinquery.com/api/tx/'+txid
-    const responseTx = await fetch(txLookup)
-    const tx = await responseTx.json()
 
     const inputs = [{
       addressNList: ltcBip44.addressNList,
@@ -559,7 +559,7 @@ $ltcTx.on('click', async (e) => {
       vout: 0,
       txid: txid,
       segwit: false,
-      tx,
+      tx: ltcTxJson,
       hex
     }]
 
@@ -648,9 +648,6 @@ $dogeTx.on('click', async (e) => {
     const response = await fetch(lookup)
     const data = await response.json()
     const hex = data[0].hex
-    const txLookup = 'https://doge.coinquery.com/api/tx/'+txid
-    const responseTx = await fetch(txLookup)
-    const tx = await responseTx.json()
 
     const inputs = [{
       addressNList: dogeBip44.addressNList.concat([0, 0]),
@@ -659,7 +656,7 @@ $dogeTx.on('click', async (e) => {
       vout: 0,
       txid: txid,
       segwit: false,
-      tx,
+      tx: dogeTxJson,
       hex
     }]
 
@@ -679,7 +676,7 @@ $dogeTx.on('click', async (e) => {
       locktime: 0,
 
     })
-    $dogeResults.val(res.serializedTx)
+    $dogeResults.val(res.serializedTx) // TODO: Fails for Ledger: "TransportStatusError: Ledger device: Invalid data received (0x6a80)"
   } else {
     let label = await wallet.getLabel()
     $dogeResults.val(label + " does not support Litecoin")
@@ -810,9 +807,6 @@ $dashTx.on('click', async (e) => {
     const response = await fetch(lookup)
     const data = await response.json()
     const hex = data[0].hex
-    const txLookup = 'https://dash.coinquery.com/api/tx/0602c9ef3c74de624f1bc613a79764e5c51650b4cc0d076547061782baeeabdb'
-    const responseTx = await fetch(txLookup)
-    const tx = await responseTx.json()
 
     const inputs = [{
       addressNList: dashBip44.addressNList.concat([0, 0]),
@@ -821,7 +815,7 @@ $dashTx.on('click', async (e) => {
       vout: 0,
       txid: txid,
       segwit: false,
-      tx,
+      tx: dashTxJson,
       hex
     }]
 
@@ -852,7 +846,6 @@ $dashTx.on('click', async (e) => {
       Bitcoin (segwit)
         * segwit: true
         * mutltisig: true
-        * Bech32
  */
 
 const $btcAddrSegWit = $('#btcAddrSegWit')
@@ -913,9 +906,6 @@ $btcTxSegWit.on('click', async (e) => {
     const response = await fetch(lookup)
     const data = await response.json()
     const hex = data[0].hex
-    const txLookup = 'https://btc.coinquery.com/api/tx/'+txid
-    const responseTx = await fetch(txLookup)
-    const tx = await responseTx.json()
 
     let inputs = [
       {
@@ -924,7 +914,7 @@ $btcTxSegWit.on('click', async (e) => {
         vout: 0,
         txid: txid,
         scriptType: BTCInputScriptType.SpendP2SHWitness,
-        tx,
+        tx: btcSegWitTxJson,
         hex
       }
     ]
@@ -960,9 +950,6 @@ $btcTxSegWitNative.on('click', async (e) => {
     const response = await fetch(lookup)
     const data = await response.json()
     const hex = data[0].hex
-    const txLookup = 'https://btc.coinquery.com/api/tx/'+txid
-    const responseTx = await fetch(txLookup)
-    const tx = await responseTx.json()
 
     let inputs = [
       {
@@ -971,7 +958,7 @@ $btcTxSegWitNative.on('click', async (e) => {
         vout: 0,
         txid: txid,
         scriptType: BTCInputScriptType.SpendWitness,
-        tx,
+        tx: btcBech32TxJson,
         hex
       }
     ]
