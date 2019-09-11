@@ -1,4 +1,7 @@
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 
 import { btcTests } from './bitcoin'
 import { ethTests } from './ethereum'
@@ -21,6 +24,16 @@ export function integration (suite: WalletSuite): void {
 
     beforeAll(async () => {
       wallet = await suite.createWallet()
+    })
+
+    describe('Type Guards', () => {
+      it('has only one vendor', () => {
+        expect(
+          (isKeepKey(wallet) ? 1 : 0) +
+          (isTrezor(wallet) ? 1 : 0) +
+          (isLedger(wallet) ? 1 : 0)
+        ).toEqual(1)
+      })
     })
 
     describe('ETHWallet', () => {
