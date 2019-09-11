@@ -15,9 +15,13 @@ export class HDWalletError extends Error {
 
     constructor (message: string, type: HDWalletErrorType) {
         super(message)
-        Error.captureStackTrace(this, this.constructor)
         this.name = type
         this.type = type
+        if (typeof Error.captureStackTrace === 'function') {
+            Error.captureStackTrace(this, this.constructor);
+        } else {
+            this.stack = (new Error(message)).stack;
+        }
     }
 }
 
