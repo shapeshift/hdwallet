@@ -55,7 +55,7 @@ import * as Eth from "./ethereum"
 import { KeepKeyTransport } from "./transport";
 
 export function isKeepKey(wallet: any): wallet is KeepKeyHDWallet {
-  return typeof wallet === 'object' && wallet._isKeepKey !== undefined
+  return typeof wallet === 'object' && wallet._isKeepKey === true
 }
 
 export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo {

@@ -49,7 +49,7 @@ import {
 } from './utils'
 
 export function isLedger (wallet: HDWallet): wallet is LedgerHDWallet {
-  return typeof wallet === 'object' && wallet._isLedger !== undefined
+  return typeof wallet === 'object' && wallet._isLedger === true
 }
 
 export class LedgerHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo {
