@@ -21,6 +21,13 @@ import {
   BTCOutputAddressType, BitcoinTx, BitcoinInput, BitcoinOutput
 } from '@shapeshiftoss/hdwallet-core/src/bitcoin'
 
+import * as btcBech32TxJson from './json/btcBech32Tx.json'
+import * as btcTxJson from './json/btcTx.json'
+import * as btcSegWitTxJson from './json/btcSegWitTx.json'
+import * as dashTxJson from './json/dashTx.json'
+import * as dogeTxJson from './json/dogeTx.json'
+import * as ltcTxJson from './json/ltcTx.json'
+
 const keyring = new Keyring()
 
 const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring)
@@ -395,9 +402,8 @@ $ethVerify.on('click', async (e) => {
 
 /*
       Bitcoin
-        * segwit: true
+        * segwit: false
         * mutltisig: true
-        * Bech32
 
 */
 const $btcAddr = $('#btcAddr')
@@ -431,13 +437,7 @@ $btcTx.on('click', async (e) => {
   if (!wallet) { $btcResults.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
     const txid = 'b3002cd9c033f4f3c2ee5a374673d7698b13c7f3525c1ae49a00d2e28e8678ea'
-    const lookup = `https://api.ledgerwallet.com/blockchain/v2/btc/transactions/${txid}/hex`
-    const response = await fetch(lookup)
-    const data = await response.json()
-    const hex = data[0].hex
-    const txLookup = 'https://btc.coinquery.com/api/tx/'+txid
-    const responseTx = await fetch(txLookup)
-    const tx = await responseTx.json()
+    const hex = '010000000181f605ead676d8182975c16e7191c21d833972dd0ed50583ce4628254d28b6a3010000008a47304402207f3220930276204c83b1740bae1da18e5a3fa2acad34944ecdc3b361b419e3520220598381bdf8273126e11460a8c720afdbb679233123d2d4e94561f75e9b280ce30141045da61d81456b6d787d576dce817a2d61d7f8cb4623ee669cbe711b0bcff327a3797e3da53a2b4e3e210535076c087c8fb98aef60e42dfeea8388435fc99dca43ffffffff0250ec0e00000000001976a914f7b9e0239571434f0ccfdba6f772a6d23f2cfb1388ac10270000000000001976a9149c9d21f47382762df3ad81391ee0964b28dd951788ac00000000'
 
     let inputs = [{
       addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
@@ -445,7 +445,7 @@ $btcTx.on('click', async (e) => {
       amount: 14657949219,
       vout: 0,
       txid: txid,
-      tx,
+      tx: btcTxJson,
       hex
     }]
 
@@ -542,24 +542,17 @@ $ltcTx.on('click', async (e) => {
   e.preventDefault()
   if (!wallet) { $ltcResults.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
-
     const txid = '1de79c706f34c81bbefad49a9ff8d12b6ca86b77605a1998505e4f8792a5892d'
-    const lookup = `https://api.ledgerwallet.com/blockchain/v2/ltc/transactions/${txid}/hex`
-    const response = await fetch(lookup)
-    const data = await response.json()
-    const hex = data[0].hex
-    const txLookup = 'https://ltc.coinquery.com/api/tx/'+txid
-    const responseTx = await fetch(txLookup)
-    const tx = await responseTx.json()
+    const hex = '010000000196f5704ef948abb958f32ff216112d3283142baf50723833c378882c14a9adea010000006a47304402207c899ba5197a23b1f3cc4b3621abbc682b5142f3ae29af4b951952573f6c82a002203fd7f038aa8403d2c06fd32c237ab4e915939c25aafa7bcb06fb0ddd46afbfd3012103eddbce765b6d7ae1c91b779696e8b8f72ce444070f83beba2f823af76fd4dfebffffffff0290680a00000000001976a91491e975a0238fa1dfff703e50f062e2544a3e372088aca6791100000000001976a91415757f526dc67b52ae9f74918db532eebc39608688ac00000000'
 
     const inputs = [{
       addressNList: ltcBip44.addressNList,
       scriptType: BTCInputScriptType.SpendAddress,
       amount: 2160258,
       vout: 0,
-      txid: txid,
+      txid,
       segwit: false,
-      tx,
+      tx: ltcTxJson,
       hex
     }]
 
@@ -644,13 +637,7 @@ $dogeTx.on('click', async (e) => {
   if (!wallet) { $dogeResults.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
     const txid = '4ab8c81585bf61ddcba03f4b2f4958b3800d68b02874f4955e258775cb3e7068'
-    const lookup = `https://api.ledgerwallet.com/blockchain/v2/doge/transactions/${txid}/hex`
-    const response = await fetch(lookup)
-    const data = await response.json()
-    const hex = data[0].hex
-    const txLookup = 'https://doge.coinquery.com/api/tx/'+txid
-    const responseTx = await fetch(txLookup)
-    const tx = await responseTx.json()
+    const hex = '01000000048831c8a8c7f06e5f4ecccb789cc9de0fc843208797652ff9edf6edaa64d02789010000006a473044022070e25a73ceebaf5b3a35d5e4930ebba77957a2fe485b9dcbaf982a7c63d4baab02206e75dcc4258db29a2803d6a14112d3d81f93ec23f9b2a61bfe8102d764d7c6390121031b49bb2c43daac784377bcca83c41f781007626e6e8b66cda9f57fed11494359feffffff52a8a6ac8ea9b436069c160caae68b2eb0a5b713a7b838179833af5a339e48e9000000006a47304402206b3aa1a4656d4859b87512a5fb50c73f0f6e05d45fa027850a3e1eb4f927675402201fb1c52d85380727d28bea7a21d434bed2d57d3a120082c6c69d578b4f3da07c0121033034cf66b3b153a81713b3ddbcdffd92c34c46510353cf01b237fcfbcf1348bdfeffffff35f6938fd9d9077d913bd6cfc546cbadb17d4db6ccb67d87a1f89e562d6bed8e000000006b483045022100a0e8a73fc2358a206a73a78582fd7ebba2fb08487aca78aaa89cbf7f9805da0102207704f4f27ff6297b11acd74f8e3f28d924c4006ac0d37dd37bbdba1ef8f401ae0121038ac65cabea63b92d3aabd3f17591c23bbec73b87220a3f0325fe2de9e62107e3feffffff07cd534960ea57fdb4195d3de7dae1feb1e630a022c08baca2f2423f4d190a27010000006a47304402203c89ade05e93ee9cb9bfa0703be55a76abd40330108a5e5272bcd0c8338c35df022042d8cb34275e87df1b77f19e9dde5da553b98bca67c1c332a53392b32d55ba580121038291eee31aa046a00938dda548c0c948f57bf5dc6e534abbe0d5078a6ce083a0feffffff02b8adfa31000000001976a9146ef1cda5c24d47934853aeccce14163e3a18be1388ac02bd9348080000001976a914d3f096cbc84bd6daf7e7fe2700c32548ca2f23f188acadd31600'
 
     const inputs = [{
       addressNList: dogeBip44.addressNList.concat([0, 0]),
@@ -659,7 +646,7 @@ $dogeTx.on('click', async (e) => {
       vout: 0,
       txid: txid,
       segwit: false,
-      tx,
+      tx: dogeTxJson,
       hex
     }]
 
@@ -679,7 +666,7 @@ $dogeTx.on('click', async (e) => {
       locktime: 0,
 
     })
-    $dogeResults.val(res.serializedTx)
+    $dogeResults.val(res.serializedTx) // TODO: Fails for Ledger: "TransportStatusError: Ledger device: Invalid data received (0x6a80)"
   } else {
     let label = await wallet.getLabel()
     $dogeResults.val(label + " does not support Litecoin")
@@ -726,10 +713,7 @@ $bchTx.on('click', async (e) => {
   if (!wallet) { $bchResults.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
     const txid = '35ec5b47eea3b45efb062c6fabad43987a79b855dc42630b34f8d26d4a646a2e'
-    const lookup = `https://api.ledgerwallet.com/blockchain/v2/abc/transactions/${txid}/hex`
-    const response = await fetch(lookup)
-    const data = await response.json()
-    const hex = data[0].hex
+    const hex = '0100000002a90f75f5924be1fb8147885f6212fefeed3d192eb23a737265f01c822aa74be9000000006b48304502210092dbd26379c6a707b5974bf9ce242baf151a2cef95a5644f6bd4fa05bcbf433e0220125c3647fe473a7e9bf89cb092e1f5e2b26f10a33a12c23b2cfbf2bb1d72c6324121035942ab1589fb2f85c0b3e0c9a37b8ea3092ac749fcbc20733ed227322b5da9ecffffffffbaa5bc3a01a705c377b3ee88ae21ca70ee9d3694f05c466f420cc2bd1951afe5000000006b483045022100a79147c5cf806a2bb3bb6619113cc4bf9b522aaf529ea1b34a93b99bd33054020220019df030c623c9e782f23e755fa9259ec708427606cce8302d5a125e4147838a4121035942ab1589fb2f85c0b3e0c9a37b8ea3092ac749fcbc20733ed227322b5da9ecffffffff0188c7d200000000001976a914806b281a1dc91915339e1efdbce8ace8dd9d5e3388ac00000000'
 
     const inputs = [{
       addressNList: bchBip44.addressNList.concat([0, 0]),
@@ -806,13 +790,7 @@ $dashTx.on('click', async (e) => {
   if (!wallet) { $dashResults.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
     const txid = '0602c9ef3c74de624f1bc613a79764e5c51650b4cc0d076547061782baeeabdb'
-    const lookup = `https://api.ledgerwallet.com/blockchain/v2/dash/transactions/${txid}/hex`
-    const response = await fetch(lookup)
-    const data = await response.json()
-    const hex = data[0].hex
-    const txLookup = 'https://dash.coinquery.com/api/tx/0602c9ef3c74de624f1bc613a79764e5c51650b4cc0d076547061782baeeabdb'
-    const responseTx = await fetch(txLookup)
-    const tx = await responseTx.json()
+    const hex = '0100000001ca2abfc4e998a904d9591ba0e7ac506c2e6eb6fb6cfd23dab3edf8525f5966b3000000006a47304402200452d3ad2aefe2b712c1eae89d1b96df5016570c7fcda3dcb49fd7ae51fe97a102201fe2a70aafb5355c4e4b5db8d98724df4e38e2951caef3cbb9b690d909922cbe0121036ac34cb12ac492c0eb0d1a07bd73a5a5f08bc6ba27b710276073704de9912921ffffffff01834f3b01000000001976a914546dabff283c7d6cf56dd85b5e5d3a4150449db688ac00000000'
 
     const inputs = [{
       addressNList: dashBip44.addressNList.concat([0, 0]),
@@ -821,7 +799,7 @@ $dashTx.on('click', async (e) => {
       vout: 0,
       txid: txid,
       segwit: false,
-      tx,
+      tx: dashTxJson,
       hex
     }]
 
@@ -852,7 +830,6 @@ $dashTx.on('click', async (e) => {
       Bitcoin (segwit)
         * segwit: true
         * mutltisig: true
-        * Bech32
  */
 
 const $btcAddrSegWit = $('#btcAddrSegWit')
@@ -909,13 +886,7 @@ $btcTxSegWit.on('click', async (e) => {
   if (supportsBTC(wallet)) {
 
     const txid = '609410a9eac51cdce2b9c1911c7b8705bc566e164bca07ae25f2dee87b5b6a91'
-    const lookup = `https://api.ledgerwallet.com/blockchain/v2/btc/transactions/${txid}/hex`
-    const response = await fetch(lookup)
-    const data = await response.json()
-    const hex = data[0].hex
-    const txLookup = 'https://btc.coinquery.com/api/tx/'+txid
-    const responseTx = await fetch(txLookup)
-    const tx = await responseTx.json()
+    const hex = '01000000021b09436d8f9fae331e8810ca8ddf5b2bac1c95338a98280ad75efb6773d54a03000000006b48304502210081734b9b58d109997241c85806e6a5c97ba79f4a76ddb98eb227626b21ac1d290220534bee7f3f2a1803b851570b62825a589b5989f69afa44ddee5b591b8f822d3d012103fa044f4e622a9dc7a877155efad20816c6994f95bd1dc21c339a820395a32e01ffffffffe4b64ecf01f1b2e2a8c0ca86662fada7abbb991e9b4974217f5977623d515ea1010000006b4830450221008a2c95c61db777e15ebb7220c9a84565080ed87b97778a0417854fefa87e447202205dafb62309770a98868737d25bc7779caffa4b50993c36c93acf1f07a5d6d69b012102000b4b1051a63e82eeede1f1990ab226685f83ba104a0946edc740e17ce2958bffffffff02a08601000000000017a91463c4b3af0eb54b8b58b07fbde95a4ab3af3b8735874f161100000000001976a91430f7daeb4336f786cb0cf3bb162d83393681ca2d88ac00000000'
 
     let inputs = [
       {
@@ -924,7 +895,7 @@ $btcTxSegWit.on('click', async (e) => {
         vout: 0,
         txid: txid,
         scriptType: BTCInputScriptType.SpendP2SHWitness,
-        tx,
+        tx: btcSegWitTxJson,
         hex
       }
     ]
@@ -956,13 +927,7 @@ $btcTxSegWitNative.on('click', async (e) => {
   if (supportsBTC(wallet)) {
 
     const txid = '2a873672cd30bfe60f05f16db4cadec26677af0971d8fd250aa0ea1bdd8e5942'
-    const lookup = `https://api.ledgerwallet.com/blockchain/v2/btc/transactions/${txid}/hex`
-    const response = await fetch(lookup)
-    const data = await response.json()
-    const hex = data[0].hex
-    const txLookup = 'https://btc.coinquery.com/api/tx/'+txid
-    const responseTx = await fetch(txLookup)
-    const tx = await responseTx.json()
+    const hex = '01000000016f992bb21c320dc0c1e906cd84a6a7aeb99da073e6a16ec0717a89827fd1a09d010000006b483045022100ecbc1d0613dedbc7ce8a9b92fe1bb96750ad5e613000046f9a609dca07518718022024613e251c64f97a14021a30b58a6833823a25c4b5aecf0a8d446cec01316ee1012103d8a07c480c7b3d665cf6b0f83989a34ee2c7dad91c18b8cae7633e9ec7413b18ffffffff02a086010000000000160014329035c39cb274eb9cdaa662a7ab0eaaae15612b7f7d0b00000000001976a914f81af3e36a72aceab07c54bf4afa66b23d7bc15288ac00000000'
 
     let inputs = [
       {
@@ -971,7 +936,7 @@ $btcTxSegWitNative.on('click', async (e) => {
         vout: 0,
         txid: txid,
         scriptType: BTCInputScriptType.SpendWitness,
-        tx,
+        tx: btcBech32TxJson,
         hex
       }
     ]
