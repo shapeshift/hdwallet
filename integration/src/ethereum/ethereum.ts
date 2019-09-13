@@ -21,7 +21,7 @@ export function ethereumTests (get: () => {wallet: HDWallet, info: HDWalletInfo}
   describe('Ethereum', () => {
 
     beforeAll(async () => {
-      const { wallet: w, info: i } = get()
+      const { wallet: w } = get()
       if (supportsETH(w))
         wallet = w
     })
