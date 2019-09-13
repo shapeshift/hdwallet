@@ -5,6 +5,7 @@ import {
   supportsETH
 } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { HDWalletInfo } from '@shapeshiftoss/hdwallet-core/src/wallet'
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = 'alcohol woman abuse must during monitor noble actual mixed trade anger aisle'
 
@@ -13,14 +14,14 @@ const TIMEOUT = 60 * 1000
 /**
  *  Main integration suite for testing ETHWallet implementations' Ethereum support.
  */
-export function ethereumTests (get: () => HDWallet): void {
+export function ethereumTests (get: () => {wallet: HDWallet, info: HDWalletInfo}): void {
 
   let wallet: ETHWallet & HDWallet
 
   describe('Ethereum', () => {
 
     beforeAll(async () => {
-      let w = get()
+      const { wallet: w, info: i } = get()
       if (supportsETH(w))
         wallet = w
     })

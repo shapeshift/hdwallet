@@ -6,7 +6,8 @@ import {
   BTCInputScriptType,
   BTCOutputAddressType,
   BTCOutputScriptType,
-  Coin
+  Coin,
+  HDWalletInfo
 } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 
@@ -20,14 +21,14 @@ const TIMEOUT = 60 * 1000
 /**
  *  Main integration suite for testing BTCWallet implementations' Bitcoin Testnet support.
  */
-export function testnetTests (get: () => HDWallet): void {
+export function testnetTests (get: () => {wallet: HDWallet, info: HDWalletInfo}): void {
 
   let wallet: BTCWallet & HDWallet
 
   describe('Testnet', () => {
 
     beforeAll(() => {
-      let w = get()
+      const { wallet: w } = get()
       if (supportsBTC(w))
         wallet = w
     })
