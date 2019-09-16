@@ -1,4 +1,4 @@
-import { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { HDWallet, HDWalletInfo } from '@shapeshiftoss/hdwallet-core'
 import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
@@ -19,11 +19,13 @@ import { WalletSuite } from './wallets/suite'
 
 export function integration (suite: WalletSuite): void {
   let wallet: HDWallet
+  let info: HDWalletInfo
 
   describe(`${suite.name()}`, () => {
 
     beforeAll(async () => {
       wallet = await suite.createWallet()
+      info = suite.createInfo()
     })
 
     describe('Type Guards', () => {
@@ -37,15 +39,15 @@ export function integration (suite: WalletSuite): void {
     })
 
     describe('ETHWallet', () => {
-      ethTests(() => wallet)
+      ethTests(() => ({wallet, info}))
     })
 
     describe('BTCWallet', () => {
-      btcTests(() => wallet)
+      btcTests(() => ({wallet, info}))
     })
 
     describe('SelfTest', () => {
-      suite.selfTest(() => wallet)
+      suite.selfTest(() => (wallet))
     })
   })
 }

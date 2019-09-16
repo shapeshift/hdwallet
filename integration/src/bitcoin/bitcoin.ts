@@ -9,6 +9,7 @@ import {
   Coin,
   BTCWalletInfo,
   infoBTC,
+  HDWalletInfo,
 } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 
@@ -21,7 +22,7 @@ const TIMEOUT = 60 * 1000
 /**
  *  Main integration suite for testing BTCWallet implementations' Bitcoin support.
  */
-export function bitcoinTests (get: () => HDWallet): void {
+export function bitcoinTests (get: () => { wallet: HDWallet, info: HDWalletInfo }): void {
 
   let wallet: BTCWallet & HDWallet
   let info: BTCWalletInfo
@@ -29,13 +30,15 @@ export function bitcoinTests (get: () => HDWallet): void {
   describe('Bitcoin', () => {
 
     beforeAll(() => {
-      let w = get()
+
+      const { wallet: w, info: i } = get()
+
       if (supportsBTC(w)) {
         wallet = w
-        if (!infoBTC(w.info)) {
+        if (!infoBTC(i)) {
           throw new Error("wallet info does not _supportsBTCInfo?")
         }
-        info = w.info
+        info = i
       }
     })
 

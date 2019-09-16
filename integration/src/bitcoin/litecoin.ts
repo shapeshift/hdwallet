@@ -4,7 +4,8 @@ import {
   BTCWallet,
   supportsBTC,
   BTCInputScriptType,
-  Coin
+  Coin,
+  HDWalletInfo
 } from '@shapeshiftoss/hdwallet-core'
 
 import { each } from '../utils'
@@ -16,14 +17,14 @@ const TIMEOUT = 60 * 1000
 /**
  *  Main integration suite for testing BTCWallet implementations' Litecoin support.
  */
-export function litecoinTests (get: () => HDWallet): void {
+export function litecoinTests (get: () => {wallet: HDWallet, info: HDWalletInfo}): void {
 
   let wallet: BTCWallet & HDWallet
 
   describe('Litecoin', () => {
 
     beforeAll(() => {
-      let w = get()
+      const { wallet: w } = get()
       if (supportsBTC(w))
         wallet = w
     })
