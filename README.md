@@ -35,13 +35,9 @@ You can import the generated bundle to use each of the component libraries:
 
 ```javascript
 import { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
-import { LedgerHDWallet } from '@shapeshiftoss/hdwallet-ledger'
-import { TrezorHDWallet } from '@shapeshiftoss/hdwallet-trezor'
-
-import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
+import { isKeepKey, KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
+import { isLedger, LedgerHDWallet } from '@shapeshiftoss/hdwallet-ledger'
+import { isTrezor, TrezorHDWallet } from '@shapeshiftoss/hdwallet-trezor'
 
 import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
