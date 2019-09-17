@@ -26,7 +26,7 @@
     "build:chromeusb": "lerna run build --scope @shapeshiftoss/keepkey-chromeusb --include-filtered-dependencies",
     "build:hid": "lerna run build --scope @shapeshiftoss/hdwallet-keepkey-nodehid --include-filtered-dependencies",
     "build:transports": "lerna run build --scope @shapeshiftoss/hdwallet-keepkey-webusb --scope @shapeshiftoss/hdwallet-keepkey-tcp --scope @shapeshiftoss/hdwallet-keepkey-nodewebusb --scope @shapeshiftoss/hdwallet-ledger-webusb --scope @shapeshiftoss/hdwallet-ledger-u2f",
-    "build:wallets": "lerna run build --scope @shapeshiftoss/hdwallet-keepkey --scope @shapeshiftoss/hdwallet-trezor --scope @shapeshiftoss/hdwallet-ledger",
+    "build:wallets": "lerna run build --scope @shapeshiftoss/hdwallet-keepkey --scope @shapeshiftoss/hdwallet-trezor --scope @shapeshiftoss/hdwallet-ledger --scope @shapeshiftoss/hdwallet-web3",
     "build:webusb": "lerna run build --scope @shapeshiftoss/hdwallet-keepkey-webusb --scope @shapeshiftoss/hdwallet-ledger-webusb --include-filtered-dependencies",
     "dev:all": "lerna run dev --scope @shapeshiftoss/hdwallet-keepkey-webusb --scope @shapeshiftoss/hdwallet-keepkey-nodewebusb --scope @shapeshiftoss/hdwallet-ledger-webusb --scope @shapeshiftoss/hdwallet-ledger-u2f --scope @shapeshiftoss/hdwallet-trezor-connect --include-filtered-dependencies --parallel",
     "dev:chromeusb": "lerna run dev --scope chromeusb-app --parallel --include-filtered-dependencies",

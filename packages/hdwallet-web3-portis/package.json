@@ -1,0 +1,22 @@
+{
+  "name": "@shapeshiftoss/hdwallet-web3",
+  "version": "0.3.1",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "dist/index.js",
+  "source": "src/index.ts",
+  "umd:main": "dist/index.umd.js",
+  "module": "dist/index.m.js",
+  "scripts": {
+    "build": "microbundle --target=web --name=web3",
+    "clean": "rm -rf dist .rts2_*",
+    "dev": "microbundle watch --target=web --name=web3 --compress=false",
+    "prepublishOnly": "yarn clean && yarn build"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}
