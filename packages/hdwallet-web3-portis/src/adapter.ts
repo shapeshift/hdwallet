@@ -10,16 +10,18 @@ import { Web3PortisHDWallet } from './web3Portis'
     keyring: Keyring
   
     private constructor (keyring: Keyring) {
+      console.log('portis adapter constructor')
       this.keyring = keyring
     }
   
     public static useKeyring (keyring: Keyring) {
+      console.log('portis adapter useKeyring')
       return new Web3PortisAdapter(keyring)
     }
   
     public async initialize (portis: any): Promise<number> {
+      console.log('portis adapter initialize')
       let transport = new PortisTransport(this.keyring)
-
       let wallet = new Web3PortisHDWallet(portis, transport)
       await wallet.initialize()
       this.keyring.add(wallet)
@@ -27,7 +29,9 @@ import { Web3PortisHDWallet } from './web3Portis'
     }
 
     public async pairDevice (): Promise<HDWallet> {
-      // TODO have this grab the right one based on the deviceId
+      console.log('portis adapter pairDevices')
+
+      // TODO have this grab the right one based on the deviceId (which should be  set from the  portis wallet address)
       return this.keyring.get()
     }
   }
