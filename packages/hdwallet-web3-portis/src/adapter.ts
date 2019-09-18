@@ -1,9 +1,8 @@
 import {
-    Keyring
+    Keyring,
   } from '@shapeshiftoss/hdwallet-core'
-  
-  import { create as createWeb3Portis } from './web3Portis'
-  
+import { Web3PortisHDWallet } from './web3Portis'
+
   export class Web3PortisAdapter {
     keyring: Keyring
   
@@ -15,8 +14,8 @@ import {
       return new Web3PortisAdapter(keyring)
     }
   
-    public async initialize (web3: any): Promise<number> {
-      let wallet = createWeb3Portis()
+    public async initialize (portis: any): Promise<number> {
+      let wallet = new Web3PortisHDWallet()
       await wallet.initialize()
       this.keyring.add(wallet)
       return Object.keys(this.keyring.wallets).length

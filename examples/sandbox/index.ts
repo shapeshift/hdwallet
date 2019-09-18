@@ -15,6 +15,8 @@ import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { TCPKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-tcp'
 import { TrezorAdapter } from '@shapeshiftoss/hdwallet-trezor-connect'
 import { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
+import { Web3PortisAdapter } from '@shapeshiftoss/hdwallet-web3-portis'
+
 import {
   BTCInputScriptType,
   BTCOutputScriptType,
@@ -28,10 +30,14 @@ import * as dashTxJson from './json/dashTx.json'
 import * as dogeTxJson from './json/dogeTx.json'
 import * as ltcTxJson from './json/ltcTx.json'
 
+import Portis from "@portis/web3";
+
 const keyring = new Keyring()
 
+const portis = new Portis('ff763d3d-9e34-45a1-81d1-caa39b9c64f9', 'mainnet');
 const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring)
 const kkemuAdapter = TCPKeepKeyAdapter.useKeyring(keyring)
+const web3PortisAdapter = Web3PortisAdapter.useKeyring(keyring)
 
 const log = debug.default('hdwallet')
 
@@ -69,7 +75,7 @@ $keepkey.on('click', async (e) => {
   e.preventDefault()
   wallet = await keepkeyAdapter.pairDevice(undefined, /*tryDebugLink=*/true)
   listen(wallet.transport)
-  window['wallet'] = wallet
+  window['wallet'] = wallet  
   $('#keyring select').val(wallet.transport.getDeviceID())
 })
 
@@ -125,6 +131,17 @@ async function deviceConnected (deviceId) {
   } catch (e) {
     console.error('Could not initialize LedgerAdapter', e)
   }
+
+  try {
+    console.log('INITIALIZING Web3PortisAdapter')
+    await web3PortisAdapter.initialize(portis)
+    console.log('INITIALIZED Web3PortisAdapter')
+  } catch (e) {
+    console.error('Could not initialize Web3PortisAdapter', e)
+  }
+  
+
+
 
   for (const [deviceID, wallet] of Object.entries(keyring.wallets)) {
     await deviceConnected(deviceID)

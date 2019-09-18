@@ -173,6 +173,3 @@ import {
     }
   }
   
-  export function create(): Web3PortisHDWallet {
-    return new Web3PortisHDWallet()
-  }
