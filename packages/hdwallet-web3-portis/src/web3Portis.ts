@@ -16,10 +16,11 @@ import {
     ETHSignMessage,
     ETHSignedMessage,
     ETHVerifyMessage,
-    Transport,
     ETHSignedTx
   } from "@shapeshiftoss/hdwallet-core";
       
+  import { PortisTransport } from './portisTransport'
+
   export class Web3PortisHDWallet implements HDWallet, ETHWallet {
     _supportsETH: boolean = true
     _supportsETHInfo: boolean = true
@@ -31,32 +32,32 @@ import {
     _isTrezor: boolean = false
 
     // unused but required by HDWallet interface
-    transport: Transport = null
-
+    transport: PortisTransport
     
-    account: string // ETH Address
-  
-    constructor() {
-        console.log('Web3PortisHDWallet constructor called')
+    portis: any
+    constructor(portis, transport) {
+      console.log('Web3PortisHDWallet constructor called')
+      this.transport = transport
+      this.portis = portis
     }
   
     public async isLocked(): Promise<boolean> {
-        return false;
-    }
-
-    public async getDeviceID(): Promise<string> {
-      return 'web3deviceId'
+      console.log('web3Portis isLocked')
+      return false;
     }
   
     public getVendor(): string {
+      console.log('web3Portis getVendor')
       return "web3vendor"
     }
 
     public async getModel(): Promise<string> {
+      console.log('web3Portis getModel')
       return 'web3model'
     }
   
     public async getLabel(): Promise<string> {
+      console.log('web3Portis getLabel')
       return 'web3label'
     }
   
@@ -65,18 +66,22 @@ import {
     }
   
     public async hasOnDevicePinEntry(): Promise<boolean> {
+      console.log('Web3PortisHDWallet hasOnDevicePinEntry')
       return true;
     }
   
     public async hasOnDevicePassphrase(): Promise<boolean> {
+      console.log('Web3PortisHDWallet hasOnDevicePassphrase')
       return true;
     }
   
     public async hasOnDeviceDisplay(): Promise<boolean> {
+      console.log('Web3PortisHDWallet hasOnDeviceDisplay')
       return true;
     }
   
     public async hasOnDeviceRecovery(): Promise<boolean> {
+      console.log('Web3PortisHDWallet hasOnDeviceRecovery')
       return true;
     }
   
@@ -84,60 +89,86 @@ import {
       srcCoin: Coin,
       dstCoin: Coin
     ): Promise<boolean> {
+      console.log('Web3PortisHDWallet hasNativeShapeShift')
       return false;
     }
   
-    getPublicKeys(msg: GetPublicKey[]): Promise<PublicKey[]> {
-      console.log('GET PUBLIC KEYS')
-      throw new Error("Method not implemented.");
-    }
     clearSession(): Promise<void> {
+      console.log('Web3PortisHDWallet clearSession')
       throw new Error("Method not implemented.");
     }
     ping(msg: Ping): Promise<Pong> {
+      console.log('Web3PortisHDWallet ping')
       throw new Error("Method not implemented.");
     }
     sendPin(pin: string): Promise<void> {
+      console.log('Web3PortisHDWallet sendPin')
       throw new Error("Method not implemented.");
     }
     sendPassphrase(passphrase: string): Promise<void> {
+      console.log('Web3PortisHDWallet sendPassphrase')
       throw new Error("Method not implemented.");
     }
     sendCharacter(charater: string): Promise<void> {
+      console.log('Web3PortisHDWallet sendCharacter')
       throw new Error("Method not implemented.");
     }
     sendWord(word: string): Promise<void> {
+      console.log('Web3PortisHDWallet sendWord')
       throw new Error("Method not implemented.");
     }
     cancel(): Promise<void> {
+      console.log('Web3PortisHDWallet cancel')
       throw new Error("Method not implemented.");
     }
     wipe(): Promise<void> {
+      console.log('Web3PortisHDWallet wipe')
       throw new Error("Method not implemented.");
     }
     reset(msg: ResetDevice): Promise<void> {
+      console.log('Web3PortisHDWallet reset')
       throw new Error("Method not implemented.");
     }
     recover(msg: RecoverDevice): Promise<void> {
+      console.log('Web3PortisHDWallet recover')
       throw new Error("Method not implemented.");
     }
     loadDevice(msg: LoadDevice): Promise<void> {
+      console.log('Web3PortisHDWallet loadDevice')
       throw new Error("Method not implemented.");
     }
   
     public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
+      console.log('Web3PortisHDWallet ethSupportsNetwork')
       return true
     }
   
     public async ethSupportsSecureTransfer (): Promise<boolean> {
+      console.log('Web3PortisHDWallet ethSupportsSecureTransfer')
       return false
     }
   
     public async ethSupportsNativeShapeShift (): Promise<boolean> {
+      console.log('Web3PortisHDWallet ethSupportsNativeShapeShift')
       return false
+    }
+
+    public async ethVerifyMessage (msg: ETHVerifyMessage): Promise<boolean> {
+      console.log('Web3PortisHDWallet ethSupportsNativeShapeShift')
+      return false
+    }
+    
+
+
+    // TODO Methods below must be implemented
+
+    getPublicKeys(msg: GetPublicKey[]): Promise<PublicKey[]> {
+      console.log('GET PUBLIC KEYS')
+      throw new Error("getPublicKeys Method not implemented.");
     }
   
     public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
+      console.log('Web3PortisHDWallet ethGetAccountPaths')
       return []
     }
   
@@ -151,25 +182,20 @@ import {
     }
   
     public async ethGetAddress (msg: ETHGetAddress): Promise<string> {
-      return this.account
-    }
+      return '0x1234567'
+    }s
   
     public async ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage> {
-      let res = await this.transport.call('send', {
-        method: 'personal_sign',
-        params: {
-          account: this.account,
-          data: msg.message
-    }
-      })
       return {
-        address: this.account,
-        signature: res.data
+        address: '0x1234567',
+        signature: 'signature'
       }
     }
-  
-    public async ethVerifyMessage (msg: ETHVerifyMessage): Promise<boolean> {
-      return false
+
+    public async getDeviceID(): Promise<string> {
+      console.log('web3Portis getDeviceID')
+      return 'web3deviceId'
     }
+
   }
   

@@ -69,6 +69,7 @@ const $keepkey = $('#keepkey')
 const $kkemu = $('#kkemu')
 const $trezor = $('#trezor')
 const $ledger = $('#ledger')
+const $portis = $('#portis')
 const $keyring = $('#keyring')
 
 $keepkey.on('click', async (e) => {
@@ -101,6 +102,14 @@ $ledger.on('click',  async (e) => {
   window['wallet'] = wallet
   $('#keyring select').val(await wallet.getDeviceID())
 })
+
+$portis.on('click',  async (e) => {
+  e.preventDefault()
+  wallet = await web3PortisAdapter.pairDevice()
+  window['wallet'] = wallet
+  $('#keyring select').val(await wallet.getDeviceID())
+})
+
 
 async function deviceConnected (deviceId) {
   let wallet = keyring.get(deviceId)
