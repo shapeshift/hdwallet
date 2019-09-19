@@ -1,43 +1,8 @@
 import { crypto } from 'bitcoinjs-lib'
-import {
-  addressNListToBIP32,
-  HDWallet,
-  GetPublicKey,
-  PublicKey,
-  RecoverDevice,
-  ResetDevice,
-  LoadDevice,
-  Coin,
-  Ping,
-  Pong,
-  Constructor,
-  makeEvent,
-  BTCWallet,
-  ETHWallet,
-  BTCInputScriptType,
-  BTCGetAddress,
-  BTCSignTx,
-  BTCSignedTx,
-  BTCSignMessage,
-  BTCVerifyMessage,
-  BTCAccountPath,
-  BTCSignedMessage,
-  BTCGetAccountPaths,
-  ETHSignTx,
-  ETHSignedTx,
-  ETHGetAddress,
-  ETHSignMessage,
-  ETHSignedMessage,
-  ETHVerifyMessage,
-  ETHGetAccountPath,
-  ETHAccountPath,
-  HDWalletInfo,
-  BTCWalletInfo,
-  ETHWalletInfo,
-} from '@shapeshiftoss/hdwallet-core'
+import * as core from '@shapeshiftoss/hdwallet-core'
 import { handleError } from './utils'
-import * as Btc from './bitcoin'
-import * as Eth from './ethereum'
+import * as btc from './bitcoin'
+import * as eth from './ethereum'
 import { LedgerTransport } from './transport'
 import {
   compressPublicKey,
@@ -48,11 +13,11 @@ import {
   translateScriptType
 } from './utils'
 
-export function isLedger (wallet: HDWallet): wallet is LedgerHDWallet {
+export function isLedger (wallet: core.HDWallet): wallet is LedgerHDWallet {
   return typeof wallet === 'object' && wallet._isLedger === true
 }
 
-export class LedgerHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo {
+export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
   _supportsBTCInfo: boolean = true
   _supportsETHInfo: boolean = true
 
@@ -60,47 +25,47 @@ export class LedgerHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
     return "Ledger"
   }
 
-  public async btcSupportsCoin (coin: Coin): Promise<boolean> {
-    return Btc.btcSupportsCoin(coin)
+  public async btcSupportsCoin (coin: core.Coin): Promise<boolean> {
+    return btc.btcSupportsCoin(coin)
   }
 
-  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> { 
-    return Btc.btcSupportsScriptType(coin, scriptType)
+  public async btcSupportsScriptType (coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
+    return btc.btcSupportsScriptType(coin, scriptType)
   }
 
   public async btcSupportsSecureTransfer (): Promise<boolean> {
-    return Btc.btcSupportsSecureTransfer()
+    return btc.btcSupportsSecureTransfer()
   }
 
   public async btcSupportsNativeShapeShift (): Promise<boolean> {
-    return Btc.btcSupportsNativeShapeShift()
+    return btc.btcSupportsNativeShapeShift()
   }
 
-  public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
-    return Btc.btcGetAccountPaths(msg)
+  public btcGetAccountPaths (msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
+    return btc.btcGetAccountPaths(msg)
   }
 
-  public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
-    return Btc.btcIsSameAccount(msg)
+  public btcIsSameAccount (msg: Array<core.BTCAccountPath>): boolean {
+    return btc.btcIsSameAccount(msg)
   }
 
   public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
-    return Eth.ethSupportsNetwork(chain_id)
+    return eth.ethSupportsNetwork(chain_id)
   }
 
   public async ethSupportsSecureTransfer (): Promise<boolean> {
-    return Eth.ethSupportsSecureTransfer()
+    return eth.ethSupportsSecureTransfer()
   }
 
   public async ethSupportsNativeShapeShift (): Promise<boolean> {
-    return Eth.ethSupportsNativeShapeShift()
+    return eth.ethSupportsNativeShapeShift()
   }
 
-  public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
-    return Eth.ethGetAccountPaths(msg)
+  public ethGetAccountPaths (msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
+    return eth.ethGetAccountPaths(msg)
   }
 
-  public async hasNativeShapeShift (srcCoin: Coin, dstCoin: Coin): Promise<boolean> {
+  public async hasNativeShapeShift (srcCoin: core.Coin, dstCoin: core.Coin): Promise<boolean> {
     return false
   }
 
@@ -121,18 +86,19 @@ export class LedgerHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
   }
 }
 
-export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
+export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet {
   _supportsETHInfo: boolean = true
   _supportsBTCInfo: boolean = true
   _supportsDebugLink: boolean = false
   _supportsBTC: boolean = true
   _supportsETH: boolean = true
+
   _isKeepKey: boolean = false
   _isTrezor: boolean = false
   _isLedger: boolean = true
 
   transport: LedgerTransport
-  info: LedgerHDWalletInfo & HDWalletInfo
+  info: LedgerHDWalletInfo & core.HDWalletInfo
 
   constructor (transport: LedgerTransport) {
     this.transport = transport
@@ -143,15 +109,7 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return
   }
 
-  public async getDeviceID (): Promise<string> {
-    return this.transport.deviceID
-  }
-
-  public getVendor (): string {
-    return 'Ledger'
-  }
-
-  public async getModel (): Promise<string> {
+  public async clearSession (): Promise<void> {
     return
   }
 
@@ -159,22 +117,32 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return
   }
 
-  public async isLocked (): Promise<boolean> {
-    return true;
+  public async getDeviceID (): Promise<string> {
+    const { device: { deviceID }} = this.transport as any
+    return deviceID
   }
 
-  public async clearSession (): Promise<void> {
-    return
+  public getVendor (): string {
+    return "Ledger"
+  }
+
+  public async getModel (): Promise<string> {
+    const { device: { productName }} = this.transport as any
+    return "Ledger " + productName
+  }
+
+  public async isLocked (): Promise<boolean> {
+    return true
   }
 
   // TODO: what to do with Ethereum?
   // Adapted from https://github.com/LedgerHQ/ledger-wallet-webtool
-  public async getPublicKeys (msg: Array<GetPublicKey>): Promise<Array<PublicKey>> {
+  public async getPublicKeys (msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey>> {
     const xpubs = []
     for (const getPublicKey of msg) {
       const { addressNList } = getPublicKey
-      const bip32path: string = addressNListToBIP32(addressNList.slice(0, 3)).substring(2)
-      const prevBip32path: string = addressNListToBIP32(addressNList.slice(0, 2)).substring(2)
+      const bip32path: string = core.addressNListToBIP32(addressNList.slice(0, 3)).substring(2)
+      const prevBip32path: string = core.addressNListToBIP32(addressNList.slice(0, 2)).substring(2)
       const format: string = translateScriptType(getPublicKey.scriptType) || 'legacy'
       const opts = {
         verify: false,
@@ -189,7 +157,8 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
       let result = crypto.sha256(publicKey)
 
       result = crypto.ripemd160(result)
-      const fingerprint: number = ((result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3]) >>> 0
+
+      const fingerprint = result[0] << 24 | result[1] << 16 | result[2] << 8 | result[3] >>> 0
 
       const res2 = await this.transport.call('Btc', 'getWalletPublicKey', bip32path, opts)
       handleError(this.transport, res2, 'Unable to obtain public key from device.')
@@ -217,7 +186,7 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return xpubs
   }
 
-  public async hasNativeShapeShift (srcCoin: Coin, dstCoin: Coin): Promise<boolean> {
+  public async hasNativeShapeShift (srcCoin: core.Coin, dstCoin: core.Coin): Promise<boolean> {
     return false
   }
 
@@ -237,11 +206,11 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return true
   }
 
-  public async loadDevice (msg: LoadDevice): Promise<void> {
+  public async loadDevice (msg: core.LoadDevice): Promise<void> {
     return
   }
 
-  public async ping (msg: Ping): Promise<Pong> {
+  public async ping (msg: core.Ping): Promise<core.Pong> {
     // Ledger doesn't have this, faking response here
     return { msg: msg.msg }
   }
@@ -250,11 +219,11 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return
   }
 
-  public async recover (msg: RecoverDevice): Promise<void> {
+  public async recover (msg: core.RecoverDevice): Promise<void> {
     return
   }
 
-  public async reset (msg: ResetDevice): Promise<void> {
+  public async reset (msg: core.ResetDevice): Promise<void> {
     return
   }
 
@@ -278,21 +247,20 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return
   }
 
-
-  public async btcSupportsCoin (coin: Coin): Promise<boolean> {
+  public async btcSupportsCoin (coin: core.Coin): Promise<boolean> {
     return this.info.btcSupportsCoin(coin)
   }
 
-  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> { 
+  public async btcSupportsScriptType (coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
     return this.info.btcSupportsScriptType(coin, scriptType)
   }
 
-  public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
-    return Btc.btcGetAddress(this.transport, msg)
+  public async btcGetAddress (msg: core.BTCGetAddress): Promise<string> {
+    return btc.btcGetAddress(this.transport, msg)
   }
 
-  public async btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx> {
-    return Btc.btcSignTx(this, this.transport, msg)
+  public async btcSignTx (msg: core.BTCSignTx): Promise<core.BTCSignedTx> {
+    return btc.btcSignTx(this, this.transport, msg)
   }
 
   public async btcSupportsSecureTransfer (): Promise<boolean> {
@@ -303,37 +271,36 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return this.info.btcSupportsNativeShapeShift()
   }
 
-  public async btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage> {
-    return Btc.btcSignMessage(this, this.transport, msg)
+  public async btcSignMessage (msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
+    return btc.btcSignMessage(this, this.transport, msg)
   }
 
-  public async btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean> {
-    return Btc.btcVerifyMessage(msg)
+  public async btcVerifyMessage (msg: core.BTCVerifyMessage): Promise<boolean> {
+    return btc.btcVerifyMessage(msg)
   }
 
-  public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
+  public btcGetAccountPaths (msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
     return this.info.btcGetAccountPaths(msg)
   }
 
-  public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
+  public btcIsSameAccount (msg: Array<core.BTCAccountPath>): boolean {
     return this.info.btcIsSameAccount(msg)
   }
 
-
-  public async ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx> {
-    return Eth.ethSignTx(this.transport, msg)
+  public async ethSignTx (msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
+    return eth.ethSignTx(this.transport, msg)
   }
 
-  public async ethGetAddress (msg: ETHGetAddress): Promise<string> {
-    return Eth.ethGetAddress(this.transport, msg)
+  public async ethGetAddress (msg: core.ETHGetAddress): Promise<string> {
+    return eth.ethGetAddress(this.transport, msg)
   }
 
-  public async ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage> {
-    return Eth.ethSignMessage(this.transport, msg)
+  public async ethSignMessage (msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
+    return eth.ethSignMessage(this.transport, msg)
   }
 
-  public async ethVerifyMessage (msg: ETHVerifyMessage): Promise<boolean> {
-    return Eth.ethVerifyMessage(msg)
+  public async ethVerifyMessage (msg: core.ETHVerifyMessage): Promise<boolean> {
+    return eth.ethVerifyMessage(msg)
   }
 
   public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
@@ -348,7 +315,7 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return this.info.ethSupportsNativeShapeShift()
   }
 
-  public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
+  public ethGetAccountPaths (msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     return this.info.ethGetAccountPaths(msg)
   }
 }

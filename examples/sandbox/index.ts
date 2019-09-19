@@ -144,7 +144,6 @@ async function deviceConnected (deviceId) {
       await wallet.initialize()
     }
     window['wallet'] = wallet
-    console.log('wallet set to', deviceID, wallet)
   })
   wallet = keyring.get()
   window['wallet'] = wallet
