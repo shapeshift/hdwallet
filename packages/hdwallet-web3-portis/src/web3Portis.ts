@@ -20,6 +20,7 @@ import {
   } from "@shapeshiftoss/hdwallet-core";
       
   import { PortisTransport } from './portisTransport'
+  import Web3 from 'web3'
 
   export class Web3PortisHDWallet implements HDWallet, ETHWallet {
     _supportsETH: boolean = true
@@ -31,14 +32,16 @@ import {
     _isLedger: boolean = false
     _isTrezor: boolean = false
 
-    // unused but required by HDWallet interface
     transport: PortisTransport
     
     portis: any
+    web3: any
+
     constructor(portis, transport) {
       console.log('Web3PortisHDWallet constructor called')
       this.transport = transport
       this.portis = portis
+      this.web3 = new Web3(portis.provider);
     }
   
     public async isLocked(): Promise<boolean> {
@@ -62,6 +65,7 @@ import {
     }
   
     public async initialize(): Promise<void> {
+        
         console.log('Web3PortisHDWallet initialize called')
     }
   
@@ -164,6 +168,11 @@ import {
 
     getPublicKeys(msg: GetPublicKey[]): Promise<PublicKey[]> {
       console.log('GET PUBLIC KEYS')
+
+      this.portis.getExtendedPublicKey("m/44'/60'/0'").then(({ error, result }) => {
+        console.log(error, 'RESULT PUB KEYS IS ', result);
+      });
+
       throw new Error("getPublicKeys Method not implemented.");
     }
   
@@ -181,21 +190,25 @@ import {
         } 
     }
   
-    public async ethGetAddress (msg: ETHGetAddress): Promise<string> {
-      return '0x1234567'
-    }s
-  
     public async ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage> {
       return {
-        address: '0x1234567',
+        address: await this.getPortisEthAddress(),
         signature: 'signature'
       }
     }
 
-    public async getDeviceID(): Promise<string> {
-      console.log('web3Portis getDeviceID')
-      return 'web3deviceId'
+    public async ethGetAddress (msg: ETHGetAddress): Promise<string> {
+      return this.getPortisEthAddress()
     }
 
+    public async getDeviceID(): Promise<string> {
+      return this.getPortisEthAddress()
+    }
+
+    // returns the currently selected portis eth address
+    public async getPortisEthAddress(): Promise<string>   {
+      console.log('getPortisEthAddress')
+      return  (await this.web3.eth.getAccounts())[0]
+    }
   }
   

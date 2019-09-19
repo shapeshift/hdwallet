@@ -107,7 +107,16 @@ $portis.on('click',  async (e) => {
   e.preventDefault()
   wallet = await web3PortisAdapter.pairDevice()
   window['wallet'] = wallet
-  $('#keyring select').val(await wallet.getDeviceID())
+
+  let deviceId = 'nothing'
+  try {
+    deviceId  = await wallet.getDeviceID()
+  } catch( e ) {
+    console.log('ERROR', { e })
+  }
+  console.log('deviceId IS ', deviceId)
+  $('#keyring select').val(deviceId)
+  console.log('3s')
 })
 
 

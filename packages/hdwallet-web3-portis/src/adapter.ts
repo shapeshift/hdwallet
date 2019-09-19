@@ -28,10 +28,9 @@ import { Web3PortisHDWallet } from './web3Portis'
       return Object.keys(this.keyring.wallets).length
     }
 
-    public async pairDevice (): Promise<HDWallet> {
-      console.log('portis adapter pairDevices')
-
-      // TODO have this grab the right one based on the deviceId (which should be  set from the  portis wallet address)
-      return this.keyring.get()
+    public async pairDevice (deviceId: string): Promise<HDWallet> {
+      console.log('portis adapter pairDevices', deviceId)
+      const wallet = this.keyring.get(deviceId)
+      return wallet
     }
   }
