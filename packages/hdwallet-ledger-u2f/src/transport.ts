@@ -1,36 +1,20 @@
-import { Coin, makeEvent, Keyring } from '@shapeshiftoss/hdwallet-core'
-import { LedgerTransport } from '@shapeshiftoss/hdwallet-ledger'
-import Eth from '@ledgerhq/hw-app-eth'
-import Btc from '@ledgerhq/hw-app-btc'
-
-const TIMEOUT = 50 // timeout on user response
+import { makeEvent, Keyring } from '@shapeshiftoss/hdwallet-core'
+import { LedgerTransport, LedgerResponse } from '@shapeshiftoss/hdwallet-ledger'
 
 const RECORD_CONFORMANCE_MOCKS = false
-
-export type LedgerDevice = {
-  path: string,
-  deviceID: string
-}
-
-export interface LedgerResponse {
-  success: boolean,
-  payload: any | { error: string },
-  coin: Coin,
-  method: string
-}
-
-function translateCoin(coin: string): (any) => void {
-  return {
-    'Btc': Btc,
-    'Eth': Eth
-  }[coin]
-}
 
 export class LedgerU2FTransport extends LedgerTransport {
   readonly hasPopup = false
 
-  constructor(deviceID: string, transport: any, keyring: Keyring) {
-    super(deviceID, transport, keyring)
+  device: any
+
+  constructor(device: any, transport: any, keyring: Keyring) {
+    super(transport, keyring)
+    this.device = device
+  }
+
+  public getDeviceID (): string {
+    return this.device.deviceID
   }
 
   public async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
@@ -43,7 +27,7 @@ export class LedgerU2FTransport extends LedgerTransport {
         message: {}
       }))
 
-      response = await new (translateCoin(coin))(this.transport)[method](...args)
+      response = await new (this.translateCoin(coin))(this.transport)[method](...args)
     } catch (e) {
       console.error(e)
       return {
