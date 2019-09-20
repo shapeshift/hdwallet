@@ -473,4 +473,3 @@ export const networksUtil = {
     }
   }
 }
-

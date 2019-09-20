@@ -139,36 +139,39 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   // Adapted from https://github.com/LedgerHQ/ledger-wallet-webtool
   public async getPublicKeys (msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey>> {
     const xpubs = []
+
     for (const getPublicKey of msg) {
       const { addressNList } = getPublicKey
+
       const bip32path: string = core.addressNListToBIP32(addressNList.slice(0, 3)).substring(2)
       const prevBip32path: string = core.addressNListToBIP32(addressNList.slice(0, 2)).substring(2)
-      const format: string = translateScriptType(getPublicKey.scriptType) || 'legacy'
+
       const opts = {
         verify: false,
-        format
+        format: translateScriptType(getPublicKey.scriptType) || 'legacy'
       }
-      const res1 = await this.transport.call('Btc', 'getWalletPublicKey', prevBip32path, opts)
-      handleError(this.transport, res1, 'Unable to obtain public key from device.')
 
-      let { payload: { publicKey } } = res1
-      publicKey = compressPublicKey(publicKey)
-      publicKey = parseHexString(publicKey)
+      var res = await this.transport.call('Btc', 'getWalletPublicKey', prevBip32path, opts)
+      handleError(this.transport, res, 'Unable to obtain public key from device.')
+
+      var { payload: { publicKey } } = res
+      publicKey = parseHexString(compressPublicKey(publicKey))
+
       let result = crypto.sha256(publicKey)
-
       result = crypto.ripemd160(result)
 
       const fingerprint: number = result[0] << 24 | result[1] << 16 | result[2] << 8 | result[3] >>> 0
 
-      const res2 = await this.transport.call('Btc', 'getWalletPublicKey', bip32path, opts)
-      handleError(this.transport, res2, 'Unable to obtain public key from device.')
+      var res = await this.transport.call('Btc', 'getWalletPublicKey', bip32path, opts)
+      handleError(this.transport, res, 'Unable to obtain public key from device.')
 
-      publicKey = res2.payload.publicKey
-      const chainCode: string = res2.payload.chainCode
+      var { payload: { publicKey, chainCode } } = res
       publicKey = compressPublicKey(publicKey)
+
       const coinType: number = parseInt(bip32path.split("/")[1], 10)
       const account: number = parseInt(bip32path.split("/")[2], 10)
       const childNum: number = (0x80000000 | account) >>> 0
+
       let xpub = createXpub(
         3,
         fingerprint,
@@ -179,10 +182,9 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
       )
       xpub = encodeBase58Check(xpub)
 
-      xpubs.push({
-        xpub
-      })
+      xpubs.push({ xpub })
     }
+
     return xpubs
   }
 
@@ -210,8 +212,8 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return
   }
 
+  // Ledger doesn't have this, faking response here
   public async ping (msg: core.Ping): Promise<core.Pong> {
-    // Ledger doesn't have this, faking response here
     return { msg: msg.msg }
   }
 
