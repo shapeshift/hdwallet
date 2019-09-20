@@ -98,26 +98,26 @@ export interface BTCSignedTx {
 }
 
 export enum BTCInputScriptType {
-  CashAddr, // for Bitcoin Cash
-  SpendAddress,
-  SpendMultisig,
-  External,
-  SpendWitness,
-  SpendP2SHWitness,
+  CashAddr = 'cashaddr', // for Bitcoin Cash
+  SpendAddress = 'p2pkh',
+  SpendMultisig = 'p2sh',
+  External = 'external',
+  SpendWitness = 'p2wpkh',
+  SpendP2SHWitness = 'p2sh-p2wpkh',
 }
 
 export enum BTCOutputScriptType {
-  PayToAddress,
-  PayToMultisig,
-  PayToWitness,
-  PayToP2SHWitness
+  PayToAddress = 'p2pkh',
+  PayToMultisig = 'p2sh',
+  PayToWitness = 'p2wpkh',
+  PayToP2SHWitness = 'p2sh-p2wpkh'
 }
 
 export enum BTCOutputAddressType {
-  Spend,
-  Transfer,
-  Change,
-  Exchange
+  Spend = 'spend',
+  Transfer = 'transfer',
+  Change = 'change',
+  Exchange = 'exchange'
 }
 
 export interface BTCSignMessage {
