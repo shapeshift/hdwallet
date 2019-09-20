@@ -174,8 +174,6 @@ export interface HDWallet extends HDWalletInfo {
   _isLedger: boolean
   _isTrezor: boolean
 
-  transport: Transport
-
   /**
    * Retrieve the wallet's unique ID
    */
