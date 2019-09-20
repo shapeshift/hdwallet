@@ -4,8 +4,6 @@ import { LedgerTransport, LedgerResponse } from '@shapeshiftoss/hdwallet-ledger'
 const RECORD_CONFORMANCE_MOCKS = false
 
 export class LedgerU2FTransport extends LedgerTransport {
-  readonly hasPopup = false
-
   device: any
 
   constructor(device: any, transport: any, keyring: Keyring) {

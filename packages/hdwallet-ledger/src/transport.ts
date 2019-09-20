@@ -10,7 +10,6 @@ export interface LedgerResponse {
 }
 
 export abstract class LedgerTransport extends Transport {
-  hasPopup: boolean
   transport: any
 
   constructor(transport: any, keyring: Keyring) {

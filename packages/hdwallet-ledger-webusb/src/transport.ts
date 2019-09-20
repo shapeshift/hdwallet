@@ -5,8 +5,6 @@ import Transport from '@ledgerhq/hw-transport'
 const RECORD_CONFORMANCE_MOCKS = false
 
 export class LedgerWebUsbTransport extends LedgerTransport {
-  readonly hasPopup = false
-
   device: USBDevice
 
   constructor(device: USBDevice, transport: Transport<USBDevice>, keyring: Keyring) {
