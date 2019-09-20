@@ -143,6 +143,12 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return
   }
 
+  public async isInitialized (): Promise<boolean> {
+    // AFAICT, there isn't an API to figure this out, so we go with a reasonable
+    // (ish) default:
+    return true
+  }
+
   public async getDeviceID (): Promise<string> {
     return this.transport.deviceID
   }
