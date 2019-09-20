@@ -1,7 +1,7 @@
 import {
-    Keyring,
-    Transport
-  } from '@shapeshiftoss/hdwallet-core'
+  Keyring,
+  Transport
+} from '@shapeshiftoss/hdwallet-core'
   
   export class PortisTransport extends Transport {
     public keyring: Keyring
@@ -34,7 +34,7 @@ import {
   
     /**
       * Optional method to bootstrap connection to device
-      */
+      */ 
     public listen(): Promise<any> {
       console.log('portisTransport listen()')
       return

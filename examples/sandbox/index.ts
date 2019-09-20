@@ -37,7 +37,7 @@ const keyring = new Keyring()
 const portis = new Portis('ff763d3d-9e34-45a1-81d1-caa39b9c64f9', 'mainnet');
 const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring)
 const kkemuAdapter = TCPKeepKeyAdapter.useKeyring(keyring)
-const web3PortisAdapter = Web3PortisAdapter.useKeyring(keyring)
+const web3PortisAdapter = Web3PortisAdapter.useKeyring(keyring, portis)
 
 const log = debug.default('hdwallet')
 
@@ -150,7 +150,7 @@ async function deviceConnected (deviceId) {
   }
 
   try {
-    await web3PortisAdapter.initialize(portis)
+    await web3PortisAdapter.initialize()
   } catch (e) {
     console.error('Could not initialize Web3PortisAdapter', e)
   }

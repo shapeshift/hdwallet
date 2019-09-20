@@ -1,25 +1,27 @@
 import {
-    HDWallet,
-    GetPublicKey,
-    PublicKey,
-    RecoverDevice,
-    ResetDevice,
-    Coin,
-    Ping,
-    Pong,
-    LoadDevice,
-    ETHWallet,
-    ETHGetAddress,
-    ETHSignTx,
-    ETHGetAccountPath,
-    ETHAccountPath,
-    ETHSignMessage,
-    ETHSignedMessage,
-    ETHVerifyMessage,
-    ETHSignedTx
-  } from "@shapeshiftoss/hdwallet-core";
+  HDWallet,
+  GetPublicKey,
+  PublicKey,
+  RecoverDevice,
+  ResetDevice,
+  Coin,
+  Ping,
+  Pong,
+  LoadDevice,
+  ETHWallet,
+  ETHGetAddress,
+  ETHSignTx,
+  ETHGetAccountPath,
+  ETHAccountPath,
+  ETHSignMessage,
+  ETHSignedMessage,
+  ETHVerifyMessage,
+  ETHSignedTx
+} from "@shapeshiftoss/hdwallet-core";
       
   import { PortisTransport } from './portisTransport'
+  import { getPortisEthAddress } from './utils'
+
   import Web3 from 'web3'
 
   export class Web3PortisHDWallet implements HDWallet, ETHWallet {
@@ -142,7 +144,7 @@ import {
       throw new Error("Method not implemented.");
     }
   
-    public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
+    public async ethSupportsNetwork (chain_id: number = 1): Promise<boolean> {
       console.log('Web3PortisHDWallet ethSupportsNetwork')
       return true
     }
@@ -173,7 +175,9 @@ import {
         console.log(error, 'RESULT PUB KEYS IS ', result);
       });
 
-      throw new Error("getPublicKeys Method not implemented.");
+      return Promise.resolve([{
+        xpub: 'xpub'
+      }])
     }
   
     public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
@@ -192,23 +196,17 @@ import {
   
     public async ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage> {
       return {
-        address: await this.getPortisEthAddress(),
+        address: await getPortisEthAddress(this.web3),
         signature: 'signature'
       }
     }
 
     public async ethGetAddress (msg: ETHGetAddress): Promise<string> {
-      return this.getPortisEthAddress()
+      return getPortisEthAddress(this.web3)
     }
 
     public async getDeviceID(): Promise<string> {
-      return this.getPortisEthAddress()
-    }
-
-    // returns the currently selected portis eth address
-    public async getPortisEthAddress(): Promise<string>   {
-      console.log('getPortisEthAddress')
-      return  (await this.web3.eth.getAccounts())[0]
+      return getPortisEthAddress(this.web3)
     }
   }
   
