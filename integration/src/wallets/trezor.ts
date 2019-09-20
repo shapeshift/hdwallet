@@ -7,6 +7,7 @@ import {
   bip32ToAddressNList,
   Keyring,
   HDWalletInfo,
+  BTCInputScriptType,
 } from '@shapeshiftoss/hdwallet-core'
 import {
   create as createTrezor,
@@ -246,21 +247,21 @@ export function selfTest (get: () => HDWallet): void {
         2147483650,
         2147483651,
       ],
-      "scriptType": 5,
+      "scriptType": BTCInputScriptType.SpendP2SHWitness,
     }, {
       "addressNList": [
         2147483692,
         2147483650,
         2147483651,
       ],
-      "scriptType": 1,
+      "scriptType": BTCInputScriptType.SpendAddress,
     }, {
       "addressNList": [
         2147483732,
         2147483650,
         2147483651,
       ],
-      "scriptType": 4,
+      "scriptType": BTCInputScriptType.SpendWitness,
     }])
   })
 }
