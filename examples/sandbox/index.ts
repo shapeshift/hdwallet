@@ -114,9 +114,8 @@ $portis.on('click',  async (e) => {
   } catch( e ) {
     console.log('ERROR', { e })
   }
-  console.log('deviceId IS ', deviceId)
+  console.log('portis deviceId IS ', deviceId)
   $('#keyring select').val(deviceId)
-  console.log('3s')
 })
 
 
@@ -151,9 +150,7 @@ async function deviceConnected (deviceId) {
   }
 
   try {
-    console.log('INITIALIZING Web3PortisAdapter')
     await web3PortisAdapter.initialize(portis)
-    console.log('INITIALIZED Web3PortisAdapter')
   } catch (e) {
     console.error('Could not initialize Web3PortisAdapter', e)
   }
