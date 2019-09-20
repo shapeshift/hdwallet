@@ -109,14 +109,6 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return
   }
 
-  public async clearSession (): Promise<void> {
-    return
-  }
-
-  public async getLabel (): Promise<string> {
-    return
-  }
-
   public async getDeviceID (): Promise<string> {
     const { device: { deviceID }} = this.transport as any
     return deviceID
@@ -131,8 +123,16 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return "Ledger " + productName
   }
 
+  public async getLabel (): Promise<string> {
+    return
+  }
+
   public async isLocked (): Promise<boolean> {
     return true
+  }
+
+  public async clearSession (): Promise<void> {
+    return
   }
 
   // TODO: what to do with Ethereum?
@@ -158,7 +158,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
       result = crypto.ripemd160(result)
 
-      const fingerprint = result[0] << 24 | result[1] << 16 | result[2] << 8 | result[3] >>> 0
+      const fingerprint: number = result[0] << 24 | result[1] << 16 | result[2] << 8 | result[3] >>> 0
 
       const res2 = await this.transport.call('Btc', 'getWalletPublicKey', bip32path, opts)
       handleError(this.transport, res2, 'Unable to obtain public key from device.')
