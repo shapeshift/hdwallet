@@ -288,6 +288,10 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     return (await this.getFeatures()).label;
   }
 
+  public async isInitialized (): Promise<boolean> {
+    return (await this.getFeatures()).initialized
+  }
+
   public async isLocked(): Promise<boolean> {
     const features = await this.getFeatures()
     if (features.pinProtection && !features.pinProtection)

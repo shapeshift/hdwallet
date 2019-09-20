@@ -219,6 +219,11 @@ export interface HDWallet extends HDWalletInfo {
   getPublicKeys (msg: Array<GetPublicKey>): Promise<Array<PublicKey>>
 
   /**
+   * Check whether the device has been initialized with a secret.
+   */
+  isInitialized (): Promise<boolean>
+
+  /**
    * Check whether the device is locked.
    */
   isLocked (): Promise<boolean>
