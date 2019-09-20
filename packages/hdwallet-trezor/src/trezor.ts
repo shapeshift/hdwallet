@@ -138,6 +138,11 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return
   }
 
+  public async isInitialized (): Promise<boolean> {
+    let features = await this.getFeatures(/*cached*/true)
+    return features.initialized
+  }
+
   public async getDeviceID (): Promise<string> {
     const { device: { deviceID: transportId }} = this.transport as any
     if (transportId)
