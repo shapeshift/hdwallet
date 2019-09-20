@@ -59,7 +59,7 @@ export class Keyring extends eventemitter2.EventEmitter2 {
 
     try {
       const keepkey = this.get(deviceID)
-      await keepkey.transport.disconnect()
+      await keepkey.disconnect()
     } catch (e) {
       console.error(e)
     } finally {
@@ -81,7 +81,7 @@ export class Keyring extends eventemitter2.EventEmitter2 {
   public async disconnectAll (): Promise<void> {
     const wallets = Object.values(this.wallets)
     for(let i = 0; i < wallets.length; i++) {
-      await wallets[i].transport.disconnect()
+      await wallets[i].disconnect()
     }
   }
 
