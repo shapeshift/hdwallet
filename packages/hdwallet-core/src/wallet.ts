@@ -273,4 +273,9 @@ export interface HDWallet extends HDWalletInfo {
    * or if you really really know what you're doing on an **airgapped** machine.
    */
   loadDevice (msg: LoadDevice): Promise<void>
+
+  /**
+  * Close connection with device
+  */
+  disconnect (): Promise<void>
 }

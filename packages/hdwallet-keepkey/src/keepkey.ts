@@ -661,6 +661,10 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
     return this.info.ethGetAccountPaths(msg)
   }
+  public disconnect (): Promise<void> {
+    return this.transport.disconnect()
+  }
+
 }
 
 export function info (): KeepKeyHDWalletInfo {

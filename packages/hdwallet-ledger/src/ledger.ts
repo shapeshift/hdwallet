@@ -357,6 +357,10 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
   public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
     return this.info.ethGetAccountPaths(msg)
   }
+
+  public disconnect (): Promise<void> {
+    return this.transport.disconnect()
+  }
 }
 
 export function info (): LedgerHDWalletInfo {
