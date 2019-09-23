@@ -48,6 +48,11 @@ export function bitcoinTests (get: () => { wallet: HDWallet, info: HDWalletInfo 
       await wallet.loadDevice({ mnemonic: MNEMONIC12_NOPIN_NOPASSPHRASE, label: 'test', skipChecksum: true })
     }, TIMEOUT)
 
+    test('isInitialized()', async () => {
+      if (!wallet) return
+      expect(await wallet.isInitialized()).toBeTruthy()
+    })
+
     test('btcSupportsCoin()', async () => {
       if (!wallet) return
       expect(wallet.btcSupportsCoin('Bitcoin')).toBeTruthy()

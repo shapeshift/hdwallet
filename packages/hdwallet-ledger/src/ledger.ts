@@ -34,6 +34,10 @@ import {
   HDWalletInfo,
   BTCWalletInfo,
   ETHWalletInfo,
+  BIP32Path,
+  slip44ByCoin,
+  DescribePath,
+  PathDescription,
 } from '@shapeshiftoss/hdwallet-core'
 import { handleError } from './utils'
 import * as Btc from './bitcoin'
@@ -50,6 +54,115 @@ import {
 
 export function isLedger (wallet: HDWallet): wallet is LedgerHDWallet {
   return typeof wallet === 'object' && wallet._isLedger === true
+}
+
+function describeETHPath (path: BIP32Path): PathDescription {
+  let pathStr = addressNListToBIP32(path)
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin: 'Ethereum',
+    isKnown: false
+  }
+
+  if (path.length != 5)
+    return unknown
+
+  if (path[0] != 0x80000000 + 44)
+    return unknown
+
+  if (path[1] != 0x80000000 + slip44ByCoin('Ethereum'))
+    return unknown
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000)
+    return unknown
+
+  if (path[3] != 0)
+    return unknown
+
+  if (path[4] != 0)
+    return unknown
+
+  let accountIdx = path[2] & 0x7fffffff
+  return {
+    verbose: `Ethereum Account #${accountIdx}`,
+    wholeAccount: true,
+    accountIdx,
+    coin: 'Ethereum',
+    isKnown: true
+  }
+}
+
+function describeUTXOPath (path: BIP32Path, coin: Coin, scriptType: BTCInputScriptType) {
+  let pathStr = addressNListToBIP32(path)
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin,
+    scriptType,
+    isKnown: false
+  }
+
+  if (!Btc.btcSupportsCoin(coin))
+    return unknown
+
+  if (!Btc.btcSupportsScriptType(coin, scriptType))
+    return unknown
+
+  if (path.length !== 3 && path.length !== 5)
+    return unknown
+
+  if ((path[0] & 0x80000000) >>> 0 !== 0x80000000)
+    return unknown
+
+  let purpose = path[0] & 0x7fffffff
+
+  if (![44, 49, 84].includes(purpose))
+    return unknown
+
+  if (purpose === 44 && scriptType !== BTCInputScriptType.SpendAddress)
+    return unknown
+
+  if (purpose === 49 && scriptType !== BTCInputScriptType.SpendP2SHWitness)
+    return unknown
+
+  if (purpose === 84 && scriptType !== BTCInputScriptType.SpendWitness)
+    return unknown
+
+  if (path[1] !== 0x80000000 + slip44ByCoin(coin))
+    return unknown
+
+  let wholeAccount = path.length === 3
+
+  let script = {
+    [BTCInputScriptType.SpendAddress]: '',
+    [BTCInputScriptType.SpendP2SHWitness]: 'Segwit ',
+    [BTCInputScriptType.SpendWitness]: 'Segwit Native '
+  }[scriptType]
+
+  let accountIdx = path[2] & 0x7fffffff
+
+  if (wholeAccount) {
+    return {
+      verbose: `${coin} ${script}Account #${accountIdx}`,
+      accountIdx,
+      coin,
+      scriptType,
+      wholeAccount: true,
+      isKnown: true
+    }
+  } else {
+    let change = path[3] == 1 ? 'Change ' : ''
+    let addressIdx = path[4]
+    return {
+      verbose: `${script}${coin} Account #${accountIdx}, ${change}Address #${addressIdx}`,
+      coin,
+      scriptType,
+      accountIdx,
+      addressIdx,
+      wholeAccount: false,
+      isChange: path[3] == 1,
+      isKnown: true
+    }
+  }
 }
 
 export class LedgerHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo {
@@ -119,6 +232,15 @@ export class LedgerHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
   public async hasOnDeviceRecovery (): Promise<boolean> {
     return true
   }
+
+  public describePath (msg: DescribePath): PathDescription {
+    switch (msg.coin) {
+    case 'Ethereum':
+      return describeETHPath(msg.path)
+    default:
+      return describeUTXOPath(msg.path, msg.coin, msg.scriptType)
+    }
+  }
 }
 
 export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
@@ -141,6 +263,12 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
 
   public async initialize (): Promise<any> {
     return
+  }
+
+  public async isInitialized (): Promise<boolean> {
+    // AFAICT, there isn't an API to figure this out, so we go with a reasonable
+    // (ish) default:
+    return true
   }
 
   public async getDeviceID (): Promise<string> {
@@ -350,6 +478,14 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
 
   public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
     return this.info.ethGetAccountPaths(msg)
+  }
+
+  public describePath (msg: DescribePath): PathDescription {
+    return this.info.describePath(msg)
+  }
+
+  public disconnect (): Promise<void> {
+    return this.transport.disconnect()
   }
 }
 

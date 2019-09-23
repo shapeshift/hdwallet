@@ -6,6 +6,8 @@ import {
   supportsETH,
   Keyring,
   HDWalletInfo,
+  BTCInputScriptType,
+  bip32ToAddressNList,
 } from '@shapeshiftoss/hdwallet-core'
 import {
   create as createLedger,
@@ -159,6 +161,80 @@ export function selfTest (get: () => HDWallet): void {
           relPath: [ account ],
           description: "Ledger (legacy, Ledger Chrome App)"
         }])
+    })
+  })
+
+  it('can describe paths', () => {
+    expect(wallet.info.describePath({
+      path: bip32ToAddressNList("m/44'/0'/0'/0/0"),
+      coin: 'Bitcoin',
+      scriptType: BTCInputScriptType.SpendAddress
+    })).toEqual({
+      verbose: "Bitcoin Account #0, Address #0",
+      coin: 'Bitcoin',
+      scriptType: BTCInputScriptType.SpendAddress,
+      isKnown: true,
+      accountIdx: 0,
+      addressIdx: 0,
+      wholeAccount: false,
+      isChange: false,
+    })
+
+    expect(wallet.info.describePath({
+      path: bip32ToAddressNList("m/44'/0'/7'/1/5"),
+      coin: 'Bitcoin',
+      scriptType: BTCInputScriptType.SpendAddress
+    })).toEqual({
+      verbose: "Bitcoin Account #7, Change Address #5",
+      coin: 'Bitcoin',
+      scriptType: BTCInputScriptType.SpendAddress,
+      isKnown: true,
+      accountIdx: 7,
+      addressIdx: 5,
+      wholeAccount: false,
+      isChange: true,
+    })
+
+    expect(wallet.info.describePath({
+      path: bip32ToAddressNList("m/44'/0'/7'/1/5"),
+      coin: 'BitcoinCash',
+      scriptType: BTCInputScriptType.SpendAddress
+    })).toEqual({
+      verbose: "m/44'/0'/7'/1/5",
+      coin: 'BitcoinCash',
+      scriptType: BTCInputScriptType.SpendAddress,
+      isKnown: false
+    })
+
+    expect(wallet.info.describePath({
+      path: bip32ToAddressNList("m/44'/60'/0'/0/0"),
+      coin: 'Ethereum'
+    })).toEqual({
+      verbose: "Ethereum Account #0",
+      coin: 'Ethereum',
+      isKnown: true,
+      accountIdx: 0,
+      wholeAccount: true
+    })
+
+    expect(wallet.info.describePath({
+      path: bip32ToAddressNList("m/44'/60'/3'/0/0"),
+      coin: 'Ethereum'
+    })).toEqual({
+      verbose: "Ethereum Account #3",
+      coin: 'Ethereum',
+      isKnown: true,
+      accountIdx: 3,
+      wholeAccount: true
+    })
+
+    expect(wallet.info.describePath({
+      path: bip32ToAddressNList("m/44'/60'/0'/0/3"),
+      coin: 'Ethereum'
+    })).toEqual({
+      verbose: "m/44'/60'/0'/0/3",
+      coin: 'Ethereum',
+      isKnown: false,
     })
   })
 }
