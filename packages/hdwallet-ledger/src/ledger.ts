@@ -10,8 +10,6 @@ import {
   Coin,
   Ping,
   Pong,
-  Constructor,
-  makeEvent,
   BTCWallet,
   ETHWallet,
   BTCInputScriptType,
@@ -177,7 +175,7 @@ export class LedgerHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
     return Btc.btcSupportsCoin(coin)
   }
 
-  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> { 
+  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
     return Btc.btcSupportsScriptType(coin, scriptType)
   }
 
@@ -295,12 +293,11 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return
   }
 
-  // TODO: what to do with Ethereum?
   // Adapted from https://github.com/LedgerHQ/ledger-wallet-webtool
   public async getPublicKeys (msg: Array<GetPublicKey>): Promise<Array<PublicKey>> {
     const xpubs = []
     for (const getPublicKey of msg) {
-      const { addressNList } = getPublicKey
+      const { addressNList, coin } = getPublicKey
       const bip32path: string = addressNListToBIP32(addressNList.slice(0, 3)).substring(2)
       const prevBip32path: string = addressNListToBIP32(addressNList.slice(0, 2)).substring(2)
       const format: string = translateScriptType(getPublicKey.scriptType) || 'legacy'
@@ -308,7 +305,13 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
         verify: false,
         format
       }
-      const res1 = await this.transport.call('Btc', 'getWalletPublicKey', prevBip32path, opts)
+
+      let res1
+      if (coin === 'Ethereum') {
+        res1 = await this.transport.call('Btc', 'getWalletPublicKey', prevBip32path)
+      } else {
+        res1 = await this.transport.call('Btc', 'getWalletPublicKey', prevBip32path, opts)
+      }
       handleError(this.transport, res1, 'Unable to obtain public key from device.')
 
       let { payload: { publicKey } } = res1
@@ -319,7 +322,12 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
       result = crypto.ripemd160(result)
       const fingerprint: number = ((result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3]) >>> 0
 
-      const res2 = await this.transport.call('Btc', 'getWalletPublicKey', bip32path, opts)
+      let res2
+      if (coin === 'Ethereum') {
+        res2 = await this.transport.call('Btc', 'getWalletPublicKey', bip32path)
+      } else {
+        res2 = await this.transport.call('Btc', 'getWalletPublicKey', bip32path, opts)
+      }
       handleError(this.transport, res2, 'Unable to obtain public key from device.')
 
       publicKey = res2.payload.publicKey
@@ -328,13 +336,15 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
       const coinType: number = parseInt(bip32path.split("/")[1], 10)
       const account: number = parseInt(bip32path.split("/")[2], 10)
       const childNum: number = (0x80000000 | account) >>> 0
+      const coinDetails = networksUtil[coinType]
+
       let xpub = createXpub(
         3,
         fingerprint,
         childNum,
         chainCode,
         publicKey,
-        networksUtil[coinType].bitcoinjs.bip32.public
+        coinDetails.bitcoinjs.bip32.public
       )
       xpub = encodeBase58Check(xpub)
 
@@ -411,7 +421,7 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return this.info.btcSupportsCoin(coin)
   }
 
-  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> { 
+  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
     return this.info.btcSupportsScriptType(coin, scriptType)
   }
 
