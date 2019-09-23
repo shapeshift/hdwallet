@@ -37,7 +37,7 @@ import {
   BIP32Path,
   slip44ByCoin,
   DescribePath,
-  PathDescription,
+  PathDescription
 } from '@shapeshiftoss/hdwallet-core'
 import { handleError } from './utils'
 import * as Btc from './bitcoin'

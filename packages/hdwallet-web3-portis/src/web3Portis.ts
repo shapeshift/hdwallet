@@ -16,7 +16,13 @@ import {
   ETHSignMessage,
   ETHSignedMessage,
   ETHVerifyMessage,
-  ETHSignedTx
+  ETHSignedTx,
+  DescribePath,
+  PathDescription,
+  addressNListToBIP32,
+  BIP32Path,
+  BTCInputScriptType,
+  slip44ByCoin
 } from "@shapeshiftoss/hdwallet-core";
       
   import { PortisTransport } from './portisTransport'
@@ -24,6 +30,42 @@ import {
 
   import Web3 from 'web3'
 
+  function describeETHPath (path: BIP32Path): PathDescription {
+    let pathStr = addressNListToBIP32(path)
+    let unknown: PathDescription = {
+      verbose: pathStr,
+      coin: 'Ethereum',
+      isKnown: false
+    }
+  
+    if (path.length != 5)
+      return unknown
+  
+    if (path[0] != 0x80000000 + 44)
+      return unknown
+  
+    if (path[1] != 0x80000000 + slip44ByCoin('Ethereum'))
+      return unknown
+  
+    if ((path[2] & 0x80000000) >>> 0 !== 0x80000000)
+      return unknown
+  
+    if (path[3] != 0)
+      return unknown
+  
+    if (path[4] != 0)
+      return unknown
+  
+    let index = path[2] & 0x7fffffff
+    return {
+      verbose: `Ethereum Account #${index}`,
+      accountIdx: index,
+      wholeAccount: true,
+      coin: 'Ethereum',
+      isKnown: true
+    }
+  }
+  
   export class Web3PortisHDWallet implements HDWallet, ETHWallet {
     _supportsETH: boolean = true
     _supportsETHInfo: boolean = true
@@ -163,12 +205,29 @@ import {
       console.log('Web3PortisHDWallet ethSupportsNativeShapeShift')
       return false
     }
+
+    public describePath (msg: DescribePath): PathDescription {
+      switch (msg.coin) {
+      case 'Ethereum':
+        return describeETHPath(msg.path)
+      default:
+        throw new Error("Unsupported path");
+      }
+    }
     
-
-
     // TODO Methods below must be implemented
 
-    getPublicKeys(msg: GetPublicKey[]): Promise<PublicKey[]> {
+    public async isInitialized (): Promise<boolean> {
+      console.log('Web3PortisHDWallet isInitialized')
+      return false
+    }
+
+    public disconnect (): Promise<void> {
+      console.log('Web3PortisHDWallet disconnect')
+      return Promise.resolve()
+    }
+
+    public getPublicKeys(msg: GetPublicKey[]): Promise<PublicKey[]> {
       console.log('GET PUBLIC KEYS')
 
       this.portis.getExtendedPublicKey("m/44'/60'/0'").then(({ error, result }) => {
