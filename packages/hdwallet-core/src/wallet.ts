@@ -80,6 +80,23 @@ export interface ExchangeType {
   returnScriptType?: BTCInputScriptType,
 }
 
+export interface DescribePath {
+  path: BIP32Path,
+  coin: Coin,
+  scriptType?: BTCInputScriptType
+}
+
+export interface PathDescription {
+  isKnown: boolean,
+  verbose: string,
+  coin: Coin,
+  scriptType?: BTCInputScriptType,
+  accountIdx?: number,
+  addressIdx?: number,
+  isChange?: boolean,
+  wholeAccount?: boolean
+}
+
 type CoinWallets = BTCWallet | ETHWallet | DebugLinkWallet
 
 export type Coin = string
@@ -161,6 +178,11 @@ export interface HDWalletInfo {
    * integration for the given pair?
    */
   hasNativeShapeShift (srcCoin: Coin, dstCoin: Coin): Promise<boolean>
+
+  /**
+   * Describes a BIP32 path in plain English.
+   */
+  describePath (msg: DescribePath): PathDescription
 }
 
 export interface HDWallet extends HDWalletInfo {
