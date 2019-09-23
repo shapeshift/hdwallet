@@ -21,11 +21,9 @@ import {
   PathDescription,
   addressNListToBIP32,
   BIP32Path,
-  BTCInputScriptType,
   slip44ByCoin
 } from "@shapeshiftoss/hdwallet-core";
       
-  import { PortisTransport } from './portisTransport'
   import { getPortisEthAddress } from './utils'
 
   import Web3 from 'web3'
@@ -76,7 +74,7 @@ import {
     _isLedger: boolean = false
     _isTrezor: boolean = false
 
-    transport: PortisTransport
+    transport = null
     
     portis: any
     web3: any
