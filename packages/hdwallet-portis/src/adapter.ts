@@ -3,14 +3,13 @@ import {
   HDWallet
 } from '@shapeshiftoss/hdwallet-core'
 
-import { PortisTransport } from './PortisTransport'
-import { Web3PortisHDWallet } from './web3Portis'
+import { PortisHDWallet } from './portis'
 import Portis from "@portis/web3";
 import { getPortisEthAddress } from './utils'
 
 type PortisWallet = any
 
-export class Web3PortisAdapter {
+export class PortisAdapter {
     keyring: Keyring
     portis: any
   
@@ -22,13 +21,12 @@ export class Web3PortisAdapter {
   
     public static useKeyring (keyring: Keyring, args: {portis?: PortisWallet, portisAppId?: string} ) {
       console.log('portis adapter useKeyring')
-      return new Web3PortisAdapter(keyring, args)
+      return new PortisAdapter(keyring, args)
     }
   
     public async initialize (): Promise<number> {
       console.log('portis adapter initialize')
-      let transport = new PortisTransport(this.keyring)
-      let wallet = new Web3PortisHDWallet(this.portis, transport)
+      let wallet = new PortisHDWallet(this.portis)
       await wallet.initialize()
       const deviceId = await getPortisEthAddress(this.portis)
       this.keyring.add(wallet, deviceId)

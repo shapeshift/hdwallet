@@ -15,7 +15,7 @@ import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { TCPKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-tcp'
 import { TrezorAdapter } from '@shapeshiftoss/hdwallet-trezor-connect'
 import { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
-import { Web3PortisAdapter } from '@shapeshiftoss/hdwallet-web3-portis'
+import { PortisAdapter } from '@shapeshiftoss/hdwallet-portis'
 
 import {
   BTCInputScriptType,
@@ -37,7 +37,7 @@ const keyring = new Keyring()
 const portis = new Portis('ff763d3d-9e34-45a1-81d1-caa39b9c64f9', 'mainnet');
 const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring)
 const kkemuAdapter = TCPKeepKeyAdapter.useKeyring(keyring)
-const web3PortisAdapter = Web3PortisAdapter.useKeyring(keyring, {portis})
+const portisAdapter = PortisAdapter.useKeyring(keyring, {portis})
 
 const log = debug.default('hdwallet')
 
@@ -105,7 +105,7 @@ $ledger.on('click',  async (e) => {
 
 $portis.on('click',  async (e) => {
   e.preventDefault()
-  wallet = await web3PortisAdapter.pairDevice()
+  wallet = await portisAdapter.pairDevice()
   window['wallet'] = wallet
 
   let deviceId = 'nothing'
@@ -150,7 +150,7 @@ async function deviceConnected (deviceId) {
   }
 
   try {
-    await web3PortisAdapter.initialize()
+    await portisAdapter.initialize()
   } catch (e) {
     console.error('Could not initialize Web3PortisAdapter', e)
   }

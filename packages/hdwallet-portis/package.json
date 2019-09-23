@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/hdwallet-web3-portis",
+  "name": "@shapeshiftoss/hdwallet-portis",
   "version": "0.3.1",
   "license": "MIT",
   "publishConfig": {
@@ -10,9 +10,9 @@
   "umd:main": "dist/index.umd.js",
   "module": "dist/index.m.js",
   "scripts": {
-    "build": "microbundle --target=web --name=web3-portis",
+    "build": "microbundle --target=web --name=portis",
     "clean": "rm -rf dist .rts2_*",
-    "dev": "microbundle watch --target=web --name=web3-portis --compress=false",
+    "dev": "microbundle watch --target=web --name=portis --compress=false",
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {

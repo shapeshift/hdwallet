@@ -64,7 +64,7 @@ import {
     }
   }
   
-  export class Web3PortisHDWallet implements HDWallet, ETHWallet {
+  export class PortisHDWallet implements HDWallet, ETHWallet {
     _supportsETH: boolean = true
     _supportsETHInfo: boolean = true
     _supportsBTCInfo: boolean = false
@@ -79,9 +79,8 @@ import {
     portis: any
     web3: any
 
-    constructor(portis, transport) {
+    constructor(portis) {
       console.log('Web3PortisHDWallet constructor called')
-      this.transport = transport
       this.portis = portis
       this.web3 = new Web3(portis.provider);
     }
