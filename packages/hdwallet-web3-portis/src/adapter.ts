@@ -6,6 +6,7 @@ import {
 import { PortisTransport } from './PortisTransport'
 import { Web3PortisHDWallet } from './web3Portis'
 import Portis from "@portis/web3";
+import { getPortisEthAddress } from './utils'
 
 type PortisWallet = any
 
@@ -29,14 +30,14 @@ export class Web3PortisAdapter {
       let transport = new PortisTransport(this.keyring)
       let wallet = new Web3PortisHDWallet(this.portis, transport)
       await wallet.initialize()
-      this.keyring.add(wallet)
+      const deviceId = await getPortisEthAddress(this.portis)
+      this.keyring.add(wallet, deviceId)
       return Object.keys(this.keyring.wallets).length
     }
 
     public async pairDevice (): Promise<HDWallet> {
       console.log('portis adapter pairDevices')
-      // TODO get the deviceId from portis if one isnt provided.  abstract it from a util file
-      const deviceId = '1'
+      const deviceId = await getPortisEthAddress(this.portis)
       const wallet = this.keyring.get(deviceId)
       return wallet
     }

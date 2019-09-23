@@ -245,6 +245,7 @@ import {
     }
   
     public async ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx> {
+      console.log('Web3PortisHDWallet ethSignTx')
         return {
             v: 1,
             r: 'r',
@@ -254,18 +255,21 @@ import {
     }
   
     public async ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage> {
+      console.log('Web3PortisHDWallet ethSignMessage')
       return {
-        address: await getPortisEthAddress(this.web3),
+        address: await getPortisEthAddress(this.portis),
         signature: 'signature'
       }
     }
 
     public async ethGetAddress (msg: ETHGetAddress): Promise<string> {
-      return getPortisEthAddress(this.web3)
+      console.log('Web3PortisHDWallet ethGetAddress')
+      return getPortisEthAddress(this.portis)
     }
 
     public async getDeviceID(): Promise<string> {
-      return getPortisEthAddress(this.web3)
+      console.log('Web3PortisHDWallet getDeviceID')
+      return getPortisEthAddress(this.portis)
     }
   }
   
