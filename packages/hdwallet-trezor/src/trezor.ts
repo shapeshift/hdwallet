@@ -495,6 +495,10 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
   public describePath (msg: DescribePath): PathDescription {
     return this.info.describePath(msg)
   }
+
+  public disconnect (): Promise<void> {
+    return this.transport.disconnect()
+  }
 }
 
 export function info (): TrezorHDWalletInfo {
