@@ -234,21 +234,33 @@ import {
 
     }
   
+    // TODO fix this
     public async ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx> {
-      console.log('Web3PortisHDWallet ethSignTx')
-        return {
-            v: 1,
-            r: 'r',
-            s:  's',
-            serialized: 'serialized tx'
-        } 
+      const result = await this.web3.eth.signTransaction({
+        from: this._ethGetAddress(),
+        to: msg.to,
+        value: msg.value,
+        gas: msg.gasLimit,
+        gasPrice: msg.gasPrice,
+        data: msg.data,
+        nonce: msg.nonce
+      })
+      return {
+          v: result.tx.v,
+          r: result.tx.r,
+          s:  result.tx.s,
+          serialized: result.raw
+      } 
     }
   
     public async ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage> {
       console.log('Web3PortisHDWallet ethSignMessage')
+
+      const address = await this._ethGetAddress()
+      const result = await this.web3.eth.sign(msg.message, address)
       return {
-        address: await this._ethGetAddress(),
-        signature: 'signature'
+        address,
+        signature: result
       }
     }
 
