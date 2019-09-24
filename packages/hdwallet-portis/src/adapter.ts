@@ -28,7 +28,7 @@ export class PortisAdapter {
       console.log('portis adapter initialize')
       let wallet = new PortisHDWallet(this.portis)
       await wallet.initialize()
-      const deviceId = await getPortisEthAddress(this.portis)
+      const deviceId = await wallet.getDeviceID()
       this.keyring.add(wallet, deviceId)
       return Object.keys(this.keyring.wallets).length
     }

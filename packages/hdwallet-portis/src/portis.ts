@@ -22,11 +22,10 @@ import {
   addressNListToBIP32,
   BIP32Path,
   slip44ByCoin
-} from "@shapeshiftoss/hdwallet-core";
+} from "@shapeshiftoss/hdwallet-core"
       
-  import { getPortisEthAddress } from './utils'
-
   import Web3 from 'web3'
+  import { getEthAddress } from './utils'
 
   function describeETHPath (path: BIP32Path): PathDescription {
     let pathStr = addressNListToBIP32(path)
@@ -254,19 +253,23 @@ import {
     public async ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage> {
       console.log('Web3PortisHDWallet ethSignMessage')
       return {
-        address: await getPortisEthAddress(this.portis),
+        address: await this._ethGetAddress(),
         signature: 'signature'
       }
     }
 
     public async ethGetAddress (msg: ETHGetAddress): Promise<string> {
       console.log('Web3PortisHDWallet ethGetAddress')
-      return getPortisEthAddress(this.portis)
+      return this._ethGetAddress()
     }
 
     public async getDeviceID(): Promise<string> {
       console.log('Web3PortisHDWallet getDeviceID')
-      return getPortisEthAddress(this.portis)
+      return this._ethGetAddress()
+    }
+
+    private async _ethGetAddress(): Promise<string> {
+      return getEthAddress(this.web3)
     }
   }
   
