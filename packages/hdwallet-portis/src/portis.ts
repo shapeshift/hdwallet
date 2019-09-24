@@ -223,18 +223,16 @@ import {
       return Promise.resolve()
     }
 
+    // TODO this needs to handle more than just eth
     public async getPublicKeys(msg: GetPublicKey[]): Promise<PublicKey[]> {
       console.log('GET PUBLIC KEYS')
-
-      const portisResult = await this.portis.getExtendedPublicKey("m/44'/60'/0'");
+      const portisResult = await this.portis.getExtendedPublicKey("m/44'/60'/0'")
       const { result, error } = portisResult
       if (result) {
         return [{ xpub: result }]
       }
-
     }
   
-    // TODO fix this
     public async ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx> {
       const result = await this.web3.eth.signTransaction({
         from: await this._ethGetAddress(),

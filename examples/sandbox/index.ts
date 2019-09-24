@@ -388,13 +388,13 @@ $ethTx.on('click', async (e) => {
   if (supportsETH(wallet)) {
     let res = await wallet.ethSignTx({
       addressNList: bip32ToAddressNList("m/44'/60'/0'/0/0"),
-      nonce: "0x01",
-      gasPrice: "0x14",
-      gasLimit: "0x14",
+      nonce: "0x0",
+      gasPrice: "0x5FB9ACA00",
+      gasLimit: "0x186A0",
       value: '0x00',
       to: "0x41e5560054824ea6b0732e656e3ad64e20e94e45",
       chainId: 1,
-      data: '0x' + 'a9059cbb000000000000000000000000' + '1d8ce9022f6284c3a5c317f8f34620107214e545' + '00000000000000000000000000000000000000000000000000000002540be400',
+      data: '0x' + 'a9059cbb000000000000000000000000' + '9BB9E5bb9b04e8CE993104309A1f180feBf63DB6' + '0000000000000000000000000000000000000000000000000000000005F5E100',
     })
     $ethResults.val(JSON.stringify(res))
   } else {
