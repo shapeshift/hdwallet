@@ -7,7 +7,7 @@ import {
   supportsDebugLink,
   bip32ToAddressNList,
   Events
- } from '@shapeshiftoss/hdwallet-core'
+} from '@shapeshiftoss/hdwallet-core'
 
 import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 
@@ -18,7 +18,7 @@ import { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
 import {
   BTCInputScriptType,
   BTCOutputScriptType,
-  BTCOutputAddressType, BitcoinTx, BitcoinInput, BitcoinOutput
+  BTCOutputAddressType,
 } from '@shapeshiftoss/hdwallet-core/src/bitcoin'
 
 import * as btcBech32TxJson from './json/btcBech32Tx.json'
@@ -89,7 +89,7 @@ $trezor.on('click', async (e) => {
   $('#keyring select').val(await wallet.getDeviceID())
 })
 
-$ledger.on('click',  async (e) => {
+$ledger.on('click', async (e) => {
   e.preventDefault()
   wallet = await ledgerAdapter.pairDevice()
   window['wallet'] = wallet
@@ -272,28 +272,36 @@ $getLabel.on('click', async (e) => {
 $getXpubs.on('click', (e) => {
   e.preventDefault()
   if (!wallet) { $manageResults.val("No wallet?"); return}
+  // Get Ethereum path
+  const { hardenedPath, relPath } = wallet.ethGetAccountPaths({coin: "Ethereum", accountIdx: 0})[0]
+
   wallet.getPublicKeys([
     {
-      addressNList: [ 0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0],
-      curve: "secp256k1",
-      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-      coin: "Bitcoin"
+        addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0],
+        curve: "secp256k1",
+        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+        coin: "Bitcoin"
     },
     {
-      addressNList: [ 0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 1],
-      curve: "secp256k1",
-      coin: "Bitcoin"
+        addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 1],
+        curve: "secp256k1",
+        coin: "Bitcoin"
     },
     {
-      addressNList: [ 0x80000000 + 49, 0x80000000 + 0, 0x80000000 + 0],
-      curve: "secp256k1",
-      coin: "Bitcoin",
-      scriptType: BTCInputScriptType.SpendP2SHWitness
+        addressNList: [0x80000000 + 49, 0x80000000 + 0, 0x80000000 + 0],
+        curve: "secp256k1",
+        coin: "Bitcoin",
+        scriptType: BTCInputScriptType.SpendP2SHWitness
     },
     {
-      addressNList: [0x80000000 + 44, 0x80000000 + 2, 0x80000000 + 0],
+        addressNList: [0x80000000 + 44, 0x80000000 + 2, 0x80000000 + 0],
+        curve: "secp256k1",
+        coin: "Litecoin"
+    },
+    {
+      addressNList: hardenedPath.concat(relPath),
       curve: "secp256k1",
-      coin: "Litecoin"
+      coin: 'Ethereum'
     }
   ]).then(result => { $manageResults.val(JSON.stringify(result)) })
 })
