@@ -235,11 +235,6 @@ import {
       }])
     }
   
-    public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
-      console.log('Web3PortisHDWallet ethGetAccountPaths')
-      return []
-    }
-  
     public async ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx> {
       console.log('Web3PortisHDWallet ethSignTx')
         return {
@@ -256,6 +251,14 @@ import {
         address: await this._ethGetAddress(),
         signature: 'signature'
       }
+    }
+
+    public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
+      return [{
+        hardenedPath: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx ],
+        relPath: [ 0, 0 ],
+        description: "Portis"
+      }]
     }
 
     public async ethGetAddress (msg: ETHGetAddress): Promise<string> {
