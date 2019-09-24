@@ -107,14 +107,14 @@ function prepareSignTx (
     if (input.sequence !== undefined) utxo.setSequence(input.sequence)
     utxo.setScriptType(translateInputScriptType(input.scriptType))
     utxo.setAddressNList(input.addressNList)
-    utxo.setAmount(input.amount)
+    utxo.setAmount(Number(input.amount))
     unsignedTx.addInputs(utxo, i)
   })
 
   outputs.forEach((o, k) => {
     const output: BTCSignTxOutput = o
     const newOutput = new Types.TxOutputType()
-    newOutput.setAmount(output.amount)
+    newOutput.setAmount(Number(output.amount))
     newOutput.setScriptType(translateOutputScriptType(output.scriptType || BTCOutputScriptType.PayToAddress))
     if (output.exchangeType) {
       // convert the base64 encoded signedExchangeResponse message into the correct object

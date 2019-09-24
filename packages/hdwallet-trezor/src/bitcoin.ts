@@ -114,7 +114,7 @@ export async function btcSignTx (wallet: BTCWallet, transport: TrezorTransport, 
       address_n: input.addressNList,
       prev_hash: input.txid,
       prev_index: input.vout,
-      amount: String(input.amount),
+      amount: input.amount,
       script_type: translateInputScriptType(input.scriptType)
     }
   })
@@ -128,7 +128,7 @@ export async function btcSignTx (wallet: BTCWallet, transport: TrezorTransport, 
 
       return {
         address_n: output.addressNList,
-        amount: String(output.amount),
+        amount: output.amount,
         script_type: translateOutputScriptType(output.scriptType)
       }
     } else if (output.addressType == BTCOutputAddressType.Transfer) {
@@ -138,7 +138,7 @@ export async function btcSignTx (wallet: BTCWallet, transport: TrezorTransport, 
     if (output.address) {
       return {
         address: output.address,
-        amount: String(output.amount),
+        amount: output.amount,
         script_type: 'PAYTOADDRESS'
       }
     }
