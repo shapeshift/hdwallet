@@ -134,7 +134,7 @@ export async function btcSignTx (wallet: BTCWallet, transport: LedgerTransport, 
       if (output.addressType === BTCOutputAddressType.Transfer && !supportsSecureTransfer)
         throw new Error("Ledger does not support SecureTransfer")
     }
-    txBuilder.addOutput(output.address, output.amount)
+    txBuilder.addOutput(output.address, Number(output.amount))
   })
 
   let unsignedHex = txBuilder.buildIncomplete().toHex()
