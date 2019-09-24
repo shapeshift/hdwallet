@@ -237,7 +237,7 @@ import {
     // TODO fix this
     public async ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx> {
       const result = await this.web3.eth.signTransaction({
-        from: this._ethGetAddress(),
+        from: await this._ethGetAddress(),
         to: msg.to,
         value: msg.value,
         gas: msg.gasLimit,
