@@ -273,6 +273,10 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return this.transport.deviceID
   }
 
+  public async getDeviceInfo(): Promise<any> {
+    return this.transport.getDeviceInfo()
+  }
+
   public getVendor (): string {
     return 'Ledger'
   }

@@ -20,6 +20,7 @@
     "@ledgerhq/hw-app-eth": "^4.48.0",
     "@ledgerhq/hw-transport": "^4.48.0",
     "@ledgerhq/hw-transport-webusb": "^4.48.0",
+    "@ledgerhq/live-common": "^7.15.4",
     "@shapeshiftoss/hdwallet-core": "^0.4.0",
     "@shapeshiftoss/hdwallet-ledger": "^0.4.0",
     "bytebuffer": "^5.0.1",

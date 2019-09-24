@@ -154,7 +154,7 @@ export interface BTCWalletInfo {
   _supportsBTCInfo: boolean
 
   /**
-   * Does the device support the given UTXO coin? 
+   * Does the device support the given UTXO coin?
    */
   btcSupportsCoin (coin: Coin): Promise<boolean>
 
