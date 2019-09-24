@@ -163,7 +163,7 @@ async function deviceConnected (deviceId) {
   }
   $keyring.change(async (e) => {
     if (wallet) {
-      await wallet.transport.disconnect()
+      await wallet.disconnect()
     }
     let deviceID = $keyring.find(':selected').val() as string
     wallet = keyring.get(deviceID)
@@ -181,7 +181,7 @@ async function deviceConnected (deviceId) {
   wallet = keyring.get()
   window['wallet'] = wallet
   if (wallet) {
-    let deviceID = wallet.transport.getDeviceID()
+    let deviceID = wallet.getDeviceID()
     $keyring.val(deviceID).change()
   }
 

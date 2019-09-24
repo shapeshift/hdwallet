@@ -36,7 +36,7 @@ export class PortisAdapter {
 
     public async pairDevice (): Promise<HDWallet> {
       console.log('portis adapter pairDevices')
-      const web3 = new Web3(this.portis)
+      const web3 = new Web3(this.portis.provider)
       const deviceId = await getEthAddress(web3)
       const wallet = this.keyring.get(deviceId)
       return wallet
