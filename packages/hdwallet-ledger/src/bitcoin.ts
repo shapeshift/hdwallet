@@ -106,9 +106,9 @@ export async function btcGetAddress (transport: LedgerTransport, msg: BTCGetAddr
     * outputScriptHex string is the hexadecimal serialized outputs of the transaction to sign
            ( lockTime number is the optional lockTime of the transaction to sign, or default (0)
     * sigHashType number is the hash type of the transaction to sign, or default (all)
-    * segwit boolean (is an optional boolean indicating wether to use segwit or not)
+    * segwit boolean (is an optional boolean indicating whether to use segwit or not)
     * initialTimestamp number is an optional timestamp of the function call to use for coins that necessitate timestamps only, (not the one that the tx will include)
-    * additionals Array<string> list of additionnal options- "abc" for bch
+    * additionals Array<string> list of additional options- "abc" for bch
         "gold" for btg
         "bipxxx" for using BIPxxx
         "sapling" to indicate a zec transaction is supporting sapling (to be set over block 419200)
