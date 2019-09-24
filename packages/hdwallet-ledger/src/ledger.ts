@@ -38,6 +38,8 @@ import {
   slip44ByCoin,
   DescribePath,
   PathDescription,
+  hardenedPath,
+  relativePath,
 } from '@shapeshiftoss/hdwallet-core'
 import { handleError } from './utils'
 import * as Btc from './bitcoin'
@@ -64,25 +66,39 @@ function describeETHPath (path: BIP32Path): PathDescription {
     isKnown: false
   }
 
-  if (path.length != 5)
+  if (path.length !== 5 && path.length !== 4)
     return unknown
 
-  if (path[0] != 0x80000000 + 44)
+  if (path[0] !== 0x80000000 + 44)
     return unknown
 
-  if (path[1] != 0x80000000 + slip44ByCoin('Ethereum'))
+  if (path[1] !== 0x80000000 + slip44ByCoin('Ethereum'))
     return unknown
 
   if ((path[2] & 0x80000000) >>> 0 !== 0x80000000)
     return unknown
 
-  if (path[3] != 0)
-    return unknown
+  let accountIdx
+  if (path.length === 5) {
+    if (path[3] !== 0)
+      return unknown
 
-  if (path[4] != 0)
-    return unknown
+    if (path[4] !== 0)
+      return unknown
 
-  let accountIdx = path[2] & 0x7fffffff
+    accountIdx = (path[2] & 0x7fffffff) >>> 0
+  } else if (path.length === 4) {
+    if (path[2] !== 0x80000000)
+      return unknown
+
+    if ((path[3] & 0x80000000) >>> 0 === 0x80000000)
+      return unknown
+
+    accountIdx = path[3]
+  } else {
+    return unknown
+  }
+
   return {
     verbose: `Ethereum Account #${accountIdx}`,
     wholeAccount: true,
@@ -240,6 +256,67 @@ export class LedgerHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
     default:
       return describeUTXOPath(msg.path, msg.coin, msg.scriptType)
     }
+  }
+
+  public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
+    let description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType)
+    if (!description.isKnown) {
+      return undefined
+    }
+
+    let addressNList = msg.addressNList
+
+    if (addressNList[0] === 0x80000000 + 44 ||
+        addressNList[0] === 0x80000000 + 49 ||
+        addressNList[0] === 0x80000000 + 84) {
+      addressNList[2] += 1
+      return {
+        ...msg,
+        addressNList
+      }
+    }
+
+    return undefined
+  }
+
+  public ethNextAccountPath (msg: ETHAccountPath): ETHAccountPath | undefined {
+    let addressNList = msg.hardenedPath.concat(msg.relPath)
+    let description = describeETHPath(addressNList)
+    if (!description.isKnown) {
+      throw new Error("bad description?")
+      return undefined
+    }
+
+    if (description.wholeAccount) {
+      addressNList[2] += 1
+      return {
+        ...msg,
+        hardenedPath: hardenedPath(addressNList),
+        relPath: relativePath(addressNList)
+      }
+    }
+
+    if (addressNList.length === 5) {
+      addressNList[2] += 1
+      return {
+        ...msg,
+        hardenedPath: hardenedPath(addressNList),
+        relPath: relativePath(addressNList)
+      }
+    }
+
+    if (addressNList.length === 4) {
+      addressNList[3] += 1
+      return {
+        ...msg,
+        hardenedPath: hardenedPath(addressNList),
+        relPath: relativePath(addressNList)
+      }
+    }
+
+    throw new Error("all else failed")
+
+    return undefined
   }
 }
 
@@ -486,6 +563,14 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
 
   public disconnect (): Promise<void> {
     return this.transport.disconnect()
+  }
+
+  public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
+    return this.info.btcNextAccountPath(msg)
+  }
+
+  public ethNextAccountPath (msg: ETHAccountPath): ETHAccountPath | undefined {
+    return this.info.ethNextAccountPath(msg)
   }
 }
 

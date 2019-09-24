@@ -44,7 +44,9 @@ import {
   slip44ByCoin,
   DescribePath,
   PathDescription,
-  addressNListToBIP32
+  addressNListToBIP32,
+  hardenedPath,
+  relativePath,
 } from "@shapeshiftoss/hdwallet-core";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
@@ -242,13 +244,52 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
     return true;
   }
 
-  describePath (msg: DescribePath): PathDescription {
+  public describePath (msg: DescribePath): PathDescription {
     switch (msg.coin) {
     case 'Ethereum':
       return describeETHPath(msg.path)
     default:
       return describeUTXOPath(msg.path, msg.coin, msg.scriptType)
     }
+  }
+
+  public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
+    let description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType)
+    if (!description.isKnown) {
+      return undefined
+    }
+
+    let addressNList = msg.addressNList
+
+    if (addressNList[0] === 0x80000000 + 44 ||
+        addressNList[0] === 0x80000000 + 49 ||
+        addressNList[0] === 0x80000000 + 84) {
+      addressNList[2] += 1
+      return {
+        ...msg,
+        addressNList
+      }
+    }
+
+    return undefined
+  }
+
+  public ethNextAccountPath (msg: ETHAccountPath): ETHAccountPath | undefined {
+    let addressNList = msg.hardenedPath.concat(msg.relPath)
+    let description = describeETHPath(addressNList)
+    if (!description.isKnown) {
+      return undefined
+    }
+
+    if (addressNList[0] === 0x80000000 + 44) {
+      return {
+        ...msg,
+        hardenedPath: hardenedPath(addressNList),
+        relPath: relativePath(addressNList)
+      }
+    }
+
+    return undefined
   }
 }
 
@@ -790,6 +831,14 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
 
   public disconnect (): Promise<void> {
     return this.transport.disconnect()
+  }
+
+  public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
+    return this.info.btcNextAccountPath(msg)
+  }
+
+  public ethNextAccountPath (msg: ETHAccountPath): ETHAccountPath | undefined {
+    return this.info.ethNextAccountPath(msg)
   }
 }
 

@@ -146,6 +146,7 @@ export interface BTCGetAccountPaths {
 }
 
 export interface BTCAccountPath {
+  coin: Coin,
   scriptType: BTCInputScriptType,
   addressNList: BIP32Path
 }
@@ -200,6 +201,11 @@ export interface BTCWalletInfo {
    * The list is assumed to contain unique entries.
    */
   btcIsSameAccount (msg: Array<BTCAccountPath>): boolean
+
+  /**
+   * Returns the "next" account path, if any.
+   */
+  btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined
 }
 
 export interface BTCWallet extends BTCWalletInfo {

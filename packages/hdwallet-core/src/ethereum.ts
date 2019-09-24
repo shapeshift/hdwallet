@@ -9,6 +9,7 @@ export interface ETHGetAccountPath {
  * Concat accountPath with relPath for the absolute path to the Ethereum address.
  */
 export interface ETHAccountPath {
+  addressNList: BIP32Path,
   hardenedPath: BIP32Path,
   relPath: BIP32Path,
   description: string,
@@ -104,6 +105,11 @@ export interface ETHWalletInfo {
    * location of its corresponding xpub.
    */
   ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath>
+
+  /**
+   * Returns the "next" ETH account, if any.
+   */
+  ethNextAccountPath (msg: ETHAccountPath): ETHAccountPath | undefined
 }
 
 export interface ETHWallet extends ETHWalletInfo {

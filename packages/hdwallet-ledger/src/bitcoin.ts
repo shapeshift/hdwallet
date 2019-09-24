@@ -204,14 +204,17 @@ export async function btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean>
 export function btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
   const slip44 = slip44ByCoin(msg.coin)
   const bip49 = {
+    coin: msg.coin,
     scriptType: BTCInputScriptType.SpendP2SHWitness,
     addressNList: [0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + msg.accountIdx]
   }
   const bip44 = {
+    coin: msg.coin,
     scriptType: BTCInputScriptType.SpendAddress,
     addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx]
   }
   const bip84 = {
+    coin: msg.coin,
     scriptType: BTCInputScriptType.SpendWitness,
     addressNList: [0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + msg.accountIdx]
   }

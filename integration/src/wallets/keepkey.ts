@@ -105,12 +105,20 @@ export function selfTest (get: () => HDWallet): void {
   it('uses the same BIP32 paths for ETH as the KeepKey Client', () => {
     if (!wallet) return
     ([0, 1, 3, 27]).forEach(account => {
-      expect(wallet.ethGetAccountPaths({ coin: 'Ethereum', accountIdx: account }))
+      let paths = wallet.ethGetAccountPaths({ coin: 'Ethereum', accountIdx: account })
+      expect(paths)
         .toEqual([{
+          addressNList: bip32ToAddressNList(`m/44'/60'/${account}'/0/0`),
           hardenedPath: bip32ToAddressNList(`m/44'/60'/${account}'`),
           relPath: [0, 0],
           description: "KeepKey"
         }])
+      paths.forEach(path => {
+        expect(wallet.describePath({
+          coin: 'Ethereum',
+          path: path.addressNList
+        }).isKnown).toBeTruthy()
+      })
     })
   })
 

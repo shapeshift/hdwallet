@@ -151,16 +151,25 @@ export function selfTest (get: () => HDWallet): void {
   it('has a non-BIP 44 derivation path for Ethereum', () => {
     if (!wallet) return
     ([0, 1, 3, 27]).forEach(account => {
-      expect(wallet.ethGetAccountPaths({ coin: 'Ethereum', accountIdx: account }))
+      let paths = wallet.ethGetAccountPaths({ coin: 'Ethereum', accountIdx: account })
+      expect(paths)
         .toEqual([{
+          addressNList: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + account, 0, 0],
           hardenedPath: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + account],
           relPath: [ 0, 0 ],
           description: "Ledger (Ledger Live)"
         }, {
+          addressNList: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + 0, account],
           hardenedPath: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + 0],
           relPath: [ account ],
           description: "Ledger (legacy, Ledger Chrome App)"
         }])
+      paths.forEach(path => {
+        expect(wallet.describePath({
+          coin: 'Ethereum',
+          path: path.addressNList
+        }).isKnown).toBeTruthy()
+      })
     })
   })
 
@@ -229,12 +238,14 @@ export function selfTest (get: () => HDWallet): void {
     })
 
     expect(wallet.info.describePath({
-      path: bip32ToAddressNList("m/44'/60'/0'/0/3"),
+      path: bip32ToAddressNList("m/44'/60'/0'/42"),
       coin: 'Ethereum'
     })).toEqual({
-      verbose: "m/44'/60'/0'/0/3",
+      verbose: "Ethereum Account #42",
       coin: 'Ethereum',
-      isKnown: false,
+      isKnown: true,
+      wholeAccount: true,
+      accountIdx: 42
     })
   })
 }

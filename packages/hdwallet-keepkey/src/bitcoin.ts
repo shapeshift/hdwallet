@@ -59,22 +59,25 @@ const segwitCoins = [
   'Litecoin',
 ]
 
-function legacyAccount (slip44: number, accountIdx: number): BTCAccountPath {
+function legacyAccount (coin: Coin, slip44: number, accountIdx: number): BTCAccountPath {
   return {
+    coin,
     scriptType: BTCInputScriptType.SpendAddress,
     addressNList: [ 0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + accountIdx ]
   }
 }
 
-function segwitAccount (slip44: number, accountIdx: number): BTCAccountPath {
+function segwitAccount (coin: Coin, slip44: number, accountIdx: number): BTCAccountPath {
   return {
+    coin,
     scriptType: BTCInputScriptType.SpendP2SHWitness,
     addressNList: [ 0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + accountIdx ]
   }
 }
 
-function segwitNativeAccount (slip44: number, accountIdx: number): BTCAccountPath {
+function segwitNativeAccount (coin: Coin, slip44: number, accountIdx: number): BTCAccountPath {
   return {
+    coin,
     scriptType: BTCInputScriptType.SpendWitness,
     addressNList: [ 0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + accountIdx ]
   }
@@ -447,17 +450,17 @@ export async function btcVerifyMessage (wallet: BTCWallet, transport: KeepKeyTra
 
 export function btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
   const slip44 = slip44ByCoin(msg.coin)
-  const bip44 = legacyAccount(slip44, msg.accountIdx)
-  const bip49 = segwitAccount(slip44, msg.accountIdx)
-  const bip84 = segwitNativeAccount(slip44, msg.accountIdx)
+  const bip44 = legacyAccount(msg.coin, slip44, msg.accountIdx)
+  const bip49 = segwitAccount(msg.coin, slip44, msg.accountIdx)
+  const bip84 = segwitNativeAccount(msg.coin, slip44, msg.accountIdx)
 
   // For BTC Forks
-  const btcLegacy = legacyAccount(slip44ByCoin('Bitcoin'), msg.accountIdx)
-  const btcSegwit = segwitAccount(slip44ByCoin('Bitcoin'), msg.accountIdx)
-  const btcSegwitNative = segwitNativeAccount(slip44ByCoin('Bitcoin'), msg.accountIdx)
+  const btcLegacy = legacyAccount(msg.coin, slip44ByCoin('Bitcoin'), msg.accountIdx)
+  const btcSegwit = segwitAccount(msg.coin, slip44ByCoin('Bitcoin'), msg.accountIdx)
+  const btcSegwitNative = segwitNativeAccount(msg.coin, slip44ByCoin('Bitcoin'), msg.accountIdx)
 
   // For BCH Forks
-  const bchLegacy = legacyAccount(slip44ByCoin('BitcoinCash'), msg.accountIdx)
+  const bchLegacy = legacyAccount(msg.coin, slip44ByCoin('BitcoinCash'), msg.accountIdx)
 
   let paths: Array<BTCAccountPath> = {
     'Bitcoin':  [bip44, bip49, bip84],

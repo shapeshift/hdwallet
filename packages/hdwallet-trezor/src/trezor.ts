@@ -39,6 +39,8 @@ import {
   DescribePath,
   PathDescription,
   addressNListToBIP32,
+  hardenedPath,
+  relativePath,
 } from '@shapeshiftoss/hdwallet-core'
 import { handleError } from './utils'
 import * as Btc from './bitcoin'
@@ -235,6 +237,46 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
     default:
       return describeUTXOPath(msg.path, msg.coin, msg.scriptType)
     }
+  }
+
+  public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
+    let description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType)
+    if (!description.isKnown) {
+      return undefined
+    }
+
+    let addressNList = msg.addressNList
+
+    if (addressNList[0] === 0x80000000 + 44 ||
+        addressNList[0] === 0x80000000 + 49 ||
+        addressNList[0] === 0x80000000 + 84) {
+      addressNList[2] += 1
+      return {
+        ...msg,
+        addressNList
+      }
+    }
+
+    return undefined
+  }
+
+  public ethNextAccountPath (msg: ETHAccountPath): ETHAccountPath | undefined {
+    let addressNList = msg.hardenedPath.concat(msg.relPath)
+    let description = describeETHPath(addressNList)
+    if (!description.isKnown) {
+      return undefined
+    }
+
+    if (addressNList[0] === 0x80000000 + 44) {
+      addressNList[4] += 1
+      return {
+        ...msg,
+        hardenedPath: hardenedPath(addressNList),
+        relPath: relativePath(addressNList)
+      }
+    }
+
+    return undefined
   }
 }
 
@@ -498,6 +540,14 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
 
   public disconnect (): Promise<void> {
     return this.transport.disconnect()
+  }
+
+  public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
+    return this.info.btcNextAccountPath(msg)
+  }
+
+  public ethNextAccountPath (msg: ETHAccountPath): ETHAccountPath | undefined {
+    return this.info.ethNextAccountPath(msg)
   }
 }
 
