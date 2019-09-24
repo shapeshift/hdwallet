@@ -85,23 +85,23 @@ import {
     }
   
     public async isLocked(): Promise<boolean> {
-      console.log('web3Portis isLocked')
+      console.log('portis isLocked')
       return false;
     }
   
     public getVendor(): string {
       console.log('web3Portis getVendor')
-      return "web3vendor"
+      return "portisvendor"
     }
 
     public async getModel(): Promise<string> {
       console.log('web3Portis getModel')
-      return 'web3model'
+      return 'portismodel'
     }
   
     public async getLabel(): Promise<string> {
       console.log('web3Portis getLabel')
-      return 'web3label'
+      return 'Portis'
     }
   
     public async initialize(): Promise<void> {
@@ -223,16 +223,15 @@ import {
       return Promise.resolve()
     }
 
-    public getPublicKeys(msg: GetPublicKey[]): Promise<PublicKey[]> {
+    public async getPublicKeys(msg: GetPublicKey[]): Promise<PublicKey[]> {
       console.log('GET PUBLIC KEYS')
 
-      this.portis.getExtendedPublicKey("m/44'/60'/0'").then(({ error, result }) => {
-        console.log(error, 'RESULT PUB KEYS IS ', result);
-      });
+      const portisResult = await this.portis.getExtendedPublicKey("m/44'/60'/0'");
+      const { result, error } = portisResult
+      if (result) {
+        return [{ xpub: result }]
+      }
 
-      return Promise.resolve([{
-        xpub: 'xpub'
-      }])
     }
   
     public async ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx> {
