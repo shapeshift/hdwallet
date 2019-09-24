@@ -28,15 +28,8 @@ export abstract class LedgerTransport extends Transport {
     return this.deviceID
   }
 
-  // change any at some point
-  public async getDeviceInfo(): Promise<any> {
-    console.log('SENDING DEVICE INFO')
-    try {
-      const deviceInfo = await getDeviceInfo(this.transport)
-      return deviceInfo
-    } catch (e) {
-      console.error(e)
-    }
+  public async getDeviceInfo(): Promise<Transport> {
+    return await getDeviceInfo(this.transport)
   }
 
 
