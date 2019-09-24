@@ -5,7 +5,8 @@ import {
 
 import { PortisHDWallet } from './portis'
 import Portis from "@portis/web3";
-import { getPortisEthAddress } from './utils'
+import Web3 from 'web3'
+import { getEthAddress } from './utils'
 
 type PortisWallet = any
 
@@ -35,7 +36,8 @@ export class PortisAdapter {
 
     public async pairDevice (): Promise<HDWallet> {
       console.log('portis adapter pairDevices')
-      const deviceId = await getPortisEthAddress(this.portis)
+      const web3 = new Web3(this.portis)
+      const deviceId = await getEthAddress(web3)
       const wallet = this.keyring.get(deviceId)
       return wallet
     }
