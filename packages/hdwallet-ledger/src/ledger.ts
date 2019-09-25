@@ -10,8 +10,6 @@ import {
   Coin,
   Ping,
   Pong,
-  Constructor,
-  makeEvent,
   BTCWallet,
   ETHWallet,
   BTCInputScriptType,
@@ -37,7 +35,9 @@ import {
   BIP32Path,
   slip44ByCoin,
   DescribePath,
-  PathDescription
+  PathDescription,
+  hardenedPath,
+  relativePath,
 } from '@shapeshiftoss/hdwallet-core'
 import { handleError } from './utils'
 import * as Btc from './bitcoin'
@@ -64,25 +64,39 @@ function describeETHPath (path: BIP32Path): PathDescription {
     isKnown: false
   }
 
-  if (path.length != 5)
+  if (path.length !== 5 && path.length !== 4)
     return unknown
 
-  if (path[0] != 0x80000000 + 44)
+  if (path[0] !== 0x80000000 + 44)
     return unknown
 
-  if (path[1] != 0x80000000 + slip44ByCoin('Ethereum'))
+  if (path[1] !== 0x80000000 + slip44ByCoin('Ethereum'))
     return unknown
 
   if ((path[2] & 0x80000000) >>> 0 !== 0x80000000)
     return unknown
 
-  if (path[3] != 0)
-    return unknown
+  let accountIdx
+  if (path.length === 5) {
+    if (path[3] !== 0)
+      return unknown
 
-  if (path[4] != 0)
-    return unknown
+    if (path[4] !== 0)
+      return unknown
 
-  let accountIdx = path[2] & 0x7fffffff
+    accountIdx = (path[2] & 0x7fffffff) >>> 0
+  } else if (path.length === 4) {
+    if (path[2] !== 0x80000000)
+      return unknown
+
+    if ((path[3] & 0x80000000) >>> 0 === 0x80000000)
+      return unknown
+
+    accountIdx = path[3]
+  } else {
+    return unknown
+  }
+
   return {
     verbose: `Ethereum Account #${accountIdx}`,
     wholeAccount: true,
@@ -133,16 +147,26 @@ function describeUTXOPath (path: BIP32Path, coin: Coin, scriptType: BTCInputScri
   let wholeAccount = path.length === 3
 
   let script = {
-    [BTCInputScriptType.SpendAddress]: '',
-    [BTCInputScriptType.SpendP2SHWitness]: 'Segwit ',
-    [BTCInputScriptType.SpendWitness]: 'Segwit Native '
+    [BTCInputScriptType.SpendAddress]: ' (Legacy)',
+    [BTCInputScriptType.SpendP2SHWitness]: '',
+    [BTCInputScriptType.SpendWitness]: ' (Segwit Native)'
   }[scriptType]
+
+  switch (coin) {
+  case 'Bitcoin':
+  case 'Litecoin':
+  case 'BitcoinGold':
+  case 'Testnet':
+    break;
+  default:
+    script = ''
+  }
 
   let accountIdx = path[2] & 0x7fffffff
 
   if (wholeAccount) {
     return {
-      verbose: `${coin} ${script}Account #${accountIdx}`,
+      verbose: `${coin} Account #${accountIdx}${script}`,
       accountIdx,
       coin,
       scriptType,
@@ -153,7 +177,7 @@ function describeUTXOPath (path: BIP32Path, coin: Coin, scriptType: BTCInputScri
     let change = path[3] == 1 ? 'Change ' : ''
     let addressIdx = path[4]
     return {
-      verbose: `${script}${coin} Account #${accountIdx}, ${change}Address #${addressIdx}`,
+      verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${script}`,
       coin,
       scriptType,
       accountIdx,
@@ -177,7 +201,7 @@ export class LedgerHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
     return Btc.btcSupportsCoin(coin)
   }
 
-  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> { 
+  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
     return Btc.btcSupportsScriptType(coin, scriptType)
   }
 
@@ -241,6 +265,64 @@ export class LedgerHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
       return describeUTXOPath(msg.path, msg.coin, msg.scriptType)
     }
   }
+
+  public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
+    let description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType)
+    if (!description.isKnown) {
+      return undefined
+    }
+
+    let addressNList = msg.addressNList
+
+    if (addressNList[0] === 0x80000000 + 44 ||
+        addressNList[0] === 0x80000000 + 49 ||
+        addressNList[0] === 0x80000000 + 84) {
+      addressNList[2] += 1
+      return {
+        ...msg,
+        addressNList
+      }
+    }
+
+    return undefined
+  }
+
+  public ethNextAccountPath (msg: ETHAccountPath): ETHAccountPath | undefined {
+    let addressNList = msg.hardenedPath.concat(msg.relPath)
+    let description = describeETHPath(addressNList)
+    if (!description.isKnown) {
+      return undefined
+    }
+
+    if (description.wholeAccount) {
+      addressNList[2] += 1
+      return {
+        ...msg,
+        hardenedPath: hardenedPath(addressNList),
+        relPath: relativePath(addressNList)
+      }
+    }
+
+    if (addressNList.length === 5) {
+      addressNList[2] += 1
+      return {
+        ...msg,
+        hardenedPath: hardenedPath(addressNList),
+        relPath: relativePath(addressNList)
+      }
+    }
+
+    if (addressNList.length === 4) {
+      addressNList[3] += 1
+      return {
+        ...msg,
+        hardenedPath: hardenedPath(addressNList),
+        relPath: relativePath(addressNList)
+      }
+    }
+
+    return undefined
+  }
 }
 
 export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
@@ -295,12 +377,11 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return
   }
 
-  // TODO: what to do with Ethereum?
   // Adapted from https://github.com/LedgerHQ/ledger-wallet-webtool
   public async getPublicKeys (msg: Array<GetPublicKey>): Promise<Array<PublicKey>> {
     const xpubs = []
     for (const getPublicKey of msg) {
-      const { addressNList } = getPublicKey
+      const { addressNList, coin } = getPublicKey
       const bip32path: string = addressNListToBIP32(addressNList.slice(0, 3)).substring(2)
       const prevBip32path: string = addressNListToBIP32(addressNList.slice(0, 2)).substring(2)
       const format: string = translateScriptType(getPublicKey.scriptType) || 'legacy'
@@ -308,7 +389,13 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
         verify: false,
         format
       }
-      const res1 = await this.transport.call('Btc', 'getWalletPublicKey', prevBip32path, opts)
+
+      let res1
+      if (coin === 'Ethereum') {
+        res1 = await this.transport.call('Btc', 'getWalletPublicKey', prevBip32path)
+      } else {
+        res1 = await this.transport.call('Btc', 'getWalletPublicKey', prevBip32path, opts)
+      }
       handleError(this.transport, res1, 'Unable to obtain public key from device.')
 
       let { payload: { publicKey } } = res1
@@ -319,7 +406,12 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
       result = crypto.ripemd160(result)
       const fingerprint: number = ((result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3]) >>> 0
 
-      const res2 = await this.transport.call('Btc', 'getWalletPublicKey', bip32path, opts)
+      let res2
+      if (coin === 'Ethereum') {
+        res2 = await this.transport.call('Btc', 'getWalletPublicKey', bip32path)
+      } else {
+        res2 = await this.transport.call('Btc', 'getWalletPublicKey', bip32path, opts)
+      }
       handleError(this.transport, res2, 'Unable to obtain public key from device.')
 
       publicKey = res2.payload.publicKey
@@ -328,13 +420,15 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
       const coinType: number = parseInt(bip32path.split("/")[1], 10)
       const account: number = parseInt(bip32path.split("/")[2], 10)
       const childNum: number = (0x80000000 | account) >>> 0
+      const coinDetails = networksUtil[coinType]
+
       let xpub = createXpub(
         3,
         fingerprint,
         childNum,
         chainCode,
         publicKey,
-        networksUtil[coinType].bitcoinjs.bip32.public
+        coinDetails.bitcoinjs.bip32.public
       )
       xpub = encodeBase58Check(xpub)
 
@@ -411,7 +505,7 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return this.info.btcSupportsCoin(coin)
   }
 
-  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> { 
+  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
     return this.info.btcSupportsScriptType(coin, scriptType)
   }
 
@@ -486,6 +580,14 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
 
   public disconnect (): Promise<void> {
     return this.transport.disconnect()
+  }
+
+  public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
+    return this.info.btcNextAccountPath(msg)
+  }
+
+  public ethNextAccountPath (msg: ETHAccountPath): ETHAccountPath | undefined {
+    return this.info.ethNextAccountPath(msg)
   }
 }
 
