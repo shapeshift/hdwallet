@@ -55,7 +55,7 @@ export interface BTCSignTxInput {
   addressNList: BIP32Path,
   scriptType?: BTCInputScriptType,
   sequence?: number,
-  amount: number,
+  amount: string,
   vout: number,
   txid: string,
   tx?: BitcoinTx, // Required for p2sh, not required for segwit
@@ -74,7 +74,7 @@ export interface BTCSignTxOutput {
   scriptType?: BTCOutputScriptType,
   address?: string,
   addressType: BTCOutputAddressType,
-  amount: number,
+  amount: string,
   isChange: boolean,
   /**
    * Device must `btcSupportsNativeShapeShift()`
@@ -155,7 +155,7 @@ export interface BTCWalletInfo {
   _supportsBTCInfo: boolean
 
   /**
-   * Does the device support the given UTXO coin? 
+   * Does the device support the given UTXO coin?
    */
   btcSupportsCoin (coin: Coin): Promise<boolean>
 
