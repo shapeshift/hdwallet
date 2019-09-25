@@ -39,7 +39,7 @@ const portisAppId = 'ff763d3d-9e34-45a1-81d1-caa39b9c64f9'
 
 const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring)
 const kkemuAdapter = TCPKeepKeyAdapter.useKeyring(keyring)
-const portisAdapter = PortisAdapter.useKeyring(keyring)
+const portisAdapter = PortisAdapter.useKeyring(keyring, { portisAppId })
 
 const log = debug.default('hdwallet')
 
@@ -107,7 +107,7 @@ $ledger.on('click', async (e) => {
 
 $portis.on('click',  async (e) => {
   e.preventDefault()
-  wallet = await portisAdapter.pairDevice({ portisAppId })
+  wallet = await portisAdapter.pairDevice()
   window['wallet'] = wallet
 
   let deviceId = 'nothing'

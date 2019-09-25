@@ -11,15 +11,18 @@ type PortisWallet = any
 export class PortisAdapter {
     keyring: Keyring
     portis: any
+    portisAppId: string
   
-    private constructor (keyring: Keyring) {
+    private constructor (keyring: Keyring, args: { portis?: PortisWallet, portisAppId?: string }) {
       console.log('portis adapter constructor')
+      this.portis = args.portis
+      this.portisAppId = args.portisAppId
       this.keyring = keyring
     }
   
-    public static useKeyring (keyring: Keyring) {
+    public static useKeyring (keyring: Keyring, args: { portis?: PortisWallet, portisAppId?: string }) {
       console.log('portis adapter useKeyring')
-      return new PortisAdapter(keyring)
+      return new PortisAdapter(keyring, args)
     }
   
     public async initialize (): Promise<number> {
@@ -27,9 +30,9 @@ export class PortisAdapter {
       return Object.keys(this.keyring.wallets).length
     }
 
-    public async pairDevice (args: { portis?: PortisWallet, portisAppId?: string }): Promise<HDWallet> {
+    public async pairDevice (): Promise<HDWallet> {
       console.log('portis adapter pairDevices')
-      this.portis = args.portis ? args.portis : new Portis(args.portisAppId, 'mainnet')
+      this.portis = this.portis ? this.portis : new Portis(this.portisAppId, 'mainnet')
       let wallet = new PortisHDWallet(this.portis)
       await wallet.initialize()
       const deviceId = await wallet.getDeviceID()
