@@ -143,7 +143,7 @@ function describeUTXOPath (path: BIP32Path, coin: Coin, scriptType: BTCInputScri
 
   let script = {
     [BTCInputScriptType.SpendAddress]: ' (Legacy)',
-    [BTCInputScriptType.SpendP2SHWitness]: ' (Segwit)',
+    [BTCInputScriptType.SpendP2SHWitness]: '',
     [BTCInputScriptType.SpendWitness]: ' (Segwit Native)'
   }[scriptType]
 
