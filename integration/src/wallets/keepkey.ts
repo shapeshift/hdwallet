@@ -223,7 +223,7 @@ export function selfTest (get: () => HDWallet): void {
     }])
   })
 
-  it.only('supports ethNextAccountPath', () => {
+  it('supports ethNextAccountPath', () => {
     if (!wallet) return
 
     let paths = wallet.ethGetAccountPaths({
