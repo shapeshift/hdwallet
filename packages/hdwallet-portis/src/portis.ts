@@ -214,20 +214,7 @@ import {
     }
 
     public ethNextAccountPath (msg: ETHAccountPath): ETHAccountPath | undefined {
-      let addressNList = msg.hardenedPath.concat(msg.relPath)
-      let description = describeETHPath(addressNList)
-      if (!description.isKnown) {
-        return undefined
-      }
-  
-      if (addressNList[0] === 0x80000000 + 44) {
-        return {
-          ...msg,
-          hardenedPath: hardenedPath(addressNList),
-          relPath: relativePath(addressNList)
-        }
-      }
-  
+      // Portis only supports one account for eth
       return undefined
     }
     
