@@ -293,8 +293,10 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
     }
 
     if (addressNList[0] === 0x80000000 + 44) {
+      addressNList[2] += 1
       return {
         ...msg,
+        addressNList,
         hardenedPath: hardenedPath(addressNList),
         relPath: relativePath(addressNList)
       }
