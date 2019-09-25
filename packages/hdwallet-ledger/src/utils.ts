@@ -299,6 +299,17 @@ export const networksUtil = {
     handleFeePerByte: false,
     areTransactionTimestamped: true
   },
+  60: {
+    apiName: "eth",
+    unit: "ETH",
+    name: "ethereum",
+    bitcoinjs: {
+      bip32: {
+        public: 76067358
+      },
+      messagePrefix: "Ethereum Signed Message:"
+    }
+  },
   77: {
     name: "pivx",
     satoshi: 8,
