@@ -34,10 +34,12 @@ import Portis from "@portis/web3";
 
 const keyring = new Keyring()
 
-const portis = new Portis('ff763d3d-9e34-45a1-81d1-caa39b9c64f9', 'mainnet');
+const portisAppId = 'ff763d3d-9e34-45a1-81d1-caa39b9c64f9'
+
+
 const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring)
 const kkemuAdapter = TCPKeepKeyAdapter.useKeyring(keyring)
-const portisAdapter = PortisAdapter.useKeyring(keyring, {portis})
+const portisAdapter = PortisAdapter.useKeyring(keyring, { portisAppId })
 
 const log = debug.default('hdwallet')
 
