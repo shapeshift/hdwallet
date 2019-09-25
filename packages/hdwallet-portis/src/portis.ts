@@ -21,7 +21,9 @@ import {
   PathDescription,
   addressNListToBIP32,
   BIP32Path,
-  slip44ByCoin
+  slip44ByCoin,
+  hardenedPath,
+  relativePath
 } from "@shapeshiftoss/hdwallet-core"
       
   import Web3 from 'web3'
@@ -35,22 +37,22 @@ import {
       isKnown: false
     }
   
-    if (path.length != 5)
+    if (path.length !== 5)
       return unknown
   
-    if (path[0] != 0x80000000 + 44)
+    if (path[0] !== 0x80000000 + 44)
       return unknown
   
-    if (path[1] != 0x80000000 + slip44ByCoin('Ethereum'))
+    if (path[1] !== 0x80000000 + slip44ByCoin('Ethereum'))
       return unknown
   
     if ((path[2] & 0x80000000) >>> 0 !== 0x80000000)
       return unknown
   
-    if (path[3] != 0)
+    if (path[3] !== 0)
       return unknown
   
-    if (path[4] != 0)
+    if (path[4] !== 0)
       return unknown
   
     let index = path[2] & 0x7fffffff
@@ -210,6 +212,24 @@ import {
         throw new Error("Unsupported path");
       }
     }
+
+    public ethNextAccountPath (msg: ETHAccountPath): ETHAccountPath | undefined {
+      let addressNList = msg.hardenedPath.concat(msg.relPath)
+      let description = describeETHPath(addressNList)
+      if (!description.isKnown) {
+        return undefined
+      }
+  
+      if (addressNList[0] === 0x80000000 + 44) {
+        return {
+          ...msg,
+          hardenedPath: hardenedPath(addressNList),
+          relPath: relativePath(addressNList)
+        }
+      }
+  
+      return undefined
+    }
     
     // TODO Methods below must be implemented
 
@@ -264,6 +284,7 @@ import {
 
     public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
       return [{
+        addressNList: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx, 0, 0 ],
         hardenedPath: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx ],
         relPath: [ 0, 0 ],
         description: "Portis"
