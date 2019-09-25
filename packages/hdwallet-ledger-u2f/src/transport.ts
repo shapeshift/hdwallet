@@ -2,6 +2,7 @@ import { Coin, makeEvent, Keyring } from '@shapeshiftoss/hdwallet-core'
 import { LedgerTransport } from '@shapeshiftoss/hdwallet-ledger'
 import Eth from '@ledgerhq/hw-app-eth'
 import Btc from '@ledgerhq/hw-app-btc'
+import getDeviceInfo from '@ledgerhq/live-common/lib/hw/getDeviceInfo'
 
 const TIMEOUT = 50 // timeout on user response
 
@@ -31,6 +32,10 @@ export class LedgerU2FTransport extends LedgerTransport {
 
   constructor(deviceID: string, transport: any, keyring: Keyring) {
     super(deviceID, transport, keyring)
+  }
+
+  public async getDeviceInfo(): Promise<any> {
+    return await getDeviceInfo(this.transport)
   }
 
   public async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
