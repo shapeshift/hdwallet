@@ -225,12 +225,20 @@ export function selfTest (get: () => HDWallet): void {
   it('uses the same BIP32 paths for ETH as wallet.trezor.io', () => {
     if (!wallet) return
     ([0, 1, 3, 27]).forEach(account => {
-      expect(wallet.ethGetAccountPaths({ coin: 'Ethereum', accountIdx: account }))
+      let paths = wallet.ethGetAccountPaths({ coin: 'Ethereum', accountIdx: account })
+      expect(paths)
         .toEqual([{
+            addressNList: bip32ToAddressNList(`m/44'/60'/0'/0/${account}`),
             hardenedPath: bip32ToAddressNList("m/44'/60'/0'"),
             relPath: bip32ToAddressNList(`m/0/${account}`),
             description: "Trezor"
         }])
+      paths.forEach(path => {
+        expect(wallet.describePath({
+          coin: 'Ethereum',
+          path: path.addressNList
+        }).isKnown).toBeTruthy()
+      })
     })
   })
 
@@ -249,6 +257,7 @@ export function selfTest (get: () => HDWallet): void {
         2147483651,
       ],
       "scriptType": BTCInputScriptType.SpendP2SHWitness,
+      'coin': 'Litecoin',
     }, {
       "addressNList": [
         2147483692,
@@ -256,6 +265,7 @@ export function selfTest (get: () => HDWallet): void {
         2147483651,
       ],
       "scriptType": BTCInputScriptType.SpendAddress,
+      'coin': 'Litecoin',
     }, {
       "addressNList": [
         2147483732,
@@ -263,6 +273,45 @@ export function selfTest (get: () => HDWallet): void {
         2147483651,
       ],
       "scriptType": BTCInputScriptType.SpendWitness,
+      'coin': 'Litecoin',
+    }])
+  })
+
+  it('supports btcNextAccountPath', () => {
+    if (!wallet) return
+
+    let paths = wallet.btcGetAccountPaths({
+      coin: 'Litecoin',
+      accountIdx: 3,
+    })
+
+    expect(paths
+      .map(path => wallet.btcNextAccountPath(path))
+      .map(path => wallet.describePath({
+        ...path,
+        path: path.addressNList
+      }))
+    ).toEqual([{
+      "accountIdx": 4,
+      "coin": "Litecoin",
+      "isKnown": true,
+      "scriptType": "p2sh-p2wpkh",
+      "verbose": "Litecoin Account #4",
+      "wholeAccount": true,
+    }, {
+      "accountIdx": 4,
+      "coin": "Litecoin",
+      "isKnown": true,
+      "scriptType": "p2pkh",
+      "verbose": "Litecoin Account #4 (Legacy)",
+      "wholeAccount": true,
+    }, {
+      "accountIdx": 4,
+      "coin": "Litecoin",
+      "isKnown": true,
+      "scriptType": "p2wpkh",
+      "verbose": "Litecoin Account #4 (Segwit Native)",
+      "wholeAccount": true,
     }])
   })
 
@@ -272,7 +321,7 @@ export function selfTest (get: () => HDWallet): void {
       coin: 'Bitcoin',
       scriptType: BTCInputScriptType.SpendAddress
     })).toEqual({
-      verbose: "Legacy Bitcoin Account #0, Address #0",
+      verbose: "Bitcoin Account #0, Address #0 (Legacy)",
       coin: 'Bitcoin',
       scriptType: BTCInputScriptType.SpendAddress,
       isKnown: true,
@@ -287,7 +336,7 @@ export function selfTest (get: () => HDWallet): void {
       coin: 'Bitcoin',
       scriptType: BTCInputScriptType.SpendAddress
     })).toEqual({
-      verbose: "Legacy Bitcoin Account #7, Change Address #5",
+      verbose: "Bitcoin Account #7, Change Address #5 (Legacy)",
       coin: 'Bitcoin',
       scriptType: BTCInputScriptType.SpendAddress,
       isKnown: true,

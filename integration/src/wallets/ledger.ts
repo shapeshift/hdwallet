@@ -151,17 +151,99 @@ export function selfTest (get: () => HDWallet): void {
   it('has a non-BIP 44 derivation path for Ethereum', () => {
     if (!wallet) return
     ([0, 1, 3, 27]).forEach(account => {
-      expect(wallet.ethGetAccountPaths({ coin: 'Ethereum', accountIdx: account }))
+      let paths = wallet.ethGetAccountPaths({ coin: 'Ethereum', accountIdx: account })
+      expect(paths)
         .toEqual([{
+          addressNList: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + account, 0, 0],
           hardenedPath: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + account],
           relPath: [ 0, 0 ],
           description: "Ledger (Ledger Live)"
         }, {
+          addressNList: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + 0, account],
           hardenedPath: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + 0],
           relPath: [ account ],
           description: "Ledger (legacy, Ledger Chrome App)"
         }])
+      paths.forEach(path => {
+        expect(wallet.describePath({
+          coin: 'Ethereum',
+          path: path.addressNList
+        }).isKnown).toBeTruthy()
+      })
     })
+  })
+
+  it('uses correct bip44 paths', () => {
+    if (!wallet) return
+
+    let paths = wallet.btcGetAccountPaths({
+      coin: 'Litecoin',
+      accountIdx: 3,
+    })
+
+    expect(paths).toEqual([{
+      "addressNList": [
+        2147483697,
+        2147483650,
+        2147483651,
+      ],
+      "scriptType": BTCInputScriptType.SpendP2SHWitness,
+      'coin': 'Litecoin',
+    }, {
+      "addressNList": [
+        2147483692,
+        2147483650,
+        2147483651,
+      ],
+      "scriptType": BTCInputScriptType.SpendAddress,
+      'coin': 'Litecoin',
+    }, {
+      "addressNList": [
+        2147483732,
+        2147483650,
+        2147483651,
+      ],
+      "scriptType": BTCInputScriptType.SpendWitness,
+      'coin': 'Litecoin',
+    }])
+  })
+
+  it('supports btcNextAccountPath', () => {
+    if (!wallet) return
+
+    let paths = wallet.btcGetAccountPaths({
+      coin: 'Litecoin',
+      accountIdx: 3,
+    })
+
+    expect(paths
+      .map(path => wallet.btcNextAccountPath(path))
+      .map(path => wallet.describePath({
+        ...path,
+        path: path.addressNList
+      }))
+    ).toEqual([{
+      "accountIdx": 4,
+      "coin": "Litecoin",
+      "isKnown": true,
+      "scriptType": "p2sh-p2wpkh",
+      "verbose": "Litecoin Account #4",
+      "wholeAccount": true,
+    }, {
+      "accountIdx": 4,
+      "coin": "Litecoin",
+      "isKnown": true,
+      "scriptType": "p2pkh",
+      "verbose": "Litecoin Account #4 (Legacy)",
+      "wholeAccount": true,
+    }, {
+      "accountIdx": 4,
+      "coin": "Litecoin",
+      "isKnown": true,
+      "scriptType": "p2wpkh",
+      "verbose": "Litecoin Account #4 (Segwit Native)",
+      "wholeAccount": true,
+    }])
   })
 
   it('can describe paths', () => {
@@ -170,7 +252,7 @@ export function selfTest (get: () => HDWallet): void {
       coin: 'Bitcoin',
       scriptType: BTCInputScriptType.SpendAddress
     })).toEqual({
-      verbose: "Bitcoin Account #0, Address #0",
+      verbose: "Bitcoin Account #0, Address #0 (Legacy)",
       coin: 'Bitcoin',
       scriptType: BTCInputScriptType.SpendAddress,
       isKnown: true,
@@ -185,7 +267,7 @@ export function selfTest (get: () => HDWallet): void {
       coin: 'Bitcoin',
       scriptType: BTCInputScriptType.SpendAddress
     })).toEqual({
-      verbose: "Bitcoin Account #7, Change Address #5",
+      verbose: "Bitcoin Account #7, Change Address #5 (Legacy)",
       coin: 'Bitcoin',
       scriptType: BTCInputScriptType.SpendAddress,
       isKnown: true,
@@ -229,12 +311,14 @@ export function selfTest (get: () => HDWallet): void {
     })
 
     expect(wallet.info.describePath({
-      path: bip32ToAddressNList("m/44'/60'/0'/0/3"),
+      path: bip32ToAddressNList("m/44'/60'/0'/42"),
       coin: 'Ethereum'
     })).toEqual({
-      verbose: "m/44'/60'/0'/0/3",
+      verbose: "Ethereum Account #42",
       coin: 'Ethereum',
-      isKnown: false,
+      isKnown: true,
+      wholeAccount: true,
+      accountIdx: 42
     })
   })
 }
