@@ -28,7 +28,7 @@ export abstract class LedgerTransport extends Transport {
     return this.deviceID
   }
 
-  public async getDeviceInfo(): Promise<Transport> {
+  public async getDeviceInfo(): Promise<any> {
     return await getDeviceInfo(this.transport)
   }
 

@@ -204,9 +204,9 @@ export interface HDWallet extends HDWalletInfo {
   getDeviceID (): Promise<string>
 
   /**
-   * Retrieve the wallet's info
+   * Retrieve the wallet's firmware version
    */
-  getDeviceInfo (): Promise<any>
+  getFirmwareVersion (): Promise<string>
 
   /**
    * Retrieve the name of the model of wallet, eg 'KeepKey' or 'Trezor One'
