@@ -223,6 +223,30 @@ export function selfTest (get: () => HDWallet): void {
     }])
   })
 
+  it('supports ethNextAccountPath', () => {
+    if (!wallet) return
+
+    let paths = wallet.ethGetAccountPaths({
+      coin: 'Ethereum',
+      accountIdx: 5
+    })
+
+    expect(paths
+      .map(path => wallet.ethNextAccountPath(path))
+      .map(path => wallet.describePath({
+        ...path,
+        coin: 'Ethereum',
+        path: path.addressNList
+      }))
+    ).toEqual([{
+      "accountIdx": 6,
+      "coin": "Ethereum",
+      "isKnown": true,
+      "verbose": "Ethereum Account #6",
+      "wholeAccount": true,
+    }])
+  })
+
   it('supports btcNextAccountPath', () => {
     if (!wallet) return
 
