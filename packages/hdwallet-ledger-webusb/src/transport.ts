@@ -35,13 +35,8 @@ export class LedgerWebUsbTransport extends LedgerTransport {
     super(deviceID, transport, keyring)
   }
 
-  public async getDeviceInfo(transport: Transport<USBDevice>) {
-    try {
-      const deviceInfo = await getDeviceInfo(transport)
-      return deviceInfo
-    } catch (e) {
-      console.error(e)
-    }
+  public async getDeviceInfo(): Promise<any> {
+    return await getDeviceInfo(this.transport)
   }
 
   public async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
