@@ -147,7 +147,7 @@ function describeUTXOPath (path: BIP32Path, coin: Coin, scriptType: BTCInputScri
 
   if (wholeAccount) {
     return {
-      verbose: `${coin} ${script}Account #${accountIdx}${script}`,
+      verbose: `${coin} Account #${accountIdx}${script}`,
       scriptType,
       coin,
       accountIdx,

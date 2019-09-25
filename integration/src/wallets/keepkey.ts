@@ -267,7 +267,7 @@ export function selfTest (get: () => HDWallet): void {
       coin: 'Bitcoin',
       scriptType: BTCInputScriptType.SpendAddress
     })).toEqual({
-      verbose: "Bitcoin Account #0, Address #0",
+      verbose: "Bitcoin Account #0, Address #0 (Legacy)",
       coin: 'Bitcoin',
       isKnown: true,
       scriptType: BTCInputScriptType.SpendAddress,
@@ -282,7 +282,7 @@ export function selfTest (get: () => HDWallet): void {
       coin: 'Bitcoin',
       scriptType: BTCInputScriptType.SpendAddress
     })).toEqual({
-      verbose: "Bitcoin Account #7, Change Address #5",
+      verbose: "Bitcoin Account #7, Change Address #5 (Legacy)",
       coin: 'Bitcoin',
       isKnown: true,
       scriptType: BTCInputScriptType.SpendAddress,

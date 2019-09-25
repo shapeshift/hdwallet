@@ -227,21 +227,21 @@ export function selfTest (get: () => HDWallet): void {
       "coin": "Litecoin",
       "isKnown": true,
       "scriptType": "p2sh-p2wpkh",
-      "verbose": "Litecoin Segwit Account #4",
-      "wholeAccount": true,
-    }, {
-      "accountIdx": 4,
-      "coin": "Litecoin",
-      "isKnown": true,
-      "scriptType": "p2pkh",
       "verbose": "Litecoin Account #4",
       "wholeAccount": true,
     }, {
       "accountIdx": 4,
       "coin": "Litecoin",
       "isKnown": true,
+      "scriptType": "p2pkh",
+      "verbose": "Litecoin Account #4 (Legacy)",
+      "wholeAccount": true,
+    }, {
+      "accountIdx": 4,
+      "coin": "Litecoin",
+      "isKnown": true,
       "scriptType": "p2wpkh",
-      "verbose": "Litecoin Segwit Native Account #4",
+      "verbose": "Litecoin Account #4 (Segwit Native)",
       "wholeAccount": true,
     }])
   })
@@ -252,7 +252,7 @@ export function selfTest (get: () => HDWallet): void {
       coin: 'Bitcoin',
       scriptType: BTCInputScriptType.SpendAddress
     })).toEqual({
-      verbose: "Bitcoin Account #0, Address #0",
+      verbose: "Bitcoin Account #0, Address #0 (Legacy)",
       coin: 'Bitcoin',
       scriptType: BTCInputScriptType.SpendAddress,
       isKnown: true,
@@ -267,7 +267,7 @@ export function selfTest (get: () => HDWallet): void {
       coin: 'Bitcoin',
       scriptType: BTCInputScriptType.SpendAddress
     })).toEqual({
-      verbose: "Bitcoin Account #7, Change Address #5",
+      verbose: "Bitcoin Account #7, Change Address #5 (Legacy)",
       coin: 'Bitcoin',
       scriptType: BTCInputScriptType.SpendAddress,
       isKnown: true,
