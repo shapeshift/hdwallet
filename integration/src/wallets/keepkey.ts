@@ -198,19 +198,19 @@ export function selfTest (get: () => HDWallet): void {
 
     expect(paths).toEqual([{
       "addressNList": [
-        2147483697,
-        2147483650,
-        2147483651,
-      ],
-      "scriptType": BTCInputScriptType.SpendP2SHWitness,
-      'coin': 'Litecoin',
-    }, {
-      "addressNList": [
         2147483692,
         2147483650,
         2147483651,
       ],
       "scriptType": BTCInputScriptType.SpendAddress,
+      'coin': 'Litecoin',
+    }, {
+      "addressNList": [
+        2147483697,
+        2147483650,
+        2147483651,
+      ],
+      "scriptType": BTCInputScriptType.SpendP2SHWitness,
       'coin': 'Litecoin',
     }, {
       "addressNList": [
@@ -241,14 +241,14 @@ export function selfTest (get: () => HDWallet): void {
       "accountIdx": 4,
       "coin": "Litecoin",
       "isKnown": true,
-      "scriptType": "p2sh-p2wpkh",
-      "verbose": "Litecoin Segwit Account #4",
+      "scriptType": "p2pkh",
+      "verbose": "Litecoin Account #4 (Legacy)",
       "wholeAccount": true,
     }, {
       "accountIdx": 4,
       "coin": "Litecoin",
       "isKnown": true,
-      "scriptType": "p2pkh",
+      "scriptType": "p2sh-p2wpkh",
       "verbose": "Litecoin Account #4",
       "wholeAccount": true,
     }, {
@@ -256,7 +256,7 @@ export function selfTest (get: () => HDWallet): void {
       "coin": "Litecoin",
       "isKnown": true,
       "scriptType": "p2wpkh",
-      "verbose": "Litecoin Segwit Native Account #4",
+      "verbose": "Litecoin Account #4 (Segwit Native)",
       "wholeAccount": true,
     }])
   })

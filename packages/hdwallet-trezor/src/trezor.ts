@@ -128,16 +128,26 @@ function describeUTXOPath (path: BIP32Path, coin: Coin, scriptType: BTCInputScri
   let wholeAccount = path.length === 3
 
   let script = {
-    [BTCInputScriptType.SpendAddress]: 'Legacy ',
-    [BTCInputScriptType.SpendP2SHWitness]: 'Segwit ',
-    [BTCInputScriptType.SpendWitness]: 'Segwit Native '
+    [BTCInputScriptType.SpendAddress]: ' (Legacy)',
+    [BTCInputScriptType.SpendP2SHWitness]: '',
+    [BTCInputScriptType.SpendWitness]: ' (Segwit Native)'
   }[scriptType]
+
+  switch (coin) {
+  case 'Bitcoin':
+  case 'Litecoin':
+  case 'BitcoinGold':
+  case 'Testnet':
+    break;
+  default:
+    script = ''
+  }
 
   let accountIdx = path[2] & 0x7fffffff
 
   if (wholeAccount) {
     return {
-      verbose: `${coin} ${script}Account #${accountIdx}`,
+      verbose: `${coin} ${script}Account #${accountIdx}${script}`,
       scriptType,
       coin,
       accountIdx,
@@ -148,7 +158,7 @@ function describeUTXOPath (path: BIP32Path, coin: Coin, scriptType: BTCInputScri
     let change = path[3] === 1 ? 'Change ' : ''
     let addressIdx = path[4]
     return {
-      verbose: `${script}${coin} Account #${accountIdx}, ${change}Address #${addressIdx}`,
+      verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${script}`,
       coin,
       scriptType,
       accountIdx,
