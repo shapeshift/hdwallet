@@ -32,7 +32,8 @@
     "dev:chromeusb": "lerna run dev --scope chromeusb-app --parallel --include-filtered-dependencies",
     "dev:sandbox": "lerna run dev --scope sandbox --parallel --include-filtered-dependencies",
     "dev:webusb": "lerna run dev --scope webusb --parallel --include-filtered-dependencies",
-    "test": "yarn run jest --verbose --config jest.config.js --coverage",
+    "test": "yarn run jest --verbose --config jest.config.js",
+    "test:ci": "yarn run jest --verbose --runInBand --ci --reporters=default --reporters=jest-junit --coverage --config jest.config.js",
     "lerna:version": "lerna version"
   },
   "devDependencies": {
