@@ -105,12 +105,20 @@ export function selfTest (get: () => HDWallet): void {
   it('uses the same BIP32 paths for ETH as the KeepKey Client', () => {
     if (!wallet) return
     ([0, 1, 3, 27]).forEach(account => {
-      expect(wallet.ethGetAccountPaths({ coin: 'Ethereum', accountIdx: account }))
+      let paths = wallet.ethGetAccountPaths({ coin: 'Ethereum', accountIdx: account })
+      expect(paths)
         .toEqual([{
+          addressNList: bip32ToAddressNList(`m/44'/60'/${account}'/0/0`),
           hardenedPath: bip32ToAddressNList(`m/44'/60'/${account}'`),
           relPath: [0, 0],
           description: "KeepKey"
         }])
+      paths.forEach(path => {
+        expect(wallet.describePath({
+          coin: 'Ethereum',
+          path: path.addressNList
+        }).isKnown).toBeTruthy()
+      })
     })
   })
 
@@ -180,13 +188,110 @@ export function selfTest (get: () => HDWallet): void {
     })).resolves.toEqual("1JAd7XCBzGudGpJQSDSfpmJhiygtLQWaGL")
   }, TIMEOUT)
 
+  it('uses correct bip44 paths', () => {
+    if (!wallet) return
+
+    let paths = wallet.btcGetAccountPaths({
+      coin: 'Litecoin',
+      accountIdx: 3,
+    })
+
+    expect(paths).toEqual([{
+      "addressNList": [
+        2147483692,
+        2147483650,
+        2147483651,
+      ],
+      "scriptType": BTCInputScriptType.SpendAddress,
+      'coin': 'Litecoin',
+    }, {
+      "addressNList": [
+        2147483697,
+        2147483650,
+        2147483651,
+      ],
+      "scriptType": BTCInputScriptType.SpendP2SHWitness,
+      'coin': 'Litecoin',
+    }, {
+      "addressNList": [
+        2147483732,
+        2147483650,
+        2147483651,
+      ],
+      "scriptType": BTCInputScriptType.SpendWitness,
+      'coin': 'Litecoin',
+    }])
+  })
+
+  it('supports ethNextAccountPath', () => {
+    if (!wallet) return
+
+    let paths = wallet.ethGetAccountPaths({
+      coin: 'Ethereum',
+      accountIdx: 5
+    })
+
+    expect(paths
+      .map(path => wallet.ethNextAccountPath(path))
+      .map(path => wallet.describePath({
+        ...path,
+        coin: 'Ethereum',
+        path: path.addressNList
+      }))
+    ).toEqual([{
+      "accountIdx": 6,
+      "coin": "Ethereum",
+      "isKnown": true,
+      "verbose": "Ethereum Account #6",
+      "wholeAccount": true,
+    }])
+  })
+
+  it('supports btcNextAccountPath', () => {
+    if (!wallet) return
+
+    let paths = wallet.btcGetAccountPaths({
+      coin: 'Litecoin',
+      accountIdx: 3,
+    })
+
+    expect(paths
+      .map(path => wallet.btcNextAccountPath(path))
+      .map(path => wallet.describePath({
+        ...path,
+        path: path.addressNList
+      }))
+    ).toEqual([{
+      "accountIdx": 4,
+      "coin": "Litecoin",
+      "isKnown": true,
+      "scriptType": "p2pkh",
+      "verbose": "Litecoin Account #4 (Legacy)",
+      "wholeAccount": true,
+    }, {
+      "accountIdx": 4,
+      "coin": "Litecoin",
+      "isKnown": true,
+      "scriptType": "p2sh-p2wpkh",
+      "verbose": "Litecoin Account #4",
+      "wholeAccount": true,
+    }, {
+      "accountIdx": 4,
+      "coin": "Litecoin",
+      "isKnown": true,
+      "scriptType": "p2wpkh",
+      "verbose": "Litecoin Account #4 (Segwit Native)",
+      "wholeAccount": true,
+    }])
+  })
+
   it('can describe paths', () => {
     expect(wallet.info.describePath({
       path: bip32ToAddressNList("m/44'/0'/0'/0/0"),
       coin: 'Bitcoin',
       scriptType: BTCInputScriptType.SpendAddress
     })).toEqual({
-      verbose: "Bitcoin Account #0, Address #0",
+      verbose: "Bitcoin Account #0, Address #0 (Legacy)",
       coin: 'Bitcoin',
       isKnown: true,
       scriptType: BTCInputScriptType.SpendAddress,
@@ -201,7 +306,7 @@ export function selfTest (get: () => HDWallet): void {
       coin: 'Bitcoin',
       scriptType: BTCInputScriptType.SpendAddress
     })).toEqual({
-      verbose: "Bitcoin Account #7, Change Address #5",
+      verbose: "Bitcoin Account #7, Change Address #5 (Legacy)",
       coin: 'Bitcoin',
       isKnown: true,
       scriptType: BTCInputScriptType.SpendAddress,

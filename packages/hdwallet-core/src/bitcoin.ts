@@ -55,7 +55,7 @@ export interface BTCSignTxInput {
   addressNList: BIP32Path,
   scriptType?: BTCInputScriptType,
   sequence?: number,
-  amount: number,
+  amount: string,
   vout: number,
   txid: string,
   tx?: BitcoinTx, // Required for p2sh, not required for segwit
@@ -74,7 +74,7 @@ export interface BTCSignTxOutput {
   scriptType?: BTCOutputScriptType,
   address?: string,
   addressType: BTCOutputAddressType,
-  amount: number,
+  amount: string,
   isChange: boolean,
   /**
    * Device must `btcSupportsNativeShapeShift()`
@@ -146,6 +146,7 @@ export interface BTCGetAccountPaths {
 }
 
 export interface BTCAccountPath {
+  coin: Coin,
   scriptType: BTCInputScriptType,
   addressNList: BIP32Path
 }
@@ -200,6 +201,11 @@ export interface BTCWalletInfo {
    * The list is assumed to contain unique entries.
    */
   btcIsSameAccount (msg: Array<BTCAccountPath>): boolean
+
+  /**
+   * Returns the "next" account path, if any.
+   */
+  btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined
 }
 
 export interface BTCWallet extends BTCWalletInfo {

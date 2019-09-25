@@ -74,6 +74,9 @@ export function ethereumTests (get: () => {wallet: HDWallet, info: HDWalletInfo}
       let paths = wallet.ethGetAccountPaths({ coin: 'Ethereum', accountIdx: 0 })
       expect(paths.length > 0).toBe(true)
       expect(paths[0].hardenedPath[0] > 0x80000000).toBe(true)
+      paths.forEach(path => {
+        expect(wallet.ethNextAccountPath(path)).not.toBeUndefined()
+      })
     }, TIMEOUT)
 
     test('ethGetAddress()', async () => {

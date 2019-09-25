@@ -106,9 +106,9 @@ export async function btcGetAddress (transport: LedgerTransport, msg: BTCGetAddr
     * outputScriptHex string is the hexadecimal serialized outputs of the transaction to sign
            ( lockTime number is the optional lockTime of the transaction to sign, or default (0)
     * sigHashType number is the hash type of the transaction to sign, or default (all)
-    * segwit boolean (is an optional boolean indicating wether to use segwit or not)
+    * segwit boolean (is an optional boolean indicating whether to use segwit or not)
     * initialTimestamp number is an optional timestamp of the function call to use for coins that necessitate timestamps only, (not the one that the tx will include)
-    * additionals Array<string> list of additionnal options- "abc" for bch
+    * additionals Array<string> list of additional options- "abc" for bch
         "gold" for btg
         "bipxxx" for using BIPxxx
         "sapling" to indicate a zec transaction is supporting sapling (to be set over block 419200)
@@ -134,7 +134,7 @@ export async function btcSignTx (wallet: BTCWallet, transport: LedgerTransport, 
       if (output.addressType === BTCOutputAddressType.Transfer && !supportsSecureTransfer)
         throw new Error("Ledger does not support SecureTransfer")
     }
-    txBuilder.addOutput(output.address, output.amount)
+    txBuilder.addOutput(output.address, Number(output.amount))
   })
 
   let unsignedHex = txBuilder.buildIncomplete().toHex()
@@ -204,14 +204,17 @@ export async function btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean>
 export function btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
   const slip44 = slip44ByCoin(msg.coin)
   const bip49 = {
+    coin: msg.coin,
     scriptType: BTCInputScriptType.SpendP2SHWitness,
     addressNList: [0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + msg.accountIdx]
   }
   const bip44 = {
+    coin: msg.coin,
     scriptType: BTCInputScriptType.SpendAddress,
     addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx]
   }
   const bip84 = {
+    coin: msg.coin,
     scriptType: BTCInputScriptType.SpendWitness,
     addressNList: [0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + msg.accountIdx]
   }

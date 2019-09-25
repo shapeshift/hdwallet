@@ -114,7 +114,7 @@ export async function btcSignTx (wallet: BTCWallet, transport: TrezorTransport, 
       address_n: input.addressNList,
       prev_hash: input.txid,
       prev_index: input.vout,
-      amount: String(input.amount),
+      amount: input.amount,
       script_type: translateInputScriptType(input.scriptType)
     }
   })
@@ -128,7 +128,7 @@ export async function btcSignTx (wallet: BTCWallet, transport: TrezorTransport, 
 
       return {
         address_n: output.addressNList,
-        amount: String(output.amount),
+        amount: output.amount,
         script_type: translateOutputScriptType(output.scriptType)
       }
     } else if (output.addressType == BTCOutputAddressType.Transfer) {
@@ -138,7 +138,7 @@ export async function btcSignTx (wallet: BTCWallet, transport: TrezorTransport, 
     if (output.address) {
       return {
         address: output.address,
-        amount: String(output.amount),
+        amount: output.amount,
         script_type: 'PAYTOADDRESS'
       }
     }
@@ -200,14 +200,17 @@ export async function btcVerifyMessage (transport: TrezorTransport, msg: BTCVeri
 export function btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
   const slip44 = slip44ByCoin(msg.coin)
   const bip44 = {
+    coin: msg.coin,
     scriptType: BTCInputScriptType.SpendAddress,
     addressNList: [ 0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx ]
   }
   const bip49 = {
+    coin: msg.coin,
     scriptType: BTCInputScriptType.SpendP2SHWitness,
     addressNList: [ 0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + msg.accountIdx ]
   }
   const bip84 = {
+    coin: msg.coin,
     scriptType: BTCInputScriptType.SpendWitness,
     addressNList: [ 0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + msg.accountIdx ]
   }
