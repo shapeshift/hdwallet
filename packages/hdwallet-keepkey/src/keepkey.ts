@@ -285,7 +285,8 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   }
 
   public async getFirmwareVersion(): Promise<string> {
-    return ""
+    const features = await this.getFeatures()
+    return `${features.majorVersion}.${features.minorVersion}.${features.patchVersion}`
   }
 
   public async getLabel(): Promise<string> {

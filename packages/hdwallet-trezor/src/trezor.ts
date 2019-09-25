@@ -276,7 +276,8 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
   }
 
   public async getFirmwareVersion (): Promise<string> {
-    return ""
+    let features = await this.getFeatures(/*cached*/true)
+    return `${features.majorVersion}${features.minorVersion}${features.patchVersion}`
   }
 
   public getVendor (): string {
