@@ -173,6 +173,79 @@ export function selfTest (get: () => HDWallet): void {
     })
   })
 
+  it('uses correct bip44 paths', () => {
+    if (!wallet) return
+
+    let paths = wallet.btcGetAccountPaths({
+      coin: 'Litecoin',
+      accountIdx: 3,
+    })
+
+    expect(paths).toEqual([{
+      "addressNList": [
+        2147483697,
+        2147483650,
+        2147483651,
+      ],
+      "scriptType": BTCInputScriptType.SpendP2SHWitness,
+      'coin': 'Litecoin',
+    }, {
+      "addressNList": [
+        2147483692,
+        2147483650,
+        2147483651,
+      ],
+      "scriptType": BTCInputScriptType.SpendAddress,
+      'coin': 'Litecoin',
+    }, {
+      "addressNList": [
+        2147483732,
+        2147483650,
+        2147483651,
+      ],
+      "scriptType": BTCInputScriptType.SpendWitness,
+      'coin': 'Litecoin',
+    }])
+  })
+
+  it('supports btcNextAccountPath', () => {
+    if (!wallet) return
+
+    let paths = wallet.btcGetAccountPaths({
+      coin: 'Litecoin',
+      accountIdx: 3,
+    })
+
+    expect(paths
+      .map(path => wallet.btcNextAccountPath(path))
+      .map(path => wallet.describePath({
+        ...path,
+        path: path.addressNList
+      }))
+    ).toEqual([{
+      "accountIdx": 4,
+      "coin": "Litecoin",
+      "isKnown": true,
+      "scriptType": "p2sh-p2wpkh",
+      "verbose": "Litecoin Segwit Account #4",
+      "wholeAccount": true,
+    }, {
+      "accountIdx": 4,
+      "coin": "Litecoin",
+      "isKnown": true,
+      "scriptType": "p2pkh",
+      "verbose": "Litecoin Account #4",
+      "wholeAccount": true,
+    }, {
+      "accountIdx": 4,
+      "coin": "Litecoin",
+      "isKnown": true,
+      "scriptType": "p2wpkh",
+      "verbose": "Litecoin Segwit Native Account #4",
+      "wholeAccount": true,
+    }])
+  })
+
   it('can describe paths', () => {
     expect(wallet.info.describePath({
       path: bip32ToAddressNList("m/44'/0'/0'/0/0"),

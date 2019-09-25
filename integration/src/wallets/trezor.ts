@@ -275,6 +275,35 @@ export function selfTest (get: () => HDWallet): void {
       "scriptType": BTCInputScriptType.SpendWitness,
       'coin': 'Litecoin',
     }])
+
+    expect(paths
+      .map(path => wallet.btcNextAccountPath(path))
+      .map(path => wallet.describePath({
+        ...path,
+        path: path.addressNList
+      }))
+    ).toEqual([{
+      "accountIdx": 4,
+      "coin": "Litecoin",
+      "isKnown": true,
+      "scriptType": "p2sh-p2wpkh",
+      "verbose": "Litecoin Segwit Account #4",
+      "wholeAccount": true,
+    }, {
+      "accountIdx": 4,
+      "coin": "Litecoin",
+      "isKnown": true,
+      "scriptType": "p2pkh",
+      "verbose": "Litecoin Legacy Account #4",
+      "wholeAccount": true,
+    }, {
+      "accountIdx": 4,
+      "coin": "Litecoin",
+      "isKnown": true,
+      "scriptType": "p2wpkh",
+      "verbose": "Litecoin Segwit Native Account #4",
+      "wholeAccount": true,
+    }])
   })
 
   it('can describe paths', () => {
