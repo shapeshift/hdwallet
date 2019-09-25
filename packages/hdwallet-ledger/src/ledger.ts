@@ -283,7 +283,6 @@ export class LedgerHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
     let addressNList = msg.hardenedPath.concat(msg.relPath)
     let description = describeETHPath(addressNList)
     if (!description.isKnown) {
-      throw new Error("bad description?")
       return undefined
     }
 
@@ -313,8 +312,6 @@ export class LedgerHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
         relPath: relativePath(addressNList)
       }
     }
-
-    throw new Error("all else failed")
 
     return undefined
   }
