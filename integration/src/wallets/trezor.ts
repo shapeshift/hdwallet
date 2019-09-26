@@ -298,6 +298,7 @@ export function selfTest (get: () => HDWallet): void {
       "scriptType": "p2sh-p2wpkh",
       "verbose": "Litecoin Account #4",
       "wholeAccount": true,
+      "isPrefork": false,
     }, {
       "accountIdx": 4,
       "coin": "Litecoin",
@@ -305,6 +306,7 @@ export function selfTest (get: () => HDWallet): void {
       "scriptType": "p2pkh",
       "verbose": "Litecoin Account #4 (Legacy)",
       "wholeAccount": true,
+      "isPrefork": false,
     }, {
       "accountIdx": 4,
       "coin": "Litecoin",
@@ -312,6 +314,7 @@ export function selfTest (get: () => HDWallet): void {
       "scriptType": "p2wpkh",
       "verbose": "Litecoin Account #4 (Segwit Native)",
       "wholeAccount": true,
+      "isPrefork": false,
     }])
   })
 
@@ -329,6 +332,7 @@ export function selfTest (get: () => HDWallet): void {
       addressIdx: 0,
       wholeAccount: false,
       isChange: false,
+      isPrefork: false,
     })
 
     expect(wallet.info.describePath({
@@ -344,6 +348,7 @@ export function selfTest (get: () => HDWallet): void {
       addressIdx: 5,
       wholeAccount: false,
       isChange: true,
+      isPrefork: false,
     })
 
     expect(wallet.info.describePath({
@@ -365,7 +370,8 @@ export function selfTest (get: () => HDWallet): void {
       coin: 'Ethereum',
       isKnown: true,
       accountIdx: 0,
-      wholeAccount: true
+      wholeAccount: true,
+      isPrefork: false,
     })
 
     expect(wallet.info.describePath({
@@ -385,7 +391,8 @@ export function selfTest (get: () => HDWallet): void {
       coin: 'Ethereum',
       isKnown: true,
       accountIdx: 3,
-      wholeAccount: true
+      wholeAccount: true,
+      isPrefork: false,
     })
   })
 }
