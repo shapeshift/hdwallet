@@ -13,7 +13,9 @@ export class PortisAdapter {
   keyring: Keyring
   portis: any
   portisAppId: string
-  currentDeviceId: string // wallet id to remove from the keyring when the active wallet changes
+
+  /// wallet id to remove from the keyring when the active wallet changes
+  currentDeviceId: string
 
   private constructor (keyring: Keyring, args: { portis?: PortisWallet, portisAppId?: string }) {
     this.portis = args.portis
