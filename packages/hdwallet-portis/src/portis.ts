@@ -64,6 +64,7 @@ import {
     }
   }
 
+  // We might not need this. Leaving it for now to debug further
   class PortisTransport extends Transport {
     public getDeviceID() {
       return '0'
