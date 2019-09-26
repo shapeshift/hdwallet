@@ -49,7 +49,8 @@ function describeETHPath (path: core.BIP32Path): core.PathDescription {
     wholeAccount: true,
     accountIdx,
     coin: 'Ethereum',
-    isKnown: true
+    isKnown: true,
+    isPrefork: false,
   }
 }
 
@@ -108,7 +109,8 @@ function describeUTXOPath (path: core.BIP32Path, coin: core.Coin, scriptType: co
       coin,
       scriptType,
       wholeAccount: true,
-      isKnown: true
+      isKnown: true,
+      isPrefork: false,
     }
   } else {
     let change = path[3] == 1 ? 'Change ' : ''
@@ -121,7 +123,8 @@ function describeUTXOPath (path: core.BIP32Path, coin: core.Coin, scriptType: co
       addressIdx,
       wholeAccount: false,
       isChange: path[3] == 1,
-      isKnown: true
+      isKnown: true,
+      isPrefork: false,
     }
   }
 }
@@ -306,7 +309,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async getLabel (): Promise<string> {
-    return
+    return 'Ledger'
   }
 
   public async isLocked (): Promise<boolean> {

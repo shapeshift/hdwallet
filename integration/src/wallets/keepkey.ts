@@ -223,6 +223,31 @@ export function selfTest (get: () => HDWallet): void {
     }])
   })
 
+  it('supports ethNextAccountPath', () => {
+    if (!wallet) return
+
+    let paths = wallet.ethGetAccountPaths({
+      coin: 'Ethereum',
+      accountIdx: 5
+    })
+
+    expect(paths
+      .map(path => wallet.ethNextAccountPath(path))
+      .map(path => wallet.describePath({
+        ...path,
+        coin: 'Ethereum',
+        path: path.addressNList
+      }))
+    ).toEqual([{
+      "accountIdx": 6,
+      "coin": "Ethereum",
+      "isKnown": true,
+      "verbose": "Ethereum Account #6",
+      "wholeAccount": true,
+      "isPrefork": false,
+    }])
+  })
+
   it('supports btcNextAccountPath', () => {
     if (!wallet) return
 
@@ -244,6 +269,7 @@ export function selfTest (get: () => HDWallet): void {
       "scriptType": "p2pkh",
       "verbose": "Litecoin Account #4 (Legacy)",
       "wholeAccount": true,
+      "isPrefork": false,
     }, {
       "accountIdx": 4,
       "coin": "Litecoin",
@@ -251,6 +277,7 @@ export function selfTest (get: () => HDWallet): void {
       "scriptType": "p2sh-p2wpkh",
       "verbose": "Litecoin Account #4",
       "wholeAccount": true,
+      "isPrefork": false,
     }, {
       "accountIdx": 4,
       "coin": "Litecoin",
@@ -258,10 +285,11 @@ export function selfTest (get: () => HDWallet): void {
       "scriptType": "p2wpkh",
       "verbose": "Litecoin Account #4 (Segwit Native)",
       "wholeAccount": true,
+      "isPrefork": false,
     }])
   })
 
-  it('can describe paths', () => {
+  it('can describe a Bitcoin path', () => {
     expect(wallet.info.describePath({
       path: bip32ToAddressNList("m/44'/0'/0'/0/0"),
       coin: 'Bitcoin',
@@ -275,8 +303,47 @@ export function selfTest (get: () => HDWallet): void {
       addressIdx: 0,
       wholeAccount: false,
       isChange: false,
+      isPrefork: false,
     })
+  })
 
+  it('can describe prefork BitcoinCash', () => {
+    expect(wallet.info.describePath({
+      path: bip32ToAddressNList("m/44'/0'/0'/0/0"),
+      coin: 'BitcoinCash',
+      scriptType: BTCInputScriptType.SpendAddress
+    })).toEqual({
+      verbose: "BitcoinCash Account #0, Address #0 (Prefork)",
+      coin: 'BitcoinCash',
+      isKnown: true,
+      scriptType: BTCInputScriptType.SpendAddress,
+      accountIdx: 0,
+      addressIdx: 0,
+      wholeAccount: false,
+      isChange: false,
+      isPrefork: true,
+    })
+  })
+
+  it('can describe prefork Segwit Native BTG', () => {
+    expect(wallet.info.describePath({
+      path: bip32ToAddressNList("m/84'/0'/0'/0/0"),
+      coin: 'BitcoinGold',
+      scriptType: BTCInputScriptType.SpendWitness
+    })).toEqual({
+      verbose: "BitcoinGold Account #0, Address #0 (Prefork, Segwit Native)",
+      coin: 'BitcoinGold',
+      isKnown: true,
+      scriptType: BTCInputScriptType.SpendWitness,
+      accountIdx: 0,
+      addressIdx: 0,
+      wholeAccount: false,
+      isChange: false,
+      isPrefork: true,
+    })
+  })
+
+  it('can describe Bitcoin Change Addresses', () => {
     expect(wallet.info.describePath({
       path: bip32ToAddressNList("m/44'/0'/7'/1/5"),
       coin: 'Bitcoin',
@@ -290,19 +357,29 @@ export function selfTest (get: () => HDWallet): void {
       addressIdx: 5,
       wholeAccount: false,
       isChange: true,
+      isPrefork: false,
     })
+  })
 
+  it('can describe prefork paths', () => {
     expect(wallet.info.describePath({
       path: bip32ToAddressNList("m/44'/0'/7'/1/5"),
       coin: 'BitcoinCash',
       scriptType: BTCInputScriptType.SpendAddress
     })).toEqual({
-      verbose: "m/44'/0'/7'/1/5",
-      coin: 'BitcoinCash',
-      isKnown: false,
-      scriptType: BTCInputScriptType.SpendAddress
+      accountIdx: 7,
+      addressIdx: 5,
+      coin: "BitcoinCash",
+      isChange: true,
+      isKnown: true,
+      isPrefork: true,
+      scriptType: "p2pkh",
+      verbose: "BitcoinCash Account #7, Change Address #5 (Prefork)",
+      wholeAccount: false,
     })
+  })
 
+  it('can describe eth paths', () => {
     expect(wallet.info.describePath({
       path: bip32ToAddressNList("m/44'/60'/0'/0/0"),
       coin: 'Ethereum'
@@ -311,7 +388,8 @@ export function selfTest (get: () => HDWallet): void {
       coin: 'Ethereum',
       isKnown: true,
       accountIdx: 0,
-      wholeAccount: true
+      wholeAccount: true,
+      isPrefork: false,
     })
 
     expect(wallet.info.describePath({
@@ -322,7 +400,8 @@ export function selfTest (get: () => HDWallet): void {
       coin: 'Ethereum',
       isKnown: true,
       accountIdx: 3,
-      wholeAccount: true
+      wholeAccount: true,
+      isPrefork: false,
     })
 
     expect(wallet.info.describePath({

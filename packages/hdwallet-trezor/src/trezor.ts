@@ -83,7 +83,8 @@ function describeETHPath (path: BIP32Path): PathDescription {
     coin: 'Ethereum',
     accountIdx,
     wholeAccount: true,
-    isKnown: true
+    isKnown: true,
+    isPrefork: false,
   }
 }
 
@@ -152,7 +153,8 @@ function describeUTXOPath (path: BIP32Path, coin: Coin, scriptType: BTCInputScri
       coin,
       accountIdx,
       wholeAccount: true,
-      isKnown: true
+      isKnown: true,
+      isPrefork: false,
     }
   } else {
     let change = path[3] === 1 ? 'Change ' : ''
@@ -165,7 +167,8 @@ function describeUTXOPath (path: BIP32Path, coin: Coin, scriptType: BTCInputScri
       addressIdx,
       isChange: path[3] === 1,
       wholeAccount: false,
-      isKnown: true
+      isKnown: true,
+      isPrefork: false,
     }
   }
 }

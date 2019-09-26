@@ -97,7 +97,8 @@ function describeETHPath (path: BIP32Path): PathDescription {
     accountIdx: index,
     wholeAccount: true,
     coin: 'Ethereum',
-    isKnown: true
+    isKnown: true,
+    isPrefork: false
   }
 }
 
@@ -136,50 +137,78 @@ function describeUTXOPath (path: BIP32Path, coin: Coin, scriptType: BTCInputScri
   if (purpose === 84 && scriptType !== BTCInputScriptType.SpendWitness)
     return unknown
 
-  if (path[1] !== 0x80000000 + slip44ByCoin(coin))
-    return unknown
-
   let wholeAccount = path.length === 3
 
   let script = {
-    [BTCInputScriptType.SpendAddress]: ' (Legacy)',
-    [BTCInputScriptType.SpendP2SHWitness]: '',
-    [BTCInputScriptType.SpendWitness]: ' (Segwit Native)'
+    [BTCInputScriptType.SpendAddress]: ['Legacy'],
+    [BTCInputScriptType.SpendP2SHWitness]: [],
+    [BTCInputScriptType.SpendWitness]: ['Segwit Native']
   }[scriptType]
 
+  let isPrefork = false
+  if (path[1] !== 0x80000000 + slip44ByCoin(coin)) {
+    switch (coin) {
+    case 'BitcoinCash':
+    case 'BitcoinGold': {
+      if (path[1] === 0x80000000 + slip44ByCoin('Bitcoin')) {
+        isPrefork = true
+        break
+      }
+      return unknown
+    }
+    case 'BitcoinSV': {
+      if (path[1] === 0x80000000 + slip44ByCoin('Bitcoin') ||
+          path[1] === 0x80000000 + slip44ByCoin('BitcoinCash')) {
+        isPrefork = true
+        break
+      }
+      return unknown
+    }
+    default:
+      return unknown
+    }
+  }
+
+  let attributes = isPrefork ? ['Prefork'] : []
   switch (coin) {
   case 'Bitcoin':
   case 'Litecoin':
   case 'BitcoinGold':
-  case 'Testnet':
-    break;
-  default:
-    script = ''
+  case 'Testnet': {
+    attributes = attributes.concat(script)
+    break
   }
+  default:
+    break
+  }
+
+  let attr = attributes.length ? ` (${attributes.join(', ')})` : ''
 
   let accountIdx = path[2] & 0x7fffffff
 
   if (wholeAccount) {
     return {
       coin,
-      verbose: `${coin} Account #${accountIdx}${script}`,
+      verbose: `${coin} Account #${accountIdx}${attr}`,
       accountIdx,
       wholeAccount: true,
       isKnown: true,
       scriptType,
+      isPrefork
     }
   } else {
     let change = path[3] === 1 ? 'Change ' : ''
     let addressIdx = path[4]
     return {
       coin,
-      verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${script}`,
+      verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${attr}`,
       accountIdx,
       addressIdx,
       wholeAccount: false,
       isKnown: true,
       isChange: path[3] === 1,
-      scriptType
+      scriptType,
+      isPrefork
     }
   }
 }
@@ -293,8 +322,10 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
     }
 
     if (addressNList[0] === 0x80000000 + 44) {
+      addressNList[2] += 1
       return {
         ...msg,
+        addressNList,
         hardenedPath: hardenedPath(addressNList),
         relPath: relativePath(addressNList)
       }

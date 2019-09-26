@@ -94,7 +94,8 @@ export interface PathDescription {
   accountIdx?: number,
   addressIdx?: number,
   isChange?: boolean,
-  wholeAccount?: boolean
+  wholeAccount?: boolean,
+  isPrefork?: boolean
 }
 
 type CoinWallets = BTCWallet | ETHWallet | DebugLinkWallet
