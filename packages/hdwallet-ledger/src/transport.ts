@@ -1,10 +1,4 @@
 import { Coin, Transport, Keyring } from '@shapeshiftoss/hdwallet-core'
-import getDeviceInfo from '@ledgerhq/live-common/lib/hw/getDeviceInfo'
-
-export type LedgerDevice = {
-  path: string,
-  deviceID: string
-}
 
 export interface LedgerResponse {
   success: boolean,
@@ -14,18 +8,11 @@ export interface LedgerResponse {
 }
 
 export abstract class LedgerTransport extends Transport {
-  readonly hasPopup = false
-  readonly deviceID
-  transport
+  transport: any
 
-  constructor(deviceID: string, transport: any, keyring: Keyring) {
+  constructor(transport: any, keyring: Keyring) {
     super(keyring)
-    this.deviceID = deviceID
     this.transport = transport
-  }
-
-  public getDeviceID (): string {
-    return this.deviceID
   }
 
   public abstract async getDeviceInfo(): Promise<any>

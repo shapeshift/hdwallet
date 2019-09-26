@@ -484,4 +484,3 @@ export const networksUtil = {
     }
   }
 }
-
