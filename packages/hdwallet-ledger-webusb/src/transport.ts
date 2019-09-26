@@ -1,8 +1,17 @@
 import { makeEvent, Keyring } from '@shapeshiftoss/hdwallet-core'
 import { LedgerTransport, LedgerResponse } from '@shapeshiftoss/hdwallet-ledger'
 import Transport from '@ledgerhq/hw-transport'
+import Eth from '@ledgerhq/hw-app-eth'
+import Btc from '@ledgerhq/hw-app-btc'
 
 const RECORD_CONFORMANCE_MOCKS = false
+
+function translateCoin(coin: string): (any) => void {
+  return {
+    'Btc': Btc,
+    'Eth': Eth
+  }[coin]
+}
 
 export class LedgerWebUsbTransport extends LedgerTransport {
   device: USBDevice
@@ -26,7 +35,7 @@ export class LedgerWebUsbTransport extends LedgerTransport {
         message: {}
       }))
 
-      response = await new (this.translateCoin(coin))(this.transport)[method](...args)
+      response = await new (translateCoin(coin))(this.transport)[method](...args)
     } catch (e) {
       console.error(e)
       return {
