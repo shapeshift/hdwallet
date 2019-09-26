@@ -110,7 +110,7 @@ import {
 
     public async getModel(): Promise<string> {
       console.log('web3Portis getModel')
-      return 'portismodel'
+      return 'portis'
     }
   
     public async getLabel(): Promise<string> {
