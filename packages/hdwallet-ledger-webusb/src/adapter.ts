@@ -17,7 +17,7 @@ export class WebUSBLedgerAdapter {
   }
 
   public get (device: USBDevice): HDWallet {
-    return this.keyring.get(device.deviceID)
+    return this.keyring.get((device as any).deviceID)
   }
 
   public async initialize (devices?: USBDevice[]): Promise<number> {

@@ -335,7 +335,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
         format: translateScriptType(getPublicKey.scriptType) || 'legacy'
       }
 
-      const opts = coin !== 'Ethereum' ? btcOpts : {}
+      const opts = coin === 'Ethereum' ? undefined : btcOpts
 
       var res = await this.transport.call('Btc', 'getWalletPublicKey', prevBip32path, opts)
       handleError(this.transport, res, 'Unable to obtain public key from device.')

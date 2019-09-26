@@ -22,7 +22,7 @@ export class LedgerWebUsbTransport extends LedgerTransport {
   }
 
   public getDeviceID (): string {
-    return this.device.deviceID
+    return (this.device as any).deviceID
   }
 
   public async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
