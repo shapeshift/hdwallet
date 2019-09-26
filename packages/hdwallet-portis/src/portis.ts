@@ -22,12 +22,9 @@ import {
   addressNListToBIP32,
   BIP32Path,
   slip44ByCoin,
-  hardenedPath,
-  relativePath
 } from "@shapeshiftoss/hdwallet-core"
       
   import Web3 from 'web3'
-  import { getEthAddress } from './utils'
 
   function describeETHPath (path: BIP32Path): PathDescription {
     let pathStr = addressNListToBIP32(path)
@@ -289,7 +286,7 @@ import {
     }
 
     private async _ethGetAddress(): Promise<string> {
-      return getEthAddress(this.web3)
+      return (await this.web3.eth.getAccounts())[0]
     }
   }
   
