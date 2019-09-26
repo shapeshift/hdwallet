@@ -23,11 +23,14 @@ import {
   BIP32Path,
   slip44ByCoin,
   hardenedPath,
-  relativePath
+  relativePath,
+  Transport,
+  Keyring
 } from "@shapeshiftoss/hdwallet-core"
       
   import Web3 from 'web3'
   import { getEthAddress } from './utils'
+  import * as eventemitter2 from 'eventemitter2'
 
   function describeETHPath (path: BIP32Path): PathDescription {
     let pathStr = addressNListToBIP32(path)
@@ -64,6 +67,18 @@ import {
       isKnown: true
     }
   }
+
+  class PortisTransport extends Transport {
+    public getDeviceID() {
+      return '0'
+    }
+
+    public call (...args: any[]): Promise<any> {
+      return Promise.resolve()
+    }
+  
+  }
+
   
   export class PortisHDWallet implements HDWallet, ETHWallet {
     _supportsETH: boolean = true
@@ -75,7 +90,7 @@ import {
     _isLedger: boolean = false
     _isTrezor: boolean = false
 
-    transport = null
+    transport = new PortisTransport(new Keyring())
     
     portis: any
     web3: any
