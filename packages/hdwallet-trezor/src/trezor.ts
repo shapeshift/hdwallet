@@ -34,6 +34,13 @@ import {
   HDWalletInfo,
   BTCWalletInfo,
   ETHWalletInfo,
+  slip44ByCoin,
+  BIP32Path,
+  DescribePath,
+  PathDescription,
+  addressNListToBIP32,
+  hardenedPath,
+  relativePath,
 } from '@shapeshiftoss/hdwallet-core'
 import { handleError } from './utils'
 import * as Btc from './bitcoin'
@@ -42,6 +49,125 @@ import { TrezorTransport } from './transport'
 
 export function isTrezor(wallet: HDWallet): wallet is TrezorHDWallet {
   return typeof wallet === 'object' && wallet._isTrezor === true
+}
+
+function describeETHPath (path: BIP32Path): PathDescription {
+  let pathStr = addressNListToBIP32(path)
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin: 'Ethereum',
+    isKnown: false
+  }
+
+  if (path.length != 5)
+    return unknown
+
+  if (path[0] != 0x80000000 + 44)
+    return unknown
+
+  if (path[1] != 0x80000000 + slip44ByCoin('Ethereum'))
+    return unknown
+
+  if (path[2] !== 0x80000000)
+    return unknown
+
+  if (path[3] != 0)
+    return unknown
+
+  if ((path[4] & 0x80000000) !== 0)
+    return unknown
+
+  let accountIdx = path[4] & 0x7fffffff
+  return {
+    verbose: `Ethereum Account #${accountIdx}`,
+    coin: 'Ethereum',
+    accountIdx,
+    wholeAccount: true,
+    isKnown: true
+  }
+}
+
+function describeUTXOPath (path: BIP32Path, coin: Coin, scriptType: BTCInputScriptType) {
+  let pathStr = addressNListToBIP32(path)
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin,
+    scriptType,
+    isKnown: false
+  }
+
+  if (!Btc.btcSupportsCoin(coin))
+    return unknown
+
+  if (!Btc.btcSupportsScriptType(coin, scriptType))
+    return unknown
+
+  if (path.length !== 3 && path.length !== 5)
+    return unknown
+
+  if ((path[0] & 0x80000000) >>> 0 !== 0x80000000)
+    return unknown
+
+  let purpose = path[0] & 0x7fffffff
+
+  if (![44, 49, 84].includes(purpose))
+    return unknown
+
+  if (purpose === 44 && scriptType !== BTCInputScriptType.SpendAddress)
+    return unknown
+
+  if (purpose === 49 && scriptType !== BTCInputScriptType.SpendP2SHWitness)
+    return unknown
+
+  if (purpose === 84 && scriptType !== BTCInputScriptType.SpendWitness)
+    return unknown
+
+  if (path[1] !== 0x80000000 + slip44ByCoin(coin))
+    return unknown
+
+  let wholeAccount = path.length === 3
+
+  let script = {
+    [BTCInputScriptType.SpendAddress]: ' (Legacy)',
+    [BTCInputScriptType.SpendP2SHWitness]: '',
+    [BTCInputScriptType.SpendWitness]: ' (Segwit Native)'
+  }[scriptType]
+
+  switch (coin) {
+  case 'Bitcoin':
+  case 'Litecoin':
+  case 'BitcoinGold':
+  case 'Testnet':
+    break;
+  default:
+    script = ''
+  }
+
+  let accountIdx = path[2] & 0x7fffffff
+
+  if (wholeAccount) {
+    return {
+      verbose: `${coin} Account #${accountIdx}${script}`,
+      scriptType,
+      coin,
+      accountIdx,
+      wholeAccount: true,
+      isKnown: true
+    }
+  } else {
+    let change = path[3] === 1 ? 'Change ' : ''
+    let addressIdx = path[4]
+    return {
+      verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${script}`,
+      coin,
+      scriptType,
+      accountIdx,
+      addressIdx,
+      isChange: path[3] === 1,
+      wholeAccount: false,
+      isKnown: true
+    }
+  }
 }
 
 export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo {
@@ -113,6 +239,55 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
     // It doesn't... yet?
     return false
   }
+
+  public describePath (msg: DescribePath): PathDescription {
+    switch (msg.coin) {
+    case 'Ethereum':
+      return describeETHPath(msg.path)
+    default:
+      return describeUTXOPath(msg.path, msg.coin, msg.scriptType)
+    }
+  }
+
+  public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
+    let description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType)
+    if (!description.isKnown) {
+      return undefined
+    }
+
+    let addressNList = msg.addressNList
+
+    if (addressNList[0] === 0x80000000 + 44 ||
+        addressNList[0] === 0x80000000 + 49 ||
+        addressNList[0] === 0x80000000 + 84) {
+      addressNList[2] += 1
+      return {
+        ...msg,
+        addressNList
+      }
+    }
+
+    return undefined
+  }
+
+  public ethNextAccountPath (msg: ETHAccountPath): ETHAccountPath | undefined {
+    let addressNList = msg.hardenedPath.concat(msg.relPath)
+    let description = describeETHPath(addressNList)
+    if (!description.isKnown) {
+      return undefined
+    }
+
+    if (addressNList[0] === 0x80000000 + 44) {
+      addressNList[4] += 1
+      return {
+        ...msg,
+        hardenedPath: hardenedPath(addressNList),
+        relPath: relativePath(addressNList)
+      }
+    }
+
+    return undefined
+  }
 }
 
 export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
@@ -136,6 +311,11 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
 
   public async initialize (): Promise<any> {
     return
+  }
+
+  public async isInitialized (): Promise<boolean> {
+    let features = await this.getFeatures(/*cached*/true)
+    return features.initialized
   }
 
   public async getDeviceID (): Promise<string> {
@@ -362,6 +542,22 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
 
   public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
     return this.info.ethGetAccountPaths(msg)
+  }
+
+  public describePath (msg: DescribePath): PathDescription {
+    return this.info.describePath(msg)
+  }
+
+  public disconnect (): Promise<void> {
+    return this.transport.disconnect()
+  }
+
+  public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
+    return this.info.btcNextAccountPath(msg)
+  }
+
+  public ethNextAccountPath (msg: ETHAccountPath): ETHAccountPath | undefined {
+    return this.info.ethNextAccountPath(msg)
   }
 }
 

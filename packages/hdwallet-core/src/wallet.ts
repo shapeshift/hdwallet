@@ -80,6 +80,23 @@ export interface ExchangeType {
   returnScriptType?: BTCInputScriptType,
 }
 
+export interface DescribePath {
+  path: BIP32Path,
+  coin: Coin,
+  scriptType?: BTCInputScriptType
+}
+
+export interface PathDescription {
+  isKnown: boolean,
+  verbose: string,
+  coin: Coin,
+  scriptType?: BTCInputScriptType,
+  accountIdx?: number,
+  addressIdx?: number,
+  isChange?: boolean,
+  wholeAccount?: boolean
+}
+
 type CoinWallets = BTCWallet | ETHWallet | DebugLinkWallet
 
 export type Coin = string
@@ -161,6 +178,11 @@ export interface HDWalletInfo {
    * integration for the given pair?
    */
   hasNativeShapeShift (srcCoin: Coin, dstCoin: Coin): Promise<boolean>
+
+  /**
+   * Describes a BIP32 path in plain English.
+   */
+  describePath (msg: DescribePath): PathDescription
 }
 
 export interface HDWallet extends HDWalletInfo {
@@ -195,6 +217,11 @@ export interface HDWallet extends HDWalletInfo {
    * Derive one or more xpubs.
    */
   getPublicKeys (msg: Array<GetPublicKey>): Promise<Array<PublicKey>>
+
+  /**
+   * Check whether the device has been initialized with a secret.
+   */
+  isInitialized (): Promise<boolean>
 
   /**
    * Check whether the device is locked.
@@ -268,4 +295,9 @@ export interface HDWallet extends HDWalletInfo {
    * or if you really really know what you're doing on an **airgapped** machine.
    */
   loadDevice (msg: LoadDevice): Promise<void>
+
+  /**
+  * Close connection with device
+  */
+  disconnect (): Promise<void>
 }

@@ -48,6 +48,11 @@ export function bitcoinTests (get: () => { wallet: HDWallet, info: HDWalletInfo 
       await wallet.loadDevice({ mnemonic: MNEMONIC12_NOPIN_NOPASSPHRASE, label: 'test', skipChecksum: true })
     }, TIMEOUT)
 
+    test('isInitialized()', async () => {
+      if (!wallet) return
+      expect(await wallet.isInitialized()).toBeTruthy()
+    })
+
     test('btcSupportsCoin()', async () => {
       if (!wallet) return
       expect(wallet.btcSupportsCoin('Bitcoin')).toBeTruthy()
@@ -92,7 +97,7 @@ export function bitcoinTests (get: () => { wallet: HDWallet, info: HDWalletInfo 
       let inputs = [{
         addressNList: bip32ToAddressNList("m/0"),
         scriptType: BTCInputScriptType.SpendAddress,
-        amount: 390000,
+        amount: String(390000),
         vout: 0,
         txid: 'd5f65ee80147b4bcc70b75e4bbf2d7382021b871bd8867ef8fa525ef50864882',
         tx: {
@@ -128,7 +133,7 @@ export function bitcoinTests (get: () => { wallet: HDWallet, info: HDWalletInfo 
         address: '1MJ2tj2ThBE62zXbBYA5ZaN3fdve5CPAz1',
         addressType: BTCOutputAddressType.Spend,
         scriptType: BTCOutputScriptType.PayToAddress,
-        amount: 390000 - 10000,
+        amount: String(390000 - 10000),
         isChange: false
       }]
       let res = await wallet.btcSignTx({
@@ -222,6 +227,9 @@ export function bitcoinTests (get: () => { wallet: HDWallet, info: HDWalletInfo 
       [0, 1, 9].forEach(idx => {
         let paths = wallet.btcGetAccountPaths({ coin: 'Bitcoin', accountIdx: idx })
         expect(typeof wallet.btcIsSameAccount(paths) === typeof true).toBeTruthy()
+        paths.forEach(path => {
+          expect(wallet.btcNextAccountPath(path)).not.toBeUndefined()
+        })
       })
     }, TIMEOUT)
 

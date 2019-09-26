@@ -17,6 +17,115 @@ export function isLedger (wallet: core.HDWallet): wallet is LedgerHDWallet {
   return typeof wallet === 'object' && wallet._isLedger === true
 }
 
+function describeETHPath (path: core.BIP32Path): core.PathDescription {
+  let pathStr = core.addressNListToBIP32(path)
+  let unknown: core.PathDescription = {
+    verbose: pathStr,
+    coin: 'Ethereum',
+    isKnown: false
+  }
+
+  if (path.length != 5)
+    return unknown
+
+  if (path[0] != 0x80000000 + 44)
+    return unknown
+
+  if (path[1] != 0x80000000 + core.slip44ByCoin('Ethereum'))
+    return unknown
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000)
+    return unknown
+
+  if (path[3] != 0)
+    return unknown
+
+  if (path[4] != 0)
+    return unknown
+
+  let accountIdx = path[2] & 0x7fffffff
+  return {
+    verbose: `Ethereum Account #${accountIdx}`,
+    wholeAccount: true,
+    accountIdx,
+    coin: 'Ethereum',
+    isKnown: true
+  }
+}
+
+function describeUTXOPath (path: core.BIP32Path, coin: core.Coin, scriptType: core.BTCInputScriptType) {
+  let pathStr = core.addressNListToBIP32(path)
+  let unknown: core.PathDescription = {
+    verbose: pathStr,
+    coin,
+    scriptType,
+    isKnown: false
+  }
+
+  if (!btc.btcSupportsCoin(coin))
+    return unknown
+
+  if (!btc.btcSupportsScriptType(coin, scriptType))
+    return unknown
+
+  if (path.length !== 3 && path.length !== 5)
+    return unknown
+
+  if ((path[0] & 0x80000000) >>> 0 !== 0x80000000)
+    return unknown
+
+  let purpose = path[0] & 0x7fffffff
+
+  if (![44, 49, 84].includes(purpose))
+    return unknown
+
+  if (purpose === 44 && scriptType !== core.BTCInputScriptType.SpendAddress)
+    return unknown
+
+  if (purpose === 49 && scriptType !== core.BTCInputScriptType.SpendP2SHWitness)
+    return unknown
+
+  if (purpose === 84 && scriptType !== core.BTCInputScriptType.SpendWitness)
+    return unknown
+
+  if (path[1] !== 0x80000000 + core.slip44ByCoin(coin))
+    return unknown
+
+  let wholeAccount = path.length === 3
+
+  let script = {
+    [core.BTCInputScriptType.SpendAddress]: '',
+    [core.BTCInputScriptType.SpendP2SHWitness]: 'Segwit ',
+    [core.BTCInputScriptType.SpendWitness]: 'Segwit Native '
+  }[scriptType]
+
+  let accountIdx = path[2] & 0x7fffffff
+
+  if (wholeAccount) {
+    return {
+      verbose: `${coin} ${script}Account #${accountIdx}`,
+      accountIdx,
+      coin,
+      scriptType,
+      wholeAccount: true,
+      isKnown: true
+    }
+  } else {
+    let change = path[3] == 1 ? 'Change ' : ''
+    let addressIdx = path[4]
+    return {
+      verbose: `${script}${coin} Account #${accountIdx}, ${change}Address #${addressIdx}`,
+      coin,
+      scriptType,
+      accountIdx,
+      addressIdx,
+      wholeAccount: false,
+      isChange: path[3] == 1,
+      isKnown: true
+    }
+  }
+}
+
 export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
   _supportsBTCInfo: boolean = true
   _supportsETHInfo: boolean = true
@@ -84,6 +193,73 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
   public async hasOnDeviceRecovery (): Promise<boolean> {
     return true
   }
+
+  public describePath (msg: core.DescribePath): core.PathDescription {
+    switch (msg.coin) {
+    case 'Ethereum':
+      return describeETHPath(msg.path)
+    default:
+      return describeUTXOPath(msg.path, msg.coin, msg.scriptType)
+    }
+  }
+
+  public btcNextAccountPath (msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
+    let description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType)
+    if (!description.isKnown) {
+      return undefined
+    }
+
+    let addressNList = msg.addressNList
+
+    if (addressNList[0] === 0x80000000 + 44 ||
+        addressNList[0] === 0x80000000 + 49 ||
+        addressNList[0] === 0x80000000 + 84) {
+      addressNList[2] += 1
+      return {
+        ...msg,
+        addressNList
+      }
+    }
+
+    return undefined
+  }
+
+  public ethNextAccountPath (msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
+    let addressNList = msg.hardenedPath.concat(msg.relPath)
+    let description = describeETHPath(addressNList)
+    if (!description.isKnown) {
+      return undefined
+    }
+
+    if (description.wholeAccount) {
+      addressNList[2] += 1
+      return {
+        ...msg,
+        hardenedPath: core.hardenedPath(addressNList),
+        relPath: core.relativePath(addressNList)
+      }
+    }
+
+    if (addressNList.length === 5) {
+      addressNList[2] += 1
+      return {
+        ...msg,
+        hardenedPath: core.hardenedPath(addressNList),
+        relPath: core.relativePath(addressNList)
+      }
+    }
+
+    if (addressNList.length === 4) {
+      addressNList[3] += 1
+      return {
+        ...msg,
+        hardenedPath: core.hardenedPath(addressNList),
+        relPath: core.relativePath(addressNList)
+      }
+    }
+
+    return undefined
+  }
 }
 
 export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet {
@@ -107,6 +283,12 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   public async initialize (): Promise<any> {
     return
+  }
+
+  public async isInitialized (): Promise<boolean> {
+    // AFAICT, there isn't an API to figure this out, so we go with a reasonable
+    // (ish) default:
+    return true
   }
 
   public async getDeviceID (): Promise<string> {
@@ -135,21 +317,22 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return
   }
 
-  // TODO: what to do with Ethereum?
   // Adapted from https://github.com/LedgerHQ/ledger-wallet-webtool
   public async getPublicKeys (msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey>> {
     const xpubs = []
 
     for (const getPublicKey of msg) {
-      const { addressNList } = getPublicKey
+      const { addressNList, coin } = getPublicKey
 
       const bip32path: string = core.addressNListToBIP32(addressNList.slice(0, 3)).substring(2)
       const prevBip32path: string = core.addressNListToBIP32(addressNList.slice(0, 2)).substring(2)
 
-      const opts = {
+      const btcOpts = {
         verify: false,
         format: translateScriptType(getPublicKey.scriptType) || 'legacy'
       }
+
+      const opts = coin !== 'Ethereum' ? btcOpts : {}
 
       var res = await this.transport.call('Btc', 'getWalletPublicKey', prevBip32path, opts)
       handleError(this.transport, res, 'Unable to obtain public key from device.')
@@ -169,6 +352,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
       publicKey = compressPublicKey(publicKey)
 
       const coinType: number = parseInt(bip32path.split("/")[1], 10)
+      const coinDetails: any = networksUtil[coinType]
       const account: number = parseInt(bip32path.split("/")[2], 10)
       const childNum: number = (0x80000000 | account) >>> 0
 
@@ -178,7 +362,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
         childNum,
         chainCode,
         publicKey,
-        networksUtil[coinType].bitcoinjs.bip32.public
+        coinDetails.bitcoinjs.bip32.public
       )
       xpub = encodeBase58Check(xpub)
 
@@ -319,6 +503,22 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   public ethGetAccountPaths (msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     return this.info.ethGetAccountPaths(msg)
+  }
+
+  public describePath (msg: core.DescribePath): core.PathDescription {
+    return this.info.describePath(msg)
+  }
+
+  public disconnect (): Promise<void> {
+    return this.transport.disconnect()
+  }
+
+  public btcNextAccountPath (msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
+    return this.info.btcNextAccountPath(msg)
+  }
+
+  public ethNextAccountPath (msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
+    return this.info.ethNextAccountPath(msg)
   }
 }
 

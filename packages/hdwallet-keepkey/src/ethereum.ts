@@ -53,6 +53,7 @@ export async function ethSupportsNativeShapeShift (): Promise<boolean> {
 
 export function ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
   return [{
+    addressNList: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx, 0, 0 ],
     hardenedPath: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx ],
     relPath: [ 0, 0 ],
     description: "KeepKey"
