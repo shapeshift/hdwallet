@@ -22,6 +22,8 @@ import {
   addressNListToBIP32,
   BIP32Path,
   slip44ByCoin,
+  Transport,
+  Keyring
 } from "@shapeshiftoss/hdwallet-core"
       
   import Web3 from 'web3'
@@ -61,6 +63,19 @@ import {
       isKnown: true
     }
   }
+
+  // We might not need this. Leaving it for now to debug further
+  class PortisTransport extends Transport {
+    public getDeviceID() {
+      return '0'
+    }
+
+    public call (...args: any[]): Promise<any> {
+      return Promise.resolve()
+    }
+  
+  }
+
   
   export class PortisHDWallet implements HDWallet, ETHWallet {
     _supportsETH: boolean = true
@@ -72,7 +87,7 @@ import {
     _isLedger: boolean = false
     _isTrezor: boolean = false
 
-    transport = null
+    transport = new PortisTransport(new Keyring())
     
     portis: any
     web3: any
