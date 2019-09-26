@@ -90,7 +90,7 @@ import {
   
     public getVendor(): string {
       console.log('web3Portis getVendor')
-      return "portisvendor"
+      return "portis"
     }
 
     public async getModel(): Promise<string> {
