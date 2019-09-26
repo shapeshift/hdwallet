@@ -369,7 +369,7 @@ export class LedgerHDWallet implements HDWallet, BTCWallet, ETHWallet {
   }
 
   public async getLabel (): Promise<string> {
-    return
+    return 'Ledger'
   }
 
   public async isLocked (): Promise<boolean> {
