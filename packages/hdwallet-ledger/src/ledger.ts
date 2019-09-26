@@ -25,25 +25,40 @@ function describeETHPath (path: core.BIP32Path): core.PathDescription {
     isKnown: false
   }
 
-  if (path.length != 5)
+  if (path.length !== 5 && path.length !== 4)
     return unknown
 
-  if (path[0] != 0x80000000 + 44)
+  if (path[0] !== 0x80000000 + 44)
     return unknown
 
-  if (path[1] != 0x80000000 + core.slip44ByCoin('Ethereum'))
+  if (path[1] !== 0x80000000 + core.slip44ByCoin('Ethereum'))
     return unknown
 
   if ((path[2] & 0x80000000) >>> 0 !== 0x80000000)
     return unknown
 
-  if (path[3] != 0)
-    return unknown
+  let accountIdx
+  if (path.length === 5) {
+    if (path[3] !== 0)
+      return unknown
 
-  if (path[4] != 0)
-    return unknown
+    if (path[4] !== 0)
+      return unknown
 
-  let accountIdx = path[2] & 0x7fffffff
+    accountIdx = (path[2] & 0x7fffffff) >>> 0
+  } else if (path.length === 4) {
+    if (path[2] !== 0x80000000)
+      return unknown
+
+    if ((path[3] & 0x80000000) >>> 0 === 0x80000000)
+      return unknown
+
+
+    accountIdx = path[3]
+  } else {
+    return unknown
+  }
+
   return {
     verbose: `Ethereum Account #${accountIdx}`,
     wholeAccount: true,
@@ -95,16 +110,26 @@ function describeUTXOPath (path: core.BIP32Path, coin: core.Coin, scriptType: co
   let wholeAccount = path.length === 3
 
   let script = {
-    [core.BTCInputScriptType.SpendAddress]: '',
-    [core.BTCInputScriptType.SpendP2SHWitness]: 'Segwit ',
-    [core.BTCInputScriptType.SpendWitness]: 'Segwit Native '
+    [core.BTCInputScriptType.SpendAddress]: ' (Legacy)',
+    [core.BTCInputScriptType.SpendP2SHWitness]: '',
+    [core.BTCInputScriptType.SpendWitness]: ' (Segwit Native)'
   }[scriptType]
+
+  switch (coin) {
+  case 'Bitcoin':
+  case 'Litecoin':
+  case 'BitcoinGold':
+  case 'Testnet':
+    break;
+  default:
+    script = ''
+  }
 
   let accountIdx = path[2] & 0x7fffffff
 
   if (wholeAccount) {
     return {
-      verbose: `${coin} ${script}Account #${accountIdx}`,
+      verbose: `${coin} Account #${accountIdx}${script}`,
       accountIdx,
       coin,
       scriptType,
@@ -116,7 +141,7 @@ function describeUTXOPath (path: core.BIP32Path, coin: core.Coin, scriptType: co
     let change = path[3] == 1 ? 'Change ' : ''
     let addressIdx = path[4]
     return {
-      verbose: `${script}${coin} Account #${accountIdx}, ${change}Address #${addressIdx}`,
+      verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${script}`,
       coin,
       scriptType,
       accountIdx,
@@ -134,7 +159,7 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
   _supportsETHInfo: boolean = true
 
   public getVendor (): string {
-    return "Ledger"
+    return 'Ledger'
   }
 
   public async btcSupportsCoin (coin: core.Coin): Promise<boolean> {
