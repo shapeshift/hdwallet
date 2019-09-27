@@ -241,6 +241,7 @@ $cancel.on('click', async (e) => {
 const $getVendor = $('#getVendor')
 const $getModel = $('#getModel')
 const $getDeviceID = $('#getDeviceID')
+const $getFirmware = $('#getFirmware')
 const $getLabel = $('#getLabel')
 const $getXpubs = $('#getXpubs')
 const $doPing = $('#doPing')
@@ -267,6 +268,13 @@ $getDeviceID.on('click', async (e) => {
   if (!wallet) { $manageResults.val("No wallet?"); return}
   let deviceID = await wallet.getDeviceID()
   $manageResults.val(deviceID)
+})
+
+$getFirmware.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $manageResults.val("No wallet?"); return}
+  let firmware = await wallet.getFirmwareVersion()
+  $manageResults.val(firmware)
 })
 
 $getLabel.on('click', async (e) => {
