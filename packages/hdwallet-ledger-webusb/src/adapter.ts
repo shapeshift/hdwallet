@@ -1,14 +1,12 @@
 import { create as createLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { Events, Keyring, HDWallet, WebUSBNotAvailable } from '@shapeshiftoss/hdwallet-core'
-import { LedgerDevice, LedgerWebUsbTransport } from './transport'
+import { Events, Keyring, HDWallet, WebUSBNotAvailable, WebUSBCouldNotPair } from '@shapeshiftoss/hdwallet-core'
+import { LedgerWebUsbTransport } from './transport'
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
 
-export type DeviceID = string
+const VENDOR_ID = 11415
 
 export class WebUSBLedgerAdapter {
   keyring: Keyring
-
-  private static _deviceIDToPath = new Map()
 
   constructor(keyring: Keyring) {
     this.keyring = keyring
@@ -18,47 +16,43 @@ export class WebUSBLedgerAdapter {
     return new WebUSBLedgerAdapter(keyring)
   }
 
-  public async addDevice (deviceID: string, path: string): Promise<void> {
-    WebUSBLedgerAdapter._deviceIDToPath.set(deviceID, path)
-    await this.initialize([{ path, deviceID }])
+  public get (device: USBDevice): HDWallet {
+    return this.keyring.get((device as any).deviceID)
   }
 
-  public get (device: LedgerDevice): HDWallet {
-    return this.keyring.get(device.deviceID)
-  }
-
-  public static newDeviceID (): string {
-    // Ledger doesn't have deviceID, so we have to invent ephemeral ones.
-    return 'webusb#' + Object.keys(this._deviceIDToPath).length.toString()
-  }
-
-  public async initialize (devices?: LedgerDevice[]): Promise<number> {
+  public async initialize (devices?: USBDevice[]): Promise<number> {
     if (!(window && window.navigator.usb))
       throw new WebUSBNotAvailable()
 
     const devicesToInitialize = devices || await TransportWebUSB.list()
 
+    let ledgerTransport
     for (let i = 0; i < devicesToInitialize.length; i++) {
       const device = devicesToInitialize[i]
-      if (this.keyring.wallets[device.deviceID]) {
+
+      if (device.vendorId !== VENDOR_ID) { continue }
+
+      // remove last connected ledger from keyring since we don't have unique identifier
+      if (!device.deviceID) {
+        device.deviceID = 'webusb-ledger'
         await this.keyring.remove(device.deviceID)
       }
 
-      let ledgerTransport
+      if (this.keyring.wallets[device.deviceID]) { continue }
+
       try {
         ledgerTransport = await TransportWebUSB.open(device)
       } catch (e) {
-        console.error(`Could not initialize ${device.productName}. No app open on device?`, e)
+        console.error(`Could not initialize ${device.manufacturerName} ${device.productName}.`, e)
         continue
       }
 
-      let deviceID = WebUSBLedgerAdapter.newDeviceID()
-      let transport = new LedgerWebUsbTransport(deviceID, ledgerTransport, this.keyring)
+      const wallet = createLedger(new LedgerWebUsbTransport(device, ledgerTransport, this.keyring))
 
-      let wallet = createLedger(transport)
-      this.keyring.add(wallet, deviceID)
-      this.keyring.emit(["Ledger", deviceID, Events.CONNECT], deviceID)
+      this.keyring.add(wallet, device.deviceID)
+      this.keyring.emit(["Ledger", device.deviceID, Events.CONNECT], device.deviceID)
     }
+
     return Object.keys(this.keyring.wallets).length
   }
 
@@ -66,15 +60,17 @@ export class WebUSBLedgerAdapter {
     if (!(window && window.navigator.usb))
       throw new WebUSBNotAvailable()
 
-    let ledgerTransport = await TransportWebUSB.request()
+    let transport
+    try {
+      transport = await TransportWebUSB.request()
+    } catch (err) {
+      throw new WebUSBCouldNotPair('Ledger', err.message)
+    }
 
-    const deviceID = WebUSBLedgerAdapter.newDeviceID()
-    const transport = await new LedgerWebUsbTransport(deviceID, ledgerTransport, this.keyring)
+    const device = transport.device
 
-    const wallet = createLedger(transport)
-    this.keyring.add(wallet, deviceID)
-    this.keyring.emit(["Ledger", deviceID, Events.CONNECT], deviceID)
+    await this.initialize([device])
 
-    return wallet
+    return this.keyring.get(device.deviceID)
   }
 }

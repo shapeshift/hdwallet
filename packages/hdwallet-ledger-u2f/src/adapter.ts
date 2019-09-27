@@ -1,14 +1,12 @@
 import { create as createLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { Events, Keyring, HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { LedgerDevice, LedgerU2FTransport } from './transport'
+import { LedgerU2FTransport } from './transport'
 import TransportU2F from '@ledgerhq/hw-transport-u2f'
 
-export type DeviceID = string
+const VENDOR_ID = 11415
 
 export class U2FLedgerAdapter {
   keyring: Keyring
-
-  private static _deviceIDToPath = new Map()
 
   constructor(keyring: Keyring) {
     this.keyring = keyring
@@ -18,50 +16,44 @@ export class U2FLedgerAdapter {
     return new U2FLedgerAdapter(keyring)
   }
 
-  public async addDevice (deviceID: string, path: string): Promise<void> {
-    U2FLedgerAdapter._deviceIDToPath.set(deviceID, path)
-    await this.initialize([{ path, deviceID }])
-  }
-
-  public get (device: LedgerDevice): HDWallet {
+  public get (device: any): HDWallet {
     return this.keyring.get(device.deviceID)
   }
 
-  public static newDeviceID (): string {
-    // Ledger doesn't have deviceID, so we have to invent ephemeral ones.
-    return 'u2f#' + Object.keys(U2FLedgerAdapter._deviceIDToPath).length.toString()
-  }
-
-  public async initialize (devices?: LedgerDevice[]): Promise<number> {
+  public async initialize (devices?: any[]): Promise<number> {
     const devicesToInitialize = devices || []
 
     for (let i = 0; i < devicesToInitialize.length; i++) {
       const device = devicesToInitialize[i]
-      if (this.keyring.wallets[device.deviceID]) {
+
+      if (device.vendorId !== VENDOR_ID) { continue }
+
+      // remove last connected ledger from keyring since we don't have unique identifier
+      if (!device.deviceID) {
+        device.deviceID = 'u2f-ledger'
         await this.keyring.remove(device.deviceID)
       }
 
-      const deviceID = U2FLedgerAdapter.newDeviceID()
+      if (this.keyring.wallets[device.deviceID]) { continue }
 
-      let ledgerTransport = await TransportU2F.create()
-      let transport = new LedgerU2FTransport(device.deviceID, ledgerTransport, this.keyring)
+      const ledgerTransport = await TransportU2F.open()
 
-      let wallet = createLedger(transport)
-      this.keyring.add(wallet, deviceID)
-      this.keyring.emit(["Ledger", device.deviceID, Events.CONNECT], deviceID)
+      const wallet = createLedger(new LedgerU2FTransport(device, ledgerTransport, this.keyring))
+
+      this.keyring.add(wallet, device.deviceID)
+      this.keyring.emit(["Ledger", device.deviceID, Events.CONNECT], device.deviceID)
     }
+
     return Object.keys(this.keyring.wallets).length
   }
 
   public async pairDevice (): Promise<HDWallet> {
-    const deviceID = U2FLedgerAdapter.newDeviceID()
-    let ledgerTransport = await TransportU2F.create()
-    const transport = await new LedgerU2FTransport(deviceID, ledgerTransport, this.keyring)
+    const transport = await TransportU2F.open()
 
-    let wallet = createLedger(transport)
-    this.keyring.add(wallet, deviceID)
-    this.keyring.emit(["Ledger", deviceID, Events.CONNECT], deviceID)
+    const device = transport.device
 
-    return wallet
+    await this.initialize([device])
+
+    return this.keyring.get(device.deviceID)
   }
 }

@@ -225,7 +225,7 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
     return Btc.btcSupportsCoin(coin)
   }
 
-  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> { 
+  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
     return Btc.btcSupportsScriptType(coin, scriptType)
   }
 
@@ -367,6 +367,11 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     return (await this.getFeatures()).model;
   }
 
+  public async getFirmwareVersion(): Promise<string> {
+    const features = await this.getFeatures()
+    return `${features.majorVersion}.${features.minorVersion}.${features.patchVersion}`
+  }
+
   public async getLabel(): Promise<string> {
     return (await this.getFeatures()).label;
   }
@@ -469,15 +474,15 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   public async pressYes (): Promise<void> {
     return this.press(true)
   }
-  
+
   public async pressNo (): Promise<void> {
     return this.press(false)
   }
-  
+
   public async press (isYes: boolean): Promise<void> {
     let decision = new Messages.DebugLinkDecision()
     decision.setYesNo(isYes)
-  
+
     await this.transport.callDebugLink(
       Messages.MessageType.MESSAGETYPE_DEBUGLINKDECISION,
       decision,
@@ -793,7 +798,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     return this.info.btcSupportsCoin(coin)
   }
 
-  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> { 
+  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
     return this.info.btcSupportsScriptType(coin, scriptType)
   }
 

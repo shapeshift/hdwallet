@@ -22,7 +22,7 @@ export class MockTransport extends LedgerTransport {
   memoized = new Map()
 
   constructor (keyring: Keyring) {
-    super('test', undefined, keyring)
+    super(undefined, keyring)
     this.populate()
   }
 
@@ -30,16 +30,18 @@ export class MockTransport extends LedgerTransport {
     return "mock#1"
   }
 
-  public async listen (): Promise<any> {}
-
-  public async connect (): Promise<void> {}
+  public getDeviceInfo (): Promise<any> {
+    return Promise.resolve({})
+  }
 
   public call (coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
     let key = JSON.stringify({ coin: coin, method: method, args: args })
+
     if (!this.memoized.has(key)) {
       console.error(coin, method, `JSON.parse('${JSON.stringify(args)}')`)
       throw new Error("mock not yet recorded for arguments")
     }
+
     return Promise.resolve(this.memoized.get(key))
   }
 
@@ -120,7 +122,6 @@ export async function createWallet (): Promise<HDWallet> {
 }
 
 export function selfTest (get: () => HDWallet): void {
-
   let wallet: LedgerHDWallet & ETHWallet & BTCWallet & HDWallet
 
   beforeAll(async () => {

@@ -178,7 +178,6 @@ async function deviceConnected (deviceId) {
       await wallet.initialize()
     }
     window['wallet'] = wallet
-    console.log('wallet set to', deviceID, wallet)
   })
   wallet = keyring.get()
   window['wallet'] = wallet
@@ -275,6 +274,7 @@ $cancel.on('click', async (e) => {
 
 const $getVendor = $('#getVendor')
 const $getModel = $('#getModel')
+const $getDeviceID = $('#getDeviceID')
 const $getLabel = $('#getLabel')
 const $getXpubs = $('#getXpubs')
 const $doPing = $('#doPing')
@@ -294,6 +294,13 @@ $getModel.on('click', async (e) => {
   if (!wallet) { $manageResults.val("No wallet?"); return}
   let model = await wallet.getModel()
   $manageResults.val(model)
+})
+
+$getDeviceID.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $manageResults.val("No wallet?"); return}
+  let deviceID = await wallet.getDeviceID()
+  $manageResults.val(deviceID)
 })
 
 $getLabel.on('click', async (e) => {

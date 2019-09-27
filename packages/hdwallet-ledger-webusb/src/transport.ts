@@ -1,24 +1,11 @@
-import { Coin, makeEvent, Keyring } from '@shapeshiftoss/hdwallet-core'
-import { LedgerTransport } from '@shapeshiftoss/hdwallet-ledger'
+import { makeEvent, Keyring } from '@shapeshiftoss/hdwallet-core'
+import { LedgerTransport, LedgerResponse } from '@shapeshiftoss/hdwallet-ledger'
 import Transport from '@ledgerhq/hw-transport'
 import Eth from '@ledgerhq/hw-app-eth'
 import Btc from '@ledgerhq/hw-app-btc'
-
-const TIMEOUT = 50 // timeout on user response
+import getDeviceInfo from '@ledgerhq/live-common/lib/hw/getDeviceInfo'
 
 const RECORD_CONFORMANCE_MOCKS = false
-
-export type LedgerDevice = {
-  path: string,
-  deviceID: string
-}
-
-export interface LedgerResponse {
-  success: boolean,
-  payload: any | { error: string },
-  coin: Coin,
-  method: string
-}
 
 function translateCoin(coin: string): (any) => void {
   return {
@@ -28,10 +15,19 @@ function translateCoin(coin: string): (any) => void {
 }
 
 export class LedgerWebUsbTransport extends LedgerTransport {
-  readonly hasPopup = false
+  device: USBDevice
 
-  constructor(deviceID: string, transport: Transport<USBDevice>, keyring: Keyring) {
-    super(deviceID, transport, keyring)
+  constructor(device: USBDevice, transport: Transport<USBDevice>, keyring: Keyring) {
+    super(transport, keyring)
+    this.device = device
+  }
+
+  public getDeviceID (): string {
+    return (this.device as any).deviceID
+  }
+
+  public async getDeviceInfo(): Promise<any> {
+    return await getDeviceInfo(this.transport)
   }
 
   public async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
