@@ -193,10 +193,6 @@ export interface HDWallet extends HDWalletInfo {
   _supportsETH: boolean
   _supportsDebugLink: boolean
 
-  _isKeepKey: boolean
-  _isLedger: boolean
-  _isTrezor: boolean
-
   transport: Transport
 
   /**
