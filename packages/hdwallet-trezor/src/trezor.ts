@@ -300,8 +300,6 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
   _supportsBTC: boolean = true
   _supportsETH: boolean = true
   _isTrezor: boolean = true
-  _isKeepKey: boolean = false
-  _isLedger: boolean = false
 
   transport: TrezorTransport
   featuresCache: any

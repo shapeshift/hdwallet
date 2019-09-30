@@ -76,16 +76,17 @@ import {
   
   }
 
-  
+  export function isPortis(wallet: any): wallet is PortisHDWallet {
+    return typeof wallet === 'object' && wallet._isPortis === true
+  }
+
   export class PortisHDWallet implements HDWallet, ETHWallet {
     _supportsETH: boolean = true
     _supportsETHInfo: boolean = true
     _supportsBTCInfo: boolean = false
     _supportsBTC: boolean = false
     _supportsDebugLink: boolean = false
-    _isKeepKey: boolean = false
-    _isLedger: boolean = false
-    _isTrezor: boolean = false
+    _isPortis: boolean = true
 
     transport = new PortisTransport(new Keyring())
     
