@@ -185,7 +185,7 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
     return Btc.btcSupportsCoin(coin)
   }
 
-  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> { 
+  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
     return Btc.btcSupportsScriptType(coin, scriptType)
   }
 
@@ -328,6 +328,11 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
 
     let features = await this.getFeatures(/*cached*/true)
     return features.device_id
+  }
+
+  public async getFirmwareVersion (): Promise<string> {
+    let features = await this.getFeatures(/*cached*/true)
+    return `${features.majorVersion}${features.minorVersion}${features.patchVersion}`
   }
 
   public getVendor (): string {
@@ -480,7 +485,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return this.info.btcSupportsCoin(coin)
   }
 
-  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> { 
+  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
     return this.info.btcSupportsScriptType(coin, scriptType)
   }
 

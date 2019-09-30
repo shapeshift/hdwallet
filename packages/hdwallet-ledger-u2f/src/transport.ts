@@ -2,6 +2,7 @@ import { makeEvent, Keyring } from '@shapeshiftoss/hdwallet-core'
 import { LedgerTransport, LedgerResponse } from '@shapeshiftoss/hdwallet-ledger'
 import Eth from '@ledgerhq/hw-app-eth'
 import Btc from '@ledgerhq/hw-app-btc'
+import getDeviceInfo from '@ledgerhq/live-common/lib/hw/getDeviceInfo'
 
 const RECORD_CONFORMANCE_MOCKS = false
 
@@ -22,6 +23,10 @@ export class LedgerU2FTransport extends LedgerTransport {
 
   public getDeviceID (): string {
     return this.device.deviceID
+  }
+
+  public async getDeviceInfo(): Promise<any> {
+    return await getDeviceInfo(this.transport)
   }
 
   public async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {

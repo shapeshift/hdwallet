@@ -1,5 +1,5 @@
 import { create as createLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { Events, Keyring, HDWallet, WebUSBNotAvailable, WebUSBCouldNotPair } from '@shapeshiftoss/hdwallet-core'
+import { Events, Keyring, HDWallet, WebUSBNotAvailable, WebUSBCouldNotPair, ConflictingApp } from '@shapeshiftoss/hdwallet-core'
 import { LedgerWebUsbTransport } from './transport'
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
 
@@ -44,6 +44,9 @@ export class WebUSBLedgerAdapter {
         ledgerTransport = await TransportWebUSB.open(device)
       } catch (e) {
         console.error(`Could not initialize ${device.manufacturerName} ${device.productName}.`, e)
+        if (e.name === 'TransportInterfaceNotAvailable') {
+          throw new ConflictingApp('Ledger')
+        }
         continue
       }
 
@@ -64,6 +67,9 @@ export class WebUSBLedgerAdapter {
     try {
       transport = await TransportWebUSB.request()
     } catch (err) {
+      if (err.name === 'TransportInterfaceNotAvailable') {
+        throw new ConflictingApp('Ledger')
+      }
       throw new WebUSBCouldNotPair('Ledger', err.message)
     }
 
