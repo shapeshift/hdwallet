@@ -76,8 +76,8 @@ import {
   
   }
 
-  export function isPortis(wallet: any): wallet is PortisHDWallet {
-    return typeof wallet === 'object' && wallet._isPortis === true
+  export function isPortis(wallet: HDWallet): wallet is PortisHDWallet {
+    return typeof wallet === 'object' && (wallet as any)._isPortis === true
   }
 
   export class PortisHDWallet implements HDWallet, ETHWallet {
