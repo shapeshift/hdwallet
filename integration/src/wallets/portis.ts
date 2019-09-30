@@ -45,4 +45,10 @@ export async function createWallet (): Promise<HDWallet> {
 
   return wallet
 }
+
+export function createInfo (): HDWalletInfo {
+  return info()
+}
+
+export function selfTest (get: () => HDWallet): void {}
   
