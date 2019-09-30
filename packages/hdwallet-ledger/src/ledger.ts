@@ -388,8 +388,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
       var { payload: { publicKey, chainCode } } = res
       publicKey = compressPublicKey(publicKey)
 
-      const coinType: number = parseInt(bip32path.split("/")[1], 10)
-      const coinDetails: any = networksUtil[coinType]
+      const coinDetails: any = networksUtil[core.slip44ByCoin(coin)]
       const account: number = parseInt(bip32path.split("/")[2], 10)
       const childNum: number = (0x80000000 | account) >>> 0
 
