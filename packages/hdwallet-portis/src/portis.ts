@@ -303,5 +303,14 @@ import {
     private async _ethGetAddress(): Promise<string> {
       return (await this.web3.eth.getAccounts())[0]
     }
+
+    public async getFirmwareVersion(): Promise<string> {
+      return 'portis'
+    }
   }
   
+export function info () {
+  return {
+    what: 'the fuck'
+  }
+}

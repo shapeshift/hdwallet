@@ -34,9 +34,11 @@ export class PortisAdapter {
   public async pairDevice (): Promise<HDWallet> {
     const wallet = this.pairPortisDevice()
     this.portis.onActiveWalletChanged( async walletAddress => {
-      this.keyring.emit(["Portis", this.currentDeviceId, Events.DISCONNECT], this.currentDeviceId)
-      this.keyring.remove(this.currentDeviceId)
-      this.pairPortisDevice()
+      if(walletAddress.toLowerCase() !== this.currentDeviceId.toLowerCase()) {
+        this.keyring.emit(["Portis", this.currentDeviceId, Events.DISCONNECT], this.currentDeviceId)
+        this.keyring.remove(this.currentDeviceId)
+        this.pairPortisDevice()
+      }
     })
     return wallet
   }
