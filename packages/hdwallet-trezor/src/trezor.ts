@@ -48,7 +48,7 @@ import * as Eth from './ethereum'
 import { TrezorTransport } from './transport'
 
 export function isTrezor(wallet: HDWallet): wallet is TrezorHDWallet {
-  return typeof wallet === 'object' && wallet._isTrezor === true
+  return typeof wallet === 'object' && (wallet as any)._isTrezor === true
 }
 
 function describeETHPath (path: BIP32Path): PathDescription {
@@ -300,8 +300,6 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
   _supportsBTC: boolean = true
   _supportsETH: boolean = true
   _isTrezor: boolean = true
-  _isKeepKey: boolean = false
-  _isLedger: boolean = false
 
   transport: TrezorTransport
   featuresCache: any
