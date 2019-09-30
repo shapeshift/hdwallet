@@ -23,7 +23,9 @@ import {
   BIP32Path,
   slip44ByCoin,
   Transport,
-  Keyring
+  Keyring,
+  HDWalletInfo,
+  ETHWalletInfo
 } from "@shapeshiftoss/hdwallet-core"
       
   import Web3 from 'web3'
@@ -118,9 +120,9 @@ import {
       return 'Portis'
     }
   
-    public async initialize(): Promise<void> {
-        
+    public async initialize(): Promise<any> {
         console.log('Web3PortisHDWallet initialize called')
+        return {}
     }
   
     public async hasOnDevicePinEntry(): Promise<boolean> {
@@ -309,8 +311,70 @@ import {
     }
   }
   
-export function info () {
-  return {
-    what: 'the fuck'
+  export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo {
+    _supportsBTCInfo: boolean = false
+    _supportsETHInfo: boolean = true
+  
+    public getVendor (): string {
+      return "Portis"
+    }
+  
+    public async ethSupportsNetwork (chain_id: number = 1): Promise<boolean> {
+      return true
+    }
+  
+    public async ethSupportsSecureTransfer (): Promise<boolean> {
+      return false
+    }
+  
+    public async ethSupportsNativeShapeShift (): Promise<boolean> {
+      return false
+    }
+  
+    public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
+      return [{
+        addressNList: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx, 0, 0 ],
+        hardenedPath: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx ],
+        relPath: [ 0, 0 ],
+        description: "Portis"
+      }]
+    }
+  
+    public async hasOnDevicePinEntry (): Promise<boolean> {
+      return false
+    }
+  
+    public async hasOnDevicePassphrase (): Promise<boolean> {
+      return false
+    }
+  
+    public async hasOnDeviceDisplay (): Promise<boolean> {
+      return false
+    }
+  
+    public async hasOnDeviceRecovery (): Promise<boolean> {
+      return false
+    }
+  
+    public async hasNativeShapeShift (srcCoin: Coin, dstCoin: Coin): Promise<boolean> {
+      // It doesn't... yet?
+      return false
+    }
+  
+    public describePath (msg: DescribePath): PathDescription {
+      switch (msg.coin) {
+        case 'Ethereum':
+          return describeETHPath(msg.path)
+        default:
+          throw new Error("Unsupported path")
+        }
+    }
+  
+    public ethNextAccountPath (msg: ETHAccountPath): ETHAccountPath | undefined {
+      // Portis only supports one account for eth
+      return undefined
+    }
   }
+export function info () {
+  return new PortisHDWalletInfo()
 }
