@@ -61,8 +61,8 @@ import * as Btc from "./bitcoin";
 import * as Eth from "./ethereum"
 import { KeepKeyTransport } from "./transport";
 
-export function isKeepKey(wallet: any): wallet is KeepKeyHDWallet {
-  return typeof wallet === 'object' && wallet._isKeepKey === true
+export function isKeepKey(wallet: HDWallet): wallet is KeepKeyHDWallet {
+  return typeof wallet === 'object' && (wallet as any)._isKeepKey === true
 }
 
 function describeETHPath (path: BIP32Path): PathDescription {

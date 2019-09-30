@@ -47,8 +47,8 @@ import * as Btc from './bitcoin'
 import * as Eth from './ethereum'
 import { TrezorTransport } from './transport'
 
-export function isTrezor(wallet: any): wallet is TrezorHDWallet {
-  return typeof wallet === 'object' && wallet._isTrezor === true
+export function isTrezor(wallet: HDWallet): wallet is TrezorHDWallet {
+  return typeof wallet === 'object' && (wallet as any)._isTrezor === true
 }
 
 function describeETHPath (path: BIP32Path): PathDescription {
