@@ -45,18 +45,6 @@ const mockSignERC20TxResponse = {
   raw: '0xf8a20114149441e5560054824ea6b0732e656e3ad64e20e94e4580b844a9059cbb0000000000000000000000001d8ce9022f6284c3a5c317f8f34620107214e54500000000000000000000000000000000000000000000000000000002540be40025a01238fd332545415f09a01470350a5a20abc784dbf875cf58f7460560e66c597fa010efa4dd6fdb381c317db8f815252c2ac0d2a883bd364901dee3dec5b7d3660a'
 }
 
-async function getDevice (keyring: Keyring) {
-  try {
-    const portisAdapter = PortisAdapter.useKeyring(keyring, { portis: mockPortis })
-    const wallet = await portisAdapter.pairDevice()
-    if (wallet)
-      console.log('using mockPortis for tests')
-    return wallet
-  } catch (e) {
-  }
-  return undefined
-}
-
 export async function createWallet (): Promise<HDWallet> {
   // const keyring = new Keyring()
 
