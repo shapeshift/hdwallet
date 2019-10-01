@@ -14,3 +14,4 @@ dist
 .rpt2_*
 .cache
 .npmrc
+junit.xml
