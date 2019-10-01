@@ -1,6 +1,6 @@
-import { crypto } from "bitcoinjs-lib"
+import {crypto} from "bitcoinjs-lib"
 import bs58 from "bs58"
-import { padStart } from "lodash"
+import {padStart} from "lodash"
 import {
   BTCInputScriptType,
   WrongApp,
@@ -8,10 +8,10 @@ import {
   ActionCancelled,
   makeEvent,
 } from '@shapeshiftoss/hdwallet-core'
-import { LedgerTransport } from './transport'
-import { Buffer } from "buffer";
+import {LedgerTransport} from './transport'
+import {Buffer} from "buffer"
 
-export function handleError (transport: LedgerTransport, result: any, message: string): void {
+export function handleError(transport: LedgerTransport, result: any, message: string): void {
   if (result.success)
     return
 
@@ -19,7 +19,7 @@ export function handleError (transport: LedgerTransport, result: any, message: s
 
     // No app selected
     if (result.payload.error.includes('0x6700') ||
-        result.payload.error.includes('0x6982')) {
+      result.payload.error.includes('0x6982')) {
       throw new SelectApp('Ledger', result.coin)
     }
 
@@ -43,12 +43,12 @@ export function handleError (transport: LedgerTransport, result: any, message: s
   }
 }
 
-export const getderivationModeFromFormat = (format:string):string => {
+export const getderivationModeFromFormat = (format: string): string => {
   let derivationMode
   switch (format) {
     case "bech32":
       derivationMode = "segwit"
-      break;
+      break
     default:
       derivationMode = ""
   }
@@ -89,7 +89,7 @@ export const parseHexString = (str) => {
   return result
 }
 
-export const encodeBase58Check = (vchIn)  => {
+export const encodeBase58Check = (vchIn) => {
   vchIn = parseHexString(vchIn)
   var chksum = crypto.sha256(vchIn)
   chksum = crypto.sha256(chksum)
@@ -106,13 +106,13 @@ export const createXpub = (
   publicKey,
   network
 ) => {
-  var xpub = toHexInt(network);
-  xpub = xpub + padStart(depth.toString(16), 2, "0");
-  xpub = xpub + padStart(fingerprint.toString(16), 8, "0");
-  xpub = xpub + padStart(childnum.toString(16), 8, "0");
-  xpub = xpub + chaincode;
-  xpub = xpub + publicKey;
-  return xpub;
+  var xpub = toHexInt(network)
+  xpub = xpub + padStart(depth.toString(16), 2, "0")
+  xpub = xpub + padStart(fingerprint.toString(16), 8, "0")
+  xpub = xpub + padStart(childnum.toString(16), 8, "0")
+  xpub = xpub + chaincode
+  xpub = xpub + publicKey
+  return xpub
 }
 
 const toHexInt = (number) => (
@@ -264,7 +264,12 @@ export const networksUtil = {
     apiName: "ppc",
     bitcoinjs: {
       messagePrefix: "PPCoin Signed Message:",
-      bip32: { public: 3874023909, private: 87393172 },
+      bip32: {
+        public: {
+          p2pkh: 3874023909
+        },
+        private: 87393172
+      },
       pubKeyHash: 55,
       scriptHash: 117,
       wif: 128
@@ -280,7 +285,12 @@ export const networksUtil = {
     apiName: "via",
     bitcoinjs: {
       messagePrefix: "Viacoin Signed Message:",
-      bip32: { public: 76067358, private: 87393172 },
+      bip32: {
+        public: {
+          p2pkh: 76067358
+        },
+        private: 87393172
+      },
       pubKeyHash: 71,
       scriptHash: 33,
       wif: 128

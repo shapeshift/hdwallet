@@ -324,11 +324,6 @@ $getXpubs.on('click', (e) => {
     scriptType: BTCInputScriptType.SpendP2SHWitness
   }, {
     coin: 'Bitcoin',
-    addressNList: bip32ToAddressNList(`m/49'/0'/0'`),
-    curve: 'secp256k1',
-    scriptType: BTCInputScriptType.SpendAddress
-  }, {
-    coin: 'Bitcoin',
     addressNList: bip32ToAddressNList(`m/84'/0'/0'`),
     curve: 'secp256k1',
     scriptType: BTCInputScriptType.SpendWitness

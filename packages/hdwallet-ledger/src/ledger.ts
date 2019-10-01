@@ -352,7 +352,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return
   }
 
-  // Adapted from https://github.com/LedgerHQ/ledger-wallet-webtool
+  // Adapted from https://github.com/LedgerHQ/ledger-wallet-webtoolhttps://files.slack.com/files-pri/T0ZGDFQ4R-FNXNLV8FN/image_from_ios.png
   public async getPublicKeys (msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey>> {
     const xpubs = []
 
@@ -366,6 +366,9 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
         verify: false,
         format: translateScriptType(scriptType) || 'legacy'
       }
+
+      console.log('Logging btcOpts')
+      console.log(btcOpts)
 
       const opts = coin === 'Ethereum' ? undefined : btcOpts
 
