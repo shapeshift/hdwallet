@@ -14,7 +14,7 @@ import {
 } from './utils'
 
 export function isLedger (wallet: core.HDWallet): wallet is LedgerHDWallet {
-  return typeof wallet === 'object' && wallet._isLedger === true
+  return typeof wallet === 'object' && (wallet as any)._isLedger === true
 }
 
 function describeETHPath (path: core.BIP32Path): core.PathDescription {
@@ -297,8 +297,6 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   _supportsBTC: boolean = true
   _supportsETH: boolean = true
 
-  _isKeepKey: boolean = false
-  _isTrezor: boolean = false
   _isLedger: boolean = true
 
   transport: LedgerTransport
