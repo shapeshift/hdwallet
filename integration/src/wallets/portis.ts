@@ -1,21 +1,10 @@
 import {
-  Keyring,
   HDWallet,
-  BTCWallet,
   ETHWallet,
-  Events,
-  supportsDebugLink,
-  supportsBTC,
   supportsETH,
-  bip32ToAddressNList,
-  ActionCancelled,
   HDWalletInfo,
-  BTCInputScriptType,
 } from '@shapeshiftoss/hdwallet-core'
-import { PortisAdapter, PortisHDWallet, PortisHDWalletInfo, isPortis, info, create } from '@shapeshiftoss/hdwallet-portis'
-import * as debug from 'debug'
-
-const log = debug.default('portis')
+import { PortisAdapter, PortisHDWallet, isPortis, info, create } from '@shapeshiftoss/hdwallet-portis'
 
 export function name (): string {
   return 'Portis'
@@ -46,10 +35,6 @@ const mockSignERC20TxResponse = {
 }
 
 export async function createWallet (): Promise<HDWallet> {
-  // const keyring = new Keyring()
-
-  // const wallet = await getDevice(keyring)
-
   const wallet = create(mockPortis)
 
   if (!wallet)
@@ -70,6 +55,7 @@ export async function createWallet (): Promise<HDWallet> {
       }
     },
   }
+  // end mocking
 
   return wallet
 }
