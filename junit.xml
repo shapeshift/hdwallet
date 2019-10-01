@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="26" failures="0" time="3.726">
+  <testsuite name="Portis" errors="0" failures="0" skipped="0" timestamp="2019-10-01T21:33:14" time="3.682" tests="26">
+    <testcase classname="Portis Type Guards has only one vendor" name="Portis Type Guards has only one vendor" time="0.003">
+    </testcase>
+    <testcase classname="Portis ETHWallet Ethereum ethSupportsNetwork()" name="Portis ETHWallet Ethereum ethSupportsNetwork()" time="0.002">
+    </testcase>
+    <testcase classname="Portis ETHWallet Ethereum ethSupportsNativeShapeShift()" name="Portis ETHWallet Ethereum ethSupportsNativeShapeShift()" time="0.001">
+    </testcase>
+    <testcase classname="Portis ETHWallet Ethereum ethSupportsSecureTransfer()" name="Portis ETHWallet Ethereum ethSupportsSecureTransfer()" time="0">
+    </testcase>
+    <testcase classname="Portis ETHWallet Ethereum ethGetAccountPaths()" name="Portis ETHWallet Ethereum ethGetAccountPaths()" time="0.001">
+    </testcase>
+    <testcase classname="Portis ETHWallet Ethereum ethGetAddress()" name="Portis ETHWallet Ethereum ethGetAddress()" time="0.002">
+    </testcase>
+    <testcase classname="Portis ETHWallet Ethereum ethSignTx() - ETH" name="Portis ETHWallet Ethereum ethSignTx() - ETH" time="0.001">
+    </testcase>
+    <testcase classname="Portis ETHWallet Ethereum ethSignTx() - ERC20" name="Portis ETHWallet Ethereum ethSignTx() - ERC20" time="0.001">
+    </testcase>
+    <testcase classname="Portis ETHWallet Ethereum ethSignMessage()" name="Portis ETHWallet Ethereum ethSignMessage()" time="0.001">
+    </testcase>
+    <testcase classname="Portis ETHWallet Ethereum ethVerifyMessage()" name="Portis ETHWallet Ethereum ethVerifyMessage()" time="0">
+    </testcase>
+    <testcase classname="Portis BTCWallet Bitcoin isInitialized()" name="Portis BTCWallet Bitcoin isInitialized()" time="0">
+    </testcase>
+    <testcase classname="Portis BTCWallet Bitcoin btcSupportsCoin()" name="Portis BTCWallet Bitcoin btcSupportsCoin()" time="0">
+    </testcase>
+    <testcase classname="Portis BTCWallet Bitcoin btcGetAddress()" name="Portis BTCWallet Bitcoin btcGetAddress()" time="0">
+    </testcase>
+    <testcase classname="Portis BTCWallet Bitcoin btcSignTx() - p2pkh" name="Portis BTCWallet Bitcoin btcSignTx() - p2pkh" time="0">
+    </testcase>
+    <testcase classname="Portis BTCWallet Bitcoin btcSignMessage()" name="Portis BTCWallet Bitcoin btcSignMessage()" time="0">
+    </testcase>
+    <testcase classname="Portis BTCWallet Bitcoin btcVerifyMessage()" name="Portis BTCWallet Bitcoin btcVerifyMessage()" time="0">
+    </testcase>
+    <testcase classname="Portis BTCWallet Bitcoin btcSupportsSecureTransfer()" name="Portis BTCWallet Bitcoin btcSupportsSecureTransfer()" time="0.001">
+    </testcase>
+    <testcase classname="Portis BTCWallet Bitcoin btcSupportsNativeShapeShift()" name="Portis BTCWallet Bitcoin btcSupportsNativeShapeShift()" time="0">
+    </testcase>
+    <testcase classname="Portis BTCWallet Bitcoin btcGetAccountPaths()" name="Portis BTCWallet Bitcoin btcGetAccountPaths()" time="0.001">
+    </testcase>
+    <testcase classname="Portis BTCWallet Bitcoin btcIsSameAccount()" name="Portis BTCWallet Bitcoin btcIsSameAccount()" time="0">
+    </testcase>
+    <testcase classname="Portis BTCWallet Testnet btcSignTx() - p2sh-p2pkh" name="Portis BTCWallet Testnet btcSignTx() - p2sh-p2pkh" time="0.001">
+    </testcase>
+    <testcase classname="Portis BTCWallet Testnet btcSignTx() - p2wpkh" name="Portis BTCWallet Testnet btcSignTx() - p2wpkh" time="0">
+    </testcase>
+    <testcase classname="Portis BTCWallet Litecoin btcGetAddress()" name="Portis BTCWallet Litecoin btcGetAddress()" time="0.001">
+    </testcase>
+    <testcase classname="Portis BTCWallet Litecoin btcGetAccountPaths()" name="Portis BTCWallet Litecoin btcGetAccountPaths()" time="0">
+    </testcase>
+    <testcase classname="Portis BTCWallet Litecoin btcIsSameAccount()" name="Portis BTCWallet Litecoin btcIsSameAccount()" time="0">
+    </testcase>
+    <testcase classname="Portis SelfTest supports Ethereum mainnet" name="Portis SelfTest supports Ethereum mainnet" time="0">
+    </testcase>
+  </testsuite>
+</testsuites>
