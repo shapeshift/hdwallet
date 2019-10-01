@@ -17,8 +17,6 @@ import * as debug from 'debug'
 
 const log = debug.default('portis')
 
-const portisAppId = 'ff763d3d-9e34-45a1-81d1-caa39b9c64f9'
-
 export function name (): string {
   return 'Portis'
 }
