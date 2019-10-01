@@ -389,9 +389,11 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
       const coinDetails: any = networksUtil[core.slip44ByCoin(coin)]
       const account: number = parseInt(bip32path.split("/")[2], 10)
       const childNum: number = (0x80000000 | account) >>> 0
+      scriptType = scriptType || core.BTCInputScriptType.SpendAddress
       const networkMagic = coinDetails.bitcoinjs.bip32.public[scriptType] // todo: every coinDetail needs this 'p2pkh'
       console.log(`logging magic for ${coin} w/ scriptType ${scriptType}....magic is ${networkMagic}`)
-      const xpub = createXpub(
+
+      let xpub = createXpub(
         3,
         fingerprint,
         childNum,
