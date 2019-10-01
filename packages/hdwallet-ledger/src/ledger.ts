@@ -359,14 +359,14 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     const xpubs = []
 
     for (const getPublicKey of msg) {
-      const { addressNList, coin } = getPublicKey
+      let { addressNList, coin, scriptType } = getPublicKey
 
       const bip32path: string = core.addressNListToBIP32(addressNList.slice(0, 3)).substring(2)
       const prevBip32path: string = core.addressNListToBIP32(addressNList.slice(0, 2)).substring(2)
 
       const btcOpts = {
         verify: false,
-        format: translateScriptType(getPublicKey.scriptType) || 'legacy'
+        format: translateScriptType(scriptType) || 'legacy'
       }
 
       const opts = coin === 'Ethereum' ? undefined : btcOpts
@@ -391,14 +391,15 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
       const coinDetails: any = networksUtil[core.slip44ByCoin(coin)]
       const account: number = parseInt(bip32path.split("/")[2], 10)
       const childNum: number = (0x80000000 | account) >>> 0
-
-      let xpub = createXpub(
+      const networkMagic = coinDetails.bitcoinjs.bip32.public[scriptType] // todo: every coinDetail needs this 'p2pkh'
+      console.log(`logging magic for ${coin} w/ scriptType ${scriptType}....magic is ${networkMagic}`)
+      const xpub = createXpub(
         3,
         fingerprint,
         childNum,
         chainCode,
         publicKey,
-        coinDetails.bitcoinjs.bip32.public
+        networkMagic
       )
       xpub = encodeBase58Check(xpub)
 

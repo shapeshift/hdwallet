@@ -56,7 +56,7 @@ export async function btcSupportsScriptType (coin: Coin, scriptType: BTCInputScr
     Bitcoin: [
       BTCInputScriptType.SpendAddress,
       BTCInputScriptType.SpendWitness,
-      BTCInputScriptType.SpendP2SHWitness
+      BTCInputScriptType.SpendP2SHWitness //p2sh
     ],
     BitcoinCash: [
       BTCInputScriptType.SpendAddress

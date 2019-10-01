@@ -132,7 +132,12 @@ export const networksUtil = {
       bech32: "bc",
       bip32: {
         private: 76066276,
-        public: 76067358
+        public: {
+          p2pkh: 76067358,
+          p2sh: 77429938,
+          p2wpkh: 78792518,
+          'p2sh-p2wpkh': 77429938
+        }
       },
       messagePrefix: "Bitcoin Signed Message:",
       pubKeyHash: 0,
@@ -151,7 +156,12 @@ export const networksUtil = {
       bech32: "bc",
       bip32: {
         private: 70615956,
-        public: 70617039
+        public: {
+          p2pkh: 76067358,
+          p2sh: 71979618,
+          p2wpkh: 73342198,
+          'p2sh-p2wpkh': 71979618
+        }
       },
       messagePrefix: "Bitcoin Signed Message:",
       pubKeyHash: 111,
@@ -171,7 +181,9 @@ export const networksUtil = {
       bech32: "bc",
       bip32: {
         private: 0x019d9cfe,
-        public: 0x019da462
+        public: {
+          p2pkh: 27108450,
+        }
       },
       messagePrefix: "Litecoin Signed Message:",
       pubKeyHash: 48,
@@ -189,7 +201,9 @@ export const networksUtil = {
       bech32: "bc",
       bip32: {
         private: 76066276,
-        public: 76067358
+        public: {
+          p2pkh: 76067358,
+        }
       },
       messagePrefix: "Bitcoin Signed Message:",
       pubKeyHash: 0,
@@ -208,7 +222,10 @@ export const networksUtil = {
     name: "Vertcoin",
     bitcoinjs: {
       bip32: {
-        public: 0x0488b21e,
+        public: {
+          p2pkh: 76067358,
+          p2sh: 77429938
+        },
         private: 0x05358394
       },
       messagePrefix: "Vertcoin Signed Message:",
@@ -225,8 +242,13 @@ export const networksUtil = {
     unit: "DASH",
     apiName: "dash",
     bitcoinjs: {
-      messagePrefix: "DarkCoin Signed Message:",
-      bip32: { public: 50221816, private: 87393172 },
+      messagePrefix: "Dash Signed Message:",
+      bip32: {
+        public: {
+          p2pkh: 50221772
+        },
+        private: 87393172
+      },
       pubKeyHash: 76,
       scriptHash: 16,
       wif: 128
