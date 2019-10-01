@@ -284,6 +284,7 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
       addressNList[4] += 1
       return {
         ...msg,
+        addressNList,
         hardenedPath: hardenedPath(addressNList),
         relPath: relativePath(addressNList)
       }
