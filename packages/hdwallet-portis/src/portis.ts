@@ -213,8 +213,8 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   }
 
   public async ethVerifyMessage (msg: ETHVerifyMessage): Promise<boolean> {
-    console.log('Web3PortisHDWallet ethSupportsNativeShapeShift')
-    return false
+    const signingAddress = await this.web3.eth.accounts.recover(msg.message, msg.signature)
+    return signingAddress === msg.address
   }
 
   public describePath (msg: DescribePath): PathDescription {

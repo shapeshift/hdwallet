@@ -24,6 +24,7 @@ export function name (): string {
 }
 
 const mockPortis = {
+  loadDevice: () => Promise.resolve(),
   provider: {}
 }
 
