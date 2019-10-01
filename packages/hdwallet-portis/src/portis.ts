@@ -319,7 +319,7 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo {
   }
 
   public async ethSupportsNetwork (chain_id: number = 1): Promise<boolean> {
-    return true
+    return chain_id === 1
   }
 
   public async ethSupportsSecureTransfer (): Promise<boolean> {
