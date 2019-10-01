@@ -182,21 +182,19 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
     console.log('Web3PortisHDWallet cancel')
     throw new Error("Method not implemented.");
   }
-  wipe(): Promise<void> {
-    console.log('Web3PortisHDWallet wipe')
-    throw new Error("Method not implemented.");
+  public wipe(): Promise<void> {
+    return Promise.resolve()
   }
-  reset(msg: ResetDevice): Promise<void> {
-    console.log('Web3PortisHDWallet reset')
-    throw new Error("Method not implemented.");
+  public reset(msg: ResetDevice): Promise<void> {
+    return Promise.resolve()
   }
   recover(msg: RecoverDevice): Promise<void> {
     console.log('Web3PortisHDWallet recover')
     throw new Error("Method not implemented.");
   }
-  loadDevice(msg: LoadDevice): Promise<void> {
-    console.log('Web3PortisHDWallet loadDevice')
-    throw new Error("Method not implemented.");
+
+  public loadDevice (msg: LoadDevice): Promise<void> {
+    return this.portis.importWallet(msg.mnemonic)
   }
 
   public async ethSupportsNetwork (chain_id: number = 1): Promise<boolean> {
@@ -379,4 +377,8 @@ public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
 
 export function info () {
   return new PortisHDWalletInfo()
+}
+
+export function create (portis): PortisHDWallet {
+  return new PortisHDWallet(portis)
 }
