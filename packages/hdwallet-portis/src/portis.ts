@@ -213,7 +213,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   }
 
   public async ethVerifyMessage (msg: ETHVerifyMessage): Promise<boolean> {
-    const signingAddress = await this.web3.eth.accounts.recover(msg.message, msg.signature)
+    const signingAddress = await this.web3.eth.accounts.recover(msg.message, ('0x' + msg.signature), false)
     return signingAddress === msg.address
   }
 
