@@ -95,6 +95,9 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   portis: any
   web3: any
 
+  // used as a mutex to ensure calls to portis.getExtendedPublicKey cannot happen before a previous call has resolved
+  xpubCallInProgress: Promise<any> = Promise.resolve()
+
   constructor(portis) {
     this.portis = portis
     this.web3 = new Web3(portis.provider);
@@ -237,11 +240,17 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
 
   // TODO this needs to handle more than just eth
   public async getPublicKeys(msg: GetPublicKey[]): Promise<PublicKey[]> {
-    const portisResult = await this.portis.getExtendedPublicKey("m/44'/60'/0'")
-    const { result, error } = portisResult
-    if (result) {
-      return [{ xpub: result }]
-    }
+    await this.xpubCallInProgress
+    this.xpubCallInProgress = new Promise( async (resolve, reject) => {
+      const portisResult = await this.portis.getExtendedPublicKey("m/44'/60'/0'")
+      const { result, error } = portisResult
+
+      if(error) {
+        return reject(error)
+      }
+      return resolve([{ xpub: result }])
+    })
+    return this.xpubCallInProgress
   }
 
   public async ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx> {
