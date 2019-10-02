@@ -66,7 +66,7 @@ export function createInfo (): HDWalletInfo {
 export function selfTest (get: () => HDWallet): void {
   let wallet: PortisHDWallet & ETHWallet & HDWallet
 
-  beforeAll(async () => {
+  beforeAll(() => {
     let w = get()
     if (isPortis(w) && supportsETH(w))
       wallet = w
