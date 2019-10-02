@@ -107,23 +107,21 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   }
 
   public getVendor(): string {
-    console.log('web3Portis getVendor')
-    return "portis"
+    return "Portis"
   }
 
-  public async getModel(): Promise<string> {
-    console.log('web3Portis getModel')
-    return 'portis'
+  public getModel(): Promise<string> {
+    return Promise.resolve('portis')
   }
 
-  public async getLabel(): Promise<string> {
-    console.log('web3Portis getLabel')
-    return 'Portis'
+  public getLabel(): Promise<string> {
+    return Promise.resolve('Portis')
   }
 
-  public async initialize(): Promise<any> {
-      console.log('Web3PortisHDWallet initialize called')
-      return {}
+  public initialize(): Promise<any> {
+    // no means to reset the state of the Portis widget
+    // while it's in the middle of execution
+    return Promise.resolve()
   }
 
   public async hasOnDevicePinEntry(): Promise<boolean> {
@@ -139,7 +137,6 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   }
 
   public async hasOnDeviceRecovery(): Promise<boolean> {
-    console.log('Web3PortisHDWallet hasOnDeviceRecovery')
     return true;
   }
 
@@ -151,44 +148,51 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
     return false;
   }
 
-  clearSession(): Promise<void> {
+  public clearSession(): Promise<void> {
     return this.portis.logout()
   }
 
-  ping(msg: Ping): Promise<Pong> {
+  public ping(msg: Ping): Promise<Pong> {
     // no ping function for Portis, so just returning Pong
     return Promise.resolve({ msg: msg.msg })
   }
 
-  sendPin(pin: string): Promise<void> {
+  public sendPin(pin: string): Promise<void> {
     // no concept of pin in Portis
     return Promise.resolve()
   }
-  sendPassphrase(passphrase: string): Promise<void> {
-    console.log('Web3PortisHDWallet sendPassphrase')
-    throw new Error("Method not implemented.");
+
+  public sendPassphrase(passphrase: string): Promise<void> {
+    // cannot send passphrase to Portis. Could show the widget?
+    return Promise.resolve()
   }
-  sendCharacter(charater: string): Promise<void> {
-    console.log('Web3PortisHDWallet sendCharacter')
-    throw new Error("Method not implemented.");
+
+  public sendCharacter(charater: string): Promise<void> {
+    // no concept of sendCharacter in Portis
+    return Promise.resolve()
   }
-  sendWord(word: string): Promise<void> {
-    console.log('Web3PortisHDWallet sendWord')
-    throw new Error("Method not implemented.");
+
+  public sendWord(word: string): Promise<void> {
+    // no concept of sendWord in Portis
+    return Promise.resolve()
   }
-  cancel(): Promise<void> {
-    console.log('Web3PortisHDWallet cancel')
-    throw new Error("Method not implemented.");
+
+  public cancel(): Promise<void> {
+    // no concept of cancel in Portis
+    return Promise.resolve()
   }
+
   public wipe(): Promise<void> {
     return Promise.resolve()
   }
+
   public reset(msg: ResetDevice): Promise<void> {
     return Promise.resolve()
   }
-  recover(msg: RecoverDevice): Promise<void> {
-    console.log('Web3PortisHDWallet recover')
-    throw new Error("Method not implemented.");
+
+  public recover(msg: RecoverDevice): Promise<void> {
+    // no concept of recover in Portis
+    return Promise.resolve()
   }
 
   public loadDevice (msg: LoadDevice): Promise<void> {
@@ -328,8 +332,8 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo {
     return false
   }
 
-public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
-  return [{
+  public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
+    return [{
       addressNList: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx, 0, 0 ],
       hardenedPath: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx ],
       relPath: [ 0, 0 ],
@@ -342,11 +346,11 @@ public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
   }
 
   public async hasOnDevicePassphrase (): Promise<boolean> {
-    return false
+    return true
   }
 
   public async hasOnDeviceDisplay (): Promise<boolean> {
-    return false
+    return true
   }
 
   public async hasOnDeviceRecovery (): Promise<boolean> {

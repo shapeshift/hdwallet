@@ -274,7 +274,7 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
   }
 
   public async hasOnDeviceRecovery(): Promise<boolean> {
-    return false;
+    return true;
   }
 
   public async hasNativeShapeShift(
