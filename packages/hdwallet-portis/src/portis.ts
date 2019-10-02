@@ -247,7 +247,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
         const portisResult = await this.portis.getExtendedPublicKey(addressNListToBIP32(addressNList))
         const { result, error } = portisResult
         if(error) {
-          return reject(error)
+          console.log('getPublicKeys error', error)
         }
         publicKeys.push({ xpub: result })
       }
