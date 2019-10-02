@@ -286,7 +286,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   }
 
   public async getDeviceID(): Promise<string> {
-    return 'portis:' + this._ethGetAddress()
+    return 'portis:' + (await this._ethGetAddress())
   }
 
   private async _ethGetAddress(): Promise<string> {
