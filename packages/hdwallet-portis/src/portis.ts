@@ -1,3 +1,5 @@
+import * as eventemitter2 from 'eventemitter2'
+import Web3 from 'web3'
 import {
   HDWallet,
   GetPublicKey,
@@ -27,8 +29,6 @@ import {
   HDWalletInfo,
   ETHWalletInfo
 } from "@shapeshiftoss/hdwallet-core"
-      
-import Web3 from 'web3'
 
 function describeETHPath (path: BIP32Path): PathDescription {
   let pathStr = addressNListToBIP32(path)
@@ -69,7 +69,7 @@ function describeETHPath (path: BIP32Path): PathDescription {
 // We might not need this. Leaving it for now to debug further
 class PortisTransport extends Transport {
   public getDeviceID() {
-    return '0'
+    return 'portis:0'
   }
 
   public call (...args: any[]): Promise<any> {
@@ -286,7 +286,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   }
 
   public async getDeviceID(): Promise<string> {
-    return this._ethGetAddress()
+    return 'portis:' + this._ethGetAddress()
   }
 
   private async _ethGetAddress(): Promise<string> {
@@ -340,7 +340,7 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo {
   }
 
   public async hasOnDeviceRecovery (): Promise<boolean> {
-    return false
+    return true
   }
 
   public async hasNativeShapeShift (srcCoin: Coin, dstCoin: Coin): Promise<boolean> {
