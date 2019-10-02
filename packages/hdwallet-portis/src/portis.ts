@@ -127,17 +127,14 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   }
 
   public async hasOnDevicePinEntry(): Promise<boolean> {
-    console.log('Web3PortisHDWallet hasOnDevicePinEntry')
-    return true;
+    return false;
   }
 
   public async hasOnDevicePassphrase(): Promise<boolean> {
-    console.log('Web3PortisHDWallet hasOnDevicePassphrase')
     return true;
   }
 
   public async hasOnDeviceDisplay(): Promise<boolean> {
-    console.log('Web3PortisHDWallet hasOnDeviceDisplay')
     return true;
   }
 
@@ -155,16 +152,17 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   }
 
   clearSession(): Promise<void> {
-    console.log('Web3PortisHDWallet clearSession')
-    throw new Error("Method not implemented.");
+    return this.portis.logout()
   }
+
   ping(msg: Ping): Promise<Pong> {
-    console.log('Web3PortisHDWallet ping')
-    throw new Error("Method not implemented.");
+    // no ping function for Portis, so just returning Pong
+    return Promise.resolve({ msg: msg.msg })
   }
+
   sendPin(pin: string): Promise<void> {
-    console.log('Web3PortisHDWallet sendPin')
-    throw new Error("Method not implemented.");
+    // no concept of pin in Portis
+    return Promise.resolve()
   }
   sendPassphrase(passphrase: string): Promise<void> {
     console.log('Web3PortisHDWallet sendPassphrase')

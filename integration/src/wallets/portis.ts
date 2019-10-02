@@ -40,7 +40,7 @@ export async function createWallet (): Promise<HDWallet> {
   if (!wallet)
     throw new Error("No Portis wallet found")
 
-  // mock web3.eth.accounts
+  // mock web3.eth
   // this feels bad man, would be better to test against a debug verision of Portis should it ever exist
   wallet.web3 = {
     eth: {
