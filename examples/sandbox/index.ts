@@ -77,7 +77,7 @@ $keepkey.on('click', async (e) => {
   e.preventDefault()
   wallet = await keepkeyAdapter.pairDevice(undefined, /*tryDebugLink=*/true)
   listen(wallet.transport)
-  window['wallet'] = wallet  
+  window['wallet'] = wallet
   $('#keyring select').val(wallet.transport.getDeviceID())
 })
 

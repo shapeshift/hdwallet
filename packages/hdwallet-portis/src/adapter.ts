@@ -32,7 +32,7 @@ export class PortisAdapter {
   }
 
   public async pairDevice (): Promise<HDWallet> {
-    const wallet = this.pairPortisDevice()
+    const wallet = await this.pairPortisDevice()
     this.portis.onActiveWalletChanged( async wallAddr => {
       // check if currentDeviceId has changed
       const walletAddress = 'portis:' + wallAddr
