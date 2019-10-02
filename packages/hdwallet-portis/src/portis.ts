@@ -238,13 +238,12 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
     return Promise.resolve()
   }
 
-  // TODO this needs to handle more than just eth
   public async getPublicKeys(msg: GetPublicKey[]): Promise<PublicKey[]> {
-    await this.xpubCallInProgress
     const publicKeys = []
     this.xpubCallInProgress = new Promise( async (resolve, reject) => {
+      await this.xpubCallInProgress
       for (let i = 0; i < msg.length; i++) {
-        const { coin, addressNList, curve, showDisplay, scriptType } = msg[i];
+        const { addressNList } = msg[i];
         const portisResult = await this.portis.getExtendedPublicKey(addressNListToBIP32(addressNList))
         const { result, error } = portisResult
         if(error) {
