@@ -96,13 +96,11 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   web3: any
 
   constructor(portis) {
-    console.log('Web3PortisHDWallet constructor called')
     this.portis = portis
     this.web3 = new Web3(portis.provider);
   }
 
   public async isLocked(): Promise<boolean> {
-    console.log('portis isLocked')
     return false;
   }
 
@@ -144,7 +142,6 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
     srcCoin: Coin,
     dstCoin: Coin
   ): Promise<boolean> {
-    console.log('Web3PortisHDWallet hasNativeShapeShift')
     return false;
   }
 
@@ -200,17 +197,14 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   }
 
   public async ethSupportsNetwork (chain_id: number = 1): Promise<boolean> {
-    console.log('Web3PortisHDWallet ethSupportsNetwork')
     return true
   }
 
   public async ethSupportsSecureTransfer (): Promise<boolean> {
-    console.log('Web3PortisHDWallet ethSupportsSecureTransfer')
     return false
   }
 
   public async ethSupportsNativeShapeShift (): Promise<boolean> {
-    console.log('Web3PortisHDWallet ethSupportsNativeShapeShift')
     return false
   }
 
@@ -232,22 +226,17 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
     // Portis only supports one account for eth
     return undefined
   }
-  
-  // TODO Methods below must be implemented
 
   public async isInitialized (): Promise<boolean> {
-    console.log('Web3PortisHDWallet isInitialized')
     return false
   }
 
   public disconnect (): Promise<void> {
-    console.log('Web3PortisHDWallet disconnect')
     return Promise.resolve()
   }
 
   // TODO this needs to handle more than just eth
   public async getPublicKeys(msg: GetPublicKey[]): Promise<PublicKey[]> {
-    console.log('GET PUBLIC KEYS')
     const portisResult = await this.portis.getExtendedPublicKey("m/44'/60'/0'")
     const { result, error } = portisResult
     if (result) {
@@ -274,7 +263,6 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   }
 
   public async ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage> {
-    console.log('Web3PortisHDWallet ethSignMessage')
 
     const address = await this._ethGetAddress()
     const result = await this.web3.eth.sign(msg.message, address)
@@ -294,12 +282,10 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   }
 
   public async ethGetAddress (msg: ETHGetAddress): Promise<string> {
-    console.log('Web3PortisHDWallet ethGetAddress')
     return this._ethGetAddress()
   }
 
   public async getDeviceID(): Promise<string> {
-    console.log('Web3PortisHDWallet getDeviceID')
     return this._ethGetAddress()
   }
 
