@@ -78,6 +78,9 @@ class PortisTransport extends Transport {
 
 }
 
+export function isPortis(wallet: HDWallet): wallet is PortisHDWallet {
+  return typeof wallet === 'object' && (wallet as any)._isPortis === true
+}
 
 export class PortisHDWallet implements HDWallet, ETHWallet {
   _supportsETH: boolean = true
@@ -85,9 +88,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   _supportsBTCInfo: boolean = false
   _supportsBTC: boolean = false
   _supportsDebugLink: boolean = false
-  _isKeepKey: boolean = false
-  _isLedger: boolean = false
-  _isTrezor: boolean = false
+  _isPortis: boolean = true
 
   transport = new PortisTransport(new Keyring())
   
@@ -181,21 +182,19 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
     console.log('Web3PortisHDWallet cancel')
     throw new Error("Method not implemented.");
   }
-  wipe(): Promise<void> {
-    console.log('Web3PortisHDWallet wipe')
-    throw new Error("Method not implemented.");
+  public wipe(): Promise<void> {
+    return Promise.resolve()
   }
-  reset(msg: ResetDevice): Promise<void> {
-    console.log('Web3PortisHDWallet reset')
-    throw new Error("Method not implemented.");
+  public reset(msg: ResetDevice): Promise<void> {
+    return Promise.resolve()
   }
   recover(msg: RecoverDevice): Promise<void> {
     console.log('Web3PortisHDWallet recover')
     throw new Error("Method not implemented.");
   }
-  loadDevice(msg: LoadDevice): Promise<void> {
-    console.log('Web3PortisHDWallet loadDevice')
-    throw new Error("Method not implemented.");
+
+  public loadDevice (msg: LoadDevice): Promise<void> {
+    return this.portis.importWallet(msg.mnemonic)
   }
 
   public async ethSupportsNetwork (chain_id: number = 1): Promise<boolean> {
@@ -214,8 +213,8 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   }
 
   public async ethVerifyMessage (msg: ETHVerifyMessage): Promise<boolean> {
-    console.log('Web3PortisHDWallet ethSupportsNativeShapeShift')
-    return false
+    const signingAddress = await this.web3.eth.accounts.recover(msg.message, ('0x' + msg.signature), false)
+    return signingAddress === msg.address
   }
 
   public describePath (msg: DescribePath): PathDescription {
@@ -320,7 +319,7 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo {
   }
 
   public async ethSupportsNetwork (chain_id: number = 1): Promise<boolean> {
-    return true
+    return chain_id === 1
   }
 
   public async ethSupportsSecureTransfer (): Promise<boolean> {
@@ -331,8 +330,8 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo {
     return false
   }
 
-  public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
-    return [{
+public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
+  return [{
       addressNList: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx, 0, 0 ],
       hardenedPath: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx ],
       relPath: [ 0, 0 ],
@@ -378,4 +377,8 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo {
 
 export function info () {
   return new PortisHDWalletInfo()
+}
+
+export function create (portis): PortisHDWallet {
+  return new PortisHDWallet(portis)
 }
