@@ -94,14 +94,16 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   
   portis: any
   web3: any
+  info: PortisHDWalletInfo & HDWalletInfo
 
   constructor(portis) {
     this.portis = portis
-    this.web3 = new Web3(portis.provider);
+    this.web3 = new Web3(portis.provider)
+    this.info = new PortisHDWalletInfo()
   }
 
   public async isLocked(): Promise<boolean> {
-    return false;
+    return false
   }
 
   public getVendor(): string {
@@ -123,26 +125,26 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   }
 
   public async hasOnDevicePinEntry(): Promise<boolean> {
-    return false;
+    return this.info.hasOnDevicePinEntry()
   }
 
   public async hasOnDevicePassphrase(): Promise<boolean> {
-    return true;
+    return this.info.hasOnDevicePassphrase()
   }
 
   public async hasOnDeviceDisplay(): Promise<boolean> {
-    return true;
+    return this.info.hasOnDeviceDisplay()
   }
 
   public async hasOnDeviceRecovery(): Promise<boolean> {
-    return true;
+    return this.info.hasOnDeviceRecovery()
   }
 
   public async hasNativeShapeShift(
     srcCoin: Coin,
     dstCoin: Coin
   ): Promise<boolean> {
-    return false;
+    return false
   }
 
   public clearSession(): Promise<void> {
@@ -196,16 +198,16 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
     return this.portis.importWallet(msg.mnemonic)
   }
 
-  public async ethSupportsNetwork (chain_id: number = 1): Promise<boolean> {
-    return true
+  public async ethSupportsNetwork (chainId: number = 1): Promise<boolean> {
+    return this.info.ethSupportsNetwork(chainId)
   }
 
   public async ethSupportsSecureTransfer (): Promise<boolean> {
-    return false
+    return this.info.ethSupportsSecureTransfer()
   }
 
   public async ethSupportsNativeShapeShift (): Promise<boolean> {
-    return false
+    return this.info.ethSupportsNativeShapeShift()
   }
 
   public async ethVerifyMessage (msg: ETHVerifyMessage): Promise<boolean> {
@@ -218,7 +220,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
     case 'Ethereum':
       return describeETHPath(msg.path)
     default:
-      throw new Error("Unsupported path");
+      throw new Error("Unsupported path")
     }
   }
 
@@ -306,8 +308,8 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo {
     return "Portis"
   }
 
-  public async ethSupportsNetwork (chain_id: number = 1): Promise<boolean> {
-    return chain_id === 1
+  public async ethSupportsNetwork (chainId: number = 1): Promise<boolean> {
+    return chainId === 1
   }
 
   public async ethSupportsSecureTransfer (): Promise<boolean> {

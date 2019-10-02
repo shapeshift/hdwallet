@@ -78,5 +78,19 @@ export function selfTest (get: () => HDWallet): void {
     if (!wallet) return
     expect(await wallet.ethSupportsNetwork(1)).toEqual(true)
   })
+
+  it('prepends portis: to the eth address to create the deviceId', async () => {
+    if (!wallet) return
+    expect(await wallet.getDeviceID()).toEqual('portis:0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8')
+  })
+
+  it('does not support more than one account path', async () => {
+    if (!wallet) return
+    const paths = await wallet.ethGetAccountPaths({ coin: 'Ethereum', accountIdx: 0 })
+    expect(paths.length).toEqual(1)
+    const nextPath = await wallet.ethNextAccountPath(paths[0])
+    expect(nextPath).toBeUndefined()
+  })
+
 }
   
