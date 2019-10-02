@@ -157,9 +157,6 @@ async function deviceConnected (deviceId) {
     console.error('Could not initialize Web3PortisAdapter', e)
   }
   
-
-
-
   for (const [deviceID, wallet] of Object.entries(keyring.wallets)) {
     await deviceConnected(deviceID)
   }
