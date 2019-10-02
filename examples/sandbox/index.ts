@@ -318,35 +318,39 @@ $getXpubs.on('click', (e) => {
   e.preventDefault()
   if (!wallet) { $manageResults.val("No wallet?"); return}
   // Get Ethereum path
-  const { hardenedPath, relPath } = wallet.ethGetAccountPaths({coin: "Ethereum", accountIdx: 0})[0]
+  const { hardenedPath } = wallet.ethGetAccountPaths({coin: "Ethereum", accountIdx: 0})[0]
 
   wallet.getPublicKeys([
     {
-        addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0],
-        curve: "secp256k1",
-        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-        coin: "Bitcoin"
-    },
-    {
-        addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 1],
-        curve: "secp256k1",
-        coin: "Bitcoin"
-    },
-    {
-        addressNList: [0x80000000 + 49, 0x80000000 + 0, 0x80000000 + 0],
-        curve: "secp256k1",
-        coin: "Bitcoin",
-        scriptType: BTCInputScriptType.SpendP2SHWitness
-    },
-    {
-        addressNList: [0x80000000 + 44, 0x80000000 + 2, 0x80000000 + 0],
-        curve: "secp256k1",
-        coin: "Litecoin"
-    },
-    {
-      addressNList: hardenedPath.concat(relPath),
+      addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0],
       curve: "secp256k1",
-      coin: 'Ethereum'
+      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+      coin: "Bitcoin"
+    },
+    {
+      addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 1],
+      curve: "secp256k1",
+      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+      coin: "Bitcoin"
+    },
+    {
+      addressNList: [0x80000000 + 49, 0x80000000 + 0, 0x80000000 + 0],
+      curve: "secp256k1",
+      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+      coin: "Bitcoin",
+      scriptType: BTCInputScriptType.SpendP2SHWitness
+    },
+    {
+      addressNList: [0x80000000 + 44, 0x80000000 + 2, 0x80000000 + 0],
+      curve: "secp256k1",
+      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+      coin: "Litecoin"
+    },
+    {
+      addressNList: hardenedPath,
+      curve: "secp256k1",
+      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+      coin: 'Bitcoin' // actually Ethereum
     }
   ]).then(result => { $manageResults.val(JSON.stringify(result)) })
 })
