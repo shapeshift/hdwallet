@@ -306,38 +306,46 @@ $getXpubs.on('click', (e) => {
     return
   }
   // Get Ethereum path
-  // const { hardenedPath, relPath } = wallet.ethGetAccountPaths({ coin: "Ethereum", accountIdx: 0 })[0]
+  const { hardenedPath } = wallet.ethGetAccountPaths({ coin: "Ethereum", accountIdx: 0 })[0]
 
-  wallet.getPublicKeys([{
-    coin: 'Bitcoin',
-    addressNList: bip32ToAddressNList(`m/44'/0'/0'`),
-    curve: 'secp256k1'
-  }, {
-    coin: 'Bitcoin',
-    addressNList: bip32ToAddressNList(`m/49'/0'/0'`),
-    curve: 'secp256k1',
-    scriptType: BTCInputScriptType.SpendAddress
-  }, {
-    coin: 'Bitcoin',
-    addressNList: bip32ToAddressNList(`m/49'/0'/0'`),
-    curve: 'secp256k1',
-    scriptType: BTCInputScriptType.SpendP2SHWitness
-  }, {
-    coin: 'Bitcoin',
-    addressNList: bip32ToAddressNList(`m/84'/0'/0'`),
-    curve: 'secp256k1',
-    scriptType: BTCInputScriptType.SpendWitness
-  }, {
-    coin: 'Bitcoin',
-    addressNList: bip32ToAddressNList(`m/0'/0'/0'`),
-    curve: 'secp256k1',
-    scriptType: BTCInputScriptType.SpendAddress
-  }, {
-    coin: 'Litecoin',
-    addressNList: bip32ToAddressNList(`m/0'/0'/0'`),
-    curve: 'secp256k1',
-    scriptType: BTCInputScriptType.SpendAddress
-  }]).then(result => {
+  wallet.getPublicKeys([
+    {
+      coin: 'Bitcoin',
+      addressNList: bip32ToAddressNList(`m/44'/0'/0'`),
+      curve: 'secp256k1'
+    },
+    {
+      coin: 'Bitcoin',
+      addressNList: bip32ToAddressNList(`m/49'/0'/0'`),
+      curve: 'secp256k1',
+      scriptType: BTCInputScriptType.SpendAddress
+    }, {
+      coin: 'Bitcoin',
+      addressNList: bip32ToAddressNList(`m/49'/0'/0'`),
+      curve: 'secp256k1',
+      scriptType: BTCInputScriptType.SpendP2SHWitness
+    }, {
+      coin: 'Bitcoin',
+      addressNList: bip32ToAddressNList(`m/84'/0'/0'`),
+      curve: 'secp256k1',
+      scriptType: BTCInputScriptType.SpendWitness
+    }, {
+      coin: 'Bitcoin',
+      addressNList: bip32ToAddressNList(`m/0'/0'/0'`),
+      curve: 'secp256k1',
+      scriptType: BTCInputScriptType.SpendAddress
+    }, {
+      coin: 'Litecoin',
+      addressNList: bip32ToAddressNList(`m/0'/0'/0'`),
+      curve: 'secp256k1',
+      scriptType: BTCInputScriptType.SpendAddress
+    },
+    {
+      addressNList: hardenedPath,
+      curve: "secp256k1",
+      coin: 'Ethereum'
+    }
+  ]).then(result => {
     $manageResults.val(JSON.stringify(result))
   })
 })

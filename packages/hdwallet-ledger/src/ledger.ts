@@ -9,8 +9,7 @@ import {
   createXpub,
   encodeBase58Check,
   networksUtil,
-  parseHexString,
-  translateScriptType
+  parseHexString
 } from './utils'
 
 export function isLedger (wallet: core.HDWallet): wallet is LedgerHDWallet {
@@ -352,51 +351,42 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return
   }
 
-  // Adapted from https://github.com/LedgerHQ/ledger-wallet-webtoolhttps://files.slack.com/files-pri/T0ZGDFQ4R-FNXNLV8FN/image_from_ios.png
+  // Adapted from https://github.com/LedgerHQ/ledger-wallet-webtool
   public async getPublicKeys (msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey>> {
     const xpubs = []
 
     for (const getPublicKey of msg) {
       let { addressNList, coin, scriptType } = getPublicKey
 
-      const bip32path: string = core.addressNListToBIP32(addressNList.slice(0, 3)).substring(2)
-      const prevBip32path: string = core.addressNListToBIP32(addressNList.slice(0, 2)).substring(2)
+      const parentBip32path: string = core.addressNListToBIP32(addressNList.slice(0, -1)).substring(2) // i.e. "44'/0'"
 
-      const btcOpts = {
-        verify: false,
-        format: translateScriptType(scriptType) || 'legacy'
-      }
+      const opts = { verify: false }
 
-      console.log('Logging btcOpts')
-      console.log(btcOpts)
+      const res1 = await this.transport.call('Btc', 'getWalletPublicKey', parentBip32path, opts)
+      handleError(this.transport, res1, 'Unable to obtain public key from device.')
 
-      const opts = coin === 'Ethereum' ? undefined : btcOpts
+      let { payload: { publicKey: parentPublicKey } } = res1
+      parentPublicKey = parseHexString(compressPublicKey(parentPublicKey))
 
-      var res = await this.transport.call('Btc', 'getWalletPublicKey', prevBip32path, opts)
-      handleError(this.transport, res, 'Unable to obtain public key from device.')
-
-      var { payload: { publicKey } } = res
-      publicKey = parseHexString(compressPublicKey(publicKey))
-
-      let result = crypto.sha256(publicKey)
+      let result = crypto.sha256(parentPublicKey)
       result = crypto.ripemd160(result)
 
-      const fingerprint: number = result[0] << 24 | result[1] << 16 | result[2] << 8 | result[3] >>> 0
+      const fingerprint: number = ((result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3]) >>> 0
+      const bip32path: string = core.addressNListToBIP32(addressNList).substring(2) // i.e 44'/0'/0'
 
-      var res = await this.transport.call('Btc', 'getWalletPublicKey', bip32path, opts)
-      handleError(this.transport, res, 'Unable to obtain public key from device.')
+      const res2 = await this.transport.call('Btc', 'getWalletPublicKey', bip32path, opts)
+      handleError(this.transport, res2, 'Unable to obtain public key from device.')
 
-      var { payload: { publicKey, chainCode } } = res
+      let { payload: { publicKey, chainCode } } = res2
       publicKey = compressPublicKey(publicKey)
 
       const coinDetails: any = networksUtil[core.slip44ByCoin(coin)]
-      const account: number = parseInt(bip32path.split("/")[2], 10)
-      const childNum: number = (0x80000000 | account) >>> 0
-      scriptType = scriptType || core.BTCInputScriptType.SpendAddress
-      const networkMagic = coinDetails.bitcoinjs.bip32.public[scriptType] // todo: every coinDetail needs this 'p2pkh'
-      console.log(`logging magic for ${coin} w/ scriptType ${scriptType}....magic is ${networkMagic}`)
+      const childNum: number = addressNList[addressNList.length -1]
 
-      let xpub = createXpub(
+      scriptType = scriptType || core.BTCInputScriptType.SpendAddress
+      const networkMagic = coinDetails.bitcoinjs.bip32.public[scriptType]
+
+      const xpub = createXpub(
         3,
         fingerprint,
         childNum,
@@ -404,9 +394,8 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
         publicKey,
         networkMagic
       )
-      xpub = encodeBase58Check(xpub)
 
-      xpubs.push({ xpub })
+      xpubs.push({ xpub: encodeBase58Check(xpub) })
     }
 
     return xpubs
