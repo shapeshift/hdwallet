@@ -347,6 +347,8 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   features?: Messages.Features.AsObject;
   info: KeepKeyHDWalletInfo & HDWalletInfo
 
+  featuresCache: Messages.Features.AsObject
+
   constructor(transport: KeepKeyTransport) {
     this.transport = transport;
     this._supportsDebugLink = transport.debugLink
@@ -354,7 +356,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   }
 
   public async getDeviceID(): Promise<string> {
-    return (await this.getFeatures()).deviceId;
+    return (await this.getFeatures(/*cached=*/true)).deviceId;
   }
 
   public getVendor(): string {
@@ -362,20 +364,20 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   }
 
   public async getModel(): Promise<string> {
-    return (await this.getFeatures()).model;
+    return (await this.getFeatures(/*cached=*/true)).model;
   }
 
   public async getFirmwareVersion(): Promise<string> {
-    const features = await this.getFeatures()
+    const features = await this.getFeatures(/*cached=*/true)
     return `${features.majorVersion}.${features.minorVersion}.${features.patchVersion}`
   }
 
   public async getLabel(): Promise<string> {
-    return (await this.getFeatures()).label;
+    return (await this.getFeatures(/*cached=*/true)).label;
   }
 
   public async isInitialized (): Promise<boolean> {
-    return (await this.getFeatures()).initialized
+    return (await this.getFeatures(/*cached=*/true)).initialized
   }
 
   public async isLocked(): Promise<boolean> {
@@ -685,18 +687,26 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
                                       this.features.deviceId)
     }
 
+    this.cacheFeatures(event.message)
     return event.message as Messages.Features.AsObject
   }
 
   // GetFeatures returns the features and other device information such as the version, label, and supported coins
-  public async getFeatures(): Promise<Messages.Features.AsObject> {
+  public async getFeatures(cached: boolean = false): Promise<Messages.Features.AsObject> {
+    if (cached && this.featuresCache)
+      return this.featuresCache
     const features = new Messages.GetFeatures();
     const event = await this.transport.call(
       Messages.MessageType.MESSAGETYPE_GETFEATURES,
       features
     ) as Event
     if(event.message_type === Events.FAILURE) throw event
+    this.cacheFeatures(event.message)
     return event.message as Messages.Features.AsObject
+  }
+
+  public cacheFeatures (features: Messages.Features.AsObject): void {
+    this.featuresCache = features
   }
 
   // GetEntropy requests sample data from the hardware RNG
