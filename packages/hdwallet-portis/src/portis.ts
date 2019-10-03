@@ -233,7 +233,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   }
 
   public async isInitialized (): Promise<boolean> {
-    return false
+    return true
   }
 
   public disconnect (): Promise<void> {
