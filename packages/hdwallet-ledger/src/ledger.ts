@@ -262,6 +262,7 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
       addressNList[2] += 1
       return {
         ...msg,
+        addressNList,
         hardenedPath: core.hardenedPath(addressNList),
         relPath: core.relativePath(addressNList)
       }
