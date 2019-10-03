@@ -262,8 +262,9 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   }
 
   public async ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx> {
+    const from = await this._ethGetAddress()
     const result = await this.web3.eth.signTransaction({
-      from: await this._ethGetAddress(),
+      from,
       to: msg.to,
       value: msg.value,
       gas: msg.gasLimit,
