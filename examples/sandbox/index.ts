@@ -115,7 +115,6 @@ $portis.on('click',  async (e) => {
   } catch( e ) {
     console.log('ERROR', { e })
   }
-  console.log('portis deviceId IS ', deviceId)
   $('#keyring select').val(deviceId)
 })
 
