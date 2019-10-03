@@ -252,9 +252,8 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
         const { addressNList } = msg[i];
         const portisResult = await this.portis.getExtendedPublicKey(addressNListToBIP32(addressNList))
         const { result, error } = portisResult
-        if(error) {
-          console.log('getPublicKeys error', error)
-        }
+        if(error)
+          reject(error)
         publicKeys.push({ xpub: result })
       }
       resolve(publicKeys)
@@ -385,6 +384,8 @@ export function info () {
   return new PortisHDWalletInfo()
 }
 
-export function create (portis): PortisHDWallet {
+export type Portis = any
+
+export function create (portis: Portis): PortisHDWallet {
   return new PortisHDWallet(portis)
 }

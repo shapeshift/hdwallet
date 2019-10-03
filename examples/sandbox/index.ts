@@ -113,7 +113,7 @@ $portis.on('click',  async (e) => {
   try {
     deviceId  = await wallet.getDeviceID()
   } catch( e ) {
-    console.log('ERROR', { e })
+    console.error('ERROR', { e })
   }
   $('#keyring select').val(deviceId)
 })
@@ -152,7 +152,7 @@ async function deviceConnected (deviceId) {
   try {
     await portisAdapter.initialize()
   } catch (e) {
-    console.error('Could not initialize Web3PortisAdapter', e)
+    console.error('Could not initialize PortisAdapter', e)
   }
   
   for (const [deviceID, wallet] of Object.entries(keyring.wallets)) {
