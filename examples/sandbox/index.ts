@@ -113,7 +113,7 @@ $portis.on('click',  async (e) => {
   try {
     deviceId  = await wallet.getDeviceID()
   } catch( e ) {
-    console.error('ERROR', { e })
+    console.error(e)
   }
   $('#keyring select').val(deviceId)
 })
