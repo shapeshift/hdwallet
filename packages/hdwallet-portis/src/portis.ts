@@ -243,7 +243,11 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   public async getPublicKeys(msg: GetPublicKey[]): Promise<PublicKey[]> {
     const publicKeys = []
     this.portisCallInProgress = new Promise( async (resolve, reject) => {
-      await this.portisCallInProgress
+      try {
+          await this.portisCallInProgress
+      } catch (e) {
+          console.error(e)
+      }
       for (let i = 0; i < msg.length; i++) {
         const { addressNList } = msg[i];
         const portisResult = await this.portis.getExtendedPublicKey(addressNListToBIP32(addressNList))
