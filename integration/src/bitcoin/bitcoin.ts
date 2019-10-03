@@ -61,6 +61,59 @@ export function bitcoinTests (get: () => { wallet: HDWallet, info: HDWalletInfo 
       expect(await info.btcSupportsCoin('Testnet')).toBeTruthy()
     }, TIMEOUT)
 
+    test.only('getPublicKeys', async () => {
+      if (!wallet) return
+      expect(await wallet.getPublicKeys([{
+        coin: 'Bitcoin',
+        addressNList: bip32ToAddressNList(`m/44'/0'/0'`),
+        curve: 'secp256k1'
+      }, {
+        coin: 'Bitcoin',
+        addressNList: bip32ToAddressNList(`m/49'/0'/0'`),
+        curve: 'secp256k1',
+        scriptType: BTCInputScriptType.SpendAddress
+      }, {
+        coin: 'Bitcoin',
+        addressNList: bip32ToAddressNList(`m/49'/0'/0'`),
+        curve: 'secp256k1',
+        scriptType: BTCInputScriptType.SpendP2SHWitness
+      }, {
+        coin: 'Bitcoin',
+        addressNList: bip32ToAddressNList(`m/49'/0'/0'`),
+        curve: 'secp256k1',
+        scriptType: BTCInputScriptType.SpendAddress
+      }, {
+        coin: 'Bitcoin',
+        addressNList: bip32ToAddressNList(`m/84'/0'/0'`),
+        curve: 'secp256k1',
+        scriptType: BTCInputScriptType.SpendWitness
+      }, {
+        coin: 'Bitcoin',
+        addressNList: bip32ToAddressNList(`m/0'/0'/0'`),
+        curve: 'secp256k1',
+        scriptType: BTCInputScriptType.SpendAddress
+      }, {
+        coin: 'Litecoin',
+        addressNList: bip32ToAddressNList(`m/0'/0'/0'`),
+        curve: 'secp256k1',
+        scriptType: BTCInputScriptType.SpendAddress
+      }])).toEqual([{
+        "xpub": "xpub6D1weXBcFAo8CqBbpP4TbH5sxQH8ZkqC5pDEvJ95rNNBZC9zrKmZP2fXMuve7ZRBe18pWQQsGg68jkq24mZchHwYENd8cCiSb71u3KD4AFH"
+      }, {
+        "xpub": "xpub6DExuxjQ16sWy5TF4KkLV65YGqCJ5pyv7Ej7d9yJNAXz7C1M9intqszXfaNZG99KsDJdQ29wUKBTZHZFXUaPbKTZ5Z6f4yowNvAQ8fEJw2G"
+      }, {
+        "xpub": "ypub6Y5EDdQK9nQzpNeMtgXxhBB3SoLk2SyR2MFLQYsBkAusAHpaQNxTTwefgnL9G3oFGrRS9VkVvyY1SaApFAzQPZ99wto5etdReeE3XFkkMZt"
+      }, {
+        "xpub": "xpub6DExuxjQ16sWy5TF4KkLV65YGqCJ5pyv7Ej7d9yJNAXz7C1M9intqszXfaNZG99KsDJdQ29wUKBTZHZFXUaPbKTZ5Z6f4yowNvAQ8fEJw2G"
+      }, {
+        "xpub": "zpub6qSSRL9wLd6LNee7qjDEuULWccP5Vbm5nuX4geBu8zMCQBWsF5Jo5UswLVxFzcbCMr2yQPG27ZhDs1cUGKVH1RmqkG1PFHkEXyHG7EV3ogY"
+      }, {
+        "xpub": "xpub6Bge9YGd4gjuSaNXdQi4vgvK8iErStBKbESBzAs6tVHBBpsqeCHEVBVgQE7P3W53XKR454adsrg3mccVCzGzcTyVEq9a3QhHsLcs65Tck9U"
+      }, {
+        "xpub": "Ltub2Y7kcBUex83ugweUDti4nZ2YDWZRCfhTiWeApFcDFz7svCWeJCmyJpz7m6dQhuUJ7XpdfByBitKRshyc7tNSTPkuXy32i6TLMqPCzbm7r8s"
+      }])
+    })
+
     test('btcGetAddress()', async () => {
       if (!wallet) return
       await each([
