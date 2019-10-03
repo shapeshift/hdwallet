@@ -346,7 +346,7 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo {
   }
 
   public async hasOnDevicePinEntry (): Promise<boolean> {
-    return false
+    return true
   }
 
   public async hasOnDevicePassphrase (): Promise<boolean> {
