@@ -362,9 +362,11 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
       const opts = { verify: false }
 
+      console.log('Ledger args for call one to transport:', parentBip32path, opts)
       const res1 = await this.transport.call('Btc', 'getWalletPublicKey', parentBip32path, opts)
       handleError(this.transport, res1, 'Unable to obtain public key from device.')
 
+      console.log('Ledger results for call one:', res1)
       let { payload: { publicKey: parentPublicKey } } = res1
       parentPublicKey = parseHexString(compressPublicKey(parentPublicKey))
 
@@ -373,7 +375,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
       const fingerprint: number = ((result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3]) >>> 0
       const bip32path: string = core.addressNListToBIP32(addressNList).substring(2) // i.e 44'/0'/0'
-
+      console.log('Ledger args for call two to transport:', bip32path, opts)
       const res2 = await this.transport.call('Btc', 'getWalletPublicKey', bip32path, opts)
       handleError(this.transport, res2, 'Unable to obtain public key from device.')
 
