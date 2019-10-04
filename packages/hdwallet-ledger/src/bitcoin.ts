@@ -14,7 +14,6 @@ import {
   BTCWallet,
   BTCOutputAddressType,
   Coin,
-  Constructor,
   fromHexString,
   slip44ByCoin,
 } from '@shapeshiftoss/hdwallet-core'
