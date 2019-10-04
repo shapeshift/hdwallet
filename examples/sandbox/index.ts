@@ -10,11 +10,14 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 
 import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
+import { isPortis } from '@shapeshiftoss/hdwallet-portis'
 
 import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { TCPKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-tcp'
 import { TrezorAdapter } from '@shapeshiftoss/hdwallet-trezor-connect'
 import { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
+import { PortisAdapter } from '@shapeshiftoss/hdwallet-portis'
+
 import {
   BTCInputScriptType,
   BTCOutputScriptType,
@@ -28,10 +31,15 @@ import * as dashTxJson from './json/dashTx.json'
 import * as dogeTxJson from './json/dogeTx.json'
 import * as ltcTxJson from './json/ltcTx.json'
 
+import Portis from "@portis/web3";
+
 const keyring = new Keyring()
+
+const portisAppId = 'ff763d3d-9e34-45a1-81d1-caa39b9c64f9'
 
 const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring)
 const kkemuAdapter = TCPKeepKeyAdapter.useKeyring(keyring)
+const portisAdapter = PortisAdapter.useKeyring(keyring, { portisAppId })
 
 const log = debug.default('hdwallet')
 
@@ -63,6 +71,7 @@ const $keepkey = $('#keepkey')
 const $kkemu = $('#kkemu')
 const $trezor = $('#trezor')
 const $ledger = $('#ledger')
+const $portis = $('#portis')
 const $keyring = $('#keyring')
 
 $keepkey.on('click', async (e) => {
@@ -96,6 +105,20 @@ $ledger.on('click', async (e) => {
   $('#keyring select').val(await wallet.getDeviceID())
 })
 
+$portis.on('click',  async (e) => {
+  e.preventDefault()
+  wallet = await portisAdapter.pairDevice()
+  window['wallet'] = wallet
+
+  let deviceId = 'nothing'
+  try {
+    deviceId  = await wallet.getDeviceID()
+  } catch( e ) {
+    console.error(e)
+  }
+  $('#keyring select').val(deviceId)
+})
+
 async function deviceConnected (deviceId) {
   let wallet = keyring.get(deviceId)
   if (!$keyring.find(`option[value="${deviceId}"]`).length) {
@@ -126,12 +149,18 @@ async function deviceConnected (deviceId) {
     console.error('Could not initialize LedgerAdapter', e)
   }
 
+  try {
+    await portisAdapter.initialize()
+  } catch (e) {
+    console.error('Could not initialize PortisAdapter', e)
+  }
+
   for (const [deviceID, wallet] of Object.entries(keyring.wallets)) {
     await deviceConnected(deviceID)
   }
   $keyring.change(async (e) => {
     if (wallet) {
-      await wallet.transport.disconnect()
+      await wallet.disconnect()
     }
     let deviceID = $keyring.find(':selected').val() as string
     wallet = keyring.get(deviceID)
@@ -148,7 +177,7 @@ async function deviceConnected (deviceId) {
   wallet = keyring.get()
   window['wallet'] = wallet
   if (wallet) {
-    let deviceID = wallet.transport.getDeviceID()
+    let deviceID = wallet.getDeviceID()
     $keyring.val(deviceID).change()
   }
 
@@ -288,45 +317,41 @@ $getXpubs.on('click', (e) => {
   e.preventDefault()
   if (!wallet) { $manageResults.val("No wallet?"); return}
   // Get Ethereum path
-  const { hardenedPath } = wallet.ethGetAccountPaths({ coin: "Ethereum", accountIdx: 0 })[0]
+  const { hardenedPath } = wallet.ethGetAccountPaths({coin: "Ethereum", accountIdx: 0})[0]
 
-  wallet.getPublicKeys([{
-    coin: 'Bitcoin',
-    addressNList: bip32ToAddressNList(`m/44'/0'/0'`),
-    curve: 'secp256k1'
-  }, {
-    coin: 'Bitcoin',
-    addressNList: bip32ToAddressNList(`m/49'/0'/0'`),
-    curve: 'secp256k1',
-    scriptType: BTCInputScriptType.SpendAddress
-  }, {
-    coin: 'Bitcoin',
-    addressNList: bip32ToAddressNList(`m/49'/0'/0'`),
-    curve: 'secp256k1',
-    scriptType: BTCInputScriptType.SpendP2SHWitness
-  }, {
-    coin: 'Bitcoin',
-    addressNList: bip32ToAddressNList(`m/49'/0'/0'`),
-    curve: 'secp256k1',
-    scriptType: BTCInputScriptType.SpendAddress
-  }, {
-    coin: 'Bitcoin',
-    addressNList: bip32ToAddressNList(`m/84'/0'/0'`),
-    curve: 'secp256k1',
-    scriptType: BTCInputScriptType.SpendWitness
-  }, {
-    coin: 'Bitcoin',
-    addressNList: bip32ToAddressNList(`m/0'/0'/0'`),
-    curve: 'secp256k1',
-    scriptType: BTCInputScriptType.SpendAddress
-  }, {
-    coin: 'Litecoin',
-    addressNList: bip32ToAddressNList(`m/0'/0'/0'`),
-    curve: 'secp256k1',
-    scriptType: BTCInputScriptType.SpendAddress
-  }]).then(result => {
-    $manageResults.val(JSON.stringify(result))
-  })
+  wallet.getPublicKeys([
+    {
+      addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0],
+      curve: "secp256k1",
+      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+      coin: "Bitcoin"
+    },
+    {
+      addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 1],
+      curve: "secp256k1",
+      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+      coin: "Bitcoin"
+    },
+    {
+      addressNList: [0x80000000 + 49, 0x80000000 + 0, 0x80000000 + 0],
+      curve: "secp256k1",
+      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+      coin: "Bitcoin",
+      scriptType: BTCInputScriptType.SpendP2SHWitness
+    },
+    {
+      addressNList: [0x80000000 + 44, 0x80000000 + 2, 0x80000000 + 0],
+      curve: "secp256k1",
+      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+      coin: "Litecoin"
+    },
+    {
+      addressNList: hardenedPath,
+      curve: "secp256k1",
+      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+      coin: isPortis(wallet) ? "Bitcoin" : "Ethereum"
+    }
+  ]).then(result => { $manageResults.val(JSON.stringify(result)) })
 })
 
 $doPing.on('click', (e) => {
@@ -387,13 +412,13 @@ $ethTx.on('click', async (e) => {
   if (supportsETH(wallet)) {
     let res = await wallet.ethSignTx({
       addressNList: bip32ToAddressNList("m/44'/60'/0'/0/0"),
-      nonce: "0x01",
-      gasPrice: "0x14",
-      gasLimit: "0x14",
+      nonce: "0x0",
+      gasPrice: "0x5FB9ACA00",
+      gasLimit: "0x186A0",
       value: '0x00',
       to: "0x41e5560054824ea6b0732e656e3ad64e20e94e45",
       chainId: 1,
-      data: '0x' + 'a9059cbb000000000000000000000000' + '1d8ce9022f6284c3a5c317f8f34620107214e545' + '00000000000000000000000000000000000000000000000000000002540be400',
+      data: '0x' + 'a9059cbb000000000000000000000000' + '9BB9E5bb9b04e8CE993104309A1f180feBf63DB6' + '0000000000000000000000000000000000000000000000000000000005F5E100',
     })
     $ethResults.val(JSON.stringify(res))
   } else {

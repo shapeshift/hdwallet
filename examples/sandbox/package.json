@@ -16,6 +16,7 @@
     "@shapeshiftoss/hdwallet-ledger-webusb": "^0.7.0",
     "@shapeshiftoss/hdwallet-trezor": "^0.7.0",
     "@shapeshiftoss/hdwallet-trezor-connect": "^0.7.0",
+    "@shapeshiftoss/hdwallet-portis": "^0.3.1",
     "debug": "^4.1.1",
     "jquery": "^3.4.1",
     "json": "^9.0.6",

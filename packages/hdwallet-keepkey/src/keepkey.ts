@@ -347,6 +347,8 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   features?: Messages.Features.AsObject;
   info: KeepKeyHDWalletInfo & HDWalletInfo
 
+  featuresCache: Messages.Features.AsObject
+
   constructor(transport: KeepKeyTransport) {
     this.transport = transport;
     this._supportsDebugLink = transport.debugLink
@@ -354,7 +356,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   }
 
   public async getDeviceID(): Promise<string> {
-    return (await this.getFeatures()).deviceId;
+    return (await this.getFeatures(/*cached=*/true)).deviceId;
   }
 
   public getVendor(): string {
@@ -362,16 +364,16 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   }
 
   public async getModel(): Promise<string> {
-    return (await this.getFeatures()).model;
+    return (await this.getFeatures(/*cached=*/true)).model;
   }
 
   public async getFirmwareVersion(): Promise<string> {
-    const features = await this.getFeatures()
+    const features = await this.getFeatures(/*cached=*/true)
     return `${features.majorVersion}.${features.minorVersion}.${features.patchVersion}`
   }
 
   public async getLabel(): Promise<string> {
-    return (await this.getFeatures()).label;
+    return (await this.getFeatures(/*cached=*/true)).label;
   }
 
   public async isInitialized (): Promise<boolean> {
@@ -447,6 +449,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
       resetDevice,
       LONG_TIMEOUT
     );
+    this.cacheFeatures(undefined)
   }
 
   public async recover (r: RecoverDevice): Promise<void> {
@@ -467,6 +470,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
       msg,
       LONG_TIMEOUT
     );
+    this.cacheFeatures(undefined)
   }
 
   public async pressYes (): Promise<void> {
@@ -565,6 +569,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     const applyPolicies = new Messages.ApplyPolicies()
     applyPolicies.setPolicyList([policy])
     await this.transport.call(Messages.MessageType.MESSAGETYPE_APPLYPOLICIES, applyPolicies, LONG_TIMEOUT)
+    this.cacheFeatures(undefined)
   }
 
   // ApplySettings changes the label, language, and enabling/disabling the passphrase
@@ -592,6 +597,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
       Messages.MessageType.MESSAGETYPE_APPLYSETTINGS,
       applySettings
     );
+    this.cacheFeatures(undefined)
   }
 
   // Cancel aborts the last device action that required user interaction
@@ -636,6 +642,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
       Messages.MessageType.MESSAGETYPE_CLEARSESSION,
       clearSession
     );
+    this.cacheFeatures(undefined)
   }
 
   // DecryptKeyValue is a convenience method around decrypting with CipherKeyValue().
@@ -654,6 +661,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
       Messages.MessageType.MESSAGETYPE_FIRMWAREERASE,
       firmwareErase
     );
+    this.cacheFeatures(undefined)
   }
 
   public async firmwareUpload(firmware: Buffer): Promise<void> {
@@ -665,6 +673,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
       Messages.MessageType.MESSAGETYPE_FIRMWAREUPLOAD,
       firmwareUpload
     );
+    this.cacheFeatures(undefined)
   }
 
   // Initialize assigns a hid connection to this KeepKey and send initialize message to device
@@ -685,18 +694,26 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
                                       this.features.deviceId)
     }
 
+    this.cacheFeatures(event.message)
     return event.message as Messages.Features.AsObject
   }
 
   // GetFeatures returns the features and other device information such as the version, label, and supported coins
-  public async getFeatures(): Promise<Messages.Features.AsObject> {
+  public async getFeatures(cached: boolean = false): Promise<Messages.Features.AsObject> {
+    if (cached && this.featuresCache)
+      return this.featuresCache
     const features = new Messages.GetFeatures();
     const event = await this.transport.call(
       Messages.MessageType.MESSAGETYPE_GETFEATURES,
       features
     ) as Event
     if(event.message_type === Events.FAILURE) throw event
+    this.cacheFeatures(event.message)
     return event.message as Messages.Features.AsObject
+  }
+
+  public cacheFeatures (features: Messages.Features.AsObject): void {
+    this.featuresCache = features
   }
 
   // GetEntropy requests sample data from the hardware RNG
@@ -741,6 +758,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     if (msg.label) loadDevice.setLabel(msg.label);
     // send
     await this.transport.call(Messages.MessageType.MESSAGETYPE_LOADDEVICE, loadDevice, LONG_TIMEOUT)
+    this.cacheFeatures(undefined)
   }
 
   // RemovePin disables pin protection for the device. If a pin is currently enabled
@@ -753,6 +771,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
       Messages.MessageType.MESSAGETYPE_CHANGEPIN,
       changePin
     );
+    this.cacheFeatures(undefined)
   }
 
   public async send(events: Event[]): Promise<void> {
@@ -780,6 +799,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
       Messages.MessageType.MESSAGETYPE_SOFTRESET,
       softReset
     );
+    this.cacheFeatures(undefined)
   }
 
   // WipeDevice wipes all sensitive data and settings
@@ -790,6 +810,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
       Messages.MessageType.MESSAGETYPE_WIPEDEVICE,
       wipeDevice
     );
+    this.cacheFeatures(undefined)
   }
 
   public async btcSupportsCoin (coin: Coin): Promise<boolean> {
