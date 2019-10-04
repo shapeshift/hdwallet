@@ -368,15 +368,27 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
       bundle: msg.map(request => {
         return {
           path: request.addressNList,
-          coin: 'Bitcoin',
+          coin: request.coin || 'Bitcoin',
           crossChain: true
         }
       })
     })
     handleError(this.transport, res, "Could not load xpubs from Trezor")
-    return res.payload.map(result => { return {
-      xpub: result.xpub
-    }})
+    return res.payload.map((result, i) => {
+      const scriptType = msg[i].scriptType
+      switch (scriptType) {
+      case BTCInputScriptType.SpendP2SHWitness:
+      case BTCInputScriptType.SpendWitness:
+        return {
+          xpub: result.xpubSegwit
+        }
+      case BTCInputScriptType.SpendAddress:
+      default:
+        return {
+          xpub: result.xpub
+        }
+      }
+    })
   }
 
   public async isLocked (): Promise<boolean> {
