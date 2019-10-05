@@ -118,7 +118,6 @@ function prepareSignTx (
     const output: BTCSignTxOutput = o
     const newOutput = new Types.TxOutputType()
     newOutput.setAmount(Number(output.amount))
-    newOutput.setScriptType(translateOutputScriptType(output.scriptType || BTCOutputScriptType.PayToAddress))
     if (output.exchangeType) {
       // convert the base64 encoded signedExchangeResponse message into the correct object
       const signedHex = base64toHEX(output.exchangeType.signedExchangeResponse)
@@ -143,12 +142,14 @@ function prepareSignTx (
       newOutput.setAmount(val)
       newOutput.setAddress(signedExchange.toObject().responsev2.depositAddress.address)
       newOutput.setScriptType(Types.OutputScriptType.PAYTOADDRESS)
-      newOutput.setAddressType(3)
+      newOutput.setAddressType(Types.OutputAddressType.EXCHANGE)
       newOutput.setExchangeType(outExchangeType)
     } else if (output.isChange) {
+      newOutput.setScriptType(translateOutputScriptType(output.scriptType))
       newOutput.setAddressNList(output.addressNList)
       newOutput.setAddressType(Types.OutputAddressType.CHANGE)
     } else {
+      newOutput.setScriptType(Types.OutputScriptType.PAYTOADDRESS)
       newOutput.setAddress(output.address)
       newOutput.setAddressType(Types.OutputAddressType.SPEND)
     }
