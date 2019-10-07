@@ -10,6 +10,7 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 
 import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
+import { isPortis } from '@shapeshiftoss/hdwallet-portis'
 
 import { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import { TCPKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-tcp'
@@ -118,7 +119,6 @@ $portis.on('click',  async (e) => {
   $('#keyring select').val(deviceId)
 })
 
-
 async function deviceConnected (deviceId) {
   let wallet = keyring.get(deviceId)
   if (!$keyring.find(`option[value="${deviceId}"]`).length) {
@@ -154,7 +154,7 @@ async function deviceConnected (deviceId) {
   } catch (e) {
     console.error('Could not initialize PortisAdapter', e)
   }
-  
+
   for (const [deviceID, wallet] of Object.entries(keyring.wallets)) {
     await deviceConnected(deviceID)
   }
@@ -349,7 +349,7 @@ $getXpubs.on('click', (e) => {
       addressNList: hardenedPath,
       curve: "secp256k1",
       showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-      coin: 'Bitcoin' // actually Ethereum
+      coin: isPortis(wallet) ? "Bitcoin" : "Ethereum"
     }
   ]).then(result => { $manageResults.val(JSON.stringify(result)) })
 })
@@ -389,7 +389,7 @@ $ethAddr.on('click', async (e) => {
   e.preventDefault()
   if (!wallet) { $ethResults.val("No wallet?"); return}
   if (supportsETH(wallet)) {
-    let { hardenedPath , relPath } = wallet.ethGetAccountPaths({ coin: "Ethereum", accountIdx: 0 })[0]
+    let { hardenedPath, relPath } = wallet.ethGetAccountPaths({ coin: "Ethereum", accountIdx: 0 })[0]
     let result = await wallet.ethGetAddress({
       addressNList: hardenedPath.concat(relPath),
       showDisplay: false
@@ -924,7 +924,7 @@ $btcAddrSegWitNative.on('click', async (e) => {
     //coin 0 (mainnet bitcoin)
     //path 0
     let res = await wallet.btcGetAddress({
-      addressNList:[0x80000000 + 84, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
+      addressNList: [0x80000000 + 84, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
       coin: "Bitcoin",
       scriptType: BTCInputScriptType.SpendWitness,
       showDisplay: true

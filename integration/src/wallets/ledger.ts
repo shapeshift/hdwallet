@@ -76,15 +76,23 @@ export class MockTransport extends LedgerTransport {
         JSON.parse('{"success":true,"payload":{"v":"25","r":"1238fd332545415f09a01470350a5a20abc784dbf875cf58f7460560e66c597f","s":"10efa4dd6fdb381c317db8f815252c2ac0d2a883bd364901dee3dec5b7d3660a"},"coin":"Eth","method":"signTransaction"}'))
 
       // Bitcoin:
+      // first mock of getPublicKeys()
+      this.memoize('Btc', 'getWalletPublicKey',
+        JSON.parse('["44\'/0\'", {"verify": false }]'),
+        JSON.parse('{"success":true,"coin":"Btc","method":"getWalletPublicKey","payload":{"bitcoinAddress":"1Hvzdx2kSLHT93aTnEeDNDSo4DS1Wn3CML","chainCode":"98c92a09b8adb1ab9e5d665fd6ae1dd331d130172d75916189de33f1cf2ff482","publicKey":"045e61c65bb0af92d4af140ea98334df1a0975a331c89dab2549debc945ed72a8a0ff3e429dcfaa6b316c994e998f3e9dbe8b04bb0777aeaa6208da6020ccf4306"}}'))
+
+      // getAddress
       this.memoize('Btc', 'getWalletPublicKey',
         JSON.parse('["m/49\'/0\'/0\'/0/0", {"verify": false, "format": "p2sh"}]'),
         JSON.parse('{"success":true,"coin":"Btc","method":"getWalletPublicKey","payload":{"bitcoinAddress":"3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX","chainCode":"167cbfcd34f24da5a3fa39092431b2f3717066d334775fb82053ae83901e1cec","publicKey":"0475abefec6c107632baad1a38f8dc3286ee09fbbbbf7221e642d885e514e0cd4232877f26fc9c5b8857aa6b48d42f6aecdbeabeb0f293b0b5ba7d5d1d24a274c8"}}'))
       this.memoize('Btc', 'getWalletPublicKey',
         JSON.parse('["m/49\'/0\'/0\'/0/0", {"verify": true, "format": "p2sh"}]'),
         JSON.parse('{"success":true,"coin":"Btc","method":"getWalletPublicKey","payload":{"bitcoinAddress":"3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX","chainCode":"167cbfcd34f24da5a3fa39092431b2f3717066d334775fb82053ae83901e1cec","publicKey":"0475abefec6c107632baad1a38f8dc3286ee09fbbbbf7221e642d885e514e0cd4232877f26fc9c5b8857aa6b48d42f6aecdbeabeb0f293b0b5ba7d5d1d24a274c8"}}'))
+
       this.memoize('Btc', 'signMessageNew',
         JSON.parse('["m/44\'/0\'/0\'/0/0", "48656c6c6f20576f726c64"]'),
         JSON.parse('{"success":true,"coin":"Btc","method":"signMessageNew","payload":{"r":"a037c911044cd6c851b6508317d8892067b0b62074b2cf1c0df9abd4aa053a3c","s":"243ffdc37f64d7af2c857128eafc81947c380995596615e5dcc313a15f512cdd","v":1}}'))
+
       // These are the three calls in btcSignTx:
       this.memoize('Btc', 'splitTransaction',
         ['Btc', 'splitTransaction', "020000000182488650ef25a58fef6788bd71b8212038d7f2bbe4750bc7bcb44701e85ef6d5000000001976a91424a56db43cf6f2b02e838ea493f95d8d6047423188acffffffff0160cc0500000000001976a914de9b2a8da088824e8fe51debea566617d851537888ac00000000"],

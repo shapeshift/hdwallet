@@ -105,15 +105,12 @@ export const createXpub = (
   chaincode,
   publicKey,
   network
-) => {
-  var xpub = toHexInt(network);
-  xpub = xpub + padStart(depth.toString(16), 2, "0");
-  xpub = xpub + padStart(fingerprint.toString(16), 8, "0");
-  xpub = xpub + padStart(childnum.toString(16), 8, "0");
-  xpub = xpub + chaincode;
-  xpub = xpub + publicKey;
-  return xpub;
-}
+) => toHexInt(network)
+  + padStart(depth.toString(16), 2, "0")
+  + padStart(fingerprint.toString(16), 8, "0")
+  + padStart(childnum.toString(16), 8, "0")
+  + chaincode
+  + publicKey
 
 const toHexInt = (number) => (
   toHexDigit((number >> 24) & 0xff) +
@@ -132,7 +129,12 @@ export const networksUtil = {
       bech32: "bc",
       bip32: {
         private: 76066276,
-        public: 76067358
+        public: {
+          p2pkh: 76067358,
+          p2sh: 77429938,
+          p2wpkh: 78792518,
+          'p2sh-p2wpkh': 77429938
+        }
       },
       messagePrefix: "Bitcoin Signed Message:",
       pubKeyHash: 0,
@@ -151,7 +153,12 @@ export const networksUtil = {
       bech32: "bc",
       bip32: {
         private: 70615956,
-        public: 70617039
+        public: {
+          p2pkh: 76067358,
+          p2sh: 71979618,
+          p2wpkh: 73342198,
+          'p2sh-p2wpkh': 71979618
+        }
       },
       messagePrefix: "Bitcoin Signed Message:",
       pubKeyHash: 111,
@@ -171,7 +178,9 @@ export const networksUtil = {
       bech32: "bc",
       bip32: {
         private: 0x019d9cfe,
-        public: 0x019da462
+        public: {
+          p2pkh: 27108450,
+        }
       },
       messagePrefix: "Litecoin Signed Message:",
       pubKeyHash: 48,
@@ -189,7 +198,9 @@ export const networksUtil = {
       bech32: "bc",
       bip32: {
         private: 76066276,
-        public: 76067358
+        public: {
+          p2pkh: 76067358,
+        }
       },
       messagePrefix: "Bitcoin Signed Message:",
       pubKeyHash: 0,
@@ -208,7 +219,10 @@ export const networksUtil = {
     name: "Vertcoin",
     bitcoinjs: {
       bip32: {
-        public: 0x0488b21e,
+        public: {
+          p2pkh: 76067358,
+          p2sh: 77429938
+        },
         private: 0x05358394
       },
       messagePrefix: "Vertcoin Signed Message:",
@@ -225,8 +239,13 @@ export const networksUtil = {
     unit: "DASH",
     apiName: "dash",
     bitcoinjs: {
-      messagePrefix: "DarkCoin Signed Message:",
-      bip32: { public: 50221816, private: 87393172 },
+      messagePrefix: "Dash Signed Message:",
+      bip32: {
+        public: {
+          p2pkh: 50221772
+        },
+        private: 87393172
+      },
       pubKeyHash: 76,
       scriptHash: 16,
       wif: 128
@@ -242,7 +261,12 @@ export const networksUtil = {
     apiName: "ppc",
     bitcoinjs: {
       messagePrefix: "PPCoin Signed Message:",
-      bip32: { public: 3874023909, private: 87393172 },
+      bip32: {
+        public: {
+          p2pkh: 3874023909
+        },
+        private: 87393172
+      },
       pubKeyHash: 55,
       scriptHash: 117,
       wif: 128
@@ -258,7 +282,12 @@ export const networksUtil = {
     apiName: "via",
     bitcoinjs: {
       messagePrefix: "Viacoin Signed Message:",
-      bip32: { public: 76067358, private: 87393172 },
+      bip32: {
+        public: {
+          p2pkh: 76067358
+        },
+        private: 87393172
+      },
       pubKeyHash: 71,
       scriptHash: 33,
       wif: 128
@@ -274,7 +303,12 @@ export const networksUtil = {
     apiName: "dgb",
     bitcoinjs: {
       messagePrefix: "DigiByte Signed Message:",
-      bip32: { public: 76067358, private: 87393172 },
+      bip32: {
+        public: {
+          p2pkh: 76067358,
+        },
+        private: 87393172
+      },
       pubKeyHash: 30,
       scriptHash: 5,
       wif: 128
@@ -290,7 +324,12 @@ export const networksUtil = {
     apiName: "posw",
     bitcoinjs: {
       messagePrefix: "PoSWallet Signed Message:",
-      bip32: { public: 76067358, private: 87393172 },
+      bip32: {
+        public: {
+          p2pkh: 76067358,
+        },
+        private: 87393172
+      },
       pubKeyHash: 55,
       scriptHash: 85,
       wif: 128
@@ -305,7 +344,9 @@ export const networksUtil = {
     name: "ethereum",
     bitcoinjs: {
       bip32: {
-        public: 76067358
+        public: {
+          p2pkh: 76067358
+        }
       },
       messagePrefix: "Ethereum Signed Message:"
     }
@@ -317,7 +358,12 @@ export const networksUtil = {
     apiName: "pivx",
     bitcoinjs: {
       messagePrefix: "DarkNet Signed Message:",
-      bip32: { public: 36513075, private: 87393172 },
+      bip32: {
+        public: {
+          p2pkh: 36513075
+        },
+        private: 87393172
+      },
       pubKeyHash: 30,
       scriptHash: 13,
       wif: 128
@@ -333,7 +379,12 @@ export const networksUtil = {
     apiName: "club",
     bitcoinjs: {
       messagePrefix: "ClubCoin Signed Message:",
-      bip32: { public: 76067358, private: 87393172 },
+      bip32: {
+        public: {
+          p2pkh: 76067358
+        },
+        private: 87393172
+      },
       pubKeyHash: 28,
       scriptHash: 85,
       wif: 128
@@ -349,7 +400,14 @@ export const networksUtil = {
     apiName: "qtum",
     bitcoinjs: {
       messagePrefix: "Qtum Signed Message:",
-      bip32: { public: 76067358, private: 87393172 },
+      bip32: {
+        public: {
+          p2pkh: 76067358,
+          p2sh: 77429938,
+          p2wpkh: 78792518
+        },
+        private: 87393172
+      },
       pubKeyHash: 58,
       scriptHash: 50,
       wif: 128
@@ -365,7 +423,12 @@ export const networksUtil = {
     apiName: "strat",
     bitcoinjs: {
       messagePrefix: "Stratis Signed Message:",
-      bip32: { public: 76071454, private: 87393172 },
+      bip32: {
+        public: {
+          p2pkh: 76071454
+        },
+        private: 87393172
+      },
       pubKeyHash: 63,
       scriptHash: 125,
       wif: 128
@@ -381,7 +444,12 @@ export const networksUtil = {
     apiName: "xst",
     bitcoinjs: {
       messagePrefix: "StealthCoin Signed Message:",
-      bip32: { public: 2405583718, private: 87393172 },
+      bip32: {
+        public: {
+          p2pkh: 2405583718
+        },
+        private: 87393172
+      },
       pubKeyHash: 62,
       scriptHash: 85,
       wif: 128
@@ -390,23 +458,28 @@ export const networksUtil = {
     handleFeePerByte: false,
     areTransactionTimestamped: true
   },
-  //133: {
-  //  name: "zcash",
-  //  satoshi: 8,
-  //  unit: "ZEC",
-  //  apiName: "zec",
-  //  bitcoinjs: {
-  //    messagePrefix: "Zcash Signed Message:",
-  //    bip32: { public: 76067358, private: 87393172 },
-  //    pubKeyHash: 7352,
-  //    scriptHash: 7357,
-  //    wif: 128
-  //  },
-  //  isSegwitSupported: false,
-  //  handleFeePerByte: false,
-  //  areTransactionTimestamped: undefined,
-  //  expiryHeight: Buffer.from("00000000", "hex")
-  //},
+  // 133: {
+  //   name: "zcash",
+  //   satoshi: 8,
+  //   unit: "ZEC",
+  //   apiName: "zec",
+  //   bitcoinjs: {
+  //     messagePrefix: "Zcash Signed Message:",
+  //     bip32: {
+  //       public: {
+  //         p2pkh: 76067358
+  //       },
+  //       private: 87393172
+  //     },
+  //     pubKeyHash: 7352,
+  //     scriptHash: 7357,
+  //     wif: 128
+  //   },
+  //   isSegwitSupported: false,
+  //   handleFeePerByte: false,
+  //   areTransactionTimestamped: undefined,
+  //   expiryHeight: Buffer.from("00000000", "hex")
+  // },
   141: {
     name: "komodo",
     satoshi: 8,
@@ -414,7 +487,11 @@ export const networksUtil = {
     apiName: "kmd",
     bitcoinjs: {
       messagePrefix: "Komodo Signed Message:",
-      bip32: { public: 4193182861, private: 87393172 },
+      bip32: {
+        public: {
+          p2pkh: 4193182861
+        }, private: 87393172
+      },
       pubKeyHash: 60,
       scriptHash: 85,
       wif: 128
@@ -430,7 +507,13 @@ export const networksUtil = {
     apiName: "btg",
     bitcoinjs: {
       messagePrefix: "Bitcoin gold Signed Message:",
-      bip32: { public: 76067358, private: 76066276 },
+      bip32: {
+        public: {
+          p2pkh: 76067358,
+          p2sh: 77429938
+        },
+        private: 76066276
+      },
       pubKeyHash: 38,
       scriptHash: 23,
       wif: 128
@@ -448,7 +531,12 @@ export const networksUtil = {
     apiName: "hsr",
     bitcoinjs: {
       messagePrefix: "HShare Signed Message:",
-      bip32: { public: 76071454, private: 87393172 },
+      bip32: {
+        public: {
+          p2pkh: 76071454
+        },
+        private: 87393172
+      },
       pubKeyHash: 40,
       scriptHash: 100,
       wif: 128
@@ -464,7 +552,12 @@ export const networksUtil = {
     apiName: "zen",
     bitcoinjs: {
       messagePrefix: "Zencash Signed Message:",
-      bip32: { public: 76067358, private: 87393172 },
+      bip32: {
+        public: {
+          p2pkh: 76067358
+
+        }, private: 87393172
+      },
       pubKeyHash: 0x2089,
       scriptHash: 0x2096,
       wif: 128
@@ -476,11 +569,17 @@ export const networksUtil = {
     unit: "Ð",
     apiName: "doge",
     bitcoinjs: {
-      messagePrefix: "Dogecoin Signed Message:",
-      bip32: { public: 0x02facafd, private: 87393172 },
+      messagePrefix: "Dogecoin Signed Message Much Wow:",
+      bip32: {
+        public: {
+          p2pkh: 49990397
+        },
+        private: 87393172
+      },
       pubKeyHash: 30,
       scriptHash: 22,
       wif: 128
     }
   }
 }
+
