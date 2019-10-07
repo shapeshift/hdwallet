@@ -46,7 +46,7 @@ export class PortisAdapter {
     this.portis.onLogout( () => {
         this.keyring.emit(["Portis", this.currentDeviceId, Events.DISCONNECT], this.currentDeviceId)
         this.keyring.remove(this.currentDeviceId)
-      })
+    })
     return wallet
   }
 
