@@ -14,6 +14,13 @@ function translateCoin(coin: string): (any) => void {
   }[coin]
 }
 
+interface LedgerRequest {
+  method: string,
+  action?: Function,
+  coin?: string,
+  args?: any
+}
+
 export class LedgerWebUsbTransport extends LedgerTransport {
   device: USBDevice
 
@@ -22,36 +29,33 @@ export class LedgerWebUsbTransport extends LedgerTransport {
     this.device = device
   }
 
+  private _createLedgerCall({ coin, method }: { coin: string, method: string }): any {
+    return new (translateCoin(coin))(this.transport)[method]
+  }
+
   public getDeviceID (): string {
     return (this.device as any).deviceID
   }
 
-  public async getDeviceInfo(): Promise<any> {
-    let response;
-    this.emit('ledger.getDeviceInfo', makeEvent({
-      message_type: 'getDeviceInfo',
-      from_wallet: false,
-      message: {}
-    }))
-
-    try {
-      response = await getDeviceInfo(this.transport)
-    } catch (e) {
-
-      return {
-        success: false,
-        payload: { error: e.toString() }
-      }
-    }
-
-    return {
-      success: true,
-      payload: response
-    }
+  public async getDeviceInfo(): Promise<LedgerResponse> {
+    return await this.sendToLedger({
+      action: getDeviceInfo,
+      method: 'getDeviceInfo',
+      coin: 'dashboard'
+    })
   }
 
   public async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
+    return await this.sendToLedger({
+      method,
+      coin,
+      args
+    })
+  }
+
+  public async sendToLedger(sendObj: LedgerRequest): Promise<LedgerResponse> {
     let response
+    let { action, coin, method, args } = sendObj
     this.emit(`ledger.${coin}.${method}.call`, makeEvent({
       message_type: method,
       from_wallet: false,
@@ -59,7 +63,8 @@ export class LedgerWebUsbTransport extends LedgerTransport {
     }))
 
     try {
-      response = await new (translateCoin(coin))(this.transport)[method](...args)
+      // might need some work to be more flexible, it works tho - rj
+      response = action ? await action(this.transport) : await this._createLedgerCall({ coin, method })(...args)
     } catch (e) {
       console.error(e)
       return {
