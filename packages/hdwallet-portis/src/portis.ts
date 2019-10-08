@@ -301,6 +301,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   }
 
   public async ethGetAddress (msg: ETHGetAddress): Promise<string> {
+    msg.showDisplay === true && this.portis.showPortis()
     return this._ethGetAddress()
   }
 
