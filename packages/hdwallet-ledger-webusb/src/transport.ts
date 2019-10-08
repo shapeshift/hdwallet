@@ -27,19 +27,38 @@ export class LedgerWebUsbTransport extends LedgerTransport {
   }
 
   public async getDeviceInfo(): Promise<any> {
-    return await getDeviceInfo(this.transport)
+    let response;
+    this.emit('ledger.getDeviceInfo', makeEvent({
+      message_type: 'getDeviceInfo',
+      from_wallet: false,
+      message: {}
+    }))
+
+    try {
+      response = await getDeviceInfo(this.transport)
+    } catch (e) {
+
+      return {
+        success: false,
+        payload: { error: e.toString() }
+      }
+    }
+
+    return {
+      success: true,
+      payload: response
+    }
   }
 
   public async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
     let response
+    this.emit(`ledger.${coin}.${method}.call`, makeEvent({
+      message_type: method,
+      from_wallet: false,
+      message: {}
+    }))
 
     try {
-      this.emit(`ledger.${coin}.${method}.call`, makeEvent({
-        message_type: method,
-        from_wallet: false,
-        message: {}
-      }))
-
       response = await new (translateCoin(coin))(this.transport)[method](...args)
     } catch (e) {
       console.error(e)

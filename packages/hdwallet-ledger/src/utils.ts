@@ -12,7 +12,8 @@ import {
 import { LedgerTransport } from './transport'
 import { Buffer } from "buffer";
 
-export function handleError (transport: LedgerTransport, result: any, message: string): void {
+export function handleError (transport: LedgerTransport, result: any, message?: string): void {
+  console.log({ result })
   if (result.success)
     return
 
@@ -26,17 +27,16 @@ export function handleError (transport: LedgerTransport, result: any, message: s
 
     // Wrong app selected
     if (result.payload.error.includes('0x6d00')) {
-      throw new WrongApp('Ledger', result.coin)
+      if (result.coin) {
+        throw new WrongApp('Ledger', result.coin)
+      }
+      // Navigate to Ledger Dashboard
+      throw new NavigateToDashboard('Ledger')
     }
 
     // User selected x instead of ✓
     if (result.payload.error.includes('0x6985')) {
       throw new ActionCancelled()
-    }
-
-    // User has to navigate to the dashboard
-    if (result.payload.error.includes('0x6d00')) {
-      throw new NavigateToDashboard('Ledger')
     }
 
     transport.emit(`ledger.${result.coin}.${result.method}.call`, makeEvent({

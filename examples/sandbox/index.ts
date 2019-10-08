@@ -121,7 +121,7 @@ $portis.on('click',  async (e) => {
 
 async function deviceConnected (deviceId) {
   let wallet = keyring.get(deviceId)
-  if (!$keyring.find(`option[value="${deviceId}"]`).length) {
+  if (!$keyring.find(`option[value="${deviceId}"]`).length && wallet) {
     $keyring.append(
       $("<option></option>")
         .attr("value", deviceId)
