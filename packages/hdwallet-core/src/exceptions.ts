@@ -7,7 +7,8 @@ export enum HDWalletErrorType {
     WrongApp = 'WrongApp',
     FirmwareUpdateRequired = 'FirmwareUpdateRequired',
     WebUSBNotAvailable = 'WebUSBNotAvailable',
-    WebUSBCouldNotPair = 'WebUSBCouldNotPair'
+    WebUSBCouldNotPair = 'WebUSBCouldNotPair',
+    NavigateToDashboard = 'NavigateToDashboard'
 }
 
 export class HDWalletError extends Error {
@@ -84,5 +85,12 @@ export class WebUSBNotAvailable extends HDWalletError {
 export class WebUSBCouldNotPair extends HDWalletError {
     constructor (model: string, message: string) {
         super(`Could not pair ${model}: ${message}`, HDWalletErrorType.WebUSBCouldNotPair)
+    }
+}
+
+export class NavigateToDashboard extends HDWalletError {
+    constructor (model: string) {
+      super(`Please navigate to the dashboard of your ${model}.`,
+        HDWalletErrorType.NavigateToDashboard)
     }
 }

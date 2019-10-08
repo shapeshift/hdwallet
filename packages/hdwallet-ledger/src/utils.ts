@@ -6,6 +6,7 @@ import {
   WrongApp,
   SelectApp,
   ActionCancelled,
+  NavigateToDashboard,
   makeEvent,
 } from '@shapeshiftoss/hdwallet-core'
 import { LedgerTransport } from './transport'
@@ -31,6 +32,11 @@ export function handleError (transport: LedgerTransport, result: any, message: s
     // User selected x instead of ✓
     if (result.payload.error.includes('0x6985')) {
       throw new ActionCancelled()
+    }
+
+    // User has to navigate to the dashboard
+    if (result.payload.error.includes('0x6d00')) {
+      throw new NavigateToDashboard('Ledger')
     }
 
     transport.emit(`ledger.${result.coin}.${result.method}.call`, makeEvent({
