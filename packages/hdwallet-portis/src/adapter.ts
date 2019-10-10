@@ -9,6 +9,8 @@ import Portis from "@portis/web3";
 
 type PortisWallet = any
 
+const INACTIVITY_LOGOUT_TIME = 10 * 60 * 1000
+
 export class PortisAdapter {
   keyring: Keyring
   portis: any
@@ -60,16 +62,23 @@ export class PortisAdapter {
     this.keyring.emit(["Portis", deviceId, Events.CONNECT], deviceId)
 
     const watchForInactivity =  () => {
-      var time
-      window.onload = resetTimer;
-      // DOM Events
+      let time
+      const resetTimer = () => {
+          clearTimeout(time)
+          time = setTimeout(() => {
+            window.onload = null
+            document.onmousemove = null
+            document.onkeypress = null  
+            clearTimeout(time)
+            this.portis.logout()
+          }, INACTIVITY_LOGOUT_TIME)
+      }
+      window.onload = resetTimer
       document.onmousemove = resetTimer
       document.onkeypress = resetTimer
-      function resetTimer() {
-          clearTimeout(time)
-          time = setTimeout(() => this.portis.logout()), 10 * 60 * 1000)
-      }
+      resetTimer()
     }
+
     watchForInactivity()
     return wallet
   }
