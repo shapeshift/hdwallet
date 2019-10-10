@@ -18,4 +18,7 @@ export abstract class LedgerTransport extends Transport {
   public abstract async getDeviceInfo(): Promise<any>
 
   public abstract async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse>
+
+  public abstract async open()
+  public abstract async close()
 }

@@ -1,6 +1,7 @@
-import { makeEvent, Keyring } from '@shapeshiftoss/hdwallet-core'
+import { makeEvent, Keyring, WebUSBNotAvailable, WebUSBCouldNotInitialize, WebUSBCouldNotPair, ConflictingApp } from '@shapeshiftoss/hdwallet-core'
 import { LedgerTransport, LedgerResponse } from '@shapeshiftoss/hdwallet-ledger'
 import Transport from '@ledgerhq/hw-transport'
+import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
 import Eth from '@ledgerhq/hw-app-eth'
 import Btc from '@ledgerhq/hw-app-btc'
 import getDeviceInfo from '@ledgerhq/live-common/lib/hw/getDeviceInfo'
@@ -12,6 +13,49 @@ function translateCoin(coin: string): (any) => void {
     'Btc': Btc,
     'Eth': Eth
   }[coin]
+}
+
+export async function getFirstLedgerDevice(): Promise<USBDevice> {
+  if (!(window && window.navigator.usb))
+    throw new WebUSBNotAvailable()
+
+  const existingDevices = await TransportWebUSB.list()
+
+  const device = existingDevices.length > 0 ? existingDevices[0] : null
+
+  return device
+}
+
+export async function openTransport(device: USBDevice) {
+  if (!(window && window.navigator.usb))
+    throw new WebUSBNotAvailable()
+
+  let ledgerTransport
+  try {
+    ledgerTransport = await TransportWebUSB.open(device)
+  } catch (err) {
+    if (err.name === 'TransportInterfaceNotAvailable') {
+      throw new ConflictingApp('Ledger')
+    }
+
+    throw new WebUSBCouldNotInitialize('Ledger', err.message)
+  }
+}
+
+export async function getTransport(): Promise<TransportWebUSB> {
+  if (!(window && window.navigator.usb))
+    throw new WebUSBNotAvailable()
+
+  let ledgerTransport
+  try {
+    ledgerTransport = await TransportWebUSB.openConnected() || await TransportWebUSB.request()
+  } catch (err) {
+    if (err.name === 'TransportInterfaceNotAvailable') {
+      throw new ConflictingApp('Ledger')
+    }
+
+    throw new WebUSBCouldNotPair('Ledger', err.message)
+  }
 }
 
 export class LedgerWebUsbTransport extends LedgerTransport {
@@ -28,6 +72,15 @@ export class LedgerWebUsbTransport extends LedgerTransport {
 
   public async getDeviceInfo(): Promise<any> {
     return await getDeviceInfo(this.transport)
+  }
+
+  public async open() {
+    const ledgerTransport = await getTransport()
+    this.transport = ledgerTransport
+  }
+
+  public async close() {
+    await this.transport.close()
   }
 
   public async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
