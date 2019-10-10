@@ -58,6 +58,19 @@ export class PortisAdapter {
     this.keyring.add(wallet, deviceId)
     this.currentDeviceId = deviceId
     this.keyring.emit(["Portis", deviceId, Events.CONNECT], deviceId)
+
+    const watchForInactivity =  () => {
+      var time
+      window.onload = resetTimer;
+      // DOM Events
+      document.onmousemove = resetTimer
+      document.onkeypress = resetTimer
+      function resetTimer() {
+          clearTimeout(time)
+          time = setTimeout(() => this.portis.logout()), 10 * 60 * 1000)
+      }
+    }
+    watchForInactivity()
     return wallet
   }
 }
