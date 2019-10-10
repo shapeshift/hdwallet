@@ -21,9 +21,7 @@ export async function getFirstLedgerDevice(): Promise<USBDevice> {
 
   const existingDevices = await TransportWebUSB.list()
 
-  const device = existingDevices.length > 0 ? existingDevices[0] : null
-
-  return device
+  return existingDevices.length > 0 ? existingDevices[0] : null
 }
 
 export async function openTransport(device: USBDevice) {
