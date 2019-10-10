@@ -7,6 +7,7 @@ export enum HDWalletErrorType {
     WrongApp = 'WrongApp',
     FirmwareUpdateRequired = 'FirmwareUpdateRequired',
     WebUSBNotAvailable = 'WebUSBNotAvailable',
+    WebUSBCouldNotInitialize = 'WebUSBCouldNotInitialize',
     WebUSBCouldNotPair = 'WebUSBCouldNotPair'
 }
 
@@ -78,6 +79,12 @@ export class WebUSBNotAvailable extends HDWalletError {
     constructor () {
         super(`WebUSB is not available in this browser. We recommend trying Chrome.`,
               HDWalletErrorType.WebUSBNotAvailable)
+    }
+}
+
+export class WebUSBCouldNotInitialize extends HDWalletError {
+    constructor (model: string, message: string) {
+        super(`Could not initialize ${model}: ${message}`, HDWalletErrorType.WebUSBCouldNotInitialize)
     }
 }
 
