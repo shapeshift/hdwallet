@@ -313,13 +313,15 @@ $getLabel.on('click', async (e) => {
   $manageResults.val(label)
 })
 
-$getXpubs.on('click', (e) => {
+$getXpubs.on('click', async (e) => {
   e.preventDefault()
+
   if (!wallet) { $manageResults.val("No wallet?"); return}
+
   // Get Ethereum path
   const { hardenedPath } = wallet.ethGetAccountPaths({coin: "Ethereum", accountIdx: 0})[0]
 
-  wallet.getPublicKeys([
+  const result = await wallet.getPublicKeys([
     {
       addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0],
       curve: "secp256k1",
@@ -351,13 +353,16 @@ $getXpubs.on('click', (e) => {
       showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
       coin: isPortis(wallet) ? "Bitcoin" : "Ethereum"
     }
-  ]).then(result => { $manageResults.val(JSON.stringify(result)) })
+  ])
+
+  $manageResults.val(JSON.stringify(result))
 })
 
-$doPing.on('click', (e) => {
+$doPing.on('click', async (e) => {
   e.preventDefault()
-  if (!wallet) { $manageResults.val("No wallet?"); return}
-  wallet.ping({ msg: "Hello World", button: true }).then(result => { $manageResults.val(result.msg) })
+  if (!wallet) { $manageResults.val("No wallet?"); return }
+  const result = await wallet.ping({ msg: "Hello World", button: true })
+  $manageResults.val(result.msg)
 })
 
 $doWipe.on('click', (e) => {
