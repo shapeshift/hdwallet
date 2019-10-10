@@ -23,6 +23,7 @@
     "@ledgerhq/live-common": "^7.15.4",
     "@shapeshiftoss/hdwallet-core": "^0.8.0",
     "@shapeshiftoss/hdwallet-ledger": "^0.8.0",
+    "async-retry": "^1.2.3",
     "bytebuffer": "^5.0.1",
     "eventemitter2": "^5.0.1"
   },

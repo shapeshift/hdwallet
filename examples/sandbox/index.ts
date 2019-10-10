@@ -385,21 +385,35 @@ const $ethSign = $('#ethSign')
 const $ethVerify = $('#ethVerify')
 const $ethResults = $('#ethResults')
 
+
+/*
+ * Errors
+*/
+const $ethResultsError = $('#ethResultsError')
+
+
 $ethAddr.on('click', async (e) => {
   e.preventDefault()
+  if ($('.ethError')) {
+    $('.ethError').remove()
+  }
   if (!wallet) { $ethResults.val("No wallet?"); return}
   if (supportsETH(wallet)) {
-    let { hardenedPath, relPath } = wallet.ethGetAccountPaths({ coin: "Ethereum", accountIdx: 0 })[0]
-    let result = await wallet.ethGetAddress({
-      addressNList: hardenedPath.concat(relPath),
-      showDisplay: false
-    })
-    result = await wallet.ethGetAddress({
-      addressNList: hardenedPath.concat(relPath),
-      showDisplay: true,
-      address: result
-    })
-    $ethResults.val(result)
+    try {
+      let { hardenedPath, relPath } = wallet.ethGetAccountPaths({ coin: "Ethereum", accountIdx: 0 })[0]
+      let result = await wallet.ethGetAddress({
+        addressNList: hardenedPath.concat(relPath),
+        showDisplay: false
+      })
+      result = await wallet.ethGetAddress({
+        addressNList: hardenedPath.concat(relPath),
+        showDisplay: true,
+        address: result
+      })
+      $ethResults.val(result)
+    } catch (e) {
+      $ethResultsError.append('<span class="ethError">Error: ' + e + '</span>')
+    }
   } else {
     let label = await wallet.getLabel()
     $ethResults.val(label + " does not support ETH")

@@ -34,7 +34,7 @@ export class WebUSBLedgerAdapter {
 
       // remove last connected ledger from keyring since we don't have unique identifier
       if (!device.deviceID) {
-        device.deviceID = 'webusb-ledger'
+        device.deviceID = '0001'
         await this.keyring.remove(device.deviceID)
       }
 
