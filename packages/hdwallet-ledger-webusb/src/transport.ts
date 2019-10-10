@@ -24,7 +24,7 @@ export async function getFirstLedgerDevice(): Promise<USBDevice> {
   return existingDevices.length > 0 ? existingDevices[0] : null
 }
 
-export async function openTransport(device: USBDevice) {
+export async function openTransport(device: USBDevice): Promise<TransportWebUSB> {
   if (!(window && window.navigator.usb))
     throw new WebUSBNotAvailable()
 
@@ -38,6 +38,8 @@ export async function openTransport(device: USBDevice) {
 
     throw new WebUSBCouldNotInitialize('Ledger', err.message)
   }
+
+  return ledgerTransport
 }
 
 export async function getTransport(): Promise<TransportWebUSB> {
@@ -54,6 +56,8 @@ export async function getTransport(): Promise<TransportWebUSB> {
 
     throw new WebUSBCouldNotPair('Ledger', err.message)
   }
+
+  return ledgerTransport
 }
 
 export class LedgerWebUsbTransport extends LedgerTransport {
