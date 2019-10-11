@@ -32,7 +32,6 @@ export class WebUSBKeepKeyAdapter {
   }
 
   private async handleConnectWebUSBKeepKey (e: USBConnectionEvent): Promise<void> {
-    console.log(e.device)
     if (e.device.vendorId !== VENDOR_ID && e.device.productId !== WEBUSB_PRODUCT_ID) { return }
 
     try {
