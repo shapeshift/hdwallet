@@ -1,8 +1,9 @@
 const retry = require('async-retry')
-import { makeEvent, Keyring } from '@shapeshiftoss/hdwallet-core'
+import { makeEvent, Keyring, WebUSBNotAvailable, WebUSBCouldNotInitialize, WebUSBCouldNotPair, ConflictingApp } from '@shapeshiftoss/hdwallet-core'
 import { LedgerTransport, LedgerResponse } from '@shapeshiftoss/hdwallet-ledger'
 import { handleErrorForEvent } from '@shapeshiftoss/hdwallet-ledger'
 import Transport from '@ledgerhq/hw-transport'
+import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
 import Eth from '@ledgerhq/hw-app-eth'
 import Btc from '@ledgerhq/hw-app-btc'
 import getDeviceInfo from '@ledgerhq/live-common/lib/hw/getDeviceInfo'
@@ -29,6 +30,51 @@ interface LedgerEventInfo {
   response: string | void,
   eventType: string,
   fromWallet: boolean
+}
+
+export async function getFirstLedgerDevice(): Promise<USBDevice> {
+  if (!(window && window.navigator.usb))
+    throw new WebUSBNotAvailable()
+
+  const existingDevices = await TransportWebUSB.list()
+
+  return existingDevices.length > 0 ? existingDevices[0] : null
+}
+
+export async function openTransport(device: USBDevice): Promise<TransportWebUSB> {
+  if (!(window && window.navigator.usb))
+    throw new WebUSBNotAvailable()
+
+  let ledgerTransport
+  try {
+    ledgerTransport = await TransportWebUSB.open(device)
+  } catch (err) {
+    if (err.name === 'TransportInterfaceNotAvailable') {
+      throw new ConflictingApp('Ledger')
+    }
+
+    throw new WebUSBCouldNotInitialize('Ledger', err.message)
+  }
+
+  return ledgerTransport
+}
+
+export async function getTransport(): Promise<TransportWebUSB> {
+  if (!(window && window.navigator.usb))
+    throw new WebUSBNotAvailable()
+
+  let ledgerTransport
+  try {
+    ledgerTransport = await TransportWebUSB.openConnected() || await TransportWebUSB.request()
+  } catch (err) {
+    if (err.name === 'TransportInterfaceNotAvailable') {
+      throw new ConflictingApp('Ledger')
+    }
+
+    throw new WebUSBCouldNotPair('Ledger', err.message)
+  }
+
+  return ledgerTransport
 }
 
 export class LedgerWebUsbTransport extends LedgerTransport {
@@ -65,6 +111,15 @@ export class LedgerWebUsbTransport extends LedgerTransport {
       method: 'getDeviceInfo',
       coin: 'dashboard'
     })
+  }
+
+  public async open() {
+    const ledgerTransport = await getTransport()
+    this.transport = ledgerTransport
+  }
+
+  public async close() {
+    await this.transport.close()
   }
 
   public async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
