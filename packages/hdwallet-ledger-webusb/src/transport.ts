@@ -1,6 +1,7 @@
 const retry = require('async-retry')
 import { makeEvent, Keyring } from '@shapeshiftoss/hdwallet-core'
 import { LedgerTransport, LedgerResponse } from '@shapeshiftoss/hdwallet-ledger'
+import { handleErrorForEvent } from '@shapeshiftoss/hdwallet-ledger'
 import Transport from '@ledgerhq/hw-transport'
 import Eth from '@ledgerhq/hw-app-eth'
 import Btc from '@ledgerhq/hw-app-btc'
@@ -19,19 +20,21 @@ interface LedgerRequest {
   method: string,
   action?: Function,
   coin?: string,
-  args?: any
+  args?: any[]
 }
 
 interface LedgerEventInfo {
   coin: string,
   method: string,
-  response: string,
+  response: string | void,
   eventType: string,
   fromWallet: boolean
 }
 
 export class LedgerWebUsbTransport extends LedgerTransport {
   device: USBDevice
+
+  cancelCall: boolean = false
 
   callInProgress: {
     main: Promise<any>,
@@ -47,7 +50,8 @@ export class LedgerWebUsbTransport extends LedgerTransport {
   }
 
   private _createLedgerCall({ coin, method }: { coin: string, method: string }): any {
-    return new (translateCoin(coin))(this.transport)[method]
+    const ledgerCall = new (translateCoin(coin))(this.transport)[method]
+    return ledgerCall
   }
 
   public getDeviceID (): string {
@@ -57,100 +61,92 @@ export class LedgerWebUsbTransport extends LedgerTransport {
   public async getDeviceInfo(): Promise<LedgerResponse> {
     return await this.sendToLedger({
       action: getDeviceInfo,
+      args: [this.transport],
       method: 'getDeviceInfo',
       coin: 'dashboard'
     })
   }
 
   public async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
-    console.log('CALL')
-    let response
-    try {
-      response =  await this.sendToLedger({
-        method,
-        coin,
-        args
-      })
-    } catch(e) {
-      console.log(e)
-      response = 'ya'
-    }
-
-    console.log({ response })
-
-    return response
+    return  await this.sendToLedger({
+      action: this._createLedgerCall({ coin, method }),
+      args,
+      method,
+      coin
+    })
   }
 
   public async sendToLedger(sendObj: LedgerRequest): Promise<LedgerResponse> {
+    let response
     let { action, coin, method, args } = sendObj
 
     this.emitEvent({ coin, method, response: '', fromWallet: false, eventType: 'call' })
 
-    let makePromise = async () => {
-      let response
-      try {
-        // might need some work to be more flexible, it works tho - rj
-        response = action ? await action(this.transport) : await this._createLedgerCall({ coin, method })(...args)
-      } catch (e) {
-        this.emitEvent({ coin, method, response: e.message, fromWallet: true, eventType: 'error' })
-
-        return {
-          success: false,
-          payload: { error: e.toString() },
-          coin,
-          method,
+    try {
+      await retry(async (bail) => {
+        if (this.cancelCall) {
+          this.cancelCall = false
+          bail()
+          return
         }
-      }
 
-      let result = {
-        success: true,
-        payload: response,
+        response = await action(...args)
+      }, {
+        retries: 60,
+        onRetry: (error, attempts) => {
+          const response = handleErrorForEvent({
+            success: false,
+            coin,
+            payload: { error: error.message }
+          })
+
+          console.log({ isRetry: true, error, attempts, response })
+
+          if (attempts === 1) {
+            this.emitEvent({
+              coin: 'none',
+              method: 'retry',
+              response,
+              fromWallet: true,
+              eventType: 'response'
+            })
+          }
+        },
+        maxTimeout: 1000
+      })
+    } catch (e) {
+      this.emitEvent({
+        coin,
+        method,
+        response: e.message,
+        fromWallet: true,
+        eventType: 'error'
+      })
+
+      console.log({ response })
+
+      return {
+        success: false,
+        payload: { error: e.toString() },
         coin,
         method,
       }
-
-      return result
     }
 
-    /////////
-    this.callInProgress.main = (async () => {
-      // await this.cancellable(this.callInProgress.main)
+    console.log({ response })
 
-      try {
-        return makePromise()
-      } catch(e) {
-        console.log('from call in progress', e)
-      } finally {
-        console.log('FINISHED!')
-        // this.userActionRequired = false
-      }
-    })()
+    let result = {
+      success: true,
+      payload: response,
+      coin,
+      method,
+    }
 
-    return await this.callInProgress.main
+    return result
   }
 
-  // public async cancel () {
-  //   if (!this.userActionRequired) return
-  //   try {
-  //     this.callInProgress = { main: undefined, debug: undefined }
-  //     const cancelMsg = new Messages.Cancel()
-  //     await this.call(Messages.MessageType.MESSAGETYPE_CANCEL, cancelMsg, DEFAULT_TIMEOUT, false, this.userActionRequired)
-  //   } catch (e) {
-  //     console.error('Cancel Pending Error', e)
-  //   } finally {
-  //     this.callInProgress = { main: undefined, debug: undefined }
-  //   }
-  // }
-
-  public async cancel() {
-    try {
-
-    } catch (e) {
-
-    } finally {
-      this.callInProgress = { main: undefined, debug: undefined }
-    }
-
+  public async cancel(): Promise<void> {
+    return new Promise(() => this.cancelCall = true)
   }
 
   public emitEvent(ledgerEventInfo: LedgerEventInfo): void {

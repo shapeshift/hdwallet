@@ -89,7 +89,7 @@
     <h4>DebugLink</h4>
     <button class='button-outline' id='yes'>Yes</button>
     <button class='button-outline' id='no'>No</button>
-    <button class='button-outline' id='cancel'>Cancel</button>
+    <button class='button-outline cancel'>Cancel</button>
   </div>
   <div class="container" style="padding-top:8em;">
     <h4>Manage</h4>
@@ -102,6 +102,7 @@
     <button class="button button-outline" id='doPing'>Ping</button>
     <button class="button button-outline" id='doWipe'>Wipe</button>
     <button class="button button-outline" id='doLoadDevice'>Load</button>
+    <button class="button button-outline cancel">Cancel</button>
     <input type="text" id="manageResults" />
   </div>
   <div class="container" style="padding-top:8em;">
@@ -110,6 +111,7 @@
     <button class="button button-outline" id='ethTx'>Tx</button>
     <button class="button button-outline" id='ethSign'>Sign</button>
     <button class="button button-outline" id='ethVerify'>Verify</button>
+    <button class="button button-outline cancel">Cancel</button>
     <input type="text" id="ethResults" />
     <div id="ethResultsError"></div>
   </div>
@@ -119,6 +121,7 @@
     <button class="button button-outline" id='btcTx'>Tx</button>
     <button class="button button-outline" id='btcSign'>Sign</button>
     <button class="button button-outline" id='btcVerify'>Verify</button>
+    <button class="button button-outline cancel">Cancel</button>
     <input type="text" id="btcResults" />
   </div>
 
@@ -128,6 +131,7 @@
     <button class="button button-outline" id='btcAddrSegWitNative'>Address (bech32)</button>
     <button class="button button-outline" id='btcTxSegWit'>Tx Segwit</button>
     <button class="button button-outline" id='btcTxSegWitNative'>Tx Segwit (Native)</button>
+    <button class="button button-outline cancel">Cancel</button>
     <input type="text" id="btcResultsSegWit" />
   </div>
 
@@ -136,24 +140,28 @@
     <button class="button button-outline" id='ltcAddr'>Address</button>
     <button class="button button-outline" id='ltcTx'>Tx</button>
     <button class="button button-outline" id='ltcSign'>Sign</button>
+    <button class="button button-outline cancel">Cancel</button>
     <input type="text" id="ltcResults" />
   </div>
   <div class="container" style="padding-top:8em;">
     <h4>Dogecoin</h4>
     <button class="button button-outline" id='dogeAddr'>Address</button>
     <button class="button button-outline" id='dogeTx'>Tx</button>
+    <button class="button button-outline cancel">Cancel</button>
     <input type="text" id="dogeResults" />
   </div>
   <div class="container" style="padding-top:8em;">
     <h4>Bitcoin Cash</h4>
     <button class="button button-outline" id='bchAddr'>Address</button>
     <button class="button button-outline" id='bchTx'>Tx</button>
+    <button class="button button-outline cancel">Cancel</button>
     <input type="text" id="bchResults" />
   </div>
   <div class="container" style="padding-top:8em;">
     <h4>Dash</h4>
     <button class="button button-outline" id='dashAddr'>Address</button>
     <button class="button button-outline" id='dashTx'>Tx</button>
+    <button class="button button-outline cancel">Cancel</button>
     <input type="text" id="dashResults" />
   </div>
 
@@ -193,6 +201,19 @@
       </div>
       <div class="modal-footer">
         <button class="button button-outline" onclick="passphraseEntered()">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="#ledgerModal" class="modale" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Alert</h3>
+        <p id='ledgerError'></p>
+      </div>
+      <div class="modal-footer">
+        <button class="button button-outline" onclick="repairLedger()">Continue</button>
+        <button class="button button-outline" onclick="cancel()">Cancel</button>
       </div>
     </div>
   </div>

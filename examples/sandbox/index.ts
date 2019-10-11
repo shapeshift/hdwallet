@@ -188,6 +188,12 @@ async function deviceConnected (deviceId) {
   keyring.on(['*', '*', Events.DISCONNECT], async (deviceId) => {
     $keyring.find(`option[value="${deviceId}"]`).remove()
   })
+
+
+  keyring.on(['Ledger', 'webusb-ledger', 'ledger.none.retry.response'], async ([ deviceId, event ]) => {
+    $ledgerError.append('<span>' + event.message.response + '</span>')
+    document.getElementById('#ledgerModal').className = 'modale opened'
+  })
 })()
 
 window['handlePinDigit'] = function (digit) {
@@ -219,6 +225,20 @@ window['passphraseEntered'] = function () {
   document.getElementById('#passphraseModal').className='modale';
 }
 
+window['repairLedger'] = async function () {
+  $ledgerError.find('span').remove()
+  document.getElementById('#ledgerModal').className='modale';
+  wallet = await ledgerAdapter.pairDevice()
+}
+
+window['cancel'] = async function () {
+  console.log({ wallet })
+  if (!wallet) return
+  $ledgerError.find('span').remove()
+  document.getElementById('#ledgerModal').className='modale';
+  await wallet.cancel()
+}
+
 function listen(transport) {
   if (!transport)
     return
@@ -234,7 +254,7 @@ function listen(transport) {
 
 const $yes = $('#yes')
 const $no = $('#no')
-const $cancel = $('#cancel')
+const $cancel = $('.cancel')
 
 $yes.on('click', async (e) => {
   e.preventDefault()
@@ -384,6 +404,7 @@ const $ethTx = $('#ethTx')
 const $ethSign = $('#ethSign')
 const $ethVerify = $('#ethVerify')
 const $ethResults = $('#ethResults')
+const $ledgerError = $('#ledgerError')
 
 
 /*

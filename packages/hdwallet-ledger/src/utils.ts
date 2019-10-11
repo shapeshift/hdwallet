@@ -13,7 +13,6 @@ import { LedgerTransport } from './transport'
 import { Buffer } from "buffer";
 
 export function handleError (transport: LedgerTransport, result: any, message?: string): void {
-  console.log({ result })
   if (result.success)
     return
 
@@ -47,6 +46,38 @@ export function handleError (transport: LedgerTransport, result: any, message?: 
 
     throw new Error(`${message}: '${result.payload.error}'`)
   }
+}
+
+export function handleErrorForEvent(result: any, message?: string): any {
+  console.log({ result })
+  if (result.success)
+    return
+
+  if (result.payload && result.payload.error) {
+
+    // No app selected
+    if (result.payload.error.includes('0x6700') ||
+        result.payload.error.includes('0x6982')) {
+      return new SelectApp('Ledger', result.coin)
+    }
+
+    // Wrong app selected
+    if (result.payload.error.includes('0x6d00')) {
+      if (result.coin) {
+        return new WrongApp('Ledger', result.coin)
+      }
+      // Navigate to Ledger Dashboard
+      return new NavigateToDashboard('Ledger')
+    }
+
+    // User selected x instead of ✓
+    if (result.payload.error.includes('0x6985')) {
+      return new ActionCancelled()
+    }
+
+    return new Error(`${message}: '${result.payload.error}'`)
+  }
+
 }
 
 export const getderivationModeFromFormat = (format:string):string => {

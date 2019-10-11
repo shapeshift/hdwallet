@@ -434,7 +434,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async cancel (): Promise<void> {
-    return
+    return await this.transport.cancel()
   }
 
   public async recover (msg: core.RecoverDevice): Promise<void> {
