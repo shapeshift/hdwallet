@@ -46,7 +46,7 @@ export class Keyring extends eventemitter2.EventEmitter2 {
     if (this.aliases[deviceID] && this.wallets[this.aliases[deviceID]])
       return this.wallets[this.aliases[deviceID]]
     if (this.wallets[deviceID]) return this.wallets[deviceID]
-    if (!!this.get() && !deviceID) return Object.values(this.wallets)[0]
+    if (!!Object.keys(this.wallets).length && !deviceID) return Object.values(this.wallets)[0]
     return null
   }
 
