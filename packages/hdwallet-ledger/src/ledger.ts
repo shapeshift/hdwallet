@@ -318,7 +318,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async getDeviceID (): Promise<string> {
-    const { device: { deviceID }} = this.transport as any
+    const { device: { serialNumber: deviceID }} = this.transport as any
     return deviceID
   }
 
@@ -327,7 +327,20 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async getFirmwareVersion (): Promise<string> {
-    const { version } = await this.getFeatures()
+    await this.transport.open()
+
+    var version
+    try {
+        var { version } = await this.getFeatures()
+    } catch(err) {
+        if (err.message.includes('0x6d00'))
+            throw new core.WrongApp('Ledger', 'Dashboard')
+
+        console.error(err)
+    }
+
+    await this.transport.close()
+
     return version
   }
 
@@ -354,6 +367,8 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   // Adapted from https://github.com/LedgerHQ/ledger-wallet-webtool
   public async getPublicKeys (msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey>> {
+    await this.transport.open()
+
     const xpubs = []
 
     for (const getPublicKey of msg) {
@@ -372,7 +387,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
       let result = crypto.sha256(parentPublicKey)
       result = crypto.ripemd160(result)
 
-      const fingerprint: number = ((result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3]) >>> 0
+      const fingerprint: number = result[0] << 24 | result[1] << 16 | result[2] << 8 | result[3] >>> 0
       const bip32path: string = core.addressNListToBIP32(addressNList).substring(2) // i.e 44'/0'/0'
 
       const res2 = await this.transport.call('Btc', 'getWalletPublicKey', bip32path, opts)
@@ -398,6 +413,8 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
       xpubs.push({ xpub: encodeBase58Check(xpub) })
     }
+
+    await this.transport.close()
 
     return xpubs
   }
