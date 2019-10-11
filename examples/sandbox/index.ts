@@ -190,9 +190,14 @@ async function deviceConnected (deviceId) {
   })
 
 
-  keyring.on(['Ledger', 'webusb-ledger', 'ledger.none.retry.response'], async ([ deviceId, event ]) => {
+  keyring.on(['Ledger', '0001', 'ledger.none.retry.response'], async ([ deviceId, event ]) => {
     $ledgerError.append('<span>' + event.message.response + '</span>')
     document.getElementById('#ledgerModal').className = 'modale opened'
+  })
+
+  keyring.on(['Ledger', '0001', 'ledger.none.retry.success'], async ([ deviceId, event ]) => {
+    $ledgerError.find('span').remove()
+    document.getElementById('#ledgerModal').className = 'modale'
   })
 })()
 
@@ -223,12 +228,6 @@ window['passphraseEntered'] = function () {
   let input = document.getElementById('#passphraseInput')
   wallet.sendPassphrase(input.value);
   document.getElementById('#passphraseModal').className='modale';
-}
-
-window['repairLedger'] = async function () {
-  $ledgerError.find('span').remove()
-  document.getElementById('#ledgerModal').className='modale';
-  wallet = await ledgerAdapter.pairDevice()
 }
 
 window['cancel'] = async function () {

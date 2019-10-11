@@ -19,7 +19,7 @@ function translateCoin(coin: string): (any) => void {
 
 interface LedgerRequest {
   method: string,
-  action?: Function,
+  action?: any,
   coin?: string,
   args?: any[]
 }
@@ -96,18 +96,25 @@ export class LedgerWebUsbTransport extends LedgerTransport {
   }
 
   private _createLedgerCall({ coin, method }: { coin: string, method: string }): any {
-    const ledgerCall = new (translateCoin(coin))(this.transport)[method]
-    return ledgerCall
+    return function(transport): any {
+      return new (translateCoin(coin))(transport)[method]
+    }
   }
 
   public getDeviceID (): string {
     return (this.device as any).deviceID
   }
 
+  private  getLedgerDeviceInfo(transport): any {
+    return function (_) {
+      return getDeviceInfo(transport)
+    }
+  }
+
   public async getDeviceInfo(): Promise<LedgerResponse> {
     return await this.sendToLedger({
-      action: getDeviceInfo,
-      args: [this.transport],
+      action: this.getLedgerDeviceInfo,
+      args: [],
       method: 'getDeviceInfo',
       coin: 'dashboard'
     })
@@ -145,9 +152,21 @@ export class LedgerWebUsbTransport extends LedgerTransport {
           return
         }
 
-        response = await action(...args)
+        // make sure the transport is open before
+        // communicating with the ledger
+        await this.open()
+
+        response = await action(this.transport)(...args)
+
+        this.emitEvent({
+          coin: 'none',
+          method: 'retry',
+          response,
+          fromWallet: true,
+          eventType: 'success'
+        })
       }, {
-        retries: 60,
+        retries: 20,
         onRetry: (error, attempts) => {
           const response = handleErrorForEvent({
             success: false,
@@ -178,8 +197,6 @@ export class LedgerWebUsbTransport extends LedgerTransport {
         eventType: 'error'
       })
 
-      console.log({ response })
-
       return {
         success: false,
         payload: { error: e.toString() },
@@ -187,8 +204,6 @@ export class LedgerWebUsbTransport extends LedgerTransport {
         method,
       }
     }
-
-    console.log({ response })
 
     let result = {
       success: true,
@@ -201,7 +216,7 @@ export class LedgerWebUsbTransport extends LedgerTransport {
   }
 
   public async cancel(): Promise<void> {
-    return new Promise(() => this.cancelCall = true)
+    this.cancelCall = true
   }
 
   public emitEvent(ledgerEventInfo: LedgerEventInfo): void {
