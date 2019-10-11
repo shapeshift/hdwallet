@@ -323,15 +323,9 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async getFeatures (): Promise<any> {
-    return this.transport.getDeviceInfo()
-  }
-
-  public async getFirmwareVersion (): Promise<string> {
     await this.transport.open()
-
-    var version
     try {
-        var { version } = await this.getFeatures()
+      return await this.transport.getDeviceInfo()
     } catch(err) {
         if (err.message.includes('0x6d00'))
             throw new core.WrongApp('Ledger', 'Dashboard')
@@ -340,7 +334,10 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     } finally {
       await this.transport.close()
     }
+  }
 
+  public async getFirmwareVersion (): Promise<string> {
+    const { version } = await this.getFeatures()
     return version
   }
 
