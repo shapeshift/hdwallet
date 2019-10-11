@@ -337,9 +337,9 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
             throw new core.WrongApp('Ledger', 'Dashboard')
 
         console.error(err)
+    } finally {
+      await this.transport.close()
     }
-
-    await this.transport.close()
 
     return version
   }
