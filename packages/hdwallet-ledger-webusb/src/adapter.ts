@@ -1,6 +1,6 @@
 import { create as createLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { Events, Keyring, HDWallet, WebUSBNotAvailable, WebUSBCouldNotPair, ConflictingApp } from '@shapeshiftoss/hdwallet-core'
-import { LedgerWebUsbTransport } from './transport'
+import { Events, Keyring, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { LedgerWebUsbTransport, getFirstLedgerDevice, getTransport, openTransport } from './transport'
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
 
 const VENDOR_ID = 11415
@@ -10,73 +10,68 @@ export class WebUSBLedgerAdapter {
 
   constructor(keyring: Keyring) {
     this.keyring = keyring
+
+    if (window && window.navigator.usb) {
+      window.navigator.usb.addEventListener('connect', this.handleConnectWebUSBLedger.bind(this))
+      window.navigator.usb.addEventListener('disconnect', this.handleDisconnectWebUSBLedger.bind(this))
+    }
   }
 
   public static useKeyring(keyring: Keyring) {
     return new WebUSBLedgerAdapter(keyring)
   }
 
-  public get (device: USBDevice): HDWallet {
-    return this.keyring.get((device as any).deviceID)
+  private async handleConnectWebUSBLedger(e: USBConnectionEvent): Promise<void> {
+    if (e.device.vendorId !== VENDOR_ID) return
+
+    try {
+      await this.initialize(e.device)
+    } catch(error) {
+      this.keyring.emit([e.device.manufacturerName, e.device.productName, Events.FAILURE], [e.device.serialNumber, {message: { code: error.type, ...error}}])
+    }
   }
 
-  public async initialize (devices?: USBDevice[]): Promise<number> {
-    if (!(window && window.navigator.usb))
-      throw new WebUSBNotAvailable()
+  private async handleDisconnectWebUSBLedger(e: USBConnectionEvent): Promise<void> {
+    if (e.device.vendorId !== VENDOR_ID) return
 
-    const devicesToInitialize = devices || await TransportWebUSB.list()
+    try {
+      await this.keyring.remove(e.device.serialNumber)
+    } catch(e) {
+      console.error(e)
+    } finally {
+      this.keyring.emit([e.device.manufacturerName, e.device.productName, Events.DISCONNECT], e.device.serialNumber)
+    }
+  }
 
-    let ledgerTransport
-    for (let i = 0; i < devicesToInitialize.length; i++) {
-      const device = devicesToInitialize[i]
+  public get (device: USBDevice): HDWallet {
+    return this.keyring.get((device as any).serialNumber)
+  }
 
-      if (device.vendorId !== VENDOR_ID) { continue }
+  // without unique device identifiers, we should only ever have one ledger device on the keyring at a time
+  public async initialize(usbDevice?: USBDevice): Promise<number> {
+    const device = usbDevice || await getFirstLedgerDevice()
 
-      // remove last connected ledger from keyring since we don't have unique identifier
-      if (!device.deviceID) {
-        device.deviceID = 'webusb-ledger'
-        await this.keyring.remove(device.deviceID)
-      }
+    if (device) {
+      await this.keyring.remove(device.serialNumber)
 
-      if (this.keyring.wallets[device.deviceID]) { continue }
-
-      try {
-        ledgerTransport = await TransportWebUSB.open(device)
-      } catch (e) {
-        console.error(`Could not initialize ${device.manufacturerName} ${device.productName}.`, e)
-        if (e.name === 'TransportInterfaceNotAvailable') {
-          throw new ConflictingApp('Ledger')
-        }
-        continue
-      }
+      const ledgerTransport = await openTransport(device)
 
       const wallet = createLedger(new LedgerWebUsbTransport(device, ledgerTransport, this.keyring))
 
-      this.keyring.add(wallet, device.deviceID)
-      this.keyring.emit(["Ledger", device.deviceID, Events.CONNECT], device.deviceID)
+      this.keyring.add(wallet, device.serialNumber)
+      this.keyring.emit([device.manufacturerName, device.productName, Events.CONNECT], device.serialNumber)
     }
 
     return Object.keys(this.keyring.wallets).length
   }
 
-  public async pairDevice (): Promise<HDWallet> {
-    if (!(window && window.navigator.usb))
-      throw new WebUSBNotAvailable()
+  public async pairDevice(): Promise<HDWallet> {
+    const ledgerTransport = await getTransport()
 
-    let transport
-    try {
-      transport = await TransportWebUSB.request()
-    } catch (err) {
-      if (err.name === 'TransportInterfaceNotAvailable') {
-        throw new ConflictingApp('Ledger')
-      }
-      throw new WebUSBCouldNotPair('Ledger', err.message)
-    }
+    const device = ledgerTransport.device
 
-    const device = transport.device
+    await this.initialize(device)
 
-    await this.initialize([device])
-
-    return this.keyring.get(device.deviceID)
+    return this.keyring.get(device.serialNumber)
   }
 }

@@ -318,12 +318,22 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async getDeviceID (): Promise<string> {
-    const { device: { deviceID }} = this.transport as any
+    const { device: { serialNumber: deviceID }} = this.transport as any
     return deviceID
   }
 
   public async getFeatures (): Promise<any> {
-    return this.transport.getDeviceInfo()
+    await this.transport.open()
+    try {
+      return await this.transport.getDeviceInfo()
+    } catch(err) {
+        if (err.message.includes('0x6d00'))
+            throw new core.WrongApp('Ledger', 'Dashboard')
+
+        console.error(err)
+    } finally {
+      await this.transport.close()
+    }
   }
 
   public async getFirmwareVersion (): Promise<string> {
@@ -354,6 +364,8 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   // Adapted from https://github.com/LedgerHQ/ledger-wallet-webtool
   public async getPublicKeys (msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey>> {
+    await this.transport.open()
+
     const xpubs = []
 
     for (const getPublicKey of msg) {
@@ -398,6 +410,8 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
       xpubs.push({ xpub: encodeBase58Check(xpub) })
     }
+
+    await this.transport.close()
 
     return xpubs
   }
@@ -472,11 +486,21 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async btcGetAddress (msg: core.BTCGetAddress): Promise<string> {
-    return btc.btcGetAddress(this.transport, msg)
+    await this.transport.open()
+    try {
+      return await btc.btcGetAddress(this.transport, msg)
+    } finally {
+      await this.transport.close()
+    }
   }
 
   public async btcSignTx (msg: core.BTCSignTx): Promise<core.BTCSignedTx> {
-    return btc.btcSignTx(this, this.transport, msg)
+    await this.transport.open()
+    try {
+      return await btc.btcSignTx(this, this.transport, msg)
+    } finally {
+      await this.transport.close()
+    }
   }
 
   public async btcSupportsSecureTransfer (): Promise<boolean> {
@@ -488,7 +512,12 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async btcSignMessage (msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
-    return btc.btcSignMessage(this, this.transport, msg)
+    await this.transport.open()
+    try {
+      return await btc.btcSignMessage(this, this.transport, msg)
+    } finally {
+      await this.transport.close()
+    }
   }
 
   public async btcVerifyMessage (msg: core.BTCVerifyMessage): Promise<boolean> {
@@ -504,15 +533,30 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async ethSignTx (msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
-    return eth.ethSignTx(this.transport, msg)
+    await this.transport.open()
+    try {
+      return await eth.ethSignTx(this.transport, msg)
+    } finally {
+      await this.transport.close()
+    }
   }
 
   public async ethGetAddress (msg: core.ETHGetAddress): Promise<string> {
-    return eth.ethGetAddress(this.transport, msg)
+    await this.transport.open()
+    try {
+      return await eth.ethGetAddress(this.transport, msg)
+    } finally {
+      await this.transport.close()
+    }
   }
 
   public async ethSignMessage (msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
-    return eth.ethSignMessage(this.transport, msg)
+    await this.transport.open()
+    try {
+      return await eth.ethSignMessage(this.transport, msg)
+    } finally {
+      await this.transport.close()
+    }
   }
 
   public async ethVerifyMessage (msg: core.ETHVerifyMessage): Promise<boolean> {
