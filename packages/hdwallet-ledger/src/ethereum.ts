@@ -31,20 +31,14 @@ export async function ethSupportsNetwork(chain_id: number): Promise<boolean> {
 }
 
 export async function ethGetAddress(transport: LedgerTransport, msg: ETHGetAddress): Promise<string> {
-  await transport.open()
-
   const bip32path = addressNListToBIP32(msg.addressNList)
   const res = await transport.call('Eth', 'getAddress', bip32path, !!msg.showDisplay)
   handleError(transport, res, 'Unable to obtain ETH address from device.')
-
-  await transport.close()
 
   return res.payload.address
 }
 
 export async function ethSignTx(transport: LedgerTransport, msg: ETHSignTx): Promise<ETHSignedTx> {
-  await transport.open()
-
   const bip32path = addressNListToBIP32(msg.addressNList)
   const txParams = {
     to: msg.to,
@@ -73,8 +67,6 @@ export async function ethSignTx(transport: LedgerTransport, msg: ETHSignTx): Pro
     r: '0x' + r,
     s: '0x' + s
   })
-
-  await transport.close()
 
   return {
     v: parseInt(v, 16),
@@ -107,8 +99,6 @@ export function ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPat
 }
 
 export async function ethSignMessage(transport: LedgerTransport, msg: ETHSignMessage): Promise<ETHSignedMessage> {
-  await transport.open()
-
   const bip32path = addressNListToBIP32(msg.addressNList)
   const res = await transport.call('Eth', 'signPersonalMessage', bip32path,
     Buffer.from(msg.message).toString('hex'))
@@ -119,8 +109,6 @@ export async function ethSignMessage(transport: LedgerTransport, msg: ETHSignMes
   v = v.toString(16).padStart(2, '0')
   const addressRes = await transport.call('Eth', 'getAddress', bip32path, false)
   handleError(transport, addressRes, 'Unable to obtain ETH address from device.')
-
-  await transport.close()
 
   return {
     address: addressRes.payload.address,

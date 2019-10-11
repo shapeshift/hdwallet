@@ -66,8 +66,6 @@ export async function btcSupportsScriptType (coin: Coin, scriptType: BTCInputScr
 }
 
 export async function btcGetAddress (transport: LedgerTransport, msg: BTCGetAddress): Promise<string> {
-  await transport.open()
-
   const bip32path = addressNListToBIP32(msg.addressNList)
   const opts = {
     verify: !!msg.showDisplay,
@@ -76,8 +74,6 @@ export async function btcGetAddress (transport: LedgerTransport, msg: BTCGetAddr
 
   const res = await transport.call('Btc', 'getWalletPublicKey', bip32path, opts)
   handleError(transport, res, 'Unable to obtain BTC address from device')
-
-  await transport.close()
 
   return res.payload.bitcoinAddress
 }
@@ -119,8 +115,6 @@ export async function btcGetAddress (transport: LedgerTransport, msg: BTCGetAddr
 
  */
 export async function btcSignTx (wallet: BTCWallet, transport: LedgerTransport, msg: BTCSignTx): Promise<BTCSignedTx> {
-  await transport.open()
-
   let supportsShapeShift = await wallet.btcSupportsNativeShapeShift()
   let supportsSecureTransfer = await wallet.btcSupportsSecureTransfer()
   let slip44 = slip44ByCoin(msg.coin)
@@ -152,9 +146,7 @@ export async function btcSignTx (wallet: BTCWallet, transport: LedgerTransport, 
     let path = addressNListToBIP32(msg.inputs[i].addressNList)
     let vout = msg.inputs[i].vout
 
-    let tx = await transport.call('Btc', 'splitTransaction', msg.inputs[i].hex,
-      networksUtil[slip44].isSegwitSupported,
-      networksUtil[slip44].areTransactionTimestamped)
+    let tx = await transport.call('Btc', 'splitTransaction', msg.inputs[i].hex, networksUtil[slip44].isSegwitSupported, networksUtil[slip44].areTransactionTimestamped)
 
     indexes.push(vout)
     txs.push(tx.payload)
@@ -164,8 +156,7 @@ export async function btcSignTx (wallet: BTCWallet, transport: LedgerTransport, 
 
   //sign createPaymentTransaction
   let signedTx = await transport.call('Btc', 'createPaymentTransactionNew', inputs, paths, undefined, outputScriptHex, null, networksUtil[slip44].sigHash, segwit)
-
-  await transport.close()
+  handleError(transport, signedTx, 'Could not sign transaction with device')
 
   return {
     serializedTx: signedTx.payload,
@@ -182,8 +173,6 @@ export async function btcSupportsNativeShapeShift (): Promise<boolean> {
 }
 
 export async function btcSignMessage (wallet: BTCWallet, transport: LedgerTransport, msg: BTCSignMessage): Promise<BTCSignedMessage> {
-  await transport.open()
-
   const bip32path = addressNListToBIP32(msg.addressNList)
 
   const res = await transport.call('Btc', 'signMessageNew', bip32path, Buffer.from(msg.message).toString("hex"))
@@ -192,14 +181,12 @@ export async function btcSignMessage (wallet: BTCWallet, transport: LedgerTransp
 
   const signature = Buffer.from(v.toString(16) + res.payload['r'] + res.payload['s'], 'hex').toString('hex')
 
-  const address = await wallet.btcGetAddress({
+  const address = await btcGetAddress(transport, {
     addressNList: msg.addressNList,
     coin: msg.coin,
     showDisplay: false,
     scriptType: msg.scriptType
   })
-
-  await transport.close()
 
   return {
     address,
