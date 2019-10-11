@@ -146,9 +146,7 @@ export async function btcSignTx (wallet: BTCWallet, transport: LedgerTransport, 
     let path = addressNListToBIP32(msg.inputs[i].addressNList)
     let vout = msg.inputs[i].vout
 
-    let tx = await transport.call('Btc', 'splitTransaction', msg.inputs[i].hex,
-      networksUtil[slip44].isSegwitSupported,
-      networksUtil[slip44].areTransactionTimestamped)
+    let tx = await transport.call('Btc', 'splitTransaction', msg.inputs[i].hex, networksUtil[slip44].isSegwitSupported, networksUtil[slip44].areTransactionTimestamped)
 
     indexes.push(vout)
     txs.push(tx.payload)
@@ -158,6 +156,7 @@ export async function btcSignTx (wallet: BTCWallet, transport: LedgerTransport, 
 
   //sign createPaymentTransaction
   let signedTx = await transport.call('Btc', 'createPaymentTransactionNew', inputs, paths, undefined, outputScriptHex, null, networksUtil[slip44].sigHash, segwit)
+  handleError(transport, signedTx, 'Could not sign transaction with device')
 
   return {
     serializedTx: signedTx.payload,
@@ -182,7 +181,7 @@ export async function btcSignMessage (wallet: BTCWallet, transport: LedgerTransp
 
   const signature = Buffer.from(v.toString(16) + res.payload['r'] + res.payload['s'], 'hex').toString('hex')
 
-  const address = await wallet.btcGetAddress({
+  const address = await btcGetAddress(transport, {
     addressNList: msg.addressNList,
     coin: msg.coin,
     showDisplay: false,
