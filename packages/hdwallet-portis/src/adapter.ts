@@ -51,7 +51,7 @@ export class PortisAdapter {
   }
 
   private async pairPortisDevice(): Promise<HDWallet> {
-    this.portis = this.portis ? this.portis : new Portis(this.portisAppId, 'mainnet')
+    this.portis = new Portis(this.portisAppId, 'mainnet')
     const wallet = new PortisHDWallet(this.portis)
     await wallet.initialize()
     const deviceId = await wallet.getDeviceID()

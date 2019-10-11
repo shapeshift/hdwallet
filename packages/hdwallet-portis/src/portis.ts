@@ -95,6 +95,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   portis: any
   web3: any
   info: PortisHDWalletInfo & HDWalletInfo
+  ethAddress: string
 
   // used as a mutex to ensure calls to portis.getExtendedPublicKey cannot happen before a previous call has resolved
   portisCallInProgress: Promise<any> = Promise.resolve()
@@ -300,6 +301,9 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   }
 
   public async ethGetAddress (msg: ETHGetAddress): Promise<string> {
+    if(msg.showDisplay === true) {
+      this.portis.showPortis()
+    }
     return this._ethGetAddress()
   }
 
@@ -308,7 +312,10 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   }
 
   private async _ethGetAddress(): Promise<string> {
-    return (await this.web3.eth.getAccounts())[0]
+    if(!this.ethAddress) {
+      this.ethAddress = (await this.web3.eth.getAccounts())[0]
+    }
+    return this.ethAddress
   }
 
   public async getFirmwareVersion(): Promise<string> {

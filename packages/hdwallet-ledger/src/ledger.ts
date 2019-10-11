@@ -350,7 +350,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   public async getModel (): Promise<string> {
     const { device: { productName }} = this.transport as any
-    return "Ledger " + productName
+    return productName
   }
 
   public async getLabel (): Promise<string> {
