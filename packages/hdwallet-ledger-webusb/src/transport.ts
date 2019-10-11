@@ -78,7 +78,7 @@ export class LedgerWebUsbTransport extends LedgerTransport {
 
   public async open() {
     const ledgerTransport = await getTransport()
-    this.transport = ledgerTransport
+    this.transport = await getTransport()
   }
 
   public async close() {
