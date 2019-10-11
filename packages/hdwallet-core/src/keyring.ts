@@ -10,10 +10,6 @@ export class Keyring extends eventemitter2.EventEmitter2 {
     super(({ wildcard: true }))
   }
 
-  public get initializedCount (): number {
-    return Object.keys(this.wallets).length
-  }
-
   public add (wallet: HDWallet, deviceID?: string): boolean {
     const id = deviceID || new Date().toString()
     if (!(this.wallets[id])) {
@@ -50,7 +46,7 @@ export class Keyring extends eventemitter2.EventEmitter2 {
     if (this.aliases[deviceID] && this.wallets[this.aliases[deviceID]])
       return this.wallets[this.aliases[deviceID]]
     if (this.wallets[deviceID]) return this.wallets[deviceID]
-    if (this.initializedCount && !deviceID) return Object.values(this.wallets)[0]
+    if (!!this.get() && !deviceID) return Object.values(this.wallets)[0]
     return null
   }
 
