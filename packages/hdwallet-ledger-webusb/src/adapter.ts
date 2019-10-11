@@ -22,7 +22,7 @@ export class WebUSBLedgerAdapter {
   }
 
   private async handleConnectWebUSBLedger(e: USBConnectionEvent): Promise<void> {
-    if (e.device.vendorId !== VENDOR_ID) { return }
+    if (e.device.vendorId !== VENDOR_ID) return
 
     try {
       await this.initialize(e.device)
@@ -32,7 +32,7 @@ export class WebUSBLedgerAdapter {
   }
 
   private async handleDisconnectWebUSBLedger(e: USBConnectionEvent): Promise<void> {
-    if (e.device.vendorId !== VENDOR_ID) { return }
+    if (e.device.vendorId !== VENDOR_ID) return
 
     try {
       await this.keyring.remove(e.device.serialNumber)

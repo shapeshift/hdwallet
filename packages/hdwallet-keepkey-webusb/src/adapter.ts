@@ -32,7 +32,7 @@ export class WebUSBKeepKeyAdapter {
   }
 
   private async handleConnectWebUSBKeepKey (e: USBConnectionEvent): Promise<void> {
-    if (e.device.vendorId !== VENDOR_ID && e.device.productId !== WEBUSB_PRODUCT_ID) { return }
+    if (e.device.vendorId !== VENDOR_ID && e.device.productId !== WEBUSB_PRODUCT_ID) return
 
     try {
       await this.initialize([e.device])
@@ -43,7 +43,7 @@ export class WebUSBKeepKeyAdapter {
   }
 
   private async handleDisconnectWebUSBKeepKey (e: USBConnectionEvent): Promise<void> {
-    if (e.device.vendorId !== VENDOR_ID && e.device.productId !== WEBUSB_PRODUCT_ID) { return }
+    if (e.device.vendorId !== VENDOR_ID && e.device.productId !== WEBUSB_PRODUCT_ID) return
 
     try {
       await this.keyring.remove(e.device.serialNumber)
