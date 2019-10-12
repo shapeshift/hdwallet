@@ -22,8 +22,8 @@ export class WebUSBKeepKeyAdapter {
     this.keyring = keyring
     // If we have access to WebUSB, register callbacks
     if (window && window.navigator.usb) {
-      window.navigator.usb.onconnect = this.handleConnectWebUSBKeepKey.bind(this)
-      window.navigator.usb.ondisconnect = this.handleDisconnectWebUSBKeepKey.bind(this)
+      window.navigator.usb.addEventListener('connect', this.handleConnectWebUSBKeepKey.bind(this))
+      window.navigator.usb.addEventListener('disconnect', this.handleDisconnectWebUSBKeepKey.bind(this))
     }
   }
 
@@ -32,6 +32,9 @@ export class WebUSBKeepKeyAdapter {
   }
 
   private async handleConnectWebUSBKeepKey (e: USBConnectionEvent): Promise<void> {
+    if (e.device.vendorId !== VENDOR_ID) return
+    if (e.device.productId !== WEBUSB_PRODUCT_ID) return
+
     try {
       await this.initialize([e.device])
       this.keyring.emit([e.device.productName, e.device.serialNumber, Events.CONNECT], e.device.serialNumber)
@@ -41,6 +44,9 @@ export class WebUSBKeepKeyAdapter {
   }
 
   private async handleDisconnectWebUSBKeepKey (e: USBConnectionEvent): Promise<void> {
+    if (e.device.vendorId !== VENDOR_ID) return
+    if (e.device.productId !== WEBUSB_PRODUCT_ID) return
+
     try {
       await this.keyring.remove(e.device.serialNumber)
     } catch(e) {
