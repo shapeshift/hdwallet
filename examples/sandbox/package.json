@@ -1,10 +1,11 @@
 {
-  "name": "sandbox",
+  "name": "hdwallet-sandbox",
   "version": "0.10.1",
   "main": "index.js",
   "license": "MIT",
   "private": true,
   "scripts": {
+    "build": "yarn parcel build index.html --out-dir public",
     "dev": "yarn parcel index.html --https",
     "clean": "rm -rf dist .cache"
   },
