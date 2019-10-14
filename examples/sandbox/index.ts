@@ -230,7 +230,6 @@ window['passphraseEntered'] = function () {
 }
 
 window['cancel'] = async function () {
-  console.log({ wallet })
   if (!wallet) return
   $ledgerError.find('span').remove()
   document.getElementById('#ledgerModal').className='modale';

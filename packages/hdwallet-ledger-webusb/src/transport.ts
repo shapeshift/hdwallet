@@ -1,6 +1,6 @@
 const retry = require('async-retry')
 import { makeEvent, Keyring, WebUSBNotAvailable, WebUSBCouldNotInitialize, WebUSBCouldNotPair, ConflictingApp } from '@shapeshiftoss/hdwallet-core'
-import { LedgerTransport, LedgerResponse } from '@shapeshiftoss/hdwallet-ledger'
+import { LedgerTransport, LedgerResponse, LedgerRequest, LedgerEventInfo } from '@shapeshiftoss/hdwallet-ledger'
 import { handleErrorForEvent } from '@shapeshiftoss/hdwallet-ledger'
 import Transport from '@ledgerhq/hw-transport'
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
@@ -15,22 +15,6 @@ function translateCoin(coin: string): (any) => void {
     'Btc': Btc,
     'Eth': Eth
   }[coin]
-}
-
-interface LedgerRequest {
-  method: string,
-  fromCallFn: boolean,
-  action?: Function,
-  coin?: string,
-  args?: string[] | boolean[] | object[]
-}
-
-interface LedgerEventInfo {
-  coin: string,
-  method: string,
-  response: string | void,
-  eventType: string,
-  fromWallet: boolean
 }
 
 export async function getFirstLedgerDevice(): Promise<USBDevice> {
@@ -83,14 +67,6 @@ export class LedgerWebUsbTransport extends LedgerTransport {
 
   cancelCall: boolean = false
 
-  callInProgress: {
-    main: Promise<any>,
-    debug: Promise<any>
-  } = {
-    main: undefined,
-    debug: undefined
-  }
-
   constructor(device: USBDevice, transport: Transport<USBDevice>, keyring: Keyring) {
     super(transport, keyring)
     this.device = device
@@ -127,8 +103,8 @@ export class LedgerWebUsbTransport extends LedgerTransport {
     })
   }
 
-  public async sendToLedger(sendObj: LedgerRequest): Promise<LedgerResponse> {
-    let { action, coin, method, args, fromCallFn } = sendObj
+  public async sendToLedger(sendArgs: LedgerRequest): Promise<LedgerResponse> {
+    let { action, coin, method, args, fromCallFn } = sendArgs
     let response
 
     // set it back to false in case it was true
@@ -144,8 +120,6 @@ export class LedgerWebUsbTransport extends LedgerTransport {
 
         // open transport if it's closed
         await this.open()
-
-        console.log({ args })
 
         response = fromCallFn ?
           await new (translateCoin(coin))(this.transport)[method](...args) :
@@ -204,6 +178,11 @@ export class LedgerWebUsbTransport extends LedgerTransport {
       payload: response,
       coin,
       method,
+    }
+
+    if (RECORD_CONFORMANCE_MOCKS) {
+      // May need a slight amount of cleanup on escaping `'`s.
+      console.log(`this.memoize('${coin}', '${method}',\n  JSON.parse('${JSON.stringify(args)}'),\n  JSON.parse('${JSON.stringify(result)}'))`)
     }
 
     return result

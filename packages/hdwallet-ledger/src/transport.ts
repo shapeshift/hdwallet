@@ -7,6 +7,22 @@ export interface LedgerResponse {
   method?: string
 }
 
+export interface LedgerRequest {
+  method: string,
+  fromCallFn: boolean,
+  action?: Function,
+  coin?: string,
+  args?: string[] | boolean[] | object[]
+}
+
+export interface LedgerEventInfo {
+  coin: string,
+  method: string,
+  response: string | void,
+  eventType: string,
+  fromWallet: boolean
+}
+
 export abstract class LedgerTransport extends Transport {
   transport: any
 
