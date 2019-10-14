@@ -100,10 +100,6 @@ export class LedgerWebUsbTransport extends LedgerTransport {
     return (this.device as any).deviceID
   }
 
-  private  getLedgerDeviceInfo(transport): any {
-    return getDeviceInfo(transport)
-  }
-
   public async getDeviceInfo(): Promise<LedgerResponse> {
     return await this.sendToLedger({
       action: getDeviceInfo,
