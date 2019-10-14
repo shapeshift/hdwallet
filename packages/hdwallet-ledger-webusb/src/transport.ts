@@ -19,9 +19,10 @@ function translateCoin(coin: string): (any) => void {
 
 interface LedgerRequest {
   method: string,
-  action?: any,
+  fromCallFn: boolean,
+  action?: Function,
   coin?: string,
-  args?: any[]
+  args?: string[] | boolean[] | object[]
 }
 
 interface LedgerEventInfo {
@@ -95,26 +96,18 @@ export class LedgerWebUsbTransport extends LedgerTransport {
     this.device = device
   }
 
-  private _createLedgerCall({ coin, method }: { coin: string, method: string }): any {
-    return function(transport): any {
-      return new (translateCoin(coin))(transport)[method]
-    }
-  }
-
   public getDeviceID (): string {
     return (this.device as any).deviceID
   }
 
   private  getLedgerDeviceInfo(transport): any {
-    return function (_) {
-      return getDeviceInfo(transport)
-    }
+    return getDeviceInfo(transport)
   }
 
   public async getDeviceInfo(): Promise<LedgerResponse> {
     return await this.sendToLedger({
-      action: this.getLedgerDeviceInfo,
-      args: [],
+      action: getDeviceInfo,
+      fromCallFn: false,
       method: 'getDeviceInfo',
       coin: 'dashboard'
     })
@@ -131,7 +124,7 @@ export class LedgerWebUsbTransport extends LedgerTransport {
 
   public async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
     return  await this.sendToLedger({
-      action: this._createLedgerCall({ coin, method }),
+      fromCallFn: true,
       args,
       method,
       coin
@@ -139,10 +132,11 @@ export class LedgerWebUsbTransport extends LedgerTransport {
   }
 
   public async sendToLedger(sendObj: LedgerRequest): Promise<LedgerResponse> {
+    let { action, coin, method, args, fromCallFn } = sendObj
     let response
-    let { action, coin, method, args } = sendObj
 
-    this.emitEvent({ coin, method, response: '', fromWallet: false, eventType: 'call' })
+    // set it back to false in case it was true
+    if (this.cancelCall) this.cancelCall = false
 
     try {
       await retry(async (bail) => {
@@ -152,11 +146,17 @@ export class LedgerWebUsbTransport extends LedgerTransport {
           return
         }
 
-        // make sure the transport is open before
-        // communicating with the ledger
+        // open transport if it's closed
         await this.open()
 
-        response = await action(this.transport)(...args)
+        console.log({ args })
+
+        response = fromCallFn ?
+          await new (translateCoin(coin))(this.transport)[method](...args) :
+          await action(this.transport)
+
+        // close transport after every call
+        await this.close()
 
         this.emitEvent({
           coin: 'none',
@@ -173,8 +173,6 @@ export class LedgerWebUsbTransport extends LedgerTransport {
             coin,
             payload: { error: error.message }
           })
-
-          console.log({ isRetry: true, error, attempts, response })
 
           if (attempts === 1) {
             this.emitEvent({

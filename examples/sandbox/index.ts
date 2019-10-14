@@ -189,7 +189,6 @@ async function deviceConnected (deviceId) {
     $keyring.find(`option[value="${deviceId}"]`).remove()
   })
 
-
   keyring.on(['Ledger', '0001', 'ledger.none.retry.response'], async ([ deviceId, event ]) => {
     $ledgerError.append('<span>' + event.message.response + '</span>')
     document.getElementById('#ledgerModal').className = 'modale opened'
