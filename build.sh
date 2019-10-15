@@ -1,2 +1,2 @@
 yarn --ignore-optional
-yarn build
+yarn now-build
