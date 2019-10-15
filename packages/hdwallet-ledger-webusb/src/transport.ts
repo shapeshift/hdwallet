@@ -65,7 +65,7 @@ export async function getTransport(): Promise<TransportWebUSB> {
 export class LedgerWebUsbTransport extends LedgerTransport {
   device: USBDevice
 
-  cancelCall: boolean = false
+  isCancelled: boolean = false
 
   constructor(device: USBDevice, transport: Transport<USBDevice>, keyring: Keyring) {
     super(transport, keyring)
@@ -108,12 +108,12 @@ export class LedgerWebUsbTransport extends LedgerTransport {
     let response
 
     // set it back to false in case it was true
-    if (this.cancelCall) this.cancelCall = false
+    if (this.isCancelled) this.isCancelled = false
 
     try {
       await retry(async (bail) => {
-        if (this.cancelCall) {
-          this.cancelCall = false
+        if (this.isCancelled) {
+          this.isCancelled = false
           bail()
           return
         }
@@ -189,7 +189,7 @@ export class LedgerWebUsbTransport extends LedgerTransport {
   }
 
   public async cancel(): Promise<void> {
-    this.cancelCall = true
+    this.isCancelled = true
   }
 
   public emitEvent(ledgerEventInfo: LedgerEventInfo): void {

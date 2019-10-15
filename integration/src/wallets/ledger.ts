@@ -34,6 +34,10 @@ export class MockTransport extends LedgerTransport {
     return Promise.resolve({})
   }
 
+  public cancel (): Promise<void> {
+    return Promise.resolve()
+  }
+
   public call (coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
     let key = JSON.stringify({ coin: coin, method: method, args: args })
 
