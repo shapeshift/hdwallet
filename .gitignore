@@ -15,3 +15,5 @@ dist
 .cache
 .npmrc
 junit.xml
+public
+examples/sandbox/public
