@@ -3086,6 +3086,14 @@ base@^0.11.1:
     mixin-deep "^1.2.0"
     pascalcase "^0.1.1"
 
+bchaddrjs@^0.4.4:
+  version "0.4.4"
+  resolved "https://registry.yarnpkg.com/bchaddrjs/-/bchaddrjs-0.4.4.tgz#9f52ce67ea84181ba45c43a930cba5abeb59ff3f"
+  integrity sha512-WCgxhGeJ4LVwtMjiCzwAJd6OsBWd/fgYuhYbFhVvMrjhIurIqirYKWkwJVjNO+Xxa9K0SntFR2taxod03MKEHA==
+  dependencies:
+    bs58check "^2.1.2"
+    cashaddrjs "^0.3.8"
+
 bcrypt-pbkdf@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/bcrypt-pbkdf/-/bcrypt-pbkdf-1.0.2.tgz#a4301d389b6a43f9b67ff3ca11a3f6637e360e9e"
@@ -3099,6 +3107,11 @@ bech32@^1.1.2, bech32@^1.1.3:
 before-after-hook@^2.0.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/before-after-hook/-/before-after-hook-2.1.0.tgz#b6c03487f44e24200dd30ca5e6a1979c5d2fb635"
+
+big-integer@1.6.36:
+  version "1.6.36"
+  resolved "https://registry.yarnpkg.com/big-integer/-/big-integer-1.6.36.tgz#78631076265d4ae3555c04f85e7d9d2f3a071a36"
+  integrity sha512-t70bfa7HYEA1D9idDbmuv7YbsbVkQ+Hp+8KFSul4aE5e/i1bjCNIRYJZlA8Q8p0r9T8cF/RVvwUgRA//FydEyg==
 
 big.js@^3.1.3:
   version "3.2.0"
@@ -3675,6 +3688,13 @@ capture-exit@^2.0.0:
 caseless@~0.12.0:
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
+
+cashaddrjs@^0.3.8:
+  version "0.3.8"
+  resolved "https://registry.yarnpkg.com/cashaddrjs/-/cashaddrjs-0.3.8.tgz#fc391bccccef7ec7e0523195a3b1e5df45893bf5"
+  integrity sha512-gpXj9Qki9noucK0ahPB6dx9A539KQ4TbqKLwl/JsCvD4iLLu1thtoAIDy2hwP6PWg6o1nvK+igsutMA6OvO2Mg==
+  dependencies:
+    big-integer "1.6.36"
 
 chalk@^1.0.0, chalk@^1.1.3:
   version "1.1.3"
