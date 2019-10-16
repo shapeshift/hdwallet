@@ -1,4 +1,5 @@
 import Base64 from 'base64-js'
+import { isCashAddress, toLegacyAddress} from 'bchaddrjs'
 import { verify } from 'bitcoinjs-message'
 import {
   addressNListToBIP32,
@@ -133,13 +134,16 @@ export async function btcSignTx (wallet: BTCWallet, transport: LedgerTransport, 
       if (output.addressType === BTCOutputAddressType.Transfer && !supportsSecureTransfer)
         throw new Error("Ledger does not support SecureTransfer")
     }
+    if (msg.coin === 'BitcoinCash' && isCashAddress(output.address)) {
+      output.address = toLegacyAddress(output.address)
+    }
     txBuilder.addOutput(output.address, Number(output.amount))
   })
 
   let unsignedHex = txBuilder.buildIncomplete().toHex()
   let splitTx = await transport.call('Btc', 'splitTransaction', unsignedHex)
   let outputScriptHex = await transport.call('Btc', 'serializeTransactionOutputs', splitTx.payload)
-  outputScriptHex = outputScriptHex.payload.toString("hex")
+  outputScriptHex = outputScriptHex.payload.toString('hex')
 
   for(let i = 0; i < msg.inputs.length; i++){
     if(msg.inputs[i].scriptType === BTCInputScriptType.SpendWitness || msg.inputs[i].scriptType === BTCInputScriptType.SpendP2SHWitness) segwit = true
@@ -153,9 +157,10 @@ export async function btcSignTx (wallet: BTCWallet, transport: LedgerTransport, 
     paths.push(path)
   }
   const inputs = zip(txs, indexes);
+  const additionals = msg.coin === 'BitcoinCash' ? ['abc'] : []
 
   //sign createPaymentTransaction
-  let signedTx = await transport.call('Btc', 'createPaymentTransactionNew', inputs, paths, undefined, outputScriptHex, null, networksUtil[slip44].sigHash, segwit)
+  let signedTx = await transport.call('Btc', 'createPaymentTransactionNew', inputs, paths, undefined, outputScriptHex, null, networksUtil[slip44].sigHash, segwit, undefined, additionals)
   handleError(transport, signedTx, 'Could not sign transaction with device')
 
   return {

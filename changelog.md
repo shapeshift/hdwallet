@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Current - Unreleased
+
+...
+
+## [0.10.2] - 2019-10-16
+
+### Added
+
+- Zeit Now pull request builder
+
+### Fixed
+
+- Fix Trezor getFirmwareVersion()
+- Fix KeepKey + Trezor btcVerifyMessage() for invalid signatures
+
 ## [0.10.1] - 2019-10-11
 
 ### Fixed
