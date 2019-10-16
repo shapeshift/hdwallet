@@ -5,7 +5,7 @@ orbs:
     executors:
       node:
         docker:
-          - image: circleci/node:10
+          - image: circleci/node:10.16.3
           - image: kktech/kkemu:v6.2.0-hotfix.0
     jobs:
       dependencies:
