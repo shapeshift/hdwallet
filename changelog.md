@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ...
 
-## [0.10.2] - 2019-10-16
+## [0.11.1] - 2019-10-16
 
 ### Added
 
@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Fix Trezor getFirmwareVersion()
 - Fix KeepKey + Trezor btcVerifyMessage() for invalid signatures
+
+## [0.11.0] - 2019-10-15
+
+### Fixed
+
+- Ledger BCH transaction signing
 
 ## [0.10.1] - 2019-10-11
 

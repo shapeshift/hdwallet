@@ -101,7 +101,7 @@ orbs:
           - checkout
           - attach_workspace:
               at: .
-          - run: yarn --cache-folder .yarn-cache
+          - run: yarn --cache-folder .yarn-cache --no-ignore-optional
           - run: git status
           - run: ./node_modules/.bin/lerna publish from-package --yes
 workflows:
