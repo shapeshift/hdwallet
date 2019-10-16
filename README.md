@@ -8,7 +8,7 @@ electon/node apps.
 
 Try it out [here](https://hdwallet.shapeshift.now.sh/)!
 
-## [Documentation](https://shapeshift.github.io/HDWallet/index.html)
+## Documentation
 
 - [hdwallet](#hdwallet)
     - [Documentation](#documentation)
