@@ -112,7 +112,7 @@ a small demo app that shows how to use various HDWallet functionality.
 We use [Zeit Now](https://zeit.co/home) for continuous deployment of this
 sandbox app. On pull requests, the builder will publish a new version of that
 app with the changes includeed (for example
-[#68](https://github.com/shapeshift/hdwallet/pull/68#issuecomment-542779289).
+[#68](https://github.com/shapeshift/hdwallet/pull/68#issuecomment-542779289)).
 Try out the latest build here: https://hdwallet.shapeshift.now.sh/
 
 
