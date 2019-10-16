@@ -129,6 +129,9 @@ export class MockTransport extends TrezorTransport {
       this.memoize('verifyMessage',
         JSON.parse('{"address":"1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM","message":"Hello World","signature":"IKA3yREETNbIUbZQgxfYiSBnsLYgdLLPHA35q9SqBTo8JD/9w39k168shXEo6vyBlHw4CZVZZhXl3MMToV9RLN0=","coin":"btc"}'),
         JSON.parse('{"payload":{"message":"Message verified"},"id":4,"success":true}'))
+      this.memoize('verifyMessage',
+        JSON.parse('{"address":"1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM","message":"Fake World","signature":"IKA3yREETNbIUbZQgxfYiSBnsLYgdLLPHA35q9SqBTo8JD/9w39k168shXEo6vyBlHw4CZVZZhXl3MMToV9RLN0=","coin":"btc"}'),
+        JSON.parse('{"payload":{"error":"Invalid signature","code":"Failure_DataError"},"id":2,"success":false}'))
       this.memoize('getPublicKey',
         JSON.parse('{"bundle":[{"path":[2147483692,2147483648,2147483648]},{"path":[2147483692,2147483648,2147483649]}]}'),
         JSON.parse('{"payload":[{"path":[2147483692,2147483648,2147483648],"serializedPath":"m/44\'/0\'/0\'","childNum":2147483648,"xpub":"xpub6D1weXBcFAo8CqBbpP4TbH5sxQH8ZkqC5pDEvJ95rNNBZC9zrKmZP2fXMuve7ZRBe18pWQQsGg68jkq24mZchHwYENd8cCiSb71u3KD4AFH","chainCode":"2bb4d964626dcfa95387a62718142a6e5aabe191c4b32553d3daecd1090321ea","publicKey":"02b9f9fabea9aaba811781d3cbf728dabe9502485d56031570bc49442a47dd057d","fingerprint":3115854823,"depth":3},{"path":[2147483692,2147483648,2147483649],"serializedPath":"m/44\'/0\'/1\'","childNum":2147483649,"xpub":"xpub6D1weXBcFAo8HPiRxhc6tBvwu7o35mYfn2BemJhhB93syYFJ1FCE7Rn2dbLNh1EPqKG3BAuB66gLyqgW8ouxyo1hnU1p9xQpFSNQgXDuQL4","chainCode":"f5cf3ee3971bab53e873e0e911b8069cff43d1030d6b0407d6aef095a2ec940f","publicKey":"036664e2c61cfe121e89a5b8dd4da6bc23038b00287c6abc2c2612a8ef165f7c68","fingerprint":3115854823,"depth":3}],"id":5,"success":true}'))

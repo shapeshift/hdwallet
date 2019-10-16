@@ -192,7 +192,10 @@ export async function btcVerifyMessage (transport: TrezorTransport, msg: BTCVeri
     coin: translateCoin(msg.coin)
   })
 
-  handleError(transport, res, "Could not sign message with Trezor")
+  if (!res.success && res.payload.error === 'Invalid signature')
+    return false
+
+  handleError(transport, res, "Could not verify message with Trezor")
 
   return res.payload.message === "Message verified"
 }
