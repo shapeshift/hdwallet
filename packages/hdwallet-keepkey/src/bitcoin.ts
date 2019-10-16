@@ -444,6 +444,9 @@ export async function btcVerifyMessage (wallet: BTCWallet, transport: KeepKeyTra
   verify.setMessage(toUTF8Array(msg.message))
   verify.setCoinName(msg.coin)
   let event = await transport.call(Messages.MessageType.MESSAGETYPE_VERIFYMESSAGE, verify)
+  if (event.message_enum === Messages.MessageType.MESSAGETYPE_FAILURE) {
+    return false
+  }
   const success = event.proto as Messages.Success
   return success.getMessage() === "Message verified"
 }
