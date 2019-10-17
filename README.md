@@ -6,8 +6,9 @@ A library for interacting with hardware wallets from JS/TS. Supports KeepKey,
 Trezor, and Ledger. Intended for use in web apps, chrome apps/extensions, and
 electon/node apps.
 
+Try it out [here](https://hdwallet.shapeshift.now.sh/)!
 
-## [Documentation](https://shapeshift.github.io/HDWallet/index.html)
+## Documentation
 
 - [hdwallet](#hdwallet)
     - [Documentation](#documentation)
@@ -107,6 +108,12 @@ yarn dev:sandbox
 
 This will launch an ssl webserver that runs at `https://localhost:1234`, with
 a small demo app that shows how to use various HDWallet functionality.
+
+We use [Zeit Now](https://zeit.co/home) for continuous deployment of this
+sandbox app. On pull requests, the builder will publish a new version of that
+app with the changes includeed (for example
+[#68](https://github.com/shapeshift/hdwallet/pull/68#issuecomment-542779289)).
+Try out the latest build here: https://hdwallet.shapeshift.now.sh/
 
 
 ## Tests
