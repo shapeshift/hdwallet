@@ -54,8 +54,8 @@ export class Keyring extends eventemitter2.EventEmitter2 {
     if (!this.get(deviceID)) return
 
     try {
-      const keepkey = this.get(deviceID)
-      await keepkey.disconnect()
+      const wallet = this.get(deviceID)
+      await wallet.disconnect()
     } catch (e) {
       console.error(e)
     } finally {
