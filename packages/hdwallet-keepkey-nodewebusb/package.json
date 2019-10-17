@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-nodewebusb",
-  "version": "0.11.0",
+  "version": "0.11.4",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -17,8 +17,8 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.4.3",
-    "@shapeshiftoss/hdwallet-core": "^0.11.0",
-    "@shapeshiftoss/hdwallet-keepkey": "^0.11.0",
+    "@shapeshiftoss/hdwallet-core": "^0.11.4",
+    "@shapeshiftoss/hdwallet-keepkey": "^0.11.4",
     "@types/eventemitter2": "^4.1.0",
     "bytebuffer": "^5.0.1",
     "crypto": "^1.0.1",
