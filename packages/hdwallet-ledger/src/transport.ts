@@ -18,7 +18,7 @@ export interface LedgerRequest {
 export interface LedgerEventInfo {
   coin: string,
   method: string,
-  response: string | void,
+  response: string | void | Error,
   eventType: string,
   fromWallet: boolean
 }

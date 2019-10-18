@@ -29,6 +29,10 @@ export class LedgerU2FTransport extends LedgerTransport {
     return await getDeviceInfo(this.transport)
   }
 
+  public async cancel(): Promise<any>{
+    return
+  }
+
   public async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
     let response
 

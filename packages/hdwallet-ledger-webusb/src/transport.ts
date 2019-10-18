@@ -1,12 +1,14 @@
 const retry = require('async-retry')
 import { makeEvent, Keyring, WebUSBNotAvailable, WebUSBCouldNotInitialize, WebUSBCouldNotPair, ConflictingApp } from '@shapeshiftoss/hdwallet-core'
 import { LedgerTransport, LedgerResponse, LedgerRequest, LedgerEventInfo } from '@shapeshiftoss/hdwallet-ledger'
-import { handleErrorForEvent } from '@shapeshiftoss/hdwallet-ledger'
+import { handleError } from '@shapeshiftoss/hdwallet-ledger'
 import Transport from '@ledgerhq/hw-transport'
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
 import Eth from '@ledgerhq/hw-app-eth'
 import Btc from '@ledgerhq/hw-app-btc'
 import getDeviceInfo from '@ledgerhq/live-common/lib/hw/getDeviceInfo'
+
+const RETRY_ATTEMPTS = 20
 
 const RECORD_CONFORMANCE_MOCKS = false
 
@@ -111,59 +113,37 @@ export class LedgerWebUsbTransport extends LedgerTransport {
     if (this.isCancelled) this.isCancelled = false
 
     try {
-      await retry(async (bail) => {
-        if (this.isCancelled) {
-          this.isCancelled = false
-          bail()
-          return
-        }
+      // open transport if it's closed
+      await this.open()
 
-        // open transport if it's closed
-        await this.open()
+      console.log('TRANSPORT IS OPEN')
 
-        response = fromCallFn ?
-          await new (translateCoin(coin))(this.transport)[method](...args) :
-          await action(this.transport)
+      response = fromCallFn ?
+        await new (translateCoin(coin))(this.transport)[method](...args) :
+        await action(this.transport)
 
-        // close transport after every call
-        await this.close()
+      console.log('COMPLETE CALL')
 
-        this.emitEvent({
-          coin: 'none',
-          method: 'retry',
-          response,
-          fromWallet: true,
-          eventType: 'success'
-        })
-      }, {
-        retries: 20,
-        onRetry: (error, attempts) => {
-          const response = handleErrorForEvent({
-            success: false,
-            coin,
-            payload: { error: error.message }
-          })
+      // close transport after every call
+      await this.close()
 
-          if (attempts === 1) {
-            this.emitEvent({
-              coin: 'none',
-              method: 'retry',
-              response,
-              fromWallet: true,
-              eventType: 'response'
-            })
-          }
-        },
-        maxTimeout: 1000
-      })
+      console.log('TRANSPORT IS CLOSED')
+
+      // this.emitEvent({
+      //   coin: 'none',
+      //   method: 'retry',
+      //   response,
+      //   fromWallet: true,
+      //   eventType: 'success'
+      // })
     } catch (e) {
-      this.emitEvent({
-        coin,
-        method,
-        response: e.message,
-        fromWallet: true,
-        eventType: 'error'
-      })
+      // this.emitEvent({
+      //   coin,
+      //   method,
+      //   response: e.message,
+      //   fromWallet: true,
+      //   eventType: 'error'
+      // })
 
       return {
         success: false,

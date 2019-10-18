@@ -12,7 +12,7 @@ import {
 import { LedgerTransport } from './transport'
 import { Buffer } from "buffer";
 
-export function handleError (transport: LedgerTransport, result: any, message?: string): void {
+export function handleError (result: any, transport?: LedgerTransport, message?: string, isEvent?: boolean): void | Error {
   if (result.success)
     return
 
@@ -21,63 +21,39 @@ export function handleError (transport: LedgerTransport, result: any, message?: 
     // No app selected
     if (result.payload.error.includes('0x6700') ||
         result.payload.error.includes('0x6982')) {
+      if (isEvent) return new SelectApp('Ledger', result.coin)
       throw new SelectApp('Ledger', result.coin)
     }
 
     // Wrong app selected
     if (result.payload.error.includes('0x6d00')) {
       if (result.coin) {
+        if (isEvent) return new WrongApp('Ledger', result.coin)
         throw new WrongApp('Ledger', result.coin)
       }
       // Navigate to Ledger Dashboard
+      if (isEvent) return new NavigateToDashboard('Ledger')
       throw new NavigateToDashboard('Ledger')
     }
 
     // User selected x instead of ✓
     if (result.payload.error.includes('0x6985')) {
+      if (isEvent) return new ActionCancelled()
       throw new ActionCancelled()
     }
 
-    transport.emit(`ledger.${result.coin}.${result.method}.call`, makeEvent({
-      message_type: 'ERROR',
-      from_wallet: true,
-      message
-    }))
+    if (transport) {
+      console.log('TRANSPORT', transport)
+      transport.emit(`ledger.${result.coin}.${result.method}.call`, makeEvent({
+        message_type: 'ERROR',
+        from_wallet: true,
+        message
+      }))
+    }
 
+    if (isEvent) return new Error(`${message}: '${result.payload.error}'`)
     throw new Error(`${message}: '${result.payload.error}'`)
   }
-}
-
-export function handleErrorForEvent(result: any, message?: string): any {
-  console.log({ result })
-  if (result.success)
-    return
-
-  if (result.payload && result.payload.error) {
-
-    // No app selected
-    if (result.payload.error.includes('0x6700') ||
-        result.payload.error.includes('0x6982')) {
-      return new SelectApp('Ledger', result.coin)
-    }
-
-    // Wrong app selected
-    if (result.payload.error.includes('0x6d00')) {
-      if (result.coin) {
-        return new WrongApp('Ledger', result.coin)
-      }
-      // Navigate to Ledger Dashboard
-      return new NavigateToDashboard('Ledger')
-    }
-
-    // User selected x instead of ✓
-    if (result.payload.error.includes('0x6985')) {
-      return new ActionCancelled()
-    }
-
-    return new Error(`${message}: '${result.payload.error}'`)
-  }
-
 }
 
 export const getderivationModeFromFormat = (format:string):string => {

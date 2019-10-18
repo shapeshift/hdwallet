@@ -324,7 +324,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   public async getFeatures (): Promise<any> {
       const res = await this.transport.getDeviceInfo()
-      handleError(this.transport, res)
+      handleError(res, this.transport)
       return res.payload
   }
 
@@ -366,7 +366,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
       const opts = { verify: false }
 
       const res1 = await this.transport.call('Btc', 'getWalletPublicKey', parentBip32path, opts)
-      handleError(this.transport, res1, 'Unable to obtain public key from device.')
+      handleError(res1, this.transport, 'Unable to obtain public key from device.')
 
       let { payload: { publicKey: parentPublicKey } } = res1
       parentPublicKey = parseHexString(compressPublicKey(parentPublicKey))
@@ -378,7 +378,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
       const bip32path: string = core.addressNListToBIP32(addressNList).substring(2) // i.e 44'/0'/0'
 
       const res2 = await this.transport.call('Btc', 'getWalletPublicKey', bip32path, opts)
-      handleError(this.transport, res2, 'Unable to obtain public key from device.')
+      handleError(res2, this.transport, 'Unable to obtain public key from device.')
 
       let { payload: { publicKey, chainCode } } = res2
       publicKey = compressPublicKey(publicKey)
