@@ -51,11 +51,11 @@ export class Keyring extends eventemitter2.EventEmitter2 {
   }
 
   public async remove (deviceID: string): Promise<void> {
-    if (!this.get(deviceID)) return
+    const wallet = this.get(deviceID)
+    if (!wallet) return
 
     try {
-      const keepkey = this.get(deviceID)
-      await keepkey.disconnect()
+      await wallet.disconnect()
     } catch (e) {
       console.error(e)
     } finally {

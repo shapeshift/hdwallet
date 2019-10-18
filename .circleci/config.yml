@@ -5,7 +5,7 @@ orbs:
     executors:
       node:
         docker:
-          - image: circleci/node:10
+          - image: circleci/node:10.16.3
           - image: kktech/kkemu:v6.2.0-hotfix.0
     jobs:
       dependencies:
@@ -101,7 +101,7 @@ orbs:
           - checkout
           - attach_workspace:
               at: .
-          - run: yarn --cache-folder .yarn-cache --no-ignore-optional
+          - run: yarn --cache-folder .yarn-cache
           - run: git status
           - run: ./node_modules/.bin/lerna publish from-package --yes
 workflows:
