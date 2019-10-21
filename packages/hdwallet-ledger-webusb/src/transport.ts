@@ -48,13 +48,22 @@ export async function getTransport(): Promise<TransportWebUSB> {
 
   let ledgerTransport
   try {
-    ledgerTransport = await TransportWebUSB.openConnected() || await TransportWebUSB.request()
+    ledgerTransport = await TransportWebUSB.openConnected()
   } catch (err) {
     if (err.name === 'TransportInterfaceNotAvailable') {
       throw new ConflictingApp('Ledger')
     }
+  }
 
-    throw new WebUSBCouldNotPair('Ledger', err.message)
+  if (!ledgerTransport) {
+    try {
+      ledgerTransport = await TransportWebUSB.create()
+    } catch (err) {
+      if (err.name === 'TransportInterfaceNotAvailable') {
+        throw new ConflictingApp('Ledger')
+      }
+      throw new WebUSBCouldNotPair('Ledger', err.message)
+    }
   }
 
   return ledgerTransport
@@ -68,7 +77,7 @@ export class LedgerWebUsbTransport extends LedgerTransport {
     this.device = device
   }
 
-  public getDeviceID (): string {
+  public getDeviceID(): string {
     return (this.device as any).deviceID
   }
 
