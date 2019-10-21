@@ -12,7 +12,7 @@ import {
 import { LedgerTransport } from './transport'
 import { Buffer } from "buffer";
 
-export function handleError (result: any, transport?: LedgerTransport, message?: string, isEvent?: boolean): void | Error {
+export function handleError (result: any, transport?: LedgerTransport, message?: string): void | Error {
   if (result.success)
     return
 
@@ -21,24 +21,20 @@ export function handleError (result: any, transport?: LedgerTransport, message?:
     // No app selected
     if (result.payload.error.includes('0x6700') ||
         result.payload.error.includes('0x6982')) {
-      if (isEvent) return new SelectApp('Ledger', result.coin)
       throw new SelectApp('Ledger', result.coin)
     }
 
     // Wrong app selected
     if (result.payload.error.includes('0x6d00')) {
       if (result.coin) {
-        if (isEvent) return new WrongApp('Ledger', result.coin)
         throw new WrongApp('Ledger', result.coin)
       }
       // Navigate to Ledger Dashboard
-      if (isEvent) return new NavigateToDashboard('Ledger')
       throw new NavigateToDashboard('Ledger')
     }
 
     // User selected x instead of ✓
     if (result.payload.error.includes('0x6985')) {
-      if (isEvent) return new ActionCancelled()
       throw new ActionCancelled()
     }
 
@@ -51,7 +47,6 @@ export function handleError (result: any, transport?: LedgerTransport, message?:
       }))
     }
 
-    if (isEvent) return new Error(`${message}: '${result.payload.error}'`)
     throw new Error(`${message}: '${result.payload.error}'`)
   }
 }

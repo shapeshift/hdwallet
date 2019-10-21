@@ -1,4 +1,3 @@
-const retry = require('async-retry')
 import { makeEvent, Keyring, WebUSBNotAvailable, WebUSBCouldNotInitialize, WebUSBCouldNotPair, ConflictingApp } from '@shapeshiftoss/hdwallet-core'
 import { LedgerTransport, LedgerResponse, LedgerRequest, LedgerEventInfo } from '@shapeshiftoss/hdwallet-ledger'
 import { handleError } from '@shapeshiftoss/hdwallet-ledger'
@@ -67,8 +66,6 @@ export async function getTransport(): Promise<TransportWebUSB> {
 export class LedgerWebUsbTransport extends LedgerTransport {
   device: USBDevice
 
-  isCancelled: boolean = false
-
   constructor(device: USBDevice, transport: Transport<USBDevice>, keyring: Keyring) {
     super(transport, keyring)
     this.device = device
@@ -109,9 +106,6 @@ export class LedgerWebUsbTransport extends LedgerTransport {
     let { action, coin, method, args, fromCallFn } = sendArgs
     let response
 
-    // set it back to false in case it was true
-    if (this.isCancelled) this.isCancelled = false
-
     try {
       // open transport if it's closed
       await this.open()
@@ -128,22 +122,7 @@ export class LedgerWebUsbTransport extends LedgerTransport {
       await this.close()
 
       console.log('TRANSPORT IS CLOSED')
-
-      // this.emitEvent({
-      //   coin: 'none',
-      //   method: 'retry',
-      //   response,
-      //   fromWallet: true,
-      //   eventType: 'success'
-      // })
     } catch (e) {
-      // this.emitEvent({
-      //   coin,
-      //   method,
-      //   response: e.message,
-      //   fromWallet: true,
-      //   eventType: 'error'
-      // })
 
       return {
         success: false,
@@ -169,7 +148,8 @@ export class LedgerWebUsbTransport extends LedgerTransport {
   }
 
   public async cancel(): Promise<void> {
-    this.isCancelled = true
+    // afaik, there's no concept of a 'cancel' request for ledger
+    return
   }
 
   public emitEvent(ledgerEventInfo: LedgerEventInfo): void {
