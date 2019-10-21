@@ -1,7 +1,8 @@
 import {
   Keyring,
   HDWallet,
-  Events
+  Events,
+  ActionCancelled
 } from '@shapeshiftoss/hdwallet-core'
 
 import { PortisHDWallet } from './portis'
@@ -34,8 +35,9 @@ export class PortisAdapter {
   }
 
   public async pairDevice (): Promise<HDWallet> {
-    const wallet = await this.pairPortisDevice()
-    this.portis.onActiveWalletChanged( async wallAddr => {
+    try {
+      const wallet = await this.pairPortisDevice()
+      this.portis.onActiveWalletChanged( async wallAddr => {
       // check if currentDeviceId has changed
       const walletAddress = 'portis:' + wallAddr
       if(!this.currentDeviceId || (walletAddress.toLowerCase() !== this.currentDeviceId.toLowerCase())) {
@@ -43,13 +45,15 @@ export class PortisAdapter {
         this.keyring.remove(this.currentDeviceId)
         this.pairPortisDevice()
       }
-    })
-
-    this.portis.onLogout( () => {
-        this.keyring.emit(["Portis", this.currentDeviceId, Events.DISCONNECT], this.currentDeviceId)
-        this.keyring.remove(this.currentDeviceId)
-    })
-    return wallet
+      })
+      this.portis.onLogout( () => {
+          this.keyring.emit(["Portis", this.currentDeviceId, Events.DISCONNECT], this.currentDeviceId)
+          this.keyring.remove(this.currentDeviceId)
+      })
+      return wallet
+    } catch(e) {
+      throw new ActionCancelled()
+    }
   }
 
   private async pairPortisDevice(): Promise<HDWallet> {
