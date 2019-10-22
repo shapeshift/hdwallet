@@ -1,7 +1,8 @@
 import {
   Keyring,
   HDWallet,
-  Events
+  Events,
+  ActionCancelled
 } from '@shapeshiftoss/hdwallet-core'
 
 import { PortisHDWallet } from './portis'
@@ -34,22 +35,30 @@ export class PortisAdapter {
   }
 
   public async pairDevice (): Promise<HDWallet> {
-    const wallet = await this.pairPortisDevice()
-    this.portis.onActiveWalletChanged( async wallAddr => {
-      // check if currentDeviceId has changed
-      const walletAddress = 'portis:' + wallAddr
-      if(!this.currentDeviceId || (walletAddress.toLowerCase() !== this.currentDeviceId.toLowerCase())) {
-        this.keyring.emit(["Portis", this.currentDeviceId, Events.DISCONNECT], this.currentDeviceId)
-        this.keyring.remove(this.currentDeviceId)
-        this.pairPortisDevice()
+    try {
+      const wallet = await this.pairPortisDevice()
+      this.portis.onActiveWalletChanged( async wallAddr => {
+        // check if currentDeviceId has changed
+        const walletAddress = 'portis:' + wallAddr
+        if(!this.currentDeviceId || (walletAddress.toLowerCase() !== this.currentDeviceId.toLowerCase())) {
+          this.keyring.emit(["Portis", this.currentDeviceId, Events.DISCONNECT], this.currentDeviceId)
+          this.keyring.remove(this.currentDeviceId)
+          this.pairPortisDevice()
+        }
+      })
+      this.portis.onLogout( () => {
+          this.keyring.emit(["Portis", this.currentDeviceId, Events.DISCONNECT], this.currentDeviceId)
+          this.keyring.remove(this.currentDeviceId)
+      })
+      return wallet
+    } catch(e) {
+      if(e.message && e.message.includes('User denied login.')) {
+        throw new ActionCancelled()
       }
-    })
-
-    this.portis.onLogout( () => {
-        this.keyring.emit(["Portis", this.currentDeviceId, Events.DISCONNECT], this.currentDeviceId)
-        this.keyring.remove(this.currentDeviceId)
-    })
-    return wallet
+      else {
+        throw e
+      }
+    }
   }
 
   private async pairPortisDevice(): Promise<HDWallet> {
