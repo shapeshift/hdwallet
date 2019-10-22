@@ -102,13 +102,13 @@ export async function ethSignMessage(transport: LedgerTransport, msg: ETHSignMes
   const bip32path = addressNListToBIP32(msg.addressNList)
   const res = await transport.call('Eth', 'signPersonalMessage', bip32path,
     Buffer.from(msg.message).toString('hex'))
-  handleError(res, transport, 'Could not sign ETH message with device')
+  handleError(res, transport, 'Could not sign ETH message with Ledger')
 
   let { v, r, s } = res.payload
   v = v - 27
   v = v.toString(16).padStart(2, '0')
   const addressRes = await transport.call('Eth', 'getAddress', bip32path, false)
-  handleError(addressRes, transport, 'Unable to obtain ETH address from device.')
+  handleError(addressRes, transport, 'Unable to obtain ETH address from Ledger.')
 
   return {
     address: addressRes.payload.address,
