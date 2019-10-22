@@ -32,7 +32,7 @@
     "now-build": "lerna run build --scope @shapeshiftoss/hdwallet-core && lerna run build --scope hdwallet-sandbox --ignore @shapeshiftoss/hdwallet-keepkey-nodehid --include-filtered-dependencies && mv examples/sandbox/public .",
     "dev:all": "lerna run dev --scope @shapeshiftoss/hdwallet-keepkey-webusb --scope @shapeshiftoss/hdwallet-keepkey-nodewebusb --scope @shapeshiftoss/hdwallet-ledger-webusb --scope @shapeshiftoss/hdwallet-ledger-u2f  --scope @shapeshiftoss/hdwallet-portis --scope @shapeshiftoss/hdwallet-trezor-connect --include-filtered-dependencies --parallel",
     "dev:chromeusb": "lerna run dev --scope chromeusb-app --parallel --include-filtered-dependencies",
-    "dev:sandbox": "lerna run dev --scope sandbox --parallel --include-filtered-dependencies",
+    "dev:sandbox": "lerna run dev --scope hdwallet-sandbox --parallel --include-filtered-dependencies",
     "dev:webusb": "lerna run dev --scope webusb --parallel --include-filtered-dependencies",
     "test": "yarn run jest --verbose --config jest.config.js",
     "test:ci": "yarn run jest --verbose --runInBand --ci --reporters=default --reporters=jest-junit --coverage --config jest.config.js",
