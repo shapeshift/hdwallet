@@ -28,9 +28,8 @@ export async function openTransport(device: USBDevice): Promise<TransportWebUSB>
   if (!(window && window.navigator.usb))
     throw new WebUSBNotAvailable()
 
-  let ledgerTransport
   try {
-    ledgerTransport = await TransportWebUSB.open(device)
+    return await TransportWebUSB.open(device)
   } catch (err) {
     if (err.name === 'TransportInterfaceNotAvailable') {
       throw new ConflictingApp('Ledger')
@@ -38,17 +37,14 @@ export async function openTransport(device: USBDevice): Promise<TransportWebUSB>
 
     throw new WebUSBCouldNotInitialize('Ledger', err.message)
   }
-
-  return ledgerTransport
 }
 
 export async function getTransport(): Promise<TransportWebUSB> {
   if (!(window && window.navigator.usb))
     throw new WebUSBNotAvailable()
 
-  let ledgerTransport
   try {
-    ledgerTransport = await TransportWebUSB.openConnected() || await TransportWebUSB.request()
+    return await TransportWebUSB.create()
   } catch (err) {
     if (err.name === 'TransportInterfaceNotAvailable') {
       throw new ConflictingApp('Ledger')
@@ -56,8 +52,6 @@ export async function getTransport(): Promise<TransportWebUSB> {
 
     throw new WebUSBCouldNotPair('Ledger', err.message)
   }
-
-  return ledgerTransport
 }
 
 export class LedgerWebUsbTransport extends LedgerTransport {
