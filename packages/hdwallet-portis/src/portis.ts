@@ -1,4 +1,3 @@
-import * as eventemitter2 from 'eventemitter2'
 import Web3 from 'web3'
 import {
   HDWallet,
@@ -38,9 +37,12 @@ import {
   BTCInputScriptType,
   BTCGetAccountPaths,
   BTCAccountPath,
-  BTCWalletInfo
+  BTCWalletInfo,
+  fromHexString
 
 } from "@shapeshiftoss/hdwallet-core"
+import { verify } from 'bitcoinjs-message'
+import Base64 from 'base64-js'
 
 function describeETHPath (path: BIP32Path): PathDescription {
   let pathStr = addressNListToBIP32(path)
@@ -96,7 +98,6 @@ export function isPortis(wallet: HDWallet): wallet is PortisHDWallet {
 
 export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
 
-
   // btc stuff
 
   public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
@@ -121,44 +122,36 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 
   public async btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean> {
-    const signingAddress = await this.web3.eth.accounts.recover(msg.message, ('0x' + msg.signature), false)
-    return signingAddress === msg.address
+    const signature = Base64.fromByteArray(fromHexString(msg.signature))
+    return verify(msg.message, msg.address, signature)
   }
 
   public async btcSupportsCoin (coin: Coin): Promise<boolean> {
-    return Promise.resolve(true)
+    return this.info.btcSupportsCoin(coin)
   }
 
   public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
-    return Promise.resolve(true)
+    return this.info.btcSupportsScriptType(coin, scriptType)
   }
 
   public async btcSupportsSecureTransfer (): Promise<boolean> {
-    return Promise.resolve(true)
+    return this.info.btcSupportsSecureTransfer()
   }
 
   public async btcSupportsNativeShapeShift (): Promise<boolean> {
-    return Promise.resolve(true)
+    return this.info.btcSupportsNativeShapeShift()
   }
   
   public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
-    return [{
-      coin: 'coin',
-      scriptType: BTCInputScriptType.CashAddr,
-      addressNList: [1, 2, 3]
-    }]
+    return this.info.btcGetAccountPaths(msg)
   }
 
   public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
-    return true
+    return this.info.btcIsSameAccount(msg)
   }
 
   public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
-    return {
-      coin: 'coin',
-      scriptType: BTCInputScriptType.CashAddr,
-      addressNList: [1, 2, 3]
-    }
+    return this.info.btcNextAccountPath(msg)
   }
 
 
@@ -409,39 +402,47 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
   // btc stuff
 
   public async btcSupportsCoin (coin: Coin): Promise<boolean> {
-    return Promise.resolve(true)
+
+    if(coin === 'Bitcoin')
+      return Promise.resolve(true)
+    else
+      return Promise.resolve(false)
   }
 
+  // TODO figure out what script types portis supports
   public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
-    return Promise.resolve(true)
+
+    if(coin === 'Bitcoin' && scriptType === BTCInputScriptType.SpendAddress)
+      return Promise.resolve(true)
+    else
+      return Promise.resolve(false)
   }
 
   public async btcSupportsSecureTransfer (): Promise<boolean> {
-    return Promise.resolve(true)
+    return Promise.resolve(false)
   }
 
   public async btcSupportsNativeShapeShift (): Promise<boolean> {
-    return Promise.resolve(true)
+    return Promise.resolve(false)
   }
 
   public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
-    return [{
-      coin: 'coin',
-      scriptType: BTCInputScriptType.CashAddr,
-      addressNList: [1, 2, 3]
-    }]
+    const slip44 = slip44ByCoin(msg.coin)
+    const bip44 = {
+      coin: msg.coin,
+      scriptType: BTCInputScriptType.SpendAddress,
+      addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx]
+    }    
+    return [ bip44 ]
   }
 
   public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
-    return true
+    return false
   }
 
+  // TODO figure out if this is relevent to portis
   public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
-    return {
-      coin: 'coin',
-      scriptType: BTCInputScriptType.CashAddr,
-      addressNList: [1, 2, 3]
-    }
+    return undefined
   }
 
   // eth stuff
