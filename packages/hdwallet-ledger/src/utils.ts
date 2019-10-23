@@ -39,7 +39,6 @@ export function handleError (result: any, transport?: LedgerTransport, message?:
     }
 
     if (transport) {
-      console.log('TRANSPORT', transport)
       transport.emit(`ledger.${result.coin}.${result.method}.call`, makeEvent({
         message_type: 'ERROR',
         from_wallet: true,
@@ -590,4 +589,3 @@ export const networksUtil = {
     }
   }
 }
-
