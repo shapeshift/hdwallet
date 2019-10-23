@@ -37,7 +37,8 @@ import {
   BTCVerifyMessage,
   BTCInputScriptType,
   BTCGetAccountPaths,
-  BTCAccountPath
+  BTCAccountPath,
+  BTCWalletInfo
 
 } from "@shapeshiftoss/hdwallet-core"
 
@@ -403,7 +404,48 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 }
 
-export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo {
+export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalletInfo {
+
+  // btc stuff
+
+  public async btcSupportsCoin (coin: Coin): Promise<boolean> {
+    return Promise.resolve(true)
+  }
+
+  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
+    return Promise.resolve(true)
+  }
+
+  public async btcSupportsSecureTransfer (): Promise<boolean> {
+    return Promise.resolve(true)
+  }
+
+  public async btcSupportsNativeShapeShift (): Promise<boolean> {
+    return Promise.resolve(true)
+  }
+
+  public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
+    return [{
+      coin: 'coin',
+      scriptType: BTCInputScriptType.CashAddr,
+      addressNList: [1, 2, 3]
+    }]
+  }
+
+  public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
+    return true
+  }
+
+  public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
+    return {
+      coin: 'coin',
+      scriptType: BTCInputScriptType.CashAddr,
+      addressNList: [1, 2, 3]
+    }
+  }
+
+  // eth stuff
+
   _supportsBTCInfo: boolean = false
   _supportsETHInfo: boolean = true
 
