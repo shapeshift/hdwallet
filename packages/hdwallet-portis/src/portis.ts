@@ -27,7 +27,18 @@ import {
   Transport,
   Keyring,
   HDWalletInfo,
-  ETHWalletInfo
+  ETHWalletInfo,
+  BTCWallet,
+  BTCGetAddress,
+  BTCSignTx,
+  BTCSignedTx,
+  BTCSignMessage,
+  BTCSignedMessage,
+  BTCVerifyMessage,
+  BTCInputScriptType,
+  BTCGetAccountPaths,
+  BTCAccountPath
+
 } from "@shapeshiftoss/hdwallet-core"
 
 function describeETHPath (path: BIP32Path): PathDescription {
@@ -82,7 +93,76 @@ export function isPortis(wallet: HDWallet): wallet is PortisHDWallet {
   return typeof wallet === 'object' && (wallet as any)._isPortis === true
 }
 
-export class PortisHDWallet implements HDWallet, ETHWallet {
+export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
+
+
+  // btc stuff
+
+  public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
+    if(msg.showDisplay === true) {
+      this.portis.showPortis()
+    }
+    return 'bitcoin address'
+  }
+
+  public async btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx> {
+    return {
+      signatures: ['signature1', 'signature2', 'signature3'],
+      serializedTx: 'serialized tx'
+    }
+  }
+
+  public async btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage> {
+    return {
+      address: 'address',
+      signature: 'signature'
+    }
+  }
+
+  public async btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean> {
+    const signingAddress = await this.web3.eth.accounts.recover(msg.message, ('0x' + msg.signature), false)
+    return signingAddress === msg.address
+  }
+
+  public async btcSupportsCoin (coin: Coin): Promise<boolean> {
+    return Promise.resolve(true)
+  }
+
+  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
+    return Promise.resolve(true)
+  }
+
+  public async btcSupportsSecureTransfer (): Promise<boolean> {
+    return Promise.resolve(true)
+  }
+
+  public async btcSupportsNativeShapeShift (): Promise<boolean> {
+    return Promise.resolve(true)
+  }
+  
+  public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
+    return [{
+      coin: 'coin',
+      scriptType: BTCInputScriptType.CashAddr,
+      addressNList: [1, 2, 3]
+    }]
+  }
+
+  public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
+    return true
+  }
+
+  public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
+    return {
+      coin: 'coin',
+      scriptType: BTCInputScriptType.CashAddr,
+      addressNList: [1, 2, 3]
+    }
+  }
+
+
+  // eth stuff
+
   _supportsETH: boolean = true
   _supportsETHInfo: boolean = true
   _supportsBTCInfo: boolean = false
