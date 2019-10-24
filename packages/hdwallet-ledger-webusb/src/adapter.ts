@@ -6,7 +6,7 @@ import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
 const VENDOR_ID = 11415
 const APP_NAVIGATION_DELAY = 1000
 
-function timeout(ms): Promise<void> {
+function timeout(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
