@@ -43,6 +43,8 @@ import {
 } from "@shapeshiftoss/hdwallet-core"
 import { verify } from 'bitcoinjs-message'
 import Base64 from 'base64-js'
+import { payments } from 'bitcoinjs-lib'
+import { fromBase58 } from 'bip32'
 
 function describeETHPath (path: BIP32Path): PathDescription {
   let pathStr = addressNListToBIP32(path)
@@ -100,11 +102,21 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
 
   // btc stuff
 
+
   public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
+
+    // const bip32string = addressNListToBIP32(msg.addressNList)
+
+    // TODO make this use the corrrrect harrdened path
+    const { result: xpub} = await this.portis.getExtendedPublicKey("m/44'/0'/0'", "Bitcoin")
+
+    // TODO make this use the correct relpath
+    const { address } = payments.p2pkh({pubkey: fromBase58(xpub).derive(0).derive(0).publicKey})
+
     if(msg.showDisplay === true) {
       this.portis.showPortis()
     }
-    return 'bitcoin address'
+    return address
   }
 
   public async btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx> {
@@ -115,14 +127,14 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 
   public async btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage> {
-    return {
-      address: 'address',
-      signature: 'signature'
-    }
+    // portis doesnt support this for btc
+    return undefined
   }
 
   public async btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean> {
     const signature = Base64.fromByteArray(fromHexString(msg.signature))
+
+    console.log('signature is', signature)
     return verify(msg.message, msg.address, signature)
   }
 
@@ -159,8 +171,8 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
 
   _supportsETH: boolean = true
   _supportsETHInfo: boolean = true
-  _supportsBTCInfo: boolean = false
-  _supportsBTC: boolean = false
+  _supportsBTCInfo: boolean = true
+  _supportsBTC: boolean = true
   _supportsDebugLink: boolean = false
   _isPortis: boolean = true
 
@@ -325,6 +337,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
       }
       for (let i = 0; i < msg.length; i++) {
         const { addressNList } = msg[i];
+        console.log('addressNList', addressNList)
         const portisResult = await this.portis.getExtendedPublicKey(addressNListToBIP32(addressNList))
         const { result, error } = portisResult
         if(error)
@@ -447,7 +460,7 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
 
   // eth stuff
 
-  _supportsBTCInfo: boolean = false
+  _supportsBTCInfo: boolean = true
   _supportsETHInfo: boolean = true
 
   public getVendor (): string {
