@@ -82,6 +82,111 @@ function describeETHPath (path: BIP32Path): PathDescription {
   }
 }
 
+function describeUTXOPath (path: BIP32Path, coin: Coin, scriptType: BTCInputScriptType): PathDescription {
+  let pathStr = addressNListToBIP32(path)
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin,
+    scriptType,
+    isKnown: false
+  }
+
+  if (path.length !== 3 && path.length !== 5)
+    return unknown
+
+  if ((path[0] & 0x80000000) >>> 0 !== 0x80000000)
+    return unknown
+
+  let purpose = path[0] & 0x7fffffff
+
+  if (![44, 49, 84].includes(purpose))
+    return unknown
+
+  if (purpose === 44 && scriptType !== BTCInputScriptType.SpendAddress)
+    return unknown
+
+  if (purpose === 49 && scriptType !== BTCInputScriptType.SpendP2SHWitness)
+    return unknown
+
+  if (purpose === 84 && scriptType !== BTCInputScriptType.SpendWitness)
+    return unknown
+
+  let wholeAccount = path.length === 3
+
+  let script = {
+    [BTCInputScriptType.SpendAddress]: ['Legacy'],
+    [BTCInputScriptType.SpendP2SHWitness]: [],
+    [BTCInputScriptType.SpendWitness]: ['Segwit Native']
+  }[scriptType]
+
+  let isPrefork = false
+  if (path[1] !== 0x80000000 + slip44ByCoin(coin)) {
+    switch (coin) {
+    case 'BitcoinCash':
+    case 'BitcoinGold': {
+      if (path[1] === 0x80000000 + slip44ByCoin('Bitcoin')) {
+        isPrefork = true
+        break
+      }
+      return unknown
+    }
+    case 'BitcoinSV': {
+      if (path[1] === 0x80000000 + slip44ByCoin('Bitcoin') ||
+          path[1] === 0x80000000 + slip44ByCoin('BitcoinCash')) {
+        isPrefork = true
+        break
+      }
+      return unknown
+    }
+    default:
+      return unknown
+    }
+  }
+
+  let attributes = isPrefork ? ['Prefork'] : []
+  switch (coin) {
+  case 'Bitcoin':
+  case 'Litecoin':
+  case 'BitcoinGold':
+  case 'Testnet': {
+    attributes = attributes.concat(script)
+    break
+  }
+  default:
+    break
+  }
+
+  let attr = attributes.length ? ` (${attributes.join(', ')})` : ''
+
+  let accountIdx = path[2] & 0x7fffffff
+
+  if (wholeAccount) {
+    return {
+      coin,
+      verbose: `${coin} Account #${accountIdx}${attr}`,
+      accountIdx,
+      wholeAccount: true,
+      isKnown: true,
+      scriptType,
+      isPrefork
+    }
+  } else {
+    let change = path[3] === 1 ? 'Change ' : ''
+    let addressIdx = path[4]
+    return {
+      coin,
+      verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${attr}`,
+      accountIdx,
+      addressIdx,
+      wholeAccount: false,
+      isKnown: true,
+      isChange: path[3] === 1,
+      scriptType,
+      isPrefork
+    }
+  }
+}
+
 // We might not need this. Leaving it for now to debug further
 class PortisTransport extends Transport {
   public getDeviceID() {
@@ -122,9 +227,18 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 
   public async btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx> {
+
+    console.log('about to  sign  tx', msg)
+
+    const { result } = await this.portis.signBitcoinTransaction(msg)
+
+
+    console.log('signed tx', result)
+    
+
     return {
       signatures: ['signature1', 'signature2', 'signature3'],
-      serializedTx: 'serialized tx'
+      serializedTx: result.serializedTx
     }
   }
 
@@ -135,8 +249,6 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
 
   public async btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean> {
     const signature = Base64.fromByteArray(fromHexString(msg.signature))
-
-    console.log('signature is', signature)
     return verify(msg.message, msg.address, signature)
   }
 
@@ -339,8 +451,8 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
       }
       for (let i = 0; i < msg.length; i++) {
         const { addressNList } = msg[i];
-        console.log('addressNList', addressNList)
-        const portisResult = await this.portis.getExtendedPublicKey(addressNListToBIP32(addressNList))
+        // TODO we really shouldnt be every using the "bitcoin" string parameter but is here for now to make it work with their btc address on their portis wallet.
+        const portisResult = await this.portis.getExtendedPublicKey(addressNListToBIP32(addressNList), addressNList[1] === 2147483648 ? 'Bitcoin' : '')
         const { result, error } = portisResult
         if(error)
           reject(error)
@@ -512,11 +624,13 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
   }
 
   public describePath (msg: DescribePath): PathDescription {
+
+    console.log('DESCRIBE PATH!!!', msg)
     switch (msg.coin) {
       case 'Ethereum':
         return describeETHPath(msg.path)
       default:
-        throw new Error("Unsupported path")
+        return describeUTXOPath(msg.path, msg.coin, msg.scriptType)
       }
   }
 
