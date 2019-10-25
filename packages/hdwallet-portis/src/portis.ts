@@ -104,14 +104,16 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
 
 
   public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
+    
+    const change = msg.addressNList[3]
+    const index = msg.addressNList[4]
 
-    // const bip32string = addressNListToBIP32(msg.addressNList)
+    const b32string = addressNListToBIP32(msg.addressNList)
+    const hardPath = b32string.slice(0, b32string.lastIndexOf(`'`)+1)
 
-    // TODO make this use the corrrrect harrdened path
-    const { result: xpub} = await this.portis.getExtendedPublicKey("m/44'/0'/0'", "Bitcoin")
+    const { result: xpub} = await this.portis.getExtendedPublicKey(hardPath, "Bitcoin")
 
-    // TODO make this use the correct relpath
-    const { address } = payments.p2pkh({pubkey: fromBase58(xpub).derive(0).derive(0).publicKey})
+    const { address } = payments.p2pkh({pubkey: fromBase58(xpub).derive(change).derive(index).publicKey})
 
     if(msg.showDisplay === true) {
       this.portis.showPortis()
