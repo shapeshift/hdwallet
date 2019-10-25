@@ -25,7 +25,7 @@
     "build": "lerna run build --scope @shapeshiftoss/hdwallet-core && yarn build:wallets && yarn build:transports",
     "build:chromeusb": "lerna run build --scope @shapeshiftoss/keepkey-chromeusb --include-filtered-dependencies",
     "build:hid": "lerna run build --scope @shapeshiftoss/hdwallet-keepkey-nodehid --include-filtered-dependencies",
-    "build:ledger": "lerna run build --scope @shapeshiftoss/hdwallet-ledger --scope @shapeshiftoss/hdwallet-ledger-webusb --scope @shapeshiftoss/hdwallet-core --include-filtered-dependencies",
+    "build:ledger": "lerna run build --scope @shapeshiftoss/hdwallet-ledger --scope @shapeshiftoss/hdwallet-ledger-webusb --scope @shapeshiftoss/hdwallet-ledger-utf --scope @shapeshiftoss/hdwallet-core --include-filtered-dependencies",
     "build:transports": "lerna run build --scope @shapeshiftoss/hdwallet-keepkey-webusb --scope @shapeshiftoss/hdwallet-keepkey-tcp --scope @shapeshiftoss/hdwallet-keepkey-nodewebusb --scope @shapeshiftoss/hdwallet-ledger-webusb --scope @shapeshiftoss/hdwallet-ledger-u2f --scope @shapeshiftoss/hdwallet-portis",
     "build:wallets": "lerna run build --scope @shapeshiftoss/hdwallet-keepkey --scope @shapeshiftoss/hdwallet-trezor --scope @shapeshiftoss/hdwallet-ledger --scope @shapeshiftoss/hdwallet-portis",
     "build:webusb": "lerna run build --scope @shapeshiftoss/hdwallet-keepkey-webusb --scope @shapeshiftoss/hdwallet-ledger-webusb --include-filtered-dependencies",
