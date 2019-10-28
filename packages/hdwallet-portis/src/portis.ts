@@ -576,9 +576,26 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
 
   // TODO figure out if this is relevent to portis
   public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
+    let description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType)
+    if (!description.isKnown) {
+      return undefined
+    }
+
+    let addressNList = msg.addressNList
+
+    if (addressNList[0] === 0x80000000 + 44 ||
+        addressNList[0] === 0x80000000 + 49 ||
+        addressNList[0] === 0x80000000 + 84) {
+      addressNList[2] += 1
+      return {
+        ...msg,
+        addressNList
+      }
+    }
+
     return undefined
   }
-
+  
   // eth stuff
 
   _supportsBTCInfo: boolean = true
@@ -631,8 +648,6 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
   }
 
   public describePath (msg: DescribePath): PathDescription {
-
-    console.log('DESCRIBE PATH!!!', msg)
     switch (msg.coin) {
       case 'Ethereum':
         return describeETHPath(msg.path)
