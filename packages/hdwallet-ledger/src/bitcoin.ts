@@ -74,7 +74,7 @@ export async function btcGetAddress (transport: LedgerTransport, msg: BTCGetAddr
   }
 
   const res = await transport.call('Btc', 'getWalletPublicKey', bip32path, opts)
-  handleError(transport, res, 'Unable to obtain BTC address from device')
+  handleError(res, transport, 'Unable to obtain BTC address from device')
 
   return res.payload.bitcoinAddress
 }
@@ -161,7 +161,7 @@ export async function btcSignTx (wallet: BTCWallet, transport: LedgerTransport, 
 
   //sign createPaymentTransaction
   let signedTx = await transport.call('Btc', 'createPaymentTransactionNew', inputs, paths, undefined, outputScriptHex, null, networksUtil[slip44].sigHash, segwit, undefined, additionals)
-  handleError(transport, signedTx, 'Could not sign transaction with device')
+  handleError(signedTx, transport, 'Could not sign transaction with device')
 
   return {
     serializedTx: signedTx.payload,
@@ -181,7 +181,7 @@ export async function btcSignMessage (wallet: BTCWallet, transport: LedgerTransp
   const bip32path = addressNListToBIP32(msg.addressNList)
 
   const res = await transport.call('Btc', 'signMessageNew', bip32path, Buffer.from(msg.message).toString("hex"))
-  handleError(transport, res, 'Could not sign message with device')
+  handleError(res, transport, 'Could not sign message with device')
   const v = res.payload['v'] + 27 + 4
 
   const signature = Buffer.from(v.toString(16) + res.payload['r'] + res.payload['s'], 'hex').toString('hex')

@@ -8,7 +8,8 @@ export enum HDWalletErrorType {
     FirmwareUpdateRequired = 'FirmwareUpdateRequired',
     WebUSBNotAvailable = 'WebUSBNotAvailable',
     WebUSBCouldNotInitialize = 'WebUSBCouldNotInitialize',
-    WebUSBCouldNotPair = 'WebUSBCouldNotPair'
+    WebUSBCouldNotPair = 'WebUSBCouldNotPair',
+    NavigateToDashboard = 'NavigateToDashboard'
 }
 
 export class HDWalletError extends Error {
@@ -18,6 +19,7 @@ export class HDWalletError extends Error {
         super(message)
         this.name = type
         this.type = type
+        this.message = message
         if (typeof Error.captureStackTrace === 'function') {
             Error.captureStackTrace(this, this.constructor);
         } else {
@@ -91,5 +93,12 @@ export class WebUSBCouldNotInitialize extends HDWalletError {
 export class WebUSBCouldNotPair extends HDWalletError {
     constructor (model: string, message: string) {
         super(`Could not pair ${model}: ${message}`, HDWalletErrorType.WebUSBCouldNotPair)
+    }
+}
+
+export class NavigateToDashboard extends HDWalletError {
+    constructor (model: string) {
+      super(`Please navigate to the dashboard of your ${model}.`,
+        HDWalletErrorType.NavigateToDashboard)
     }
 }

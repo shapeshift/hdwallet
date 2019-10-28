@@ -4,9 +4,15 @@ import { LedgerWebUsbTransport, getFirstLedgerDevice, getTransport, openTranspor
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
 
 const VENDOR_ID = 11415
+const APP_NAVIGATION_DELAY = 1000
+
+function timeout(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 export class WebUSBLedgerAdapter {
   keyring: Keyring
+  connectTimestamp: number = 0
 
   constructor(keyring: Keyring) {
     this.keyring = keyring
@@ -24,15 +30,26 @@ export class WebUSBLedgerAdapter {
   private async handleConnectWebUSBLedger(e: USBConnectionEvent): Promise<void> {
     if (e.device.vendorId !== VENDOR_ID) return
 
+    this.connectTimestamp = e.timeStamp
+
+    await timeout(APP_NAVIGATION_DELAY) // timeout gives time to detect if it is an app navigation based disconnec/connect event
+
     try {
       await this.initialize(e.device)
+      this.keyring.emit([e.device.manufacturerName, e.device.productName, Events.CONNECT], e.device.serialNumber)
     } catch(error) {
       this.keyring.emit([e.device.manufacturerName, e.device.productName, Events.FAILURE], [e.device.serialNumber, {message: { code: error.type, ...error}}])
+    } finally {
+      this.connectTimestamp = 0
     }
   }
 
   private async handleDisconnectWebUSBLedger(e: USBConnectionEvent): Promise<void> {
     if (e.device.vendorId !== VENDOR_ID) return
+
+    await timeout(APP_NAVIGATION_DELAY) // timeout gives time to detect if it is an app navigation based disconnec/connect event
+
+    if (this.connectTimestamp !== 0) return
 
     try {
       await this.keyring.remove(e.device.serialNumber)
@@ -59,7 +76,6 @@ export class WebUSBLedgerAdapter {
       const wallet = createLedger(new LedgerWebUsbTransport(device, ledgerTransport, this.keyring))
 
       this.keyring.add(wallet, device.serialNumber)
-      this.keyring.emit([device.manufacturerName, device.productName, Events.CONNECT], device.serialNumber)
     }
 
     return Object.keys(this.keyring.wallets).length
