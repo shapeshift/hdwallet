@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ...
 
+## [0.12.0] - 2019-10-28]
+
+### Fixed
+
+- Better reliability on ledger-transport
+
 ## [0.11.1] - 2019-10-16
 
 ### Added
