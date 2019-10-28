@@ -536,13 +536,20 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
       return Promise.resolve(false)
   }
 
-  // TODO figure out what script types portis supports
   public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
 
-    if(coin === 'Bitcoin' && scriptType === BTCInputScriptType.SpendAddress)
-      return Promise.resolve(true)
-    else
-      return Promise.resolve(false)
+    console.log('btcSupportsScriptType!!', {coin, scriptType})
+    if(coin !== 'Bitcoin')
+      return false
+
+    switch(scriptType) {
+      case BTCInputScriptType.SpendAddress: 
+      case BTCInputScriptType.SpendWitness: 
+      case BTCInputScriptType.SpendP2SHWitness: 
+        return  true
+      default:
+        return false
+    }
   }
 
   public async btcSupportsSecureTransfer (): Promise<boolean> {
