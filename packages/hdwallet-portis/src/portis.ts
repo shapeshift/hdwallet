@@ -524,6 +524,31 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 }
 
+function legacyAccount (coin: Coin, slip44: number, accountIdx: number): BTCAccountPath {
+  return {
+    coin,
+    scriptType: BTCInputScriptType.SpendAddress,
+    addressNList: [ 0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + accountIdx ]
+  }
+}
+
+function segwitAccount (coin: Coin, slip44: number, accountIdx: number): BTCAccountPath {
+  return {
+    coin,
+    scriptType: BTCInputScriptType.SpendP2SHWitness,
+    addressNList: [ 0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + accountIdx ]
+  }
+}
+
+function segwitNativeAccount (coin: Coin, slip44: number, accountIdx: number): BTCAccountPath {
+  return {
+    coin,
+    scriptType: BTCInputScriptType.SpendWitness,
+    addressNList: [ 0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + accountIdx ]
+  }
+}
+
+
 export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalletInfo {
 
   // btc stuff
@@ -562,19 +587,24 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
 
   public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
     const slip44 = slip44ByCoin(msg.coin)
-    const bip44 = {
-      coin: msg.coin,
-      scriptType: BTCInputScriptType.SpendAddress,
-      addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx]
-    }    
-    return [ bip44 ]
+    const bip44 = legacyAccount(msg.coin, slip44, msg.accountIdx)
+    const bip49 = segwitAccount(msg.coin, slip44, msg.accountIdx)
+    const bip84 = segwitNativeAccount(msg.coin, slip44, msg.accountIdx)
+
+    let paths: Array<BTCAccountPath> = {
+      'Bitcoin':  [bip44, bip49, bip84]
+    }[msg.coin] || []
+
+    if (msg.scriptType !== undefined)
+      paths = paths.filter(path => { return path.scriptType === msg.scriptType })
+
+    return paths
   }
 
   public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
     return false
   }
 
-  // TODO figure out if this is relevent to portis
   public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
     let description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType)
     if (!description.isKnown) {
