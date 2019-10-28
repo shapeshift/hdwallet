@@ -33,7 +33,7 @@ export async function ethSupportsNetwork(chain_id: number): Promise<boolean> {
 export async function ethGetAddress(transport: LedgerTransport, msg: ETHGetAddress): Promise<string> {
   const bip32path = addressNListToBIP32(msg.addressNList)
   const res = await transport.call('Eth', 'getAddress', bip32path, !!msg.showDisplay)
-  handleError(transport, res, 'Unable to obtain ETH address from device.')
+  handleError(res, transport, 'Unable to obtain ETH address from device.')
 
   return res.payload.address
 }
@@ -57,7 +57,7 @@ export async function ethSignTx(transport: LedgerTransport, msg: ETHSignTx): Pro
 
   const res = await transport.call('Eth', 'signTransaction', bip32path,
     utx.serialize().toString('hex'))
-  handleError(transport, res, 'Could not sign ETH tx with Ledger')
+  handleError(res, transport, 'Could not sign ETH tx with Ledger')
 
   const { v, r, s } = res.payload
 
@@ -102,13 +102,13 @@ export async function ethSignMessage(transport: LedgerTransport, msg: ETHSignMes
   const bip32path = addressNListToBIP32(msg.addressNList)
   const res = await transport.call('Eth', 'signPersonalMessage', bip32path,
     Buffer.from(msg.message).toString('hex'))
-  handleError(transport, res, 'Could not sign ETH message with device')
+  handleError(res, transport, 'Could not sign ETH message with Ledger')
 
   let { v, r, s } = res.payload
   v = v - 27
   v = v.toString(16).padStart(2, '0')
   const addressRes = await transport.call('Eth', 'getAddress', bip32path, false)
-  handleError(transport, addressRes, 'Unable to obtain ETH address from device.')
+  handleError(addressRes, transport, 'Unable to obtain ETH address from Ledger.')
 
   return {
     address: addressRes.payload.address,

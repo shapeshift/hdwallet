@@ -6,12 +6,13 @@ import {
   WrongApp,
   SelectApp,
   ActionCancelled,
+  NavigateToDashboard,
   makeEvent,
 } from '@shapeshiftoss/hdwallet-core'
 import { LedgerTransport } from './transport'
 import { Buffer } from "buffer";
 
-export function handleError (transport: LedgerTransport, result: any, message: string): void {
+export function handleError (result: any, transport?: LedgerTransport, message?: string): void | Error {
   if (result.success)
     return
 
@@ -25,7 +26,11 @@ export function handleError (transport: LedgerTransport, result: any, message: s
 
     // Wrong app selected
     if (result.payload.error.includes('0x6d00')) {
-      throw new WrongApp('Ledger', result.coin)
+      if (result.coin) {
+        throw new WrongApp('Ledger', result.coin)
+      }
+      // Navigate to Ledger Dashboard
+      throw new NavigateToDashboard('Ledger')
     }
 
     // User selected x instead of ✓
@@ -33,11 +38,13 @@ export function handleError (transport: LedgerTransport, result: any, message: s
       throw new ActionCancelled()
     }
 
-    transport.emit(`ledger.${result.coin}.${result.method}.call`, makeEvent({
-      message_type: 'ERROR',
-      from_wallet: true,
-      message
-    }))
+    if (transport) {
+      transport.emit(`ledger.${result.coin}.${result.method}.call`, makeEvent({
+        message_type: 'ERROR',
+        from_wallet: true,
+        message
+      }))
+    }
 
     throw new Error(`${message}: '${result.payload.error}'`)
   }
@@ -582,4 +589,3 @@ export const networksUtil = {
     }
   }
 }
-
