@@ -423,6 +423,8 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     switch (msg.coin) {
     case 'Ethereum':
       return describeETHPath(msg.path)
+    case 'Bitcoin':
+      return describeUTXOPath(msg.path, msg.coin, msg.scriptType)
     default:
       throw new Error("Unsupported path")
     }
