@@ -206,24 +206,35 @@ export function isPortis(wallet: HDWallet): wallet is PortisHDWallet {
 export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
 
   // btc stuff
-
-
   public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
-    
+    const scriptType = msg.scriptType
     const change = msg.addressNList[3]
     const index = msg.addressNList[4]
 
     const b32string = addressNListToBIP32(msg.addressNList)
     const hardPath = b32string.slice(0, b32string.lastIndexOf(`'`)+1)
+    const { result: xpub } = await this.portis.getExtendedPublicKey(hardPath, "Bitcoin")
 
-    const { result: xpub} = await this.portis.getExtendedPublicKey(hardPath, "Bitcoin")
+    const args = { pubkey: fromBase58(xpub).derive(change).derive(index).publicKey }
 
-    const { address } = payments.p2pkh({pubkey: fromBase58(xpub).derive(change).derive(index).publicKey})
-
-    if(msg.showDisplay === true) {
-      this.portis.showPortis()
+    let result
+    switch (scriptType) {
+      case BTCInputScriptType.SpendAddress:
+        result = payments.p2pkh(args)
+        break
+      case BTCInputScriptType.SpendWitness:
+        result = payments.p2wpkh(args)
+        break
+      case BTCInputScriptType.SpendP2SHWitness:
+        result = payments.p2sh({
+          redeem: payments.p2wpkh(args)
+        })
+        break
+      default:
+        throw new Error(`Unsupported scriptType ${scriptType}`)
     }
-    return address
+
+    return result.address
   }
 
   public async btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx> {
@@ -234,7 +245,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
 
 
     console.log('signed tx', result)
-    
+
 
     return {
       signatures: ['signature1', 'signature2', 'signature3'],
@@ -267,7 +278,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
   public async btcSupportsNativeShapeShift (): Promise<boolean> {
     return this.info.btcSupportsNativeShapeShift()
   }
-  
+
   public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
     return this.info.btcGetAccountPaths(msg)
   }
@@ -291,7 +302,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
   _isPortis: boolean = true
 
   transport = new PortisTransport(new Keyring())
-  
+
   portis: any
   web3: any
   info: PortisHDWalletInfo & HDWalletInfo
@@ -423,6 +434,8 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     switch (msg.coin) {
     case 'Ethereum':
       return describeETHPath(msg.path)
+    case 'Bitcoin':
+      return describeUTXOPath(msg.path, msg.coin, msg.scriptType)
     default:
       throw new Error("Unsupported path")
     }
@@ -479,7 +492,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
         r: result.tx.r,
         s:  result.tx.s,
         serialized: result.raw
-    } 
+    }
   }
 
   public async ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage> {
@@ -568,9 +581,9 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
       return false
 
     switch(scriptType) {
-      case BTCInputScriptType.SpendAddress: 
-      case BTCInputScriptType.SpendWitness: 
-      case BTCInputScriptType.SpendP2SHWitness: 
+      case BTCInputScriptType.SpendAddress:
+      case BTCInputScriptType.SpendWitness:
+      case BTCInputScriptType.SpendP2SHWitness:
         return  true
       default:
         return false
@@ -625,7 +638,7 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
 
     return undefined
   }
-  
+
   // eth stuff
 
   _supportsBTCInfo: boolean = true
