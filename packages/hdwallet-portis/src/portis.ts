@@ -206,7 +206,7 @@ export function isPortis(wallet: HDWallet): wallet is PortisHDWallet {
 export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
 
   // btc stuff
-  private verifyScriptTypePurpose(scriptType, purpose): boolean {
+  private verifyScriptTypePurpose(scriptType: BTCInputScriptType, purpose: number): boolean {
     return (
         (purpose === 0x80000000 + 44 && scriptType === BTCInputScriptType.SpendAddress ) ||
         (purpose === 0x80000000 + 49 && scriptType === BTCInputScriptType.SpendP2SHWitness ) ||
