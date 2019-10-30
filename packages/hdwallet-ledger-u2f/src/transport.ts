@@ -13,6 +13,12 @@ function translateCoin(coin: string): (any) => void {
   }[coin]
 }
 
+function translateMethod(method: string): (any) => void {
+  return {
+    'getDeviceInfo': getDeviceInfo,
+  }[method]
+}
+
 export class LedgerU2FTransport extends LedgerTransport {
   device: any
 
@@ -25,10 +31,6 @@ export class LedgerU2FTransport extends LedgerTransport {
     return this.device.deviceID
   }
 
-  public async getDeviceInfo(): Promise<any> {
-    return await getDeviceInfo(this.transport)
-  }
-
   public async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
     let response
 
@@ -38,8 +40,11 @@ export class LedgerU2FTransport extends LedgerTransport {
         from_wallet: false,
         message: {}
       }))
-
-      response = await new (translateCoin(coin))(this.transport)[method](...args)
+      if (coin) {
+        response = await new (translateCoin(coin))(this.transport)[method](...args)
+      } else {
+        response = await (translateMethod(method))(this.transport)
+      }
     } catch (e) {
       console.error(e)
       return {
