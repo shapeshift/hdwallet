@@ -323,7 +323,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async getFeatures (): Promise<any> {
-    const res = await this.transport.getDeviceInfo()
+    const res = await this.transport.call(null, 'getDeviceInfo')
     handleError(res, this.transport)
     return res.payload
   }

@@ -15,6 +15,12 @@ function translateCoin(coin: string): (any) => void {
   }[coin]
 }
 
+function translateMethod(method: string): (any) => void {
+  return {
+    'getDeviceInfo': getDeviceInfo,
+  }[method]
+}
+
 export async function getFirstLedgerDevice(): Promise<USBDevice> {
   if (!(window && window.navigator.usb))
     throw new WebUSBNotAvailable()
@@ -66,10 +72,6 @@ export class LedgerWebUsbTransport extends LedgerTransport {
     return (this.device as any).deviceID
   }
 
-  public async getDeviceInfo(): Promise<any> {
-    return await getDeviceInfo(this.transport)
-  }
-
   public async open() {
     this.transport = await getTransport()
   }
@@ -87,8 +89,11 @@ export class LedgerWebUsbTransport extends LedgerTransport {
         from_wallet: false,
         message: {}
       }))
-
-      response = await new (translateCoin(coin))(this.transport)[method](...args)
+      if (coin) {
+        response = await new (translateCoin(coin))(this.transport)[method](...args)
+      } else {
+        response = await (translateMethod(method))(this.transport)
+      }
     } catch (e) {
       console.error(e)
       return {
