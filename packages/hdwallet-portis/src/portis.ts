@@ -234,6 +234,10 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
         throw new Error(`Unsupported scriptType ${scriptType}`)
     }
 
+    if(msg.showDisplay === true) {
+      this.portis.showBitcoinWallet(b32string)
+    }
+
     return result.address
   }
 
