@@ -325,7 +325,10 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   public async getFeatures (): Promise<any> {
     const res = await this.transport.getDeviceInfo()
     handleError(res, this.transport)
-    return res.payload
+    if (res.payload) { // no payload prop on the nano s
+      return res.payload
+    }
+    return res
   }
 
   public async getFirmwareVersion (): Promise<string> {
