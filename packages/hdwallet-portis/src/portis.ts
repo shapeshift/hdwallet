@@ -206,8 +206,17 @@ export function isPortis(wallet: HDWallet): wallet is PortisHDWallet {
 export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
 
   // btc stuff
+  private verifyScriptTypePurpose(scriptType, purpose): boolean {
+    return (
+        (purpose === 0x80000000 + 44 && scriptType === BTCInputScriptType.SpendAddress ) ||
+        (purpose === 0x80000000 + 49 && scriptType === BTCInputScriptType.SpendP2SHWitness ) ||
+        (purpose === 0x80000000 + 84 && scriptType === BTCInputScriptType.SpendWitness )
+    )
+  }
+
   public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
     const scriptType = msg.scriptType
+    const purpose = msg.addressNList[0]
     const change = msg.addressNList[3]
     const index = msg.addressNList[4]
 
@@ -235,6 +244,10 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     }
 
     if(msg.showDisplay === true) {
+      if (!this.verifyScriptTypePurpose(scriptType, purpose)) {
+        throw new Error(`Invalid scriptType ${scriptType} for purpose ${purpose}`)
+      }
+
       this.portis.showBitcoinWallet(b32string)
     }
 
