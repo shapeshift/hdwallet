@@ -114,11 +114,11 @@ export type Coin = string
  ```
  */
 export function supportsBTC(wallet: any): wallet is BTCWallet {
-  return isObject(wallet) && wallet._supportsBTC === true
+  return isObject(wallet) && (wallet as HDWallet)._supportsBTC === true
 }
 
 export function infoBTC(info: any): info is BTCWalletInfo {
-  return isObject(info) && info._supportsBTCInfo === true
+  return isObject(info) && (info as HDWallet)._supportsBTCInfo === true
 }
 
 /**
@@ -132,15 +132,15 @@ export function infoBTC(info: any): info is BTCWalletInfo {
  ```
  */
 export function supportsETH(wallet: any): wallet is ETHWallet {
-  return isObject(wallet) && wallet._supportsETH === true
+  return isObject(wallet) && (wallet as HDWallet)._supportsETH === true
 }
 
 export function infoETH(info: any): info is ETHWalletInfo {
-  return isObject(info) && info._supportsETHInfo === true
+  return isObject(info) && (info as ETHWalletInfo)._supportsETHInfo === true
 }
 
 export function supportsDebugLink(wallet: any): wallet is DebugLinkWallet {
-  return isObject(wallet) && wallet._supportsDebugLink === true
+  return isObject(wallet) && (wallet as HDWallet)._supportsDebugLink === true
 }
 
 export interface HDWalletInfo {
