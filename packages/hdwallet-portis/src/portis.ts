@@ -29,6 +29,7 @@ import {
   HDWalletInfo,
   ETHWalletInfo
 } from "@shapeshiftoss/hdwallet-core"
+import { isObject } from 'lodash';
 
 function describeETHPath (path: BIP32Path): PathDescription {
   let pathStr = addressNListToBIP32(path)
@@ -79,7 +80,7 @@ class PortisTransport extends Transport {
 }
 
 export function isPortis(wallet: HDWallet): wallet is PortisHDWallet {
-  return typeof wallet === 'object' && (wallet as any)._isPortis === true
+  return isObject(wallet) && (wallet as any)._isPortis === true
 }
 
 export class PortisHDWallet implements HDWallet, ETHWallet {
@@ -91,7 +92,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   _isPortis: boolean = true
 
   transport = new PortisTransport(new Keyring())
-  
+
   portis: any
   web3: any
   info: PortisHDWalletInfo & HDWalletInfo
@@ -278,7 +279,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
         r: result.tx.r,
         s:  result.tx.s,
         serialized: result.raw
-    } 
+    }
   }
 
   public async ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage> {
