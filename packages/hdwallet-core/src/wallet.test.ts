@@ -6,7 +6,7 @@ import {
     supportsDebugLink
 } from './wallet'
 
-describe("wallet : supportsETH", () => {
+describe("wallet : guards", () => {
     it("should return falsy for `null`", () => {
         [
             infoBTC,
