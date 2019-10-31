@@ -1,7 +1,6 @@
 import { create as createLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { Events, Keyring, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { LedgerWebUsbTransport, getFirstLedgerDevice, getTransport, openTransport } from './transport'
-import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
 
 const VENDOR_ID = 11415
 const APP_NAVIGATION_DELAY = 1000
