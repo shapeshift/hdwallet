@@ -21,8 +21,6 @@ import {
   DescribePath,
   PathDescription,
   addressNListToBIP32,
-  BIP32Path,
-  slip44ByCoin,
   Transport,
   Keyring,
   HDWalletInfo,
@@ -43,149 +41,8 @@ import {
 } from "@shapeshiftoss/hdwallet-core"
 import { verify } from 'bitcoinjs-message'
 import Base64 from 'base64-js'
-import { payments } from 'bitcoinjs-lib'
-import { fromBase58 } from 'bip32'
-
-function describeETHPath (path: BIP32Path): PathDescription {
-  let pathStr = addressNListToBIP32(path)
-  let unknown: PathDescription = {
-    verbose: pathStr,
-    coin: 'Ethereum',
-    isKnown: false
-  }
-
-  if (path.length !== 5)
-    return unknown
-
-  if (path[0] !== 0x80000000 + 44)
-    return unknown
-
-  if (path[1] !== 0x80000000 + slip44ByCoin('Ethereum'))
-    return unknown
-
-  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000)
-    return unknown
-
-  if (path[3] !== 0)
-    return unknown
-
-  if (path[4] !== 0)
-    return unknown
-
-  let index = path[2] & 0x7fffffff
-  return {
-    verbose: `Ethereum Account #${index}`,
-    accountIdx: index,
-    wholeAccount: true,
-    coin: 'Ethereum',
-    isKnown: true
-  }
-}
-
-function describeUTXOPath (path: BIP32Path, coin: Coin, scriptType: BTCInputScriptType): PathDescription {
-  let pathStr = addressNListToBIP32(path)
-  let unknown: PathDescription = {
-    verbose: pathStr,
-    coin,
-    scriptType,
-    isKnown: false
-  }
-
-  if (path.length !== 3 && path.length !== 5)
-    return unknown
-
-  if ((path[0] & 0x80000000) >>> 0 !== 0x80000000)
-    return unknown
-
-  let purpose = path[0] & 0x7fffffff
-
-  if (![44, 49, 84].includes(purpose))
-    return unknown
-
-  if (purpose === 44 && scriptType !== BTCInputScriptType.SpendAddress)
-    return unknown
-
-  if (purpose === 49 && scriptType !== BTCInputScriptType.SpendP2SHWitness)
-    return unknown
-
-  if (purpose === 84 && scriptType !== BTCInputScriptType.SpendWitness)
-    return unknown
-
-  let wholeAccount = path.length === 3
-
-  let script = {
-    [BTCInputScriptType.SpendAddress]: ['Legacy'],
-    [BTCInputScriptType.SpendP2SHWitness]: [],
-    [BTCInputScriptType.SpendWitness]: ['Segwit Native']
-  }[scriptType]
-
-  let isPrefork = false
-  if (path[1] !== 0x80000000 + slip44ByCoin(coin)) {
-    switch (coin) {
-    case 'BitcoinCash':
-    case 'BitcoinGold': {
-      if (path[1] === 0x80000000 + slip44ByCoin('Bitcoin')) {
-        isPrefork = true
-        break
-      }
-      return unknown
-    }
-    case 'BitcoinSV': {
-      if (path[1] === 0x80000000 + slip44ByCoin('Bitcoin') ||
-          path[1] === 0x80000000 + slip44ByCoin('BitcoinCash')) {
-        isPrefork = true
-        break
-      }
-      return unknown
-    }
-    default:
-      return unknown
-    }
-  }
-
-  let attributes = isPrefork ? ['Prefork'] : []
-  switch (coin) {
-  case 'Bitcoin':
-  case 'Litecoin':
-  case 'BitcoinGold':
-  case 'Testnet': {
-    attributes = attributes.concat(script)
-    break
-  }
-  default:
-    break
-  }
-
-  let attr = attributes.length ? ` (${attributes.join(', ')})` : ''
-
-  let accountIdx = path[2] & 0x7fffffff
-
-  if (wholeAccount) {
-    return {
-      coin,
-      verbose: `${coin} Account #${accountIdx}${attr}`,
-      accountIdx,
-      wholeAccount: true,
-      isKnown: true,
-      scriptType,
-      isPrefork
-    }
-  } else {
-    let change = path[3] === 1 ? 'Change ' : ''
-    let addressIdx = path[4]
-    return {
-      coin,
-      verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${attr}`,
-      accountIdx,
-      addressIdx,
-      wholeAccount: false,
-      isKnown: true,
-      isChange: path[3] === 1,
-      scriptType,
-      isPrefork
-    }
-  }
-}
+import * as eth from './ethereum'
+import * as btc from './bitcoin'
 
 // We might not need this. Leaving it for now to debug further
 class PortisTransport extends Transport {
@@ -196,7 +53,6 @@ class PortisTransport extends Transport {
   public call (...args: any[]): Promise<any> {
     return Promise.resolve()
   }
-
 }
 
 export function isPortis(wallet: HDWallet): wallet is PortisHDWallet {
@@ -204,113 +60,6 @@ export function isPortis(wallet: HDWallet): wallet is PortisHDWallet {
 }
 
 export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
-
-  // btc stuff
-  private verifyScriptTypePurpose(scriptType: BTCInputScriptType, purpose: number): boolean {
-    return (
-        (purpose === 0x80000000 + 44 && scriptType === BTCInputScriptType.SpendAddress ) ||
-        (purpose === 0x80000000 + 49 && scriptType === BTCInputScriptType.SpendP2SHWitness ) ||
-        (purpose === 0x80000000 + 84 && scriptType === BTCInputScriptType.SpendWitness )
-    )
-  }
-
-  public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
-    const scriptType = msg.scriptType
-    const purpose = msg.addressNList[0]
-    const change = msg.addressNList[3]
-    const index = msg.addressNList[4]
-
-    const b32string = addressNListToBIP32(msg.addressNList)
-    const hardPath = b32string.slice(0, b32string.lastIndexOf(`'`)+1)
-    const { result: xpub } = await this.portis.getExtendedPublicKey(hardPath, "Bitcoin")
-
-    const args = { pubkey: fromBase58(xpub).derive(change).derive(index).publicKey }
-
-    let result
-    switch (scriptType) {
-      case BTCInputScriptType.SpendAddress:
-        result = payments.p2pkh(args)
-        break
-      case BTCInputScriptType.SpendWitness:
-        result = payments.p2wpkh(args)
-        break
-      case BTCInputScriptType.SpendP2SHWitness:
-        result = payments.p2sh({
-          redeem: payments.p2wpkh(args)
-        })
-        break
-      default:
-        throw new Error(`Unsupported scriptType ${scriptType}`)
-    }
-
-    if(msg.showDisplay === true) {
-      if (!this.verifyScriptTypePurpose(scriptType, purpose)) {
-        throw new Error(`Invalid scriptType ${scriptType} for purpose ${purpose}`)
-      }
-
-      this.portis.showBitcoinWallet(b32string)
-    }
-
-    return result.address
-  }
-
-  public async btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx> {
-
-    console.log('about to  sign  tx', msg)
-
-    const { result } = await this.portis.signBitcoinTransaction(msg)
-
-
-    console.log('signed tx', result)
-
-
-    return {
-      signatures: ['signature1', 'signature2', 'signature3'],
-      serializedTx: result.serializedTx
-    }
-  }
-
-  public async btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage> {
-    // portis doesnt support this for btc
-    return undefined
-  }
-
-  public async btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean> {
-    const signature = Base64.fromByteArray(fromHexString(msg.signature))
-    return verify(msg.message, msg.address, signature)
-  }
-
-  public async btcSupportsCoin (coin: Coin): Promise<boolean> {
-    return this.info.btcSupportsCoin(coin)
-  }
-
-  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
-    return this.info.btcSupportsScriptType(coin, scriptType)
-  }
-
-  public async btcSupportsSecureTransfer (): Promise<boolean> {
-    return this.info.btcSupportsSecureTransfer()
-  }
-
-  public async btcSupportsNativeShapeShift (): Promise<boolean> {
-    return this.info.btcSupportsNativeShapeShift()
-  }
-
-  public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
-    return this.info.btcGetAccountPaths(msg)
-  }
-
-  public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
-    return this.info.btcIsSameAccount(msg)
-  }
-
-  public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
-    return this.info.btcNextAccountPath(msg)
-  }
-
-
-  // eth stuff
-
   _supportsETH: boolean = true
   _supportsETHInfo: boolean = true
   _supportsBTCInfo: boolean = true
@@ -376,7 +125,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     srcCoin: Coin,
     dstCoin: Coin
   ): Promise<boolean> {
-    return false
+    return this.info.hasNativeShapeShift(srcCoin, dstCoin)
   }
 
   public clearSession(): Promise<void> {
@@ -430,45 +179,8 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.portis.importWallet(msg.mnemonic)
   }
 
-  public async ethSupportsNetwork (chainId: number = 1): Promise<boolean> {
-    return this.info.ethSupportsNetwork(chainId)
-  }
-
-  public async ethSupportsSecureTransfer (): Promise<boolean> {
-    return this.info.ethSupportsSecureTransfer()
-  }
-
-  public async ethSupportsNativeShapeShift (): Promise<boolean> {
-    return this.info.ethSupportsNativeShapeShift()
-  }
-
-  public async ethVerifyMessage (msg: ETHVerifyMessage): Promise<boolean> {
-    const signingAddress = await this.web3.eth.accounts.recover(msg.message, ('0x' + msg.signature), false)
-    return signingAddress === msg.address
-  }
-
   public describePath (msg: DescribePath): PathDescription {
-    switch (msg.coin) {
-    case 'Ethereum':
-      return describeETHPath(msg.path)
-    case 'Bitcoin':
-      return describeUTXOPath(msg.path, msg.coin, msg.scriptType)
-    default:
-      throw new Error("Unsupported path")
-    }
-  }
-
-  public ethNextAccountPath (msg: ETHAccountPath): ETHAccountPath | undefined {
-    // Portis only supports one account for eth
-    return undefined
-  }
-
-  public async isInitialized (): Promise<boolean> {
-    return true
-  }
-
-  public disconnect (): Promise<void> {
-    return Promise.resolve()
+    return this.info.describePath(msg)
   }
 
   public async getPublicKeys(msg: GetPublicKey[]): Promise<PublicKey[]> {
@@ -493,42 +205,91 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.portisCallInProgress
   }
 
+  public async isInitialized (): Promise<boolean> {
+    return true
+  }
+
+  public disconnect (): Promise<void> {
+    return Promise.resolve()
+  }
+
+  public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
+    return btc.btcGetAddress(msg, this.portis)
+  }
+
+  public async btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx> {
+    return btc.btcSignTx(msg, this.portis)
+  }
+
+  public async btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage> {
+    // portis doesnt support this for btc
+    return undefined
+  }
+
+  public async btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean> {
+    const signature = Base64.fromByteArray(fromHexString(msg.signature))
+    return verify(msg.message, msg.address, signature)
+  }
+
+  public async btcSupportsCoin (coin: Coin): Promise<boolean> {
+    return this.info.btcSupportsCoin(coin)
+  }
+
+  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
+    return this.info.btcSupportsScriptType(coin, scriptType)
+  }
+
+  public async btcSupportsSecureTransfer (): Promise<boolean> {
+    return this.info.btcSupportsSecureTransfer()
+  }
+
+  public async btcSupportsNativeShapeShift (): Promise<boolean> {
+    return this.info.btcSupportsNativeShapeShift()
+  }
+
+  public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
+    return this.info.btcGetAccountPaths(msg)
+  }
+
+  public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
+    return this.info.btcIsSameAccount(msg)
+  }
+
+  public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
+    return this.info.btcNextAccountPath(msg)
+  }
+
+  public async ethSupportsNetwork (chainId: number = 1): Promise<boolean> {
+    return this.info.ethSupportsNetwork(chainId)
+  }
+
+  public async ethSupportsSecureTransfer (): Promise<boolean> {
+    return this.info.ethSupportsSecureTransfer()
+  }
+
+  public async ethSupportsNativeShapeShift (): Promise<boolean> {
+    return this.info.ethSupportsNativeShapeShift()
+  }
+
+  public async ethVerifyMessage (msg: ETHVerifyMessage): Promise<boolean> {
+    return eth.ethVerifyMessage(msg, this.web3)
+  }
+
+  public ethNextAccountPath (msg: ETHAccountPath): ETHAccountPath | undefined {
+    // Portis only supports one account for eth
+    return this.info.ethNextAccountPath(msg)
+  }
+
   public async ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx> {
-    const from = await this._ethGetAddress()
-    const result = await this.web3.eth.signTransaction({
-      from,
-      to: msg.to,
-      value: msg.value,
-      gas: msg.gasLimit,
-      gasPrice: msg.gasPrice,
-      data: msg.data,
-      nonce: msg.nonce
-    })
-    return {
-        v: result.tx.v,
-        r: result.tx.r,
-        s:  result.tx.s,
-        serialized: result.raw
-    }
+    return eth.ethSignTx(msg, this.web3, await this._ethGetAddress())
   }
 
   public async ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage> {
-
-    const address = await this._ethGetAddress()
-    const result = await this.web3.eth.sign(msg.message, address)
-    return {
-      address,
-      signature: result
-    }
+    return eth.ethSignMessage(msg, this.web3, await this._ethGetAddress())
   }
 
   public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
-    return [{
-      addressNList: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx, 0, 0 ],
-      hardenedPath: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx ],
-      relPath: [ 0, 0 ],
-      description: "Portis"
-    }]
+    return this.info.ethGetAccountPaths(msg)
   }
 
   public async ethGetAddress (msg: ETHGetAddress): Promise<string> {
@@ -542,148 +303,26 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return 'portis:' + (await this._ethGetAddress())
   }
 
-  private async _ethGetAddress(): Promise<string> {
+  public async getFirmwareVersion(): Promise<string> {
+    return 'portis'
+  }
+
+  public async _ethGetAddress(): Promise<string> {
     if(!this.ethAddress) {
       this.ethAddress = (await this.web3.eth.getAccounts())[0]
     }
     return this.ethAddress
   }
-
-  public async getFirmwareVersion(): Promise<string> {
-    return 'portis'
-  }
+  
 }
-
-function legacyAccount (coin: Coin, slip44: number, accountIdx: number): BTCAccountPath {
-  return {
-    coin,
-    scriptType: BTCInputScriptType.SpendAddress,
-    addressNList: [ 0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + accountIdx ]
-  }
-}
-
-function segwitAccount (coin: Coin, slip44: number, accountIdx: number): BTCAccountPath {
-  return {
-    coin,
-    scriptType: BTCInputScriptType.SpendP2SHWitness,
-    addressNList: [ 0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + accountIdx ]
-  }
-}
-
-function segwitNativeAccount (coin: Coin, slip44: number, accountIdx: number): BTCAccountPath {
-  return {
-    coin,
-    scriptType: BTCInputScriptType.SpendWitness,
-    addressNList: [ 0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + accountIdx ]
-  }
-}
-
 
 export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalletInfo {
-
-  // btc stuff
-
-  public async btcSupportsCoin (coin: Coin): Promise<boolean> {
-
-    if(coin === 'Bitcoin')
-      return Promise.resolve(true)
-    else
-      return Promise.resolve(false)
-  }
-
-  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
-
-    console.log('btcSupportsScriptType!!', {coin, scriptType})
-    if(coin !== 'Bitcoin')
-      return false
-
-    switch(scriptType) {
-      case BTCInputScriptType.SpendAddress:
-      case BTCInputScriptType.SpendWitness:
-      case BTCInputScriptType.SpendP2SHWitness:
-        return  true
-      default:
-        return false
-    }
-  }
-
-  public async btcSupportsSecureTransfer (): Promise<boolean> {
-    return Promise.resolve(false)
-  }
-
-  public async btcSupportsNativeShapeShift (): Promise<boolean> {
-    return Promise.resolve(false)
-  }
-
-  public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
-    const slip44 = slip44ByCoin(msg.coin)
-    const bip44 = legacyAccount(msg.coin, slip44, msg.accountIdx)
-    const bip49 = segwitAccount(msg.coin, slip44, msg.accountIdx)
-    const bip84 = segwitNativeAccount(msg.coin, slip44, msg.accountIdx)
-
-    let paths: Array<BTCAccountPath> = {
-      'Bitcoin':  [bip44, bip49, bip84]
-    }[msg.coin] || []
-
-    if (msg.scriptType !== undefined)
-      paths = paths.filter(path => { return path.scriptType === msg.scriptType })
-
-    return paths
-  }
-
-  public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
-    return false
-  }
-
-  public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
-    let description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType)
-    if (!description.isKnown) {
-      return undefined
-    }
-
-    let addressNList = msg.addressNList
-
-    if (addressNList[0] === 0x80000000 + 44 ||
-        addressNList[0] === 0x80000000 + 49 ||
-        addressNList[0] === 0x80000000 + 84) {
-      addressNList[2] += 1
-      return {
-        ...msg,
-        addressNList
-      }
-    }
-
-    return undefined
-  }
-
-  // eth stuff
 
   _supportsBTCInfo: boolean = true
   _supportsETHInfo: boolean = true
 
   public getVendor (): string {
     return "Portis"
-  }
-
-  public async ethSupportsNetwork (chainId: number = 1): Promise<boolean> {
-    return chainId === 1
-  }
-
-  public async ethSupportsSecureTransfer (): Promise<boolean> {
-    return false
-  }
-
-  public async ethSupportsNativeShapeShift (): Promise<boolean> {
-    return false
-  }
-
-  public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
-    return [{
-      addressNList: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx, 0, 0 ],
-      hardenedPath: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx ],
-      relPath: [ 0, 0 ],
-      description: "Portis"
-    }]
   }
 
   public async hasOnDevicePinEntry (): Promise<boolean> {
@@ -710,15 +349,61 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
   public describePath (msg: DescribePath): PathDescription {
     switch (msg.coin) {
       case 'Ethereum':
-        return describeETHPath(msg.path)
+        return eth.describeETHPath(msg.path)
+      case 'Bitcoin':
+        return btc.describeUTXOPath(msg.path, msg.coin, msg.scriptType)
       default:
-        return describeUTXOPath(msg.path, msg.coin, msg.scriptType)
+        throw new Error("Unsupported path")
       }
+  }
+
+  public async btcSupportsCoin (coin: Coin): Promise<boolean> {
+    return btc.btcSupportsCoin(coin)
+  }
+
+  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
+    return btc.btcSupportsScriptType(coin, scriptType)
+  }
+
+  public async btcSupportsSecureTransfer (): Promise<boolean> {
+    return Promise.resolve(false)
+  }
+
+  public async btcSupportsNativeShapeShift (): Promise<boolean> {
+    return Promise.resolve(false)
+  }
+
+  public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
+    return btc.btcGetAccountPaths(msg)
+  }
+
+  public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
+    return false
+  }
+
+  public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
+    return btc.btcNextAccountPath(msg)
   }
 
   public ethNextAccountPath (msg: ETHAccountPath): ETHAccountPath | undefined {
     // Portis only supports one account for eth
     return undefined
+  }
+
+  public async ethSupportsNetwork (chainId: number = 1): Promise<boolean> {
+    return chainId === 1
+  }
+
+  public async ethSupportsSecureTransfer (): Promise<boolean> {
+    return false
+  }
+
+  public async ethSupportsNativeShapeShift (): Promise<boolean> {
+    return false
+  }
+
+  public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
+    return eth.ethGetAccountPaths(msg)
   }
 }
 

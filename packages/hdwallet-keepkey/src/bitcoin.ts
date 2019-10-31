@@ -541,3 +541,25 @@ export function btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
 
   return true
 }
+
+
+export function btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
+  let description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType)
+  if (!description.isKnown) {
+    return undefined
+  }
+
+  let addressNList = msg.addressNList
+
+  if (addressNList[0] === 0x80000000 + 44 ||
+      addressNList[0] === 0x80000000 + 49 ||
+      addressNList[0] === 0x80000000 + 84) {
+    addressNList[2] += 1
+    return {
+      ...msg,
+      addressNList
+    }
+  }
+
+  return undefined
+}
