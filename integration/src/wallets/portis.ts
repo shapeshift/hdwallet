@@ -13,7 +13,7 @@ export function name (): string {
 const mockPortis = {
   loadDevice: () => Promise.resolve(),
   importWallet: () => Promise.resolve(),
-  provider: {}
+  provider: {},
 }
 
 const mockSignEthTxResponse = {
