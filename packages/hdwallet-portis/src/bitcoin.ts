@@ -15,7 +15,7 @@ import {
 } from "@shapeshiftoss/hdwallet-core"
 
 import { verify } from 'bitcoinjs-message'
-import Base64 from 'base64-js'=
+import Base64 from 'base64-js'
 import { payments } from 'bitcoinjs-lib'
 import { fromBase58 } from 'bip32'
 
@@ -128,8 +128,9 @@ export function describeUTXOPath (path: BIP32Path, coin: Coin, scriptType: BTCIn
 export async function btcGetAddress (msg: BTCGetAddress, portis: any): Promise<string> {
   const scriptType = msg.scriptType
   const purpose = msg.addressNList[0]
-  const change = msg.addressNList[3]
-  const index = msg.addressNList[4]
+
+ const change = msg.addressNList[3]
+ const index = msg.addressNList[4]
 
   const b32string = addressNListToBIP32(msg.addressNList)
   const hardPath = b32string.slice(0, b32string.lastIndexOf(`'`)+1)
