@@ -141,7 +141,7 @@ export async function btcGetAddress (msg: BTCGetAddress, portis: any): Promise<s
   const { result: xpub } = await portis.getExtendedPublicKey(hardPathString, "Bitcoin")
 
   const relPath = relativePath(msg.addressNList)
-  const relPathString = relPath.reduce( (acc, val, i) => (i !== relPath.length - 1) ? acc + val + '/' : acc + val, '')
+  const relPathString = addressNListToBIP32(relPath).substr(2)
 
   const args = { pubkey: fromBase58(xpub).derivePath(relPathString).publicKey }
 
