@@ -36,7 +36,8 @@ import {
   BTCGetAccountPaths,
   BTCAccountPath,
   BTCWalletInfo,
-  fromHexString
+  fromHexString,
+  slip44ByCoin
 
 } from "@shapeshiftoss/hdwallet-core"
 import { verify } from 'bitcoinjs-message'
@@ -192,11 +193,11 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
           console.error(e)
       }
       for (let i = 0; i < msg.length; i++) {
-        const { addressNList } = msg[i];
-
+        const { addressNList, coin } = msg[i];
+        const slip44 = 0x80000000 + slip44ByCoin(coin)
         // slip44byCoin instead of 2147483648
         // TODO we really shouldnt be every using the "bitcoin" string parameter but is here for now to make it work with their btc address on their portis wallet.
-        const portisResult = await this.portis.getExtendedPublicKey(addressNListToBIP32(addressNList), addressNList[1] === 2147483648 ? 'Bitcoin' : '')
+        const portisResult = await this.portis.getExtendedPublicKey(addressNListToBIP32(addressNList), addressNList[1] === slip44 ? 'Bitcoin' : '')
         const { result, error } = portisResult
         if(error)
           reject(error)
