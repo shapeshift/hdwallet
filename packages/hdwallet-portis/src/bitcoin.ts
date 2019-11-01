@@ -12,6 +12,8 @@ import {
   BTCSignedTx,
   BTCVerifyMessage,
   fromHexString,
+  hardenedPath,
+  relativePath
 } from "@shapeshiftoss/hdwallet-core"
 
 import { verify } from 'bitcoinjs-message'
@@ -126,17 +128,22 @@ export function describeUTXOPath (path: BIP32Path, coin: Coin, scriptType: BTCIn
 
 
 export async function btcGetAddress (msg: BTCGetAddress, portis: any): Promise<string> {
+
+  if(!msg.addressNList.length)
+    throw new Error('Empty addressNList')
+
   const scriptType = msg.scriptType
   const purpose = msg.addressNList[0]
 
- const change = msg.addressNList[3]
- const index = msg.addressNList[4]
+  const hardPath = hardenedPath(msg.addressNList)
+  const hardPathString = 'm/'+hardPath.reduce( (acc, val, i) => (i !== hardPath.length - 1) ? acc + (val - 2147483648) + `'/` : acc + (val - 2147483648) + `'`, '')
 
-  const b32string = addressNListToBIP32(msg.addressNList)
-  const hardPath = b32string.slice(0, b32string.lastIndexOf(`'`)+1)
-  const { result: xpub } = await portis.getExtendedPublicKey(hardPath, "Bitcoin")
+  const { result: xpub } = await portis.getExtendedPublicKey(hardPathString, "Bitcoin")
 
-  const args = { pubkey: fromBase58(xpub).derive(change).derive(index).publicKey }
+  const relPath = relativePath(msg.addressNList)
+  const relPathString = relPath.reduce( (acc, val, i) => (i !== relPath.length - 1) ? acc + val + '/' : acc + val, '')
+
+  const args = { pubkey: fromBase58(xpub).derivePath(relPathString).publicKey }
 
   let result
   switch (scriptType) {
@@ -160,7 +167,7 @@ export async function btcGetAddress (msg: BTCGetAddress, portis: any): Promise<s
       throw new Error(`Invalid scriptType ${scriptType} for purpose ${purpose}`)
     }
 
-    portis.showBitcoinWallet(b32string)
+    portis.showBitcoinWallet(addressNListToBIP32(msg.addressNList))
   }
 
   return result.address
