@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "eventemitter2": "^5.0.1",
+    "lodash": "^4.17.15",
     "rxjs": "^6.4.0"
   },
   "devDependencies": {
