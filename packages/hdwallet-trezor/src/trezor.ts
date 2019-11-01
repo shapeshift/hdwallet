@@ -48,8 +48,8 @@ import * as Eth from './ethereum'
 import { TrezorTransport } from './transport'
 import { isObject } from 'lodash';
 
-export function isTrezor(wallet: HDWallet): wallet is TrezorHDWallet {
-  return isObject(wallet) && (wallet as any)._isTrezor === true
+export function isTrezor(wallet: HDWallet): boolean {
+  return isObject(wallet) && (wallet as any)._isTrezor
 }
 
 function describeETHPath (path: BIP32Path): PathDescription {
