@@ -136,7 +136,7 @@ export async function btcGetAddress (msg: BTCGetAddress, portis: any): Promise<s
   const purpose = msg.addressNList[0]
 
   const hardPath = hardenedPath(msg.addressNList)
-  const hardPathString = 'm/'+hardPath.reduce( (acc, val, i) => (i !== hardPath.length - 1) ? acc + (val - 2147483648) + `'/` : acc + (val - 2147483648) + `'`, '')
+  const hardPathString = addressNListToBIP32(hardPath)
 
   const { result: xpub } = await portis.getExtendedPublicKey(hardPathString, "Bitcoin")
 
@@ -207,23 +207,6 @@ export function segwitNativeAccount (coin: Coin, slip44: number, accountIdx: num
 
 
 export function btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
-  let description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType)
-  if (!description.isKnown) {
-    return undefined
-  }
-
-  let addressNList = msg.addressNList
-
-  if (addressNList[0] === 0x80000000 + 44 ||
-      addressNList[0] === 0x80000000 + 49 ||
-      addressNList[0] === 0x80000000 + 84) {
-    addressNList[2] += 1
-    return {
-      ...msg,
-      addressNList
-    }
-  }
-
   return undefined
 }
 
@@ -243,9 +226,8 @@ export function btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPa
   return paths
 }
 
-export function btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
+export async function btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
 
-  console.log('btcSupportsScriptType!!', {coin, scriptType})
   if(coin !== 'Bitcoin')
     return Promise.resolve(false)
 
@@ -253,17 +235,17 @@ export function btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptTyp
     case BTCInputScriptType.SpendAddress:
     case BTCInputScriptType.SpendWitness:
     case BTCInputScriptType.SpendP2SHWitness:
-      return Promise.resolve(true)
+      return true
     default:
-      return Promise.resolve(false)
+      return false
   }
 }
 
-export function btcSupportsCoin (coin: Coin): Promise<boolean> {
+export async function btcSupportsCoin (coin: Coin): Promise<boolean> {
   if(coin === 'Bitcoin')
-    return Promise.resolve(true)
+    return true
   else
-    return Promise.resolve(false)
+    return false
 }
 
 export async function btcSignTx (msg: BTCSignTx, portis: any): Promise<BTCSignedTx> {
