@@ -377,6 +377,42 @@ $doLoadDevice.on('click', (e) => {
   wallet.loadDevice({ mnemonic: /*trezor test seed:*/'alcohol woman abuse must during monitor noble actual mixed trade anger aisle' })
 })
 
+const $openApp = $('#openApp')
+const $getApp = $('#getApp')
+const $ledgerApp = $('#ledgerApp')
+$ledgerApp.attr("placeholder", "App name i.e. Bitcoin Cash")
+
+$openApp.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $ledgerApp.val("No wallet?"); return}
+  const appName = $('#ledgerApp').val()
+  if (!appName) { $ledgerApp.val("No wallet?"); return}
+  let result
+  try {
+    await wallet.openApp(appName)
+    result = "Check device for prompt"
+  } catch (err) {
+    console.error(err)
+    result = err.message
+  }
+  $ledgerApp.val(result)
+})
+
+$getApp.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $manageResults.val("No wallet?"); return}
+  let result
+  try {
+    result = await wallet.getAppAndVersion()
+    console.log(result)
+    result = `${result.name} ${result.version}`
+  } catch (err) {
+    console.error(err)
+    result = err.message
+  }
+  $ledgerApp.val(result)
+})
+
 /*
       Ethereum
         * segwit: false

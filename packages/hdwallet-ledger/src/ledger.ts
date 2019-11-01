@@ -328,6 +328,30 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return res.payload
   }
 
+  /**
+   * Gets name and version of current app open
+   * @returns {Promise<Object>} - payload
+   *                            - payload.name - name of current app open
+   *                            - payload.version - app version
+   */
+  public async getAppAndVersion (): Promise<any> {
+    const res = await this.transport.call(null, 'getAppAndVersion')
+    handleError(res, this.transport)
+    return res.payload
+  }
+
+  /**
+   * Prompt user to open given ap on app on device
+   * User must be in dashboard
+   * @param - appName - human-readable app name
+   *                    i.e. "Bitcoin Cash"
+   */
+  public async openApp (appName: string): Promise<any> {
+    const res = await this.transport.call(null, 'openApp', appName)
+    handleError(res, this.transport)
+    return res.payload
+  }
+
   public async getFirmwareVersion (): Promise<string> {
     const { version } = await this.getFeatures()
     return version
