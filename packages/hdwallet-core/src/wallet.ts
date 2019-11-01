@@ -10,6 +10,7 @@ import {
 } from './ethereum'
 import { DebugLinkWallet } from './debuglink'
 import { Transport } from './transport';
+import { isObject } from 'lodash';
 
 export type BIP32Path = Array<number>
 
@@ -113,11 +114,11 @@ export type Coin = string
  ```
  */
 export function supportsBTC(wallet: any): wallet is BTCWallet {
-  return typeof wallet === 'object' && wallet._supportsBTC === true
+  return isObject(wallet) && (wallet as HDWallet)._supportsBTC === true
 }
 
 export function infoBTC(info: any): info is BTCWalletInfo {
-  return typeof info === 'object' && info._supportsBTCInfo === true
+  return isObject(info) && (info as HDWallet)._supportsBTCInfo === true
 }
 
 /**
@@ -131,15 +132,15 @@ export function infoBTC(info: any): info is BTCWalletInfo {
  ```
  */
 export function supportsETH(wallet: any): wallet is ETHWallet {
-  return typeof wallet === 'object' && wallet._supportsETH === true
+  return isObject(wallet) && (wallet as HDWallet)._supportsETH === true
 }
 
 export function infoETH(info: any): info is ETHWalletInfo {
-  return typeof info === 'object' && info._supportsETHInfo === true
+  return isObject(info) && (info as ETHWalletInfo)._supportsETHInfo === true
 }
 
 export function supportsDebugLink(wallet: any): wallet is DebugLinkWallet {
-  return typeof wallet === 'object' && wallet._supportsDebugLink === true
+  return isObject(wallet) && (wallet as HDWallet)._supportsDebugLink === true
 }
 
 export interface HDWalletInfo {
