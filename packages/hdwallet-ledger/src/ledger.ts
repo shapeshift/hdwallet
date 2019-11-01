@@ -5,6 +5,7 @@ import * as btc from './bitcoin'
 import * as eth from './ethereum'
 import { LedgerTransport } from './transport'
 import {
+  appsUtil,
   compressPublicKey,
   createXpub,
   encodeBase58Check,
@@ -342,15 +343,23 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   /**
-   * Prompt user to open given ap on app on device
-   * User must be in dashboard
-   * @param - appName - human-readable app name
-   *                    i.e. "Bitcoin Cash"
+   * Returns Ledger's name for an app given a coin's
+   * ticker symbol
+   * @param symbol - i.e. 'BCH'
+   * @returns appName i.e. "Bitcoin Cash"
    */
-  public async openApp (appName: string): Promise<any> {
+  public getAppNameBySymbol (symbol: string): string {
+    return appsUtil[symbol]
+  }
+
+  /**
+   * Prompt user to open given app on device
+   * User must be in dashboard
+   * @param appName - human-readable app name i.e. "Bitcoin Cash"
+   */
+  public async openApp (appName: string): Promise<void> {
     const res = await this.transport.call(null, 'openApp', appName)
     handleError(res, this.transport)
-    return res.payload
   }
 
   public async getFirmwareVersion (): Promise<string> {
