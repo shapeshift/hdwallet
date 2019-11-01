@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-portis",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -22,6 +22,7 @@
     "bitcoinjs-lib": "^5.1.6",
     "bitcoinjs-message": "^2.1.0",
     "eventemitter2": "^5.0.1",
+    "lodash": "^4.17.15",
     "web3": "^1.2.1"
   }
 }

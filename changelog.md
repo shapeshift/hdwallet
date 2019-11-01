@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ...
 
+## [0.12.1] - 2019-11-01]
+
+### Fixed
+
+- Nano X getFirmwareVersion
+- Better guards for isObject checks
+
 ## [0.12.0] - 2019-10-28]
 
 ### Fixed

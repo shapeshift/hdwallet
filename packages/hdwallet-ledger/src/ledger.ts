@@ -11,9 +11,10 @@ import {
   networksUtil,
   parseHexString
 } from './utils'
+import { isObject } from 'lodash'
 
 export function isLedger (wallet: core.HDWallet): wallet is LedgerHDWallet {
-  return typeof wallet === 'object' && (wallet as any)._isLedger === true
+  return isObject(wallet) && (wallet as any)._isLedger === true
 }
 
 function describeETHPath (path: core.BIP32Path): core.PathDescription {

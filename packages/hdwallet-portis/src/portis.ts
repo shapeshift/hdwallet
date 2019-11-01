@@ -44,6 +44,7 @@ import { verify } from 'bitcoinjs-message'
 import Base64 from 'base64-js'
 import * as eth from './ethereum'
 import * as btc from './bitcoin'
+import { isObject } from 'lodash';
 
 // We might not need this. Leaving it for now to debug further
 class PortisTransport extends Transport {
@@ -57,7 +58,7 @@ class PortisTransport extends Transport {
 }
 
 export function isPortis(wallet: HDWallet): wallet is PortisHDWallet {
-  return typeof wallet === 'object' && (wallet as any)._isPortis === true
+  return isObject(wallet) && (wallet as any)._isPortis === true
 }
 
 export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {

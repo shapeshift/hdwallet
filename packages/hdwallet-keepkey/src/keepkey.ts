@@ -50,7 +50,7 @@ import {
 } from "@shapeshiftoss/hdwallet-core";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
-
+import { isObject } from 'lodash';
 import { messageTypeRegistry } from "./typeRegistry";
 import {
   protoFieldToSetMethod,
@@ -62,7 +62,7 @@ import * as Eth from "./ethereum"
 import { KeepKeyTransport } from "./transport";
 
 export function isKeepKey(wallet: HDWallet): wallet is KeepKeyHDWallet {
-  return typeof wallet === 'object' && (wallet as any)._isKeepKey === true
+  return isObject(wallet) && (wallet as any)._isKeepKey === true
 }
 
 function describeETHPath (path: BIP32Path): PathDescription {
