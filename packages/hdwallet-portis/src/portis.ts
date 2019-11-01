@@ -36,12 +36,8 @@ import {
   BTCGetAccountPaths,
   BTCAccountPath,
   BTCWalletInfo,
-  fromHexString,
   slip44ByCoin
-
 } from "@shapeshiftoss/hdwallet-core"
-import { verify } from 'bitcoinjs-message'
-import Base64 from 'base64-js'
 import * as eth from './ethereum'
 import * as btc from './bitcoin'
 import { isObject } from 'lodash';
@@ -231,8 +227,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 
   public async btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean> {
-    const signature = Base64.fromByteArray(fromHexString(msg.signature))
-    return verify(msg.message, msg.address, signature)
+    return btc.btcVerifyMessage(msg)
   }
 
   public async btcSupportsCoin (coin: Coin): Promise<boolean> {
