@@ -61,7 +61,7 @@ import * as Btc from "./bitcoin";
 import * as Eth from "./ethereum"
 import { KeepKeyTransport } from "./transport";
 
-export function isKeepKey(wallet: HDWallet): boolean {
+export function isKeepKey(wallet: HDWallet): wallet is KeepKeyHDWallet {
   return isObject(wallet) && (wallet as any)._isKeepKey
 }
 

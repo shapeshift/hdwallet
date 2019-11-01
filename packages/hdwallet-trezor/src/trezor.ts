@@ -48,7 +48,7 @@ import * as Eth from './ethereum'
 import { TrezorTransport } from './transport'
 import { isObject } from 'lodash';
 
-export function isTrezor(wallet: HDWallet): boolean {
+export function isTrezor(wallet: HDWallet): wallet is TrezorHDWallet {
   return isObject(wallet) && (wallet as any)._isTrezor
 }
 

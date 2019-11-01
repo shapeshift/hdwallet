@@ -113,11 +113,11 @@ export type Coin = string
  }
  ```
  */
-export function supportsBTC(wallet: any): boolean {
+export function supportsBTC(wallet: any): wallet is BTCWallet {
   return isObject(wallet) && (wallet as any)._supportsBTC
 }
 
-export function infoBTC(info: any): boolean {
+export function infoBTC(info: any): info is BTCWalletInfo {
   return isObject(info) && (info as any)._supportsBTCInfo
 }
 
@@ -131,15 +131,15 @@ export function infoBTC(info: any): boolean {
  }
  ```
  */
-export function supportsETH(wallet: any): boolean {
+export function supportsETH(wallet: any): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsETH
 }
 
-export function infoETH(info: any): boolean {
+export function infoETH(info: any): info is ETHWalletInfo {
   return isObject(info) && (info as any)._supportsETHInfo
 }
 
-export function supportsDebugLink(wallet: any): boolean {
+export function supportsDebugLink(wallet: any): wallet is DebugLinkWallet {
   return isObject(wallet) && (wallet as any)._supportsDebugLink
 }
 
