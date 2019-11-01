@@ -54,7 +54,7 @@ class PortisTransport extends Transport {
 }
 
 export function isPortis(wallet: HDWallet): wallet is PortisHDWallet {
-  return isObject(wallet) && (wallet as any)._isPortis === true
+  return isObject(wallet) && (wallet as any)._isPortis
 }
 
 export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
