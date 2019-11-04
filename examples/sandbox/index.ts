@@ -378,7 +378,6 @@ $doLoadDevice.on('click', (e) => {
 })
 
 const $openApp = $('#openApp')
-const $getApp = $('#getApp')
 const $ledgerApp = $('#ledgerApp')
 $ledgerApp.attr("placeholder", "App name i.e. Bitcoin Cash")
 
@@ -391,21 +390,6 @@ $openApp.on('click', async (e) => {
   try {
     await wallet.openApp(appName)
     result = "Check device for prompt"
-  } catch (err) {
-    console.error(err)
-    result = err.message
-  }
-  $ledgerApp.val(result)
-})
-
-$getApp.on('click', async (e) => {
-  e.preventDefault()
-  if (!wallet) { $manageResults.val("No wallet?"); return}
-  let result
-  try {
-    result = await wallet.getAppAndVersion()
-    console.log(result)
-    result = `${result.name} ${result.version}`
   } catch (err) {
     console.error(err)
     result = err.message
