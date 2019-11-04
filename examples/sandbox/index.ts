@@ -385,7 +385,7 @@ $openApp.on('click', async (e) => {
   e.preventDefault()
   if (!wallet) { $ledgerApp.val("No wallet?"); return}
   const appName = $('#ledgerApp').val()
-  if (!appName) { $ledgerApp.val("No wallet?"); return}
+  if (!appName) { $ledgerApp.val("Please enter app name here"); return}
   let result
   try {
     await wallet.openApp(appName)
