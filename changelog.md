@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ...
 
+## [0.13.0] - 2019-11-04]
+
+### Added
+
+- Add portis BTC support
+
 ## [0.12.1] - 2019-11-01]
 
 ### Fixed
