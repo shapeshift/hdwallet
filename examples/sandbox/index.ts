@@ -379,7 +379,11 @@ $doLoadDevice.on('click', (e) => {
 
 const $openApp = $('#openApp')
 const $ledgerApp = $('#ledgerApp')
+const $validateApp = $('#validateApp')
+const $appSymbol = $('#appSymbol')
+
 $ledgerApp.attr("placeholder", "App name i.e. Bitcoin Cash")
+$appSymbol.attr("placeholder", "App symbol i.e. BCH")
 
 $openApp.on('click', async (e) => {
   e.preventDefault()
@@ -395,6 +399,22 @@ $openApp.on('click', async (e) => {
     result = err.message
   }
   $ledgerApp.val(result)
+})
+
+$validateApp.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $appSymbol.val("No wallet?"); return}
+  const appSymbol = $('#appSymbol').val()
+  if (!appSymbol) { $appSymbol.val("Please enter app symbol here"); return}
+  let result
+  try {
+    await wallet.validateCurrentApp(appSymbol)
+    result = 'Correct app open'
+  } catch (err) {
+    console.error(err)
+    result = err.message
+  }
+  $appSymbol.val(result)
 })
 
 /*

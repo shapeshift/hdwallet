@@ -338,10 +338,13 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
    */
   public async validateCurrentApp (symbol: string): Promise<void> {
     symbol = symbol && symbol.toUpperCase()
+    const expectedApp = appsUtil[symbol]
+    if (!expectedApp) {
+      throw new Error(`Cannot find app for symbol: ${symbol}`)
+    }
     const res = await this.transport.call(null, 'getAppAndVersion')
     handleError(res, this.transport)
     const { name: currentApp } = res.payload
-    const expectedApp = appsUtil[symbol]
     if (currentApp !== expectedApp) {
       throw new core.WrongApp('Ledger', expectedApp)
     }
