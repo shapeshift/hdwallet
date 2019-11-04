@@ -1,10 +1,19 @@
-import { makeEvent, Keyring, WebUSBNotAvailable, WebUSBCouldNotInitialize, WebUSBCouldNotPair, ConflictingApp } from '@shapeshiftoss/hdwallet-core'
+import {
+  makeEvent,
+  Keyring,
+  WebUSBNotAvailable,
+  WebUSBCouldNotInitialize,
+  WebUSBCouldNotPair,
+  ConflictingApp
+} from '@shapeshiftoss/hdwallet-core'
 import { LedgerTransport, LedgerResponse } from '@shapeshiftoss/hdwallet-ledger'
 import Transport from '@ledgerhq/hw-transport'
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
 import Eth from '@ledgerhq/hw-app-eth'
 import Btc from '@ledgerhq/hw-app-btc'
+import getAppAndVersion from '@ledgerhq/live-common/lib/hw/getAppAndVersion'
 import getDeviceInfo from '@ledgerhq/live-common/lib/hw/getDeviceInfo'
+import openApp from '@ledgerhq/live-common/lib/hw/openApp'
 
 const RECORD_CONFORMANCE_MOCKS = false
 
@@ -17,7 +26,9 @@ function translateCoin(coin: string): (any) => void {
 
 function translateMethod(method: string): (any) => void {
   return {
+    'getAppAndVersion': getAppAndVersion,
     'getDeviceInfo': getDeviceInfo,
+    'openApp': openApp
   }[method]
 }
 
@@ -68,7 +79,7 @@ export class LedgerWebUsbTransport extends LedgerTransport {
     this.device = device
   }
 
-  public getDeviceID (): string {
+  public getDeviceID(): string {
     return (this.device as any).deviceID
   }
 
@@ -92,7 +103,8 @@ export class LedgerWebUsbTransport extends LedgerTransport {
       if (coin) {
         response = await new (translateCoin(coin))(this.transport)[method](...args)
       } else {
-        response = await (translateMethod(method))(this.transport)
+        // @ts-ignore
+        response = await (translateMethod(method))(this.transport, ...args)
       }
     } catch (e) {
       console.error(e)

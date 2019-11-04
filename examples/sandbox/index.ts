@@ -377,6 +377,46 @@ $doLoadDevice.on('click', (e) => {
   wallet.loadDevice({ mnemonic: /*trezor test seed:*/'alcohol woman abuse must during monitor noble actual mixed trade anger aisle' })
 })
 
+const $openApp = $('#openApp')
+const $ledgerApp = $('#ledgerApp')
+const $validateApp = $('#validateApp')
+const $appSymbol = $('#appSymbol')
+
+$ledgerApp.attr("placeholder", "App name i.e. Bitcoin Cash")
+$appSymbol.attr("placeholder", "App symbol i.e. BCH")
+
+$openApp.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $ledgerApp.val("No wallet?"); return}
+  const appName = $('#ledgerApp').val()
+  if (!appName) { $ledgerApp.val("Please enter app name here"); return}
+  let result
+  try {
+    await wallet.openApp(appName)
+    result = "Check device for prompt"
+  } catch (err) {
+    console.error(err)
+    result = err.message
+  }
+  $ledgerApp.val(result)
+})
+
+$validateApp.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $appSymbol.val("No wallet?"); return}
+  const appSymbol = $('#appSymbol').val()
+  if (!appSymbol) { $appSymbol.val("Please enter app symbol here"); return}
+  let result
+  try {
+    await wallet.validateCurrentApp(appSymbol)
+    result = 'Correct app open'
+  } catch (err) {
+    console.error(err)
+    result = err.message
+  }
+  $appSymbol.val(result)
+})
+
 /*
       Ethereum
         * segwit: false
