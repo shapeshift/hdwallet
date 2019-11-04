@@ -13,6 +13,7 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from "@shapeshiftoss/hdwallet-trezor"
+import { isPortis } from "@shapeshiftoss/hdwallet-portis"
 
 import { each } from '../utils'
 
@@ -55,7 +56,7 @@ export function bitcoinTests (get: () => { wallet: HDWallet, info: HDWalletInfo 
     })
 
     test('btcSupportsCoin()', async () => {
-      if (!wallet) return
+      if (!wallet || isPortis(wallet) ) return
       expect(wallet.btcSupportsCoin('Bitcoin')).toBeTruthy()
       expect(await info.btcSupportsCoin('Bitcoin')).toBeTruthy()
       expect(wallet.btcSupportsCoin('Testnet')).toBeTruthy()
@@ -63,7 +64,8 @@ export function bitcoinTests (get: () => { wallet: HDWallet, info: HDWalletInfo 
     }, TIMEOUT)
 
     test('getPublicKeys', async () => {
-      if (!wallet || isLedger(wallet) || isTrezor(wallet)) return
+      if (!wallet || isLedger(wallet) || isTrezor(wallet) || isPortis(wallet)) return
+
       /* FIXME: Expected failure (trezor does not use scriptType in deriving public keys
           and ledger's dependency bitcoinjs-lib/src/crypto.js throws a mysterious TypeError
           in between mock transport calls.
@@ -120,7 +122,7 @@ export function bitcoinTests (get: () => { wallet: HDWallet, info: HDWalletInfo 
     })
 
     test('btcGetAddress()', async () => {
-      if (!wallet) return
+      if (!wallet || isPortis(wallet)) return
       await each([
         ['Show', 'Bitcoin',  "m/44'/0'/0'/0/0", BTCInputScriptType.SpendAddress,     '1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM'],
         ['Show', 'Bitcoin',  "m/49'/0'/0'/0/0", BTCInputScriptType.SpendP2SHWitness, '3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX'],
@@ -150,7 +152,7 @@ export function bitcoinTests (get: () => { wallet: HDWallet, info: HDWalletInfo 
     }, TIMEOUT)
 
     test('btcSignTx() - p2pkh', async () => {
-      if (!wallet) return
+      if (!wallet || isPortis(wallet)) return
       if (isLedger(wallet)) return // FIXME: Expected failure
       let inputs = [{
         addressNList: bip32ToAddressNList("m/0"),
@@ -215,6 +217,13 @@ export function bitcoinTests (get: () => { wallet: HDWallet, info: HDWalletInfo 
         scriptType: BTCInputScriptType.SpendAddress,
         message: "Hello World"
       })
+
+      // not implemented on portis
+      if(isPortis(wallet)) {
+        expect(res).toEqual(undefined)
+        return
+      }
+
       expect(res).toEqual({
         address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
         signature: "20a037c911044cd6c851b6508317d8892067b0b62074b2cf1c0df9abd4aa053a3c243ffdc37f64d7af2c857128eafc81947c380995596615e5dcc313a15f512cdd",
@@ -297,7 +306,10 @@ export function bitcoinTests (get: () => { wallet: HDWallet, info: HDWalletInfo 
         let paths = wallet.btcGetAccountPaths({ coin: 'Bitcoin', accountIdx: idx })
         expect(typeof wallet.btcIsSameAccount(paths) === typeof true).toBeTruthy()
         paths.forEach(path => {
-          expect(wallet.btcNextAccountPath(path)).not.toBeUndefined()
+          if(wallet.getVendor() === 'Portis')
+            expect(wallet.btcNextAccountPath(path)).toBeUndefined()
+          else
+            expect(wallet.btcNextAccountPath(path)).not.toBeUndefined()
         })
       })
     }, TIMEOUT)
