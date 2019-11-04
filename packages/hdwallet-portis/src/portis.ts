@@ -1,4 +1,3 @@
-import * as eventemitter2 from 'eventemitter2'
 import Web3 from 'web3'
 import {
   HDWallet,
@@ -22,50 +21,26 @@ import {
   DescribePath,
   PathDescription,
   addressNListToBIP32,
-  BIP32Path,
-  slip44ByCoin,
   Transport,
   Keyring,
   HDWalletInfo,
-  ETHWalletInfo
+  ETHWalletInfo,
+  BTCWallet,
+  BTCGetAddress,
+  BTCSignTx,
+  BTCSignedTx,
+  BTCSignMessage,
+  BTCSignedMessage,
+  BTCVerifyMessage,
+  BTCInputScriptType,
+  BTCGetAccountPaths,
+  BTCAccountPath,
+  BTCWalletInfo,
+  slip44ByCoin
 } from "@shapeshiftoss/hdwallet-core"
+import * as eth from './ethereum'
+import * as btc from './bitcoin'
 import { isObject } from 'lodash';
-
-function describeETHPath (path: BIP32Path): PathDescription {
-  let pathStr = addressNListToBIP32(path)
-  let unknown: PathDescription = {
-    verbose: pathStr,
-    coin: 'Ethereum',
-    isKnown: false
-  }
-
-  if (path.length !== 5)
-    return unknown
-
-  if (path[0] !== 0x80000000 + 44)
-    return unknown
-
-  if (path[1] !== 0x80000000 + slip44ByCoin('Ethereum'))
-    return unknown
-
-  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000)
-    return unknown
-
-  if (path[3] !== 0)
-    return unknown
-
-  if (path[4] !== 0)
-    return unknown
-
-  let index = path[2] & 0x7fffffff
-  return {
-    verbose: `Ethereum Account #${index}`,
-    accountIdx: index,
-    wholeAccount: true,
-    coin: 'Ethereum',
-    isKnown: true
-  }
-}
 
 // We might not need this. Leaving it for now to debug further
 class PortisTransport extends Transport {
@@ -76,18 +51,17 @@ class PortisTransport extends Transport {
   public call (...args: any[]): Promise<any> {
     return Promise.resolve()
   }
-
 }
 
 export function isPortis(wallet: HDWallet): wallet is PortisHDWallet {
-  return isObject(wallet) && (wallet as any)._isPortis === true
+  return isObject(wallet) && (wallet as any)._isPortis
 }
 
-export class PortisHDWallet implements HDWallet, ETHWallet {
+export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
   _supportsETH: boolean = true
   _supportsETHInfo: boolean = true
-  _supportsBTCInfo: boolean = false
-  _supportsBTC: boolean = false
+  _supportsBTCInfo: boolean = true
+  _supportsBTC: boolean = true
   _supportsDebugLink: boolean = false
   _isPortis: boolean = true
 
@@ -149,7 +123,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
     srcCoin: Coin,
     dstCoin: Coin
   ): Promise<boolean> {
-    return false
+    return this.info.hasNativeShapeShift(srcCoin, dstCoin)
   }
 
   public clearSession(): Promise<void> {
@@ -203,6 +177,86 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
     return this.portis.importWallet(msg.mnemonic)
   }
 
+  public describePath (msg: DescribePath): PathDescription {
+    return this.info.describePath(msg)
+  }
+
+  public async getPublicKeys(msg: GetPublicKey[]): Promise<PublicKey[]> {
+    const publicKeys = []
+    this.portisCallInProgress = new Promise( async (resolve, reject) => {
+      try {
+          await this.portisCallInProgress
+      } catch (e) {
+          console.error(e)
+      }
+      for (let i = 0; i < msg.length; i++) {
+        const { addressNList, coin } = msg[i];
+        const bitcoinSlip44 = 0x80000000 + slip44ByCoin('Bitcoin')
+        // TODO we really shouldnt be every using the "bitcoin" string parameter but is here for now to make it work with their btc address on their portis wallet.
+        const portisResult = await this.portis.getExtendedPublicKey(addressNListToBIP32(addressNList), addressNList[1] === bitcoinSlip44 ? 'Bitcoin' : '')
+        const { result, error } = portisResult
+        if(error)
+          reject(error)
+        publicKeys.push({ xpub: result })
+      }
+      resolve(publicKeys)
+    })
+    return this.portisCallInProgress
+  }
+
+  public async isInitialized (): Promise<boolean> {
+    return true
+  }
+
+  public disconnect (): Promise<void> {
+    return Promise.resolve()
+  }
+
+  public async btcGetAddress (msg: BTCGetAddress): Promise<string> {
+    return btc.btcGetAddress(msg, this.portis)
+  }
+
+  public async btcSignTx (msg: BTCSignTx): Promise<BTCSignedTx> {
+    return btc.btcSignTx(msg, this.portis)
+  }
+
+  public async btcSignMessage (msg: BTCSignMessage): Promise<BTCSignedMessage> {
+    // portis doesnt support this for btc
+    return undefined
+  }
+
+  public async btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean> {
+    return btc.btcVerifyMessage(msg)
+  }
+
+  public async btcSupportsCoin (coin: Coin): Promise<boolean> {
+    return this.info.btcSupportsCoin(coin)
+  }
+
+  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
+    return this.info.btcSupportsScriptType(coin, scriptType)
+  }
+
+  public async btcSupportsSecureTransfer (): Promise<boolean> {
+    return this.info.btcSupportsSecureTransfer()
+  }
+
+  public async btcSupportsNativeShapeShift (): Promise<boolean> {
+    return this.info.btcSupportsNativeShapeShift()
+  }
+
+  public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
+    return this.info.btcGetAccountPaths(msg)
+  }
+
+  public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
+    return this.info.btcIsSameAccount(msg)
+  }
+
+  public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
+    return this.info.btcNextAccountPath(msg)
+  }
+
   public async ethSupportsNetwork (chainId: number = 1): Promise<boolean> {
     return this.info.ethSupportsNetwork(chainId)
   }
@@ -216,89 +270,24 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
   }
 
   public async ethVerifyMessage (msg: ETHVerifyMessage): Promise<boolean> {
-    const signingAddress = await this.web3.eth.accounts.recover(msg.message, ('0x' + msg.signature), false)
-    return signingAddress === msg.address
-  }
-
-  public describePath (msg: DescribePath): PathDescription {
-    switch (msg.coin) {
-    case 'Ethereum':
-      return describeETHPath(msg.path)
-    default:
-      throw new Error("Unsupported path")
-    }
+    return eth.ethVerifyMessage(msg, this.web3)
   }
 
   public ethNextAccountPath (msg: ETHAccountPath): ETHAccountPath | undefined {
     // Portis only supports one account for eth
-    return undefined
-  }
-
-  public async isInitialized (): Promise<boolean> {
-    return true
-  }
-
-  public disconnect (): Promise<void> {
-    return Promise.resolve()
-  }
-
-  public async getPublicKeys(msg: GetPublicKey[]): Promise<PublicKey[]> {
-    const publicKeys = []
-    this.portisCallInProgress = new Promise( async (resolve, reject) => {
-      try {
-          await this.portisCallInProgress
-      } catch (e) {
-          console.error(e)
-      }
-      for (let i = 0; i < msg.length; i++) {
-        const { addressNList } = msg[i];
-        const portisResult = await this.portis.getExtendedPublicKey(addressNListToBIP32(addressNList))
-        const { result, error } = portisResult
-        if(error)
-          reject(error)
-        publicKeys.push({ xpub: result })
-      }
-      resolve(publicKeys)
-    })
-    return this.portisCallInProgress
+    return this.info.ethNextAccountPath(msg)
   }
 
   public async ethSignTx (msg: ETHSignTx): Promise<ETHSignedTx> {
-    const from = await this._ethGetAddress()
-    const result = await this.web3.eth.signTransaction({
-      from,
-      to: msg.to,
-      value: msg.value,
-      gas: msg.gasLimit,
-      gasPrice: msg.gasPrice,
-      data: msg.data,
-      nonce: msg.nonce
-    })
-    return {
-        v: result.tx.v,
-        r: result.tx.r,
-        s:  result.tx.s,
-        serialized: result.raw
-    }
+    return eth.ethSignTx(msg, this.web3, await this._ethGetAddress())
   }
 
   public async ethSignMessage (msg: ETHSignMessage): Promise<ETHSignedMessage> {
-
-    const address = await this._ethGetAddress()
-    const result = await this.web3.eth.sign(msg.message, address)
-    return {
-      address,
-      signature: result
-    }
+    return eth.ethSignMessage(msg, this.web3, await this._ethGetAddress())
   }
 
   public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
-    return [{
-      addressNList: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx, 0, 0 ],
-      hardenedPath: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx ],
-      relPath: [ 0, 0 ],
-      description: "Portis"
-    }]
+    return this.info.ethGetAccountPaths(msg)
   }
 
   public async ethGetAddress (msg: ETHGetAddress): Promise<string> {
@@ -312,45 +301,26 @@ export class PortisHDWallet implements HDWallet, ETHWallet {
     return 'portis:' + (await this._ethGetAddress())
   }
 
-  private async _ethGetAddress(): Promise<string> {
+  public async getFirmwareVersion(): Promise<string> {
+    return 'portis'
+  }
+
+  public async _ethGetAddress(): Promise<string> {
     if(!this.ethAddress) {
       this.ethAddress = (await this.web3.eth.getAccounts())[0]
     }
     return this.ethAddress
   }
-
-  public async getFirmwareVersion(): Promise<string> {
-    return 'portis'
-  }
+  
 }
 
-export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo {
-  _supportsBTCInfo: boolean = false
+export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalletInfo {
+
+  _supportsBTCInfo: boolean = true
   _supportsETHInfo: boolean = true
 
   public getVendor (): string {
     return "Portis"
-  }
-
-  public async ethSupportsNetwork (chainId: number = 1): Promise<boolean> {
-    return chainId === 1
-  }
-
-  public async ethSupportsSecureTransfer (): Promise<boolean> {
-    return false
-  }
-
-  public async ethSupportsNativeShapeShift (): Promise<boolean> {
-    return false
-  }
-
-  public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
-    return [{
-      addressNList: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx, 0, 0 ],
-      hardenedPath: [ 0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx ],
-      relPath: [ 0, 0 ],
-      description: "Portis"
-    }]
   }
 
   public async hasOnDevicePinEntry (): Promise<boolean> {
@@ -377,15 +347,61 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo {
   public describePath (msg: DescribePath): PathDescription {
     switch (msg.coin) {
       case 'Ethereum':
-        return describeETHPath(msg.path)
+        return eth.describeETHPath(msg.path)
+      case 'Bitcoin':
+        return btc.describeUTXOPath(msg.path, msg.coin, msg.scriptType)
       default:
         throw new Error("Unsupported path")
       }
   }
 
+  public async btcSupportsCoin (coin: Coin): Promise<boolean> {
+    return btc.btcSupportsCoin(coin)
+  }
+
+  public async btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
+    return btc.btcSupportsScriptType(coin, scriptType)
+  }
+
+  public async btcSupportsSecureTransfer (): Promise<boolean> {
+    return Promise.resolve(false)
+  }
+
+  public async btcSupportsNativeShapeShift (): Promise<boolean> {
+    return Promise.resolve(false)
+  }
+
+  public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
+    return btc.btcGetAccountPaths(msg)
+  }
+
+  public btcIsSameAccount (msg: Array<BTCAccountPath>): boolean {
+    return false
+  }
+
+  public btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
+    return btc.btcNextAccountPath(msg)
+  }
+
   public ethNextAccountPath (msg: ETHAccountPath): ETHAccountPath | undefined {
     // Portis only supports one account for eth
     return undefined
+  }
+
+  public async ethSupportsNetwork (chainId: number = 1): Promise<boolean> {
+    return chainId === 1
+  }
+
+  public async ethSupportsSecureTransfer (): Promise<boolean> {
+    return false
+  }
+
+  public async ethSupportsNativeShapeShift (): Promise<boolean> {
+    return false
+  }
+
+  public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
+    return eth.ethGetAccountPaths(msg)
   }
 }
 

@@ -15,7 +15,7 @@ import {
 import { isObject } from 'lodash'
 
 export function isLedger (wallet: core.HDWallet): wallet is LedgerHDWallet {
-  return isObject(wallet) && (wallet as any)._isLedger === true
+  return isObject(wallet) && (wallet as any)._isLedger
 }
 
 function describeETHPath (path: core.BIP32Path): core.PathDescription {

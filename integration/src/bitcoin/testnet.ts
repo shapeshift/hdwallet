@@ -10,6 +10,7 @@ import {
   HDWalletInfo
 } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { isPortis } from '@shapeshiftoss/hdwallet-portis'
 
 import { each } from '../utils'
 
@@ -40,7 +41,7 @@ export function testnetTests (get: () => {wallet: HDWallet, info: HDWalletInfo})
     }, TIMEOUT)
 
     test('btcSignTx() - p2sh-p2pkh', async () => {
-      if (!wallet) return
+      if (!wallet || isPortis(wallet)) return
       if (isLedger(wallet)) return // FIXME: Expected failure
       if (!wallet.btcSupportsCoin('Testnet')) return
       let inputs = [{
@@ -74,7 +75,7 @@ export function testnetTests (get: () => {wallet: HDWallet, info: HDWalletInfo})
     }, TIMEOUT)
 
     test('btcSignTx() - p2wpkh', async () => {
-      if (!wallet) return
+      if (!wallet || isPortis(wallet)) return
       if (isLedger(wallet)) return // FIXME: Expected failure
       if (!wallet.btcSupportsCoin('Testnet')) return
       let inputs = [{
