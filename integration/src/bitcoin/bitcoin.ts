@@ -306,7 +306,10 @@ export function bitcoinTests (get: () => { wallet: HDWallet, info: HDWalletInfo 
         let paths = wallet.btcGetAccountPaths({ coin: 'Bitcoin', accountIdx: idx })
         expect(typeof wallet.btcIsSameAccount(paths) === typeof true).toBeTruthy()
         paths.forEach(path => {
-          expect(wallet.btcNextAccountPath(path)).not.toBeUndefined()
+          if(wallet.getVendor() === 'Portis')
+            expect(wallet.btcNextAccountPath(path)).toBeUndefined()
+          else
+            expect(wallet.btcNextAccountPath(path)).not.toBeUndefined()
         })
       })
     }, TIMEOUT)
