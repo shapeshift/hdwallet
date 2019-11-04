@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ...
 
+## [0.13.1] - 2019-11-04]
+
+### Fixed
+- Updated yarn.lock
+
 ## [0.13.0] - 2019-11-04]
 
 ### Added
