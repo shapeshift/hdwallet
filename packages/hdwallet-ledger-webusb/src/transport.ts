@@ -102,11 +102,9 @@ export class LedgerWebUsbTransport extends LedgerTransport {
       }))
       if (coin) {
         response = await new (translateCoin(coin))(this.transport)[method](...args)
-      } else if (method === 'openApp') {
-        const [ appName ] = args
-        response = await openApp(this.transport, appName)
       } else {
-        response = await (translateMethod(method))(this.transport)
+        // @ts-ignore
+        response = await (translateMethod(method))(this.transport, ...args)
       }
     } catch (e) {
       console.error(e)
