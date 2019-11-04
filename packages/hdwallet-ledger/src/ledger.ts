@@ -331,25 +331,20 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   /**
-   * Gets name and version of current app open
-   * @returns {Promise<Object>} - payload
-   *                            - payload.name - name of current app open
-   *                            - payload.version - app version
+   * Validates current app open
+   * Throws WrongApp error if symbol does not match app
+   * @param symbol - i.e. 'BCH'
+   * @returns {Promise<void>}
    */
-  public async getAppAndVersion (): Promise<any> {
+  public async validateCurrentApp (symbol: string): Promise<void> {
+    symbol = symbol && symbol.toUpperCase()
     const res = await this.transport.call(null, 'getAppAndVersion')
     handleError(res, this.transport)
-    return res.payload
-  }
-
-  /**
-   * Returns Ledger's name for an app given a coin's
-   * ticker symbol
-   * @param symbol - i.e. 'BCH'
-   * @returns appName i.e. "Bitcoin Cash"
-   */
-  public getAppNameBySymbol (symbol: string): string {
-    return appsUtil[symbol]
+    const { name: currentApp } = res.payload
+    const expectedApp = appsUtil[symbol]
+    if (currentApp !== expectedApp) {
+      throw new core.WrongApp('Ledger', expectedApp)
+    }
   }
 
   /**
