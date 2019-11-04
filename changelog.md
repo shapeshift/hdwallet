@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Add portis BTC support
+- Add ledger validateCurrentApp() and openApp()
+
+### Fixed
+- Ledger: use transport.call() to get firmware version
 
 ## [0.12.1] - 2019-11-01]
 
