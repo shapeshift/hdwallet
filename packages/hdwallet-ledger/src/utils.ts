@@ -589,3 +589,13 @@ export const networksUtil = {
     }
   }
 }
+
+export const appsUtil = {
+  "BTC": "Bitcoin",
+  "BCH": "Bitcoin Cash",
+  "DASH": "Dash",
+  "DGB": "Digibyte",
+  "DOGE": "Dogecoin",
+  "ETH": "Ethereum",
+  "LTC": "Litecoin"
+}
