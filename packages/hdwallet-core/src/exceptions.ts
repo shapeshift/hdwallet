@@ -1,6 +1,7 @@
 export enum HDWalletErrorType {
     ActionCancelled = 'ActionCancelled',
     DeviceDisconnected = 'DeviceDisconnected',
+    DeviceLocked = 'DeviceLocked',
     PopupClosedError = 'PopupClosedError',
     ConflictingApp = 'ConflictingApp',
     SelectApp = 'SelectApp',
@@ -37,6 +38,12 @@ export class ActionCancelled extends HDWalletError {
 export class DeviceDisconnected extends HDWalletError {
     constructor () {
         super('Device disconnected', HDWalletErrorType.DeviceDisconnected)
+    }
+}
+
+export class DeviceLocked extends HDWalletError {
+    constructor () {
+        super('Device locked', HDWalletErrorType.DeviceLocked)
     }
 }
 
