@@ -2,7 +2,9 @@ import { makeEvent, Keyring } from '@shapeshiftoss/hdwallet-core'
 import { LedgerTransport, LedgerResponse } from '@shapeshiftoss/hdwallet-ledger'
 import Eth from '@ledgerhq/hw-app-eth'
 import Btc from '@ledgerhq/hw-app-btc'
+import getAppAndVersion from '@ledgerhq/live-common/lib/hw/getAppAndVersion'
 import getDeviceInfo from '@ledgerhq/live-common/lib/hw/getDeviceInfo'
+import openApp from '@ledgerhq/live-common/lib/hw/openApp'
 
 const RECORD_CONFORMANCE_MOCKS = false
 
@@ -15,7 +17,9 @@ function translateCoin(coin: string): (any) => void {
 
 function translateMethod(method: string): (any) => void {
   return {
+    'getAppAndVersion': getAppAndVersion,
     'getDeviceInfo': getDeviceInfo,
+    'openApp': openApp
   }[method]
 }
 
@@ -27,8 +31,8 @@ export class LedgerU2FTransport extends LedgerTransport {
     this.device = device
   }
 
-  public getDeviceID (): string {
-    return this.device.deviceID
+  public getDeviceID(): string {
+    return (this.device as any).deviceID
   }
 
   public async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
@@ -40,10 +44,12 @@ export class LedgerU2FTransport extends LedgerTransport {
         from_wallet: false,
         message: {}
       }))
+
       if (coin) {
         response = await new (translateCoin(coin))(this.transport)[method](...args)
       } else {
-        response = await (translateMethod(method))(this.transport)
+        // @ts-ignore
+        response = await (translateMethod(method))(this.transport, ...args)
       }
     } catch (e) {
       console.error(e)
@@ -68,5 +74,15 @@ export class LedgerU2FTransport extends LedgerTransport {
     }
 
     return result
+  }
+
+  public async disconnect(): Promise<void> {
+    if (!this.device.opened) return
+
+    try {
+      await this.device.close()
+    } catch (e) {
+      console.error('error disconnecting ledger u2f device', e)
+    }
   }
 }

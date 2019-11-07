@@ -7,7 +7,8 @@ import {
   SelectApp,
   ActionCancelled,
   NavigateToDashboard,
-  makeEvent,
+  DisconnectedDeviceDuringOperation,
+  makeEvent
 } from '@shapeshiftoss/hdwallet-core'
 import { LedgerTransport } from './transport'
 import { Buffer } from "buffer";
@@ -36,6 +37,11 @@ export function handleError (result: any, transport?: LedgerTransport, message?:
     // User selected x instead of ✓
     if (result.payload.error.includes('0x6985')) {
       throw new ActionCancelled()
+    }
+
+    // Device disconnected during operation, typically due to app navigation
+    if (result.payload.error.includes('DisconnectedDeviceDuringOperation')) {
+      throw new DisconnectedDeviceDuringOperation()
     }
 
     if (transport) {
