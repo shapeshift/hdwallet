@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ...
 
+## Current - [0.14.0] - 2019-11-08]
+
+## Fixed
+- Lock portis version to prevent regressions
+
 ## [0.13.1] - 2019-11-04]
 
 ### Fixed
