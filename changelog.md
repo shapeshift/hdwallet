@@ -9,17 +9,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ...
 
-## Current - [0.14.0] - 2019-11-08]
+## Current - [0.14.0] - 2019-11-08
 
 ## Fixed
 - Lock portis version to prevent regressions
 
-## [0.13.1] - 2019-11-04]
+## [0.13.1] - 2019-11-04
 
 ### Fixed
 - Updated yarn.lock
 
-## [0.13.0] - 2019-11-04]
+## [0.13.0] - 2019-11-04
 
 ### Added
 
@@ -29,14 +29,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Ledger: use transport.call() to get firmware version
 
-## [0.12.1] - 2019-11-01]
+## [0.12.1] - 2019-11-01
 
 ### Fixed
 
 - Nano X getFirmwareVersion
 - Better guards for isObject checks
 
-## [0.12.0] - 2019-10-28]
+## [0.12.0] - 2019-10-28
 
 ### Fixed
 
