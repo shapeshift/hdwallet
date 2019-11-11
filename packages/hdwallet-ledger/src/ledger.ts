@@ -203,23 +203,23 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     return eth.ethGetAccountPaths(msg)
   }
 
-  public async hasNativeShapeShift (srcCoin: core.Coin, dstCoin: core.Coin): Promise<boolean> {
+  public hasNativeShapeShift (srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return false
   }
 
-  public async hasOnDeviceDisplay (): Promise<boolean> {
+  public hasOnDeviceDisplay (): boolean {
     return true
   }
 
-  public async hasOnDevicePassphrase (): Promise<boolean> {
+  public hasOnDevicePassphrase (): boolean {
     return true
   }
 
-  public async hasOnDevicePinEntry (): Promise<boolean> {
+  public hasOnDevicePinEntry (): boolean {
     return true
   }
 
-  public async hasOnDeviceRecovery (): Promise<boolean> {
+  public hasOnDeviceRecovery (): boolean {
     return true
   }
 
@@ -439,23 +439,23 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return xpubs
   }
 
-  public async hasNativeShapeShift (srcCoin: core.Coin, dstCoin: core.Coin): Promise<boolean> {
+  public hasNativeShapeShift (srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return false
   }
 
-  public async hasOnDeviceDisplay (): Promise<boolean> {
+  public hasOnDeviceDisplay (): boolean {
     return true
   }
 
-  public async hasOnDevicePassphrase (): Promise<boolean> {
+  public hasOnDevicePassphrase (): boolean {
     return true
   }
 
-  public async hasOnDevicePinEntry (): Promise<boolean> {
+  public hasOnDevicePinEntry (): boolean {
     return true
   }
 
-  public async hasOnDeviceRecovery (): Promise<boolean> {
+  public hasOnDeviceRecovery (): boolean {
     return true
   }
 

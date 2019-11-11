@@ -3,6 +3,7 @@ import bs58 from "bs58"
 import { padStart } from "lodash"
 import {
   BTCInputScriptType,
+  DeviceLocked,
   WrongApp,
   SelectApp,
   ActionCancelled,
@@ -37,6 +38,11 @@ export function handleError (result: any, transport?: LedgerTransport, message?:
     // User selected x instead of ✓
     if (result.payload.error.includes('0x6985')) {
       throw new ActionCancelled()
+    }
+
+    // Device is on the lock screen
+    if (result.payload.error.includes('0x6f04')) {
+      throw new DeviceLocked()
     }
 
     // Device disconnected during operation, typically due to app navigation
