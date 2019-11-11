@@ -76,7 +76,7 @@ export function selfTest (get: () => HDWallet): void {
 
   it('supports Ethereum mainnet', async () => {
     if (!wallet) return
-    expect(await wallet.ethSupportsNetwork(1)).toEqual(true)
+    expect(wallet.ethSupportsNetwork(1)).toEqual(true)
   })
 
   it('prepends portis: to the eth address to create the deviceId', async () => {

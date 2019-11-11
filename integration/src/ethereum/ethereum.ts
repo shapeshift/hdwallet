@@ -34,7 +34,7 @@ export function ethereumTests (get: () => {wallet: HDWallet, info: HDWalletInfo}
 
     test('ethSupportsNetwork()', async () => {
       if (!wallet) return
-      expect(typeof await wallet.ethSupportsNetwork(1) === typeof true).toBeTruthy()
+      expect(typeof wallet.ethSupportsNetwork(1) === typeof true).toBeTruthy()
     }, TIMEOUT)
 
     test('ethSupportsNativeShapeShift()', async () => {

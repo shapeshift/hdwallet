@@ -22,7 +22,7 @@ import { TrezorTransport } from './transport'
 import * as Ethereumjs from 'ethereumjs-tx'
 const { default: EthereumTx } = Ethereumjs as any
 
-export async function ethSupportsNetwork (chain_id: number): Promise<boolean> {
+export function ethSupportsNetwork (chain_id: number): boolean {
   return true
 }
 

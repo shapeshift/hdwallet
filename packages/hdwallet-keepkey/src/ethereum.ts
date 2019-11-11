@@ -39,7 +39,7 @@ import {
 
 import * as EIP55 from 'eip55'
 
-export async function ethSupportsNetwork (chain_id: number): Promise<boolean> {
+export function ethSupportsNetwork (chain_id: number): boolean {
   return true
 }
 

@@ -84,7 +84,7 @@ export interface ETHWalletInfo {
   /**
    * Does the device support the Ethereum network with the given chain_id?
    */
-  ethSupportsNetwork (chain_id: number): Promise<boolean>
+  ethSupportsNetwork (chain_id: number): boolean
 
   /**
    * Does the device support internal transfers without the user needing to

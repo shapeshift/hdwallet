@@ -257,7 +257,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.info.btcNextAccountPath(msg)
   }
 
-  public async ethSupportsNetwork (chainId: number = 1): Promise<boolean> {
+  public ethSupportsNetwork (chainId: number = 1): boolean {
     return this.info.ethSupportsNetwork(chainId)
   }
 
@@ -388,7 +388,7 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
     return undefined
   }
 
-  public async ethSupportsNetwork (chainId: number = 1): Promise<boolean> {
+  public ethSupportsNetwork (chainId: number = 1): boolean {
     return chainId === 1
   }
 

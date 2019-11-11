@@ -245,7 +245,7 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
     return Btc.btcIsSameAccount(msg)
   }
 
-  public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
+  public ethSupportsNetwork (chain_id: number): boolean {
     return Eth.ethSupportsNetwork(chain_id)
   }
 
@@ -875,7 +875,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     return Eth.ethVerifyMessage(this.transport, msg)
   }
 
-  public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
+  public ethSupportsNetwork (chain_id: number): boolean {
     return this.info.ethSupportsNetwork(chain_id)
   }
 

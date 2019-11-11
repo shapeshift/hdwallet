@@ -187,7 +187,7 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     return btc.btcIsSameAccount(msg)
   }
 
-  public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
+  public ethSupportsNetwork (chain_id: number): boolean {
     return eth.ethSupportsNetwork(chain_id)
   }
 
@@ -553,7 +553,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return eth.ethVerifyMessage(msg)
   }
 
-  public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
+  public ethSupportsNetwork (chain_id: number): boolean {
     return this.info.ethSupportsNetwork(chain_id)
   }
 

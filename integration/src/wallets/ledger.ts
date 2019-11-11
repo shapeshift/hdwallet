@@ -142,7 +142,7 @@ export function selfTest (get: () => HDWallet): void {
 
   it('supports Ethereum mainnet', async () => {
     if (!wallet) return
-    expect(await wallet.ethSupportsNetwork(1)).toEqual(true)
+    expect(wallet.ethSupportsNetwork(1)).toEqual(true)
   })
 
   it('does not support Native ShapeShift', async () => {

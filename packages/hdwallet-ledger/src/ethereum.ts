@@ -26,7 +26,7 @@ import {
 import { handleError } from './utils'
 import { LedgerTransport } from './transport'
 
-export async function ethSupportsNetwork(chain_id: number): Promise<boolean> {
+export function ethSupportsNetwork(chain_id: number): boolean {
   return chain_id === 1
 }
 

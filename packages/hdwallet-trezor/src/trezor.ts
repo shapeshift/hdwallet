@@ -206,7 +206,7 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
     return Btc.btcIsSameAccount(msg)
   }
 
-  public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
+  public ethSupportsNetwork (chain_id: number): boolean {
     return Eth.ethSupportsNetwork(chain_id)
   }
 
@@ -550,7 +550,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return Eth.ethVerifyMessage(this.transport, msg)
   }
 
-  public async ethSupportsNetwork (chain_id: number): Promise<boolean> {
+  public ethSupportsNetwork (chain_id: number): boolean {
     return this.info.ethSupportsNetwork(chain_id)
   }
 
