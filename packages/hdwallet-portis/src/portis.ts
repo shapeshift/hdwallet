@@ -103,26 +103,26 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return Promise.resolve()
   }
 
-  public async hasOnDevicePinEntry(): Promise<boolean> {
+  public hasOnDevicePinEntry(): boolean {
     return this.info.hasOnDevicePinEntry()
   }
 
-  public async hasOnDevicePassphrase(): Promise<boolean> {
+  public hasOnDevicePassphrase(): boolean {
     return this.info.hasOnDevicePassphrase()
   }
 
-  public async hasOnDeviceDisplay(): Promise<boolean> {
+  public hasOnDeviceDisplay(): boolean {
     return this.info.hasOnDeviceDisplay()
   }
 
-  public async hasOnDeviceRecovery(): Promise<boolean> {
+  public hasOnDeviceRecovery(): boolean {
     return this.info.hasOnDeviceRecovery()
   }
 
-  public async hasNativeShapeShift(
+  public hasNativeShapeShift(
     srcCoin: Coin,
     dstCoin: Coin
-  ): Promise<boolean> {
+  ): boolean {
     return this.info.hasNativeShapeShift(srcCoin, dstCoin)
   }
 
@@ -323,23 +323,23 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
     return "Portis"
   }
 
-  public async hasOnDevicePinEntry (): Promise<boolean> {
+  public hasOnDevicePinEntry (): boolean {
     return true
   }
 
-  public async hasOnDevicePassphrase (): Promise<boolean> {
+  public hasOnDevicePassphrase (): boolean {
     return true
   }
 
-  public async hasOnDeviceDisplay (): Promise<boolean> {
+  public hasOnDeviceDisplay (): boolean {
     return true
   }
 
-  public async hasOnDeviceRecovery (): Promise<boolean> {
+  public hasOnDeviceRecovery (): boolean {
     return true
   }
 
-  public async hasNativeShapeShift (srcCoin: Coin, dstCoin: Coin): Promise<boolean> {
+  public hasNativeShapeShift (srcCoin: Coin, dstCoin: Coin): boolean {
     // It doesn't... yet?
     return false
   }

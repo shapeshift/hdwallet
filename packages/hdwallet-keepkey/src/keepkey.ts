@@ -261,26 +261,26 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
     return Eth.ethGetAccountPaths(msg)
   }
 
-  public async hasOnDevicePinEntry(): Promise<boolean> {
+  public hasOnDevicePinEntry(): boolean {
     return false;
   }
 
-  public async hasOnDevicePassphrase(): Promise<boolean> {
+  public hasOnDevicePassphrase(): boolean {
     return false;
   }
 
-  public async hasOnDeviceDisplay(): Promise<boolean> {
+  public hasOnDeviceDisplay(): boolean {
     return true;
   }
 
-  public async hasOnDeviceRecovery(): Promise<boolean> {
+  public hasOnDeviceRecovery(): boolean {
     return false;
   }
 
-  public async hasNativeShapeShift(
+  public hasNativeShapeShift(
     srcCoin: Coin,
     dstCoin: Coin
-  ): Promise<boolean> {
+  ): boolean {
     return true;
   }
 
@@ -494,26 +494,26 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     )
   }
 
-  public async hasOnDevicePinEntry(): Promise<boolean> {
+  public hasOnDevicePinEntry(): boolean {
     return false;
   }
 
-  public async hasOnDevicePassphrase(): Promise<boolean> {
+  public hasOnDevicePassphrase(): boolean {
     return false;
   }
 
-  public async hasOnDeviceDisplay(): Promise<boolean> {
+  public hasOnDeviceDisplay(): boolean {
     return true;
   }
 
-  public async hasOnDeviceRecovery(): Promise<boolean> {
+  public hasOnDeviceRecovery(): boolean {
     return false;
   }
 
-  public async hasNativeShapeShift(
+  public hasNativeShapeShift(
     srcCoin: Coin,
     dstCoin: Coin
-  ): Promise<boolean> {
+  ): boolean {
     return true;
   }
 
