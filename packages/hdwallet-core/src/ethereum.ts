@@ -90,7 +90,7 @@ export interface ETHWalletInfo {
    * Does the device support internal transfers without the user needing to
    * confirm the destination address?
    */
-  ethSupportsSecureTransfer (): Promise<boolean>
+  ethSupportsSecureTransfer (): boolean
 
   /**
    * Does the device support `/sendamountProto2` style ShapeShift trades?
