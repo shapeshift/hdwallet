@@ -45,6 +45,8 @@ export class DeviceDisconnected extends HDWalletError {
 export class DisconnectedDeviceDuringOperation extends HDWalletError {
     constructor () {
         super('Ledger device disconnected during operation', HDWalletErrorType.DisconnectedDeviceDuringOperation)
+    }
+}
 
 export class DeviceLocked extends HDWalletError {
     constructor () {
