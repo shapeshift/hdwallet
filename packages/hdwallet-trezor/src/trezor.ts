@@ -194,7 +194,7 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
     return Btc.btcSupportsSecureTransfer()
   }
 
-  public async btcSupportsNativeShapeShift (): Promise<boolean> {
+  public btcSupportsNativeShapeShift (): boolean {
     return Btc.btcSupportsNativeShapeShift()
   }
 
@@ -214,7 +214,7 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
     return Eth.ethSupportsSecureTransfer()
   }
 
-  public async ethSupportsNativeShapeShift (): Promise<boolean> {
+  public ethSupportsNativeShapeShift (): boolean {
     return Eth.ethSupportsNativeShapeShift()
   }
 
@@ -513,7 +513,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return this.info.btcSupportsSecureTransfer()
   }
 
-  public async btcSupportsNativeShapeShift (): Promise<boolean> {
+  public btcSupportsNativeShapeShift (): boolean {
     return this.info.btcSupportsNativeShapeShift()
   }
 
@@ -558,7 +558,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return this.info.ethSupportsSecureTransfer()
   }
 
-  public async ethSupportsNativeShapeShift (): Promise<boolean> {
+  public ethSupportsNativeShapeShift (): boolean {
     return this.info.ethSupportsNativeShapeShift()
   }
 

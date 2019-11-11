@@ -40,7 +40,7 @@ export function ethereumTests (get: () => {wallet: HDWallet, info: HDWalletInfo}
     test('ethSupportsNativeShapeShift()', async () => {
       if (!wallet) return
       // TODO: add a test that pays a ShapeShift conduit
-      expect(typeof await wallet.ethSupportsNativeShapeShift() === typeof true).toBeTruthy()
+      expect(typeof wallet.ethSupportsNativeShapeShift() === typeof true).toBeTruthy()
     }, TIMEOUT)
 
     test('ethSupportsSecureTransfer()', async () => {

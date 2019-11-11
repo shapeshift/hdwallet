@@ -80,7 +80,7 @@ export async function ethSupportsSecureTransfer(): Promise<boolean> {
   return false
 }
 
-export async function ethSupportsNativeShapeShift(): Promise<boolean> {
+export function ethSupportsNativeShapeShift(): boolean {
   return false
 }
 

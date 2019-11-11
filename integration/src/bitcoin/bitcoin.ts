@@ -263,9 +263,9 @@ export function bitcoinTests (get: () => { wallet: HDWallet, info: HDWalletInfo 
 
     test('btcSupportsNativeShapeShift()', async () => {
       if (!wallet) return
-      expect(typeof (await wallet.btcSupportsNativeShapeShift()) === typeof true)
-      if (await wallet.btcSupportsNativeShapeShift()) {
-        expect(await info.btcSupportsNativeShapeShift()).toBeTruthy()
+      expect(typeof (wallet.btcSupportsNativeShapeShift()) === typeof true)
+      if (wallet.btcSupportsNativeShapeShift()) {
+        expect(info.btcSupportsNativeShapeShift()).toBeTruthy()
       }
       // TODO: write a testcase that exercises native shapeshift, if the wallet claims to support it.
     }, TIMEOUT)

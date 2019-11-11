@@ -44,7 +44,7 @@ export async function ethSignTx (wallet: ETHWallet, transport: TrezorTransport, 
   if (msg.toAddressNList !== undefined && !await this.ethSupportsSecureTransfer())
     throw new Error("Trezor does not support SecureTransfer")
 
-  if (msg.exchangeType !== undefined && !await this.ethSupportsNativeShapeShift())
+  if (msg.exchangeType !== undefined && !this.ethSupportsNativeShapeShift())
     throw new Error("Trezor does not support Native ShapeShift")
 
   const utx = {
@@ -103,7 +103,7 @@ export async function ethSupportsSecureTransfer (): Promise<boolean> {
   return false
 }
 
-export async function ethSupportsNativeShapeShift (): Promise<boolean> {
+export function ethSupportsNativeShapeShift (): boolean {
   return false
 }
 
