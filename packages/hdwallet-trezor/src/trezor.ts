@@ -222,24 +222,24 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
     return Eth.ethGetAccountPaths(msg)
   }
 
-  public async hasOnDevicePinEntry (): Promise<boolean> {
+  public hasOnDevicePinEntry (): boolean {
     return true
   }
 
-  public async hasOnDevicePassphrase (): Promise<boolean> {
+  public hasOnDevicePassphrase (): boolean {
     return true
   }
 
-  public async hasOnDeviceDisplay (): Promise<boolean> {
+  public hasOnDeviceDisplay (): boolean {
     return true
   }
 
-  public async hasOnDeviceRecovery (): Promise<boolean> {
+  public hasOnDeviceRecovery (): boolean {
     // Not really meaningful since TrezorConnect doesn't expose recovery yet
     return true
   }
 
-  public async hasNativeShapeShift (srcCoin: Coin, dstCoin: Coin): Promise<boolean> {
+  public hasNativeShapeShift (srcCoin: Coin, dstCoin: Coin): boolean {
     // It doesn't... yet?
     return false
   }
@@ -471,24 +471,24 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
     handleError(this.transport, res, "Could not load seed into Trezor")
   }
 
-  public async hasOnDevicePinEntry (): Promise<boolean> {
+  public hasOnDevicePinEntry (): boolean {
     return this.transport.hasPopup
   }
 
-  public async hasOnDevicePassphrase (): Promise<boolean> {
+  public hasOnDevicePassphrase (): boolean {
     return this.transport.hasPopup
   }
 
-  public async hasOnDeviceDisplay (): Promise<boolean> {
+  public hasOnDeviceDisplay (): boolean {
     return true
   }
 
-  public async hasOnDeviceRecovery (): Promise<boolean> {
+  public hasOnDeviceRecovery (): boolean {
     // Not really meaningful since TrezorConnect doesn't expose recovery yet
     return this.transport.hasPopup
   }
 
-  public async hasNativeShapeShift (srcCoin: Coin, dstCoin: Coin): Promise<boolean> {
+  public hasNativeShapeShift (srcCoin: Coin, dstCoin: Coin): boolean {
     // It doesn't... yet?
     return false
   }

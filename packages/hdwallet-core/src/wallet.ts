@@ -155,17 +155,17 @@ export interface HDWalletInfo {
   /**
    * Does the wallet need the user to enter their pin through the device?
    */
-  hasOnDevicePinEntry (): Promise<boolean>
+  hasOnDevicePinEntry (): boolean
 
   /**
    * Does the wallet need the user to enter their passphrase through the device?
    */
-  hasOnDevicePassphrase (): Promise<boolean>
+  hasOnDevicePassphrase (): boolean
 
   /**
    * Does the wallet have a screen for displaying addresses / confirming?
    */
-  hasOnDeviceDisplay (): Promise<boolean>
+  hasOnDeviceDisplay (): boolean
 
   /**
    * Does the wallet use a recovery method that does not involve communicating
@@ -173,13 +173,13 @@ export interface HDWalletInfo {
    * Recovery, but for a Ledger it's `true` since you enter words using only
    * the device.
    */
-  hasOnDeviceRecovery (): Promise<boolean>
+  hasOnDeviceRecovery (): boolean
 
   /**
    * Does the device support `/sendamountProto2` style native ShapeShift
    * integration for the given pair?
    */
-  hasNativeShapeShift (srcCoin: Coin, dstCoin: Coin): Promise<boolean>
+  hasNativeShapeShift (srcCoin: Coin, dstCoin: Coin): boolean
 
   /**
    * Describes a BIP32 path in plain English.
