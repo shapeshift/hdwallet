@@ -116,7 +116,7 @@ export async function btcGetAddress (transport: LedgerTransport, msg: BTCGetAddr
 
  */
 export async function btcSignTx (wallet: BTCWallet, transport: LedgerTransport, msg: BTCSignTx): Promise<BTCSignedTx> {
-  let supportsShapeShift = await wallet.btcSupportsNativeShapeShift()
+  let supportsShapeShift = wallet.btcSupportsNativeShapeShift()
   let supportsSecureTransfer = await wallet.btcSupportsSecureTransfer()
   let slip44 = slip44ByCoin(msg.coin)
   let txBuilder = new TransactionBuilder(networksUtil[slip44].bitcoinjs)
@@ -173,7 +173,7 @@ export async function btcSupportsSecureTransfer (): Promise<boolean> {
   return false
 }
 
-export async function btcSupportsNativeShapeShift (): Promise<boolean> {
+export function btcSupportsNativeShapeShift (): boolean {
   return false
 }
 

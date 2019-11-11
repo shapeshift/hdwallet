@@ -106,7 +106,7 @@ export async function btcGetAddress (transport: TrezorTransport, msg: BTCGetAddr
 }
 
 export async function btcSignTx (wallet: BTCWallet, transport: TrezorTransport, msg: BTCSignTx): Promise<BTCSignedTx> {
-  let supportsShapeShift = await wallet.btcSupportsNativeShapeShift()
+  let supportsShapeShift = wallet.btcSupportsNativeShapeShift()
   let supportsSecureTransfer = await wallet.btcSupportsSecureTransfer()
 
   let inputs = msg.inputs.map(input => {
@@ -165,7 +165,7 @@ export async function btcSupportsSecureTransfer (): Promise<boolean> {
   return false
 }
 
-export async function btcSupportsNativeShapeShift (): Promise<boolean> {
+export function btcSupportsNativeShapeShift (): boolean {
   return false
 }
 

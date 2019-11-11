@@ -47,7 +47,7 @@ export async function ethSupportsSecureTransfer (): Promise<boolean> {
   return true
 }
 
-export async function ethSupportsNativeShapeShift (): Promise<boolean> {
+export function ethSupportsNativeShapeShift (): boolean {
   return true
 }
 

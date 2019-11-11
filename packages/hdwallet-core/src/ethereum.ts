@@ -95,7 +95,7 @@ export interface ETHWalletInfo {
   /**
    * Does the device support `/sendamountProto2` style ShapeShift trades?
    */
-  ethSupportsNativeShapeShift (): Promise<boolean>
+  ethSupportsNativeShapeShift (): boolean
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order

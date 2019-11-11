@@ -174,7 +174,7 @@ export interface BTCWalletInfo {
   /**
    * Does the device support `/sendamountProto2` style ShapeShift trades?
    */
-  btcSupportsNativeShapeShift (): Promise<boolean>
+  btcSupportsNativeShapeShift (): boolean
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order
