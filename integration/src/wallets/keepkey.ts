@@ -94,7 +94,7 @@ export function selfTest (get: () => HDWallet): void {
 
   it('supports ShapeShift', async () => {
     if (!wallet) return
-    expect(await wallet.ethSupportsNativeShapeShift()).toEqual(true)
+    expect(wallet.ethSupportsNativeShapeShift()).toEqual(true)
   })
 
   it('supports Secure Transfer', async () => {

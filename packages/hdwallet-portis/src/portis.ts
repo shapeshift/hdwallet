@@ -241,7 +241,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.info.btcSupportsSecureTransfer()
   }
 
-  public async btcSupportsNativeShapeShift (): Promise<boolean> {
+  public btcSupportsNativeShapeShift (): boolean {
     return this.info.btcSupportsNativeShapeShift()
   }
 
@@ -265,7 +265,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.info.ethSupportsSecureTransfer()
   }
 
-  public async ethSupportsNativeShapeShift (): Promise<boolean> {
+  public ethSupportsNativeShapeShift (): boolean {
     return this.info.ethSupportsNativeShapeShift()
   }
 
@@ -367,8 +367,8 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
     return Promise.resolve(false)
   }
 
-  public async btcSupportsNativeShapeShift (): Promise<boolean> {
-    return Promise.resolve(false)
+  public btcSupportsNativeShapeShift (): boolean {
+    return false
   }
 
   public btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
@@ -396,7 +396,7 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
     return false
   }
 
-  public async ethSupportsNativeShapeShift (): Promise<boolean> {
+  public ethSupportsNativeShapeShift (): boolean {
     return false
   }
 

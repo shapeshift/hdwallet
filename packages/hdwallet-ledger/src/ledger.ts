@@ -175,7 +175,7 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     return btc.btcSupportsSecureTransfer()
   }
 
-  public async btcSupportsNativeShapeShift (): Promise<boolean> {
+  public btcSupportsNativeShapeShift (): boolean {
     return btc.btcSupportsNativeShapeShift()
   }
 
@@ -195,7 +195,7 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     return eth.ethSupportsSecureTransfer()
   }
 
-  public async ethSupportsNativeShapeShift (): Promise<boolean> {
+  public ethSupportsNativeShapeShift (): boolean {
     return eth.ethSupportsNativeShapeShift()
   }
 
@@ -517,7 +517,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return this.info.btcSupportsSecureTransfer()
   }
 
-  public async btcSupportsNativeShapeShift (): Promise<boolean> {
+  public btcSupportsNativeShapeShift (): boolean {
     return this.info.btcSupportsNativeShapeShift()
   }
 
@@ -561,7 +561,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return this.info.ethSupportsSecureTransfer()
   }
 
-  public async ethSupportsNativeShapeShift (): Promise<boolean> {
+  public ethSupportsNativeShapeShift (): boolean {
     return this.info.ethSupportsNativeShapeShift()
   }
 

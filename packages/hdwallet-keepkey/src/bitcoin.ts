@@ -418,7 +418,7 @@ export async function btcSupportsSecureTransfer (): Promise<boolean> {
   return true
 }
 
-export async function btcSupportsNativeShapeShift (): Promise<boolean> {
+export function btcSupportsNativeShapeShift (): boolean {
   return true
 }
 

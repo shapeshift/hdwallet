@@ -233,7 +233,7 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
     return Btc.btcSupportsSecureTransfer()
   }
 
-  public async btcSupportsNativeShapeShift (): Promise<boolean> {
+  public btcSupportsNativeShapeShift (): boolean {
     return Btc.btcSupportsNativeShapeShift()
   }
 
@@ -253,7 +253,7 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
     return Eth.ethSupportsSecureTransfer()
   }
 
-  public async ethSupportsNativeShapeShift (): Promise<boolean> {
+  public ethSupportsNativeShapeShift (): boolean {
     return Eth.ethSupportsNativeShapeShift()
   }
 
@@ -833,7 +833,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     return this.info.btcSupportsSecureTransfer()
   }
 
-  public async btcSupportsNativeShapeShift (): Promise<boolean> {
+  public btcSupportsNativeShapeShift (): boolean {
     return this.info.btcSupportsNativeShapeShift()
   }
 
@@ -883,7 +883,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     return this.info.ethSupportsSecureTransfer()
   }
 
-  public async ethSupportsNativeShapeShift (): Promise<boolean> {
+  public ethSupportsNativeShapeShift (): boolean {
     return this.info.ethSupportsNativeShapeShift()
   }
 
