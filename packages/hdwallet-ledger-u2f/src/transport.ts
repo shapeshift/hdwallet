@@ -75,14 +75,4 @@ export class LedgerU2FTransport extends LedgerTransport {
 
     return result
   }
-
-  public async disconnect(): Promise<void> {
-    if (!this.device.opened) return
-
-    try {
-      await this.device.close()
-    } catch (e) {
-      console.error('error disconnecting ledger u2f device', e)
-    }
-  }
 }
