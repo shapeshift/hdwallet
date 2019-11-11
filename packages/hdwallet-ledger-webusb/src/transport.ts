@@ -83,14 +83,6 @@ export class LedgerWebUsbTransport extends LedgerTransport {
     return (this.device as any).deviceID
   }
 
-  public async open() {
-    this.transport = await getTransport()
-  }
-
-  public async close() {
-    await this.transport.close()
-  }
-
   public async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
     let response
 
@@ -100,6 +92,7 @@ export class LedgerWebUsbTransport extends LedgerTransport {
         from_wallet: false,
         message: {}
       }))
+
       if (coin) {
         response = await new (translateCoin(coin))(this.transport)[method](...args)
       } else {

@@ -8,7 +8,8 @@ import {
   SelectApp,
   ActionCancelled,
   NavigateToDashboard,
-  makeEvent,
+  DisconnectedDeviceDuringOperation,
+  makeEvent
 } from '@shapeshiftoss/hdwallet-core'
 import { LedgerTransport } from './transport'
 import { Buffer } from "buffer";
@@ -42,6 +43,11 @@ export function handleError (result: any, transport?: LedgerTransport, message?:
     // Device is on the lock screen
     if (result.payload.error.includes('0x6f04')) {
       throw new DeviceLocked()
+    }
+
+    // Device disconnected during operation, typically due to app navigation
+    if (result.payload.error.includes('DisconnectedDeviceDuringOperation')) {
+      throw new DisconnectedDeviceDuringOperation()
     }
 
     if (transport) {
