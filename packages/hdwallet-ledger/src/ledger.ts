@@ -171,7 +171,7 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     return btc.btcSupportsScriptType(coin, scriptType)
   }
 
-  public async btcSupportsSecureTransfer (): Promise<boolean> {
+  public btcSupportsSecureTransfer (): boolean {
     return btc.btcSupportsSecureTransfer()
   }
 
@@ -191,7 +191,7 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     return eth.ethSupportsNetwork(chain_id)
   }
 
-  public async ethSupportsSecureTransfer (): Promise<boolean> {
+  public ethSupportsSecureTransfer (): boolean {
     return eth.ethSupportsSecureTransfer()
   }
 
@@ -513,7 +513,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return btc.btcSignTx(this, this.transport, msg)
   }
 
-  public async btcSupportsSecureTransfer (): Promise<boolean> {
+  public btcSupportsSecureTransfer (): boolean {
     return this.info.btcSupportsSecureTransfer()
   }
 
@@ -557,7 +557,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return this.info.ethSupportsNetwork(chain_id)
   }
 
-  public async ethSupportsSecureTransfer (): Promise<boolean> {
+  public ethSupportsSecureTransfer (): boolean {
     return this.info.ethSupportsSecureTransfer()
   }
 

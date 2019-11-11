@@ -190,7 +190,7 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
     return Btc.btcSupportsScriptType(coin, scriptType)
   }
 
-  public async btcSupportsSecureTransfer (): Promise<boolean> {
+  public btcSupportsSecureTransfer (): boolean {
     return Btc.btcSupportsSecureTransfer()
   }
 
@@ -210,7 +210,7 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
     return Eth.ethSupportsNetwork(chain_id)
   }
 
-  public async ethSupportsSecureTransfer (): Promise<boolean> {
+  public ethSupportsSecureTransfer (): boolean {
     return Eth.ethSupportsSecureTransfer()
   }
 
@@ -509,7 +509,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return Btc.btcSignTx(this, this.transport, msg)
   }
 
-  public async btcSupportsSecureTransfer (): Promise<boolean> {
+  public btcSupportsSecureTransfer (): boolean {
     return this.info.btcSupportsSecureTransfer()
   }
 
@@ -554,7 +554,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return this.info.ethSupportsNetwork(chain_id)
   }
 
-  public async ethSupportsSecureTransfer (): Promise<boolean> {
+  public ethSupportsSecureTransfer (): boolean {
     return this.info.ethSupportsSecureTransfer()
   }
 

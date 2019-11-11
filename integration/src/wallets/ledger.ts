@@ -153,8 +153,8 @@ export function selfTest (get: () => HDWallet): void {
 
   it('does not support Secure Transfer', async () => {
     if (!wallet) return
-    expect(await wallet.ethSupportsSecureTransfer()).toEqual(false)
-    expect(await wallet.btcSupportsSecureTransfer()).toEqual(false)
+    expect(wallet.ethSupportsSecureTransfer()).toEqual(false)
+    expect(wallet.btcSupportsSecureTransfer()).toEqual(false)
   })
 
   it('has a non-BIP 44 derivation path for Ethereum', () => {

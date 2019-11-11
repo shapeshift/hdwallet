@@ -254,9 +254,9 @@ export function bitcoinTests (get: () => { wallet: HDWallet, info: HDWalletInfo 
 
     test('btcSupportsSecureTransfer()', async () => {
       if (!wallet) return
-      expect(typeof (await wallet.btcSupportsSecureTransfer()) === typeof true).toBeTruthy()
-      if (await wallet.btcSupportsSecureTransfer()) {
-        expect(await info.btcSupportsSecureTransfer()).toBeTruthy()
+      expect(typeof (wallet.btcSupportsSecureTransfer()) === typeof true).toBeTruthy()
+      if (wallet.btcSupportsSecureTransfer()) {
+        expect(info.btcSupportsSecureTransfer()).toBeTruthy()
       }
       // TODO: write a testcase that exercise secure transfer, if the wallet claims to support it.
     }, TIMEOUT)

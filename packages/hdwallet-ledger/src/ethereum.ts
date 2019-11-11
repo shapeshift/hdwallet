@@ -76,7 +76,7 @@ export async function ethSignTx(transport: LedgerTransport, msg: ETHSignTx): Pro
   }
 }
 
-export async function ethSupportsSecureTransfer(): Promise<boolean> {
+export function ethSupportsSecureTransfer(): boolean {
   return false
 }
 

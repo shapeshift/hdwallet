@@ -221,8 +221,8 @@ export function selfTest (get: () => HDWallet): void {
 
   it('does not support Secure Transfer', async () => {
     if (!wallet) return
-    expect(await wallet.ethSupportsSecureTransfer()).toEqual(false)
-    expect(await wallet.btcSupportsSecureTransfer()).toEqual(false)
+    expect(wallet.ethSupportsSecureTransfer()).toEqual(false)
+    expect(wallet.btcSupportsSecureTransfer()).toEqual(false)
   })
 
   it('uses the same BIP32 paths for ETH as wallet.trezor.io', () => {

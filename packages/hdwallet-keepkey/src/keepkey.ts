@@ -229,7 +229,7 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
     return Btc.btcSupportsScriptType(coin, scriptType)
   }
 
-  public async btcSupportsSecureTransfer (): Promise<boolean> {
+  public btcSupportsSecureTransfer (): boolean {
     return Btc.btcSupportsSecureTransfer()
   }
 
@@ -249,7 +249,7 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
     return Eth.ethSupportsNetwork(chain_id)
   }
 
-  public async ethSupportsSecureTransfer (): Promise<boolean> {
+  public ethSupportsSecureTransfer (): boolean {
     return Eth.ethSupportsSecureTransfer()
   }
 
@@ -829,7 +829,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     return Btc.btcSignTx(this, this.transport, msg)
   }
 
-  public async btcSupportsSecureTransfer (): Promise<boolean> {
+  public btcSupportsSecureTransfer (): boolean {
     return this.info.btcSupportsSecureTransfer()
   }
 
@@ -879,7 +879,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     return this.info.ethSupportsNetwork(chain_id)
   }
 
-  public async ethSupportsSecureTransfer (): Promise<boolean> {
+  public ethSupportsSecureTransfer (): boolean {
     return this.info.ethSupportsSecureTransfer()
   }
 

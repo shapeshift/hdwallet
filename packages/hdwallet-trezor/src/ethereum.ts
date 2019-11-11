@@ -41,7 +41,7 @@ export async function ethGetAddress (transport: TrezorTransport, msg: ETHGetAddr
 }
 
 export async function ethSignTx (wallet: ETHWallet, transport: TrezorTransport, msg: ETHSignTx): Promise<ETHSignedTx> {
-  if (msg.toAddressNList !== undefined && !await this.ethSupportsSecureTransfer())
+  if (msg.toAddressNList !== undefined && !this.ethSupportsSecureTransfer())
     throw new Error("Trezor does not support SecureTransfer")
 
   if (msg.exchangeType !== undefined && !this.ethSupportsNativeShapeShift())
@@ -99,7 +99,7 @@ export async function ethVerifyMessage (transport: TrezorTransport, msg: ETHVeri
   return res.payload.message === "Message verified"
 }
 
-export async function ethSupportsSecureTransfer (): Promise<boolean> {
+export function ethSupportsSecureTransfer (): boolean {
   return false
 }
 

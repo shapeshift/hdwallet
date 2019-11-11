@@ -414,7 +414,7 @@ export async function btcSignTx (wallet: BTCWallet, transport: KeepKeyTransport,
   })
 }
 
-export async function btcSupportsSecureTransfer (): Promise<boolean> {
+export function btcSupportsSecureTransfer (): boolean {
   return true
 }
 

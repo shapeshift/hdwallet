@@ -45,7 +45,7 @@ export function ethereumTests (get: () => {wallet: HDWallet, info: HDWalletInfo}
 
     test('ethSupportsSecureTransfer()', async () => {
       if (!wallet) return
-      if (await wallet.ethSupportsSecureTransfer()) {
+      if (wallet.ethSupportsSecureTransfer()) {
         let account0 = bip32ToAddressNList("m/44'/60'/0'/0/0")
         let account1 = bip32ToAddressNList("m/44'/60'/1'/0/0")
         let account1Addr = await wallet.ethGetAddress({ addressNList: account1, showDisplay: false })

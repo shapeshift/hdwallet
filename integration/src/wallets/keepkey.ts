@@ -99,7 +99,7 @@ export function selfTest (get: () => HDWallet): void {
 
   it('supports Secure Transfer', async () => {
     if (!wallet) return
-    expect(await wallet.ethSupportsSecureTransfer()).toEqual(true)
+    expect(wallet.ethSupportsSecureTransfer()).toEqual(true)
   })
 
   it('uses the same BIP32 paths for ETH as the KeepKey Client', () => {

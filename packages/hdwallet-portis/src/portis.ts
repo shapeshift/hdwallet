@@ -237,7 +237,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.info.btcSupportsScriptType(coin, scriptType)
   }
 
-  public async btcSupportsSecureTransfer (): Promise<boolean> {
+  public btcSupportsSecureTransfer (): boolean {
     return this.info.btcSupportsSecureTransfer()
   }
 
@@ -261,7 +261,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.info.ethSupportsNetwork(chainId)
   }
 
-  public async ethSupportsSecureTransfer (): Promise<boolean> {
+  public ethSupportsSecureTransfer (): boolean {
     return this.info.ethSupportsSecureTransfer()
   }
 
@@ -363,8 +363,8 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
     return btc.btcSupportsScriptType(coin, scriptType)
   }
 
-  public async btcSupportsSecureTransfer (): Promise<boolean> {
-    return Promise.resolve(false)
+  public btcSupportsSecureTransfer (): boolean {
+    return false
   }
 
   public btcSupportsNativeShapeShift (): boolean {
@@ -392,7 +392,7 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
     return chainId === 1
   }
 
-  public async ethSupportsSecureTransfer (): Promise<boolean> {
+  public ethSupportsSecureTransfer (): boolean {
     return false
   }
 

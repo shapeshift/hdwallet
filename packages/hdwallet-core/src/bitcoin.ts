@@ -169,7 +169,7 @@ export interface BTCWalletInfo {
    * Does the device support internal transfers without the user needing to
    * confirm the destination address?
    */
-  btcSupportsSecureTransfer (): Promise<boolean>
+  btcSupportsSecureTransfer (): boolean
 
   /**
    * Does the device support `/sendamountProto2` style ShapeShift trades?

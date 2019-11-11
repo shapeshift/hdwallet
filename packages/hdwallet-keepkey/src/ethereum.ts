@@ -43,7 +43,7 @@ export function ethSupportsNetwork (chain_id: number): boolean {
   return true
 }
 
-export async function ethSupportsSecureTransfer (): Promise<boolean> {
+export function ethSupportsSecureTransfer (): boolean {
   return true
 }
 
