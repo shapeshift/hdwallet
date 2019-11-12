@@ -9,7 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ...
 
-## Current - [0.14.0] - 2019-11-08
+## [0.15.0] - 2019-11-12
+
+### Added
+
+- More robust error handling for Ledger
+- Dropped promises from several of the HDWalletInfo interfaces
+
+## [0.14.0] - 2019-11-08
 
 ## Fixed
 - Lock portis version to prevent regressions
