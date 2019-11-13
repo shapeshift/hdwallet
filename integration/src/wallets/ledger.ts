@@ -157,7 +157,30 @@ export function selfTest (get: () => HDWallet): void {
     expect(await wallet.btcSupportsSecureTransfer()).toEqual(false)
   })
 
-  it('has a non-BIP 44 derivation path for Ethereum', () => {
+  it('has ETH derivation path for Ledger Live accounts', () => {
+    if (!wallet) return
+    ([0, 1, 3, 27]).forEach(account => {
+      let paths = wallet.ethGetAccountPaths({ coin: 'Ethereum', accountIdx: account })
+      expect(paths)
+      .toEqual([
+        {
+          addressNList: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + account, 0, 0],
+          hardenedPath: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + account],
+          relPath: [ 0, 0 ],
+          description: "Ledger (Ledger Live)"
+        }
+      ])
+      paths.forEach(path => {
+        expect(wallet.describePath({
+          coin: 'Ethereum',
+          path: path.addressNList
+        }).isKnown).toBeTruthy()
+      })
+    })
+  })
+
+  // TODO re-implement test when non-BIP 44 path is supported
+  it.skip('has a non-BIP 44 derivation path for Ethereum', () => {
     if (!wallet) return
     ([0, 1, 3, 27]).forEach(account => {
       let paths = wallet.ethGetAccountPaths({ coin: 'Ethereum', accountIdx: account })
@@ -166,12 +189,12 @@ export function selfTest (get: () => HDWallet): void {
           addressNList: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + account, 0, 0],
           hardenedPath: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + account],
           relPath: [ 0, 0 ],
-          description: "BIP 44: Ledger (legacy, Ledger Chrome App)"
+          description: "Ledger (Ledger Live)"
         }, {
           addressNList: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + 0, account],
           hardenedPath: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + 0],
           relPath: [ account ],
-          description: "Ledger (Ledger Live)"
+          description: "BIP 44: Ledger (legacy, Ledger Chrome App)"
         }])
       paths.forEach(path => {
         expect(wallet.describePath({
