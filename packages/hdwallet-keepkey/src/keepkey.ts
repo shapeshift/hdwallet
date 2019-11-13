@@ -389,9 +389,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     return false;
   }
 
-  public async getPublicKeys(
-    getPublicKeys: Array<GetPublicKey>
-  ): Promise<Array<PublicKey>> {
+  public async getPublicKeys(getPublicKeys: Array<GetPublicKey>): Promise<Array<PublicKey | null>> {
     const publicKeys = [];
     for (let i = 0; i < getPublicKeys.length; i++) {
       const { coin, addressNList, curve, showDisplay, scriptType } = getPublicKeys[i];
