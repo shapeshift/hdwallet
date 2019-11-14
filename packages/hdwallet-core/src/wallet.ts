@@ -20,7 +20,6 @@ export interface GetPublicKey {
   scriptType?: BTCInputScriptType,
   curve: string,
   coin?: Coin,
-  symbol?: Symbol
 }
 
 export interface PublicKey {

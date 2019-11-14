@@ -31,9 +31,10 @@ export async function ethGetPublicKeys (transport: LedgerTransport, msg: Array<c
     const xpubs = []
 
     for (const getPublicKey of msg) {
-      let { addressNList, coin, symbol, scriptType } = getPublicKey
+      let { addressNList, coin, scriptType } = getPublicKey
 
-      if (symbol !== 'ETH') {
+      // Only get public keys for ETH account paths
+      if (!addressNList.includes(0x80000000 + 44, 0) || !addressNList.includes(0x80000000 + 60, 1)) {
         xpubs.push(null)
         continue
       }
@@ -124,21 +125,20 @@ export function ethSupportsNativeShapeShift(): boolean {
 }
 
 export function ethGetAccountPaths (msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
-  /* TODO support both ETH account paths
+  return [
+    {
+      addressNList: [ 0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx, 0, 0 ],
+      hardenedPath: [ 0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx ],
+      relPath: [ 0, 0 ],
+      description: "BIP 44: Ledger (Ledger Live)"
+    },
     {
       addressNList: [ 0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + 0, msg.accountIdx ],
       hardenedPath: [ 0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + 0 ],
       relPath: [ msg.accountIdx ],
-      description: "BIP 44: Ledger (legacy, Ledger Chrome App)"
+      description: "Non BIP 44: Ledger (legacy, Ledger Chrome App)"
     }
-  */
-
-  return [{
-    addressNList: [ 0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx, 0, 0 ],
-    hardenedPath: [ 0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx ],
-    relPath: [ 0, 0 ],
-    description: "Ledger (Ledger Live)"
-  }]
+  ]
 }
 
 export async function ethSignMessage(transport: LedgerTransport, msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
