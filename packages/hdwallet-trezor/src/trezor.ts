@@ -362,7 +362,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
     this.featuresCache = features
   }
 
-  public async getPublicKeys (msg: Array<GetPublicKey>): Promise<Array<PublicKey>> {
+  public async getPublicKeys (msg: Array<GetPublicKey>): Promise<Array<PublicKey | null>> {
     if (!msg.length)
       return []
     let res = await this.transport.call('getPublicKey', {

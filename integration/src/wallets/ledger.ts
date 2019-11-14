@@ -166,12 +166,12 @@ export function selfTest (get: () => HDWallet): void {
           addressNList: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + account, 0, 0],
           hardenedPath: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + account],
           relPath: [ 0, 0 ],
-          description: "BIP 44: Ledger (legacy, Ledger Chrome App)"
+          description: "BIP 44: Ledger (Ledger Live)"
         }, {
           addressNList: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + 0, account],
           hardenedPath: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + 0],
           relPath: [ account ],
-          description: "Ledger (Ledger Live)"
+          description: "Non BIP 44: Ledger (legacy, Ledger Chrome App)"
         }])
       paths.forEach(path => {
         expect(wallet.describePath({

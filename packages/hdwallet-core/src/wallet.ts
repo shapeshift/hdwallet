@@ -19,7 +19,7 @@ export interface GetPublicKey {
   showDisplay?: boolean,
   scriptType?: BTCInputScriptType,
   curve: string,
-  coin?: Coin
+  coin?: Coin,
 }
 
 export interface PublicKey {
@@ -102,6 +102,7 @@ export interface PathDescription {
 type CoinWallets = BTCWallet | ETHWallet | DebugLinkWallet
 
 export type Coin = string
+export type Symbol = string
 
 /**
  * Type guard for BTCWallet Support
@@ -219,7 +220,7 @@ export interface HDWallet extends HDWalletInfo {
   /**
    * Derive one or more xpubs.
    */
-  getPublicKeys (msg: Array<GetPublicKey>): Promise<Array<PublicKey>>
+  getPublicKeys (msg: Array<GetPublicKey>): Promise<Array<PublicKey | null>>
 
   /**
    * Check whether the device has been initialized with a secret.
