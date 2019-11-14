@@ -1,5 +1,6 @@
 import { crypto } from 'bitcoinjs-lib'
 import * as core from '@shapeshiftoss/hdwallet-core'
+import getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
 import { handleError } from './utils'
 import * as btc from './bitcoin'
 import * as eth from './ethereum'
@@ -351,6 +352,13 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     if (currentApp !== expectedApp) {
       throw new core.WrongApp('Ledger', expectedApp)
     }
+  }
+
+  public async listApps (): Promise<any> {
+    const deviceInfo = await getDeviceInfo(this.transport)
+    const res = await this.transport.call(null, 'listApps', deviceInfo)
+    console.log({ res })
+    handleError(res, this.transport)
   }
 
   /**

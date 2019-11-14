@@ -14,6 +14,7 @@ import Btc from '@ledgerhq/hw-app-btc'
 import getAppAndVersion from '@ledgerhq/live-common/lib/hw/getAppAndVersion'
 import getDeviceInfo from '@ledgerhq/live-common/lib/hw/getDeviceInfo'
 import openApp from '@ledgerhq/live-common/lib/hw/openApp'
+import { listApps } from "@ledgerhq/live-common/lib/apps/hw"
 
 const RECORD_CONFORMANCE_MOCKS = false
 
@@ -28,7 +29,8 @@ function translateMethod(method: string): (any) => void {
   return {
     'getAppAndVersion': getAppAndVersion,
     'getDeviceInfo': getDeviceInfo,
-    'openApp': openApp
+    'listApps': listApps,
+    'openApp': openApp,
   }[method]
 }
 

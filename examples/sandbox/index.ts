@@ -381,6 +381,8 @@ const $openApp = $('#openApp')
 const $ledgerApp = $('#ledgerApp')
 const $validateApp = $('#validateApp')
 const $appSymbol = $('#appSymbol')
+const $listApps = $('#listApps')
+const $listAppsResponse = $('#listAppsResponse')
 
 $ledgerApp.attr("placeholder", "App name i.e. Bitcoin Cash")
 $appSymbol.attr("placeholder", "App symbol i.e. BCH")
@@ -415,6 +417,19 @@ $validateApp.on('click', async (e) => {
     result = err.message
   }
   $appSymbol.val(result)
+})
+
+$listApps.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $listAppsResponse.val("No wallet?"); return}
+  let result
+  try {
+    result = await wallet.listApps()
+  } catch (err) {
+    console.error(err)
+    result = err.message
+  }
+  $listAppsResponse.val(result)
 })
 
 /*
