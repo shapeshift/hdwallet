@@ -65,7 +65,7 @@ export async function btcGetAddress (transport: LedgerTransport, msg: core.BTCGe
 }
 
 // Adapted from https://github.com/LedgerHQ/ledger-wallet-webtool
-export async function btcGetPublicKeys (transport: LedgerTransport, msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey>> {
+export async function btcGetPublicKeys (transport: LedgerTransport, msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
     const xpubs = []
 
     for (const getPublicKey of msg) {
