@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ...
 
+## [0.16.0] - 2019-11-14
+
+### Added
+
+- Sandbox support for getAppInfo call on Ledger Device
+- Implemented ethGetPublicKeys() which uses the ETH getAddress() call and filters out any non ETH account paths
+
+### Changed
+
+- Function definition for getPublicKeys() return type. Allow null.
+- Broke out logic that existed in getPublicKeys() into Bitcoin specific btcGetPublicKeys()
+- Ledger getPublicKeys() calls appropriate function based on app open on device (BTC or ETH)
+
+### Fixed
+
+- Correct descriptions for the supported Ledger ETH account paths
+
 ## [0.15.0] - 2019-11-12
 
 ### Added

@@ -1879,6 +1879,36 @@
     penpal "3.0.7"
     pocket-js-core "0.0.3"
 
+"@shapeshiftoss/hdwallet-core@^0.15.0":
+  version "0.15.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-0.15.0.tgz#108bd5b9e9f8fb01a0ef5382a1489edb656a29c7"
+  integrity sha512-ia8jLZVznVhJec3uJ847tZJIhJFtI32IutavFgx161jCcI23UnwrbA/D6JPdfoyCoRRQfv4gLVEx3Vur0+7qow==
+  dependencies:
+    eventemitter2 "^5.0.1"
+    lodash "^4.17.15"
+    rxjs "^6.4.0"
+
+"@shapeshiftoss/hdwallet-ledger@^0.15.0":
+  version "0.15.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-ledger/-/hdwallet-ledger-0.15.0.tgz#9f21d2184cf9c08ed8d121d7cc02ca91dda78323"
+  integrity sha512-UaHyXhyKRPkW1JA+QCTfOxaAipTgKoP6inUaOeseYSdVskTSBAArtZyFHkRSNVdrC2sJYGjn7d7jVGEf69SapA==
+  dependencies:
+    "@babel/polyfill" "^7.4.0"
+    "@ledgerhq/live-common" "^8.4.1"
+    "@shapeshiftoss/hdwallet-core" "^0.15.0"
+    base64-js "^1.3.0"
+    bchaddrjs "^0.4.4"
+    bip32-path "^0.4.2"
+    bitcoinjs-lib "^5.0.3"
+    bitcoinjs-message "^2.0.0"
+    buffer "^5.4.3"
+    build-output-script "^1.0.3"
+    create-xpub "^2.1.0"
+    ethereumjs-tx "^1.3.7"
+    ethereumjs-util "^6.1.0"
+    eventemitter2 "^5.0.1"
+    lodash "^4.17.11"
+
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.14.0.tgz#9fb3a3cf3132328151f353de4632e01e52102bea"
@@ -3133,7 +3163,7 @@ bitcoin-ops@^1.3.0, bitcoin-ops@^1.4.0, bitcoin-ops@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/bitcoin-ops/-/bitcoin-ops-1.4.1.tgz#e45de620398e22fd4ca6023de43974ff42240278"
 
-bitcoinjs-lib@^5.1.6:
+bitcoinjs-lib@^5.0.3, bitcoinjs-lib@^5.1.6:
   version "5.1.6"
   resolved "https://registry.yarnpkg.com/bitcoinjs-lib/-/bitcoinjs-lib-5.1.6.tgz#0169890fd1e09e5eb335aadd62a61e1fbdf48b46"
   integrity sha512-NgvnA8XXUuzpuBnVs1plzZvVOYsuont4KPzaGcVIwjktYQbCk1hUkXnt4wujIOBscNsXuu+plVbPYvtMosZI/w==
@@ -12923,15 +12953,10 @@ whatwg-encoding@^1.0.1, whatwg-encoding@^1.0.3, whatwg-encoding@^1.0.5:
   dependencies:
     iconv-lite "0.4.24"
 
-whatwg-fetch@2.0.4:
+whatwg-fetch@2.0.4, whatwg-fetch@^2.0.4, whatwg-fetch@^3.0.0:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/whatwg-fetch/-/whatwg-fetch-2.0.4.tgz#dde6a5df315f9d39991aa17621853d720b85566f"
   integrity sha512-dcQ1GWpOD/eEQ97k66aiEVpNnapVj90/+R+SXTPYGHpYBBypfKJEQjLrvMZ7YXbKm21gXd4NcuxUTjiv1YtLng==
-
-whatwg-fetch@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/whatwg-fetch/-/whatwg-fetch-3.0.0.tgz#fc804e458cc460009b1a2b966bc8817d2578aefb"
-  integrity sha512-9GSJUgz1D4MfyKU7KRqwOjXCXTqWdFNvEr7eUBYchQiVc744mqK/MzXPNR2WsPkmkOa4ywfg8C2n8h+13Bey1Q==
 
 whatwg-mimetype@^2.1.0, whatwg-mimetype@^2.2.0, whatwg-mimetype@^2.3.0:
   version "2.3.0"

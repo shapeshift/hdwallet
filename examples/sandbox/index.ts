@@ -381,6 +381,8 @@ const $openApp = $('#openApp')
 const $ledgerApp = $('#ledgerApp')
 const $validateApp = $('#validateApp')
 const $appSymbol = $('#appSymbol')
+const $getAppInfo = $('#getAppInfo')
+const $appInfo = $('#appInfo')
 const $listApps = $('#listApps')
 const $listAppsResponse = $('#listAppsResponse')
 
@@ -417,6 +419,20 @@ $validateApp.on('click', async (e) => {
     result = err.message
   }
   $appSymbol.val(result)
+})
+
+$getAppInfo.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $appInfo.val("No wallet?"); return}
+  let result
+  try {
+    const res = await wallet.transport.call(null, 'getAppAndVersion')
+    result = res.payload.name
+  } catch (err) {
+    console.error(err)
+    result = err.message
+  }
+  $appInfo.val(result)
 })
 
 $listApps.on('click', async (e) => {

@@ -181,7 +181,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.info.describePath(msg)
   }
 
-  public async getPublicKeys(msg: GetPublicKey[]): Promise<PublicKey[]> {
+  public async getPublicKeys(msg: Array<GetPublicKey>): Promise<Array<PublicKey | null>> {
     const publicKeys = []
     this.portisCallInProgress = new Promise( async (resolve, reject) => {
       try {
@@ -311,7 +311,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     }
     return this.ethAddress
   }
-  
+
 }
 
 export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalletInfo {
