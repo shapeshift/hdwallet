@@ -27,7 +27,7 @@ export async function ethGetAddress(transport: LedgerTransport, msg: core.ETHGet
 }
 
 // Adapted from https://github.com/LedgerHQ/ledger-wallet-webtool
-export async function ethGetPublicKeys (transport: LedgerTransport, msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey>> {
+export async function ethGetPublicKeys (transport: LedgerTransport, msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
     const xpubs = []
 
     for (const getPublicKey of msg) {
