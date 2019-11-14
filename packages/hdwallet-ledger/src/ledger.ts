@@ -338,7 +338,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     const res = await this.transport.call(null, 'getAppAndVersion')
     handleError(res, this.transport)
 
-    const { name: currentApp } = res.payload
+    const { payload: { name: currentApp } } = res
     if (currentApp !== expectedApp) {
       throw new core.WrongApp('Ledger', expectedApp)
     }
@@ -384,7 +384,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     const res = await this.transport.call(null, 'getAppAndVersion')
     handleError(res, this.transport)
 
-    const { name } = res.payload
+    const { payload: { name } } = res
 
     switch (name) {
       case 'Bitcoin':
