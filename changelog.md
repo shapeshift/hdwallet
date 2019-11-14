@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Current - Unreleased
 
+...
+
+## [0.16.0] - 2019-11-14
+
 ### Added
 
 - Sandbox support for getAppInfo call on Ledger Device
@@ -21,8 +25,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Correct descriptions for the supported Ledger ETH account paths
-
-...
 
 ## [0.15.0] - 2019-11-12
 
