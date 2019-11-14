@@ -100,7 +100,7 @@ export async function btcGetPublicKeys (transport: LedgerTransport, msg: Array<c
       const networkMagic = coinDetails.bitcoinjs.bip32.public[scriptType]
 
       const xpub = createXpub(
-        3,
+        addressNList.length,
         fingerprint,
         childNum,
         chainCode,
