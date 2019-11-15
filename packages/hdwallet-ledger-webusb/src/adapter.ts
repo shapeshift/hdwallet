@@ -31,8 +31,6 @@ export class WebUSBLedgerAdapter {
 
     this.connectTimestamp = e.timeStamp
 
-    await timeout(APP_NAVIGATION_DELAY) // timeout gives time to detect if it is an app navigation based disconnec/connect event
-
     try {
       await this.initialize(e.device)
       this.keyring.emit([e.device.manufacturerName, e.device.productName, Events.CONNECT], e.device.serialNumber)
