@@ -440,6 +440,7 @@ $listApps.on('click', async (e) => {
   if (!wallet) { $listAppsResponse.val("No wallet?"); return}
   let result
   try {
+    console.log(Object.keys(wallet))
     result = await wallet.listApps()
   } catch (err) {
     console.error(err)

@@ -346,7 +346,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async listApps (): Promise<any> {
-    const res = await this.transport.call(null, 'listApps')
+    const res = await this.transport.call(null, 'listApps', this.transport)
     console.log({ res })
     handleError(res, this.transport)
   }
