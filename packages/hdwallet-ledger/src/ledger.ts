@@ -1,4 +1,4 @@
-import { isObject } from 'lodash'
+import { isObject, get } from 'lodash'
 import * as core from '@shapeshiftoss/hdwallet-core'
 import * as btc from './bitcoin'
 import * as eth from './ethereum'
@@ -329,7 +329,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   public async validateCurrentApp (coin: core.Coin): Promise<void> {
     if (!coin) return
 
-    const { appName = undefined } = networksUtil[core.slip44ByCoin(coin)] || {}
+    const appName = get(networksUtil[core.slip44ByCoin(coin)], 'appName', undefined)
     if (!appName) {
       throw new Error(`Unable to find associated app name for coin: ${coin}`)
     }
