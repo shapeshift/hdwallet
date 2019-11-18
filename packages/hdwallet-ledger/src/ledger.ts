@@ -326,7 +326,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
    * Throws WrongApp error if app associated with coin is not open
    * @param coin  Name of coin for app name lookup
    */
-  public async validateCurrentApp (coin: string): Promise<void> {
+  public async validateCurrentApp (coin: Coin): Promise<void> {
     if (!coin) return
 
     const { appName = undefined } = networksUtil[core.slip44ByCoin(coin)] || {}
