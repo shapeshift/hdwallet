@@ -330,7 +330,6 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     if (!coin) return
 
     const { appName = undefined } = networksUtil[core.slip44ByCoin(coin)] || {}
-    console.log('appName', appName)
     if (!appName) {
       throw new Error(`Unable to find associated app name for coin: ${coin}`)
     }
