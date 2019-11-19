@@ -3,7 +3,7 @@ import { Events, Keyring, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { LedgerWebUsbTransport, getFirstLedgerDevice, getTransport, openTransport } from './transport'
 
 const VENDOR_ID = 11415
-const APP_NAVIGATION_DELAY = 1000
+const APP_NAVIGATION_DELAY = 3000
 
 function timeout(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -31,14 +31,13 @@ export class WebUSBLedgerAdapter {
 
     this.connectTimestamp = e.timeStamp
 
-    await timeout(APP_NAVIGATION_DELAY) // timeout gives time to detect if it is an app navigation based disconnec/connect event
-
     try {
       await this.initialize(e.device)
       this.keyring.emit([e.device.manufacturerName, e.device.productName, Events.CONNECT], e.device.serialNumber)
     } catch(error) {
       this.keyring.emit([e.device.manufacturerName, e.device.productName, Events.FAILURE], [e.device.serialNumber, {message: { code: error.type, ...error}}])
     } finally {
+      await timeout(APP_NAVIGATION_DELAY) // Allow connection to happen as fast as possible, but still give time to detect for app navigation before resetting timestamp
       this.connectTimestamp = 0
     }
   }
