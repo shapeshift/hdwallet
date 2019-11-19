@@ -27,6 +27,7 @@ const supportedCoins = [
 
 const segwitCoins = [
   'Bitcoin',
+  'DigiByte',
   'Litecoin',
   'BitcoinGold',
   'Testnet'

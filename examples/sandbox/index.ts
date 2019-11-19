@@ -724,8 +724,6 @@ $ltcSign.on('click', async (e) => {
 
 const $dogeAddr = $('#dogeAddr')
 const $dogeTx = $('#dogeTx')
-const $dogeSign = $('#dogeSign')
-const $dogeVerify = $('#dogeVerify')
 const $dogeResults = $('#dogeResults')
 
 const dogeBip44 = {
@@ -799,8 +797,6 @@ $dogeTx.on('click', async (e) => {
 
 const $bchAddr = $('#bchAddr')
 const $bchTx = $('#bchTx')
-const $bchSign = $('#bchSign')
-const $bchVerify = $('#bchVerify')
 const $bchResults = $('#bchResults')
 
 const bchBip44 = {
@@ -876,8 +872,6 @@ $bchTx.on('click', async (e) => {
 
 const $dashAddr = $('#dashAddr')
 const $dashTx = $('#dashTx')
-const $dashSign = $('#dashSign')
-const $dashVerify = $('#dashVerify')
 const $dashResults = $('#dashResults')
 
 const dashBip44 = {
@@ -940,6 +934,103 @@ $dashTx.on('click', async (e) => {
   } else {
     let label = await wallet.getLabel()
     $dashResults.val(label + " does not support Dash")
+  }
+})
+
+/*
+       DigiByte
+        * segwit: true
+        * multisig: true
+
+ */
+const $dgbAddr = $('#dgbAddr')
+const $dgbTx = $('#dgbTx')
+const $dgbResults = $('#dgbResults')
+
+const dgbBip44 = {
+  scriptType: BTCInputScriptType.SpendAddress,
+  addressNList: [0x80000000 + 44, 0x80000000 + 20, 0x80000000 + 0]
+}
+
+$dgbAddr.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) {
+    $dgbResults.val("No wallet?")
+    return
+  }
+  if (supportsBTC(wallet)) {
+    let res = await wallet.btcGetAddress({
+      addressNList: dgbBip44.addressNList.concat([0, 0]),
+      coin: "DigiByte",
+      scriptType: dgbBip44.scriptType,
+      showDisplay: true
+    })
+    $dgbResults.val(res)
+  } else {
+    let label = await wallet.getLabel()
+    $dgbResults.val(label + " does not support Dash")
+  }
+})
+
+$dgbTx.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) {
+    $dgbResults.val("No wallet?")
+    return
+  }
+  if (supportsBTC(wallet)) {
+    const inputs = [
+      {
+        addressNList: dgbBip44.addressNList.concat([1, 8]),
+        scriptType: BTCInputScriptType.SpendAddress,
+        amount: String(6296665274),
+        vout: 1,
+        txid: "e105f91187880e76fef52021866f5b8eed6654d89ee38ea2046729a89b91dd9d",
+        tx: null,
+        hex: "0100000001c12804112b0eb2a57fd31674d6873376a11b22cdd30528c577ebaff1bd94f7d7000000006b483045022100939aa562ce80f49e959e6a65be95a8cef72c8d0363a191ff583556727bc56cf00220583fb9d7e9748c8df0489ed3d5d12d5c046bcc48413fa207dc5b8ae5aec02871012103d9225136ed8d7152b5a7b11fc8da236fe4221b1d5ae84ca458ef9f3aaa2d2335ffffffff02b95012dc1000000017a914bf98b6dea3c0d8b4be2d2855a0ca9bbdf06427e487ba7c4f77010000001976a914642bc1a3baac46e913f63c8c6b0a5572e221a90088ac00000000"
+      },
+      {
+        addressNList: dgbBip44.addressNList.concat([0, 5]),
+        scriptType: BTCInputScriptType.SpendAddress,
+        amount: String(81931969674),
+        vout: 0,
+        txid: "eb46d956987d83edf39dea4f469e6fb96fb83626b2f0122a3e6592944047b971",
+        tx: null,
+        hex: "0100000001c154deb896c45ea6c48313b79a8e6f5cb5637e489c1d50b62165dbd814955f29000000006a47304402206800f2e2496ebb637fab73aefee03d668fad979f6ee164479cedfdd134d5dd6c0220449d593cf638f455e37aebc54acfc177993f9244ad4c7b86bc3cac77d5d45b000121025306e93111a17603bf8e3d9dddc1a9215bbba1177779837978cd80544755f854ffffffff018aa48613130000001976a9145473f9ceaedb87e3d57d6c946e41c1fc1e99bb8988ac00000000"
+      }
+    ]
+
+    const outputs = [
+      {
+        address: 'SWpe93hQL2pLUDLy7swsDPWQJGCHSsgmun',
+        addressType: null,
+        scriptType: BTCOutputScriptType.PayToMultisig,
+        amount: String(49408035571),
+        isChange: false
+      },
+      {
+        address: 'DNLcBry65dHehGExGYjBkM8kxDYr7mZ3BT',
+        addressType: null,
+        scriptType: BTCOutputScriptType.PayToAddress,
+        relpath: "1/9",
+        amount: String(38820597425),
+        isChange: true,
+        index: 9
+      }
+    ]
+
+    const res = await wallet.btcSignTx({
+      coin: 'DigiByte',
+      inputs,
+      outputs,
+      version: 1,
+      locktime: 0,
+
+    })
+    $dgbResults.val(res.serializedTx)
+  } else {
+    let label = await wallet.getLabel()
+    $dgbResults.val(label + " does not support Dash")
   }
 })
 
