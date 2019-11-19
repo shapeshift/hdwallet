@@ -320,10 +320,10 @@ export const networksUtil = {
         private: 87393172
       },
       pubKeyHash: 30,
-      scriptHash: 5,
+      scriptHash: 63,
       wif: 128
     },
-    isSegwitSupported: false,
+    isSegwitSupported: true,
     handleFeePerByte: false,
     areTransactionTimestamped: false
   },
