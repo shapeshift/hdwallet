@@ -1,18 +1,9 @@
-import { crypto } from 'bitcoinjs-lib'
+import { isObject } from 'lodash'
 import * as core from '@shapeshiftoss/hdwallet-core'
-import { handleError } from './utils'
 import * as btc from './bitcoin'
 import * as eth from './ethereum'
 import { LedgerTransport } from './transport'
-import {
-  appsUtil,
-  compressPublicKey,
-  createXpub,
-  encodeBase58Check,
-  networksUtil,
-  parseHexString
-} from './utils'
-import { isObject } from 'lodash'
+import { appsUtil, handleError } from './utils'
 
 export function isLedger (wallet: core.HDWallet): wallet is LedgerHDWallet {
   return isObject(wallet) && (wallet as any)._isLedger
@@ -347,7 +338,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     const res = await this.transport.call(null, 'getAppAndVersion')
     handleError(res, this.transport)
 
-    const { name: currentApp } = res.payload
+    const { payload: { name: currentApp } } = res
     if (currentApp !== expectedApp) {
       throw new core.WrongApp('Ledger', expectedApp)
     }
@@ -389,54 +380,20 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return
   }
 
-  // Adapted from https://github.com/LedgerHQ/ledger-wallet-webtool
-  public async getPublicKeys (msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey>> {
-    const xpubs = []
+  public async getPublicKeys (msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
+    const res = await this.transport.call(null, 'getAppAndVersion')
+    handleError(res, this.transport)
 
-    for (const getPublicKey of msg) {
-      let { addressNList, coin, scriptType } = getPublicKey
+    const { payload: { name } } = res
 
-      const parentBip32path: string = core.addressNListToBIP32(addressNList.slice(0, -1)).substring(2) // i.e. "44'/0'"
-
-      const opts = { verify: false }
-
-      const res1 = await this.transport.call('Btc', 'getWalletPublicKey', parentBip32path, opts)
-      handleError(res1, this.transport, 'Unable to obtain public key from device.')
-
-      let { payload: { publicKey: parentPublicKey } } = res1
-      parentPublicKey = parseHexString(compressPublicKey(parentPublicKey))
-
-      let result = crypto.sha256(parentPublicKey)
-      result = crypto.ripemd160(result)
-
-      const fingerprint: number = ((result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3]) >>> 0
-      const bip32path: string = core.addressNListToBIP32(addressNList).substring(2) // i.e 44'/0'/0'
-
-      const res2 = await this.transport.call('Btc', 'getWalletPublicKey', bip32path, opts)
-      handleError(res2, this.transport, 'Unable to obtain public key from device.')
-
-      let { payload: { publicKey, chainCode } } = res2
-      publicKey = compressPublicKey(publicKey)
-
-      const coinDetails: any = networksUtil[core.slip44ByCoin(coin)]
-      const childNum: number = addressNList[addressNList.length -1]
-
-      scriptType = scriptType || core.BTCInputScriptType.SpendAddress
-      const networkMagic = coinDetails.bitcoinjs.bip32.public[scriptType]
-
-      const xpub = createXpub(
-        3,
-        fingerprint,
-        childNum,
-        chainCode,
-        publicKey,
-        networkMagic
-      )
-
-      xpubs.push({ xpub: encodeBase58Check(xpub) })
+    switch (name) {
+      case 'Bitcoin':
+        return btc.btcGetPublicKeys(this.transport, msg)
+      case 'Ethereum':
+        return eth.ethGetPublicKeys(this.transport, msg)
+      default:
+        throw new Error(`getPublicKeys is not supported with the ${name} app`)
     }
-
-    return xpubs
   }
 
   public hasNativeShapeShift (srcCoin: core.Coin, dstCoin: core.Coin): boolean {

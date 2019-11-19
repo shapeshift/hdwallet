@@ -1,16 +1,7 @@
 import { crypto } from "bitcoinjs-lib"
 import bs58 from "bs58"
 import { padStart } from "lodash"
-import {
-  BTCInputScriptType,
-  DeviceLocked,
-  WrongApp,
-  SelectApp,
-  ActionCancelled,
-  NavigateToDashboard,
-  DisconnectedDeviceDuringOperation,
-  makeEvent
-} from '@shapeshiftoss/hdwallet-core'
+import * as core from '@shapeshiftoss/hdwallet-core'
 import { LedgerTransport } from './transport'
 import { Buffer } from "buffer";
 
@@ -23,35 +14,35 @@ export function handleError (result: any, transport?: LedgerTransport, message?:
     // No app selected
     if (result.payload.error.includes('0x6700') ||
         result.payload.error.includes('0x6982')) {
-      throw new SelectApp('Ledger', result.coin)
+      throw new core.SelectApp('Ledger', result.coin)
     }
 
     // Wrong app selected
     if (result.payload.error.includes('0x6d00')) {
       if (result.coin) {
-        throw new WrongApp('Ledger', result.coin)
+        throw new core.WrongApp('Ledger', result.coin)
       }
       // Navigate to Ledger Dashboard
-      throw new NavigateToDashboard('Ledger')
+      throw new core.NavigateToDashboard('Ledger')
     }
 
     // User selected x instead of ✓
     if (result.payload.error.includes('0x6985')) {
-      throw new ActionCancelled()
+      throw new core.ActionCancelled()
     }
 
     // Device is on the lock screen
     if (result.payload.error.includes('0x6f04')) {
-      throw new DeviceLocked()
+      throw new core.DeviceLocked()
     }
 
     // Device disconnected during operation, typically due to app navigation
     if (result.payload.error.includes('DisconnectedDeviceDuringOperation')) {
-      throw new DisconnectedDeviceDuringOperation()
+      throw new core.DisconnectedDeviceDuringOperation()
     }
 
     if (transport) {
-      transport.emit(`ledger.${result.coin}.${result.method}.call`, makeEvent({
+      transport.emit(`ledger.${result.coin}.${result.method}.call`, core.makeEvent({
         message_type: 'ERROR',
         from_wallet: true,
         message
@@ -74,11 +65,11 @@ export const getderivationModeFromFormat = (format:string):string => {
   return derivationMode
 }
 
-export const translateScriptType = (scriptType: BTCInputScriptType): string => ({
-  [BTCInputScriptType.SpendAddress]: 'legacy',
-  [BTCInputScriptType.CashAddr]: 'legacy',
-  [BTCInputScriptType.SpendWitness]: 'bech32',
-  [BTCInputScriptType.SpendP2SHWitness]: 'p2sh'
+export const translateScriptType = (scriptType: core.BTCInputScriptType): string => ({
+  [core.BTCInputScriptType.SpendAddress]: 'legacy',
+  [core.BTCInputScriptType.CashAddr]: 'legacy',
+  [core.BTCInputScriptType.SpendWitness]: 'bech32',
+  [core.BTCInputScriptType.SpendP2SHWitness]: 'p2sh'
 }[scriptType])
 
 const toHexDigit = (number) => {
