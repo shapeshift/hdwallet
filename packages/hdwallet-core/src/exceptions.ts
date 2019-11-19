@@ -79,7 +79,7 @@ export class SelectApp extends HDWalletError {
 
 export class WrongApp extends HDWalletError {
     constructor (model: string, app: string) {
-        super(`Wrong app selected. Please open the ${app} app on your ${model}.`,
+        super(`Wrong app open. Please open the ${app} app on your ${model} and try again.`,
               HDWalletErrorType.WrongApp)
     }
 }
