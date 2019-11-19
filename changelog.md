@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Current - Unreleased
 
+..
+
+## [0.17.0] - 2019-11-19
+
 ### Added
 
 - Ledger transport calls that require a specific app to be open will validateCurrentApp() before making the call
@@ -16,8 +20,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - validateCurrentApp() now takes the coin name instead of symbol
 - Error message for WrongApp exception updated
-
-...
+- Increase ledger APP_NAVIGATION_DELAY time to allow for slower connect/discconect event propagation
+- Move timing of ledger handleConnect timeout to reconnect as soon as possible despite increased delay
+- Updated DGB config to support segwit
 
 ## [0.16.0] - 2019-11-14
 
