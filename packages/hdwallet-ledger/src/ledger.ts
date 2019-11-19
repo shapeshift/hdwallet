@@ -329,7 +329,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   public async validateCurrentApp (coin: core.Coin): Promise<void> {
     if (!coin) return
 
-    const appName = get(networksUtil[core.slip44ByCoin(coin)], 'appName', undefined)
+    const appName = get(networksUtil[core.slip44ByCoin(coin)], 'appName')
     if (!appName) {
       throw new Error(`Unable to find associated app name for coin: ${coin}`)
     }
