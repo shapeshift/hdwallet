@@ -134,6 +134,7 @@ export const networksUtil = {
     apiName: "btc",
     unit: "BTC",
     name: "bitcoin",
+    appName: "Bitcoin",
     satoshi: 8,
     bitcoinjs: {
       bech32: "bc",
@@ -182,6 +183,7 @@ export const networksUtil = {
     name: "litecoin",
     unit: "LTC",
     apiName: "ltc",
+    appName: 'Litecoin',
     isSegwitSupported: true,
     satoshi: 8,
     bitcoinjs: {
@@ -202,6 +204,7 @@ export const networksUtil = {
   145: {
     name: "bitcoin cash",
     apiName: "abc",
+    appName: "Bitcoin Cash",
     satoshi: 8,
     unit: "BCH",
     bitcoinjs: {
@@ -248,6 +251,7 @@ export const networksUtil = {
     satoshi: 8,
     unit: "DASH",
     apiName: "dash",
+    appName: "Dash",
     bitcoinjs: {
       messagePrefix: "Dash Signed Message:",
       bip32: {
@@ -311,6 +315,7 @@ export const networksUtil = {
     satoshi: 8,
     unit: "DGB",
     apiName: "dgb",
+    appName: "Digibyte",
     bitcoinjs: {
       messagePrefix: "DigiByte Signed Message:",
       bip32: {
@@ -352,6 +357,7 @@ export const networksUtil = {
     apiName: "eth",
     unit: "ETH",
     name: "ethereum",
+    appName: "Ethereum",
     bitcoinjs: {
       bip32: {
         public: {
@@ -578,6 +584,7 @@ export const networksUtil = {
     satoshi: 8,
     unit: "Ð",
     apiName: "doge",
+    appName: "Dogecoin",
     bitcoinjs: {
       messagePrefix: "Dogecoin Signed Message Much Wow:",
       bip32: {
@@ -591,14 +598,4 @@ export const networksUtil = {
       wif: 128
     }
   }
-}
-
-export const appsUtil = {
-  "BTC": "Bitcoin",
-  "BCH": "Bitcoin Cash",
-  "DASH": "Dash",
-  "DGB": "Digibyte",
-  "DOGE": "Dogecoin",
-  "ETH": "Ethereum",
-  "LTC": "Litecoin"
 }

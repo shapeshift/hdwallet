@@ -1,9 +1,9 @@
-import { isObject } from 'lodash'
+import { isObject, get } from 'lodash'
 import * as core from '@shapeshiftoss/hdwallet-core'
 import * as btc from './bitcoin'
 import * as eth from './ethereum'
 import { LedgerTransport } from './transport'
-import { appsUtil, handleError } from './utils'
+import { networksUtil, handleError } from './utils'
 
 export function isLedger (wallet: core.HDWallet): wallet is LedgerHDWallet {
   return isObject(wallet) && (wallet as any)._isLedger
@@ -322,25 +322,26 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   /**
-   * Validates current app open
-   * Throws WrongApp error if symbol does not match app
-   * @param symbol - i.e. 'BCH'
-   * @returns {Promise<void>}
+   * Validate if a specific app is open
+   * Throws WrongApp error if app associated with coin is not open
+   * @param coin  Name of coin for app name lookup
    */
-  public async validateCurrentApp (symbol: string): Promise<void> {
-    if (!symbol) return
+  public async validateCurrentApp (coin: core.Coin): Promise<void> {
+    if (!coin) {
+      throw new Error(`No coin provided`)
+    }
 
-    const expectedApp = appsUtil[symbol.toUpperCase()]
-    if (!expectedApp) {
-      throw new Error(`Cannot find app for symbol: ${symbol}`)
+    const appName = get(networksUtil[core.slip44ByCoin(coin)], 'appName')
+    if (!appName) {
+      throw new Error(`Unable to find associated app name for coin: ${coin}`)
     }
 
     const res = await this.transport.call(null, 'getAppAndVersion')
     handleError(res, this.transport)
 
     const { payload: { name: currentApp } } = res
-    if (currentApp !== expectedApp) {
-      throw new core.WrongApp('Ledger', expectedApp)
+    if (currentApp !== appName) {
+      throw new core.WrongApp('Ledger', appName)
     }
   }
 
@@ -466,10 +467,12 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async btcGetAddress (msg: core.BTCGetAddress): Promise<string> {
+    await this.validateCurrentApp(msg.coin)
     return btc.btcGetAddress(this.transport, msg)
   }
 
   public async btcSignTx (msg: core.BTCSignTx): Promise<core.BTCSignedTx> {
+    await this.validateCurrentApp(msg.coin)
     return btc.btcSignTx(this, this.transport, msg)
   }
 
@@ -482,6 +485,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async btcSignMessage (msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
+    await this.validateCurrentApp(msg.coin)
     return btc.btcSignMessage(this, this.transport, msg)
   }
 
@@ -498,14 +502,17 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async ethSignTx (msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
+    await this.validateCurrentApp('Ethereum')
     return eth.ethSignTx(this.transport, msg)
   }
 
   public async ethGetAddress (msg: core.ETHGetAddress): Promise<string> {
+    await this.validateCurrentApp('Ethereum')
     return eth.ethGetAddress(this.transport, msg)
   }
 
   public async ethSignMessage (msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
+    await this.validateCurrentApp('Ethereum')
     return eth.ethSignMessage(this.transport, msg)
   }
 

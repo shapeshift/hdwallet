@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Current - Unreleased
 
+### Added
+
+- Ledger transport calls that require a specific app to be open will validateCurrentApp() before making the call
+- Add appName to networkUtils object for ledger (BTC,BCH,DASH,DGB,DOGE,ETH,LTC)
+
+### Changed
+
+- validateCurrentApp() now takes the coin name instead of symbol
+- Error message for WrongApp exception updated
+
 ...
 
 ## [0.16.0] - 2019-11-14

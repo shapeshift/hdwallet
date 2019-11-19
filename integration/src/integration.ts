@@ -19,17 +19,21 @@ import { WalletSuite } from './wallets/suite'
  */
 
 export function integration (suite: WalletSuite): void {
+  const name: string = suite.name()
+
   let wallet: HDWallet
   let info: HDWalletInfo
 
-  describe(`${suite.name()}`, () => {
-
-    beforeAll(async () => {
-      wallet = await suite.createWallet()
+  describe(`${name}`, () => {
+    beforeAll(() => {
       info = suite.createInfo()
     })
 
     describe('Type Guards', () => {
+      beforeAll(async () => {
+        wallet = await suite.createWallet()
+      })
+
       it('has only one vendor', () => {
         expect(
           (isKeepKey(wallet) ? 1 : 0) +
@@ -41,14 +45,26 @@ export function integration (suite: WalletSuite): void {
     })
 
     describe('ETHWallet', () => {
+      beforeAll(async () => {
+        wallet = await suite.createWallet('Ethereum')
+      })
+
       ethTests(() => ({wallet, info}))
     })
 
     describe('BTCWallet', () => {
+      beforeAll(async () => {
+        wallet = await suite.createWallet('Bitcoin')
+      })
+
       btcTests(() => ({wallet, info}))
     })
 
     describe('SelfTest', () => {
+      beforeAll(async () => {
+        wallet = await suite.createWallet()
+      })
+
       suite.selfTest(() => (wallet))
     })
   })

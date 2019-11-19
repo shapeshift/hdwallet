@@ -20,18 +20,16 @@ import {
 
 export class MockTransport extends LedgerTransport {
   memoized = new Map()
+  currentApp: string
 
-  constructor (keyring: Keyring) {
+  constructor (keyring: Keyring, type: string) {
     super(undefined, keyring)
+    this.currentApp = type
     this.populate()
   }
 
   public getDeviceID (): string {
     return "mock#1"
-  }
-
-  public getDeviceInfo (): Promise<any> {
-    return Promise.resolve({})
   }
 
   public call (coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
@@ -52,6 +50,11 @@ export class MockTransport extends LedgerTransport {
 
   public populate () {
     try {
+      // Device
+      this.memoize(null, 'getAppAndVersion',
+        JSON.parse('[]'),
+        JSON.parse(`{"success":true,"coin":null,"method":"getAppAndVersion","payload":{"name":"${this.currentApp}"}}`))
+
       // Ethereum:
       this.memoize('Eth', 'getAddress',
         JSON.parse('["m/44\'/60\'/0\'/0/0",false]'),
@@ -123,10 +126,10 @@ export function createInfo (): HDWalletInfo {
   return info()
 }
 
-export async function createWallet (): Promise<HDWallet> {
+export async function createWallet (type: any = 'Bitcoin'): Promise<HDWallet> {
   let keyring = new Keyring()
-  let transport = new MockTransport(keyring)
-  return createLedger(transport as LedgerTransport)
+  let transport = new MockTransport(keyring, type)
+  return createLedger(transport as any)
 }
 
 export function selfTest (get: () => HDWallet): void {
@@ -155,6 +158,14 @@ export function selfTest (get: () => HDWallet): void {
     if (!wallet) return
     expect(await wallet.ethSupportsSecureTransfer()).toEqual(false)
     expect(await wallet.btcSupportsSecureTransfer()).toEqual(false)
+  })
+
+  it('validates current app', async () => {
+    if (!wallet) return
+    expect(await wallet.validateCurrentApp('Bitcoin')).resolves
+    await expect(wallet.validateCurrentApp(null)).rejects.toThrow() // no coin
+    await expect(wallet.validateCurrentApp('FakeCoin')).rejects.toThrow() // invalid coin
+    await expect(wallet.validateCurrentApp('Ethereum')).rejects.toThrow() // wrong coin
   })
 
   it('has a non-BIP 44 derivation path for Ethereum', () => {
