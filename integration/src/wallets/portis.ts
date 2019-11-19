@@ -93,4 +93,3 @@ export function selfTest (get: () => HDWallet): void {
   })
 
 }
-  
