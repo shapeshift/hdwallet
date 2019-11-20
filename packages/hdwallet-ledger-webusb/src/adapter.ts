@@ -5,13 +5,9 @@ import { LedgerWebUsbTransport, getFirstLedgerDevice, getTransport, openTranspor
 const VENDOR_ID = 11415
 const APP_NAVIGATION_DELAY = 3000
 
-function timeout(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 export class WebUSBLedgerAdapter {
   keyring: Keyring
-  connectTimestamp: number = 0
+  currentEventTimestamp: number = 0
 
   constructor(keyring: Keyring) {
     this.keyring = keyring
@@ -29,33 +25,36 @@ export class WebUSBLedgerAdapter {
   private async handleConnectWebUSBLedger(e: USBConnectionEvent): Promise<void> {
     if (e.device.vendorId !== VENDOR_ID) return
 
-    this.connectTimestamp = e.timeStamp
+    this.currentEventTimestamp = Date.now()
 
     try {
       await this.initialize(e.device)
       this.keyring.emit([e.device.manufacturerName, e.device.productName, Events.CONNECT], e.device.serialNumber)
     } catch(error) {
       this.keyring.emit([e.device.manufacturerName, e.device.productName, Events.FAILURE], [e.device.serialNumber, {message: { code: error.type, ...error}}])
-    } finally {
-      await timeout(APP_NAVIGATION_DELAY) // Allow connection to happen as fast as possible, but still give time to detect for app navigation before resetting timestamp
-      this.connectTimestamp = 0
     }
   }
 
   private async handleDisconnectWebUSBLedger(e: USBConnectionEvent): Promise<void> {
     if (e.device.vendorId !== VENDOR_ID) return
 
-    await timeout(APP_NAVIGATION_DELAY) // timeout gives time to detect if it is an app navigation based disconnec/connect event
 
-    if (this.connectTimestamp !== 0) return
+    const ts = Date.now()
+    this.currentEventTimestamp = ts
 
-    try {
-      await this.keyring.remove(e.device.serialNumber)
-    } catch(e) {
-      console.error(e)
-    } finally {
-      this.keyring.emit([e.device.manufacturerName, e.device.productName, Events.DISCONNECT], e.device.serialNumber)
-    }
+    // timeout gives time to detect if it is an app navigation based disconnec/connect event
+    // discard disconnect event if it is not the most recent event received
+    setTimeout(async() => {
+      if (ts !== this.currentEventTimestamp) return
+
+      try {
+        await this.keyring.remove(e.device.serialNumber)
+      } catch(e) {
+        console.error(e)
+      } finally {
+        this.keyring.emit([e.device.manufacturerName, e.device.productName, Events.DISCONNECT], e.device.serialNumber)
+      }
+    }, APP_NAVIGATION_DELAY)
   }
 
   public get (device: USBDevice): HDWallet {
