@@ -42,7 +42,7 @@ export class WebUSBLedgerAdapter {
     const ts = Date.now()
     this.currentEventTimestamp = ts
 
-    // timeout gives time to detect if it is an app navigation based disconnec/connect event
+    // timeout gives time to detect if it is an app navigation based disconnect/connect event
     // discard disconnect event if it is not the most recent event received
     setTimeout(async() => {
       if (ts !== this.currentEventTimestamp) return
