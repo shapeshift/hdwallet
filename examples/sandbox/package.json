@@ -10,6 +10,9 @@
     "clean": "rm -rf dist .cache"
   },
   "dependencies": {
+    "@ledgerhq/hw-transport-web-ble": "^4.74.2",
+    "@ledgerhq/hw-transport-webhid": "^4.74.2",
+    "@ledgerhq/live-common": "^8.4.1",
     "@shapeshiftoss/hdwallet-core": "^0.16.0",
     "@shapeshiftoss/hdwallet-keepkey-tcp": "^0.16.0",
     "@shapeshiftoss/hdwallet-keepkey-webusb": "^0.16.0",

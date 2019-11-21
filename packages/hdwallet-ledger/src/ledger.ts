@@ -1,14 +1,71 @@
 import { isObject } from 'lodash'
+import * as axios from 'axios'
+import * as WebSocket from "ws"
 import * as core from '@shapeshiftoss/hdwallet-core'
 import getDeviceInfo from '@ledgerhq/live-common/lib/hw/getDeviceInfo'
+import { implementCountervalues } from "@ledgerhq/live-common/lib/countervalues";
+import {
+  setNetwork,
+  setWebSocketImplementation
+} from "@ledgerhq/live-common/lib/network";
+import ManagerAPI from "@ledgerhq/live-common/lib/api/Manager";
 import * as btc from './bitcoin'
 import * as eth from './ethereum'
 import { LedgerTransport } from './transport'
 import { appsUtil, handleError } from './utils'
 
+setNetwork(axios)
+
+setWebSocketImplementation(WebSocket)
+
+const setExchangePairsAction = (
+  pairs = []
+) => ({
+  type: "SET_EXCHANGE_PAIRS",
+  pairs
+});
+
+const addExtraPollingHooks = (schedulePoll, cancelPoll) => {
+  function onWindowBlur() {
+    cancelPoll();
+  }
+  function onWindowFocus() {
+    schedulePoll(1000);
+  }
+  window.addEventListener("blur", onWindowBlur);
+  window.addEventListener("focus", onWindowFocus);
+  return () => {
+    window.removeEventListener("blur", onWindowBlur);
+    window.removeEventListener("focus", onWindowFocus);
+  };
+};
+
+implementCountervalues({
+  network: axios,
+  log: (...args) => console.log(...args), // eslint-disable-line no-console
+  getAPIBaseURL: () => "https://countervalues.api.live.ledger.com",
+  storeSelector: state => state.countervalues,
+  pairsSelector: () => null,
+  setExchangePairsAction,
+  addExtraPollingHooks
+});
+
+console.log('RAN AFTER COUNTER')
+
+// implementCountervalues({
+//   network: axios,
+//   log: (...args) => console.log(...args), // eslint-disable-line no-console
+//   getAPIBaseURL: () => window.LEDGER_CV_API,
+//   storeSelector: state => state.countervalues,
+//   pairsSelector,
+//   setExchangePairsAction,
+//   addExtraPollingHooks
+// });
+
 export function isLedger (wallet: core.HDWallet): wallet is LedgerHDWallet {
   return isObject(wallet) && (wallet as any)._isLedger
 }
+
 
 function describeETHPath (path: core.BIP32Path): core.PathDescription {
   let pathStr = core.addressNListToBIP32(path)
@@ -299,6 +356,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   constructor (transport: LedgerTransport) {
     this.transport = transport
     this.info = new LedgerHDWalletInfo()
+
   }
 
   public async initialize (): Promise<any> {
@@ -345,10 +403,46 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     }
   }
 
+  // const listAppsRes = await new Promise((resolve, reject) => {
+  // listApps(transport, deviceInfo).subscribe({
+  //   error: reject,
+  //   next: e => {
+  //     if (e.type === "result") {
+  //       resolve(e.result);
+  //     } else if (e.type === "device-permission-requested") {
+  //       setDevicePermissionRequested({ wording: e.wording });
+  //     } else if (e.type === "device-permission-granted") {
+  //       setDevicePermissionRequested(null);
+  //     }
+  //   }
+  // });
+
+
   public async listApps (): Promise<any> {
-    const res = await this.transport.call(null, 'listApps', this.transport)
+
+    const deviceInfo = await this.transport.call(null, 'getDeviceInfo')
+    handleError(deviceInfo, this.transport)
+
+    console.log({ deviceInfo, transport: this.transport })
+
+    const res = await this.transport.call(null, 'listApps', this.transport, {targetId: deviceInfo.payload.targetId, perso: 'perso_11' })
     console.log({ res })
-    handleError(res, this.transport)
+    const listAppRes = res.payload.subscribe({
+      error: e => {
+        console.log('WE HERE NOW')
+        console.error(e)
+      },
+      next: e => {
+        console.log({ e })
+        if (e.type === 'result') {
+          return e.result
+        } else if (e.type === 'device-permission-requested')  {
+          return e.wording
+        }
+      }
+    })
+
+    handleError(listAppRes, this.transport)
   }
 
   /**
