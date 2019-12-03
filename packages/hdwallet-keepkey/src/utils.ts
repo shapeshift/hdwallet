@@ -3,7 +3,10 @@ import {
   BTCOutputScriptType,
 } from '@shapeshiftoss/hdwallet-core'
 
-import * as ProtoTypes from '@keepkey/device-protocol/lib/types_pb'
+import {
+  InputScriptType,
+  OutputScriptType,
+} from '@keepkey/device-protocol/lib/types_pb'
 
 export const SEGMENT_SIZE = 63
 
@@ -48,31 +51,31 @@ export function toUTF8Array(str: string): Uint8Array {
   return new Uint8Array(utf8)
 }
 
-export function translateInputScriptType (scriptType: BTCInputScriptType): ProtoTypes.InputScriptType {
+export function translateInputScriptType (scriptType: BTCInputScriptType): any {
   switch (scriptType) {
   case BTCInputScriptType.CashAddr:
   case BTCInputScriptType.SpendAddress:
-    return ProtoTypes.InputScriptType.SPENDADDRESS
+    return InputScriptType.SPENDADDRESS
   case BTCInputScriptType.SpendMultisig:
-    return ProtoTypes.InputScriptType.SPENDMULTISIG
+    return InputScriptType.SPENDMULTISIG
   case BTCInputScriptType.SpendP2SHWitness:
-    return ProtoTypes.InputScriptType.SPENDP2SHWITNESS
+    return InputScriptType.SPENDP2SHWITNESS
   case BTCInputScriptType.SpendWitness:
-    return ProtoTypes.InputScriptType.SPENDWITNESS
+    return InputScriptType.SPENDWITNESS
   }
   throw new Error('unhandled InputSriptType enum: ' + scriptType)
 }
 
-export function translateOutputScriptType (scriptType: BTCOutputScriptType): ProtoTypes.OutputScriptType {
+export function translateOutputScriptType (scriptType: BTCOutputScriptType): any {
   switch (scriptType) {
   case BTCOutputScriptType.PayToAddress:
-    return ProtoTypes.OutputScriptType.PAYTOADDRESS
+    return OutputScriptType.PAYTOADDRESS
   case BTCOutputScriptType.PayToMultisig:
-    return ProtoTypes.OutputScriptType.PAYTOMULTISIG
+    return OutputScriptType.PAYTOMULTISIG
   case BTCOutputScriptType.PayToP2SHWitness:
-    return ProtoTypes.OutputScriptType.PAYTOP2SHWITNESS
+    return OutputScriptType.PAYTOP2SHWITNESS
   case BTCOutputScriptType.PayToWitness:
-    return ProtoTypes.OutputScriptType.PAYTOWITNESS
+    return OutputScriptType.PAYTOWITNESS
   }
   throw new Error('unhandled OutputSriptType enum: ' + scriptType)
 }
