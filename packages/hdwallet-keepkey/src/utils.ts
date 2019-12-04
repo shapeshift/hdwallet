@@ -10,14 +10,6 @@ import {
 
 export const SEGMENT_SIZE = 63
 
-export function typeIDFromMessageBuffer(bb: ByteBuffer) {
-  let value = 0
-  for (let i = bb.offset; i < bb.limit; i++) {
-    value += bb.readByte(i)
-  }
-  return value
-}
-
 // Shim until this exists for jspb https://github.com/protocolbuffers/protobuf/issues/1591
 export function protoFieldToSetMethod (fieldName: string): string {
   return `set${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}`

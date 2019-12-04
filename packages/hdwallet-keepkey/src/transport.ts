@@ -26,7 +26,6 @@ import {
 
 import { messageTypeRegistry, messageNameRegistry } from './typeRegistry'
 import { EXIT_TYPES } from './responseTypeRegistry'
-import { typeIDFromMessageBuffer } from './utils'
 
 const { default: { concat: concatBuffers, wrap } } = ByteBuffer as any
 
@@ -288,7 +287,7 @@ export abstract class KeepKeyTransport extends Transport {
   }
 
   protected fromMessageBuffer (bb: ByteBuffer): [number, Message] {
-    const typeID = typeIDFromMessageBuffer(bb.slice(3, 5))
+    const typeID = bb.readUint16(3)
     const MType = messageTypeRegistry[typeID] as any
     if (!MType) {
       const msg = new Failure()
