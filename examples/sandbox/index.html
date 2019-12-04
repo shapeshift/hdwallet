@@ -76,7 +76,7 @@
 
 <body>
   <div class="container" style="padding-top:8em;">
-    <h4>Select</h4>
+    <h4>Select Device</h4>
     <button id='keepkey'>Pair KeepKey</button>
     <button id='kkemu'>Pair Emulator</button>
     <button id='trezor'>Pair Trezor</button>
@@ -85,91 +85,31 @@
 
     <select id='keyring' style="height: 100px" size="4"></select>
   </div>
-  <div class="container" style="padding-top:8em;">
-    <h4>DebugLink</h4>
-    <button class='button-outline' id='yes'>Yes</button>
-    <button class='button-outline' id='no'>No</button>
-    <button class='button-outline' id='cancel'>Cancel</button>
-  </div>
-  <div class="container" style="padding-top:8em;">
-    <h4>Manage</h4>
-    <button class="button button-outline" id='getVendor'>Vendor</button>
-    <button class="button button-outline" id='getModel'>Model</button>
-    <button class="button button-outline" id='getDeviceID'>DeviceID</button>
-    <button class="button button-outline" id='getFirmware'>Firmware</button>
-    <button class="button button-outline" id='getLabel'>Label</button>
-    <button class="button button-outline" id='getXpubs'>Xpubs</button>
-    <button class="button button-outline" id='doPing'>Ping</button>
-    <button class="button button-outline" id='doWipe'>Wipe</button>
-    <button class="button button-outline" id='doLoadDevice'>Load</button>
-    <input type="text" id="manageResults" />
-  </div>
-  <div class="container" style="padding-top:8em;">
-      <h4>Ledger Device</h4>
-      <button class="button button-outline" id='openApp'>Open App</button>
-      <input type="text" id="ledgerApp" />
-      <button class="button button-outline" id='validateApp'>Validate Open App</button>
-      <input type="text" id="appSymbol" />
-      <button class="button button-outline" id='getAppInfo'>App Info</button>
-      <input type="text" id="appInfo" />
-  </div>
-  <div class="container" style="padding-top:8em;">
-    <h4>Ethereum</h4>
-    <button class="button button-outline" id='ethAddr'>Address</button>
-    <button class="button button-outline" id='ethTx'>Tx</button>
-    <button class="button button-outline" id='ethSign'>Sign</button>
-    <button class="button button-outline" id='ethVerify'>Verify</button>
-    <input type="text" id="ethResults" />
-  </div>
-  <div class="container" style="padding-top:8em;">
-    <h4>Bitcoin</h4>
-    <button class="button button-outline" id='btcAddr'>Address</button>
-    <button class="button button-outline" id='btcTx'>Tx</button>
-    <button class="button button-outline" id='btcSign'>Sign</button>
-    <button class="button button-outline" id='btcVerify'>Verify</button>
-    <input type="text" id="btcResults" />
-  </div>
 
-  <div class="container" style="padding-top:8em;">
-    <h4>Bitcoin (segwit)</h4>
-    <button class="button button-outline" id='btcAddrSegWit'>Address (p2wsh)</button>
-    <button class="button button-outline" id='btcAddrSegWitNative'>Address (bech32)</button>
-    <button class="button button-outline" id='btcTxSegWit'>Tx Segwit</button>
-    <button class="button button-outline" id='btcTxSegWitNative'>Tx Segwit (Native)</button>
-    <input type="text" id="btcResultsSegWit" />
-  </div>
-
-  <div class="container" style="padding-top:8em;">
-    <h4>Litecoin</h4>
-    <button class="button button-outline" id='ltcAddr'>Address</button>
-    <button class="button button-outline" id='ltcTx'>Tx</button>
-    <button class="button button-outline" id='ltcSign'>Sign</button>
-    <input type="text" id="ltcResults" />
-  </div>
-  <div class="container" style="padding-top:8em;">
-    <h4>Dogecoin</h4>
-    <button class="button button-outline" id='dogeAddr'>Address</button>
-    <button class="button button-outline" id='dogeTx'>Tx</button>
-    <input type="text" id="dogeResults" />
-  </div>
-  <div class="container" style="padding-top:8em;">
-    <h4>Bitcoin Cash</h4>
-    <button class="button button-outline" id='bchAddr'>Address</button>
-    <button class="button button-outline" id='bchTx'>Tx</button>
-    <input type="text" id="bchResults" />
-  </div>
-  <div class="container" style="padding-top:8em;">
-    <h4>Dash</h4>
-    <button class="button button-outline" id='dashAddr'>Address</button>
-    <button class="button button-outline" id='dashTx'>Tx</button>
-    <input type="text" id="dashResults" />
-  </div>
-  <div class="container" style="padding-top:8em;">
-    <h4>DigiByte</h4>
-    <button class="button button-outline" id='dgbAddr'>Address</button>
-    <button class="button button-outline" id='dgbTx'>Tx</button>
-    <input type="text" id="dgbResults" />
-  </div>
+  <table>
+    <tr>
+      <td>
+        <div class="container" style="padding-top:8em;">
+          <h3>Sign Message</h3>
+          <div>Message: <textarea disabled id='signmessage' style="resize: none;" /></div>
+          <div>Address: <input disabled type="text" id='signaddress'/></div>
+          <div>Signature: <textarea disabled id='signsignature' style="resize: none;" /></div>
+          <button disabled class="button button-outline" id='sign'>Sign</button>
+          <input disabled type="text" id="signresults" />
+        </div>
+      </td>
+      <td>
+        <div class="container" style="padding-top:8em;">
+          <h3>Verify Message</h3>
+          <div>Message: <textarea id='verifymessage' style="resize: none;" /></div>
+          <div>Address: <input type="text" id='verifyaddress'/></div>
+          <div>Signature: <textarea id='verifysignature' style="resize: none;" /></div>
+          <button class="button button-outline" id='verify'>Verify</button>
+          <input type="text" id="verifyresults" />
+        </div>
+      </td>
+    </tr>
+  </table>
 
   <div id="#pinModal" class="modale" aria-hidden="true">
     <div class="modal-dialog">
