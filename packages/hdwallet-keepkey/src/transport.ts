@@ -289,16 +289,16 @@ export abstract class KeepKeyTransport extends Transport {
 
   protected fromMessageBuffer (bb: ByteBuffer): [number, Message] {
     const typeID = typeIDFromMessageBuffer(bb.slice(3, 5))
-    const MessageType = messageTypeRegistry[typeID] as any
-    if (!MessageType) {
+    const MType = messageTypeRegistry[typeID] as any
+    if (!MType) {
       const msg = new Failure()
       msg.setCode(FailureType.FAILURE_UNEXPECTEDMESSAGE)
       msg.setMessage('Unknown message type received')
       return [MessageType.MESSAGETYPE_FAILURE, msg]
     }
-    const msg = new MessageType()
+    const msg = new MType()
     const reader = new BinaryReader(bb.toBuffer(), 9, bb.limit - (9 + 2))
-    return [typeID, MessageType.deserializeBinaryFromReader(msg, reader)]
+    return [typeID, MType.deserializeBinaryFromReader(msg, reader)]
   }
 
   protected static failureMessageFactory (e?: Error | string) {
