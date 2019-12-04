@@ -8,6 +8,12 @@ import {
   ETHWallet,
   ETHWalletInfo,
 } from './ethereum'
+
+import {
+  CosmosWallet,
+  CosmosWalletInfo,
+} from './cosmos'
+
 import { DebugLinkWallet } from './debuglink'
 import { Transport } from './transport';
 import { isObject } from 'lodash';
@@ -99,7 +105,11 @@ export interface PathDescription {
   isPrefork?: boolean
 }
 
-type CoinWallets = BTCWallet | ETHWallet | DebugLinkWallet
+type CoinWallets =
+  BTCWallet |
+  ETHWallet |
+  CosmosWallet |
+  DebugLinkWallet
 
 export type Coin = string
 export type Symbol = string
@@ -140,6 +150,14 @@ export function infoETH(info: any): info is ETHWalletInfo {
   return isObject(info) && (info as any)._supportsETHInfo
 }
 
+export function supportsCosmos(wallet: any): wallet is CosmosWallet {
+  return isObject(wallet) && (wallet as any)._supportsCosmos
+}
+
+export function infoCosmos(info: any): info is CosmosWalletInfo {
+  return isObject(info) && (info as any)._supportsCosmosInfo
+}
+
 export function supportsDebugLink(wallet: any): wallet is DebugLinkWallet {
   return isObject(wallet) && (wallet as any)._supportsDebugLink
 }
@@ -147,6 +165,7 @@ export function supportsDebugLink(wallet: any): wallet is DebugLinkWallet {
 export interface HDWalletInfo {
   _supportsETHInfo: boolean
   _supportsBTCInfo: boolean
+  _supportsCosmosInfo: boolean
 
   /**
    * Retrieve the wallet's vendor string.
@@ -193,6 +212,7 @@ export interface HDWallet extends HDWalletInfo {
   _supportsBTCInfo: boolean
   _supportsBTC: boolean
   _supportsETH: boolean
+  _supportsCosmos: boolean
   _supportsDebugLink: boolean
 
   transport: Transport

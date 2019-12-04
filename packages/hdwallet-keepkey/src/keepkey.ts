@@ -1,6 +1,5 @@
 import {
   HDWallet,
-  Constructor,
   GetPublicKey,
   PublicKey,
   RecoverDevice,
@@ -12,10 +11,6 @@ import {
   ETHWallet,
   Event,
   Events,
-  fromHexString,
-  toHexString,
-  arrayify,
-  bip32ToAddressNList,
   LoadDevice,
   LONG_TIMEOUT,
   DEFAULT_TIMEOUT,
@@ -28,6 +23,12 @@ import {
   BTCAccountPath,
   BTCSignedMessage,
   BTCGetAccountPaths,
+  CosmosWalletInfo,
+  CosmosGetAccountPaths,
+  CosmosAccountPath,
+  CosmosGetAddress,
+  CosmosSignTx,
+  CosmosSignedTx,
   ETHSignTx,
   ETHSignedTx,
   ETHGetAddress,
@@ -59,6 +60,8 @@ import {
 
 import * as Btc from "./bitcoin";
 import * as Eth from "./ethereum"
+import * as Cosmos from "./cosmos"
+
 import { KeepKeyTransport } from "./transport";
 
 export function isKeepKey(wallet: HDWallet): wallet is KeepKeyHDWallet {
@@ -213,9 +216,49 @@ function describeUTXOPath (path: BIP32Path, coin: Coin, scriptType: BTCInputScri
   }
 }
 
-export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo {
+function describeCosmosPath (path: BIP32Path): PathDescription {
+  let pathStr = addressNListToBIP32(path)
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin: 'Atom',
+    isKnown: false
+  }
+
+  if (path.length != 5) {
+    return unknown
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown
+  }
+
+  if (path[1] != 0x80000000 + slip44ByCoin('Atom')) {
+    return unknown
+  }
+
+  if ((path[2] & 0x80000000) !== 0x80000000) {
+    return unknown
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown
+  }
+
+  let index = path[2] & 0x7fffffff
+  return {
+    verbose: `Cosmos Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: 'Atom',
+    isKnown: true,
+    isPrefork: false
+  }
+}
+
+export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo, CosmosWalletInfo {
   _supportsBTCInfo: boolean = true
   _supportsETHInfo: boolean = true
+  _supportsCosmosInfo: boolean = true
 
   public getVendor (): string {
     return "KeepKey"
@@ -261,6 +304,10 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
     return Eth.ethGetAccountPaths(msg)
   }
 
+  public cosmosGetAccountPaths (msg: CosmosGetAccountPaths): Array<CosmosAccountPath> {
+    return Cosmos.cosmosGetAccountPaths(msg)
+  }
+
   public hasOnDevicePinEntry(): boolean {
     return false;
   }
@@ -288,6 +335,8 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
     switch (msg.coin) {
     case 'Ethereum':
       return describeETHPath(msg.path)
+    case 'Atom':
+      return describeCosmosPath(msg.path)
     default:
       return describeUTXOPath(msg.path, msg.coin, msg.scriptType)
     }
@@ -333,15 +382,32 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
 
     return undefined
   }
+
+  public cosmosNextAccountPath (msg: CosmosAccountPath): CosmosAccountPath | undefined {
+    let description = describeCosmosPath(msg.addressNList)
+    if (!description.isKnown) {
+      return undefined
+    }
+    
+    let addressNList = msg.addressNList
+    addressNList[2] += 1
+
+    return {
+      ...msg,
+      addressNList
+    }
+  }
 }
 
 export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLinkWallet {
   _supportsETHInfo: boolean = true
   _supportsBTCInfo: boolean = true
+  _supportsCosmosInfo: boolean = true
   _supportsDebugLink: boolean
   _isKeepKey: boolean = true;
   _supportsETH: boolean = true;
   _supportsBTC: boolean = true;
+  _supportsCosmos: boolean = true;
 
   transport: KeepKeyTransport;
   features?: Messages.Features.AsObject;
@@ -887,6 +953,18 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
 
   public ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPath> {
     return this.info.ethGetAccountPaths(msg)
+  }
+
+  public cosmosGetAccountPaths (msg: CosmosGetAccountPaths): Array<CosmosAccountPath> {
+    return this.info.cosmosGetAccountPaths(msg)
+  }
+
+  public cosmosGetAddress (msg: CosmosGetAddress): Promise<string> {
+    return Cosmos.cosmosGetAddress(this.transport, msg)
+  }
+
+  public cosmosSignTx (msg: CosmosSignTx): Promise<CosmosSignedTx> {
+    return Cosmos.cosmosSignTx(this.transport, msg)
   }
 
   public describePath (msg: DescribePath): PathDescription {

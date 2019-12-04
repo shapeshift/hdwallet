@@ -131,6 +131,7 @@ export function slip44ByCoin (coin: Coin): number {
     'Dogecoin': 3,
     'BitcoinSV': 236,
     'Ethereum': 60,
+    'Atom': 118,
   }[coin]
 }
 

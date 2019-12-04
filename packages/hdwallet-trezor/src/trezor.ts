@@ -177,6 +177,7 @@ function describeUTXOPath (path: BIP32Path, coin: Coin, scriptType: BTCInputScri
 export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo {
   _supportsBTCInfo: boolean = true
   _supportsETHInfo: boolean = true
+  _supportsCosmosInfo: boolean = false
 
   public getVendor (): string {
     return "Trezor"
@@ -301,6 +302,8 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
   _supportsDebugLink: boolean = false
   _supportsBTC: boolean = true
   _supportsETH: boolean = true
+  _supportsCosmosInfo: boolean = false
+  _supportsCosmos: boolean = false
   _isTrezor: boolean = true
 
   transport: TrezorTransport

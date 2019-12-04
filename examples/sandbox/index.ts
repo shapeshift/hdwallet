@@ -4,6 +4,7 @@ import {
   Keyring,
   supportsETH,
   supportsBTC,
+  supportsCosmos,
   supportsDebugLink,
   bip32ToAddressNList,
   Events
@@ -30,8 +31,6 @@ import * as btcSegWitTxJson from './json/btcSegWitTx.json'
 import * as dashTxJson from './json/dashTx.json'
 import * as dogeTxJson from './json/dogeTx.json'
 import * as ltcTxJson from './json/ltcTx.json'
-
-import Portis from "@portis/web3";
 
 const keyring = new Keyring()
 
@@ -431,6 +430,45 @@ $getAppInfo.on('click', async (e) => {
     result = err.message
   }
   $appInfo.val(result)
+})
+
+/*
+ * Cosmos
+ */
+const $cosmosAddr = $('#cosmosAddr')
+const $cosmosTx = $('#cosmosTx')
+
+$cosmosAddr.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $ethResults.val("No wallet?"); return}
+  if (supportsCosmos(wallet)) {
+    let { addressNList } = wallet.cosmosGetAccountPaths({ accountIdx: 0 })[0]
+    let result = await wallet.cosmosGetAddress({
+      addressNList,
+      showDisplay: false
+    })
+    result = await wallet.cosmosGetAddress({
+      addressNList,
+      showDisplay: true,
+      address: result
+    })
+    $ethResults.val(result)
+  } else {
+    let label = await wallet.getLabel()
+    $ethResults.val(label + " does not support Cosmos")
+  }
+})
+
+$cosmosTx.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $ethResults.val("No wallet?"); return}
+  if (supportsCosmos(wallet)) {
+    let res = {}
+    $ethResults.val(JSON.stringify(res))
+  } else {
+    let label = await wallet.getLabel()
+    $ethResults.val(label + " does not support Cosmos")
+  }
 })
 
 /*
