@@ -437,6 +437,7 @@ $getAppInfo.on('click', async (e) => {
  */
 const $cosmosAddr = $('#cosmosAddr')
 const $cosmosTx = $('#cosmosTx')
+const $cosmosResults = $('#cosmosResults')
 
 $cosmosAddr.on('click', async (e) => {
   e.preventDefault()
@@ -496,10 +497,10 @@ $cosmosTx.on('click', async (e) => {
       sequence: '3',
       tx: unsigned,
     })
-    $ethResults.val(JSON.stringify(res.signature))
+    $cosmosResults.val(JSON.stringify(res.signature))
   } else {
     let label = await wallet.getLabel()
-    $ethResults.val(label + " does not support Cosmos")
+    $cosmosResults.val(label + " does not support Cosmos")
   }
 })
 
