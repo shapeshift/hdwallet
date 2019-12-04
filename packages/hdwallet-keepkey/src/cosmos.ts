@@ -41,13 +41,13 @@ export async function cosmosSignTx (transport: KeepKeyTransport, msg: Core.Cosmo
     signTx.setFeeAmount(parseInt(msg.tx.value.fee.amount[0].amount))
     signTx.setGas(parseInt(msg.tx.value.fee.gas))
     if (msg.tx.value.memo !== undefined) signTx.setMemo(msg.tx.value.memo)
-    signTx.setMsgCount(msg.tx.value.msgs.length)
+    signTx.setMsgCount(msg.tx.value.msg.length)
 
     let resp = await transport.call(MessageType.MESSAGETYPE_COSMOSSIGNTX, signTx, Core.LONG_TIMEOUT, /*omitLock=*/true)
 
     if (resp.message_type === Core.Events.FAILURE) throw resp
 
-    for (let m of msg.tx.value.msgs) {
+    for (let m of msg.tx.value.msg) {
       let ack
 
       if (m.type === 'cosmos-sdk/MsgSend') {

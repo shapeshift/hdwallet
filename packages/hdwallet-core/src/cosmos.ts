@@ -40,7 +40,7 @@ namespace Cosmos {
   }
 
   export interface StdTx {
-    msgs: sdk.Msg[]
+    msg: sdk.Msg[]
     fee: StdFee
     signatures: null | StdSignature[]
     memo: string
