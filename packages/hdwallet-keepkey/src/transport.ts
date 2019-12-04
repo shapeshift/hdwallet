@@ -13,12 +13,19 @@ import {
   ActionCancelled,
   HDWalletErrorType,
 } from '@shapeshiftoss/hdwallet-core'
-import * as Messages from '@keepkey/device-protocol/lib/messages_pb'
-import * as Types from '@keepkey/device-protocol/lib/types_pb'
+import {
+  MessageType,
+  ButtonAck,
+  Cancel,
+  EntropyAck,
+  Failure,
+} from '@keepkey/device-protocol/lib/messages_pb'
+import {
+  FailureType,
+} from '@keepkey/device-protocol/lib/types_pb'
 
 import { messageTypeRegistry, messageNameRegistry } from './typeRegistry'
 import { EXIT_TYPES } from './responseTypeRegistry'
-import { typeIDFromMessageBuffer } from './utils'
 
 const { default: { concat: concatBuffers, wrap } } = ByteBuffer as any
 
@@ -77,7 +84,7 @@ export abstract class KeepKeyTransport extends Transport {
 
   public async listen() { }
 
-  public async handleCancellableResponse (messageType: Messages.MessageType) {
+  public async handleCancellableResponse (messageType: any) {
     const event = await takeFirstOfManyEvents(this, [
       String(messageType), ...EXIT_TYPES
     ]).toPromise() as Event
@@ -102,7 +109,7 @@ export abstract class KeepKeyTransport extends Transport {
     if (debugLink)
       return event
 
-    if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_FAILURE) {
+    if (msgTypeEnum === MessageType.MESSAGETYPE_FAILURE) {
       const failureEvent = makeEvent({
         message_type: Events.FAILURE,
         message_enum: msgTypeEnum,
@@ -113,62 +120,67 @@ export abstract class KeepKeyTransport extends Transport {
       return failureEvent
     }
 
-    if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_BUTTONREQUEST) {
+    if (msgTypeEnum === MessageType.MESSAGETYPE_BUTTONREQUEST) {
       this.emit(Events.BUTTON_REQUEST, makeEvent({
         message_type: Events.BUTTON_REQUEST,
         from_wallet: true
       }))
       this.userActionRequired = true
-      return this.call(Messages.MessageType.MESSAGETYPE_BUTTONACK, new Messages.ButtonAck(), LONG_TIMEOUT, true, false)
+      return this.call(MessageType.MESSAGETYPE_BUTTONACK, new ButtonAck(), LONG_TIMEOUT, true, false)
     }
 
-    if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_ENTROPYREQUEST) {
-      const ack = new Messages.EntropyAck()
+    if (msgTypeEnum === MessageType.MESSAGETYPE_ENTROPYREQUEST) {
+      const ack = new EntropyAck()
       ack.setEntropy(this.getEntropy(32))
-      return this.call(Messages.MessageType.MESSAGETYPE_ENTROPYACK, ack, LONG_TIMEOUT, true, false)
+      return this.call(MessageType.MESSAGETYPE_ENTROPYACK, ack, LONG_TIMEOUT, true, false)
     }
 
-    if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_PINMATRIXREQUEST) {
+    if (msgTypeEnum === MessageType.MESSAGETYPE_PINMATRIXREQUEST) {
       this.emit(Events.PIN_REQUEST, makeEvent({
         message_type: Events.PIN_REQUEST,
         from_wallet: true
       }))
       this.userActionRequired = true
-      return this.handleCancellableResponse(Messages.MessageType.MESSAGETYPE_PINMATRIXACK)
+      return this.handleCancellableResponse(MessageType.MESSAGETYPE_PINMATRIXACK)
     }
 
-    if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_PASSPHRASEREQUEST) {
+    if (msgTypeEnum === MessageType.MESSAGETYPE_PASSPHRASEREQUEST) {
       this.emit(Events.PASSPHRASE_REQUEST, makeEvent({
         message_type: Events.PASSPHRASE_REQUEST,
         from_wallet: true
       }))
       this.userActionRequired = true
-      return this.handleCancellableResponse(Messages.MessageType.MESSAGETYPE_PASSPHRASEACK)
+      return this.handleCancellableResponse(MessageType.MESSAGETYPE_PASSPHRASEACK)
     }
 
-    if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_CHARACTERREQUEST) {
+    if (msgTypeEnum === MessageType.MESSAGETYPE_CHARACTERREQUEST) {
       this.emit(Events.CHARACTER_REQUEST, makeEvent({
         message_type: Events.CHARACTER_REQUEST,
         from_wallet: true
       }))
       this.userActionRequired = true
-      return this.handleCancellableResponse(Messages.MessageType.MESSAGETYPE_CHARACTERACK)
+      return this.handleCancellableResponse(MessageType.MESSAGETYPE_CHARACTERACK)
     }
 
-    if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_WORDREQUEST) {
+    if (msgTypeEnum === MessageType.MESSAGETYPE_WORDREQUEST) {
       this.emit(Events.WORD_REQUEST, makeEvent({
         message_type: Events.WORD_REQUEST,
         from_wallet: true
       }))
       this.userActionRequired = true
-      return this.handleCancellableResponse(Messages.MessageType.MESSAGETYPE_WORDACK)
+      return this.handleCancellableResponse(MessageType.MESSAGETYPE_WORDACK)
     }
 
     return event
   }
 
-
-  public async call (msgTypeEnum: number, msg: Message, msTimeout: number = DEFAULT_TIMEOUT, omitLock: boolean = false, noWait: boolean = false): Promise<any> {
+  public async call (
+    msgTypeEnum: number,
+    msg: Message,
+    msTimeout: number = DEFAULT_TIMEOUT,
+    omitLock: boolean = false,
+    noWait: boolean = false
+  ): Promise<any> {
     this.emit(String(msgTypeEnum), makeEvent({
       message_type: messageNameRegistry[msgTypeEnum],
       message_enum: msgTypeEnum,
@@ -178,13 +190,13 @@ export abstract class KeepKeyTransport extends Transport {
     }))
 
     let makePromise = async () => {
-      if([
-        Messages.MessageType.MESSAGETYPE_BUTTONACK,
-        Messages.MessageType.MESSAGETYPE_PASSPHRASEACK,
-        Messages.MessageType.MESSAGETYPE_CHARACTERACK,
-        Messages.MessageType.MESSAGETYPE_PINMATRIXACK,
-        Messages.MessageType.MESSAGETYPE_WORDACK
-      ].includes(msgTypeEnum)) {
+      if (([
+        MessageType.MESSAGETYPE_BUTTONACK,
+        MessageType.MESSAGETYPE_PASSPHRASEACK,
+        MessageType.MESSAGETYPE_CHARACTERACK,
+        MessageType.MESSAGETYPE_PINMATRIXACK,
+        MessageType.MESSAGETYPE_WORDACK
+      ] as Array<number>).includes(msgTypeEnum)) {
         this.userActionRequired = true
       }
       await this.write(this.toMessageBuffer(msgTypeEnum, msg), false)
@@ -192,8 +204,8 @@ export abstract class KeepKeyTransport extends Transport {
       if (!noWait) {
         const response = await this.readResponse(false)
         this.userActionRequired = false
-        if (response.message_enum === Messages.MessageType.MESSAGETYPE_FAILURE &&
-            response.message.code === Types.FailureType.FAILURE_ACTIONCANCELLED) {
+        if (response.message_enum === MessageType.MESSAGETYPE_FAILURE &&
+            response.message.code === FailureType.FAILURE_ACTIONCANCELLED) {
           this.callInProgress = { main: undefined, debug: undefined }
           throw new ActionCancelled()
         }
@@ -251,8 +263,8 @@ export abstract class KeepKeyTransport extends Transport {
     if (!this.userActionRequired) return
     try {
       this.callInProgress = { main: undefined, debug: undefined }
-      const cancelMsg = new Messages.Cancel()
-      await this.call(Messages.MessageType.MESSAGETYPE_CANCEL, cancelMsg, DEFAULT_TIMEOUT, false, this.userActionRequired)
+      const cancelMsg = new Cancel()
+      await this.call(MessageType.MESSAGETYPE_CANCEL, cancelMsg, DEFAULT_TIMEOUT, false, this.userActionRequired)
     } catch (e) {
       console.error('Cancel Pending Error', e)
     } finally {
@@ -275,22 +287,22 @@ export abstract class KeepKeyTransport extends Transport {
   }
 
   protected fromMessageBuffer (bb: ByteBuffer): [number, Message] {
-    const typeID = typeIDFromMessageBuffer(bb.slice(3, 5))
-    const MessageType = messageTypeRegistry[typeID] as any
-    if (!MessageType) {
-      const msg = new Messages.Failure()
-      msg.setCode(Types.FailureType.FAILURE_UNEXPECTEDMESSAGE)
+    const typeID = bb.readUint16(3)
+    const MType = messageTypeRegistry[typeID] as any
+    if (!MType) {
+      const msg = new Failure()
+      msg.setCode(FailureType.FAILURE_UNEXPECTEDMESSAGE)
       msg.setMessage('Unknown message type received')
-      return [Messages.MessageType.MESSAGETYPE_FAILURE, msg]
+      return [MessageType.MESSAGETYPE_FAILURE, msg]
     }
-    const msg = new MessageType()
+    const msg = new MType()
     const reader = new BinaryReader(bb.toBuffer(), 9, bb.limit - (9 + 2))
-    return [typeID, MessageType.deserializeBinaryFromReader(msg, reader)]
+    return [typeID, MType.deserializeBinaryFromReader(msg, reader)]
   }
 
   protected static failureMessageFactory (e?: Error | string) {
-    const msg = new Messages.Failure()
-    msg.setCode(Types.FailureType.FAILURE_UNEXPECTEDMESSAGE)
+    const msg = new Failure()
+    msg.setCode(FailureType.FAILURE_UNEXPECTEDMESSAGE)
     if (typeof e === 'string') {
       msg.setMessage(e)
     } else {

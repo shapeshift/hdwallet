@@ -930,9 +930,9 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^12.0.9"
 
-"@keepkey/device-protocol@^6.1.6":
-  version "6.2.1"
-  resolved "https://registry.yarnpkg.com/@keepkey/device-protocol/-/device-protocol-6.2.1.tgz#7b091e3b53a599d3f73cd08371d4e0fbf9036350"
+"@keepkey/device-protocol@^6.2.3":
+  version "6.2.3"
+  resolved "https://registry.yarnpkg.com/@keepkey/device-protocol/-/device-protocol-6.2.3.tgz#a7d851065fd2e214dd56b5c30513deb91f3e6c7b"
   dependencies:
     google-protobuf "^3.7.0-rc.2"
     pbjs "^0.0.5"
@@ -1834,7 +1834,6 @@
 "@portis/web3@2.0.0-beta.49":
   version "2.0.0-beta.49"
   resolved "https://registry.yarnpkg.com/@portis/web3/-/web3-2.0.0-beta.49.tgz#9d602c96634ef044f580db416d0bc4a1c89306cf"
-  integrity sha512-1u3RjB4qeLCDyHi1AJErFYHxW7gzkW2gkKLcxN/uTQYSD1u5z199O5xSX+1RjqhsohbUhqx0YNrIbLEEvKs1xA==
   dependencies:
     "@portis/web3-provider-engine" "1.0.10"
     ethereumjs-util "5.2.0"

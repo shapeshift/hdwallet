@@ -22,11 +22,24 @@ import {
 
 import { KeepKeyTransport } from './transport'
 
-import * as ProtoMessages from '@keepkey/device-protocol/lib/messages_pb'
-import * as ProtoExchange from '@keepkey/device-protocol/lib/exchange_pb'
-import * as ProtoTypes from '@keepkey/device-protocol/lib/types_pb'
-
-const { default: { ExchangeType } } = ProtoMessages as any
+import {
+  MessageType,
+  EthereumSignTx,
+  EthereumTxRequest,
+  EthereumGetAddress,
+  EthereumAddress,
+  EthereumSignMessage,
+  EthereumMessageSignature,
+  EthereumVerifyMessage,
+  Success,
+} from '@keepkey/device-protocol/lib/messages_pb'
+import {
+  SignedExchangeResponse,
+} from '@keepkey/device-protocol/lib/exchange_pb'
+import {
+  ExchangeType,
+  OutputAddressType,
+} from '@keepkey/device-protocol/lib/types_pb'
 
 // @ts-ignore
 import * as Ethereumjs from 'ethereumjs-tx'
@@ -62,7 +75,7 @@ export function ethGetAccountPaths (msg: ETHGetAccountPath): Array<ETHAccountPat
 
 export async function ethSignTx (transport: KeepKeyTransport, msg: ETHSignTx): Promise<ETHSignedTx> {
   return transport.lockDuring(async () => {
-    const est: ProtoMessages.EthereumSignTx = new ProtoMessages.EthereumSignTx()
+    const est: EthereumSignTx = new EthereumSignTx()
     est.setAddressNList(msg.addressNList)
     est.setNonce(arrayify(msg.nonce))
     est.setGasPrice(arrayify(msg.gasPrice))
@@ -72,13 +85,13 @@ export async function ethSignTx (transport: KeepKeyTransport, msg: ETHSignTx): P
     }
 
     if (msg.toAddressNList) {
-      est.setAddressType(ProtoTypes.OutputAddressType.SPEND)
+      est.setAddressType(OutputAddressType.SPEND)
       est.setToAddressNList(msg.toAddressNList)
     } else if (msg.exchangeType) {
-      est.setAddressType(ProtoTypes.OutputAddressType.EXCHANGE)
+      est.setAddressType(OutputAddressType.EXCHANGE)
 
       const signedHex = base64toHEX(msg.exchangeType.signedExchangeResponse)
-      const signedExchangeOut = ProtoExchange.SignedExchangeResponse.deserializeBinary(arrayify(signedHex))
+      const signedExchangeOut = SignedExchangeResponse.deserializeBinary(arrayify(signedHex))
       const exchangeType = new ExchangeType()
       exchangeType.setSignedExchangeResponse(signedExchangeOut)
       exchangeType.setWithdrawalCoinName(msg.exchangeType.withdrawalCoinName) // KeepKey firmware will complain if this doesn't match signed exchange response
@@ -90,7 +103,7 @@ export async function ethSignTx (transport: KeepKeyTransport, msg: ETHSignTx): P
         msg.exchangeType.returnScriptType || BTCInputScriptType.SpendAddress))
       est.setExchangeType(exchangeType)
     } else {
-      est.setAddressType(ProtoTypes.OutputAddressType.SPEND)
+      est.setAddressType(OutputAddressType.SPEND)
     }
 
     if (msg.to) {
@@ -112,12 +125,12 @@ export async function ethSignTx (transport: KeepKeyTransport, msg: ETHSignTx): P
       est.setChainId(msg.chainId)
     }
 
-    let response: ProtoMessages.EthereumTxRequest
-    let nextResponse = await transport.call(ProtoMessages.MessageType.MESSAGETYPE_ETHEREUMSIGNTX, est, LONG_TIMEOUT, /*omitLock=*/true)
-    if (nextResponse.message_enum === ProtoMessages.MessageType.MESSAGETYPE_FAILURE) {
+    let response: EthereumTxRequest
+    let nextResponse = await transport.call(MessageType.MESSAGETYPE_ETHEREUMSIGNTX, est, LONG_TIMEOUT, /*omitLock=*/true)
+    if (nextResponse.message_enum === MessageType.MESSAGETYPE_FAILURE) {
       throw nextResponse
     }
-    response = nextResponse.proto as ProtoMessages.EthereumTxRequest
+    response = nextResponse.proto as EthereumTxRequest
 
     try {
       while (response.hasDataLength()) {
@@ -125,11 +138,11 @@ export async function ethSignTx (transport: KeepKeyTransport, msg: ETHSignTx): P
         dataChunk = dataRemaining.slice(0, dataLength)
         dataRemaining = dataRemaining.slice(dataLength, dataRemaining.length)
 
-        nextResponse = await transport.call(ProtoMessages.MessageType.MESSAGETYPE_ETHEREUMSIGNTX, est, LONG_TIMEOUT, /*omitLock=*/true)
-        if (nextResponse.message_enum === ProtoMessages.MessageType.MESSAGETYPE_FAILURE) {
+        nextResponse = await transport.call(MessageType.MESSAGETYPE_ETHEREUMSIGNTX, est, LONG_TIMEOUT, /*omitLock=*/true)
+        if (nextResponse.message_enum === MessageType.MESSAGETYPE_FAILURE) {
           throw nextResponse
         }
-        response = nextResponse.proto as ProtoMessages.EthereumTxRequest
+        response = nextResponse.proto as EthereumTxRequest
       }
     } catch(error) {
       console.error({ error })
@@ -165,11 +178,11 @@ export async function ethSignTx (transport: KeepKeyTransport, msg: ETHSignTx): P
 }
 
 export async function ethGetAddress (transport: KeepKeyTransport, msg: ETHGetAddress): Promise<string> {
-  const getAddr = new ProtoMessages.EthereumGetAddress()
+  const getAddr = new EthereumGetAddress()
   getAddr.setAddressNList(msg.addressNList)
   getAddr.setShowDisplay(msg.showDisplay !== false)
-  const response = await transport.call(ProtoMessages.MessageType.MESSAGETYPE_ETHEREUMGETADDRESS, getAddr, LONG_TIMEOUT)
-  const ethAddress = response.proto as ProtoMessages.EthereumAddress
+  const response = await transport.call(MessageType.MESSAGETYPE_ETHEREUMGETADDRESS, getAddr, LONG_TIMEOUT)
+  const ethAddress = response.proto as EthereumAddress
 
   if(response.message_type === Events.FAILURE) throw response
 
@@ -185,11 +198,11 @@ export async function ethGetAddress (transport: KeepKeyTransport, msg: ETHGetAdd
 }
 
 export async function ethSignMessage (transport: KeepKeyTransport, msg: ETHSignMessage): Promise<ETHSignedMessage> {
-  const m = new ProtoMessages.EthereumSignMessage()
+  const m = new EthereumSignMessage()
   m.setAddressNList(msg.addressNList)
   m.setMessage(toUTF8Array(msg.message))
-  const response = await transport.call(ProtoMessages.MessageType.MESSAGETYPE_ETHEREUMSIGNMESSAGE, m, LONG_TIMEOUT) as Event
-  const sig = response.proto as ProtoMessages.EthereumMessageSignature
+  const response = await transport.call(MessageType.MESSAGETYPE_ETHEREUMSIGNMESSAGE, m, LONG_TIMEOUT) as Event
+  const sig = response.proto as EthereumMessageSignature
   return {
     address: EIP55.encode('0x' + toHexString(sig.getAddress_asU8())), // FIXME: this should be done in the firmware
     signature: '0x' + toHexString(sig.getSignature_asU8())
@@ -197,11 +210,11 @@ export async function ethSignMessage (transport: KeepKeyTransport, msg: ETHSignM
 }
 
 export async function ethVerifyMessage (transport: KeepKeyTransport, msg: ETHVerifyMessage): Promise<boolean> {
-  const m = new ProtoMessages.EthereumVerifyMessage()
+  const m = new EthereumVerifyMessage()
   m.setAddress(arrayify(msg.address))
   m.setSignature(arrayify(msg.signature))
   m.setMessage(toUTF8Array(msg.message))
-  const event = await transport.call(ProtoMessages.MessageType.MESSAGETYPE_ETHEREUMVERIFYMESSAGE, m, LONG_TIMEOUT) as Event
-  const success = event.proto as ProtoMessages.Success
+  const event = await transport.call(MessageType.MESSAGETYPE_ETHEREUMVERIFYMESSAGE, m, LONG_TIMEOUT) as Event
+  const success = event.proto as Success
   return success.getMessage() === 'Message verified'
 }

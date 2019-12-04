@@ -19,7 +19,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@keepkey/device-protocol": "^6.1.6",
+    "@keepkey/device-protocol": "^6.2.3",
     "@shapeshiftoss/hdwallet-core": "^0.17.1",
     "@types/eventemitter2": "^4.1.0",
     "eip55": "^1.0.3",

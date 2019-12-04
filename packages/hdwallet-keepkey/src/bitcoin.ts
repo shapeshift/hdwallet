@@ -28,9 +28,32 @@ import {
 
 import { KeepKeyTransport } from './transport'
 
-import * as Messages from '@keepkey/device-protocol/lib/messages_pb'
-import * as Types from '@keepkey/device-protocol/lib/types_pb'
-import * as Exchange from '@keepkey/device-protocol/lib/exchange_pb'
+import {
+  MessageType,
+  Address,
+  GetAddress,
+  Failure,
+  TxRequest,
+  SignTx,
+  TxAck,
+  SignMessage,
+  VerifyMessage,
+  Success,
+  MessageSignature,
+} from '@keepkey/device-protocol/lib/messages_pb'
+import {
+  TransactionType,
+  TxInputType,
+  TxOutputType,
+  TxOutputBinType,
+  OutputScriptType,
+  OutputAddressType,
+  ExchangeType,
+  RequestType,
+} from '@keepkey/device-protocol/lib/types_pb'
+import {
+  SignedExchangeResponse
+} from '@keepkey/device-protocol/lib/exchange_pb'
 
 import {
   toUTF8Array,
@@ -99,12 +122,12 @@ function prepareSignTx (
   inputs: Array<BTCSignTxInput>,
   outputs: Array<BTCSignTxOutput>,
 ): any {
-  const unsignedTx = new Types.TransactionType()
+  const unsignedTx = new TransactionType()
   unsignedTx.setInputsCnt(inputs.length)
   unsignedTx.setOutputsCnt(outputs.length)
 
   inputs.forEach((input, i) => {
-    const utxo = new Types.TxInputType()
+    const utxo = new TxInputType()
     utxo.setPrevHash(fromHexString(input.txid))
     utxo.setPrevIndex(input.vout)
     if (input.sequence !== undefined) utxo.setSequence(input.sequence)
@@ -116,12 +139,12 @@ function prepareSignTx (
 
   outputs.forEach((o, k) => {
     const output: BTCSignTxOutput = o
-    const newOutput = new Types.TxOutputType()
+    const newOutput = new TxOutputType()
     newOutput.setAmount(Number(output.amount))
     if (output.exchangeType) {
       // convert the base64 encoded signedExchangeResponse message into the correct object
       const signedHex = base64toHEX(output.exchangeType.signedExchangeResponse)
-      const signedExchange = Exchange.SignedExchangeResponse.deserializeBinary(arrayify(signedHex))
+      const signedExchange = SignedExchangeResponse.deserializeBinary(arrayify(signedHex))
 
       // decode the deposit amount from a little-endian Uint8Array into an unsigned uint64
       let depAmt = signedExchange.getResponsev2().getDepositAmount_asU8()
@@ -130,7 +153,7 @@ function prepareSignTx (
         val += depAmt[jj] * Math.pow(2,(8 * (depAmt.length - jj - 1)))
         // TODO validate is uint64
       }
-      const outExchangeType = new Types.ExchangeType()
+      const outExchangeType = new ExchangeType()
       outExchangeType.setSignedExchangeResponse(signedExchange)
       outExchangeType.setWithdrawalCoinName(output.exchangeType.withdrawalCoinName)
       outExchangeType.setWithdrawalAddressNList(output.exchangeType.withdrawalAddressNList)
@@ -141,17 +164,17 @@ function prepareSignTx (
         output.exchangeType.returnScriptType || BTCInputScriptType.SpendAddress))
       newOutput.setAmount(val)
       newOutput.setAddress(signedExchange.toObject().responsev2.depositAddress.address)
-      newOutput.setScriptType(Types.OutputScriptType.PAYTOADDRESS)
-      newOutput.setAddressType(Types.OutputAddressType.EXCHANGE)
+      newOutput.setScriptType(OutputScriptType.PAYTOADDRESS)
+      newOutput.setAddressType(OutputAddressType.EXCHANGE)
       newOutput.setExchangeType(outExchangeType)
     } else if (output.isChange) {
       newOutput.setScriptType(translateOutputScriptType(output.scriptType))
       newOutput.setAddressNList(output.addressNList)
-      newOutput.setAddressType(Types.OutputAddressType.CHANGE)
+      newOutput.setAddressType(OutputAddressType.CHANGE)
     } else {
-      newOutput.setScriptType(Types.OutputScriptType.PAYTOADDRESS)
+      newOutput.setScriptType(OutputScriptType.PAYTOADDRESS)
       newOutput.setAddress(output.address)
-      newOutput.setAddressType(Types.OutputAddressType.SPEND)
+      newOutput.setAddressType(OutputAddressType.SPEND)
     }
     unsignedTx.addOutputs(newOutput, k)
   })
@@ -175,14 +198,14 @@ function prepareSignTx (
     if (!inputTx.tx)
       throw new Error("non-segwit inputs must have the associated prev tx")
 
-    const tx = new Types.TransactionType()
+    const tx = new TransactionType()
     tx.setVersion(inputTx.tx.version)
     tx.setLockTime(inputTx.tx.locktime)
     tx.setInputsCnt(inputTx.tx.vin.length)
     tx.setOutputsCnt(inputTx.tx.vout.length)
 
     inputTx.tx.vin.forEach((vin, i) => {
-      const txInput = new Types.TxInputType()
+      const txInput = new TxInputType()
       if (vin.coinbase !== undefined) {
         txInput.setPrevHash(fromHexString("\0".repeat(64)))
         txInput.setPrevIndex(0xffffffff)
@@ -198,7 +221,7 @@ function prepareSignTx (
     })
 
     inputTx.tx.vout.forEach((vout, i) => {
-      const txOutput = new Types.TxOutputBinType()
+      const txOutput = new TxOutputBinType()
       txOutput.setAmount(satsFromStr(vout.value))
       txOutput.setScriptPubkey(fromHexString(vout.scriptPubKey.hex))
       tx.addBinOutputs(txOutput, i)
@@ -255,18 +278,18 @@ export async function btcSupportsScriptType (coin: Coin, scriptType: BTCInputScr
 export async function btcGetAddress (wallet: BTCWallet, transport: KeepKeyTransport, msg: BTCGetAddress): Promise<string> {
   await ensureCoinSupport(wallet, msg.coin)
 
-  const addr = new Messages.GetAddress()
+  const addr = new GetAddress()
   addr.setAddressNList(msg.addressNList)
   addr.setCoinName(msg.coin)
   addr.setShowDisplay(msg.showDisplay || false)
   addr.setScriptType(translateInputScriptType(msg.scriptType || BTCInputScriptType.SpendAddress))
 
-  const response = await transport.call(Messages.MessageType.MESSAGETYPE_GETADDRESS, addr, LONG_TIMEOUT) as Event
+  const response = await transport.call(MessageType.MESSAGETYPE_GETADDRESS, addr, LONG_TIMEOUT) as Event
 
   if(response.message_type === Events.FAILURE) throw response
   if(response.message_type === Events.CANCEL) throw response
 
-  const btcAddress = response.proto as Messages.Address
+  const btcAddress = response.proto as Address
   return btcAddress.getAddress()
 }
 
@@ -276,7 +299,7 @@ export async function btcSignTx (wallet: BTCWallet, transport: KeepKeyTransport,
     const txmap = prepareSignTx(msg.coin, msg.inputs, msg.outputs)
 
     // Prepare and send initial message
-    const tx = new Messages.SignTx()
+    const tx = new SignTx()
     tx.setInputsCount(msg.inputs.length)
     tx.setOutputsCount(msg.outputs.length)
     tx.setCoinName(msg.coin)
@@ -285,7 +308,7 @@ export async function btcSignTx (wallet: BTCWallet, transport: KeepKeyTransport,
 
     let responseType: number
     let response: any
-    const { message_enum, proto } = await transport.call(Messages.MessageType.MESSAGETYPE_SIGNTX, tx, LONG_TIMEOUT, /*omitLock=*/true) as Event // 5 Minute timeout
+    const { message_enum, proto } = await transport.call(MessageType.MESSAGETYPE_SIGNTX, tx, LONG_TIMEOUT, /*omitLock=*/true) as Event // 5 Minute timeout
     responseType = message_enum
     response = proto
 
@@ -296,16 +319,16 @@ export async function btcSignTx (wallet: BTCWallet, transport: KeepKeyTransport,
     try {
       // Begin callback loop
       while (true) {
-        if (responseType === Messages.MessageType.MESSAGETYPE_FAILURE) {
-          const errorResponse = response as Messages.Failure
+        if (responseType === MessageType.MESSAGETYPE_FAILURE) {
+          const errorResponse = response as Failure
           throw new Error(`Signing failed: ${errorResponse.getMessage()}`)
         }
 
-        if (responseType !== Messages.MessageType.MESSAGETYPE_TXREQUEST) {
+        if (responseType !== MessageType.MESSAGETYPE_TXREQUEST) {
           throw new Error(`Unexpected message type: ${responseType}`)
         }
 
-        let txRequest = response as Messages.TxRequest
+        let txRequest = response as TxRequest
 
         // If there's some part of signed transaction, add it
         if (txRequest.hasSerialized() && txRequest.getSerialized().hasSerializedTx()) {
@@ -319,14 +342,14 @@ export async function btcSignTx (wallet: BTCWallet, transport: KeepKeyTransport,
           signatures[txRequest.getSerialized().getSignatureIndex()] = toHexString(txRequest.getSerialized().getSignature_asU8())
         }
 
-        if (txRequest.getRequestType() === Types.RequestType.TXFINISHED) {
+        if (txRequest.getRequestType() === RequestType.TXFINISHED) {
           // Device didn't ask for more information, finish workflow
           break
         }
 
-        let currentTx: Types.TransactionType = null
-        let msg: Types.TransactionType = null
-        let txAck: Messages.TxAck = null
+        let currentTx: TransactionType = null
+        let msg: TransactionType = null
+        let txAck: TxAck = null
 
         // Device asked for one more information, let's process it.
         if (txRequest.hasDetails() && !txRequest.getDetails().hasTxHash()) {
@@ -335,8 +358,8 @@ export async function btcSignTx (wallet: BTCWallet, transport: KeepKeyTransport,
           currentTx = txmap[toHexString(txRequest.getDetails().getTxHash_asU8())]
         }
 
-        if (txRequest.getRequestType() === Types.RequestType.TXMETA) {
-          msg = new Types.TransactionType()
+        if (txRequest.getRequestType() === RequestType.TXMETA) {
+          msg = new TransactionType()
           msg.setVersion(currentTx.getVersion())
           msg.setLockTime(currentTx.getLockTime())
           msg.setInputsCnt(currentTx.getInputsCnt())
@@ -350,49 +373,49 @@ export async function btcSignTx (wallet: BTCWallet, transport: KeepKeyTransport,
           } else {
             msg.setExtraDataLen(0)
           }
-          txAck = new Messages.TxAck()
+          txAck = new TxAck()
           txAck.setTx(msg)
-          let message = await transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, LONG_TIMEOUT, /*omitLock=*/true) as Event // 5 Minute timeout
+          let message = await transport.call(MessageType.MESSAGETYPE_TXACK, txAck, LONG_TIMEOUT, /*omitLock=*/true) as Event // 5 Minute timeout
           responseType = message.message_enum
           response = message.proto
           continue
         }
 
-        if (txRequest.getRequestType() === Types.RequestType.TXINPUT) {
-          msg = new Types.TransactionType()
+        if (txRequest.getRequestType() === RequestType.TXINPUT) {
+          msg = new TransactionType()
           msg.setInputsList([currentTx.getInputsList()[txRequest.getDetails().getRequestIndex()]])
-          txAck = new Messages.TxAck()
+          txAck = new TxAck()
           txAck.setTx(msg)
-          let message = await transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, LONG_TIMEOUT, /*omitLock=*/true) as Event // 5 Minute timeout
+          let message = await transport.call(MessageType.MESSAGETYPE_TXACK, txAck, LONG_TIMEOUT, /*omitLock=*/true) as Event // 5 Minute timeout
           responseType = message.message_enum
           response = message.proto
           continue
         }
 
-        if (txRequest.getRequestType() === Types.RequestType.TXOUTPUT) {
-          msg = new Types.TransactionType()
+        if (txRequest.getRequestType() === RequestType.TXOUTPUT) {
+          msg = new TransactionType()
           if (txRequest.getDetails().hasTxHash()) {
             msg.setBinOutputsList([currentTx.getBinOutputsList()[txRequest.getDetails().getRequestIndex()]])
           } else {
             msg.setOutputsList([currentTx.getOutputsList()[txRequest.getDetails().getRequestIndex()]])
             msg.setOutputsCnt(1)
           }
-          txAck = new Messages.TxAck()
+          txAck = new TxAck()
           txAck.setTx(msg)
-          let message = await transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, LONG_TIMEOUT, /*omitLock=*/true) as Event // 5 Minute timeout
+          let message = await transport.call(MessageType.MESSAGETYPE_TXACK, txAck, LONG_TIMEOUT, /*omitLock=*/true) as Event // 5 Minute timeout
           responseType = message.message_enum
           response = message.proto
           continue
         }
 
-        if (txRequest.getRequestType() === Types.RequestType.TXEXTRADATA) {
+        if (txRequest.getRequestType() === RequestType.TXEXTRADATA) {
           let offset = txRequest.getDetails().getExtraDataOffset()
           let length = txRequest.getDetails().getExtraDataLen()
-          msg = new Types.TransactionType()
+          msg = new TransactionType()
           msg.setExtraData(currentTx.getExtraData_asU8().slice(offset, offset + length))
-          txAck = new Messages.TxAck()
+          txAck = new TxAck()
           txAck.setTx(msg)
-          let message = await transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, LONG_TIMEOUT, /*omitLock=*/true) as Event // 5 Minute timeout
+          let message = await transport.call(MessageType.MESSAGETYPE_TXACK, txAck, LONG_TIMEOUT, /*omitLock=*/true) as Event // 5 Minute timeout
           responseType = message.message_enum
           response = message.proto
           continue
@@ -424,13 +447,13 @@ export function btcSupportsNativeShapeShift (): boolean {
 
 export async function btcSignMessage (wallet: BTCWallet, transport: KeepKeyTransport, msg: BTCSignMessage): Promise<BTCSignedMessage> {
   await ensureCoinSupport(wallet, msg.coin)
-  const sign = new Messages.SignMessage()
+  const sign = new SignMessage()
   sign.setAddressNList(msg.addressNList)
   sign.setMessage(toUTF8Array(msg.message))
   sign.setCoinName(msg.coin || 'Bitcoin')
   sign.setScriptType(translateInputScriptType(msg.scriptType || BTCInputScriptType.SpendAddress))
-  const event = await transport.call(Messages.MessageType.MESSAGETYPE_SIGNMESSAGE, sign, LONG_TIMEOUT) as Event
-  const messageSignature = event.proto as Messages.MessageSignature
+  const event = await transport.call(MessageType.MESSAGETYPE_SIGNMESSAGE, sign, LONG_TIMEOUT) as Event
+  const messageSignature = event.proto as MessageSignature
   return {
     address: messageSignature.getAddress(),
     signature: toHexString(messageSignature.getSignature_asU8())
@@ -439,16 +462,16 @@ export async function btcSignMessage (wallet: BTCWallet, transport: KeepKeyTrans
 
 export async function btcVerifyMessage (wallet: BTCWallet, transport: KeepKeyTransport, msg: BTCVerifyMessage): Promise<boolean> {
   await ensureCoinSupport(wallet, msg.coin)
-  const verify = new Messages.VerifyMessage()
+  const verify = new VerifyMessage()
   verify.setAddress(msg.address)
   verify.setSignature(arrayify('0x' + msg.signature))
   verify.setMessage(toUTF8Array(msg.message))
   verify.setCoinName(msg.coin)
-  let event = await transport.call(Messages.MessageType.MESSAGETYPE_VERIFYMESSAGE, verify)
-  if (event.message_enum === Messages.MessageType.MESSAGETYPE_FAILURE) {
+  let event = await transport.call(MessageType.MESSAGETYPE_VERIFYMESSAGE, verify)
+  if (event.message_enum === MessageType.MESSAGETYPE_FAILURE) {
     return false
   }
-  const success = event.proto as Messages.Success
+  const success = event.proto as Success
   return success.getMessage() === "Message verified"
 }
 
