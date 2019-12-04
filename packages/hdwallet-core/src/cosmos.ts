@@ -7,13 +7,60 @@ export interface CosmosGetAddress {
   address?: string,
 }
 
+namespace Cosmos {
+  namespace sdk {
+    export interface Msg {
+      type: string
+      value: any
+    }
+
+    export type Coins = Coin[]
+
+    export interface Coin {
+      denom: string
+      amount: string
+    }
+  }
+
+  export interface StdFee {
+    amount: sdk.Coins
+    gas: string
+  }
+
+  namespace crypto {
+    export interface PubKey {
+      type: string
+      value: string
+    }
+  }
+
+  export interface StdSignature {
+    pub_key?: crypto.PubKey
+    signature: string
+  }
+
+  export interface StdTx {
+    msgs: sdk.Msg[]
+    fee: StdFee
+    signatures: null | StdSignature[]
+    memo: string
+  }
+}
+
+export interface CosmosTx {
+  type: 'auth/StdTx',
+  value: Cosmos.StdTx
+}
+
 export interface CosmosSignTx {
-
+  addressNList: BIP32Path
+  tx: CosmosTx
+  chain_id: string
+  account_number: string
+  sequence: string
 }
 
-export interface CosmosSignedTx {
-
-}
+export type CosmosSignedTx = CosmosTx
 
 export interface CosmosGetAccountPaths {
   accountIdx: number

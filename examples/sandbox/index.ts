@@ -463,8 +463,40 @@ $cosmosTx.on('click', async (e) => {
   e.preventDefault()
   if (!wallet) { $ethResults.val("No wallet?"); return}
   if (supportsCosmos(wallet)) {
-    let res = {}
-    $ethResults.val(JSON.stringify(res))
+    let unsigned = {
+      "type": "auth/StdTx",
+      "value": {
+        "fee": {
+          "amount": [{
+              "amount": "1000",
+              "denom": "uatom"
+          }],
+          "gas": "28000"
+        },
+        "memo": "KeepKey",
+        "msg": [{
+          "type": "cosmos-sdk/MsgSend",
+          "value": {
+            "amount": [{
+              "amount": "47000",
+              "denom": "uatom"
+            }],
+            "from_address": "cosmos1934nqs0ke73lm5ej8hs9uuawkl3ztesg9jp5c5",
+            "to_address": "cosmos14um3sf75lc0kpvgrpj9hspqtv0375epn05cpfa"
+          }
+        }],
+        "signatures": null
+      }
+    }
+
+    let res = await wallet.cosmosSignTx({
+      addressNList: bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: 'cosmoshub-2',
+      account_number: '24250',
+      sequence: '3',
+      tx: unsigned,
+    })
+    $ethResults.val(JSON.stringify(res.signature))
   } else {
     let label = await wallet.getLabel()
     $ethResults.val(label + " does not support Cosmos")
