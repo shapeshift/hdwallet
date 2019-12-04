@@ -86,8 +86,7 @@ export async function cosmosSignTx (transport: KeepKeyTransport, msg: Core.Cosmo
         type: 'tendermine/PubKeySecp256k1',
         value: signedTx.getPublicKey_asB64()
       },
-      //signature: signedTx.getSignature_asB64()
-      signature: Core.toHexString(signedTx.getSignature_asU8())
+      signature: signedTx.getSignature_asB64()
     }]
 
     return unsigned
