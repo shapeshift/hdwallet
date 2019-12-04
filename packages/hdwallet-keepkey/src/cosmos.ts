@@ -47,6 +47,9 @@ export async function cosmosSignTx (transport: KeepKeyTransport, msg: Core.Cosmo
     let resp = await transport.call(MessageType.MESSAGETYPE_COSMOSSIGNTX, signTx, Core.LONG_TIMEOUT, /*omitLock=*/true)
 
     if (resp.message_type === Core.Events.FAILURE) throw resp
+    if (resp.message_enum !== MessageType.MESSAGETYPE_COSMOSMSGREQUEST) {
+      throw new Error(`cosmos: unexpected response ${resp.message_type}`)
+    }
 
     for (let m of msg.tx.value.msg) {
       let ack
@@ -75,6 +78,13 @@ export async function cosmosSignTx (transport: KeepKeyTransport, msg: Core.Cosmo
       resp = await transport.call(MessageType.MESSAGETYPE_COSMOSMSGACK, ack, Core.LONG_TIMEOUT, /*omitLock=*/true)
 
       if (resp.message_type === Core.Events.FAILURE) throw resp
+      if (resp.message_enum !== MessageType.MESSAGETYPE_COSMOSMSGREQUEST) {
+        throw new Error(`cosmos: unexpected response ${resp.message_type}`)
+      }
+    }
+
+    if (resp.message_enum !== MessageType.MESSAGETYPE_COSMOSSIGNEDTX) {
+      throw new Error(`cosmos: unexpected response ${resp.message_type}`)
     }
 
     const signedTx = resp.proto as CosmosSignedTx
