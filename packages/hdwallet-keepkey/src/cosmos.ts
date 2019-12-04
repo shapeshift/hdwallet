@@ -40,6 +40,7 @@ export async function cosmosSignTx (transport: KeepKeyTransport, msg: Core.Cosmo
     signTx.setChainId(msg.chain_id)
     signTx.setFeeAmount(parseInt(msg.tx.value.fee.amount[0].amount))
     signTx.setGas(parseInt(msg.tx.value.fee.gas))
+    signTx.setSequence(msg.sequence)
     if (msg.tx.value.memo !== undefined) signTx.setMemo(msg.tx.value.memo)
     signTx.setMsgCount(msg.tx.value.msg.length)
 
