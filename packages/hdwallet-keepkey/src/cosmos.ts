@@ -91,7 +91,7 @@ export async function cosmosSignTx (transport: KeepKeyTransport, msg: Core.Cosmo
 
     signed.value.signatures = [{
       pub_key: {
-        type: 'tendermine/PubKeySecp256k1',
+        type: 'tendermint/PubKeySecp256k1',
         value: signedTx.getPublicKey_asB64()
       },
       signature: signedTx.getSignature_asB64()
