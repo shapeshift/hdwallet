@@ -48,7 +48,7 @@ namespace Cosmos {
 }
 
 export interface CosmosTx {
-  type: 'auth/StdTx',
+  type: string // 'auth/StdTx'
   value: Cosmos.StdTx
 }
 

@@ -64,6 +64,8 @@ import * as Cosmos from "./cosmos"
 
 import { KeepKeyTransport } from "./transport";
 
+import Semver from 'semver'
+
 export function isKeepKey(wallet: HDWallet): wallet is KeepKeyHDWallet {
   return isObject(wallet) && (wallet as any)._isKeepKey
 }
@@ -758,6 +760,10 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
                                       this.features.deviceId)
     }
 
+    // Cosmos isn't supported until v6.3.0
+    const fwVersion = `v${this.features.majorVersion}.${this.features.minorVersion}.${this.features.patchVersion}`
+    this._supportsCosmos = Semver.gte(fwVersion, 'v6.3.0')
+
     this.cacheFeatures(event.message)
     return event.message as Messages.Features.AsObject
   }
@@ -981,6 +987,10 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
 
   public ethNextAccountPath (msg: ETHAccountPath): ETHAccountPath | undefined {
     return this.info.ethNextAccountPath(msg)
+  }
+
+  public cosmosNextAccountPath (msg: CosmosAccountPath): CosmosAccountPath | undefined {
+    return this.info.cosmosNextAccountPath(msg)
   }
 }
 
