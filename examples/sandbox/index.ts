@@ -43,10 +43,10 @@ const portisAdapter = PortisAdapter.useKeyring(keyring, { portisAppId })
 const log = debug.default('hdwallet')
 
 keyring.onAny((name: string[], ...values: any[]) => {
-  const [[ , event ]] = values
-  const { from_wallet = false } = event
+  const [[ deviceId, event ]] = values
+  const { from_wallet = false, message_type } = event
   let direction = from_wallet ? "🔑" : "💻"
-  log(direction + ' ' + name.join('.'), event)
+  debug.default(deviceId)(`${direction} ${message_type}`, event)
 })
 
 const trezorAdapter = TrezorAdapter.useKeyring(keyring, {
