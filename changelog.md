@@ -7,11 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Current - Unreleased
 
+..
+
+## [0.18.0] - 2019-12-05
+
+### Added
+
+- Cosmos support for KeepKey
+
 ### Changed
 
 - Improved logic for handling disconnect/connect event for ledger and discern if the event is due to app navigation
-
-..
 
 ## [0.17.0] - 2019-11-19
 
