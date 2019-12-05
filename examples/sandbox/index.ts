@@ -497,7 +497,7 @@ $cosmosTx.on('click', async (e) => {
       sequence: '3',
       tx: unsigned,
     })
-    $cosmosResults.val(JSON.stringify(res.signature))
+    $cosmosResults.val(JSON.stringify(res))
   } else {
     let label = await wallet.getLabel()
     $cosmosResults.val(label + " does not support Cosmos")
