@@ -18,6 +18,7 @@
     "@shapeshiftoss/hdwallet-portis": "^0.17.1",
     "@shapeshiftoss/hdwallet-trezor": "^0.17.1",
     "@shapeshiftoss/hdwallet-trezor-connect": "^0.17.1",
+    "bip32": "^2.0.4",
     "debug": "^4.1.1",
     "jquery": "^3.4.1",
     "json": "^9.0.6",
