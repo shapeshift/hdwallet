@@ -47,11 +47,12 @@ export async function cosmosSignTx (transport: KeepKeyTransport, msg: Core.Cosmo
     let resp = await transport.call(MessageType.MESSAGETYPE_COSMOSSIGNTX, signTx, Core.LONG_TIMEOUT, /*omitLock=*/true)
 
     if (resp.message_type === Core.Events.FAILURE) throw resp
-    if (resp.message_enum !== MessageType.MESSAGETYPE_COSMOSMSGREQUEST) {
-      throw new Error(`cosmos: unexpected response ${resp.message_type}`)
-    }
 
     for (let m of msg.tx.value.msg) {
+      if (resp.message_enum !== MessageType.MESSAGETYPE_COSMOSMSGREQUEST) {
+        throw new Error(`cosmos: unexpected response ${resp.message_type}`)
+      }
+
       let ack
 
       if (m.type === 'cosmos-sdk/MsgSend') {
@@ -78,9 +79,6 @@ export async function cosmosSignTx (transport: KeepKeyTransport, msg: Core.Cosmo
       resp = await transport.call(MessageType.MESSAGETYPE_COSMOSMSGACK, ack, Core.LONG_TIMEOUT, /*omitLock=*/true)
 
       if (resp.message_type === Core.Events.FAILURE) throw resp
-      if (resp.message_enum !== MessageType.MESSAGETYPE_COSMOSMSGREQUEST) {
-        throw new Error(`cosmos: unexpected response ${resp.message_type}`)
-      }
     }
 
     if (resp.message_enum !== MessageType.MESSAGETYPE_COSMOSSIGNEDTX) {
@@ -89,9 +87,9 @@ export async function cosmosSignTx (transport: KeepKeyTransport, msg: Core.Cosmo
 
     const signedTx = resp.proto as CosmosSignedTx
 
-    const unsigned = cloneDeep(msg.tx)
+    const signed = cloneDeep(msg.tx)
 
-    unsigned.value.signatures = [{
+    signed.value.signatures = [{
       pub_key: {
         type: 'tendermine/PubKeySecp256k1',
         value: signedTx.getPublicKey_asB64()
@@ -99,7 +97,7 @@ export async function cosmosSignTx (transport: KeepKeyTransport, msg: Core.Cosmo
       signature: signedTx.getSignature_asB64()
     }]
 
-    return unsigned
+    return signed
   })
 }
 
