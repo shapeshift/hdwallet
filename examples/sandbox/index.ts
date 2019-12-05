@@ -4,6 +4,7 @@ import {
   Keyring,
   supportsETH,
   supportsBTC,
+  supportsCosmos,
   supportsDebugLink,
   bip32ToAddressNList,
   Events
@@ -31,8 +32,6 @@ import * as dashTxJson from './json/dashTx.json'
 import * as dogeTxJson from './json/dogeTx.json'
 import * as ltcTxJson from './json/ltcTx.json'
 
-import Portis from "@portis/web3";
-
 const keyring = new Keyring()
 
 const portisAppId = 'ff763d3d-9e34-45a1-81d1-caa39b9c64f9'
@@ -43,10 +42,11 @@ const portisAdapter = PortisAdapter.useKeyring(keyring, { portisAppId })
 
 const log = debug.default('hdwallet')
 
-keyring.onAny((event: string[], ...values: any[]) => {
-  const [[ , { from_wallet = false }]] = values
-  let direction = from_wallet ? "<<<<<" : ">>>>>"
-  log(direction + ' ' + event.join('.'), ...values)
+keyring.onAny((name: string[], ...values: any[]) => {
+  const [[ deviceId, event ]] = values
+  const { from_wallet = false, message_type } = event
+  let direction = from_wallet ? "🔑" : "💻"
+  debug.default(deviceId)(`${direction} ${message_type}`, event)
 })
 
 const trezorAdapter = TrezorAdapter.useKeyring(keyring, {
@@ -431,6 +431,78 @@ $getAppInfo.on('click', async (e) => {
     result = err.message
   }
   $appInfo.val(result)
+})
+
+/*
+ * Cosmos
+ */
+const $cosmosAddr = $('#cosmosAddr')
+const $cosmosTx = $('#cosmosTx')
+const $cosmosResults = $('#cosmosResults')
+
+$cosmosAddr.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $ethResults.val("No wallet?"); return}
+  if (supportsCosmos(wallet)) {
+    let { addressNList } = wallet.cosmosGetAccountPaths({ accountIdx: 0 })[0]
+    let result = await wallet.cosmosGetAddress({
+      addressNList,
+      showDisplay: false
+    })
+    result = await wallet.cosmosGetAddress({
+      addressNList,
+      showDisplay: true,
+      address: result
+    })
+    $cosmosResults.val(result)
+  } else {
+    let label = await wallet.getLabel()
+    $cosmosResults.val(label + " does not support Cosmos")
+  }
+})
+
+$cosmosTx.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $ethResults.val("No wallet?"); return}
+  if (supportsCosmos(wallet)) {
+    let unsigned = {
+      "type": "auth/StdTx",
+      "value": {
+        "fee": {
+          "amount": [{
+              "amount": "1000",
+              "denom": "uatom"
+          }],
+          "gas": "28000"
+        },
+        "memo": "KeepKey",
+        "msg": [{
+          "type": "cosmos-sdk/MsgSend",
+          "value": {
+            "amount": [{
+              "amount": "47000",
+              "denom": "uatom"
+            }],
+            "from_address": "cosmos1934nqs0ke73lm5ej8hs9uuawkl3ztesg9jp5c5",
+            "to_address": "cosmos14um3sf75lc0kpvgrpj9hspqtv0375epn05cpfa"
+          }
+        }],
+        "signatures": null
+      }
+    }
+
+    let res = await wallet.cosmosSignTx({
+      addressNList: bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: 'cosmoshub-2',
+      account_number: '24250',
+      sequence: '3',
+      tx: unsigned,
+    })
+    $cosmosResults.val(JSON.stringify(res))
+  } else {
+    let label = await wallet.getLabel()
+    $cosmosResults.val(label + " does not support Cosmos")
+  }
 })
 
 /*

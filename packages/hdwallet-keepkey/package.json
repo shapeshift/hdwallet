@@ -25,7 +25,8 @@
     "eip55": "^1.0.3",
     "ethereumjs-tx": "^1.3.7",
     "eventemitter2": "^5.0.1",
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.15",
+    "semver": "^6.3.0"
   },
   "devDependencies": {
     "@types/ethereumjs-tx": "^1.0.1",

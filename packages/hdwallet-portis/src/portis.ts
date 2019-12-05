@@ -62,6 +62,8 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
   _supportsETHInfo: boolean = true
   _supportsBTCInfo: boolean = true
   _supportsBTC: boolean = true
+  _supportsCosmosInfo: boolean = false
+  _supportsCosmos: boolean = false
   _supportsDebugLink: boolean = false
   _isPortis: boolean = true
 
@@ -315,9 +317,9 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
 }
 
 export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalletInfo {
-
   _supportsBTCInfo: boolean = true
   _supportsETHInfo: boolean = true
+  _supportsCosmosInfo: boolean = false
 
   public getVendor (): string {
     return "Portis"
