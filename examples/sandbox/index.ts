@@ -453,10 +453,10 @@ $cosmosAddr.on('click', async (e) => {
       showDisplay: true,
       address: result
     })
-    $ethResults.val(result)
+    $cosmosResults.val(result)
   } else {
     let label = await wallet.getLabel()
-    $ethResults.val(label + " does not support Cosmos")
+    $cosmosResults.val(label + " does not support Cosmos")
   }
 })
 
