@@ -61,7 +61,7 @@ export async function getTransport(): Promise<TransportWebUSB> {
     throw new WebUSBNotAvailable()
 
   try {
-    return await TransportWebUSB.create()
+    return await TransportWebUSB.request()
   } catch (err) {
     if (err.name === 'TransportInterfaceNotAvailable') {
       throw new ConflictingApp('Ledger')

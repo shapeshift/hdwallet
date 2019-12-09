@@ -9,15 +9,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ..
 
+## [0.18.2] - 2019-12-09
+
+### Changed
+
+- Ledger: Call TransportWebUSB.request() instead of .create() so the permission modal is displayed on every call to getTransport()
+
 ## [0.18.1] - 2019-12-05
 
 ### Added
 
 - Cosmos support for KeepKey
 
+## [0.17.1] - 2019-11-20
+
 ### Changed
 
-- Improved logic for handling disconnect/connect event for ledger and discern if the event is due to app navigation
+- Ledger: Improved logic for handling disconnect/connect event for ledger and discern if the event is due to app navigation
 
 ## [0.17.0] - 2019-11-19
 
