@@ -19,7 +19,6 @@
     "@babel/polyfill": "^7.4.3",
     "@shapeshiftoss/hdwallet-core": "^0.18.2",
     "@shapeshiftoss/hdwallet-keepkey": "^0.18.2",
-    "@types/eventemitter2": "^4.1.0",
     "bytebuffer": "^5.0.1",
     "crypto": "^1.0.1",
     "eventemitter2": "^5.0.1"
