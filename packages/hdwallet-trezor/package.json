@@ -9,6 +9,7 @@
   "source": "src/index.ts",
   "umd:main": "dist/index.umd.js",
   "module": "dist/index.m.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "microbundle --name=trezorHDWallet",
     "build:browser": "microbundle --target=web --external=none --name=trezorHDWallet",
