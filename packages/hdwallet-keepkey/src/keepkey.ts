@@ -238,7 +238,7 @@ function describeCosmosPath (path: BIP32Path): PathDescription {
     return unknown
   }
 
-  if ((path[2] & 0x80000000) !== 0x80000000) {
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
     return unknown
   }
 
@@ -390,7 +390,7 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
     if (!description.isKnown) {
       return undefined
     }
-    
+
     let addressNList = msg.addressNList
     addressNList[2] += 1
 
