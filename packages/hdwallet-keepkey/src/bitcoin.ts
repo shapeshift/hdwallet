@@ -228,7 +228,7 @@ function prepareSignTx (
     })
 
     if (coin === "Dash") {
-      let dip2_type: number = inputTx.tx.type
+      let dip2_type: number = inputTx.tx.type || 0
       // DIP2 Special Tx with payload
       if (inputTx.tx.version === 3 && dip2_type !== 0) {
         if (!inputTx.tx.extraPayload || !inputTx.tx.extraPayloadSize)
