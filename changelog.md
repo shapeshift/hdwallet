@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ..
 
-## [0.18.3] - 2020-01-08
+## [0.18.4] - 2020-01-08
 
 ### Fixed
 
