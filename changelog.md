@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ..
 
+## [0.18.3] - 2020-01-08
+
+### Fixed
+
+- KeepKey: Fix Dash DIP2 payload logic
+
 ## [0.18.2] - 2019-12-09
 
 ### Changed
