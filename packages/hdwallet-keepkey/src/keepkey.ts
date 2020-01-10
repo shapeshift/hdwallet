@@ -424,7 +424,15 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   }
 
   public async getDeviceID(): Promise<string> {
-    return (await this.getFeatures(/*cached=*/true)).deviceId;
+    const featuresId = (await this.getFeatures(/*cached=*/true)).deviceId;
+
+    // Some devices are showing up with empty string deviceId's in their
+    // features object. Not sure how that's happening.
+    if (featuresId !== '')
+      return featuresId
+
+    // Grabbing the one from the transport seems to be a reasonable fallback.
+    return this.transport.getDeviceID()
   }
 
   public getVendor(): string {
