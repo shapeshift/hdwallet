@@ -4,7 +4,7 @@
 
 A library for interacting with hardware wallets from JS/TS. Supports KeepKey,
 Trezor, and Ledger. Intended for use in web apps, chrome apps/extensions, and
-electon/node apps.
+electron/node apps.
 
 Try it out [here](https://hdwallet.shapeshift.now.sh/)!
 
