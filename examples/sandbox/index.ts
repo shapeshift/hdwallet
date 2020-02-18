@@ -5,6 +5,7 @@ import {
   supportsETH,
   supportsBTC,
   supportsCosmos,
+  supportsBinance,
   supportsDebugLink,
   bip32ToAddressNList,
   Events
@@ -432,6 +433,79 @@ $getAppInfo.on('click', async (e) => {
   }
   $appInfo.val(result)
 })
+
+/*
+ * Binance
+ */
+const $binanceAddr = $('#binanceAddr')
+const $binanceTx = $('#binanceTx')
+const $binanceResults = $('#binanceResults')
+
+$binanceAddr.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $ethResults.val("No wallet?"); return}
+  if (supportsBinance(wallet)) {
+    let { addressNList } = wallet.binanceGetAccountPaths({ accountIdx: 0 })[0]
+    let result = await wallet.binanceGetAddress({
+      addressNList,
+      showDisplay: false
+    })
+    result = await wallet.binanceGetAddress({
+      addressNList,
+      showDisplay: true,
+      address: result
+    })
+    $binanceResults.val(result)
+  } else {
+    let label = await wallet.getLabel()
+    $binanceResults.val(label + " does not support Binance")
+  }
+})
+
+$binanceTx.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $ethResults.val("No wallet?"); return}
+  if (supportsBinance(wallet)) {
+    console.log("checkpoint1")
+    let unsigned = {
+      "account_number": "34",
+      "chain_id": "Binance-Chain-Nile",
+      "data": "null",
+      "memo": "test",
+      "msgs": [
+        {
+          "inputs": [
+            {
+              "address": "tbnb1hgm0p7khfk85zpz5v0j8wnej3a90w709zzlffd",
+              "coins": [{"amount": 1000000000, "denom": "BNB"}],
+            }
+          ],
+          "outputs": [
+            {
+              "address": "tbnb1ss57e8sa7xnwq030k2ctr775uac9gjzglqhvpy",
+              "coins": [{"amount": 1000000000, "denom": "BNB"}],
+            }
+          ],
+        }
+      ],
+      "sequence": "31",
+      "source": "1",
+    }
+
+    let res = await wallet.binanceSignTx({
+      addressNList: bip32ToAddressNList(`m/44'/714'/0'/0/0`),
+      chain_id: 'Binance-Chain-Nile',
+      account_number: '24250',
+      sequence: '31',
+      tx: unsigned,
+    })
+    $binanceResults.val(JSON.stringify(res))
+  } else {
+    let label = await wallet.getLabel()
+    $binanceResults.val(label + " does not support Cosmos")
+  }
+})
+
 
 /*
  * Cosmos

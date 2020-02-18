@@ -149,7 +149,8 @@ function describeUTXOPath (path: core.BIP32Path, coin: core.Coin, scriptType: co
 export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
   _supportsBTCInfo: boolean = true
   _supportsETHInfo: boolean = true
-  _supportsCosmosInfo: boolean = false
+  _supportsCosmosInfo: boolean = false // TODO ledger supports cosmos
+  _supportsBinanceInfo: boolean = false// TODO ledger support bnb
 
   public getVendor (): string {
     return 'Ledger'
@@ -292,6 +293,8 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   _supportsETH: boolean = true
   _supportsCosmosInfo: boolean = false
   _supportsCosmos: boolean = false
+  _supportsBinanceInfo: boolean = false
+  _supportsBinance: boolean = false
 
   _isLedger: boolean = true
 

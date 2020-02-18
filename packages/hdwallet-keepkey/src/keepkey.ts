@@ -29,6 +29,12 @@ import {
   CosmosGetAddress,
   CosmosSignTx,
   CosmosSignedTx,
+  BinanceWalletInfo,
+  BinanceGetAccountPaths,
+  BinanceAccountPath,
+  BinanceGetAddress,
+  BinanceSignTx,
+  BinanceSignedTx,
   ETHSignTx,
   ETHSignedTx,
   ETHGetAddress,
@@ -61,6 +67,7 @@ import {
 import * as Btc from "./bitcoin";
 import * as Eth from "./ethereum"
 import * as Cosmos from "./cosmos"
+import * as Binance from "./binance"
 
 import { KeepKeyTransport } from "./transport";
 
@@ -257,10 +264,51 @@ function describeCosmosPath (path: BIP32Path): PathDescription {
   }
 }
 
-export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo, CosmosWalletInfo {
+function describeBinancePath (path: BIP32Path): PathDescription {
+  let pathStr = addressNListToBIP32(path)
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin: 'Atom',
+    isKnown: false
+  }
+
+  if (path.length != 5) {
+    return unknown
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown
+  }
+
+  if (path[1] != 0x80000000 + slip44ByCoin('Binance')) {
+    return unknown
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown
+  }
+
+  let index = path[2] & 0x7fffffff
+  return {
+    verbose: `Binance Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: 'Binance',
+    isKnown: true,
+    isPrefork: false
+  }
+}
+
+
+export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo, CosmosWalletInfo, BinanceWalletInfo {
   _supportsBTCInfo: boolean = true
   _supportsETHInfo: boolean = true
   _supportsCosmosInfo: boolean = true
+  _supportsBinanceInfo: boolean = true
 
   public getVendor (): string {
     return "KeepKey"
@@ -310,6 +358,11 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
     return Cosmos.cosmosGetAccountPaths(msg)
   }
 
+  public binanceGetAccountPaths (msg: BinanceGetAccountPaths): Array<BinanceAccountPath> {
+    return Binance.binanceGetAccountPaths(msg)
+  }
+
+
   public hasOnDevicePinEntry(): boolean {
     return false;
   }
@@ -339,6 +392,8 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
       return describeETHPath(msg.path)
     case 'Atom':
       return describeCosmosPath(msg.path)
+    case 'Binance':
+      return describeBinancePath(msg.path)
     default:
       return describeUTXOPath(msg.path, msg.coin, msg.scriptType)
     }
@@ -399,17 +454,34 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
       addressNList
     }
   }
+
+  public binanceNextAccountPath (msg: BinanceAccountPath): BinanceAccountPath | undefined {
+    let description = describeBinancePath(msg.addressNList)
+    if (!description.isKnown) {
+      return undefined
+    }
+
+    let addressNList = msg.addressNList
+    addressNList[2] += 1
+
+    return {
+      ...msg,
+      addressNList
+    }
+  }
 }
 
 export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLinkWallet {
   _supportsETHInfo: boolean = true
   _supportsBTCInfo: boolean = true
   _supportsCosmosInfo: boolean = true
+  _supportsBinanceInfo: boolean = true
   _supportsDebugLink: boolean
   _isKeepKey: boolean = true;
   _supportsETH: boolean = true;
   _supportsBTC: boolean = true;
   _supportsCosmos: boolean = true;
+  _supportsBinance: boolean = true;
 
   transport: KeepKeyTransport;
   features?: Messages.Features.AsObject;
@@ -979,6 +1051,18 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
 
   public cosmosSignTx (msg: CosmosSignTx): Promise<CosmosSignedTx> {
     return Cosmos.cosmosSignTx(this.transport, msg)
+  }
+
+  public binanceGetAccountPaths (msg: BinanceGetAccountPaths): Array<BinanceAccountPath> {
+    return this.info.binanceGetAccountPaths(msg)
+  }
+
+  public binanceGetAddress (msg: BinanceGetAddress): Promise<string> {
+    return Binance.binanceGetAddress(this.transport, msg)
+  }
+
+  public binanceSignTx (msg: BinanceSignTx): Promise<BinanceSignedTx> {
+    return Binance.binanceSignTx(this.transport, msg)
   }
 
   public describePath (msg: DescribePath): PathDescription {
