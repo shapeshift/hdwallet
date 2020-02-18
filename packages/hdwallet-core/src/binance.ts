@@ -35,7 +35,10 @@ export interface BinanceTx {
     data:string
     memo:string
     msgs: any
-    signatures?: null | Binance.StdSignature[]
+    signatures?: {
+        pub_key: string
+        signature: string
+    }
 }
 
 export interface BinanceSignTx {
