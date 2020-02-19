@@ -486,7 +486,7 @@ const $binanceResults = $('#binanceResults')
 $binanceAddr.on('click', async (e) => {
   e.preventDefault()
   if (!wallet) {
-    $ethResults.val("No wallet?");
+    $binanceResults.val("No wallet?");
     return
   }
   if (supportsBinance(wallet)) {
