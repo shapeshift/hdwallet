@@ -268,7 +268,7 @@ function describeBinancePath (path: BIP32Path): PathDescription {
   let pathStr = addressNListToBIP32(path)
   let unknown: PathDescription = {
     verbose: pathStr,
-    coin: 'Atom',
+    coin: 'Binance',
     isKnown: false
   }
 
