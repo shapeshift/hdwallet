@@ -1,0 +1,33 @@
+{
+  "name": "@shapeshiftoss/hdwallet-bitbox02",
+  "version": "0.18.4",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "dist/index.js",
+  "source": "src/index.ts",
+  "umd:main": "dist/index.umd.js",
+  "module": "dist/index.m.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "microbundle --name=bitbox02HDWallet",
+    "build:browser": "microbundle --target=web --external=none --name=bitbox02HDWallet",
+    "build:docs": "typedoc --out docs --target es6 --theme minimal --mode file src",
+    "clean": "rm -rf dist .rts2_*",
+    "dev": "microbundle watch --name=bitbox02HDWallet",
+    "dev:browser": "microbundle watch --target=web --external=none --name=bitbox02HDWallet",
+    "prepublishOnly": "yarn clean && yarn build"
+  },
+  "dependencies": {
+    "bitbox02-api": "^0.3.0",
+    "@shapeshiftoss/hdwallet-core": "^0.18.4"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.11",
+    "jest": "^24.6.0",
+    "microbundle": "^0.11.0",
+    "ts-jest": "^24.0.1",
+    "typescript": "^3.4.1"
+  }
+}
