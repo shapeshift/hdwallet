@@ -61,3 +61,25 @@ export interface RippleSignTx {
 }
 
 export declare type RippleSignedTx = RippleTx;
+
+export interface RippleWalletInfo {
+  _supportsRippleInfo: boolean;
+
+  /**
+   * Returns a list of bip32 paths for a given account index in preferred order
+   * from most to least preferred.
+   */
+  cosmosGetAccountPaths(msg: RippleGetAccountPaths): Array<RippleAccountPath>;
+
+  /**
+   * Returns the "next" account path, if any.
+   */
+  cosmosNextAccountPath(msg: RippleAccountPath): RippleAccountPath | undefined;
+}
+
+export interface RippleWallet extends RippleWalletInfo {
+  _supportsRipple: boolean;
+
+  cosmosGetAddress(msg: RippleGetAddress): Promise<string>;
+  cosmosSignTx(msg: RippleSignTx): Promise<RippleSignedTx>;
+}
