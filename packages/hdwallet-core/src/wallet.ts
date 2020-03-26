@@ -146,10 +146,6 @@ export function infoCosmos(info: any): info is CosmosWalletInfo {
   return isObject(info) && (info as any)._supportsCosmosInfo;
 }
 
-export function supportsDebugLink(wallet: any): wallet is DebugLinkWallet {
-  return isObject(wallet) && (wallet as any)._supportsDebugLink;
-}
-
 /**
  * Type guard for RippleWallet Support
  *
@@ -168,10 +164,15 @@ export function infoRipple(info: any): info is RippleWalletInfo {
   return isObject(info) && (info as any)._supportsRippleInfo;
 }
 
+export function supportsDebugLink(wallet: any): wallet is DebugLinkWallet {
+  return isObject(wallet) && (wallet as any)._supportsDebugLink;
+}
+
 export interface HDWalletInfo {
   _supportsETHInfo: boolean;
   _supportsBTCInfo: boolean;
   _supportsCosmosInfo: boolean;
+  _supportsRippleInfo: boolean;
 
   /**
    * Retrieve the wallet's vendor string.
@@ -220,6 +221,8 @@ export interface HDWallet extends HDWalletInfo {
   _supportsETH: boolean;
   _supportsCosmos: boolean;
   _supportsDebugLink: boolean;
+  _supportsRipple: boolean;
+  _supportsRippleInfo: boolean;
 
   transport: Transport;
 

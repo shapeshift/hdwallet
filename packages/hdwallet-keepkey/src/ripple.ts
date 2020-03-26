@@ -13,6 +13,22 @@ import { MessageType } from "@keepkey/device-protocol/lib/messages_pb";
 
 import { cloneDeep } from "lodash";
 
+export function rippleGetAccountPaths(
+  msg: Core.RippleGetAccountPaths
+): Array<Core.RippleAccountPath> {
+  return [
+    {
+      addressNList: [
+        0x80000000 + 44,
+        0x80000000 + Core.slip44ByCoin("Ripple"),
+        0x80000000 + msg.accountIdx,
+        0,
+        0
+      ]
+    }
+  ];
+}
+
 // export async function rippleSignTx(
 //   transport: KeepKeyTransport,
 //   msg: Core.RippleSignTx
@@ -42,3 +58,22 @@ import { cloneDeep } from "lodash";
 //     return msg;
 //   });
 // }
+
+export async function rippleGetAddress(
+  transport: KeepKeyTransport,
+  msg: Core.RippleGetAddress
+): Promise<string> {
+  const getAddr = new RippleGetAddress();
+  getAddr.setAddressNList(msg.addressNList);
+  getAddr.setShowDisplay(msg.showDisplay !== false);
+  const response = await transport.call(
+    MessageType.MESSAGETYPE_RIPPLEGETADDRESS,
+    getAddr,
+    Core.LONG_TIMEOUT
+  );
+
+  if (response.message_type === Core.Events.FAILURE) throw response;
+
+  const rippleAddress = response.proto as RippleAddress;
+  return rippleAddress.getAddress();
+}

@@ -1,5 +1,11 @@
 import { BIP32Path } from "./wallet";
 
+export interface RippleGetAddress {
+  addressNList: BIP32Path;
+  showDisplay?: boolean;
+  /** Optional. Required for showDisplay == true. */
+  address?: string;
+}
 declare namespace Ripple {
   namespace sdk {
     interface Msg {
@@ -53,14 +59,22 @@ export interface RippleSignTx {
   //tx: RippleTx;
   fee?: number;
   flags?: number;
-  sequence?: number;
+  sequence: string;
   lastLedgerSequence?: number;
   payment: RipplePayment;
-  type: string;
-  value: Ripple.StdTx;
+  // type: string;
+  // value: Ripple.StdTx;
 }
 
 export declare type RippleSignedTx = RippleTx;
+
+export interface RippleGetAccountPaths {
+  accountIdx: number;
+}
+
+export interface RippleAccountPath {
+  addressNList: BIP32Path;
+}
 
 export interface RippleWalletInfo {
   _supportsRippleInfo: boolean;
@@ -69,17 +83,17 @@ export interface RippleWalletInfo {
    * Returns a list of bip32 paths for a given account index in preferred order
    * from most to least preferred.
    */
-  cosmosGetAccountPaths(msg: RippleGetAccountPaths): Array<RippleAccountPath>;
+  rippleGetAccountPaths(msg: RippleGetAccountPaths): Array<RippleAccountPath>;
 
   /**
    * Returns the "next" account path, if any.
    */
-  cosmosNextAccountPath(msg: RippleAccountPath): RippleAccountPath | undefined;
+  rippleNextAccountPath(msg: RippleAccountPath): RippleAccountPath | undefined;
 }
 
 export interface RippleWallet extends RippleWalletInfo {
   _supportsRipple: boolean;
 
-  cosmosGetAddress(msg: RippleGetAddress): Promise<string>;
-  cosmosSignTx(msg: RippleSignTx): Promise<RippleSignedTx>;
+  rippleGetAddress(msg: RippleGetAddress): Promise<string>;
+  rippleSignTx(msg: RippleSignTx): Promise<RippleSignedTx>;
 }

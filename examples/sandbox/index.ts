@@ -5,6 +5,7 @@ import {
   supportsETH,
   supportsBTC,
   supportsCosmos,
+  supportsRipple,
   supportsDebugLink,
   bip32ToAddressNList,
   Events
@@ -490,7 +491,7 @@ const $rippleResults = $("#rippleResults");
 $rippleAddr.on("click", async e => {
   e.preventDefault();
   if (!wallet) {
-    $ethResults.val("No wallet?");
+    $rippleResults.val("No wallet?");
     return;
   }
   if (supportsRipple(wallet)) {
@@ -508,6 +509,7 @@ $rippleAddr.on("click", async e => {
   } else {
     let label = await wallet.getLabel();
     $rippleResults.val(label + " does not support Ripple");
+    console.log(wallet);
   }
 });
 
@@ -551,9 +553,7 @@ $rippleTx.on("click", async e => {
     };
 
     let res = await wallet.rippleSignTx({
-      addressNList: bip32ToAddressNList(`m/44'/118'/0'/0/0`),
-      chain_id: "ripplehub-2",
-      account_number: "24250",
+      addressNList: bip32ToAddressNList(`m/44'/144'/0'/0/0`),
       sequence: "3",
       tx: unsigned
     });
@@ -574,7 +574,7 @@ const $cosmosResults = $("#cosmosResults");
 $cosmosAddr.on("click", async e => {
   e.preventDefault();
   if (!wallet) {
-    $ethResults.val("No wallet?");
+    $cosmosResults.val("No wallet?");
     return;
   }
   if (supportsCosmos(wallet)) {
