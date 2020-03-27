@@ -13,27 +13,21 @@ import { MessageType } from "@keepkey/device-protocol/lib/messages_pb";
 
 import { cloneDeep } from "lodash";
 
-export function rippleGetAccountPaths (msg: Core.CosmosGetAccountPaths): Array<Core.CosmosAccountPath> {
-  return [{
-    addressNList: [ 0x80000000 + 44, 0x80000000 + Core.slip44ByCoin('ripple'), 0x80000000 + msg.accountIdx, 0, 0 ]
-  }]
+export function rippleGetAccountPaths(
+  msg: Core.CosmosGetAccountPaths
+): Array<Core.CosmosAccountPath> {
+  return [
+    {
+      addressNList: [
+        0x80000000 + 44,
+        0x80000000 + Core.slip44ByCoin("Ripple"),
+        0x80000000 + msg.accountIdx,
+        0,
+        0
+      ]
+    }
+  ];
 }
-
-// export function rippleGetAccountPaths(
-//   msg: Core.RippleGetAccountPaths
-// ): Array<Core.RippleAccountPath> {
-//   return [
-//     {
-//       addressNList: [
-//         0x80000000 + 44,
-//         0x80000000 + Core.slip44ByCoin("Ripple"),
-//         0x80000000 + msg.accountIdx,
-//         0,
-//         0
-//       ]
-//     }
-//   ];
-// }
 
 // export async function rippleSignTx(
 //   transport: KeepKeyTransport,
