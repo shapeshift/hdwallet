@@ -29,6 +29,10 @@ import {
   CosmosGetAddress,
   CosmosSignTx,
   CosmosSignedTx,
+  RippleWalletInfo,
+  RippleGetAccountPaths,
+  RippleAccountPath,
+  RippleGetAddress,
   ETHSignTx,
   ETHSignedTx,
   ETHGetAddress,
@@ -41,7 +45,6 @@ import {
   HDWalletInfo,
   BTCWalletInfo,
   ETHWalletInfo,
-  RippleWalletInfo,
   BIP32Path,
   slip44ByCoin,
   DescribePath,
@@ -64,10 +67,6 @@ import * as Ripple from "./ripple";
 import { KeepKeyTransport } from "./transport";
 
 import Semver from "semver";
-import {
-  RippleGetAccountPaths,
-  RippleAccountPath
-} from "@shapeshiftoss/hdwallet-core/src/ripple";
 
 export function isKeepKey(wallet: HDWallet): wallet is KeepKeyHDWallet {
   return isObject(wallet) && (wallet as any)._isKeepKey;
@@ -895,6 +894,7 @@ export class KeepKeyHDWallet
     // Cosmos isn't supported until v6.3.0
     const fwVersion = `v${this.features.majorVersion}.${this.features.minorVersion}.${this.features.patchVersion}`;
     this._supportsCosmos = Semver.gte(fwVersion, "v6.3.0");
+    this._supportsRipple = Semver.gte(fwVersion, "v6.4.0");
 
     this.cacheFeatures(event.message);
     return event.message as Messages.Features.AsObject;
@@ -1112,6 +1112,21 @@ export class KeepKeyHDWallet
   public ethGetAccountPaths(msg: ETHGetAccountPath): Array<ETHAccountPath> {
     return this.info.ethGetAccountPaths(msg);
   }
+
+  public rippleGetAccountPaths(
+    msg: RippleGetAccountPaths
+  ): Array<RippleAccountPath> {
+    return this.info.rippleGetAccountPaths(msg);
+  }
+
+  public rippleGetAddress(msg: RippleGetAddress): Promise<string> {
+    return Ripple.rippleGetAddress(this.transport, msg);
+  }
+  //
+  // public rippleSignTx(msg: RippleSignTx): Promise<RippleSignedTx> {
+  //   return Ripple.rippleSignTx(this.transport, msg);
+  // }
+
 
   public cosmosGetAccountPaths(
     msg: CosmosGetAccountPaths
