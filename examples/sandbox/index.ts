@@ -495,16 +495,18 @@ $rippleAddr.on("click", async e => {
     return;
   }
   if (supportsRipple(wallet)) {
+    console.log(wallet)
     let { addressNList } = wallet.rippleGetAccountPaths({ accountIdx: 0 })[0];
+
     let result = await wallet.rippleGetAddress({
       addressNList,
       showDisplay: false
     });
-    result = await wallet.rippleGetAddress({
-      addressNList,
-      showDisplay: true,
-      address: result
-    });
+    // result = await wallet.rippleGetAddress({
+    //   addressNList,
+    //   showDisplay: true,
+    //   address: result
+    // });
     $rippleResults.val(result);
   } else {
     let label = await wallet.getLabel();

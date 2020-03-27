@@ -97,7 +97,7 @@ export interface PathDescription {
   isPrefork?: boolean;
 }
 
-type CoinWallets = BTCWallet | ETHWallet | CosmosWallet | DebugLinkWallet;
+type CoinWallets = BTCWallet | ETHWallet | CosmosWallet | RippleWallet | DebugLinkWallet;
 
 export type Coin = string;
 export type Symbol = string;
@@ -220,9 +220,9 @@ export interface HDWallet extends HDWalletInfo {
   _supportsBTC: boolean;
   _supportsETH: boolean;
   _supportsCosmos: boolean;
-  _supportsDebugLink: boolean;
   _supportsRipple: boolean;
   _supportsRippleInfo: boolean;
+  _supportsDebugLink: boolean;
 
   transport: Transport;
 
