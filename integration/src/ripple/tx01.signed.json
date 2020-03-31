@@ -13,7 +13,7 @@
     "memo": "KeepKey",
     "msg": [
       {
-        "type": "ripple-sdk/MsgSend",
+        "type": "cosmos-sdk/MsgSend",
         "value": {
           "amount": [
             {
@@ -22,10 +22,18 @@
             }
           ],
           "from_address": "rh5ZnEVySAy7oGd3nebT3wrohGDrsNS83E",
-          "to_address": "rh5ZnEVySAy7oGd3nebT3wrohGDrsNS83E"
+          "to_address": "rEpwmtmvx8gkMhX5NLdU3vutQt7dor4MZm"
         }
       }
     ],
-    "signatures": null
+    "signatures": [
+      {
+        "pub_key": {
+          "type": "tendermint/PubKeySecp256k1",
+          "value": "A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
+        },
+        "signature": "MEQCICnI9e0uE7ogWWHUgT9vZ9Wxu4ns0HUdkre9kw7FJwG9AiBntUSe2PAZSh/IFR56frkCfQeGdJ5OdHFPVVBQGZmA+Q=="
+      }
+    ]
   }
 }

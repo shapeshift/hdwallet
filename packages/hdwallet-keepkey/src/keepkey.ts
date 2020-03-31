@@ -33,6 +33,8 @@ import {
   RippleGetAccountPaths,
   RippleAccountPath,
   RippleGetAddress,
+  RippleSignTx,
+  RippleSignedTx,
   ETHSignTx,
   ETHSignedTx,
   ETHGetAddress,
@@ -1122,11 +1124,10 @@ export class KeepKeyHDWallet
   public rippleGetAddress(msg: RippleGetAddress): Promise<string> {
     return Ripple.rippleGetAddress(this.transport, msg);
   }
-  //
-  // public rippleSignTx(msg: RippleSignTx): Promise<RippleSignedTx> {
-  //   return Ripple.rippleSignTx(this.transport, msg);
-  // }
 
+  public rippleSignTx(msg: RippleSignTx): Promise<RippleSignedTx> {
+    return Ripple.rippleSignTx(this.transport, msg);
+  }
 
   public cosmosGetAccountPaths(
     msg: CosmosGetAccountPaths

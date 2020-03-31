@@ -33,6 +33,7 @@ import * as dashTxJson from "./json/dashTx.json";
 import * as dogeTxJson from "./json/dogeTx.json";
 import * as ltcTxJson from "./json/ltcTx.json";
 import * as rippleTxJson from "./json/rippleTx.json";
+import { rippleGetAccountPaths } from "@shapeshiftoss/hdwallet-keepkey/src/ripple";
 
 const keyring = new Keyring();
 
@@ -495,18 +496,12 @@ $rippleAddr.on("click", async e => {
     return;
   }
   if (supportsRipple(wallet)) {
-    console.log(wallet)
+    console.log(wallet);
     let { addressNList } = wallet.rippleGetAccountPaths({ accountIdx: 0 })[0];
-
     let result = await wallet.rippleGetAddress({
       addressNList,
-      showDisplay: false
+      showDisplay: true
     });
-    // result = await wallet.rippleGetAddress({
-    //   addressNList,
-    //   showDisplay: true,
-    //   address: result
-    // });
     $rippleResults.val(result);
   } else {
     let label = await wallet.getLabel();
@@ -522,42 +517,17 @@ $rippleTx.on("click", async e => {
     return;
   }
   if (supportsRipple(wallet)) {
-    let unsigned = {
-      type: "auth/StdTx",
-      value: {
-        fee: {
-          amount: [
-            {
-              amount: "1000",
-              denom: "uatom"
-            }
-          ],
-          gas: "28000"
-        },
-        memo: "KeepKey",
-        msg: [
-          {
-            type: "ripple-sdk/MsgSend",
-            value: {
-              amount: [
-                {
-                  amount: "47000",
-                  denom: "uatom"
-                }
-              ],
-              from_address: "ripple1934nqs0ke73lm5ej8hs9uuawkl3ztesg9jp5c5",
-              to_address: "ripple14um3sf75lc0kpvgrpj9hspqtv0375epn05cpfa"
-            }
-          }
-        ],
-        signatures: null
-      }
-    };
-
     let res = await wallet.rippleSignTx({
       addressNList: bip32ToAddressNList(`m/44'/144'/0'/0/0`),
+      tx: rippleTxJson,
+      flags: undefined,
       sequence: "3",
-      tx: unsigned
+      lastLedgerSequence: "0",
+      payment: {
+        amount: "1000",
+        destination: "rh5ZnEVySAy7oGd3nebT3wrohGDrsNS83E",
+        destinationTag: "1234567890"
+      }
     });
     $rippleResults.val(JSON.stringify(res));
   } else {

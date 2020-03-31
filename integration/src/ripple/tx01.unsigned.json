@@ -13,7 +13,7 @@
     "memo": "KeepKey",
     "msg": [
       {
-        "type": "ripple-sdk/MsgSend",
+        "type": "cosmos-sdk/MsgSend",
         "value": {
           "amount": [
             {
@@ -21,8 +21,8 @@
               "denom": "drop"
             }
           ],
-          "from_address": "rh5ZnEVySAy7oGd3nebT3wrohGDrsNS83E",
-          "to_address": "rh5ZnEVySAy7oGd3nebT3wrohGDrsNS83E"
+          "from_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
+          "to_address": "cosmos14um3sf75lc0kpvgrpj9hspqtv0375epn05cpfa"
         }
       }
     ],

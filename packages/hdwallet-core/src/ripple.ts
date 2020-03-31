@@ -49,21 +49,18 @@ export interface RippleTx {
 }
 
 export interface RipplePayment {
-  amount?: string;
+  amount: string;
   destination: string;
-  destinationTag?: string;
+  destinationTag: string;
 }
 
 export interface RippleSignTx {
   addressNList: BIP32Path;
-  //tx: RippleTx;
-  fee?: number;
-  flags?: number;
+  tx: RippleTx;
+  flags?: string;
   sequence: string;
-  lastLedgerSequence?: number;
-  payment: RipplePayment;
-  // type: string;
-  // value: Ripple.StdTx;
+  lastLedgerSequence?: string;
+  payment?: RipplePayment;
 }
 
 export declare type RippleSignedTx = RippleTx;
