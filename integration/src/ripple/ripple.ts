@@ -66,7 +66,7 @@ export function rippleTests(
             addressNList: bip32ToAddressNList("m/44'/144'/0'/0/0"),
             showDisplay: false
           })
-        ).toEqual("69");
+        ).toEqual("rh5ZnEVySAy7oGd3nebT3wrohGDrsNS83E");
       },
       TIMEOUT
     );
