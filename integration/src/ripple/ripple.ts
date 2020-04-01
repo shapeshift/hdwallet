@@ -39,7 +39,7 @@ export function rippleTests(
       });
     }, TIMEOUT);
 
-    test(
+    test.skip(
       "rippleGetAccountPaths()",
       () => {
         if (!wallet) return;

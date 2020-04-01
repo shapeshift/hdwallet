@@ -39,7 +39,7 @@ export function cosmosTests(
       });
     }, TIMEOUT);
 
-    test(
+    test.skip(
       "cosmosGetAccountPaths()",
       () => {
         if (!wallet) return;
