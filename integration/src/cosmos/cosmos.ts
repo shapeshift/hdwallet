@@ -35,7 +35,7 @@ export function cosmosTests (get: () => {wallet: HDWallet, info: HDWalletInfo}):
       await wallet.loadDevice({ mnemonic: MNEMONIC12_NOPIN_NOPASSPHRASE, label: 'test', skipChecksum: true })
     }, TIMEOUT)
 
-    test('cosmosGetAccountPaths()', () => {
+    test.skip('cosmosGetAccountPaths()', () => {
       if (!wallet) return
       let paths = wallet.cosmosGetAccountPaths({ accountIdx: 0 })
       expect(paths.length > 0).toBe(true)
