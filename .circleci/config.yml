@@ -6,7 +6,7 @@ orbs:
       node:
         docker:
           - image: circleci/node:10.16.3
-          - image: kktech/kkemu:v6.2.0-hotfix.0
+          - image: kktech/kkemu:latest
     jobs:
       dependencies:
         description: Get deps and persist to workspace
