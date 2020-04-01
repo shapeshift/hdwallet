@@ -69,7 +69,7 @@ export function integration (suite: WalletSuite): void {
       cosmosTests(() => ({wallet, info}))
     })
 
-    describe.skip('BinanceWallet', () => {
+    describe('BinanceWallet', () => {
       beforeAll(async () => {
         wallet = await suite.createWallet('Binance')
       })
