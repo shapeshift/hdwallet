@@ -35,7 +35,7 @@ export function binanceTests (get: () => {wallet: HDWallet, info: HDWalletInfo})
       await wallet.loadDevice({ mnemonic: MNEMONIC12_NOPIN_NOPASSPHRASE, label: 'test', skipChecksum: true })
     }, TIMEOUT)
 
-    test('binanceGetAccountPaths()', () => {
+    test.skip('binanceGetAccountPaths()', () => {
       if (!wallet) return
       let paths = wallet.binanceGetAccountPaths({ accountIdx: 0 })
       expect(paths.length > 0).toBe(true)
@@ -53,7 +53,7 @@ export function binanceTests (get: () => {wallet: HDWallet, info: HDWalletInfo})
       expect(await wallet.binanceGetAddress({
         addressNList: bip32ToAddressNList("m/44'/714'/0'/0/0"),
         showDisplay: false }))
-        .toEqual('binance15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj')
+        .toEqual('bnb1afwh46v6nn30nkmugw5swdmsyjmlxslgjfugre')
     }, TIMEOUT)
 
     test('binanceSignTx()', async () => {
@@ -62,8 +62,8 @@ export function binanceTests (get: () => {wallet: HDWallet, info: HDWalletInfo})
       let res = await wallet.binanceSignTx({
         tx: (tx01_unsigned as unknown) as BinanceTx,
         addressNList: bip32ToAddressNList("m/44'/714'/0'/0/0"),
-        chain_id: 'binancehub-2',
-        account_number: '1',
+        chain_id: 'Binance-Chain-Nile',
+        account_number: '24250',
         sequence: '0'
       })
       expect(res).toEqual((tx01_signed as unknown) as BinanceTx)
