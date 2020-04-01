@@ -514,7 +514,6 @@ $binanceTx.on('click', async (e) => {
     return
   }
   if (supportsBinance(wallet)) {
-    console.log("checkpoint1")
     let unsigned = {
       "account_number": "34",
       "chain_id": "Binance-Chain-Nile",
