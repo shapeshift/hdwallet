@@ -21,7 +21,7 @@
     ]
   },
   "scripts": {
-    "yarn":"yarn",
+    "yarn": "yarn",
     "clean": "rm -rf coverage test-report && lerna run clean && lerna clean && rm -rf node_modules && yarn cache clean",
     "build": "lerna run build --scope @shapeshiftoss/hdwallet-core && yarn build:wallets && yarn build:transports",
     "build:chromeusb": "lerna run build --scope @shapeshiftoss/keepkey-chromeusb --include-filtered-dependencies",
@@ -37,7 +37,7 @@
     "dev:sandbox": "lerna run dev --scope hdwallet-sandbox --parallel --include-filtered-dependencies",
     "dev:webusb": "lerna run dev --scope webusb --parallel --include-filtered-dependencies",
     "test": "yarn run jest --verbose --config jest.config.js",
-    "test:ci": "yarn run jest --verbose --runInBand --ci --reporters=default --reporters=jest-junit --coverage --config jest.config.js",
+    "test:ci": "yarn run jest --verbose --runInBand --ci --reporters=default --reporters=jest-junit --coverage --config jest.config.js --detectOpenHandles",
     "lerna:version": "lerna version --force-publish"
   },
   "devDependencies": {

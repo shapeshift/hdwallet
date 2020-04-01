@@ -13,7 +13,7 @@
     "memo": "KeepKey",
     "msg": [
       {
-        "type": "cosmos-sdk/MsgSend",
+        "type": "ripple-sdk/MsgSend",
         "value": {
           "amount": [
             {

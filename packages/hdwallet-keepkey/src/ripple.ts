@@ -29,37 +29,6 @@ export function rippleGetAccountPaths(
   ];
 }
 
-// export async function rippleSignTx(
-//   transport: KeepKeyTransport,
-//   msg: Core.RippleSignTx
-// ): Promise<Core.RippleSignedTx> {
-//   return transport.lockDuring(async () => {
-//     const signTx = new RippleSignTx();
-//     signTx.setAddressNList(msg.addressNList);
-//     signTx.setFlags(msg.flags);
-//     signTx.setSequence(msg.sequence);
-//     signTx.setLastLedgerSequence(msg.lastLedgerSequence);
-//     signTx.setPayment(msg.payment);
-//     signTx.setFee(msg.fee);
-//     signTx.set
-
-//     let resp = await transport.call(
-//       MessageType.MESSAGETYPE_RIPPLESIGNTX,
-//       signTx,
-//       Core.LONG_TIMEOUT,
-//       /*omitLock=*/ true
-//     );
-
-//     if (resp.message_type === Core.Events.FAILURE) {
-//       throw resp;
-//     }
-
-//     // const signedTx = resp.prot;
-//     // const signed = cloneDeep(msg.tx);
-//     return msg;
-//   });
-// }
-
 export async function rippleSignTx(
   transport: KeepKeyTransport,
   msg: Core.RippleSignTx
@@ -72,11 +41,11 @@ export async function rippleSignTx(
     signTx.setSequence(parseInt(msg.sequence));
     signTx.setLastLedgerSequence(parseInt(msg.lastLedgerSequence));
 
-    const signPayment = new RipplePayment();
-    signPayment.setAmount(parseInt(msg.payment.amount));
-    signPayment.setDestination(msg.payment.destination);
-    signPayment.setDestinationTag(parseInt(msg.payment.destinationTag));
-    signTx.setPayment(signPayment);
+    const payment = new RipplePayment();
+    payment.setAmount(parseInt(msg.payment.amount));
+    payment.setDestination(msg.payment.destination);
+    payment.setDestinationTag(parseInt(msg.payment.destinationTag));
+    signTx.setPayment(payment);
 
     let resp = await transport.call(
       MessageType.MESSAGETYPE_RIPPLESIGNTX,
@@ -116,11 +85,7 @@ export async function rippleSignTx(
 
     signed.value.signatures = [
       {
-        pub_key: {
-          type: "tendermint/PubKeySecp256k1",
-          //value: signedTx.getPublicKey_asB64()
-          value: undefined
-        },
+        serializedTx: signedTx.getSerializedTx_asB64(),
         signature: signedTx.getSignature_asB64()
       }
     ];

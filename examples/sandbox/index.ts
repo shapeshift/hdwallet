@@ -524,7 +524,7 @@ $rippleTx.on("click", async e => {
       sequence: "3",
       lastLedgerSequence: "0",
       payment: {
-        amount: "1000",
+        amount: "47000",
         destination: "rh5ZnEVySAy7oGd3nebT3wrohGDrsNS83E",
         destinationTag: "1234567890"
       }
