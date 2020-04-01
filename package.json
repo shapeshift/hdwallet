@@ -59,9 +59,5 @@
   },
   "engines": {
     "node": "^10 || ^12"
-  },
-  "dependencies": {
-    "eventemitter2": "^6.2.1",
-    "microbundle": "^0.11.0"
   }
 }

@@ -3234,10 +3234,10 @@ bip66@^1.1.0, bip66@^1.1.5:
   dependencies:
     safe-buffer "^5.0.1"
 
-bitbox02-api@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/bitbox02-api/-/bitbox02-api-0.3.0.tgz#6c037f93755d196b4b87cef080316d56db0007e2"
-  integrity sha512-vvGB6vvR86KQcXJH7UmYrbFXdfnDevEomVCZanGxPcT7fj5M15fSF47smyAi8ySYmM9yX4DtXq/cmjtLNK+hbQ==
+bitbox02-api@^0.4.0:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/bitbox02-api/-/bitbox02-api-0.4.1.tgz#d37422dd40e95f5edf0880927d4b4c56a5cca25f"
+  integrity sha512-GWcIJgBOtE/nOJa965vZjZDJcSmy3bmHOXp7/bye7SDd9SuwJ72Ej3ticPSy1LR8ycwLOvX58tGIPDEtyodchg==
 
 bitcoin-ops@^1.3.0, bitcoin-ops@^1.4.0, bitcoin-ops@^1.4.1:
   version "1.4.1"
@@ -5679,11 +5679,6 @@ ethjs-util@0.1.6, ethjs-util@^0.1.3:
 eventemitter2@^5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/eventemitter2/-/eventemitter2-5.0.1.tgz#6197a095d5fb6b57e8942f6fd7eaad63a09c9452"
-
-eventemitter2@^6.2.1:
-  version "6.2.1"
-  resolved "https://registry.yarnpkg.com/eventemitter2/-/eventemitter2-6.2.1.tgz#cec423117a8ce45c471092d0bb01a0aff1ed5e47"
-  integrity sha512-38fV8WMnn95y1ugsY8Iu25hhFTHYSqR+JkDVNSuKmi5/sF79Zt+EpA0N6yCGv/PSCZhIRZlyaIBY3q8ed7ZikA==
 
 eventemitter3@3.1.2, eventemitter3@^3.1.0:
   version "3.1.2"
