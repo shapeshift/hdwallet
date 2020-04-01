@@ -1,0 +1,46 @@
+{
+  "account_number":"24250",
+  "chain_id":"Binance-Chain-Nile",
+  "data":null,
+  "memo":"test",
+  "msgs":[
+    {
+      "inputs":[
+        {
+          "address":"tbnb1hgm0p7khfk85zpz5v0j8wnej3a90w709zzlffd",
+          "coins":[
+            {
+              "amount":1000000000,
+              "denom":"BNB"
+
+            }
+
+          ]
+
+        }
+      ],
+      "outputs":[
+        {
+          "address":"tbnb1ss57e8sa7xnwq030k2ctr775uac9gjzglqhvpy",
+          "coins":[
+            {
+              "amount":1000000000,
+              "denom":"BNB"
+
+            }
+
+          ]
+
+        }
+
+      ]
+
+    }
+
+  ],
+  "signatures":{
+    "pub_key":"At3wix9RpBMsY8c0VcrGVpQEx4yeO1v/0fZOB6mi8Qm0",
+    "signature":"QFeON8DDkigJLA1v/rlubjxfwY9UG1A4OyMTRWSj144md3kaNHGBOS5VHNNhT0uSfXSryBFhfU8Yu/U16EmkCQ=="
+
+  }
+}

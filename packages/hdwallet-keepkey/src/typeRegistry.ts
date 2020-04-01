@@ -1,5 +1,6 @@
 import * as ProtoMessages from '@keepkey/device-protocol/lib/messages_pb'
 import * as CosmosMessages from '@keepkey/device-protocol/lib/messages-cosmos_pb'
+import * as BinanceMessages from '@keepkey/device-protocol/lib/messages-binance_pb'
 import * as NanoMessages from '@keepkey/device-protocol/lib/messages-nano_pb'
 import * as EosMessages from '@keepkey/device-protocol/lib/messages-eos_pb'
 
@@ -7,6 +8,7 @@ import { Message } from 'google-protobuf'
 
 // Conflict between typedef and actual js export
 const { default: Messages } = ProtoMessages as any
+const { default: Binance } = BinanceMessages as any
 const { default: Cosmos } = CosmosMessages as any
 const { default: Nano } = NanoMessages as any
 const { default: Eos } = EosMessages as any

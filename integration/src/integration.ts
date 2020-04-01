@@ -7,7 +7,7 @@ import { isPortis } from '@shapeshiftoss/hdwallet-portis'
 import { btcTests } from './bitcoin'
 import { ethTests } from './ethereum'
 import { cosmosTests } from './cosmos'
-
+import { binanceTests } from './binance'
 import { WalletSuite } from './wallets/suite'
 
 /**
@@ -67,6 +67,14 @@ export function integration (suite: WalletSuite): void {
       })
 
       cosmosTests(() => ({wallet, info}))
+    })
+
+    describe('BinanceWallet', () => {
+      beforeAll(async () => {
+        wallet = await suite.createWallet('Binance')
+      })
+
+      binanceTests(() => ({wallet, info}))
     })
 
     describe('SelfTest', () => {
