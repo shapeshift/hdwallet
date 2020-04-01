@@ -35,15 +35,17 @@ export function cosmosTests (get: () => {wallet: HDWallet, info: HDWalletInfo}):
       await wallet.loadDevice({ mnemonic: MNEMONIC12_NOPIN_NOPASSPHRASE, label: 'test', skipChecksum: true })
     }, TIMEOUT)
 
-    test.skip('cosmosGetAccountPaths()', () => {
+    test('cosmosGetAccountPaths()', () => {
       if (!wallet) return
       let paths = wallet.cosmosGetAccountPaths({ accountIdx: 0 })
       expect(paths.length > 0).toBe(true)
       expect(paths[0].addressNList[0] > 0x80000000).toBe(true)
       paths.forEach(path => {
+        let curAddr = path.addressNList.join()
+        let nextAddr = wallet.cosmosNextAccountPath(path).addressNList.join()
         expect(
-          wallet.cosmosNextAccountPath(path) === undefined
-          || wallet.cosmosNextAccountPath(path).addressNList.join() !== path.addressNList.join()
+          nextAddr === undefined
+          || nextAddr !== curAddr
         ).toBeTruthy()
       })
     }, TIMEOUT)

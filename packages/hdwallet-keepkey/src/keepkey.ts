@@ -1084,6 +1084,10 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   public cosmosNextAccountPath (msg: CosmosAccountPath): CosmosAccountPath | undefined {
     return this.info.cosmosNextAccountPath(msg)
   }
+
+  public binanceNextAccountPath (msg: BinanceAccountPath): BinanceAccountPath | undefined {
+    return this.info.binanceNextAccountPath(msg)
+  }
 }
 
 export function info (): KeepKeyHDWalletInfo {
