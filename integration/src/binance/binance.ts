@@ -35,20 +35,13 @@ export function binanceTests (get: () => {wallet: HDWallet, info: HDWalletInfo})
       await wallet.loadDevice({ mnemonic: MNEMONIC12_NOPIN_NOPASSPHRASE, label: 'test', skipChecksum: true })
     }, TIMEOUT)
 
-    test.skip('binanceGetAccountPaths()', () => {
+    test('binanceGetAccountPaths()', () => {
       if (!wallet) return
       let paths = wallet.binanceGetAccountPaths({ accountIdx: 0 })
+      console.log("binanceGetAccountPaths: ",paths)
+
       expect(paths.length > 0).toBe(true)
       expect(paths[0].addressNList[0] > 0x80000000).toBe(true)
-      paths.forEach(path => {
-        let curAddr = path.addressNList.join()
-        let nextAddr: any;
-        nextAddr = wallet.binanceGetAccountPaths(path).addressNList.join();
-        expect(
-          nextAddr === undefined
-          || nextAddr !== curAddr
-        ).toBeTruthy()
-      })
     }, TIMEOUT)
 
     test('binanceGetAddress()', async () => {
