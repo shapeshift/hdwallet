@@ -42,6 +42,14 @@ export function binanceTests (get: () => {wallet: HDWallet, info: HDWalletInfo})
 
       expect(paths.length > 0).toBe(true)
       expect(paths[0].addressNList[0] > 0x80000000).toBe(true)
+      paths.forEach(path => {
+        let curAddr = path.addressNList.join()
+        let nextAddr = wallet.binanceNextAccountPath(path).addressNList.join()
+        expect(
+          nextAddr === undefined
+          || nextAddr !== curAddr
+        ).toBeTruthy()
+      })
     }, TIMEOUT)
 
     test('binanceGetAddress()', async () => {
