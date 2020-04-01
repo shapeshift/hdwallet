@@ -34,7 +34,6 @@ export async function rippleSignTx(
   msg: Core.RippleSignTx
 ): Promise<Core.RippleSignedTx> {
   return transport.lockDuring(async () => {
-    console.log(msg);
     const signTx = new RippleSignTx();
     signTx.setAddressNList(msg.addressNList);
     signTx.setFee(parseInt(msg.tx.value.fee.amount[0].amount));
@@ -89,7 +88,6 @@ export async function rippleSignTx(
         signature: signedTx.getSignature_asB64()
       }
     ];
-    console.log(signed);
     return signed;
   });
 }

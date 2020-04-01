@@ -496,7 +496,6 @@ $rippleAddr.on("click", async e => {
     return;
   }
   if (supportsRipple(wallet)) {
-    console.log(wallet);
     let { addressNList } = wallet.rippleGetAccountPaths({ accountIdx: 0 })[0];
     let result = await wallet.rippleGetAddress({
       addressNList,
@@ -506,7 +505,6 @@ $rippleAddr.on("click", async e => {
   } else {
     let label = await wallet.getLabel();
     $rippleResults.val(label + " does not support Ripple");
-    console.log(wallet);
   }
 });
 
@@ -525,7 +523,7 @@ $rippleTx.on("click", async e => {
       lastLedgerSequence: "0",
       payment: {
         amount: "47000",
-        destination: "rh5ZnEVySAy7oGd3nebT3wrohGDrsNS83E",
+        destination: "rEpwmtmvx8gkMhX5NLdU3vutQt7dor4MZm",
         destinationTag: "1234567890"
       }
     });

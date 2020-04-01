@@ -1164,6 +1164,12 @@ export class KeepKeyHDWallet
   ): CosmosAccountPath | undefined {
     return this.info.cosmosNextAccountPath(msg);
   }
+
+  public rippleNextAccountPath(
+    msg: RippleAccountPath
+  ): RippleAccountPath | undefined {
+    return this.info.rippleNextAccountPath(msg);
+  }
 }
 
 export function info(): KeepKeyHDWalletInfo {

@@ -77,11 +77,16 @@ export function rippleTests(
         if (!wallet) return;
 
         let res = await wallet.rippleSignTx({
+          addressNList: bip32ToAddressNList(`m/44'/144'/0'/0/0`),
           tx: (tx01_unsigned as unknown) as RippleTx,
-          addressNList: bip32ToAddressNList("m/44'/144'/0'/0/0"),
-          //chain_id: "ripplehub-2",
-          //account_number: "1",
-          sequence: "0"
+          flags: undefined,
+          sequence: "3",
+          lastLedgerSequence: "0",
+          payment: {
+            amount: "47000",
+            destination: "rh5ZnEVySAy7oGd3nebT3wrohGDrsNS83E",
+            destinationTag: "1234567890"
+          }
         });
         expect(res).toEqual((tx01_signed as unknown) as RippleTx);
       },

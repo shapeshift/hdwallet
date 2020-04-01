@@ -28,11 +28,8 @@
     ],
     "signatures": [
       {
-        "pub_key": {
-          "type": "tendermint/PubKeySecp256k1",
-          "value": "A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
-        },
-        "signature": "MEQCICnI9e0uE7ogWWHUgT9vZ9Wxu4ns0HUdkre9kw7FJwG9AiBntUSe2PAZSh/IFR56frkCfQeGdJ5OdHFPVVBQGZmA+Q=="
+        "signature": "MEQCIGpbPuBb+54fCpARqM0NmmegQ557ktoK5WQx5DcfevPmAiBr0u9PmpaGb/sXA5ttI4tTh7JWRnGyXdzzYGcjgdBQow==",
+        "serializedTx": "EgAAIoAAAAAkAAAAAy5JlgLSIBsAAAAAYUAAAAAAALeYaEAAAAAAAAPocyEDgqy3cRfq59HTQG+Dx/NT0wEputf1nYUY9o8i0daaN250RjBEAiBqWz7gW/ueHwqQEajNDZpnoEOee5LaCuVkMeQ3H3rz5gIga9LvT5qWhm/7FwObbSOLU4eyVkZxsl3c82BnI4HQUKOBFCjENIhxoC1ID/3y8ZIRAYXbE8/ZgxQoxDSIcaAtSA/98vGSEQGF2xPP2Q=="
       }
     ]
   }

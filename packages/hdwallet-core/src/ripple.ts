@@ -31,8 +31,8 @@ declare namespace Ripple {
   }
 
   interface StdSignature {
-    pub_key?: crypto.PubKey;
     signature: string;
+    serializedTx: string;
   }
 
   interface StdTx {
