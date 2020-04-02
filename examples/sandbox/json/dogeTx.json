@@ -81,9 +81,7 @@
         "hex": "76a9146ef1cda5c24d47934853aeccce14163e3a18be1388ac",
         "reqSigs": 1,
         "type": "pubkeyhash",
-        "addresses": [
-          "DFFiY9ZGNWC45EMKZgumPUVjSQn7HW4WGM"
-        ]
+        "addresses": ["DFFiY9ZGNWC45EMKZgumPUVjSQn7HW4WGM"]
       },
       "spentTxId": "7779835caf478e0607c0c8168bf34fe7806da515dfe43011fab2c1051f34bc6b",
       "spentIndex": 8,
@@ -97,9 +95,7 @@
         "hex": "76a914d3f096cbc84bd6daf7e7fe2700c32548ca2f23f188ac",
         "reqSigs": 1,
         "type": "pubkeyhash",
-        "addresses": [
-          "DQTjL9vfXVbMfCGM49KWeYvvvNzRPaoiFp"
-        ]
+        "addresses": ["DQTjL9vfXVbMfCGM49KWeYvvvNzRPaoiFp"]
       },
       "spentTxId": "13adfcd2de89b083193f2d0fbd8862ccfd85562bf6e2a1dda235eec5bd351b58",
       "spentIndex": 1,

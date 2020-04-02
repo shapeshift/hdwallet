@@ -39,7 +39,8 @@
     "docker:run:emulator": "docker run -p 5000:5000 kktech/kkemu:latest",
     "test": "yarn run jest --verbose --config jest.config.js",
     "test:ci": "yarn run jest --verbose --runInBand --ci --reporters=default --reporters=jest-junit --coverage --config jest.config.js",
-    "lerna:version": "lerna version --force-publish"
+    "lerna:version": "lerna version --force-publish",
+    "lint": "prettier --write \"./**/*.{js,jsx,ts,tsx,css,less,scss,vue,json,gql,md}\""
   },
   "devDependencies": {
     "jest-junit": "^6.4.0",
@@ -60,5 +61,8 @@
   },
   "engines": {
     "node": "^10 || ^12"
+  },
+  "dependencies": {
+    "prettier": "^2.0.2"
   }
 }

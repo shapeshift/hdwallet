@@ -29,9 +29,7 @@
         "asm": "OP_DUP OP_HASH160 f7b9e0239571434f0ccfdba6f772a6d23f2cfb13 OP_EQUALVERIFY OP_CHECKSIG",
         "hex": "76a914f7b9e0239571434f0ccfdba6f772a6d23f2cfb1388ac",
         "reqSigs": 1,
-        "addresses": [
-          "1ParaEza5Ew5ioT5c8zR2wSSvArqiSQbpT"
-        ],
+        "addresses": ["1ParaEza5Ew5ioT5c8zR2wSSvArqiSQbpT"],
         "type": "pubkeyhash"
       },
       "spentTxId": "171113f0745f570d18199efcb944b8f742fc590c700a41968081c5655338e4fc",
@@ -45,9 +43,7 @@
         "asm": "OP_DUP OP_HASH160 9c9d21f47382762df3ad81391ee0964b28dd9517 OP_EQUALVERIFY OP_CHECKSIG",
         "hex": "76a9149c9d21f47382762df3ad81391ee0964b28dd951788ac",
         "reqSigs": 1,
-        "addresses": [
-          "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM"
-        ],
+        "addresses": ["1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM"],
         "type": "pubkeyhash"
       },
       "spentTxId": "84da2a3cc29a3e0fb8a3a28882c6fb59a426a95952d484ec2422c5a47b6f93d4",

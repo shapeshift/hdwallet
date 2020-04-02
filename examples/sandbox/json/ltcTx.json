@@ -25,9 +25,7 @@
       "scriptPubKey": {
         "hex": "76a91491e975a0238fa1dfff703e50f062e2544a3e372088ac",
         "asm": "OP_DUP OP_HASH160 91e975a0238fa1dfff703e50f062e2544a3e3720 OP_EQUALVERIFY OP_CHECKSIG",
-        "addresses": [
-          "LYXTv5RdsPYKC4qGmb6x6SuKoFMxUdSjLQ"
-        ],
+        "addresses": ["LYXTv5RdsPYKC4qGmb6x6SuKoFMxUdSjLQ"],
         "type": "pubkeyhash"
       },
       "spentTxId": "ea0ed3755c894e3cb54c4db176c3b85b2b1b9cac05800dec51492105a073a1b3",
@@ -40,9 +38,7 @@
       "scriptPubKey": {
         "hex": "76a91415757f526dc67b52ae9f74918db532eebc39608688ac",
         "asm": "OP_DUP OP_HASH160 15757f526dc67b52ae9f74918db532eebc396086 OP_EQUALVERIFY OP_CHECKSIG",
-        "addresses": [
-          "LMBRD6nXaRsez8hGwWZonxNiUez2VjCdoF"
-        ],
+        "addresses": ["LMBRD6nXaRsez8hGwWZonxNiUez2VjCdoF"],
         "type": "pubkeyhash"
       },
       "spentTxId": "c1dcc4aa79dc3c48b8d3827a71265d2a46389b21b57ec887bce0f3849568bb16",

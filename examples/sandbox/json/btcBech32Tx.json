@@ -29,9 +29,7 @@
         "asm": "0 329035c39cb274eb9cdaa662a7ab0eaaae15612b",
         "hex": "0014329035c39cb274eb9cdaa662a7ab0eaaae15612b",
         "reqSigs": 1,
-        "addresses": [
-          "bc1qx2grtsuukf6wh8x65e3202cw42hp2cftccmapu"
-        ],
+        "addresses": ["bc1qx2grtsuukf6wh8x65e3202cw42hp2cftccmapu"],
         "type": "witness_v0_keyhash"
       },
       "spentTxId": null,
@@ -45,9 +43,7 @@
         "asm": "OP_DUP OP_HASH160 f81af3e36a72aceab07c54bf4afa66b23d7bc152 OP_EQUALVERIFY OP_CHECKSIG",
         "hex": "76a914f81af3e36a72aceab07c54bf4afa66b23d7bc15288ac",
         "reqSigs": 1,
-        "addresses": [
-          "1PcrsHDZRFQe6Y7MJVTejkpMyfHdxP2ZiB"
-        ],
+        "addresses": ["1PcrsHDZRFQe6Y7MJVTejkpMyfHdxP2ZiB"],
         "type": "pubkeyhash"
       },
       "spentTxId": "b62d09215e6990d43ed983c183ec54cd80c4198f5e4b2d870bd2333c7dc4acfb",
