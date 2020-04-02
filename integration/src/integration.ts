@@ -4,11 +4,11 @@ import { isTrezor } from "@shapeshiftoss/hdwallet-trezor";
 import { isLedger } from "@shapeshiftoss/hdwallet-ledger";
 import { isPortis } from "@shapeshiftoss/hdwallet-portis";
 
-import { btcTests } from './bitcoin'
-import { ethTests } from './ethereum'
-import { cosmosTests } from './cosmos'
-import { binanceTests } from './binance'
-import { WalletSuite } from './wallets/suite'
+import { btcTests } from "./bitcoin";
+import { ethTests } from "./ethereum";
+import { cosmosTests } from "./cosmos";
+import { binanceTests } from "./binance";
+import { WalletSuite } from "./wallets/suite";
 import { rippleTests } from "./ripple";
 /**
  * We run all the integration tests against every device, even though some
@@ -69,13 +69,13 @@ export function integration(suite: WalletSuite): void {
       cosmosTests(() => ({ wallet, info }));
     });
 
-    describe('BinanceWallet', () => {
+    describe("BinanceWallet", () => {
       beforeAll(async () => {
-        wallet = await suite.createWallet('Binance')
-      })
+        wallet = await suite.createWallet("Binance");
+      });
 
-      binanceTests(() => ({wallet, info}))
-    })
+      binanceTests(() => ({ wallet, info }));
+    });
 
     describe("RippleWallet", () => {
       beforeAll(async () => {
@@ -85,7 +85,7 @@ export function integration(suite: WalletSuite): void {
       rippleTests(() => ({ wallet, info }));
     });
 
-    describe('SelfTest', () => {
+    describe("SelfTest", () => {
       beforeAll(async () => {
         wallet = await suite.createWallet("Ripple");
       });

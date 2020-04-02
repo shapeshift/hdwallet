@@ -3,7 +3,7 @@ import {
   HDWallet,
   CosmosWallet,
   supportsCosmos,
-  CosmosTx
+  CosmosTx,
 } from "@shapeshiftoss/hdwallet-core";
 import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
 
@@ -35,24 +35,25 @@ export function cosmosTests(
       await wallet.loadDevice({
         mnemonic: MNEMONIC12_NOPIN_NOPASSPHRASE,
         label: "test",
-        skipChecksum: true
+        skipChecksum: true,
       });
     }, TIMEOUT);
 
-    test.skip('cosmosGetAccountPaths()', () => {
-      if (!wallet) return
-      let paths = wallet.cosmosGetAccountPaths({ accountIdx: 0 })
-      expect(paths.length > 0).toBe(true)
-      expect(paths[0].addressNList[0] > 0x80000000).toBe(true)
-      paths.forEach(path => {
-        let curAddr = path.addressNList.join()
-        let nextAddr = wallet.cosmosNextAccountPath(path).addressNList.join()
-        expect(
-          nextAddr === undefined
-          || nextAddr !== curAddr
-        ).toBeTruthy()
-      })
-    }, TIMEOUT)
+    test.skip(
+      "cosmosGetAccountPaths()",
+      () => {
+        if (!wallet) return;
+        let paths = wallet.cosmosGetAccountPaths({ accountIdx: 0 });
+        expect(paths.length > 0).toBe(true);
+        expect(paths[0].addressNList[0] > 0x80000000).toBe(true);
+        paths.forEach((path) => {
+          let curAddr = path.addressNList.join();
+          let nextAddr = wallet.cosmosNextAccountPath(path).addressNList.join();
+          expect(nextAddr === undefined || nextAddr !== curAddr).toBeTruthy();
+        });
+      },
+      TIMEOUT
+    );
 
     test(
       "cosmosGetAddress()",
@@ -61,7 +62,7 @@ export function cosmosTests(
         expect(
           await wallet.cosmosGetAddress({
             addressNList: bip32ToAddressNList("m/44'/118'/0'/0/0"),
-            showDisplay: false
+            showDisplay: false,
           })
         ).toEqual("cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj");
       },
@@ -78,7 +79,7 @@ export function cosmosTests(
           addressNList: bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "cosmoshub-2",
           account_number: "1",
-          sequence: "0"
+          sequence: "0",
         });
         expect(res).toEqual((tx01_signed as unknown) as CosmosTx);
       },

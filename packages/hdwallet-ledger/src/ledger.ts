@@ -14,7 +14,7 @@ function describeETHPath(path: core.BIP32Path): core.PathDescription {
   let unknown: core.PathDescription = {
     verbose: pathStr,
     coin: "Ethereum",
-    isKnown: false
+    isKnown: false,
   };
 
   if (path.length !== 5 && path.length !== 4) return unknown;
@@ -48,7 +48,7 @@ function describeETHPath(path: core.BIP32Path): core.PathDescription {
     accountIdx,
     coin: "Ethereum",
     isKnown: true,
-    isPrefork: false
+    isPrefork: false,
   };
 }
 
@@ -62,7 +62,7 @@ function describeUTXOPath(
     verbose: pathStr,
     coin,
     scriptType,
-    isKnown: false
+    isKnown: false,
   };
 
   if (!btc.btcSupportsCoin(coin)) return unknown;
@@ -93,7 +93,7 @@ function describeUTXOPath(
   let script = {
     [core.BTCInputScriptType.SpendAddress]: " (Legacy)",
     [core.BTCInputScriptType.SpendP2SHWitness]: "",
-    [core.BTCInputScriptType.SpendWitness]: " (Segwit Native)"
+    [core.BTCInputScriptType.SpendWitness]: " (Segwit Native)",
   }[scriptType];
 
   switch (coin) {
@@ -116,7 +116,7 @@ function describeUTXOPath(
       scriptType,
       wholeAccount: true,
       isKnown: true,
-      isPrefork: false
+      isPrefork: false,
     };
   } else {
     let change = path[3] == 1 ? "Change " : "";
@@ -130,16 +130,17 @@ function describeUTXOPath(
       wholeAccount: false,
       isChange: path[3] == 1,
       isKnown: true,
-      isPrefork: false
+      isPrefork: false,
     };
   }
 }
 
-export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
-  _supportsBTCInfo: boolean = true
-  _supportsETHInfo: boolean = true
-  _supportsCosmosInfo: boolean = false // TODO ledger supports cosmos
-  _supportsBinanceInfo: boolean = false// TODO ledger support bnb
+export class LedgerHDWalletInfo
+  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
+  _supportsBTCInfo: boolean = true;
+  _supportsETHInfo: boolean = true;
+  _supportsCosmosInfo: boolean = false; // TODO ledger supports cosmos
+  _supportsBinanceInfo: boolean = false; // TODO ledger support bnb
   _supportsRippleInfo: boolean = false;
 
   public getVendor(): string {
@@ -244,7 +245,7 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
       addressNList[2] += 1;
       return {
         ...msg,
-        addressNList
+        addressNList,
       };
     }
 
@@ -266,7 +267,7 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
         ...msg,
         addressNList,
         hardenedPath: core.hardenedPath(addressNList),
-        relPath: core.relativePath(addressNList)
+        relPath: core.relativePath(addressNList),
       };
     }
 
@@ -275,7 +276,7 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
       return {
         ...msg,
         hardenedPath: core.hardenedPath(addressNList),
-        relPath: core.relativePath(addressNList)
+        relPath: core.relativePath(addressNList),
       };
     }
 
@@ -284,7 +285,7 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
       return {
         ...msg,
         hardenedPath: core.hardenedPath(addressNList),
-        relPath: core.relativePath(addressNList)
+        relPath: core.relativePath(addressNList),
       };
     }
 
@@ -292,16 +293,17 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
   }
 }
 
-export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet {
-  _supportsETHInfo: boolean = true
-  _supportsBTCInfo: boolean = true
-  _supportsDebugLink: boolean = false
-  _supportsBTC: boolean = true
-  _supportsETH: boolean = true
-  _supportsCosmosInfo: boolean = false
-  _supportsCosmos: boolean = false
-  _supportsBinanceInfo: boolean = false
-  _supportsBinance: boolean = false
+export class LedgerHDWallet
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet {
+  _supportsETHInfo: boolean = true;
+  _supportsBTCInfo: boolean = true;
+  _supportsDebugLink: boolean = false;
+  _supportsBTC: boolean = true;
+  _supportsETH: boolean = true;
+  _supportsCosmosInfo: boolean = false;
+  _supportsCosmos: boolean = false;
+  _supportsBinanceInfo: boolean = false;
+  _supportsBinance: boolean = false;
   _supportsRippleInfo: boolean = false;
   _supportsRipple: boolean = false;
 
@@ -327,7 +329,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   public async getDeviceID(): Promise<string> {
     const {
-      device: { serialNumber: deviceID }
+      device: { serialNumber: deviceID },
     } = this.transport as any;
     return deviceID;
   }
@@ -357,7 +359,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     handleError(res, this.transport);
 
     const {
-      payload: { name: currentApp }
+      payload: { name: currentApp },
     } = res;
     if (currentApp !== appName) {
       throw new core.WrongApp("Ledger", appName);
@@ -385,7 +387,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   public async getModel(): Promise<string> {
     const {
-      device: { productName }
+      device: { productName },
     } = this.transport as any;
     return productName;
   }
@@ -409,7 +411,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     handleError(res, this.transport);
 
     const {
-      payload: { name }
+      payload: { name },
     } = res;
 
     switch (name) {

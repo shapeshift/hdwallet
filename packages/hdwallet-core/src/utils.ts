@@ -11,14 +11,14 @@ export const LONG_TIMEOUT = 5 * 60 * 1000; // 5 minutes
 
 export const isArray =
   Array.isArray ||
-  function(obj) {
+  function (obj) {
     return Object.prototype.toString.call(obj) === "[object Array]";
   };
 
 // These helper functions marshal hex into and out of UInt8Arrays which are consumed by protobuf js
 export const fromHexString = (hexString: string) => {
   const match = hexString.match(/.{1,2}/g) || [];
-  return new Uint8Array(match.map(byte => parseInt(byte, 16)));
+  return new Uint8Array(match.map((byte) => parseInt(byte, 16)));
 };
 
 // export const toHexString = (bytes: number[]) => bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '')
@@ -91,7 +91,7 @@ export function bip32ToAddressNList(path: string): number[] {
 
 export function addressNListToBIP32(address: number[]): string {
   return `m/${address
-    .map(num => (num >= HARDENED ? `${num - HARDENED}'` : num))
+    .map((num) => (num >= HARDENED ? `${num - HARDENED}'` : num))
     .join("/")}`;
 }
 
@@ -107,7 +107,7 @@ export function takeFirstOfManyEvents(
   events: string[]
 ): Observable<{}> {
   return merge(
-    ...events.map(event => fromEvent<Event>(eventEmitter, event))
+    ...events.map((event) => fromEvent<Event>(eventEmitter, event))
   ).pipe(first());
 }
 
@@ -134,20 +134,20 @@ export function base64toHEX(base64: string): string {
 
 export function slip44ByCoin(coin: Coin): number {
   return {
-    'Bitcoin': 0,
-    'Testnet': 1,
-    'BitcoinCash': 145,
-    'BitcoinGold': 156,
-    'Litecoin': 2,
-    'Dash': 5,
-    'DigiByte': 20,
-    'Dogecoin': 3,
-    'BitcoinSV': 236,
-    'Ethereum': 60,
-    'Atom': 118,
-    'Binance': 714,
-    'Ripple': 144
-  }[coin]
+    Bitcoin: 0,
+    Testnet: 1,
+    BitcoinCash: 145,
+    BitcoinGold: 156,
+    Litecoin: 2,
+    Dash: 5,
+    DigiByte: 20,
+    Dogecoin: 3,
+    BitcoinSV: 236,
+    Ethereum: 60,
+    Atom: 118,
+    Binance: 714,
+    Ripple: 144,
+  }[coin];
 }
 
 export function satsFromStr(coins: string): number {
@@ -157,9 +157,9 @@ export function satsFromStr(coins: string): number {
 }
 
 export function hardenedPath(path: BIP32Path): BIP32Path {
-  return path.filter(segment => segment >= 0x80000000);
+  return path.filter((segment) => segment >= 0x80000000);
 }
 
 export function relativePath(path: BIP32Path): BIP32Path {
-  return path.filter(segment => segment < 0x80000000);
+  return path.filter((segment) => segment < 0x80000000);
 }

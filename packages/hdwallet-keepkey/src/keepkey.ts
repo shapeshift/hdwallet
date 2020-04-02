@@ -59,7 +59,7 @@ import {
   PathDescription,
   addressNListToBIP32,
   hardenedPath,
-  relativePath
+  relativePath,
 } from "@shapeshiftoss/hdwallet-core";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
@@ -71,7 +71,7 @@ import * as Btc from "./bitcoin";
 import * as Eth from "./ethereum";
 import * as Cosmos from "./cosmos";
 import * as Ripple from "./ripple";
-import * as Binance from "./binance"
+import * as Binance from "./binance";
 
 import { KeepKeyTransport } from "./transport";
 
@@ -86,7 +86,7 @@ function describeETHPath(path: BIP32Path): PathDescription {
   let unknown: PathDescription = {
     verbose: pathStr,
     coin: "Ethereum",
-    isKnown: false
+    isKnown: false,
   };
 
   if (path.length != 5) return unknown;
@@ -108,7 +108,7 @@ function describeETHPath(path: BIP32Path): PathDescription {
     wholeAccount: true,
     coin: "Ethereum",
     isKnown: true,
-    isPrefork: false
+    isPrefork: false,
   };
 }
 
@@ -122,7 +122,7 @@ function describeUTXOPath(
     verbose: pathStr,
     coin,
     scriptType,
-    isKnown: false
+    isKnown: false,
   };
 
   if (!Btc.btcSupportsCoin(coin)) return unknown;
@@ -151,7 +151,7 @@ function describeUTXOPath(
   let script = {
     [BTCInputScriptType.SpendAddress]: ["Legacy"],
     [BTCInputScriptType.SpendP2SHWitness]: [],
-    [BTCInputScriptType.SpendWitness]: ["Segwit Native"]
+    [BTCInputScriptType.SpendWitness]: ["Segwit Native"],
   }[scriptType];
 
   let isPrefork = false;
@@ -205,7 +205,7 @@ function describeUTXOPath(
       wholeAccount: true,
       isKnown: true,
       scriptType,
-      isPrefork
+      isPrefork,
     };
   } else {
     let change = path[3] === 1 ? "Change " : "";
@@ -219,7 +219,7 @@ function describeUTXOPath(
       isKnown: true,
       isChange: path[3] === 1,
       scriptType,
-      isPrefork
+      isPrefork,
     };
   }
 }
@@ -229,7 +229,7 @@ function describeCosmosPath(path: BIP32Path): PathDescription {
   let unknown: PathDescription = {
     verbose: pathStr,
     coin: "Atom",
-    isKnown: false
+    isKnown: false,
   };
 
   if (path.length != 5) {
@@ -259,7 +259,7 @@ function describeCosmosPath(path: BIP32Path): PathDescription {
     wholeAccount: true,
     coin: "Atom",
     isKnown: true,
-    isPrefork: false
+    isPrefork: false,
   };
 }
 
@@ -268,7 +268,7 @@ function describeRipplePath(path: BIP32Path): PathDescription {
   let unknown: PathDescription = {
     verbose: pathStr,
     coin: "Ripple",
-    isKnown: false
+    isKnown: false,
   };
 
   if (path.length != 5) {
@@ -298,49 +298,48 @@ function describeRipplePath(path: BIP32Path): PathDescription {
     wholeAccount: true,
     coin: "Ripple",
     isKnown: true,
-    isPrefork: false
+    isPrefork: false,
   };
 }
 
-function describeBinancePath (path: BIP32Path): PathDescription {
-  let pathStr = addressNListToBIP32(path)
+function describeBinancePath(path: BIP32Path): PathDescription {
+  let pathStr = addressNListToBIP32(path);
   let unknown: PathDescription = {
     verbose: pathStr,
-    coin: 'Binance',
-    isKnown: false
-  }
+    coin: "Binance",
+    isKnown: false,
+  };
 
   if (path.length != 5) {
-    return unknown
+    return unknown;
   }
 
   if (path[0] != 0x80000000 + 44) {
-    return unknown
+    return unknown;
   }
 
-  if (path[1] != 0x80000000 + slip44ByCoin('Binance')) {
-    return unknown
+  if (path[1] != 0x80000000 + slip44ByCoin("Binance")) {
+    return unknown;
   }
 
   if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
-    return unknown
+    return unknown;
   }
 
   if (path[3] !== 0 || path[4] !== 0) {
-    return unknown
+    return unknown;
   }
 
-  let index = path[2] & 0x7fffffff
+  let index = path[2] & 0x7fffffff;
   return {
     verbose: `Binance Account #${index}`,
     accountIdx: index,
     wholeAccount: true,
-    coin: 'Binance',
+    coin: "Binance",
     isKnown: true,
-    isPrefork: false
-  }
+    isPrefork: false,
+  };
 }
-
 
 export class KeepKeyHDWalletInfo
   implements
@@ -354,7 +353,7 @@ export class KeepKeyHDWalletInfo
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = true;
   _supportsRippleInfo: boolean = true;
-  _supportsBinanceInfo: boolean = true
+  _supportsBinanceInfo: boolean = true;
 
   public getVendor(): string {
     return "KeepKey";
@@ -415,10 +414,11 @@ export class KeepKeyHDWalletInfo
     return Ripple.rippleGetAccountPaths(msg);
   }
 
-  public binanceGetAccountPaths (msg: BinanceGetAccountPaths): Array<BinanceAccountPath> {
-    return Binance.binanceGetAccountPaths(msg)
+  public binanceGetAccountPaths(
+    msg: BinanceGetAccountPaths
+  ): Array<BinanceAccountPath> {
+    return Binance.binanceGetAccountPaths(msg);
   }
-
 
   public hasOnDevicePinEntry(): boolean {
     return false;
@@ -442,16 +442,16 @@ export class KeepKeyHDWalletInfo
 
   public describePath(msg: DescribePath): PathDescription {
     switch (msg.coin) {
-    case 'Ethereum':
-      return describeETHPath(msg.path)
-    case 'Atom':
-      return describeCosmosPath(msg.path)
-    case 'Binance':
-      return describeBinancePath(msg.path)
-    case 'Ripple':
-      return describeRipplePath(msg.path)
-    default:
-      return describeUTXOPath(msg.path, msg.coin, msg.scriptType)
+      case "Ethereum":
+        return describeETHPath(msg.path);
+      case "Atom":
+        return describeCosmosPath(msg.path);
+      case "Binance":
+        return describeBinancePath(msg.path);
+      case "Ripple":
+        return describeRipplePath(msg.path);
+      default:
+        return describeUTXOPath(msg.path, msg.coin, msg.scriptType);
     }
   }
 
@@ -475,7 +475,7 @@ export class KeepKeyHDWalletInfo
       addressNList[2] += 1;
       return {
         ...msg,
-        addressNList
+        addressNList,
       };
     }
 
@@ -495,7 +495,7 @@ export class KeepKeyHDWalletInfo
         ...msg,
         addressNList,
         hardenedPath: hardenedPath(addressNList),
-        relPath: relativePath(addressNList)
+        relPath: relativePath(addressNList),
       };
     }
 
@@ -515,7 +515,7 @@ export class KeepKeyHDWalletInfo
 
     return {
       ...msg,
-      addressNList
+      addressNList,
     };
   }
 
@@ -531,33 +531,36 @@ export class KeepKeyHDWalletInfo
 
     return {
       ...msg,
-      addressNList
-    }
+      addressNList,
+    };
   }
 
-  public binanceNextAccountPath (msg: BinanceAccountPath): BinanceAccountPath | undefined {
-    let description = describeBinancePath(msg.addressNList)
+  public binanceNextAccountPath(
+    msg: BinanceAccountPath
+  ): BinanceAccountPath | undefined {
+    let description = describeBinancePath(msg.addressNList);
     if (!description.isKnown) {
-      return undefined
+      return undefined;
     }
 
-    let addressNList = msg.addressNList
-    addressNList[2] += 1
+    let addressNList = msg.addressNList;
+    addressNList[2] += 1;
 
     return {
       ...msg,
-      addressNList
+      addressNList,
     };
   }
 }
 
-export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLinkWallet {
-  _supportsETHInfo: boolean = true
-  _supportsBTCInfo: boolean = true
-  _supportsCosmosInfo: boolean = true
+export class KeepKeyHDWallet
+  implements HDWallet, BTCWallet, ETHWallet, DebugLinkWallet {
+  _supportsETHInfo: boolean = true;
+  _supportsBTCInfo: boolean = true;
+  _supportsCosmosInfo: boolean = true;
   _supportsRippleInfo: boolean = true;
   _supportsBinanceInfo: boolean = true;
-  _supportsDebugLink: boolean
+  _supportsDebugLink: boolean;
   _isKeepKey: boolean = true;
   _supportsETH: boolean = true;
   _supportsBTC: boolean = true;
@@ -627,7 +630,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
         addressNList,
         curve,
         showDisplay,
-        scriptType
+        scriptType,
       } = getPublicKeys[i];
       const GPK = new Messages.GetPublicKey();
       if (coin) GPK.setCoinName(coin);
@@ -1217,20 +1220,22 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     return Cosmos.cosmosSignTx(this.transport, msg);
   }
 
-  public binanceGetAccountPaths (msg: BinanceGetAccountPaths): Array<BinanceAccountPath> {
-    return this.info.binanceGetAccountPaths(msg)
+  public binanceGetAccountPaths(
+    msg: BinanceGetAccountPaths
+  ): Array<BinanceAccountPath> {
+    return this.info.binanceGetAccountPaths(msg);
   }
 
-  public binanceGetAddress (msg: BinanceGetAddress): Promise<string> {
-    return Binance.binanceGetAddress(this.transport, msg)
+  public binanceGetAddress(msg: BinanceGetAddress): Promise<string> {
+    return Binance.binanceGetAddress(this.transport, msg);
   }
 
-  public binanceSignTx (msg: BinanceSignTx): Promise<BinanceSignedTx> {
-    return Binance.binanceSignTx(this.transport, msg)
+  public binanceSignTx(msg: BinanceSignTx): Promise<BinanceSignedTx> {
+    return Binance.binanceSignTx(this.transport, msg);
   }
 
-  public describePath (msg: DescribePath): PathDescription {
-    return this.info.describePath(msg)
+  public describePath(msg: DescribePath): PathDescription {
+    return this.info.describePath(msg);
   }
 
   public disconnect(): Promise<void> {
@@ -1257,8 +1262,10 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     return this.info.rippleNextAccountPath(msg);
   }
 
-  public binanceNextAccountPath (msg: BinanceAccountPath): BinanceAccountPath | undefined {
-    return this.info.binanceNextAccountPath(msg)
+  public binanceNextAccountPath(
+    msg: BinanceAccountPath
+  ): BinanceAccountPath | undefined {
+    return this.info.binanceNextAccountPath(msg);
   }
 }
 

@@ -18,7 +18,7 @@ import {
   CosmosSignTx,
   CosmosMsgAck,
   CosmosSignedTx,
-  CosmosMsgSend
+  CosmosMsgSend,
 } from "@keepkey/device-protocol/lib/messages-cosmos_pb";
 import { MessageType } from "@keepkey/device-protocol/lib/messages_pb";
 
@@ -34,9 +34,9 @@ export function cosmosGetAccountPaths(
         0x80000000 + Core.slip44ByCoin("Atom"),
         0x80000000 + msg.accountIdx,
         0,
-        0
-      ]
-    }
+        0,
+      ],
+    },
   ];
 }
 
@@ -114,10 +114,10 @@ export async function cosmosSignTx(
       {
         pub_key: {
           type: "tendermint/PubKeySecp256k1",
-          value: signedTx.getPublicKey_asB64()
+          value: signedTx.getPublicKey_asB64(),
         },
-        signature: signedTx.getSignature_asB64()
-      }
+        signature: signedTx.getSignature_asB64(),
+      },
     ];
 
     return signed;

@@ -7,7 +7,7 @@ import {
   RippleGetAddress,
   RipplePayment,
   RippleSignTx,
-  RippleSignedTx
+  RippleSignedTx,
 } from "@keepkey/device-protocol/lib/messages-ripple_pb";
 import { MessageType } from "@keepkey/device-protocol/lib/messages_pb";
 
@@ -23,9 +23,9 @@ export function rippleGetAccountPaths(
         0x80000000 + Core.slip44ByCoin("Ripple"),
         0x80000000 + msg.accountIdx,
         0,
-        0
-      ]
-    }
+        0,
+      ],
+    },
   ];
 }
 
@@ -85,8 +85,8 @@ export async function rippleSignTx(
     signed.value.signatures = [
       {
         serializedTx: signedTx.getSerializedTx_asB64(),
-        signature: signedTx.getSignature_asB64()
-      }
+        signature: signedTx.getSignature_asB64(),
+      },
     ];
     return signed;
   });

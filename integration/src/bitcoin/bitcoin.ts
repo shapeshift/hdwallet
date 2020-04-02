@@ -9,7 +9,7 @@ import {
   Coin,
   BTCWalletInfo,
   infoBTC,
-  HDWalletInfo
+  HDWalletInfo,
 } from "@shapeshiftoss/hdwallet-core";
 import { isLedger } from "@shapeshiftoss/hdwallet-ledger";
 import { isTrezor } from "@shapeshiftoss/hdwallet-trezor";
@@ -50,7 +50,7 @@ export function bitcoinTests(
       await wallet.loadDevice({
         mnemonic: MNEMONIC12_NOPIN_NOPASSPHRASE,
         label: "test",
-        skipChecksum: true
+        skipChecksum: true,
       });
     }, TIMEOUT);
 
@@ -84,74 +84,74 @@ export function bitcoinTests(
           {
             coin: "Bitcoin",
             addressNList: bip32ToAddressNList(`m/44'/0'/0'`),
-            curve: "secp256k1"
+            curve: "secp256k1",
           },
           {
             coin: "Bitcoin",
             addressNList: bip32ToAddressNList(`m/49'/0'/0'`),
             curve: "secp256k1",
-            scriptType: BTCInputScriptType.SpendAddress
+            scriptType: BTCInputScriptType.SpendAddress,
           },
           {
             coin: "Bitcoin",
             addressNList: bip32ToAddressNList(`m/49'/0'/0'`),
             curve: "secp256k1",
-            scriptType: BTCInputScriptType.SpendP2SHWitness
+            scriptType: BTCInputScriptType.SpendP2SHWitness,
           },
           {
             coin: "Bitcoin",
             addressNList: bip32ToAddressNList(`m/49'/0'/0'`),
             curve: "secp256k1",
-            scriptType: BTCInputScriptType.SpendAddress
+            scriptType: BTCInputScriptType.SpendAddress,
           },
           {
             coin: "Bitcoin",
             addressNList: bip32ToAddressNList(`m/84'/0'/0'`),
             curve: "secp256k1",
-            scriptType: BTCInputScriptType.SpendWitness
+            scriptType: BTCInputScriptType.SpendWitness,
           },
           {
             coin: "Bitcoin",
             addressNList: bip32ToAddressNList(`m/0'/0'/0'`),
             curve: "secp256k1",
-            scriptType: BTCInputScriptType.SpendAddress
+            scriptType: BTCInputScriptType.SpendAddress,
           },
           {
             coin: "Litecoin",
             addressNList: bip32ToAddressNList(`m/0'/0'/0'`),
             curve: "secp256k1",
-            scriptType: BTCInputScriptType.SpendAddress
-          }
+            scriptType: BTCInputScriptType.SpendAddress,
+          },
         ])
       ).toEqual([
         {
           xpub:
-            "xpub6D1weXBcFAo8CqBbpP4TbH5sxQH8ZkqC5pDEvJ95rNNBZC9zrKmZP2fXMuve7ZRBe18pWQQsGg68jkq24mZchHwYENd8cCiSb71u3KD4AFH"
+            "xpub6D1weXBcFAo8CqBbpP4TbH5sxQH8ZkqC5pDEvJ95rNNBZC9zrKmZP2fXMuve7ZRBe18pWQQsGg68jkq24mZchHwYENd8cCiSb71u3KD4AFH",
         },
         {
           xpub:
-            "xpub6DExuxjQ16sWy5TF4KkLV65YGqCJ5pyv7Ej7d9yJNAXz7C1M9intqszXfaNZG99KsDJdQ29wUKBTZHZFXUaPbKTZ5Z6f4yowNvAQ8fEJw2G"
+            "xpub6DExuxjQ16sWy5TF4KkLV65YGqCJ5pyv7Ej7d9yJNAXz7C1M9intqszXfaNZG99KsDJdQ29wUKBTZHZFXUaPbKTZ5Z6f4yowNvAQ8fEJw2G",
         },
         {
           xpub:
-            "ypub6Y5EDdQK9nQzpNeMtgXxhBB3SoLk2SyR2MFLQYsBkAusAHpaQNxTTwefgnL9G3oFGrRS9VkVvyY1SaApFAzQPZ99wto5etdReeE3XFkkMZt"
+            "ypub6Y5EDdQK9nQzpNeMtgXxhBB3SoLk2SyR2MFLQYsBkAusAHpaQNxTTwefgnL9G3oFGrRS9VkVvyY1SaApFAzQPZ99wto5etdReeE3XFkkMZt",
         },
         {
           xpub:
-            "xpub6DExuxjQ16sWy5TF4KkLV65YGqCJ5pyv7Ej7d9yJNAXz7C1M9intqszXfaNZG99KsDJdQ29wUKBTZHZFXUaPbKTZ5Z6f4yowNvAQ8fEJw2G"
+            "xpub6DExuxjQ16sWy5TF4KkLV65YGqCJ5pyv7Ej7d9yJNAXz7C1M9intqszXfaNZG99KsDJdQ29wUKBTZHZFXUaPbKTZ5Z6f4yowNvAQ8fEJw2G",
         },
         {
           xpub:
-            "zpub6qSSRL9wLd6LNee7qjDEuULWccP5Vbm5nuX4geBu8zMCQBWsF5Jo5UswLVxFzcbCMr2yQPG27ZhDs1cUGKVH1RmqkG1PFHkEXyHG7EV3ogY"
+            "zpub6qSSRL9wLd6LNee7qjDEuULWccP5Vbm5nuX4geBu8zMCQBWsF5Jo5UswLVxFzcbCMr2yQPG27ZhDs1cUGKVH1RmqkG1PFHkEXyHG7EV3ogY",
         },
         {
           xpub:
-            "xpub6Bge9YGd4gjuSaNXdQi4vgvK8iErStBKbESBzAs6tVHBBpsqeCHEVBVgQE7P3W53XKR454adsrg3mccVCzGzcTyVEq9a3QhHsLcs65Tck9U"
+            "xpub6Bge9YGd4gjuSaNXdQi4vgvK8iErStBKbESBzAs6tVHBBpsqeCHEVBVgQE7P3W53XKR454adsrg3mccVCzGzcTyVEq9a3QhHsLcs65Tck9U",
         },
         {
           xpub:
-            "Ltub2Y7kcBUex83ugweUDti4nZ2YDWZRCfhTiWeApFcDFz7svCWeJCmyJpz7m6dQhuUJ7XpdfByBitKRshyc7tNSTPkuXy32i6TLMqPCzbm7r8s"
-        }
+            "Ltub2Y7kcBUex83ugweUDti4nZ2YDWZRCfhTiWeApFcDFz7svCWeJCmyJpz7m6dQhuUJ7XpdfByBitKRshyc7tNSTPkuXy32i6TLMqPCzbm7r8s",
+        },
       ]);
     });
 
@@ -166,38 +166,38 @@ export function bitcoinTests(
               "Bitcoin",
               "m/44'/0'/0'/0/0",
               BTCInputScriptType.SpendAddress,
-              "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM"
+              "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
             ],
             [
               "Show",
               "Bitcoin",
               "m/49'/0'/0'/0/0",
               BTCInputScriptType.SpendP2SHWitness,
-              "3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX"
+              "3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX",
             ],
             [
               "Tell",
               "Bitcoin",
               "m/49'/0'/0'/0/0",
               BTCInputScriptType.SpendP2SHWitness,
-              "3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX"
+              "3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX",
             ],
             [
               "Tell",
               "Litecoin",
               "m/49'/2'/0'/0/0",
               BTCInputScriptType.SpendP2SHWitness,
-              "MFoQRU1KQq365Sy3cXhix3ygycEU4YWB1V"
+              "MFoQRU1KQq365Sy3cXhix3ygycEU4YWB1V",
             ],
             [
               "Tell",
               "Dash",
               "m/44'/5'/0'/0/0",
               BTCInputScriptType.SpendAddress,
-              "XxKhGNv6ECbqVswm9KYcLPQnyWgZ86jJ6Q"
-            ]
+              "XxKhGNv6ECbqVswm9KYcLPQnyWgZ86jJ6Q",
+            ],
           ],
-          async args => {
+          async (args) => {
             let mode = args[0] as string;
             let coin = args[1] as Coin;
             let path = args[2] as string;
@@ -215,7 +215,7 @@ export function bitcoinTests(
               coin: coin,
               showDisplay: mode === "Show",
               scriptType: scriptType,
-              address: expected
+              address: expected,
             });
             expect(res).toEqual(expected);
           }
@@ -247,10 +247,10 @@ export function bitcoinTests(
                   sequence: 4294967295,
                   scriptSig: {
                     hex:
-                      "483045022072ba61305fe7cb542d142b8f3299a7b10f9ea61f6ffaab5dca8142601869d53c0221009a8027ed79eb3b9bc13577ac2853269323434558528c6b6a7e542be46e7e9a820141047a2d177c0f3626fc68c53610b0270fa6156181f46586c679ba6a88b34c6f4874686390b4d92e5769fbb89c8050b984f4ec0b257a0e5c4ff8bd3b035a51709503"
+                      "483045022072ba61305fe7cb542d142b8f3299a7b10f9ea61f6ffaab5dca8142601869d53c0221009a8027ed79eb3b9bc13577ac2853269323434558528c6b6a7e542be46e7e9a820141047a2d177c0f3626fc68c53610b0270fa6156181f46586c679ba6a88b34c6f4874686390b4d92e5769fbb89c8050b984f4ec0b257a0e5c4ff8bd3b035a51709503",
                   },
                   txid:
-                    "c16a03f1cf8f99f6b5297ab614586cacec784c2d259af245909dedb0e39eddcf"
+                    "c16a03f1cf8f99f6b5297ab614586cacec784c2d259af245909dedb0e39eddcf",
                 },
                 {
                   vout: 1,
@@ -258,24 +258,24 @@ export function bitcoinTests(
                   sequence: 4294967295,
                   scriptSig: {
                     hex:
-                      "48304502200fd63adc8f6cb34359dc6cca9e5458d7ea50376cbd0a74514880735e6d1b8a4c0221008b6ead7fe5fbdab7319d6dfede3a0bc8e2a7c5b5a9301636d1de4aa31a3ee9b101410486ad608470d796236b003635718dfc07c0cac0cfc3bfc3079e4f491b0426f0676e6643a39198e8e7bdaffb94f4b49ea21baa107ec2e237368872836073668214"
+                      "48304502200fd63adc8f6cb34359dc6cca9e5458d7ea50376cbd0a74514880735e6d1b8a4c0221008b6ead7fe5fbdab7319d6dfede3a0bc8e2a7c5b5a9301636d1de4aa31a3ee9b101410486ad608470d796236b003635718dfc07c0cac0cfc3bfc3079e4f491b0426f0676e6643a39198e8e7bdaffb94f4b49ea21baa107ec2e237368872836073668214",
                   },
                   txid:
-                    "1ae39a2f8d59670c8fc61179148a8e61e039d0d9e8ab08610cb69b4a19453eaf"
-                }
+                    "1ae39a2f8d59670c8fc61179148a8e61e039d0d9e8ab08610cb69b4a19453eaf",
+                },
               ],
               vout: [
                 {
                   value: "0.00390000",
                   scriptPubKey: {
-                    hex: "76a91424a56db43cf6f2b02e838ea493f95d8d6047423188ac"
-                  }
-                }
-              ]
+                    hex: "76a91424a56db43cf6f2b02e838ea493f95d8d6047423188ac",
+                  },
+                },
+              ],
             },
             hex:
-              "0100000002cfdd9ee3b0ed9d9045f29a252d4c78ecac6c5814b67a29b5f6998fcff1036ac1010000008b483045022072ba61305fe7cb542d142b8f3299a7b10f9ea61f6ffaab5dca8142601869d53c0221009a8027ed79eb3b9bc13577ac2853269323434558528c6b6a7e542be46e7e9a820141047a2d177c0f3626fc68c53610b0270fa6156181f46586c679ba6a88b34c6f4874686390b4d92e5769fbb89c8050b984f4ec0b257a0e5c4ff8bd3b035a51709503ffffffffaf3e45194a9bb60c6108abe8d9d039e0618e8a147911c68f0c67598d2f9ae31a010000008b48304502200fd63adc8f6cb34359dc6cca9e5458d7ea50376cbd0a74514880735e6d1b8a4c0221008b6ead7fe5fbdab7319d6dfede3a0bc8e2a7c5b5a9301636d1de4aa31a3ee9b101410486ad608470d796236b003635718dfc07c0cac0cfc3bfc3079e4f491b0426f0676e6643a39198e8e7bdaffb94f4b49ea21baa107ec2e237368872836073668214ffffffff0170f30500000000001976a91424a56db43cf6f2b02e838ea493f95d8d6047423188ac00000000"
-          }
+              "0100000002cfdd9ee3b0ed9d9045f29a252d4c78ecac6c5814b67a29b5f6998fcff1036ac1010000008b483045022072ba61305fe7cb542d142b8f3299a7b10f9ea61f6ffaab5dca8142601869d53c0221009a8027ed79eb3b9bc13577ac2853269323434558528c6b6a7e542be46e7e9a820141047a2d177c0f3626fc68c53610b0270fa6156181f46586c679ba6a88b34c6f4874686390b4d92e5769fbb89c8050b984f4ec0b257a0e5c4ff8bd3b035a51709503ffffffffaf3e45194a9bb60c6108abe8d9d039e0618e8a147911c68f0c67598d2f9ae31a010000008b48304502200fd63adc8f6cb34359dc6cca9e5458d7ea50376cbd0a74514880735e6d1b8a4c0221008b6ead7fe5fbdab7319d6dfede3a0bc8e2a7c5b5a9301636d1de4aa31a3ee9b101410486ad608470d796236b003635718dfc07c0cac0cfc3bfc3079e4f491b0426f0676e6643a39198e8e7bdaffb94f4b49ea21baa107ec2e237368872836073668214ffffffff0170f30500000000001976a91424a56db43cf6f2b02e838ea493f95d8d6047423188ac00000000",
+          },
         ];
         let outputs = [
           {
@@ -283,22 +283,22 @@ export function bitcoinTests(
             addressType: BTCOutputAddressType.Spend,
             scriptType: BTCOutputScriptType.PayToAddress,
             amount: String(390000 - 10000),
-            isChange: false
-          }
+            isChange: false,
+          },
         ];
         let res = await wallet.btcSignTx({
           coin: "Bitcoin",
           inputs: inputs,
           outputs: outputs,
           version: 1,
-          locktime: 0
+          locktime: 0,
         });
         expect(res).toEqual({
           serializedTx:
             "010000000182488650ef25a58fef6788bd71b8212038d7f2bbe4750bc7bcb44701e85ef6d5000000006b4830450221009a0b7be0d4ed3146ee262b42202841834698bb3ee39c24e7437df208b8b7077102202b79ab1e7736219387dffe8d615bbdba87e11477104b867ef47afed1a5ede7810121023230848585885f63803a0a8aecdd6538792d5c539215c91698e315bf0253b43dffffffff0160cc0500000000001976a914de9b2a8da088824e8fe51debea566617d851537888ac00000000",
           signatures: [
-            "30450221009a0b7be0d4ed3146ee262b42202841834698bb3ee39c24e7437df208b8b7077102202b79ab1e7736219387dffe8d615bbdba87e11477104b867ef47afed1a5ede781"
-          ]
+            "30450221009a0b7be0d4ed3146ee262b42202841834698bb3ee39c24e7437df208b8b7077102202b79ab1e7736219387dffe8d615bbdba87e11477104b867ef47afed1a5ede781",
+          ],
         });
       },
       TIMEOUT
@@ -312,7 +312,7 @@ export function bitcoinTests(
           addressNList: bip32ToAddressNList("m/44'/0'/0'/0/0"),
           coin: "Bitcoin",
           scriptType: BTCInputScriptType.SpendAddress,
-          message: "Hello World"
+          message: "Hello World",
         });
 
         // not implemented on portis
@@ -324,7 +324,7 @@ export function bitcoinTests(
         expect(res).toEqual({
           address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
           signature:
-            "20a037c911044cd6c851b6508317d8892067b0b62074b2cf1c0df9abd4aa053a3c243ffdc37f64d7af2c857128eafc81947c380995596615e5dcc313a15f512cdd"
+            "20a037c911044cd6c851b6508317d8892067b0b62074b2cf1c0df9abd4aa053a3c243ffdc37f64d7af2c857128eafc81947c380995596615e5dcc313a15f512cdd",
         });
       },
       TIMEOUT
@@ -339,7 +339,7 @@ export function bitcoinTests(
           coin: "Bitcoin",
           signature:
             "20a037c911044cd6c851b6508317d8892067b0b62074b2cf1c0df9abd4aa053a3c243ffdc37f64d7af2c857128eafc81947c380995596615e5dcc313a15f512cdd",
-          message: "Hello World"
+          message: "Hello World",
         });
         expect(res).toBeTruthy();
       },
@@ -355,7 +355,7 @@ export function bitcoinTests(
           coin: "Bitcoin",
           signature:
             "20a037c911044cd6c851b6508317d8892067b0b62074b2cf1c0df9abd4aa053a3c243ffdc37f64d7af2c857128eafc81947c380995596615e5dcc313a15f512cdd",
-          message: "Fake World"
+          message: "Fake World",
         });
         expect(res).toBeFalsy();
       },
@@ -404,9 +404,9 @@ export function bitcoinTests(
             ["Dash", 0, BTCInputScriptType.SpendAddress],
             ["Dogecoin", 0, BTCInputScriptType.SpendAddress],
             ["BitcoinCash", 0, BTCInputScriptType.SpendAddress],
-            ["BitcoinGold", 0, BTCInputScriptType.SpendAddress]
+            ["BitcoinGold", 0, BTCInputScriptType.SpendAddress],
           ],
-          async args => {
+          async (args) => {
             let coin = args[0] as Coin;
             let accountIdx = args[1] as number;
             let scriptType = args[2] as BTCInputScriptType;
@@ -420,12 +420,12 @@ export function bitcoinTests(
             let paths = wallet.btcGetAccountPaths({
               coin: coin,
               accountIdx: accountIdx,
-              scriptType: scriptType
+              scriptType: scriptType,
             });
             expect(paths.length > 0).toBeTruthy();
             if (scriptType !== undefined)
               expect(
-                paths.filter(path => {
+                paths.filter((path) => {
                   return path.scriptType !== scriptType;
                 })
               ).toHaveLength(0);
@@ -439,15 +439,15 @@ export function bitcoinTests(
       "btcIsSameAccount()",
       async () => {
         if (!wallet) return;
-        [0, 1, 9].forEach(idx => {
+        [0, 1, 9].forEach((idx) => {
           let paths = wallet.btcGetAccountPaths({
             coin: "Bitcoin",
-            accountIdx: idx
+            accountIdx: idx,
           });
           expect(
             typeof wallet.btcIsSameAccount(paths) === typeof true
           ).toBeTruthy();
-          paths.forEach(path => {
+          paths.forEach((path) => {
             if (wallet.getVendor() === "Portis")
               expect(wallet.btcNextAccountPath(path)).toBeUndefined();
             else expect(wallet.btcNextAccountPath(path)).not.toBeUndefined();

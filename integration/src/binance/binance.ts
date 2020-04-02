@@ -7,7 +7,9 @@ import {
 } from "@shapeshiftoss/hdwallet-core";
 import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
 
+// @ts-ignore
 import * as tx01_unsigned from "./tx01.unsigned.json";
+// @ts-ignore
 import * as tx01_signed from "./tx01.signed.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE =
@@ -76,7 +78,7 @@ export function binanceTests(
       "binanceSignTx()",
       async () => {
         if (!wallet) return;
-        console.log("tx01_signed: ",tx01_signed)
+        console.log("tx01_signed: ", tx01_signed);
         let res = await wallet.binanceSignTx({
           tx: (tx01_unsigned as unknown) as BinanceTx,
           addressNList: bip32ToAddressNList("m/44'/714'/0'/0/0"),
@@ -84,7 +86,7 @@ export function binanceTests(
           account_number: "24250",
           sequence: "0",
         });
-        console.log("res: ",res)
+        console.log("res: ", res);
 
         //expect(res).toEqual((tx01_signed as unknown) as BinanceTx);
       },

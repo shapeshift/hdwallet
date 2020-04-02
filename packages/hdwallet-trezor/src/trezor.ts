@@ -40,7 +40,7 @@ import {
   PathDescription,
   addressNListToBIP32,
   hardenedPath,
-  relativePath
+  relativePath,
 } from "@shapeshiftoss/hdwallet-core";
 import { handleError } from "./utils";
 import * as Btc from "./bitcoin";
@@ -57,7 +57,7 @@ function describeETHPath(path: BIP32Path): PathDescription {
   let unknown: PathDescription = {
     verbose: pathStr,
     coin: "Ethereum",
-    isKnown: false
+    isKnown: false,
   };
 
   if (path.length != 5) return unknown;
@@ -79,7 +79,7 @@ function describeETHPath(path: BIP32Path): PathDescription {
     accountIdx,
     wholeAccount: true,
     isKnown: true,
-    isPrefork: false
+    isPrefork: false,
   };
 }
 
@@ -93,7 +93,7 @@ function describeUTXOPath(
     verbose: pathStr,
     coin,
     scriptType,
-    isKnown: false
+    isKnown: false,
   };
 
   if (!Btc.btcSupportsCoin(coin)) return unknown;
@@ -124,7 +124,7 @@ function describeUTXOPath(
   let script = {
     [BTCInputScriptType.SpendAddress]: " (Legacy)",
     [BTCInputScriptType.SpendP2SHWitness]: "",
-    [BTCInputScriptType.SpendWitness]: " (Segwit Native)"
+    [BTCInputScriptType.SpendWitness]: " (Segwit Native)",
   }[scriptType];
 
   switch (coin) {
@@ -147,7 +147,7 @@ function describeUTXOPath(
       accountIdx,
       wholeAccount: true,
       isKnown: true,
-      isPrefork: false
+      isPrefork: false,
     };
   } else {
     let change = path[3] === 1 ? "Change " : "";
@@ -161,16 +161,17 @@ function describeUTXOPath(
       isChange: path[3] === 1,
       wholeAccount: false,
       isKnown: true,
-      isPrefork: false
+      isPrefork: false,
     };
   }
 }
 
-export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo {
-  _supportsBTCInfo: boolean = true
-  _supportsETHInfo: boolean = true
-  _supportsCosmosInfo: boolean = false
-  _supportsBinanceInfo: boolean = false //TODO trezor actually supports bnb
+export class TrezorHDWalletInfo
+  implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo {
+  _supportsBTCInfo: boolean = true;
+  _supportsETHInfo: boolean = true;
+  _supportsCosmosInfo: boolean = false;
+  _supportsBinanceInfo: boolean = false; //TODO trezor actually supports bnb
   _supportsRippleInfo: boolean = false;
 
   public getVendor(): string {
@@ -271,7 +272,7 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
       addressNList[2] += 1;
       return {
         ...msg,
-        addressNList
+        addressNList,
       };
     }
 
@@ -291,7 +292,7 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
         ...msg,
         addressNList,
         hardenedPath: hardenedPath(addressNList),
-        relPath: relativePath(addressNList)
+        relPath: relativePath(addressNList),
       };
     }
 
@@ -300,16 +301,16 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
 }
 
 export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
-  _supportsETHInfo: boolean = true
-  _supportsBTCInfo: boolean = true
-  _supportsDebugLink: boolean = false
-  _supportsBTC: boolean = true
-  _supportsETH: boolean = true
-  _supportsCosmosInfo: boolean = false
-  _supportsCosmos: boolean = false
-  _isTrezor: boolean = true
-  _supportsBinanceInfo: boolean = false
-  _supportsBinance: boolean = false
+  _supportsETHInfo: boolean = true;
+  _supportsBTCInfo: boolean = true;
+  _supportsDebugLink: boolean = false;
+  _supportsBTC: boolean = true;
+  _supportsETH: boolean = true;
+  _supportsCosmosInfo: boolean = false;
+  _supportsCosmos: boolean = false;
+  _isTrezor: boolean = true;
+  _supportsBinanceInfo: boolean = false;
+  _supportsBinance: boolean = false;
   _supportsRippleInfo: boolean = false;
   _supportsRipple: boolean = false;
 
@@ -333,7 +334,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
 
   public async getDeviceID(): Promise<string> {
     const {
-      device: { deviceID: transportId }
+      device: { deviceID: transportId },
     } = this.transport as any;
     if (transportId) return transportId;
 
@@ -377,13 +378,13 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
   ): Promise<Array<PublicKey | null>> {
     if (!msg.length) return [];
     let res = await this.transport.call("getPublicKey", {
-      bundle: msg.map(request => {
+      bundle: msg.map((request) => {
         return {
           path: request.addressNList,
           coin: request.coin || "Bitcoin",
-          crossChain: true
+          crossChain: true,
         };
-      })
+      }),
     });
     handleError(this.transport, res, "Could not load xpubs from Trezor");
     return res.payload.map((result, i) => {
@@ -392,12 +393,12 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
         case BTCInputScriptType.SpendP2SHWitness:
         case BTCInputScriptType.SpendWitness:
           return {
-            xpub: result.xpubSegwit
+            xpub: result.xpubSegwit,
           };
         case BTCInputScriptType.SpendAddress:
         default:
           return {
-            xpub: result.xpub
+            xpub: result.xpub,
           };
       }
     });
@@ -418,7 +419,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
   public async sendPin(pin: string): Promise<void> {
     await this.transport.call("uiResponse", {
       type: "ui-receive_pin",
-      payload: pin
+      payload: pin,
     });
   }
 
@@ -427,8 +428,8 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
       type: "ui-receive_passphrase",
       payload: {
         value: passphrase,
-        save: true
-      }
+        save: true,
+      },
     });
   }
 
@@ -456,7 +457,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
       strength: msg.entropy,
       label: msg.label,
       pinProtection: msg.pin,
-      passphraseProtection: msg.passphrase
+      passphraseProtection: msg.passphrase,
     });
     handleError(this.transport, res, "Could not reset Trezor");
   }
@@ -476,7 +477,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
       mnemonic: msg.mnemonic,
       pin: msg.pin,
       passphraseProtection: msg.passphrase,
-      label: msg.label
+      label: msg.label,
     });
     handleError(this.transport, res, "Could not load seed into Trezor");
   }

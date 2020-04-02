@@ -4,10 +4,7 @@ import { ETHWallet, ETHWalletInfo } from "./ethereum";
 
 import { CosmosWallet, CosmosWalletInfo } from "./cosmos";
 
-import {
-  BinanceWallet,
-  BinanceWalletInfo,
-} from './binance'
+import { BinanceWallet, BinanceWalletInfo } from "./binance";
 
 import { RippleWallet, RippleWalletInfo } from "./ripple";
 
@@ -103,12 +100,12 @@ export interface PathDescription {
 }
 
 type CoinWallets =
-  BTCWallet |
-  ETHWallet |
-  CosmosWallet |
-  BinanceWallet |
-  RippleWallet |
-  DebugLinkWallet
+  | BTCWallet
+  | ETHWallet
+  | CosmosWallet
+  | BinanceWallet
+  | RippleWallet
+  | DebugLinkWallet;
 
 export type Coin = string;
 export type Symbol = string;
@@ -176,11 +173,11 @@ export function infoRipple(info: any): info is RippleWalletInfo {
 }
 
 export function supportsBinance(wallet: any): wallet is BinanceWallet {
-  return isObject(wallet) && (wallet as any)._supportsBinance
+  return isObject(wallet) && (wallet as any)._supportsBinance;
 }
 
 export function infoBinance(info: any): info is BinanceWalletInfo {
-  return isObject(info) && (info as any)._supportsBinanceInfo
+  return isObject(info) && (info as any)._supportsBinanceInfo;
 }
 
 export function supportsDebugLink(wallet: any): wallet is DebugLinkWallet {
@@ -192,7 +189,7 @@ export interface HDWalletInfo {
   _supportsBTCInfo: boolean;
   _supportsCosmosInfo: boolean;
   _supportsRippleInfo: boolean;
-  _supportsBinanceInfo: boolean
+  _supportsBinanceInfo: boolean;
   /**
    * Retrieve the wallet's vendor string.
    */
@@ -234,14 +231,14 @@ export interface HDWalletInfo {
 }
 
 export interface HDWallet extends HDWalletInfo {
-  _supportsETHInfo: boolean
-  _supportsBTCInfo: boolean
-  _supportsBTC: boolean
-  _supportsETH: boolean
-  _supportsCosmos: boolean
-  _supportsBinance: boolean
+  _supportsETHInfo: boolean;
+  _supportsBTCInfo: boolean;
+  _supportsBTC: boolean;
+  _supportsETH: boolean;
+  _supportsCosmos: boolean;
+  _supportsBinance: boolean;
   _supportsRipple: boolean;
-  _supportsDebugLink: boolean
+  _supportsDebugLink: boolean;
 
   transport: Transport;
 

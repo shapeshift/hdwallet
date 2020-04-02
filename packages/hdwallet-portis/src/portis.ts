@@ -36,7 +36,7 @@ import {
   BTCGetAccountPaths,
   BTCAccountPath,
   BTCWalletInfo,
-  slip44ByCoin
+  slip44ByCoin,
 } from "@shapeshiftoss/hdwallet-core";
 import * as eth from "./ethereum";
 import * as btc from "./bitcoin";
@@ -58,18 +58,18 @@ export function isPortis(wallet: HDWallet): wallet is PortisHDWallet {
 }
 
 export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
-  _supportsETH: boolean = true
-  _supportsETHInfo: boolean = true
-  _supportsBTCInfo: boolean = true
-  _supportsBTC: boolean = true
-  _supportsCosmosInfo: boolean = false
-  _supportsCosmos: boolean = false
-  _supportsBinanceInfo: boolean = false
-  _supportsBinance: boolean = false
+  _supportsETH: boolean = true;
+  _supportsETHInfo: boolean = true;
+  _supportsBTCInfo: boolean = true;
+  _supportsBTC: boolean = true;
+  _supportsCosmosInfo: boolean = false;
+  _supportsCosmos: boolean = false;
+  _supportsBinanceInfo: boolean = false;
+  _supportsBinance: boolean = false;
   _supportsRippleInfo: boolean = false;
   _supportsRipple: boolean = false;
-  _supportsDebugLink: boolean = false
-  _isPortis: boolean = true
+  _supportsDebugLink: boolean = false;
+  _isPortis: boolean = true;
 
   transport = new PortisTransport(new Keyring());
 
@@ -323,11 +323,12 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 }
 
-export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalletInfo {
-  _supportsBTCInfo: boolean = true
-  _supportsETHInfo: boolean = true
-  _supportsCosmosInfo: boolean = false
-  _supportsBinanceInfo: boolean = false
+export class PortisHDWalletInfo
+  implements HDWalletInfo, ETHWalletInfo, BTCWalletInfo {
+  _supportsBTCInfo: boolean = true;
+  _supportsETHInfo: boolean = true;
+  _supportsCosmosInfo: boolean = false;
+  _supportsBinanceInfo: boolean = false;
   _supportsRippleInfo: boolean = false;
 
   public getVendor(): string {
