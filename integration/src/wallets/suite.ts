@@ -4,6 +4,7 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 
 export type InfoCreater = () => HDWalletInfo
+// @ts-ignore
 export type Creater = (type: any = null) => Promise<HDWallet>
 export type Getter = () => HDWallet
 export type Suite = (get: Getter) => void

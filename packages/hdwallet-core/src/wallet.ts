@@ -11,10 +11,6 @@ import {
 
 import { RippleWallet, RippleWalletInfo } from "./ripple";
 
-import { DebugLinkWallet } from './debuglink'
-import { Transport } from './transport';
-import { isObject } from 'lodash';
-
 import { DebugLinkWallet } from "./debuglink";
 import { Transport } from "./transport";
 import { isObject } from "lodash";
