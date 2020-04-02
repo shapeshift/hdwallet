@@ -1,0 +1,31 @@
+{
+  "chain_id": "cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f",
+  "transaction": {
+  "expiration": "2018-07-14T07:43:28",
+  "ref_block_num": 6439,
+  "ref_block_prefix": 2995713264,
+  "max_net_usage_words": 0,
+  "max_cpu_usage_ms": 0,
+  "delay_sec": 0,
+  "context_free_actions": [],
+  "actions": [
+      {
+      "account": "eosio.token",
+      "name": "transfer",
+      "authorization": [
+          {
+          "actor": "miniminimini",
+          "permission": "active"
+          }
+      ],
+      "data": {
+          "from": "miniminimini",
+          "to": "maximaximaxi",
+          "quantity": "1.0000 EOS",
+          "memo": "testtest"
+      }
+      }
+  ],
+  "transaction_extensions": []
+  }
+}

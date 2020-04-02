@@ -132,6 +132,7 @@ export function slip44ByCoin (coin: Coin): number {
     'BitcoinSV': 236,
     'Ethereum': 60,
     'Atom': 118,
+    'Eos': 194,
   }[coin]
 }
 

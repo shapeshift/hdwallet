@@ -150,6 +150,7 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
   _supportsBTCInfo: boolean = true
   _supportsETHInfo: boolean = true
   _supportsCosmosInfo: boolean = false
+  _supportsEosInfo: boolean = false
 
   public getVendor (): string {
     return 'Ledger'
@@ -292,6 +293,8 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   _supportsETH: boolean = true
   _supportsCosmosInfo: boolean = false
   _supportsCosmos: boolean = false
+  _supportsEosInfo: boolean = false
+  _supportsEos: boolean = false
 
   _isLedger: boolean = true
 

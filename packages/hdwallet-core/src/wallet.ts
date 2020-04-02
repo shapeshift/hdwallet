@@ -14,6 +14,11 @@ import {
   CosmosWalletInfo,
 } from './cosmos'
 
+import {
+  EosWallet,
+  EosWalletInfo,
+} from './eos'
+
 import { DebugLinkWallet } from './debuglink'
 import { Transport } from './transport';
 import { isObject } from 'lodash';
@@ -109,6 +114,7 @@ type CoinWallets =
   BTCWallet |
   ETHWallet |
   CosmosWallet |
+  EosWallet |
   DebugLinkWallet
 
 export type Coin = string
@@ -158,6 +164,14 @@ export function infoCosmos(info: any): info is CosmosWalletInfo {
   return isObject(info) && (info as any)._supportsCosmosInfo
 }
 
+export function supportsEos(wallet: any): wallet is EosWallet {
+  return isObject(wallet) && (wallet as any)._supportsEos
+}
+
+export function infoEos(info: any): info is EosWalletInfo {
+  return isObject(info) && (info as any)._supportsEosInfo
+}
+
 export function supportsDebugLink(wallet: any): wallet is DebugLinkWallet {
   return isObject(wallet) && (wallet as any)._supportsDebugLink
 }
@@ -166,6 +180,7 @@ export interface HDWalletInfo {
   _supportsETHInfo: boolean
   _supportsBTCInfo: boolean
   _supportsCosmosInfo: boolean
+  _supportsEosInfo: boolean
 
   /**
    * Retrieve the wallet's vendor string.
@@ -213,6 +228,7 @@ export interface HDWallet extends HDWalletInfo {
   _supportsBTC: boolean
   _supportsETH: boolean
   _supportsCosmos: boolean
+  _supportsEos: boolean
   _supportsDebugLink: boolean
 
   transport: Transport

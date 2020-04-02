@@ -29,6 +29,10 @@ import {
   CosmosGetAddress,
   CosmosSignTx,
   CosmosSignedTx,
+  EosWalletInfo,
+  EosGetAccountPaths,
+  EosAccountPath,
+  EosGetPublicKey,
   ETHSignTx,
   ETHSignedTx,
   ETHGetAddress,
@@ -61,6 +65,7 @@ import {
 import * as Btc from "./bitcoin";
 import * as Eth from "./ethereum"
 import * as Cosmos from "./cosmos"
+import * as Eos from "./eos"
 
 import { KeepKeyTransport } from "./transport";
 
@@ -257,10 +262,51 @@ function describeCosmosPath (path: BIP32Path): PathDescription {
   }
 }
 
-export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo, CosmosWalletInfo {
+function describeEosPath (path: BIP32Path): PathDescription {
+  let pathStr = addressNListToBIP32(path)
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin: 'Eos',
+    isKnown: false
+  }
+
+  if (path.length != 5) {
+    return unknown
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown
+  }
+
+  if (path[1] != 0x80000000 + slip44ByCoin('Eos')) {
+    return unknown
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown
+  }
+
+  let index = path[2] & 0x7fffffff
+  return {
+    verbose: `Eos Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: 'Eos',
+    isKnown: true,
+    isPrefork: false
+  }
+}
+
+export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo, CosmosWalletInfo, EosWalletInfo {
   _supportsBTCInfo: boolean = true
   _supportsETHInfo: boolean = true
   _supportsCosmosInfo: boolean = true
+  _supportsEosInfo: boolean = true
+
 
   public getVendor (): string {
     return "KeepKey"
@@ -310,6 +356,10 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
     return Cosmos.cosmosGetAccountPaths(msg)
   }
 
+  public eosGetAccountPaths (msg: CosmosGetAccountPaths): Array<EosAccountPath> {
+    return Eos.eosGetAccountPaths(msg)
+  }
+
   public hasOnDevicePinEntry(): boolean {
     return false;
   }
@@ -339,6 +389,8 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
       return describeETHPath(msg.path)
     case 'Atom':
       return describeCosmosPath(msg.path)
+    case 'Eos':
+      return describeEosPath(msg.path)
     default:
       return describeUTXOPath(msg.path, msg.coin, msg.scriptType)
     }
@@ -393,6 +445,20 @@ export class KeepKeyHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWall
 
     let addressNList = msg.addressNList
     addressNList[2] += 1
+    return {
+      ...msg,
+      addressNList
+    }
+  }
+
+  public eosNextAccountPath (msg: EosAccountPath): EosAccountPath | undefined {
+    let description = describeEosPath(msg.addressNList)
+    if (!description.isKnown) {
+      return undefined
+    }
+
+    let addressNList = msg.addressNList
+    addressNList[2] += 1
 
     return {
       ...msg,
@@ -405,11 +471,13 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   _supportsETHInfo: boolean = true
   _supportsBTCInfo: boolean = true
   _supportsCosmosInfo: boolean = true
+  _supportsEosInfo: boolean = true
   _supportsDebugLink: boolean
   _isKeepKey: boolean = true;
   _supportsETH: boolean = true;
   _supportsBTC: boolean = true;
   _supportsCosmos: boolean = true;
+  _supportsEos: boolean = true;
 
   transport: KeepKeyTransport;
   features?: Messages.Features.AsObject;
@@ -979,6 +1047,14 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
 
   public cosmosSignTx (msg: CosmosSignTx): Promise<CosmosSignedTx> {
     return Cosmos.cosmosSignTx(this.transport, msg)
+
+  }
+  public eosGetAccountPaths (msg: EosGetAccountPaths): Array<EosAccountPath> {
+    return this.info.eosGetAccountPaths(msg)
+  }
+
+  public eosGetPublicKey (msg: EosGetPublicKey): Promise<string> {
+    return Eos.eosGetPublicKey(this.transport, msg)
   }
 
   public describePath (msg: DescribePath): PathDescription {
@@ -999,6 +1075,10 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
 
   public cosmosNextAccountPath (msg: CosmosAccountPath): CosmosAccountPath | undefined {
     return this.info.cosmosNextAccountPath(msg)
+  }
+
+  public eosNextAccountPath (msg: EosAccountPath): EosAccountPath | undefined {
+    return this.info.eosNextAccountPath(msg)
   }
 }
 
