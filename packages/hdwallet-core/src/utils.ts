@@ -134,19 +134,20 @@ export function base64toHEX(base64: string): string {
 
 export function slip44ByCoin(coin: Coin): number {
   return {
-    Bitcoin: 0,
-    Testnet: 1,
-    BitcoinCash: 145,
-    BitcoinGold: 156,
-    Litecoin: 2,
-    Dash: 5,
-    DigiByte: 20,
-    Dogecoin: 3,
-    BitcoinSV: 236,
-    Ethereum: 60,
-    Atom: 118,
-    Ripple: 144
-  }[coin];
+    'Bitcoin': 0,
+    'Testnet': 1,
+    'BitcoinCash': 145,
+    'BitcoinGold': 156,
+    'Litecoin': 2,
+    'Dash': 5,
+    'DigiByte': 20,
+    'Dogecoin': 3,
+    'BitcoinSV': 236,
+    'Ethereum': 60,
+    'Atom': 118,
+    'Binance': 714,
+    'Ripple': 144
+  }[coin]
 }
 
 export function satsFromStr(coins: string): number {

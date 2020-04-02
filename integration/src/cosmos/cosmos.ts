@@ -39,23 +39,20 @@ export function cosmosTests(
       });
     }, TIMEOUT);
 
-    test.skip(
-      "cosmosGetAccountPaths()",
-      () => {
-        if (!wallet) return;
-        let paths = wallet.cosmosGetAccountPaths({ accountIdx: 0 });
-        expect(paths.length > 0).toBe(true);
-        expect(paths[0].addressNList[0] > 0x80000000).toBe(true);
-        paths.forEach(path => {
-          expect(
-            wallet.cosmosNextAccountPath(path) === undefined ||
-              wallet.cosmosNextAccountPath(path).addressNList.join() !==
-                path.addressNList.join()
-          ).toBeTruthy();
-        });
-      },
-      TIMEOUT
-    );
+    test.skip('cosmosGetAccountPaths()', () => {
+      if (!wallet) return
+      let paths = wallet.cosmosGetAccountPaths({ accountIdx: 0 })
+      expect(paths.length > 0).toBe(true)
+      expect(paths[0].addressNList[0] > 0x80000000).toBe(true)
+      paths.forEach(path => {
+        let curAddr = path.addressNList.join()
+        let nextAddr = wallet.cosmosNextAccountPath(path).addressNList.join()
+        expect(
+          nextAddr === undefined
+          || nextAddr !== curAddr
+        ).toBeTruthy()
+      })
+    }, TIMEOUT)
 
     test(
       "cosmosGetAddress()",

@@ -5,6 +5,7 @@ import {
   supportsETH,
   supportsBTC,
   supportsCosmos,
+  supportsBinance,
   supportsRipple,
   supportsDebugLink,
   bip32ToAddressNList,
@@ -108,22 +109,22 @@ $ledger.on("click", async e => {
   $("#keyring select").val(await wallet.getDeviceID());
 });
 
-$portis.on("click", async e => {
-  e.preventDefault();
-  wallet = await portisAdapter.pairDevice();
-  window["wallet"] = wallet;
+$portis.on('click',  async (e) => {
+  e.preventDefault()
+  wallet = await portisAdapter.pairDevice()
+  window['wallet'] = wallet
 
   let deviceId = "nothing";
   try {
-    deviceId = await wallet.getDeviceID();
-  } catch (e) {
-    console.error(e);
+    deviceId  = await wallet.getDeviceID()
+  } catch( e ) {
+    console.error(e)
   }
   $("#keyring select").val(deviceId);
 });
 
-async function deviceConnected(deviceId) {
-  let wallet = keyring.get(deviceId);
+async function deviceConnected (deviceId) {
+  let wallet = keyring.get(deviceId)
   if (!$keyring.find(`option[value="${deviceId}"]`).length) {
     $keyring.append(
       $("<option></option>")
@@ -380,36 +381,24 @@ $getXpubs.on("click", async e => {
   $manageResults.val(JSON.stringify(result));
 });
 
-$doPing.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $manageResults.val("No wallet?");
-    return;
-  }
-  const result = await wallet.ping({ msg: "Hello World", button: true });
-  $manageResults.val(result.msg);
-});
+$doPing.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $manageResults.val("No wallet?"); return }
+  const result = await wallet.ping({ msg: "Hello World", button: true })
+  $manageResults.val(result.msg)
+})
 
-$doWipe.on("click", e => {
-  e.preventDefault();
-  if (!wallet) {
-    $manageResults.val("No wallet?");
-    return;
-  }
-  wallet.wipe();
-});
+$doWipe.on('click', (e) => {
+  e.preventDefault()
+  if (!wallet) { $manageResults.val("No wallet?"); return}
+  wallet.wipe()
+})
 
-$doLoadDevice.on("click", e => {
-  e.preventDefault();
-  if (!wallet) {
-    $manageResults.val("No wallet?");
-    return;
-  }
-  wallet.loadDevice({
-    mnemonic:
-      /*trezor test seed:*/ "alcohol woman abuse must during monitor noble actual mixed trade anger aisle"
-  });
-});
+$doLoadDevice.on('click', (e) => {
+  e.preventDefault()
+  if (!wallet) { $manageResults.val("No wallet?"); return}
+  wallet.loadDevice({ mnemonic: /*trezor test seed:*/'alcohol woman abuse must during monitor noble actual mixed trade anger aisle' })
+})
 
 const $openApp = $("#openApp");
 const $ledgerApp = $("#ledgerApp");
@@ -421,18 +410,12 @@ const $appInfo = $("#appInfo");
 $ledgerApp.attr("placeholder", "App name i.e. Bitcoin Cash");
 $appSymbol.attr("placeholder", "App symbol i.e. BCH");
 
-$openApp.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $ledgerApp.val("No wallet?");
-    return;
-  }
-  const appName = $("#ledgerApp").val();
-  if (!appName) {
-    $ledgerApp.val("Please enter app name here");
-    return;
-  }
-  let result;
+$openApp.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $ledgerApp.val("No wallet?"); return}
+  const appName = $('#ledgerApp').val()
+  if (!appName) { $ledgerApp.val("Please enter app name here"); return}
+  let result
   try {
     await wallet.openApp(appName);
     result = "Check device for prompt";
@@ -443,18 +426,12 @@ $openApp.on("click", async e => {
   $ledgerApp.val(result);
 });
 
-$validateApp.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $appSymbol.val("No wallet?");
-    return;
-  }
-  const appSymbol = $("#appSymbol").val();
-  if (!appSymbol) {
-    $appSymbol.val("Please enter app symbol here");
-    return;
-  }
-  let result;
+$validateApp.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $appSymbol.val("No wallet?"); return}
+  const appSymbol = $('#appSymbol').val()
+  if (!appSymbol) { $appSymbol.val("Please enter app symbol here"); return}
+  let result
   try {
     await wallet.validateCurrentApp(appSymbol);
     result = "Correct app open";
@@ -465,13 +442,10 @@ $validateApp.on("click", async e => {
   $appSymbol.val(result);
 });
 
-$getAppInfo.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $appInfo.val("No wallet?");
-    return;
-  }
-  let result;
+$getAppInfo.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $appInfo.val("No wallet?"); return}
+  let result
   try {
     const res = await wallet.transport.call(null, "getAppAndVersion");
     result = res.payload.name;
@@ -535,20 +509,95 @@ $rippleTx.on("click", async e => {
 });
 
 /*
+ * Binance
+ */
+const $binanceAddr = $('#binanceAddr')
+const $binanceTx = $('#binanceTx')
+const $binanceResults = $('#binanceResults')
+
+$binanceAddr.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) {
+    $binanceResults.val("No wallet?");
+    return
+  }
+  if (supportsBinance(wallet)) {
+    let {addressNList} = wallet.binanceGetAccountPaths({accountIdx: 0})[0]
+    let result = await wallet.binanceGetAddress({
+      addressNList,
+      showDisplay: false
+    })
+    result = await wallet.binanceGetAddress({
+      addressNList,
+      showDisplay: true,
+      address: result
+    })
+    $binanceResults.val(result)
+  } else {
+    let label = await wallet.getLabel()
+    $binanceResults.val(label + " does not support Binance")
+  }
+})
+
+$binanceTx.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) {
+    $binanceResults.val("No wallet?");
+    return
+  }
+  if (supportsBinance(wallet)) {
+    let unsigned = {
+      "account_number": "34",
+      "chain_id": "Binance-Chain-Nile",
+      "data": "null",
+      "memo": "test",
+      "msgs": [
+        {
+          "inputs": [
+            {
+              "address": "tbnb1hgm0p7khfk85zpz5v0j8wnej3a90w709zzlffd",
+              "coins": [{"amount": 1000000000, "denom": "BNB"}],
+            }
+          ],
+          "outputs": [
+            {
+              "address": "tbnb1ss57e8sa7xnwq030k2ctr775uac9gjzglqhvpy",
+              "coins": [{"amount": 1000000000, "denom": "BNB"}],
+            }
+          ],
+        }
+      ],
+      "sequence": "31",
+      "source": "1",
+    }
+
+    let res = await wallet.binanceSignTx({
+      addressNList: bip32ToAddressNList(`m/44'/714'/0'/0/0`),
+      chain_id: 'Binance-Chain-Nile',
+      account_number: '24250',
+      sequence: '31',
+      tx: unsigned,
+    })
+    $binanceResults.val(JSON.stringify(res))
+  } else {
+    let label = await wallet.getLabel()
+    $binanceResults.val(label + " does not support Cosmos")
+  }
+})
+
+
+/*
  * Cosmos
  */
 const $cosmosAddr = $("#cosmosAddr");
 const $cosmosTx = $("#cosmosTx");
 const $cosmosResults = $("#cosmosResults");
 
-$cosmosAddr.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $cosmosResults.val("No wallet?");
-    return;
-  }
+$cosmosAddr.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $ethResults.val("No wallet?"); return}
   if (supportsCosmos(wallet)) {
-    let { addressNList } = wallet.cosmosGetAccountPaths({ accountIdx: 0 })[0];
+    let { addressNList } = wallet.cosmosGetAccountPaths({ accountIdx: 0 })[0]
     let result = await wallet.cosmosGetAddress({
       addressNList,
       showDisplay: false
@@ -631,17 +680,11 @@ const $ethSign = $("#ethSign");
 const $ethVerify = $("#ethVerify");
 const $ethResults = $("#ethResults");
 
-$ethAddr.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $ethResults.val("No wallet?");
-    return;
-  }
+$ethAddr.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $ethResults.val("No wallet?"); return}
   if (supportsETH(wallet)) {
-    let { hardenedPath, relPath } = wallet.ethGetAccountPaths({
-      coin: "Ethereum",
-      accountIdx: 0
-    })[0];
+    let { hardenedPath, relPath } = wallet.ethGetAccountPaths({ coin: "Ethereum", accountIdx: 0 })[0]
     let result = await wallet.ethGetAddress({
       addressNList: hardenedPath.concat(relPath),
       showDisplay: false
@@ -658,12 +701,9 @@ $ethAddr.on("click", async e => {
   }
 });
 
-$ethTx.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $ethResults.val("No wallet?");
-    return;
-  }
+$ethTx.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $ethResults.val("No wallet?"); return}
   if (supportsETH(wallet)) {
     let res = await wallet.ethSignTx({
       addressNList: bip32ToAddressNList("m/44'/60'/0'/0/0"),
@@ -686,34 +726,22 @@ $ethTx.on("click", async e => {
   }
 });
 
-$ethSign.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $ethResults.val("No wallet?");
-    return;
-  }
+$ethSign.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $ethResults.val("No wallet?"); return}
   if (supportsETH(wallet)) {
-    let { hardenedPath: hard, relPath: rel } = wallet.ethGetAccountPaths({
-      coin: "Ethereum",
-      accountIdx: 0
-    })[0];
-    let result = await wallet.ethSignMessage({
-      addressNList: hard.concat(rel),
-      message: "Hello World"
-    });
-    $ethResults.val(result.address + ", " + result.signature);
+    let { hardenedPath: hard, relPath: rel } = wallet.ethGetAccountPaths({ coin: "Ethereum", accountIdx: 0 })[0]
+    let result = await wallet.ethSignMessage({ addressNList: hard.concat(rel), message: "Hello World" })
+    $ethResults.val(result.address + ', ' + result.signature)
   } else {
     let label = await wallet.getLabel();
     $ethResults.val(label + " does not support ETH");
   }
 });
 
-$ethVerify.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $ethResults.val("No wallet?");
-    return;
-  }
+$ethVerify.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $ethResults.val("No wallet?"); return}
   if (supportsETH(wallet)) {
     let result = await wallet.ethVerifyMessage({
       address: "0x2068dD92B6690255553141Dfcf00dF308281f763",
@@ -740,12 +768,9 @@ const $btcSign = $("#btcSign");
 const $btcVerify = $("#btcVerify");
 const $btcResults = $("#btcResults");
 
-$btcAddr.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $btcResults.val("No wallet?");
-    return;
-  }
+$btcAddr.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $btcResults.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
     //coin 0 (mainnet bitcoin)
     //path 0
@@ -762,12 +787,9 @@ $btcAddr.on("click", async e => {
   }
 });
 
-$btcTx.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $btcResults.val("No wallet?");
-    return;
-  }
+$btcTx.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $btcResults.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
     const txid =
       "b3002cd9c033f4f3c2ee5a374673d7698b13c7f3525c1ae49a00d2e28e8678ea";
@@ -809,12 +831,9 @@ $btcTx.on("click", async e => {
   }
 });
 
-$btcSign.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $btcResults.val("No wallet?");
-    return;
-  }
+$btcSign.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $btcResults.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
     let res = await wallet.btcSignMessage({
       addressNList: bip32ToAddressNList("m/44'/0'/0'/0/0"),
@@ -829,12 +848,9 @@ $btcSign.on("click", async e => {
   }
 });
 
-$btcVerify.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $btcResults.val("No wallet?");
-    return;
-  }
+$btcVerify.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $btcResults.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
     let res = await wallet.btcVerifyMessage({
       address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
@@ -867,12 +883,9 @@ const ltcBip44 = {
   addressNList: [0x80000000 + 44, 0x80000000 + 2, 0x80000000 + 0, 0, 0]
 };
 
-$ltcAddr.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $ltcResults.val("No wallet?");
-    return;
-  }
+$ltcAddr.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $ltcResults.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
     let res = await wallet.btcGetAddress({
       addressNList: ltcBip44.addressNList,
@@ -887,12 +900,9 @@ $ltcAddr.on("click", async e => {
   }
 });
 
-$ltcTx.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $ltcResults.val("No wallet?");
-    return;
-  }
+$ltcTx.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $ltcResults.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
     const txid =
       "1de79c706f34c81bbefad49a9ff8d12b6ca86b77605a1998505e4f8792a5892d";
@@ -936,12 +946,9 @@ $ltcTx.on("click", async e => {
   }
 });
 
-$ltcSign.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $ltcResults.val("No wallet?");
-    return;
-  }
+$ltcSign.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $ltcResults.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
     let res = await wallet.btcSignMessage({
       addressNList: ltcBip44.addressNList,
@@ -972,13 +979,10 @@ const $dogeResults = $("#dogeResults");
 const dogeBip44 = {
   scriptType: BTCInputScriptType.SpendAddress,
   addressNList: [0x80000000 + 44, 0x80000000 + 3, 0x80000000 + 0]
-};
-$dogeAddr.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $dogeResults.val("No wallet?");
-    return;
-  }
+}
+$dogeAddr.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $dogeResults.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
     let res = await wallet.btcGetAddress({
       addressNList: dogeBip44.addressNList.concat([0, 0]),
@@ -993,12 +997,9 @@ $dogeAddr.on("click", async e => {
   }
 });
 
-$dogeTx.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $dogeResults.val("No wallet?");
-    return;
-  }
+$dogeTx.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $dogeResults.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
     const txid =
       "4ab8c81585bf61ddcba03f4b2f4958b3800d68b02874f4955e258775cb3e7068";
@@ -1058,12 +1059,9 @@ const bchBip44 = {
   addressNList: [0x80000000 + 44, 0x80000000 + 145, 0x80000000 + 0]
 };
 
-$bchAddr.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $bchResults.val("No wallet?");
-    return;
-  }
+$bchAddr.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $bchResults.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
     let res = await wallet.btcGetAddress({
       addressNList: bchBip44.addressNList.concat([0, 0]),
@@ -1078,12 +1076,9 @@ $bchAddr.on("click", async e => {
   }
 });
 
-$bchTx.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $bchResults.val("No wallet?");
-    return;
-  }
+$bchTx.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $bchResults.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
     const txid =
       "35ec5b47eea3b45efb062c6fabad43987a79b855dc42630b34f8d26d4a646a2e";
@@ -1147,12 +1142,9 @@ const dashBip44 = {
   addressNList: [0x80000000 + 44, 0x80000000 + 5, 0x80000000 + 0]
 };
 
-$dashAddr.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $dashResults.val("No wallet?");
-    return;
-  }
+$dashAddr.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $dashResults.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
     let res = await wallet.btcGetAddress({
       addressNList: dashBip44.addressNList.concat([0, 0]),
@@ -1167,12 +1159,9 @@ $dashAddr.on("click", async e => {
   }
 });
 
-$dashTx.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $dashResults.val("No wallet?");
-    return;
-  }
+$dashTx.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $dashResults.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
     const txid =
       "0602c9ef3c74de624f1bc613a79764e5c51650b4cc0d076547061782baeeabdb";
@@ -1328,12 +1317,10 @@ const $btcTxSegWit = $("#btcTxSegWit");
 const $btcTxSegWitNative = $("#btcTxSegWitNative");
 const $btcResultsSegWit = $("#btcResultsSegWit");
 
-$btcAddrSegWit.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $btcResultsSegWit.val("No wallet?");
-    return;
-  }
+
+$btcAddrSegWit.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $btcResultsSegWit.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
     //coin 0 (mainnet bitcoin)
     //path 0
@@ -1351,12 +1338,9 @@ $btcAddrSegWit.on("click", async e => {
   }
 });
 
-$btcAddrSegWitNative.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $btcResultsSegWit.val("No wallet?");
-    return;
-  }
+$btcAddrSegWitNative.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $btcResultsSegWit.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
     //coin 0 (mainnet bitcoin)
     //path 0
@@ -1373,12 +1357,9 @@ $btcAddrSegWitNative.on("click", async e => {
   }
 });
 
-$btcTxSegWit.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $btcResultsSegWit.val("No wallet?");
-    return;
-  }
+$btcTxSegWit.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $btcResultsSegWit.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
     const txid =
       "609410a9eac51cdce2b9c1911c7b8705bc566e164bca07ae25f2dee87b5b6a91";
@@ -1419,12 +1400,9 @@ $btcTxSegWit.on("click", async e => {
   }
 });
 
-$btcTxSegWitNative.on("click", async e => {
-  e.preventDefault();
-  if (!wallet) {
-    $btcResultsSegWit.val("No wallet?");
-    return;
-  }
+$btcTxSegWitNative.on('click', async (e) => {
+  e.preventDefault()
+  if (!wallet) { $btcResultsSegWit.val("No wallet?"); return}
   if (supportsBTC(wallet)) {
     const txid =
       "2a873672cd30bfe60f05f16db4cadec26677af0971d8fd250aa0ea1bdd8e5942";

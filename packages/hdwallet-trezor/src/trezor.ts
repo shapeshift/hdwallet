@@ -166,11 +166,11 @@ function describeUTXOPath(
   }
 }
 
-export class TrezorHDWalletInfo
-  implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo {
-  _supportsBTCInfo: boolean = true;
-  _supportsETHInfo: boolean = true;
-  _supportsCosmosInfo: boolean = false;
+export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo {
+  _supportsBTCInfo: boolean = true
+  _supportsETHInfo: boolean = true
+  _supportsCosmosInfo: boolean = false
+  _supportsBinanceInfo: boolean = false //TODO trezor actually supports bnb
   _supportsRippleInfo: boolean = false;
 
   public getVendor(): string {
@@ -300,16 +300,18 @@ export class TrezorHDWalletInfo
 }
 
 export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
-  _supportsETHInfo: boolean = true;
-  _supportsBTCInfo: boolean = true;
-  _supportsDebugLink: boolean = false;
-  _supportsBTC: boolean = true;
-  _supportsETH: boolean = true;
-  _supportsCosmosInfo: boolean = false;
-  _supportsCosmos: boolean = false;
+  _supportsETHInfo: boolean = true
+  _supportsBTCInfo: boolean = true
+  _supportsDebugLink: boolean = false
+  _supportsBTC: boolean = true
+  _supportsETH: boolean = true
+  _supportsCosmosInfo: boolean = false
+  _supportsCosmos: boolean = false
+  _isTrezor: boolean = true
+  _supportsBinanceInfo: boolean = false
+  _supportsBinance: boolean = false
   _supportsRippleInfo: boolean = false;
   _supportsRipple: boolean = false;
-  _isTrezor: boolean = true;
 
   transport: TrezorTransport;
   featuresCache: any;

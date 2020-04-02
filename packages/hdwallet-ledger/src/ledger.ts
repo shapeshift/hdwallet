@@ -135,11 +135,11 @@ function describeUTXOPath(
   }
 }
 
-export class LedgerHDWalletInfo
-  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
-  _supportsBTCInfo: boolean = true;
-  _supportsETHInfo: boolean = true;
-  _supportsCosmosInfo: boolean = false;
+export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
+  _supportsBTCInfo: boolean = true
+  _supportsETHInfo: boolean = true
+  _supportsCosmosInfo: boolean = false // TODO ledger supports cosmos
+  _supportsBinanceInfo: boolean = false// TODO ledger support bnb
   _supportsRippleInfo: boolean = false;
 
   public getVendor(): string {
@@ -292,15 +292,16 @@ export class LedgerHDWalletInfo
   }
 }
 
-export class LedgerHDWallet
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet {
-  _supportsETHInfo: boolean = true;
-  _supportsBTCInfo: boolean = true;
-  _supportsDebugLink: boolean = false;
-  _supportsBTC: boolean = true;
-  _supportsETH: boolean = true;
-  _supportsCosmosInfo: boolean = false;
-  _supportsCosmos: boolean = false;
+export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet {
+  _supportsETHInfo: boolean = true
+  _supportsBTCInfo: boolean = true
+  _supportsDebugLink: boolean = false
+  _supportsBTC: boolean = true
+  _supportsETH: boolean = true
+  _supportsCosmosInfo: boolean = false
+  _supportsCosmos: boolean = false
+  _supportsBinanceInfo: boolean = false
+  _supportsBinance: boolean = false
   _supportsRippleInfo: boolean = false;
   _supportsRipple: boolean = false;
 
