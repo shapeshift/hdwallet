@@ -38,9 +38,14 @@
     "dev:sandbox": "lerna run dev --scope hdwallet-sandbox --parallel --include-filtered-dependencies",
     "dev:webusb": "lerna run dev --scope webusb --parallel --include-filtered-dependencies",
     "docker:run:emulator": "docker run -p 5000:5000 kktech/kkemu:latest",
+    "docker:stop:run:emulator": "docker stop $(docker ps -a -q --filter ancestor=kktech/kkemu:latest --format=\"{{.ID}}\") && docker run -p 5000:5000 kktech/kkemu:latest",
     "test": "yarn run jest --verbose --config jest.config.js",
     "test:ci": "yarn run jest --verbose --runInBand --ci --reporters=default --reporters=jest-junit --coverage --config jest.config.js --detectOpenHandles",
-    "lerna:version": "lerna version --force-publish"
+    "lerna:version": "lerna version --force-publish",
+    "lerna-bump-version-alpha": "lerna publish --no-push --skip-npm --force-publish '*' prepatch --yes",
+    "lerna-bump-version-patch": "lerna publish --no-push --skip-npm --force-publish '*' patch --yes",
+    "lerna-bump-version-minor": "lerna publish --no-push --skip-npm --force-publish '*' minor --yes",
+    "lerna-bump-version-major": "lerna publish --no-push --skip-npm --force-publish '*' major --yes"
   },
   "devDependencies": {
     "jest-junit": "^6.4.0",
