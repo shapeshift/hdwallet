@@ -25,9 +25,7 @@
       "scriptPubKey": {
         "hex": "76a914546dabff283c7d6cf56dd85b5e5d3a4150449db688ac",
         "asm": "OP_DUP OP_HASH160 546dabff283c7d6cf56dd85b5e5d3a4150449db6 OP_EQUALVERIFY OP_CHECKSIG",
-        "addresses": [
-          "XiPFyW4GU4fDy315Z6LSf6tNcR5dRqiZ3J"
-        ],
+        "addresses": ["XiPFyW4GU4fDy315Z6LSf6tNcR5dRqiZ3J"],
         "type": "pubkeyhash"
       },
       "spentTxId": "7ee32d8d56e94b7d969b299ec7f513990a0af2d2b33a18d07cfe844d40a322d0",
