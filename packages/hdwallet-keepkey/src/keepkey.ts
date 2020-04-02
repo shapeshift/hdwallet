@@ -348,6 +348,7 @@ export class KeepKeyHDWalletInfo
     BTCWalletInfo,
     ETHWalletInfo,
     CosmosWalletInfo,
+    BinanceWalletInfo,
     RippleWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
