@@ -9,13 +9,7 @@
         "script_type": "p2pkh",
         "amount": "78708331053",
         "confirmations": 685,
-        "address_n": [
-          2147483692,
-          2147483668,
-          2147483648,
-          0,
-          4
-        ],
+        "address_n": [2147483692, 2147483668, 2147483648, 0, 4],
         "tx": {
           "txid": "d7f794bdf1afeb77c52805d3cd221ba1763387d67416d37fa5b20e2b110428c1",
           "hash": "d7f794bdf1afeb77c52805d3cd221ba1763387d67416d37fa5b20e2b110428c1",
@@ -47,9 +41,7 @@
                 "asm": "OP_DUP OP_HASH160 ee7a5e40df8d9b3ab05daeca178c00394e1aa7e9 OP_EQUALVERIFY OP_CHECKSIG",
                 "hex": "76a914ee7a5e40df8d9b3ab05daeca178c00394e1aa7e988ac",
                 "reqSigs": 1,
-                "addresses": [
-                  "DSt3xCnqttV6Z91foPwnZbiC2tZW1HGMfn"
-                ],
+                "addresses": ["DSt3xCnqttV6Z91foPwnZbiC2tZW1HGMfn"],
                 "type": "pubkeyhash"
               },
               "spentTxId": null,
@@ -63,9 +55,7 @@
                 "asm": "OP_HASH160 e80e17a1239bf8304dac31190105228cdfba917a OP_EQUAL",
                 "hex": "a914e80e17a1239bf8304dac31190105228cdfba917a87",
                 "reqSigs": 1,
-                "addresses": [
-                  "SiSzgVmajpqHn9WyZZDQzsDUzuwvXpcVi9"
-                ],
+                "addresses": ["SiSzgVmajpqHn9WyZZDQzsDUzuwvXpcVi9"],
                 "type": "scripthash"
               },
               "spentTxId": null,
@@ -98,13 +88,7 @@
         "index": 8,
         "relpath": "1/8",
         "script_type": "p2pkh",
-        "address_n": [
-          2147483692,
-          2147483668,
-          2147483648,
-          1,
-          8
-        ]
+        "address_n": [2147483692, 2147483668, 2147483648, 1, 8]
       }
     ],
     "fee": 1210,

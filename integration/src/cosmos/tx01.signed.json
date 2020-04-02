@@ -2,30 +2,38 @@
   "type": "auth/StdTx",
   "value": {
     "fee": {
-      "amount": [{
+      "amount": [
+        {
           "amount": "1000",
           "denom": "uatom"
-      }],
+        }
+      ],
       "gas": "28000"
     },
     "memo": "KeepKey",
-    "msg": [{
-      "type": "cosmos-sdk/MsgSend",
-      "value": {
-        "amount": [{
-          "amount": "47000",
-          "denom": "uatom"
-        }],
-        "from_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
-        "to_address": "cosmos14um3sf75lc0kpvgrpj9hspqtv0375epn05cpfa"
+    "msg": [
+      {
+        "type": "cosmos-sdk/MsgSend",
+        "value": {
+          "amount": [
+            {
+              "amount": "47000",
+              "denom": "uatom"
+            }
+          ],
+          "from_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
+          "to_address": "cosmos14um3sf75lc0kpvgrpj9hspqtv0375epn05cpfa"
+        }
       }
-    }],
-    "signatures": [{
-      "pub_key": {
-        "type": "tendermint/PubKeySecp256k1",
-        "value": "A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
-      },
-      "signature": "ka8jz36z+IYOQFYJGMS6c/YBoKJhXHBevkjBwDTiT6kLxpU43j4T+78vAxPfnhatJJax1OejT+eHFrGfL8Cwaw=="
-    }]
+    ],
+    "signatures": [
+      {
+        "pub_key": {
+          "type": "tendermint/PubKeySecp256k1",
+          "value": "A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
+        },
+        "signature": "ka8jz36z+IYOQFYJGMS6c/YBoKJhXHBevkjBwDTiT6kLxpU43j4T+78vAxPfnhatJJax1OejT+eHFrGfL8Cwaw=="
+      }
+    ]
   }
 }

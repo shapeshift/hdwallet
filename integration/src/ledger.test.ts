@@ -1,3 +1,3 @@
-import { integration } from './integration'
-import * as Ledger from './wallets/ledger'
-integration(Ledger)
+import { integration } from "./integration";
+import * as Ledger from "./wallets/ledger";
+integration(Ledger);

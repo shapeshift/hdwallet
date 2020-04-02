@@ -1,14 +1,14 @@
-import { HDWallet, HDWalletInfo } from '@shapeshiftoss/hdwallet-core'
-import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
-import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { isPortis } from '@shapeshiftoss/hdwallet-portis'
+import { HDWallet, HDWalletInfo } from "@shapeshiftoss/hdwallet-core";
+import { isKeepKey } from "@shapeshiftoss/hdwallet-keepkey";
+import { isTrezor } from "@shapeshiftoss/hdwallet-trezor";
+import { isLedger } from "@shapeshiftoss/hdwallet-ledger";
+import { isPortis } from "@shapeshiftoss/hdwallet-portis";
 
-import { btcTests } from './bitcoin'
-import { ethTests } from './ethereum'
-import { cosmosTests } from './cosmos'
-import { binanceTests } from './binance'
-import { WalletSuite } from './wallets/suite'
+import { btcTests } from "./bitcoin";
+import { ethTests } from "./ethereum";
+import { cosmosTests } from "./cosmos";
+import { binanceTests } from "./binance";
+import { WalletSuite } from "./wallets/suite";
 
 /**
  * We run all the integration tests against every device, even though some
@@ -19,70 +19,70 @@ import { WalletSuite } from './wallets/suite'
  * confirm that in its `selfTest` implementation.
  */
 
-export function integration (suite: WalletSuite): void {
-  const name: string = suite.name()
+export function integration(suite: WalletSuite): void {
+  const name: string = suite.name();
 
-  let wallet: HDWallet
-  let info: HDWalletInfo
+  let wallet: HDWallet;
+  let info: HDWalletInfo;
 
   describe(`${name}`, () => {
     beforeAll(() => {
-      info = suite.createInfo()
-    })
+      info = suite.createInfo();
+    });
 
-    describe('Type Guards', () => {
+    describe("Type Guards", () => {
       beforeAll(async () => {
-        wallet = await suite.createWallet()
-      })
+        wallet = await suite.createWallet();
+      });
 
-      it('has only one vendor', () => {
+      it("has only one vendor", () => {
         expect(
           (isKeepKey(wallet) ? 1 : 0) +
-          (isTrezor(wallet) ? 1 : 0) +
-          (isLedger(wallet) ? 1 : 0) +
-          (isPortis(wallet) ? 1 : 0)
-        ).toEqual(1)
-      })
-    })
+            (isTrezor(wallet) ? 1 : 0) +
+            (isLedger(wallet) ? 1 : 0) +
+            (isPortis(wallet) ? 1 : 0)
+        ).toEqual(1);
+      });
+    });
 
-    describe('ETHWallet', () => {
+    describe("ETHWallet", () => {
       beforeAll(async () => {
-        wallet = await suite.createWallet('Ethereum')
-      })
+        wallet = await suite.createWallet("Ethereum");
+      });
 
-      ethTests(() => ({wallet, info}))
-    })
+      ethTests(() => ({ wallet, info }));
+    });
 
-    describe('BTCWallet', () => {
+    describe("BTCWallet", () => {
       beforeAll(async () => {
-        wallet = await suite.createWallet('Bitcoin')
-      })
+        wallet = await suite.createWallet("Bitcoin");
+      });
 
-      btcTests(() => ({wallet, info}))
-    })
+      btcTests(() => ({ wallet, info }));
+    });
 
-    describe('CosmosWallet', () => {
+    describe("CosmosWallet", () => {
       beforeAll(async () => {
-        wallet = await suite.createWallet('Cosmos')
-      })
+        wallet = await suite.createWallet("Cosmos");
+      });
 
-      cosmosTests(() => ({wallet, info}))
-    })
+      cosmosTests(() => ({ wallet, info }));
+    });
 
-    describe('BinanceWallet', () => {
+    describe("BinanceWallet", () => {
       beforeAll(async () => {
-        wallet = await suite.createWallet('Binance')
-      })
+        wallet = await suite.createWallet("Binance");
+      });
 
-      binanceTests(() => ({wallet, info}))
-    })
+      binanceTests(() => ({ wallet, info }));
+    });
 
-    describe('SelfTest', () => {
+    describe("SelfTest", () => {
       beforeAll(async () => {
-        wallet = await suite.createWallet()
-      })
+        wallet = await suite.createWallet();
+      });
 
-      suite.selfTest(() => (wallet))
-    })
-  })
+      suite.selfTest(() => wallet);
+    });
+  });
 }
