@@ -7,7 +7,9 @@ import {
 } from "@shapeshiftoss/hdwallet-core";
 import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
 
+// @ts-ignore
 import * as tx01_unsigned from "./tx01.unsigned.json";
+// @ts-ignore
 import * as tx01_signed from "./tx01.signed.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE =
@@ -39,7 +41,7 @@ export function cosmosTests(
       });
     }, TIMEOUT);
 
-    test.skip(
+    test(
       "cosmosGetAccountPaths()",
       () => {
         if (!wallet) return;
