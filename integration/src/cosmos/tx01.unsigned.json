@@ -2,24 +2,30 @@
   "type": "auth/StdTx",
   "value": {
     "fee": {
-      "amount": [{
-        "amount": "1000",
-        "denom": "uatom"
-      }],
+      "amount": [
+        {
+          "amount": "1000",
+          "denom": "uatom"
+        }
+      ],
       "gas": "28000"
     },
     "memo": "KeepKey",
-    "msg": [{
-      "type": "cosmos-sdk/MsgSend",
-      "value": {
-        "amount": [{
-          "amount": "47000",
-          "denom": "uatom"
-        }],
-        "from_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
-        "to_address": "cosmos14um3sf75lc0kpvgrpj9hspqtv0375epn05cpfa"
+    "msg": [
+      {
+        "type": "cosmos-sdk/MsgSend",
+        "value": {
+          "amount": [
+            {
+              "amount": "47000",
+              "denom": "uatom"
+            }
+          ],
+          "from_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
+          "to_address": "cosmos14um3sf75lc0kpvgrpj9hspqtv0375epn05cpfa"
+        }
       }
-    }],
+    ],
     "signatures": null
   }
 }

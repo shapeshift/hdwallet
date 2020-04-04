@@ -1031,9 +1031,10 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^12.0.9"
 
-"@keepkey/device-protocol@^6.2.3":
-  version "6.2.3"
-  resolved "https://registry.yarnpkg.com/@keepkey/device-protocol/-/device-protocol-6.2.3.tgz#a7d851065fd2e214dd56b5c30513deb91f3e6c7b"
+"@keepkey/device-protocol@^6.4.1":
+  version "6.4.1"
+  resolved "https://registry.yarnpkg.com/@keepkey/device-protocol/-/device-protocol-6.4.1.tgz#2d370730674ba0897f26e6230fc06975a5dd3ace"
+  integrity sha512-hrl4L2bSljR/AVDYpaS11BDsycK14kZMNM0YXLzOLxyhnoaZxpcnok5O+xusxgQ4Dk45QHZJMQ/clXwIOMBdtg==
   dependencies:
     google-protobuf "^3.7.0-rc.2"
     pbjs "^0.0.5"
@@ -10256,6 +10257,11 @@ prepend-http@^2.0.0:
 preserve@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/preserve/-/preserve-0.2.0.tgz#815ed1f6ebc65926f865b310c0713bcb3315ce4b"
+
+prettier@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.0.2.tgz#1ba8f3eb92231e769b7fcd7cb73ae1b6b74ade08"
+  integrity sha512-5xJQIPT8BraI7ZnaDwSbu5zLrB6vvi8hVV58yHQ+QK64qrY40dULy0HSRlQ2/2IdzeBpjhDkqdcFBnFeDEMVdg==
 
 pretty-bytes@^3.0.0:
   version "3.0.1"

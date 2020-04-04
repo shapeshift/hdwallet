@@ -1,8 +1,7 @@
-
 export interface DebugLinkWallet {
-  _supportsDebugLink: boolean
+  _supportsDebugLink: boolean;
 
-  pressYes (): Promise<void>
-  pressNo (): Promise<void>
-  press (isYes: boolean): Promise<void>
+  pressYes(): Promise<void>;
+  pressNo(): Promise<void>;
+  press(isYes: boolean): Promise<void>;
 }

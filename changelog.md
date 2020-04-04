@@ -1,5 +1,5 @@
-
 # Change Log
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
@@ -75,11 +75,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.14.0] - 2019-11-08
 
 ## Fixed
+
 - Lock portis version to prevent regressions
 
 ## [0.13.1] - 2019-11-04
 
 ### Fixed
+
 - Updated yarn.lock
 
 ## [0.13.0] - 2019-11-04
@@ -90,6 +92,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Add ledger validateCurrentApp() and openApp()
 
 ### Fixed
+
 - Ledger: use transport.call() to get firmware version
 
 ## [0.12.1] - 2019-11-01

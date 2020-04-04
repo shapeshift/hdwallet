@@ -13,91 +13,94 @@ import {
   BTCVerifyMessage,
   fromHexString,
   hardenedPath,
-  relativePath
-} from "@shapeshiftoss/hdwallet-core"
+  relativePath,
+} from "@shapeshiftoss/hdwallet-core";
 
-import { verify } from 'bitcoinjs-message'
-import Base64 from 'base64-js'
-import { payments } from 'bitcoinjs-lib'
-import { fromBase58 } from 'bip32'
+import { verify } from "bitcoinjs-message";
+import Base64 from "base64-js";
+import { payments } from "bitcoinjs-lib";
+import { fromBase58 } from "bip32";
 
-export function describeUTXOPath (path: BIP32Path, coin: Coin, scriptType: BTCInputScriptType): PathDescription {
-  let pathStr = addressNListToBIP32(path)
+export function describeUTXOPath(
+  path: BIP32Path,
+  coin: Coin,
+  scriptType: BTCInputScriptType
+): PathDescription {
+  let pathStr = addressNListToBIP32(path);
   let unknown: PathDescription = {
     verbose: pathStr,
     coin,
     scriptType,
-    isKnown: false
-  }
+    isKnown: false,
+  };
 
-  if (path.length !== 3 && path.length !== 5)
-    return unknown
+  if (path.length !== 3 && path.length !== 5) return unknown;
 
-  if ((path[0] & 0x80000000) >>> 0 !== 0x80000000)
-    return unknown
+  if ((path[0] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
 
-  let purpose = path[0] & 0x7fffffff
+  let purpose = path[0] & 0x7fffffff;
 
-  if (![44, 49, 84].includes(purpose))
-    return unknown
+  if (![44, 49, 84].includes(purpose)) return unknown;
 
   if (purpose === 44 && scriptType !== BTCInputScriptType.SpendAddress)
-    return unknown
+    return unknown;
 
   if (purpose === 49 && scriptType !== BTCInputScriptType.SpendP2SHWitness)
-    return unknown
+    return unknown;
 
   if (purpose === 84 && scriptType !== BTCInputScriptType.SpendWitness)
-    return unknown
+    return unknown;
 
-  let wholeAccount = path.length === 3
+  let wholeAccount = path.length === 3;
 
   let script = {
-    [BTCInputScriptType.SpendAddress]: ['Legacy'],
+    [BTCInputScriptType.SpendAddress]: ["Legacy"],
     [BTCInputScriptType.SpendP2SHWitness]: [],
-    [BTCInputScriptType.SpendWitness]: ['Segwit Native']
-  }[scriptType]
+    [BTCInputScriptType.SpendWitness]: ["Segwit Native"],
+  }[scriptType];
 
-  let isPrefork = false
+  let isPrefork = false;
   if (path[1] !== 0x80000000 + slip44ByCoin(coin)) {
     switch (coin) {
-    case 'BitcoinCash':
-    case 'BitcoinGold': {
-      if (path[1] === 0x80000000 + slip44ByCoin('Bitcoin')) {
-        isPrefork = true
-        break
+      case "BitcoinCash":
+      case "BitcoinGold": {
+        if (path[1] === 0x80000000 + slip44ByCoin("Bitcoin")) {
+          isPrefork = true;
+          break;
+        }
+        return unknown;
       }
-      return unknown
+      case "BitcoinSV": {
+        if (
+          path[1] === 0x80000000 + slip44ByCoin("Bitcoin") ||
+          path[1] === 0x80000000 + slip44ByCoin("BitcoinCash")
+        ) {
+          isPrefork = true;
+          break;
+        }
+        return unknown;
+      }
+      default:
+        return unknown;
     }
-    case 'BitcoinSV': {
-      if (path[1] === 0x80000000 + slip44ByCoin('Bitcoin') ||
-          path[1] === 0x80000000 + slip44ByCoin('BitcoinCash')) {
-        isPrefork = true
-        break
-      }
-      return unknown
+  }
+
+  let attributes = isPrefork ? ["Prefork"] : [];
+  switch (coin) {
+    case "Bitcoin":
+    case "Litecoin":
+    case "BitcoinGold":
+    case "Testnet": {
+      attributes = attributes.concat(script);
+      break;
     }
     default:
-      return unknown
-    }
+      break;
   }
 
-  let attributes = isPrefork ? ['Prefork'] : []
-  switch (coin) {
-  case 'Bitcoin':
-  case 'Litecoin':
-  case 'BitcoinGold':
-  case 'Testnet': {
-    attributes = attributes.concat(script)
-    break
-  }
-  default:
-    break
-  }
+  let attr = attributes.length ? ` (${attributes.join(", ")})` : "";
 
-  let attr = attributes.length ? ` (${attributes.join(', ')})` : ''
-
-  let accountIdx = path[2] & 0x7fffffff
+  let accountIdx = path[2] & 0x7fffffff;
 
   if (wholeAccount) {
     return {
@@ -107,11 +110,11 @@ export function describeUTXOPath (path: BIP32Path, coin: Coin, scriptType: BTCIn
       wholeAccount: true,
       isKnown: true,
       scriptType,
-      isPrefork
-    }
+      isPrefork,
+    };
   } else {
-    let change = path[3] === 1 ? 'Change ' : ''
-    let addressIdx = path[4]
+    let change = path[3] === 1 ? "Change " : "";
+    let addressIdx = path[4];
     return {
       coin,
       verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${attr}`,
@@ -121,142 +124,185 @@ export function describeUTXOPath (path: BIP32Path, coin: Coin, scriptType: BTCIn
       isKnown: true,
       isChange: path[3] === 1,
       scriptType,
-      isPrefork
-    }
+      isPrefork,
+    };
   }
 }
 
+export async function btcGetAddress(
+  msg: BTCGetAddress,
+  portis: any
+): Promise<string> {
+  if (!msg.addressNList.length) throw new Error("Empty addressNList");
 
-export async function btcGetAddress (msg: BTCGetAddress, portis: any): Promise<string> {
+  const scriptType = msg.scriptType;
+  const purpose = msg.addressNList[0];
 
-  if(!msg.addressNList.length)
-    throw new Error('Empty addressNList')
+  const hardPath = hardenedPath(msg.addressNList);
+  const hardPathString = addressNListToBIP32(hardPath);
 
-  const scriptType = msg.scriptType
-  const purpose = msg.addressNList[0]
+  const { result: xpub } = await portis.getExtendedPublicKey(
+    hardPathString,
+    "Bitcoin"
+  );
 
-  const hardPath = hardenedPath(msg.addressNList)
-  const hardPathString = addressNListToBIP32(hardPath)
+  const relPath = relativePath(msg.addressNList);
+  const relPathString = addressNListToBIP32(relPath).substr(2);
 
-  const { result: xpub } = await portis.getExtendedPublicKey(hardPathString, "Bitcoin")
+  const args = { pubkey: fromBase58(xpub).derivePath(relPathString).publicKey };
 
-  const relPath = relativePath(msg.addressNList)
-  const relPathString = addressNListToBIP32(relPath).substr(2)
-
-  const args = { pubkey: fromBase58(xpub).derivePath(relPathString).publicKey }
-
-  let result
+  let result;
   switch (scriptType) {
     case BTCInputScriptType.SpendAddress:
-      result = payments.p2pkh(args)
-      break
+      result = payments.p2pkh(args);
+      break;
     case BTCInputScriptType.SpendWitness:
-      result = payments.p2wpkh(args)
-      break
+      result = payments.p2wpkh(args);
+      break;
     case BTCInputScriptType.SpendP2SHWitness:
       result = payments.p2sh({
-        redeem: payments.p2wpkh(args)
-      })
-      break
+        redeem: payments.p2wpkh(args),
+      });
+      break;
     default:
-      throw new Error(`Unsupported scriptType ${scriptType}`)
+      throw new Error(`Unsupported scriptType ${scriptType}`);
   }
 
-  if(msg.showDisplay === true) {
+  if (msg.showDisplay === true) {
     if (!verifyScriptTypePurpose(scriptType, purpose)) {
-      throw new Error(`Invalid scriptType ${scriptType} for purpose ${purpose}`)
+      throw new Error(
+        `Invalid scriptType ${scriptType} for purpose ${purpose}`
+      );
     }
 
-    portis.showBitcoinWallet(addressNListToBIP32(msg.addressNList))
+    portis.showBitcoinWallet(addressNListToBIP32(msg.addressNList));
   }
 
-  return result.address
+  return result.address;
 }
 
-export function verifyScriptTypePurpose(scriptType: BTCInputScriptType, purpose: number): boolean {
+export function verifyScriptTypePurpose(
+  scriptType: BTCInputScriptType,
+  purpose: number
+): boolean {
   return (
-      (purpose === 0x80000000 + 44 && scriptType === BTCInputScriptType.SpendAddress ) ||
-      (purpose === 0x80000000 + 49 && scriptType === BTCInputScriptType.SpendP2SHWitness ) ||
-      (purpose === 0x80000000 + 84 && scriptType === BTCInputScriptType.SpendWitness )
-  )
+    (purpose === 0x80000000 + 44 &&
+      scriptType === BTCInputScriptType.SpendAddress) ||
+    (purpose === 0x80000000 + 49 &&
+      scriptType === BTCInputScriptType.SpendP2SHWitness) ||
+    (purpose === 0x80000000 + 84 &&
+      scriptType === BTCInputScriptType.SpendWitness)
+  );
 }
 
-export function legacyAccount (coin: Coin, slip44: number, accountIdx: number): BTCAccountPath {
+export function legacyAccount(
+  coin: Coin,
+  slip44: number,
+  accountIdx: number
+): BTCAccountPath {
   return {
     coin,
     scriptType: BTCInputScriptType.SpendAddress,
-    addressNList: [ 0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + accountIdx ]
-  }
+    addressNList: [
+      0x80000000 + 44,
+      0x80000000 + slip44,
+      0x80000000 + accountIdx,
+    ],
+  };
 }
 
-export function segwitAccount (coin: Coin, slip44: number, accountIdx: number): BTCAccountPath {
+export function segwitAccount(
+  coin: Coin,
+  slip44: number,
+  accountIdx: number
+): BTCAccountPath {
   return {
     coin,
     scriptType: BTCInputScriptType.SpendP2SHWitness,
-    addressNList: [ 0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + accountIdx ]
-  }
+    addressNList: [
+      0x80000000 + 49,
+      0x80000000 + slip44,
+      0x80000000 + accountIdx,
+    ],
+  };
 }
 
-export function segwitNativeAccount (coin: Coin, slip44: number, accountIdx: number): BTCAccountPath {
+export function segwitNativeAccount(
+  coin: Coin,
+  slip44: number,
+  accountIdx: number
+): BTCAccountPath {
   return {
     coin,
     scriptType: BTCInputScriptType.SpendWitness,
-    addressNList: [ 0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + accountIdx ]
-  }
+    addressNList: [
+      0x80000000 + 84,
+      0x80000000 + slip44,
+      0x80000000 + accountIdx,
+    ],
+  };
 }
 
-
-export function btcNextAccountPath (msg: BTCAccountPath): BTCAccountPath | undefined {
-  return undefined
+export function btcNextAccountPath(
+  msg: BTCAccountPath
+): BTCAccountPath | undefined {
+  return undefined;
 }
 
-export function btcGetAccountPaths (msg: BTCGetAccountPaths): Array<BTCAccountPath> {
-  const slip44 = slip44ByCoin(msg.coin)
-  const bip44 = legacyAccount(msg.coin, slip44, msg.accountIdx)
-  const bip49 = segwitAccount(msg.coin, slip44, msg.accountIdx)
-  const bip84 = segwitNativeAccount(msg.coin, slip44, msg.accountIdx)
+export function btcGetAccountPaths(
+  msg: BTCGetAccountPaths
+): Array<BTCAccountPath> {
+  const slip44 = slip44ByCoin(msg.coin);
+  const bip44 = legacyAccount(msg.coin, slip44, msg.accountIdx);
+  const bip49 = segwitAccount(msg.coin, slip44, msg.accountIdx);
+  const bip84 = segwitNativeAccount(msg.coin, slip44, msg.accountIdx);
 
-  let paths: Array<BTCAccountPath> = {
-    'Bitcoin':  [bip44, bip49, bip84]
-  }[msg.coin] || []
+  let paths: Array<BTCAccountPath> =
+    {
+      Bitcoin: [bip44, bip49, bip84],
+    }[msg.coin] || [];
 
   if (msg.scriptType !== undefined)
-    paths = paths.filter(path => { return path.scriptType === msg.scriptType })
+    paths = paths.filter((path) => {
+      return path.scriptType === msg.scriptType;
+    });
 
-  return paths
+  return paths;
 }
 
-export async function btcSupportsScriptType (coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
+export async function btcSupportsScriptType(
+  coin: Coin,
+  scriptType: BTCInputScriptType
+): Promise<boolean> {
+  if (coin !== "Bitcoin") return Promise.resolve(false);
 
-  if(coin !== 'Bitcoin')
-    return Promise.resolve(false)
-
-  switch(scriptType) {
+  switch (scriptType) {
     case BTCInputScriptType.SpendAddress:
     case BTCInputScriptType.SpendWitness:
     case BTCInputScriptType.SpendP2SHWitness:
-      return true
+      return true;
     default:
-      return false
+      return false;
   }
 }
 
-export async function btcSupportsCoin (coin: Coin): Promise<boolean> {
-  if(coin === 'Bitcoin')
-    return true
-  else
-    return false
+export async function btcSupportsCoin(coin: Coin): Promise<boolean> {
+  if (coin === "Bitcoin") return true;
+  else return false;
 }
 
-export async function btcSignTx (msg: BTCSignTx, portis: any): Promise<BTCSignedTx> {
-  const { result } = await portis.signBitcoinTransaction(msg)
+export async function btcSignTx(
+  msg: BTCSignTx,
+  portis: any
+): Promise<BTCSignedTx> {
+  const { result } = await portis.signBitcoinTransaction(msg);
   return {
-    signatures: ['signature1', 'signature2', 'signature3'],
-    serializedTx: result.serializedTx
-  }
+    signatures: ["signature1", "signature2", "signature3"],
+    serializedTx: result.serializedTx,
+  };
 }
 
-export function btcVerifyMessage (msg: BTCVerifyMessage): Promise<boolean> {
-  const signature = Base64.fromByteArray(fromHexString(msg.signature))
-  return verify(msg.message, msg.address, signature)
+export function btcVerifyMessage(msg: BTCVerifyMessage): Promise<boolean> {
+  const signature = Base64.fromByteArray(fromHexString(msg.signature));
+  return verify(msg.message, msg.address, signature);
 }

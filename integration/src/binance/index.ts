@@ -1,9 +1,9 @@
 import { HDWallet, HDWalletInfo } from "@shapeshiftoss/hdwallet-core";
 
-import { ethereumTests } from "./ethereum";
+import { binanceTests as tests } from "./binance";
 
-export function ethTests(
+export function binanceTests(
   get: () => { wallet: HDWallet; info: HDWalletInfo }
 ): void {
-  ethereumTests(get);
+  tests(get);
 }
