@@ -8,6 +8,7 @@ import { btcTests } from "./bitcoin";
 import { ethTests } from "./ethereum";
 import { cosmosTests } from "./cosmos";
 import { binanceTests } from "./binance";
+import { rippleTests } from "./ripple";
 import { WalletSuite } from "./wallets/suite";
 
 /**
@@ -75,6 +76,14 @@ export function integration(suite: WalletSuite): void {
       });
 
       binanceTests(() => ({ wallet, info }));
+    });
+
+    describe("RippleWallet", () => {
+      beforeAll(async () => {
+        wallet = await suite.createWallet("Ripple");
+      });
+
+      rippleTests(() => ({ wallet, info }));
     });
 
     describe("SelfTest", () => {

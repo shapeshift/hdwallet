@@ -172,6 +172,7 @@ export class TrezorHDWalletInfo
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = false;
   _supportsBinanceInfo: boolean = false; //TODO trezor actually supports bnb
+  _supportsRippleInfo: boolean = false;
 
   public getVendor(): string {
     return "Trezor";
@@ -310,6 +311,8 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
   _supportsBinanceInfo: boolean = false;
   _supportsBinance: boolean = false;
   _isTrezor: boolean = true;
+  _supportsRippleInfo: boolean = false;
+  _supportsRipple: boolean = false;
 
   transport: TrezorTransport;
   featuresCache: any;

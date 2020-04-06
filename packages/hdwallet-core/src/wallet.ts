@@ -6,6 +6,8 @@ import { CosmosWallet, CosmosWalletInfo } from "./cosmos";
 
 import { BinanceWallet, BinanceWalletInfo } from "./binance";
 
+import { RippleWallet, RippleWalletInfo } from "./ripple";
+
 import { DebugLinkWallet } from "./debuglink";
 import { Transport } from "./transport";
 import { isObject } from "lodash";
@@ -102,6 +104,7 @@ type CoinWallets =
   | ETHWallet
   | CosmosWallet
   | BinanceWallet
+  | RippleWallet
   | DebugLinkWallet;
 
 export type Coin = string;
@@ -151,6 +154,24 @@ export function infoCosmos(info: any): info is CosmosWalletInfo {
   return isObject(info) && (info as any)._supportsCosmosInfo;
 }
 
+/**
+ * Type guard for RippleWallet Support
+ *
+ * Example Usage:
+ ```typescript
+ if (supportsripple(wallet)) {
+   wallet.xrpGetAddress(...)
+ }
+ ```
+ */
+export function supportsRipple(wallet: any): wallet is RippleWallet {
+  return isObject(wallet) && (wallet as any)._supportsRipple;
+}
+
+export function infoRipple(info: any): info is RippleWalletInfo {
+  return isObject(info) && (info as any)._supportsRippleInfo;
+}
+
 export function supportsBinance(wallet: any): wallet is BinanceWallet {
   return isObject(wallet) && (wallet as any)._supportsBinance;
 }
@@ -167,8 +188,8 @@ export interface HDWalletInfo {
   _supportsETHInfo: boolean;
   _supportsBTCInfo: boolean;
   _supportsCosmosInfo: boolean;
+  _supportsRippleInfo: boolean;
   _supportsBinanceInfo: boolean;
-
   /**
    * Retrieve the wallet's vendor string.
    */
@@ -216,6 +237,7 @@ export interface HDWallet extends HDWalletInfo {
   _supportsETH: boolean;
   _supportsCosmos: boolean;
   _supportsBinance: boolean;
+  _supportsRipple: boolean;
   _supportsDebugLink: boolean;
 
   transport: Transport;

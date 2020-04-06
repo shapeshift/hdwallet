@@ -9,3 +9,4 @@ export * from "./ethereum";
 export * from "./debuglink";
 export * from "./keyring";
 export * from "./exceptions";
+export * from "./ripple";

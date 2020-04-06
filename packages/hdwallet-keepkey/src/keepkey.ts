@@ -35,6 +35,12 @@ import {
   BinanceGetAddress,
   BinanceSignTx,
   BinanceSignedTx,
+  RippleWalletInfo,
+  RippleGetAccountPaths,
+  RippleAccountPath,
+  RippleGetAddress,
+  RippleSignTx,
+  RippleSignedTx,
   ETHSignTx,
   ETHSignedTx,
   ETHGetAddress,
@@ -64,6 +70,7 @@ import { protoFieldToSetMethod, translateInputScriptType } from "./utils";
 import * as Btc from "./bitcoin";
 import * as Eth from "./ethereum";
 import * as Cosmos from "./cosmos";
+import * as Ripple from "./ripple";
 import * as Binance from "./binance";
 
 import { KeepKeyTransport } from "./transport";
@@ -256,6 +263,45 @@ function describeCosmosPath(path: BIP32Path): PathDescription {
   };
 }
 
+function describeRipplePath(path: BIP32Path): PathDescription {
+  let pathStr = addressNListToBIP32(path);
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin: "Ripple",
+    isKnown: false,
+  };
+
+  if (path.length != 5) {
+    return unknown;
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown;
+  }
+
+  if (path[1] != 0x80000000 + slip44ByCoin("Ripple")) {
+    return unknown;
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown;
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown;
+  }
+
+  let index = path[2] & 0x7fffffff;
+  return {
+    verbose: `Ripple Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "Ripple",
+    isKnown: true,
+    isPrefork: false,
+  };
+}
+
 function describeBinancePath(path: BIP32Path): PathDescription {
   let pathStr = addressNListToBIP32(path);
   let unknown: PathDescription = {
@@ -301,10 +347,12 @@ export class KeepKeyHDWalletInfo
     BTCWalletInfo,
     ETHWalletInfo,
     CosmosWalletInfo,
-    BinanceWalletInfo {
+    BinanceWalletInfo,
+    RippleWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = true;
+  _supportsRippleInfo: boolean = true;
   _supportsBinanceInfo: boolean = true;
 
   public getVendor(): string {
@@ -360,6 +408,12 @@ export class KeepKeyHDWalletInfo
     return Cosmos.cosmosGetAccountPaths(msg);
   }
 
+  public rippleGetAccountPaths(
+    msg: RippleGetAccountPaths
+  ): Array<RippleAccountPath> {
+    return Ripple.rippleGetAccountPaths(msg);
+  }
+
   public binanceGetAccountPaths(
     msg: BinanceGetAccountPaths
   ): Array<BinanceAccountPath> {
@@ -394,6 +448,8 @@ export class KeepKeyHDWalletInfo
         return describeCosmosPath(msg.path);
       case "Binance":
         return describeBinancePath(msg.path);
+      case "Ripple":
+        return describeRipplePath(msg.path);
       default:
         return describeUTXOPath(msg.path, msg.coin, msg.scriptType);
     }
@@ -463,6 +519,22 @@ export class KeepKeyHDWalletInfo
     };
   }
 
+  public rippleNextAccountPath(
+    msg: RippleAccountPath
+  ): RippleAccountPath | undefined {
+    let description = describeRipplePath(msg.addressNList);
+    if (!description.isKnown) {
+      return undefined;
+    }
+    let addressNList = msg.addressNList;
+    addressNList[2] += 1;
+
+    return {
+      ...msg,
+      addressNList,
+    };
+  }
+
   public binanceNextAccountPath(
     msg: BinanceAccountPath
   ): BinanceAccountPath | undefined {
@@ -486,12 +558,14 @@ export class KeepKeyHDWallet
   _supportsETHInfo: boolean = true;
   _supportsBTCInfo: boolean = true;
   _supportsCosmosInfo: boolean = true;
+  _supportsRippleInfo: boolean = true;
   _supportsBinanceInfo: boolean = true;
   _supportsDebugLink: boolean;
   _isKeepKey: boolean = true;
   _supportsETH: boolean = true;
   _supportsBTC: boolean = true;
   _supportsCosmos: boolean = true;
+  _supportsRipple: boolean = true;
   _supportsBinance: boolean = true;
 
   transport: KeepKeyTransport;
@@ -684,13 +758,13 @@ export class KeepKeyHDWallet
     matrixAck.setPin(pin);
     console.assert(
       undefined ===
-        (await this.transport.call(
-          Messages.MessageType.MESSAGETYPE_PINMATRIXACK,
-          matrixAck,
-          DEFAULT_TIMEOUT,
-          true,
-          true
-        ))
+      (await this.transport.call(
+        Messages.MessageType.MESSAGETYPE_PINMATRIXACK,
+        matrixAck,
+        DEFAULT_TIMEOUT,
+        true,
+        true
+      ))
     );
   }
 
@@ -699,13 +773,13 @@ export class KeepKeyHDWallet
     passphraseAck.setPassphrase(passphrase);
     console.assert(
       undefined ===
-        (await this.transport.call(
-          Messages.MessageType.MESSAGETYPE_PASSPHRASEACK,
-          passphraseAck,
-          DEFAULT_TIMEOUT,
-          true,
-          true
-        ))
+      (await this.transport.call(
+        Messages.MessageType.MESSAGETYPE_PASSPHRASEACK,
+        passphraseAck,
+        DEFAULT_TIMEOUT,
+        true,
+        true
+      ))
     );
   }
 
@@ -740,13 +814,13 @@ export class KeepKeyHDWallet
     }
     console.assert(
       undefined ===
-        (await this.transport.call(
-          Messages.MessageType.MESSAGETYPE_CHARACTERACK,
-          characterAck,
-          DEFAULT_TIMEOUT,
-          true,
-          true
-        ))
+      (await this.transport.call(
+        Messages.MessageType.MESSAGETYPE_CHARACTERACK,
+        characterAck,
+        DEFAULT_TIMEOUT,
+        true,
+        true
+      ))
     );
   }
 
@@ -899,6 +973,7 @@ export class KeepKeyHDWallet
     // Cosmos isn't supported until v6.3.0
     const fwVersion = `v${this.features.majorVersion}.${this.features.minorVersion}.${this.features.patchVersion}`;
     this._supportsCosmos = Semver.gte(fwVersion, "v6.3.0");
+    this._supportsRipple = Semver.gte(fwVersion, "v6.4.0");
 
     this.cacheFeatures(event.message);
     return event.message as Messages.Features.AsObject;
@@ -1117,6 +1192,20 @@ export class KeepKeyHDWallet
     return this.info.ethGetAccountPaths(msg);
   }
 
+  public rippleGetAccountPaths(
+    msg: RippleGetAccountPaths
+  ): Array<RippleAccountPath> {
+    return this.info.rippleGetAccountPaths(msg);
+  }
+
+  public rippleGetAddress(msg: RippleGetAddress): Promise<string> {
+    return Ripple.rippleGetAddress(this.transport, msg);
+  }
+
+  public rippleSignTx(msg: RippleSignTx): Promise<RippleSignedTx> {
+    return Ripple.rippleSignTx(this.transport, msg);
+  }
+
   public cosmosGetAccountPaths(
     msg: CosmosGetAccountPaths
   ): Array<CosmosAccountPath> {
@@ -1165,6 +1254,12 @@ export class KeepKeyHDWallet
     msg: CosmosAccountPath
   ): CosmosAccountPath | undefined {
     return this.info.cosmosNextAccountPath(msg);
+  }
+
+  public rippleNextAccountPath(
+    msg: RippleAccountPath
+  ): RippleAccountPath | undefined {
+    return this.info.rippleNextAccountPath(msg);
   }
 
   public binanceNextAccountPath(
