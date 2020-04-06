@@ -140,7 +140,8 @@ export class LedgerHDWalletInfo
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = false; // TODO ledger supports cosmos
-  _supportsBinanceInfo: boolean = false; // TODO ledger support bnb
+  _supportsBinanceInfo: boolean = false; // TODO ledger supports bnb
+  _supportsRippleInfo: boolean = false; // TODO ledger supports XRP
 
   public getVendor(): string {
     return "Ledger";
@@ -303,7 +304,8 @@ export class LedgerHDWallet
   _supportsCosmos: boolean = false;
   _supportsBinanceInfo: boolean = false;
   _supportsBinance: boolean = false;
-
+  _supportsRippleInfo: boolean = false;
+  _supportsRipple: boolean = false;
   _isLedger: boolean = true;
 
   transport: LedgerTransport;

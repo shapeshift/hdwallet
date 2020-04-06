@@ -68,6 +68,8 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
   _supportsBinance: boolean = false;
   _supportsDebugLink: boolean = false;
   _isPortis: boolean = true;
+  _supportsRippleInfo: boolean = false;
+  _supportsRipple: boolean = false;
 
   transport = new PortisTransport(new Keyring());
 
@@ -327,6 +329,7 @@ export class PortisHDWalletInfo
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = false;
   _supportsBinanceInfo: boolean = false;
+  _supportsRippleInfo: boolean = false;
 
   public getVendor(): string {
     return "Portis";
