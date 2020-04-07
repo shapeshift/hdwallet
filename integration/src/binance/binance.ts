@@ -7,8 +7,8 @@ import {
 } from "@shapeshiftoss/hdwallet-core";
 import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
 
-import * as tx01_unsigned from "./tx01.unsigned.json";
-import * as tx01_signed from "./tx01.signed.json";
+import * as tx01_unsigned from "./testnet-tx01.unsigned.json";
+import * as tx01_signed from "./testnet-tx01.signed.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE =
   "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";

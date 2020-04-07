@@ -519,35 +519,46 @@ $binanceTx.on("click", async (e) => {
   }
   if (supportsBinance(wallet)) {
     let unsigned = {
-      account_number: "34",
-      chain_id: "Binance-Chain-Nile",
-      data: "null",
-      memo: "test",
-      msgs: [
+      "account_number": "344388",
+      "chain_id": "Binance-Chain-Tigris",
+      "data": null,
+      "memo": "test",
+      "msgs": [
         {
-          inputs: [
+          "inputs": [
             {
-              address: "tbnb1hgm0p7khfk85zpz5v0j8wnej3a90w709zzlffd",
-              coins: [{ amount: 1000000000, denom: "BNB" }],
-            },
+              "address": "bnb1afwh46v6nn30nkmugw5swdmsyjmlxslgjfugre",
+              "coins": [
+                {
+                  "amount": 10000,
+                  "denom": "BNB"
+                }
+              ]
+            }
           ],
-          outputs: [
+          "outputs": [
             {
-              address: "tbnb1ss57e8sa7xnwq030k2ctr775uac9gjzglqhvpy",
-              coins: [{ amount: 1000000000, denom: "BNB" }],
-            },
-          ],
-        },
+              "address": "bnb10hecgp2s4xtutcnygqny9dmpjkqkj3c07nj4kd",
+              "coins": [
+                {
+                  "amount": 10000,
+                  "denom": "BNB"
+                }
+              ]
+            }
+          ]
+        }
       ],
-      sequence: "31",
-      source: "1",
-    };
+      "sequence": "0",
+      "source": "0"
+    }
+
 
     let res = await wallet.binanceSignTx({
       addressNList: bip32ToAddressNList(`m/44'/714'/0'/0/0`),
-      chain_id: "Binance-Chain-Nile",
-      account_number: "24250",
-      sequence: "31",
+      chain_id: "Binance-Chain-Tigris",
+      account_number: "344388",
+      sequence: "0",
       tx: unsigned,
     });
     $binanceResults.val(JSON.stringify(res));

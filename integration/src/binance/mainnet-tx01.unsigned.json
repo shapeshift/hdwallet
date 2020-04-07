@@ -1,0 +1,34 @@
+{
+  "account_number": "344388",
+  "chain_id": "Binance-Chain-Tigris",
+  "data": null,
+  "memo": "test",
+  "msgs": [
+    {
+      "inputs": [
+        {
+          "address": "bnb1afwh46v6nn30nkmugw5swdmsyjmlxslgjfugre",
+          "coins": [
+            {
+              "amount": 10000,
+              "denom": "BNB"
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "address": "bnb10hecgp2s4xtutcnygqny9dmpjkqkj3c07nj4kd",
+          "coins": [
+            {
+              "amount": 10000,
+              "denom": "BNB"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "sequence": "0",
+  "source": "0"
+}
