@@ -530,7 +530,7 @@ $binanceTx.on("click", async (e) => {
               "address": "bnb1afwh46v6nn30nkmugw5swdmsyjmlxslgjfugre",
               "coins": [
                 {
-                  "amount": 10000,
+                  "amount": 100000,
                   "denom": "BNB"
                 }
               ]
@@ -541,7 +541,7 @@ $binanceTx.on("click", async (e) => {
               "address": "bnb10hecgp2s4xtutcnygqny9dmpjkqkj3c07nj4kd",
               "coins": [
                 {
-                  "amount": 10000,
+                  "amount": 100000,
                   "denom": "BNB"
                 }
               ]

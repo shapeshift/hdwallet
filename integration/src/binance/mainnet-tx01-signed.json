@@ -10,7 +10,7 @@
           "address":"bnb1afwh46v6nn30nkmugw5swdmsyjmlxslgjfugre",
           "coins":[
             {
-              "amount":10000,
+              "amount":100000,
               "denom":"BNB"
             }
           ]
@@ -21,7 +21,7 @@
           "address":"bnb10hecgp2s4xtutcnygqny9dmpjkqkj3c07nj4kd",
           "coins":[
             {
-              "amount":10000,
+              "amount":100000,
               "denom":"BNB"
             }
           ]
@@ -31,6 +31,6 @@
   ],
   "signatures":{
     "pub_key":"At3wix9RpBMsY8c0VcrGVpQEx4yeO1v/0fZOB6mi8Qm0",
-    "signature":"aGKmaqijbOA9mUobpTa+ON8hE2zAjn1mGgw7sg0urcQCc3kkGbZp8nFp/oPbR1erzRRHXbNNDQDB2HEdleFdkw=="
+    "signature":"aZ0NvG7z8zzpiCHvuGfUMxtXSakPFCjsc1BoOyXxsbNcifU6LADf73NzqJ9QX8CpBxNjqGp4YZ0NfrDFFf7LjQ=="
   }
 }
