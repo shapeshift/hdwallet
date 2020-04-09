@@ -519,7 +519,7 @@ $binanceTx.on("click", async (e) => {
   }
   if (supportsBinance(wallet)) {
     let unsigned = {
-      "account_number": "344388",
+      "account_number": "471113",
       "chain_id": "Binance-Chain-Tigris",
       "data": null,
       "memo": "test",
@@ -549,16 +549,15 @@ $binanceTx.on("click", async (e) => {
           ]
         }
       ],
-      "sequence": "0",
+      "sequence": "2",
       "source": "0"
     }
-
 
     let res = await wallet.binanceSignTx({
       addressNList: bip32ToAddressNList(`m/44'/714'/0'/0/0`),
       chain_id: "Binance-Chain-Tigris",
-      account_number: "344388",
-      sequence: "0",
+      account_number: "471113",
+      sequence: "2",
       tx: unsigned,
     });
     $binanceResults.val(JSON.stringify(res));
