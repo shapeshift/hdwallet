@@ -5,6 +5,7 @@ import {
   supportsETH,
   supportsBTC,
   supportsCosmos,
+  supportsRipple,
   supportsBinance,
   supportsDebugLink,
   bip32ToAddressNList,
@@ -32,6 +33,7 @@ import * as btcSegWitTxJson from "./json/btcSegWitTx.json";
 import * as dashTxJson from "./json/dashTx.json";
 import * as dogeTxJson from "./json/dogeTx.json";
 import * as ltcTxJson from "./json/ltcTx.json";
+import * as rippleTxJson from "./json/rippleTx.json";
 
 const keyring = new Keyring();
 
@@ -554,6 +556,58 @@ $binanceTx.on("click", async (e) => {
   } else {
     let label = await wallet.getLabel();
     $binanceResults.val(label + " does not support Cosmos");
+  }
+});
+
+/*
+ * Ripple
+ */
+const $rippleAddr = $("#rippleAddr");
+const $rippleTx = $("#rippleTx");
+const $rippleResults = $("#rippleResults");
+
+$rippleAddr.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $rippleResults.val("No wallet?");
+    return;
+  }
+  if (supportsRipple(wallet)) {
+    let { addressNList } = wallet.rippleGetAccountPaths({ accountIdx: 0 })[0];
+    let result = await wallet.rippleGetAddress({
+      addressNList,
+      showDisplay: true,
+    });
+    $rippleResults.val(result);
+  } else {
+    let label = await wallet.getLabel();
+    $rippleResults.val(label + " does not support Ripple");
+  }
+});
+
+$rippleTx.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $ethResults.val("No wallet?");
+    return;
+  }
+  if (supportsRipple(wallet)) {
+    let res = await wallet.rippleSignTx({
+      addressNList: bip32ToAddressNList(`m/44'/144'/0'/0/0`),
+      tx: rippleTxJson,
+      flags: undefined,
+      sequence: "3",
+      lastLedgerSequence: "0",
+      payment: {
+        amount: "47000",
+        destination: "rEpwmtmvx8gkMhX5NLdU3vutQt7dor4MZm",
+        destinationTag: "1234567890",
+      },
+    });
+    $rippleResults.val(JSON.stringify(res));
+  } else {
+    let label = await wallet.getLabel();
+    $rippleResults.val(label + " does not support Ripple");
   }
 });
 

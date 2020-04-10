@@ -1,0 +1,31 @@
+{
+  "type": "auth/StdTx",
+  "value": {
+    "fee": {
+      "amount": [
+        {
+          "amount": "1000",
+          "denom": "drop"
+        }
+      ],
+      "gas": "28000"
+    },
+    "memo": "KeepKey",
+    "msg": [
+      {
+        "type": "ripple-sdk/MsgSend",
+        "value": {
+          "amount": [
+            {
+              "amount": "47000",
+              "denom": "drop"
+            }
+          ],
+          "from_address": "rh5ZnEVySAy7oGd3nebT3wrohGDrsNS83E",
+          "to_address": "rEpwmtmvx8gkMhX5NLdU3vutQt7dor4MZm"
+        }
+      }
+    ],
+    "signatures": null
+  }
+}
