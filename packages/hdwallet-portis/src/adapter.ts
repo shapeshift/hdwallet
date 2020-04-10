@@ -3,7 +3,7 @@ import {
   HDWallet,
   Events,
   ActionCancelled,
-} from "@shapeshiftoss/hdwallet-core";
+} from "@bithighlander/hdwallet-core";
 
 import { PortisHDWallet } from "./portis";
 import Portis from "@portis/web3";

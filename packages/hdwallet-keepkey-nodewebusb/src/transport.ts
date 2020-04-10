@@ -2,12 +2,12 @@
 import {
   SEGMENT_SIZE,
   KeepKeyTransport,
-} from "@shapeshiftoss/hdwallet-keepkey";
+} from "@bithighlander/hdwallet-keepkey";
 import {
   ConflictingApp,
   FirmwareUpdateRequired,
   Keyring,
-} from "@shapeshiftoss/hdwallet-core";
+} from "@bithighlander/hdwallet-core";
 import { randomBytes, createHash } from "crypto";
 import * as ByteBuffer from "bytebuffer";
 const {

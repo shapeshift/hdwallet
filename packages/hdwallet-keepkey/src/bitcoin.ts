@@ -24,7 +24,7 @@ import {
   base64toHEX,
   slip44ByCoin,
   satsFromStr,
-} from "@shapeshiftoss/hdwallet-core";
+} from "@bithighlander/hdwallet-core";
 
 import { KeepKeyTransport } from "./transport";
 

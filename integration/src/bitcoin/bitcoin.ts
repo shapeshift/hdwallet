@@ -10,10 +10,10 @@ import {
   BTCWalletInfo,
   infoBTC,
   HDWalletInfo,
-} from "@shapeshiftoss/hdwallet-core";
-import { isLedger } from "@shapeshiftoss/hdwallet-ledger";
-import { isTrezor } from "@shapeshiftoss/hdwallet-trezor";
-import { isPortis } from "@shapeshiftoss/hdwallet-portis";
+} from "@bithighlander/hdwallet-core";
+import { isLedger } from "@bithighlander/hdwallet-ledger";
+import { isTrezor } from "@bithighlander/hdwallet-trezor";
+import { isPortis } from "@bithighlander/hdwallet-portis";
 
 import { each } from "../utils";
 

@@ -1,5 +1,5 @@
 import { isObject, get } from "lodash";
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@bithighlander/hdwallet-core";
 import * as btc from "./bitcoin";
 import * as eth from "./ethereum";
 import { LedgerTransport } from "./transport";

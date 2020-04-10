@@ -2,8 +2,8 @@ import axios, { AxiosInstance } from "axios";
 import {
   SEGMENT_SIZE,
   KeepKeyTransport,
-} from "@shapeshiftoss/hdwallet-keepkey";
-import { Keyring } from "@shapeshiftoss/hdwallet-core";
+} from "@bithighlander/hdwallet-keepkey";
+import { Keyring } from "@bithighlander/hdwallet-core";
 import * as ByteBuffer from "bytebuffer";
 
 const {

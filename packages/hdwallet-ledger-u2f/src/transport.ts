@@ -1,8 +1,8 @@
-import { makeEvent, Keyring } from "@shapeshiftoss/hdwallet-core";
+import { makeEvent, Keyring } from "@bithighlander/hdwallet-core";
 import {
   LedgerTransport,
   LedgerResponse,
-} from "@shapeshiftoss/hdwallet-ledger";
+} from "@bithighlander/hdwallet-ledger";
 import Eth from "@ledgerhq/hw-app-eth";
 import Btc from "@ledgerhq/hw-app-btc";
 import getAppAndVersion from "@ledgerhq/live-common/lib/hw/getAppAndVersion";

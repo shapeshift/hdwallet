@@ -60,7 +60,7 @@ import {
   addressNListToBIP32,
   hardenedPath,
   relativePath,
-} from "@shapeshiftoss/hdwallet-core";
+} from "@bithighlander/hdwallet-core";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
 import { isObject } from "lodash";

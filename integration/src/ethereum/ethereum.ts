@@ -3,9 +3,9 @@ import {
   HDWallet,
   ETHWallet,
   supportsETH,
-} from "@shapeshiftoss/hdwallet-core";
-import { isLedger } from "@shapeshiftoss/hdwallet-ledger";
-import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
+} from "@bithighlander/hdwallet-core";
+import { isLedger } from "@bithighlander/hdwallet-ledger";
+import { HDWalletInfo } from "@bithighlander/hdwallet-core/src/wallet";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE =
   "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";

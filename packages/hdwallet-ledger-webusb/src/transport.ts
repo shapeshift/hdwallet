@@ -5,11 +5,11 @@ import {
   WebUSBCouldNotInitialize,
   WebUSBCouldNotPair,
   ConflictingApp,
-} from "@shapeshiftoss/hdwallet-core";
+} from "@bithighlander/hdwallet-core";
 import {
   LedgerTransport,
   LedgerResponse,
-} from "@shapeshiftoss/hdwallet-ledger";
+} from "@bithighlander/hdwallet-ledger";
 import Transport from "@ledgerhq/hw-transport";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import Eth from "@ledgerhq/hw-app-eth";

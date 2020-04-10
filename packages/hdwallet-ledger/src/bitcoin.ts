@@ -3,7 +3,7 @@ import Base64 from "base64-js";
 import { isCashAddress, toLegacyAddress } from "bchaddrjs";
 import { crypto, TransactionBuilder, networks } from "bitcoinjs-lib";
 import { verify } from "bitcoinjs-message";
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@bithighlander/hdwallet-core";
 import { LedgerTransport } from "./transport";
 import {
   createXpub,

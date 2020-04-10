@@ -1,4 +1,4 @@
-import { HDWallet, HDWalletInfo } from "@shapeshiftoss/hdwallet-core";
+import { HDWallet, HDWalletInfo } from "@bithighlander/hdwallet-core";
 
 import { binanceTests as tests } from "./binance";
 

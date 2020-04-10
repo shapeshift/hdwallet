@@ -8,7 +8,7 @@
 //   LONG_TIMEOUT,
 //   Events,
 // }
-import * as Core from "@shapeshiftoss/hdwallet-core";
+import * as Core from "@bithighlander/hdwallet-core";
 
 import { KeepKeyTransport } from "./transport";
 

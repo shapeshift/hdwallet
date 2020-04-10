@@ -23,10 +23,10 @@ Try it out [here](https://hdwallet.shapeshift.now.sh/)!
 ## Installation
 
 ```bash
-yarn add @shapeshiftoss/hdwallet-core
-yarn add @shapeshiftoss/hdwallet-keepkey-webusb
-yarn add @shapeshiftoss/hdwallet-trezor-connect
-yarn add @shapeshiftoss/hdwallet-ledger-webusb
+yarn add @bithighlander/hdwallet-core
+yarn add @bithighlander/hdwallet-keepkey-webusb
+yarn add @bithighlander/hdwallet-trezor-connect
+yarn add @bithighlander/hdwallet-ledger-webusb
 ```
 
 ## Importing Library
@@ -34,14 +34,14 @@ yarn add @shapeshiftoss/hdwallet-ledger-webusb
 You can import the generated bundle to use each of the component libraries:
 
 ```javascript
-import { HDWallet } from "@shapeshiftoss/hdwallet-core";
-import { isKeepKey, KeepKeyHDWallet } from "@shapeshiftoss/hdwallet-keepkey";
-import { isLedger, LedgerHDWallet } from "@shapeshiftoss/hdwallet-ledger";
-import { isTrezor, TrezorHDWallet } from "@shapeshiftoss/hdwallet-trezor";
+import { HDWallet } from "@bithighlander/hdwallet-core";
+import { isKeepKey, KeepKeyHDWallet } from "@bithighlander/hdwallet-keepkey";
+import { isLedger, LedgerHDWallet } from "@bithighlander/hdwallet-ledger";
+import { isTrezor, TrezorHDWallet } from "@bithighlander/hdwallet-trezor";
 
-import { WebUSBKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-webusb";
-import { WebUSBLedgerAdapter } from "@shapeshiftoss/hdwallet-ledger-webusb";
-import { TrezorAdapter } from "@shapeshiftoss/hdwallet-trezor-connect";
+import { WebUSBKeepKeyAdapter } from "@bithighlander/hdwallet-keepkey-webusb";
+import { WebUSBLedgerAdapter } from "@bithighlander/hdwallet-ledger-webusb";
+import { TrezorAdapter } from "@bithighlander/hdwallet-trezor-connect";
 ```
 
 ## Usage
@@ -50,7 +50,7 @@ The recommended way to use the library is through a `Keyring` singleton,
 which manages connected devices:
 
 ```javascript
-import { Keyring } from "@shapeshiftoss/hdwallet-core";
+import { Keyring } from "@bithighlander/hdwallet-core";
 const keyring = new Keyring();
 ```
 
@@ -58,8 +58,8 @@ To add in support for a given wallet type, add in the relevant `Transport`
 adapter by calling `useKeyring()` on it:
 
 ```javascript
-import { WebUSBKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-webusb";
-import { TrezorAdapter } from "@shapeshiftoss/hdwallet-trezor-connect";
+import { WebUSBKeepKeyAdapter } from "@bithighlander/hdwallet-keepkey-webusb";
+import { TrezorAdapter } from "@bithighlander/hdwallet-trezor-connect";
 
 const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring);
 

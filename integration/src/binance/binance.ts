@@ -4,8 +4,8 @@ import {
   BinanceWallet,
   supportsBinance,
   BinanceTx,
-} from "@shapeshiftoss/hdwallet-core";
-import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
+} from "@bithighlander/hdwallet-core";
+import { HDWalletInfo } from "@bithighlander/hdwallet-core/src/wallet";
 
 import * as tx01_unsigned from "./tx01.unsigned.json";
 import * as tx01_signed from "./tx01.signed.json";

@@ -1,4 +1,4 @@
-import { Coin, Transport, Keyring } from "@shapeshiftoss/hdwallet-core";
+import { Coin, Transport, Keyring } from "@bithighlander/hdwallet-core";
 
 export interface LedgerResponse {
   success: boolean;

@@ -1,7 +1,7 @@
 import { crypto } from "bitcoinjs-lib";
 import bs58 from "bs58";
 import { padStart } from "lodash";
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@bithighlander/hdwallet-core";
 import { LedgerTransport } from "./transport";
 import { Buffer } from "buffer";
 

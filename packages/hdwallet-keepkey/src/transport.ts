@@ -12,7 +12,7 @@ import {
   Keyring,
   ActionCancelled,
   HDWalletErrorType,
-} from "@shapeshiftoss/hdwallet-core";
+} from "@bithighlander/hdwallet-core";
 import {
   MessageType,
   ButtonAck,

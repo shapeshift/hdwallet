@@ -2,8 +2,8 @@ import {
   Keyring,
   Events,
   FirmwareUpdateRequired,
-} from "@shapeshiftoss/hdwallet-core";
-import { create as createHIDKeepKey } from "@shapeshiftoss/hdwallet-keepkey";
+} from "@bithighlander/hdwallet-core";
+import { create as createHIDKeepKey } from "@bithighlander/hdwallet-keepkey";
 import { ChromeUSBKeepKeyTransport, getDevices } from "./transport";
 import { VENDOR_ID, WEBUSB_PRODUCT_ID } from "./utils";
 

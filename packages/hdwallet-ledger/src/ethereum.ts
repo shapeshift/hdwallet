@@ -6,7 +6,7 @@ import {
   sha256,
   ripemd160,
 } from "ethereumjs-util";
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@bithighlander/hdwallet-core";
 import { LedgerTransport } from "./transport";
 import {
   createXpub,

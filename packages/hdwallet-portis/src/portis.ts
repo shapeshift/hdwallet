@@ -37,7 +37,7 @@ import {
   BTCAccountPath,
   BTCWalletInfo,
   slip44ByCoin,
-} from "@shapeshiftoss/hdwallet-core";
+} from "@bithighlander/hdwallet-core";
 import * as eth from "./ethereum";
 import * as btc from "./bitcoin";
 import { isObject } from "lodash";
