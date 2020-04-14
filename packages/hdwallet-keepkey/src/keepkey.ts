@@ -974,6 +974,7 @@ export class KeepKeyHDWallet
     const fwVersion = `v${this.features.majorVersion}.${this.features.minorVersion}.${this.features.patchVersion}`;
     this._supportsCosmos = Semver.gte(fwVersion, "v6.3.0");
     this._supportsRipple = Semver.gte(fwVersion, "v6.4.0");
+    this._supportsBinance = Semver.gte(fwVersion, "v6.4.0");
 
     this.cacheFeatures(event.message);
     return event.message as Messages.Features.AsObject;
