@@ -3,8 +3,11 @@ import {
   HDWallet,
   EosWallet,
   supportsEos,
+  EosTx
 } from '@shapeshiftoss/hdwallet-core'
 import { HDWalletInfo } from '@shapeshiftoss/hdwallet-core/src/wallet'
+
+import * as tx01_unsigned from './tx01.unsigned.json' 
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = 'alcohol woman abuse must during monitor noble actual mixed trade anger aisle'
 
@@ -55,15 +58,12 @@ export function eosTests (get: () => {wallet: HDWallet, info: HDWalletInfo}): vo
         .toEqual('EOS4u6Sfnzj4Sh2pEQnkXyZQJqH3PkKjGByDCbsqqmyq6PttM9KyB')
     }, TIMEOUT)
 
-    test('eosSignTxTransferToken()', async () => {
+    test('eosSignTx()', async () => {
       if (!wallet) return
-
-      let res = await wallet.eosSign({
-        tx: (tx01_unsigned as unknown) as EosTxTransferToken,
+      let res = await wallet.eosSignTx({
         addressNList: bip32ToAddressNList("m/44'/194'/0'/0/0"),
         chain_id: 'cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f',
-        account_number: '1',
-        sequence: '0'
+        tx: (tx01_unsigned as unknown) as EosTx,
       })
 /*
         assert isinstance(actionResp, proto.EosSignedTx)
@@ -71,10 +71,9 @@ export function eosTests (get: () => {wallet: HDWallet, info: HDWalletInfo}): vo
         self.assertEqual(binascii.hexlify(actionResp.signature_s), "2f5f9b0f6a3bfe6981d4db99cfe2ab88329bf86fb04b40a3a8828453e54cef2c")
         self.assertEqual(actionResp.signature_v, 31)
 */
-      expect(res).toEqual()
+      console.log(res)
+//      expect(res).toEqual()
     }, TIMEOUT)
-  })
-
   })
 }
 

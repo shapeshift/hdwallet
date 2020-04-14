@@ -33,6 +33,8 @@ import {
   EosGetAccountPaths,
   EosAccountPath,
   EosGetPublicKey,
+  EosToSignTx,
+  EosSignedTx,
   ETHSignTx,
   ETHSignedTx,
   ETHGetAddress,
@@ -1055,6 +1057,10 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
 
   public eosGetPublicKey (msg: EosGetPublicKey): Promise<string> {
     return Eos.eosGetPublicKey(this.transport, msg)
+  }
+
+  public eosSignTx (msg: EosToSignTx): Promise<EosSignedTx> {
+    return Eos.eosSignTx(this.transport, msg)
   }
 
   public describePath (msg: DescribePath): PathDescription {

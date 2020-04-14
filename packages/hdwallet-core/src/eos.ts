@@ -19,6 +19,80 @@ export interface eosNextAccountPath {
     accountIdx: number
 }
 
+
+export namespace Eos {
+
+  export interface EosAsset {
+    amount?: string,
+    symbol?: string,
+  }
+
+  export interface EosPermissionLevel {
+    actor?: string,
+    permission?: string,
+  }
+
+  export interface EosActionTransfer {
+    sender?: string,
+    receiver?: string,
+    quantity?: Eos.EosAsset,
+    memo?: string,
+  }
+
+/*
+  export interface EosTxHeader {
+    expiration?: string,
+    refBlockNum?: number,
+    refBlockPrefix?: number,
+    maxNetUsageWords?: number,
+    maxCpuUsageMs?: number,
+    delaySec?: number,
+  }
+  */
+}
+
+export interface EosToSignTx {
+  addressNList: BIP32Path,
+  chain_id: string,
+  tx: EosTx,
+}
+
+/* add action acks here as they are added to the wallet */
+export interface EosTxActionAck {
+  account?: string,
+  name?: string,
+  authorization?: Eos.EosPermissionLevel[],
+  data?: any,
+}
+
+export interface EosTxCommon {
+  account?: string,
+  name?: string,
+  authorization?: Eos.EosPermissionLevel[],
+}
+
+export interface EosTx {
+  expiration?: string,
+  ref_block_num?: number,
+  ref_block_prefix?: number,
+  max_net_usage_words?: number,
+  max_cpu_usage_ms?: number,
+  delay_sec?: number,
+  actions: EosTxActionAck[],  // could be several kinds of actions
+}
+
+/* device response asking for next action */
+export interface EosTxActionRequest {
+}
+
+export interface EosSignedTx {
+  signatureV?: number,
+  signatureR?: Uint8Array | string,
+  signatureS?: Uint8Array | string,
+  hash?: Uint8Array | string,
+
+}
+
 export interface EosWalletInfo {
   _supportsEosInfo: boolean
 
@@ -38,4 +112,6 @@ export interface EosWallet extends EosWalletInfo {
   _supportsEos: boolean
 
   eosGetPublicKey (msg: EosGetPublicKey): Promise<string>
+  eosSignTx (msg: EosToSignTx): Promise<EosSignedTx> 
+
 }

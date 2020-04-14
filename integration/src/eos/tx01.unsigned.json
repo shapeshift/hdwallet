@@ -1,6 +1,4 @@
 {
-  "chain_id": "cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f",
-  "transaction": {
   "expiration": "2018-07-14T07:43:28",
   "ref_block_num": 6439,
   "ref_block_prefix": 2995713264,
@@ -25,7 +23,5 @@
           "memo": "testtest"
       }
       }
-  ],
-  "transaction_extensions": []
-  }
+  ]
 }
