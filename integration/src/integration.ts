@@ -45,7 +45,7 @@ export function integration (suite: WalletSuite): void {
         ).toEqual(1)
       })
     })
-
+/*
     describe('ETHWallet', () => {
       beforeAll(async () => {
         wallet = await suite.createWallet('Ethereum')
@@ -69,7 +69,7 @@ export function integration (suite: WalletSuite): void {
 
       cosmosTests(() => ({wallet, info}))
     })
-
+*/
     describe('EosWallet', () => {
       beforeAll(async () => {
         wallet = await suite.createWallet('Eos')
@@ -77,7 +77,7 @@ export function integration (suite: WalletSuite): void {
 
       eosTests(() => ({wallet, info}))
     })
-
+/*
     describe('SelfTest', () => {
       beforeAll(async () => {
         wallet = await suite.createWallet()
@@ -85,5 +85,6 @@ export function integration (suite: WalletSuite): void {
 
       suite.selfTest(() => (wallet))
     })
+    */
   })
 }

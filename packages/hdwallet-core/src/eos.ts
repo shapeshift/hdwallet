@@ -1,10 +1,17 @@
 import { BIP32Path } from './wallet'
+import {
+  EosPublicKeyKindMap,
+  EosTxActionAck,
+  EosPermissionLevel,
+  EosSignedTx
+} from '@keepkey/device-protocol/lib/messages-eos_pb'
+
 
 export interface EosGetPublicKey {
   addressNList: BIP32Path,
   showDisplay?: boolean,
   /** Optional. Required for showDisplay == true. */
-  kind?: boolean,
+  kind?: EosPublicKeyKindMap [keyof EosPublicKeyKindMap],
 }
 
 export interface EosGetAccountPaths {
@@ -22,21 +29,31 @@ export interface eosNextAccountPath {
 
 export namespace Eos {
 
+/*
   export interface EosAsset {
     amount?: string,
     symbol?: string,
   }
-
+*/
   export interface EosPermissionLevel {
     actor?: string,
     permission?: string,
   }
-
+/*
   export interface EosActionTransfer {
     sender?: string,
     receiver?: string,
     quantity?: Eos.EosAsset,
     memo?: string,
+  }
+*/
+  /* add action acks here as they are added to the wallet */
+
+    export interface EosTxActionAck {
+    account?: string,
+    name?: string,
+    authorization?: Array<Eos.EosPermissionLevel>,
+    data?: any,
   }
 
 /*
@@ -51,26 +68,6 @@ export namespace Eos {
   */
 }
 
-export interface EosToSignTx {
-  addressNList: BIP32Path,
-  chain_id: string,
-  tx: EosTx,
-}
-
-/* add action acks here as they are added to the wallet */
-export interface EosTxActionAck {
-  account?: string,
-  name?: string,
-  authorization?: Eos.EosPermissionLevel[],
-  data?: any,
-}
-
-export interface EosTxCommon {
-  account?: string,
-  name?: string,
-  authorization?: Eos.EosPermissionLevel[],
-}
-
 export interface EosTx {
   expiration?: string,
   ref_block_num?: number,
@@ -78,19 +75,26 @@ export interface EosTx {
   max_net_usage_words?: number,
   max_cpu_usage_ms?: number,
   delay_sec?: number,
-  actions: EosTxActionAck[],  // could be several kinds of actions
+  actions: Array<Eos.EosTxActionAck>,  // could be several kinds of actions
 }
+
+
+export interface EosToSignTx {
+  addressNList: BIP32Path,
+  chain_id: string,
+  tx: EosTx,
+}
+
 
 /* device response asking for next action */
 export interface EosTxActionRequest {
 }
 
 export interface EosSignedTx {
-  signatureV?: number,
-  signatureR?: Uint8Array | string,
-  signatureS?: Uint8Array | string,
-  hash?: Uint8Array | string,
-
+    signatureV?: number,
+    signatureR: Uint8Array | string,
+    signatureS: Uint8Array | string,
+    hash: Uint8Array | string,
 }
 
 export interface EosWalletInfo {
@@ -112,6 +116,6 @@ export interface EosWallet extends EosWalletInfo {
   _supportsEos: boolean
 
   eosGetPublicKey (msg: EosGetPublicKey): Promise<string>
-  eosSignTx (msg: EosToSignTx): Promise<EosSignedTx> 
+  eosSignTx (msg: EosToSignTx): Promise<Core.EosSignedTx> 
 
 }
