@@ -29,43 +29,18 @@ export interface eosNextAccountPath {
 
 export namespace Eos {
 
-/*
-  export interface EosAsset {
-    amount?: string,
-    symbol?: string,
-  }
-*/
   export interface EosPermissionLevel {
     actor?: string,
     permission?: string,
   }
-/*
-  export interface EosActionTransfer {
-    sender?: string,
-    receiver?: string,
-    quantity?: Eos.EosAsset,
-    memo?: string,
-  }
-*/
-  /* add action acks here as they are added to the wallet */
 
+  /* add action acks here as they are added to the wallet */
     export interface EosTxActionAck {
     account?: string,
     name?: string,
     authorization?: Array<Eos.EosPermissionLevel>,
     data?: any,
   }
-
-/*
-  export interface EosTxHeader {
-    expiration?: string,
-    refBlockNum?: number,
-    refBlockPrefix?: number,
-    maxNetUsageWords?: number,
-    maxCpuUsageMs?: number,
-    delaySec?: number,
-  }
-  */
 }
 
 export interface EosTx {
