@@ -41,6 +41,12 @@ import {
   RippleGetAddress,
   RippleSignTx,
   RippleSignedTx,
+  EosWalletInfo,
+  EosGetAccountPaths,
+  EosAccountPath,
+  EosGetPublicKey,
+  EosToSignTx,
+  EosSignedTx,
   ETHSignTx,
   ETHSignedTx,
   ETHGetAddress,
@@ -72,6 +78,7 @@ import * as Eth from "./ethereum";
 import * as Cosmos from "./cosmos";
 import * as Ripple from "./ripple";
 import * as Binance from "./binance";
+import * as Eos from "./eos";
 
 import { KeepKeyTransport } from "./transport";
 
@@ -263,6 +270,46 @@ function describeCosmosPath(path: BIP32Path): PathDescription {
   };
 }
 
+function describeEosPath(path: BIP32Path): PathDescription {
+  let pathStr = addressNListToBIP32(path);
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin: "Eos",
+    isKnown: false,
+  };
+
+  if (path.length != 5) {
+    return unknown;
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown;
+  }
+
+  if (path[1] != 0x80000000 + slip44ByCoin("Eos")) {
+    return unknown;
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown;
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown;
+  }
+
+  let index = path[2] & 0x7fffffff;
+  return {
+    verbose: `Eos Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "Eos",
+    isKnown: true,
+    isPrefork: false,
+  };
+}
+
+
 function describeRipplePath(path: BIP32Path): PathDescription {
   let pathStr = addressNListToBIP32(path);
   let unknown: PathDescription = {
@@ -348,12 +395,14 @@ export class KeepKeyHDWalletInfo
     ETHWalletInfo,
     CosmosWalletInfo,
     BinanceWalletInfo,
-    RippleWalletInfo {
+    RippleWalletInfo,
+  EosWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = true;
   _supportsRippleInfo: boolean = true;
   _supportsBinanceInfo: boolean = true;
+    _supportsEosInfo: boolean = true;
 
   public getVendor(): string {
     return "KeepKey";
@@ -420,6 +469,10 @@ export class KeepKeyHDWalletInfo
     return Binance.binanceGetAccountPaths(msg);
   }
 
+  public eosGetAccountPaths(msg: EosGetAccountPaths): Array<EosAccountPath> {
+    return Eos.eosGetAccountPaths(msg);
+  }
+
   public hasOnDevicePinEntry(): boolean {
     return false;
   }
@@ -450,6 +503,9 @@ export class KeepKeyHDWalletInfo
         return describeBinancePath(msg.path);
       case "Ripple":
         return describeRipplePath(msg.path);
+   case "Eos":
+    return describeEosPath(msg.path);
+
       default:
         return describeUTXOPath(msg.path, msg.coin, msg.scriptType);
     }
@@ -551,6 +607,22 @@ export class KeepKeyHDWalletInfo
       addressNList,
     };
   }
+    
+  public eosNextAccountPath(msg: EosAccountPath): EosAccountPath | undefined {
+    let description = describeEosPath(msg.addressNList);
+    if (!description.isKnown) {
+      return undefined;
+    }
+
+    let addressNList = msg.addressNList;
+    addressNList[2] += 1;
+
+    return {
+      ...msg,
+      addressNList,
+    };
+
+  }
 }
 
 export class KeepKeyHDWallet
@@ -560,6 +632,7 @@ export class KeepKeyHDWallet
   _supportsCosmosInfo: boolean = true;
   _supportsRippleInfo: boolean = true;
   _supportsBinanceInfo: boolean = true;
+  _supportsEosInfo: boolean = true;
   _supportsDebugLink: boolean;
   _isKeepKey: boolean = true;
   _supportsETH: boolean = true;
@@ -567,6 +640,7 @@ export class KeepKeyHDWallet
   _supportsCosmos: boolean = true;
   _supportsRipple: boolean = true;
   _supportsBinance: boolean = true;
+  _supportsEos: boolean=true;
 
   transport: KeepKeyTransport;
   features?: Messages.Features.AsObject;
@@ -975,6 +1049,7 @@ export class KeepKeyHDWallet
     this._supportsCosmos = Semver.gte(fwVersion, "v6.3.0");
     this._supportsRipple = Semver.gte(fwVersion, "v6.4.0");
     this._supportsBinance = Semver.gte(fwVersion, "v6.4.0");
+    this._supportsEos = Semver.gte(fwVersion, "v6.4.0");
 
     this.cacheFeatures(event.message);
     return event.message as Messages.Features.AsObject;
@@ -1235,6 +1310,18 @@ export class KeepKeyHDWallet
     return Binance.binanceSignTx(this.transport, msg);
   }
 
+  public eosGetAccountPaths(msg: EosGetAccountPaths): Array<EosAccountPath> {
+    return this.info.eosGetAccountPaths(msg);
+  }
+
+  public eosGetPublicKey(msg: EosGetPublicKey): Promise<string> {
+    return Eos.eosGetPublicKey(this.transport, msg);
+  }
+
+  public eosSignTx(msg: EosToSignTx): Promise<EosSignedTx> {
+    return Eos.eosSignTx(this.transport, msg);
+  }
+
   public describePath(msg: DescribePath): PathDescription {
     return this.info.describePath(msg);
   }
@@ -1250,6 +1337,10 @@ export class KeepKeyHDWallet
   public ethNextAccountPath(msg: ETHAccountPath): ETHAccountPath | undefined {
     return this.info.ethNextAccountPath(msg);
   }
+
+ public eosNextAccountPath(msg: EosAccountPath): EosAccountPath | undefined {
+    return this.info.eosNextAccountPath(msg);
+ }
 
   public cosmosNextAccountPath(
     msg: CosmosAccountPath
