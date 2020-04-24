@@ -668,31 +668,31 @@ $eosTx.on("click", async (e) => {
   }
   if (supportsEos(wallet)) {
     let unsigned = {
-      expiration: "2018-07-14T07:43:28",
-      ref_block_num: 6439,
-      ref_block_prefix: 2995713264,
-      max_net_usage_words: 0,
-      max_cpu_usage_ms: 0,
-      delay_sec: 0,
-      context_free_actions: [],
-      actions: [
+      "expiration": "2018-07-14T07:43:28",
+      "ref_block_num": 6439,
+      "ref_block_prefix": 2995713264,
+      "max_net_usage_words": 0,
+      "max_cpu_usage_ms": 0,
+      "delay_sec": 0,
+      "context_free_actions": [],
+      "actions": [
         {
-          account: "eosio.token",
-          name: "transfer",
-          authorization: [
+          "account": "eosio.token",
+          "name": "transfer",
+          "authorization": [
             {
-              actor: "miniminimini",
-              permission: "active",
-            },
+              "actor": "xhackmebrosx",
+              "permission": "active"
+            }
           ],
-          data: {
-            from: "miniminimini",
-            to: "maximaximaxi",
-            quantity: "1.0000 EOS",
-            memo: "testtest",
-          },
-        },
-      ],
+          "data": {
+            "from": "xhackmebrosx",
+            "to": "xhighlanderx",
+            "quantity": "0.0001 EOS",
+            "memo": "testmemo"
+          }
+        }
+      ]
     };
 
     let res = await wallet.eosSignTx({
