@@ -697,8 +697,10 @@ $eosTx.on("click", async (e) => {
     console.log("sigR = %s", toHexString(res.signatureR));
     console.log("sigS = %s", toHexString(res.signatureS));
     console.log("hash = %s", toHexString(res.hash));
+    console.log("EosFormatSig = %s", res.eosFormSig)
 
-    $eosResults.val(JSON.stringify(res));
+//    $eosResults.val(JSON.stringify(res));
+    $eosResults.val(res.eosFormSig);
   } else {
     let label = await wallet.getLabel();
     $eosResults.val(label + " does not support Eos");

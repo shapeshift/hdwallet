@@ -21,21 +21,44 @@ import { MessageType } from "@keepkey/device-protocol/lib/messages_pb";
 import { cloneDeep } from "lodash";
 
 var Long = require("long");
+const createHash = require('create-hash')
 
-export function eosGetAccountPaths(
-  msg: Core.EosGetAccountPaths
-): Array<Core.EosAccountPath> {
-  return [
-    {
-      addressNList: [
-        0x80000000 + 44,
-        0x80000000 + Core.slip44ByCoin("Eos"),
-        0x80000000 + msg.accountIdx,
-        0,
-        0,
-      ],
-    },
-  ];
+function eosSigFormatter(r : Uint8Array, s : Uint8Array, v : number) : string {
+/*
+  Format the signature to be useful on the eos chain
+*/
+  const base58 = require('bs58')
+
+  var recoverId = 0x1f
+
+  var signature : string = 'SIG_K1_'
+
+  console.log("formatter logs")
+  var keyBuffer = new Buffer(65);
+  var rbuf = Buffer.from(r)
+  var sbuf = Buffer.from(s)
+  keyBuffer.writeUInt8(recoverId, 0);
+  rbuf.copy(keyBuffer, 1);
+  sbuf.copy(keyBuffer, 33);
+
+  console.log(keyBuffer)
+  const check = [keyBuffer]
+  var keyType = 'K1'      // we only sign using K1 curve
+  check.push(Buffer.from(keyType))
+
+  console.log(check)
+
+  console.log("hash")
+  console.log(createHash("ripemd160").update(Buffer.concat(check)).digest())
+  const chksum = (createHash("ripemd160").update(Buffer.concat(check)).digest()).slice(0, 4)
+
+  console.log(chksum)
+  signature = signature.concat(base58.encode(Buffer.concat([keyBuffer, chksum])))  
+
+  console.log(signature)
+
+  return signature
+
 }
 
 function charToSymbol(c: string): number {
@@ -114,6 +137,22 @@ function symbolFromString(p: number, name: string): number {
   }
   result |= p;
   return result;
+}
+
+export function eosGetAccountPaths(
+  msg: Core.EosGetAccountPaths
+): Array<Core.EosAccountPath> {
+  return [
+    {
+      addressNList: [
+        0x80000000 + 44,
+        0x80000000 + Core.slip44ByCoin("Eos"),
+        0x80000000 + msg.accountIdx,
+        0,
+        0,
+      ],
+    },
+  ];
 }
 
 export async function eosGetPublicKey(
@@ -229,17 +268,23 @@ export async function eosSignTx(
       Core.LONG_TIMEOUT,
       true
     );
-    console.log(" action done");
     if (resp.message_enum !== MessageType.MESSAGETYPE_EOSSIGNEDTX) {
       throw new Error(`eos: unexpected response ${resp.message_type}`);
     }
 
     const signedTx = resp.proto as EosSignedTx;
+
+    // format signature for use in the eos system
+
+//    const EosFormatSig = eosSigFormatter(signedTx.getSignatureR() as Uint8Array, signedTx.getSignatureS() as Uint8Array, signedTx.getSignatureV())
+
+
     var sig = {
       signatureV: signedTx.getSignatureV(),
       signatureR: signedTx.getSignatureR(),
       signatureS: signedTx.getSignatureS(),
       hash: signedTx.getHash(),
+      eosFormSig: eosSigFormatter(signedTx.getSignatureR() as Uint8Array, signedTx.getSignatureS() as Uint8Array, signedTx.getSignatureV())
     } as Core.EosSignedTx;
 
     return sig;

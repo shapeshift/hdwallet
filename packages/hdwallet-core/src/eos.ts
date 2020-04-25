@@ -64,6 +64,7 @@ export interface EosSignedTx {
   signatureR: Uint8Array | string;
   signatureS: Uint8Array | string;
   hash: Uint8Array | string;
+  eosFormSig: string;
 }
 
 export interface EosWalletInfo {
