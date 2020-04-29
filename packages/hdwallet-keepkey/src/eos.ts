@@ -209,6 +209,8 @@ export async function eosSignTx(
     signTx.setHeader(txHeader);
     signTx.setNumActions(msg.tx.actions.length);
 
+    console.log("tx header")
+    console.log(txHeader)
     resp = await transport.call(
       MessageType.MESSAGETYPE_EOSSIGNTX,
       signTx,
@@ -261,6 +263,9 @@ export async function eosSignTx(
       default: {
       }
     }
+
+    console.log("action data")
+    console.log(actAck)
 
     resp = await transport.call(
       MessageType.MESSAGETYPE_EOSTXACTIONACK,
