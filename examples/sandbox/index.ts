@@ -657,38 +657,10 @@ $eosTx.on("click", async (e) => {
     return;
   }
   if (supportsEos(wallet)) {
-    let unsigned = {
-      expiration: "2018-07-14T07:43:28",
-      ref_block_num: 6439,
-      ref_block_prefix: 2995713264,
-      max_net_usage_words: 0,
-      max_cpu_usage_ms: 0,
-      delay_sec: 0,
-      context_free_actions: [],
-      actions: [
-        {
-          account: "eosio.token",
-          name: "transfer",
-          authorization: [
-            {
-              actor: "miniminimini",
-              permission: "active",
-            },
-          ],
-          data: {
-            from: "miniminimini",
-            to: "maximaximaxi",
-            quantity: "1.0000 EOS",
-            memo: "testtest",
-          },
-        },
-      ],
-    };
-
     let unsigned_main = {
-      "expiration": "2020-04-24T04:34:10.000",
-      "ref_block_num": 14724,
-      "ref_block_prefix": 708109566,
+      "expiration": "2020-04-30T22:00:00.000",
+      "ref_block_num": 54661,
+      "ref_block_prefix": 2118672142,
       "max_net_usage_words": 0,
       "max_cpu_usage_ms": 0,
       "delay_sec": 0,
@@ -713,7 +685,6 @@ $eosTx.on("click", async (e) => {
       ]
     };
 
-    let chainid = "cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f"
     let chainid_main = "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906"
     let res = await wallet.eosSignTx({
       addressNList: bip32ToAddressNList("m/44'/194'/0'/0/0"),
@@ -727,7 +698,7 @@ $eosTx.on("click", async (e) => {
     console.log("sigS = %s", toHexString(res.signatureS));
     console.log("hash = %s", toHexString(res.hash));
     console.log("EosFormatSig = %s", res.eosFormSig)
-    console.log("EosFormReSig = SIG_K1_JveDuew7oyKjgLmApra3NmKArx3QH6HVmatgkLYeUYWv7aGaoQPFyjBwAdcxuo2Skq9wRgsizos92h9iq9i5JbeHh7zNuo")
+    console.log("EosFormReSig = SIG_K1_Jxa7NRL1hj4Q9wqufaSZa7oAXQQnRxSuAeFSwx6EzHnzPVeB5y6qQge16WCYa3Xod1mDWZv3MnEEPFeK3bEf3iN6es1iVy")
 
     $eosResults.val(res.eosFormSig);
   } else {
