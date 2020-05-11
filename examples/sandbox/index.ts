@@ -5,7 +5,11 @@ import {
   supportsETH,
   supportsBTC,
   supportsCosmos,
+  supportsRipple,
   supportsBinance,
+  supportsEos,
+  EosPublicKeyKindMap,
+  EosSignedTx,
   supportsDebugLink,
   bip32ToAddressNList,
   Events,
@@ -32,6 +36,7 @@ import * as btcSegWitTxJson from "./json/btcSegWitTx.json";
 import * as dashTxJson from "./json/dashTx.json";
 import * as dogeTxJson from "./json/dogeTx.json";
 import * as ltcTxJson from "./json/ltcTx.json";
+import * as rippleTxJson from "./json/rippleTx.json";
 
 const keyring = new Keyring();
 
@@ -554,6 +559,150 @@ $binanceTx.on("click", async (e) => {
   } else {
     let label = await wallet.getLabel();
     $binanceResults.val(label + " does not support Cosmos");
+  }
+});
+
+
+
+/*
+ * Ripple
+ */
+const $rippleAddr = $("#rippleAddr");
+const $rippleTx = $("#rippleTx");
+const $rippleResults = $("#rippleResults");
+
+$rippleAddr.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $rippleResults.val("No wallet?");
+    return;
+  }
+  if (supportsRipple(wallet)) {
+    let { addressNList } = wallet.rippleGetAccountPaths({ accountIdx: 0 })[0];
+    let result = await wallet.rippleGetAddress({
+      addressNList,
+      showDisplay: true,
+    });
+    $rippleResults.val(result);
+  } else {
+    let label = await wallet.getLabel();
+    $rippleResults.val(label + " does not support Ripple");
+  }
+});
+
+$rippleTx.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $ethResults.val("No wallet?");
+    return;
+  }
+  if (supportsRipple(wallet)) {
+    let res = await wallet.rippleSignTx({
+      addressNList: bip32ToAddressNList(`m/44'/144'/0'/0/0`),
+      tx: rippleTxJson,
+      flags: undefined,
+      sequence: "3",
+      lastLedgerSequence: "0",
+      payment: {
+        amount: "47000",
+        destination: "rEpwmtmvx8gkMhX5NLdU3vutQt7dor4MZm",
+        destinationTag: "1234567890",
+      },
+    });
+    $rippleResults.val(JSON.stringify(res));
+  } else {
+    let label = await wallet.getLabel();
+    $rippleResults.val(label + " does not support Ripple");
+  }
+});
+
+/*
+ * Eos
+ */
+const $eosAddr = $("#eosAddr");
+const $eosTx = $("#eosTx");
+const $eosResults = $("#eosResults");
+
+$eosAddr.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $ethResults.val("No wallet?");
+    return;
+  }
+  if (supportsEos(wallet)) {
+    let { addressNList } = wallet.eosGetAccountPaths({ accountIdx: 0 })[0];
+    let result = await wallet.eosGetPublicKey({
+      addressNList,
+      showDisplay: false,
+      kind: 0,
+    });
+    result = await wallet.eosGetPublicKey({
+      addressNList,
+      showDisplay: true,
+      kind: 0,
+      address: result,
+    });
+    $eosResults.val(result);
+  } else {
+    let label = await wallet.getLabel();
+    $eosResults.val(label + " does not support Eos");
+  }
+});
+
+$eosTx.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $ethResults.val("No wallet?");
+    return;
+  }
+  if (supportsEos(wallet)) {
+    let unsigned_main = {
+      "expiration": "2020-04-30T22:00:00.000",
+      "ref_block_num": 54661,
+      "ref_block_prefix": 2118672142,
+      "max_net_usage_words": 0,
+      "max_cpu_usage_ms": 0,
+      "delay_sec": 0,
+      "context_free_actions": [],
+      "actions": [
+        {
+          "account": "eosio.token",
+          "name": "transfer",
+          "authorization": [
+            {
+              "actor": "xhackmebrosx",
+              "permission": "active"
+            }
+          ],
+          "data": {
+            "from": "xhackmebrosx",
+            "to": "xhighlanderx",
+            "quantity": "0.0001 EOS",
+            "memo": "testmemo"
+          }
+        }
+      ]
+    };
+
+    let chainid_main = "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906"
+    let res = await wallet.eosSignTx({
+      addressNList: bip32ToAddressNList("m/44'/194'/0'/0/0"),
+      chain_id: chainid_main,
+      tx: unsigned_main,
+    });
+
+    console.log(res);
+    console.log("sigV = %d", res.signatureV);
+    console.log("sigR = %s", toHexString(res.signatureR));
+    console.log("sigS = %s", toHexString(res.signatureS));
+    console.log("hash = %s", toHexString(res.hash));
+    console.log("EosFormatSig = %s", res.eosFormSig)
+    console.log("EosFormReSig = SIG_K1_Jxa7NRL1hj4Q9wqufaSZa7oAXQQnRxSuAeFSwx6EzHnzPVeB5y6qQge16WCYa3Xod1mDWZv3MnEEPFeK3bEf3iN6es1iVy")
+
+    $eosResults.val(res.eosFormSig);
+  } else {
+    let label = await wallet.getLabel();
+    $eosResults.val(label + " does not support Eos");
   }
 });
 

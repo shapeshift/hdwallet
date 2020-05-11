@@ -51,7 +51,7 @@ export interface RippleTx {
 export interface RipplePayment {
   amount: string;
   destination: string;
-  destinationTag: string;
+  destinationTag?: string;
 }
 
 export interface RippleSignTx {
