@@ -59,11 +59,21 @@ export interface EosToSignTx {
 /* device response asking for next action */
 export interface EosTxActionRequest {}
 
+/*
 export interface EosTxSigned {
   signatureV?: number;
   signatureR: Uint8Array | string;
   signatureS: Uint8Array | string;
   hash: Uint8Array | string;
+  eosFormSig: string;
+}
+*/
+
+export interface EosTxSigned {
+  signatureV: number;
+  signatureR: Uint8Array;
+  signatureS: Uint8Array;
+  hash: Uint8Array;
   eosFormSig: string;
 }
 
