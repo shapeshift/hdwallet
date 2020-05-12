@@ -59,11 +59,21 @@ export interface EosToSignTx {
 /* device response asking for next action */
 export interface EosTxActionRequest {}
 
-export interface EosSignedTx {
+/*
+export interface EosTxSigned {
   signatureV?: number;
   signatureR: Uint8Array | string;
   signatureS: Uint8Array | string;
   hash: Uint8Array | string;
+  eosFormSig: string;
+}
+*/
+
+export interface EosTxSigned {
+  signatureV: number;
+  signatureR: Uint8Array;
+  signatureS: Uint8Array;
+  hash: Uint8Array;
   eosFormSig: string;
 }
 
@@ -86,5 +96,5 @@ export interface EosWallet extends EosWalletInfo {
   _supportsEos: boolean;
 
   eosGetPublicKey(msg: EosGetPublicKey): Promise<string>;
-  eosSignTx(msg: EosToSignTx): Promise<Core.EosSignedTx>;
+  eosSignTx(msg: EosToSignTx): Promise<EosTxSigned>;
 }

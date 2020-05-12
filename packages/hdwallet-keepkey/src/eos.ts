@@ -179,7 +179,7 @@ export async function eosGetPublicKey(
 export async function eosSignTx(
   transport: KeepKeyTransport,
   msg: Core.EosToSignTx
-): Promise<Core.EosSignedTx> {
+): Promise<Core.EosTxSigned> {
   return transport.lockDuring(async () => {
     let resp;
 
@@ -290,7 +290,7 @@ export async function eosSignTx(
       signatureS: signedTx.getSignatureS(),
       hash: signedTx.getHash(),
       eosFormSig: eosSigFormatter(signedTx.getSignatureR() as Uint8Array, signedTx.getSignatureS() as Uint8Array, signedTx.getSignatureV())
-    } as Core.EosSignedTx;
+    } as Core.EosTxSigned;
 
     return sig;
   });

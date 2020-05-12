@@ -46,7 +46,7 @@ import {
   EosAccountPath,
   EosGetPublicKey,
   EosToSignTx,
-  EosSignedTx,
+  EosTxSigned,
   ETHSignTx,
   ETHSignedTx,
   ETHGetAddress,
@@ -1318,7 +1318,7 @@ export class KeepKeyHDWallet
     return Eos.eosGetPublicKey(this.transport, msg);
   }
 
-  public eosSignTx(msg: EosToSignTx): Promise<EosSignedTx> {
+  public eosSignTx(msg: EosToSignTx): Promise<EosTxSigned> {
     return Eos.eosSignTx(this.transport, msg);
   }
 
