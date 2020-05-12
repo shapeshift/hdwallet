@@ -86,5 +86,5 @@ export interface EosWallet extends EosWalletInfo {
   _supportsEos: boolean;
 
   eosGetPublicKey(msg: EosGetPublicKey): Promise<string>;
-  eosSignTx(msg: EosToSignTx): Promise<Core.EosSignedTx>;
+  eosSignTx(msg: EosToSignTx): Promise<EosSignedTx>;
 }
