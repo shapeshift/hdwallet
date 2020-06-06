@@ -688,7 +688,7 @@ export class KeepKeyHDWallet
 
   public async isLocked(): Promise<boolean> {
     const features = await this.getFeatures();
-    if (features.pinProtection && !features.pinProtection) return true;
+    if (features.pinProtection && !features.pinCached) return true;
     if (features.passphraseProtection && !features.passphraseCached)
       return true;
     return false;
