@@ -1,31 +1,23 @@
-import { Coin, Transport, Keyring } from '@shapeshiftoss/hdwallet-core'
-
-export type LedgerDevice = {
-  path: string,
-  deviceID: string
-}
+import { Coin, Transport, Keyring } from "@shapeshiftoss/hdwallet-core";
 
 export interface LedgerResponse {
-  success: boolean,
-  payload: any | { error: string },
-  coin: Coin,
-  method: string
+  success: boolean;
+  payload: any | { error: string };
+  coin: Coin;
+  method: string;
 }
 
 export abstract class LedgerTransport extends Transport {
-  readonly hasPopup = false
-  readonly deviceID
-  transport
+  transport: any;
 
-  constructor(deviceID: string, transport: any, keyring: Keyring) {
-    super(keyring)
-    this.deviceID = deviceID
-    this.transport = transport
+  constructor(transport: any, keyring: Keyring) {
+    super(keyring);
+    this.transport = transport;
   }
 
-  public getDeviceID (): string {
-    return this.deviceID
-  }
-
-  public abstract async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse>
+  public abstract async call(
+    coin: string,
+    method: string,
+    ...args: any[]
+  ): Promise<LedgerResponse>;
 }

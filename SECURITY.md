@@ -14,14 +14,14 @@ the subject line.
 
 Please include the following information in your email:
 
-*  Your name, nickname, handle, or what you’d like to be called while we
-   communicate with you.
-*  The date/time you first identified the vulnerability.
-*  How you identified the vulnerability.
-*  As much detail about the vulnerability as you can.
-*  How many times you leveraged the vulnerability during your testing (and if
-   applicable, a list of each test you performed).
-*  Any additional information you feel may be pertinent.
+- Your name, nickname, handle, or what you’d like to be called while we
+  communicate with you.
+- The date/time you first identified the vulnerability.
+- How you identified the vulnerability.
+- As much detail about the vulnerability as you can.
+- How many times you leveraged the vulnerability during your testing (and if
+  applicable, a list of each test you performed).
+- Any additional information you feel may be pertinent.
 
 If you would like to encrypt your vulnerability report, you can use the
 following GPG key:
@@ -29,7 +29,7 @@ following GPG key:
 <details><summary>GPG Key</summary>
 
     -----BEGIN PGP PUBLIC KEY BLOCK-----
-    
+
     mQINBFqzSDABEAC8+iDfkjzoCiELiP4XQ5mc+UvEyYmkawy3iVJA36lXUgAXepM2
     CqFRdcEamwukzP9XnpHlrTZIgYYkBCXPqy19bnvBiZ3LXwnPvvWG/skWQcoI9n6g
     bgbYQ/DME/U7G8UjUXknKLfURYyAt2DE3VJP4qilJRQRIF0a3bMF1w6mSCOHwFUS
@@ -126,6 +126,7 @@ following GPG key:
     vdS+QrWAKcrcUEg=
     =G0QG
     -----END PGP PUBLIC KEY BLOCK-----
+
 </details>
 
 https://corp.shapeshift.io/responsible-disclosure-program

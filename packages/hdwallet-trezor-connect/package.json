@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-trezor-connect",
-  "version": "0.2.0",
+  "version": "0.18.11",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -9,6 +9,7 @@
   "source": "src/index.ts",
   "umd:main": "dist/index.umd.js",
   "module": "dist/index.m.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "microbundle --target=web --name=trezorConnectTransport",
     "clean": "rm -rf dist .rts2_*",
@@ -16,8 +17,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^0.2.0",
-    "@shapeshiftoss/hdwallet-trezor": "^0.2.0",
+    "@shapeshiftoss/hdwallet-core": "^0.18.11",
+    "@shapeshiftoss/hdwallet-trezor": "^0.18.11",
     "bytebuffer": "^5.0.1",
     "eventemitter2": "^5.0.1",
     "trezor-connect": "^7.0.2"

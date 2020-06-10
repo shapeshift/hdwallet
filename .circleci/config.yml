@@ -5,8 +5,8 @@ orbs:
     executors:
       node:
         docker:
-          - image: circleci/node:10
-          - image: kktech/kkemu:v6.2.0-hotfix.0
+          - image: circleci/node:10.16.3
+          - image: kktech/kkemu:latest
     jobs:
       dependencies:
         description: Get deps and persist to workspace
@@ -20,7 +20,7 @@ orbs:
           - restore_cache:
               name: Restore Yarn Package Cache
               keys:
-                - yarn-packages-{{ checksum "yarn.lock" }}
+                - cache-v4-{{ checksum "yarn.lock" }}
           - run: yarn --frozen-lockfile --cache-folder ./.yarn-cache
           - persist_to_workspace:
               root: .
@@ -30,7 +30,7 @@ orbs:
                 - .yarn-cache
           - save_cache:
               name: Save Yarn Package Cache
-              key: yarn-packages-{{ checksum "yarn.lock" }}
+              key: cache-v4-{{ checksum "yarn.lock" }}
               paths:
                 - .yarn-cache
           - run:
@@ -45,7 +45,7 @@ orbs:
               at: .
           - restore_cache:
               keys:
-                - cache-v2-{{ checksum "yarn.lock" }}
+                - cache-v4-{{ checksum "yarn.lock" }}
           - run: yarn --cache-folder .yarn-cache
           - run:
               no_output_timeout: 30m
@@ -56,32 +56,26 @@ orbs:
               paths:
                 - packages/*/dist
           - save_cache:
-              key: cache-v2-{{ checksum "yarn.lock" }}
+              key: cache-v4-{{ checksum "yarn.lock" }}
               paths:
                 - "packages/hdwallet-core/.rts2_cache_cjs"
                 - "packages/hdwallet-core/.rts2_cache_es"
                 - "packages/hdwallet-core/.rts2_cache_umd"
-                - "packages/hdwallet-core/dist"
                 - "packages/hdwallet-keepkey/.rts2_cache_cjs"
                 - "packages/hdwallet-keepkey/.rts2_cache_es"
                 - "packages/hdwallet-keepkey/.rts2_cache_umd"
-                - "packages/hdwallet-keepkey/dist"
                 - "packages/hdwallet-trezor/.rts2_cache_cjs"
                 - "packages/hdwallet-trezor/.rts2_cache_es"
                 - "packages/hdwallet-trezor/.rts2_cache_umd"
-                - "packages/hdwallet-trezor/dist"
                 - "packages/hdwallet-keepkey-chromeusb/.rts2_cache_cjs"
                 - "packages/hdwallet-keepkey-chromeusb/.rts2_cache_es"
                 - "packages/hdwallet-keepkey-chromeusb/.rts2_cache_umd"
-                - "packages/hdwallet-keepkey-chromeusb/dist"
                 - "packages/hdwallet-keepkey-nodehid/.rts2_cache_cjs"
                 - "packages/hdwallet-keepkey-nodehid/.rts2_cache_es"
                 - "packages/hdwallet-keepkey-nodehid/.rts2_cache_umd"
-                - "packages/hdwallet-keepkey-nodehid/dist"
                 - "packages/hdwallet-keepkey-webusb/.rts2_cache_cjs"
                 - "packages/hdwallet-keepkey-webusb/.rts2_cache_es"
                 - "packages/hdwallet-keepkey-webusb/.rts2_cache_umd"
-                - "packages/hdwallet-keepkey-webusb/dist"
       test:
         description: Run tests
         executor: node
@@ -93,23 +87,13 @@ orbs:
               at: .
           - restore_cache:
               keys:
-                - cache-v2-{{ checksum "yarn.lock" }}
+                - cache-v4-{{ checksum "yarn.lock" }}
           - run: yarn --cache-folder .yarn-cache
           - run:
               name: Run tests
-              command: yarn run jest --verbose --runInBand --ci --reporters=default --reporters=jest-junit --coverage --config jest.config.js
+              command: yarn run test:ci
           - store_test_results:
               path: test-results
-      release-packages:
-        description: Build and release local dependency packages
-        executor: node
-        steps:
-          - checkout
-          - attach_workspace:
-              at: .
-          - run: yarn --cache-folder .yarn-cache
-          - run: git status
-          - run: ./node_modules/.bin/lerna publish from-package --yes
 workflows:
   version: 2
   Build and Release:
@@ -125,13 +109,3 @@ workflows:
           requires:
             - dependencies
             - build
-      - hdwallet/release-packages:
-          name: release-packages
-          requires:
-            - test
-            - build
-          filters:
-            branches:
-              only:
-                - master
-
