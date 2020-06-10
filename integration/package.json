@@ -16,7 +16,7 @@
     "@shapeshiftoss/hdwallet-keepkey-tcp": "^0.1.0",
     "@shapeshiftoss/hdwallet-trezor": "^0.1.0",
     "debug": "^4.1.1",
-    "parcel-bundler": "^1.11.2",
+    "parcel-bundler": "^1.12.4",
     "whatwg-fetch": "^2.0.4"
   },
   "devDependencies": {

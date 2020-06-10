@@ -1,223 +1,607 @@
-import { crypto } from 'bitcoinjs-lib'
-import {
-  addressNListToBIP32,
-  HDWallet,
-  GetPublicKey,
-  PublicKey,
-  RecoverDevice,
-  ResetDevice,
-  LoadDevice,
-  Coin,
-  Ping,
-  Pong,
-  Constructor,
-  makeEvent,
-  WrongApp,
-  SelectApp,
-  ActionCancelled,
-} from '@shapeshiftoss/hdwallet-core'
-import { LedgerBTCWallet } from './bitcoin'
-import { LedgerETHWallet } from './ethereum'
-import { LedgerTransport } from './transport'
-import {
-  compressPublicKey,
-  createXpub,
-  encodeBase58Check,
-  networksUtil,
-  parseHexString,
-  translateScriptType
-} from './utils'
+import { isObject, get } from "lodash";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as btc from "./bitcoin";
+import * as eth from "./ethereum";
+import { LedgerTransport } from "./transport";
+import { networksUtil, handleError } from "./utils";
 
-export function isLedger (wallet: any): wallet is LedgerHDWallet {
-  return typeof wallet === 'object' && wallet._isLedger !== undefined
+export function isLedger(wallet: core.HDWallet): wallet is LedgerHDWallet {
+  return isObject(wallet) && (wallet as any)._isLedger;
 }
 
-export class LedgerHDWallet extends HDWallet {
-  _isLedger: boolean = true
-  transport: LedgerTransport
+function describeETHPath(path: core.BIP32Path): core.PathDescription {
+  let pathStr = core.addressNListToBIP32(path);
+  let unknown: core.PathDescription = {
+    verbose: pathStr,
+    coin: "Ethereum",
+    isKnown: false,
+  };
 
-  constructor (transport: LedgerTransport) {
-    super()
-    this.transport = transport
+  if (path.length !== 5 && path.length !== 4) return unknown;
+
+  if (path[0] !== 0x80000000 + 44) return unknown;
+
+  if (path[1] !== 0x80000000 + core.slip44ByCoin("Ethereum")) return unknown;
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
+
+  let accountIdx;
+  if (path.length === 5) {
+    if (path[3] !== 0) return unknown;
+
+    if (path[4] !== 0) return unknown;
+
+    accountIdx = (path[2] & 0x7fffffff) >>> 0;
+  } else if (path.length === 4) {
+    if (path[2] !== 0x80000000) return unknown;
+
+    if ((path[3] & 0x80000000) >>> 0 === 0x80000000) return unknown;
+
+    accountIdx = path[3];
+  } else {
+    return unknown;
   }
 
-  public async initialize (): Promise<any> {
-    return
+  return {
+    verbose: `Ethereum Account #${accountIdx}`,
+    wholeAccount: true,
+    accountIdx,
+    coin: "Ethereum",
+    isKnown: true,
+    isPrefork: false,
+  };
+}
+
+function describeUTXOPath(
+  path: core.BIP32Path,
+  coin: core.Coin,
+  scriptType: core.BTCInputScriptType
+) {
+  let pathStr = core.addressNListToBIP32(path);
+  let unknown: core.PathDescription = {
+    verbose: pathStr,
+    coin,
+    scriptType,
+    isKnown: false,
+  };
+
+  if (!btc.btcSupportsCoin(coin)) return unknown;
+
+  if (!btc.btcSupportsScriptType(coin, scriptType)) return unknown;
+
+  if (path.length !== 3 && path.length !== 5) return unknown;
+
+  if ((path[0] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
+
+  let purpose = path[0] & 0x7fffffff;
+
+  if (![44, 49, 84].includes(purpose)) return unknown;
+
+  if (purpose === 44 && scriptType !== core.BTCInputScriptType.SpendAddress)
+    return unknown;
+
+  if (purpose === 49 && scriptType !== core.BTCInputScriptType.SpendP2SHWitness)
+    return unknown;
+
+  if (purpose === 84 && scriptType !== core.BTCInputScriptType.SpendWitness)
+    return unknown;
+
+  if (path[1] !== 0x80000000 + core.slip44ByCoin(coin)) return unknown;
+
+  let wholeAccount = path.length === 3;
+
+  let script = {
+    [core.BTCInputScriptType.SpendAddress]: " (Legacy)",
+    [core.BTCInputScriptType.SpendP2SHWitness]: "",
+    [core.BTCInputScriptType.SpendWitness]: " (Segwit Native)",
+  }[scriptType];
+
+  switch (coin) {
+    case "Bitcoin":
+    case "Litecoin":
+    case "BitcoinGold":
+    case "Testnet":
+      break;
+    default:
+      script = "";
   }
 
-  public async getDeviceID (): Promise<string> {
-    return this.transport.deviceID
+  let accountIdx = path[2] & 0x7fffffff;
+
+  if (wholeAccount) {
+    return {
+      verbose: `${coin} Account #${accountIdx}${script}`,
+      accountIdx,
+      coin,
+      scriptType,
+      wholeAccount: true,
+      isKnown: true,
+      isPrefork: false,
+    };
+  } else {
+    let change = path[3] == 1 ? "Change " : "";
+    let addressIdx = path[4];
+    return {
+      verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${script}`,
+      coin,
+      scriptType,
+      accountIdx,
+      addressIdx,
+      wholeAccount: false,
+      isChange: path[3] == 1,
+      isKnown: true,
+      isPrefork: false,
+    };
+  }
+}
+
+export class LedgerHDWalletInfo
+  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
+  _supportsBTCInfo: boolean = true;
+  _supportsETHInfo: boolean = true;
+  _supportsCosmosInfo: boolean = false; // TODO ledger supports cosmos
+  _supportsBinanceInfo: boolean = false; // TODO ledger supports bnb
+  _supportsRippleInfo: boolean = false; // TODO ledger supports XRP
+ _supportsEosInfo: boolean = false;
+
+  public getVendor(): string {
+    return "Ledger";
   }
 
-  public getVendor (): string {
-    return 'Ledger'
+  public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
+    return btc.btcSupportsCoin(coin);
   }
 
-  public async getModel (): Promise<string> {
-    return
+  public async btcSupportsScriptType(
+    coin: core.Coin,
+    scriptType: core.BTCInputScriptType
+  ): Promise<boolean> {
+    return btc.btcSupportsScriptType(coin, scriptType);
   }
 
-  public async getLabel (): Promise<string> {
-    return
+  public async btcSupportsSecureTransfer(): Promise<boolean> {
+    return btc.btcSupportsSecureTransfer();
   }
 
-  public async isLocked (): Promise<boolean> {
+  public btcSupportsNativeShapeShift(): boolean {
+    return btc.btcSupportsNativeShapeShift();
+  }
+
+  public btcGetAccountPaths(
+    msg: core.BTCGetAccountPaths
+  ): Array<core.BTCAccountPath> {
+    return btc.btcGetAccountPaths(msg);
+  }
+
+  public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
+    return btc.btcIsSameAccount(msg);
+  }
+
+  public async ethSupportsNetwork(chain_id: number): Promise<boolean> {
+    return eth.ethSupportsNetwork(chain_id);
+  }
+
+  public async ethSupportsSecureTransfer(): Promise<boolean> {
+    return eth.ethSupportsSecureTransfer();
+  }
+
+  public ethSupportsNativeShapeShift(): boolean {
+    return eth.ethSupportsNativeShapeShift();
+  }
+
+  public ethGetAccountPaths(
+    msg: core.ETHGetAccountPath
+  ): Array<core.ETHAccountPath> {
+    return eth.ethGetAccountPaths(msg);
+  }
+
+  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
+    return false;
+  }
+
+  public hasOnDeviceDisplay(): boolean {
     return true;
   }
 
-  public async clearSession (): Promise<void> {
-    return
+  public hasOnDevicePassphrase(): boolean {
+    return true;
   }
 
-  // TODO: what to do with Ethereum?
-  // Adapted from https://github.com/LedgerHQ/ledger-wallet-webtool
-  public async getPublicKeys (msg: Array<GetPublicKey>): Promise<Array<PublicKey>> {
-    const xpubs = []
-    for (const getPublicKey of msg) {
-      const { addressNList } = getPublicKey
-      const bip32path: string = addressNListToBIP32(addressNList.slice(0, 3)).substring(2)
-      const prevBip32path: string = addressNListToBIP32(addressNList.slice(0, 2)).substring(2)
-      const format: string = translateScriptType(getPublicKey.scriptType) || 'legacy'
-      const opts = {
-        verify: false,
-        format
-      }
-      const res1 = await this.transport.call('Btc', 'getWalletPublicKey', prevBip32path, opts)
-      this.handleError(res1, 'Unable to obtain public key from device.')
+  public hasOnDevicePinEntry(): boolean {
+    return true;
+  }
 
-      let { payload: { publicKey } } = res1
-      publicKey = compressPublicKey(publicKey)
-      publicKey = parseHexString(publicKey)
-      let result = crypto.sha256(publicKey)
+  public hasOnDeviceRecovery(): boolean {
+    return true;
+  }
 
-      result = crypto.ripemd160(result)
-      const fingerprint: number = ((result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3]) >>> 0
-
-      const res2 = await this.transport.call('Btc', 'getWalletPublicKey', bip32path, opts)
-      this.handleError(res2, 'Unable to obtain public key from device.')
-
-      publicKey = res2.payload.publicKey
-      const chainCode: string = res2.payload.chainCode
-      publicKey = compressPublicKey(publicKey)
-      const coinType: number = parseInt(bip32path.split("/")[1], 10)
-      const account: number = parseInt(bip32path.split("/")[2], 10)
-      const childNum: number = (0x80000000 | account) >>> 0
-      let xpub = createXpub(
-        3,
-        fingerprint,
-        childNum,
-        chainCode,
-        publicKey,
-        networksUtil[coinType].bitcoinjs.bip32.public
-      )
-      xpub = encodeBase58Check(xpub)
-
-      xpubs.push({
-        xpub
-      })
+  public describePath(msg: core.DescribePath): core.PathDescription {
+    switch (msg.coin) {
+      case "Ethereum":
+        return describeETHPath(msg.path);
+      default:
+        return describeUTXOPath(msg.path, msg.coin, msg.scriptType);
     }
-    return xpubs
   }
 
-  public async hasNativeShapeShift (srcCoin: Coin, dstCoin: Coin): Promise<boolean> {
-    return false
-  }
-
-  public async hasOnDeviceDisplay (): Promise<boolean> {
-    return true
-  }
-
-  public async hasOnDevicePassphrase (): Promise<boolean> {
-    return true
-  }
-
-  public async hasOnDevicePinEntry (): Promise<boolean> {
-    return true
-  }
-
-  public async hasOnDeviceRecovery (): Promise<boolean> {
-    return true
-  }
-
-  public async loadDevice (msg: LoadDevice): Promise<void> {
-    return
-  }
-
-  public async ping (msg: Ping): Promise<Pong> {
-    // Ledger doesn't have this, faking response here
-    return { msg: msg.msg }
-  }
-
-  public async cancel (): Promise<void> {
-    return
-  }
-
-  public async recover (msg: RecoverDevice): Promise<void> {
-    return
-  }
-
-  public async reset (msg: ResetDevice): Promise<void> {
-    return
-  }
-
-  public async sendCharacter (character: string): Promise<void> {
-    return
-  }
-
-  public async sendPassphrase (passphrase: string): Promise<void> {
-    return
-  }
-
-  public async sendPin (pin: string): Promise<void> {
-    return
-  }
-
-  public async sendWord (word: string): Promise<void> {
-    return
-  }
-
-  public async wipe (): Promise<void> {
-    return
-  }
-
-  protected handleError (result: any, message: string): void {
-    if (result.success)
-      return
-
-    if (result.payload && result.payload.error) {
-
-      // No app selected
-      if (result.payload.error.includes('0x6700') ||
-          result.payload.error.includes('0x6982')) {
-        throw new SelectApp('Ledger', result.coin)
-      }
-
-      // Wrong app selected
-      if (result.payload.error.includes('0x6d00')) {
-        throw new WrongApp('Ledger', result.coin)
-      }
-
-      // User selected x instead of ✓
-      if (result.payload.error.includes('0x6985')) {
-        throw new ActionCancelled()
-      }
-
-      this.transport.emit(`ledger.${result.coin}.${result.method}.call`, makeEvent({
-        message_type: 'ERROR',
-        from_wallet: true,
-        message
-      }))
-
-      throw new Error(`${message}: '${result.payload.error}'`)
+  public btcNextAccountPath(
+    msg: core.BTCAccountPath
+  ): core.BTCAccountPath | undefined {
+    let description = describeUTXOPath(
+      msg.addressNList,
+      msg.coin,
+      msg.scriptType
+    );
+    if (!description.isKnown) {
+      return undefined;
     }
+
+    let addressNList = msg.addressNList;
+
+    if (
+      addressNList[0] === 0x80000000 + 44 ||
+      addressNList[0] === 0x80000000 + 49 ||
+      addressNList[0] === 0x80000000 + 84
+    ) {
+      addressNList[2] += 1;
+      return {
+        ...msg,
+        addressNList,
+      };
+    }
+
+    return undefined;
+  }
+
+  public ethNextAccountPath(
+    msg: core.ETHAccountPath
+  ): core.ETHAccountPath | undefined {
+    let addressNList = msg.hardenedPath.concat(msg.relPath);
+    let description = describeETHPath(addressNList);
+    if (!description.isKnown) {
+      return undefined;
+    }
+
+    if (description.wholeAccount) {
+      addressNList[2] += 1;
+      return {
+        ...msg,
+        addressNList,
+        hardenedPath: core.hardenedPath(addressNList),
+        relPath: core.relativePath(addressNList),
+      };
+    }
+
+    if (addressNList.length === 5) {
+      addressNList[2] += 1;
+      return {
+        ...msg,
+        hardenedPath: core.hardenedPath(addressNList),
+        relPath: core.relativePath(addressNList),
+      };
+    }
+
+    if (addressNList.length === 4) {
+      addressNList[3] += 1;
+      return {
+        ...msg,
+        hardenedPath: core.hardenedPath(addressNList),
+        relPath: core.relativePath(addressNList),
+      };
+    }
+
+    return undefined;
   }
 }
 
-export function create (transport: LedgerTransport): LedgerHDWallet {
-  let LDGR: Constructor = LedgerHDWallet
+export class LedgerHDWallet
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet {
+  _supportsETHInfo: boolean = true;
+  _supportsBTCInfo: boolean = true;
+  _supportsDebugLink: boolean = false;
+  _supportsBTC: boolean = true;
+  _supportsETH: boolean = true;
+  _supportsBinanceInfo: boolean = false;
+  _supportsBinance: boolean = false;
+  _supportsRippleInfo: boolean = false;
+  _supportsRipple: boolean = false;
+  _supportsCosmosInfo: boolean = false;
+  _supportsCosmos: boolean = false;
+  _supportsEosInfo: boolean = false;
+  _supportsEos: boolean = false;
 
-  LDGR = LedgerETHWallet(LDGR)
-  LDGR = LedgerBTCWallet(LDGR)
+  _isLedger: boolean = true;
 
-  return <LedgerHDWallet>new LDGR(transport)
+  transport: LedgerTransport;
+  info: LedgerHDWalletInfo & core.HDWalletInfo;
+
+  constructor(transport: LedgerTransport) {
+    this.transport = transport;
+    this.info = new LedgerHDWalletInfo();
+  }
+
+  public async initialize(): Promise<any> {
+    return;
+  }
+
+  public async isInitialized(): Promise<boolean> {
+    // AFAICT, there isn't an API to figure this out, so we go with a reasonable
+    // (ish) default:
+    return true;
+  }
+
+  public async getDeviceID(): Promise<string> {
+    const {
+      device: { serialNumber: deviceID },
+    } = this.transport as any;
+    return deviceID;
+  }
+
+  public async getFeatures(): Promise<any> {
+    const res = await this.transport.call(null, "getDeviceInfo");
+    handleError(res, this.transport);
+    return res.payload;
+  }
+
+  /**
+   * Validate if a specific app is open
+   * Throws WrongApp error if app associated with coin is not open
+   * @param coin  Name of coin for app name lookup
+   */
+  public async validateCurrentApp(coin: core.Coin): Promise<void> {
+    if (!coin) {
+      throw new Error(`No coin provided`);
+    }
+
+    const appName = get(networksUtil[core.slip44ByCoin(coin)], "appName");
+    if (!appName) {
+      throw new Error(`Unable to find associated app name for coin: ${coin}`);
+    }
+
+    const res = await this.transport.call(null, "getAppAndVersion");
+    handleError(res, this.transport);
+
+    const {
+      payload: { name: currentApp },
+    } = res;
+    if (currentApp !== appName) {
+      throw new core.WrongApp("Ledger", appName);
+    }
+  }
+
+  /**
+   * Prompt user to open given app on device
+   * User must be in dashboard
+   * @param appName - human-readable app name i.e. "Bitcoin Cash"
+   */
+  public async openApp(appName: string): Promise<void> {
+    const res = await this.transport.call(null, "openApp", appName);
+    handleError(res, this.transport);
+  }
+
+  public async getFirmwareVersion(): Promise<string> {
+    const { version } = await this.getFeatures();
+    return version;
+  }
+
+  public getVendor(): string {
+    return "Ledger";
+  }
+
+  public async getModel(): Promise<string> {
+    const {
+      device: { productName },
+    } = this.transport as any;
+    return productName;
+  }
+
+  public async getLabel(): Promise<string> {
+    return "Ledger";
+  }
+
+  public async isLocked(): Promise<boolean> {
+    return true;
+  }
+
+  public async clearSession(): Promise<void> {
+    return;
+  }
+
+  public async getPublicKeys(
+    msg: Array<core.GetPublicKey>
+  ): Promise<Array<core.PublicKey | null>> {
+    const res = await this.transport.call(null, "getAppAndVersion");
+    handleError(res, this.transport);
+
+    const {
+      payload: { name },
+    } = res;
+
+    switch (name) {
+      case "Bitcoin":
+        return btc.btcGetPublicKeys(this.transport, msg);
+      case "Ethereum":
+        return eth.ethGetPublicKeys(this.transport, msg);
+      default:
+        throw new Error(`getPublicKeys is not supported with the ${name} app`);
+    }
+  }
+
+  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
+    return false;
+  }
+
+  public hasOnDeviceDisplay(): boolean {
+    return true;
+  }
+
+  public hasOnDevicePassphrase(): boolean {
+    return true;
+  }
+
+  public hasOnDevicePinEntry(): boolean {
+    return true;
+  }
+
+  public hasOnDeviceRecovery(): boolean {
+    return true;
+  }
+
+  public async loadDevice(msg: core.LoadDevice): Promise<void> {
+    return;
+  }
+
+  // Ledger doesn't have this, faking response here
+  public async ping(msg: core.Ping): Promise<core.Pong> {
+    return { msg: msg.msg };
+  }
+
+  public async cancel(): Promise<void> {
+    return;
+  }
+
+  public async recover(msg: core.RecoverDevice): Promise<void> {
+    return;
+  }
+
+  public async reset(msg: core.ResetDevice): Promise<void> {
+    return;
+  }
+
+  public async sendCharacter(character: string): Promise<void> {
+    return;
+  }
+
+  public async sendPassphrase(passphrase: string): Promise<void> {
+    return;
+  }
+
+  public async sendPin(pin: string): Promise<void> {
+    return;
+  }
+
+  public async sendWord(word: string): Promise<void> {
+    return;
+  }
+
+  public async wipe(): Promise<void> {
+    return;
+  }
+
+  public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
+    return this.info.btcSupportsCoin(coin);
+  }
+
+  public async btcSupportsScriptType(
+    coin: core.Coin,
+    scriptType: core.BTCInputScriptType
+  ): Promise<boolean> {
+    return this.info.btcSupportsScriptType(coin, scriptType);
+  }
+
+  public async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
+    await this.validateCurrentApp(msg.coin);
+    return btc.btcGetAddress(this.transport, msg);
+  }
+
+  public async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx> {
+    await this.validateCurrentApp(msg.coin);
+    return btc.btcSignTx(this, this.transport, msg);
+  }
+
+  public async btcSupportsSecureTransfer(): Promise<boolean> {
+    return this.info.btcSupportsSecureTransfer();
+  }
+
+  public btcSupportsNativeShapeShift(): boolean {
+    return this.info.btcSupportsNativeShapeShift();
+  }
+
+  public async btcSignMessage(
+    msg: core.BTCSignMessage
+  ): Promise<core.BTCSignedMessage> {
+    await this.validateCurrentApp(msg.coin);
+    return btc.btcSignMessage(this, this.transport, msg);
+  }
+
+  public async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
+    return btc.btcVerifyMessage(msg);
+  }
+
+  public btcGetAccountPaths(
+    msg: core.BTCGetAccountPaths
+  ): Array<core.BTCAccountPath> {
+    return this.info.btcGetAccountPaths(msg);
+  }
+
+  public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
+    return this.info.btcIsSameAccount(msg);
+  }
+
+  public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
+    await this.validateCurrentApp("Ethereum");
+    return eth.ethSignTx(this.transport, msg);
+  }
+
+  public async ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
+    await this.validateCurrentApp("Ethereum");
+    return eth.ethGetAddress(this.transport, msg);
+  }
+
+  public async ethSignMessage(
+    msg: core.ETHSignMessage
+  ): Promise<core.ETHSignedMessage> {
+    await this.validateCurrentApp("Ethereum");
+    return eth.ethSignMessage(this.transport, msg);
+  }
+
+  public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
+    return eth.ethVerifyMessage(msg);
+  }
+
+  public async ethSupportsNetwork(chain_id: number): Promise<boolean> {
+    return this.info.ethSupportsNetwork(chain_id);
+  }
+
+  public async ethSupportsSecureTransfer(): Promise<boolean> {
+    return this.info.ethSupportsSecureTransfer();
+  }
+
+  public ethSupportsNativeShapeShift(): boolean {
+    return this.info.ethSupportsNativeShapeShift();
+  }
+
+  public ethGetAccountPaths(
+    msg: core.ETHGetAccountPath
+  ): Array<core.ETHAccountPath> {
+    return this.info.ethGetAccountPaths(msg);
+  }
+
+  public describePath(msg: core.DescribePath): core.PathDescription {
+    return this.info.describePath(msg);
+  }
+
+  public disconnect(): Promise<void> {
+    return this.transport.disconnect();
+  }
+
+  public btcNextAccountPath(
+    msg: core.BTCAccountPath
+  ): core.BTCAccountPath | undefined {
+    return this.info.btcNextAccountPath(msg);
+  }
+
+  public ethNextAccountPath(
+    msg: core.ETHAccountPath
+  ): core.ETHAccountPath | undefined {
+    return this.info.ethNextAccountPath(msg);
+  }
+}
+
+export function info(): LedgerHDWalletInfo {
+  return new LedgerHDWalletInfo();
+}
+
+export function create(transport: LedgerTransport): LedgerHDWallet {
+  return new LedgerHDWallet(transport);
 }

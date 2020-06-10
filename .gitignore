@@ -14,3 +14,6 @@ dist
 .rpt2_*
 .cache
 .npmrc
+junit.xml
+public
+examples/sandbox/public

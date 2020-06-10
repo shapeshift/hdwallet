@@ -1,0 +1,93 @@
+import { BIP32Path } from "./wallet";
+
+export interface CosmosGetAddress {
+  addressNList: BIP32Path;
+  showDisplay?: boolean;
+  /** Optional. Required for showDisplay == true. */
+  address?: string;
+}
+
+namespace Cosmos {
+  namespace sdk {
+    export interface Msg {
+      type: string;
+      value: any;
+    }
+
+    export type Coins = Coin[];
+
+    export interface Coin {
+      denom: string;
+      amount: string;
+    }
+  }
+
+  export interface StdFee {
+    amount: sdk.Coins;
+    gas: string;
+  }
+
+  namespace crypto {
+    export interface PubKey {
+      type: string;
+      value: string;
+    }
+  }
+
+  export interface StdSignature {
+    pub_key?: crypto.PubKey;
+    signature: string;
+  }
+
+  export interface StdTx {
+    msg: sdk.Msg[];
+    fee: StdFee;
+    signatures: null | StdSignature[];
+    memo: string;
+  }
+}
+
+export interface CosmosTx {
+  type: string; // 'auth/StdTx'
+  value: Cosmos.StdTx;
+}
+
+export interface CosmosSignTx {
+  addressNList: BIP32Path;
+  tx: CosmosTx;
+  chain_id: string;
+  account_number: string;
+  sequence: string;
+}
+
+export type CosmosSignedTx = CosmosTx;
+
+export interface CosmosGetAccountPaths {
+  accountIdx: number;
+}
+
+export interface CosmosAccountPath {
+  addressNList: BIP32Path;
+}
+
+export interface CosmosWalletInfo {
+  _supportsCosmosInfo: boolean;
+
+  /**
+   * Returns a list of bip32 paths for a given account index in preferred order
+   * from most to least preferred.
+   */
+  cosmosGetAccountPaths(msg: CosmosGetAccountPaths): Array<CosmosAccountPath>;
+
+  /**
+   * Returns the "next" account path, if any.
+   */
+  cosmosNextAccountPath(msg: CosmosAccountPath): CosmosAccountPath | undefined;
+}
+
+export interface CosmosWallet extends CosmosWalletInfo {
+  _supportsCosmos: boolean;
+
+  cosmosGetAddress(msg: CosmosGetAddress): Promise<string>;
+  cosmosSignTx(msg: CosmosSignTx): Promise<CosmosSignedTx>;
+}

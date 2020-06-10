@@ -1,23 +1,28 @@
 {
-  "name": "sandbox",
-  "version": "0.2.0",
+  "name": "hdwallet-sandbox",
+  "version": "0.18.11",
   "main": "index.js",
   "license": "MIT",
   "private": true,
   "scripts": {
+    "build": "yarn parcel build index.html --out-dir public",
     "dev": "yarn parcel index.html --https",
     "clean": "rm -rf dist .cache"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^0.2.0",
-    "@shapeshiftoss/hdwallet-keepkey-tcp": "^0.2.0",
-    "@shapeshiftoss/hdwallet-keepkey-webusb": "^0.2.0",
-    "@shapeshiftoss/hdwallet-ledger": "^0.2.0",
-    "@shapeshiftoss/hdwallet-ledger-webusb": "^0.2.0",
-    "@shapeshiftoss/hdwallet-trezor": "^0.2.0",
-    "@shapeshiftoss/hdwallet-trezor-connect": "^0.2.0",
+    "@shapeshiftoss/hdwallet-core": "^0.18.11",
+    "@shapeshiftoss/hdwallet-keepkey-tcp": "^0.18.11",
+    "@shapeshiftoss/hdwallet-keepkey-webusb": "^0.18.11",
+    "@shapeshiftoss/hdwallet-ledger": "^0.18.11",
+    "@shapeshiftoss/hdwallet-ledger-webusb": "^0.18.11",
+    "@shapeshiftoss/hdwallet-portis": "^0.18.11",
+    "@shapeshiftoss/hdwallet-trezor": "^0.18.11",
+    "@shapeshiftoss/hdwallet-trezor-connect": "^0.18.11",
+    "bip32": "^2.0.4",
     "debug": "^4.1.1",
-    "parcel-bundler": "^1.11.2"
+    "jquery": "^3.4.1",
+    "json": "^9.0.6",
+    "parcel-bundler": "^1.12.4"
   },
   "devDependencies": {
     "@types/debug": "^4.1.2"
