@@ -243,8 +243,6 @@ export interface HDWalletInfo {
 }
 
 export interface HDWallet extends HDWalletInfo {
-  _supportsETHInfo: boolean;
-  _supportsBTCInfo: boolean;
   _supportsBTC: boolean;
   _supportsETH: boolean;
   _supportsCosmos: boolean;
@@ -253,7 +251,7 @@ export interface HDWallet extends HDWalletInfo {
   _supportsEos: boolean;
   _supportsDebugLink: boolean;
 
-  transport: Transport;
+  transport?: Transport;
 
   /**
    * Retrieve the wallet's unique ID
