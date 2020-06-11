@@ -16,7 +16,6 @@ import {
 
 import { isKeepKey } from "@shapeshiftoss/hdwallet-keepkey";
 import { isPortis } from "@shapeshiftoss/hdwallet-portis";
-import { isNative } from "@shapeshiftoss/hdwallet-native";
 
 import { WebUSBKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-webusb";
 import { TCPKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-tcp";
