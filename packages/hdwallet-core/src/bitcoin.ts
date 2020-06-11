@@ -1,4 +1,5 @@
-import { ExchangeType, BIP32Path, Coin } from "./wallet";
+import { ExchangeType, BIP32Path, Coin, PathDescription } from "./wallet";
+import { addressNListToBIP32, slip44ByCoin } from "./utils";
 
 export interface BTCGetAddress {
   addressNList: BIP32Path;
@@ -218,4 +219,167 @@ export interface BTCWallet extends BTCWalletInfo {
   btcSignTx(msg: BTCSignTx): Promise<BTCSignedTx>;
   btcSignMessage(msg: BTCSignMessage): Promise<BTCSignedMessage>;
   btcVerifyMessage(msg: BTCVerifyMessage): Promise<boolean>;
+}
+
+export function unknownUTXOPath(
+  path: BIP32Path,
+  coin: Coin,
+  scriptType: BTCInputScriptType
+): PathDescription {
+  return {
+    verbose: addressNListToBIP32(path),
+    coin,
+    scriptType,
+    isKnown: false,
+  };
+}
+
+export function describeUTXOPath(
+  path: BIP32Path,
+  coin: Coin,
+  scriptType: BTCInputScriptType
+): PathDescription {
+  const unknown = unknownUTXOPath(path, coin, scriptType);
+
+  if (path.length !== 3 && path.length !== 5) return unknown;
+
+  if ((path[0] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
+
+  let purpose = path[0] & 0x7fffffff;
+
+  if (![44, 49, 84].includes(purpose)) return unknown;
+
+  if (purpose === 44 && scriptType !== BTCInputScriptType.SpendAddress)
+    return unknown;
+
+  if (purpose === 49 && scriptType !== BTCInputScriptType.SpendP2SHWitness)
+    return unknown;
+
+  if (purpose === 84 && scriptType !== BTCInputScriptType.SpendWitness)
+    return unknown;
+
+  let wholeAccount = path.length === 3;
+
+  let script = {
+    [BTCInputScriptType.SpendAddress]: ["Legacy"],
+    [BTCInputScriptType.SpendP2SHWitness]: [],
+    [BTCInputScriptType.SpendWitness]: ["Segwit Native"],
+  }[scriptType];
+
+  let isPrefork = false;
+  if (path[1] !== 0x80000000 + slip44ByCoin(coin)) {
+    switch (coin) {
+      case "BitcoinCash":
+      case "BitcoinGold": {
+        if (path[1] === 0x80000000 + slip44ByCoin("Bitcoin")) {
+          isPrefork = true;
+          break;
+        }
+        return unknown;
+      }
+      case "BitcoinSV": {
+        if (
+          path[1] === 0x80000000 + slip44ByCoin("Bitcoin") ||
+          path[1] === 0x80000000 + slip44ByCoin("BitcoinCash")
+        ) {
+          isPrefork = true;
+          break;
+        }
+        return unknown;
+      }
+      default:
+        return unknown;
+    }
+  }
+
+  let attributes = isPrefork ? ["Prefork"] : [];
+  switch (coin) {
+    case "Bitcoin":
+    case "Litecoin":
+    case "BitcoinGold":
+    case "Testnet": {
+      attributes = attributes.concat(script);
+      break;
+    }
+    default:
+      break;
+  }
+
+  let attr = attributes.length ? ` (${attributes.join(", ")})` : "";
+
+  let accountIdx = path[2] & 0x7fffffff;
+
+  if (wholeAccount) {
+    return {
+      coin,
+      verbose: `${coin} Account #${accountIdx}${attr}`,
+      accountIdx,
+      wholeAccount: true,
+      isKnown: true,
+      scriptType,
+      isPrefork,
+    };
+  } else {
+    let change = path[3] === 1 ? "Change " : "";
+    let addressIdx = path[4];
+    return {
+      coin,
+      verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${attr}`,
+      accountIdx,
+      addressIdx,
+      wholeAccount: false,
+      isKnown: true,
+      isChange: path[3] === 1,
+      scriptType,
+      isPrefork,
+    };
+  }
+}
+
+export function legacyAccount(
+  coin: Coin,
+  slip44: number,
+  accountIdx: number
+): BTCAccountPath {
+  return {
+    coin,
+    scriptType: BTCInputScriptType.SpendAddress,
+    addressNList: [
+      0x80000000 + 44,
+      0x80000000 + slip44,
+      0x80000000 + accountIdx,
+    ],
+  };
+}
+
+export function segwitAccount(
+  coin: Coin,
+  slip44: number,
+  accountIdx: number
+): BTCAccountPath {
+  return {
+    coin,
+    scriptType: BTCInputScriptType.SpendP2SHWitness,
+    addressNList: [
+      0x80000000 + 49,
+      0x80000000 + slip44,
+      0x80000000 + accountIdx,
+    ],
+  };
+}
+
+export function segwitNativeAccount(
+  coin: Coin,
+  slip44: number,
+  accountIdx: number
+): BTCAccountPath {
+  return {
+    coin,
+    scriptType: BTCInputScriptType.SpendWitness,
+    addressNList: [
+      0x80000000 + 84,
+      0x80000000 + slip44,
+      0x80000000 + accountIdx,
+    ],
+  };
 }
