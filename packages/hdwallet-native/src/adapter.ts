@@ -10,18 +10,18 @@ export class NativeAdapter {
     this.deviceId = "1";
   }
 
-  public static useKeyring(keyring: core.Keyring) {
+  static useKeyring(keyring: core.Keyring) {
     return new NativeAdapter(keyring);
   }
 
-  public async initialize(): Promise<number> {
+  async initialize(): Promise<number> {
     const wallet = create();
     console.log("wallet", wallet);
     this.keyring.add(wallet, this.deviceId);
     return Object.keys(this.keyring.wallets).length;
   }
 
-  public async pairDevice(): Promise<core.HDWallet> {
+  async pairDevice(): Promise<core.HDWallet> {
     console.log("pairDevice");
     this.initialize();
     console.log("keyring", this.keyring);

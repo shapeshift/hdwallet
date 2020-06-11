@@ -1,4 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { NativeBTCWallet, NativeBTCWalletInfo } from "./bitcoin";
+import { NativeETHWallet, NativeETHWalletInfo } from "./ethereum";
 
 export class NativeHDWalletInfo implements core.HDWalletInfo {
   _supportsBTCInfo: boolean = true;
@@ -8,44 +10,60 @@ export class NativeHDWalletInfo implements core.HDWalletInfo {
   _supportsRippleInfo: boolean = false;
   _supportsEosInfo: boolean = false;
 
-  public getVendor(): string {
+  getVendor(): string {
     return "Native";
   }
 
-  public hasOnDevicePinEntry(): boolean {
+  hasOnDevicePinEntry(): boolean {
     return false;
   }
 
-  public hasOnDevicePassphrase(): boolean {
+  hasOnDevicePassphrase(): boolean {
     return false;
   }
 
-  public hasOnDeviceDisplay(): boolean {
+  hasOnDeviceDisplay(): boolean {
     return false;
   }
 
-  public hasOnDeviceRecovery(): boolean {
+  hasOnDeviceRecovery(): boolean {
     return false;
   }
 
-  public hasNativeShapeShift(): boolean {
-    // TODO: support native shapeshift
+  hasNativeShapeShift(): boolean {
     return false;
   }
 
-  public describePath(msg: core.DescribePath): core.PathDescription {
+  describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin) {
       case "Ethereum":
-        // TODO: return eth path description
-        return null;
+        return core.describeETHPath(msg.path);
       case "Bitcoin":
-        // TODO: return btc path description
-        return null;
+        const info = new NativeBTCWalletInfo();
+        const unknown = core.unknownUTXOPath(
+          msg.path,
+          msg.coin,
+          msg.scriptType
+        );
+
+        if (!info.btcSupportsCoin(msg.coin)) return unknown;
+        if (!info.btcSupportsScriptType(msg.coin, msg.scriptType))
+          return unknown;
+
+        return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
       default:
         throw new Error("Unsupported path");
     }
   }
 }
+
+export interface NativeHDWalletInfo
+  extends NativeBTCWalletInfo,
+    NativeETHWalletInfo {}
+core.applyMixins(NativeHDWalletInfo, [
+  NativeBTCWalletInfo,
+  NativeETHWalletInfo,
+]);
 
 export class NativeHDWallet extends NativeHDWalletInfo
   implements core.HDWallet {
@@ -64,93 +82,96 @@ export class NativeHDWallet extends NativeHDWalletInfo
     super();
   }
 
-  public async getDeviceID(): Promise<string> {
+  async getDeviceID(): Promise<string> {
     // TODO: uuid
     return Promise.resolve("Native");
   }
 
-  public async getFirmwareVersion(): Promise<string> {
+  async getFirmwareVersion(): Promise<string> {
     return Promise.resolve("Native");
   }
 
-  public getModel(): Promise<string> {
+  getModel(): Promise<string> {
     return Promise.resolve("Native");
   }
 
-  public getLabel(): Promise<string> {
+  getLabel(): Promise<string> {
     return Promise.resolve("Native");
   }
 
-  public async getPublicKeys(
+  async getPublicKeys(
     msg: Array<core.GetPublicKey>
   ): Promise<Array<core.PublicKey | null>> {
     // TODO: derive public keys from mnemonic
     return Promise.resolve([]);
   }
 
-  public async isInitialized(): Promise<boolean> {
+  async isInitialized(): Promise<boolean> {
     return Promise.resolve(true);
   }
 
-  public async isLocked(): Promise<boolean> {
+  async isLocked(): Promise<boolean> {
     return Promise.resolve(false);
   }
 
-  public clearSession(): Promise<void> {
+  clearSession(): Promise<void> {
     // TODO: what does it mean to clear session and lock wallet
     return;
   }
 
-  public initialize(): Promise<any> {
+  initialize(): Promise<any> {
     // TODO: what does it mean to initialize
     return;
   }
 
-  public ping(msg: core.Ping): Promise<core.Pong> {
+  ping(msg: core.Ping): Promise<core.Pong> {
     return Promise.resolve({ msg: msg.msg });
   }
 
-  public sendPin(): Promise<void> {
-    return;
+  sendPin(): Promise<void> {
+    return Promise.resolve();
   }
 
-  public sendPassphrase(): Promise<void> {
-    return;
+  sendPassphrase(): Promise<void> {
+    return Promise.resolve();
   }
 
-  public sendCharacter(): Promise<void> {
-    return;
+  sendCharacter(): Promise<void> {
+    return Promise.resolve();
   }
 
-  public sendWord(): Promise<void> {
-    return;
+  sendWord(): Promise<void> {
+    return Promise.resolve();
   }
 
-  public cancel(): Promise<void> {
-    return;
+  cancel(): Promise<void> {
+    return Promise.resolve();
   }
 
-  public wipe(): Promise<void> {
-    return;
+  wipe(): Promise<void> {
+    return Promise.resolve();
   }
 
-  public reset(msg: core.ResetDevice): Promise<void> {
-    return;
+  reset(): Promise<void> {
+    return Promise.resolve();
   }
 
-  public recover(): Promise<void> {
-    return;
+  recover(): Promise<void> {
+    return Promise.resolve();
   }
 
-  public loadDevice(msg: core.LoadDevice): Promise<void> {
+  loadDevice(msg: core.LoadDevice): Promise<void> {
     this.mnemonic = msg.mnemonic;
-    return;
+    return Promise.resolve();
   }
 
-  public disconnect(): Promise<void> {
-    return;
+  disconnect(): Promise<void> {
+    return Promise.resolve();
   }
 }
+
+export interface NativeHDWallet extends NativeBTCWallet, NativeETHWallet {}
+core.applyMixins(NativeHDWallet, [NativeBTCWallet, NativeETHWallet]);
 
 export function isNative(wallet: core.HDWallet): boolean {
   return wallet instanceof NativeHDWallet;
