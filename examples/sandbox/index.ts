@@ -16,6 +16,7 @@ import {
 
 import { isKeepKey } from "@shapeshiftoss/hdwallet-keepkey";
 import { isPortis } from "@shapeshiftoss/hdwallet-portis";
+import { isNative } from "@shapeshiftoss/hdwallet-native";
 
 import { WebUSBKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-webusb";
 import { TCPKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-tcp";
@@ -174,6 +175,12 @@ async function deviceConnected(deviceId) {
     console.error("Could not initialize PortisAdapter", e);
   }
 
+  try {
+    await nativeAdapter.initialize();
+  } catch (e) {
+    console.error("Could not initialize NativeAdapter", e);
+  }
+
   for (const [deviceID, wallet] of Object.entries(keyring.wallets)) {
     await deviceConnected(deviceID);
   }
@@ -184,10 +191,12 @@ async function deviceConnected(deviceId) {
     let deviceID = $keyring.find(":selected").val() as string;
     wallet = keyring.get(deviceID);
     if (wallet) {
-      await wallet.transport.connect();
-      if (isKeepKey(wallet)) {
-        console.log("try connect debuglink");
-        await wallet.transport.tryConnectDebugLink();
+      if (wallet.transport) {
+        await wallet.transport.connect();
+        if (isKeepKey(wallet)) {
+          console.log("try connect debuglink");
+          await wallet.transport.tryConnectDebugLink();
+        }
       }
       await wallet.initialize();
     }
@@ -819,6 +828,7 @@ $ethAddr.on("click", async (e) => {
     $ethResults.val("No wallet?");
     return;
   }
+
   if (supportsETH(wallet)) {
     let { hardenedPath, relPath } = wallet.ethGetAccountPaths({
       coin: "Ethereum",
