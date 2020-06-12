@@ -1,30 +1,44 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { create } from "./native";
 
+type NativeAdapterArgs = {
+  mnemonic: string;
+  deviceId: string;
+};
+
 export class NativeAdapter {
   keyring: core.Keyring;
   deviceId: string;
 
-  private constructor(keyring: core.Keyring) {
+  private mnemonic: string;
+
+  private constructor(keyring: core.Keyring, args: NativeAdapterArgs) {
     this.keyring = keyring;
-    this.deviceId = "1";
+    this.mnemonic = args.mnemonic;
+    this.deviceId = args.deviceId;
   }
 
-  static useKeyring(keyring: core.Keyring) {
-    return new NativeAdapter(keyring);
+  static useKeyring(keyring: core.Keyring, args: NativeAdapterArgs) {
+    return new NativeAdapter(keyring, args);
   }
 
   async initialize(): Promise<number> {
-    const wallet = create();
-    console.log("wallet", wallet);
-    this.keyring.add(wallet, this.deviceId);
     return Object.keys(this.keyring.wallets).length;
   }
 
   async pairDevice(): Promise<core.HDWallet> {
-    console.log("pairDevice");
-    this.initialize();
-    console.log("keyring", this.keyring);
-    return this.keyring.get(this.deviceId);
+    let wallet = this.keyring.get(this.deviceId);
+
+    if (!wallet) {
+      wallet = create(this.mnemonic, this.deviceId);
+      this.keyring.add(wallet, this.deviceId);
+    }
+
+    this.keyring.emit(
+      [wallet.getVendor(), this.deviceId, core.Events.CONNECT],
+      this.deviceId
+    );
+
+    return wallet;
   }
 }

@@ -41,11 +41,16 @@ import * as rippleTxJson from "./json/rippleTx.json";
 const keyring = new Keyring();
 
 const portisAppId = "ff763d3d-9e34-45a1-81d1-caa39b9c64f9";
+const mnemonic =
+  "close exit cigar radar census olympic history obvious crazy code cream try";
 
 const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring);
 const kkemuAdapter = TCPKeepKeyAdapter.useKeyring(keyring);
 const portisAdapter = PortisAdapter.useKeyring(keyring, { portisAppId });
-const nativeAdapter = NativeAdapter.useKeyring(keyring);
+const nativeAdapter = NativeAdapter.useKeyring(keyring, {
+  mnemonic,
+  deviceId: "native-wallet-test",
+});
 
 const log = debug.default("hdwallet");
 

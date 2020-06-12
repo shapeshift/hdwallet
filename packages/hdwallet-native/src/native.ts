@@ -76,19 +76,22 @@ export class NativeHDWallet extends NativeHDWalletInfo
   _supportsDebugLink = false;
   _isNative = true;
 
-  mnemonic: string;
+  deviceId: string;
 
-  constructor() {
+  private mnemonic: string;
+
+  constructor(mnemonic: string, deviceId: string) {
     super();
+    this.mnemonic = mnemonic;
+    this.deviceId = deviceId;
   }
 
   async getDeviceID(): Promise<string> {
-    // TODO: uuid
-    return Promise.resolve("Native");
+    return Promise.resolve(this.deviceId);
   }
 
   async getFirmwareVersion(): Promise<string> {
-    return Promise.resolve("Native");
+    return Promise.resolve("Software");
   }
 
   getModel(): Promise<string> {
@@ -115,13 +118,11 @@ export class NativeHDWallet extends NativeHDWalletInfo
   }
 
   clearSession(): Promise<void> {
-    // TODO: what does it mean to clear session and lock wallet
-    return;
+    return Promise.resolve();
   }
 
   initialize(): Promise<any> {
-    // TODO: what does it mean to initialize
-    return;
+    return Promise.resolve();
   }
 
   ping(msg: core.Ping): Promise<core.Pong> {
@@ -181,6 +182,6 @@ export function info() {
   return new NativeHDWalletInfo();
 }
 
-export function create(): NativeHDWallet {
-  return new NativeHDWallet();
+export function create(mnemonic: string, deviceId: string): NativeHDWallet {
+  return new NativeHDWallet(mnemonic, deviceId);
 }
