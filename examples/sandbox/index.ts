@@ -8,8 +8,6 @@ import {
   supportsRipple,
   supportsBinance,
   supportsEos,
-  EosPublicKeyKindMap,
-  EosSignedTx,
   supportsDebugLink,
   bip32ToAddressNList,
   Events,
@@ -24,6 +22,7 @@ import { TCPKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-tcp";
 import { TrezorAdapter } from "@shapeshiftoss/hdwallet-trezor-connect";
 import { WebUSBLedgerAdapter } from "@shapeshiftoss/hdwallet-ledger-webusb";
 import { PortisAdapter } from "@shapeshiftoss/hdwallet-portis";
+import { NativeAdapter } from "@shapeshiftoss/hdwallet-native";
 
 import {
   BTCInputScriptType,
@@ -42,10 +41,16 @@ import * as rippleTxJson from "./json/rippleTx.json";
 const keyring = new Keyring();
 
 const portisAppId = "ff763d3d-9e34-45a1-81d1-caa39b9c64f9";
+const mnemonic =
+  "close exit cigar radar census olympic history obvious crazy code cream try";
 
 const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring);
 const kkemuAdapter = TCPKeepKeyAdapter.useKeyring(keyring);
 const portisAdapter = PortisAdapter.useKeyring(keyring, { portisAppId });
+const nativeAdapter = NativeAdapter.useKeyring(keyring, {
+  mnemonic,
+  deviceId: "native-wallet-test",
+});
 
 const log = debug.default("hdwallet");
 
@@ -79,6 +84,7 @@ const $kkemu = $("#kkemu");
 const $trezor = $("#trezor");
 const $ledger = $("#ledger");
 const $portis = $("#portis");
+const $native = $("#native");
 const $keyring = $("#keyring");
 
 $keepkey.on("click", async (e) => {
@@ -126,6 +132,13 @@ $portis.on("click", async (e) => {
   $("#keyring select").val(deviceId);
 });
 
+$native.on("click", async (e) => {
+  e.preventDefault();
+  wallet = await nativeAdapter.pairDevice();
+  window["wallet"] = wallet;
+  $("#keyring select").val(await wallet.getDeviceID());
+});
+
 async function deviceConnected(deviceId) {
   let wallet = keyring.get(deviceId);
   if (!$keyring.find(`option[value="${deviceId}"]`).length) {
@@ -166,6 +179,12 @@ async function deviceConnected(deviceId) {
     console.error("Could not initialize PortisAdapter", e);
   }
 
+  try {
+    await nativeAdapter.initialize();
+  } catch (e) {
+    console.error("Could not initialize NativeAdapter", e);
+  }
+
   for (const [deviceID, wallet] of Object.entries(keyring.wallets)) {
     await deviceConnected(deviceID);
   }
@@ -176,10 +195,12 @@ async function deviceConnected(deviceId) {
     let deviceID = $keyring.find(":selected").val() as string;
     wallet = keyring.get(deviceID);
     if (wallet) {
-      await wallet.transport.connect();
-      if (isKeepKey(wallet)) {
-        console.log("try connect debuglink");
-        await wallet.transport.tryConnectDebugLink();
+      if (wallet.transport) {
+        await wallet.transport.connect();
+        if (isKeepKey(wallet)) {
+          console.log("try connect debuglink");
+          await wallet.transport.tryConnectDebugLink();
+        }
       }
       await wallet.initialize();
     }
@@ -563,8 +584,6 @@ $binanceTx.on("click", async (e) => {
   }
 });
 
-
-
 /*
  * Ripple
  */
@@ -658,34 +677,35 @@ $eosTx.on("click", async (e) => {
   }
   if (supportsEos(wallet)) {
     let unsigned_main = {
-      "expiration": "2020-04-30T22:00:00.000",
-      "ref_block_num": 54661,
-      "ref_block_prefix": 2118672142,
-      "max_net_usage_words": 0,
-      "max_cpu_usage_ms": 0,
-      "delay_sec": 0,
-      "context_free_actions": [],
-      "actions": [
+      expiration: "2020-04-30T22:00:00.000",
+      ref_block_num: 54661,
+      ref_block_prefix: 2118672142,
+      max_net_usage_words: 0,
+      max_cpu_usage_ms: 0,
+      delay_sec: 0,
+      context_free_actions: [],
+      actions: [
         {
-          "account": "eosio.token",
-          "name": "transfer",
-          "authorization": [
+          account: "eosio.token",
+          name: "transfer",
+          authorization: [
             {
-              "actor": "xhackmebrosx",
-              "permission": "active"
-            }
+              actor: "xhackmebrosx",
+              permission: "active",
+            },
           ],
-          "data": {
-            "from": "xhackmebrosx",
-            "to": "xhighlanderx",
-            "quantity": "0.0001 EOS",
-            "memo": "testmemo"
-          }
-        }
-      ]
+          data: {
+            from: "xhackmebrosx",
+            to: "xhighlanderx",
+            quantity: "0.0001 EOS",
+            memo: "testmemo",
+          },
+        },
+      ],
     };
 
-    let chainid_main = "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906"
+    let chainid_main =
+      "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906";
     let res = await wallet.eosSignTx({
       addressNList: bip32ToAddressNList("m/44'/194'/0'/0/0"),
       chain_id: chainid_main,
@@ -697,8 +717,10 @@ $eosTx.on("click", async (e) => {
     console.log("sigR = %s", toHexString(res.signatureR));
     console.log("sigS = %s", toHexString(res.signatureS));
     console.log("hash = %s", toHexString(res.hash));
-    console.log("EosFormatSig = %s", res.eosFormSig)
-    console.log("EosFormReSig = SIG_K1_Jxa7NRL1hj4Q9wqufaSZa7oAXQQnRxSuAeFSwx6EzHnzPVeB5y6qQge16WCYa3Xod1mDWZv3MnEEPFeK3bEf3iN6es1iVy")
+    console.log("EosFormatSig = %s", res.eosFormSig);
+    console.log(
+      "EosFormReSig = SIG_K1_Jxa7NRL1hj4Q9wqufaSZa7oAXQQnRxSuAeFSwx6EzHnzPVeB5y6qQge16WCYa3Xod1mDWZv3MnEEPFeK3bEf3iN6es1iVy"
+    );
 
     $eosResults.val(res.eosFormSig);
   } else {
@@ -810,6 +832,7 @@ $ethAddr.on("click", async (e) => {
     $ethResults.val("No wallet?");
     return;
   }
+
   if (supportsETH(wallet)) {
     let { hardenedPath, relPath } = wallet.ethGetAccountPaths({
       coin: "Ethereum",

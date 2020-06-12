@@ -9,6 +9,19 @@ export type Constructor<T = {}> = new (...args: any[]) => T;
 export const DEFAULT_TIMEOUT = 5000; // 5 seconds
 export const LONG_TIMEOUT = 5 * 60 * 1000; // 5 minutes
 
+// @see: https://www.typescriptlang.org/docs/handbook/mixins.html
+export function applyMixins(derivedConstructor: any, baseConstructors: any[]) {
+  baseConstructors.forEach((baseConstructor) => {
+    Object.getOwnPropertyNames(baseConstructor.prototype).forEach((name) => {
+      Object.defineProperty(
+        derivedConstructor.prototype,
+        name,
+        Object.getOwnPropertyDescriptor(baseConstructor.prototype, name)
+      );
+    });
+  });
+}
+
 export const isArray =
   Array.isArray ||
   function (obj) {
@@ -147,7 +160,7 @@ export function slip44ByCoin(coin: Coin): number {
     Atom: 118,
     Binance: 714,
     Ripple: 144,
-  Eos: 194,
+    Eos: 194,
   }[coin];
 }
 
