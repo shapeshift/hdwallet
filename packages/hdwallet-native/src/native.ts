@@ -1,6 +1,9 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { NativeBTCWallet, NativeBTCWalletInfo } from "./bitcoin";
+import { NativeBTCWallet, NativeBTCWalletInfo, btcGetAddress, btcSignTx } from "./bitcoin";
 import { NativeETHWallet, NativeETHWalletInfo } from "./ethereum";
+
+import * as bitcoin from "bitcoinjs-lib";
+import { mnemonicToSeed } from "bip39"
 
 export class NativeHDWalletInfo implements core.HDWalletInfo {
   _supportsBTCInfo: boolean = true;
@@ -65,8 +68,23 @@ core.applyMixins(NativeHDWalletInfo, [
   NativeETHWalletInfo,
 ]);
 
-export class NativeHDWallet extends NativeHDWalletInfo
-  implements core.HDWallet {
+interface ScriptType {
+  node: bitcoin.BIP32Interface
+  path: string
+}
+
+type UndScriptyTypes = 'p2pkh' | 'p2sh-p2wpkh'
+
+export interface Coin {
+  network: bitcoin.Network
+  rootNode: bitcoin.BIP32Interface
+  scripts: {
+    [k in UndScriptyTypes]: ScriptType
+  }
+}
+
+export class NativeHDWallet extends NativeHDWalletInfo implements
+  core.HDWallet, NativeBTCWallet {
   _supportsBTC = true;
   _supportsETH = true;
   _supportsCosmos = false;
@@ -77,6 +95,7 @@ export class NativeHDWallet extends NativeHDWalletInfo
   _isNative = true;
 
   deviceId: string;
+  btcWallet: Coin;
 
   private mnemonic: string;
 
@@ -84,6 +103,28 @@ export class NativeHDWallet extends NativeHDWalletInfo
     super();
     this.mnemonic = mnemonic;
     this.deviceId = deviceId;
+  }
+
+  public async ensureBTCWallet(): Promise<void> {
+    if (this.btcWallet) return
+
+    const seed = Buffer.from(await mnemonicToSeed(this.mnemonic))
+    const rootNode = bitcoin.bip32.fromSeed(seed, bitcoin.networks.bitcoin)
+  
+    this.btcWallet = {
+      network: bitcoin.networks.bitcoin,
+      rootNode,
+      scripts: {
+        p2pkh: {
+          node: rootNode.derivePath("m/44'/0'/0'"),
+          path: "m/44'/0'/0'"
+        },
+        'p2sh-p2wpkh': {
+          node: rootNode.derivePath("m/49'/0'/0'"),
+          path: "m/49'/0'/0'"
+        }
+      }
+    }
   }
 
   async getDeviceID(): Promise<string> {
@@ -102,10 +143,18 @@ export class NativeHDWallet extends NativeHDWalletInfo
     return Promise.resolve("Native");
   }
 
+//export interface GetPublicKey {
+//  addressNList: BIP32Path;
+//  showDisplay?: boolean;
+//  scriptType?: BTCInputScriptType;
+//  curve: string;
+//  coin?: Coin;
+//}
+
   async getPublicKeys(
     msg: Array<core.GetPublicKey>
   ): Promise<Array<core.PublicKey | null>> {
-    // TODO: derive public keys from mnemonic
+    // TODO
     return Promise.resolve([]);
   }
 
@@ -169,10 +218,28 @@ export class NativeHDWallet extends NativeHDWalletInfo
   disconnect(): Promise<void> {
     return Promise.resolve();
   }
+
+  public async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
+    await this.ensureBTCWallet()
+    return btcGetAddress(this, msg)
+  }
+
+  async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx> {
+    await this.ensureBTCWallet()
+    return btcSignTx(this, msg)
+  }
+
+  btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
+    return Promise.resolve(null)
+  }
+
+  btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
+    return Promise.resolve(null)
+  }
 }
 
-export interface NativeHDWallet extends NativeBTCWallet, NativeETHWallet {}
-core.applyMixins(NativeHDWallet, [NativeBTCWallet, NativeETHWallet]);
+//export interface NativeHDWallet extends NativeBTCWallet, NativeETHWallet {}
+//core.applyMixins(NativeHDWallet, [NativeBTCWallet, NativeETHWallet]);
 
 export function isNative(wallet: core.HDWallet): boolean {
   return wallet instanceof NativeHDWallet;
