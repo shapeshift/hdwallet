@@ -42,15 +42,14 @@ export class NativeHDWalletInfo implements core.HDWalletInfo {
       case "Ethereum":
         return core.describeETHPath(msg.path);
       case "Bitcoin":
-        const info = new NativeBTCWalletInfo();
         const unknown = core.unknownUTXOPath(
           msg.path,
           msg.coin,
           msg.scriptType
         );
 
-        if (!info.btcSupportsCoin(msg.coin)) return unknown;
-        if (!info.btcSupportsScriptType(msg.coin, msg.scriptType))
+        if (!super.btcSupportsCoin(msg.coin)) return unknown;
+        if (!super.btcSupportsScriptType(msg.coin, msg.scriptType))
           return unknown;
 
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);

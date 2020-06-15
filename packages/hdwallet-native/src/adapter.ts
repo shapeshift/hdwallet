@@ -23,16 +23,22 @@ export class NativeAdapter {
   }
 
   async initialize(): Promise<number> {
-    return Object.keys(this.keyring.wallets).length;
-  }
-
-  async pairDevice(): Promise<core.HDWallet> {
     let wallet = this.keyring.get(this.deviceId);
 
     if (!wallet) {
       wallet = create(this.mnemonic, this.deviceId);
       this.keyring.add(wallet, this.deviceId);
     }
+
+    wallet.initialize();
+
+    return Object.keys(this.keyring.wallets).length;
+  }
+
+  async pairDevice(): Promise<core.HDWallet> {
+    this.initialize();
+
+    const wallet = this.keyring.get(this.deviceId);
 
     this.keyring.emit(
       [wallet.getVendor(), this.deviceId, core.Events.CONNECT],
