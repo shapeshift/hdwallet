@@ -1,10 +1,10 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { MixinNativeBTCWalletInfo } from "./bitcoin";
+import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeETHWalletInfo } from "./ethereum";
 
-export class NativeHDWalletInfo
+class NativeHDWalletInfo
   extends MixinNativeBTCWalletInfo(MixinNativeETHWalletInfo(class Base {}))
-  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
+  implements core.HDWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = false;
@@ -58,7 +58,7 @@ export class NativeHDWalletInfo
   }
 }
 
-export class NativeHDWallet extends NativeHDWalletInfo
+export class NativeHDWallet extends MixinNativeBTCWallet(NativeHDWalletInfo)
   implements core.HDWallet {
   _supportsBTC = true;
   _supportsETH = true;
@@ -79,11 +79,11 @@ export class NativeHDWallet extends NativeHDWalletInfo
     this.deviceId = deviceId;
   }
 
-  async getDeviceID(): Promise<string> {
+  getDeviceID(): Promise<string> {
     return Promise.resolve(this.deviceId);
   }
 
-  async getFirmwareVersion(): Promise<string> {
+  getFirmwareVersion(): Promise<string> {
     return Promise.resolve("Software");
   }
 
@@ -95,18 +95,18 @@ export class NativeHDWallet extends NativeHDWalletInfo
     return Promise.resolve("Native");
   }
 
-  async getPublicKeys(
+  getPublicKeys(
     msg: Array<core.GetPublicKey>
   ): Promise<Array<core.PublicKey | null>> {
-    // TODO: derive public keys from mnemonic
+    // TODO
     return Promise.resolve([]);
   }
 
-  async isInitialized(): Promise<boolean> {
+  isInitialized(): Promise<boolean> {
     return Promise.resolve(true);
   }
 
-  async isLocked(): Promise<boolean> {
+  isLocked(): Promise<boolean> {
     return Promise.resolve(false);
   }
 
@@ -114,8 +114,8 @@ export class NativeHDWallet extends NativeHDWalletInfo
     return Promise.resolve();
   }
 
-  initialize(): Promise<any> {
-    return Promise.resolve();
+  async initialize(): Promise<any> {
+    await super.btcInitializeWallet(this.mnemonic);
   }
 
   ping(msg: core.Ping): Promise<core.Pong> {
