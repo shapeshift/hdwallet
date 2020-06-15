@@ -1,8 +1,10 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { NativeBTCWallet, NativeBTCWalletInfo } from "./bitcoin";
-import { NativeETHWallet, NativeETHWalletInfo } from "./ethereum";
+import { MixinNativeBTCWalletInfo } from "./bitcoin";
+import { MixinNativeETHWalletInfo } from "./ethereum";
 
-export class NativeHDWalletInfo implements core.HDWalletInfo {
+export class NativeHDWalletInfo
+  extends MixinNativeBTCWalletInfo(MixinNativeETHWalletInfo(class Base {}))
+  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = false;
@@ -39,15 +41,14 @@ export class NativeHDWalletInfo implements core.HDWalletInfo {
       case "Ethereum":
         return core.describeETHPath(msg.path);
       case "Bitcoin":
-        const info = new NativeBTCWalletInfo();
         const unknown = core.unknownUTXOPath(
           msg.path,
           msg.coin,
           msg.scriptType
         );
 
-        if (!info.btcSupportsCoin(msg.coin)) return unknown;
-        if (!info.btcSupportsScriptType(msg.coin, msg.scriptType))
+        if (!super.btcSupportsCoin(msg.coin)) return unknown;
+        if (!super.btcSupportsScriptType(msg.coin, msg.scriptType))
           return unknown;
 
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
@@ -56,14 +57,6 @@ export class NativeHDWalletInfo implements core.HDWalletInfo {
     }
   }
 }
-
-export interface NativeHDWalletInfo
-  extends NativeBTCWalletInfo,
-    NativeETHWalletInfo {}
-core.applyMixins(NativeHDWalletInfo, [
-  NativeBTCWalletInfo,
-  NativeETHWalletInfo,
-]);
 
 export class NativeHDWallet extends NativeHDWalletInfo
   implements core.HDWallet {
@@ -170,9 +163,6 @@ export class NativeHDWallet extends NativeHDWalletInfo
     return Promise.resolve();
   }
 }
-
-export interface NativeHDWallet extends NativeBTCWallet, NativeETHWallet {}
-core.applyMixins(NativeHDWallet, [NativeBTCWallet, NativeETHWallet]);
 
 export function isNative(wallet: core.HDWallet): boolean {
   return wallet instanceof NativeHDWallet;
