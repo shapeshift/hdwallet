@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { create, NativeHDWallet } from "./native";
+import { create } from "./native";
 
 type NativeAdapterArgs = {
   mnemonic: string;
