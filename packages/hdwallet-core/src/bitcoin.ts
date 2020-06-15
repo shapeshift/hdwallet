@@ -153,8 +153,6 @@ export interface BTCAccountPath {
 }
 
 export interface BTCWalletInfo {
-  _supportsBTCInfo: boolean;
-
   /**
    * Does the device support the given UTXO coin?
    */
@@ -213,8 +211,6 @@ export interface BTCWalletInfo {
 }
 
 export interface BTCWallet extends BTCWalletInfo {
-  _supportsBTC: boolean;
-
   btcGetAddress(msg: BTCGetAddress): Promise<string>;
   btcSignTx(msg: BTCSignTx): Promise<BTCSignedTx>;
   btcSignMessage(msg: BTCSignMessage): Promise<BTCSignedMessage>;
