@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
-import { MixinNativeETHWalletInfo } from "./ethereum";
+import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 
 class NativeHDWalletInfo
   extends MixinNativeBTCWalletInfo(MixinNativeETHWalletInfo(class Base {}))
@@ -58,7 +58,7 @@ class NativeHDWalletInfo
   }
 }
 
-export class NativeHDWallet extends MixinNativeBTCWallet(NativeHDWalletInfo)
+export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(NativeHDWalletInfo))
   implements core.HDWallet {
   _supportsBTC = true;
   _supportsETH = true;
