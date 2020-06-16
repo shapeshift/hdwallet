@@ -2,10 +2,9 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 
-import * as bitcoin from "bitcoinjs-lib";
-import { mnemonicToSeed } from "bip39"
-
-export class NativeHDWalletInfo implements core.HDWalletInfo {
+class NativeHDWalletInfo
+  extends MixinNativeBTCWalletInfo(MixinNativeETHWalletInfo(class Base {}))
+  implements core.HDWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = false;
@@ -39,8 +38,6 @@ export class NativeHDWalletInfo implements core.HDWalletInfo {
 
   describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin) {
-      case "Ethereum":
-        return core.describeETHPath(msg.path);
       case "Bitcoin":
         const unknown = core.unknownUTXOPath(
           msg.path,
@@ -53,6 +50,8 @@ export class NativeHDWalletInfo implements core.HDWalletInfo {
           return unknown;
 
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+      case "Ethereum":
+        return core.describeETHPath(msg.path);
       default:
         throw new Error("Unsupported path");
     }
@@ -71,7 +70,7 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
   _isNative = true;
 
   deviceId: string;
-  btcWallet: Coin;
+  initialized: boolean;
 
   private mnemonic: string;
 
@@ -81,138 +80,83 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
     this.deviceId = deviceId;
   }
 
-  public async ensureBTCWallet(): Promise<void> {
-    if (this.btcWallet) return
-
-    const seed = Buffer.from(await mnemonicToSeed(this.mnemonic))
-    const rootNode = bitcoin.bip32.fromSeed(seed, bitcoin.networks.bitcoin)
-  
-    this.btcWallet = {
-      network: bitcoin.networks.bitcoin,
-      rootNode,
-      scripts: {
-        p2pkh: {
-          node: rootNode.derivePath("m/44'/0'/0'"),
-          path: "m/44'/0'/0'"
-        },
-        'p2sh-p2wpkh': {
-          node: rootNode.derivePath("m/49'/0'/0'"),
-          path: "m/49'/0'/0'"
-        }
-      }
-    }
-  }
-
   async getDeviceID(): Promise<string> {
-    return Promise.resolve(this.deviceId);
+    return this.deviceId;
   }
 
   async getFirmwareVersion(): Promise<string> {
-    return Promise.resolve("Software");
+    return "Software";
   }
 
-  getModel(): Promise<string> {
-    return Promise.resolve("Native");
+  async getModel(): Promise<string> {
+    return "Native";
   }
 
-  getLabel(): Promise<string> {
-    return Promise.resolve("Native");
+  async getLabel(): Promise<string> {
+    return "Native";
   }
 
-//export interface GetPublicKey {
-//  addressNList: BIP32Path;
-//  showDisplay?: boolean;
-//  scriptType?: BTCInputScriptType;
-//  curve: string;
-//  coin?: Coin;
-//}
-
-  async getPublicKeys(
-    msg: Array<core.GetPublicKey>
-  ): Promise<Array<core.PublicKey | null>> {
-    // TODO
-    return Promise.resolve([]);
+  /*
+   * @see: https://github.com/satoshilabs/slips/blob/master/slip-0132.md
+   * to supports different styles of xpubs as can be defined by passing in a network to `fromSeed`
+   */
+  getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey>> {
+    return Promise.all(
+      msg.map(async (getPublicKey) => {
+        let { addressNList } = getPublicKey;
+        const seed = await mnemonicToSeed(this.mnemonic);
+        const node = fromSeed(seed);
+        const xpub = node
+          .derivePath(core.addressNListToBIP32(core.hardenedPath(addressNList)))
+          .neutered()
+          .toBase58();
+        return { xpub };
+      })
+    );
   }
 
   async isInitialized(): Promise<boolean> {
-    return Promise.resolve(true);
+    return this.initialized;
   }
 
   async isLocked(): Promise<boolean> {
-    return Promise.resolve(false);
+    return false;
   }
 
-  clearSession(): Promise<void> {
-    return Promise.resolve();
-  }
+  async clearSession(): Promise<void> {}
 
   async initialize(): Promise<any> {
+    super.ethInitializeWallet(this.mnemonic);
     await super.btcInitializeWallet(this.mnemonic);
-    await super.ethInitializeWallet(this.mnemonic);
+    this.initialized = true;
   }
 
-  ping(msg: core.Ping): Promise<core.Pong> {
-    return Promise.resolve({ msg: msg.msg });
+  async ping(msg: core.Ping): Promise<core.Pong> {
+    return { msg: msg.msg };
   }
 
-  sendPin(): Promise<void> {
-    return Promise.resolve();
-  }
+  async sendPin(): Promise<void> {}
 
-  sendPassphrase(): Promise<void> {
-    return Promise.resolve();
-  }
+  async sendPassphrase(): Promise<void> {}
 
-  sendCharacter(): Promise<void> {
-    return Promise.resolve();
-  }
+  async sendCharacter(): Promise<void> {}
 
-  sendWord(): Promise<void> {
-    return Promise.resolve();
-  }
+  async sendWord(): Promise<void> {}
 
-  cancel(): Promise<void> {
-    return Promise.resolve();
-  }
+  async cancel(): Promise<void> {}
 
-  wipe(): Promise<void> {
-    return Promise.resolve();
-  }
+  async wipe(): Promise<void> {}
 
-  reset(): Promise<void> {
-    return Promise.resolve();
-  }
+  async reset(): Promise<void> {}
 
-  recover(): Promise<void> {
-    return Promise.resolve();
-  }
+  async recover(): Promise<void> {}
 
-  loadDevice(msg: core.LoadDevice): Promise<void> {
+  async loadDevice(msg: core.LoadDevice): Promise<void> {
     this.mnemonic = msg.mnemonic;
-    return Promise.resolve();
+    this.initialized = false;
   }
 
-  disconnect(): Promise<void> {
-    return Promise.resolve();
-  }
-
-  public async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
-    await this.ensureBTCWallet()
-    return btcGetAddress(this, msg)
-  }
-
-  async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx> {
-    await this.ensureBTCWallet()
-    return btcSignTx(this, msg)
-  }
-
-  btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
-    return Promise.resolve(null)
-  }
-
-  btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
-    return Promise.resolve(null)
-  }
+  async disconnect(): Promise<void> {}
 }
 
 //export interface NativeHDWallet extends NativeBTCWallet, NativeETHWallet {}
