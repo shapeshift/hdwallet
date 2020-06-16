@@ -1,4 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { mnemonicToSeed } from "bip39";
+import { fromSeed } from "bip32";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 
@@ -38,8 +40,6 @@ class NativeHDWalletInfo
 
   describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin) {
-      case "Ethereum":
-        return core.describeETHPath(msg.path);
       case "Bitcoin":
         const unknown = core.unknownUTXOPath(
           msg.path,
@@ -52,13 +52,16 @@ class NativeHDWalletInfo
           return unknown;
 
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+      case "Ethereum":
+        return core.describeETHPath(msg.path);
       default:
         throw new Error("Unsupported path");
     }
   }
 }
 
-export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(NativeHDWalletInfo))
+export class NativeHDWallet
+  extends MixinNativeBTCWallet(MixinNativeETHWallet(NativeHDWalletInfo))
   implements core.HDWallet {
   _supportsBTC = true;
   _supportsETH = true;
@@ -70,6 +73,7 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
   _isNative = true;
 
   deviceId: string;
+  initialized: boolean;
 
   private mnemonic: string;
 
@@ -79,90 +83,83 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
     this.deviceId = deviceId;
   }
 
-  getDeviceID(): Promise<string> {
-    return Promise.resolve(this.deviceId);
+  async getDeviceID(): Promise<string> {
+    return this.deviceId;
   }
 
-  getFirmwareVersion(): Promise<string> {
-    return Promise.resolve("Software");
+  async getFirmwareVersion(): Promise<string> {
+    return "Software";
   }
 
-  getModel(): Promise<string> {
-    return Promise.resolve("Native");
+  async getModel(): Promise<string> {
+    return "Native";
   }
 
-  getLabel(): Promise<string> {
-    return Promise.resolve("Native");
+  async getLabel(): Promise<string> {
+    return "Native";
   }
 
-  getPublicKeys(
-    msg: Array<core.GetPublicKey>
-  ): Promise<Array<core.PublicKey | null>> {
-    // TODO
-    return Promise.resolve([]);
+  /*
+   * @see: https://github.com/satoshilabs/slips/blob/master/slip-0132.md
+   * to supports different styles of xpubs as can be defined by passing in a network to `fromSeed`
+   */
+  getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey>> {
+    return Promise.all(
+      msg.map(async (getPublicKey) => {
+        let { addressNList } = getPublicKey;
+        const seed = await mnemonicToSeed(this.mnemonic);
+        const node = fromSeed(seed);
+        const xpub = node
+          .derivePath(core.addressNListToBIP32(core.hardenedPath(addressNList)))
+          .neutered()
+          .toBase58();
+        return { xpub };
+      })
+    );
   }
 
-  isInitialized(): Promise<boolean> {
-    return Promise.resolve(true);
+  async isInitialized(): Promise<boolean> {
+    return this.initialized;
   }
 
-  isLocked(): Promise<boolean> {
-    return Promise.resolve(false);
+  async isLocked(): Promise<boolean> {
+    return false;
   }
 
-  clearSession(): Promise<void> {
-    return Promise.resolve();
-  }
+  async clearSession(): Promise<void> {}
 
   async initialize(): Promise<any> {
+    super.ethInitializeWallet(this.mnemonic);
     await super.btcInitializeWallet(this.mnemonic);
-    await super.ethInitializeWallet(this.mnemonic);
+    this.initialized = true;
   }
 
-  ping(msg: core.Ping): Promise<core.Pong> {
-    return Promise.resolve({ msg: msg.msg });
+  async ping(msg: core.Ping): Promise<core.Pong> {
+    return { msg: msg.msg };
   }
 
-  sendPin(): Promise<void> {
-    return Promise.resolve();
-  }
+  async sendPin(): Promise<void> {}
 
-  sendPassphrase(): Promise<void> {
-    return Promise.resolve();
-  }
+  async sendPassphrase(): Promise<void> {}
 
-  sendCharacter(): Promise<void> {
-    return Promise.resolve();
-  }
+  async sendCharacter(): Promise<void> {}
 
-  sendWord(): Promise<void> {
-    return Promise.resolve();
-  }
+  async sendWord(): Promise<void> {}
 
-  cancel(): Promise<void> {
-    return Promise.resolve();
-  }
+  async cancel(): Promise<void> {}
 
-  wipe(): Promise<void> {
-    return Promise.resolve();
-  }
+  async wipe(): Promise<void> {}
 
-  reset(): Promise<void> {
-    return Promise.resolve();
-  }
+  async reset(): Promise<void> {}
 
-  recover(): Promise<void> {
-    return Promise.resolve();
-  }
+  async recover(): Promise<void> {}
 
-  loadDevice(msg: core.LoadDevice): Promise<void> {
+  async loadDevice(msg: core.LoadDevice): Promise<void> {
     this.mnemonic = msg.mnemonic;
-    return Promise.resolve();
+    this.initialized = false;
   }
 
-  disconnect(): Promise<void> {
-    return Promise.resolve();
-  }
+  async disconnect(): Promise<void> {}
 }
 
 export function isNative(wallet: core.HDWallet): boolean {
