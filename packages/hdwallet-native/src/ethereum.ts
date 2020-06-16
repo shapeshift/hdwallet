@@ -104,9 +104,12 @@ export function MixinNativeETHWallet<TBase extends core.Constructor>(
         serialized: result
       }
     }
-    ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
-      console.log('ethSignMessage')
-      return Promise.resolve(null);
+    async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
+      const result = await this.wallet.signMessage(msg.message)
+      return {
+        address: await this.wallet.getAddress(),
+        signature: result
+      }
     }
     async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
       const signingAddress = await utils.verifyMessage(
