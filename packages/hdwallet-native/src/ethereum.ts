@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Wallet, utils } from "ethers";
+import txDecoder from "ethereum-tx-decoder";
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(
   Base: TBase
@@ -82,14 +83,34 @@ export function MixinNativeETHWallet<TBase extends core.Constructor>(
       return this.ethWallet.getAddress();
     }
 
-    ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
-      console.log("ethSignTx");
-      return Promise.resolve(null);
+    async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
+      const result = await this.ethWallet.signTransaction({
+        to: msg.to,
+        from: await this.ethWallet.getAddress(),
+        nonce: msg.nonce,
+        gasLimit: msg.gasLimit,
+        gasPrice: msg.gasPrice,
+        data: msg.data,
+        value: msg.value,
+        chainId: msg.chainId,
+      });
+      const decoded = txDecoder.decodeTx(result);
+      return {
+        v: decoded.v,
+        r: decoded.r,
+        s: decoded.s,
+        serialized: result,
+      };
     }
 
-    ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
-      console.log("ethSignMessage");
-      return Promise.resolve(null);
+    async ethSignMessage(
+      msg: core.ETHSignMessage
+    ): Promise<core.ETHSignedMessage> {
+      const result = await this.ethWallet.signMessage(msg.message);
+      return {
+        address: await this.ethWallet.getAddress(),
+        signature: result,
+      };
     }
 
     async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
@@ -97,7 +118,6 @@ export function MixinNativeETHWallet<TBase extends core.Constructor>(
         msg.message,
         "0x" + msg.signature
       );
-
       return signingAddress === msg.address;
     }
   };
