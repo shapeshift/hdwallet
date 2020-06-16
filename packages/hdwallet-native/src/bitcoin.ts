@@ -11,28 +11,28 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(
     implements core.BTCWalletInfo {
     _supportsBTCInfo = true;
 
-    btcSupportsCoin(coin: core.Coin): Promise<boolean> {
-      return Promise.resolve(supportedCoins.includes(coin));
+    async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
+      return supportedCoins.includes(coin);
     }
 
-    btcSupportsScriptType(
+    async btcSupportsScriptType(
       coin: core.Coin,
       scriptType: core.BTCInputScriptType
     ): Promise<boolean> {
-      if (!this.btcSupportsCoin(coin)) return Promise.resolve(false);
+      if (!this.btcSupportsCoin(coin)) return false;
 
       switch (scriptType) {
         case core.BTCInputScriptType.SpendAddress:
         case core.BTCInputScriptType.SpendWitness:
         case core.BTCInputScriptType.SpendP2SHWitness:
-          return Promise.resolve(true);
+          return true;
         default:
-          return Promise.resolve(false);
+          return false;
       }
     }
 
-    btcSupportsSecureTransfer(): Promise<boolean> {
-      return Promise.resolve(false);
+    async btcSupportsSecureTransfer(): Promise<boolean> {
+      return false;
     }
 
     btcSupportsNativeShapeShift(): boolean {
@@ -97,64 +97,65 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(
   };
 }
 
-type UndScriptyTypes = "p2pkh" | "p2sh-p2wpkh";
-
-type ScriptType = {
-  node: bitcoin.BIP32Interface;
-  path: string;
-};
-
-type Wallet = {
-  network: bitcoin.Network;
-  rootNode: bitcoin.BIP32Interface;
-  scripts: {
-    [k in UndScriptyTypes]: ScriptType;
-  };
-};
-
 export function MixinNativeBTCWallet<TBase extends core.Constructor>(
   Base: TBase
 ) {
   return class MixinNativeBTCWallet extends Base {
-    wallet: Wallet;
+    btcWallet: bitcoin.BIP32Interface;
 
-    public async btcInitializeWallet(mnemonic: string): Promise<void> {
-      const seed = Buffer.from(await mnemonicToSeed(mnemonic));
-      const rootNode = bitcoin.bip32.fromSeed(seed, bitcoin.networks.bitcoin);
+    private getNetwork(coin: string) {
+      const network = {
+        bitcoin: bitcoin.networks.bitcoin,
+      }[coin.toLowerCase()];
 
-      this.wallet = {
-        network: bitcoin.networks.bitcoin,
-        rootNode,
-        scripts: {
-          p2pkh: {
-            node: rootNode.derivePath("m/44'/0'/0'"),
-            path: "m/44'/0'/0'",
-          },
-          "p2sh-p2wpkh": {
-            node: rootNode.derivePath("m/49'/0'/0'"),
-            path: "m/49'/0'/0'",
-          },
-        },
-      };
+      if (!network) throw new Error(`${coin} not supported`);
+
+      return network;
     }
 
-    btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
-      const keyPair = bitcoin.ECPair.fromWIF(
-        this.wallet.rootNode.derivePath("m/49'/0'/0'/0/0").toWIF()
-      );
+    private createPayment(
+      pubkey: Buffer,
+      scriptType: core.BTCInputScriptType | core.BTCOutputScriptType,
+      network?: bitcoin.Network
+    ): bitcoin.Payment {
+      switch (scriptType) {
+        case "p2sh":
+          return bitcoin.payments.p2sh({ pubkey, network });
+        case "p2pkh":
+          return bitcoin.payments.p2pkh({ pubkey, network });
+        case "p2wpkh":
+          return bitcoin.payments.p2wpkh({ pubkey, network });
+        case "p2sh-p2wpkh":
+          return bitcoin.payments.p2sh({
+            redeem: bitcoin.payments.p2wpkh({ pubkey, network }),
+          });
+        default:
+          throw new Error(`no implementation for script type: ${scriptType}`);
+      }
+    }
 
-      return Promise.resolve(
-        bitcoin.payments.p2sh({
-          redeem: bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey }),
-        }).address
+    async btcInitializeWallet(mnemonic: string): Promise<void> {
+      const seed = Buffer.from(await mnemonicToSeed(mnemonic));
+      this.btcWallet = bitcoin.bip32.fromSeed(seed);
+    }
+
+    async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
+      const { addressNList, coin, scriptType } = msg;
+      const network = this.getNetwork(coin);
+      const path = core.addressNListToBIP32(addressNList);
+      const keyPair = bitcoin.ECPair.fromWIF(
+        this.btcWallet.derivePath(path).toWIF(),
+        network
       );
+      return this.createPayment(keyPair.publicKey, scriptType, network).address;
     }
 
     async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx> {
-      const network = this.wallet.network;
+      const { coin, inputs, outputs } = msg;
+      const network = this.getNetwork(coin);
       const txBuilder = new bitcoin.TransactionBuilder(network);
 
-      msg.inputs.forEach((input) =>
+      inputs.forEach((input) =>
         txBuilder.addInput(
           input.txid,
           input.vout,
@@ -166,28 +167,16 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
         )
       );
 
-      await Promise.all(
-        msg.outputs.map(async (output) => {
+      Promise.all(
+        outputs.map(async (output) => {
           if (output.addressNList) {
             const path = core.addressNListToBIP32(output.addressNList);
-            const privateKey = this.wallet.rootNode.derivePath(path).toWIF();
+            const privateKey = this.btcWallet.derivePath(path).toWIF();
             const keyPair = bitcoin.ECPair.fromWIF(privateKey, network);
-            const pubkey = keyPair.publicKey;
-
-            let address: string;
-            switch (output.scriptType) {
-              case "p2wpkh":
-                address = bitcoin.payments.p2wpkh({ pubkey, network }).address;
-                break;
-              case "p2sh-p2wpkh":
-                address = bitcoin.payments.p2sh({
-                  redeem: bitcoin.payments.p2wpkh({ pubkey, network }),
-                }).address;
-                break;
-              default:
-                address = bitcoin.payments.p2pkh({ pubkey, network }).address;
-            }
-
+            const { address } = this.createPayment(
+              keyPair.publicKey,
+              output.scriptType
+            );
             txBuilder.addOutput(address, Number(output.amount));
           } else if (output.address) {
             txBuilder.addOutput(output.address, Number(output.amount));
@@ -195,42 +184,36 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
         })
       );
 
-      await Promise.all(
-        msg.inputs.map(async (input, idx) => {
+      Promise.all(
+        inputs.map(async (input, vin) => {
           const path = core.addressNListToBIP32(input.addressNList);
-          const privateKey = this.wallet.rootNode.derivePath(path).toWIF();
+          const privateKey = this.btcWallet.derivePath(path).toWIF();
           const keyPair = bitcoin.ECPair.fromWIF(privateKey, network);
-          const pubkey = keyPair.publicKey;
 
+          let redeemScript: Buffer;
+          let hashType: number;
+          let witnessValue: number;
+          let witnessScript: Buffer;
           switch (input.scriptType) {
             case "p2wpkh":
-              txBuilder.sign(
-                idx,
-                keyPair,
-                undefined,
-                undefined,
-                Number(input.amount)
-              );
+              witnessValue = Number(input.amount);
               break;
             case "p2sh-p2wpkh": {
-              const output = bitcoin.payments.p2sh({
-                redeem: bitcoin.payments.p2wpkh({ pubkey, network }),
-              }).redeem.output;
-
-              txBuilder.sign(
-                idx,
-                keyPair,
-                output,
-                undefined,
-                Number(input.amount)
-              );
+              const payment = this.createPayment(keyPair.publicKey, network);
+              witnessValue = Number(input.amount);
+              witnessScript = payment.redeem.output;
               break;
             }
-            case "p2sh":
-            default:
-              txBuilder.sign(idx, keyPair);
-              break;
           }
+
+          txBuilder.sign(
+            vin,
+            keyPair,
+            redeemScript,
+            hashType,
+            witnessValue,
+            witnessScript
+          );
         })
       );
 
@@ -240,12 +223,14 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
       };
     }
 
-    btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
-      throw Error("function not implemented");
+    async btcSignMessage(
+      msg: core.BTCSignMessage
+    ): Promise<core.BTCSignedMessage> {
+      throw new Error("function not implemented");
     }
 
-    btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
-      throw Error("function not implemented");
+    async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
+      throw new Error("function not implemented");
     }
   };
 }
