@@ -1,6 +1,12 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { mnemonicToSeed } from "bip39";
+import { fromSeed } from "bip32";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeETHWalletInfo } from "./ethereum";
+import {
+  addressNListToBIP32,
+  hardenedPath,
+} from "@shapeshiftoss/hdwallet-core";
 
 class NativeHDWalletInfo
   extends MixinNativeBTCWalletInfo(MixinNativeETHWalletInfo(class Base {}))
@@ -38,8 +44,6 @@ class NativeHDWalletInfo
 
   describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin) {
-      case "Ethereum":
-        return core.describeETHPath(msg.path);
       case "Bitcoin":
         const unknown = core.unknownUTXOPath(
           msg.path,
@@ -52,6 +56,8 @@ class NativeHDWalletInfo
           return unknown;
 
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+      case "Ethereum":
+        return core.describeETHPath(msg.path);
       default:
         throw new Error("Unsupported path");
     }
@@ -95,11 +101,23 @@ export class NativeHDWallet extends MixinNativeBTCWallet(NativeHDWalletInfo)
     return Promise.resolve("Native");
   }
 
-  getPublicKeys(
-    msg: Array<core.GetPublicKey>
-  ): Promise<Array<core.PublicKey | null>> {
-    // TODO
-    return Promise.resolve([]);
+  /*
+   * @see: https://github.com/satoshilabs/slips/blob/master/slip-0132.md
+   * to supports different styles of xpubs as can be defined by passing in a network to `fromSeed`
+   */
+  getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey>> {
+    return Promise.all(
+      msg.map(async (getPublicKey) => {
+        let { addressNList } = getPublicKey;
+        const seed = await mnemonicToSeed(this.mnemonic);
+        const node = fromSeed(seed);
+        const xpub = node
+          .derivePath(addressNListToBIP32(hardenedPath(addressNList)))
+          .neutered()
+          .toBase58();
+        return { xpub };
+      })
+    );
   }
 
   isInitialized(): Promise<boolean> {

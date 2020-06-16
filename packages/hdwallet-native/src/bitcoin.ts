@@ -9,6 +9,8 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(
 ) {
   return class MixinNativeBTCWalletInfo extends Base
     implements core.BTCWalletInfo {
+    _supportsBTCInfo = true;
+
     btcSupportsCoin(coin: core.Coin): Promise<boolean> {
       return Promise.resolve(supportedCoins.includes(coin));
     }
