@@ -118,7 +118,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
   return class MixinNativeBTCWallet extends Base {
     wallet: Wallet;
 
-    public async btcInitializeWallet(mnemonic: string) {
+    public async btcInitializeWallet(mnemonic: string): Promise<void> {
       const seed = Buffer.from(await mnemonicToSeed(mnemonic));
       const rootNode = bitcoin.bip32.fromSeed(seed, bitcoin.networks.bitcoin);
 
@@ -138,7 +138,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
       };
     }
 
-    async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
+    btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
       const keyPair = bitcoin.ECPair.fromWIF(
         this.wallet.rootNode.derivePath("m/49'/0'/0'/0/0").toWIF()
       );
@@ -241,11 +241,11 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
     }
 
     btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
-      return Promise.resolve(null);
+      throw Error("function not implemented");
     }
 
     btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
-      return Promise.resolve(null);
+      throw Error("function not implemented");
     }
   };
 }

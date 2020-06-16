@@ -2,7 +2,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { mnemonicToSeed } from "bip39";
 import { fromSeed } from "bip32";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
-import { MixinNativeETHWalletInfo } from "./ethereum";
+import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 import {
   addressNListToBIP32,
   hardenedPath,
@@ -64,7 +64,8 @@ class NativeHDWalletInfo
   }
 }
 
-export class NativeHDWallet extends MixinNativeBTCWallet(NativeHDWalletInfo)
+export class NativeHDWallet
+  extends MixinNativeBTCWallet(MixinNativeETHWallet(NativeHDWalletInfo))
   implements core.HDWallet {
   _supportsBTC = true;
   _supportsETH = true;
@@ -134,6 +135,7 @@ export class NativeHDWallet extends MixinNativeBTCWallet(NativeHDWalletInfo)
 
   async initialize(): Promise<any> {
     await super.btcInitializeWallet(this.mnemonic);
+    await super.ethInitializeWallet(this.mnemonic);
   }
 
   ping(msg: core.Ping): Promise<core.Pong> {

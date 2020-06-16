@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { Wallet, utils } from "ethers";
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(
   Base: TBase
@@ -65,26 +66,39 @@ export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(
   };
 }
 
-export class NativeETHWalletInfo extends MixinNativeETHWalletInfo(
-  class Base {}
-) {}
+export function MixinNativeETHWallet<TBase extends core.Constructor>(
+  Base: TBase
+) {
+  return class MixinNativeETHWallet extends Base {
+    _supportsETH = true;
 
-export class NativeETHWallet extends NativeETHWalletInfo
-  implements core.ETHWallet {
-  _supportsETH = true;
+    wallet: Wallet;
 
-  ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
-    // TODO: implement
-    return Promise.resolve(null);
-  }
-  ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
-    // TODO: implement
-    return Promise.resolve(null);
-  }
-  ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
-    return Promise.resolve(null);
-  }
-  ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
-    return Promise.resolve(null);
-  }
+    ethInitializeWallet(mnemonic: string): void {
+      this.wallet = Wallet.fromMnemonic(mnemonic);
+    }
+
+    ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
+      return this.wallet.getAddress();
+    }
+
+    ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
+      console.log("ethSignTx");
+      return Promise.resolve(null);
+    }
+
+    ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
+      console.log("ethSignMessage");
+      return Promise.resolve(null);
+    }
+
+    ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
+      const signingAddress = utils.verifyMessage(
+        msg.message,
+        "0x" + msg.signature
+      );
+
+      return Promise.resolve(signingAddress === msg.address);
+    }
+  };
 }
