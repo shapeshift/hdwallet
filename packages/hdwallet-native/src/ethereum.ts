@@ -1,6 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Wallet, utils } from 'ethers'
 import { ETHGetAddress } from "@shapeshiftoss/hdwallet-core";
+import txDecoder from 'ethereum-tx-decoder'
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(
   Base: TBase
@@ -83,9 +84,25 @@ export function MixinNativeETHWallet<TBase extends core.Constructor>(
     async ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
       return this.wallet.getAddress()
     }
-    ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
-      console.log('ethSignTx')
-      return Promise.resolve(null);
+    async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
+      const transactionRequest = {
+        to: msg.to,
+        from: await this.wallet.getAddress(),
+        nonce: msg.nonce,
+        gasLimit: msg.gasLimit,
+        gasPrice: msg.gasPrice,
+        data: msg.data,
+        value: msg.value,
+        chainId: msg.chainId
+      }
+      const result = await this.wallet.signTransaction(transactionRequest)
+      const decoded = txDecoder.decodeTx(result)
+      return {
+        v: decoded.v,
+        r: decoded.r,
+        s: decoded.s,
+        serialized: result
+      }
     }
     ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
       console.log('ethSignMessage')
