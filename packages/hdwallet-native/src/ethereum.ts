@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { utils } from 'ethers'
+import { Wallet, utils } from 'ethers'
+import { ETHGetAddress } from "@shapeshiftoss/hdwallet-core";
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(
   Base: TBase
@@ -75,10 +76,12 @@ export function MixinNativeETHWallet<TBase extends core.Constructor>(
 ) {
   return class MixinNativeETHWallet extends Base {
     _supportsETH = true;
-
-    ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
-      console.log('ethGetAddress')
-      return Promise.resolve(null);
+    wallet: Wallet
+    ethInitializeWallet(mnemonic: string): void {
+      this.wallet = Wallet.fromMnemonic(mnemonic)
+    }
+    async ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
+      return this.wallet.getAddress()
     }
     ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
       console.log('ethSignTx')
