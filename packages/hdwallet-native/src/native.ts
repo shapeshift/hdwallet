@@ -77,6 +77,7 @@ export class NativeHDWallet
   _isNative = true;
 
   deviceId: string;
+  initialized: boolean;
 
   private mnemonic: string;
 
@@ -122,7 +123,7 @@ export class NativeHDWallet
   }
 
   isInitialized(): Promise<boolean> {
-    return Promise.resolve(true);
+    return Promise.resolve(this.initialized);
   }
 
   isLocked(): Promise<boolean> {
@@ -135,7 +136,9 @@ export class NativeHDWallet
 
   async initialize(): Promise<any> {
     await super.btcInitializeWallet(this.mnemonic);
-    await super.ethInitializeWallet(this.mnemonic);
+    super.ethInitializeWallet(this.mnemonic);
+
+    this.initialized = true;
   }
 
   ping(msg: core.Ping): Promise<core.Pong> {
@@ -176,6 +179,7 @@ export class NativeHDWallet
 
   loadDevice(msg: core.LoadDevice): Promise<void> {
     this.mnemonic = msg.mnemonic;
+    this.initialized = false;
     return Promise.resolve();
   }
 
