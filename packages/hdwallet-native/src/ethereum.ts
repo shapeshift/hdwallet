@@ -97,13 +97,12 @@ export function MixinNativeETHWallet<TBase extends core.Constructor>(
       }
       const result = await this.wallet.signTransaction(transactionRequest)
       const decoded = txDecoder.decodeTx(result)
-      const ethSignedTx = {
+      return {
         v: decoded.v,
         r: decoded.r,
         s: decoded.s,
         serialized: result
       }
-      return ethSignedTx
     }
     ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
       console.log('ethSignMessage')
