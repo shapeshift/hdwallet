@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { NativeBTCWallet, NativeBTCWalletInfo, btcGetAddress, btcSignTx } from "./bitcoin";
-import { NativeETHWallet, NativeETHWalletInfo } from "./ethereum";
+import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
+import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 
 import * as bitcoin from "bitcoinjs-lib";
 import { mnemonicToSeed } from "bip39"
@@ -59,31 +59,8 @@ export class NativeHDWalletInfo implements core.HDWalletInfo {
   }
 }
 
-export interface NativeHDWalletInfo
-  extends NativeBTCWalletInfo,
-    NativeETHWalletInfo {}
-core.applyMixins(NativeHDWalletInfo, [
-  NativeBTCWalletInfo,
-  NativeETHWalletInfo,
-]);
-
-interface ScriptType {
-  node: bitcoin.BIP32Interface
-  path: string
-}
-
-type UndScriptyTypes = 'p2pkh' | 'p2sh-p2wpkh'
-
-export interface Coin {
-  network: bitcoin.Network
-  rootNode: bitcoin.BIP32Interface
-  scripts: {
-    [k in UndScriptyTypes]: ScriptType
-  }
-}
-
-export class NativeHDWallet extends NativeHDWalletInfo implements
-  core.HDWallet, NativeBTCWallet {
+export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(NativeHDWalletInfo))
+  implements core.HDWallet {
   _supportsBTC = true;
   _supportsETH = true;
   _supportsCosmos = false;
