@@ -8,12 +8,12 @@ export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(
     implements core.ETHWalletInfo {
     _supportsETHInfo = true;
 
-    ethSupportsNetwork(): Promise<boolean> {
-      return Promise.resolve(true);
+    async ethSupportsNetwork(): Promise<boolean> {
+      return true;
     }
 
-    ethSupportsSecureTransfer(): Promise<boolean> {
-      return Promise.resolve(false);
+    async ethSupportsSecureTransfer(): Promise<boolean> {
+      return false;
     }
 
     ethSupportsNativeShapeShift(): boolean {
@@ -72,14 +72,14 @@ export function MixinNativeETHWallet<TBase extends core.Constructor>(
   return class MixinNativeETHWallet extends Base {
     _supportsETH = true;
 
-    wallet: Wallet;
+    ethWallet: Wallet;
 
     ethInitializeWallet(mnemonic: string): void {
-      this.wallet = Wallet.fromMnemonic(mnemonic);
+      this.ethWallet = Wallet.fromMnemonic(mnemonic);
     }
 
-    ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
-      return this.wallet.getAddress();
+    async ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
+      return this.ethWallet.getAddress();
     }
 
     ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
@@ -92,13 +92,13 @@ export function MixinNativeETHWallet<TBase extends core.Constructor>(
       return Promise.resolve(null);
     }
 
-    ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
+    async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
       const signingAddress = utils.verifyMessage(
         msg.message,
         "0x" + msg.signature
       );
 
-      return Promise.resolve(signingAddress === msg.address);
+      return signingAddress === msg.address;
     }
   };
 }
