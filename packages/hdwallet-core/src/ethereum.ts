@@ -149,5 +149,6 @@ export function describeETHPath(path: BIP32Path): PathDescription {
     wholeAccount: true,
     coin: "Ethereum",
     isKnown: true,
+    isPrefork: false,
   };
 }
