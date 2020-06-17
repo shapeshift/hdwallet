@@ -42,6 +42,11 @@ class NativeHDWalletInfo
   describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin) {
       case "Bitcoin":
+      case "Dash":
+      case "DigiByte":
+      case "Dogecoin":
+      case "Litecoin":
+      case "Testnet":
         const unknown = core.unknownUTXOPath(
           msg.path,
           msg.coin,
@@ -159,6 +164,7 @@ export class NativeHDWallet
   async loadDevice(msg: core.LoadDevice): Promise<void> {
     this.mnemonic = msg.mnemonic;
     this.initialized = false;
+    await this.initialize();
   }
 
   async disconnect(): Promise<void> {}
