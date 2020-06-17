@@ -1,5 +1,4 @@
 import { Network } from "bitcoinjs-lib";
-import {} from "bip39";
 
 type BIP32 = {
   bip32: {
