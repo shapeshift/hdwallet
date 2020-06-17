@@ -11,15 +11,15 @@ export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(
     _supportsETHInfo = true;
 
     async ethSupportsNetwork(): Promise<boolean> {
-      return true
+      return true;
     }
 
     async ethSupportsSecureTransfer(): Promise<boolean> {
-      return false
+      return false;
     }
 
     ethSupportsNativeShapeShift(): boolean {
-      return false
+      return false;
     }
 
     ethGetAccountPaths(
@@ -42,16 +42,15 @@ export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(
           relPath: [0, 0],
           description: "Native",
         },
-      ]
+      ];
     }
 
-    ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
+    ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath {
       // Only support one account for now (like portis).
       // the ethers library supports paths so it shouldnt be too hard if we decide multiple accounts are needed
       return undefined;
     }
-
-  }
+  };
 }
 
 export class NativeETHWalletInfo extends MixinNativeETHWalletInfo(
