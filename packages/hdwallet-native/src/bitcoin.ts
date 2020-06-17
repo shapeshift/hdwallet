@@ -1,6 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as bitcoin from "bitcoinjs-lib";
-import { NativeHDWallet } from './native'
+import { getNetwork } from "./networks";
 
 const supportedCoins = ["Bitcoin"];
 
@@ -103,16 +102,6 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
   return class MixinNativeBTCWallet extends Base {
     btcWallet: bitcoin.BIP32Interface;
 
-    getNetwork(coin: string) {
-      const network = {
-        bitcoin: bitcoin.networks.bitcoin,
-      }[coin.toLowerCase()];
-
-      if (!network) throw new Error(`${coin} not supported`);
-
-      return network;
-    }
-
     createPayment(
       pubkey: Buffer,
       scriptType: core.BTCInputScriptType | core.BTCOutputScriptType,
@@ -141,7 +130,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
 
     async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
       const { addressNList, coin, scriptType } = msg;
-      const network = this.getNetwork(coin);
+      const network = getNetwork(coin, scriptType);
       const path = core.addressNListToBIP32(addressNList);
       const keyPair = bitcoin.ECPair.fromWIF(
         this.btcWallet.derivePath(path).toWIF(),
@@ -152,7 +141,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
 
     async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx> {
       const { coin, inputs, outputs } = msg;
-      const network = this.getNetwork(coin);
+      const network = getNetwork(coin, inputs[0].scriptType);
       const txBuilder = new bitcoin.TransactionBuilder(network);
 
       inputs.forEach((input) =>
@@ -197,7 +186,11 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
               witnessValue = Number(input.amount);
               break;
             case "p2sh-p2wpkh": {
-              const payment = this.createPayment(keyPair.publicKey, network);
+              const payment = this.createPayment(
+                keyPair.publicKey,
+                input.scriptType,
+                network
+              );
               witnessValue = Number(input.amount);
               witnessScript = payment.redeem.output;
               break;
