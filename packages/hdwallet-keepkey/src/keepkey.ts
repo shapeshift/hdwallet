@@ -309,7 +309,6 @@ function describeEosPath(path: BIP32Path): PathDescription {
   };
 }
 
-
 function describeRipplePath(path: BIP32Path): PathDescription {
   let pathStr = addressNListToBIP32(path);
   let unknown: PathDescription = {
@@ -396,13 +395,13 @@ export class KeepKeyHDWalletInfo
     CosmosWalletInfo,
     BinanceWalletInfo,
     RippleWalletInfo,
-  EosWalletInfo {
+    EosWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = true;
   _supportsRippleInfo: boolean = true;
   _supportsBinanceInfo: boolean = true;
-    _supportsEosInfo: boolean = true;
+  _supportsEosInfo: boolean = true;
 
   public getVendor(): string {
     return "KeepKey";
@@ -503,8 +502,8 @@ export class KeepKeyHDWalletInfo
         return describeBinancePath(msg.path);
       case "Ripple":
         return describeRipplePath(msg.path);
-   case "Eos":
-    return describeEosPath(msg.path);
+      case "Eos":
+        return describeEosPath(msg.path);
 
       default:
         return describeUTXOPath(msg.path, msg.coin, msg.scriptType);
@@ -607,7 +606,7 @@ export class KeepKeyHDWalletInfo
       addressNList,
     };
   }
-    
+
   public eosNextAccountPath(msg: EosAccountPath): EosAccountPath | undefined {
     let description = describeEosPath(msg.addressNList);
     if (!description.isKnown) {
@@ -621,7 +620,6 @@ export class KeepKeyHDWalletInfo
       ...msg,
       addressNList,
     };
-
   }
 }
 
@@ -640,7 +638,7 @@ export class KeepKeyHDWallet
   _supportsCosmos: boolean = true;
   _supportsRipple: boolean = true;
   _supportsBinance: boolean = true;
-  _supportsEos: boolean=true;
+  _supportsEos: boolean = true;
 
   transport: KeepKeyTransport;
   features?: Messages.Features.AsObject;
@@ -832,13 +830,13 @@ export class KeepKeyHDWallet
     matrixAck.setPin(pin);
     console.assert(
       undefined ===
-      (await this.transport.call(
-        Messages.MessageType.MESSAGETYPE_PINMATRIXACK,
-        matrixAck,
-        DEFAULT_TIMEOUT,
-        true,
-        true
-      ))
+        (await this.transport.call(
+          Messages.MessageType.MESSAGETYPE_PINMATRIXACK,
+          matrixAck,
+          DEFAULT_TIMEOUT,
+          true,
+          true
+        ))
     );
   }
 
@@ -847,13 +845,13 @@ export class KeepKeyHDWallet
     passphraseAck.setPassphrase(passphrase);
     console.assert(
       undefined ===
-      (await this.transport.call(
-        Messages.MessageType.MESSAGETYPE_PASSPHRASEACK,
-        passphraseAck,
-        DEFAULT_TIMEOUT,
-        true,
-        true
-      ))
+        (await this.transport.call(
+          Messages.MessageType.MESSAGETYPE_PASSPHRASEACK,
+          passphraseAck,
+          DEFAULT_TIMEOUT,
+          true,
+          true
+        ))
     );
   }
 
@@ -888,13 +886,13 @@ export class KeepKeyHDWallet
     }
     console.assert(
       undefined ===
-      (await this.transport.call(
-        Messages.MessageType.MESSAGETYPE_CHARACTERACK,
-        characterAck,
-        DEFAULT_TIMEOUT,
-        true,
-        true
-      ))
+        (await this.transport.call(
+          Messages.MessageType.MESSAGETYPE_CHARACTERACK,
+          characterAck,
+          DEFAULT_TIMEOUT,
+          true,
+          true
+        ))
     );
   }
 
@@ -1338,9 +1336,9 @@ export class KeepKeyHDWallet
     return this.info.ethNextAccountPath(msg);
   }
 
- public eosNextAccountPath(msg: EosAccountPath): EosAccountPath | undefined {
+  public eosNextAccountPath(msg: EosAccountPath): EosAccountPath | undefined {
     return this.info.eosNextAccountPath(msg);
- }
+  }
 
   public cosmosNextAccountPath(
     msg: CosmosAccountPath
