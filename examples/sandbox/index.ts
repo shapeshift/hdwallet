@@ -42,7 +42,7 @@ const keyring = new Keyring();
 
 const portisAppId = "ff763d3d-9e34-45a1-81d1-caa39b9c64f9";
 const mnemonic =
-  "close exit cigar radar census olympic history obvious crazy code cream try";
+  "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
 const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring);
 const kkemuAdapter = TCPKeepKeyAdapter.useKeyring(keyring);
