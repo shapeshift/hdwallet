@@ -103,7 +103,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
   return class MixinNativeBTCWallet extends Base {
     btcWallet: bitcoin.BIP32Interface;
 
-    private getNetwork(coin: string) {
+    getNetwork(coin: string) {
       const network = {
         bitcoin: bitcoin.networks.bitcoin,
       }[coin.toLowerCase()];
@@ -113,7 +113,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
       return network;
     }
 
-    private createPayment(
+    createPayment(
       pubkey: Buffer,
       scriptType: core.BTCInputScriptType | core.BTCOutputScriptType,
       network?: bitcoin.Network
