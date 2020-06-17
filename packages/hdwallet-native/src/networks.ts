@@ -128,12 +128,7 @@ const networks: Networks = {
         private: 0x01b26792,
       },
     },
-    p2wpkh: {
-      bip32: {
-        public: 0x0488b21e,
-        private: 0x0488ade4,
-      },
-    },
+    p2wpkh: bip32BTC.p2wpkh,
   },
 };
 
@@ -148,6 +143,7 @@ export function getNetwork(coin: string, scriptType?: string): Network {
       break;
     case "Bitcoin":
     case "Ethereum":
+    case "Testnet":
       network = networks["bitcoin"];
       break;
     default:
