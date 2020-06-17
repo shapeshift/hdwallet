@@ -1,6 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { mnemonicToSeed } from "bip39";
 import { fromSeed } from "bip32";
+import { getNetwork } from "./networks";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 
@@ -108,7 +109,8 @@ export class NativeHDWallet
       msg.map(async (getPublicKey) => {
         let { addressNList } = getPublicKey;
         const seed = await mnemonicToSeed(this.mnemonic);
-        const node = fromSeed(seed);
+        const network = getNetwork(getPublicKey.coin, getPublicKey.scriptType);
+        const node = fromSeed(seed, network);
         const xpub = node
           .derivePath(core.addressNListToBIP32(core.hardenedPath(addressNList)))
           .neutered()
