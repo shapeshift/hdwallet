@@ -3,7 +3,7 @@ import { mnemonicToSeed } from "bip39";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { getNetwork } from "./networks";
 
-const supportedCoins = ["Bitcoin"];
+const supportedCoins = ["Bitcoin", "Testnet"];
 
 export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(
   Base: TBase
@@ -50,6 +50,11 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(
 
       const coinPaths = {
         Bitcoin: [bip44, bip49, bip84],
+        Litecoin: [bip44, bip49, bip84],
+        Dash: [bip44],
+        DigiByte: [bip44, bip49, bip84],
+        Dogecoin: [bip44],
+        Testnet: [bip44, bip49, bip84],
       };
 
       let paths: Array<core.BTCAccountPath> = coinPaths[msg.coin] || [];
@@ -102,7 +107,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
   Base: TBase
 ) {
   return class MixinNativeBTCWallet extends Base {
-    btcWallet: bitcoin.BIP32Interface;
+    seed: Buffer;
 
     createPayment(
       pubkey: Buffer,
@@ -126,16 +131,16 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
     }
 
     async btcInitializeWallet(mnemonic: string): Promise<void> {
-      const seed = Buffer.from(await mnemonicToSeed(mnemonic));
-      this.btcWallet = bitcoin.bip32.fromSeed(seed);
+      this.seed = Buffer.from(await mnemonicToSeed(mnemonic));
     }
 
     async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
       const { addressNList, coin, scriptType } = msg;
       const network = getNetwork(coin, scriptType);
+      const wallet = bitcoin.bip32.fromSeed(this.seed, network);
       const path = core.addressNListToBIP32(addressNList);
       const keyPair = bitcoin.ECPair.fromWIF(
-        this.btcWallet.derivePath(path).toWIF(),
+        wallet.derivePath(path).toWIF(),
         network
       );
       return this.createPayment(keyPair.publicKey, scriptType, network).address;
@@ -144,6 +149,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
     async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx> {
       const { coin, inputs, outputs } = msg;
       const network = getNetwork(coin, inputs[0].scriptType);
+      const wallet = bitcoin.bip32.fromSeed(this.seed, network);
       const txBuilder = new bitcoin.TransactionBuilder(network);
 
       inputs.forEach((input) =>
@@ -162,7 +168,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
         outputs.map(async (output) => {
           if (output.addressNList) {
             const path = core.addressNListToBIP32(output.addressNList);
-            const privateKey = this.btcWallet.derivePath(path).toWIF();
+            const privateKey = wallet.derivePath(path).toWIF();
             const keyPair = bitcoin.ECPair.fromWIF(privateKey, network);
             const { address } = this.createPayment(
               keyPair.publicKey,
@@ -178,7 +184,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
       Promise.all(
         inputs.map(async (input, vin) => {
           const path = core.addressNListToBIP32(input.addressNList);
-          const privateKey = this.btcWallet.derivePath(path).toWIF();
+          const privateKey = wallet.derivePath(path).toWIF();
           const keyPair = bitcoin.ECPair.fromWIF(privateKey, network);
 
           let redeemScript: Buffer;
