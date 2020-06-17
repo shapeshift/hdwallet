@@ -21,44 +21,48 @@ import { MessageType } from "@keepkey/device-protocol/lib/messages_pb";
 import { cloneDeep } from "lodash";
 
 var Long = require("long");
-const createHash = require('create-hash')
+const createHash = require("create-hash");
 
-function eosSigFormatter(r : Uint8Array, s : Uint8Array, v : number) : string {
-/*
+function eosSigFormatter(r: Uint8Array, s: Uint8Array, v: number): string {
+  /*
   Format the signature to be useful on the eos chain
 */
-  const base58 = require('bs58')
+  const base58 = require("bs58");
 
-  var recoverId = 0x1f
+  var recoverId = 0x1f;
 
-  var signature : string = 'SIG_K1_'
+  var signature: string = "SIG_K1_";
 
-  console.log("formatter logs")
+  console.log("formatter logs");
   var keyBuffer = new Buffer(65);
-  var rbuf = Buffer.from(r)
-  var sbuf = Buffer.from(s)
+  var rbuf = Buffer.from(r);
+  var sbuf = Buffer.from(s);
   keyBuffer.writeUInt8(recoverId, 0);
   rbuf.copy(keyBuffer, 1);
   sbuf.copy(keyBuffer, 33);
 
-  console.log(keyBuffer)
-  const check = [keyBuffer]
-  var keyType = 'K1'      // we only sign using K1 curve
-  check.push(Buffer.from(keyType))
+  console.log(keyBuffer);
+  const check = [keyBuffer];
+  var keyType = "K1"; // we only sign using K1 curve
+  check.push(Buffer.from(keyType));
 
-  console.log(check)
+  console.log(check);
 
-  console.log("hash")
-  console.log(createHash("ripemd160").update(Buffer.concat(check)).digest())
-  const chksum = (createHash("ripemd160").update(Buffer.concat(check)).digest()).slice(0, 4)
+  console.log("hash");
+  console.log(createHash("ripemd160").update(Buffer.concat(check)).digest());
+  const chksum = createHash("ripemd160")
+    .update(Buffer.concat(check))
+    .digest()
+    .slice(0, 4);
 
-  console.log(chksum)
-  signature = signature.concat(base58.encode(Buffer.concat([keyBuffer, chksum])))  
+  console.log(chksum);
+  signature = signature.concat(
+    base58.encode(Buffer.concat([keyBuffer, chksum]))
+  );
 
-  console.log(signature)
+  console.log(signature);
 
-  return signature
-
+  return signature;
 }
 
 function charToSymbol(c: string): number {
@@ -209,8 +213,8 @@ export async function eosSignTx(
     signTx.setHeader(txHeader);
     signTx.setNumActions(msg.tx.actions.length);
 
-    console.log("tx header")
-    console.log(txHeader)
+    console.log("tx header");
+    console.log(txHeader);
     resp = await transport.call(
       MessageType.MESSAGETYPE_EOSSIGNTX,
       signTx,
@@ -264,8 +268,8 @@ export async function eosSignTx(
       }
     }
 
-    console.log("action data")
-    console.log(actAck)
+    console.log("action data");
+    console.log(actAck);
 
     resp = await transport.call(
       MessageType.MESSAGETYPE_EOSTXACTIONACK,
@@ -281,15 +285,18 @@ export async function eosSignTx(
 
     // format signature for use in the eos system
 
-//    const EosFormatSig = eosSigFormatter(signedTx.getSignatureR() as Uint8Array, signedTx.getSignatureS() as Uint8Array, signedTx.getSignatureV())
-
+    //    const EosFormatSig = eosSigFormatter(signedTx.getSignatureR() as Uint8Array, signedTx.getSignatureS() as Uint8Array, signedTx.getSignatureV())
 
     var sig = {
       signatureV: signedTx.getSignatureV(),
       signatureR: signedTx.getSignatureR(),
       signatureS: signedTx.getSignatureS(),
       hash: signedTx.getHash(),
-      eosFormSig: eosSigFormatter(signedTx.getSignatureR() as Uint8Array, signedTx.getSignatureS() as Uint8Array, signedTx.getSignatureV())
+      eosFormSig: eosSigFormatter(
+        signedTx.getSignatureR() as Uint8Array,
+        signedTx.getSignatureS() as Uint8Array,
+        signedTx.getSignatureV()
+      ),
     } as Core.EosTxSigned;
 
     return sig;
