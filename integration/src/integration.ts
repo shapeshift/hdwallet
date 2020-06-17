@@ -62,7 +62,7 @@ export function integration(suite: WalletSuite): void {
 
       btcTests(() => ({ wallet, info }));
     });
-    
+
     describe("EosWallet", () => {
       beforeAll(async () => {
         wallet = await suite.createWallet("Eos");
