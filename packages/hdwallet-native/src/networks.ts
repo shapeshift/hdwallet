@@ -1,4 +1,5 @@
 import { Network } from "bitcoinjs-lib";
+import {} from "bip39";
 
 type BIP32 = {
   bip32: {
@@ -46,11 +47,7 @@ type NetworkDescription = {
 } & BIP32ByScriptType;
 
 type Networks = {
-  bitcoin: NetworkDescription;
-  dash: NetworkDescription;
-  digibyte: NetworkDescription;
-  dogecoin: NetworkDescription;
-  litecoin: NetworkDescription;
+  [k: string]: NetworkDescription;
 };
 
 const networks: Networks = {
