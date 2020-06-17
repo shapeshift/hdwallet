@@ -1,7 +1,14 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { getNetwork } from "./networks";
 
-const supportedCoins = ["Bitcoin", "Testnet"];
+const supportedCoins = [
+  "Bitcoin",
+  "Dash",
+  "DigiByte",
+  "Dogecoin",
+  "Litecoin",
+  "Testnet",
+];
 
 export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(
   Base: TBase
@@ -48,10 +55,10 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(
 
       const coinPaths = {
         Bitcoin: [bip44, bip49, bip84],
-        Litecoin: [bip44, bip49, bip84],
         Dash: [bip44],
         DigiByte: [bip44, bip49, bip84],
         Dogecoin: [bip44],
+        Litecoin: [bip44, bip49, bip84],
         Testnet: [bip44, bip49, bip84],
       };
 
