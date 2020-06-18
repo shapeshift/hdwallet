@@ -130,20 +130,55 @@ const networks: Networks = {
     },
     p2wpkh: bip32BTC.p2wpkh,
   },
+  testnet: {
+    base: {
+      messagePrefix: "\x18Bitcoin Signed Message:\n",
+      bech32: "tb",
+      pubKeyHash: 0x6f,
+      scriptHash: 0xc4,
+      wif: 0xef,
+    },
+    p2sh: {
+      bip32: {
+        public: 0x043587cf,
+        private: 0x04358394,
+      },
+    },
+    p2pkh: {
+      bip32: {
+        public: 0x043587cf,
+        private: 0x04358394,
+      },
+    },
+    "p2sh-p2wpkh": {
+      bip32: {
+        public: 0x044a5262,
+        private: 0x044a4e28,
+      },
+    },
+    p2wpkh: {
+      bip32: {
+        public: 0x045f1cf6,
+        private: 0x045f18bc,
+      },
+    },
+  },
 };
 
 export function getNetwork(coin: string, scriptType?: string): Network {
+  coin = coin.toLowerCase();
+
   let network: NetworkDescription;
   switch (coin) {
-    case "Dash":
-    case "Digibyte":
-    case "Dogecoin":
-    case "Litecoin":
-      network = networks[coin.toLowerCase()];
+    case "dash":
+    case "digibyte":
+    case "dogecoin":
+    case "litecoin":
+    case "testnet":
+      network = networks[coin];
       break;
-    case "Bitcoin":
-    case "Ethereum":
-    case "Testnet":
+    case "bitcoin":
+    case "ethereum":
       network = networks["bitcoin"];
       break;
     default:
