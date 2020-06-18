@@ -964,6 +964,7 @@ $btcTx.on("click", async (e) => {
     $btcResults.val("No wallet?");
     return;
   }
+
   if (supportsBTC(wallet)) {
     const txid =
       "b3002cd9c033f4f3c2ee5a374673d7698b13c7f3525c1ae49a00d2e28e8678ea";
@@ -974,8 +975,8 @@ $btcTx.on("click", async (e) => {
       {
         addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
         scriptType: BTCInputScriptType.SpendAddress,
-        amount: String(14657949219),
-        vout: 0,
+        amount: String(10000),
+        vout: 1,
         txid: txid,
         tx: btcTxJson,
         hex,
@@ -987,10 +988,11 @@ $btcTx.on("click", async (e) => {
         address: "1MJ2tj2ThBE62zXbBYA5ZaN3fdve5CPAz1",
         addressType: BTCOutputAddressType.Spend,
         scriptType: BTCOutputScriptType.PayToAddress,
-        amount: String(390000 - 10000),
+        amount: String(10000 - 1000),
         isChange: false,
       },
     ];
+
     let res = await wallet.btcSignTx({
       coin: "Bitcoin",
       inputs: inputs,
@@ -998,6 +1000,7 @@ $btcTx.on("click", async (e) => {
       version: 1,
       locktime: 0,
     });
+
     $btcResults.val(res.serializedTx);
   } else {
     let label = await wallet.getLabel();
