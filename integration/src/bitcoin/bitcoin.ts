@@ -14,6 +14,7 @@ import {
 import { isLedger } from "@shapeshiftoss/hdwallet-ledger";
 import { isTrezor } from "@shapeshiftoss/hdwallet-trezor";
 import { isPortis } from "@shapeshiftoss/hdwallet-portis";
+import { isNative } from "@shapeshiftoss/hdwallet-native";
 
 import { each } from "../utils";
 
@@ -321,6 +322,12 @@ export function bitcoinTests(
           return;
         }
 
+        // not implemented for native
+        if (isNative(wallet)) {
+          expect(res).toEqual(undefined);
+          return;
+        }
+
         expect(res).toEqual({
           address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
           signature:
@@ -334,6 +341,7 @@ export function bitcoinTests(
       "btcVerifyMessage() - good",
       async () => {
         if (!wallet) return;
+
         let res = await wallet.btcVerifyMessage({
           address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
           coin: "Bitcoin",
@@ -341,6 +349,13 @@ export function bitcoinTests(
             "20a037c911044cd6c851b6508317d8892067b0b62074b2cf1c0df9abd4aa053a3c243ffdc37f64d7af2c857128eafc81947c380995596615e5dcc313a15f512cdd",
           message: "Hello World",
         });
+
+        // not implemented for native
+        if (isNative(wallet)) {
+          expect(res).toEqual(undefined);
+          return;
+        }
+
         expect(res).toBeTruthy();
       },
       TIMEOUT
@@ -350,6 +365,7 @@ export function bitcoinTests(
       "btcVerifyMessage() - bad",
       async () => {
         if (!wallet) return;
+
         let res = await wallet.btcVerifyMessage({
           address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
           coin: "Bitcoin",
@@ -357,6 +373,13 @@ export function bitcoinTests(
             "20a037c911044cd6c851b6508317d8892067b0b62074b2cf1c0df9abd4aa053a3c243ffdc37f64d7af2c857128eafc81947c380995596615e5dcc313a15f512cdd",
           message: "Fake World",
         });
+
+        // not implemented for native
+        if (isNative(wallet)) {
+          expect(res).toEqual(undefined);
+          return;
+        }
+
         expect(res).toBeFalsy();
       },
       TIMEOUT
