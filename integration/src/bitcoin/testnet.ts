@@ -45,7 +45,7 @@ export function testnetTests(
     }, TIMEOUT);
 
     test(
-      "btcSignTx() - p2sh-p2pkh",
+      "btcSignTx() - p2sh-p2wpkh",
       async () => {
         if (!wallet || isPortis(wallet)) return;
         if (isLedger(wallet)) return; // FIXME: Expected failure
