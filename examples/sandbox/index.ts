@@ -1208,8 +1208,8 @@ $dogeTx.on("click", async (e) => {
       {
         addressNList: dogeBip44.addressNList.concat([0, 0]),
         scriptType: BTCInputScriptType.SpendAddress,
-        amount: String(14657949219),
-        vout: 0,
+        amount: String(35577380098),
+        vout: 1,
         txid: txid,
         segwit: false,
         tx: dogeTxJson,
@@ -1222,7 +1222,7 @@ $dogeTx.on("click", async (e) => {
         address: "DMEHVGRsELY5zyYbfgta3pAhedKGeaDeJd",
         addressType: BTCOutputAddressType.Spend,
         scriptType: BTCOutputScriptType.PayToAddress,
-        amount: String(14557949219),
+        amount: String(35577380098),
         isChange: false,
       },
     ];
@@ -1374,15 +1374,15 @@ $dashTx.on("click", async (e) => {
   }
   if (supportsBTC(wallet)) {
     const txid =
-      "0602c9ef3c74de624f1bc613a79764e5c51650b4cc0d076547061782baeeabdb";
+      "94b3bbe89e5106d93d07be311a543958fa0de127d4bf747e9102c43e92cbb55f";
     const hex =
-      "0100000001ca2abfc4e998a904d9591ba0e7ac506c2e6eb6fb6cfd23dab3edf8525f5966b3000000006a47304402200452d3ad2aefe2b712c1eae89d1b96df5016570c7fcda3dcb49fd7ae51fe97a102201fe2a70aafb5355c4e4b5db8d98724df4e38e2951caef3cbb9b690d909922cbe0121036ac34cb12ac492c0eb0d1a07bd73a5a5f08bc6ba27b710276073704de9912921ffffffff01834f3b01000000001976a914546dabff283c7d6cf56dd85b5e5d3a4150449db688ac00000000";
+      "0100000001816b126842a9703a2c003cd32108d33b345bce68726bb4341fccf3703704c605000000006b483045022100f23368614d166894e5c75e3a99413b72b30ce45d13c00a50e836380819582c8602206bee0e276d684c794becf27f23426d0da457fcfedbb8c4a86bd3657ca357ee1c0121036ac34cb12ac492c0eb0d1a07bd73a5a5f08bc6ba27b710276073704de9912921ffffffff01f7984b00000000001976a914ed52e17e6d182a28148c3719385ced4e30b5c0bb88ac00000000";
 
     const inputs = [
       {
         addressNList: dashBip44.addressNList.concat([0, 0]),
         scriptType: BTCInputScriptType.SpendAddress,
-        amount: String(20654195),
+        amount: String(4954359),
         vout: 0,
         txid: txid,
         segwit: false,
@@ -1396,7 +1396,7 @@ $dashTx.on("click", async (e) => {
         address: "XexybzTUtH9V9eY4UJN2aCcBT3utan5C8N",
         addressType: BTCOutputAddressType.Spend,
         scriptType: BTCOutputScriptType.PayToAddress,
-        amount: String(20664195),
+        amount: String(4000000),
         isChange: false,
       },
     ];
@@ -1456,29 +1456,35 @@ $dgbTx.on("click", async (e) => {
     $dgbResults.val("No wallet?");
     return;
   }
+
+  // use all mnemonic as there is no valid tx on alcohol abuse to use for Native signing
+  await wallet.loadDevice({
+    mnemonic: "all all all all all all all all all all all all",
+  });
+
   if (supportsBTC(wallet)) {
     const inputs = [
       {
-        addressNList: dgbBip44.addressNList.concat([1, 8]),
+        addressNList: dgbBip44.addressNList.concat([0, 0]),
         scriptType: BTCInputScriptType.SpendAddress,
-        amount: String(6296665274),
-        vout: 1,
+        amount: String(480000000),
+        vout: 15,
         txid:
-          "e105f91187880e76fef52021866f5b8eed6654d89ee38ea2046729a89b91dd9d",
+          "be150359df4123b379f1f12de978bfced92644645da17b97c7613879f4306a90",
         tx: null,
         hex:
-          "0100000001c12804112b0eb2a57fd31674d6873376a11b22cdd30528c577ebaff1bd94f7d7000000006b483045022100939aa562ce80f49e959e6a65be95a8cef72c8d0363a191ff583556727bc56cf00220583fb9d7e9748c8df0489ed3d5d12d5c046bcc48413fa207dc5b8ae5aec02871012103d9225136ed8d7152b5a7b11fc8da236fe4221b1d5ae84ca458ef9f3aaa2d2335ffffffff02b95012dc1000000017a914bf98b6dea3c0d8b4be2d2855a0ca9bbdf06427e487ba7c4f77010000001976a914642bc1a3baac46e913f63c8c6b0a5572e221a90088ac00000000",
+          "01000000010b89406fd53f648dbf5cc7a46443794487684833c4bb7a067c86bdcf88362d4b010000006b4830450221009b38f01ca6b06c9fddb5d17ecaf306b140181074e06d50d38b4f61bc81c34d0202200eb9d37f551f6599a3488a8215cf53a347ced76b1dfb1c171855390a5576cd5a012102ee6d4720bc42ae172a1b1fbd1c0fccf4b9f364054f5ba1681f5e206c3b3a4d65ffffffff14486b9e7e750000001976a914f972645c9db830433fe9672b55452b4310c9501288ac0066a957160000001976a914584df25dff6f9eff9a86f2a49807249417913de288ac00bb4547170000001976a914cf934b123f7d1d0e6ecceff45dd881c6b3a1a7c588ac0020bcbe000000001976a91445ef856d2aa149ad66c4f98b115cd53ac88bcbbe88ac0063fe4e090000001976a91464d0c1a15eedb75f74a05b7282bbfc425e9a41ef88ac008b10e72e0300001976a91423cacb5aa41a375e057a38920396e889dd431e4d88ac6b884a1e0f0000001976a9149a32a47d48569012e3539a4be52c9436af9337a788ac003d7bc1210000001976a9147ba2fcb7d0d1321d8501019c2d9f68848e70bf7a88ac00389c1c0000000017a914d3b07c1aaea886f8ceddedec440623f812e49ddc87599e220afc0000001976a914e05ed2af3b5e20f3481e17fa26ef220a70237d7f88ac5475e2d91c0000001976a9147403f2f35e9c9e1f465a34d03afb7ff85f50770588acc9a9ce043c0000001976a914510fffca0668d410aea742e95a2fefa7952f695e88acf8f71c55890000001976a914916014ab503133671da74cfa18570debc332d63888acdfdeae45000000001976a9149cfc24e08cb9189839b0b5c973dec6cc1e1e662488ac8d10f92b954000001976a91433eed4c1b486b6c51824eab5a5d25dc47e0acc7e88ac00389c1c000000001976a914a4b8f22d44a76f96e035a75e01d55fc4cad081e188ac855ed4696f0000001976a9148d18463cb1e415242e49dfd3154a0edfcf16f25988ac439d5ff7180000001976a9144227b8ea4d92a707402bc96378a19ff5d83c5f9088ac9d2724980e0000001976a914b721f681fdbf9541cc5e2aed31a1fbb16a727fdf88ac893d1cf2e20000001976a91442f1d1103b1e9e10efdb5a0b1b88dfe627467dc288ac00000000",
       },
       {
-        addressNList: dgbBip44.addressNList.concat([0, 5]),
+        addressNList: dgbBip44.addressNList.concat([0, 0]),
         scriptType: BTCInputScriptType.SpendAddress,
-        amount: String(81931969674),
+        amount: String(10000000),
         vout: 0,
         txid:
-          "eb46d956987d83edf39dea4f469e6fb96fb83626b2f0122a3e6592944047b971",
+          "528ec23eaf123282e9bce297ebb3edfb05e8b4d5875cbc9c271a98d72a202340",
         tx: null,
         hex:
-          "0100000001c154deb896c45ea6c48313b79a8e6f5cb5637e489c1d50b62165dbd814955f29000000006a47304402206800f2e2496ebb637fab73aefee03d668fad979f6ee164479cedfdd134d5dd6c0220449d593cf638f455e37aebc54acfc177993f9244ad4c7b86bc3cac77d5d45b000121025306e93111a17603bf8e3d9dddc1a9215bbba1177779837978cd80544755f854ffffffff018aa48613130000001976a9145473f9ceaedb87e3d57d6c946e41c1fc1e99bb8988ac00000000",
+          "0100000001442377be8a2c1d8769dd417382f8ac1a35f33c86de89e2dcf997522e7ae9e6b7000000006a473044022004f4072085e7a9e1f84cb77653f02f7a5b301b3d3514fe750e86d42f617c429a0220338f779601a38ff18c7adfd1a1ccd8f723de12ff4f9c41b7b72f1c0f6f4738ac012103723d91852ec39078fb9d167fe2c4e86be1325057d707ab69ce625699d86a537fffffffff0280969800000000001976a914a4b8f22d44a76f96e035a75e01d55fc4cad081e188ac66e00c16000000001976a9144afe51fbe5fb6cd4814ce74b31d7535a5f4a63bc88ac00000000",
       },
     ];
 
@@ -1487,7 +1493,7 @@ $dgbTx.on("click", async (e) => {
         address: "SWpe93hQL2pLUDLy7swsDPWQJGCHSsgmun",
         addressType: null,
         scriptType: BTCOutputScriptType.PayToMultisig,
-        amount: String(49408035571),
+        amount: String(400000000),
         isChange: false,
       },
       {
@@ -1495,7 +1501,7 @@ $dgbTx.on("click", async (e) => {
         addressType: null,
         scriptType: BTCOutputScriptType.PayToAddress,
         relpath: "1/9",
-        amount: String(38820597425),
+        amount: String(90000000),
         isChange: true,
         index: 9,
       },
@@ -1513,6 +1519,9 @@ $dgbTx.on("click", async (e) => {
     let label = await wallet.getLabel();
     $dgbResults.val(label + " does not support Dash");
   }
+
+  // set mnemonic back to alcohol abuse
+  await wallet.loadDevice({ mnemonic });
 });
 
 /*
@@ -1625,10 +1634,10 @@ $btcTxSegWitNative.on("click", async (e) => {
     return;
   }
 
-  // We need to reload the wallet with a new mnemonic because the BIP 84 path does not have any
-  // txs on chain for the alcohol woman mnemonic. This is specific for Native wallet as it does actual
-  // pubkeyhash validation against the output, whereas normal wallets don't care and just sign anything
-  await wallet.loadDevice({ mnemonic: 'all all all all all all all all all all all all' })
+  // use all mnemonic as there is no valid tx on alcohol abuse to use for Native signing
+  await wallet.loadDevice({
+    mnemonic: "all all all all all all all all all all all all",
+  });
 
   if (supportsBTC(wallet)) {
     const txid =
@@ -1669,6 +1678,6 @@ $btcTxSegWitNative.on("click", async (e) => {
     $btcResultsSegWit.val(label + " does not support BTC");
   }
 
-  // We reload the old normal wallet with the alcohol mnemonic when we are done
-  await wallet.loadDevice({ mnemonic })
+  // set mnemonic back to alcohol abuse
+  await wallet.loadDevice({ mnemonic });
 });
