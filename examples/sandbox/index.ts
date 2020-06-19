@@ -1624,16 +1624,22 @@ $btcTxSegWitNative.on("click", async (e) => {
     $btcResultsSegWit.val("No wallet?");
     return;
   }
+
+  // We need to reload the wallet with a new mnemonic because the BIP 84 path does not have any
+  // txs on chain for the alcohol woman mnemonic. This is specific for Native wallet as it does actual
+  // pubkeyhash validation against the output, whereas normal wallets don't care and just sign anything
+  await wallet.loadDevice({ mnemonic: 'all all all all all all all all all all all all' })
+
   if (supportsBTC(wallet)) {
     const txid =
-      "2a873672cd30bfe60f05f16db4cadec26677af0971d8fd250aa0ea1bdd8e5942";
+      "fa80a9949f1094119195064462f54d0e0eabd3139becd4514ae635b8c7fe3a46";
     const hex =
-      "01000000016f992bb21c320dc0c1e906cd84a6a7aeb99da073e6a16ec0717a89827fd1a09d010000006b483045022100ecbc1d0613dedbc7ce8a9b92fe1bb96750ad5e613000046f9a609dca07518718022024613e251c64f97a14021a30b58a6833823a25c4b5aecf0a8d446cec01316ee1012103d8a07c480c7b3d665cf6b0f83989a34ee2c7dad91c18b8cae7633e9ec7413b18ffffffff02a086010000000000160014329035c39cb274eb9cdaa662a7ab0eaaae15612b7f7d0b00000000001976a914f81af3e36a72aceab07c54bf4afa66b23d7bc15288ac00000000";
+      "01000000000101360d7a720e95a6068678eb08e91b3a8a4774222c9f34becf57d0dc4329e0a686000000001716001495f41f5c0e0ec2c7fe27f0ac4bd59a5632a40b5fffffffff02d224000000000000160014ece6935b2a5a5b5ff997c87370b16fa10f16441088ba04000000000017a914dfe58cc93d35fb99e15436f47d3bbfce820328068702483045022100f312e8246e6a00d21fd762f12231c5fb7a20094a32940b9a84e28d712a5ced9b02203b9124d7a94aa7eb1e090ceda32e884511d7068b8d47593aa46537900e3e37d40121037e8bf05c6c7223cfba3ea484ecd61ee910ae38609ea89b4a4839beed2186b3fb00000000";
 
     let inputs = [
       {
-        addressNList: [0x80000000 + 84, 0x80000000 + 0, 0x80000000 + 0],
-        amount: String(100000),
+        addressNList: [0x80000000 + 84, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
+        amount: String(9426),
         vout: 0,
         txid: txid,
         scriptType: BTCInputScriptType.SpendWitness,
@@ -1647,7 +1653,7 @@ $btcTxSegWitNative.on("click", async (e) => {
         address: "bc1qc5dgazasye0yrzdavnw6wau5up8td8gdqh7t6m",
         addressType: BTCOutputAddressType.Spend,
         scriptType: BTCOutputScriptType.PayToAddress,
-        amount: String(89869),
+        amount: String(1337),
       },
     ];
     let res = await wallet.btcSignTx({
@@ -1662,4 +1668,7 @@ $btcTxSegWitNative.on("click", async (e) => {
     let label = await wallet.getLabel();
     $btcResultsSegWit.val(label + " does not support BTC");
   }
+
+  // We reload the old normal wallet with the alcohol mnemonic when we are done
+  await wallet.loadDevice({ mnemonic })
 });
