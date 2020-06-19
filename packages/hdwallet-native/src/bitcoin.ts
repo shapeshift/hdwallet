@@ -10,6 +10,24 @@ const supportedCoins = [
   "testnet",
 ];
 
+const segwit = ["p2wpkh", "p2sh-p2wpkh"];
+
+type NonWitnessUtxo = Buffer;
+
+type WitnessUtxo = {
+  script: Buffer;
+  amount: Number;
+};
+
+type UtxoData = NonWitnessUtxo | WitnessUtxo;
+
+type ScriptData = {
+  redeemScript?: Buffer;
+  witnessScript?: Buffer;
+};
+
+type InputData = UtxoData | ScriptData;
+
 export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(
   Base: TBase
 ) {
@@ -115,6 +133,17 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
   return class MixinNativeBTCWallet extends Base {
     seed: Buffer;
 
+    getKeyPair(
+      coin: core.Coin,
+      addressNList: core.BIP32Path,
+      scriptType?: core.BTCScriptType
+    ): bitcoin.ECPairInterface {
+      const network = getNetwork(coin, scriptType);
+      const wallet = bitcoin.bip32.fromSeed(this.seed, network);
+      const path = core.addressNListToBIP32(addressNList);
+      return bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
+    }
+
     createPayment(
       pubkey: Buffer,
       scriptType: core.BTCScriptType,
@@ -130,21 +159,41 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
         case "p2sh-p2wpkh":
           return bitcoin.payments.p2sh({
             redeem: bitcoin.payments.p2wpkh({ pubkey, network }),
+            network,
           });
         default:
           throw new Error(`no implementation for script type: ${scriptType}`);
       }
     }
 
-    getKeyPair(
-      coin: string,
-      addressNList: core.BIP32Path,
-      scriptType?: core.BTCScriptType
-    ): bitcoin.ECPairInterface {
-      const network = getNetwork(coin, scriptType);
-      const wallet = bitcoin.bip32.fromSeed(this.seed, network);
-      const path = core.addressNListToBIP32(addressNList);
-      return bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
+    buildInput(coin: core.Coin, input: core.BTCSignTxInput): InputData {
+      const { addressNList, amount, hex, scriptType, tx, vout } = input;
+      const keyPair = this.getKeyPair(coin, addressNList, scriptType);
+
+      const isSegwit = segwit.includes(scriptType);
+      const nonWitnessUtxo = hex && Buffer.from(hex, "hex");
+      const witnessUtxo = tx && {
+        script: Buffer.from(tx.vout[vout].scriptPubKey.hex, "hex"),
+        value: Number(amount),
+      };
+      const utxoData =
+        isSegwit && witnessUtxo ? { witnessUtxo } : { nonWitnessUtxo };
+
+      const { publicKey, network } = keyPair;
+      const payment = this.createPayment(publicKey, scriptType, network);
+
+      let scriptData: ScriptData = {};
+      switch (scriptType) {
+        case "p2sh":
+        case "p2sh-p2wpkh":
+          scriptData.redeemScript = payment.redeem.output;
+          break;
+      }
+
+      return {
+        ...utxoData,
+        ...scriptData,
+      };
     }
 
     async btcInitializeWallet(mnemonic: string): Promise<void> {
@@ -168,35 +217,12 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
 
       inputs.forEach((input) => {
         try {
-          const { addressNList, scriptType } = input;
-          const keyPair = this.getKeyPair(coin, addressNList, scriptType);
-
-          const isWitness = ["p2wpkh"].includes(input.scriptType);
-          const nonWitnessUtxo = Buffer.from(input.hex, "hex");
-          const witnessUtxo = input.tx
-            ? {
-                script: Buffer.from(
-                  input.tx.vout[input.vout].scriptPubKey.hex,
-                  "hex"
-                ),
-                value: Number(input.amount),
-              }
-            : undefined;
-
-          const payment = this.createPayment(
-            keyPair.publicKey,
-            input.scriptType,
-            keyPair.network
-          );
-
-          const utxoData =
-            isWitness && witnessUtxo ? { witnessUtxo } : { nonWitnessUtxo };
+          const inputData = this.buildInput(coin, input);
 
           psbt.addInput({
             hash: input.txid,
             index: input.vout,
-            ...utxoData,
-            redeemScript: payment.redeem.output,
+            ...inputData,
           });
         } catch (e) {
           console.log("failed to add input", e);
@@ -206,15 +232,13 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
       outputs.map((output) => {
         try {
           const { address: addr, amount, addressNList, scriptType } = output;
-          let address = addr;
 
+          let address = addr;
           if (!address) {
             const keyPair = this.getKeyPair(coin, addressNList, scriptType);
-            address = this.createPayment(
-              keyPair.publicKey,
-              scriptType,
-              keyPair.network
-            ).address;
+            const { publicKey, network } = keyPair;
+            const payment = this.createPayment(publicKey, scriptType, network);
+            address = payment.address;
           }
 
           psbt.addOutput({ address, value: Number(amount) });
