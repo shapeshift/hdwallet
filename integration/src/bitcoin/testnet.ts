@@ -99,38 +99,45 @@ export function testnetTests(
         {
           addressNList: bip32ToAddressNList("m/84'/1'/0'/0/0"),
           scriptType: BTCInputScriptType.SpendWitness,
-          amount: String(12300000),
+          amount: String(100000),
           vout: 0,
           txid:
-            "09144602765ce3dd8f4329445b20e3684e948709c5cdcaf12da3bb079c99448a",
-          hex:
-            "010000000137c361fb8f2d9056ba8c98c5611930fcb48cacfdd0fe2e0449d83eea982f91200000000017160014d16b8c0680c61fc6ed2e407455715055e41052f5ffffffff02e0aebb00000000001600140099a7ecbd938ed1839f5f6bf6d50933c6db9d5c3df39f060000000017a91458b53ea7f832e8f096e896b8713a8c6df0e892ca8700000000",
+            "e4b5b24159856ea18ab5819832da3b4a6330f9c3c0a46d96674e632df504b56b",
+          tx: {
+            vout: [
+              {
+                scriptPubKey: {
+                  hex: "0014b31dc2a236505a6cb9201fa0411ca38a254a7bf1",
+                },
+              },
+            ],
+          },
         },
       ];
       let outputs = [
         {
           address: "2N4Q5FhU2497BryFfUgbqkAJE87aKHUhXMp",
           addressType: BTCOutputAddressType.Spend,
-          amount: String(5000000),
+          amount: String(50000),
           isChange: false,
         },
         {
           addressNList: bip32ToAddressNList("m/84'/1'/0'/1/0"),
           scriptType: BTCOutputScriptType.PayToWitness,
           addressType: BTCOutputAddressType.Change,
-          amount: String(12300000 - 11000 - 5000000),
+          amount: String(100000 - 1000 - 50000),
           isChange: true,
         },
       ];
       let res = await wallet.btcSignTx({
         coin: "Testnet",
-        inputs: inputs,
+        inputs: inputs as any,
         outputs: outputs,
         version: 1,
         locktime: 0,
       });
       expect(res.serializedTx).toEqual(
-        "010000000001018a44999c07bba32df1cacdc50987944e68e3205b4429438fdde35c76024614090000000000ffffffff02404b4c000000000017a9147a55d61848e77ca266e79a39bfc85c580a6426c987a8386f0000000000160014cc8067093f6f843d6d3e22004a4290cd0c0f336b024730440220067675423ca6a0be3ddd5e13da00a9433775041e5cebc838873d2686f1d2840102201a5819e0312e6451d6b6180689101bce995685a51524cc4c3a5383f7bdab979a012103adc58245cf28406af0ef5cc24b8afba7f1be6c72f279b642d85c48798685f86200000000"
+        "010000000001016bb504f52d634e67966da4c0c3f930634a3bda329881b58aa16e855941b2b5e40000000000ffffffff0250c300000000000017a9147a55d61848e77ca266e79a39bfc85c580a6426c98768bf000000000000160014cc8067093f6f843d6d3e22004a4290cd0c0f336b0247304402200f62d997b9dafe79a7a680626f4510a0b1be7a6e6b67607985e611f771c8acaf022009b3fb8ea7d8a80daa3e4cb44d51ba40289b049c59741e906424c55e90df9900012103adc58245cf28406af0ef5cc24b8afba7f1be6c72f279b642d85c48798685f86200000000"
       );
     });
   });
