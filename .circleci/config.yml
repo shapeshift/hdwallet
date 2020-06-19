@@ -94,6 +94,16 @@ orbs:
               command: yarn run test:ci
           - store_test_results:
               path: test-results
+      release-packages:
+        description: Build and release local dependency packages
+        executor: node
+        steps:
+          - checkout
+          - attach_workspace:
+              at: .
+          - run: yarn --cache-folder .yarn-cache
+          - run: git status
+          - run: ./node_modules/.bin/lerna publish from-package --yes
 workflows:
   version: 2
   Build and Release:
@@ -109,3 +119,12 @@ workflows:
           requires:
             - dependencies
             - build
+      - hdwallet/release-packages:
+          name: release-packages
+          requires:
+            - test
+            - build
+          filters:
+            branches:
+              only:
+                - master
