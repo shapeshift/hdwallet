@@ -309,6 +309,12 @@ export function bitcoinTests(
       "btcSignMessage()",
       async () => {
         if (!wallet) return;
+
+        // not implemented for native
+        if (isNative(wallet)) {
+          return;
+        }
+
         let res = await wallet.btcSignMessage({
           addressNList: bip32ToAddressNList("m/44'/0'/0'/0/0"),
           coin: "Bitcoin",
@@ -318,12 +324,6 @@ export function bitcoinTests(
 
         // not implemented on portis
         if (isPortis(wallet)) {
-          expect(res).toEqual(undefined);
-          return;
-        }
-
-        // not implemented for native
-        if (isNative(wallet)) {
           expect(res).toEqual(undefined);
           return;
         }
@@ -342,6 +342,11 @@ export function bitcoinTests(
       async () => {
         if (!wallet) return;
 
+        // not implemented for native
+        if (isNative(wallet)) {
+          return;
+        }
+
         let res = await wallet.btcVerifyMessage({
           address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
           coin: "Bitcoin",
@@ -349,12 +354,6 @@ export function bitcoinTests(
             "20a037c911044cd6c851b6508317d8892067b0b62074b2cf1c0df9abd4aa053a3c243ffdc37f64d7af2c857128eafc81947c380995596615e5dcc313a15f512cdd",
           message: "Hello World",
         });
-
-        // not implemented for native
-        if (isNative(wallet)) {
-          expect(res).toEqual(undefined);
-          return;
-        }
 
         expect(res).toBeTruthy();
       },
@@ -366,6 +365,11 @@ export function bitcoinTests(
       async () => {
         if (!wallet) return;
 
+        // not implemented for native
+        if (isNative(wallet)) {
+          return;
+        }
+
         let res = await wallet.btcVerifyMessage({
           address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
           coin: "Bitcoin",
@@ -373,12 +377,6 @@ export function bitcoinTests(
             "20a037c911044cd6c851b6508317d8892067b0b62074b2cf1c0df9abd4aa053a3c243ffdc37f64d7af2c857128eafc81947c380995596615e5dcc313a15f512cdd",
           message: "Fake World",
         });
-
-        // not implemented for native
-        if (isNative(wallet)) {
-          expect(res).toEqual(undefined);
-          return;
-        }
 
         expect(res).toBeFalsy();
       },
