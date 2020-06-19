@@ -178,6 +178,7 @@ export function getNetwork(coin: string, scriptType?: string): Network {
       network = networks[coin];
       break;
     case "bitcoin":
+    case "bitcoincash":
     case "ethereum":
       network = networks["bitcoin"];
       break;
