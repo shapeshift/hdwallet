@@ -1,6 +1,6 @@
 import * as bitcoin from "bitcoinjs-lib";
 import { mnemonicToSeed } from "bip39";
-import bchaddr from "bchaddrjs";
+import { toCashAddress } from "bchaddrjs";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { getNetwork } from "./networks";
 
@@ -213,7 +213,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
       const { publicKey, network } = keyPair;
       const { address } = this.createPayment(publicKey, scriptType, network);
       return coin.toLowerCase() === "bitcoincash"
-        ? bchaddr.toCashAddress(address)
+        ? toCashAddress(address)
         : address;
     }
 
