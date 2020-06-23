@@ -4,9 +4,10 @@ import { toCashAddress, toLegacyAddress } from "bchaddrjs";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { getNetwork } from "./networks";
 
+// TODO: add bitcoincash support. Everything is working outside of transaction signing. There is a fork of bitcoinjs-lib that supports bitcoin clones that would be worth looking into (see: https://github.com/junderw/bitcoinjs-lib/tree/cashv5).
+
 const supportedCoins = [
   "bitcoin",
-  "bitcoincash",
   "dash",
   "digibyte",
   "dogecoin",
