@@ -231,7 +231,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
 
       const psbt = new bitcoin.Psbt({ network: getNetwork(coin) });
 
-      version && psbt.setVersion(version);
+      psbt.setVersion(version | 1);
       locktime && psbt.setLocktime(locktime);
 
       inputs.forEach((input) => {
@@ -278,7 +278,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
 
       psbt.finalizeAllInputs();
 
-      const tx = psbt.extractTransaction();
+      const tx = psbt.extractTransaction(true);
 
       const signatures = tx.ins.map((input) => {
         const sigLen = input.script[0];
