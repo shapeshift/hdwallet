@@ -213,6 +213,8 @@ export interface BTCWalletInfo {
 }
 
 export interface BTCWallet extends BTCWalletInfo {
+  _supportsBTC: boolean;
+
   btcGetAddress(msg: BTCGetAddress): Promise<string>;
   btcSignTx(msg: BTCSignTx): Promise<BTCSignedTx>;
   btcSignMessage(msg: BTCSignMessage): Promise<BTCSignedMessage>;

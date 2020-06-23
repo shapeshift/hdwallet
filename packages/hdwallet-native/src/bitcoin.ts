@@ -52,6 +52,7 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(
       if (!this.btcSupportsCoin(coin)) return false;
 
       switch (scriptType) {
+        case core.BTCInputScriptType.SpendMultisig:
         case core.BTCInputScriptType.SpendAddress:
         case core.BTCInputScriptType.SpendWitness:
         case core.BTCInputScriptType.SpendP2SHWitness:
@@ -138,6 +139,8 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
   Base: TBase
 ) {
   return class MixinNativeBTCWallet extends Base {
+    _supportsBTC: boolean;
+
     seed: Buffer;
 
     getKeyPair(
@@ -186,6 +189,12 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
       const utxoData =
         isSegwit && witnessUtxo ? { witnessUtxo } : { nonWitnessUtxo };
 
+      if (!utxoData) {
+        throw new Error(
+          "failed to build input - must provide prev rawTx (segwit input can provide scriptPubKey hex and value instead)"
+        );
+      }
+
       const { publicKey, network } = keyPair;
       const payment = this.createPayment(publicKey, scriptType, network);
 
@@ -222,8 +231,8 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
 
       const psbt = new bitcoin.Psbt({ network: getNetwork(coin) });
 
-      psbt.setVersion(version);
-      psbt.setLocktime(locktime);
+      version && psbt.setVersion(version);
+      locktime && psbt.setLocktime(locktime);
 
       inputs.forEach((input) => {
         try {
@@ -235,7 +244,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
             ...inputData,
           });
         } catch (e) {
-          console.log("failed to add input", e);
+          throw new Error(`failed to add input: ${e}`);
         }
       });
 
@@ -253,7 +262,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
 
           psbt.addOutput({ address, value: Number(amount) });
         } catch (e) {
-          console.log("failed to add output", e);
+          throw new Error(`failed to add output: ${e}`);
         }
       });
 
@@ -263,20 +272,22 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
           const keyPair = this.getKeyPair(coin, addressNList, scriptType);
           psbt.signInput(idx, keyPair);
         } catch (e) {
-          console.log("failed to sign input", e);
+          throw new Error(`failed to sign input: ${e}`);
         }
       });
 
       psbt.finalizeAllInputs();
 
-      const signatures = psbt.extractTransaction().ins.map((input) => {
+      const tx = psbt.extractTransaction();
+
+      const signatures = tx.ins.map((input) => {
         const sigLen = input.script[0];
         return input.script.slice(1, sigLen).toString("hex");
       });
 
       return {
         signatures,
-        serializedTx: psbt.extractTransaction().toHex(),
+        serializedTx: tx.toHex(),
       };
     }
 
