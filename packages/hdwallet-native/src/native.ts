@@ -41,13 +41,14 @@ class NativeHDWalletInfo
   }
 
   describePath(msg: core.DescribePath): core.PathDescription {
-    switch (msg.coin) {
-      case "Bitcoin":
-      case "Dash":
-      case "DigiByte":
-      case "Dogecoin":
-      case "Litecoin":
-      case "Testnet":
+    switch (msg.coin.toLowerCase()) {
+      case "bitcoin":
+      case "bitcoincash":
+      case "dash":
+      case "digibyte":
+      case "dogecoin":
+      case "litecoin":
+      case "testnet":
         const unknown = core.unknownUTXOPath(
           msg.path,
           msg.coin,
@@ -59,7 +60,7 @@ class NativeHDWalletInfo
           return unknown;
 
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
-      case "Ethereum":
+      case "ethereum":
         return core.describeETHPath(msg.path);
       default:
         throw new Error("Unsupported path");
