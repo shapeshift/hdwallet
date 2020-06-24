@@ -1,26 +1,17 @@
-import {
-  bip32ToAddressNList,
-  HDWallet,
-  BinanceWallet,
-  supportsBinance,
-  BinanceTx,
-} from "@shapeshiftoss/hdwallet-core";
+import { bip32ToAddressNList, HDWallet, BinanceWallet, supportsBinance, BinanceTx } from "@shapeshiftoss/hdwallet-core";
 import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
 
 import * as tx01_unsigned from "./tx01.unsigned.json";
 import * as tx01_signed from "./tx01.signed.json";
 
-const MNEMONIC12_NOPIN_NOPASSPHRASE =
-  "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
+const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
 const TIMEOUT = 60 * 1000;
 
 /**
  *  Main integration suite for testing BinanceWallet implementations' Cosmos support.
  */
-export function binanceTests(
-  get: () => { wallet: HDWallet; info: HDWalletInfo }
-): void {
+export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): void {
   let wallet: BinanceWallet & HDWallet;
 
   describe("Binance", () => {
@@ -50,9 +41,7 @@ export function binanceTests(
         expect(paths[0].addressNList[0] > 0x80000000).toBe(true);
         paths.forEach((path) => {
           let curAddr = path.addressNList.join();
-          let nextAddr = wallet
-            .binanceNextAccountPath(path)
-            .addressNList.join();
+          let nextAddr = wallet.binanceNextAccountPath(path).addressNList.join();
           expect(nextAddr === undefined || nextAddr !== curAddr).toBeTruthy();
         });
       },
@@ -73,7 +62,7 @@ export function binanceTests(
       TIMEOUT
     );
 
-    test(
+    test.skip(
       "binanceSignTx()",
       async () => {
         if (!wallet) return;

@@ -22,7 +22,6 @@
   },
   "scripts": {
     "yarn": "yarn",
-    "lint": "yarn lint:ts && yarn eslint --ext .ts .",
     "lint:ts": "yarn tsc --noEmit",
     "format": "yarn prettier .",
     "clean": "rm -rf coverage test-report && lerna run clean && lerna clean && rm -rf node_modules && yarn cache clean",
