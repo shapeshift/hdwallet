@@ -7,15 +7,10 @@
   },
   "main": "dist/index.js",
   "source": "src/index.ts",
-  "umd:main": "dist/index.umd.js",
-  "module": "dist/index.m.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "microbundle --name=core",
-    "build:browser": "microbundle --target=web --external=none --name=core",
-    "clean": "rm -rf dist .rts2_*",
-    "dev": "microbundle watch --name=core",
-    "dev:browser": "microbundle watch --target=web --external=none --name=core",
+    "build": "tsc --build",
+    "clean": "rm -rf dist",
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
@@ -25,7 +20,6 @@
   },
   "devDependencies": {
     "@types/bytebuffer": "^5.0.40",
-    "@types/google-protobuf": "^3.2.7",
-    "microbundle": "^0.11.0"
+    "@types/google-protobuf": "^3.2.7"
   }
 }

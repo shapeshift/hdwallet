@@ -7,16 +7,11 @@
   },
   "main": "dist/index.js",
   "source": "src/index.ts",
-  "umd:main": "dist/index.umd.js",
-  "module": "dist/index.m.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "microbundle --name=ledgerHDWallet",
-    "build:browser": "microbundle --target=web --external=none --name=ledgerHDWallet",
+    "build": "tsc --build",
     "build:docs": "typedoc --out docs --target es6 --theme minimal --mode file src",
-    "clean": "rm -rf dist .rts2_*",
-    "dev": "microbundle watch --name=ledgerHDWallet",
-    "dev:browser": "microbundle watch --target=web --external=none --name=ledgerHDWallet",
+    "clean": "rm -rf dist",
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
@@ -37,7 +32,6 @@
     "lodash": "^4.17.11"
   },
   "devDependencies": {
-    "@types/ethereumjs-tx": "^1.0.1",
-    "microbundle": "^0.11.0"
+    "@types/ethereumjs-tx": "^1.0.1"
   }
 }

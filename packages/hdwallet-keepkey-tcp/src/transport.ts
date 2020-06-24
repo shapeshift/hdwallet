@@ -1,14 +1,7 @@
 import axios, { AxiosInstance } from "axios";
-import {
-  SEGMENT_SIZE,
-  KeepKeyTransport,
-} from "@shapeshiftoss/hdwallet-keepkey";
+import { SEGMENT_SIZE, KeepKeyTransport } from "@shapeshiftoss/hdwallet-keepkey";
 import { Keyring } from "@shapeshiftoss/hdwallet-core";
-import * as ByteBuffer from "bytebuffer";
-
-const {
-  default: { concat, wrap },
-} = ByteBuffer as any;
+import ByteBuffer from "bytebuffer";
 
 export class TCPKeepKeyTransport extends KeepKeyTransport {
   public host: string;
@@ -83,7 +76,7 @@ export class TCPKeepKeyTransport extends KeepKeyTransport {
       fragments.push([63]);
       fragments.push(segment);
       fragments.push(padding);
-      const fragmentBuffer = concat(fragments);
+      const fragmentBuffer = ByteBuffer.concat(fragments);
       await this.writeChunk(fragmentBuffer, debugLink);
     }
   }
@@ -112,27 +105,19 @@ export class TCPKeepKeyTransport extends KeepKeyTransport {
         }
       }
 
-      return wrap(buffer);
+      return ByteBuffer.wrap(buffer);
     }
   }
 
-  private async writeChunk(
-    buffer: ByteBuffer,
-    debugLink: boolean
-  ): Promise<any> {
+  private async writeChunk(buffer: ByteBuffer, debugLink: boolean): Promise<any> {
     const data = buffer.toHex();
-    return this.keepkeyInstance.post(
-      debugLink ? "/exchange/debug" : "/exchange/device",
-      { data }
-    );
+    return this.keepkeyInstance.post(debugLink ? "/exchange/debug" : "/exchange/device", { data });
   }
 
   private async readChunk(debugLink: boolean): Promise<ByteBuffer> {
     const {
       data: { data },
-    } = await this.keepkeyInstance.get(
-      debugLink ? "/exchange/debug" : "/exchange/device"
-    );
+    } = await this.keepkeyInstance.get(debugLink ? "/exchange/debug" : "/exchange/device");
     return Promise.resolve(ByteBuffer.fromHex(data));
   }
 }
