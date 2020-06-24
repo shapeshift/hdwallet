@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/shapeshift/hdwallet.svg?style=svg)](https://circleci.com/gh/shapeshift/hdwallet)
 
-A library for interacting with hardware wallets from JS/TS. Supports KeepKey,
+A library for interacting with wallets from JS/TS. Supports KeepKey,
 Trezor, and Ledger. Intended for use in web apps, chrome apps/extensions, and
 electron/node apps.
 
