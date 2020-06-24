@@ -22,22 +22,13 @@
   },
   "scripts": {
     "yarn": "yarn",
-    "lint": "prettier --write '**/**/*.ts'",
+    "lint": "yarn lint:ts && yarn eslint --ext .ts .",
+    "lint:ts": "yarn tsc --noEmit",
+    "format": "yarn prettier .",
     "clean": "rm -rf coverage test-report && lerna run clean && lerna clean && rm -rf node_modules && yarn cache clean",
-    "build": "lerna run build --scope @shapeshiftoss/hdwallet-core && yarn build:wallets && yarn build:transports",
-    "build:chromeusb": "lerna run build --scope @shapeshiftoss/keepkey-chromeusb --include-filtered-dependencies",
-    "build:hid": "lerna run build --scope @shapeshiftoss/hdwallet-keepkey-nodehid --include-filtered-dependencies",
-    "build:ledger": "lerna run build --scope @shapeshiftoss/hdwallet-ledger --scope @shapeshiftoss/hdwallet-ledger-webusb --scope @shapeshiftoss/hdwallet-ledger-u2f --scope @shapeshiftoss/hdwallet-core --include-filtered-dependencies",
-    "build:transports": "lerna run build --scope @shapeshiftoss/hdwallet-keepkey-webusb --scope @shapeshiftoss/hdwallet-keepkey-tcp --scope @shapeshiftoss/hdwallet-keepkey-nodewebusb --scope @shapeshiftoss/hdwallet-ledger-webusb --scope @shapeshiftoss/hdwallet-ledger-u2f --scope @shapeshiftoss/hdwallet-portis",
-    "build:wallets": "lerna run build --scope @shapeshiftoss/hdwallet-keepkey --scope @shapeshiftoss/hdwallet-trezor --scope @shapeshiftoss/hdwallet-ledger --scope @shapeshiftoss/hdwallet-portis --scope @shapeshiftoss/hdwallet-native",
-    "build:webusb": "lerna run build --scope @shapeshiftoss/hdwallet-keepkey-webusb --scope @shapeshiftoss/hdwallet-ledger-webusb --include-filtered-dependencies",
-    "build:portis": "lerna run build --scope @shapeshiftoss/hdwallet-portis --scope @shapeshiftoss/hdwallet-core --include-filtered-dependencies",
-    "build:native": "lerna run build --scope @shapeshiftoss/hdwallet-native --scope @shapeshiftoss/hdwallet-core --include-filtered-dependencies",
+    "build": "yarn tsc --build",
+    "dev:all": "yarn tsc --build --watch",
     "now-build": "lerna run build --scope @shapeshiftoss/hdwallet-core && lerna run build --scope hdwallet-sandbox --ignore @shapeshiftoss/hdwallet-keepkey-nodehid --include-filtered-dependencies && mv examples/sandbox/public .",
-    "dev:all": "lerna run dev --scope @shapeshiftoss/hdwallet-keepkey-webusb --scope @shapeshiftoss/hdwallet-keepkey-nodewebusb --scope @shapeshiftoss/hdwallet-ledger-webusb --scope @shapeshiftoss/hdwallet-ledger-u2f  --scope @shapeshiftoss/hdwallet-portis --scope @shapeshiftoss/hdwallet-trezor-connect --scope @shapeshiftoss/hdwallet-native --parallel",
-    "dev:chromeusb": "lerna run dev --scope chromeusb-app --parallel --include-filtered-dependencies",
-    "dev:sandbox": "lerna run dev --scope hdwallet-sandbox --parallel --include-filtered-dependencies",
-    "dev:webusb": "lerna run dev --scope webusb --parallel --include-filtered-dependencies",
     "docker:run:emulator": "docker run -p 5000:5000 kktech/kkemu:latest",
     "docker:stop:run:emulator": "docker stop $(docker ps -a -q --filter ancestor=kktech/kkemu:latest --format=\"{{.ID}}\") && docker run -p 5000:5000 kktech/kkemu:latest",
     "test": "yarn run jest --verbose --config jest.config.js",
@@ -49,18 +40,13 @@
     "lerna-bump-version-major": "lerna publish --no-push --skip-npm --force-publish '*' major --yes"
   },
   "devDependencies": {
+    "husky": "^4.2.5",
     "jest-junit": "^6.4.0",
-    "lerna": "^3.13.0",
-    "standard": "^12.0.1",
+    "lerna": "^3.22.1",
+    "prettier": "^2.0.5",
+    "pretty-quick": "^2.0.1",
     "typedoc": "^0.14.2",
-    "typescript": "^3.3.3",
-    "typescript-eslint-parser": "^22.0.0"
-  },
-  "standard": {
-    "parser": "typescript-eslint-parser",
-    "plugins": [
-      "typescript"
-    ]
+    "typescript": "^3.9.5"
   },
   "resolutions": {
     "**/whatwg-fetch": "^2.0.4"
@@ -68,7 +54,9 @@
   "engines": {
     "node": "^10 || ^12"
   },
-  "dependencies": {
-    "prettier": "^2.0.2"
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
   }
 }
