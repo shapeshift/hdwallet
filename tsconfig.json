@@ -1,0 +1,72 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "commonjs",
+    "lib": ["es2016", "dom", "es5"],
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "composite": true,
+
+    /* Strict Type-Checking Options */
+    "strict": false,
+    // "noImplicitAny": true,                 /* Raise error on expressions and declarations with an implied 'any' type. */
+    // "strictNullChecks": true,              /* Enable strict null checks. */
+    // "strictFunctionTypes": true,           /* Enable strict checking of function types. */
+    // "strictBindCallApply": true,           /* Enable strict 'bind', 'call', and 'apply' methods on functions. */
+    // "strictPropertyInitialization": true,  /* Enable strict checking of property initialization in classes. */
+    // "noImplicitThis": true,                /* Raise error on 'this' expressions with an implied 'any' type. */
+    // "alwaysStrict": true,                  /* Parse in strict mode and emit "use strict" for each source file. */
+
+    /* Additional Checks */
+    // "noUnusedLocals": true,
+    // "noUnusedParameters": true,
+    // "noImplicitReturns": true,
+    // "noFallthroughCasesInSwitch": true,
+
+    /* Module Resolution Options */
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "baseUrl": "./packages",
+    "paths": {
+      "@shapeshiftoss/hdwallet-core": ["hdwallet-core/src/*"],
+      "@shapeshiftoss/hdwallet-keepkey": ["hdwallet-keepkey/src/*"],
+      "@shapeshiftoss/hdwallet-keepkey-chromeusb": ["hdwallet-keepkey-chromeusb/src/*"],
+      "@shapeshiftoss/hdwallet-keepkey-nodehid": ["hdwallet-keepkey-nodehid/src/*"],
+      "@shapeshiftoss/hdwallet-keepkey-nodewebusb": ["hdwallet-keepkey-nodewebusb/src/*"],
+      "@shapeshiftoss/hdwallet-keepkey-tcp": ["hdwallet-keepkey-tcp/src/*"],
+      "@shapeshiftoss/hdwallet-keepkey-webusb": ["hdwallet-keepkey-webusb/src/*"],
+      "@shapeshiftoss/hdwallet-ledger": ["hdwallet-ledger/src/*"],
+      "@shapeshiftoss/hdwallet-ledger-u2f": ["hdwallet-ledger-u2f/src/*"],
+      "@shapeshiftoss/hdwallet-ledger-webusb": ["hdwallet-ledger-webusb/src/*"],
+      "@shapeshiftoss/hdwallet-native": ["hdwallet-native/src/*"],
+      "@shapeshiftoss/hdwallet-portis": ["hdwallet-portis/src/*"],
+      "@shapeshiftoss/hdwallet-trezor": ["hdwallet-trezor/src/*"],
+      "@shapeshiftoss/hdwallet-trezor-connect": ["hdwallet-trezor-connect/src/*"]
+    },
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+
+    /* Experimental Options */
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "files": [],
+  "exclude": ["node_modules", "dist", "integration", "examples"],
+  "references": [
+    { "path": "./packages/hdwallet-core" },
+    { "path": "./packages/hdwallet-keepkey" },
+    { "path": "./packages/hdwallet-keepkey-chromeusb" },
+    { "path": "./packages/hdwallet-keepkey-nodehid" },
+    { "path": "./packages/hdwallet-keepkey-nodewebusb" },
+    { "path": "./packages/hdwallet-keepkey-tcp" },
+    { "path": "./packages/hdwallet-keepkey-webusb" },
+    { "path": "./packages/hdwallet-ledger" },
+    { "path": "./packages/hdwallet-ledger-u2f" },
+    { "path": "./packages/hdwallet-ledger-webusb" },
+    { "path": "./packages/hdwallet-native" },
+    { "path": "./packages/hdwallet-portis" },
+    { "path": "./packages/hdwallet-trezor" },
+    { "path": "./packages/hdwallet-trezor-connect" }
+  ]
+}

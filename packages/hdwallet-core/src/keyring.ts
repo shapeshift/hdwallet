@@ -13,7 +13,7 @@ export class Keyring extends eventemitter2.EventEmitter2 {
     const id = deviceID || new Date().toString();
     if (!this.wallets[id]) {
       this.wallets[id] = wallet;
-      this.decorateEvents(deviceID, wallet.transport);
+      wallet.transport && this.decorateEvents(deviceID, wallet.transport);
       return true;
     }
     return false;
