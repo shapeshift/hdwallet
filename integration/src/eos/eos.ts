@@ -79,7 +79,7 @@ export function eosTests(
       "kk integration eosSignTx()",
       async () => {
         if (!wallet) return;
-        let txData = tx01_unsigned as any
+        let txData = tx01_unsigned as any;
         let res = await wallet.eosSignTx({
           addressNList: bip32ToAddressNList("m/44'/194'/0'/0/0"),
           chain_id: txData.chain_id as string,
@@ -103,7 +103,7 @@ export function eosTests(
       "confirmed on chain eosSignTx()",
       async () => {
         if (!wallet) return;
-        let txData = tx02_unsigned as any
+        let txData = tx02_unsigned as any;
         let res = await wallet.eosSignTx({
           addressNList: bip32ToAddressNList("m/44'/194'/0'/0/0"),
           chain_id: txData.chain_id as string,
@@ -122,6 +122,5 @@ export function eosTests(
       },
       TIMEOUT
     );
-
   });
 }

@@ -3,6 +3,7 @@ import { isKeepKey } from "@shapeshiftoss/hdwallet-keepkey";
 import { isTrezor } from "@shapeshiftoss/hdwallet-trezor";
 import { isLedger } from "@shapeshiftoss/hdwallet-ledger";
 import { isPortis } from "@shapeshiftoss/hdwallet-portis";
+import { isNative } from "@shapeshiftoss/hdwallet-native";
 
 import { btcTests } from "./bitcoin";
 import { ethTests } from "./ethereum";
@@ -42,7 +43,8 @@ export function integration(suite: WalletSuite): void {
           (isKeepKey(wallet) ? 1 : 0) +
             (isTrezor(wallet) ? 1 : 0) +
             (isLedger(wallet) ? 1 : 0) +
-            (isPortis(wallet) ? 1 : 0)
+            (isPortis(wallet) ? 1 : 0) +
+            (isNative(wallet) ? 1 : 0)
         ).toEqual(1);
       });
     });
@@ -62,7 +64,7 @@ export function integration(suite: WalletSuite): void {
 
       btcTests(() => ({ wallet, info }));
     });
-    
+
     describe("EosWallet", () => {
       beforeAll(async () => {
         wallet = await suite.createWallet("Eos");

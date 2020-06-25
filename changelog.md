@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ..
 
+## [1.0.0] - 2020-06-25
+
+### Added
+
+- Native: New native software hdwallet package
+- Native: Support for BTC, DASH, DGB, DOGE, LTC, ETH.
+- Native: Support for Non-Segwit, Segwit, and Native-Segwit for applicable coins
+- Native: Integration test suite
+- Native: No support for Bitcoin clones at this time (BCH, BTG, etc.)
+- Native: No support for UTXO message signing and verifying at this time
+- Prettier formatting rules and a husky pre-commit hook to run prettier against changed files
+
+### Changed
+
+- Switched HDWallet from using Microbundle to tsc (no umd or esm support)
+- Native wallet now utilizes mixins in an attempt to have a cleaner package
+
+### Fixed
+
+- Updated example payloads and data in the sandbox to support Native (using psbt which is validating inputs against pubkeyhash)
+
 ## [0.18.4] - 2020-01-08
 
 ### Fixed
