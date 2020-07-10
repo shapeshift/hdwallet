@@ -1,6 +1,12 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { NativeBTCWallet, NativeBTCWalletInfo, btcGetAddress, btcSignTx } from "./bitcoin";
-import { NativeETHWallet, NativeETHWalletInfo } from "./ethereum";
+import { mnemonicToSeed } from "bip39";
+import { fromSeed } from "bip32";
+import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
+import { MixinNativeETHWalletInfo } from "./ethereum";
+import {
+  addressNListToBIP32,
+  hardenedPath,
+} from "@shapeshiftoss/hdwallet-core";
 
 import * as bitcoin from "bitcoinjs-lib";
 import { mnemonicToSeed } from "bip39"
@@ -39,8 +45,6 @@ export class NativeHDWalletInfo implements core.HDWalletInfo {
 
   describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin) {
-      case "Ethereum":
-        return core.describeETHPath(msg.path);
       case "Bitcoin":
         const unknown = core.unknownUTXOPath(
           msg.path,
@@ -53,6 +57,8 @@ export class NativeHDWalletInfo implements core.HDWalletInfo {
           return unknown;
 
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+      case "Ethereum":
+        return core.describeETHPath(msg.path);
       default:
         throw new Error("Unsupported path");
     }
@@ -142,19 +148,23 @@ export class NativeHDWallet extends NativeHDWalletInfo implements
     return Promise.resolve("Native");
   }
 
-//export interface GetPublicKey {
-//  addressNList: BIP32Path;
-//  showDisplay?: boolean;
-//  scriptType?: BTCInputScriptType;
-//  curve: string;
-//  coin?: Coin;
-//}
-
-  async getPublicKeys(
-    msg: Array<core.GetPublicKey>
-  ): Promise<Array<core.PublicKey | null>> {
-    // TODO
-    return Promise.resolve([]);
+  /*
+   * @see: https://github.com/satoshilabs/slips/blob/master/slip-0132.md
+   * to supports different styles of xpubs as can be defined by passing in a network to `fromSeed`
+   */
+  getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey>> {
+    return Promise.all(
+      msg.map(async (getPublicKey) => {
+        let { addressNList } = getPublicKey;
+        const seed = await mnemonicToSeed(this.mnemonic);
+        const node = fromSeed(seed);
+        const xpub = node
+          .derivePath(addressNListToBIP32(hardenedPath(addressNList)))
+          .neutered()
+          .toBase58();
+        return { xpub };
+      })
+    );
   }
 
   async isInitialized(): Promise<boolean> {
