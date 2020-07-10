@@ -101,11 +101,8 @@ export function MixinNativeETHWallet<TBase extends core.Constructor>(
     }
 
     async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
-      const signingAddress = utils.verifyMessage(
-        msg.message,
-        "0x" + msg.signature
-      );
-
+      if (!msg.signature.startsWith("0x")) msg.signature = `0x${msg.signature}`;
+      const signingAddress = utils.verifyMessage(msg.message, msg.signature);
       return signingAddress === msg.address;
     }
   }
