@@ -146,8 +146,9 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
     return Promise.resolve();
   }
 
-  initialize(): Promise<any> {
-    return Promise.resolve();
+  async initialize(): Promise<any> {
+    await super.btcInitializeWallet(this.mnemonic);
+    await super.ethInitializeWallet(this.mnemonic);
   }
 
   ping(msg: core.Ping): Promise<core.Pong> {
