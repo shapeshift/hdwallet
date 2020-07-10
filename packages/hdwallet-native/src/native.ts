@@ -1,17 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-<<<<<<< HEAD
-import { mnemonicToSeed } from "bip39";
-import { fromSeed } from "bip32";
-import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
-import { MixinNativeETHWalletInfo } from "./ethereum";
-import {
-  addressNListToBIP32,
-  hardenedPath,
-} from "@shapeshiftoss/hdwallet-core";
-=======
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
->>>>>>> 980fcbc847d69e6692a2b7dfde1b57fbdef3277e
 
 import * as bitcoin from "bitcoinjs-lib";
 import { mnemonicToSeed } from "bip39"
@@ -82,7 +71,7 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
   _isNative = true;
 
   deviceId: string;
-  btcWallet: Coin;
+  initialized: boolean;
 
   private mnemonic: string;
 
@@ -149,8 +138,8 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
     );
   }
 
-  async isInitialized(): Promise<boolean> {
-    return Promise.resolve(true);
+  isInitialized(): Promise<boolean> {
+    return Promise.resolve(this.initialized);
   }
 
   async isLocked(): Promise<boolean> {
@@ -163,7 +152,9 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
 
   async initialize(): Promise<any> {
     await super.btcInitializeWallet(this.mnemonic);
-    await super.ethInitializeWallet(this.mnemonic);
+    super.ethInitializeWallet(this.mnemonic);
+
+    this.initialized = true;
   }
 
   ping(msg: core.Ping): Promise<core.Pong> {
@@ -204,6 +195,7 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
 
   loadDevice(msg: core.LoadDevice): Promise<void> {
     this.mnemonic = msg.mnemonic;
+    this.initialized = false;
     return Promise.resolve();
   }
 
