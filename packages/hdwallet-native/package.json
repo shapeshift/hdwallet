@@ -23,6 +23,7 @@
     "bitcoinjs-lib": "^5.1.10",
     "ethereum-tx-decoder": "^3.0.0",
     "ethers": "^5.0.2",
+    "lodash": "^4.17.15",
     "microbundle": "^0.12.1"
   }
 }

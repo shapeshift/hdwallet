@@ -1,6 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { mnemonicToSeed } from "bip39";
 import { fromSeed } from "bip32";
+import isObject from "lodash/isObject";
 import { getNetwork } from "./networks";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
@@ -169,11 +170,8 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
   async disconnect(): Promise<void> {}
 }
 
-//export interface NativeHDWallet extends NativeBTCWallet, NativeETHWallet {}
-//core.applyMixins(NativeHDWallet, [NativeBTCWallet, NativeETHWallet]);
-
-export function isNative(wallet: core.HDWallet): boolean {
-  return wallet instanceof NativeHDWallet;
+export function isNative(wallet: core.HDWallet): wallet is NativeHDWallet {
+  return isObject(wallet) && (wallet as any)._isNative;
 }
 
 export function info() {

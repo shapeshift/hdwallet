@@ -12,6 +12,8 @@ const supportedCoins = [
 
 const segwit = ["p2wpkh", "p2sh-p2wpkh"];
 
+type BTCScriptType = core.BTCInputScriptType | core.BTCOutputScriptType;
+
 type NonWitnessUtxo = Buffer;
 
 type WitnessUtxo = {
@@ -136,7 +138,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
     getKeyPair(
       coin: core.Coin,
       addressNList: core.BIP32Path,
-      scriptType?: core.BTCScriptType
+      scriptType?: BTCScriptType
     ): bitcoin.ECPairInterface {
       const network = getNetwork(coin, scriptType);
       const wallet = bitcoin.bip32.fromSeed(this.seed, network);
@@ -146,7 +148,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
 
     createPayment(
       pubkey: Buffer,
-      scriptType: core.BTCScriptType,
+      scriptType: BTCScriptType,
       network?: bitcoin.Network
     ): bitcoin.Payment {
       switch (scriptType) {

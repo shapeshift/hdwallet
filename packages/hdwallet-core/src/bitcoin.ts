@@ -1,13 +1,11 @@
 import { ExchangeType, BIP32Path, Coin, PathDescription } from "./wallet";
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
 
-export type BTCScriptType = BTCInputScriptType | BTCOutputScriptType;
-
 export interface BTCGetAddress {
   addressNList: BIP32Path;
   coin: Coin;
   showDisplay?: boolean;
-  scriptType?: BTCScriptType;
+  scriptType?: BTCInputScriptType;
   /** Optional. Required for showDisplay == true. */
   address?: string;
 }
