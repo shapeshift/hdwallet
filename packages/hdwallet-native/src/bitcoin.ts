@@ -1,8 +1,12 @@
+import * as bitcoin from "bitcoinjs-lib";
+import { mnemonicToSeed } from "bip39";
+import bchaddr from "bchaddrjs";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { getNetwork } from "./networks";
 
 const supportedCoins = [
   "bitcoin",
+  "bitcoincash",
   "dash",
   "digibyte",
   "dogecoin",
@@ -75,6 +79,7 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(
 
       const coinPaths = {
         bitcoin: [bip44, bip49, bip84],
+        bitcoincash: [bip44, bip49, bip84],
         dash: [bip44],
         digibyte: [bip44, bip49, bip84],
         dogecoin: [bip44],
@@ -205,8 +210,11 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
     async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
       const { addressNList, coin, scriptType } = msg;
       const keyPair = this.getKeyPair(coin, addressNList, scriptType);
-      return this.createPayment(keyPair.publicKey, scriptType, keyPair.network)
-        .address;
+      const { publicKey, network } = keyPair;
+      const { address } = this.createPayment(publicKey, scriptType, network);
+      return coin.toLowerCase() === "bitcoincash"
+        ? bchaddr.toCashAddress(address)
+        : address;
     }
 
     async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx> {

@@ -1293,7 +1293,7 @@ $bchTx.on("click", async (e) => {
       {
         addressNList: bchBip44.addressNList.concat([0, 0]),
         scriptType: BTCInputScriptType.SpendAddress,
-        amount: String(1567200),
+        amount: String(13813640),
         vout: 0,
         txid: txid,
         segwit: false,
@@ -1311,7 +1311,7 @@ $bchTx.on("click", async (e) => {
           : "14oWXZFPhgP9DA3ggPzhHpUUaikDSjAuMC",
         addressType: BTCOutputAddressType.Spend,
         scriptType: BTCOutputScriptType.PayToAddress,
-        amount: String(1567200),
+        amount: String(13813640),
         isChange: false,
       },
     ];
