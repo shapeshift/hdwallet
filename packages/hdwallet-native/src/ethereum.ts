@@ -1,13 +1,9 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { Wallet, utils } from 'ethers'
-import { ETHGetAddress } from "@shapeshiftoss/hdwallet-core";
-import txDecoder from 'ethereum-tx-decoder'
+import { Wallet, utils } from "ethers";
+import txDecoder from "ethereum-tx-decoder";
 
-export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(
-  Base: TBase
-) {
-  return class MixinNativeETHWalletInfo extends Base
-    implements core.ETHWalletInfo {
+export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(Base: TBase) {
+  return class MixinNativeETHWalletInfo extends Base implements core.ETHWalletInfo {
     _supportsETHInfo = true;
 
     async ethSupportsNetwork(): Promise<boolean> {
@@ -22,23 +18,11 @@ export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(
       return false;
     }
 
-    ethGetAccountPaths(
-      msg: core.ETHGetAccountPath
-    ): Array<core.ETHAccountPath> {
+    ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
       return [
         {
-          addressNList: [
-            0x80000000 + 44,
-            0x80000000 + core.slip44ByCoin(msg.coin),
-            0x80000000 + msg.accountIdx,
-            0,
-            0,
-          ],
-          hardenedPath: [
-            0x80000000 + 44,
-            0x80000000 + core.slip44ByCoin(msg.coin),
-            0x80000000 + msg.accountIdx,
-          ],
+          addressNList: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx, 0, 0],
+          hardenedPath: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx],
           relPath: [0, 0],
           description: "Native",
         },
@@ -53,13 +37,7 @@ export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(
   };
 }
 
-export class NativeETHWalletInfo extends MixinNativeETHWalletInfo(
-  class Base {}
-) {}
-
-export function MixinNativeETHWallet<TBase extends core.Constructor>(
-  Base: TBase
-) {
+export function MixinNativeETHWallet<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeETHWallet extends Base {
     _supportsETH = true;
 
@@ -72,32 +50,33 @@ export function MixinNativeETHWallet<TBase extends core.Constructor>(
     async ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
       return this.ethWallet.getAddress();
     }
+
     async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
-      const transactionRequest = {
+      const result = await this.ethWallet.signTransaction({
         to: msg.to,
-        from: await this.wallet.getAddress(),
+        from: await this.ethWallet.getAddress(),
         nonce: msg.nonce,
         gasLimit: msg.gasLimit,
         gasPrice: msg.gasPrice,
         data: msg.data,
         value: msg.value,
-        chainId: msg.chainId
-      }
-      const result = await this.wallet.signTransaction(transactionRequest)
-      const decoded = txDecoder.decodeTx(result)
+        chainId: msg.chainId,
+      });
+      const decoded = txDecoder.decodeTx(result);
       return {
         v: decoded.v,
         r: decoded.r,
         s: decoded.s,
-        serialized: result
-      }
+        serialized: result,
+      };
     }
+
     async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
-      const result = await this.wallet.signMessage(msg.message)
+      const result = await this.ethWallet.signMessage(msg.message);
       return {
-        address: await this.wallet.getAddress(),
-        signature: result
-      }
+        address: await this.ethWallet.getAddress(),
+        signature: result,
+      };
     }
 
     async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
@@ -105,5 +84,5 @@ export function MixinNativeETHWallet<TBase extends core.Constructor>(
       const signingAddress = utils.verifyMessage(msg.message, msg.signature);
       return signingAddress === msg.address;
     }
-  }
+  };
 }

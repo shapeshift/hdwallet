@@ -6,14 +6,7 @@ import { getNetwork } from "./networks";
 
 // TODO: add bitcoincash support. Everything is working outside of transaction signing. There is a fork of bitcoinjs-lib that supports bitcoin clones that would be worth looking into (see: https://github.com/junderw/bitcoinjs-lib/tree/cashv5).
 
-const supportedCoins = [
-  "bitcoin",
-  "dash",
-  "digibyte",
-  "dogecoin",
-  "litecoin",
-  "testnet",
-];
+const supportedCoins = ["bitcoin", "dash", "digibyte", "dogecoin", "litecoin", "testnet"];
 
 const segwit = ["p2wpkh", "p2sh-p2wpkh"];
 
@@ -35,21 +28,15 @@ type ScriptData = {
 
 type InputData = UtxoData | ScriptData;
 
-export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(
-  Base: TBase
-) {
-  return class MixinNativeBTCWalletInfo extends Base
-    implements core.BTCWalletInfo {
+export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(Base: TBase) {
+  return class MixinNativeBTCWalletInfo extends Base implements core.BTCWalletInfo {
     _supportsBTCInfo = true;
 
     async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
       return supportedCoins.includes(coin.toLowerCase());
     }
 
-    async btcSupportsScriptType(
-      coin: core.Coin,
-      scriptType: core.BTCInputScriptType
-    ): Promise<boolean> {
+    async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
       if (!this.btcSupportsCoin(coin)) return false;
 
       switch (scriptType) {
@@ -71,9 +58,7 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(
       return false;
     }
 
-    btcGetAccountPaths(
-      msg: core.BTCGetAccountPaths
-    ): Array<core.BTCAccountPath> {
+    btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
       const slip44 = core.slip44ByCoin(msg.coin);
       const bip44 = core.legacyAccount(msg.coin, slip44, msg.accountIdx);
       const bip49 = core.segwitAccount(msg.coin, slip44, msg.accountIdx);
@@ -89,8 +74,7 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(
         testnet: [bip44, bip49, bip84],
       };
 
-      let paths: Array<core.BTCAccountPath> =
-        coinPaths[msg.coin.toLowerCase()] || [];
+      let paths: Array<core.BTCAccountPath> = coinPaths[msg.coin.toLowerCase()] || [];
 
       if (msg.scriptType !== undefined) {
         paths = paths.filter((path) => {
@@ -107,11 +91,7 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(
     }
 
     btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath {
-      const description = core.describeUTXOPath(
-        msg.addressNList,
-        msg.coin,
-        msg.scriptType
-      );
+      const description = core.describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType);
 
       if (!description.isKnown) {
         return undefined;
@@ -136,30 +116,20 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(
   };
 }
 
-export function MixinNativeBTCWallet<TBase extends core.Constructor>(
-  Base: TBase
-) {
+export function MixinNativeBTCWallet<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeBTCWallet extends Base {
     _supportsBTC: boolean;
 
     seed: Buffer;
 
-    getKeyPair(
-      coin: core.Coin,
-      addressNList: core.BIP32Path,
-      scriptType?: BTCScriptType
-    ): bitcoin.ECPairInterface {
+    getKeyPair(coin: core.Coin, addressNList: core.BIP32Path, scriptType?: BTCScriptType): bitcoin.ECPairInterface {
       const network = getNetwork(coin, scriptType);
       const wallet = bitcoin.bip32.fromSeed(this.seed, network);
       const path = core.addressNListToBIP32(addressNList);
       return bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
     }
 
-    createPayment(
-      pubkey: Buffer,
-      scriptType: BTCScriptType,
-      network?: bitcoin.Network
-    ): bitcoin.Payment {
+    createPayment(pubkey: Buffer, scriptType: BTCScriptType, network?: bitcoin.Network): bitcoin.Payment {
       switch (scriptType) {
         case "p2sh":
           return bitcoin.payments.p2sh({ pubkey, network });
@@ -187,8 +157,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
         script: Buffer.from(tx.vout[vout].scriptPubKey.hex, "hex"),
         value: Number(amount),
       };
-      const utxoData =
-        isSegwit && witnessUtxo ? { witnessUtxo } : { nonWitnessUtxo };
+      const utxoData = isSegwit && witnessUtxo ? { witnessUtxo } : { nonWitnessUtxo };
 
       if (!utxoData) {
         throw new Error(
@@ -222,9 +191,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
       const keyPair = this.getKeyPair(coin, addressNList, scriptType);
       const { publicKey, network } = keyPair;
       const { address } = this.createPayment(publicKey, scriptType, network);
-      return coin.toLowerCase() === "bitcoincash"
-        ? toCashAddress(address)
-        : address;
+      return coin.toLowerCase() === "bitcoincash" ? toCashAddress(address) : address;
     }
 
     async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx> {
@@ -296,12 +263,9 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(
       };
     }
 
-    async btcSignMessage(
-      msg: core.BTCSignMessage
-    ): Promise<core.BTCSignedMessage> {
+    async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
       throw new Error("function not implemented");
     }
-}
 
     async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
       throw new Error("function not implemented");
