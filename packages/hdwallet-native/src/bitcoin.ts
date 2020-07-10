@@ -11,28 +11,28 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(
     implements core.BTCWalletInfo {
     _supportsBTCInfo = true;
 
-    btcSupportsCoin(coin: core.Coin): Promise<boolean> {
-      return Promise.resolve(supportedCoins.includes(coin));
+    async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
+      return supportedCoins.includes(coin);
     }
 
-    btcSupportsScriptType(
+    async btcSupportsScriptType(
       coin: core.Coin,
       scriptType: core.BTCInputScriptType
     ): Promise<boolean> {
-      if (!this.btcSupportsCoin(coin)) return Promise.resolve(false);
+      if (!this.btcSupportsCoin(coin)) return false;
 
       switch (scriptType) {
         case core.BTCInputScriptType.SpendAddress:
         case core.BTCInputScriptType.SpendWitness:
         case core.BTCInputScriptType.SpendP2SHWitness:
-          return Promise.resolve(true);
+          return true;
         default:
-          return Promise.resolve(false);
+          return false;
       }
     }
 
-    btcSupportsSecureTransfer(): Promise<boolean> {
-      return Promise.resolve(false);
+    async btcSupportsSecureTransfer(): Promise<boolean> {
+      return false;
     }
 
     btcSupportsNativeShapeShift(): boolean {
@@ -97,118 +97,139 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(
   };
 }
 
-export async function btcGetAddress(wallet: NativeHDWallet, msg: core.BTCGetAddress): Promise<string> {
-  const keyPair = bitcoin.ECPair.fromWIF(wallet.btcWallet.rootNode.derivePath("m/49'/0'/0'/0/0").toWIF())
+export function MixinNativeBTCWallet<TBase extends core.Constructor>(
+  Base: TBase
+) {
+  return class MixinNativeBTCWallet extends Base {
+    btcWallet: bitcoin.BIP32Interface;
 
-  return Promise.resolve(bitcoin.payments.p2sh({
-    redeem: bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey })
-  }).address)
-}
+    private getNetwork(coin: string) {
+      const network = {
+        bitcoin: bitcoin.networks.bitcoin,
+      }[coin.toLowerCase()];
 
-export async function btcSignTx(wallet: NativeHDWallet, msg: core.BTCSignTx): Promise<core.BTCSignedTx> {
-  const txBuilder = new bitcoin.TransactionBuilder(wallet.btcWallet.network)
+      if (!network) throw new Error(`${coin} not supported`);
 
-  function getSegWitAddress(pubkey: Buffer, network: bitcoin.networks.Network): string {
-    return bitcoin.payments.p2sh({
-      redeem: bitcoin.payments.p2wpkh({ pubkey, network })
-    }).address
-  }
-  
-  function getNativeSegWitAddress(pubkey: Buffer, network: bitcoin.networks.Network): string {
-    return bitcoin.payments.p2wpkh({ pubkey, network }).address
-  }
-  
-  function getLegacyAddress(pubkey: Buffer, network: bitcoin.networks.Network): string {
-    return bitcoin.payments.p2pkh({ pubkey, network }).address
-  }
+      return network;
+    }
 
-    msg.inputs.forEach(input =>
-      txBuilder.addInput(
-        input.txid,
-        input.vout,
-        null,
-        input.scriptType === 'p2wpkh' && input.tx
-          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            Buffer.from((msg as any).vout[input.vout].scriptPubKey.hex, 'hex')
-          : undefined
-      )
-    )
+    private createPayment(
+      pubkey: Buffer,
+      scriptType: core.BTCInputScriptType | core.BTCOutputScriptType,
+      network?: bitcoin.Network
+    ): bitcoin.Payment {
+      switch (scriptType) {
+        case "p2sh":
+          return bitcoin.payments.p2sh({ pubkey, network });
+        case "p2pkh":
+          return bitcoin.payments.p2pkh({ pubkey, network });
+        case "p2wpkh":
+          return bitcoin.payments.p2wpkh({ pubkey, network });
+        case "p2sh-p2wpkh":
+          return bitcoin.payments.p2sh({
+            redeem: bitcoin.payments.p2wpkh({ pubkey, network }),
+          });
+        default:
+          throw new Error(`no implementation for script type: ${scriptType}`);
+      }
+    }
 
-    await Promise.all(
-      msg.outputs.map(async output => {
-        if (output.addressNList) {
-          const path = core.addressNListToBIP32(output.addressNList)
-          const privateKey = wallet.btcWallet.rootNode.derivePath(path).toWIF()
-          const keyPair = bitcoin.ECPair.fromWIF(
-            privateKey,
-            wallet.btcWallet.network
-          )
+    async btcInitializeWallet(mnemonic: string): Promise<void> {
+      const seed = Buffer.from(await mnemonicToSeed(mnemonic));
+      this.btcWallet = bitcoin.bip32.fromSeed(seed);
+    }
 
-          let address: string
-          if (output.scriptType === 'p2wpkh') {
-            address = getNativeSegWitAddress(keyPair.publicKey, wallet.btcWallet.network)
-          } else if (output.scriptType === 'p2sh-p2wpkh') {
-            address = getSegWitAddress(keyPair.publicKey, wallet.btcWallet.network)
-          } else {
-            address = getLegacyAddress(keyPair.publicKey, wallet.btcWallet.network)
+    async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
+      const { addressNList, coin, scriptType } = msg;
+      const network = this.getNetwork(coin);
+      const path = core.addressNListToBIP32(addressNList);
+      const keyPair = bitcoin.ECPair.fromWIF(
+        this.btcWallet.derivePath(path).toWIF(),
+        network
+      );
+      return this.createPayment(keyPair.publicKey, scriptType, network).address;
+    }
+
+    async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx> {
+      const { coin, inputs, outputs } = msg;
+      const network = this.getNetwork(coin);
+      const txBuilder = new bitcoin.TransactionBuilder(network);
+
+      inputs.forEach((input) =>
+        txBuilder.addInput(
+          input.txid,
+          input.vout,
+          null,
+          input.scriptType === "p2wpkh" && input.tx
+            ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              Buffer.from((msg as any).vout[input.vout].scriptPubKey.hex, "hex")
+            : undefined
+        )
+      );
+
+      Promise.all(
+        outputs.map(async (output) => {
+          if (output.addressNList) {
+            const path = core.addressNListToBIP32(output.addressNList);
+            const privateKey = this.btcWallet.derivePath(path).toWIF();
+            const keyPair = bitcoin.ECPair.fromWIF(privateKey, network);
+            const { address } = this.createPayment(
+              keyPair.publicKey,
+              output.scriptType
+            );
+            txBuilder.addOutput(address, Number(output.amount));
+          } else if (output.address) {
+            txBuilder.addOutput(output.address, Number(output.amount));
           }
 
-          txBuilder.addOutput(address, Number(output.amount))
-        } else if (output.address) {
-          txBuilder.addOutput(output.address, Number(output.amount))
-        }
-      })
-    )
+      Promise.all(
+        inputs.map(async (input, vin) => {
+          const path = core.addressNListToBIP32(input.addressNList);
+          const privateKey = this.btcWallet.derivePath(path).toWIF();
+          const keyPair = bitcoin.ECPair.fromWIF(privateKey, network);
 
-    await Promise.all(
-      msg.inputs.map(async (input, idx) => {
-        const path = core.addressNListToBIP32(input.addressNList)
-        const privateKey = wallet.btcWallet.rootNode.derivePath(path).toWIF()
-        const keyPair = bitcoin.ECPair.fromWIF(privateKey, wallet.btcWallet.network)
-
-        switch (input.scriptType) {
-          case 'p2wpkh':
-            txBuilder.sign(idx, keyPair, undefined, undefined, Number(input.amount))
-            break
-          case 'p2sh-p2wpkh': {
-            const p2wpkh = bitcoin.payments.p2wpkh({
-              pubkey: keyPair.publicKey,
-              network: wallet.btcWallet.network
-            })
-            const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh, network: wallet.btcWallet.network })
-            txBuilder.sign(idx, keyPair, p2sh.redeem.output, undefined, Number(input.amount))
-            break
+          let redeemScript: Buffer;
+          let hashType: number;
+          let witnessValue: number;
+          let witnessScript: Buffer;
+          switch (input.scriptType) {
+            case "p2wpkh":
+              witnessValue = Number(input.amount);
+              break;
+            case "p2sh-p2wpkh": {
+              const payment = this.createPayment(keyPair.publicKey, network);
+              witnessValue = Number(input.amount);
+              witnessScript = payment.redeem.output;
+              break;
+            }
           }
-          case 'p2sh':
-          default:
-            txBuilder.sign(idx, keyPair)
-            break
-        }
-      })
-    )
 
-    return {
-      signatures: [],
-      serializedTx: txBuilder.build().toHex()
+          txBuilder.sign(
+            vin,
+            keyPair,
+            redeemScript,
+            hashType,
+            witnessValue,
+            witnessScript
+          );
+        })
+      );
+
+      return {
+        signatures: [],
+        serializedTx: txBuilder.build().toHex(),
+      };
+    }
+
+    async btcSignMessage(
+      msg: core.BTCSignMessage
+    ): Promise<core.BTCSignedMessage> {
+      throw new Error("function not implemented");
     }
 }
 
-export class NativeBTCWallet extends NativeBTCWalletInfo
-  implements core.BTCWallet {
-  _supportsBTC = true;
-
-
-  btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
-    return Promise.resolve(null);
-  }
-  btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx> {
-    // TODO: implement
-    return Promise.resolve(null);
-  }
-  btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
-    return Promise.resolve(null);
-  }
-  btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
-    return Promise.resolve(null);
-  }
+    async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
+      throw new Error("function not implemented");
+    }
+  };
 }
