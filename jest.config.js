@@ -3,6 +3,6 @@ module.exports = {
   testEnvironment: "node",
   reporters: ["default", "jest-junit"],
   moduleNameMapper: {
-    "^@shapeshiftoss/(.*)": "<rootDir>/packages/$1/dist/index.umd.js",
+    "^@shapeshiftoss/(.*)": "<rootDir>/packages/$1/dist/index.js",
   },
 };
