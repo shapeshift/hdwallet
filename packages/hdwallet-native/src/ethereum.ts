@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { utils } from 'ethers'
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(
   Base: TBase
@@ -69,22 +70,30 @@ export class NativeETHWalletInfo extends MixinNativeETHWalletInfo(
   class Base {}
 ) {}
 
-export class NativeETHWallet extends NativeETHWalletInfo
-  implements core.ETHWallet {
-  _supportsETH = true;
+export function MixinNativeETHWallet<TBase extends core.Constructor>(
+  Base: TBase
+) {
+  return class MixinNativeETHWallet extends Base {
+    _supportsETH = true;
 
-  ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
-    // TODO: implement
-    return Promise.resolve(null);
-  }
-  ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
-    // TODO: implement
-    return Promise.resolve(null);
-  }
-  ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
-    return Promise.resolve(null);
-  }
-  ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
-    return Promise.resolve(null);
+    ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
+      console.log('ethGetAddress')
+      return Promise.resolve(null);
+    }
+    ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
+      console.log('ethSignTx')
+      return Promise.resolve(null);
+    }
+    ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
+      console.log('ethSignMessage')
+      return Promise.resolve(null);
+    }
+    async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
+      const signingAddress = await utils.verifyMessage(
+        msg.message,
+        "0x" + msg.signature
+      );
+      return signingAddress === msg.address
+    }
   }
 }

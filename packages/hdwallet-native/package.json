@@ -19,6 +19,7 @@
   "dependencies": {
     "@shapeshiftoss/hdwallet-core": "^0.18.11",
     "bip39": "^3.0.2",
-    "bitcoinjs-lib": "^5.1.10"
+    "bitcoinjs-lib": "^5.1.10",
+    "ethers": "^5.0.2"
   }
 }
