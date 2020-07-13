@@ -6,8 +6,7 @@ import { getNetwork } from "./networks";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 
-class NativeHDWalletInfo
-  extends MixinNativeBTCWalletInfo(MixinNativeETHWalletInfo(class Base {}))
+class NativeHDWalletInfo extends MixinNativeBTCWalletInfo(MixinNativeETHWalletInfo(class Base {}))
   implements core.HDWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
@@ -49,15 +48,10 @@ class NativeHDWalletInfo
       case "dogecoin":
       case "litecoin":
       case "testnet":
-        const unknown = core.unknownUTXOPath(
-          msg.path,
-          msg.coin,
-          msg.scriptType
-        );
+        const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
 
         if (!super.btcSupportsCoin(msg.coin)) return unknown;
-        if (!super.btcSupportsScriptType(msg.coin, msg.scriptType))
-          return unknown;
+        if (!super.btcSupportsScriptType(msg.coin, msg.scriptType)) return unknown;
 
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
       case "ethereum":
@@ -137,8 +131,9 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
   async clearSession(): Promise<void> {}
 
   async initialize(): Promise<any> {
-    super.ethInitializeWallet(this.mnemonic);
-    await super.btcInitializeWallet(this.mnemonic);
+    const seed = await mnemonicToSeed(this.mnemonic);
+    super.ethInitializeWallet("0x" + seed.toString("hex"));
+    await super.btcInitializeWallet(seed);
     this.initialized = true;
   }
 

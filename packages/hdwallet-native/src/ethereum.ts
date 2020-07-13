@@ -1,6 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Wallet, utils } from "ethers";
 import txDecoder from "ethereum-tx-decoder";
+import { HDNode, defaultPath } from "@ethersproject/hdnode";
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeETHWalletInfo extends Base implements core.ETHWalletInfo {
@@ -43,8 +44,8 @@ export function MixinNativeETHWallet<TBase extends core.Constructor>(Base: TBase
 
     ethWallet: Wallet;
 
-    ethInitializeWallet(mnemonic: string): void {
-      this.ethWallet = Wallet.fromMnemonic(mnemonic);
+    ethInitializeWallet(seed: string): void {
+      this.ethWallet = new Wallet(HDNode.fromSeed(seed).derivePath(defaultPath));
     }
 
     async ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
