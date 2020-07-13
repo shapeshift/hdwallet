@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ..
 
+## [1.0.1] - 2020-07-13
+
+### Changed
+
+- Initialize each supported native wallet using seed derived from mnemonic (performance)
+
 ## [1.0.0] - 2020-06-25
 
 ### Added
