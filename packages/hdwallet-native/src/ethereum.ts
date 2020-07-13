@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Wallet, utils } from "ethers";
 import txDecoder from "ethereum-tx-decoder";
-import { HDNode, defaultPath } from "ethers/lib.esm/utils";
+import { HDNode, defaultPath } from "@ethersproject/hdnode";
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeETHWalletInfo extends Base implements core.ETHWalletInfo {
