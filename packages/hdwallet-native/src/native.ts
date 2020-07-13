@@ -78,9 +78,8 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
 
   private mnemonic: string;
 
-  constructor(mnemonic: string, deviceId: string, seed?: string) {
+  constructor(mnemonic: string, deviceId: string) {
     super();
-    console.log("constructing native wallet for device ", deviceId);
     this.mnemonic = mnemonic;
     this.deviceId = deviceId;
   }
@@ -132,17 +131,10 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
   async clearSession(): Promise<void> {}
 
   async initialize(): Promise<any> {
-    const start = Date.now();
     const seed = await mnemonicToSeed(this.mnemonic);
-    console.log(`converted  mnemonicToSeed in ${Date.now() - start}ms`);
-    const estart = Date.now();
     super.ethInitializeWallet("0x" + seed.toString("hex"));
-    console.log(`initializedEthWallet in ${Date.now() - estart}ms`);
-    const bstart = Date.now();
     await super.btcInitializeWallet(seed);
-    console.log(`initializedBtcWallet in ${Date.now() - bstart}ms`);
     this.initialized = true;
-    console.log(`Native.initialize done in ${Date.now() - start}ms`);
   }
 
   async ping(msg: core.Ping): Promise<core.Pong> {
