@@ -6,8 +6,7 @@ import { getNetwork } from "./networks";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 
-class NativeHDWalletInfo
-  extends MixinNativeBTCWalletInfo(MixinNativeETHWalletInfo(class Base {}))
+class NativeHDWalletInfo extends MixinNativeBTCWalletInfo(MixinNativeETHWalletInfo(class Base {}))
   implements core.HDWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
@@ -49,15 +48,10 @@ class NativeHDWalletInfo
       case "dogecoin":
       case "litecoin":
       case "testnet":
-        const unknown = core.unknownUTXOPath(
-          msg.path,
-          msg.coin,
-          msg.scriptType
-        );
+        const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
 
         if (!super.btcSupportsCoin(msg.coin)) return unknown;
-        if (!super.btcSupportsScriptType(msg.coin, msg.scriptType))
-          return unknown;
+        if (!super.btcSupportsScriptType(msg.coin, msg.scriptType)) return unknown;
 
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
       case "ethereum":
@@ -84,8 +78,9 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
 
   private mnemonic: string;
 
-  constructor(mnemonic: string, deviceId: string) {
+  constructor(mnemonic: string, deviceId: string, seed?: string) {
     super();
+    console.log("constructing native wallet for device ", deviceId);
     this.mnemonic = mnemonic;
     this.deviceId = deviceId;
   }
@@ -137,9 +132,17 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
   async clearSession(): Promise<void> {}
 
   async initialize(): Promise<any> {
-    super.ethInitializeWallet(this.mnemonic);
-    await super.btcInitializeWallet(this.mnemonic);
+    const start = Date.now();
+    const seed = await mnemonicToSeed(this.mnemonic);
+    console.log(`converted  mnemonicToSeed in ${Date.now() - start}ms`);
+    const estart = Date.now();
+    super.ethInitializeWallet("0x" + seed.toString("hex"));
+    console.log(`initializedEthWallet in ${Date.now() - estart}ms`);
+    const bstart = Date.now();
+    await super.btcInitializeWallet(seed);
+    console.log(`initializedBtcWallet in ${Date.now() - bstart}ms`);
     this.initialized = true;
+    console.log(`Native.initialize done in ${Date.now() - start}ms`);
   }
 
   async ping(msg: core.Ping): Promise<core.Pong> {

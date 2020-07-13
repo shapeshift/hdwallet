@@ -182,8 +182,8 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(Base: TBase
       };
     }
 
-    async btcInitializeWallet(mnemonic: string): Promise<void> {
-      this.seed = Buffer.from(await mnemonicToSeed(mnemonic));
+    async btcInitializeWallet(seed: Buffer): Promise<void> {
+      this.seed = seed;
     }
 
     async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
