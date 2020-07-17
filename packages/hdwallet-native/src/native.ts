@@ -73,19 +73,18 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
   _supportsDebugLink = false;
   _isNative = true;
 
-  deviceId: string;
-  initialized: boolean;
-
-  private mnemonic: string;
+  readonly #deviceId: string;
+  #initialized: boolean;
+  #mnemonic: string;
 
   constructor(mnemonic: string, deviceId: string) {
     super();
-    this.mnemonic = mnemonic;
-    this.deviceId = deviceId;
+    this.#mnemonic = mnemonic;
+    this.#deviceId = deviceId;
   }
 
   async getDeviceID(): Promise<string> {
-    return this.deviceId;
+    return this.#deviceId;
   }
 
   async getFirmwareVersion(): Promise<string> {
@@ -108,7 +107,7 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
     return Promise.all(
       msg.map(async (getPublicKey) => {
         let { addressNList } = getPublicKey;
-        const seed = await mnemonicToSeed(this.mnemonic);
+        const seed = await mnemonicToSeed(this.#mnemonic);
         const network = getNetwork(getPublicKey.coin, getPublicKey.scriptType);
         const node = fromSeed(seed, network);
         const xpub = node
@@ -121,7 +120,7 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
   }
 
   async isInitialized(): Promise<boolean> {
-    return this.initialized;
+    return this.#initialized;
   }
 
   async isLocked(): Promise<boolean> {
@@ -131,10 +130,10 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
   async clearSession(): Promise<void> {}
 
   async initialize(): Promise<any> {
-    const seed = await mnemonicToSeed(this.mnemonic);
+    const seed = await mnemonicToSeed(this.#mnemonic);
     super.ethInitializeWallet("0x" + seed.toString("hex"));
     await super.btcInitializeWallet(seed);
-    this.initialized = true;
+    this.#initialized = true;
   }
 
   async ping(msg: core.Ping): Promise<core.Pong> {
@@ -158,8 +157,8 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
   async recover(): Promise<void> {}
 
   async loadDevice(msg: core.LoadDevice): Promise<void> {
-    this.mnemonic = msg.mnemonic;
-    this.initialized = false;
+    this.#mnemonic = msg.mnemonic;
+    this.#initialized = false;
     await this.initialize();
   }
 
