@@ -5,9 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Current - Unreleased
+## [1.0.1] - 2020-07-13
 
-..
+### Changed
+
+- Native: Keep the mnemonic private
 
 ## [1.0.1] - 2020-07-13
 
