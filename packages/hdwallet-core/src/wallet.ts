@@ -101,14 +101,7 @@ export interface PathDescription {
   isPrefork?: boolean;
 }
 
-type CoinWallets =
-  | BTCWallet
-  | ETHWallet
-  | CosmosWallet
-  | BinanceWallet
-  | RippleWallet
-  | EosWallet
-  | DebugLinkWallet;
+type CoinWallets = BTCWallet | ETHWallet | CosmosWallet | BinanceWallet | RippleWallet | EosWallet | DebugLinkWallet;
 
 export type Coin = string;
 export type Symbol = string;
@@ -243,8 +236,6 @@ export interface HDWalletInfo {
 }
 
 export interface HDWallet extends HDWalletInfo {
-  _supportsETHInfo: boolean;
-  _supportsBTCInfo: boolean;
   _supportsBTC: boolean;
   _supportsETH: boolean;
   _supportsCosmos: boolean;
@@ -253,7 +244,7 @@ export interface HDWallet extends HDWalletInfo {
   _supportsEos: boolean;
   _supportsDebugLink: boolean;
 
-  transport: Transport;
+  transport?: Transport;
 
   /**
    * Retrieve the wallet's unique ID

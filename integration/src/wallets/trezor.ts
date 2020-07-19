@@ -32,11 +32,7 @@ export class MockTransport extends TrezorTransport {
 
   public async listen(): Promise<any> {}
 
-  public call(
-    method: string,
-    msg: any,
-    msTimeout?: number
-  ): Promise<TrezorConnectResponse> {
+  public call(method: string, msg: any, msTimeout?: number): Promise<TrezorConnectResponse> {
     let key = JSON.stringify({ method: method, msg: msg });
     if (!this.memoized.has(key)) {
       console.error(method, `JSON.parse('${JSON.stringify(msg)}')`);
@@ -58,8 +54,7 @@ export class MockTransport extends TrezorTransport {
     this.memoize(
       "loadDevice",
       {
-        mnemonic:
-          "alcohol woman abuse must during monitor noble actual mixed trade anger aisle",
+        mnemonic: "alcohol woman abuse must during monitor noble actual mixed trade anger aisle",
         pin: undefined,
         passphraseProtection: undefined,
         label: "test",
@@ -102,10 +97,8 @@ export class MockTransport extends TrezorTransport {
         success: true,
         payload: {
           v: 37,
-          r:
-            "0x1238fd332545415f09a01470350a5a20abc784dbf875cf58f7460560e66c597f",
-          s:
-            "0x10efa4dd6fdb381c317db8f815252c2ac0d2a883bd364901dee3dec5b7d3660a",
+          r: "0x1238fd332545415f09a01470350a5a20abc784dbf875cf58f7460560e66c597f",
+          s: "0x10efa4dd6fdb381c317db8f815252c2ac0d2a883bd364901dee3dec5b7d3660a",
         },
       }
     );
@@ -155,9 +148,7 @@ export class MockTransport extends TrezorTransport {
       );
       this.memoize(
         "getAddress",
-        JSON.parse(
-          '{"path":[2147483697,2147483648,2147483648,0,0],"showOnTrezor":false,"coin":"btc"}'
-        ),
+        JSON.parse('{"path":[2147483697,2147483648,2147483648,0,0],"showOnTrezor":false,"coin":"btc"}'),
         JSON.parse(
           '{"payload":{"address":"3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX","path":[2147483697,2147483648,2147483648,0,0],"serializedPath":"m/49\'/0\'/0\'/0/0"},"id":2,"success":true}'
         )
@@ -173,9 +164,7 @@ export class MockTransport extends TrezorTransport {
       );
       this.memoize(
         "signMessage",
-        JSON.parse(
-          '{"path":[2147483692,2147483648,2147483648,0,0],"message":"Hello World","coin":"btc"}'
-        ),
+        JSON.parse('{"path":[2147483692,2147483648,2147483648,0,0],"message":"Hello World","coin":"btc"}'),
         JSON.parse(
           '{"payload":{"address":"1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM","signature":"IKA3yREETNbIUbZQgxfYiSBnsLYgdLLPHA35q9SqBTo8JD/9w39k168shXEo6vyBlHw4CZVZZhXl3MMToV9RLN0="},"id":3,"success":true}'
         )
@@ -185,18 +174,14 @@ export class MockTransport extends TrezorTransport {
         JSON.parse(
           '{"address":"1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM","message":"Hello World","signature":"IKA3yREETNbIUbZQgxfYiSBnsLYgdLLPHA35q9SqBTo8JD/9w39k168shXEo6vyBlHw4CZVZZhXl3MMToV9RLN0=","coin":"btc"}'
         ),
-        JSON.parse(
-          '{"payload":{"message":"Message verified"},"id":4,"success":true}'
-        )
+        JSON.parse('{"payload":{"message":"Message verified"},"id":4,"success":true}')
       );
       this.memoize(
         "verifyMessage",
         JSON.parse(
           '{"address":"1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM","message":"Fake World","signature":"IKA3yREETNbIUbZQgxfYiSBnsLYgdLLPHA35q9SqBTo8JD/9w39k168shXEo6vyBlHw4CZVZZhXl3MMToV9RLN0=","coin":"btc"}'
         ),
-        JSON.parse(
-          '{"payload":{"error":"Invalid signature","code":"Failure_DataError"},"id":2,"success":false}'
-        )
+        JSON.parse('{"payload":{"error":"Invalid signature","code":"Failure_DataError"},"id":2,"success":false}')
       );
       this.memoize(
         "getPublicKey",
@@ -264,9 +249,7 @@ export class MockTransport extends TrezorTransport {
       );
       this.memoize(
         "loadDevice",
-        JSON.parse(
-          '{"mnemonic":"all all all all all all all all all all all all","label":"test"}'
-        ),
+        JSON.parse('{"mnemonic":"all all all all all all all all all all all all","label":"test"}'),
         JSON.parse('{"success":true}')
       );
       this.memoize(
@@ -317,17 +300,13 @@ export class MockTransport extends TrezorTransport {
       this.memoize(
         "signTransaction",
         JSON.parse(
-          '{"coin":"testnet","inputs":[{"address_n":[2147483732,2147483649,2147483648,0,0],"prev_hash":"09144602765ce3dd8f4329445b20e3684e948709c5cdcaf12da3bb079c99448a","prev_index":0,"amount":"12300000","script_type":"SPENDWITNESS"}],"outputs":[{"address":"2N4Q5FhU2497BryFfUgbqkAJE87aKHUhXMp","amount":"5000000","script_type":"PAYTOADDRESS"},{"address_n":[2147483732,2147483649,2147483648,1,0],"amount":"7289000","script_type":"PAYTOWITNESS"}],"push":false}'
+          '{"coin":"testnet","inputs":[{"address_n":[2147483732,2147483649,2147483648,0,0],"prev_hash":"e4b5b24159856ea18ab5819832da3b4a6330f9c3c0a46d96674e632df504b56b","prev_index":0,"amount":"100000","script_type":"SPENDWITNESS"}],"outputs":[{"address":"2N4Q5FhU2497BryFfUgbqkAJE87aKHUhXMp","amount":"50000","script_type":"PAYTOADDRESS"},{"address_n":[2147483732,2147483649,2147483648,1,0],"amount":"49000","script_type":"PAYTOWITNESS"}],"push":false}'
         ),
         JSON.parse(
-          '{"payload":{"signatures":["fixme"],"serializedTx":"010000000001018a44999c07bba32df1cacdc50987944e68e3205b4429438fdde35c76024614090000000000ffffffff02404b4c000000000017a9147a55d61848e77ca266e79a39bfc85c580a6426c987a8386f0000000000160014cc8067093f6f843d6d3e22004a4290cd0c0f336b024730440220067675423ca6a0be3ddd5e13da00a9433775041e5cebc838873d2686f1d2840102201a5819e0312e6451d6b6180689101bce995685a51524cc4c3a5383f7bdab979a012103adc58245cf28406af0ef5cc24b8afba7f1be6c72f279b642d85c48798685f86200000000"},"id":2,"success":true}'
+          '{"payload":{"signatures":["fixme"],"serializedTx":"010000000001016bb504f52d634e67966da4c0c3f930634a3bda329881b58aa16e855941b2b5e40000000000ffffffff0250c300000000000017a9147a55d61848e77ca266e79a39bfc85c580a6426c98768bf000000000000160014cc8067093f6f843d6d3e22004a4290cd0c0f336b0247304402200f62d997b9dafe79a7a680626f4510a0b1be7a6e6b67607985e611f771c8acaf022009b3fb8ea7d8a80daa3e4cb44d51ba40289b049c59741e906424c55e90df9900012103adc58245cf28406af0ef5cc24b8afba7f1be6c72f279b642d85c48798685f86200000000"},"id":2,"success":true}'
         )
       );
-      this.memoize(
-        "getFeatures",
-        {},
-        { success: true, payload: { initialized: true } }
-      );
+      this.memoize("getFeatures", {}, { success: true, payload: { initialized: true } });
     } catch (e) {
       console.error(e);
     }

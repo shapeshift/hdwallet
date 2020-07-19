@@ -1,12 +1,6 @@
 import { EosPublicKeyKind } from "@keepkey/device-protocol/lib/messages-eos_pb";
 
-import {
-  bip32ToAddressNList,
-  HDWallet,
-  EosWallet,
-  supportsEos,
-  EosTx,
-} from "@bithighlander/hdwallet-core";
+import { bip32ToAddressNList, HDWallet, EosWallet, supportsEos, EosTx } from "@bithighlander/hdwallet-core";
 
 import { HDWalletInfo } from "@bithighlander/hdwallet-core/src/wallet";
 
@@ -15,17 +9,14 @@ import { toHexString } from "@bithighlander/hdwallet-core";
 import * as tx01_unsigned from "./tx01.unsigned.json";
 import * as tx02_unsigned from "./tx02.unsigned.json";
 
-const MNEMONIC12_NOPIN_NOPASSPHRASE =
-  "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
+const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
 const TIMEOUT = 60 * 1000;
 
 /**
  *  Main integration suite for testing eos wallet.
  */
-export function eosTests(
-  get: () => { wallet: HDWallet; info: HDWalletInfo }
-): void {
+export function eosTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): void {
   let wallet: EosWallet & HDWallet;
 
   describe("Eos", () => {
@@ -79,22 +70,16 @@ export function eosTests(
       "kk integration eosSignTx()",
       async () => {
         if (!wallet) return;
-        let txData = tx01_unsigned as any
+        let txData = tx01_unsigned as any;
         let res = await wallet.eosSignTx({
           addressNList: bip32ToAddressNList("m/44'/194'/0'/0/0"),
           chain_id: txData.chain_id as string,
           tx: txData.transaction as EosTx,
         });
         expect(res.signatureV).toEqual(31);
-        expect(toHexString(res.signatureR)).toEqual(
-          "729e0a94e5a587d7f10001214fc017e56c8753ff0fc785eb3e91b3f471d58864"
-        );
-        expect(toHexString(res.signatureS)).toEqual(
-          "532ee29e14bc925b37dec2cab72863b5bf82af581f2250b5149722582b56998d"
-        );
-        expect(toHexString(res.hash)).toEqual(
-          "a862b70cf84b68b1824eac84b64c122fdd1bf580f955262fcf083a9f495f7c56"
-        );
+        expect(toHexString(res.signatureR)).toEqual("729e0a94e5a587d7f10001214fc017e56c8753ff0fc785eb3e91b3f471d58864");
+        expect(toHexString(res.signatureS)).toEqual("532ee29e14bc925b37dec2cab72863b5bf82af581f2250b5149722582b56998d");
+        expect(toHexString(res.hash)).toEqual("a862b70cf84b68b1824eac84b64c122fdd1bf580f955262fcf083a9f495f7c56");
       },
       TIMEOUT
     );
@@ -103,25 +88,18 @@ export function eosTests(
       "confirmed on chain eosSignTx()",
       async () => {
         if (!wallet) return;
-        let txData = tx02_unsigned as any
+        let txData = tx02_unsigned as any;
         let res = await wallet.eosSignTx({
           addressNList: bip32ToAddressNList("m/44'/194'/0'/0/0"),
           chain_id: txData.chain_id as string,
           tx: txData.transaction as EosTx,
         });
         expect(res.signatureV).toEqual(31);
-        expect(toHexString(res.signatureR)).toEqual(
-          "1958d41d398443ae558679476f437f119a7bd6de8a34f79bf8b6328d92d61e32"
-        );
-        expect(toHexString(res.signatureS)).toEqual(
-          "2ec1c816d2684411878c2f88e877413bfbbca50bc7d93ace8b9d82b49466bc8f"
-        );
-        expect(toHexString(res.hash)).toEqual(
-          "3aa0ee13030e1e84440e1f51e11e10e009792004e262b156fddef77aa359be94"
-        );
+        expect(toHexString(res.signatureR)).toEqual("1958d41d398443ae558679476f437f119a7bd6de8a34f79bf8b6328d92d61e32");
+        expect(toHexString(res.signatureS)).toEqual("2ec1c816d2684411878c2f88e877413bfbbca50bc7d93ace8b9d82b49466bc8f");
+        expect(toHexString(res.hash)).toEqual("3aa0ee13030e1e84440e1f51e11e10e009792004e262b156fddef77aa359be94");
       },
       TIMEOUT
     );
-
   });
 }

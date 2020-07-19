@@ -4,18 +4,9 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <title>HDWallet | Sandbox</title>
     <meta name="description" content="" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.3.0/milligram.min.css"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.3.0/milligram.min.css" />
     <style>
       .modale:before {
         content: "";
@@ -90,6 +81,7 @@
       <button id="trezor">Pair Trezor</button>
       <button id="ledger">Pair Ledger</button>
       <button id="portis">Pair Portis</button>
+      <button id="native">Pair Native</button>
 
       <select id="keyring" style="height: 100px;" size="4"></select>
     </div>
@@ -123,11 +115,11 @@
       <button class="button button-outline" id="getAppInfo">App Info</button>
       <input type="text" id="appInfo" />
     </div>
-    <div class="container" style="padding-top:8em;">
-        <h4>Eos</h4>
-        <button class="button button-outline" id='eosAddr'>Address</button>
-        <button class="button button-outline" id='eosTx'>Tx</button>
-        <input type="text" id="eosResults" />
+    <div class="container" style="padding-top: 8em;">
+      <h4>Eos</h4>
+      <button class="button button-outline" id="eosAddr">Address</button>
+      <button class="button button-outline" id="eosTx">Tx</button>
+      <input type="text" id="eosResults" />
     </div>
     <div class="container" style="padding-top: 8em;">
       <h4>Binance</h4>
@@ -216,8 +208,7 @@
         <div class="modal-header">
           <h3>Enter PIN</h3>
           <p>
-            Use the PIN layout shown on your device to find the location to
-            press on this PIN pad.
+            Use the PIN layout shown on your device to find the location to press on this PIN pad.
           </p>
         </div>
         <div class="modal-body">
@@ -248,11 +239,7 @@
           <button onclick="handlePinDigit(3)" class="button button-outline">
             &#x25CF;</button
           ><br />
-          <input
-            id="#pinInput"
-            type="text"
-            style="-webkit-text-security: disc;"
-          />
+          <input id="#pinInput" type="text" style="-webkit-text-security: disc;" />
           <button onclick="handlePinDigit('')" class="button button-outline">
             x
           </button>
@@ -273,11 +260,7 @@
         </div>
         <div class="modal-body">
           <form>
-            <input
-              id="#passphraseInput"
-              type="password"
-              autocomplete="bip39-passphrase"
-            />
+            <input id="#passphraseInput" type="password" autocomplete="bip39-passphrase" />
           </form>
         </div>
         <div class="modal-footer">

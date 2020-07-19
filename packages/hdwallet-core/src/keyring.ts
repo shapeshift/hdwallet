@@ -13,7 +13,7 @@ export class Keyring extends eventemitter2.EventEmitter2 {
     const id = deviceID || new Date().toString();
     if (!this.wallets[id]) {
       this.wallets[id] = wallet;
-      this.decorateEvents(deviceID, wallet.transport);
+      wallet.transport && this.decorateEvents(deviceID, wallet.transport);
       return true;
     }
     return false;
@@ -31,13 +31,8 @@ export class Keyring extends eventemitter2.EventEmitter2 {
     return aliasee;
   }
 
-  public async exec(
-    method: string,
-    ...args: any[]
-  ): Promise<{ [deviceID: string]: any }> {
-    return Promise.all(
-      Object.values(this.wallets).map((w) => w[method](...args))
-    ).then((values) =>
+  public async exec(method: string, ...args: any[]): Promise<{ [deviceID: string]: any }> {
+    return Promise.all(Object.values(this.wallets).map((w) => w[method](...args))).then((values) =>
       values.reduce((final, response, i) => {
         final[Object.keys(this.wallets)[i]] = response;
         return final;
@@ -46,11 +41,9 @@ export class Keyring extends eventemitter2.EventEmitter2 {
   }
 
   public get(deviceID?: string): HDWallet {
-    if (this.aliases[deviceID] && this.wallets[this.aliases[deviceID]])
-      return this.wallets[this.aliases[deviceID]];
+    if (this.aliases[deviceID] && this.wallets[this.aliases[deviceID]]) return this.wallets[this.aliases[deviceID]];
     if (this.wallets[deviceID]) return this.wallets[deviceID];
-    if (!!Object.keys(this.wallets).length && !deviceID)
-      return Object.values(this.wallets)[0];
+    if (!!Object.keys(this.wallets).length && !deviceID) return Object.values(this.wallets)[0];
     return null;
   }
 
@@ -85,14 +78,9 @@ export class Keyring extends eventemitter2.EventEmitter2 {
     }
   }
 
-  public async decorateEvents(
-    deviceID: string,
-    events: eventemitter2.EventEmitter2
-  ): Promise<void> {
+  public async decorateEvents(deviceID: string, events: eventemitter2.EventEmitter2): Promise<void> {
     const wallet: HDWallet = this.get(deviceID);
     const vendor: string = wallet.getVendor();
-    events.onAny((e: string, ...values: any[]) =>
-      this.emit([vendor, deviceID, e], [deviceID, ...values])
-    );
+    events.onAny((e: string, ...values: any[]) => this.emit([vendor, deviceID, e], [deviceID, ...values]));
   }
 }

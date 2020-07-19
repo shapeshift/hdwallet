@@ -70,9 +70,8 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
   _isPortis: boolean = true;
   _supportsRippleInfo: boolean = false;
   _supportsRipple: boolean = false;
- _supportsEosInfo: boolean = false;
- _supportsEos: boolean = false;
-
+  _supportsEosInfo: boolean = false;
+  _supportsEos: boolean = false;
 
   transport = new PortisTransport(new Keyring());
 
@@ -187,9 +186,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.info.describePath(msg);
   }
 
-  public async getPublicKeys(
-    msg: Array<GetPublicKey>
-  ): Promise<Array<PublicKey | null>> {
+  public async getPublicKeys(msg: Array<GetPublicKey>): Promise<Array<PublicKey | null>> {
     const publicKeys = [];
     this.portisCallInProgress = new Promise(async (resolve, reject) => {
       try {
@@ -243,10 +240,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.info.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(
-    coin: Coin,
-    scriptType: BTCInputScriptType
-  ): Promise<boolean> {
+  public async btcSupportsScriptType(coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
     return this.info.btcSupportsScriptType(coin, scriptType);
   }
 
@@ -326,15 +320,14 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 }
 
-export class PortisHDWalletInfo
-  implements HDWalletInfo, ETHWalletInfo, BTCWalletInfo {
+export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = false;
   _supportsBinanceInfo: boolean = false;
   _supportsRippleInfo: boolean = false;
- _supportsEosInfo: boolean = false;
-  
+  _supportsEosInfo: boolean = false;
+
   public getVendor(): string {
     return "Portis";
   }
@@ -375,10 +368,7 @@ export class PortisHDWalletInfo
     return btc.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(
-    coin: Coin,
-    scriptType: BTCInputScriptType
-  ): Promise<boolean> {
+  public async btcSupportsScriptType(coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
     return btc.btcSupportsScriptType(coin, scriptType);
   }
 
