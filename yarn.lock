@@ -856,12 +856,12 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@bithighlander/cosmos-tx-builder@^6.2.1":
-  version "6.2.1"
-  resolved "https://registry.yarnpkg.com/@bithighlander/cosmos-tx-builder/-/cosmos-tx-builder-6.2.1.tgz#acf2a22d124f1054cc24c3bf72b73dfa27143b67"
-  integrity sha512-IMh/f5dRTy9JePpTlbsKYnAMtmoQanmArYVYsJZYy0T7YJSs8WSKavXK7gHucrCTZ7yWacycAgdlDAQO+Mthcw==
+"@bithighlander/cosmos-tx-builder@latest":
+  version "6.2.2"
+  resolved "https://registry.yarnpkg.com/@bithighlander/cosmos-tx-builder/-/cosmos-tx-builder-6.2.2.tgz#e9cacd68a2e7a7c1d3b342d8cec3447ab0f2ff08"
+  integrity sha512-U0LraM1qamE6dmRuvLs4ppeUm9kYo+Jlir9eTpo/ddwVVAQGILk1VWrBiNFMZFmf/jWqD8JRfyAaay6Hg+sGfg==
   dependencies:
-    "@foxcookieco/pioneer-loggerdog-client" "^6.2.0"
+    "@foxcookieco/pioneer-loggerdog-client" latest
     bech32 "^1.1.4"
     bip32 "^2.0.5"
     bip39 "^3.0.2"
@@ -1300,7 +1300,7 @@
     unique-filename "^1.1.1"
     which "^1.3.1"
 
-"@foxcookieco/pioneer-loggerdog-client@^6.2.0":
+"@foxcookieco/pioneer-loggerdog-client@latest":
   version "6.2.2"
   resolved "https://registry.yarnpkg.com/@foxcookieco/pioneer-loggerdog-client/-/pioneer-loggerdog-client-6.2.2.tgz#95c5c58e1474f8cb77cd443d9e9ca69594433846"
   integrity sha512-9w2dnLGuo96Uj+EYWsx0bpQ9ossLZYCbN6+viP7J6V2/fcMuQgWWpa1NvNu7DDX0CAjs/L+xeqIVqRV5af6kxg==

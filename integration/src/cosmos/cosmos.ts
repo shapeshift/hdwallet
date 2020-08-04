@@ -78,6 +78,7 @@ export function cosmosTests(get: () => { wallet: HDWallet; info: HDWalletInfo })
           account_number: "1",
           sequence: "0",
         });
+        console.log("signedTx: ", res);
         expect(res).toEqual((tx01_signed as unknown) as CosmosTx);
       },
       TIMEOUT
