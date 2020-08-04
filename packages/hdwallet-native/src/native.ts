@@ -5,12 +5,13 @@ import { isObject } from "lodash";
 import { getNetwork } from "./networks";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
+import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
 
 class NativeHDWalletInfo extends MixinNativeBTCWalletInfo(MixinNativeETHWalletInfo(class Base {}))
   implements core.HDWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
-  _supportsCosmosInfo: boolean = false;
+  _supportsCosmosInfo: boolean = true;
   _supportsBinanceInfo: boolean = false;
   _supportsRippleInfo: boolean = false;
   _supportsEosInfo: boolean = false;
@@ -66,7 +67,7 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
   implements core.HDWallet {
   _supportsBTC = true;
   _supportsETH = true;
-  _supportsCosmos = false;
+  _supportsCosmos = true;
   _supportsBinance = false;
   _supportsRipple = false;
   _supportsEos = false;
