@@ -14,6 +14,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
+    "@bithighlander/cosmos-tx-builder": "^6.2.1",
     "@shapeshiftoss/hdwallet-core": "^1.0.2",
     "bchaddrjs": "^0.4.9",
     "bip32": "^2.0.5",
@@ -21,7 +22,7 @@
     "bitcoinjs-lib": "^5.1.10",
     "ethereum-tx-decoder": "^3.0.0",
     "ethers": "^5.0.2",
-    "hdkey": "^2.0.1",
+    "hdkey": "1.1.1",
     "lodash": "^4.17.15"
   },
   "devDependencies": {

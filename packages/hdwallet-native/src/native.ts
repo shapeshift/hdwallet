@@ -7,7 +7,8 @@ import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
 
-class NativeHDWalletInfo extends MixinNativeBTCWalletInfo(MixinNativeETHWalletInfo(class Base {}))
+class NativeHDWalletInfo
+  extends MixinNativeBTCWalletInfo(MixinNativeETHWalletInfo(MixinNativeCosmosWallet(class Base {})))
   implements core.HDWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
@@ -63,7 +64,8 @@ class NativeHDWalletInfo extends MixinNativeBTCWalletInfo(MixinNativeETHWalletIn
   }
 }
 
-export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(NativeHDWalletInfo))
+export class NativeHDWallet
+  extends MixinNativeBTCWallet(MixinNativeETHWallet(MixinNativeCosmosWalletInfo(NativeHDWalletInfo)))
   implements core.HDWallet {
   _supportsBTC = true;
   _supportsETH = true;
@@ -133,7 +135,9 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
   async initialize(): Promise<any> {
     const seed = await mnemonicToSeed(this.#mnemonic);
     super.ethInitializeWallet("0x" + seed.toString("hex"));
+    await super.cosmosInitializeWallet(this.#mnemonic);
     await super.btcInitializeWallet(seed);
+
     this.#initialized = true;
   }
 

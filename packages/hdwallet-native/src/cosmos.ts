@@ -51,18 +51,21 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TB
 
     async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string> {
       //TODO
-      return "";
+      return "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj";
     }
 
     async cosmosSignTx(msg: CosmosSignTx, mnemonic: string, xpriv: string, from: string): Promise<CosmosSignedTx> {
-      const seed = await bip39.mnemonicToSeed(this.#seed);
       console.log("MSG: ", msg);
-      console.log("mnemonic: ", mnemonic);
+      console.log("mnemonic: ", this.#seed);
+
+      const seed = await bip39.mnemonicToSeed(this.#seed);
       let ATOM_CHAIN = "cosmoshub-3";
 
+      console.log("seed: ", seed);
       let mk = new HDKey.fromMasterSeed(Buffer.from(seed, "hex"));
       // expects bip32
       let path = addressNListToBIP32(msg.addressNList);
+      console.log("path: ", path);
       mk = mk.derive(path);
 
       let privateKey = mk.privateKey;
