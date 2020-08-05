@@ -96,8 +96,9 @@ export function cosmosTests(get: () => { wallet: HDWallet; info: HDWalletInfo })
         console.log("tx01_signed: ", tx01_signed.value);
         console.log("tx01_signed: ", tx01_signed.value.signatures);
         console.log("tx01_signed: ", JSON.stringify(tx01_signed));
+
         //TODO validate sig
-        console.log("SIG Generated:", res.value.signatures.signature);
+        // console.log("SIG Generated:", res.value.signatures.signature);
         console.log("SIG  Expected: ", tx01_signed.value.signatures[0].signature);
 
         //
