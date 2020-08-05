@@ -88,7 +88,8 @@ export function cosmosTests(get: () => { wallet: HDWallet; info: HDWalletInfo })
         console.log("signedTx: ", res);
         console.log("signedTx: ", res.value);
         console.log("signedTx: ", res.value.signatures);
-        console.log("signedTx: ", res.value.signatures);
+        console.log("signedTx: ", res.value.signatures[0]);
+        console.log("signedTx: ", res.value.signatures[0].signature);
         console.log("signedTx: ", JSON.stringify(res));
 
         console.log("tx01_signed: ", typeof tx01_signed);
@@ -98,7 +99,7 @@ export function cosmosTests(get: () => { wallet: HDWallet; info: HDWalletInfo })
         console.log("tx01_signed: ", JSON.stringify(tx01_signed));
 
         //TODO validate sig
-        // console.log("SIG Generated:", res.value.signatures.signature);
+        console.log("SIG Generated:", res.value.signatures[0].signature);
         console.log("SIG  Expected: ", tx01_signed.value.signatures[0].signature);
 
         //
