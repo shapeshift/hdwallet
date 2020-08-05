@@ -70,10 +70,11 @@ export interface EosTxSigned {
 */
 
 export interface EosTxSigned {
-  signatureV: number;
-  signatureR: Uint8Array;
-  signatureS: Uint8Array;
+  signatureV?: number;
+  signatureR?: Uint8Array;
+  signatureS?: Uint8Array;
   hash: Uint8Array;
+  serialized?: string;
   eosFormSig: string;
 }
 
