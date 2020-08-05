@@ -34,21 +34,14 @@ export function cosmosTests(get: () => { wallet: HDWallet; info: HDWalletInfo })
       "cosmosGetAccountPaths()",
       () => {
         if (!wallet) return;
-        console.log("wallet: ", wallet);
         let paths = wallet.cosmosGetAccountPaths({ accountIdx: 0 });
         expect(paths.length > 0).toBe(true);
         expect(paths[0].addressNList[0] > 0x80000000).toBe(true);
-        //TODO We don't use nextPath on cosmos?
-        // paths.forEach((path) => {
-        //   let curAddr = path.addressNList.join();
-        //   let nextAddr = wallet.cosmosNextAccountPath(path).addressNList.join();
-        //   expect(nextAddr === undefined || nextAddr !== curAddr).toBeTruthy();
-        // });
       },
       TIMEOUT
     );
 
-    test(
+    test.only(
       "cosmosGetAddress()",
       async () => {
         if (!wallet) return;
@@ -69,7 +62,6 @@ export function cosmosTests(get: () => { wallet: HDWallet; info: HDWalletInfo })
       async () => {
         if (!wallet) return;
 
-        //console.log("**** tx01_unsigned: ", tx_unsigned);
         let input: any = {
           tx: tx_unsigned,
           addressNList: bip32ToAddressNList("m/44'/118'/0'/0/0"),
@@ -77,27 +69,8 @@ export function cosmosTests(get: () => { wallet: HDWallet; info: HDWalletInfo })
           account_number: "16354",
           sequence: "5",
         };
-        //console.log("**** input.tx: ", input.tx);
 
         let res = await wallet.cosmosSignTx(input);
-
-        // console.log("signedTx: ", typeof res);
-        // console.log("signedTx: ", res);
-        // console.log("signedTx: ", res);
-        // console.log("signedTx: ", res.signatures);
-        // console.log("signedTx: ", res.signatures[0]);
-        // console.log("signedTx: ", res.signatures[0].signature);
-        // console.log("signedTx: ", JSON.stringify(res));
-        //
-        // console.log("tx_signed: ", typeof tx_signed);
-        // console.log("tx01_signed: ", tx_signed);
-        // console.log("tx01_signed: ", tx_signed);
-        // console.log("tx01_signed: ", tx_signed.signatures);
-        // console.log("tx_signed: ", JSON.stringify(tx_signed));
-        //
-        // //TODO validate sig
-        // console.log("SIG Generated:", res.signatures[0].signature);
-        // console.log("SIG  Expected: ", tx_signed.signatures[0].signature);
         expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
       },
       TIMEOUT

@@ -5,6 +5,23 @@ import { addressNListToBIP32, CosmosSignTx, CosmosSignedTx } from "@shapeshiftos
 let txBuilder = require("@bithighlander/cosmos-tx-builder");
 import HDKey from "hdkey";
 const bip39 = require(`bip39`);
+const ripemd160 = require("crypto-js/ripemd160");
+const CryptoJS = require("crypto-js");
+const sha256 = require("crypto-js/sha256");
+const bech32 = require(`bech32`);
+
+function bech32ify(address, prefix) {
+  const words = bech32.toWords(address);
+  return bech32.encode(prefix, words);
+}
+
+function createCosmosAddress(publicKey) {
+  const message = CryptoJS.enc.Hex.parse(publicKey.toString(`hex`));
+  const hash = ripemd160(sha256(message)).toString();
+  const address = Buffer.from(hash, `hex`);
+  const cosmosAddress = bech32ify(address, `cosmos`);
+  return cosmosAddress;
+}
 
 export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeCosmosWalletInfo extends Base implements core.CosmosWalletInfo {
@@ -46,27 +63,30 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TB
     #seed = "";
 
     cosmosInitializeWallet(seed: string): void {
+      //get
       this.#seed = seed;
     }
 
     async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string> {
-      console.log("msg: ", msg);
-      //TODO
-      return "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj";
-    }
-
-    async cosmosSignTx(msg: CosmosSignTx, mnemonic: string, xpriv: string, from: string): Promise<CosmosSignedTx> {
-      console.log("MSG: ", msg);
-      console.log("mnemonic: ", this.#seed);
-
       const seed = await bip39.mnemonicToSeed(this.#seed);
-      let ATOM_CHAIN = "cosmoshub-3";
 
-      console.log("seed: ", seed);
       let mk = new HDKey.fromMasterSeed(Buffer.from(seed, "hex"));
       // expects bip32
       let path = addressNListToBIP32(msg.addressNList);
-      console.log("path: ", path);
+
+      mk = mk.derive(path);
+      let publicKey = mk.publicKey;
+      let address = createCosmosAddress(publicKey);
+      return address;
+    }
+
+    async cosmosSignTx(msg: CosmosSignTx, mnemonic: string, xpriv: string, from: string): Promise<CosmosSignedTx> {
+      const seed = await bip39.mnemonicToSeed(this.#seed);
+      let ATOM_CHAIN = "cosmoshub-3";
+
+      let mk = new HDKey.fromMasterSeed(Buffer.from(seed, "hex"));
+      // expects bip32
+      let path = addressNListToBIP32(msg.addressNList);
       mk = mk.derive(path);
 
       let privateKey = mk.privateKey;
@@ -78,14 +98,9 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TB
       };
 
       let result = await txBuilder.sign(msg.tx, wallet, msg.sequence, msg.account_number, ATOM_CHAIN);
-      console.log("result: ", result);
-
-      console.log("msg.tx: ", msg.tx);
-      console.log("msg.tx: ", JSON.stringify(msg.tx));
 
       // build final tx
       const signedTx = txBuilder.createSignedTx(msg.tx, result);
-      console.log("signedTx: ", signedTx);
 
       return signedTx;
     }
