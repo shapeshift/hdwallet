@@ -5,15 +5,17 @@ import { isObject } from "lodash";
 import { getNetwork } from "./networks";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
+import { MixinNativeEosWalletInfo, MixinNativeEosWallet } from "./eos";
 
-class NativeHDWalletInfo extends MixinNativeBTCWalletInfo(MixinNativeETHWalletInfo(class Base {}))
+class NativeHDWalletInfo
+  extends MixinNativeBTCWalletInfo(MixinNativeETHWalletInfo(MixinNativeEosWalletInfo(class Base {})))
   implements core.HDWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = false;
   _supportsBinanceInfo: boolean = false;
   _supportsRippleInfo: boolean = false;
-  _supportsEosInfo: boolean = false;
+  _supportsEosInfo: boolean = true;
 
   getVendor(): string {
     return "Native";
@@ -62,14 +64,14 @@ class NativeHDWalletInfo extends MixinNativeBTCWalletInfo(MixinNativeETHWalletIn
   }
 }
 
-export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(NativeHDWalletInfo))
+export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(MixinNativeEosWallet(NativeHDWalletInfo)))
   implements core.HDWallet {
   _supportsBTC = true;
   _supportsETH = true;
   _supportsCosmos = false;
   _supportsBinance = false;
   _supportsRipple = false;
-  _supportsEos = false;
+  _supportsEos = true;
   _supportsDebugLink = false;
   _isNative = true;
 
@@ -131,6 +133,7 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
 
   async initialize(): Promise<any> {
     const seed = await mnemonicToSeed(this.#mnemonic);
+    super.eosInitializeWallet(this.#mnemonic);
     super.ethInitializeWallet("0x" + seed.toString("hex"));
     await super.btcInitializeWallet(seed);
     this.#initialized = true;
