@@ -77,7 +77,7 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TB
         publicKey,
       };
 
-      let result = await txBuilder.sign(msg.tx.value, wallet, msg.sequence, msg.account_number, ATOM_CHAIN);
+      let result = await txBuilder.sign(msg.tx, wallet, msg.sequence, msg.account_number, ATOM_CHAIN);
       console.log("result: ", result);
 
       console.log("msg.tx: ", msg.tx);

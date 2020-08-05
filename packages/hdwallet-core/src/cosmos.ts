@@ -10,22 +10,20 @@ export interface CosmosGetAddress {
 }
 
 namespace Cosmos {
-  namespace sdk {
-    export interface Msg {
-      type: string;
-      value: any;
-    }
+  export interface Msg {
+    type: string;
+    value: any;
+  }
 
-    export type Coins = Coin[];
+  export type Coins = Coin[];
 
-    export interface Coin {
-      denom: string;
-      amount: string;
-    }
+  export interface Coin {
+    denom: string;
+    amount: string;
   }
 
   export interface StdFee {
-    amount: sdk.Coins;
+    amount: Coins;
     gas: string;
   }
 
@@ -42,7 +40,7 @@ namespace Cosmos {
   }
 
   export interface StdTx {
-    msg: sdk.Msg[];
+    msg: Msg[];
     fee: StdFee;
     signatures: null | StdSignature[];
     memo: string;
@@ -50,13 +48,15 @@ namespace Cosmos {
 }
 
 export interface CosmosTx {
-  type: string; // 'auth/StdTx'
-  value: Cosmos.StdTx;
+  msg: Cosmos.Msg[];
+  fee: Cosmos.StdFee;
+  signatures: null | Cosmos.StdSignature[];
+  memo: string;
 }
 
 export interface CosmosSignTx {
   addressNList: BIP32Path;
-  tx: CosmosTx;
+  tx: Cosmos.StdTx;
   chain_id: string;
   account_number: string;
   sequence: string;

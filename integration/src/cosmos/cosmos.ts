@@ -1,9 +1,8 @@
-import { bip32ToAddressNList, HDWallet, CosmosWallet, supportsCosmos, CosmosTx } from "@shapeshiftoss/hdwallet-core";
+import { bip32ToAddressNList, HDWallet, CosmosWallet, supportsCosmos } from "@shapeshiftoss/hdwallet-core";
 import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
 
-import tx01_unsigned from "./tx01.unsigned.json";
-// @ts-ignore
-import tx01_signed from "./tx01.signed.json";
+import tx_unsigned from "./tx02.current.cosmoshub3.json";
+import tx_signed from "./tx02.current.cosmoshub3.signed.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
@@ -70,10 +69,10 @@ export function cosmosTests(get: () => { wallet: HDWallet; info: HDWalletInfo })
       async () => {
         if (!wallet) return;
 
-        console.log("**** tx01_unsigned: ", tx01_unsigned);
+        console.log("**** tx01_unsigned: ", tx_unsigned);
 
-        let input = {
-          tx: tx01_unsigned,
+        let input: any = {
+          tx: tx_unsigned,
           addressNList: bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "cosmoshub-2",
           account_number: "1",
@@ -86,22 +85,22 @@ export function cosmosTests(get: () => { wallet: HDWallet; info: HDWalletInfo })
 
         console.log("signedTx: ", typeof res);
         console.log("signedTx: ", res);
-        console.log("signedTx: ", res.value);
-        console.log("signedTx: ", res.value.signatures);
-        console.log("signedTx: ", res.value.signatures[0]);
-        console.log("signedTx: ", res.value.signatures[0].signature);
+        console.log("signedTx: ", res);
+        console.log("signedTx: ", res.signatures);
+        console.log("signedTx: ", res.signatures[0]);
+        console.log("signedTx: ", res.signatures[0].signature);
         console.log("signedTx: ", JSON.stringify(res));
 
-        console.log("tx01_signed: ", typeof tx01_signed);
-        console.log("tx01_signed: ", tx01_signed);
-        console.log("tx01_signed: ", tx01_signed.value);
-        console.log("tx01_signed: ", tx01_signed.value.signatures);
-        console.log("tx01_signed: ", JSON.stringify(tx01_signed));
+        console.log("tx_signed: ", typeof tx_signed);
+        console.log("tx01_signed: ", tx_signed);
+        console.log("tx01_signed: ", tx_signed);
+        console.log("tx01_signed: ", tx_signed.signatures);
+        console.log("tx_signed: ", JSON.stringify(tx_signed));
 
         //TODO validate sig
-        console.log("SIG Generated:", res.value.signatures[0].signature);
-        console.log("SIG  Expected: ", tx01_signed.value.signatures[0].signature);
-        expect(res.value.signatures[0].signature).toEqual(tx01_signed.value.signatures[0].signature);
+        console.log("SIG Generated:", res.signatures[0].signature);
+        console.log("SIG  Expected: ", tx_signed.signatures[0].signature);
+        expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
       },
       TIMEOUT
     );
