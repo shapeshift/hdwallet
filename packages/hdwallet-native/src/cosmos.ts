@@ -50,6 +50,7 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TB
     }
 
     async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string> {
+      console.log("msg: ", msg);
       //TODO
       return "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj";
     }
@@ -78,6 +79,9 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TB
 
       let result = await txBuilder.sign(msg.tx.value, wallet, msg.sequence, msg.account_number, ATOM_CHAIN);
       console.log("result: ", result);
+
+      console.log("msg.tx: ", msg.tx);
+      console.log("msg.tx: ", JSON.stringify(msg.tx));
 
       // build final tx
       const signedTx = txBuilder.createSignedTx(msg.tx, result);

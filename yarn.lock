@@ -856,11 +856,12 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@bithighlander/cosmos-tx-builder@latest":
-  version "6.2.2"
-  resolved "https://registry.yarnpkg.com/@bithighlander/cosmos-tx-builder/-/cosmos-tx-builder-6.2.2.tgz#e9cacd68a2e7a7c1d3b342d8cec3447ab0f2ff08"
-  integrity sha512-U0LraM1qamE6dmRuvLs4ppeUm9kYo+Jlir9eTpo/ddwVVAQGILk1VWrBiNFMZFmf/jWqD8JRfyAaay6Hg+sGfg==
+"@bithighlander/cosmos-tx-builder@6.2.3":
+  version "6.2.3"
+  resolved "https://registry.yarnpkg.com/@bithighlander/cosmos-tx-builder/-/cosmos-tx-builder-6.2.3.tgz#5d2930c4884f4043f4cca03b723e68512ce2bf4d"
+  integrity sha512-4UlQ7GATDjuKZP1Tmr+vmUTct9ANsDH8JmxZTUQQP2X+LBHwxxI8FZ3vLLWfPvB21snldmqzLP0czyj+LYnTNQ==
   dependencies:
+    "@bithighlander/loggerdog-client" "^5.8.0"
     "@foxcookieco/pioneer-loggerdog-client" latest
     bech32 "^1.1.4"
     bip32 "^2.0.5"
@@ -871,6 +872,17 @@
     dotenv "^8.2.0"
     hdkey "^1.1.2"
     secp256k1 "^3.8.0"
+
+"@bithighlander/loggerdog-client@^5.8.0":
+  version "5.8.0"
+  resolved "https://registry.yarnpkg.com/@bithighlander/loggerdog-client/-/loggerdog-client-5.8.0.tgz#05e018f42bd6b9a1383c05e97cd5dd4c7c9f154b"
+  integrity sha512-6pIOB632RKUgTot3FfC2g55Nk4H0MuEVlLKmjKYHjE7P1KVBuKyWyAPdA9lllFIZX6Pk2PqruWoNnD7nqb9BOg==
+  dependencies:
+    cli-color "^1.4.0"
+    dotenv "^8.2.0"
+    os "^0.1.1"
+    request "^2.88.0"
+    request-promise "^4.2.5"
 
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"
