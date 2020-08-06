@@ -1,8 +1,8 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@bithighlander/hdwallet-core";
 
-import { addressNListToBIP32, BinanceSignTx, BinanceSignedTx } from "@shapeshiftoss/hdwallet-core";
+import { addressNListToBIP32, BinanceSignTx, BinanceSignedTx } from "@bithighlander/hdwallet-core";
 
-import BncClient from "@bithighlander/javascript-sdk-patch";
+import BncClient from "bnb-javascript-sdk-nobroadcast";
 import HDKey from "hdkey";
 const bip39 = require(`bip39`);
 const ripemd160 = require("crypto-js/ripemd160");

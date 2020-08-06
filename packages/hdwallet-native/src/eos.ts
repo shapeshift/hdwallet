@@ -1,6 +1,6 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@bithighlander/hdwallet-core";
 
-import { addressNListToBIP32, CosmosSignTx, CosmosSignedTx } from "@shapeshiftoss/hdwallet-core";
+import { addressNListToBIP32, CosmosSignTx, CosmosSignedTx } from "@bithighlander/hdwallet-core";
 import HDKey from "hdkey";
 const bip39 = require(`bip39`);
 let { PrivateKey, PublicKey, Signature, Aes, key_utils, config } = require("eosjs-ecc");

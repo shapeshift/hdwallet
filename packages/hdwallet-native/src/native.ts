@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@bithighlander/hdwallet-core";
 import { mnemonicToSeed } from "bip39";
 import { fromSeed } from "bip32";
 import { isObject } from "lodash";
@@ -9,14 +9,19 @@ import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binanc
 import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
 import { MixinNativeEosWalletInfo, MixinNativeEosWallet } from "./eos";
 
-class NativeHDWalletInfo extends MixinNativeBTCWalletInfo(MixinNativeETHWalletInfo(class Base {}))
+class NativeHDWalletInfo
+  extends MixinNativeBTCWalletInfo(
+    MixinNativeETHWalletInfo(
+      MixinNativeBinanceWalletInfo(MixinNativeCosmosWalletInfo(MixinNativeEosWalletInfo(class Base {})))
+    )
+  )
   implements core.HDWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = true;
   _supportsBinanceInfo: boolean = true;
-  _supportsRippleInfo: boolean = false;
   _supportsEosInfo: boolean = true;
+  _supportsRippleInfo: boolean = false;
 
   getVendor(): string {
     return "Native";
@@ -65,14 +70,17 @@ class NativeHDWalletInfo extends MixinNativeBTCWalletInfo(MixinNativeETHWalletIn
   }
 }
 
-export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(NativeHDWalletInfo))
+export class NativeHDWallet
+  extends MixinNativeBTCWallet(
+    MixinNativeETHWallet(MixinNativeBinanceWallet(MixinNativeCosmosWallet(MixinNativeEosWallet(NativeHDWalletInfo))))
+  )
   implements core.HDWallet {
   _supportsBTC = true;
   _supportsETH = true;
   _supportsCosmos = true;
   _supportsBinance = true;
-  _supportsRipple = false;
   _supportsEos = true;
+  _supportsRipple = false;
   _supportsDebugLink = false;
   _isNative = true;
 
