@@ -6,8 +6,12 @@ import { getNetwork } from "./networks";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
+import { MixinNativeEosWalletInfo, MixinNativeEosWallet } from "./eos";
 
-class NativeHDWalletInfo extends MixinNativeBTCWalletInfo(MixinNativeETHWalletInfo(class Base {}))
+class NativeHDWalletInfo
+  extends MixinNativeBTCWalletInfo(
+    MixinNativeETHWalletInfo(MixinNativeCosmosWalletInfo(MixinNativeEosWalletInfo(class Base {})))
+  )
   implements core.HDWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
@@ -63,7 +67,8 @@ class NativeHDWalletInfo extends MixinNativeBTCWalletInfo(MixinNativeETHWalletIn
   }
 }
 
-export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(NativeHDWalletInfo))
+export class NativeHDWallet
+  extends MixinNativeBTCWallet(MixinNativeETHWallet(MixinNativeCosmosWallet(MixinNativeEosWallet(NativeHDWalletInfo))))
   implements core.HDWallet {
   _supportsBTC = true;
   _supportsETH = true;

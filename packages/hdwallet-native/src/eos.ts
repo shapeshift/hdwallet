@@ -69,7 +69,6 @@ export function MixinNativeEosWallet<TBase extends core.Constructor>(Base: TBase
 
     async eosSignTx(msg: any): Promise<any> {
       const seed = await bip39.mnemonicToSeed(this.#seed);
-      let ATOM_CHAIN = "cosmoshub-3";
 
       let mk = new HDKey.fromMasterSeed(Buffer.from(seed, "hex"));
       // expects bip32

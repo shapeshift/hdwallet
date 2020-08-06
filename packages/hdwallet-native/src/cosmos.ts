@@ -26,7 +26,7 @@ function createCosmosAddress(publicKey) {
 export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeCosmosWalletInfo extends Base implements core.CosmosWalletInfo {
     _supportsCosmosInfo = true;
-    //cosmosGetAccountPaths
+
     async cosmosSupportsNetwork(): Promise<boolean> {
       return true;
     }
