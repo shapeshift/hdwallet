@@ -1,28 +1,17 @@
-import {
-  bip32ToAddressNList,
-  HDWallet,
-  CosmosWallet,
-  supportsCosmos,
-  CosmosTx,
-} from "@bithighlander/hdwallet-core";
-import { HDWalletInfo } from "@bithighlander/hdwallet-core/src/wallet";
+import { bip32ToAddressNList, HDWallet, CosmosWallet, supportsCosmos } from "@shapeshiftoss/hdwallet-core";
+import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
 
-// @ts-ignore
-import * as tx01_unsigned from "./tx01.unsigned.json";
-// @ts-ignore
-import * as tx01_signed from "./tx01.signed.json";
+import tx_unsigned from "./tx02.current.cosmoshub3.json";
+import tx_signed from "./tx02.current.cosmoshub3.signed.json";
 
-const MNEMONIC12_NOPIN_NOPASSPHRASE =
-  "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
+const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
 const TIMEOUT = 60 * 1000;
 
 /**
  *  Main integration suite for testing CosmosWallet implementations' Cosmos support.
  */
-export function cosmosTests(
-  get: () => { wallet: HDWallet; info: HDWalletInfo }
-): void {
+export function cosmosTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): void {
   let wallet: CosmosWallet & HDWallet;
 
   describe("Cosmos", () => {
@@ -48,11 +37,6 @@ export function cosmosTests(
         let paths = wallet.cosmosGetAccountPaths({ accountIdx: 0 });
         expect(paths.length > 0).toBe(true);
         expect(paths[0].addressNList[0] > 0x80000000).toBe(true);
-        paths.forEach((path) => {
-          let curAddr = path.addressNList.join();
-          let nextAddr = wallet.cosmosNextAccountPath(path).addressNList.join();
-          expect(nextAddr === undefined || nextAddr !== curAddr).toBeTruthy();
-        });
       },
       TIMEOUT
     );
@@ -63,7 +47,9 @@ export function cosmosTests(
         if (!wallet) return;
         expect(
           await wallet.cosmosGetAddress({
+            relPath: [0, 0],
             addressNList: bip32ToAddressNList("m/44'/118'/0'/0/0"),
+            hardenedPath: bip32ToAddressNList("m/44'/118'/0'"),
             showDisplay: false,
           })
         ).toEqual("cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj");
@@ -76,14 +62,16 @@ export function cosmosTests(
       async () => {
         if (!wallet) return;
 
-        let res = await wallet.cosmosSignTx({
-          tx: (tx01_unsigned as unknown) as CosmosTx,
+        let input: any = {
+          tx: tx_unsigned,
           addressNList: bip32ToAddressNList("m/44'/118'/0'/0/0"),
-          chain_id: "cosmoshub-2",
-          account_number: "1",
-          sequence: "0",
-        });
-        expect(res).toEqual((tx01_signed as unknown) as CosmosTx);
+          chain_id: "cosmoshub-3",
+          account_number: "16354",
+          sequence: "5",
+        };
+
+        let res = await wallet.cosmosSignTx(input);
+        expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
       },
       TIMEOUT
     );
