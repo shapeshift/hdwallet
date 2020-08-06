@@ -1,8 +1,8 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@bithighlander/hdwallet-core";
 
-import { addressNListToBIP32, CosmosSignTx, CosmosSignedTx } from "@shapeshiftoss/hdwallet-core";
+import { addressNListToBIP32, CosmosSignTx, CosmosSignedTx } from "@bithighlander/hdwallet-core";
 
-let txBuilder = require("@bithighlander/cosmos-tx-builder");
+let txBuilder = require("cosmos-tx-builder");
 import HDKey from "hdkey";
 const bip39 = require(`bip39`);
 const ripemd160 = require("crypto-js/ripemd160");

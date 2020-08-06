@@ -1,5 +1,5 @@
-import { bip32ToAddressNList, HDWallet, CosmosWallet, supportsCosmos } from "@shapeshiftoss/hdwallet-core";
-import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
+import { bip32ToAddressNList, HDWallet, CosmosWallet, supportsCosmos } from "@bithighlander/hdwallet-core";
+import { HDWalletInfo } from "@bithighlander/hdwallet-core/src/wallet";
 
 import tx_unsigned from "./tx02.current.cosmoshub3.json";
 import tx_signed from "./tx02.current.cosmoshub3.signed.json";

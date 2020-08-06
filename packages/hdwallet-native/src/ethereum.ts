@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@bithighlander/hdwallet-core";
 import { Wallet, utils } from "ethers";
 import txDecoder from "ethereum-tx-decoder";
 import { HDNode, defaultPath } from "@ethersproject/hdnode";

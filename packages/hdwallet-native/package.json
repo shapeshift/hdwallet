@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/hdwallet-native",
+  "name": "@bithighlander/hdwallet-native",
   "version": "1.0.2",
   "license": "MIT",
   "publishConfig": {
@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@bithighlander/cosmos-tx-builder": "6.3.1",
-    "@shapeshiftoss/hdwallet-core": "^1.0.2",
+    "cosmos-tx-builder": "6.3.2",
+    "@bithighlander/hdwallet-core": "^1.0.2",
     "bchaddrjs": "^0.4.9",
     "bip32": "^2.0.5",
     "bip39": "^3.0.2",

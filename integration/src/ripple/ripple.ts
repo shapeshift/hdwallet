@@ -1,5 +1,5 @@
-import { bip32ToAddressNList, HDWallet, RippleWallet, supportsRipple, RippleTx } from "@shapeshiftoss/hdwallet-core";
-import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
+import { bip32ToAddressNList, HDWallet, RippleWallet, supportsRipple, RippleTx } from "@bithighlander/hdwallet-core";
+import { HDWalletInfo } from "@bithighlander/hdwallet-core/src/wallet";
 
 import * as tx01_unsigned from "./tx01.unsigned.json";
 import * as tx01_signed from "./tx01.signed.json";

@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from "axios";
-import { SEGMENT_SIZE, KeepKeyTransport } from "@shapeshiftoss/hdwallet-keepkey";
-import { Keyring } from "@shapeshiftoss/hdwallet-core";
+import { SEGMENT_SIZE, KeepKeyTransport } from "@bithighlander/hdwallet-keepkey";
+import { Keyring } from "@bithighlander/hdwallet-core";
 import ByteBuffer from "bytebuffer";
 
 export class TCPKeepKeyTransport extends KeepKeyTransport {

@@ -13,23 +13,23 @@ import {
   bip32ToAddressNList,
   Events,
   toHexString,
-} from "@shapeshiftoss/hdwallet-core";
+} from "@bithighlander/hdwallet-core";
 
-import { isKeepKey } from "@shapeshiftoss/hdwallet-keepkey";
-import { isPortis } from "@shapeshiftoss/hdwallet-portis";
+import { isKeepKey } from "@bithighlander/hdwallet-keepkey";
+import { isPortis } from "@bithighlander/hdwallet-portis";
 
-import { WebUSBKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-webusb";
-import { TCPKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-tcp";
-import { TrezorAdapter } from "@shapeshiftoss/hdwallet-trezor-connect";
-import { WebUSBLedgerAdapter } from "@shapeshiftoss/hdwallet-ledger-webusb";
-import { PortisAdapter } from "@shapeshiftoss/hdwallet-portis";
-import { NativeAdapter } from "@shapeshiftoss/hdwallet-native";
+import { WebUSBKeepKeyAdapter } from "@bithighlander/hdwallet-keepkey-webusb";
+import { TCPKeepKeyAdapter } from "@bithighlander/hdwallet-keepkey-tcp";
+import { TrezorAdapter } from "@bithighlander/hdwallet-trezor-connect";
+import { WebUSBLedgerAdapter } from "@bithighlander/hdwallet-ledger-webusb";
+import { PortisAdapter } from "@bithighlander/hdwallet-portis";
+import { NativeAdapter } from "@bithighlander/hdwallet-native";
 
 import {
   BTCInputScriptType,
   BTCOutputScriptType,
   BTCOutputAddressType,
-} from "@shapeshiftoss/hdwallet-core/src/bitcoin";
+} from "@bithighlander/hdwallet-core/src/bitcoin";
 
 import * as btcBech32TxJson from "./json/btcBech32Tx.json";
 import * as btcTxJson from "./json/btcTx.json";
@@ -64,7 +64,7 @@ keyring.onAny((name: string[], ...values: any[]) => {
 const trezorAdapter = TrezorAdapter.useKeyring(keyring, {
   debug: false,
   manifest: {
-    email: "oss@shapeshiftoss.io",
+    email: "oss@bithighlander.io",
     appUrl: "https://shapeshift.com",
   },
 });
