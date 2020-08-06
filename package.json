@@ -1,10 +1,10 @@
 {
-  "name": "@shapeshiftoss/hdwallet",
+  "name": "@bithighlander/hdwallet",
   "version": "1.0.2",
   "main": "index.js",
   "private": true,
   "repository": "https://github.com/shapeshift/hdwallet",
-  "author": "ShapeShift Open Source <oss@shapeshiftoss.io>",
+  "author": "ShapeShift Open Source <oss@bithighlander.io>",
   "license": "MIT",
   "workspaces": {
     "packages": [
@@ -21,13 +21,14 @@
     ]
   },
   "scripts": {
+    "pre-reqs": "npm i -g yarn lerna jest",
+    "clean": "rm -rf packages/*/tsconfig.tsbuildinfo && rm -rf coverage test-report && lerna run clean && lerna clean --yes && rm -rf node_modules && yarn cache clean",
     "yarn": "yarn",
     "lint:ts": "yarn tsc --noEmit",
     "format": "yarn prettier .",
-    "clean": "rm -rf coverage test-report && lerna run clean && lerna clean && rm -rf node_modules && yarn cache clean",
     "build": "yarn tsc --build",
     "dev:all": "yarn tsc --build --watch",
-    "now-build": "lerna run build --scope @shapeshiftoss/hdwallet-core && lerna run build --scope hdwallet-sandbox --ignore @shapeshiftoss/hdwallet-keepkey-nodehid --include-filtered-dependencies && mv examples/sandbox/public .",
+    "now-build": "lerna run build --scope @bithighlander/hdwallet-core && lerna run build --scope hdwallet-sandbox --ignore @bithighlander/hdwallet-keepkey-nodehid --include-filtered-dependencies && mv examples/sandbox/public .",
     "docker:run:emulator": "docker run -p 5000:5000 kktech/kkemu:latest",
     "docker:stop:run:emulator": "docker stop $(docker ps -a -q --filter ancestor=kktech/kkemu:latest --format=\"{{.ID}}\") && docker run -p 5000:5000 kktech/kkemu:latest",
     "test": "yarn run jest --verbose --config jest.config.js",

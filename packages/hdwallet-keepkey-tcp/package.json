@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/hdwallet-keepkey-tcp",
+  "name": "@bithighlander/hdwallet-keepkey-tcp",
   "version": "1.0.2",
   "license": "MIT",
   "publishConfig": {
@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.0.2",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.0.2",
+    "@bithighlander/hdwallet-core": "^1.0.2",
+    "@bithighlander/hdwallet-keepkey": "^1.0.2",
     "axios": "^0.18.0",
     "bytebuffer": "^5.0.1",
     "eventemitter2": "^5.0.1"

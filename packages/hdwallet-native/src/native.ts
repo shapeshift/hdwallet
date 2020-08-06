@@ -1,19 +1,27 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@bithighlander/hdwallet-core";
 import { mnemonicToSeed } from "bip39";
 import { fromSeed } from "bip32";
 import { isObject } from "lodash";
 import { getNetwork } from "./networks";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
+import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binance";
+import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
+import { MixinNativeEosWalletInfo, MixinNativeEosWallet } from "./eos";
 
-class NativeHDWalletInfo extends MixinNativeBTCWalletInfo(MixinNativeETHWalletInfo(class Base {}))
+class NativeHDWalletInfo
+  extends MixinNativeBTCWalletInfo(
+    MixinNativeETHWalletInfo(
+      MixinNativeBinanceWalletInfo(MixinNativeCosmosWalletInfo(MixinNativeEosWalletInfo(class Base {})))
+    )
+  )
   implements core.HDWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
-  _supportsCosmosInfo: boolean = false;
-  _supportsBinanceInfo: boolean = false;
+  _supportsCosmosInfo: boolean = true;
+  _supportsBinanceInfo: boolean = true;
+  _supportsEosInfo: boolean = true;
   _supportsRippleInfo: boolean = false;
-  _supportsEosInfo: boolean = false;
 
   getVendor(): string {
     return "Native";
@@ -62,14 +70,17 @@ class NativeHDWalletInfo extends MixinNativeBTCWalletInfo(MixinNativeETHWalletIn
   }
 }
 
-export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(NativeHDWalletInfo))
+export class NativeHDWallet
+  extends MixinNativeBTCWallet(
+    MixinNativeETHWallet(MixinNativeBinanceWallet(MixinNativeCosmosWallet(MixinNativeEosWallet(NativeHDWalletInfo))))
+  )
   implements core.HDWallet {
   _supportsBTC = true;
   _supportsETH = true;
-  _supportsCosmos = false;
-  _supportsBinance = false;
+  _supportsCosmos = true;
+  _supportsBinance = true;
+  _supportsEos = true;
   _supportsRipple = false;
-  _supportsEos = false;
   _supportsDebugLink = false;
   _isNative = true;
 
@@ -131,6 +142,8 @@ export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(Na
 
   async initialize(): Promise<any> {
     const seed = await mnemonicToSeed(this.#mnemonic);
+    await super.binanceInitializeWallet(this.#mnemonic);
+    super.eosInitializeWallet(this.#mnemonic);
     super.ethInitializeWallet("0x" + seed.toString("hex"));
     await super.btcInitializeWallet(seed);
     this.#initialized = true;
