@@ -1,8 +1,8 @@
 import { bip32ToAddressNList, HDWallet, BinanceWallet, supportsBinance, BinanceTx } from "@bithighlander/hdwallet-core";
 import { HDWalletInfo } from "@bithighlander/hdwallet-core/src/wallet";
 
-import tx01_unsigned from "./tx01.unsigned.json";
-import tx01_signed from "./tx01.signed.json";
+import tx_unsigned from "./tx02.mainnet.unsigned.json";
+import tx_signed from "./tx02.mainnet.signed.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
@@ -62,13 +62,14 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
       TIMEOUT
     );
 
-    test.only(
+    test(
       "binanceSignTx()",
       async () => {
         if (!wallet) return;
 
         let res = await wallet.binanceSignTx({
-          tx: tx01_unsigned,
+          // @ts-ignore
+          tx: tx_unsigned,
           addressNList: bip32ToAddressNList("m/44'/714'/0'/0/0"),
           chain_id: "Binance-Chain-Nile",
           account_number: "24250",
@@ -76,10 +77,19 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
         });
 
         console.log("res: ", res);
+        console.log("res: ", res.signatures);
+        console.log("res: ", res.signatures.signature);
         console.log("res: ", JSON.stringify(res));
 
-        console.log("tx01_signed: ", tx01_signed);
-        console.log("tx01_signed: ", JSON.stringify(tx01_signed));
+        // let sig = Buffer.from(tx_signed.signatures[0].signature.data,'base64')
+        // console.log("SIG: ",sig)
+
+        console.log("tx_signed: ", tx_signed);
+        console.log("tx_signed: ", tx_signed.signatures[0].signature.data.toString());
+        console.log("tx_signed: ", JSON.stringify(tx_signed));
+
+        //TODO get reference tx sig in correct form!
+        //expect(res.signatures.signature).toEqual(tx_signed.signatures[0].signature)
       },
       TIMEOUT
     );

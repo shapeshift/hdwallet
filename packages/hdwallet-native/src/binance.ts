@@ -90,11 +90,14 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor>(Base: T
 
       let privateKey = mk.privateKey;
       let publicKey = mk.publicKey;
+      publicKey = publicKey.toString("hex");
+      privateKey = privateKey.toString("hex");
 
       let wallet = {
         privateKey,
         publicKey,
       };
+      console.log("Wallet: ", { wallet });
 
       //verify from address match signing
       // let signingAddress = await createBNBAddress(publicKey)
