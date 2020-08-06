@@ -5,18 +5,16 @@ import { isObject } from "lodash";
 import { getNetwork } from "./networks";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
+import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binance";
 import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
 import { MixinNativeEosWalletInfo, MixinNativeEosWallet } from "./eos";
 
-class NativeHDWalletInfo
-  extends MixinNativeBTCWalletInfo(
-    MixinNativeETHWalletInfo(MixinNativeCosmosWalletInfo(MixinNativeEosWalletInfo(class Base {})))
-  )
+class NativeHDWalletInfo extends MixinNativeBTCWalletInfo(MixinNativeETHWalletInfo(class Base {}))
   implements core.HDWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = true;
-  _supportsBinanceInfo: boolean = false;
+  _supportsBinanceInfo: boolean = true;
   _supportsRippleInfo: boolean = false;
   _supportsEosInfo: boolean = true;
 
@@ -67,13 +65,12 @@ class NativeHDWalletInfo
   }
 }
 
-export class NativeHDWallet
-  extends MixinNativeBTCWallet(MixinNativeETHWallet(MixinNativeCosmosWallet(MixinNativeEosWallet(NativeHDWalletInfo))))
+export class NativeHDWallet extends MixinNativeBTCWallet(MixinNativeETHWallet(NativeHDWalletInfo))
   implements core.HDWallet {
   _supportsBTC = true;
   _supportsETH = true;
   _supportsCosmos = true;
-  _supportsBinance = false;
+  _supportsBinance = true;
   _supportsRipple = false;
   _supportsEos = true;
   _supportsDebugLink = false;
@@ -137,11 +134,10 @@ export class NativeHDWallet
 
   async initialize(): Promise<any> {
     const seed = await mnemonicToSeed(this.#mnemonic);
+    await super.binanceInitializeWallet(this.#mnemonic);
     super.eosInitializeWallet(this.#mnemonic);
     super.ethInitializeWallet("0x" + seed.toString("hex"));
-    await super.cosmosInitializeWallet(this.#mnemonic);
     await super.btcInitializeWallet(seed);
-
     this.#initialized = true;
   }
 
