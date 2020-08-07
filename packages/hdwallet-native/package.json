@@ -16,6 +16,8 @@
   "dependencies": {
     "@bithighlander/cosmos-tx-builder": "6.3.1",
     "@shapeshiftoss/hdwallet-core": "^1.0.2",
+    "@types/crypto-js": "^3.1.47",
+    "@types/hdkey": "^0.7.1",
     "bchaddrjs": "^0.4.9",
     "bip32": "^2.0.5",
     "bip39": "^3.0.2",
