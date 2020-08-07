@@ -20,6 +20,10 @@ export interface GetPublicKey {
   addressNList: BIP32Path;
   showDisplay?: boolean;
   scriptType?: BTCInputScriptType;
+  script_type?: BTCInputScriptType;
+  symbol?: string;
+  network?: string;
+  available_scripts_types?: [any];
   curve: string;
   coin?: Coin;
 }
@@ -84,6 +88,12 @@ export interface ExchangeType {
 }
 
 export interface DescribePath {
+  path: BIP32Path;
+  coin: Coin;
+  scriptType?: BTCInputScriptType;
+}
+
+export interface GetAddress {
   path: BIP32Path;
   coin: Coin;
   scriptType?: BTCInputScriptType;

@@ -41,7 +41,7 @@ export function cosmosTests(get: () => { wallet: HDWallet; info: HDWalletInfo })
       TIMEOUT
     );
 
-    test(
+    test.skip(
       "cosmosGetAddress()",
       async () => {
         if (!wallet) return;
@@ -57,7 +57,7 @@ export function cosmosTests(get: () => { wallet: HDWallet; info: HDWalletInfo })
       TIMEOUT
     );
 
-    test(
+    test.skip(
       "cosmosSignTx()",
       async () => {
         if (!wallet) return;

@@ -57,12 +57,19 @@ class NativeHDWalletInfo
       case "litecoin":
       case "testnet":
         const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
-
         if (!super.btcSupportsCoin(msg.coin)) return unknown;
         if (!super.btcSupportsScriptType(msg.coin, msg.scriptType)) return unknown;
-
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
       case "ethereum":
+        return core.describeETHPath(msg.path);
+      case "eos":
+        //TODO
+        return core.describeETHPath(msg.path);
+      case "cosmos":
+        //TODO
+        return core.describeETHPath(msg.path);
+      case "binance":
+        //TODO
         return core.describeETHPath(msg.path);
       default:
         throw new Error("Unsupported path");
@@ -111,12 +118,17 @@ export class NativeHDWallet
   }
 
   /*
+   *   Verbose Pubkey Info
+   *      Goals: provide all pertinent info "at a given path"
+   *
+   *
    * @see: https://github.com/satoshilabs/slips/blob/master/slip-0132.md
    * to supports different styles of xpubs as can be defined by passing in a network to `fromSeed`
    */
-  getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey>> {
+  async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey>> {
     return Promise.all(
       msg.map(async (getPublicKey) => {
+        console.log("getPublicKey: ", getPublicKey);
         let { addressNList } = getPublicKey;
         const seed = await mnemonicToSeed(this.#mnemonic);
         const network = getNetwork(getPublicKey.coin, getPublicKey.scriptType);
@@ -125,9 +137,69 @@ export class NativeHDWallet
           .derivePath(core.addressNListToBIP32(core.hardenedPath(addressNList)))
           .neutered()
           .toBase58();
-        return { xpub };
+
+        let addressInfo: core.GetAddress = {
+          path: core.hardenedPath(addressNList),
+          coin: getPublicKey.coin.toLowerCase(),
+          scriptType: getPublicKey.script_type,
+        };
+
+        console.log("addressInfo: ", addressInfo);
+        let pubkey: any = {
+          asset: getPublicKey.coin,
+          path: core.addressNListToBIP32(core.hardenedPath(addressNList)),
+          address: await this.getAddress(addressInfo),
+          script_type: getPublicKey.script_type,
+          network: getPublicKey.network,
+          publicKey: "",
+          xpub,
+        };
+
+        return pubkey;
       })
     );
+  }
+
+  getAddress(msg: core.GetAddress): Promise<string> {
+    switch (msg.coin.toLowerCase()) {
+      case "bitcoin":
+      case "bitcoincash":
+      case "dash":
+      case "digibyte":
+      case "dogecoin":
+      case "litecoin":
+      case "testnet":
+        let inputClone: core.BTCAccountPath = {
+          addressNList: msg.path,
+          coin: msg.coin,
+          scriptType: msg.scriptType,
+        };
+        return super.btcGetAddress(inputClone);
+      case "ethereum":
+        let inputETH: core.BTCAccountPath = {
+          addressNList: msg.path,
+          coin: msg.coin,
+          scriptType: msg.scriptType,
+        };
+        return super.ethGetAddress(inputETH);
+      case "eos":
+        let inputEOS: core.EosAccountPath = {
+          addressNList: msg.path,
+        };
+        return super.eosGetAddress(inputEOS);
+      case "cosmos":
+        let inputATOM: core.CosmosGetAddress = {
+          addressNList: msg.path,
+        };
+        return super.cosmosGetAddress(inputATOM);
+      case "binance":
+        let inputBNB: core.EosAccountPath = {
+          addressNList: msg.path,
+        };
+        return super.binanceGetAddress(inputBNB);
+      default:
+        throw new Error("Unsupported path " + msg.coin);
+    }
   }
 
   async isInitialized(): Promise<boolean> {
@@ -142,7 +214,7 @@ export class NativeHDWallet
 
   async initialize(): Promise<any> {
     const seed = await mnemonicToSeed(this.#mnemonic);
-    await super.binanceInitializeWallet(this.#mnemonic);
+    super.binanceInitializeWallet(this.#mnemonic);
     super.eosInitializeWallet(this.#mnemonic);
     super.ethInitializeWallet("0x" + seed.toString("hex"));
     await super.btcInitializeWallet(seed);

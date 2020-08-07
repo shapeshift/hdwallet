@@ -119,7 +119,6 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(Base: T
 export function MixinNativeBTCWallet<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeBTCWallet extends Base {
     _supportsBTC: boolean;
-
     seed: Buffer;
 
     getKeyPair(coin: core.Coin, addressNList: core.BIP32Path, scriptType?: BTCScriptType): bitcoin.ECPairInterface {

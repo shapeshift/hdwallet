@@ -61,7 +61,7 @@ export function eosTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): v
       TIMEOUT
     );
 
-    test.only(
+    test(
       "integration eosSignTx()",
       async () => {
         if (!wallet) return;
