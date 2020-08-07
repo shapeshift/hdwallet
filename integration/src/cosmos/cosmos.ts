@@ -1,4 +1,5 @@
-import { bip32ToAddressNList, HDWallet, CosmosWallet, supportsCosmos } from "@shapeshiftoss/hdwallet-core";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import { bip32ToAddressNList, HDWallet, CosmosWallet, supportsCosmos, CosmosTx } from "@shapeshiftoss/hdwallet-core";
 import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
 
 import tx_unsigned from "./tx02.current.cosmoshub3.json";
@@ -62,8 +63,8 @@ export function cosmosTests(get: () => { wallet: HDWallet; info: HDWalletInfo })
       async () => {
         if (!wallet) return;
 
-        let input: any = {
-          tx: tx_unsigned,
+        let input: core.CosmosSignTx = {
+          tx: (tx_unsigned as unknown) as core.CosmosTx,
           addressNList: bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "cosmoshub-3",
           account_number: "16354",

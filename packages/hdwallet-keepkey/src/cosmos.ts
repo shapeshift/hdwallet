@@ -35,7 +35,6 @@ export function cosmosGetAccountPaths(msg: Core.CosmosGetAccountPaths): Array<Co
 export async function cosmosSignTx(transport: KeepKeyTransport, msg: Core.CosmosSignTx): Promise<any> {
   return transport.lockDuring(async () => {
     const signTx = new CosmosSignTx();
-    console.log("**** msg: ", msg);
     signTx.setAddressNList(msg.addressNList);
     signTx.setAccountNumber(msg.account_number);
     signTx.setChainId(msg.chain_id);

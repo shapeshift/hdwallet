@@ -120,11 +120,11 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(Base: TBase
   return class MixinNativeBTCWallet extends Base {
     _supportsBTC: boolean;
 
-    seed: Buffer;
+    #seed: Buffer;
 
     getKeyPair(coin: core.Coin, addressNList: core.BIP32Path, scriptType?: BTCScriptType): bitcoin.ECPairInterface {
       const network = getNetwork(coin, scriptType);
-      const wallet = bitcoin.bip32.fromSeed(this.seed, network);
+      const wallet = bitcoin.bip32.fromSeed(this.#seed, network);
       const path = core.addressNListToBIP32(addressNList);
       return bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
     }
@@ -183,7 +183,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor>(Base: TBase
     }
 
     async btcInitializeWallet(seed: Buffer): Promise<void> {
-      this.seed = seed;
+      this.#seed = seed;
     }
 
     async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
