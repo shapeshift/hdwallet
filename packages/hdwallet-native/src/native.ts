@@ -66,7 +66,7 @@ class NativeHDWalletInfo
 
 export class NativeHDWallet
   extends MixinNativeBTCWallet(MixinNativeETHWallet(MixinNativeCosmosWalletInfo(NativeHDWalletInfo)))
-  implements core.HDWallet {
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet {
   _supportsBTC = true;
   _supportsETH = true;
   _supportsCosmos = true;
