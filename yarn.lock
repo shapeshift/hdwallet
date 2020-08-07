@@ -856,21 +856,6 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@bithighlander/cosmos-tx-builder@6.3.1":
-  version "6.3.1"
-  resolved "https://registry.yarnpkg.com/@bithighlander/cosmos-tx-builder/-/cosmos-tx-builder-6.3.1.tgz#0d6ddcbf5e15d650906e1904a591d4ec2d355ff5"
-  integrity sha512-K3sNsxerebITsn0aoRcneFKYWeOs5eMLg9QJ7rXyj8qnujJX60tV/DxL1mWAsld7xXxRsgOiURETgreV1KLrdQ==
-  dependencies:
-    bech32 "^1.1.4"
-    bip32 "^2.0.5"
-    bip39 "^3.0.2"
-    bitcoinjs-lib "^5.1.10"
-    coininfo "^5.1.0"
-    crypto-js "^3.3.0"
-    dotenv "^8.2.0"
-    hdkey "^1.1.2"
-    secp256k1 "^3.8.0"
-
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/@cnakazawa/watch/-/watch-1.0.4.tgz#f864ae85004d0fcab6f50be9141c4da368d1656a"
@@ -4965,6 +4950,21 @@ cosmiconfig@^6.0.0:
     path-type "^4.0.0"
     yaml "^1.7.2"
 
+cosmos-tx-builder@^6.3.2:
+  version "6.3.2"
+  resolved "https://registry.yarnpkg.com/cosmos-tx-builder/-/cosmos-tx-builder-6.3.2.tgz#660af715d960d36158baf33b2882b32faa3699b2"
+  integrity sha512-ecJQ/nfjaiFZt8Osv9OuqasgqmTg3Pv0sGm9DQSnk0fn3lceiZYrzUBEPHRyrgo8bdWJEKINNrlIsyeglDmFiA==
+  dependencies:
+    bech32 "^1.1.4"
+    bip32 "^2.0.5"
+    bip39 "^3.0.2"
+    bitcoinjs-lib "^5.1.10"
+    coininfo "^5.1.0"
+    crypto-js "^3.3.0"
+    dotenv "^8.2.0"
+    hdkey "^1.1.2"
+    secp256k1 "^3.8.0"
+
 create-ecdh@^4.0.0:
   version "4.0.3"
   resolved "https://registry.yarnpkg.com/create-ecdh/-/create-ecdh-4.0.3.tgz#c9111b6f33045c4697f144787f9254cdc77c45ff"
@@ -5054,6 +5054,11 @@ crypto-js@^3.1.9-1, crypto-js@^3.3.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-3.3.0.tgz#846dd1cce2f68aacfa156c8578f926a609b7976b"
   integrity sha512-DIT51nX0dCfKltpRiXV+/TVZq+Qq2NgF4644+K7Ttnla7zEzqc+kjJyiB96BHNyUTBxyjzRcZYpUdZa+QAqi6Q==
+
+crypto-js@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-4.0.0.tgz#2904ab2677a9d042856a2ea2ef80de92e4a36dcc"
+  integrity sha512-bzHZN8Pn+gS7DQA6n+iUmBfl0hO5DJq++QP3U6uTucDtk/0iGpXd/Gg7CGR0p8tJhofJyaKoWBuJI4eAO00BBg==
 
 crypto@^1.0.1:
   version "1.0.1"
@@ -13786,15 +13791,10 @@ whatwg-encoding@^1.0.1, whatwg-encoding@^1.0.3, whatwg-encoding@^1.0.5:
   dependencies:
     iconv-lite "0.4.24"
 
-whatwg-fetch@2.0.4:
+whatwg-fetch@2.0.4, whatwg-fetch@^2.0.4, whatwg-fetch@^3.0.0:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/whatwg-fetch/-/whatwg-fetch-2.0.4.tgz#dde6a5df315f9d39991aa17621853d720b85566f"
   integrity sha512-dcQ1GWpOD/eEQ97k66aiEVpNnapVj90/+R+SXTPYGHpYBBypfKJEQjLrvMZ7YXbKm21gXd4NcuxUTjiv1YtLng==
-
-whatwg-fetch@^3.0.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/whatwg-fetch/-/whatwg-fetch-3.4.0.tgz#e11de14f4878f773fbebcde8871b2c0699af8b30"
-  integrity sha512-rsum2ulz2iuZH08mJkT0Yi6JnKhwdw4oeyMjokgxd+mmqYSd9cPpOQf01TIWgjxG/U4+QR+AwKq6lSbXVxkyoQ==
 
 whatwg-mimetype@^2.1.0, whatwg-mimetype@^2.2.0, whatwg-mimetype@^2.3.0:
   version "2.3.0"

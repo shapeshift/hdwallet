@@ -1,12 +1,9 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-
-let txBuilder = require("@bithighlander/cosmos-tx-builder");
+import txBuilder from "cosmos-tx-builder";
 import HDKey from "hdkey";
-const bip39 = require(`bip39`);
+import bip39 from "bip39";
 import bech32 from "bech32";
-import CryptoJS from "crypto-js";
-import ripemd160 from "crypto-js/ripemd160";
-import sha256 from "crypto-js/sha256";
+import { RIPEMD160, SHA256 } from "crypto-js";
 
 export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeCosmosWalletInfo extends Base implements core.CosmosWalletInfo {
@@ -52,9 +49,8 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TB
       return bech32.encode(prefix, words);
     }
 
-    createCosmosAddress(publicKey) {
-      const message = CryptoJS.enc.Hex.parse(publicKey.toString(`hex`));
-      const hash = ripemd160(sha256(message)).toString();
+    createCosmosAddress(publicKey: Buffer) {
+      const hash = RIPEMD160(SHA256(publicKey.toString("hex")).toString()).toString();
       const address = Buffer.from(hash, `hex`);
       const cosmosAddress = this.bech32ify(address, `cosmos`);
       return cosmosAddress;
@@ -63,22 +59,22 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TB
     async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string> {
       const seed = await bip39.mnemonicToSeed(this.#seed);
 
-      let mk = new HDKey.fromMasterSeed(Buffer.from(seed, "hex"));
       // expects bip32
       const path = core.addressNListToBIP32(msg.addressNList);
 
-      const address = this.createCosmosAddress(mk.derive(path).publicKey);
-      return address;
+      const mk = HDKey.fromMasterSeed(seed).derive(path);
+
+      return this.createCosmosAddress(mk.publicKey);
     }
 
     async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx> {
       const seed = await bip39.mnemonicToSeed(this.#seed);
       const ATOM_CHAIN = "cosmoshub-3";
 
-      let mk = new HDKey.fromMasterSeed(Buffer.from(seed, "hex"));
       // expects bip32
       const path = core.addressNListToBIP32(msg.addressNList);
-      mk = mk.derive(path);
+
+      const mk = HDKey.fromMasterSeed(seed).derive(path);
 
       const privateKey = mk.privateKey;
       const publicKey = mk.publicKey;
@@ -90,10 +86,7 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TB
 
       const result = await txBuilder.sign(msg.tx, wallet, msg.sequence, msg.account_number, ATOM_CHAIN);
 
-      // build final tx
-      const signedTx = txBuilder.createSignedTx(msg.tx, result);
-
-      return signedTx;
+      return txBuilder.createSignedTx(msg.tx, result);
     }
   };
 }
