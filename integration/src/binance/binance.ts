@@ -35,7 +35,6 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
       () => {
         if (!wallet) return;
         let paths = wallet.binanceGetAccountPaths({ accountIdx: 0 });
-        console.log("binanceGetAccountPaths: ", paths);
 
         expect(paths.length > 0).toBe(true);
         expect(paths[0].addressNList[0] > 0x80000000).toBe(true);
@@ -62,7 +61,7 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
       TIMEOUT
     );
 
-    test.only(
+    test(
       "binanceSignTx()",
       async () => {
         if (!wallet) return;
@@ -74,12 +73,6 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
           account_number: "24250",
           sequence: "0",
         });
-
-        console.log("res: ", res);
-        console.log("res: ", JSON.stringify(res));
-
-        console.log("tx02_signed: ", tx02_signed);
-        console.log("2: ", JSON.stringify(tx02_signed));
       },
       TIMEOUT
     );
