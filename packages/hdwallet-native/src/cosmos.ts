@@ -2,7 +2,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 
 let txBuilder = require("@bithighlander/cosmos-tx-builder");
 import HDKey from "hdkey";
-const bip39 = require(`bip39`);
+import { mnemonicToSeed } from "bip39";
 import bech32 from "bech32";
 import CryptoJS from "crypto-js";
 import ripemd160 from "crypto-js/ripemd160";
@@ -61,9 +61,9 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TB
     }
 
     async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string> {
-      const seed = await bip39.mnemonicToSeed(this.#seed);
+      const seed = await mnemonicToSeed(this.#seed);
 
-      let mk = new HDKey.fromMasterSeed(Buffer.from(seed, "hex"));
+      let mk = new HDKey.fromMasterSeed(Buffer.from(seed));
       // expects bip32
       const path = core.addressNListToBIP32(msg.addressNList);
 
@@ -72,10 +72,10 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TB
     }
 
     async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx> {
-      const seed = await bip39.mnemonicToSeed(this.#seed);
+      const seed = await mnemonicToSeed(this.#seed);
       const ATOM_CHAIN = "cosmoshub-3";
 
-      let mk = new HDKey.fromMasterSeed(Buffer.from(seed, "hex"));
+      let mk = new HDKey.fromMasterSeed(Buffer.from(seed));
       // expects bip32
       const path = core.addressNListToBIP32(msg.addressNList);
       mk = mk.derive(path);
