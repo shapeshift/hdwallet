@@ -3,7 +3,7 @@ import txBuilder from "cosmos-tx-builder";
 import HDKey from "hdkey";
 import { mnemonicToSeed } from "bip39";
 import { toWords, encode } from "bech32";
-import { RIPEMD160, SHA256 } from "crypto-js";
+import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
 
 export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeCosmosWalletInfo extends Base implements core.CosmosWalletInfo {
@@ -50,7 +50,8 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TB
     }
 
     createCosmosAddress(publicKey: Buffer) {
-      const hash = RIPEMD160(SHA256(publicKey.toString("hex")).toString()).toString();
+      const message = SHA256(CryptoJS.enc.Hex.parse(publicKey.toString(`hex`)));
+      const hash = RIPEMD160(message as any).toString();
       const address = Buffer.from(hash, `hex`);
       const cosmosAddress = this.bech32ify(address, `cosmos`);
       return cosmosAddress;
