@@ -134,9 +134,10 @@ export class NativeHDWallet
 
   async initialize(): Promise<any> {
     const seed = await mnemonicToSeed(this.#mnemonic);
-    super.ethInitializeWallet("0x" + seed.toString("hex"));
-    await super.cosmosInitializeWallet(this.#mnemonic);
+
     await super.btcInitializeWallet(seed);
+    super.ethInitializeWallet("0x" + seed.toString("hex"));
+    super.cosmosInitializeWallet(this.#mnemonic);
 
     this.#initialized = true;
   }
