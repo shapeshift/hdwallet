@@ -42,7 +42,6 @@ export interface BitcoinTx {
   locktime: number;
   vin: Array<BitcoinInput>;
   vout: Array<BitcoinOutput>;
-
   type?: number; // Dash
   extraPayload?: string; // Dash
   extraPayloadSize?: number; // Dash

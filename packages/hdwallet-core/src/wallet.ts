@@ -25,11 +25,34 @@ export interface GetPublicKey {
   network?: string;
   available_scripts_types?: [any];
   curve: string;
-  coin?: Coin;
+  coin?: string;
+  address?: string;
+  pubkey?: string;
+  path?: string;
+  long?: string;
+  master?: string;
+  type?: string;
+  logs?: string;
+  note?: string;
+  verbose?: any;
 }
 
 export interface PublicKey {
-  xpub: string;
+  xpub?: string;
+  address?: string;
+  path?: string;
+  coin?: string;
+  symbol?: string;
+  long?: string;
+  network?: string;
+  master?: string;
+  pubkey?: string;
+  script_type?: BTCInputScriptType;
+  available_scripts_types?: [any];
+  type?: string;
+  logs?: string;
+  note?: string;
+  verbose?: any;
 }
 
 export interface Ping {

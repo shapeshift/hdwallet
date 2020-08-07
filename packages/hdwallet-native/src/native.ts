@@ -144,16 +144,22 @@ export class NativeHDWallet
           scriptType: getPublicKey.script_type,
         };
 
-        console.log("addressInfo: ", addressInfo);
-        let pubkey: any = {
-          asset: getPublicKey.coin,
-          path: core.addressNListToBIP32(core.hardenedPath(addressNList)),
-          address: await this.getAddress(addressInfo),
-          script_type: getPublicKey.script_type,
+        let pubkey: core.PublicKey = {
+          coin: getPublicKey.coin,
           network: getPublicKey.network,
-          publicKey: "",
+          script_type: getPublicKey.script_type,
+          path: core.addressNListToBIP32(core.hardenedPath(addressNList)),
+          long: getPublicKey.coin,
+          address: await this.getAddress(addressInfo),
+          master: await this.getAddress(addressInfo),
+          type: getPublicKey.type,
           xpub,
         };
+        if (getPublicKey.type === "address") {
+          pubkey.pubkey = pubkey.address;
+        } else {
+          pubkey.pubkey = pubkey.xpub;
+        }
 
         return pubkey;
       })
