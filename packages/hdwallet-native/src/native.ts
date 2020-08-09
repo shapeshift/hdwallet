@@ -131,7 +131,8 @@ export class NativeHDWallet
         console.log("getPublicKey: ", getPublicKey);
         let { addressNList } = getPublicKey;
         const seed = await mnemonicToSeed(this.#mnemonic);
-        const network = getNetwork(getPublicKey.coin, getPublicKey.scriptType);
+
+        const network = getNetwork("bitcoin", getPublicKey.scriptType);
         const node = fromSeed(seed, network);
         const xpub = node
           .derivePath(core.addressNListToBIP32(core.hardenedPath(addressNList)))
@@ -145,7 +146,7 @@ export class NativeHDWallet
         };
 
         let pubkey: core.PublicKey = {
-          coin: getPublicKey.coin,
+          coin: getPublicKey.network,
           network: getPublicKey.network,
           script_type: getPublicKey.script_type,
           path: core.addressNListToBIP32(core.hardenedPath(addressNList)),
@@ -155,9 +156,11 @@ export class NativeHDWallet
           type: getPublicKey.type,
           xpub,
         };
-        if (getPublicKey.type === "address") {
+        if (getPublicKey.type == "address") {
+          console.log("Address type: ");
           pubkey.pubkey = pubkey.address;
         } else {
+          console.log("Address type: ");
           pubkey.pubkey = pubkey.xpub;
         }
 

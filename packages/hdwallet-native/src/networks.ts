@@ -175,6 +175,8 @@ export function getNetwork(coin: string, scriptType?: string): Network {
     case "dogecoin":
     case "litecoin":
     case "testnet":
+      //HACK dont use "xpub" native formats
+      //TODO handle all
       network = networks[coin];
       break;
     case "bitcoin":
