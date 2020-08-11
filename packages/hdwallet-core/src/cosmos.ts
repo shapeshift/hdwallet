@@ -9,7 +9,7 @@ export interface CosmosGetAddress {
   address?: string;
 }
 
-namespace Cosmos {
+export namespace Cosmos {
   export interface Msg {
     type: string;
     value: any;
