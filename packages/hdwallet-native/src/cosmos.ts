@@ -75,7 +75,7 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TB
       const seed = await mnemonicToSeed(this.#seed);
       const ATOM_CHAIN = "cosmoshub-3";
 
-      const network = getNetwork("bitcoin");
+      const network = getNetwork("cosmos");
       const hdkey = bitcoin.bip32.fromSeed(seed, network);
       const path = core.addressNListToBIP32(msg.addressNList);
 
