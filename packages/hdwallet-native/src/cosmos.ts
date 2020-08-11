@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-// @ts-ignore
+
 import txBuilder from "cosmos-tx-builder";
 import * as bitcoin from "bitcoinjs-lib";
 import { getNetwork } from "./networks";
