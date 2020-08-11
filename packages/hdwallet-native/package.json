@@ -19,7 +19,7 @@
     "bip32": "^2.0.5",
     "bip39": "^3.0.2",
     "bitcoinjs-lib": "^5.1.10",
-    "bnb-javascript-sdk-nobroadcast": "2.16.5",
+    "bnb-javascript-sdk-nobroadcast": "^2.16.5",
     "cosmos-tx-builder": "^6.3.2",
     "eosjs": "^21.0.2",
     "eosjs-ecc": "^4.0.7",

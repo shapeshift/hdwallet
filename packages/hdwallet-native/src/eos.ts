@@ -4,18 +4,52 @@ import { addressNListToBIP32, CosmosSignTx, CosmosSignedTx } from "@bithighlande
 import HDKey from "hdkey";
 const bip39 = require(`bip39`);
 let { PrivateKey, PublicKey, Signature, Aes, key_utils, config } = require("eosjs-ecc");
+const hdPathEos = `m/44'/194'/0'/0/0`; // REF: EOS: https://github.com/GetScatter/ScatterDesktop/blob/63701f48dc4597732b6a446c15e90a66fbfa7989/electron/hardware/LedgerWallet.js#L56
+let bitcoin = require("bitcoinjs-lib");
+const bip32 = require(`bip32`);
+const secp256k1 = require(`secp256k1`);
 
 // NOTE: this only works with a compressed public key (33 bytes)
-// function createEOSAddress(privateKey) {
-//   try{
-//     privateKey = PrivateKey.fromBuffer(privateKey)
-//     privateKey = privateKey.toWif()
-//     let pubkey = PrivateKey.fromString(privateKey).toPublic().toString()
-//     return pubkey
-//   }catch(e){
-//     throw Error(e)
-//   }
-// }
+function createEOSAddress(privateKey) {
+  try {
+    privateKey = PrivateKey.fromBuffer(privateKey);
+    privateKey = privateKey.toWif();
+    let pubkey = PrivateKey.fromString(privateKey).toPublic().toString();
+    return pubkey;
+  } catch (e) {
+    throw Error(e);
+  }
+}
+
+async function deriveMasterKey(mnemonic) {
+  // throws if mnemonic is invalid
+  bip39.validateMnemonic(mnemonic);
+
+  const seed = await bip39.mnemonicToSeed(mnemonic);
+  // let masterKey =  new HDKey.fromMasterSeed(new Buffer(seed, 'hex'), coininfo(network).versions.bip32.versions)
+  // log.debug("masterKey: ",masterKey)
+  let mk = new HDKey.fromMasterSeed(Buffer.from(seed, "hex"));
+
+  //get eos-network key
+  mk = mk.derive("m/44'/194'/0'");
+
+  //get correct address with xpub
+  let xpub = mk.publicExtendedKey;
+
+  const masterKey = bip32.fromSeed(seed);
+  return { masterKey, xpub };
+}
+
+function deriveKeypair(masterKey) {
+  const cosmosHD = masterKey.derivePath(hdPathEos);
+  const privateKey = cosmosHD.privateKey;
+  const publicKey = secp256k1.publicKeyCreate(privateKey, true);
+
+  return {
+    privateKey,
+    publicKey,
+  };
+}
 
 export function MixinNativeEosWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeEosWalletInfo extends Base implements core.EosWalletInfo {
@@ -62,9 +96,14 @@ export function MixinNativeEosWallet<TBase extends core.Constructor>(Base: TBase
     }
 
     async eosGetAddress(msg: any): Promise<string> {
-      //const {masterKey,xpub} = await deriveMasterKey(mnemonic)
+      const { masterKey, xpub } = await deriveMasterKey(this.#seed);
+      //
 
-      return "EOS4u6Sfnzj4Sh2pEQnkXyZQJqH3PkKjGByDCbsqqmyq6PttM9KyB";
+      let { privateKey, publicKey } = deriveKeypair(masterKey);
+
+      let address = await createEOSAddress(privateKey);
+
+      return address;
     }
 
     async eosSignTx(msg: any): Promise<any> {
