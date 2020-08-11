@@ -1,6 +1,8 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+// @ts-ignore
 import txBuilder from "cosmos-tx-builder";
-import HDKey from "hdkey";
+import * as bitcoin from "bitcoinjs-lib";
+import { getNetwork } from "./networks";
 import { mnemonicToSeed } from "bip39";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
@@ -49,8 +51,8 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TB
       return encode(prefix, words);
     }
 
-    createCosmosAddress(publicKey: Buffer) {
-      const message = SHA256(CryptoJS.enc.Hex.parse(publicKey.toString(`hex`)));
+    createCosmosAddress(publicKey: string) {
+      const message = SHA256(CryptoJS.enc.Hex.parse(publicKey));
       const hash = RIPEMD160(message as any).toString();
       const address = Buffer.from(hash, `hex`);
       const cosmosAddress = this.bech32ify(address, `cosmos`);
@@ -60,25 +62,26 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TB
     async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string> {
       const seed = await mnemonicToSeed(this.#seed);
 
-      // expects bip32
+      const network = getNetwork("bitcoin");
+      const wallet = bitcoin.bip32.fromSeed(seed, network);
       const path = core.addressNListToBIP32(msg.addressNList);
+      const keypair = await bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
+      const address = this.createCosmosAddress(keypair.publicKey.toString("hex"));
 
-      const mk = HDKey.fromMasterSeed(seed).derive(path);
-
-      return this.createCosmosAddress(mk.publicKey);
+      return address;
     }
 
     async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx> {
       const seed = await mnemonicToSeed(this.#seed);
       const ATOM_CHAIN = "cosmoshub-3";
 
-      // expects bip32
+      const network = getNetwork("bitcoin");
+      const hdkey = bitcoin.bip32.fromSeed(seed, network);
       const path = core.addressNListToBIP32(msg.addressNList);
 
-      const mk = HDKey.fromMasterSeed(seed).derive(path);
-
-      const privateKey = mk.privateKey;
-      const publicKey = mk.publicKey;
+      let keypair = await bitcoin.ECPair.fromWIF(hdkey.derivePath(path).toWIF(), network);
+      let privateKey = keypair.privateKey.toString("hex");
+      let publicKey = keypair.publicKey.toString("hex");
 
       const wallet = {
         privateKey,
