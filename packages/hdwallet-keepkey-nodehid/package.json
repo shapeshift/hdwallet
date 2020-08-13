@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-nodehid",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "license": "MIT",
   "private": true,
   "main": "dist/index.js",
@@ -12,8 +12,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.1.1",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.1.1",
+    "@shapeshiftoss/hdwallet-core": "^1.1.2",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.1.2",
     "bytebuffer": "^5.0.1",
     "crypto": "^1.0.1",
     "eventemitter2": "^5.0.1"
