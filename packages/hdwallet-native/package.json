@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-native",
-  "version": "1.0.2",
+  "version": "1.1.2",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -10,23 +10,24 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc --build",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@bithighlander/javascript-sdk-patch": "^2.16.5",
-    "@shapeshiftoss/hdwallet-core": "^1.0.2",
+    "bnb-javascript-sdk-nobroadcast": "^2.16.5",
+    "@shapeshiftoss/hdwallet-core": "^1.1.2",
     "bchaddrjs": "^0.4.9",
     "bip32": "^2.0.5",
     "bip39": "^3.0.2",
     "bitcoinjs-lib": "^5.1.10",
-    "bnb-javascript-sdk-nobroadcast": "2.16.5",
+    "cosmos-tx-builder": "^6.3.3",
+    "crypto-js": "^3.1.9-1",
     "ethereum-tx-decoder": "^3.0.0",
     "ethers": "^5.0.2",
-    "hdkey": "1.1.1",
     "lodash": "^4.17.15"
   },
   "devDependencies": {
-    "@types/bchaddrjs": "^0.4.0"
+    "@types/bchaddrjs": "^0.4.0",
+    "@types/crypto-js": "^3.1.9-1"
   }
 }

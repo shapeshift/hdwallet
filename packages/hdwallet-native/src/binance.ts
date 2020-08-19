@@ -2,8 +2,9 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 
 import { addressNListToBIP32, BinanceSignTx, BinanceSignedTx } from "@shapeshiftoss/hdwallet-core";
 
-import BncClient from "@bithighlander/javascript-sdk-patch";
-import HDKey from "hdkey";
+import BncClient from "bnb-javascript-sdk-nobroadcast";
+import * as bitcoin from "bitcoinjs-lib";
+import { getNetwork } from "./networks";
 import { mnemonicToSeed } from "bip39";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
@@ -65,31 +66,40 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor>(Base: T
       this.#seed = seed;
     }
 
+    bech32ify(address: ArrayLike<number>, prefix: string): string {
+      const words = toWords(address);
+      return encode(prefix, words);
+    }
+
+    createBinanceAddress(publicKey: string) {
+      const message = SHA256(CryptoJS.enc.Hex.parse(publicKey));
+      const hash = RIPEMD160(message as any).toString();
+      const address = Buffer.from(hash, `hex`);
+      const cosmosAddress = this.bech32ify(address, `bnb`);
+      return cosmosAddress;
+    }
+
     async binanceGetAddress(msg: core.BinanceGetAddress): Promise<string> {
       const seed = await mnemonicToSeed(this.#seed);
 
-      // expects bip32
-      const path = addressNListToBIP32(msg.addressNList);
-      const mk = new HDKey.fromMasterSeed(seed).derive(path);
-      const publicKey = mk.publicKey;
-      const address = createBNBAddress(publicKey);
+      const network = getNetwork("bitcoin");
+      const wallet = bitcoin.bip32.fromSeed(seed, network);
+      const path = core.addressNListToBIP32(msg.addressNList);
+      const keypair = await bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
+      const address = this.createBinanceAddress(keypair.publicKey.toString("hex"));
+
       return address;
     }
 
     async binanceSignTx(msg: BinanceSignTx, mnemonic: string, xpriv: string, from: string): Promise<BinanceSignedTx> {
       const seed = await mnemonicToSeed(this.#seed);
 
-      // expects bip32
-      const path = addressNListToBIP32(msg.addressNList);
-      const mk = HDKey.fromMasterSeed(seed).derive(path);
+      const network = getNetwork("cosmos");
+      const hdkey = bitcoin.bip32.fromSeed(seed, network);
+      const path = core.addressNListToBIP32(msg.addressNList);
 
-      const privateKey = mk.privateKey.toString("hex");
-      const publicKey = mk.publicKey.toString("hex");
-
-      const wallet = {
-        privateKey,
-        publicKey,
-      };
+      let keypair = await bitcoin.ECPair.fromWIF(hdkey.derivePath(path).toWIF(), network);
+      let privateKey = keypair.privateKey.toString("hex");
 
       //use sdk to build Amino encoded hex transaction
       const client = new BncClient("https://dex.binance.org"); //broadcast not used but available
@@ -108,7 +118,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor>(Base: T
 
       const rawHex = result.serialize();
       const buffer = Buffer.from(rawHex, "hex");
-      const txid = "";
+      const txid = ""; //TODO this no worky on mobile crypto.createHash('sha256').update(buffer).digest('hex').toUpperCase()
 
       const output: BinanceSignedTx = {
         account_number: result.account,
