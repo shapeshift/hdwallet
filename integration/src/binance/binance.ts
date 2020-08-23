@@ -1,8 +1,8 @@
-import { bip32ToAddressNList, HDWallet, BinanceWallet, supportsBinance, BinanceTx } from "@bithighlander/hdwallet-core";
-import { HDWalletInfo } from "@bithighlander/hdwallet-core/src/wallet";
+import { bip32ToAddressNList, HDWallet, BinanceWallet, supportsBinance, BinanceTx } from "@shapeshiftoss/hdwallet-core";
+import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
 
-import tx_unsigned from "./tx02.mainnet.unsigned.json";
-import tx_signed from "./tx02.mainnet.signed.json";
+import tx02_unsigned from "./tx02.mainnet.unsigned.json";
+import tx02_signed from "./tx02.mainnet.signed.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
@@ -35,7 +35,6 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
       () => {
         if (!wallet) return;
         let paths = wallet.binanceGetAccountPaths({ accountIdx: 0 });
-        console.log("binanceGetAccountPaths: ", paths);
 
         expect(paths.length > 0).toBe(true);
         expect(paths[0].addressNList[0] > 0x80000000).toBe(true);
@@ -68,28 +67,12 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
         if (!wallet) return;
 
         let res = await wallet.binanceSignTx({
-          // @ts-ignore
-          tx: tx_unsigned,
+          tx: tx02_unsigned,
           addressNList: bip32ToAddressNList("m/44'/714'/0'/0/0"),
           chain_id: "Binance-Chain-Nile",
           account_number: "24250",
           sequence: "0",
         });
-
-        console.log("res: ", res);
-        console.log("res: ", res.signatures);
-        console.log("res: ", res.signatures.signature);
-        console.log("res: ", JSON.stringify(res));
-
-        // let sig = Buffer.from(tx_signed.signatures[0].signature.data,'base64')
-        // console.log("SIG: ",sig)
-
-        console.log("tx_signed: ", tx_signed);
-        console.log("tx_signed: ", tx_signed.signatures[0].signature.data.toString());
-        console.log("tx_signed: ", JSON.stringify(tx_signed));
-
-        //TODO get reference tx sig in correct form!
-        //expect(res.signatures.signature).toEqual(tx_signed.signatures[0].signature)
       },
       TIMEOUT
     );
