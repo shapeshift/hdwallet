@@ -60,6 +60,7 @@ export interface ETHSignedTx {
   /** big-endian hex, prefixed with '0x' */
   s: string;
   /** big-endian hex, prefixed with '0x' */
+  txid?: string;
   serialized: string;
 }
 
