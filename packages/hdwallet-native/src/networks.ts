@@ -179,6 +179,7 @@ export function getNetwork(coin: string, scriptType?: string): Network {
       //TODO handle all
       network = networks[coin];
       break;
+    case "cosmos":
     case "bitcoin":
     case "bitcoincash":
     case "ethereum":

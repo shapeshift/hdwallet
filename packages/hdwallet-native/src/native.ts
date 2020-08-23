@@ -1,27 +1,21 @@
-import * as core from "@bithighlander/hdwallet-core";
+import * as core from "@shapeshiftoss/hdwallet-core";
 import { mnemonicToSeed } from "bip39";
 import { fromSeed } from "bip32";
 import { isObject } from "lodash";
 import { getNetwork } from "./networks";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
-import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binance";
 import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
-import { MixinNativeEosWalletInfo, MixinNativeEosWallet } from "./eos";
 
 class NativeHDWalletInfo
-  extends MixinNativeBTCWalletInfo(
-    MixinNativeETHWalletInfo(
-      MixinNativeBinanceWalletInfo(MixinNativeCosmosWalletInfo(MixinNativeEosWalletInfo(class Base {})))
-    )
-  )
+  extends MixinNativeBTCWalletInfo(MixinNativeETHWalletInfo(MixinNativeCosmosWallet(class Base {})))
   implements core.HDWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = true;
-  _supportsBinanceInfo: boolean = true;
-  _supportsEosInfo: boolean = true;
+  _supportsBinanceInfo: boolean = false;
   _supportsRippleInfo: boolean = false;
+  _supportsEosInfo: boolean = false;
 
   getVendor(): string {
     return "Native";
@@ -57,19 +51,12 @@ class NativeHDWalletInfo
       case "litecoin":
       case "testnet":
         const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
+
         if (!super.btcSupportsCoin(msg.coin)) return unknown;
         if (!super.btcSupportsScriptType(msg.coin, msg.scriptType)) return unknown;
+
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
       case "ethereum":
-        return core.describeETHPath(msg.path);
-      case "eos":
-        //TODO
-        return core.describeETHPath(msg.path);
-      case "cosmos":
-        //TODO
-        return core.describeETHPath(msg.path);
-      case "binance":
-        //TODO
         return core.describeETHPath(msg.path);
       default:
         throw new Error("Unsupported path");
@@ -78,16 +65,14 @@ class NativeHDWalletInfo
 }
 
 export class NativeHDWallet
-  extends MixinNativeBTCWallet(
-    MixinNativeETHWallet(MixinNativeBinanceWallet(MixinNativeCosmosWallet(MixinNativeEosWallet(NativeHDWalletInfo))))
-  )
-  implements core.HDWallet {
+  extends MixinNativeBTCWallet(MixinNativeETHWallet(MixinNativeCosmosWalletInfo(NativeHDWalletInfo)))
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet {
   _supportsBTC = true;
   _supportsETH = true;
   _supportsCosmos = true;
-  _supportsBinance = true;
-  _supportsEos = true;
+  _supportsBinance = false;
   _supportsRipple = false;
+  _supportsEos = false;
   _supportsDebugLink = false;
   _isNative = true;
 
@@ -118,91 +103,23 @@ export class NativeHDWallet
   }
 
   /*
-   *   Verbose Pubkey Info
-   *      Goals: provide all pertinent info "at a given path"
-   *
-   *
    * @see: https://github.com/satoshilabs/slips/blob/master/slip-0132.md
    * to supports different styles of xpubs as can be defined by passing in a network to `fromSeed`
    */
-  async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey>> {
+  getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey>> {
     return Promise.all(
       msg.map(async (getPublicKey) => {
         let { addressNList } = getPublicKey;
         const seed = await mnemonicToSeed(this.#mnemonic);
-
-        const network = getNetwork("bitcoin", getPublicKey.scriptType);
+        const network = getNetwork(getPublicKey.coin, getPublicKey.scriptType);
         const node = fromSeed(seed, network);
-        const xpub = node.derivePath(core.addressNListToBIP32(addressNList)).neutered().toBase58();
-
-        let addressInfo: core.GetAddress = {
-          path: core.hardenedPath(addressNList),
-          coin: getPublicKey.coin.toLowerCase(),
-          scriptType: getPublicKey.script_type,
-        };
-
-        let pubkey: core.PublicKey = {
-          coin: getPublicKey.network,
-          network: getPublicKey.network,
-          script_type: getPublicKey.script_type,
-          path: core.addressNListToBIP32(core.hardenedPath(addressNList)),
-          long: getPublicKey.coin,
-          address: await this.getAddress(addressInfo),
-          master: await this.getAddress(addressInfo),
-          type: getPublicKey.type,
-          xpub,
-        };
-        if (getPublicKey.type == "address") {
-          pubkey.pubkey = pubkey.address;
-        } else {
-          pubkey.pubkey = pubkey.xpub;
-        }
-
-        return pubkey;
+        const xpub = node
+          .derivePath(core.addressNListToBIP32(core.hardenedPath(addressNList)))
+          .neutered()
+          .toBase58();
+        return { xpub };
       })
     );
-  }
-
-  getAddress(msg: core.GetAddress): Promise<string> {
-    switch (msg.coin.toLowerCase()) {
-      case "bitcoin":
-      case "bitcoincash":
-      case "dash":
-      case "digibyte":
-      case "dogecoin":
-      case "litecoin":
-      case "testnet":
-        let inputClone: core.BTCAccountPath = {
-          addressNList: msg.path,
-          coin: msg.coin,
-          scriptType: msg.scriptType,
-        };
-        return super.btcGetAddress(inputClone);
-      case "ethereum":
-        let inputETH: core.BTCAccountPath = {
-          addressNList: msg.path,
-          coin: msg.coin,
-          scriptType: msg.scriptType,
-        };
-        return super.ethGetAddress(inputETH);
-      case "eos":
-        let inputEOS: core.EosAccountPath = {
-          addressNList: msg.path,
-        };
-        return super.eosGetAddress(inputEOS);
-      case "cosmos":
-        let inputATOM: core.CosmosGetAddress = {
-          addressNList: msg.path,
-        };
-        return super.cosmosGetAddress(inputATOM);
-      case "binance":
-        let inputBNB: core.EosAccountPath = {
-          addressNList: msg.path,
-        };
-        return super.binanceGetAddress(inputBNB);
-      default:
-        throw new Error("Unsupported path " + msg.coin);
-    }
   }
 
   async isInitialized(): Promise<boolean> {
@@ -217,10 +134,11 @@ export class NativeHDWallet
 
   async initialize(): Promise<any> {
     const seed = await mnemonicToSeed(this.#mnemonic);
-    super.binanceInitializeWallet(this.#mnemonic);
-    super.eosInitializeWallet(this.#mnemonic);
-    super.ethInitializeWallet("0x" + seed.toString("hex"));
+
     await super.btcInitializeWallet(seed);
+    super.ethInitializeWallet("0x" + seed.toString("hex"));
+    super.cosmosInitializeWallet(this.#mnemonic);
+
     this.#initialized = true;
   }
 

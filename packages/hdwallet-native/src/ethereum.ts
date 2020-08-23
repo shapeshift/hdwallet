@@ -42,20 +42,20 @@ export function MixinNativeETHWallet<TBase extends core.Constructor>(Base: TBase
   return class MixinNativeETHWallet extends Base {
     _supportsETH = true;
 
-    ethWallet: Wallet;
+    #ethWallet: Wallet;
 
     ethInitializeWallet(seed: string): void {
-      this.ethWallet = new Wallet(HDNode.fromSeed(seed).derivePath(defaultPath));
+      this.#ethWallet = new Wallet(HDNode.fromSeed(seed).derivePath(defaultPath));
     }
 
     async ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
-      return this.ethWallet.getAddress();
+      return this.#ethWallet.getAddress();
     }
 
     async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
-      const result = await this.ethWallet.signTransaction({
+      const result = await this.#ethWallet.signTransaction({
         to: msg.to,
-        from: await this.ethWallet.getAddress(),
+        from: await this.#ethWallet.getAddress(),
         nonce: msg.nonce,
         gasLimit: msg.gasLimit,
         gasPrice: msg.gasPrice,
@@ -73,9 +73,9 @@ export function MixinNativeETHWallet<TBase extends core.Constructor>(Base: TBase
     }
 
     async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
-      const result = await this.ethWallet.signMessage(msg.message);
+      const result = await this.#ethWallet.signMessage(msg.message);
       return {
-        address: await this.ethWallet.getAddress(),
+        address: await this.#ethWallet.getAddress(),
         signature: result,
       };
     }
