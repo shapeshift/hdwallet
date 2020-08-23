@@ -2,8 +2,9 @@ import * as core from "@bithighlander/hdwallet-core";
 
 import { addressNListToBIP32, CosmosSignTx, CosmosSignedTx } from "@bithighlander/hdwallet-core";
 
+import * as bitcoin from "bitcoinjs-lib";
+import { getNetwork } from "./networks";
 let txBuilder = require("cosmos-tx-builder");
-import HDKey from "hdkey";
 const bip39 = require(`bip39`);
 const ripemd160 = require("crypto-js/ripemd160");
 const CryptoJS = require("crypto-js");
@@ -70,13 +71,12 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TB
     async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string> {
       const seed = await bip39.mnemonicToSeed(this.#seed);
 
-      let mk = new HDKey.fromMasterSeed(Buffer.from(seed, "hex"));
-      // expects bip32
-      let path = addressNListToBIP32(msg.addressNList);
+      const network = getNetwork("bitcoin");
+      const wallet = bitcoin.bip32.fromSeed(seed, network);
+      const path = core.addressNListToBIP32(msg.addressNList);
+      const keypair = await bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
+      const address = createCosmosAddress(keypair.publicKey.toString("hex"));
 
-      mk = mk.derive(path);
-      let publicKey = mk.publicKey;
-      let address = createCosmosAddress(publicKey);
       return address;
     }
 
@@ -84,13 +84,13 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TB
       const seed = await bip39.mnemonicToSeed(this.#seed);
       let ATOM_CHAIN = "cosmoshub-3";
 
-      let mk = new HDKey.fromMasterSeed(Buffer.from(seed, "hex"));
-      // expects bip32
-      let path = addressNListToBIP32(msg.addressNList);
-      mk = mk.derive(path);
+      const network = getNetwork("bitcoin");
+      const hdkey = bitcoin.bip32.fromSeed(seed, network);
+      const path = core.addressNListToBIP32(msg.addressNList);
 
-      let privateKey = mk.privateKey;
-      let publicKey = mk.publicKey;
+      let keypair = await bitcoin.ECPair.fromWIF(hdkey.derivePath(path).toWIF(), network);
+      let privateKey = keypair.privateKey.toString("hex");
+      let publicKey = keypair.publicKey.toString("hex");
 
       let wallet = {
         privateKey,

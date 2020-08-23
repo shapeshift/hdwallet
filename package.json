@@ -52,7 +52,7 @@
     "**/whatwg-fetch": "^2.0.4"
   },
   "engines": {
-    "node": "^10 || ^12"
+    "node": "^10 || ^12 || ^14"
   },
   "husky": {
     "hooks": {

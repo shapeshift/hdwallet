@@ -1,6 +1,6 @@
 {
   "name": "@bithighlander/hdwallet-native",
-  "version": "1.0.12",
+  "version": "1.0.28",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -10,7 +10,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc --build",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
@@ -24,6 +24,7 @@
     "eosjs": "^21.0.2",
     "eosjs-ecc": "^4.0.7",
     "ethereum-tx-decoder": "^3.0.0",
+    "ethereumjs-tx": "^2.1.2",
     "ethers": "^5.0.2",
     "hdkey": "1.1.1",
     "lodash": "^4.17.15"
