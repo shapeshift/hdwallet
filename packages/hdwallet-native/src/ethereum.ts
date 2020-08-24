@@ -4,6 +4,7 @@ import { mnemonicToSeed } from "bip39";
 import { getNetwork } from "./networks";
 import * as bitcoin from "bitcoinjs-lib";
 const txBuilder = require("ethereumjs-tx").Transaction;
+const ethUtils = require("ethereumjs-util");
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeETHWalletInfo extends Base implements core.ETHWalletInfo {
@@ -51,7 +52,15 @@ export function MixinNativeETHWallet<TBase extends core.Constructor>(Base: TBase
     }
 
     async ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
-      return this.#ethWallet.getAddress();
+      const seed = await mnemonicToSeed(this.#seed);
+
+      const network = getNetwork("ethereum");
+      const wallet = bitcoin.bip32.fromSeed(seed, network);
+      const path = core.addressNListToBIP32(msg.addressNList);
+      const keypair = await bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
+      let publicKey = keypair.publicKey;
+      let address = ethUtils.bufferToHex(ethUtils.pubToAddress(publicKey, true));
+      return address;
     }
 
     async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {

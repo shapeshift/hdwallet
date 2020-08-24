@@ -1,6 +1,6 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@bithighlander/hdwallet-core";
 
-import { addressNListToBIP32, BinanceSignTx, BinanceSignedTx } from "@shapeshiftoss/hdwallet-core";
+import { addressNListToBIP32, BinanceSignTx, BinanceSignedTx } from "@bithighlander/hdwallet-core";
 
 import BncClient from "bnb-javascript-sdk-nobroadcast";
 import * as bitcoin from "bitcoinjs-lib";
@@ -116,9 +116,9 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor>(Base: T
 
       const result = await client.transfer(addressFrom, addressTo, amount, asset, message, null);
 
-      const rawHex = result.serialize();
+      let rawHex = result.serialize();
       const buffer = Buffer.from(rawHex, "hex");
-      const txid = ""; //TODO this no worky on mobile crypto.createHash('sha256').update(buffer).digest('hex').toUpperCase()
+      let txid = CryptoJS.createHash("sha256").update(buffer).digest("hex").toUpperCase();
 
       const output: BinanceSignedTx = {
         account_number: result.account,

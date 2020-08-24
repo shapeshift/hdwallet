@@ -863,21 +863,6 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@bithighlander/hdwallet-ledger-webusb@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@bithighlander/hdwallet-ledger-webusb/-/hdwallet-ledger-webusb-1.0.2.tgz#2160ae21f72d9515f753acef0060442117014d5a"
-  integrity sha512-VCDcXboS1cAJzdIBMoEz6NTjo9tXbBtsML3CKDy9iTrmk7cXV9eJqtNyT/7kLUSrYAOO+dn66KRUv5DAE2hppg==
-  dependencies:
-    "@bithighlander/hdwallet-core" "^1.0.2"
-    "@bithighlander/hdwallet-ledger" "^1.0.2"
-    "@ledgerhq/hw-app-btc" "^4.73.4"
-    "@ledgerhq/hw-app-eth" "^4.73.4"
-    "@ledgerhq/hw-transport" "^4.73.4"
-    "@ledgerhq/hw-transport-webusb" "^4.73.4"
-    "@ledgerhq/live-common" "^8.4.1"
-    bytebuffer "^5.0.1"
-    eventemitter2 "^5.0.1"
-
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/@cnakazawa/watch/-/watch-1.0.4.tgz#f864ae85004d0fcab6f50be9141c4da368d1656a"
@@ -2477,36 +2462,6 @@
     ethereumjs-util "5.2.0"
     penpal "3.0.7"
     pocket-js-core "0.0.3"
-
-"@shapeshiftoss/hdwallet-core@^1.0.2", "@shapeshiftoss/hdwallet-core@^1.1.2":
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.1.2.tgz#b58d05a6015ab1e4def13c1345e0723688f4b310"
-  integrity sha512-M7l6ChKxrr0WT3bYO//0nQ6H0VcVhbyAziKnwRvvqZ/vDvYNmYquovRmoEsLBou9f18ev59X0OnmMaX/FyVmiA==
-  dependencies:
-    eventemitter2 "^5.0.1"
-    lodash "^4.17.15"
-    rxjs "^6.4.0"
-
-"@shapeshiftoss/hdwallet-ledger@^1.0.2":
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-ledger/-/hdwallet-ledger-1.1.2.tgz#5e7f731b8cf206305172797f50e5a41cb8d3b4c7"
-  integrity sha512-tzIFmivd1JVckxGXP3WUObpgHr9Wy6cMsnsti8+yOeH3bekVqClVn6J9nTHv1+8zVcqVFszyoRTJ3+kqbyPJPQ==
-  dependencies:
-    "@babel/polyfill" "^7.4.0"
-    "@ledgerhq/live-common" "^8.4.1"
-    "@shapeshiftoss/hdwallet-core" "^1.1.2"
-    base64-js "^1.3.0"
-    bchaddrjs "^0.4.4"
-    bip32-path "^0.4.2"
-    bitcoinjs-lib "^5.1.6"
-    bitcoinjs-message "^2.0.0"
-    buffer "^5.4.3"
-    build-output-script "^1.0.3"
-    create-xpub "^2.1.0"
-    ethereumjs-tx "^1.3.7"
-    ethereumjs-util "^6.1.0"
-    eventemitter2 "^5.0.1"
-    lodash "^4.17.11"
 
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"

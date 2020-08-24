@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@bithighlander/hdwallet-core";
 
 import txBuilder from "cosmos-tx-builder";
 import * as bitcoin from "bitcoinjs-lib";
@@ -89,6 +89,10 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TB
       };
 
       const result = await txBuilder.sign(msg.tx, wallet, msg.sequence, msg.account_number, ATOM_CHAIN);
+      const buffer = Buffer.from(result.tx, "base64");
+      let txid = CryptoJS.createHash("sha256").update(buffer).digest("hex").toUpperCase();
+      result.txid = txid;
+      console.log("txid: ", txid);
 
       return txBuilder.createSignedTx(msg.tx, result);
     }

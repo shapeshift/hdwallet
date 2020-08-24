@@ -1,6 +1,6 @@
 {
   "name": "@bithighlander/hdwallet-core",
-  "version": "1.0.3",
+  "version": "1.0.7",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -10,7 +10,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc --build",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {

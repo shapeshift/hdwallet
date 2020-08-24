@@ -51,6 +51,7 @@ export interface CosmosTx {
   msg: Cosmos.Msg[];
   fee: Cosmos.StdFee;
   signatures: null | Cosmos.StdSignature[];
+  txid?: string;
   memo: string;
 }
 
