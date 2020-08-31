@@ -32,6 +32,7 @@ export interface BinanceTx {
   account_number: string;
   chain_id: string;
   data: string;
+  txid?: string;
   memo: string;
   msgs: any;
   signatures?: {
@@ -43,6 +44,7 @@ export interface BinanceTx {
 export interface BinanceSignTx {
   addressNList: BIP32Path;
   tx: BinanceTx;
+  txid?: string;
   chain_id: string;
   account_number: string;
   sequence: string;
@@ -65,16 +67,12 @@ export interface BinanceWalletInfo {
    * Returns a list of bip32 paths for a given account index in preferred order
    * from most to least preferred.
    */
-  binanceGetAccountPaths(
-    msg: BinanceGetAccountPaths
-  ): Array<BinanceAccountPath>;
+  binanceGetAccountPaths(msg: BinanceGetAccountPaths): Array<BinanceAccountPath>;
 
   /**
    * Returns the "next" account path, if any.
    */
-  binanceNextAccountPath(
-    msg: BinanceAccountPath
-  ): BinanceAccountPath | undefined;
+  binanceNextAccountPath(msg: BinanceAccountPath): BinanceAccountPath | undefined;
 }
 
 export interface BinanceWallet extends BinanceWalletInfo {

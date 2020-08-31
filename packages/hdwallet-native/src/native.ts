@@ -6,14 +6,17 @@ import { getNetwork } from "./networks";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
+import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binance";
 
 class NativeHDWalletInfo
-  extends MixinNativeBTCWalletInfo(MixinNativeETHWalletInfo(MixinNativeCosmosWallet(class Base {})))
+  extends MixinNativeBTCWalletInfo(
+    MixinNativeETHWalletInfo(MixinNativeCosmosWallet(MixinNativeBinanceWalletInfo(class Base {})))
+  )
   implements core.HDWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = true;
-  _supportsBinanceInfo: boolean = false;
+  _supportsBinanceInfo: boolean = true;
   _supportsRippleInfo: boolean = false;
   _supportsEosInfo: boolean = false;
 
@@ -65,12 +68,14 @@ class NativeHDWalletInfo
 }
 
 export class NativeHDWallet
-  extends MixinNativeBTCWallet(MixinNativeETHWallet(MixinNativeCosmosWalletInfo(NativeHDWalletInfo)))
+  extends MixinNativeBTCWallet(
+    MixinNativeETHWallet(MixinNativeCosmosWalletInfo(MixinNativeBinanceWallet(NativeHDWalletInfo)))
+  )
   implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet {
   _supportsBTC = true;
   _supportsETH = true;
   _supportsCosmos = true;
-  _supportsBinance = false;
+  _supportsBinance = true;
   _supportsRipple = false;
   _supportsEos = false;
   _supportsDebugLink = false;
@@ -138,6 +143,7 @@ export class NativeHDWallet
     await super.btcInitializeWallet(seed);
     super.ethInitializeWallet("0x" + seed.toString("hex"));
     super.cosmosInitializeWallet(this.#mnemonic);
+    super.binanceInitializeWallet(this.#mnemonic);
 
     this.#initialized = true;
   }
