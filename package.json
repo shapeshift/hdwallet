@@ -21,10 +21,11 @@
     ]
   },
   "scripts": {
+    "pre-reqs": "npm install -g typescript prettier",
+    "clean": "rm -rf packages/*/tsconfig.tsbuildinfo && rm -rf coverage test-report && lerna clean --yes && rm -rf node_modules && yarn cache clean",
+    "lint:ts": "tsc --noEmit",
+    "format": "prettier .",
     "yarn": "yarn",
-    "lint:ts": "yarn tsc --noEmit",
-    "format": "yarn prettier .",
-    "clean": "rm -rf packages/*/tsconfig.tsbuildinfo && rm -rf coverage test-report && lerna run clean && lerna clean && rm -rf node_modules && yarn cache clean",
     "build": "yarn tsc --build",
     "dev:all": "yarn tsc --build --watch",
     "now-build": "lerna run build --scope @shapeshiftoss/hdwallet-core && lerna run build --scope hdwallet-sandbox --ignore @shapeshiftoss/hdwallet-keepkey-nodehid --include-filtered-dependencies && mv examples/sandbox/public .",
@@ -51,7 +52,7 @@
     "**/whatwg-fetch": "^2.0.4"
   },
   "engines": {
-    "node": "^10 || ^12"
+    "node": "^10 || ^12 || ^14"
   },
   "husky": {
     "hooks": {
