@@ -105,14 +105,8 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor>(Base: T
       const buffer = Buffer.from(rawHex, "hex");
       const txid = SHA256(buffer.toString()).toString().toUpperCase();
 
-      console.log("**** Native response: ", result);
-      //convert sig to base64
       const pub_key = result.signatures[0].pub_key.toString("hex");
-      //let signature = new Buffer(result.signatures[0].signature, 'base64').toString('base64')
-      let signature = "rebeUAjXIKL9PutEVNBVM76a+ocdQDJ7rQ3A8jV/emZ6EamBOXRYz9E/gyhshMPtyikXud68UDGp/TB2OF6NuA==";
-      console.log("native sig base64", signature);
-      // signature = signature.toString('base64')
-      // console.log("native sig signature",signature)
+      let signature = new Buffer(result.signatures[0].signature, "base64").toString("base64");
 
       return {
         account_number: result.account,
