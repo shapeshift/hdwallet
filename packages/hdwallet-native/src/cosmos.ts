@@ -76,10 +76,10 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TB
       const ATOM_CHAIN = "cosmoshub-3";
 
       const network = getNetwork("cosmos");
-      const hdkey = bitcoin.bip32.fromSeed(seed, network);
+      const mkey = bitcoin.bip32.fromSeed(seed, network);
       const path = core.addressNListToBIP32(msg.addressNList);
 
-      let keypair = await bitcoin.ECPair.fromWIF(hdkey.derivePath(path).toWIF(), network);
+      let keypair = await bitcoin.ECPair.fromWIF(mkey.derivePath(path).toWIF(), network);
       let privateKey = keypair.privateKey.toString("hex");
       let publicKey = keypair.publicKey.toString("hex");
 

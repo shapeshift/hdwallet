@@ -129,7 +129,7 @@ export class NativeHDWallet
         const xpub = node.derivePath(core.addressNListToBIP32(addressNList)).neutered().toBase58();
 
         let addressInfo: core.GetAddress = {
-          path: core.hardenedPath(addressNList),
+          path: addressNList,
           coin: getPublicKey.coin.toLowerCase(),
           scriptType: getPublicKey.script_type,
         };
@@ -138,7 +138,7 @@ export class NativeHDWallet
           coin: getPublicKey.network,
           network: getPublicKey.network,
           script_type: getPublicKey.script_type,
-          path: core.addressNListToBIP32(core.hardenedPath(addressNList)),
+          path: core.addressNListToBIP32(addressNList),
           long: getPublicKey.coin,
           address: await this.getAddress(addressInfo),
           master: await this.getAddress(addressInfo),

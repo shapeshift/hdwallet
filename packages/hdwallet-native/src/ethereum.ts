@@ -67,10 +67,10 @@ export function MixinNativeETHWallet<TBase extends core.Constructor>(Base: TBase
       const seed = await mnemonicToSeed(this.#seed);
 
       const network = getNetwork("ethereum");
-      const hdkey = bitcoin.bip32.fromSeed(seed, network);
+      const mkey = bitcoin.bip32.fromSeed(seed, network);
       const path = core.addressNListToBIP32(msg.addressNList);
 
-      let keypair = await bitcoin.ECPair.fromWIF(hdkey.derivePath(path).toWIF(), network);
+      let keypair = await bitcoin.ECPair.fromWIF(mkey.derivePath(path).toWIF(), network);
       let privateKey = keypair.privateKey;
 
       let txTemplate = {

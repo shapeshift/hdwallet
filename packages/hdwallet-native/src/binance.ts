@@ -1,6 +1,6 @@
 import * as core from "@bithighlander/hdwallet-core";
 
-import { addressNListToBIP32, BinanceSignTx, BinanceSignedTx } from "@bithighlander/hdwallet-core";
+import { BinanceSignTx, BinanceSignedTx } from "@bithighlander/hdwallet-core";
 
 import BncClient from "bnb-javascript-sdk-nobroadcast";
 import * as bitcoin from "bitcoinjs-lib";
@@ -8,19 +8,6 @@ import { getNetwork } from "./networks";
 import { mnemonicToSeed } from "bip39";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
-
-function bech32ify(address, prefix) {
-  const words = toWords(address);
-  return encode(prefix, words);
-}
-
-function createBNBAddress(publicKey) {
-  const message = SHA256(CryptoJS.enc.Hex.parse(publicKey.toString(`hex`)));
-  const hash = RIPEMD160(message as any).toString();
-  const address = Buffer.from(hash, `hex`);
-  const bnbAddress = bech32ify(address, `bnb`);
-  return bnbAddress;
-}
 
 export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeBinanceWalletInfo extends Base implements core.BinanceWalletInfo {
@@ -95,10 +82,10 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor>(Base: T
       const seed = await mnemonicToSeed(this.#seed);
 
       const network = getNetwork("cosmos");
-      const hdkey = bitcoin.bip32.fromSeed(seed, network);
+      const mKey = bitcoin.bip32.fromSeed(seed, network);
       const path = core.addressNListToBIP32(msg.addressNList);
 
-      let keypair = await bitcoin.ECPair.fromWIF(hdkey.derivePath(path).toWIF(), network);
+      let keypair = await bitcoin.ECPair.fromWIF(mKey.derivePath(path).toWIF(), network);
       let privateKey = keypair.privateKey.toString("hex");
 
       //use sdk to build Amino encoded hex transaction
@@ -126,6 +113,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor>(Base: T
         data: null,
         memo: result.memo,
         msgs: result.msgs,
+        txid,
         signatures: {
           pub_key: result.signatures[0].pub_key,
           signature: result.signatures[0].signature,
