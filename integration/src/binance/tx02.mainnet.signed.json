@@ -1,8 +1,7 @@
 {
-  "type": "MsgSend",
-  "sequence": 5,
-  "account_number": 471113,
   "chain_id": "Binance-Chain-Tigris",
+  "data": null,
+  "memo": "",
   "msgs": [
     {
       "inputs": [
@@ -14,7 +13,7 @@
           "coins": [
             {
               "denom": "BNB",
-              "amount": 2200
+              "amount": 1000
             }
           ]
         }
@@ -28,7 +27,7 @@
           "coins": [
             {
               "denom": "BNB",
-              "amount": 2200
+              "amount": 1000
             }
           ]
         }
@@ -36,124 +35,11 @@
       "msgType": "MsgSend"
     }
   ],
-  "memo": "testmemo2",
-  "source": 0,
-  "signatures": [
-    {
-      "pub_key": {
-        "type": "Buffer",
-        "data": [
-          235,
-          90,
-          233,
-          135,
-          33,
-          2,
-          221,
-          240,
-          139,
-          31,
-          81,
-          164,
-          19,
-          44,
-          99,
-          199,
-          52,
-          85,
-          202,
-          198,
-          86,
-          148,
-          4,
-          199,
-          140,
-          158,
-          59,
-          91,
-          255,
-          209,
-          246,
-          78,
-          7,
-          169,
-          162,
-          241,
-          9,
-          180
-        ]
-      },
-      "signature": {
-        "type": "Buffer",
-        "data": [
-          173,
-          230,
-          222,
-          80,
-          8,
-          215,
-          32,
-          162,
-          253,
-          62,
-          235,
-          68,
-          84,
-          208,
-          85,
-          51,
-          190,
-          154,
-          250,
-          135,
-          29,
-          64,
-          50,
-          123,
-          173,
-          13,
-          192,
-          242,
-          53,
-          127,
-          122,
-          102,
-          122,
-          17,
-          169,
-          129,
-          57,
-          116,
-          88,
-          207,
-          209,
-          63,
-          131,
-          40,
-          108,
-          132,
-          195,
-          237,
-          202,
-          41,
-          23,
-          185,
-          222,
-          188,
-          80,
-          49,
-          169,
-          253,
-          48,
-          118,
-          56,
-          94,
-          141,
-          184
-        ]
-      },
-      "account_number": 471113,
-      "sequence": 5
-    }
-  ]
+  "txid": "A640902638C0F08B6BF225D18AE9A15FD0B6DBA6C739BD3F5E390CE737BC8E75",
+  "serialized": "c001f0625dee0a482a2c87fa0a200a14ea5d7ae99a9ce2f9db7c43a907377024b7f343e812080a03424e4210e80712200a14679cd81fab41426840fa60280970513b810eb41e12080a03424e4210e80712700a26eb5ae9872102ddf08b1f51a4132c63c73455cac6569404c78c9e3b5bffd1f64e07a9a2f109b412400e7eb2814f3659e49ff228f39d968e05d1c05894e412bb193e575ca2fcf109a84ec1df6ece4b85586717e53066baa9b3f9da6ccea07f4fd92e1046f86ca64fe818c9e01c2008",
+  "signatures": {
+    "pub_key": "eb5ae9872102ddf08b1f51a4132c63c73455cac6569404c78c9e3b5bffd1f64e07a9a2f109b4",
+    "signature": "U3sJF3fCuaIpNvvIgcXX6n7E6TN96q7dLC6vgIGuhtNfCcZ6w0w5LZjGz1yZfr4vcFyvETtTp5e6dLo/eiLk4A==",
+    "keepkeysig": "3Bk42J0FCCt7VSm3OVdn918IL3Z6bKqDzUxKy/eyd1JmJF+Qbd5Vv65YkqVWcK5xEVrwjFMC69I0WFwobySu0w=="
+  }
 }

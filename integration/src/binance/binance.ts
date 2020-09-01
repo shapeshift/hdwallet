@@ -74,11 +74,12 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
 
         console.log("**** bnb wallet: ", wallet.getVendor());
         //base64 reference sig
-        let refSig = new Buffer(tx02_signed.signatures[0].signature.data).toString("base64");
+        let refSig = tx02_signed.signatures.signature;
 
         if (wallet.getVendor() === "KeepKey") {
           //Keepkey forms sig differently
-          refSig = "x82ygfaUylT85l9nDfJNydavmDKxnIRPiilA4UQ7GiloAkGZiK3X82XAokqeyRguVsiJwiwifh562+7lvrm44g==";
+          //TODO why?
+          refSig = "3Bk42J0FCCt7VSm3OVdn918IL3Z6bKqDzUxKy/eyd1JmJF+Qbd5Vv65YkqVWcK5xEVrwjFMC69I0WFwobySu0w==";
         }
 
         expect(res.signatures.signature).toEqual(refSig);
