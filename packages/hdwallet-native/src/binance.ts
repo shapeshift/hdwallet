@@ -47,7 +47,6 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor>(Base: T
     #seed = "";
 
     binanceInitializeWallet(seed: string): void {
-      //get
       this.#seed = seed;
     }
 
