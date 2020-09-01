@@ -32,19 +32,19 @@ export interface BinanceTx {
   account_number: string;
   chain_id: string;
   data: string;
-  txid?: string;
   memo: string;
   msgs: any;
   signatures?: {
     pub_key: string;
     signature: string;
   };
+  txid?: string;
+  serialized?: string;
 }
 
 export interface BinanceSignTx {
   addressNList: BIP32Path;
   tx: BinanceTx;
-  txid?: string;
   chain_id: string;
   account_number: string;
   sequence: string;
