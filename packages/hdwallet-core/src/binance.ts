@@ -33,6 +33,7 @@ export interface BinanceTx {
   chain_id: string;
   data: string;
   memo: string;
+  //TODO type the tx msg
   msgs: any;
   signatures?: {
     pub_key: string;
