@@ -38,6 +38,8 @@ export interface BinanceTx {
     pub_key: string;
     signature: string;
   };
+  txid?: string;
+  serialized?: string;
 }
 
 export interface BinanceSignTx {
@@ -65,16 +67,12 @@ export interface BinanceWalletInfo {
    * Returns a list of bip32 paths for a given account index in preferred order
    * from most to least preferred.
    */
-  binanceGetAccountPaths(
-    msg: BinanceGetAccountPaths
-  ): Array<BinanceAccountPath>;
+  binanceGetAccountPaths(msg: BinanceGetAccountPaths): Array<BinanceAccountPath>;
 
   /**
    * Returns the "next" account path, if any.
    */
-  binanceNextAccountPath(
-    msg: BinanceAccountPath
-  ): BinanceAccountPath | undefined;
+  binanceNextAccountPath(msg: BinanceAccountPath): BinanceAccountPath | undefined;
 }
 
 export interface BinanceWallet extends BinanceWalletInfo {
