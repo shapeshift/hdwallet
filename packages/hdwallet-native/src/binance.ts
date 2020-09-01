@@ -64,7 +64,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor>(Base: T
       const network = getNetwork("binance");
       const wallet = bitcoin.bip32.fromSeed(this.#seed, network);
       const path = core.addressNListToBIP32(msg.addressNList);
-      const keypair = await bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
+      const keypair = bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
       const address = this.createBinanceAddress(keypair.publicKey.toString("hex"));
 
       return address;
@@ -84,7 +84,6 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor>(Base: T
       await client.setPrivateKey(privateKey);
       await client.initChain();
 
-      //let fromAddress = msg
       const addressFrom = msg.tx.msgs[0].inputs[0].address;
       const addressTo = msg.tx.msgs[0].outputs[0].address;
       const amount = msg.tx.msgs[0].inputs[0].coins[0].amount;

@@ -10,7 +10,7 @@ import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binanc
 
 class NativeHDWalletInfo
   extends MixinNativeBTCWalletInfo(
-    MixinNativeETHWalletInfo(MixinNativeCosmosWallet(MixinNativeBinanceWalletInfo(class Base {})))
+    MixinNativeETHWalletInfo(MixinNativeCosmosWalletInfo(MixinNativeBinanceWalletInfo(class Base {})))
   )
   implements core.HDWalletInfo {
   _supportsBTCInfo: boolean = true;
@@ -69,7 +69,7 @@ class NativeHDWalletInfo
 
 export class NativeHDWallet
   extends MixinNativeBTCWallet(
-    MixinNativeETHWallet(MixinNativeCosmosWalletInfo(MixinNativeBinanceWallet(NativeHDWalletInfo)))
+    MixinNativeETHWallet(MixinNativeCosmosWallet(MixinNativeBinanceWallet(NativeHDWalletInfo)))
   )
   implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet {
   _supportsBTC = true;
