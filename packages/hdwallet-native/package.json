@@ -24,7 +24,6 @@
     "crypto-js": "^3.1.9-1",
     "ethereum-tx-decoder": "^3.0.0",
     "ethers": "^5.0.2",
-    "hdkey": "1.1.1",
     "lodash": "^4.17.15"
   },
   "devDependencies": {

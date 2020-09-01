@@ -70,9 +70,6 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
           sequence: "0",
         });
 
-        console.log("**** bnb tx: ", res);
-
-        console.log("**** bnb wallet: ", wallet.getVendor());
         //base64 reference sig
         let refSig = tx02_signed.signatures.signature;
 
