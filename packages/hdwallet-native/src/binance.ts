@@ -27,9 +27,6 @@ export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor>(Bas
       return [
         {
           addressNList: [0x80000000 + 44, 0x80000000 + 117, 0x80000000 + msg.accountIdx, 0, 0],
-          // hardenedPath: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx],
-          // relPath: [0, 0],
-          // description: "Native",
         },
       ];
     }
