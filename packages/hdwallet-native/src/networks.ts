@@ -177,6 +177,7 @@ export function getNetwork(coin: string, scriptType?: string): Network {
     case "testnet":
       network = networks[coin];
       break;
+    case "cosmos":
     case "bitcoin":
     //TODO: all below are missing network data
     case "bitcoincash":
