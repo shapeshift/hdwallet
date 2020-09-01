@@ -19,7 +19,7 @@ class NativeHDWalletInfo
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = true;
-  _supportsBinanceInfo: boolean = false;
+  _supportsBinanceInfo: boolean = true;
   _supportsRippleInfo: boolean = false;
   _supportsEosInfo: boolean = false;
 
@@ -78,7 +78,7 @@ export class NativeHDWallet
   _supportsBTC = true;
   _supportsETH = true;
   _supportsCosmos = true;
-  _supportsBinance = false;
+  _supportsBinance = true;
   _supportsRipple = false;
   _supportsEos = false;
   _supportsDebugLink = false;

@@ -33,12 +33,13 @@ export interface BinanceTx {
   chain_id: string;
   data: string;
   memo: string;
-  txid?: string;
   msgs: any;
   signatures?: {
     pub_key: string;
     signature: string;
   };
+  txid?: string;
+  serialized?: string;
 }
 
 export interface BinanceSignTx {

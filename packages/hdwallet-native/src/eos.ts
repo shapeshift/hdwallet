@@ -3,20 +3,20 @@ import * as core from "@bithighlander/hdwallet-core";
 import { getNetwork } from "./networks";
 import { mnemonicToSeed } from "bip39";
 const bip39 = require(`bip39`);
-let { PrivateKey } = require("eosjs-ecc");
+// let { PrivateKey } = require("eosjs-ecc");
 let bitcoin = require("bitcoinjs-lib");
 
 // NOTE: this only works with a compressed public key (33 bytes)
-function createEOSAddress(privateKey) {
-  try {
-    privateKey = PrivateKey.fromBuffer(privateKey);
-    privateKey = privateKey.toWif();
-    let pubkey = PrivateKey.fromString(privateKey).toPublic().toString();
-    return pubkey;
-  } catch (e) {
-    throw Error(e);
-  }
-}
+// function createEOSAddress(privateKey) {
+//   try {
+//     privateKey = PrivateKey.fromBuffer(privateKey);
+//     privateKey = privateKey.toWif();
+//     let pubkey = PrivateKey.fromString(privateKey).toPublic().toString();
+//     return pubkey;
+//   } catch (e) {
+//     throw Error(e);
+//   }
+// }
 
 export function MixinNativeEosWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeEosWalletInfo extends Base implements core.EosWalletInfo {
@@ -69,9 +69,9 @@ export function MixinNativeEosWallet<TBase extends core.Constructor>(Base: TBase
       const path = core.addressNListToBIP32(msg.addressNList);
       const keypair = await bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
 
-      let address = await createEOSAddress(keypair.privateKey);
+      //let address = await createEOSAddress(keypair.privateKey);
 
-      return address;
+      return "lol";
     }
 
     async eosSignTx(msg: any): Promise<any> {
@@ -85,38 +85,38 @@ export function MixinNativeEosWallet<TBase extends core.Constructor>(Base: TBase
       let privateKey = keypair.privateKey.toString("hex");
 
       //convert privkey to EOS format
-      privateKey = PrivateKey.fromBuffer(privateKey);
-      privateKey = privateKey.toString();
+      // privateKey = PrivateKey.fromBuffer(privateKey);
+      privateKey = "";
 
       let URL_REMOTE = "https://api.eossweden.org"; //not used (TODO fork eosjs and removeme)
       //
-      let { Api, JsonRpc, RpcError } = require("eosjs");
-      const { JsSignatureProvider } = require("eosjs/dist/eosjs-jssig"); // development only
-      const fetch = require("node-fetch"); // node only; not needed in browsers
-      const { TextEncoder, TextDecoder } = require("util");
-      const privateKeys = [privateKey];
-      const signatureProvider = new JsSignatureProvider(privateKeys);
+      // let { Api, JsonRpc, RpcError } = require("eosjs");
+      // const { JsSignatureProvider } = require("eosjs/dist/eosjs-jssig"); // development only
+      // const fetch = require("node-fetch"); // node only; not needed in browsers
+      // const { TextEncoder, TextDecoder } = require("util");
+      // const privateKeys = [privateKey];
+      // const signatureProvider = new JsSignatureProvider(privateKeys);
 
-      const rpc = new JsonRpc(URL_REMOTE, { fetch });
-      const api = new Api({ rpc, signatureProvider, textDecoder: new TextDecoder(), textEncoder: new TextEncoder() });
+      // const rpc = new JsonRpc(URL_REMOTE, { fetch });
+      // const api = new Api({ rpc, signatureProvider, textDecoder: new TextDecoder(), textEncoder: new TextEncoder() });
 
-      let result = await api.transact(
-        {
-          actions: msg.tx.actions,
-        },
-        {
-          broadcast: false,
-          blocksBehind: 3,
-          expireSeconds: 300,
-        }
-      );
+      // let result = await api.transact(
+      //   {
+      //     actions: msg.tx.actions,
+      //   },
+      //   {
+      //     broadcast: false,
+      //     blocksBehind: 3,
+      //     expireSeconds: 300,
+      //   }
+      // );
 
-      let serialized = result.serializedTransaction;
-      serialized = new Buffer(result.serializedTransaction).toString("hex");
+      // let serialized = result.serializedTransaction;
+      // serialized = new Buffer(result.serializedTransaction).toString("hex");
 
       let sig = {
-        serialized,
-        eosFormSig: result.signatures,
+        serialized: "",
+        eosFormSig: "",
       };
 
       return sig;
