@@ -48,17 +48,18 @@ const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring);
 const kkemuAdapter = TCPKeepKeyAdapter.useKeyring(keyring);
 const portisAdapter = PortisAdapter.useKeyring(keyring, { portisAppId });
 const nativeAdapter = NativeAdapter.useKeyring(keyring, {
-  mnemonic,
   deviceId: "native-wallet-test",
 });
 
 const log = debug.default("hdwallet");
 
 keyring.onAny((name: string[], ...values: any[]) => {
+  console.log("Event:", name, values);
   const [[deviceId, event]] = values;
   const { from_wallet = false, message_type } = event;
   let direction = from_wallet ? "🔑" : "💻";
   debug.default(deviceId)(`${direction} ${message_type}`, event);
+  alert(`Event: ${name[2]}`);
 });
 
 const trezorAdapter = TrezorAdapter.useKeyring(keyring, {
@@ -173,12 +174,6 @@ async function deviceConnected(deviceId) {
     await portisAdapter.initialize();
   } catch (e) {
     console.error("Could not initialize PortisAdapter", e);
-  }
-
-  try {
-    await nativeAdapter.initialize();
-  } catch (e) {
-    console.error("Could not initialize NativeAdapter", e);
   }
 
   for (const [deviceID, wallet] of Object.entries(keyring.wallets)) {

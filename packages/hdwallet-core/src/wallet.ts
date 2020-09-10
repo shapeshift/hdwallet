@@ -101,15 +101,6 @@ export interface PathDescription {
   isPrefork?: boolean;
 }
 
-type CoinWallets =
-  | BTCWallet
-  | ETHWallet
-  | CosmosWallet
-  | BinanceWallet
-  | RippleWallet
-  | EosWallet
-  | DebugLinkWallet;
-
 export type Coin = string;
 export type Symbol = string;
 
@@ -258,6 +249,10 @@ export interface HDWallet extends HDWalletInfo {
    */
   getDeviceID(): Promise<string>;
 
+  /**
+   * Get device specific features
+   */
+  getFeatures(): Promise<Record<string, any>>;
   /**
    * Retrieve the wallet's firmware version
    */
