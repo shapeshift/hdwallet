@@ -56,6 +56,7 @@ export interface CosmosTx {
 
 export interface CosmosSignTx {
   addressNList: BIP32Path;
+  fee: number;
   tx: Cosmos.StdTx;
   chain_id: string;
   account_number: string;
