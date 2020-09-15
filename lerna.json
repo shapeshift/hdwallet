@@ -1,6 +1,6 @@
 {
   "lerna": "3.22.1",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "npmClient": "yarn",
   "useWorkspaces": true,
   "command": {
@@ -8,10 +8,5 @@
       "message": "chore(release): publish %v"
     }
   },
-  "ignoreChanges": [
-    "**/__fixtures__/**",
-    "**/__tests__/**",
-    "**/*.md",
-    "**/.env"
-  ]
+  "ignoreChanges": ["**/__fixtures__/**", "**/__tests__/**", "**/*.md", "**/.env"]
 }
