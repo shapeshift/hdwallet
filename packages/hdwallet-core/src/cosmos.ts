@@ -60,6 +60,7 @@ export interface CosmosSignTx {
   chain_id: string;
   account_number: string;
   sequence: string;
+  fee?: number;
 }
 
 export type CosmosSignedTx = CosmosTx;
