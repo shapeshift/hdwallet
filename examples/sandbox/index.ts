@@ -24,7 +24,7 @@ import { TCPKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-tcp";
 import { TrezorAdapter } from "@shapeshiftoss/hdwallet-trezor-connect";
 import { WebUSBLedgerAdapter } from "@shapeshiftoss/hdwallet-ledger-webusb";
 import { PortisAdapter } from "@shapeshiftoss/hdwallet-portis";
-import { NativeAdapter } from "@shapeshiftoss/hdwallet-native";
+import { NativeAdapter, NativeEvents } from "@shapeshiftoss/hdwallet-native";
 
 import {
   BTCInputScriptType,
@@ -55,21 +55,6 @@ const nativeAdapter = NativeAdapter.useKeyring(keyring, {
 
 const log = debug.default("hdwallet");
 
-keyring.onAny((name: string[], ...values: any[]) => {
-  console.log("Event:", name, values);
-  const [[deviceId, event]] = values;
-  const { from_wallet = false, message_type } = event;
-  let direction = from_wallet ? "🔑" : "💻";
-  debug.default(deviceId)(`${direction} ${message_type}`, event);
-
-  const log = document.getElementById("#eventLog");
-  log.innerHTML += `<div class="eventEntry">Event: ${name}<br />Values: ${JSON.stringify(values)}</div>`;
-});
-
-keyring.on(["*", "*", "MNEMONIC_REQUIRED"], () => {
-  document.getElementById("#mnemonicModal").className = "modal opened";
-});
-
 const trezorAdapter = TrezorAdapter.useKeyring(keyring, {
   debug: false,
   manifest: {
@@ -99,7 +84,6 @@ const $keyring = $("#keyring");
 $keepkey.on("click", async (e) => {
   e.preventDefault();
   wallet = await keepkeyAdapter.pairDevice(undefined, /*tryDebugLink=*/ true);
-  listen(wallet.transport);
   window["wallet"] = wallet;
   $("#keyring select").val(wallet.transport.getDeviceID());
 });
@@ -107,7 +91,6 @@ $keepkey.on("click", async (e) => {
 $kkemu.on("click", async (e) => {
   e.preventDefault();
   wallet = await kkemuAdapter.pairDevice("http://localhost:5000");
-  listen(wallet.transport);
   window["wallet"] = wallet;
   $("#keyring select").val(wallet.transport.getDeviceID());
 });
@@ -115,7 +98,6 @@ $kkemu.on("click", async (e) => {
 $trezor.on("click", async (e) => {
   e.preventDefault();
   wallet = await trezorAdapter.pairDevice();
-  listen(wallet.transport);
   window["wallet"] = wallet;
   $("#keyring select").val(await wallet.getDeviceID());
 });
@@ -149,7 +131,7 @@ $native.on("click", async (e) => {
 });
 
 async function deviceConnected(deviceId) {
-  let wallet = keyring.get(deviceId);
+  wallet = keyring.get(deviceId);
   if (!$keyring.find(`option[value="${deviceId}"]`).length) {
     $keyring.append(
       $("<option></option>")
@@ -159,7 +141,34 @@ async function deviceConnected(deviceId) {
   }
 }
 
+/**
+ * START UP
+ * Initialize all adapters on page load
+ */
 (async () => {
+  keyring.onAny((name: string[], ...values: any[]) => {
+    const [[deviceId, event]] = values;
+    const { from_wallet = false, message_type } = event;
+    let direction = from_wallet ? "🔑" : "💻";
+    debug.default(deviceId)(`${direction} ${message_type}`, event);
+
+    const log = document.getElementById("eventLog");
+    log.innerHTML += `<div class="eventEntry">Event: ${name}<br />Values: ${JSON.stringify(values)}</div>`;
+    log.scrollTop = log.scrollHeight;
+  });
+
+  keyring.on(["*", "*", Events.CONNECT], async (deviceId) => {
+    await deviceConnected(deviceId);
+  });
+
+  keyring.on(["*", "*", Events.DISCONNECT], async (deviceId) => {
+    $keyring.find(`option[value="${deviceId}"]`).remove();
+  });
+
+  keyring.on(["*", "*", Events.PIN_REQUEST], () => window["pinOpen"]());
+  keyring.on(["*", "*", Events.PASSPHRASE_REQUEST], () => window["passphraseOpen"]());
+  keyring.on(["*", "*", NativeEvents.MNEMONIC_REQUIRED], () => window["mnemonicOpen"]());
+
   try {
     await keepkeyAdapter.initialize(undefined, /*tryDebugLink=*/ true, /*autoConnect=*/ false);
   } catch (e) {
@@ -194,7 +203,6 @@ async function deviceConnected(deviceId) {
     await deviceConnected(deviceID);
   }
   $keyring.change(async (e) => {
-    console.log("Change event", e);
     if (wallet) {
       await wallet.disconnect();
     }
@@ -208,6 +216,10 @@ async function deviceConnected(deviceId) {
           await wallet.transport.tryConnectDebugLink();
         }
       }
+      // Initializing a native wallet will immediately prompt for the mnemonic
+      if ((await wallet.getModel()) !== "Native") {
+        await wallet.initialize();
+      }
     }
     window["wallet"] = wallet;
   });
@@ -217,14 +229,6 @@ async function deviceConnected(deviceId) {
     let deviceID = wallet.getDeviceID();
     $keyring.val(deviceID).change();
   }
-
-  keyring.on(["*", "*", Events.CONNECT], async (deviceId) => {
-    await deviceConnected(deviceId);
-  });
-
-  keyring.on(["*", "*", Events.DISCONNECT], async (deviceId) => {
-    $keyring.find(`option[value="${deviceId}"]`).remove();
-  });
 })();
 
 window["handlePinDigit"] = function (digit) {
@@ -265,18 +269,6 @@ window["mnemonicEntered"] = function () {
   wallet.loadDevice({ mnemonic: input.value });
   document.getElementById("#mnemonicModal").className = "modal";
 };
-
-function listen(transport) {
-  if (!transport) return;
-
-  transport.on(Events.PIN_REQUEST, (e) => {
-    window["pinOpen"]();
-  });
-
-  transport.on(Events.PASSPHRASE_REQUEST, (e) => {
-    window["passphraseOpen"]();
-  });
-}
 
 const $yes = $("#yes");
 const $no = $("#no");
