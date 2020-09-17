@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { mnemonicToSeed } from "bip39";
 import { Wallet, utils } from "ethers";
 import txDecoder from "ethereum-tx-decoder";
 import { HDNode, defaultPath } from "@ethersproject/hdnode";
@@ -45,18 +46,21 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
 
     #ethWallet: Wallet;
 
-    ethInitializeWallet(seed: string): void {
-      return this.needsMnemonic(!!seed, () => {
-        this.#ethWallet = new Wallet(HDNode.fromSeed(seed).derivePath(defaultPath));
-      });
+    async ethInitializeWallet(mnemonic: string): Promise<void> {
+      const seed = `0x${(await mnemonicToSeed(mnemonic)).toString("hex")}`;
+      this.#ethWallet = new Wallet(HDNode.fromSeed(seed).derivePath(defaultPath));
+    }
+
+    ethWipe() {
+      this.#ethWallet = undefined;
     }
 
     async ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
-      return this.needsMnemonicAsync(!!this.#ethWallet, () => this.#ethWallet.getAddress());
+      return this.needsMnemonic(!!this.#ethWallet, () => this.#ethWallet.getAddress());
     }
 
     async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
-      return this.needsMnemonicAsync(!!this.#ethWallet, async () => {
+      return this.needsMnemonic(!!this.#ethWallet, async () => {
         const result = await this.#ethWallet.signTransaction({
           to: msg.to,
           from: await this.#ethWallet.getAddress(),
@@ -78,7 +82,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     }
 
     async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
-      return this.needsMnemonicAsync(!!this.#ethWallet, async () => {
+      return this.needsMnemonic(!!this.#ethWallet, async () => {
         const result = await this.#ethWallet.signMessage(msg.message);
         return {
           address: await this.#ethWallet.getAddress(),

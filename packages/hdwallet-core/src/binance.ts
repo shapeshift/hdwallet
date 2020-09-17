@@ -1,4 +1,5 @@
-import { BIP32Path } from "./wallet";
+import { addressNListToBIP32, slip44ByCoin } from "./utils";
+import { BIP32Path, PathDescription } from "./wallet";
 
 export interface BinanceGetAddress {
   addressNList: BIP32Path;
@@ -82,4 +83,43 @@ export interface BinanceWallet extends BinanceWalletInfo {
   binanceGetAddress(msg: BinanceGetAddress): Promise<string>;
 
   binanceSignTx(msg: BinanceSignTx): Promise<BinanceSignedTx>;
+}
+
+export function binanceDescribePath(path: BIP32Path): PathDescription {
+  let pathStr = addressNListToBIP32(path);
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin: "Binance",
+    isKnown: false,
+  };
+
+  if (path.length != 5) {
+    return unknown;
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown;
+  }
+
+  if (path[1] != 0x80000000 + slip44ByCoin("Binance")) {
+    return unknown;
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown;
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown;
+  }
+
+  let index = path[2] & 0x7fffffff;
+  return {
+    verbose: `Binance Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "Binance",
+    isKnown: true,
+    isPrefork: false,
+  };
 }

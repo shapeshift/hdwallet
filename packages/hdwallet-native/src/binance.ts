@@ -1,4 +1,3 @@
-import { addressNListToBIP32, BIP32Path, PathDescription, slip44ByCoin } from "@shapeshiftoss/hdwallet-core";
 import * as core from "@shapeshiftoss/hdwallet-core";
 
 import BncClient from "bnb-javascript-sdk-nobroadcast";
@@ -37,45 +36,6 @@ export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor>(Bas
       // Only support one account for now (like portis).
       return undefined;
     }
-
-    binanceDescribePath(path: BIP32Path): PathDescription {
-      let pathStr = addressNListToBIP32(path);
-      let unknown: PathDescription = {
-        verbose: pathStr,
-        coin: "Binance",
-        isKnown: false,
-      };
-
-      if (path.length != 5) {
-        return unknown;
-      }
-
-      if (path[0] != 0x80000000 + 44) {
-        return unknown;
-      }
-
-      if (path[1] != 0x80000000 + slip44ByCoin("Binance")) {
-        return unknown;
-      }
-
-      if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
-        return unknown;
-      }
-
-      if (path[3] !== 0 || path[4] !== 0) {
-        return unknown;
-      }
-
-      let index = path[2] & 0x7fffffff;
-      return {
-        verbose: `Binance Account #${index}`,
-        accountIdx: index,
-        wholeAccount: true,
-        coin: "Binance",
-        isKnown: true,
-        isPrefork: false,
-      };
-    }
   };
 }
 
@@ -85,9 +45,11 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
     #seed: Buffer;
 
     async binanceInitializeWallet(mnemonic: string): Promise<void> {
-      return this.needsMnemonicAsync(!!mnemonic, async () => {
-        this.#seed = await mnemonicToSeed(mnemonic);
-      });
+      this.#seed = await mnemonicToSeed(mnemonic);
+    }
+
+    binanceWipe(): void {
+      this.#seed = undefined;
     }
 
     bech32ify(address: ArrayLike<number>, prefix: string): string {
@@ -103,7 +65,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
     }
 
     async binanceGetAddress(msg: core.BinanceGetAddress): Promise<string> {
-      return this.needsMnemonicAsync(!!this.#seed, async () => {
+      return this.needsMnemonic(!!this.#seed, async () => {
         const network = getNetwork("binance");
         const wallet = bitcoin.bip32.fromSeed(this.#seed, network);
         const path = core.addressNListToBIP32(msg.addressNList);
@@ -113,7 +75,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
     }
 
     async binanceSignTx(msg: core.BinanceSignTx): Promise<core.BinanceSignedTx> {
-      return this.needsMnemonicAsync(!!this.#seed, async () => {
+      return this.needsMnemonic(!!this.#seed, async () => {
         const network = getNetwork("binance");
         const mKey = bitcoin.bip32.fromSeed(this.#seed, network);
         const path = core.addressNListToBIP32(msg.addressNList);

@@ -36,45 +36,6 @@ export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor>(Base
       // Only support one account for now (like portis).
       return undefined;
     }
-
-    cosmosDescribePath(path: BIP32Path): PathDescription {
-      let pathStr = addressNListToBIP32(path);
-      let unknown: PathDescription = {
-        verbose: pathStr,
-        coin: "Atom",
-        isKnown: false,
-      };
-
-      if (path.length != 5) {
-        return unknown;
-      }
-
-      if (path[0] != 0x80000000 + 44) {
-        return unknown;
-      }
-
-      if (path[1] != 0x80000000 + slip44ByCoin("Atom")) {
-        return unknown;
-      }
-
-      if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
-        return unknown;
-      }
-
-      if (path[3] !== 0 || path[4] !== 0) {
-        return unknown;
-      }
-
-      let index = path[2] & 0x7fffffff;
-      return {
-        verbose: `Cosmos Account #${index}`,
-        accountIdx: index,
-        wholeAccount: true,
-        coin: "Atom",
-        isKnown: true,
-        isPrefork: false,
-      };
-    }
   };
 }
 
@@ -85,6 +46,10 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
 
     cosmosInitializeWallet(seed: string): void {
       this.#seed = seed;
+    }
+
+    cosmosWipe(): void {
+      this.#seed = undefined;
     }
 
     bech32ify(address: ArrayLike<number>, prefix: string): string {
@@ -100,35 +65,39 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
     }
 
     async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string> {
-      const seed = await mnemonicToSeed(this.#seed);
+      return this.needsMnemonic(!!this.#seed, async () => {
+        const seed = await mnemonicToSeed(this.#seed);
 
-      const network = getNetwork("bitcoin");
-      const wallet = bitcoin.bip32.fromSeed(seed, network);
-      const path = core.addressNListToBIP32(msg.addressNList);
-      const keypair = await bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
-      return this.createCosmosAddress(keypair.publicKey.toString("hex"));
+        const network = getNetwork("bitcoin");
+        const wallet = bitcoin.bip32.fromSeed(seed, network);
+        const path = core.addressNListToBIP32(msg.addressNList);
+        const keypair = await bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
+        return this.createCosmosAddress(keypair.publicKey.toString("hex"));
+      });
     }
 
     async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx> {
-      const seed = await mnemonicToSeed(this.#seed);
-      const ATOM_CHAIN = "cosmoshub-3";
+      return this.needsMnemonic(!!this.#seed, async () => {
+        const seed = await mnemonicToSeed(this.#seed);
+        const ATOM_CHAIN = "cosmoshub-3";
 
-      const network = getNetwork("cosmos");
-      const mkey = bitcoin.bip32.fromSeed(seed, network);
-      const path = core.addressNListToBIP32(msg.addressNList);
+        const network = getNetwork("cosmos");
+        const mkey = bitcoin.bip32.fromSeed(seed, network);
+        const path = core.addressNListToBIP32(msg.addressNList);
 
-      let keypair = await bitcoin.ECPair.fromWIF(mkey.derivePath(path).toWIF(), network);
-      let privateKey = keypair.privateKey.toString("hex");
-      let publicKey = keypair.publicKey.toString("hex");
+        let keypair = await bitcoin.ECPair.fromWIF(mkey.derivePath(path).toWIF(), network);
+        let privateKey = keypair.privateKey.toString("hex");
+        let publicKey = keypair.publicKey.toString("hex");
 
-      const wallet = {
-        privateKey,
-        publicKey,
-      };
+        const wallet = {
+          privateKey,
+          publicKey,
+        };
 
-      const result = await txBuilder.sign(msg.tx, wallet, msg.sequence, msg.account_number, ATOM_CHAIN);
+        const result = await txBuilder.sign(msg.tx, wallet, msg.sequence, msg.account_number, ATOM_CHAIN);
 
-      return txBuilder.createSignedTx(msg.tx, result);
+        return txBuilder.createSignedTx(msg.tx, result);
+      });
     }
   };
 }

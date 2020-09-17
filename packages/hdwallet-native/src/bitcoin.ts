@@ -1,3 +1,4 @@
+import { mnemonicToSeed } from "bip39";
 import * as bitcoin from "bitcoinjs-lib";
 import { toCashAddress, toLegacyAddress } from "bchaddrjs";
 import * as core from "@shapeshiftoss/hdwallet-core";
@@ -122,6 +123,14 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
 
     #seed: Buffer;
 
+    async btcInitializeWallet(mnemonic: string): Promise<void> {
+      this.#seed = await mnemonicToSeed(mnemonic);
+    }
+
+    btcWipe(): void {
+      this.#seed = undefined;
+    }
+
     getKeyPair(coin: core.Coin, addressNList: core.BIP32Path, scriptType?: BTCScriptType): bitcoin.ECPairInterface {
       return this.needsMnemonic(!!this.#seed, () => {
         const network = getNetwork(coin, scriptType);
@@ -182,10 +191,6 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
         ...utxoData,
         ...scriptData,
       };
-    }
-
-    async btcInitializeWallet(seed: Buffer): Promise<void> {
-      this.#seed = seed;
     }
 
     async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {

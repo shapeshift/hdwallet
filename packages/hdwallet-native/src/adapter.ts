@@ -30,6 +30,10 @@ export class NativeAdapter {
       this.keyring.decorateEvents(this.deviceId, wallet.events);
     }
 
+    if (this.#mnemonic) {
+      wallet.initialize();
+    }
+
     return Object.keys(this.keyring.wallets).length;
   }
 

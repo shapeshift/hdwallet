@@ -50,6 +50,7 @@ const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring);
 const kkemuAdapter = TCPKeepKeyAdapter.useKeyring(keyring);
 const portisAdapter = PortisAdapter.useKeyring(keyring, { portisAppId });
 const nativeAdapter = NativeAdapter.useKeyring(keyring, {
+  mnemonic,
   deviceId: "native-wallet-test",
 });
 

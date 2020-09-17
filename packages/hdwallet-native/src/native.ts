@@ -1,4 +1,3 @@
-import { makeEvent } from "@shapeshiftoss/hdwallet-core";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { EventEmitter2 } from "eventemitter2";
 import { mnemonicToSeed } from "bip39";
@@ -29,10 +28,9 @@ export class NativeHDWalletBase {
 
   /**
    * Wrap a function call that needs a mnemonic seed
-   * @param hasMnemonic - A
-   * @param callback
+   * Raise an event if the wallet hasn't been initialized with a mnemonic seed
    */
-  needsMnemonic<T>(hasMnemonic: boolean, callback: () => T): T {
+  needsMnemonic<T>(hasMnemonic: boolean, callback: () => T): T | null {
     if (hasMnemonic) {
       return callback();
     }
@@ -45,15 +43,7 @@ export class NativeHDWalletBase {
       })
     );
 
-    throw new Error("Wallet is not initialized");
-  }
-
-  async needsMnemonicAsync<T>(hasMnemonic: boolean, callback: () => Promise<T>): Promise<T | null> {
-    try {
-      return await this.needsMnemonic(hasMnemonic, callback);
-    } catch (e) {
-      return null;
-    }
+    return null;
   }
 }
 
@@ -104,16 +94,16 @@ class NativeHDWalletInfo
       case "testnet":
         const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
 
-        if (!super.btcSupportsCoin(msg.coin)) return unknown;
-        if (!super.btcSupportsScriptType(msg.coin, msg.scriptType)) return unknown;
+        if (!this.btcSupportsCoin(msg.coin)) return unknown;
+        if (!this.btcSupportsScriptType(msg.coin, msg.scriptType)) return unknown;
 
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
       case "ethereum":
         return core.describeETHPath(msg.path);
       case "atom":
-        return this.cosmosDescribePath(msg.path);
+        return core.cosmosDescribePath(msg.path);
       case "binance":
-        return this.binanceDescribePath(msg.path);
+        return core.binanceDescribePath(msg.path);
       default:
         throw new Error("Unsupported path");
     }
@@ -170,7 +160,7 @@ export class NativeHDWallet
    * to supports different styles of xpubs as can be defined by passing in a network to `fromSeed`
    */
   getPublicKeys(msg: Array<core.GetPublicKey>): Promise<core.PublicKey[]> {
-    return this.needsMnemonicAsync(!!this.#mnemonic, () =>
+    return this.needsMnemonic(!!this.#mnemonic, () =>
       Promise.all(
         msg.map(async (getPublicKey) => {
           let { addressNList } = getPublicKey;
@@ -197,15 +187,22 @@ export class NativeHDWallet
 
   async clearSession(): Promise<void> {}
 
-  async initialize(): Promise<any> {
-    const seed = await mnemonicToSeed(this.#mnemonic);
+  async initialize(): Promise<boolean> {
+    return this.needsMnemonic(!!this.#mnemonic, async () => {
+      try {
+        await this.btcInitializeWallet(this.#mnemonic);
+        await this.ethInitializeWallet(this.#mnemonic);
+        await this.cosmosInitializeWallet(this.#mnemonic);
+        await super.binanceInitializeWallet(this.#mnemonic);
 
-    await super.btcInitializeWallet(seed);
-    super.ethInitializeWallet("0x" + seed.toString("hex"));
-    super.cosmosInitializeWallet(this.#mnemonic);
-    await super.binanceInitializeWallet(this.#mnemonic);
+        this.#initialized = true;
+      } catch (e) {
+        console.error("NativeHDWallet:initialize:error", e);
+        this.#initialized = false;
+      }
 
-    this.#initialized = true;
+      return this.#initialized;
+    });
   }
 
   async ping(msg: core.Ping): Promise<core.Pong> {
@@ -222,7 +219,14 @@ export class NativeHDWallet
 
   async cancel(): Promise<void> {}
 
-  async wipe(): Promise<void> {}
+  async wipe(): Promise<void> {
+    this.#mnemonic = null;
+
+    this.btcWipe();
+    this.ethWipe();
+    this.cosmosWipe();
+    this.binanceWipe();
+  }
 
   async reset(): Promise<void> {}
 
@@ -236,7 +240,7 @@ export class NativeHDWallet
     // Once we've been seeded with a mnemonic we re-emit the connected event
     this.events.emit(
       NativeEvents.READY,
-      makeEvent({
+      core.makeEvent({
         message_type: NativeEvents.READY,
         from_wallet: true,
       })

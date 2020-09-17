@@ -1,4 +1,5 @@
-import { BIP32Path } from "./wallet";
+import { addressNListToBIP32, slip44ByCoin } from "./utils";
+import { BIP32Path, PathDescription } from "./wallet";
 
 export interface CosmosGetAddress {
   addressNList: BIP32Path;
@@ -89,4 +90,43 @@ export interface CosmosWallet extends CosmosWalletInfo {
 
   cosmosGetAddress(msg: CosmosGetAddress): Promise<string>;
   cosmosSignTx(msg: CosmosSignTx): Promise<CosmosSignedTx>;
+}
+
+export function cosmosDescribePath(path: BIP32Path): PathDescription {
+  let pathStr = addressNListToBIP32(path);
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin: "Atom",
+    isKnown: false,
+  };
+
+  if (path.length != 5) {
+    return unknown;
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown;
+  }
+
+  if (path[1] != 0x80000000 + slip44ByCoin("Atom")) {
+    return unknown;
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown;
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown;
+  }
+
+  let index = path[2] & 0x7fffffff;
+  return {
+    verbose: `Cosmos Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "Atom",
+    isKnown: true,
+    isPrefork: false,
+  };
 }
