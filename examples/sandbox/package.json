@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "build": "yarn parcel build index.html --out-dir public",
-    "dev": "yarn parcel index.html --https",
+    "dev": "yarn parcel index.html",
     "clean": "rm -rf dist .cache"
   },
   "dependencies": {

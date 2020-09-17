@@ -13,6 +13,7 @@ import {
   bip32ToAddressNList,
   Events,
   toHexString,
+  Cosmos,
 } from "@shapeshiftoss/hdwallet-core";
 
 import { isKeepKey } from "@shapeshiftoss/hdwallet-keepkey";
@@ -29,6 +30,7 @@ import {
   BTCInputScriptType,
   BTCOutputScriptType,
   BTCOutputAddressType,
+  BTCSignTxOutput,
 } from "@shapeshiftoss/hdwallet-core/src/bitcoin";
 
 import * as btcBech32TxJson from "./json/btcBech32Tx.json";
@@ -59,7 +61,13 @@ keyring.onAny((name: string[], ...values: any[]) => {
   const { from_wallet = false, message_type } = event;
   let direction = from_wallet ? "🔑" : "💻";
   debug.default(deviceId)(`${direction} ${message_type}`, event);
-  alert(`Event: ${name[2]}`);
+
+  const log = document.getElementById("#eventLog");
+  log.innerHTML += `<div class="eventEntry">Event: ${name}<br />Values: ${JSON.stringify(values)}</div>`;
+});
+
+keyring.on(["*", "*", "MNEMONIC_REQUIRED"], () => {
+  document.getElementById("#mnemonicModal").className = "modal opened";
 });
 
 const trezorAdapter = TrezorAdapter.useKeyring(keyring, {
@@ -176,10 +184,17 @@ async function deviceConnected(deviceId) {
     console.error("Could not initialize PortisAdapter", e);
   }
 
+  try {
+    await nativeAdapter.initialize();
+  } catch (e) {
+    console.error("Could not initialize NativeAdapter", e);
+  }
+
   for (const [deviceID, wallet] of Object.entries(keyring.wallets)) {
     await deviceConnected(deviceID);
   }
   $keyring.change(async (e) => {
+    console.log("Change event", e);
     if (wallet) {
       await wallet.disconnect();
     }
@@ -193,7 +208,6 @@ async function deviceConnected(deviceId) {
           await wallet.transport.tryConnectDebugLink();
         }
       }
-      await wallet.initialize();
     }
     window["wallet"] = wallet;
   });
@@ -214,7 +228,7 @@ async function deviceConnected(deviceId) {
 })();
 
 window["handlePinDigit"] = function (digit) {
-  let input = document.getElementById("#pinInput");
+  let input = document.getElementById("#pinInput") as HTMLInputElement;
   if (digit === "") {
     input.value = input.value.slice(0, -1);
   } else {
@@ -223,23 +237,33 @@ window["handlePinDigit"] = function (digit) {
 };
 
 window["pinOpen"] = function () {
-  document.getElementById("#pinModal").className = "modale opened";
+  document.getElementById("#pinModal").className = "modal opened";
 };
 
 window["pinEntered"] = function () {
-  let input = document.getElementById("#pinInput");
+  let input = document.getElementById("#pinInput") as HTMLInputElement;
   wallet.sendPin(input.value);
-  document.getElementById("#pinModal").className = "modale";
+  document.getElementById("#pinModal").className = "modal";
 };
 
 window["passphraseOpen"] = function () {
-  document.getElementById("#passphraseModal").className = "modale opened";
+  document.getElementById("#passphraseModal").className = "modal opened";
 };
 
 window["passphraseEntered"] = function () {
-  let input = document.getElementById("#passphraseInput");
+  let input = document.getElementById("#passphraseInput") as HTMLInputElement;
   wallet.sendPassphrase(input.value);
-  document.getElementById("#passphraseModal").className = "modale";
+  document.getElementById("#passphraseModal").className = "modal";
+};
+
+window["mnemonicOpen"] = function () {
+  document.getElementById("#mnemonicModal").className = "modal opened";
+};
+
+window["mnemonicEntered"] = function () {
+  let input = document.getElementById("#mnemonicInput") as HTMLInputElement;
+  wallet.loadDevice({ mnemonic: input.value });
+  document.getElementById("#mnemonicModal").className = "modal";
 };
 
 function listen(transport) {
@@ -644,13 +668,11 @@ $eosAddr.on("click", async (e) => {
     let result = await wallet.eosGetPublicKey({
       addressNList,
       showDisplay: false,
-      kind: 0,
     });
     result = await wallet.eosGetPublicKey({
       addressNList,
       showDisplay: true,
       kind: 0,
-      address: result,
     });
     $eosResults.val(result);
   } else {
@@ -737,10 +759,9 @@ $cosmosAddr.on("click", async (e) => {
       addressNList,
       showDisplay: false,
     });
-    result = await wallet.cosmosGetAddress({
+    await wallet.cosmosGetAddress({
       addressNList,
       showDisplay: true,
-      address: result,
     });
     $cosmosResults.val(result);
   } else {
@@ -756,36 +777,28 @@ $cosmosTx.on("click", async (e) => {
     return;
   }
   if (supportsCosmos(wallet)) {
-    let unsigned = {
-      type: "auth/StdTx",
-      value: {
-        fee: {
-          amount: [
-            {
-              amount: "1000",
-              denom: "uatom",
-            },
-          ],
-          gas: "28000",
-        },
-        memo: "KeepKey",
-        msg: [
-          {
-            type: "cosmos-sdk/MsgSend",
-            value: {
-              amount: [
-                {
-                  amount: "47000",
-                  denom: "uatom",
-                },
-              ],
-              from_address: "cosmos1934nqs0ke73lm5ej8hs9uuawkl3ztesg9jp5c5",
-              to_address: "cosmos14um3sf75lc0kpvgrpj9hspqtv0375epn05cpfa",
-            },
-          },
-        ],
-        signatures: null,
+    let unsigned: Cosmos.StdTx = {
+      memo: "KeepKey",
+      fee: {
+        amount: [{ amount: "100", denom: "ATOM" }],
+        gas: "1000",
       },
+      msg: [
+        {
+          type: "cosmos-sdk/MsgSend",
+          value: {
+            amount: [
+              {
+                amount: "47000",
+                denom: "uatom",
+              },
+            ],
+            from_address: "cosmos1934nqs0ke73lm5ej8hs9uuawkl3ztesg9jp5c5",
+            to_address: "cosmos14um3sf75lc0kpvgrpj9hspqtv0375epn05cpfa",
+          },
+        },
+      ],
+      signatures: null,
     };
 
     let res = await wallet.cosmosSignTx({
@@ -1583,12 +1596,13 @@ $btcTxSegWit.on("click", async (e) => {
       },
     ];
 
-    let outputs = [
+    let outputs: BTCSignTxOutput[] = [
       {
         address: "3Eq3agTHEhMCC8sZHnJJcCcZFB7BBSJKWr",
         addressType: BTCOutputAddressType.Spend,
         scriptType: BTCOutputScriptType.PayToAddress,
         amount: String(89869),
+        isChange: false,
       },
     ];
     let res = await wallet.btcSignTx({
@@ -1634,12 +1648,13 @@ $btcTxSegWitNative.on("click", async (e) => {
       },
     ];
 
-    let outputs = [
+    let outputs: BTCSignTxOutput[] = [
       {
         address: "bc1qc5dgazasye0yrzdavnw6wau5up8td8gdqh7t6m",
         addressType: BTCOutputAddressType.Spend,
         scriptType: BTCOutputScriptType.PayToAddress,
         amount: String(1337),
+        isChange: false,
       },
     ];
     let res = await wallet.btcSignTx({
