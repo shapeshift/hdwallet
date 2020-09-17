@@ -2,11 +2,7 @@ import { BIP32Path } from "./wallet";
 
 export interface CosmosGetAddress {
   addressNList: BIP32Path;
-  hardenedPath: BIP32Path;
-  relPath: BIP32Path;
   showDisplay?: boolean;
-  /** Optional. Required for showDisplay == true. */
-  address?: string;
 }
 
 export namespace Cosmos {

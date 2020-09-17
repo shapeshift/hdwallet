@@ -1,13 +1,3 @@
-// import {
-//   CosmosGetAddress,
-//   CosmosSignTx,
-//   CosmosGetAccountPath,
-//   CosmosAccountPath,
-//   CosmosSignedTx,
-//   slip44ByCoin,
-//   LONG_TIMEOUT,
-//   Events,
-// }
 import * as Core from "@shapeshiftoss/hdwallet-core";
 
 import { KeepKeyTransport } from "./transport";
@@ -108,7 +98,7 @@ export async function cosmosSignTx(transport: KeepKeyTransport, msg: Core.Cosmos
   });
 }
 
-export async function cosmosGetAddress(transport: KeepKeyTransport, msg: Core.CosmosGetAddress): Promise<string> {
+export async function cosmosGetAddress(transport: KeepKeyTransport, msg: CosmosGetAddress.AsObject): Promise<string> {
   const getAddr = new CosmosGetAddress();
   getAddr.setAddressNList(msg.addressNList);
   getAddr.setShowDisplay(msg.showDisplay !== false);

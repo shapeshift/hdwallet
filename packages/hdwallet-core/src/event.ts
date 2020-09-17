@@ -1,4 +1,4 @@
-import { Message } from "google-protobuf";
+import type { Message } from "google-protobuf";
 
 export interface Event {
   message_type?: string;
