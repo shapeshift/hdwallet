@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { BIP32Interface } from "bitcoinjs-lib";
 
 import BncClient from "bnb-javascript-sdk-nobroadcast";
 import * as bitcoin from "bitcoinjs-lib";
@@ -7,6 +8,7 @@ import { getNetwork } from "./networks";
 import { mnemonicToSeed } from "bip39";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
+import { getKeyPair } from "./util";
 
 export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeBinanceWalletInfo extends Base implements core.BinanceWalletInfo {
@@ -42,14 +44,15 @@ export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor>(Bas
 export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeBinanceWallet extends Base {
     _supportsBinance = true;
-    #seed: Buffer;
+    #wallet: BIP32Interface;
 
     async binanceInitializeWallet(mnemonic: string): Promise<void> {
-      this.#seed = await mnemonicToSeed(mnemonic);
+      const network = getNetwork("cosmos");
+      this.#wallet = bitcoin.bip32.fromSeed(await mnemonicToSeed(mnemonic), network);
     }
 
     binanceWipe(): void {
-      this.#seed = undefined;
+      this.#wallet = undefined;
     }
 
     bech32ify(address: ArrayLike<number>, prefix: string): string {
@@ -65,28 +68,17 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
     }
 
     async binanceGetAddress(msg: core.BinanceGetAddress): Promise<string> {
-      return this.needsMnemonic(!!this.#seed, async () => {
-        const network = getNetwork("binance");
-        const wallet = bitcoin.bip32.fromSeed(this.#seed, network);
-        const path = core.addressNListToBIP32(msg.addressNList);
-        const keypair = bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
-        return this.createBinanceAddress(keypair.publicKey.toString("hex"));
+      return this.needsMnemonic(!!this.#wallet, async () => {
+        return this.createBinanceAddress(getKeyPair(this.#wallet, msg.addressNList, "binance").publicKey);
       });
     }
 
     async binanceSignTx(msg: core.BinanceSignTx): Promise<core.BinanceSignedTx> {
-      return this.needsMnemonic(!!this.#seed, async () => {
-        const network = getNetwork("binance");
-        const mKey = bitcoin.bip32.fromSeed(this.#seed, network);
-        const path = core.addressNListToBIP32(msg.addressNList);
-
-        const keypair = bitcoin.ECPair.fromWIF(mKey.derivePath(path).toWIF(), network);
-        const privateKey = keypair.privateKey.toString("hex");
-
-        //use sdk to build Amino encoded hex transaction
-        const client = new BncClient("https://dex.binance.org"); //broadcast not used but available
+      return this.needsMnemonic(!!this.#wallet, async () => {
+        // use sdk to build Amino encoded hex transaction
+        const client = new BncClient("https://dex.binance.org"); // broadcast not used but available
         await client.chooseNetwork("mainnet");
-        await client.setPrivateKey(privateKey);
+        await client.setPrivateKey(getKeyPair(this.#wallet, msg.addressNList, "binance").privateKey);
         await client.initChain();
 
         const addressFrom = msg.tx.msgs[0].inputs[0].address;
