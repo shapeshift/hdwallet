@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.3] - 2020-09-18
+
+### Changed
+
+- Native: Add MNEMONIC_REQUIRED event when the wallet hasn't been initialized
+- Sandbox: Add "Event Log" area to help developers see the events being raised
+
+## [1.2.2] - 2020-09-15
+
+### Changed
+
+- Cosmos: Add an option "fee" property to CosmosSignTx interface
+
+## [1.2.0] - 2020-09-01
+
+### Changed
+
+- Native: Add binance support
+
+## [1.1.2] - 2020-08-12
+
+### Changed
+
+- Remove unused "hdkey" dependency
+
+## [1.1.0] - 2020-08-11
+
+### Changed
+
+- Native: Fix Cosmos support
+
 ## [1.0.1] - 2020-07-13
 
 ### Changed
