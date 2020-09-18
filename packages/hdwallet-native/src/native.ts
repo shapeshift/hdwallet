@@ -97,9 +97,9 @@ class NativeHDWalletInfo
         if (!super.btcSupportsCoin(msg.coin)) return unknown;
         if (!super.btcSupportsScriptType(msg.coin, msg.scriptType)) return unknown;
 
-        return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+        return core.btcDescribePath(msg.path, msg.coin, msg.scriptType);
       case "ethereum":
-        return core.describeETHPath(msg.path);
+        return core.ethDescribePath(msg.path);
       case "atom":
         return core.cosmosDescribePath(msg.path);
       case "binance":

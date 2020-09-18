@@ -164,10 +164,7 @@ export interface BTCWalletInfo {
    * Does the device support the given script type for the given coin?
    * Assumes that `btcSupportsCoin(coin)` for the given coin.
    */
-  btcSupportsScriptType(
-    coin: Coin,
-    scriptType: BTCInputScriptType
-  ): Promise<boolean>;
+  btcSupportsScriptType(coin: Coin, scriptType: BTCInputScriptType): Promise<boolean>;
 
   /**
    * Does the device support internal transfers without the user needing to
@@ -221,11 +218,7 @@ export interface BTCWallet extends BTCWalletInfo {
   btcVerifyMessage(msg: BTCVerifyMessage): Promise<boolean>;
 }
 
-export function unknownUTXOPath(
-  path: BIP32Path,
-  coin: Coin,
-  scriptType: BTCInputScriptType
-): PathDescription {
+export function unknownUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInputScriptType): PathDescription {
   return {
     verbose: addressNListToBIP32(path),
     coin,
@@ -234,12 +227,14 @@ export function unknownUTXOPath(
   };
 }
 
-export function describeUTXOPath(
-  path: BIP32Path,
-  coin: Coin,
-  scriptType: BTCInputScriptType
-): PathDescription {
-  const unknown = unknownUTXOPath(path, coin, scriptType);
+export function btcDescribePath(path: BIP32Path, coin: Coin, scriptType: BTCInputScriptType): PathDescription {
+  let pathStr = addressNListToBIP32(path);
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin,
+    scriptType,
+    isKnown: false,
+  };
 
   if (path.length !== 3 && path.length !== 5) return unknown;
 
@@ -249,14 +244,11 @@ export function describeUTXOPath(
 
   if (![44, 49, 84].includes(purpose)) return unknown;
 
-  if (purpose === 44 && scriptType !== BTCInputScriptType.SpendAddress)
-    return unknown;
+  if (purpose === 44 && scriptType !== BTCInputScriptType.SpendAddress) return unknown;
 
-  if (purpose === 49 && scriptType !== BTCInputScriptType.SpendP2SHWitness)
-    return unknown;
+  if (purpose === 49 && scriptType !== BTCInputScriptType.SpendP2SHWitness) return unknown;
 
-  if (purpose === 84 && scriptType !== BTCInputScriptType.SpendWitness)
-    return unknown;
+  if (purpose === 84 && scriptType !== BTCInputScriptType.SpendWitness) return unknown;
 
   let wholeAccount = path.length === 3;
 
@@ -278,10 +270,7 @@ export function describeUTXOPath(
         return unknown;
       }
       case "BitcoinSV": {
-        if (
-          path[1] === 0x80000000 + slip44ByCoin("Bitcoin") ||
-          path[1] === 0x80000000 + slip44ByCoin("BitcoinCash")
-        ) {
+        if (path[1] === 0x80000000 + slip44ByCoin("Bitcoin") || path[1] === 0x80000000 + slip44ByCoin("BitcoinCash")) {
           isPrefork = true;
           break;
         }
@@ -336,50 +325,49 @@ export function describeUTXOPath(
   }
 }
 
-export function legacyAccount(
-  coin: Coin,
-  slip44: number,
-  accountIdx: number
-): BTCAccountPath {
+export function btcNextAccountPath(msg: BTCAccountPath): BTCAccountPath | undefined {
+  let description = btcDescribePath(msg.addressNList, msg.coin, msg.scriptType);
+  if (!description.isKnown) {
+    return undefined;
+  }
+
+  let addressNList = msg.addressNList;
+
+  if (
+    addressNList[0] === 0x80000000 + 44 ||
+    addressNList[0] === 0x80000000 + 49 ||
+    addressNList[0] === 0x80000000 + 84
+  ) {
+    addressNList[2] += 1;
+    return {
+      ...msg,
+      addressNList,
+    };
+  }
+
+  return undefined;
+}
+
+export function legacyAccount(coin: Coin, slip44: number, accountIdx: number): BTCAccountPath {
   return {
     coin,
     scriptType: BTCInputScriptType.SpendAddress,
-    addressNList: [
-      0x80000000 + 44,
-      0x80000000 + slip44,
-      0x80000000 + accountIdx,
-    ],
+    addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + accountIdx],
   };
 }
 
-export function segwitAccount(
-  coin: Coin,
-  slip44: number,
-  accountIdx: number
-): BTCAccountPath {
+export function segwitAccount(coin: Coin, slip44: number, accountIdx: number): BTCAccountPath {
   return {
     coin,
     scriptType: BTCInputScriptType.SpendP2SHWitness,
-    addressNList: [
-      0x80000000 + 49,
-      0x80000000 + slip44,
-      0x80000000 + accountIdx,
-    ],
+    addressNList: [0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + accountIdx],
   };
 }
 
-export function segwitNativeAccount(
-  coin: Coin,
-  slip44: number,
-  accountIdx: number
-): BTCAccountPath {
+export function segwitNativeAccount(coin: Coin, slip44: number, accountIdx: number): BTCAccountPath {
   return {
     coin,
     scriptType: BTCInputScriptType.SpendWitness,
-    addressNList: [
-      0x80000000 + 84,
-      0x80000000 + slip44,
-      0x80000000 + accountIdx,
-    ],
+    addressNList: [0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + accountIdx],
   };
 }

@@ -123,3 +123,26 @@ export function binanceDescribePath(path: BIP32Path): PathDescription {
     isPrefork: false,
   };
 }
+
+export function binanceNextAccountPath(msg: BinanceAccountPath): BinanceAccountPath | undefined {
+  let description = binanceDescribePath(msg.addressNList);
+  if (!description.isKnown) {
+    return undefined;
+  }
+
+  let addressNList = msg.addressNList;
+  addressNList[2] += 1;
+
+  return {
+    ...msg,
+    addressNList,
+  };
+}
+
+export function binanceGetAccountPaths(msg: BinanceGetAccountPaths): BinanceAccountPath[] {
+  return [
+    {
+      addressNList: [0x80000000 + 44, 0x80000000 + slip44ByCoin("Binance"), 0x80000000 + msg.accountIdx, 0, 0],
+    },
+  ];
+}

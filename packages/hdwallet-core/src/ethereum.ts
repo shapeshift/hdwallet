@@ -1,5 +1,5 @@
 import { ExchangeType, BIP32Path, PathDescription } from "./wallet";
-import { addressNListToBIP32, slip44ByCoin } from "./utils";
+import { addressNListToBIP32, hardenedPath, relativePath, slip44ByCoin } from "./utils";
 
 export interface ETHGetAccountPath {
   coin: string;
@@ -122,7 +122,7 @@ export interface ETHWallet extends ETHWalletInfo {
   ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean>;
 }
 
-export function describeETHPath(path: BIP32Path): PathDescription {
+export function ethDescribePath(path: BIP32Path): PathDescription {
   let pathStr = addressNListToBIP32(path);
   let unknown: PathDescription = {
     verbose: pathStr,
@@ -151,4 +151,35 @@ export function describeETHPath(path: BIP32Path): PathDescription {
     isKnown: true,
     isPrefork: false,
   };
+}
+
+export function ethNextAccountPath(msg: ETHAccountPath): ETHAccountPath | undefined {
+  let addressNList = msg.hardenedPath.concat(msg.relPath);
+  let description = ethDescribePath(addressNList);
+  if (!description.isKnown) {
+    return undefined;
+  }
+
+  if (addressNList[0] === 0x80000000 + 44) {
+    addressNList[2] += 1;
+    return {
+      ...msg,
+      addressNList,
+      hardenedPath: hardenedPath(addressNList),
+      relPath: relativePath(addressNList),
+    };
+  }
+
+  return undefined;
+}
+
+export function ethGetAccountPaths(msg: ETHGetAccountPath): Array<ETHAccountPath> {
+  return [
+    {
+      addressNList: [0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx, 0, 0],
+      hardenedPath: [0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx],
+      relPath: [0, 0],
+      description: "KeepKey",
+    },
+  ];
 }

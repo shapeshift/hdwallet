@@ -1,46 +1,49 @@
-import Web3 from "web3";
 import {
-  HDWallet,
+  addressNListToBIP32,
+  BTCAccountPath,
+  btcDescribePath,
+  BTCGetAccountPaths,
+  BTCGetAddress,
+  BTCInputScriptType,
+  BTCSignedMessage,
+  BTCSignedTx,
+  BTCSignMessage,
+  BTCSignTx,
+  BTCVerifyMessage,
+  BTCWallet,
+  BTCWalletInfo,
+  Coin,
+  DescribePath,
+  ETHAccountPath,
+  ethDescribePath,
+  ETHGetAccountPath,
+  ETHGetAddress,
+  ETHSignedMessage,
+  ETHSignedTx,
+  ETHSignMessage,
+  ETHSignTx,
+  ETHVerifyMessage,
+  ETHWallet,
+  ETHWalletInfo,
   GetPublicKey,
+  HDWallet,
+  HDWalletInfo,
+  Keyring,
+  LoadDevice,
+  PathDescription,
+  Ping,
+  Pong,
   PublicKey,
   RecoverDevice,
   ResetDevice,
-  Coin,
-  Ping,
-  Pong,
-  LoadDevice,
-  ETHWallet,
-  ETHGetAddress,
-  ETHSignTx,
-  ETHGetAccountPath,
-  ETHAccountPath,
-  ETHSignMessage,
-  ETHSignedMessage,
-  ETHVerifyMessage,
-  ETHSignedTx,
-  DescribePath,
-  PathDescription,
-  addressNListToBIP32,
-  Transport,
-  Keyring,
-  HDWalletInfo,
-  ETHWalletInfo,
-  BTCWallet,
-  BTCGetAddress,
-  BTCSignTx,
-  BTCSignedTx,
-  BTCSignMessage,
-  BTCSignedMessage,
-  BTCVerifyMessage,
-  BTCInputScriptType,
-  BTCGetAccountPaths,
-  BTCAccountPath,
-  BTCWalletInfo,
   slip44ByCoin,
+  Transport,
+  unknownUTXOPath,
 } from "@shapeshiftoss/hdwallet-core";
-import * as eth from "./ethereum";
-import * as btc from "./bitcoin";
 import { isObject } from "lodash";
+import Web3 from "web3";
+import * as btc from "./bitcoin";
+import * as eth from "./ethereum";
 
 // We might not need this. Leaving it for now to debug further
 class PortisTransport extends Transport {
@@ -360,9 +363,14 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
   public describePath(msg: DescribePath): PathDescription {
     switch (msg.coin) {
       case "Ethereum":
-        return eth.describeETHPath(msg.path);
+        return ethDescribePath(msg.path);
       case "Bitcoin":
-        return btc.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+        const unknown = unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
+
+        if (!this.btcSupportsCoin(msg.coin)) return unknown;
+        if (!this.btcSupportsScriptType(msg.coin, msg.scriptType)) return unknown;
+
+        return btcDescribePath(msg.path, msg.coin, msg.scriptType);
       default:
         throw new Error("Unsupported path");
     }

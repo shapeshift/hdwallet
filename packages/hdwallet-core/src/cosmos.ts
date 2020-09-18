@@ -130,3 +130,26 @@ export function cosmosDescribePath(path: BIP32Path): PathDescription {
     isPrefork: false,
   };
 }
+
+export function cosmosNextAccountPath(msg: CosmosAccountPath): CosmosAccountPath | undefined {
+  let description = cosmosDescribePath(msg.addressNList);
+  if (!description.isKnown) {
+    return undefined;
+  }
+
+  let addressNList = msg.addressNList;
+  addressNList[2] += 1;
+
+  return {
+    ...msg,
+    addressNList,
+  };
+}
+
+export function cosmosGetAccountPaths(msg: CosmosGetAccountPaths): CosmosAccountPath[] {
+  return [
+    {
+      addressNList: [0x80000000 + 44, 0x80000000 + slip44ByCoin("Atom"), 0x80000000 + msg.accountIdx, 0, 0],
+    },
+  ];
+}

@@ -1,4 +1,5 @@
-import { BIP32Path } from "./wallet";
+import { addressNListToBIP32, slip44ByCoin } from "./utils";
+import { BIP32Path, PathDescription } from "./wallet";
 
 export interface RippleGetAddress {
   addressNList: BIP32Path;
@@ -93,4 +94,65 @@ export interface RippleWallet extends RippleWalletInfo {
 
   rippleGetAddress(msg: RippleGetAddress): Promise<string>;
   rippleSignTx(msg: RippleSignTx): Promise<RippleSignedTx>;
+}
+
+export function rippleDescribePath(path: BIP32Path): PathDescription {
+  let pathStr = addressNListToBIP32(path);
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin: "Ripple",
+    isKnown: false,
+  };
+
+  if (path.length != 5) {
+    return unknown;
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown;
+  }
+
+  if (path[1] != 0x80000000 + slip44ByCoin("Ripple")) {
+    return unknown;
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown;
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown;
+  }
+
+  let index = path[2] & 0x7fffffff;
+  return {
+    verbose: `Ripple Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "Ripple",
+    isKnown: true,
+    isPrefork: false,
+  };
+}
+
+export function rippleNextAccountPath(msg: RippleAccountPath): RippleAccountPath | undefined {
+  let description = rippleDescribePath(msg.addressNList);
+  if (!description.isKnown) {
+    return undefined;
+  }
+  let addressNList = msg.addressNList;
+  addressNList[2] += 1;
+
+  return {
+    ...msg,
+    addressNList,
+  };
+}
+
+export function rippleGetAccountPaths(msg: RippleGetAccountPaths): Array<RippleAccountPath> {
+  return [
+    {
+      addressNList: [0x80000000 + 44, 0x80000000 + slip44ByCoin("Ripple"), 0x80000000 + msg.accountIdx, 0, 0],
+    },
+  ];
 }

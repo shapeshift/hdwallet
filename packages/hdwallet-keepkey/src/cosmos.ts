@@ -14,14 +14,6 @@ import { MessageType } from "@keepkey/device-protocol/lib/messages_pb";
 
 import { cloneDeep } from "lodash";
 
-export function cosmosGetAccountPaths(msg: Core.CosmosGetAccountPaths): Array<Core.CosmosAccountPath> {
-  return [
-    {
-      addressNList: [0x80000000 + 44, 0x80000000 + Core.slip44ByCoin("Atom"), 0x80000000 + msg.accountIdx, 0, 0],
-    },
-  ];
-}
-
 export async function cosmosSignTx(transport: KeepKeyTransport, msg: Core.CosmosSignTx): Promise<any> {
   return transport.lockDuring(async () => {
     const signTx = new CosmosSignTx();
