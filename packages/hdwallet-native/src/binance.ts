@@ -1,5 +1,4 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-
 import BncClient from "bnb-javascript-sdk-nobroadcast";
 import * as bitcoin from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
@@ -67,42 +66,38 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
     async binanceGetAddress(msg: core.BinanceGetAddress): Promise<string> {
       return this.needsMnemonic(!!this.#seed, async () => {
         const network = getNetwork("binance");
-        const wallet = bitcoin.bip32.fromSeed(this.#seed, network);
-        const path = core.addressNListToBIP32(msg.addressNList);
-        const keypair = bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
-        return this.createBinanceAddress(keypair.publicKey.toString("hex"));
+        const master = bitcoin.bip32.fromSeed(this.#seed, network);
+        const child = master.derivePath(core.addressNListToBIP32(msg.addressNList));
+        return this.createBinanceAddress(child.publicKey.toString("hex"));
       });
     }
 
     async binanceSignTx(msg: core.BinanceSignTx): Promise<core.BinanceSignedTx> {
       return this.needsMnemonic(!!this.#seed, async () => {
         const network = getNetwork("binance");
-        const mKey = bitcoin.bip32.fromSeed(this.#seed, network);
-        const path = core.addressNListToBIP32(msg.addressNList);
+        const master = bitcoin.bip32.fromSeed(this.#seed, network);
+        const child = master.derivePath(core.addressNListToBIP32(msg.addressNList));
+        const privateKey = child.privateKey.toString("hex");
 
-        const keypair = bitcoin.ECPair.fromWIF(mKey.derivePath(path).toWIF(), network);
-        const privateKey = keypair.privateKey.toString("hex");
+        const accountNumber = !Number.isNaN(Number(msg.account_number)) ? Number(msg.account_number) : undefined;
 
-        //use sdk to build Amino encoded hex transaction
         const client = new BncClient("https://dex.binance.org"); //broadcast not used but available
+        client.chainId = msg.chain_id;
+        client.setAccountNumber(accountNumber);
         await client.chooseNetwork("mainnet");
-        await client.setPrivateKey(privateKey);
+        await client.setPrivateKey(privateKey, !!accountNumber);
         await client.initChain();
 
         const addressFrom = msg.tx.msgs[0].inputs[0].address;
         const addressTo = msg.tx.msgs[0].outputs[0].address;
         const amount = msg.tx.msgs[0].inputs[0].coins[0].amount;
         const asset = "BNB";
-        const message = msg.tx.memo || "";
+        const memo = msg.tx.memo;
+        const sequence = msg.sequence;
 
-        const result = await client.transfer(addressFrom, addressTo, amount, asset, message, null);
-
-        const rawHex = result.serialize();
-        const buffer = Buffer.from(rawHex, "hex");
-        const txid = SHA256(buffer.toString()).toString().toUpperCase();
-
-        const pub_key = result.signatures[0].pub_key.toString("hex");
-        const signature = new Buffer(result.signatures[0].signature, "base64").toString("base64");
+        const result = await client.transfer(addressFrom, addressTo, amount, asset, memo, sequence);
+        const pub_key = result.signatures[0].pub_key.toString("base64");
+        const signature = Buffer.from(result.signatures[0].signature, "base64").toString("base64");
 
         return {
           account_number: result.account,
@@ -114,7 +109,6 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
             pub_key,
             signature,
           },
-          txid,
           serialized: result.serialized,
         };
       });
