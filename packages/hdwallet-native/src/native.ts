@@ -94,8 +94,8 @@ class NativeHDWalletInfo
       case "testnet":
         const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
 
-        if (!this.btcSupportsCoin(msg.coin)) return unknown;
-        if (!this.btcSupportsScriptType(msg.coin, msg.scriptType)) return unknown;
+        if (!super.btcSupportsCoin(msg.coin)) return unknown;
+        if (!super.btcSupportsScriptType(msg.coin, msg.scriptType)) return unknown;
 
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
       case "ethereum":
@@ -125,7 +125,6 @@ export class NativeHDWallet
   _isNative = true;
 
   readonly #deviceId: string;
-  transport?: core.Transport;
   #initialized: boolean;
   #mnemonic: string;
 
@@ -190,9 +189,9 @@ export class NativeHDWallet
   async initialize(): Promise<boolean> {
     return this.needsMnemonic(!!this.#mnemonic, async () => {
       try {
-        await this.btcInitializeWallet(this.#mnemonic);
-        await this.ethInitializeWallet(this.#mnemonic);
-        await this.cosmosInitializeWallet(this.#mnemonic);
+        await super.btcInitializeWallet(this.#mnemonic);
+        await super.ethInitializeWallet(this.#mnemonic);
+        await super.cosmosInitializeWallet(this.#mnemonic);
         await super.binanceInitializeWallet(this.#mnemonic);
 
         this.#initialized = true;
@@ -222,10 +221,10 @@ export class NativeHDWallet
   async wipe(): Promise<void> {
     this.#mnemonic = null;
 
-    this.btcWipe();
-    this.ethWipe();
-    this.cosmosWipe();
-    this.binanceWipe();
+    super.btcWipe();
+    super.ethWipe();
+    super.cosmosWipe();
+    super.binanceWipe();
   }
 
   async reset(): Promise<void> {}
