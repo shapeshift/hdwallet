@@ -9,134 +9,7 @@ export function isLedger(wallet: core.HDWallet): wallet is LedgerHDWallet {
   return isObject(wallet) && (wallet as any)._isLedger;
 }
 
-function describeETHPath(path: core.BIP32Path): core.PathDescription {
-  let pathStr = core.addressNListToBIP32(path);
-  let unknown: core.PathDescription = {
-    verbose: pathStr,
-    coin: "Ethereum",
-    isKnown: false,
-  };
-
-  if (path.length !== 5 && path.length !== 4) return unknown;
-
-  if (path[0] !== 0x80000000 + 44) return unknown;
-
-  if (path[1] !== 0x80000000 + core.slip44ByCoin("Ethereum")) return unknown;
-
-  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
-
-  let accountIdx;
-  if (path.length === 5) {
-    if (path[3] !== 0) return unknown;
-
-    if (path[4] !== 0) return unknown;
-
-    accountIdx = (path[2] & 0x7fffffff) >>> 0;
-  } else if (path.length === 4) {
-    if (path[2] !== 0x80000000) return unknown;
-
-    if ((path[3] & 0x80000000) >>> 0 === 0x80000000) return unknown;
-
-    accountIdx = path[3];
-  } else {
-    return unknown;
-  }
-
-  return {
-    verbose: `Ethereum Account #${accountIdx}`,
-    wholeAccount: true,
-    accountIdx,
-    coin: "Ethereum",
-    isKnown: true,
-    isPrefork: false,
-  };
-}
-
-function describeUTXOPath(
-  path: core.BIP32Path,
-  coin: core.Coin,
-  scriptType: core.BTCInputScriptType
-) {
-  let pathStr = core.addressNListToBIP32(path);
-  let unknown: core.PathDescription = {
-    verbose: pathStr,
-    coin,
-    scriptType,
-    isKnown: false,
-  };
-
-  if (!btc.btcSupportsCoin(coin)) return unknown;
-
-  if (!btc.btcSupportsScriptType(coin, scriptType)) return unknown;
-
-  if (path.length !== 3 && path.length !== 5) return unknown;
-
-  if ((path[0] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
-
-  let purpose = path[0] & 0x7fffffff;
-
-  if (![44, 49, 84].includes(purpose)) return unknown;
-
-  if (purpose === 44 && scriptType !== core.BTCInputScriptType.SpendAddress)
-    return unknown;
-
-  if (purpose === 49 && scriptType !== core.BTCInputScriptType.SpendP2SHWitness)
-    return unknown;
-
-  if (purpose === 84 && scriptType !== core.BTCInputScriptType.SpendWitness)
-    return unknown;
-
-  if (path[1] !== 0x80000000 + core.slip44ByCoin(coin)) return unknown;
-
-  let wholeAccount = path.length === 3;
-
-  let script = {
-    [core.BTCInputScriptType.SpendAddress]: " (Legacy)",
-    [core.BTCInputScriptType.SpendP2SHWitness]: "",
-    [core.BTCInputScriptType.SpendWitness]: " (Segwit Native)",
-  }[scriptType];
-
-  switch (coin) {
-    case "Bitcoin":
-    case "Litecoin":
-    case "BitcoinGold":
-    case "Testnet":
-      break;
-    default:
-      script = "";
-  }
-
-  let accountIdx = path[2] & 0x7fffffff;
-
-  if (wholeAccount) {
-    return {
-      verbose: `${coin} Account #${accountIdx}${script}`,
-      accountIdx,
-      coin,
-      scriptType,
-      wholeAccount: true,
-      isKnown: true,
-      isPrefork: false,
-    };
-  } else {
-    let change = path[3] == 1 ? "Change " : "";
-    let addressIdx = path[4];
-    return {
-      verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${script}`,
-      coin,
-      scriptType,
-      accountIdx,
-      addressIdx,
-      wholeAccount: false,
-      isChange: path[3] == 1,
-      isKnown: true,
-      isPrefork: false,
-    };
-  }
-}
-
-export class LedgerHDWalletInfo
-  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
+export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = false; // TODO ledger supports cosmos
@@ -152,10 +25,7 @@ export class LedgerHDWalletInfo
     return btc.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(
-    coin: core.Coin,
-    scriptType: core.BTCInputScriptType
-  ): Promise<boolean> {
+  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
     return btc.btcSupportsScriptType(coin, scriptType);
   }
 
@@ -167,9 +37,7 @@ export class LedgerHDWalletInfo
     return btc.btcSupportsNativeShapeShift();
   }
 
-  public btcGetAccountPaths(
-    msg: core.BTCGetAccountPaths
-  ): Array<core.BTCAccountPath> {
+  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
     return btc.btcGetAccountPaths(msg);
   }
 
@@ -189,9 +57,7 @@ export class LedgerHDWalletInfo
     return eth.ethSupportsNativeShapeShift();
   }
 
-  public ethGetAccountPaths(
-    msg: core.ETHGetAccountPath
-  ): Array<core.ETHAccountPath> {
+  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     return eth.ethGetAccountPaths(msg);
   }
 
@@ -218,84 +84,22 @@ export class LedgerHDWalletInfo
   public describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin) {
       case "Ethereum":
-        return describeETHPath(msg.path);
+        return core.ethDescribePath(msg.path);
       default:
-        return describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+        return core.btcDescribePath(msg.path, msg.coin, msg.scriptType);
     }
   }
 
-  public btcNextAccountPath(
-    msg: core.BTCAccountPath
-  ): core.BTCAccountPath | undefined {
-    let description = describeUTXOPath(
-      msg.addressNList,
-      msg.coin,
-      msg.scriptType
-    );
-    if (!description.isKnown) {
-      return undefined;
-    }
-
-    let addressNList = msg.addressNList;
-
-    if (
-      addressNList[0] === 0x80000000 + 44 ||
-      addressNList[0] === 0x80000000 + 49 ||
-      addressNList[0] === 0x80000000 + 84
-    ) {
-      addressNList[2] += 1;
-      return {
-        ...msg,
-        addressNList,
-      };
-    }
-
-    return undefined;
+  public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
+    return core.btcNextAccountPath(msg);
   }
 
-  public ethNextAccountPath(
-    msg: core.ETHAccountPath
-  ): core.ETHAccountPath | undefined {
-    let addressNList = msg.hardenedPath.concat(msg.relPath);
-    let description = describeETHPath(addressNList);
-    if (!description.isKnown) {
-      return undefined;
-    }
-
-    if (description.wholeAccount) {
-      addressNList[2] += 1;
-      return {
-        ...msg,
-        addressNList,
-        hardenedPath: core.hardenedPath(addressNList),
-        relPath: core.relativePath(addressNList),
-      };
-    }
-
-    if (addressNList.length === 5) {
-      addressNList[2] += 1;
-      return {
-        ...msg,
-        hardenedPath: core.hardenedPath(addressNList),
-        relPath: core.relativePath(addressNList),
-      };
-    }
-
-    if (addressNList.length === 4) {
-      addressNList[3] += 1;
-      return {
-        ...msg,
-        hardenedPath: core.hardenedPath(addressNList),
-        relPath: core.relativePath(addressNList),
-      };
-    }
-
-    return undefined;
+  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
+    return core.ethNextAccountPath(msg);
   }
 }
 
-export class LedgerHDWallet
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet {
+export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet {
   _supportsETHInfo: boolean = true;
   _supportsBTCInfo: boolean = true;
   _supportsDebugLink: boolean = false;
@@ -407,9 +211,7 @@ export class LedgerHDWallet
     return;
   }
 
-  public async getPublicKeys(
-    msg: Array<core.GetPublicKey>
-  ): Promise<Array<core.PublicKey | null>> {
+  public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
     const res = await this.transport.call(null, "getAppAndVersion");
     handleError(res, this.transport);
 
@@ -492,10 +294,7 @@ export class LedgerHDWallet
     return this.info.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(
-    coin: core.Coin,
-    scriptType: core.BTCInputScriptType
-  ): Promise<boolean> {
+  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
     return this.info.btcSupportsScriptType(coin, scriptType);
   }
 
@@ -517,9 +316,7 @@ export class LedgerHDWallet
     return this.info.btcSupportsNativeShapeShift();
   }
 
-  public async btcSignMessage(
-    msg: core.BTCSignMessage
-  ): Promise<core.BTCSignedMessage> {
+  public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
     await this.validateCurrentApp(msg.coin);
     return btc.btcSignMessage(this, this.transport, msg);
   }
@@ -528,9 +325,7 @@ export class LedgerHDWallet
     return btc.btcVerifyMessage(msg);
   }
 
-  public btcGetAccountPaths(
-    msg: core.BTCGetAccountPaths
-  ): Array<core.BTCAccountPath> {
+  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
     return this.info.btcGetAccountPaths(msg);
   }
 
@@ -548,9 +343,7 @@ export class LedgerHDWallet
     return eth.ethGetAddress(this.transport, msg);
   }
 
-  public async ethSignMessage(
-    msg: core.ETHSignMessage
-  ): Promise<core.ETHSignedMessage> {
+  public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
     await this.validateCurrentApp("Ethereum");
     return eth.ethSignMessage(this.transport, msg);
   }
@@ -571,9 +364,7 @@ export class LedgerHDWallet
     return this.info.ethSupportsNativeShapeShift();
   }
 
-  public ethGetAccountPaths(
-    msg: core.ETHGetAccountPath
-  ): Array<core.ETHAccountPath> {
+  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     return this.info.ethGetAccountPaths(msg);
   }
 
@@ -585,15 +376,11 @@ export class LedgerHDWallet
     return this.transport.disconnect();
   }
 
-  public btcNextAccountPath(
-    msg: core.BTCAccountPath
-  ): core.BTCAccountPath | undefined {
+  public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
     return this.info.btcNextAccountPath(msg);
   }
 
-  public ethNextAccountPath(
-    msg: core.ETHAccountPath
-  ): core.ETHAccountPath | undefined {
+  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
     return this.info.ethNextAccountPath(msg);
   }
 }
