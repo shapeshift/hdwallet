@@ -89,6 +89,10 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     this.info = new PortisHDWalletInfo();
   }
 
+  async getFeatures(): Promise<Record<string, any>> {
+    return {};
+  }
+
   public async isLocked(): Promise<boolean> {
     return false;
   }
@@ -186,9 +190,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.info.describePath(msg);
   }
 
-  public async getPublicKeys(
-    msg: Array<GetPublicKey>
-  ): Promise<Array<PublicKey | null>> {
+  public async getPublicKeys(msg: Array<GetPublicKey>): Promise<Array<PublicKey | null>> {
     const publicKeys = [];
     this.portisCallInProgress = new Promise(async (resolve, reject) => {
       try {
@@ -242,10 +244,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.info.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(
-    coin: Coin,
-    scriptType: BTCInputScriptType
-  ): Promise<boolean> {
+  public async btcSupportsScriptType(coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
     return this.info.btcSupportsScriptType(coin, scriptType);
   }
 
@@ -325,8 +324,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 }
 
-export class PortisHDWalletInfo
-  implements HDWalletInfo, ETHWalletInfo, BTCWalletInfo {
+export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = false;
@@ -374,10 +372,7 @@ export class PortisHDWalletInfo
     return btc.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(
-    coin: Coin,
-    scriptType: BTCInputScriptType
-  ): Promise<boolean> {
+  public async btcSupportsScriptType(coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
     return btc.btcSupportsScriptType(coin, scriptType);
   }
 

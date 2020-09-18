@@ -1,7 +1,9 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { mnemonicToSeed } from "bip39";
 import { Wallet, utils } from "ethers";
 import txDecoder from "ethereum-tx-decoder";
 import { HDNode, defaultPath } from "@ethersproject/hdnode";
+import { NativeHDWalletBase } from "./native";
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeETHWalletInfo extends Base implements core.ETHWalletInfo {
@@ -38,46 +40,55 @@ export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(Base: T
   };
 }
 
-export function MixinNativeETHWallet<TBase extends core.Constructor>(Base: TBase) {
+export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeETHWallet extends Base {
     _supportsETH = true;
 
     #ethWallet: Wallet;
 
-    ethInitializeWallet(seed: string): void {
+    async ethInitializeWallet(mnemonic: string): Promise<void> {
+      const seed = `0x${(await mnemonicToSeed(mnemonic)).toString("hex")}`;
       this.#ethWallet = new Wallet(HDNode.fromSeed(seed).derivePath(defaultPath));
     }
 
+    ethWipe() {
+      this.#ethWallet = undefined;
+    }
+
     async ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
-      return this.#ethWallet.getAddress();
+      return this.needsMnemonic(!!this.#ethWallet, () => this.#ethWallet.getAddress());
     }
 
     async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
-      const result = await this.#ethWallet.signTransaction({
-        to: msg.to,
-        from: await this.#ethWallet.getAddress(),
-        nonce: msg.nonce,
-        gasLimit: msg.gasLimit,
-        gasPrice: msg.gasPrice,
-        data: msg.data,
-        value: msg.value,
-        chainId: msg.chainId,
+      return this.needsMnemonic(!!this.#ethWallet, async () => {
+        const result = await this.#ethWallet.signTransaction({
+          to: msg.to,
+          from: await this.#ethWallet.getAddress(),
+          nonce: msg.nonce,
+          gasLimit: msg.gasLimit,
+          gasPrice: msg.gasPrice,
+          data: msg.data,
+          value: msg.value,
+          chainId: msg.chainId,
+        });
+        const decoded = txDecoder.decodeTx(result);
+        return {
+          v: decoded.v,
+          r: decoded.r,
+          s: decoded.s,
+          serialized: result,
+        };
       });
-      const decoded = txDecoder.decodeTx(result);
-      return {
-        v: decoded.v,
-        r: decoded.r,
-        s: decoded.s,
-        serialized: result,
-      };
     }
 
     async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
-      const result = await this.#ethWallet.signMessage(msg.message);
-      return {
-        address: await this.#ethWallet.getAddress(),
-        signature: result,
-      };
+      return this.needsMnemonic(!!this.#ethWallet, async () => {
+        const result = await this.#ethWallet.signMessage(msg.message);
+        return {
+          address: await this.#ethWallet.getAddress(),
+          signature: result,
+        };
+      });
     }
 
     async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
