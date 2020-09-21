@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.4] - 2020-09-21
+
+### Fixed
+
+- Native: Use provided chain_id, account_number, and sequence if provided.
+
 ## [1.2.3] - 2020-09-18
 
 ### Changed

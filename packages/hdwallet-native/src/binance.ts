@@ -51,6 +51,15 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
       this.#seed = undefined;
     }
 
+    getKeyPair(addressNList: core.BIP32Path): bitcoin.ECPairInterface {
+      return this.needsMnemonic(!!this.#seed, () => {
+        const network = getNetwork("binance");
+        const wallet = bitcoin.bip32.fromSeed(this.#seed, network);
+        const path = core.addressNListToBIP32(addressNList);
+        return bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
+      });
+    }
+
     bech32ify(address: ArrayLike<number>, prefix: string): string {
       const words = toWords(address);
       return encode(prefix, words);
@@ -64,54 +73,44 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
     }
 
     async binanceGetAddress(msg: core.BinanceGetAddress): Promise<string> {
-      return this.needsMnemonic(!!this.#seed, async () => {
-        const network = getNetwork("binance");
-        const master = bitcoin.bip32.fromSeed(this.#seed, network);
-        const child = master.derivePath(core.addressNListToBIP32(msg.addressNList));
-        return this.createBinanceAddress(child.publicKey.toString("hex"));
-      });
+      const keyPair = this.getKeyPair(msg.addressNList);
+      return this.createBinanceAddress(keyPair.publicKey.toString("hex"));
     }
 
     async binanceSignTx(msg: core.BinanceSignTx): Promise<core.BinanceSignedTx> {
-      return this.needsMnemonic(!!this.#seed, async () => {
-        const network = getNetwork("binance");
-        const master = bitcoin.bip32.fromSeed(this.#seed, network);
-        const child = master.derivePath(core.addressNListToBIP32(msg.addressNList));
-        const privateKey = child.privateKey.toString("hex");
+      const keyPair = this.getKeyPair(msg.addressNList);
+      const privateKey = keyPair.privateKey.toString("hex");
 
-        const accountNumber = !Number.isNaN(Number(msg.account_number)) ? Number(msg.account_number) : undefined;
+      const client = new BncClient("https://dex.binance.org"); //broadcast not used but available
+      client.chainId = msg.chain_id;
+      client.setAccountNumber(Number(msg.account_number) || undefined);
+      await client.chooseNetwork("mainnet");
+      await client.setPrivateKey(privateKey, Number.isInteger(Number(msg.account_number)));
+      await client.initChain();
 
-        const client = new BncClient("https://dex.binance.org"); //broadcast not used but available
-        client.chainId = msg.chain_id;
-        client.setAccountNumber(accountNumber);
-        await client.chooseNetwork("mainnet");
-        await client.setPrivateKey(privateKey, !!accountNumber);
-        await client.initChain();
+      const addressFrom = msg.tx.msgs[0].inputs[0].address;
+      const addressTo = msg.tx.msgs[0].outputs[0].address;
+      const amount = msg.tx.msgs[0].inputs[0].coins[0].amount;
+      const asset = "BNB";
+      const memo = msg.tx.memo;
+      const sequence = msg.sequence;
 
-        const addressFrom = msg.tx.msgs[0].inputs[0].address;
-        const addressTo = msg.tx.msgs[0].outputs[0].address;
-        const amount = msg.tx.msgs[0].inputs[0].coins[0].amount;
-        const asset = "BNB";
-        const memo = msg.tx.memo;
-        const sequence = msg.sequence;
+      const result = await client.transfer(addressFrom, addressTo, amount, asset, memo, sequence);
+      const pub_key = result.signatures[0].pub_key.toString("base64");
+      const signature = Buffer.from(result.signatures[0].signature, "base64").toString("base64");
 
-        const result = await client.transfer(addressFrom, addressTo, amount, asset, memo, sequence);
-        const pub_key = result.signatures[0].pub_key.toString("base64");
-        const signature = Buffer.from(result.signatures[0].signature, "base64").toString("base64");
-
-        return {
-          account_number: result.account,
-          chain_id: result.chain_id,
-          data: null,
-          memo: result.memo,
-          msgs: result.msgs,
-          signatures: {
-            pub_key,
-            signature,
-          },
-          serialized: result.serialized,
-        };
-      });
+      return {
+        account_number: result.account,
+        chain_id: result.chain_id,
+        data: null,
+        memo: result.memo,
+        msgs: result.msgs,
+        signatures: {
+          pub_key,
+          signature,
+        },
+        serialized: result.serialized,
+      };
     }
   };
 }
