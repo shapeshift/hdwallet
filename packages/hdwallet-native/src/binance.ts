@@ -41,20 +41,21 @@ export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor>(Bas
 export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeBinanceWallet extends Base {
     _supportsBinance = true;
-    #seed: Buffer;
+
+    #binanceSeed: Buffer;
 
     async binanceInitializeWallet(mnemonic: string): Promise<void> {
-      this.#seed = await mnemonicToSeed(mnemonic);
+      this.#binanceSeed = await mnemonicToSeed(mnemonic);
     }
 
     binanceWipe(): void {
-      this.#seed = undefined;
+      this.#binanceSeed = undefined;
     }
 
-    getKeyPair(addressNList: core.BIP32Path): bitcoin.ECPairInterface {
-      return this.needsMnemonic(!!this.#seed, () => {
+    binanceGetKeyPair(addressNList: core.BIP32Path): bitcoin.ECPairInterface {
+      return this.needsMnemonic(!!this.#binanceSeed, () => {
         const network = getNetwork("binance");
-        const wallet = bitcoin.bip32.fromSeed(this.#seed, network);
+        const wallet = bitcoin.bip32.fromSeed(this.#binanceSeed, network);
         const path = core.addressNListToBIP32(addressNList);
         return bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
       });
@@ -73,12 +74,12 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
     }
 
     async binanceGetAddress(msg: core.BinanceGetAddress): Promise<string> {
-      const keyPair = this.getKeyPair(msg.addressNList);
+      const keyPair = this.binanceGetKeyPair(msg.addressNList);
       return this.createBinanceAddress(keyPair.publicKey.toString("hex"));
     }
 
     async binanceSignTx(msg: core.BinanceSignTx): Promise<core.BinanceSignedTx> {
-      const keyPair = this.getKeyPair(msg.addressNList);
+      const keyPair = this.binanceGetKeyPair(msg.addressNList);
       const privateKey = keyPair.privateKey.toString("hex");
 
       const client = new BncClient("https://dex.binance.org"); //broadcast not used but available

@@ -35,9 +35,7 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
       "binanceGetAccountPaths()",
       () => {
         if (!wallet) return;
-        let paths = wallet.binanceGetAccountPaths({ accountIdx: 0 });
-        console.log("binanceGetAccountPaths: ", paths);
-
+        const paths = wallet.binanceGetAccountPaths({ accountIdx: 0 });
         expect(paths.length > 0).toBe(true);
         expect(paths[0].addressNList[0] > 0x80000000).toBe(true);
       },

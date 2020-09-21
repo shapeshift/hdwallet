@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-- Native: Use provided chain_id, account_number, and sequence if provided.
+- Native: Use provided chain_id, account_number, and sequence if provided for Binance.
+
+### Changed
+
+- Native: Unique class variable/function names to prevent overriding wallet specific logic when mixing in classes.
 
 ## [1.2.3] - 2020-09-18
 
