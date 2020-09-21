@@ -1,5 +1,4 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-
 import BncClient from "bnb-javascript-sdk-nobroadcast";
 import * as bitcoin from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
@@ -42,14 +41,24 @@ export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor>(Bas
 export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeBinanceWallet extends Base {
     _supportsBinance = true;
-    #seed: Buffer;
+
+    #binanceSeed: Buffer;
 
     async binanceInitializeWallet(mnemonic: string): Promise<void> {
-      this.#seed = await mnemonicToSeed(mnemonic);
+      this.#binanceSeed = await mnemonicToSeed(mnemonic);
     }
 
     binanceWipe(): void {
-      this.#seed = undefined;
+      this.#binanceSeed = undefined;
+    }
+
+    binanceGetKeyPair(addressNList: core.BIP32Path): bitcoin.ECPairInterface {
+      return this.needsMnemonic(!!this.#binanceSeed, () => {
+        const network = getNetwork("binance");
+        const wallet = bitcoin.bip32.fromSeed(this.#binanceSeed, network);
+        const path = core.addressNListToBIP32(addressNList);
+        return bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
+      });
     }
 
     bech32ify(address: ArrayLike<number>, prefix: string): string {
@@ -65,59 +74,44 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
     }
 
     async binanceGetAddress(msg: core.BinanceGetAddress): Promise<string> {
-      return this.needsMnemonic(!!this.#seed, async () => {
-        const network = getNetwork("binance");
-        const wallet = bitcoin.bip32.fromSeed(this.#seed, network);
-        const path = core.addressNListToBIP32(msg.addressNList);
-        const keypair = bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
-        return this.createBinanceAddress(keypair.publicKey.toString("hex"));
-      });
+      const keyPair = this.binanceGetKeyPair(msg.addressNList);
+      return this.createBinanceAddress(keyPair.publicKey.toString("hex"));
     }
 
     async binanceSignTx(msg: core.BinanceSignTx): Promise<core.BinanceSignedTx> {
-      return this.needsMnemonic(!!this.#seed, async () => {
-        const network = getNetwork("binance");
-        const mKey = bitcoin.bip32.fromSeed(this.#seed, network);
-        const path = core.addressNListToBIP32(msg.addressNList);
+      const keyPair = this.binanceGetKeyPair(msg.addressNList);
+      const privateKey = keyPair.privateKey.toString("hex");
 
-        const keypair = bitcoin.ECPair.fromWIF(mKey.derivePath(path).toWIF(), network);
-        const privateKey = keypair.privateKey.toString("hex");
+      const client = new BncClient("https://dex.binance.org"); //broadcast not used but available
+      client.chainId = msg.chain_id;
+      client.setAccountNumber(Number(msg.account_number) || undefined);
+      await client.chooseNetwork("mainnet");
+      await client.setPrivateKey(privateKey, Number.isInteger(Number(msg.account_number)));
+      await client.initChain();
 
-        //use sdk to build Amino encoded hex transaction
-        const client = new BncClient("https://dex.binance.org"); //broadcast not used but available
-        await client.chooseNetwork("mainnet");
-        await client.setPrivateKey(privateKey);
-        await client.initChain();
+      const addressFrom = msg.tx.msgs[0].inputs[0].address;
+      const addressTo = msg.tx.msgs[0].outputs[0].address;
+      const amount = msg.tx.msgs[0].inputs[0].coins[0].amount;
+      const asset = "BNB";
+      const memo = msg.tx.memo;
+      const sequence = msg.sequence;
 
-        const addressFrom = msg.tx.msgs[0].inputs[0].address;
-        const addressTo = msg.tx.msgs[0].outputs[0].address;
-        const amount = msg.tx.msgs[0].inputs[0].coins[0].amount;
-        const asset = "BNB";
-        const message = msg.tx.memo || "";
+      const result = await client.transfer(addressFrom, addressTo, amount, asset, memo, sequence);
+      const pub_key = result.signatures[0].pub_key.toString("base64");
+      const signature = Buffer.from(result.signatures[0].signature, "base64").toString("base64");
 
-        const result = await client.transfer(addressFrom, addressTo, amount, asset, message, null);
-
-        const rawHex = result.serialize();
-        const buffer = Buffer.from(rawHex, "hex");
-        const txid = SHA256(buffer.toString()).toString().toUpperCase();
-
-        const pub_key = result.signatures[0].pub_key.toString("hex");
-        const signature = new Buffer(result.signatures[0].signature, "base64").toString("base64");
-
-        return {
-          account_number: result.account,
-          chain_id: result.chain_id,
-          data: null,
-          memo: result.memo,
-          msgs: result.msgs,
-          signatures: {
-            pub_key,
-            signature,
-          },
-          txid,
-          serialized: result.serialized,
-        };
-      });
+      return {
+        account_number: result.account,
+        chain_id: result.chain_id,
+        data: null,
+        memo: result.memo,
+        msgs: result.msgs,
+        signatures: {
+          pub_key,
+          signature,
+        },
+        serialized: result.serialized,
+      };
     }
   };
 }

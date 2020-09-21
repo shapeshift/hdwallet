@@ -1,5 +1,5 @@
-import { bip32ToAddressNList, HDWallet, BinanceWallet, supportsBinance, BinanceTx } from "@shapeshiftoss/hdwallet-core";
-import { isNative } from "@shapeshiftoss/hdwallet-native";
+import { bip32ToAddressNList, HDWallet, BinanceWallet, supportsBinance } from "@shapeshiftoss/hdwallet-core";
+import { isKeepKey } from "@shapeshiftoss/hdwallet-keepkey";
 import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
 
 import tx02_unsigned from "./tx02.mainnet.unsigned.json";
@@ -35,9 +35,7 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
       "binanceGetAccountPaths()",
       () => {
         if (!wallet) return;
-        let paths = wallet.binanceGetAccountPaths({ accountIdx: 0 });
-        console.log("binanceGetAccountPaths: ", paths);
-
+        const paths = wallet.binanceGetAccountPaths({ accountIdx: 0 });
         expect(paths.length > 0).toBe(true);
         expect(paths[0].addressNList[0] > 0x80000000).toBe(true);
       },
@@ -70,9 +68,12 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
           account_number: "24250",
           sequence: "0",
         });
-        if (isNative(wallet)) return; //why is the hash changing? why does keepkey not match mative?
-        let refSig = tx02_signed.signatures.signature;
-        expect(res.signatures.signature).toEqual(refSig);
+
+        if (isKeepKey(wallet)) {
+          expect(res.signatures.signature).toEqual(tx02_signed.signatures.kksignature);
+        } else {
+          expect(res.signatures.signature).toEqual(tx02_signed.signatures.signature);
+        }
       },
       TIMEOUT
     );
