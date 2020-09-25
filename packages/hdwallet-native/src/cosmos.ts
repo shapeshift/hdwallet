@@ -89,12 +89,15 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TB
       };
 
       const result = await txBuilder.sign(msg.tx, wallet, msg.sequence, msg.account_number, ATOM_CHAIN);
-      const buffer = Buffer.from(result.tx, "base64");
-      let txid = CryptoJS.createHash("sha256").update(buffer).digest("hex").toUpperCase();
-      result.txid = txid;
-      console.log("txid: ", txid);
 
-      return txBuilder.createSignedTx(msg.tx, result);
+      const signedTx = txBuilder.createSignedTx(msg.tx, result);
+      console.log("signedTx: ", signedTx);
+      // const buffer = Buffer.from(result.tx, "base64");
+      // let txid = CryptoJS.createHash("sha256").update(buffer).digest("hex").toUpperCase();
+      // result.txid = txid;
+      // console.log("txid: ", txid);
+
+      return signedTx;
     }
   };
 }

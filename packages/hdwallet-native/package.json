@@ -1,6 +1,6 @@
 {
   "name": "@bithighlander/hdwallet-native",
-  "version": "1.0.40",
+  "version": "2.0.01-alpha",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
