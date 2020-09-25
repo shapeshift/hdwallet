@@ -89,6 +89,10 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     this.info = new PortisHDWalletInfo();
   }
 
+  async getFeatures(): Promise<Record<string, any>> {
+    return {};
+  }
+
   public async isLocked(): Promise<boolean> {
     return false;
   }

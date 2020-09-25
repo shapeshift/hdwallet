@@ -5,10 +5,8 @@ import { KeepKeyTransport } from "./transport";
 import {
   EosGetPublicKey,
   EosPublicKey,
-  EosPublicKeyKindMap,
   EosSignTx,
   EosTxHeader,
-  EosTxActionRequest,
   EosTxActionAck,
   EosActionCommon,
   EosPermissionLevel,
@@ -18,15 +16,9 @@ import {
 } from "@keepkey/device-protocol/lib/messages-eos_pb";
 import { MessageType } from "@keepkey/device-protocol/lib/messages_pb";
 
-import { cloneDeep } from "lodash";
-
-var Long = require("long");
 const createHash = require("create-hash");
 
 function eosSigFormatter(r: Uint8Array, s: Uint8Array, v: number): string {
-  /*
-  Format the signature to be useful on the eos chain
-*/
   const base58 = require("bs58");
 
   var recoverId = 0x1f;

@@ -46,9 +46,7 @@ export function cosmosTests(get: () => { wallet: core.HDWallet; info: core.HDWal
         if (!wallet) return;
         expect(
           await wallet.cosmosGetAddress({
-            relPath: [0, 0],
             addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
-            hardenedPath: core.bip32ToAddressNList("m/44'/118'/0'"),
             showDisplay: false,
           })
         ).toEqual("cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj");

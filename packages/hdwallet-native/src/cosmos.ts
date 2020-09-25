@@ -2,6 +2,7 @@ import * as core from "@bithighlander/hdwallet-core";
 
 import txBuilder from "cosmos-tx-builder";
 import * as bitcoin from "bitcoinjs-lib";
+import { NativeHDWalletBase } from "./native";
 import { getNetwork } from "./networks";
 import { mnemonicToSeed } from "bip39";
 import { toWords, encode } from "bech32";
@@ -37,13 +38,27 @@ export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor>(Base
   };
 }
 
-export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TBase) {
+export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeCosmosWallet extends Base {
     _supportsCosmos = true;
-    #seed = "";
 
-    cosmosInitializeWallet(seed: string): void {
-      this.#seed = seed;
+    #cosmosSeed: Buffer;
+
+    async cosmosInitializeWallet(mnemonic: string): Promise<void> {
+      this.#cosmosSeed = await mnemonicToSeed(mnemonic);
+    }
+
+    cosmosWipe(): void {
+      this.#cosmosSeed = undefined;
+    }
+
+    cosmosGetKeyPair(addressNList: core.BIP32Path): bitcoin.ECPairInterface {
+      return this.needsMnemonic(!!this.#cosmosSeed, () => {
+        const network = getNetwork("cosmos");
+        const wallet = bitcoin.bip32.fromSeed(this.#cosmosSeed, network);
+        const path = core.addressNListToBIP32(addressNList);
+        return bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
+      });
     }
 
     bech32ify(address: ArrayLike<number>, prefix: string): string {
@@ -55,49 +70,26 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor>(Base: TB
       const message = SHA256(CryptoJS.enc.Hex.parse(publicKey));
       const hash = RIPEMD160(message as any).toString();
       const address = Buffer.from(hash, `hex`);
-      const cosmosAddress = this.bech32ify(address, `cosmos`);
-      return cosmosAddress;
+      return this.bech32ify(address, `cosmos`);
     }
 
     async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string> {
-      const seed = await mnemonicToSeed(this.#seed);
-
-      const network = getNetwork("bitcoin");
-      const wallet = bitcoin.bip32.fromSeed(seed, network);
-      const path = core.addressNListToBIP32(msg.addressNList);
-      const keypair = await bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
-      const address = this.createCosmosAddress(keypair.publicKey.toString("hex"));
-
-      return address;
+      const keyPair = this.cosmosGetKeyPair(msg.addressNList);
+      return this.createCosmosAddress(keyPair.publicKey.toString("hex"));
     }
 
     async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx> {
-      const seed = await mnemonicToSeed(this.#seed);
       const ATOM_CHAIN = "cosmoshub-3";
-
-      const network = getNetwork("cosmos");
-      const mkey = bitcoin.bip32.fromSeed(seed, network);
-      const path = core.addressNListToBIP32(msg.addressNList);
-
-      let keypair = await bitcoin.ECPair.fromWIF(mkey.derivePath(path).toWIF(), network);
-      let privateKey = keypair.privateKey.toString("hex");
-      let publicKey = keypair.publicKey.toString("hex");
+      const keyPair = this.cosmosGetKeyPair(msg.addressNList);
 
       const wallet = {
-        privateKey,
-        publicKey,
+        privateKey: keyPair.privateKey.toString("hex"),
+        publicKey: keyPair.publicKey.toString("hex"),
       };
 
       const result = await txBuilder.sign(msg.tx, wallet, msg.sequence, msg.account_number, ATOM_CHAIN);
 
-      const signedTx = txBuilder.createSignedTx(msg.tx, result);
-      console.log("signedTx: ", signedTx);
-      // const buffer = Buffer.from(result.tx, "base64");
-      // let txid = CryptoJS.createHash("sha256").update(buffer).digest("hex").toUpperCase();
-      // result.txid = txid;
-      // console.log("txid: ", txid);
-
-      return signedTx;
+      return txBuilder.createSignedTx(msg.tx, result);
     }
   };
 }

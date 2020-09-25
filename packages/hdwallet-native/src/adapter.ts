@@ -1,21 +1,20 @@
 import * as core from "@bithighlander/hdwallet-core";
 import { create } from "./native";
 
-type NativeAdapterArgs = {
-  mnemonic: string;
+export type NativeAdapterArgs = {
+  mnemonic?: string;
   deviceId: string;
 };
 
 export class NativeAdapter {
   keyring: core.Keyring;
   deviceId: string;
-
-  private mnemonic: string;
+  #mnemonic: string;
 
   private constructor(keyring: core.Keyring, args: NativeAdapterArgs) {
     this.keyring = keyring;
-    this.mnemonic = args.mnemonic;
     this.deviceId = args.deviceId;
+    this.#mnemonic = args.mnemonic;
   }
 
   static useKeyring(keyring: core.Keyring, args: NativeAdapterArgs) {
@@ -23,20 +22,23 @@ export class NativeAdapter {
   }
 
   async initialize(): Promise<number> {
-    let wallet = this.keyring.get(this.deviceId);
+    let wallet = this.keyring.get<NativeHDWallet>(this.deviceId);
 
     if (!wallet) {
-      wallet = create(this.mnemonic, this.deviceId);
+      wallet = create({ mnemonic: this.#mnemonic, deviceId: this.deviceId });
       this.keyring.add(wallet, this.deviceId);
+      this.keyring.decorateEvents(this.deviceId, wallet.events);
     }
 
-    wallet.initialize();
+    if (this.#mnemonic) {
+      wallet.initialize();
+    }
 
     return Object.keys(this.keyring.wallets).length;
   }
 
   async pairDevice(): Promise<core.HDWallet> {
-    this.initialize();
+    await this.initialize();
 
     const wallet = this.keyring.get(this.deviceId);
 

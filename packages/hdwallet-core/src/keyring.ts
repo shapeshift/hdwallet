@@ -40,10 +40,11 @@ export class Keyring extends eventemitter2.EventEmitter2 {
     );
   }
 
-  public get(deviceID?: string): HDWallet {
-    if (this.aliases[deviceID] && this.wallets[this.aliases[deviceID]]) return this.wallets[this.aliases[deviceID]];
-    if (this.wallets[deviceID]) return this.wallets[deviceID];
-    if (!!Object.keys(this.wallets).length && !deviceID) return Object.values(this.wallets)[0];
+  public get<T extends HDWallet>(deviceID?: string): T {
+    if (this.aliases[deviceID] && this.wallets[this.aliases[deviceID]])
+      return this.wallets[this.aliases[deviceID]] as T;
+    if (this.wallets[deviceID]) return this.wallets[deviceID] as T;
+    if (!!Object.keys(this.wallets).length && !deviceID) return Object.values(this.wallets)[0] as T;
     return null;
   }
 
@@ -78,7 +79,7 @@ export class Keyring extends eventemitter2.EventEmitter2 {
     }
   }
 
-  public async decorateEvents(deviceID: string, events: eventemitter2.EventEmitter2): Promise<void> {
+  public decorateEvents(deviceID: string, events: eventemitter2.EventEmitter2): void {
     const wallet: HDWallet = this.get(deviceID);
     const vendor: string = wallet.getVendor();
     events.onAny((e: string, ...values: any[]) => this.emit([vendor, deviceID, e], [deviceID, ...values]));

@@ -1,16 +1,9 @@
 import { BIP32Path } from "./wallet";
-import {
-  EosPublicKeyKindMap,
-  EosTxActionAck,
-  EosPermissionLevel,
-  EosSignedTx,
-} from "@keepkey/device-protocol/lib/messages-eos_pb";
 
 export interface EosGetPublicKey {
-  addressNList: BIP32Path;
+  addressNList: Array<number>;
   showDisplay?: boolean;
-  /** Optional. Required for showDisplay == true. */
-  kind?: EosPublicKeyKindMap[keyof EosPublicKeyKindMap];
+  kind?: 0 | 1 | 2;
 }
 
 export interface EosGetAccountPaths {

@@ -179,9 +179,11 @@ export function getNetwork(coin: string, scriptType?: string): Network {
       //TODO handle all
       network = networks[coin];
       break;
-    case "cosmos":
     case "bitcoin":
+    //TODO: all below are missing network data
     case "bitcoincash":
+    case "cosmos":
+    case "binance":
     case "ethereum":
     case "eos":
     case "cosmos":
