@@ -72,6 +72,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
   _supportsRipple: boolean = false;
   _supportsEosInfo: boolean = false;
   _supportsEos: boolean = false;
+  _supportsFio: boolean = false;
 
   transport = new PortisTransport(new Keyring());
 

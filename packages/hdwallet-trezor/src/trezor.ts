@@ -171,9 +171,10 @@ export class TrezorHDWalletInfo
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = false;
-  _supportsBinanceInfo: boolean = false; //TODO trezor actually supports bnb
-  _supportsRippleInfo: boolean = false;
-  _supportsEosInfo: boolean = false;
+  _supportsBinanceInfo: boolean = false; //TODO trezor supports bnb
+  _supportsRippleInfo: boolean = false; //TODO trezor supports xrp
+  _supportsEosInfo: boolean = false; //TODO trezor supports Eos
+  _supportsFioInfo: boolean = false; //TODO trezor supports Fio
 
   public getVendor(): string {
     return "Trezor";

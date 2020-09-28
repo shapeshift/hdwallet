@@ -402,6 +402,7 @@ export class KeepKeyHDWalletInfo
   _supportsRippleInfo: boolean = true;
   _supportsBinanceInfo: boolean = true;
   _supportsEosInfo: boolean = true;
+  _supportsFioInfo: boolean = false;
 
   public getVendor(): string {
     return "KeepKey";
