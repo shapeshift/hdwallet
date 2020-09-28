@@ -154,8 +154,12 @@ export function supportsEos(wallet: any): wallet is EosWallet {
   return isObject(wallet) && (wallet as any)._supportsEos;
 }
 
-export function supportsFio(wallet: any): wallet is EosWallet {
+export function supportsFio(wallet: any): wallet is FioWallet {
   return isObject(wallet) && (wallet as any)._supportsFio;
+}
+
+export function infoFio(info: any): info is FioWalletInfo {
+  return isObject(info) && (info as any)._supportsFioInfo;
 }
 
 export function infoEos(info: any): info is EosWalletInfo {
