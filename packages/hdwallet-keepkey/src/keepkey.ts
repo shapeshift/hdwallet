@@ -84,6 +84,7 @@ import { KeepKeyTransport } from "./transport";
 
 import Semver from "semver";
 
+// @ts-ignore
 export function isKeepKey(wallet: HDWallet): wallet is KeepKeyHDWallet {
   return isObject(wallet) && (wallet as any)._isKeepKey;
 }
@@ -119,11 +120,7 @@ function describeETHPath(path: BIP32Path): PathDescription {
   };
 }
 
-function describeUTXOPath(
-  path: BIP32Path,
-  coin: Coin,
-  scriptType: BTCInputScriptType
-): PathDescription {
+function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInputScriptType): PathDescription {
   let pathStr = addressNListToBIP32(path);
   let unknown: PathDescription = {
     verbose: pathStr,
@@ -144,14 +141,11 @@ function describeUTXOPath(
 
   if (![44, 49, 84].includes(purpose)) return unknown;
 
-  if (purpose === 44 && scriptType !== BTCInputScriptType.SpendAddress)
-    return unknown;
+  if (purpose === 44 && scriptType !== BTCInputScriptType.SpendAddress) return unknown;
 
-  if (purpose === 49 && scriptType !== BTCInputScriptType.SpendP2SHWitness)
-    return unknown;
+  if (purpose === 49 && scriptType !== BTCInputScriptType.SpendP2SHWitness) return unknown;
 
-  if (purpose === 84 && scriptType !== BTCInputScriptType.SpendWitness)
-    return unknown;
+  if (purpose === 84 && scriptType !== BTCInputScriptType.SpendWitness) return unknown;
 
   let wholeAccount = path.length === 3;
 
@@ -173,10 +167,7 @@ function describeUTXOPath(
         return unknown;
       }
       case "BitcoinSV": {
-        if (
-          path[1] === 0x80000000 + slip44ByCoin("Bitcoin") ||
-          path[1] === 0x80000000 + slip44ByCoin("BitcoinCash")
-        ) {
+        if (path[1] === 0x80000000 + slip44ByCoin("Bitcoin") || path[1] === 0x80000000 + slip44ByCoin("BitcoinCash")) {
           isPrefork = true;
           break;
         }
@@ -412,10 +403,7 @@ export class KeepKeyHDWalletInfo
     return Btc.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(
-    coin: Coin,
-    scriptType: BTCInputScriptType
-  ): Promise<boolean> {
+  public async btcSupportsScriptType(coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
     return Btc.btcSupportsScriptType(coin, scriptType);
   }
 
@@ -451,21 +439,15 @@ export class KeepKeyHDWalletInfo
     return Eth.ethGetAccountPaths(msg);
   }
 
-  public cosmosGetAccountPaths(
-    msg: CosmosGetAccountPaths
-  ): Array<CosmosAccountPath> {
+  public cosmosGetAccountPaths(msg: CosmosGetAccountPaths): Array<CosmosAccountPath> {
     return Cosmos.cosmosGetAccountPaths(msg);
   }
 
-  public rippleGetAccountPaths(
-    msg: RippleGetAccountPaths
-  ): Array<RippleAccountPath> {
+  public rippleGetAccountPaths(msg: RippleGetAccountPaths): Array<RippleAccountPath> {
     return Ripple.rippleGetAccountPaths(msg);
   }
 
-  public binanceGetAccountPaths(
-    msg: BinanceGetAccountPaths
-  ): Array<BinanceAccountPath> {
+  public binanceGetAccountPaths(msg: BinanceGetAccountPaths): Array<BinanceAccountPath> {
     return Binance.binanceGetAccountPaths(msg);
   }
 
@@ -512,11 +494,7 @@ export class KeepKeyHDWalletInfo
   }
 
   public btcNextAccountPath(msg: BTCAccountPath): BTCAccountPath | undefined {
-    let description = describeUTXOPath(
-      msg.addressNList,
-      msg.coin,
-      msg.scriptType
-    );
+    let description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType);
     if (!description.isKnown) {
       return undefined;
     }
@@ -558,9 +536,7 @@ export class KeepKeyHDWalletInfo
     return undefined;
   }
 
-  public cosmosNextAccountPath(
-    msg: CosmosAccountPath
-  ): CosmosAccountPath | undefined {
+  public cosmosNextAccountPath(msg: CosmosAccountPath): CosmosAccountPath | undefined {
     let description = describeCosmosPath(msg.addressNList);
     if (!description.isKnown) {
       return undefined;
@@ -575,9 +551,7 @@ export class KeepKeyHDWalletInfo
     };
   }
 
-  public rippleNextAccountPath(
-    msg: RippleAccountPath
-  ): RippleAccountPath | undefined {
+  public rippleNextAccountPath(msg: RippleAccountPath): RippleAccountPath | undefined {
     let description = describeRipplePath(msg.addressNList);
     if (!description.isKnown) {
       return undefined;
@@ -591,9 +565,7 @@ export class KeepKeyHDWalletInfo
     };
   }
 
-  public binanceNextAccountPath(
-    msg: BinanceAccountPath
-  ): BinanceAccountPath | undefined {
+  public binanceNextAccountPath(msg: BinanceAccountPath): BinanceAccountPath | undefined {
     let description = describeBinancePath(msg.addressNList);
     if (!description.isKnown) {
       return undefined;
@@ -624,13 +596,13 @@ export class KeepKeyHDWalletInfo
   }
 }
 
-export class KeepKeyHDWallet
-  implements HDWallet, BTCWallet, ETHWallet, DebugLinkWallet {
+export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLinkWallet {
   _supportsETHInfo: boolean = true;
   _supportsBTCInfo: boolean = true;
   _supportsCosmosInfo: boolean = true;
   _supportsRippleInfo: boolean = true;
   _supportsBinanceInfo: boolean = true;
+  _supportsFioInfo: boolean = true;
   _supportsEosInfo: boolean = true;
   _supportsDebugLink: boolean;
   _isKeepKey: boolean = true;
@@ -640,6 +612,7 @@ export class KeepKeyHDWallet
   _supportsRipple: boolean = true;
   _supportsBinance: boolean = true;
   _supportsEos: boolean = true;
+  _supportsFio: boolean = true;
 
   transport: KeepKeyTransport;
   features?: Messages.Features.AsObject;
@@ -688,31 +661,20 @@ export class KeepKeyHDWallet
   public async isLocked(): Promise<boolean> {
     const features = await this.getFeatures();
     if (features.pinProtection && !features.pinProtection) return true;
-    if (features.passphraseProtection && !features.passphraseCached)
-      return true;
+    if (features.passphraseProtection && !features.passphraseCached) return true;
     return false;
   }
 
-  public async getPublicKeys(
-    getPublicKeys: Array<GetPublicKey>
-  ): Promise<Array<PublicKey | null>> {
+  public async getPublicKeys(getPublicKeys: Array<GetPublicKey>): Promise<Array<PublicKey | null>> {
     const publicKeys = [];
     for (let i = 0; i < getPublicKeys.length; i++) {
-      const {
-        coin,
-        addressNList,
-        curve,
-        showDisplay,
-        scriptType,
-      } = getPublicKeys[i];
+      const { coin, addressNList, curve, showDisplay, scriptType } = getPublicKeys[i];
       const GPK = new Messages.GetPublicKey();
       if (coin) GPK.setCoinName(coin);
       GPK.setAddressNList(addressNList);
       GPK.setShowDisplay(showDisplay || false);
       GPK.setEcdsaCurveName(curve || "secp256k1");
-      GPK.setScriptType(
-        translateInputScriptType(scriptType || BTCInputScriptType.SpendAddress)
-      );
+      GPK.setScriptType(translateInputScriptType(scriptType || BTCInputScriptType.SpendAddress));
 
       const event = (await this.transport.call(
         Messages.MessageType.MESSAGETYPE_GETPUBLICKEY,
@@ -756,11 +718,7 @@ export class KeepKeyHDWallet
     resetDevice.setU2fCounter(msg.u2fCounter || Math.floor(+new Date() / 1000));
     // resetDevice.setWordsPerGape(wordsPerScreen) // Re-enable when patch gets in
     // Send
-    await this.transport.call(
-      Messages.MessageType.MESSAGETYPE_RESETDEVICE,
-      resetDevice,
-      LONG_TIMEOUT
-    );
+    await this.transport.call(Messages.MessageType.MESSAGETYPE_RESETDEVICE, resetDevice, LONG_TIMEOUT);
     this.cacheFeatures(undefined);
   }
 
@@ -777,11 +735,7 @@ export class KeepKeyHDWallet
       msg.setAutoLockDelayMs(r.autoLockDelayMs);
     }
     msg.setU2fCounter(r.u2fCounter || Math.floor(+new Date() / 1000));
-    await this.transport.call(
-      Messages.MessageType.MESSAGETYPE_RECOVERYDEVICE,
-      msg,
-      LONG_TIMEOUT
-    );
+    await this.transport.call(Messages.MessageType.MESSAGETYPE_RECOVERYDEVICE, msg, LONG_TIMEOUT);
     this.cacheFeatures(undefined);
   }
 
@@ -872,11 +826,7 @@ export class KeepKeyHDWallet
     throw new Error("Not Yet Implemented :(");
   }
 
-  public async sendCharacterProto(
-    character: string,
-    _delete: boolean,
-    _done: boolean
-  ): Promise<any> {
+  public async sendCharacterProto(character: string, _delete: boolean, _done: boolean): Promise<any> {
     const characterAck = new Messages.CharacterAck();
     if (character !== "") {
       characterAck.setCharacter(character);
@@ -904,19 +854,13 @@ export class KeepKeyHDWallet
     policy.setEnabled(p.enabled);
     const applyPolicies = new Messages.ApplyPolicies();
     applyPolicies.setPolicyList([policy]);
-    await this.transport.call(
-      Messages.MessageType.MESSAGETYPE_APPLYPOLICIES,
-      applyPolicies,
-      LONG_TIMEOUT
-    );
+    await this.transport.call(Messages.MessageType.MESSAGETYPE_APPLYPOLICIES, applyPolicies, LONG_TIMEOUT);
     this.cacheFeatures(undefined);
   }
 
   // ApplySettings changes the label, language, and enabling/disabling the passphrase
   // The default language is english
-  public async applySettings(
-    s: Messages.ApplySettings.AsObject
-  ): Promise<void> {
+  public async applySettings(s: Messages.ApplySettings.AsObject): Promise<void> {
     const applySettings = new Messages.ApplySettings();
     if (s.label) {
       applySettings.setLabel(s.label);
@@ -933,10 +877,7 @@ export class KeepKeyHDWallet
     if (s.u2fCounter) {
       applySettings.setU2fCounter(s.u2fCounter);
     }
-    await this.transport.call(
-      Messages.MessageType.MESSAGETYPE_APPLYSETTINGS,
-      applySettings
-    );
+    await this.transport.call(Messages.MessageType.MESSAGETYPE_APPLYSETTINGS, applySettings);
     this.cacheFeatures(undefined);
   }
 
@@ -950,20 +891,14 @@ export class KeepKeyHDWallet
   public async changePin(): Promise<void> {
     const changePin = new Messages.ChangePin();
     // User may be propmpted for button press up to 2 times
-    await this.transport.call(
-      Messages.MessageType.MESSAGETYPE_CHANGEPIN,
-      changePin,
-      LONG_TIMEOUT
-    );
+    await this.transport.call(Messages.MessageType.MESSAGETYPE_CHANGEPIN, changePin, LONG_TIMEOUT);
   }
 
   // CipherKeyValue encrypts or decrypts a value with a given key, nodepath, and initializationVector
   // This method encrypts if encrypt is true and decrypts if false, the confirm paramater determines wether
   // the user is prompted on the device. See EncryptKeyValue() and DecryptKeyValue() for convenience methods
   // NOTE: If the length of the value in bytes is not divisible by 16 it will be zero padded
-  public async cipherKeyValue(
-    v: Messages.CipherKeyValue.AsObject
-  ): Promise<string | Uint8Array> {
+  public async cipherKeyValue(v: Messages.CipherKeyValue.AsObject): Promise<string | Uint8Array> {
     // if(val.length % 16 !== 0) val = val.concat() TODO THIS
     const cipherKeyValue = new Messages.CipherKeyValue();
     cipherKeyValue.setAddressNList(v.addressNList);
@@ -985,18 +920,13 @@ export class KeepKeyHDWallet
   // ClearSession clears cached session values such as the pin and passphrase
   public async clearSession(): Promise<void> {
     const clearSession = new Messages.ClearSession();
-    await this.transport.call(
-      Messages.MessageType.MESSAGETYPE_CLEARSESSION,
-      clearSession
-    );
+    await this.transport.call(Messages.MessageType.MESSAGETYPE_CLEARSESSION, clearSession);
     this.cacheFeatures(undefined);
   }
 
   // DecryptKeyValue is a convenience method around decrypting with CipherKeyValue().
   // For more granular control of the process use CipherKeyValue()
-  public async decryptKeyValue(
-    v: Messages.CipherKeyValue.AsObject
-  ): Promise<string | Uint8Array> {
+  public async decryptKeyValue(v: Messages.CipherKeyValue.AsObject): Promise<string | Uint8Array> {
     return this.cipherKeyValue(v);
   }
 
@@ -1004,10 +934,7 @@ export class KeepKeyHDWallet
   public async firmwareErase(): Promise<void> {
     const firmwareErase = new Messages.FirmwareErase();
     // send
-    await this.transport.call(
-      Messages.MessageType.MESSAGETYPE_FIRMWAREERASE,
-      firmwareErase
-    );
+    await this.transport.call(Messages.MessageType.MESSAGETYPE_FIRMWAREERASE, firmwareErase);
     this.cacheFeatures(undefined);
   }
 
@@ -1016,20 +943,14 @@ export class KeepKeyHDWallet
     const hash = await this.transport.getFirmwareHash(firmware);
     firmwareUpload.setPayload(firmware);
     firmwareUpload.setPayloadHash(hash);
-    await this.transport.call(
-      Messages.MessageType.MESSAGETYPE_FIRMWAREUPLOAD,
-      firmwareUpload
-    );
+    await this.transport.call(Messages.MessageType.MESSAGETYPE_FIRMWAREUPLOAD, firmwareUpload);
     this.cacheFeatures(undefined);
   }
 
   // Initialize assigns a hid connection to this KeepKey and send initialize message to device
   public async initialize(): Promise<Messages.Features.AsObject> {
     const initialize = new Messages.Initialize();
-    const event = (await this.transport.call(
-      Messages.MessageType.MESSAGETYPE_INITIALIZE,
-      initialize
-    )) as Event;
+    const event = (await this.transport.call(Messages.MessageType.MESSAGETYPE_INITIALIZE, initialize)) as Event;
     if (event.message_type === Events.FAILURE) throw event;
     this.features = event.message;
 
@@ -1037,10 +958,7 @@ export class KeepKeyHDWallet
     // If the deviceId in the features table doesn't match, then we need to
     // add another k-v pair to the keyring so it can be looked up either way.
     if (this.transport.getDeviceID() !== this.features.deviceId) {
-      this.transport.keyring.addAlias(
-        this.transport.getDeviceID(),
-        this.features.deviceId
-      );
+      this.transport.keyring.addAlias(this.transport.getDeviceID(), this.features.deviceId);
     }
 
     // Cosmos isn't supported until v6.3.0
@@ -1055,15 +973,10 @@ export class KeepKeyHDWallet
   }
 
   // GetFeatures returns the features and other device information such as the version, label, and supported coins
-  public async getFeatures(
-    cached: boolean = false
-  ): Promise<Messages.Features.AsObject> {
+  public async getFeatures(cached: boolean = false): Promise<Messages.Features.AsObject> {
     if (cached && this.featuresCache) return this.featuresCache;
     const features = new Messages.GetFeatures();
-    const event = (await this.transport.call(
-      Messages.MessageType.MESSAGETYPE_GETFEATURES,
-      features
-    )) as Event;
+    const event = (await this.transport.call(Messages.MessageType.MESSAGETYPE_GETFEATURES, features)) as Event;
     if (event.message_type === Events.FAILURE) throw event;
     this.cacheFeatures(event.message);
     return event.message as Messages.Features.AsObject;
@@ -1078,11 +991,7 @@ export class KeepKeyHDWallet
     const getEntropy = new Messages.GetEntropy();
     getEntropy.setSize(size);
     // send
-    const event = await this.transport.call(
-      Messages.MessageType.MESSAGETYPE_GETENTROPY,
-      getEntropy,
-      LONG_TIMEOUT
-    );
+    const event = await this.transport.call(Messages.MessageType.MESSAGETYPE_GETENTROPY, getEntropy, LONG_TIMEOUT);
     if (event.message_type === Events.FAILURE) throw event;
     return (event.proto as Messages.Entropy).getEntropy_asU8();
   }
@@ -1090,27 +999,18 @@ export class KeepKeyHDWallet
   // GetNumCoins returns the number of coins supported by the device regardless of if the hanve funds.
   public async getNumCoins(): Promise<number> {
     const getCoinTable = new Messages.GetCoinTable();
-    const response = (await this.transport.call(
-      Messages.MessageType.MESSAGETYPE_GETCOINTABLE,
-      getCoinTable
-    )) as Event;
+    const response = (await this.transport.call(Messages.MessageType.MESSAGETYPE_GETCOINTABLE, getCoinTable)) as Event;
     if (response.message_type === Events.FAILURE) throw event;
     return (response.proto as Messages.CoinTable).getNumCoins();
   }
 
   // GetCoinTable returns an array of Types.CoinTypes, with start and end arguments for paging.
   // You cannot request more than 10 at a time.
-  public async getCoinTable(
-    start: number = 0,
-    end: number = start + 10
-  ): Promise<Types.CoinType.AsObject[]> {
+  public async getCoinTable(start: number = 0, end: number = start + 10): Promise<Types.CoinType.AsObject[]> {
     const getCoinTable = new Messages.GetCoinTable();
     getCoinTable.setStart(start);
     getCoinTable.setEnd(end);
-    const response = (await this.transport.call(
-      Messages.MessageType.MESSAGETYPE_GETCOINTABLE,
-      getCoinTable
-    )) as Event;
+    const response = (await this.transport.call(Messages.MessageType.MESSAGETYPE_GETCOINTABLE, getCoinTable)) as Event;
     if (response.message_type === Events.FAILURE) throw event;
     const coinTable = response.message as Messages.CoinTable.AsObject;
     return coinTable.tableList;
@@ -1127,11 +1027,7 @@ export class KeepKeyHDWallet
     if (msg.pin) loadDevice.setPin(msg.pin);
     if (msg.label) loadDevice.setLabel(msg.label);
     // send
-    await this.transport.call(
-      Messages.MessageType.MESSAGETYPE_LOADDEVICE,
-      loadDevice,
-      LONG_TIMEOUT
-    );
+    await this.transport.call(Messages.MessageType.MESSAGETYPE_LOADDEVICE, loadDevice, LONG_TIMEOUT);
     this.cacheFeatures(undefined);
   }
 
@@ -1141,10 +1037,7 @@ export class KeepKeyHDWallet
     const changePin = new Messages.ChangePin();
     changePin.setRemove(true);
     // send
-    await this.transport.call(
-      Messages.MessageType.MESSAGETYPE_CHANGEPIN,
-      changePin
-    );
+    await this.transport.call(Messages.MessageType.MESSAGETYPE_CHANGEPIN, changePin);
     this.cacheFeatures(undefined);
   }
 
@@ -1169,10 +1062,7 @@ export class KeepKeyHDWallet
   public async softReset(): Promise<void> {
     const softReset = new Messages.SoftReset();
     // send
-    await this.transport.call(
-      Messages.MessageType.MESSAGETYPE_SOFTRESET,
-      softReset
-    );
+    await this.transport.call(Messages.MessageType.MESSAGETYPE_SOFTRESET, softReset);
     this.cacheFeatures(undefined);
   }
 
@@ -1180,10 +1070,7 @@ export class KeepKeyHDWallet
   public async wipe(): Promise<void> {
     const wipeDevice = new Messages.WipeDevice();
     // send
-    await this.transport.call(
-      Messages.MessageType.MESSAGETYPE_WIPEDEVICE,
-      wipeDevice
-    );
+    await this.transport.call(Messages.MessageType.MESSAGETYPE_WIPEDEVICE, wipeDevice);
     this.cacheFeatures(undefined);
   }
 
@@ -1191,10 +1078,7 @@ export class KeepKeyHDWallet
     return this.info.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(
-    coin: Coin,
-    scriptType: BTCInputScriptType
-  ): Promise<boolean> {
+  public async btcSupportsScriptType(coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
     return this.info.btcSupportsScriptType(coin, scriptType);
   }
 
@@ -1267,9 +1151,7 @@ export class KeepKeyHDWallet
     return this.info.ethGetAccountPaths(msg);
   }
 
-  public rippleGetAccountPaths(
-    msg: RippleGetAccountPaths
-  ): Array<RippleAccountPath> {
+  public rippleGetAccountPaths(msg: RippleGetAccountPaths): Array<RippleAccountPath> {
     return this.info.rippleGetAccountPaths(msg);
   }
 
@@ -1281,9 +1163,7 @@ export class KeepKeyHDWallet
     return Ripple.rippleSignTx(this.transport, msg);
   }
 
-  public cosmosGetAccountPaths(
-    msg: CosmosGetAccountPaths
-  ): Array<CosmosAccountPath> {
+  public cosmosGetAccountPaths(msg: CosmosGetAccountPaths): Array<CosmosAccountPath> {
     return this.info.cosmosGetAccountPaths(msg);
   }
 
@@ -1295,9 +1175,7 @@ export class KeepKeyHDWallet
     return Cosmos.cosmosSignTx(this.transport, msg);
   }
 
-  public binanceGetAccountPaths(
-    msg: BinanceGetAccountPaths
-  ): Array<BinanceAccountPath> {
+  public binanceGetAccountPaths(msg: BinanceGetAccountPaths): Array<BinanceAccountPath> {
     return this.info.binanceGetAccountPaths(msg);
   }
 
@@ -1341,21 +1219,15 @@ export class KeepKeyHDWallet
     return this.info.eosNextAccountPath(msg);
   }
 
-  public cosmosNextAccountPath(
-    msg: CosmosAccountPath
-  ): CosmosAccountPath | undefined {
+  public cosmosNextAccountPath(msg: CosmosAccountPath): CosmosAccountPath | undefined {
     return this.info.cosmosNextAccountPath(msg);
   }
 
-  public rippleNextAccountPath(
-    msg: RippleAccountPath
-  ): RippleAccountPath | undefined {
+  public rippleNextAccountPath(msg: RippleAccountPath): RippleAccountPath | undefined {
     return this.info.rippleNextAccountPath(msg);
   }
 
-  public binanceNextAccountPath(
-    msg: BinanceAccountPath
-  ): BinanceAccountPath | undefined {
+  public binanceNextAccountPath(msg: BinanceAccountPath): BinanceAccountPath | undefined {
     return this.info.binanceNextAccountPath(msg);
   }
 }

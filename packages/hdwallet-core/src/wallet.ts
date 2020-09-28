@@ -199,6 +199,7 @@ export interface HDWalletInfo {
   _supportsRippleInfo: boolean;
   _supportsBinanceInfo: boolean;
   _supportsEosInfo: boolean;
+  _supportsFioInfo: boolean;
   /**
    * Retrieve the wallet's vendor string.
    */
@@ -246,6 +247,7 @@ export interface HDWallet extends HDWalletInfo {
   _supportsBinance: boolean;
   _supportsRipple: boolean;
   _supportsEos: boolean;
+  _supportsFio: boolean;
   _supportsDebugLink: boolean;
 
   transport?: Transport;

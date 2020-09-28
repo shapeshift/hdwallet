@@ -108,6 +108,8 @@ class NativeHDWalletInfo
         return core.cosmosDescribePath(msg.path);
       case "binance":
         return core.binanceDescribePath(msg.path);
+      case "fio":
+        return core.fioDescribePath(msg.path);
       default:
         throw new Error("Unsupported path");
     }
@@ -118,14 +120,14 @@ export class NativeHDWallet
   extends MixinNativeBTCWallet(
     MixinNativeETHWallet(MixinNativeCosmosWallet(MixinNativeFioWallet(MixinNativeBinanceWallet(NativeHDWalletInfo))))
   )
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet {
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet, core.FioWallet {
   _supportsBTC = true;
   _supportsETH = true;
   _supportsCosmos = true;
   _supportsBinance = true;
   _supportsRipple = false;
   _supportsEos = false;
-  _supportsFio = true;
+  _supportsFio = false;
   _supportsDebugLink = false;
   _isNative = true;
 
