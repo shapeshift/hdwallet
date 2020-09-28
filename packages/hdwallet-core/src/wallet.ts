@@ -10,6 +10,8 @@ import { RippleWallet, RippleWalletInfo } from "./ripple";
 
 import { EosWallet, EosWalletInfo } from "./eos";
 
+import { FioWallet, FioWalletInfo } from "./fio";
+
 import { DebugLinkWallet } from "./debuglink";
 import { Transport } from "./transport";
 import { isObject } from "lodash";

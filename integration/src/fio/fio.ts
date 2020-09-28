@@ -28,7 +28,7 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): v
       });
     }, TIMEOUT);
 
-    test.only(
+    test(
       "fioGetAddress()",
       async () => {
         if (!wallet) return;
@@ -42,7 +42,7 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): v
       TIMEOUT
     );
 
-    test.only(
+    test(
       "fioSignTx()",
       async () => {
         if (!wallet) return;

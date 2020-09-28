@@ -79,7 +79,7 @@ export function integration(suite: WalletSuite): void {
         wallet = await suite.createWallet("Fio");
       });
 
-      eosTests(() => ({ wallet, info }));
+      fioTests(() => ({ wallet, info }));
     });
 
 
