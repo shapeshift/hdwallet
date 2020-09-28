@@ -8,6 +8,7 @@ import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
 import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binance";
+import { MixinNativeFioWalletInfo, MixinNativeFioWallet } from "./fio";
 import type { NativeAdapterArgs } from "./adapter";
 
 export enum NativeEvents {
@@ -49,7 +50,9 @@ export class NativeHDWalletBase {
 
 class NativeHDWalletInfo
   extends MixinNativeBTCWalletInfo(
-    MixinNativeETHWalletInfo(MixinNativeCosmosWalletInfo(MixinNativeBinanceWalletInfo(NativeHDWalletBase)))
+    MixinNativeETHWalletInfo(
+      MixinNativeCosmosWalletInfo(MixinNativeFioWalletInfo(MixinNativeBinanceWalletInfo(NativeHDWalletBase)))
+    )
   )
   implements core.HDWalletInfo {
   _supportsBTCInfo: boolean = true;
@@ -58,6 +61,7 @@ class NativeHDWalletInfo
   _supportsBinanceInfo: boolean = true;
   _supportsRippleInfo: boolean = false;
   _supportsEosInfo: boolean = false;
+  _supportsFioInfo: boolean = true;
 
   getVendor(): string {
     return "Native";
@@ -112,7 +116,7 @@ class NativeHDWalletInfo
 
 export class NativeHDWallet
   extends MixinNativeBTCWallet(
-    MixinNativeETHWallet(MixinNativeCosmosWallet(MixinNativeBinanceWallet(NativeHDWalletInfo)))
+    MixinNativeETHWallet(MixinNativeCosmosWallet(MixinNativeFioWallet(MixinNativeBinanceWallet(NativeHDWalletInfo))))
   )
   implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet {
   _supportsBTC = true;
@@ -121,6 +125,7 @@ export class NativeHDWallet
   _supportsBinance = true;
   _supportsRipple = false;
   _supportsEos = false;
+  _supportsFio = true;
   _supportsDebugLink = false;
   _isNative = true;
 
