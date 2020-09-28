@@ -6,7 +6,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { NativeHDWalletBase } from "./native";
 
-const fio = require("@fioprotocol/fiosdk");
+const fio = require("fiosdk-offline");
 const fetch = require("node-fetch");
 
 const fetchJson = async (uri, opts = {}) => {
