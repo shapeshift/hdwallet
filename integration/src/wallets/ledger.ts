@@ -32,11 +32,7 @@ export class MockTransport extends LedgerTransport {
     return "mock#1";
   }
 
-  public call(
-    coin: string,
-    method: string,
-    ...args: any[]
-  ): Promise<LedgerResponse> {
+  public call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
     let key = JSON.stringify({ coin: coin, method: method, args: args });
 
     if (!this.memoized.has(key)) {
@@ -59,9 +55,7 @@ export class MockTransport extends LedgerTransport {
         null,
         "getAppAndVersion",
         JSON.parse("[]"),
-        JSON.parse(
-          `{"success":true,"coin":null,"method":"getAppAndVersion","payload":{"name":"${this.currentApp}"}}`
-        )
+        JSON.parse(`{"success":true,"coin":null,"method":"getAppAndVersion","payload":{"name":"${this.currentApp}"}}`)
       );
 
       // Ethereum:
@@ -147,9 +141,7 @@ export class MockTransport extends LedgerTransport {
       this.memoize(
         "Btc",
         "getWalletPublicKey",
-        JSON.parse(
-          '["m/49\'/0\'/0\'/0/0", {"verify": false, "format": "p2sh"}]'
-        ),
+        JSON.parse('["m/49\'/0\'/0\'/0/0", {"verify": false, "format": "p2sh"}]'),
         JSON.parse(
           '{"success":true,"coin":"Btc","method":"getWalletPublicKey","payload":{"bitcoinAddress":"3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX","chainCode":"167cbfcd34f24da5a3fa39092431b2f3717066d334775fb82053ae83901e1cec","publicKey":"0475abefec6c107632baad1a38f8dc3286ee09fbbbbf7221e642d885e514e0cd4232877f26fc9c5b8857aa6b48d42f6aecdbeabeb0f293b0b5ba7d5d1d24a274c8"}}'
         )
@@ -157,9 +149,7 @@ export class MockTransport extends LedgerTransport {
       this.memoize(
         "Btc",
         "getWalletPublicKey",
-        JSON.parse(
-          '["m/49\'/0\'/0\'/0/0", {"verify": true, "format": "p2sh"}]'
-        ),
+        JSON.parse('["m/49\'/0\'/0\'/0/0", {"verify": true, "format": "p2sh"}]'),
         JSON.parse(
           '{"success":true,"coin":"Btc","method":"getWalletPublicKey","payload":{"bitcoinAddress":"3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX","chainCode":"167cbfcd34f24da5a3fa39092431b2f3717066d334775fb82053ae83901e1cec","publicKey":"0475abefec6c107632baad1a38f8dc3286ee09fbbbbf7221e642d885e514e0cd4232877f26fc9c5b8857aa6b48d42f6aecdbeabeb0f293b0b5ba7d5d1d24a274c8"}}'
         )
@@ -286,28 +276,13 @@ export function selfTest(get: () => HDWallet): void {
       });
       expect(paths).toEqual([
         {
-          addressNList: [
-            0x80000000 + 44,
-            0x80000000 + 60,
-            0x80000000 + account,
-            0,
-            0,
-          ],
-          hardenedPath: [
-            0x80000000 + 44,
-            0x80000000 + 60,
-            0x80000000 + account,
-          ],
+          addressNList: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + account, 0, 0],
+          hardenedPath: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + account],
           relPath: [0, 0],
           description: "BIP 44: Ledger (Ledger Live)",
         },
         {
-          addressNList: [
-            0x80000000 + 44,
-            0x80000000 + 60,
-            0x80000000 + 0,
-            account,
-          ],
+          addressNList: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + 0, account],
           hardenedPath: [0x80000000 + 44, 0x80000000 + 60, 0x80000000 + 0],
           relPath: [account],
           description: "Non BIP 44: Ledger (legacy, Ledger Chrome App)",

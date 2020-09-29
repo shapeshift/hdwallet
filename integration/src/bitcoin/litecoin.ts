@@ -10,17 +10,14 @@ import {
 
 import { each } from "../utils";
 
-const MNEMONIC12_NOPIN_NOPASSPHRASE =
-  "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
+const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
 const TIMEOUT = 60 * 1000;
 
 /**
  *  Main integration suite for testing BTCWallet implementations' Litecoin support.
  */
-export function litecoinTests(
-  get: () => { wallet: HDWallet; info: HDWalletInfo }
-): void {
+export function litecoinTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): void {
   let wallet: BTCWallet & HDWallet;
 
   describe("Litecoin", () => {
@@ -127,9 +124,7 @@ export function litecoinTests(
             coin: "Litecoin",
             accountIdx: idx,
           });
-          expect(
-            typeof wallet.btcIsSameAccount(paths) === typeof true
-          ).toBeTruthy();
+          expect(typeof wallet.btcIsSameAccount(paths) === typeof true).toBeTruthy();
         });
       },
       TIMEOUT

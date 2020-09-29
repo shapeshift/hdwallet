@@ -44,10 +44,7 @@ export class DeviceDisconnected extends HDWalletError {
 
 export class DisconnectedDeviceDuringOperation extends HDWalletError {
   constructor() {
-    super(
-      "Ledger device disconnected during operation",
-      HDWalletErrorType.DisconnectedDeviceDuringOperation
-    );
+    super("Ledger device disconnected during operation", HDWalletErrorType.DisconnectedDeviceDuringOperation);
   }
 }
 
@@ -77,19 +74,13 @@ export class ConflictingApp extends HDWalletError {
 
 export class SelectApp extends HDWalletError {
   constructor(model: string, app: string) {
-    super(
-      `Please open the ${app} app on your ${model}.`,
-      HDWalletErrorType.SelectApp
-    );
+    super(`Please open the ${app} app on your ${model}.`, HDWalletErrorType.SelectApp);
   }
 }
 
 export class WrongApp extends HDWalletError {
   constructor(model: string, app: string) {
-    super(
-      `Wrong app open. Please open the ${app} app on your ${model} and try again.`,
-      HDWalletErrorType.WrongApp
-    );
+    super(`Wrong app open. Please open the ${app} app on your ${model} and try again.`, HDWalletErrorType.WrongApp);
   }
 }
 
@@ -104,36 +95,24 @@ export class FirmwareUpdateRequired extends HDWalletError {
 
 export class WebUSBNotAvailable extends HDWalletError {
   constructor() {
-    super(
-      `WebUSB is not available in this browser. We recommend trying Chrome.`,
-      HDWalletErrorType.WebUSBNotAvailable
-    );
+    super(`WebUSB is not available in this browser. We recommend trying Chrome.`, HDWalletErrorType.WebUSBNotAvailable);
   }
 }
 
 export class WebUSBCouldNotInitialize extends HDWalletError {
   constructor(model: string, message: string) {
-    super(
-      `Could not initialize ${model}: ${message}`,
-      HDWalletErrorType.WebUSBCouldNotInitialize
-    );
+    super(`Could not initialize ${model}: ${message}`, HDWalletErrorType.WebUSBCouldNotInitialize);
   }
 }
 
 export class WebUSBCouldNotPair extends HDWalletError {
   constructor(model: string, message: string) {
-    super(
-      `Could not pair ${model}: ${message}`,
-      HDWalletErrorType.WebUSBCouldNotPair
-    );
+    super(`Could not pair ${model}: ${message}`, HDWalletErrorType.WebUSBCouldNotPair);
   }
 }
 
 export class NavigateToDashboard extends HDWalletError {
   constructor(model: string) {
-    super(
-      `Please navigate to the dashboard of your ${model}.`,
-      HDWalletErrorType.NavigateToDashboard
-    );
+    super(`Please navigate to the dashboard of your ${model}.`, HDWalletErrorType.NavigateToDashboard);
   }
 }

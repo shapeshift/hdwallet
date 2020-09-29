@@ -5,19 +5,12 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { LedgerTransport } from "./transport";
 import { Buffer } from "buffer";
 
-export function handleError(
-  result: any,
-  transport?: LedgerTransport,
-  message?: string
-): void | Error {
+export function handleError(result: any, transport?: LedgerTransport, message?: string): void | Error {
   if (result.success) return;
 
   if (result.payload && result.payload.error) {
     // No app selected
-    if (
-      result.payload.error.includes("0x6700") ||
-      result.payload.error.includes("0x6982")
-    ) {
+    if (result.payload.error.includes("0x6700") || result.payload.error.includes("0x6982")) {
       throw new core.SelectApp("Ledger", result.coin);
     }
 
@@ -72,9 +65,7 @@ export const getderivationModeFromFormat = (format: string): string => {
   return derivationMode;
 };
 
-export const translateScriptType = (
-  scriptType: core.BTCInputScriptType
-): string =>
+export const translateScriptType = (scriptType: core.BTCInputScriptType): string =>
   ({
     [core.BTCInputScriptType.SpendAddress]: "legacy",
     [core.BTCInputScriptType.CashAddr]: "legacy",
@@ -118,14 +109,7 @@ export const encodeBase58Check = (vchIn) => {
   return bs58.encode(Buffer.from(hash));
 };
 
-export const createXpub = (
-  depth,
-  fingerprint,
-  childnum,
-  chaincode,
-  publicKey,
-  network
-) =>
+export const createXpub = (depth, fingerprint, childnum, chaincode, publicKey, network) =>
   toHexInt(network) +
   padStart(depth.toString(16), 2, "0") +
   padStart(fingerprint.toString(16), 8, "0") +

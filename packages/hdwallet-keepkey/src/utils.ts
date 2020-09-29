@@ -1,12 +1,6 @@
-import {
-  BTCInputScriptType,
-  BTCOutputScriptType,
-} from "@shapeshiftoss/hdwallet-core";
+import { BTCInputScriptType, BTCOutputScriptType } from "@shapeshiftoss/hdwallet-core";
 
-import {
-  InputScriptType,
-  OutputScriptType,
-} from "@keepkey/device-protocol/lib/types_pb";
+import { InputScriptType, OutputScriptType } from "@keepkey/device-protocol/lib/types_pb";
 
 export const SEGMENT_SIZE = 63;
 
@@ -24,11 +18,7 @@ export function toUTF8Array(str: string): Uint8Array {
     else if (charcode < 0x800) {
       utf8.push(0xc0 | (charcode >> 6), 0x80 | (charcode & 0x3f));
     } else if (charcode < 0xd800 || charcode >= 0xe000) {
-      utf8.push(
-        0xe0 | (charcode >> 12),
-        0x80 | ((charcode >> 6) & 0x3f),
-        0x80 | (charcode & 0x3f)
-      );
+      utf8.push(0xe0 | (charcode >> 12), 0x80 | ((charcode >> 6) & 0x3f), 0x80 | (charcode & 0x3f));
     }
     // surrogate pair
     else {
@@ -60,9 +50,7 @@ export function translateInputScriptType(scriptType: BTCInputScriptType): any {
   throw new Error("unhandled InputSriptType enum: " + scriptType);
 }
 
-export function translateOutputScriptType(
-  scriptType: BTCOutputScriptType
-): any {
+export function translateOutputScriptType(scriptType: BTCOutputScriptType): any {
   switch (scriptType) {
     case BTCOutputScriptType.PayToAddress:
       return OutputScriptType.PAYTOADDRESS;

@@ -24,9 +24,7 @@ export const fromHexString = (hexString: string) => {
 // export const toHexString = (bytes: number[]) => bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '')
 
 export function toHexString(arr: Uint8Array): string {
-  return Array.prototype.map
-    .call(arr, (x: number) => ("00" + x.toString(16)).slice(-2))
-    .join("");
+  return Array.prototype.map.call(arr, (x: number) => ("00" + x.toString(16)).slice(-2)).join("");
 }
 
 // Copying this from ethers.js until their elliptic dep stops being circular
@@ -90,25 +88,16 @@ export function bip32ToAddressNList(path: string): number[] {
 }
 
 export function addressNListToBIP32(address: number[]): string {
-  return `m/${address
-    .map((num) => (num >= HARDENED ? `${num - HARDENED}'` : num))
-    .join("/")}`;
+  return `m/${address.map((num) => (num >= HARDENED ? `${num - HARDENED}'` : num)).join("/")}`;
 }
 
 export function bip32Like(path: string): boolean {
   if (path == "m/") return true;
-  return /^m(((\/[0-9]+h)+|(\/[0-9]+H)+|(\/[0-9]+')*)((\/[0-9]+)*))$/.test(
-    path
-  );
+  return /^m(((\/[0-9]+h)+|(\/[0-9]+H)+|(\/[0-9]+')*)((\/[0-9]+)*))$/.test(path);
 }
 
-export function takeFirstOfManyEvents(
-  eventEmitter: eventemitter2.EventEmitter2,
-  events: string[]
-): Observable<{}> {
-  return merge(
-    ...events.map((event) => fromEvent<Event>(eventEmitter, event))
-  ).pipe(first());
+export function takeFirstOfManyEvents(eventEmitter: eventemitter2.EventEmitter2, events: string[]): Observable<{}> {
+  return merge(...events.map((event) => fromEvent<Event>(eventEmitter, event))).pipe(first());
 }
 
 export function stripHexPrefix(value: string) {

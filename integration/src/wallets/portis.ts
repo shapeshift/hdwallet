@@ -1,16 +1,5 @@
-import {
-  HDWallet,
-  ETHWallet,
-  supportsETH,
-  HDWalletInfo,
-} from "@shapeshiftoss/hdwallet-core";
-import {
-  PortisAdapter,
-  PortisHDWallet,
-  isPortis,
-  info,
-  create,
-} from "@shapeshiftoss/hdwallet-portis";
+import { HDWallet, ETHWallet, supportsETH, HDWalletInfo } from "@shapeshiftoss/hdwallet-core";
+import { PortisAdapter, PortisHDWallet, isPortis, info, create } from "@shapeshiftoss/hdwallet-portis";
 
 export function name(): string {
   return "Portis";
@@ -52,8 +41,7 @@ export async function createWallet(): Promise<HDWallet> {
   wallet.web3 = {
     eth: {
       accounts: {
-        recover: () =>
-          Promise.resolve("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"),
+        recover: () => Promise.resolve("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"),
       },
       getAccounts: () => ["0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"],
       sign: () =>
@@ -88,9 +76,7 @@ export function selfTest(get: () => HDWallet): void {
 
   it("prepends portis: to the eth address to create the deviceId", async () => {
     if (!wallet) return;
-    expect(await wallet.getDeviceID()).toEqual(
-      "portis:0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"
-    );
+    expect(await wallet.getDeviceID()).toEqual("portis:0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8");
   });
 
   it("does not support more than one account path", async () => {

@@ -13,13 +13,7 @@ import {
   ActionCancelled,
   HDWalletErrorType,
 } from "@shapeshiftoss/hdwallet-core";
-import {
-  MessageType,
-  ButtonAck,
-  Cancel,
-  EntropyAck,
-  Failure,
-} from "@keepkey/device-protocol/lib/messages_pb";
+import { MessageType, ButtonAck, Cancel, EntropyAck, Failure } from "@keepkey/device-protocol/lib/messages_pb";
 import { FailureType } from "@keepkey/device-protocol/lib/types_pb";
 
 import { messageTypeRegistry, messageNameRegistry } from "./typeRegistry";
@@ -55,10 +49,7 @@ export abstract class KeepKeyTransport extends Transport {
   public abstract getEntropy(length: number): Uint8Array;
   public abstract async getFirmwareHash(firmware: any): Promise<any>;
 
-  protected abstract async write(
-    buff: ByteBuffer,
-    debugLink: boolean
-  ): Promise<void>;
+  protected abstract async write(buff: ByteBuffer, debugLink: boolean): Promise<void>;
   protected abstract async read(debugLink: boolean): Promise<ByteBuffer>;
 
   /**
@@ -88,10 +79,7 @@ export abstract class KeepKeyTransport extends Transport {
   public async listen() {}
 
   public async handleCancellableResponse(messageType: any) {
-    const event = (await takeFirstOfManyEvents(this, [
-      String(messageType),
-      ...EXIT_TYPES,
-    ]).toPromise()) as Event;
+    const event = (await takeFirstOfManyEvents(this, [String(messageType), ...EXIT_TYPES]).toPromise()) as Event;
     return this.readResponse(false);
   }
 
@@ -132,25 +120,13 @@ export abstract class KeepKeyTransport extends Transport {
         })
       );
       this.userActionRequired = true;
-      return this.call(
-        MessageType.MESSAGETYPE_BUTTONACK,
-        new ButtonAck(),
-        LONG_TIMEOUT,
-        true,
-        false
-      );
+      return this.call(MessageType.MESSAGETYPE_BUTTONACK, new ButtonAck(), LONG_TIMEOUT, true, false);
     }
 
     if (msgTypeEnum === MessageType.MESSAGETYPE_ENTROPYREQUEST) {
       const ack = new EntropyAck();
       ack.setEntropy(this.getEntropy(32));
-      return this.call(
-        MessageType.MESSAGETYPE_ENTROPYACK,
-        ack,
-        LONG_TIMEOUT,
-        true,
-        false
-      );
+      return this.call(MessageType.MESSAGETYPE_ENTROPYACK, ack, LONG_TIMEOUT, true, false);
     }
 
     if (msgTypeEnum === MessageType.MESSAGETYPE_PINMATRIXREQUEST) {
@@ -162,9 +138,7 @@ export abstract class KeepKeyTransport extends Transport {
         })
       );
       this.userActionRequired = true;
-      return this.handleCancellableResponse(
-        MessageType.MESSAGETYPE_PINMATRIXACK
-      );
+      return this.handleCancellableResponse(MessageType.MESSAGETYPE_PINMATRIXACK);
     }
 
     if (msgTypeEnum === MessageType.MESSAGETYPE_PASSPHRASEREQUEST) {
@@ -176,9 +150,7 @@ export abstract class KeepKeyTransport extends Transport {
         })
       );
       this.userActionRequired = true;
-      return this.handleCancellableResponse(
-        MessageType.MESSAGETYPE_PASSPHRASEACK
-      );
+      return this.handleCancellableResponse(MessageType.MESSAGETYPE_PASSPHRASEACK);
     }
 
     if (msgTypeEnum === MessageType.MESSAGETYPE_CHARACTERREQUEST) {
@@ -190,9 +162,7 @@ export abstract class KeepKeyTransport extends Transport {
         })
       );
       this.userActionRequired = true;
-      return this.handleCancellableResponse(
-        MessageType.MESSAGETYPE_CHARACTERACK
-      );
+      return this.handleCancellableResponse(MessageType.MESSAGETYPE_CHARACTERACK);
     }
 
     if (msgTypeEnum === MessageType.MESSAGETYPE_WORDREQUEST) {
@@ -316,13 +286,7 @@ export abstract class KeepKeyTransport extends Transport {
     try {
       this.callInProgress = { main: undefined, debug: undefined };
       const cancelMsg = new Cancel();
-      await this.call(
-        MessageType.MESSAGETYPE_CANCEL,
-        cancelMsg,
-        DEFAULT_TIMEOUT,
-        false,
-        this.userActionRequired
-      );
+      await this.call(MessageType.MESSAGETYPE_CANCEL, cancelMsg, DEFAULT_TIMEOUT, false, this.userActionRequired);
     } catch (e) {
       console.error("Cancel Pending Error", e);
     } finally {

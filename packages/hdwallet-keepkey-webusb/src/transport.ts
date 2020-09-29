@@ -1,12 +1,5 @@
-import {
-  SEGMENT_SIZE,
-  KeepKeyTransport,
-} from "@shapeshiftoss/hdwallet-keepkey";
-import {
-  ConflictingApp,
-  FirmwareUpdateRequired,
-  Keyring,
-} from "@shapeshiftoss/hdwallet-core";
+import { SEGMENT_SIZE, KeepKeyTransport } from "@shapeshiftoss/hdwallet-keepkey";
+import { ConflictingApp, FirmwareUpdateRequired, Keyring } from "@shapeshiftoss/hdwallet-core";
 import * as ByteBuffer from "bytebuffer";
 
 const {
@@ -48,8 +41,7 @@ export class WebUSBKeepKeyTransport extends KeepKeyTransport {
 
   public async connect(): Promise<void> {
     await this.usbDevice.open();
-    if (this.usbDevice.configuration === null)
-      await this.usbDevice.selectConfiguration(1);
+    if (this.usbDevice.configuration === null) await this.usbDevice.selectConfiguration(1);
 
     try {
       await this.usbDevice.claimInterface(0);
@@ -137,21 +129,12 @@ export class WebUSBKeepKeyTransport extends KeepKeyTransport {
     }
   }
 
-  private async writeChunk(
-    buffer: ByteBuffer,
-    debugLink: boolean
-  ): Promise<USBOutTransferResult> {
-    return this.usbDevice.transferOut(
-      debugLink ? 2 : 1,
-      buffer.toArrayBuffer()
-    );
+  private async writeChunk(buffer: ByteBuffer, debugLink: boolean): Promise<USBOutTransferResult> {
+    return this.usbDevice.transferOut(debugLink ? 2 : 1, buffer.toArrayBuffer());
   }
 
   private async readChunk(debugLink: boolean): Promise<DataView> {
-    const result = await this.usbDevice.transferIn(
-      debugLink ? 2 : 1,
-      SEGMENT_SIZE + 1
-    );
+    const result = await this.usbDevice.transferIn(debugLink ? 2 : 1, SEGMENT_SIZE + 1);
 
     if (result.status === "stall") {
       await this.usbDevice.clearHalt("out", debugLink ? 2 : 1);
