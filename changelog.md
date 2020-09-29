@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Core: Fio wallet implementation
-- Native: Fio wallet support
+- Core: Fio types and interface
+- Native: Fio support
 
 ## [1.2.4] - 2020-09-21
 
