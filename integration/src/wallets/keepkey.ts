@@ -461,4 +461,45 @@ export function selfTest(get: () => HDWallet): void {
       isKnown: false,
     });
   });
+
+  it("can describe fio paths", () => {
+    expect(
+      wallet.info.describePath({
+        path: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+        coin: "Fio",
+      })
+    ).toEqual({
+      verbose: "Fio Account #0",
+      coin: "Fio",
+      isKnown: true,
+      accountIdx: 0,
+      wholeAccount: true,
+      isPrefork: false,
+    });
+
+    expect(
+      wallet.info.describePath({
+        path: bip32ToAddressNList("m/44'/235'/3'/0/0"),
+        coin: "Fio",
+      })
+    ).toEqual({
+      verbose: "Fio Account #3",
+      coin: "Fio",
+      isKnown: true,
+      accountIdx: 3,
+      wholeAccount: true,
+      isPrefork: false,
+    });
+
+    expect(
+      wallet.info.describePath({
+        path: bip32ToAddressNList("m/44'/235'/0'/0/3"),
+        coin: "Fio",
+      })
+    ).toEqual({
+      verbose: "m/44'/235'/0'/0/3",
+      coin: "Fio",
+      isKnown: false,
+    });
+  });
 }

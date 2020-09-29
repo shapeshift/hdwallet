@@ -1,4 +1,5 @@
-import { BIP32Path } from "./wallet";
+import { addressNListToBIP32, slip44ByCoin } from "./utils";
+import { BIP32Path, PathDescription } from "./wallet";
 export interface FioGetAddress {
   addressNList: BIP32Path;
   showDisplay?: boolean;
@@ -70,4 +71,43 @@ export interface FioWallet extends FioWalletInfo {
   _supportsFio: boolean;
   fioGetAddress(msg: FioGetAddress): Promise<string>;
   fioSignTx(msg: FioSignTx): Promise<FioSignedTx>;
+}
+
+export function fioDescribePath(path: BIP32Path): PathDescription {
+  let pathStr = addressNListToBIP32(path);
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin: "Fio",
+    isKnown: false,
+  };
+
+  if (path.length != 5) {
+    return unknown;
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown;
+  }
+
+  if (path[1] != 0x80000000 + slip44ByCoin("Fio")) {
+    return unknown;
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown;
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown;
+  }
+
+  let index = path[2] & 0x7fffffff;
+  return {
+    verbose: `Fio Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "Fio",
+    isKnown: true,
+    isPrefork: false,
+  };
 }

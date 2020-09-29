@@ -162,6 +162,10 @@ export function supportsFio(wallet: any): wallet is FioWallet {
   return isObject(wallet) && (wallet as any)._supportsFio;
 }
 
+export function infoFio(info: any): info is FioWalletInfo {
+  return isObject(info) && (info as any)._supportsFioInfo;
+}
+
 /**
  * Type guard for RippleWallet Support
  *
@@ -199,6 +203,7 @@ export interface HDWalletInfo {
   _supportsRippleInfo: boolean;
   _supportsBinanceInfo: boolean;
   _supportsEosInfo: boolean;
+  _supportsFioInfo: boolean;
   /**
    * Retrieve the wallet's vendor string.
    */
@@ -246,6 +251,7 @@ export interface HDWallet extends HDWalletInfo {
   _supportsBinance: boolean;
   _supportsRipple: boolean;
   _supportsEos: boolean;
+  _supportsFio: boolean;
   _supportsDebugLink: boolean;
 
   transport?: Transport;

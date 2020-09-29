@@ -108,9 +108,8 @@ class NativeHDWalletInfo
         return core.cosmosDescribePath(msg.path);
       case "binance":
         return core.binanceDescribePath(msg.path);
-      //TODO
-      // case "fio":
-      //   return core.fioDescribePath(msg.path);
+      case "fio":
+        return core.fioDescribePath(msg.path);
       default:
         throw new Error("Unsupported path");
     }

@@ -1,10 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import {
-  info,
-  isNative,
-  NativeAdapter,
-  NativeHDWallet,
-} from "@shapeshiftoss/hdwallet-native";
+import { info, isNative, NativeAdapter, NativeHDWallet } from "@shapeshiftoss/hdwallet-native";
 
 const mnemonic = "all all all all all all all all all all all all";
 const deviceId = "native-test";
@@ -340,6 +335,47 @@ export function selfTest(get: () => core.HDWallet): void {
     ).toEqual({
       verbose: "m/44'/60'/0'/0/3",
       coin: "Ethereum",
+      isKnown: false,
+    });
+  });
+
+  it("can describe Fio paths", () => {
+    expect(
+      wallet.describePath({
+        path: core.bip32ToAddressNList("m/44'/235'/0'/0/0"),
+        coin: "Fio",
+      })
+    ).toEqual({
+      verbose: "Fio Account #0",
+      coin: "Fio",
+      isKnown: true,
+      accountIdx: 0,
+      wholeAccount: true,
+      isPrefork: false,
+    });
+
+    expect(
+      wallet.describePath({
+        path: core.bip32ToAddressNList("m/44'/235'/3'/0/0"),
+        coin: "Fio",
+      })
+    ).toEqual({
+      verbose: "Fio Account #3",
+      coin: "Fio",
+      isKnown: true,
+      accountIdx: 3,
+      wholeAccount: true,
+      isPrefork: false,
+    });
+
+    expect(
+      wallet.describePath({
+        path: core.bip32ToAddressNList("m/44'/235'/0'/0/3"),
+        coin: "Fio",
+      })
+    ).toEqual({
+      verbose: "m/44'/235'/0'/0/3",
+      coin: "Fio",
       isKnown: false,
     });
   });
