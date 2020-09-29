@@ -1,4 +1,4 @@
-import { HDWallet, HDWalletInfo, FioWallet } from "@shapeshiftoss/hdwallet-core";
+import { HDWallet, HDWalletInfo } from "@shapeshiftoss/hdwallet-core";
 
 import { fioTests as tests } from "./fio";
 

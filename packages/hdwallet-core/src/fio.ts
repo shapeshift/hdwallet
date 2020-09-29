@@ -41,6 +41,7 @@ export namespace Fio {
 }
 
 export interface FioSignTx {
+  addressNList: BIP32Path;
   expiration?: string;
   ref_block_num?: number;
   ref_block_prefix?: number;

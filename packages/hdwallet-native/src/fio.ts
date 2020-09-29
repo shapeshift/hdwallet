@@ -1,9 +1,9 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as fio from "fiosdk-offline";
-//const fio = require("fiosdk-offline");
-const fetch = require("node-fetch");
+import fetch, { RequestInfo, RequestInit } from "node-fetch";
+import { NativeHDWalletBase } from "./native";
 
-const fetchJson = async (uri, opts = {}) => {
+const fetchJson = async (uri: RequestInfo, opts?: RequestInit) => {
   return fetch(uri, opts);
 };
 
@@ -39,53 +39,42 @@ export function MixinNativeFioWalletInfo<TBase extends core.Constructor>(Base: T
   };
 }
 
-export function MixinNativeFioWallet<TBase extends core.Constructor>(Base: TBase) {
+export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeFioWallet extends Base {
     _supportsFio = true;
     baseUrl = "https://fio.eu.eosamsterdam.net/v1/";
-    #seed = "";
-    #privateKey = "";
-    #publicKey = "";
-    #fioSdk: any;
+    #mnemonic: string;
 
-    async fioInitializeWallet(seed: string): Promise<void> {
-      this.#seed = seed;
-      await this.fioSDKInit(seed);
+    async fioInitializeWallet(mnemonic: string): Promise<void> {
+      this.#mnemonic = mnemonic;
+    }
+
+    async getFioSdk(path: string): Promise<fio.FIOSDK> {
+      return this.needsMnemonic(!!this.#mnemonic, async () => {
+        const { fioKey: privateKey } = await fio.FIOSDK.createPrivateKeyMnemonic(this.#mnemonic, path);
+        const { publicKey } = fio.FIOSDK.derivedPublicKey(privateKey);
+        return new fio.FIOSDK(privateKey, publicKey, this.baseUrl, fetchJson);
+      });
     }
 
     async fioGetAddress(msg: core.FioGetAddress): Promise<string> {
-      const path = core.addressNListToBIP32(msg.addressNList);
-      await this.fioSDKInit(this.#seed, path);
-      return this.#publicKey;
+      const sdk = await this.getFioSdk(core.addressNListToBIP32(msg.addressNList));
+      return sdk.getFioPublicKey();
     }
 
     async fioSignTx(msg: core.FioSignTx): Promise<core.FioSignedTx> {
-      const account: string = msg.actions[0].account;
-      const action: string = msg.actions[0].name;
-      const data: core.Fio.FioTxActionData = msg.actions[0].data;
-      if (!this.#fioSdk) {
-        // Throw error. fioInitializeWallet has not been called.
-      }
-      const res = await this.#fioSdk.prepareTransaction(account, action, data);
-      if (!res.signatures || !res.packed_trx) {
-        // Throw error. Transaction is invalid.
-      }
-      const sig = {
-        serialized: res.packed_trx, // Serialized hexadecimal transaction
-        signature: res.signatures[0], //
+      const sdk = await this.getFioSdk(core.addressNListToBIP32(msg.addressNList));
+
+      const account = msg.actions[0].account;
+      const action = msg.actions[0].name;
+      const data = msg.actions[0].data;
+
+      const res = await sdk.prepareTransaction(account, action, data);
+
+      return {
+        serialized: res.packed_trx,
+        signature: res.signatures[0],
       };
-
-      return sig;
-    }
-
-    async fioSDKInit(seed: string, path?: string) {
-      const privateKeyRes = await fio.FIOSDK.createPrivateKeyMnemonic(seed, path);
-      this.#privateKey = privateKeyRes.fioKey;
-      const publicKeyRes = fio.FIOSDK.derivedPublicKey(this.#privateKey);
-      this.#publicKey = publicKeyRes.publicKey;
-      this.#fioSdk = new fio.FIOSDK(this.#privateKey, this.#publicKey, this.baseUrl, fetchJson);
-      //console.log("privKey", this.#privateKey);
-      //console.log("pubKey", this.#publicKey);
     }
   };
 }

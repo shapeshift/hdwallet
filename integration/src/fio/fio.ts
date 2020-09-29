@@ -46,7 +46,9 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): v
       "fioSignTx()",
       async () => {
         if (!wallet) return;
-        let res = await wallet.fioSignTx({
+
+        const res = await wallet.fioSignTx({
+          addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
           actions: [
             {
               account: "fio.token",
@@ -60,6 +62,7 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): v
             },
           ],
         });
+
         expect(res).toHaveProperty("signature");
         expect(res).toHaveProperty("serialized");
       },
