@@ -377,45 +377,6 @@ function describeBinancePath(path: BIP32Path): PathDescription {
   };
 }
 
-function describeFioPath(path: BIP32Path): PathDescription {
-  let pathStr = addressNListToBIP32(path);
-  let unknown: PathDescription = {
-    verbose: pathStr,
-    coin: "Fio",
-    isKnown: false,
-  };
-
-  if (path.length != 5) {
-    return unknown;
-  }
-
-  if (path[0] != 0x80000000 + 44) {
-    return unknown;
-  }
-
-  if (path[1] != 0x80000000 + slip44ByCoin("Fio")) {
-    return unknown;
-  }
-
-  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
-    return unknown;
-  }
-
-  if (path[3] !== 0 || path[4] !== 0) {
-    return unknown;
-  }
-
-  let index = path[2] & 0x7fffffff;
-  return {
-    verbose: `Fio Account #${index}`,
-    accountIdx: index,
-    wholeAccount: true,
-    coin: "Fio",
-    isKnown: true,
-    isPrefork: false,
-  };
-}
-
 export class KeepKeyHDWalletInfo
   implements
     HDWalletInfo,
@@ -525,10 +486,6 @@ export class KeepKeyHDWalletInfo
         return describeRipplePath(msg.path);
       case "Eos":
         return describeEosPath(msg.path);
-
-      case "Fio":
-        return describeFioPath(msg.path);
-
       default:
         return describeUTXOPath(msg.path, msg.coin, msg.scriptType);
     }

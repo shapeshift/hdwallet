@@ -52,49 +52,6 @@ function describeETHPath(path: core.BIP32Path): core.PathDescription {
   };
 }
 
-function describeFioPath(path: core.BIP32Path): core.PathDescription {
-  let pathStr = core.addressNListToBIP32(path);
-  let unknown: core.PathDescription = {
-    verbose: pathStr,
-    coin: "Fio",
-    isKnown: false,
-  };
-
-  if (path.length !== 5 && path.length !== 4) return unknown;
-
-  if (path[0] !== 0x80000000 + 44) return unknown;
-
-  if (path[1] !== 0x80000000 + core.slip44ByCoin("Fio")) return unknown;
-
-  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
-
-  let accountIdx;
-  if (path.length === 5) {
-    if (path[3] !== 0) return unknown;
-
-    if (path[4] !== 0) return unknown;
-
-    accountIdx = (path[2] & 0x7fffffff) >>> 0;
-  } else if (path.length === 4) {
-    if (path[2] !== 0x80000000) return unknown;
-
-    if ((path[3] & 0x80000000) >>> 0 === 0x80000000) return unknown;
-
-    accountIdx = path[3];
-  } else {
-    return unknown;
-  }
-
-  return {
-    verbose: `Fio Account #${accountIdx}`,
-    wholeAccount: true,
-    accountIdx,
-    coin: "Fio",
-    isKnown: true,
-    isPrefork: false,
-  };
-}
-
 function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType: core.BTCInputScriptType) {
   let pathStr = core.addressNListToBIP32(path);
   let unknown: core.PathDescription = {
@@ -248,8 +205,6 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     switch (msg.coin) {
       case "Ethereum":
         return describeETHPath(msg.path);
-      case "Fio":
-        return describeFioPath(msg.path);
       default:
         return describeUTXOPath(msg.path, msg.coin, msg.scriptType);
     }
