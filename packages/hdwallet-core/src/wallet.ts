@@ -103,16 +103,6 @@ export interface PathDescription {
   isPrefork?: boolean;
 }
 
-type CoinWallets =
-  | BTCWallet
-  | ETHWallet
-  | CosmosWallet
-  | BinanceWallet
-  | RippleWallet
-  | EosWallet
-  | FioWallet
-  | DebugLinkWallet;
-
 export type Coin = string;
 export type Symbol = string;
 
@@ -164,16 +154,12 @@ export function supportsEos(wallet: any): wallet is EosWallet {
   return isObject(wallet) && (wallet as any)._supportsEos;
 }
 
-export function infoEos(info: any): info is EosWalletInfo {
-  return isObject(info) && (info as any)._supportsEosInfo;
-}
-
 export function supportsFio(wallet: any): wallet is FioWallet {
   return isObject(wallet) && (wallet as any)._supportsFio;
 }
 
-export function infoFio(info: any): info is FioWalletInfo {
-  return isObject(info) && (info as any)._supportsFioInfo;
+export function infoEos(info: any): info is EosWalletInfo {
+  return isObject(info) && (info as any)._supportsEosInfo;
 }
 
 /**
@@ -213,7 +199,6 @@ export interface HDWalletInfo {
   _supportsRippleInfo: boolean;
   _supportsBinanceInfo: boolean;
   _supportsEosInfo: boolean;
-  _supportsFioInfo: boolean;
   /**
    * Retrieve the wallet's vendor string.
    */
@@ -261,7 +246,6 @@ export interface HDWallet extends HDWalletInfo {
   _supportsBinance: boolean;
   _supportsRipple: boolean;
   _supportsEos: boolean;
-  _supportsFio: boolean;
   _supportsDebugLink: boolean;
 
   transport?: Transport;
@@ -271,6 +255,10 @@ export interface HDWallet extends HDWalletInfo {
    */
   getDeviceID(): Promise<string>;
 
+  /**
+   * Get device specific features
+   */
+  getFeatures(): Promise<Record<string, any>>;
   /**
    * Retrieve the wallet's firmware version
    */

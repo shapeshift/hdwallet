@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { EventEmitter2 } from "eventemitter2";
 import { mnemonicToSeed } from "bip39";
 import { fromSeed } from "bip32";
 import { isObject } from "lodash";
@@ -9,10 +10,47 @@ import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
 import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binance";
 import { MixinNativeFioWalletInfo, MixinNativeFioWallet } from "./fio";
 
+export enum NativeEvents {
+  MNEMONIC_REQUIRED = "MNEMONIC_REQUIRED",
+  READY = "READY",
+}
+
+export class NativeHDWalletBase {
+  readonly #events: EventEmitter2;
+
+  constructor() {
+    this.#events = new EventEmitter2();
+  }
+
+  get events() {
+    return this.#events;
+  }
+
+  /**
+   * Wrap a function call that needs a mnemonic seed
+   * Raise an event if the wallet hasn't been initialized with a mnemonic seed
+   */
+  needsMnemonic<T>(hasMnemonic: boolean, callback: () => T): T | null {
+    if (hasMnemonic) {
+      return callback();
+    }
+
+    this.#events.emit(
+      NativeEvents.MNEMONIC_REQUIRED,
+      core.makeEvent({
+        message_type: NativeEvents.MNEMONIC_REQUIRED,
+        from_wallet: true,
+      })
+    );
+
+    return null;
+  }
+}
+
 class NativeHDWalletInfo
   extends MixinNativeBTCWalletInfo(
     MixinNativeETHWalletInfo(
-      MixinNativeCosmosWalletInfo(MixinNativeBinanceWalletInfo(MixinNativeFioWalletInfo(class Base {})))
+      MixinNativeCosmosWalletInfo(MixinNativeBinanceWalletInfo(MixinNativeFioWalletInfo(class NativeHDWalletBase {})))
     )
   )
   implements core.HDWalletInfo {
