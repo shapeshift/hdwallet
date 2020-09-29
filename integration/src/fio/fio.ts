@@ -3,7 +3,7 @@ import { bip32ToAddressNList, HDWallet, FioWallet, supportsFio } from "@shapeshi
 import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
 
 import * as tx01_unsigned from "./tx01.unsigned.json";
-import * as tx02_unsigned from "./tx02.unsigned.json";
+import * as tx02_signed from "./tx02.signed.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
@@ -60,13 +60,8 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): v
             },
           ],
         });
-        expect(res).toHaveProperty(
-          "signatures",
-          "SIG_K1_KZQX5nQDier8wtNRCQakgVRLVoZuRBFqGz8H7qxzDX2v2XJcaEVfa7xuZ9yX9CVqkpHaHVMBF4P2sp1GnZDYE15kJNK3aN"
-        );
-        expect(res).toHaveProperty("compression", 0);
-        expect(res).toHaveProperty("packed_context_free_data", "");
-        expect(res).toHaveProperty("packed_trx");
+        expect(res).toHaveProperty("signature");
+        expect(res).toHaveProperty("serialized");
       },
       TIMEOUT
     );
