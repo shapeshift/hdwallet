@@ -8,6 +8,7 @@ import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
 import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binance";
+import { MixinNativeFioWalletInfo, MixinNativeFioWallet } from "./fio";
 import type { NativeAdapterArgs } from "./adapter";
 
 export enum NativeEvents {
@@ -49,7 +50,9 @@ export class NativeHDWalletBase {
 
 class NativeHDWalletInfo
   extends MixinNativeBTCWalletInfo(
-    MixinNativeETHWalletInfo(MixinNativeCosmosWalletInfo(MixinNativeBinanceWalletInfo(NativeHDWalletBase)))
+    MixinNativeFioWalletInfo(
+      MixinNativeETHWalletInfo(MixinNativeCosmosWalletInfo(MixinNativeBinanceWalletInfo(NativeHDWalletBase)))
+    )
   )
   implements core.HDWalletInfo {
   _supportsBTCInfo: boolean = true;
@@ -58,6 +61,7 @@ class NativeHDWalletInfo
   _supportsBinanceInfo: boolean = true;
   _supportsRippleInfo: boolean = false;
   _supportsEosInfo: boolean = false;
+  _supportsFioInfo: boolean = false;
 
   getVendor(): string {
     return "Native";
@@ -104,6 +108,9 @@ class NativeHDWalletInfo
         return core.cosmosDescribePath(msg.path);
       case "binance":
         return core.binanceDescribePath(msg.path);
+      //TODO
+      // case "fio":
+      //   return core.fioDescribePath(msg.path);
       default:
         throw new Error("Unsupported path");
     }
@@ -112,9 +119,9 @@ class NativeHDWalletInfo
 
 export class NativeHDWallet
   extends MixinNativeBTCWallet(
-    MixinNativeETHWallet(MixinNativeCosmosWallet(MixinNativeBinanceWallet(NativeHDWalletInfo)))
+    MixinNativeFioWallet(MixinNativeETHWallet(MixinNativeCosmosWallet(MixinNativeBinanceWallet(NativeHDWalletInfo))))
   )
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet {
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet, core.FioWallet {
   _supportsBTC = true;
   _supportsETH = true;
   _supportsCosmos = true;
@@ -194,6 +201,7 @@ export class NativeHDWallet
         await super.ethInitializeWallet(this.#mnemonic);
         await super.cosmosInitializeWallet(this.#mnemonic);
         await super.binanceInitializeWallet(this.#mnemonic);
+        await super.fioInitializeWallet(this.#mnemonic);
 
         this.#initialized = true;
       } catch (e) {

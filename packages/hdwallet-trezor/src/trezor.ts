@@ -83,11 +83,7 @@ function describeETHPath(path: BIP32Path): PathDescription {
   };
 }
 
-function describeUTXOPath(
-  path: BIP32Path,
-  coin: Coin,
-  scriptType: BTCInputScriptType
-) {
+function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInputScriptType) {
   let pathStr = addressNListToBIP32(path);
   let unknown: PathDescription = {
     verbose: pathStr,
@@ -108,14 +104,11 @@ function describeUTXOPath(
 
   if (![44, 49, 84].includes(purpose)) return unknown;
 
-  if (purpose === 44 && scriptType !== BTCInputScriptType.SpendAddress)
-    return unknown;
+  if (purpose === 44 && scriptType !== BTCInputScriptType.SpendAddress) return unknown;
 
-  if (purpose === 49 && scriptType !== BTCInputScriptType.SpendP2SHWitness)
-    return unknown;
+  if (purpose === 49 && scriptType !== BTCInputScriptType.SpendP2SHWitness) return unknown;
 
-  if (purpose === 84 && scriptType !== BTCInputScriptType.SpendWitness)
-    return unknown;
+  if (purpose === 84 && scriptType !== BTCInputScriptType.SpendWitness) return unknown;
 
   if (path[1] !== 0x80000000 + slip44ByCoin(coin)) return unknown;
 
@@ -166,14 +159,14 @@ function describeUTXOPath(
   }
 }
 
-export class TrezorHDWalletInfo
-  implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo {
+export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = false;
   _supportsBinanceInfo: boolean = false; //TODO trezor actually supports bnb
   _supportsRippleInfo: boolean = false;
   _supportsEosInfo: boolean = false;
+  _supportsFioInfo: boolean = false;
 
   public getVendor(): string {
     return "Trezor";
@@ -183,10 +176,7 @@ export class TrezorHDWalletInfo
     return Btc.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(
-    coin: Coin,
-    scriptType: BTCInputScriptType
-  ): Promise<boolean> {
+  public async btcSupportsScriptType(coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
     return Btc.btcSupportsScriptType(coin, scriptType);
   }
 
@@ -254,11 +244,7 @@ export class TrezorHDWalletInfo
   }
 
   public btcNextAccountPath(msg: BTCAccountPath): BTCAccountPath | undefined {
-    let description = describeUTXOPath(
-      msg.addressNList,
-      msg.coin,
-      msg.scriptType
-    );
+    let description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType);
     if (!description.isKnown) {
       return undefined;
     }
@@ -316,6 +302,8 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
   _supportsRipple: boolean = false;
   _supportsEosInfo: boolean = false;
   _supportsEos: boolean = false;
+  _supportsFioInfo: boolean = false;
+  _supportsFio: boolean = false;
 
   transport: TrezorTransport;
   featuresCache: any;
@@ -376,9 +364,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
     this.featuresCache = features;
   }
 
-  public async getPublicKeys(
-    msg: Array<GetPublicKey>
-  ): Promise<Array<PublicKey | null>> {
+  public async getPublicKeys(msg: Array<GetPublicKey>): Promise<Array<PublicKey | null>> {
     if (!msg.length) return [];
     let res = await this.transport.call("getPublicKey", {
       bundle: msg.map((request) => {
@@ -410,8 +396,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
   public async isLocked(): Promise<boolean> {
     const features = await this.getFeatures(false);
     if (features.pin_protection && !features.pin_cached) return true;
-    if (features.passphrase_protection && !features.passphrase_cached)
-      return true;
+    if (features.passphrase_protection && !features.passphrase_cached) return true;
     return false;
   }
 
@@ -511,10 +496,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return this.info.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(
-    coin: Coin,
-    scriptType: BTCInputScriptType
-  ): Promise<boolean> {
+  public async btcSupportsScriptType(coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
     return this.info.btcSupportsScriptType(coin, scriptType);
   }
 
@@ -603,9 +585,6 @@ export function info(): TrezorHDWalletInfo {
   return new TrezorHDWalletInfo();
 }
 
-export function create(
-  transport: TrezorTransport,
-  debuglink: boolean
-): TrezorHDWallet {
+export function create(transport: TrezorTransport, debuglink: boolean): TrezorHDWallet {
   return new TrezorHDWallet(transport);
 }
