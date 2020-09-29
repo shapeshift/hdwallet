@@ -1,8 +1,4 @@
-import {
-  Keyring,
-  Events,
-  FirmwareUpdateRequired,
-} from "@shapeshiftoss/hdwallet-core";
+import { Keyring, Events, FirmwareUpdateRequired } from "@shapeshiftoss/hdwallet-core";
 import { create as createHIDKeepKey } from "@shapeshiftoss/hdwallet-keepkey";
 import { ChromeUSBKeepKeyTransport, getDevices } from "./transport";
 import { VENDOR_ID, WEBUSB_PRODUCT_ID } from "./utils";
@@ -23,12 +19,8 @@ export class ChromeUSBKeyring {
     c.usb.onDeviceRemoved.addListener(this.handleConnectKeepKey.bind(this));
   }
 
-  public async initialize(
-    devices?: USBDevice[],
-    autoConnect: boolean = true
-  ): Promise<number> {
-    if (!(chrome && c.usb))
-      throw new Error("ChromeUSB not supported in your browser!");
+  public async initialize(devices?: USBDevice[], autoConnect: boolean = true): Promise<number> {
+    if (!(chrome && c.usb)) throw new Error("ChromeUSB not supported in your browser!");
 
     const devicesToInitialize = devices || (await getDevices());
 
@@ -37,16 +29,13 @@ export class ChromeUSBKeyring {
 
       if (usbDevice.vendorId !== VENDOR_ID) continue;
 
-      if (usbDevice.productId !== WEBUSB_PRODUCT_ID)
-        throw new FirmwareUpdateRequired("KeepKey", "6.1.0");
+      if (usbDevice.productId !== WEBUSB_PRODUCT_ID) throw new FirmwareUpdateRequired("KeepKey", "6.1.0");
 
       if (this.keyring.wallets[usbDevice.serialNumber]) {
         await this.keyring.remove(usbDevice.serialNumber);
       }
 
-      let wallet = createHIDKeepKey(
-        new ChromeUSBKeepKeyTransport(usbDevice, false, this.keyring)
-      );
+      let wallet = createHIDKeepKey(new ChromeUSBKeepKeyTransport(usbDevice, false, this.keyring));
 
       if (autoConnect) await wallet.initialize();
 
@@ -58,29 +47,16 @@ export class ChromeUSBKeyring {
 
   protected handleConnectKeepKey(device: USBDevice): void {
     this.initialize([device])
-      .then(() =>
-        this.keyring.emit(
-          [device.productName, device.serialNumber, Events.CONNECT],
-          device.serialNumber
-        )
-      )
+      .then(() => this.keyring.emit([device.productName, device.serialNumber, Events.CONNECT], device.serialNumber))
       .catch(console.error);
   }
 
   protected handleDisconnectKeepKey(device: USBDevice): void {
     this.keyring
       .remove(device.serialNumber)
-      .then(() =>
-        this.keyring.emit(
-          [device.productName, device.serialNumber, Events.DISCONNECT],
-          device.serialNumber
-        )
-      )
+      .then(() => this.keyring.emit([device.productName, device.serialNumber, Events.DISCONNECT], device.serialNumber))
       .catch(() =>
-        this.keyring.emit(
-          [device.productName, device.serialNumber, Events.DISCONNECT],
-          device.serialNumber
-        )
+        this.keyring.emit([device.productName, device.serialNumber, Events.DISCONNECT], device.serialNumber)
       );
   }
 }

@@ -15,32 +15,15 @@ import {
   handleError,
 } from "./utils";
 
-const supportedCoins = [
-  "Testnet",
-  "Bitcoin",
-  "BitcoinCash",
-  "Litecoin",
-  "Dash",
-  "DigiByte",
-  "Dogecoin",
-];
+const supportedCoins = ["Testnet", "Bitcoin", "BitcoinCash", "Litecoin", "Dash", "DigiByte", "Dogecoin"];
 
-const segwitCoins = [
-  "Bitcoin",
-  "DigiByte",
-  "Litecoin",
-  "BitcoinGold",
-  "Testnet",
-];
+const segwitCoins = ["Bitcoin", "DigiByte", "Litecoin", "BitcoinGold", "Testnet"];
 
 export async function btcSupportsCoin(coin: core.Coin): Promise<boolean> {
   return supportedCoins.includes(coin);
 }
 
-export async function btcSupportsScriptType(
-  coin: core.Coin,
-  scriptType: core.BTCInputScriptType
-): Promise<boolean> {
+export async function btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
   const supported = {
     Bitcoin: [
       core.BTCInputScriptType.SpendAddress,
@@ -53,22 +36,14 @@ export async function btcSupportsScriptType(
   return !!supported[coin] && supported[coin].includes(scriptType);
 }
 
-export async function btcGetAddress(
-  transport: LedgerTransport,
-  msg: core.BTCGetAddress
-): Promise<string> {
+export async function btcGetAddress(transport: LedgerTransport, msg: core.BTCGetAddress): Promise<string> {
   const bip32path = core.addressNListToBIP32(msg.addressNList);
   const opts = {
     verify: !!msg.showDisplay,
     format: translateScriptType(msg.scriptType),
   };
 
-  const res = await transport.call(
-    "Btc",
-    "getWalletPublicKey",
-    bip32path,
-    opts
-  );
+  const res = await transport.call("Btc", "getWalletPublicKey", bip32path, opts);
   handleError(res, transport, "Unable to obtain BTC address from device");
 
   return res.payload.bitcoinAddress;
@@ -84,21 +59,12 @@ export async function btcGetPublicKeys(
   for (const getPublicKey of msg) {
     let { addressNList, coin, scriptType } = getPublicKey;
 
-    const parentBip32path: string = core
-      .addressNListToBIP32(addressNList.slice(0, -1))
-      .substring(2); // i.e. "44'/0'"
-    const bip32path: string = core
-      .addressNListToBIP32(addressNList)
-      .substring(2); // i.e 44'/0'/0'
+    const parentBip32path: string = core.addressNListToBIP32(addressNList.slice(0, -1)).substring(2); // i.e. "44'/0'"
+    const bip32path: string = core.addressNListToBIP32(addressNList).substring(2); // i.e 44'/0'/0'
 
     const opts = { verify: false };
 
-    const res1 = await transport.call(
-      "Btc",
-      "getWalletPublicKey",
-      parentBip32path,
-      opts
-    );
+    const res1 = await transport.call("Btc", "getWalletPublicKey", parentBip32path, opts);
     handleError(res1, transport, "Unable to obtain public key from device.");
 
     let {
@@ -109,16 +75,9 @@ export async function btcGetPublicKeys(
     let result = crypto.sha256(parentPublicKey);
     result = crypto.ripemd160(result);
 
-    const fingerprint: number =
-      ((result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3]) >>>
-      0;
+    const fingerprint: number = ((result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3]) >>> 0;
 
-    const res2 = await transport.call(
-      "Btc",
-      "getWalletPublicKey",
-      bip32path,
-      opts
-    );
+    const res2 = await transport.call("Btc", "getWalletPublicKey", bip32path, opts);
     handleError(res2, transport, "Unable to obtain public key from device.");
 
     let {
@@ -132,14 +91,7 @@ export async function btcGetPublicKeys(
     scriptType = scriptType || core.BTCInputScriptType.SpendAddress;
     const networkMagic = coinDetails.bitcoinjs.bip32.public[scriptType];
 
-    const xpub = createXpub(
-      addressNList.length,
-      fingerprint,
-      childNum,
-      chainCode,
-      publicKey,
-      networkMagic
-    );
+    const xpub = createXpub(addressNList.length, fingerprint, childNum, chainCode, publicKey, networkMagic);
 
     xpubs.push({ xpub: encodeBase58Check(xpub) });
   }
@@ -199,14 +151,10 @@ export async function btcSignTx(
 
   //bitcoinjs-lib
   msg.outputs.map((output) => {
-    if (output.exchangeType && !supportsShapeShift)
-      throw new Error("Ledger does not support Native ShapeShift");
+    if (output.exchangeType && !supportsShapeShift) throw new Error("Ledger does not support Native ShapeShift");
 
     if (output.addressNList) {
-      if (
-        output.addressType === core.BTCOutputAddressType.Transfer &&
-        !supportsSecureTransfer
-      )
+      if (output.addressType === core.BTCOutputAddressType.Transfer && !supportsSecureTransfer)
         throw new Error("Ledger does not support SecureTransfer");
     }
     if (msg.coin === "BitcoinCash" && isCashAddress(output.address)) {
@@ -217,11 +165,7 @@ export async function btcSignTx(
 
   let unsignedHex = txBuilder.buildIncomplete().toHex();
   let splitTx = await transport.call("Btc", "splitTransaction", unsignedHex);
-  let outputScriptHex = await transport.call(
-    "Btc",
-    "serializeTransactionOutputs",
-    splitTx.payload
-  );
+  let outputScriptHex = await transport.call("Btc", "serializeTransactionOutputs", splitTx.payload);
   outputScriptHex = outputScriptHex.payload.toString("hex");
 
   for (let i = 0; i < msg.inputs.length; i++) {
@@ -286,19 +230,11 @@ export async function btcSignMessage(
 ): Promise<core.BTCSignedMessage> {
   const bip32path = core.addressNListToBIP32(msg.addressNList);
 
-  const res = await transport.call(
-    "Btc",
-    "signMessageNew",
-    bip32path,
-    Buffer.from(msg.message).toString("hex")
-  );
+  const res = await transport.call("Btc", "signMessageNew", bip32path, Buffer.from(msg.message).toString("hex"));
   handleError(res, transport, "Could not sign message with device");
   const v = res.payload["v"] + 27 + 4;
 
-  const signature = Buffer.from(
-    v.toString(16) + res.payload["r"] + res.payload["s"],
-    "hex"
-  ).toString("hex");
+  const signature = Buffer.from(v.toString(16) + res.payload["r"] + res.payload["s"], "hex").toString("hex");
 
   const address = await btcGetAddress(transport, {
     addressNList: msg.addressNList,
@@ -313,43 +249,27 @@ export async function btcSignMessage(
   };
 }
 
-export async function btcVerifyMessage(
-  msg: core.BTCVerifyMessage
-): Promise<boolean> {
+export async function btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
   const signature = Base64.fromByteArray(core.fromHexString(msg.signature));
   return verify(msg.message, msg.address, signature);
 }
 
-export function btcGetAccountPaths(
-  msg: core.BTCGetAccountPaths
-): Array<core.BTCAccountPath> {
+export function btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
   const slip44 = core.slip44ByCoin(msg.coin);
   const bip49 = {
     coin: msg.coin,
     scriptType: core.BTCInputScriptType.SpendP2SHWitness,
-    addressNList: [
-      0x80000000 + 49,
-      0x80000000 + slip44,
-      0x80000000 + msg.accountIdx,
-    ],
+    addressNList: [0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
   };
   const bip44 = {
     coin: msg.coin,
     scriptType: core.BTCInputScriptType.SpendAddress,
-    addressNList: [
-      0x80000000 + 44,
-      0x80000000 + slip44,
-      0x80000000 + msg.accountIdx,
-    ],
+    addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
   };
   const bip84 = {
     coin: msg.coin,
     scriptType: core.BTCInputScriptType.SpendWitness,
-    addressNList: [
-      0x80000000 + 84,
-      0x80000000 + slip44,
-      0x80000000 + msg.accountIdx,
-    ],
+    addressNList: [0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
   };
 
   let paths: Array<core.BTCAccountPath>;

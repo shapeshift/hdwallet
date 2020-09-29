@@ -1,8 +1,5 @@
 import { makeEvent, Keyring } from "@shapeshiftoss/hdwallet-core";
-import {
-  LedgerTransport,
-  LedgerResponse,
-} from "@shapeshiftoss/hdwallet-ledger";
+import { LedgerTransport, LedgerResponse } from "@shapeshiftoss/hdwallet-ledger";
 import Eth from "@ledgerhq/hw-app-eth";
 import Btc from "@ledgerhq/hw-app-btc";
 import getAppAndVersion from "@ledgerhq/live-common/lib/hw/getAppAndVersion";
@@ -38,11 +35,7 @@ export class LedgerU2FTransport extends LedgerTransport {
     return (this.device as any).deviceID;
   }
 
-  public async call(
-    coin: string,
-    method: string,
-    ...args: any[]
-  ): Promise<LedgerResponse> {
+  public async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
     let response;
 
     try {
@@ -56,9 +49,7 @@ export class LedgerU2FTransport extends LedgerTransport {
       );
 
       if (coin) {
-        response = await new (translateCoin(coin))(this.transport)[method](
-          ...args
-        );
+        response = await new (translateCoin(coin))(this.transport)[method](...args);
       } else {
         // @ts-ignore
         response = await translateMethod(method)(this.transport, ...args);
@@ -83,9 +74,9 @@ export class LedgerU2FTransport extends LedgerTransport {
     if (RECORD_CONFORMANCE_MOCKS) {
       // May need a slight amount of cleanup on escaping `'`s.
       console.log(
-        `this.memoize('${coin}', '${method}',\n  JSON.parse('${JSON.stringify(
-          args
-        )}'),\n  JSON.parse('${JSON.stringify(result)}'))`
+        `this.memoize('${coin}', '${method}',\n  JSON.parse('${JSON.stringify(args)}'),\n  JSON.parse('${JSON.stringify(
+          result
+        )}'))`
       );
     }
 

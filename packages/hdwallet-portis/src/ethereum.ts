@@ -42,46 +42,23 @@ export function describeETHPath(path: BIP32Path): PathDescription {
   };
 }
 
-export async function ethVerifyMessage(
-  msg: ETHVerifyMessage,
-  web3: any
-): Promise<boolean> {
-  const signingAddress = await web3.eth.accounts.recover(
-    msg.message,
-    "0x" + msg.signature,
-    false
-  );
+export async function ethVerifyMessage(msg: ETHVerifyMessage, web3: any): Promise<boolean> {
+  const signingAddress = await web3.eth.accounts.recover(msg.message, "0x" + msg.signature, false);
   return signingAddress === msg.address;
 }
 
-export function ethGetAccountPaths(
-  msg: ETHGetAccountPath
-): Array<ETHAccountPath> {
+export function ethGetAccountPaths(msg: ETHGetAccountPath): Array<ETHAccountPath> {
   return [
     {
-      addressNList: [
-        0x80000000 + 44,
-        0x80000000 + slip44ByCoin(msg.coin),
-        0x80000000 + msg.accountIdx,
-        0,
-        0,
-      ],
-      hardenedPath: [
-        0x80000000 + 44,
-        0x80000000 + slip44ByCoin(msg.coin),
-        0x80000000 + msg.accountIdx,
-      ],
+      addressNList: [0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx, 0, 0],
+      hardenedPath: [0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx],
       relPath: [0, 0],
       description: "Portis",
     },
   ];
 }
 
-export async function ethSignTx(
-  msg: ETHSignTx,
-  web3: any,
-  from: string
-): Promise<ETHSignedTx> {
+export async function ethSignTx(msg: ETHSignTx, web3: any, from: string): Promise<ETHSignedTx> {
   const result = await web3.eth.signTransaction({
     from,
     to: msg.to,
@@ -99,11 +76,7 @@ export async function ethSignTx(
   };
 }
 
-export async function ethSignMessage(
-  msg: ETHSignMessage,
-  web3: any,
-  address: string
-): Promise<ETHSignedMessage> {
+export async function ethSignMessage(msg: ETHSignMessage, web3: any, address: string): Promise<ETHSignedMessage> {
   const result = await web3.eth.sign(msg.message, address);
   return {
     address,

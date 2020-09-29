@@ -1,9 +1,4 @@
-import {
-  Keyring,
-  HDWallet,
-  Events,
-  ActionCancelled,
-} from "@shapeshiftoss/hdwallet-core";
+import { Keyring, HDWallet, Events, ActionCancelled } from "@shapeshiftoss/hdwallet-core";
 
 import { PortisHDWallet } from "./portis";
 import Portis from "@portis/web3";
@@ -20,19 +15,13 @@ export class PortisAdapter {
   /// wallet id to remove from the keyring when the active wallet changes
   currentDeviceId: string;
 
-  private constructor(
-    keyring: Keyring,
-    args: { portis?: PortisWallet; portisAppId?: string }
-  ) {
+  private constructor(keyring: Keyring, args: { portis?: PortisWallet; portisAppId?: string }) {
     this.portis = args.portis;
     this.portisAppId = args.portisAppId;
     this.keyring = keyring;
   }
 
-  public static useKeyring(
-    keyring: Keyring,
-    args: { portis?: PortisWallet; portisAppId?: string }
-  ) {
+  public static useKeyring(keyring: Keyring, args: { portis?: PortisWallet; portisAppId?: string }) {
     return new PortisAdapter(keyring, args);
   }
 
@@ -46,23 +35,14 @@ export class PortisAdapter {
       this.portis.onActiveWalletChanged(async (wallAddr) => {
         // check if currentDeviceId has changed
         const walletAddress = "portis:" + wallAddr;
-        if (
-          !this.currentDeviceId ||
-          walletAddress.toLowerCase() !== this.currentDeviceId.toLowerCase()
-        ) {
-          this.keyring.emit(
-            ["Portis", this.currentDeviceId, Events.DISCONNECT],
-            this.currentDeviceId
-          );
+        if (!this.currentDeviceId || walletAddress.toLowerCase() !== this.currentDeviceId.toLowerCase()) {
+          this.keyring.emit(["Portis", this.currentDeviceId, Events.DISCONNECT], this.currentDeviceId);
           this.keyring.remove(this.currentDeviceId);
           this.pairPortisDevice();
         }
       });
       this.portis.onLogout(() => {
-        this.keyring.emit(
-          ["Portis", this.currentDeviceId, Events.DISCONNECT],
-          this.currentDeviceId
-        );
+        this.keyring.emit(["Portis", this.currentDeviceId, Events.DISCONNECT], this.currentDeviceId);
         this.keyring.remove(this.currentDeviceId);
       });
       return wallet;

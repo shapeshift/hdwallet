@@ -14,8 +14,7 @@ import { isPortis } from "@shapeshiftoss/hdwallet-portis";
 
 import { each } from "../utils";
 
-const MNEMONIC12_NOPIN_NOPASSPHRASE =
-  "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
+const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 const MNEMONIC12_ALLALL = "all all all all all all all all all all all all";
 
 const TIMEOUT = 60 * 1000;
@@ -23,9 +22,7 @@ const TIMEOUT = 60 * 1000;
 /**
  *  Main integration suite for testing BTCWallet implementations' Bitcoin Testnet support.
  */
-export function testnetTests(
-  get: () => { wallet: HDWallet; info: HDWalletInfo }
-): void {
+export function testnetTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): void {
   let wallet: BTCWallet & HDWallet;
 
   describe("Testnet", () => {
@@ -56,8 +53,7 @@ export function testnetTests(
             scriptType: BTCInputScriptType.SpendP2SHWitness,
             amount: String(123456789),
             vout: 0,
-            txid:
-              "20912f98ea3ed849042efed0fdac8cb4fc301961c5988cba56902d8ffb61c337",
+            txid: "20912f98ea3ed849042efed0fdac8cb4fc301961c5988cba56902d8ffb61c337",
             hex:
               "01000000013a14418ce8bcac00a0cb56bf8a652110f4897cfcd736e1ab5e943b84f0ab2c80000000006a4730440220548e087d0426b20b8a571b03b9e05829f7558b80c53c12143e342f56ab29e51d02205b68cb7fb223981d4c999725ac1485a982c4259c4f50b8280f137878c232998a012102794a25b254a268e59a5869da57fbae2fadc6727cb3309321dab409b12b2fa17cffffffff0215cd5b070000000017a91458b53ea7f832e8f096e896b8713a8c6df0e892ca87ccc69633000000001976a914b84bacdcd8f4cc59274a5bfb73f804ca10f7fd1488ac00000000",
           },
@@ -101,8 +97,7 @@ export function testnetTests(
           scriptType: BTCInputScriptType.SpendWitness,
           amount: String(100000),
           vout: 0,
-          txid:
-            "e4b5b24159856ea18ab5819832da3b4a6330f9c3c0a46d96674e632df504b56b",
+          txid: "e4b5b24159856ea18ab5819832da3b4a6330f9c3c0a46d96674e632df504b56b",
           tx: {
             vout: [
               {

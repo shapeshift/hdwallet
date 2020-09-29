@@ -21,14 +21,8 @@ export class WebUSBKeepKeyAdapter {
     this.keyring = keyring;
     // If we have access to WebUSB, register callbacks
     if (window && window.navigator.usb) {
-      window.navigator.usb.addEventListener(
-        "connect",
-        this.handleConnectWebUSBKeepKey.bind(this)
-      );
-      window.navigator.usb.addEventListener(
-        "disconnect",
-        this.handleDisconnectWebUSBKeepKey.bind(this)
-      );
+      window.navigator.usb.addEventListener("connect", this.handleConnectWebUSBKeepKey.bind(this));
+      window.navigator.usb.addEventListener("disconnect", this.handleDisconnectWebUSBKeepKey.bind(this));
     }
   }
 
@@ -36,18 +30,13 @@ export class WebUSBKeepKeyAdapter {
     return new WebUSBKeepKeyAdapter(keyring);
   }
 
-  private async handleConnectWebUSBKeepKey(
-    e: USBConnectionEvent
-  ): Promise<void> {
+  private async handleConnectWebUSBKeepKey(e: USBConnectionEvent): Promise<void> {
     if (e.device.vendorId !== VENDOR_ID) return;
     if (e.device.productId !== WEBUSB_PRODUCT_ID) return;
 
     try {
       await this.initialize([e.device]);
-      this.keyring.emit(
-        [e.device.productName, e.device.serialNumber, Events.CONNECT],
-        e.device.serialNumber
-      );
+      this.keyring.emit([e.device.productName, e.device.serialNumber, Events.CONNECT], e.device.serialNumber);
     } catch (error) {
       this.keyring.emit(
         [e.device.productName, e.device.serialNumber, Events.FAILURE],
@@ -56,9 +45,7 @@ export class WebUSBKeepKeyAdapter {
     }
   }
 
-  private async handleDisconnectWebUSBKeepKey(
-    e: USBConnectionEvent
-  ): Promise<void> {
+  private async handleDisconnectWebUSBKeepKey(e: USBConnectionEvent): Promise<void> {
     if (e.device.vendorId !== VENDOR_ID) return;
     if (e.device.productId !== WEBUSB_PRODUCT_ID) return;
 
@@ -67,10 +54,7 @@ export class WebUSBKeepKeyAdapter {
     } catch (e) {
       console.error(e);
     } finally {
-      this.keyring.emit(
-        [e.device.productName, e.device.serialNumber, Events.DISCONNECT],
-        e.device.serialNumber
-      );
+      this.keyring.emit([e.device.productName, e.device.serialNumber, Events.DISCONNECT], e.device.serialNumber);
     }
   }
 
@@ -81,8 +65,7 @@ export class WebUSBKeepKeyAdapter {
   ): Promise<number> {
     if (!(window && window.navigator.usb)) throw new WebUSBNotAvailable();
 
-    const devicesToInitialize =
-      devices || (await window.navigator.usb.getDevices());
+    const devicesToInitialize = devices || (await window.navigator.usb.getDevices());
 
     let errors = [];
     for (let i = 0; i < devicesToInitialize.length; i++) {
@@ -135,10 +118,7 @@ export class WebUSBKeepKeyAdapter {
    *                     KeepKey.
    * @param tryDebugLink Whether to attempt to connect to the device's debuglink endpoints.
    */
-  public async pairDevice(
-    serialNumber: string = undefined,
-    tryDebugLink: boolean = false
-  ): Promise<HDWallet> {
+  public async pairDevice(serialNumber: string = undefined, tryDebugLink: boolean = false): Promise<HDWallet> {
     if (!(window && window.navigator.usb)) {
       throw new WebUSBNotAvailable();
     }

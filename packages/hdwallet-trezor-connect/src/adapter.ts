@@ -1,22 +1,8 @@
-import {
-  Keyring,
-  HDWallet,
-  Events,
-  PopupClosedError,
-} from "@shapeshiftoss/hdwallet-core";
-import {
-  create as createTrezor,
-  TrezorHDWallet,
-} from "@shapeshiftoss/hdwallet-trezor";
+import { Keyring, HDWallet, Events, PopupClosedError } from "@shapeshiftoss/hdwallet-core";
+import { create as createTrezor, TrezorHDWallet } from "@shapeshiftoss/hdwallet-trezor";
 import { TrezorConnectTransport, POPUP, TrezorDevice } from "./transport";
 
-import TrezorConnect, {
-  DEVICE,
-  DEVICE_EVENT,
-  TRANSPORT_EVENT,
-  UI_EVENT,
-  UI,
-} from "trezor-connect";
+import TrezorConnect, { DEVICE, DEVICE_EVENT, TRANSPORT_EVENT, UI_EVENT, UI } from "trezor-connect";
 
 export type DeviceID = string;
 
@@ -64,8 +50,7 @@ export class TrezorAdapter {
 
     TrezorConnect.off(DEVICE_EVENT, connectHandler);
 
-    for (const connectEvent of connectEvents)
-      this.handleConnectTrezor(connectEvent);
+    for (const connectEvent of connectEvents) this.handleConnectTrezor(connectEvent);
 
     TrezorConnect.on(DEVICE_EVENT, (event: any) => {
       if (event.type === "device-connect") {
@@ -80,10 +65,7 @@ export class TrezorAdapter {
     TrezorConnect.on(TRANSPORT_EVENT, (event) => {
       // Log TrezorConnect's event raw:
       try {
-        let device_id =
-          event.payload && event.payload.features
-            ? event.payload.features.device_id
-            : "";
+        let device_id = event.payload && event.payload.features ? event.payload.features.device_id : "";
         this.keyring.emit(["Trezor", device_id, event.type], event);
       } catch (e) {
         console.error("Could not emit Trezor transport event", event, e);
@@ -163,10 +145,7 @@ export class TrezorAdapter {
 
   public async initialize(devices?: TrezorDevice[]): Promise<number> {
     const init = await _initialization;
-    if (!init)
-      throw new Error(
-        "Could not initialize TrezorAdapter: TrezorConnect not initialized"
-      );
+    if (!init) throw new Error("Could not initialize TrezorAdapter: TrezorConnect not initialized");
 
     const devicesToInitialize = devices || [];
 
@@ -174,20 +153,13 @@ export class TrezorAdapter {
       const device = devicesToInitialize[i];
       let wallet = this.keyring.get(device.deviceID);
       if (wallet) {
-        if (
-          device.path &&
-          !(wallet.transport as TrezorConnectTransport).device.path
-        )
-          (wallet.transport as TrezorConnectTransport).device.path =
-            device.path;
+        if (device.path && !(wallet.transport as TrezorConnectTransport).device.path)
+          (wallet.transport as TrezorConnectTransport).device.path = device.path;
         await wallet.initialize();
         return;
       }
 
-      wallet = createTrezor(
-        new TrezorConnectTransport(device, this.keyring),
-        true
-      );
+      wallet = createTrezor(new TrezorConnectTransport(device, this.keyring), true);
       await wallet.initialize();
       this.keyring.add(wallet, device.deviceID);
     }
@@ -196,14 +168,9 @@ export class TrezorAdapter {
 
   public async pairDevice(): Promise<HDWallet> {
     const init = await _initialization;
-    if (!init)
-      throw new Error("Could not pair Trezor: TrezorConnect not initialized");
+    if (!init) throw new Error("Could not pair Trezor: TrezorConnect not initialized");
 
-    const { success, payload } = await TrezorConnectTransport.callQuiet(
-      undefined,
-      "getFeatures",
-      {}
-    );
+    const { success, payload } = await TrezorConnectTransport.callQuiet(undefined, "getFeatures", {});
 
     if (!success) {
       if (payload.error === "Popup closed") throw new PopupClosedError();
