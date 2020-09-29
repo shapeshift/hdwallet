@@ -244,7 +244,7 @@ export async function btcSignTx(msg: BTCSignTx, portis: any): Promise<BTCSignedT
   };
 }
 
-export function btcVerifyMessage(msg: BTCVerifyMessage): Promise<boolean> {
+export async function btcVerifyMessage(msg: BTCVerifyMessage): Promise<boolean> {
   const signature = Base64.fromByteArray(fromHexString(msg.signature));
   return verify(msg.message, msg.address, signature);
 }

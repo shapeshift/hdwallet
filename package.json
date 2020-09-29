@@ -40,12 +40,21 @@
     "lerna-bump-version-major": "lerna publish --no-push --skip-npm --force-publish '*' major --yes"
   },
   "devDependencies": {
+    "@types/bchaddrjs": "^0.4.0",
+    "@types/bytebuffer": "^5.0.40",
+    "@types/crypto-js": "^3.1.9-1",
+    "@types/ethereumjs-tx": "^1.0.1",
+    "@types/jest": "^24.9.1",
+    "@types/node-fetch": "^2.5.7",
+    "@types/w3c-web-usb": "^1.0.3",
+    "jest": "^24.9.0",
     "jest-junit": "^6.4.0",
     "lerna": "^3.22.1",
     "prettier": "^2.0.5",
     "pretty-quick": "^2.0.1",
+    "ts-jest": "^24.3.0",
     "typedoc": "^0.14.2",
-    "typescript": "^3.9.5"
+    "typescript": "^3.9.7"
   },
   "resolutions": {
     "**/whatwg-fetch": "^2.0.4"

@@ -19,10 +19,6 @@
     "bytebuffer": "^5.0.1",
     "eventemitter2": "^5.0.1"
   },
-  "devDependencies": {
-    "@types/bytebuffer": "^5.0.40",
-    "@types/w3c-web-usb": "^1.0.3"
-  },
   "jest": {
     "modulePathIgnorePatterns": [
       "node_modules"
