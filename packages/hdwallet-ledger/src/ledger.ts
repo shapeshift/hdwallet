@@ -135,6 +135,7 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
   _supportsBinanceInfo: boolean = false; // TODO ledger supports bnb
   _supportsRippleInfo: boolean = false; // TODO ledger supports XRP
   _supportsEosInfo: boolean = false;
+  _supportsFioInfo: boolean = false;
 
   public getVendor(): string {
     return "Ledger";
@@ -285,6 +286,8 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   _supportsCosmos: boolean = false;
   _supportsEosInfo: boolean = false;
   _supportsEos: boolean = false;
+  _supportsFio: boolean = false;
+  _supportsFioInfo: boolean = false;
 
   _isLedger: boolean = true;
 

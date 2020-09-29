@@ -9,6 +9,7 @@ import {
   supportsRipple,
   supportsBinance,
   supportsEos,
+  supportsFio,
   supportsDebugLink,
   bip32ToAddressNList,
   Events,
@@ -730,6 +731,75 @@ $eosTx.on("click", async (e) => {
   } else {
     let label = await wallet.getLabel();
     $eosResults.val(label + " does not support Eos");
+  }
+});
+
+/*
+ * Fio
+ */
+const $fioAddr = $("#fioAddr");
+const $fioTx = $("#fioTx");
+const $fioResults = $("#fioResults");
+
+$fioAddr.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $ethResults.val("No wallet?");
+    return;
+  }
+  if (supportsFio(wallet)) {
+    let { addressNList } = wallet.fioGetAccountPaths({ accountIdx: 0 })[0];
+    let result = await wallet.fioGetPublicKey({
+      addressNList,
+      showDisplay: false,
+      kind: 0,
+    });
+    result = await wallet.fioGetPublicKey({
+      addressNList,
+      showDisplay: true,
+      kind: 0,
+      address: result,
+    });
+    $fioResults.val(result);
+  } else {
+    let label = await wallet.getLabel();
+    $fioResults.val(label + " does not support ");
+  }
+});
+
+$fioTx.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $ethResults.val("No wallet?");
+    return;
+  }
+  if (supportsFio(wallet)) {
+    let unsigned_main = {
+      expiration: "2020-04-30T22:00:00.000",
+      ref_block_num: 54661,
+      ref_block_prefix: 2118672142,
+      max_net_usage_words: 0,
+      max_cpu_usage_ms: 0,
+      delay_sec: 0,
+      context_free_actions: [],
+      actions: [],
+    };
+
+    let chainid_main = "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906";
+    let res = await wallet.fioSignTx({
+      addressNList: bip32ToAddressNList("m/44'/194'/0'/0/0"),
+      chain_id: chainid_main,
+      tx: unsigned_main,
+    });
+
+    console.log(res);
+    console.log("signature = %d", res.signature);
+    console.log("serialized = %s", toHexString(res.serialized));
+
+    $eosResults.val(res.fioFormSig);
+  } else {
+    let label = await wallet.getLabel();
+    $fioResults.val(label + " does not support Fio");
   }
 });
 

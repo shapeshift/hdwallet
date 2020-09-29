@@ -137,6 +137,7 @@ export function slip44ByCoin(coin: Coin): number {
     Binance: 714,
     Ripple: 144,
     Eos: 194,
+    Fio: 235,
   }[coin];
 }
 

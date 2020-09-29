@@ -392,6 +392,7 @@ export class KeepKeyHDWalletInfo
   _supportsRippleInfo: boolean = true;
   _supportsBinanceInfo: boolean = true;
   _supportsEosInfo: boolean = true;
+  _supportsFioInfo: boolean = false;
 
   public getVendor(): string {
     return "KeepKey";
@@ -485,7 +486,6 @@ export class KeepKeyHDWalletInfo
         return describeRipplePath(msg.path);
       case "Eos":
         return describeEosPath(msg.path);
-
       default:
         return describeUTXOPath(msg.path, msg.coin, msg.scriptType);
     }
@@ -601,6 +601,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   _supportsRippleInfo: boolean = true;
   _supportsBinanceInfo: boolean = true;
   _supportsEosInfo: boolean = true;
+  _supportsFioInfo: boolean = false;
   _supportsDebugLink: boolean;
   _isKeepKey: boolean = true;
   _supportsETH: boolean = true;
@@ -609,6 +610,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   _supportsRipple: boolean = true;
   _supportsBinance: boolean = true;
   _supportsEos: boolean = true;
+  _supportsFio: boolean = false;
 
   transport: KeepKeyTransport;
   features?: Messages.Features.AsObject;
