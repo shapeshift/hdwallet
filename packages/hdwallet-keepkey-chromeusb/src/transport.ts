@@ -2,17 +2,9 @@
 /// <reference path="../node_modules/@types/w3c-web-usb/index.d.ts" />
 
 import { Keyring } from "@shapeshiftoss/hdwallet-core";
-import {
-  SEGMENT_SIZE,
-  KeepKeyTransport,
-} from "@shapeshiftoss/hdwallet-keepkey";
+import { SEGMENT_SIZE, KeepKeyTransport } from "@shapeshiftoss/hdwallet-keepkey";
 import * as ByteBuffer from "bytebuffer";
-import {
-  VENDOR_ID,
-  WEBUSB_PRODUCT_ID,
-  HID_PRODUCT_ID,
-  makePromise,
-} from "./utils";
+import { VENDOR_ID, WEBUSB_PRODUCT_ID, HID_PRODUCT_ID, makePromise } from "./utils";
 
 const {
   default: { concat, wrap },
@@ -45,11 +37,7 @@ export class ChromeUSBKeepKeyTransport extends KeepKeyTransport {
 
   private connectionHandle: any;
 
-  constructor(
-    chromeUSBDevice: USBDevice,
-    debugLink: boolean = false,
-    keyring: Keyring
-  ) {
+  constructor(chromeUSBDevice: USBDevice, debugLink: boolean = false, keyring: Keyring) {
     super(keyring);
     this.debugLink = debugLink;
     this.chromeUSBDevice = chromeUSBDevice;
@@ -80,10 +68,7 @@ export class ChromeUSBKeepKeyTransport extends KeepKeyTransport {
 
   public async connect(): Promise<void> {
     if (this.isOpened) return;
-    this.connectionHandle = await makePromise(
-      c.usb.openDevice,
-      this.chromeUSBDevice
-    );
+    this.connectionHandle = await makePromise(c.usb.openDevice, this.chromeUSBDevice);
 
     if (this.connectionHandle.configuration === null)
       await makePromise(c.usb.setConfiguration, this.connectionHandle, 1);
@@ -161,19 +146,14 @@ export class ChromeUSBKeepKeyTransport extends KeepKeyTransport {
   }
 
   private async readChunk(): Promise<ByteBuffer> {
-    const { resultCode, data } = await makePromise(
-      c.usb.interruptTransfer,
-      this.connectionHandle,
-      {
-        direction: "in",
-        endpoint: 1,
-        length: SEGMENT_SIZE + 1,
-        timeout: 0,
-      }
-    );
+    const { resultCode, data } = await makePromise(c.usb.interruptTransfer, this.connectionHandle, {
+      direction: "in",
+      endpoint: 1,
+      length: SEGMENT_SIZE + 1,
+      timeout: 0,
+    });
     console.log(resultCode, data);
-    if (resultCode > 0)
-      return Promise.reject(new Error("Error occured reading chunk"));
+    if (resultCode > 0) return Promise.reject(new Error("Error occured reading chunk"));
     return Promise.resolve(wrap(data));
   }
 }

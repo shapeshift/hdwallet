@@ -17,51 +17,18 @@ describe("isArray", () => {
 });
 
 describe("toHexString", () => {
-  test.each(["", "123456", "abcdef"])(
-    'toHexString(fromHexString("%s")) == "%s"',
-    (str) => {
-      expect(toHexString(fromHexString(str))).toEqual(str);
-    }
-  );
+  test.each(["", "123456", "abcdef"])('toHexString(fromHexString("%s")) == "%s"', (str) => {
+    expect(toHexString(fromHexString(str))).toEqual(str);
+  });
 });
 
 describe("bip32ToAddressNList", () => {
   it("converts bitcoin paths correctly", () => {
-    expect(bip32ToAddressNList("m/44'/0'/3'/0/0")).toEqual([
-      0x80000000 + 44,
-      0x80000000 + 0,
-      0x80000000 + 3,
-      0,
-      0,
-    ]);
-    expect(bip32ToAddressNList("m/44'/0'/3'/0/1")).toEqual([
-      0x80000000 + 44,
-      0x80000000 + 0,
-      0x80000000 + 3,
-      0,
-      1,
-    ]);
-    expect(bip32ToAddressNList("m/44'/0'/3'/1/1")).toEqual([
-      0x80000000 + 44,
-      0x80000000 + 0,
-      0x80000000 + 3,
-      1,
-      1,
-    ]);
-    expect(bip32ToAddressNList("m/44h/0h/3h/0/0")).toEqual([
-      0x80000000 + 44,
-      0x80000000 + 0,
-      0x80000000 + 3,
-      0,
-      0,
-    ]);
-    expect(bip32ToAddressNList("m/44H/0H/3H/0/0")).toEqual([
-      0x80000000 + 44,
-      0x80000000 + 0,
-      0x80000000 + 3,
-      0,
-      0,
-    ]);
+    expect(bip32ToAddressNList("m/44'/0'/3'/0/0")).toEqual([0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 3, 0, 0]);
+    expect(bip32ToAddressNList("m/44'/0'/3'/0/1")).toEqual([0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 3, 0, 1]);
+    expect(bip32ToAddressNList("m/44'/0'/3'/1/1")).toEqual([0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 3, 1, 1]);
+    expect(bip32ToAddressNList("m/44h/0h/3h/0/0")).toEqual([0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 3, 0, 0]);
+    expect(bip32ToAddressNList("m/44H/0H/3H/0/0")).toEqual([0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 3, 0, 0]);
     expect(bip32ToAddressNList("m/")).toEqual([]);
   });
 

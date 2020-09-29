@@ -15,9 +15,5 @@ export abstract class LedgerTransport extends Transport {
     this.transport = transport;
   }
 
-  public abstract async call(
-    coin: string,
-    method: string,
-    ...args: any[]
-  ): Promise<LedgerResponse>;
+  public abstract async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse>;
 }

@@ -33,22 +33,15 @@ const upperCasedMessageClasses: {
 // Map of message type enums to human readable message name
 export const messageNameRegistry: {
   [msgTypeEnum: number]: string;
-} = Object.entries(Messages.MessageType).reduce(
-  (registry, entry: [string, number]) => {
-    registry[entry[1]] = entry[0].split("_")[1];
-    return registry;
-  },
-  {}
-);
+} = Object.entries(Messages.MessageType).reduce((registry, entry: [string, number]) => {
+  registry[entry[1]] = entry[0].split("_")[1];
+  return registry;
+}, {});
 
 // Map of message type enum to their protobuf constructor
 export const messageTypeRegistry: {
   [msgTypeEnum: number]: Message;
-} = Object.entries(Messages.MessageType).reduce(
-  (registry, entry: [string, number]) => {
-    registry[entry[1]] =
-      upperCasedMessageClasses[entry[0].split("_")[1].toUpperCase()];
-    return registry;
-  },
-  {}
-);
+} = Object.entries(Messages.MessageType).reduce((registry, entry: [string, number]) => {
+  registry[entry[1]] = upperCasedMessageClasses[entry[0].split("_")[1].toUpperCase()];
+  return registry;
+}, {});

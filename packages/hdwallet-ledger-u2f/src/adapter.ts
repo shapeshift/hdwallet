@@ -42,15 +42,10 @@ export class U2FLedgerAdapter {
 
       const ledgerTransport = await TransportU2F.open();
 
-      const wallet = createLedger(
-        new LedgerU2FTransport(device, ledgerTransport, this.keyring)
-      );
+      const wallet = createLedger(new LedgerU2FTransport(device, ledgerTransport, this.keyring));
 
       this.keyring.add(wallet, device.deviceID);
-      this.keyring.emit(
-        ["Ledger", device.deviceID, Events.CONNECT],
-        device.deviceID
-      );
+      this.keyring.emit(["Ledger", device.deviceID, Events.CONNECT], device.deviceID);
     }
 
     return Object.keys(this.keyring.wallets).length;

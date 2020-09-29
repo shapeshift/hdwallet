@@ -26,10 +26,7 @@ export async function ethSupportsNetwork(chain_id: number): Promise<boolean> {
   return true;
 }
 
-export async function ethGetAddress(
-  transport: TrezorTransport,
-  msg: ETHGetAddress
-): Promise<string> {
+export async function ethGetAddress(transport: TrezorTransport, msg: ETHGetAddress): Promise<string> {
   console.assert(
     !msg.showDisplay || !!msg.address,
     "HDWalletTrezor::ethGetAddress: expected address is required for showDisplay"
@@ -44,15 +41,8 @@ export async function ethGetAddress(
   return res.payload.address;
 }
 
-export async function ethSignTx(
-  wallet: ETHWallet,
-  transport: TrezorTransport,
-  msg: ETHSignTx
-): Promise<ETHSignedTx> {
-  if (
-    msg.toAddressNList !== undefined &&
-    !(await this.ethSupportsSecureTransfer())
-  )
+export async function ethSignTx(wallet: ETHWallet, transport: TrezorTransport, msg: ETHSignTx): Promise<ETHSignedTx> {
+  if (msg.toAddressNList !== undefined && !(await this.ethSupportsSecureTransfer()))
     throw new Error("Trezor does not support SecureTransfer");
 
   if (msg.exchangeType !== undefined && !this.ethSupportsNativeShapeShift())
@@ -88,10 +78,7 @@ export async function ethSignTx(
   };
 }
 
-export async function ethSignMessage(
-  transport: TrezorTransport,
-  msg: ETHSignMessage
-): Promise<ETHSignedMessage> {
+export async function ethSignMessage(transport: TrezorTransport, msg: ETHSignMessage): Promise<ETHSignedMessage> {
   let res = await transport.call("ethereumSignMessage", {
     path: msg.addressNList,
     message: msg.message,
@@ -103,10 +90,7 @@ export async function ethSignMessage(
   };
 }
 
-export async function ethVerifyMessage(
-  transport: TrezorTransport,
-  msg: ETHVerifyMessage
-): Promise<boolean> {
+export async function ethVerifyMessage(transport: TrezorTransport, msg: ETHVerifyMessage): Promise<boolean> {
   let res = await transport.call("ethereumVerifyMessage", {
     address: msg.address,
     message: msg.message,
@@ -124,23 +108,11 @@ export function ethSupportsNativeShapeShift(): boolean {
   return false;
 }
 
-export function ethGetAccountPaths(
-  msg: ETHGetAccountPath
-): Array<ETHAccountPath> {
+export function ethGetAccountPaths(msg: ETHGetAccountPath): Array<ETHAccountPath> {
   return [
     {
-      addressNList: [
-        0x80000000 + 44,
-        0x80000000 + slip44ByCoin(msg.coin),
-        0x80000000 + 0,
-        0,
-        msg.accountIdx,
-      ],
-      hardenedPath: [
-        0x80000000 + 44,
-        0x80000000 + slip44ByCoin(msg.coin),
-        0x80000000 + 0,
-      ],
+      addressNList: [0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + 0, 0, msg.accountIdx],
+      hardenedPath: [0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + 0],
       relPath: [0, msg.accountIdx],
       description: "Trezor",
     },

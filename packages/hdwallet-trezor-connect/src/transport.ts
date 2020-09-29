@@ -1,15 +1,5 @@
-import {
-  Events,
-  makeEvent,
-  Keyring,
-  HDWalletErrorType,
-  ActionCancelled,
-} from "@shapeshiftoss/hdwallet-core";
-import {
-  TrezorHDWallet,
-  TrezorTransport,
-  TrezorConnectResponse,
-} from "@shapeshiftoss/hdwallet-trezor";
+import { Events, makeEvent, Keyring, HDWalletErrorType, ActionCancelled } from "@shapeshiftoss/hdwallet-core";
+import { TrezorHDWallet, TrezorTransport, TrezorConnectResponse } from "@shapeshiftoss/hdwallet-trezor";
 import TrezorConnect, { DEVICE_EVENT, UI_EVENT } from "trezor-connect";
 
 export const POPUP = true;
@@ -52,12 +42,7 @@ export class TrezorConnectTransport extends TrezorTransport {
 
   public async listen(): Promise<any> {
     TrezorConnect.on(DEVICE_EVENT, (event: any) => {
-      if (
-        !this.device.path &&
-        event.features &&
-        event.path &&
-        event.features.device_id === this.device.deviceID
-      ) {
+      if (!this.device.path && event.features && event.path && event.features.device_id === this.device.deviceID) {
         this.device.path = event.path;
       }
     });
@@ -69,8 +54,7 @@ export class TrezorConnectTransport extends TrezorTransport {
 
       if (!event.payload.device.features) return;
 
-      if (this.device.deviceID !== event.payload.device.features.device_id)
-        return;
+      if (this.device.deviceID !== event.payload.device.features.device_id) return;
 
       // Log TrezorConnect's event raw:
       this.emit(
@@ -137,9 +121,7 @@ export class TrezorConnectTransport extends TrezorTransport {
     // Notify any other concurrent threads that they need to wait, making sure
     // to clean up after we're done talking to TrezorConnect.
     TrezorConnectTransport.callInProgress = (async () => {
-      await TrezorConnectTransport.cancellable(
-        TrezorConnectTransport.callInProgress
-      );
+      await TrezorConnectTransport.cancellable(TrezorConnectTransport.callInProgress);
 
       try {
         let result = await TrezorConnect[method]({ device, ...msg });
@@ -165,11 +147,7 @@ export class TrezorConnectTransport extends TrezorTransport {
     return TrezorConnectTransport.callInProgress;
   }
 
-  public async call(
-    method: string,
-    msg: any,
-    msTimeout?: number
-  ): Promise<TrezorConnectResponse> {
+  public async call(method: string, msg: any, msTimeout?: number): Promise<TrezorConnectResponse> {
     this.emit(
       method,
       makeEvent({
@@ -179,12 +157,7 @@ export class TrezorConnectTransport extends TrezorTransport {
       })
     );
 
-    let response = await TrezorConnectTransport.callQuiet(
-      this.device,
-      method,
-      msg,
-      msTimeout
-    );
+    let response = await TrezorConnectTransport.callQuiet(this.device, method, msg, msTimeout);
 
     this.emit(
       method,
