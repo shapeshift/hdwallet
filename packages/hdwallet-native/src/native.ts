@@ -121,6 +121,7 @@ export class NativeHDWallet
   _supportsBinance = true;
   _supportsRipple = false;
   _supportsEos = false;
+  _supportsFio = true;
   _supportsDebugLink = false;
   _isNative = true;
 

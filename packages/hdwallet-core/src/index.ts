@@ -11,3 +11,4 @@ export * from "./keyring";
 export * from "./exceptions";
 export * from "./ripple";
 export * from "./eos";
+export * from "./fio";

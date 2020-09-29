@@ -10,6 +10,8 @@ import { RippleWallet, RippleWalletInfo } from "./ripple";
 
 import { EosWallet, EosWalletInfo } from "./eos";
 
+import { FioWallet, FioWalletInfo } from "./fio";
+
 import { DebugLinkWallet } from "./debuglink";
 import { Transport } from "./transport";
 import { isObject } from "lodash";
@@ -154,6 +156,10 @@ export function supportsEos(wallet: any): wallet is EosWallet {
 
 export function infoEos(info: any): info is EosWalletInfo {
   return isObject(info) && (info as any)._supportsEosInfo;
+}
+
+export function supportsFio(wallet: any): wallet is FioWallet {
+  return isObject(wallet) && (wallet as any)._supportsFio;
 }
 
 /**

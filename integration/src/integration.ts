@@ -11,6 +11,7 @@ import { cosmosTests } from "./cosmos";
 import { binanceTests } from "./binance";
 import { rippleTests } from "./ripple";
 import { eosTests } from "./eos";
+import { fioTests } from "./fio";
 import { WalletSuite } from "./wallets/suite";
 
 /**
@@ -71,6 +72,14 @@ export function integration(suite: WalletSuite): void {
       });
 
       eosTests(() => ({ wallet, info }));
+    });
+
+    describe("FioWallet", () => {
+      beforeAll(async () => {
+        wallet = await suite.createWallet("Fio");
+      });
+
+      fioTests(() => ({ wallet, info }));
     });
 
     describe("CosmosWallet", () => {

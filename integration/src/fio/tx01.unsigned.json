@@ -1,0 +1,35 @@
+{
+  "expiration": "2018-07-14T07:43:28",
+  "ref_block_num": "blockInfo.block_num & 0xffff",
+  "ref_block_prefix": "blockInfo.ref_block_prefix",
+  "actions": [
+    {
+      "account": "fio.address",
+      "name": "addaddress",
+      "authorization": [
+        {
+          "actor": "user.account",
+          "permission": "active"
+        }
+      ],
+      "data": {
+        "fio_address": "user.address",
+        "public_addresses": [
+          {
+            "chain_code": "BCH",
+            "token_code": "BCH",
+            "public_address": "bitcoincash:qzf8zha74ahdh9j0xnwlffdn0zuyaslx3c90q7n9g9"
+          },
+          {
+            "chain_code": "DASH",
+            "token_code": "DASH",
+            "public_address": "XyCyPKzTWvW2XdcYjPaPXGQDCGk946ywEv"
+          }
+        ],
+        "max_fee": 600000000,
+        "tpid": "rewards@wallet",
+        "actor": "user.account"
+      }
+    }
+  ]
+}
