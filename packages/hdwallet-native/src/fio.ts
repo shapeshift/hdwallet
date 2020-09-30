@@ -63,11 +63,11 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
     }
 
     async fioSignTx(msg: core.FioSignTx): Promise<core.FioSignedTx> {
-      const sdk = await this.getFioSdk(core.addressNListToBIP32(msg.addressNList));
+      const sdk: fio.FIOSDK = await this.getFioSdk(core.addressNListToBIP32(msg.addressNList));
 
-      const account = msg.actions[0].account;
-      const action = msg.actions[0].name;
-      const data = msg.actions[0].data;
+      const account: fio.FioActionParameters.FioActionAccount = msg.actions[0].account;
+      const action: fio.FioActionParameters.FioActionName = msg.actions[0].name;
+      const data: fio.FioActionParameters.FioActionData = msg.actions[0].data;
 
       const res = await sdk.prepareTransaction(account, action, data);
 
