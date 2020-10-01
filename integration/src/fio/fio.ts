@@ -1,6 +1,7 @@
-import { bip32ToAddressNList, HDWallet, FioWallet, supportsFio } from "@shapeshiftoss/hdwallet-core";
+import { bip32ToAddressNList, HDWallet } from "@shapeshiftoss/hdwallet-core";
 
-import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
+import { HDWalletInfo, supportsFio } from "@shapeshiftoss/hdwallet-core";
+import { FioWallet } from "@shapeshiftoss/hdwallet-core/src/fio";
 import { FioActionParameters } from "fiosdk-offline";
 
 import * as tx01_unsigned from "./tx01.unsigned.json";
@@ -43,9 +44,10 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): v
       TIMEOUT
     );
 
-    test(
+    test.only(
       "fioSignTx()",
       async () => {
+        console.log(FioActionParameters);
         if (!wallet) return;
         const data: FioActionParameters.FioTransferTokensPubKeyActionData = {
           payee_public_key: "FIO7MpYCsLfjPGgXg8Sv7usGAw6RnFV3W6HTz1UP6HvodNXSAZiDp",
