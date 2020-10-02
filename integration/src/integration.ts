@@ -75,11 +75,13 @@ export function integration(suite: WalletSuite): void {
     });
 
     describe("FioWallet", () => {
+      let wallet2: HDWallet
       beforeAll(async () => {
         wallet = await suite.createWallet("Fio");
+        wallet2 = await suite.createWallet("Fio");
       });
 
-      fioTests(() => ({ wallet, info }));
+      fioTests(() => ({ wallet, info, wallet2 }));
     });
 
     describe("CosmosWallet", () => {
