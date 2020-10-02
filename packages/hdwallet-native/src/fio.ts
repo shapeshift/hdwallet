@@ -8,6 +8,8 @@ import { TextDecoder, TextEncoder } from 'util'
 const textEncoder = new TextEncoder()
 const textDecoder = new TextDecoder()
 
+const REQUEST_CONTENT_TYPE = 'new_funds_content'
+
 const fetchJson = async (uri: RequestInfo, opts?: RequestInit) => {
   return fetch(uri, opts);
 };
@@ -82,30 +84,30 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
       };
     }
 
-    async fioEncryptRequestContent(msg: core.FioEncryptionContent): Promise<string> {
+    async fioEncryptRequestContent(msg: core.FioRequestContent): Promise<string> {
       return this.needsMnemonic(!!this.#mnemonic, async () => {
         const { fioKey: privateKey } = await fio.FIOSDK.createPrivateKeyMnemonic(this.#mnemonic, core.addressNListToBIP32(msg.addressNList))
-        const cipherAlice = fiojs.createSharedCipher({
+        const sharedCipher = fiojs.createSharedCipher({
           privateKey,
           publicKey: msg.publicKey,
           textEncoder,
           textDecoder
         })
-        return cipherAlice.encrypt('new_funds_content', msg.content)
+        return sharedCipher.encrypt(REQUEST_CONTENT_TYPE, msg.content)
       })
     }
 
 
-    async fioDecryptRequestContent(msg: core.FioEncryptionContent): Promise<string> {
+    async fioDecryptRequestContent(msg: core.FioRequestContent): Promise<string> {
       return this.needsMnemonic(!!this.#mnemonic, async () => {
-        const { fioKey: privateKey } = await fio.FIOSDK.createPrivateKeyMnemonic(this.#mnemonic, "m/44'/235'/0'/0/0");
-        const cipherAlice = fiojs.createSharedCipher({
+        const { fioKey: privateKey } = await fio.FIOSDK.createPrivateKeyMnemonic(this.#mnemonic, core.addressNListToBIP32(msg.addressNList));
+        const sharedCipher = fiojs.createSharedCipher({
           privateKey,
           publicKey: msg.publicKey,
           textEncoder,
           textDecoder
         })
-        return cipherAlice.decrypt('new_funds_content', msg.content)
+        return sharedCipher.decrypt(REQUEST_CONTENT_TYPE, msg.content)
       })
     }
 

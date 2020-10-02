@@ -72,11 +72,11 @@ export interface FioWallet extends FioWalletInfo {
   _supportsFio: boolean;
   fioGetAddress(msg: FioGetAddress): Promise<string>;
   fioSignTx(msg: FioSignTx): Promise<FioSignedTx>;
-  fioDecryptRequestContent(msg: FioEncryptionContent): Promise<string>
-  fioEncryptRequestContent(msg: FioEncryptionContent): Promise<string>
+  fioDecryptRequestContent(msg: FioRequestContent): Promise<string>
+  fioEncryptRequestContent(msg: FioRequestContent): Promise<string>
 }
 
-export interface FioEncryptionContent {
+export interface FioRequestContent {
   addressNList: BIP32Path;
   content: string;
   publicKey: string;
