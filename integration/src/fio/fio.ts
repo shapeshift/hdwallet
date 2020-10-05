@@ -142,6 +142,47 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
     );
 
     test(
+      "fioNewFundsRequestActionData()",
+      async () => {
+        if (!wallet) return;
+
+        //TODO import content interface
+        const originalContent: any = {
+          payee_public_address: "test@shapeshift",
+          amount: "1",
+          chain_code: "FIO",
+          token_code: "FIO",
+          memo: "memo",
+          hash: "hash",
+          offline_url: "offline_url",
+        };
+
+        const data: FioActionParameters.FioNewFundsRequestActionData = {
+          payer_fio_address: "test@shapeshift",
+          payee_fio_address: "highlander@scatter",
+          content: originalContent,
+          max_fee: 2,
+          tpid: "",
+          actor: "",
+        };
+        const res = await wallet.fioSignTx({
+          addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+          actions: [
+            {
+              account: FioActionParameters.FioNewFundsRequestActionAccount,
+              name: FioActionParameters.FioNewFundsRequestActionName,
+              data,
+            },
+          ],
+        });
+
+        expect(res).toHaveProperty("signature");
+        expect(res).toHaveProperty("serialized");
+      },
+      TIMEOUT
+    );
+
+    test(
       "fioSignRegisterDomainTx()",
       async () => {
         if (!wallet) return;
