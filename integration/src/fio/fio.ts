@@ -1,4 +1,5 @@
 import { bip32ToAddressNList, HDWallet, FioWallet, supportsFio } from "@shapeshiftoss/hdwallet-core";
+import { FioActionParameters, PublicAddress } from "fiosdk-offline";
 
 import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
 import * as tx01_unsigned from "./tx01.unsigned.json";
@@ -19,7 +20,6 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
       const { wallet2: w2 } = get();
       if (supportsFio(w)) wallet = w;
       if (supportsFio(w2)) wallet2 = w2;
-
     });
 
     beforeEach(async () => {
@@ -54,22 +54,110 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
     );
 
     test(
-      "fioSignTx()",
+      "fioSignTransferTokenTx()",
       async () => {
         if (!wallet) return;
-
+        const data: FioActionParameters.FioTransferTokensPubKeyActionData = {
+          payee_public_key: "FIO7MpYCsLfjPGgXg8Sv7usGAw6RnFV3W6HTz1UP6HvodNXSAZiDp",
+          amount: "1000000000",
+          max_fee: 800000000000,
+          tpid: "",
+        };
         const res = await wallet.fioSignTx({
           addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
           actions: [
             {
-              account: "fio.token",
-              name: "trnsfiopubky",
-              data: {
-                payee_public_key: "FIO7MpYCsLfjPGgXg8Sv7usGAw6RnFV3W6HTz1UP6HvodNXSAZiDp",
-                amount: "1000000000",
-                max_fee: 800000000000,
-                tpid: "",
-              },
+              account: FioActionParameters.FioTransferTokensPubKeyActionAccount,
+              name: FioActionParameters.FioTransferTokensPubKeyActionName,
+              data,
+            },
+          ],
+        });
+
+        expect(res).toHaveProperty("signature");
+        expect(res).toHaveProperty("serialized");
+      },
+      TIMEOUT
+    );
+
+    test(
+      "fioSignAddPubAddressTx()",
+      async () => {
+        if (!wallet) return;
+        const publicAddresses: PublicAddress[] = [
+          {
+            chain_code: "ETH",
+            token_code: "ETH",
+            public_address: "0x3f2329c9adfbccd9a84f52c906e936a42da18cb8",
+          },
+        ];
+        const data: FioActionParameters.FioAddPubAddressActionData = {
+          fio_address: "test@shapeshift",
+          public_addresses: publicAddresses,
+          max_fee: 800000000000,
+          tpid: "",
+        };
+        const res = await wallet.fioSignTx({
+          addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+          actions: [
+            {
+              account: FioActionParameters.FioAddPubAddressActionAccount,
+              name: FioActionParameters.FioAddPubAddressActionName,
+              data,
+            },
+          ],
+        });
+
+        expect(res).toHaveProperty("signature");
+        expect(res).toHaveProperty("serialized");
+      },
+      TIMEOUT
+    );
+
+    test(
+      "fioSignRegisterFioAddressTx()",
+      async () => {
+        if (!wallet) return;
+        const data: FioActionParameters.FioRegisterFioAddressActionData = {
+          fio_address: "test@shapeshift",
+          owner_fio_public_key: "FIO7MpYCsLfjPGgXg8Sv7usGAw6RnFV3W6HTz1UP6HvodNXSAZiDp",
+          max_fee: 800000000000,
+          tpid: "",
+        };
+        const res = await wallet.fioSignTx({
+          addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+          actions: [
+            {
+              account: FioActionParameters.FioRegisterFioAddressActionAccount,
+              name: FioActionParameters.FioRegisterFioAddressActionName,
+              data,
+            },
+          ],
+        });
+
+        expect(res).toHaveProperty("signature");
+        expect(res).toHaveProperty("serialized");
+      },
+      TIMEOUT
+    );
+
+    test(
+      "fioSignRegisterDomainTx()",
+      async () => {
+        if (!wallet) return;
+        const data: FioActionParameters.FioRegisterFioDomainActionData = {
+          fio_domain: "fox",
+          owner_fio_public_key: "FIO7MpYCsLfjPGgXg8Sv7usGAw6RnFV3W6HTz1UP6HvodNXSAZiDp",
+          max_fee: 800000000000,
+          tpid: "",
+        };
+        const res = await wallet.fioSignTx({
+          addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+          actions: [
+            {
+              account: FioActionParameters.FioRegisterFioDomainActionAccount,
+              name: FioActionParameters.FioRegisterFioDomainActionName,
+              data,
             },
           ],
         });
@@ -86,34 +174,34 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
         if (!wallet) return;
         if (!wallet2) return;
         const originalContent: any = {
-          payee_public_address: 'purse.alice',
-          amount: '1',
-          chain_code: 'FIO',
-          token_code: 'FIO',
-          memo: 'memo',
-          hash: 'hash',
-          offline_url: 'offline_url'
-        }
+          payee_public_address: "purse.alice",
+          amount: "1",
+          chain_code: "FIO",
+          token_code: "FIO",
+          memo: "memo",
+          hash: "hash",
+          offline_url: "offline_url",
+        };
         const walletPk = await wallet.fioGetAddress({
           addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
           showDisplay: false,
-        })
+        });
         const wallet2Pk = await wallet2.fioGetAddress({
           addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
           showDisplay: false,
-        })
+        });
 
         const encryptedContent = await wallet.fioEncryptRequestContent({
           addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
           content: originalContent,
-          publicKey: wallet2Pk
-        })
+          publicKey: wallet2Pk,
+        });
         const decryptedContent = await wallet2.fioDecryptRequestContent({
           addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
           content: encryptedContent,
-          publicKey: walletPk
-        })
-        expect(originalContent).toEqual(decryptedContent)
+          publicKey: walletPk,
+        });
+        expect(originalContent).toEqual(decryptedContent);
       },
       TIMEOUT
     );

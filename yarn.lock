@@ -2575,6 +2575,11 @@
     "@types/bn.js" "*"
     "@types/node" "*"
 
+"@types/fast-text-encoding@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@types/fast-text-encoding/-/fast-text-encoding-1.0.1.tgz#7a9e6d8dd2ac1fa70772b500a307c2620cec1fe3"
+  integrity sha512-DRFqoqjXfvuX3f5jIQKAQr/QzuFdNoHOtou0KQ9bzUJOreCciO7T/kFJHgEote7QusmgE1fTxsQSqNvXVR0GBw==
+
 "@types/filesystem@*":
   version "0.0.29"
   resolved "https://registry.yarnpkg.com/@types/filesystem/-/filesystem-0.0.29.tgz#ee3748eb5be140dcf980c3bd35f11aec5f7a3748"
@@ -2743,11 +2748,6 @@
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-1.0.1.tgz#0a851d3bd96498fa25c33ab7278ed3bd65f06c3e"
   integrity sha512-l42BggppR6zLmpfU6fq9HEa2oGPEI8yrSPL3GITjfRInppYFahObbIQOQK3UGxEnyQpltZLaPe75046NOZQikw==
-
-"@types/text-encoding@0.0.35":
-  version "0.0.35"
-  resolved "https://registry.yarnpkg.com/@types/text-encoding/-/text-encoding-0.0.35.tgz#6f14474e0b232bc70c59677aadc65dcc5a99c3a9"
-  integrity sha512-jfo/A88XIiAweUa8np+1mPbm3h2w0s425YrI8t3wk5QxhH6UI7w517MboNVnGDeMSuoFwA8Rwmklno+FicvV4g==
 
 "@types/usb@^1.5.1":
   version "1.5.1"
@@ -6752,13 +6752,13 @@ find-versions@^3.2.0:
   dependencies:
     semver-regex "^2.0.0"
 
-fiosdk-offline@^1.1.7:
-  version "1.1.7"
-  resolved "https://registry.yarnpkg.com/fiosdk-offline/-/fiosdk-offline-1.1.7.tgz#5469e07106e6aa28d4a32c117bf1bc2e1ceacfa6"
-  integrity sha512-H7EZhLNON7FT2Ia0irCVCmFr2UUdboqVcjr+2DnWvNreV8CMB9A1exZpxkJttn2OgA0W6VLS3Rmepsho7DV1xg==
+fiosdk-offline@^1.2.17:
+  version "1.2.17"
+  resolved "https://registry.yarnpkg.com/fiosdk-offline/-/fiosdk-offline-1.2.17.tgz#bc61c9a9f26fc43eaaf46222123e4a24cc40ecfc"
+  integrity sha512-fX+p2iAyffC8kJ5dReyYRa2iApyG7Yv5q/ucM98MTJFdSEuBNixoEXWFjFVEGFK+toDUCV4mPgUA2oMxMogyUQ==
   dependencies:
     "@fioprotocol/fiojs" "1.0.1"
-    "@types/text-encoding" "0.0.35"
+    "@types/fast-text-encoding" "^1.0.1"
     bip39 "^3.0.2"
     fast-text-encoding "^1.0.3"
     hdkey "^1.1.1"

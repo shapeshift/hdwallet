@@ -5,6 +5,7 @@ import { NativeHDWalletBase } from "./native";
 import { Fio as fiojs, Ecc as fioecc } from "@fioprotocol/fiojs"; // TODO use our forked fioSdk instead of fiojs
 import { TextDecoder as TextDecoderNode, TextEncoder as TextEncoderNode } from "util";
 import { TextDecoder as TextDecoderWeb, TextEncoder as TextEncoderWeb } from "text-encoding";
+import { Fio } from "@shapeshiftoss/hdwallet-core";
 
 const REQUEST_CONTENT_TYPE = "new_funds_content";
 
@@ -77,9 +78,9 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
     async fioSignTx(msg: core.FioSignTx): Promise<core.FioSignedTx> {
       const sdk = await this.getFioSdk(core.addressNListToBIP32(msg.addressNList));
 
-      const account = msg.actions[0].account;
-      const action = msg.actions[0].name;
-      const data = msg.actions[0].data;
+      const account: fio.FioActionParameters.FioActionAccount = msg.actions[0].account;
+      const action: fio.FioActionParameters.FioActionName = msg.actions[0].name;
+      const data: fio.FioActionParameters.FioActionData = msg.actions[0].data;
 
       const res = await sdk.prepareTransaction(account, action, data);
 
