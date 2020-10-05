@@ -1,4 +1,5 @@
 import { mnemonicToSeed } from "bip39";
+import { ECPairInterface } from "bitcoinjs-lib";
 import * as bitcoin from "bitcoinjs-lib";
 import { toCashAddress, toLegacyAddress } from "bchaddrjs";
 import * as core from "@shapeshiftoss/hdwallet-core";
@@ -28,6 +29,18 @@ type ScriptData = {
 };
 
 type InputData = UtxoData | ScriptData;
+
+function getKeyPair(
+  seed: Buffer,
+  addressNList: number[],
+  coin = "bitcoin",
+  scriptType?: BTCScriptType
+): ECPairInterface {
+  const network = getNetwork(coin, scriptType);
+  const wallet = bitcoin.bip32.fromSeed(seed, network);
+  const path = core.addressNListToBIP32(addressNList);
+  return bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), getNetwork(coin, scriptType));
+}
 
 export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeBTCWalletInfo extends Base implements core.BTCWalletInfo {
@@ -121,23 +134,14 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
   return class MixinNativeBTCWallet extends Base {
     _supportsBTC: boolean;
 
-    #btcSeed: Buffer;
+    #wallet: Buffer;
 
     async btcInitializeWallet(mnemonic: string): Promise<void> {
-      this.#btcSeed = await mnemonicToSeed(mnemonic);
+      this.#wallet = await mnemonicToSeed(mnemonic);
     }
 
     btcWipe(): void {
-      this.#btcSeed = undefined;
-    }
-
-    btcGetKeyPair(coin: core.Coin, addressNList: core.BIP32Path, scriptType?: BTCScriptType): bitcoin.ECPairInterface {
-      return this.needsMnemonic(!!this.#btcSeed, () => {
-        const network = getNetwork(coin, scriptType);
-        const wallet = bitcoin.bip32.fromSeed(this.#btcSeed, network);
-        const path = core.addressNListToBIP32(addressNList);
-        return bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), network);
-      });
+      this.#wallet = undefined;
     }
 
     createPayment(pubkey: Buffer, scriptType: BTCScriptType, network?: bitcoin.Network): bitcoin.Payment {
@@ -159,114 +163,120 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
     }
 
     buildInput(coin: core.Coin, input: core.BTCSignTxInput): InputData {
-      const { addressNList, amount, hex, scriptType, tx, vout } = input;
-      const keyPair = this.btcGetKeyPair(coin, addressNList, scriptType);
+      return this.needsMnemonic(!!this.#wallet, () => {
+        const { addressNList, amount, hex, scriptType, tx, vout } = input;
+        const keyPair = getKeyPair(this.#wallet, addressNList, coin, scriptType);
 
-      const isSegwit = segwit.includes(scriptType);
-      const nonWitnessUtxo = hex && Buffer.from(hex, "hex");
-      const witnessUtxo = tx && {
-        script: Buffer.from(tx.vout[vout].scriptPubKey.hex, "hex"),
-        value: Number(amount),
-      };
-      const utxoData = isSegwit && witnessUtxo ? { witnessUtxo } : { nonWitnessUtxo };
+        const isSegwit = segwit.includes(scriptType);
+        const nonWitnessUtxo = hex && Buffer.from(hex, "hex");
+        const witnessUtxo = tx && {
+          script: Buffer.from(tx.vout[vout].scriptPubKey.hex, "hex"),
+          value: Number(amount),
+        };
+        const utxoData = isSegwit && witnessUtxo ? { witnessUtxo } : { nonWitnessUtxo };
 
-      if (!utxoData) {
-        throw new Error(
-          "failed to build input - must provide prev rawTx (segwit input can provide scriptPubKey hex and value instead)"
-        );
-      }
+        if (!utxoData) {
+          throw new Error(
+            "failed to build input - must provide prev rawTx (segwit input can provide scriptPubKey hex and value instead)"
+          );
+        }
 
-      const { publicKey, network } = keyPair;
-      const payment = this.createPayment(publicKey, scriptType, network);
+        const { publicKey, network } = keyPair;
+        const payment = this.createPayment(publicKey, scriptType, network);
 
-      let scriptData: ScriptData = {};
-      switch (scriptType) {
-        case "p2sh":
-        case "p2sh-p2wpkh":
-          scriptData.redeemScript = payment.redeem.output;
-          break;
-      }
+        let scriptData: ScriptData = {};
+        switch (scriptType) {
+          case "p2sh":
+          case "p2sh-p2wpkh":
+            scriptData.redeemScript = payment.redeem.output;
+            break;
+        }
 
-      return {
-        ...utxoData,
-        ...scriptData,
-      };
+        return {
+          ...utxoData,
+          ...scriptData,
+        };
+      });
     }
 
     async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
-      const { addressNList, coin, scriptType } = msg;
-      const keyPair = this.btcGetKeyPair(coin, addressNList, scriptType);
-      const { address } = this.createPayment(keyPair.publicKey, scriptType, keyPair.network);
-      return coin.toLowerCase() === "bitcoincash" ? toCashAddress(address) : address;
+      return this.needsMnemonic(!!this.#wallet, () => {
+        const { addressNList, coin, scriptType } = msg;
+        const keyPair = getKeyPair(this.#wallet, addressNList, coin, scriptType);
+        const { address } = this.createPayment(keyPair.publicKey, scriptType, keyPair.network);
+        return coin.toLowerCase() === "bitcoincash" ? toCashAddress(address) : address;
+      });
     }
 
     async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx> {
-      const { coin, inputs, outputs, version, locktime } = msg;
+      return this.needsMnemonic(!!this.#wallet, () => {
+        const { coin, inputs, outputs, version, locktime } = msg;
 
-      const psbt = new bitcoin.Psbt({ network: getNetwork(coin) });
+        const psbt = new bitcoin.Psbt({ network: getNetwork(coin) });
 
-      psbt.setVersion(version | 1);
-      locktime && psbt.setLocktime(locktime);
+        psbt.setVersion(version | 1);
+        locktime && psbt.setLocktime(locktime);
 
-      inputs.forEach((input) => {
-        try {
-          const inputData = this.buildInput(coin, input);
+        inputs.forEach((input) => {
+          try {
+            const inputData = this.buildInput(coin, input);
 
-          psbt.addInput({
-            hash: input.txid,
-            index: input.vout,
-            ...inputData,
-          });
-        } catch (e) {
-          throw new Error(`failed to add input: ${e}`);
-        }
-      });
-
-      outputs.map((output) => {
-        try {
-          const { address: addr, amount, addressNList, scriptType } = output;
-
-          let address = addr;
-          if (!address) {
-            const keyPair = this.btcGetKeyPair(coin, addressNList, scriptType);
-            const { publicKey, network } = keyPair;
-            const payment = this.createPayment(publicKey, scriptType, network);
-            address = payment.address;
+            psbt.addInput({
+              hash: input.txid,
+              index: input.vout,
+              ...inputData,
+            });
+          } catch (e) {
+            throw new Error(`failed to add input: ${e}`);
           }
+        });
 
-          if (coin.toLowerCase() === "bitcoincash") {
-            address = toLegacyAddress(address);
+        outputs.map((output) => {
+          try {
+            const { address: addr, amount, addressNList, scriptType } = output;
+
+            let address = addr;
+            if (!address) {
+              const keyPair = getKeyPair(this.#wallet, addressNList, coin, scriptType);
+              const { publicKey, network } = keyPair;
+              const payment = this.createPayment(publicKey, scriptType, network);
+              address = payment.address;
+            }
+
+            if (coin.toLowerCase() === "bitcoincash") {
+              address = toLegacyAddress(address);
+            }
+
+            psbt.addOutput({ address, value: Number(amount) });
+          } catch (e) {
+            throw new Error(`failed to add output: ${e}`);
           }
+        });
 
-          psbt.addOutput({ address, value: Number(amount) });
-        } catch (e) {
-          throw new Error(`failed to add output: ${e}`);
-        }
+        inputs.forEach((input, idx) => {
+          try {
+            const { addressNList, scriptType } = input;
+            const keyPair = getKeyPair(this.#wallet, addressNList, coin, scriptType);
+            psbt.signInput(idx, keyPair);
+          } catch (e) {
+            throw new Error(`failed to sign input: ${e}`);
+          }
+        });
+
+        psbt.finalizeAllInputs();
+
+        const tx = psbt.extractTransaction(true);
+
+        const signatures = tx.ins.map((input) => {
+          const sigLen = input.script[0];
+          return input.script.slice(1, sigLen).toString("hex");
+        });
+
+        return {
+          signatures,
+          serializedTx: tx.toHex(),
+        };
       });
-
-      inputs.forEach((input, idx) => {
-        try {
-          const { addressNList, scriptType } = input;
-          const keyPair = this.btcGetKeyPair(coin, addressNList, scriptType);
-          psbt.signInput(idx, keyPair);
-        } catch (e) {
-          throw new Error(`failed to sign input: ${e}`);
-        }
-      });
-
-      psbt.finalizeAllInputs();
-
-      const tx = psbt.extractTransaction(true);
-
-      const signatures = tx.ins.map((input) => {
-        const sigLen = input.script[0];
-        return input.script.slice(1, sigLen).toString("hex");
-      });
-
-      return {
-        signatures,
-        serializedTx: tx.toHex(),
-      };
     }
 
     async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
