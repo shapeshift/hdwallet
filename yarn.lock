@@ -6752,10 +6752,10 @@ find-versions@^3.2.0:
   dependencies:
     semver-regex "^2.0.0"
 
-fiosdk-offline@^1.2.14:
-  version "1.2.14"
-  resolved "https://registry.yarnpkg.com/fiosdk-offline/-/fiosdk-offline-1.2.14.tgz#1397f9069b42df37b21f58756f89bfb9beaeed8e"
-  integrity sha512-nxZrAYj1TrIo3HEx2dNwrO7tAgfPL1Clu+UostNTv9T/YtXhdySSnzVIelyz5jHqWurOJHDlLVa9YAfksMcMxQ==
+fiosdk-offline@^1.2.17:
+  version "1.2.17"
+  resolved "https://registry.yarnpkg.com/fiosdk-offline/-/fiosdk-offline-1.2.17.tgz#bc61c9a9f26fc43eaaf46222123e4a24cc40ecfc"
+  integrity sha512-fX+p2iAyffC8kJ5dReyYRa2iApyG7Yv5q/ucM98MTJFdSEuBNixoEXWFjFVEGFK+toDUCV4mPgUA2oMxMogyUQ==
   dependencies:
     "@fioprotocol/fiojs" "1.0.1"
     "@types/fast-text-encoding" "^1.0.1"

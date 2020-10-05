@@ -1,5 +1,5 @@
 import { bip32ToAddressNList, HDWallet, FioWallet, supportsFio } from "@shapeshiftoss/hdwallet-core";
-import { FioActionParameters } from "fiosdk-offline";
+import { FioActionParameters, PublicAddress } from "fiosdk-offline";
 
 import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
 import * as tx01_unsigned from "./tx01.unsigned.json";
@@ -81,11 +81,45 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
     );
 
     test(
-      "fioSignRegisterAddressTx()",
+      "fioSignAddPubAddressTx()",
+      async () => {
+        if (!wallet) return;
+        const publicAddresses: PublicAddress[] = [
+          {
+            chain_code: "ETH",
+            token_code: "ETH",
+            public_address: "0x3f2329c9adfbccd9a84f52c906e936a42da18cb8",
+          },
+        ];
+        const data: FioActionParameters.FioAddPubAddressActionData = {
+          fio_address: "test@shapeshift",
+          public_addresses: publicAddresses,
+          max_fee: 800000000000,
+          tpid: "",
+        };
+        const res = await wallet.fioSignTx({
+          addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+          actions: [
+            {
+              account: FioActionParameters.FioAddPubAddressActionAccount,
+              name: FioActionParameters.FioAddPubAddressActionName,
+              data,
+            },
+          ],
+        });
+
+        expect(res).toHaveProperty("signature");
+        expect(res).toHaveProperty("serialized");
+      },
+      TIMEOUT
+    );
+
+    test(
+      "fioSignRegisterFioAddressTx()",
       async () => {
         if (!wallet) return;
         const data: FioActionParameters.FioRegisterFioAddressActionData = {
-          fio_address: "skitter@scatter",
+          fio_address: "test@shapeshift",
           owner_fio_public_key: "FIO7MpYCsLfjPGgXg8Sv7usGAw6RnFV3W6HTz1UP6HvodNXSAZiDp",
           max_fee: 800000000000,
           tpid: "",
