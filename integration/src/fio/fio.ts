@@ -160,16 +160,18 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
         const encryptedContent: string = await wallet.fioEncryptRequestContent({
           addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
           content: originalContent,
-          publicKey: "",
+          publicKey: await wallet.fioGetAddress({
+            addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+            showDisplay: false,
+          }),
         });
 
         const data: FioActionParameters.FioNewFundsRequestActionData = {
           payer_fio_address: "test@shapeshift",
           payee_fio_address: "highlander@scatter",
           content: encryptedContent,
-          max_fee: 2,
+          max_fee: 800000000000,
           tpid: "",
-          actor: "",
         };
 
         const res = await wallet.fioSignTx({

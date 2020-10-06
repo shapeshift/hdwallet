@@ -79,7 +79,7 @@ export interface FioWallet extends FioWalletInfo {
 
 export interface FioRequestContent {
   addressNList: BIP32Path;
-  content: FioActionParameters.FioRequestContent;
+  content: FioActionParameters.FioRequestContent | string;
   publicKey: string;
 }
 
