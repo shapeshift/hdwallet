@@ -142,6 +142,56 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
     );
 
     test(
+      "fioSignNewFundsRequestTx()",
+      async () => {
+        if (!wallet) return;
+
+        //TODO import content interface
+        const originalContent: FioActionParameters.FioRequestContent = {
+          payee_public_address: "test@shapeshift",
+          amount: "1",
+          chain_code: "FIO",
+          token_code: "FIO",
+          memo: "memo",
+          hash: "hash",
+          offline_url: "offline_url",
+        };
+
+        const encryptedContent: string = await wallet.fioEncryptRequestContent({
+          addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+          content: originalContent,
+          publicKey: await wallet.fioGetAddress({
+            addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+            showDisplay: false,
+          }),
+        });
+
+        const data: FioActionParameters.FioNewFundsRequestActionData = {
+          payer_fio_address: "test@shapeshift",
+          payee_fio_address: "highlander@scatter",
+          content: encryptedContent,
+          max_fee: 800000000000,
+          tpid: "",
+        };
+
+        const res = await wallet.fioSignTx({
+          addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+          actions: [
+            {
+              account: FioActionParameters.FioNewFundsRequestActionAccount,
+              name: FioActionParameters.FioNewFundsRequestActionName,
+              data,
+            },
+          ],
+        });
+
+        expect(res).toHaveProperty("signature");
+        expect(res).toHaveProperty("serialized");
+      },
+      TIMEOUT
+    );
+
+    test(
       "fioSignRegisterDomainTx()",
       async () => {
         if (!wallet) return;
