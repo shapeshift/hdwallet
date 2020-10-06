@@ -142,7 +142,7 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
     );
 
     test(
-      "fioNewFundsRequestActionData()",
+      "fioSignNewFundsRequestTx()",
       async () => {
         if (!wallet) return;
 
