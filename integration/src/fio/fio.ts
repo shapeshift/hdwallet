@@ -164,8 +164,8 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
         });
 
         const data: FioActionParameters.FioNewFundsRequestActionData = {
-          payer_fio_address: "test@shapeshift",
-          payee_fio_address: "highlander@scatter",
+          payer_fio_address: "highlander@scatter",
+          payee_fio_address: "test@shapeshift",
           content: encryptedContent,
           max_fee: 2,
           tpid: "",

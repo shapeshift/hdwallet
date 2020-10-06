@@ -9,6 +9,7 @@
   "source": "src/index.ts",
   "types": "dist/index.d.ts",
   "scripts": {
+    "test": "ts-node __teasts__/taest-module.ts",
     "build": "tsc --build",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "prepublishOnly": "yarn clean && yarn build"
