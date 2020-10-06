@@ -73,7 +73,7 @@ export interface FioWallet extends FioWalletInfo {
   _supportsFio: boolean;
   fioGetAddress(msg: FioGetAddress): Promise<string>;
   fioSignTx(msg: FioSignTx): Promise<FioSignedTx>;
-  fioDecryptRequestContent(msg: FioRequestContent): Promise<string>;
+  fioDecryptRequestContent(msg: FioRequestContent): Promise<any>;
   fioEncryptRequestContent(msg: FioRequestContent): Promise<string>;
 }
 
