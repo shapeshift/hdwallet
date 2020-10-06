@@ -104,7 +104,7 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
           textEncoder,
           textDecoder,
         });
-        return sharedCipher.encrypt(REQUEST_CONTENT_TYPE, msg.content);
+        return sharedCipher.encrypt(REQUEST_CONTENT_TYPE, JSON.stringify(msg.content));
       });
     }
 
@@ -122,7 +122,7 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
           textEncoder,
           textDecoder,
         });
-        return sharedCipher.decrypt(REQUEST_CONTENT_TYPE, msg.content);
+        return sharedCipher.decrypt(REQUEST_CONTENT_TYPE, JSON.stringify(msg.content));
       });
     }
   };
