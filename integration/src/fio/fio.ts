@@ -223,7 +223,7 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
       async () => {
         if (!wallet) return;
         if (!wallet2) return;
-        const originalContent: any = {
+        const originalContent: FioActionParameters.FioRequestContent = {
           payee_public_address: "purse.alice",
           amount: "1",
           chain_code: "FIO",
