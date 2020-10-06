@@ -147,7 +147,7 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
         if (!wallet) return;
 
         //TODO import content interface
-        const originalContent: any = {
+        const originalContent: FioActionParameters.FioRequestContent = {
           payee_public_address: "test@shapeshift",
           amount: "1",
           chain_code: "FIO",
@@ -157,14 +157,21 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
           offline_url: "offline_url",
         };
 
+        const encryptedContent: string = await wallet.fioEncryptRequestContent({
+          addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+          content: originalContent,
+          publicKey: "",
+        });
+
         const data: FioActionParameters.FioNewFundsRequestActionData = {
           payer_fio_address: "test@shapeshift",
           payee_fio_address: "highlander@scatter",
-          content: originalContent,
+          content: encryptedContent,
           max_fee: 2,
           tpid: "",
           actor: "",
         };
+
         const res = await wallet.fioSignTx({
           addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
           actions: [
