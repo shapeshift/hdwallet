@@ -39,6 +39,10 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
       });
     }, TIMEOUT);
 
+    /*
+      Get FIO Address
+
+     */
     test(
       "fioGetAddress()",
       async () => {
@@ -53,6 +57,10 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
       TIMEOUT
     );
 
+    /*
+      Transfer FIO tokens
+
+     */
     test(
       "fioSignTransferTokenTx()",
       async () => {
@@ -80,6 +88,10 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
       TIMEOUT
     );
 
+    /*
+      Add pubkey to FIO account
+
+     */
     test(
       "fioSignAddPubAddressTx()",
       async () => {
@@ -114,6 +126,10 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
       TIMEOUT
     );
 
+    /*
+      Register FIO address
+
+     */
     test(
       "fioSignRegisterFioAddressTx()",
       async () => {
@@ -142,7 +158,7 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
     );
 
     /*
-      Create payment Request
+      Create payment request
 
      */
     test(
@@ -192,7 +208,7 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
     );
 
     /*
-      Accept payment Request
+      Accept payment request
 
      */
     test(
@@ -241,7 +257,7 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
     );
 
     /*
-      Reject payment Request
+      Reject payment request
 
      */
     test.only(
@@ -272,6 +288,10 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
       TIMEOUT
     );
 
+    /*
+      Register FIO domain
+
+     */
     test(
       "fioSignRegisterDomainTx()",
       async () => {
@@ -299,6 +319,10 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
       TIMEOUT
     );
 
+    /*
+      Encrypt/decrypt request content object
+
+     */
     test(
       "fioEncryptDecryptRequestContent()",
       async () => {
