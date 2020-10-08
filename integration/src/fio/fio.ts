@@ -10,19 +10,6 @@ const MNEMONIC12_NOPIN_NOPASSPHRASE2 = "all all all all all all all all all all 
 
 const TIMEOUT = 60 * 1000;
 
-type FioObtDataContent = {
-  payer_public_address: string;
-  payee_public_address: string;
-  amount: string;
-  chain_code: string;
-  token_code: string;
-  status: string;
-  obt_id: string;
-  memo: string;
-  hash: string;
-  offline_url: string;
-};
-
 export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wallet2: HDWallet }): void {
   let wallet: FioWallet & HDWallet;
   let wallet2: FioWallet & HDWallet;
@@ -207,27 +194,13 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
     /*
       Accept payment Request
 
-      export type FioObtDataContent = {
-          payer_public_address: string;
-          payee_public_address: string;
-          amount: string;
-          chain_code: string;
-          token_code: string;
-          status: string;
-          obt_id: string;
-          memo: string;
-          hash: string;
-          offline_url: string;
-      }
-
-
      */
     test(
       "fioRecordObtDataTx()",
       async () => {
         if (!wallet) return;
 
-        let content: FioObtDataContent = {
+        let content: FioActionParameters.FioObtDataContent = {
           payee_public_address: "test@shapeshift",
           payer_public_address: "highlander@scatter",
           amount: "1",
@@ -245,7 +218,7 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
           payer_fio_address: "highlander@scatter",
           content: content,
           fio_request_id: "17501",
-          max_fee: 2,
+          max_fee: 800000000000,
           tpid: "",
           actor: "",
         };
@@ -271,21 +244,23 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
       Reject payment Request
 
      */
-    test(
+    test.only(
       "fioRejectFundsRequestTx()",
       async () => {
         if (!wallet) return;
 
         const data: FioActionParameters.FioRejectFundsRequestActionData = {
           fio_request_id: "17501",
+          max_fee: 800000000000,
+          tpid: "",
         };
 
         const res = await wallet.fioSignTx({
           addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
           actions: [
             {
-              account: FioActionParameters.FioNewFundsRequestActionAccount,
-              name: FioActionParameters.FioNewFundsRequestActionName,
+              account: FioActionParameters.FioRejectFundsRequestActionAccount,
+              name: FioActionParameters.FioRejectFundsRequestActionName,
               data,
             },
           ],
