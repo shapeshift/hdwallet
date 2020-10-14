@@ -1,4 +1,4 @@
-import { bip32ToAddressNList, HDWallet, FioWallet, supportsFio } from "@shapeshiftoss/hdwallet-core";
+import { bip32ToAddressNList, HDWallet, FioWallet, supportsFio, FioEncryptionContentType } from "@shapeshiftoss/hdwallet-core";
 import { FioActionParameters, PublicAddress } from "fiosdk-offline";
 
 import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
@@ -180,6 +180,7 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
           addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
           content: originalContent,
           publicKey: "FIO6Lxx7BTA8zbgPuqn4QidNNdTCHisXU7RpxJxLwxAka7NV7SoBW",
+          contentType: FioEncryptionContentType.REQUEST
         });
 
         const data: FioActionParameters.FioNewFundsRequestActionData = {
@@ -260,7 +261,7 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
       Reject payment request
 
      */
-    test.only(
+    test(
       "fioRejectFundsRequestTx()",
       async () => {
         if (!wallet) return;
@@ -350,15 +351,60 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
           addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
           content: originalContent,
           publicKey: wallet2Pk,
+          contentType: FioEncryptionContentType.REQUEST
         });
         const decryptedContent = await wallet2.fioDecryptRequestContent({
           addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
           content: encryptedContent,
           publicKey: walletPk,
+          contentType: FioEncryptionContentType.REQUEST
         });
         expect(originalContent).toEqual(decryptedContent);
       },
       TIMEOUT
-    );
+    )
+
+    test(
+      "fioEncryptDecryptObtContent()",
+      async () => {
+        if (!wallet) return;
+        if (!wallet2) return;
+        const originalContent: FioActionParameters.FioObtDataContent = {
+          payee_public_address: "purse.alice",
+          payer_public_address: "purse.bob",
+          amount: "1",
+          chain_code: "FIO",
+          token_code: "FIO",
+          status: "status",
+          obt_id: "0x12345",
+          memo: "memo",
+          hash: "hash",
+          offline_url: "offline_url",
+        };
+        const walletPk = await wallet.fioGetAddress({
+          addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+          showDisplay: false,
+        });
+        const wallet2Pk = await wallet2.fioGetAddress({
+          addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+          showDisplay: false,
+        });
+
+        const encryptedContent = await wallet.fioEncryptRequestContent({
+          addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+          content: originalContent,
+          publicKey: wallet2Pk,
+          contentType: FioEncryptionContentType.OBT
+        });
+        const decryptedContent = await wallet2.fioDecryptRequestContent({
+          addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
+          content: encryptedContent,
+          publicKey: walletPk,
+          contentType: FioEncryptionContentType.OBT
+        });
+        expect(originalContent).toEqual(decryptedContent);
+      },
+      TIMEOUT
+    )
   });
 }

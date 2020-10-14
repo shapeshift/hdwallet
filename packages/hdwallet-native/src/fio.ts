@@ -2,12 +2,9 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as fio from "fiosdk-offline";
 import fetch, { RequestInfo, RequestInit } from "node-fetch";
 import { NativeHDWalletBase } from "./native";
-import { Fio as fiojs, Ecc as fioecc } from "@fioprotocol/fiojs"; // TODO use our forked fioSdk instead of fiojs
+import { Fio as fiojs } from "@fioprotocol/fiojs"; // TODO use our forked fioSdk instead of fiojs
 import { TextDecoder as TextDecoderNode, TextEncoder as TextEncoderNode } from "util";
 import { TextDecoder as TextDecoderWeb, TextEncoder as TextEncoderWeb } from "text-encoding";
-import { Fio } from "@shapeshiftoss/hdwallet-core";
-
-const REQUEST_CONTENT_TYPE = "new_funds_content";
 
 const fetchJson = async (uri: RequestInfo, opts?: RequestInit) => {
   return fetch(uri, opts);
@@ -104,7 +101,7 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
           textEncoder,
           textDecoder,
         });
-        return sharedCipher.encrypt(REQUEST_CONTENT_TYPE, msg.content);
+        return sharedCipher.encrypt(msg.contentType, msg.content);
       });
     }
 
@@ -122,7 +119,7 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
           textEncoder,
           textDecoder,
         });
-        return sharedCipher.decrypt(REQUEST_CONTENT_TYPE, JSON.stringify(msg.content));
+        return sharedCipher.decrypt(msg.contentType, JSON.stringify(msg.content));
       });
     }
   };

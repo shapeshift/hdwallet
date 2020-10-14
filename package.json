@@ -40,7 +40,6 @@
     "lerna-bump-version-major": "lerna publish --no-push --skip-npm --force-publish '*' major --yes"
   },
   "devDependencies": {
-    "husky": "^4.2.5",
     "jest-junit": "^6.4.0",
     "lerna": "^3.22.1",
     "prettier": "^2.0.5",
@@ -53,10 +52,5 @@
   },
   "engines": {
     "node": "^10 || ^12 || ^14"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "pretty-quick --staged"
-    }
   }
 }
