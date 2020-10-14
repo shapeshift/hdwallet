@@ -1,4 +1,10 @@
-import { bip32ToAddressNList, HDWallet, FioWallet, supportsFio } from "@shapeshiftoss/hdwallet-core";
+import {
+  bip32ToAddressNList,
+  HDWallet,
+  FioWallet,
+  supportsFio,
+  FioEncryptionContentType,
+} from "@shapeshiftoss/hdwallet-core";
 import { FioActionParameters, PublicAddress } from "fiosdk-offline";
 
 import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
@@ -180,6 +186,7 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
           addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
           content: originalContent,
           publicKey: "FIO6Lxx7BTA8zbgPuqn4QidNNdTCHisXU7RpxJxLwxAka7NV7SoBW",
+          contentType: FioEncryptionContentType.REQUEST,
         });
 
         const data: FioActionParameters.FioNewFundsRequestActionData = {
@@ -350,11 +357,13 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
           addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
           content: originalContent,
           publicKey: wallet2Pk,
+          contentType: FioEncryptionContentType.REQUEST,
         });
         const decryptedContent = await wallet2.fioDecryptRequestContent({
           addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
           content: encryptedContent,
           publicKey: walletPk,
+          contentType: FioEncryptionContentType.REQUEST,
         });
         expect(originalContent).toEqual(decryptedContent);
       },
