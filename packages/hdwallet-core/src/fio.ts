@@ -77,6 +77,11 @@ export interface FioWallet extends FioWalletInfo {
   fioEncryptRequestContent(msg: FioRequestContent): Promise<string>;
 }
 
+export enum FioEncryptionContentType {
+  REQUEST = "new_funds_content",
+  OBT = "record_obt_data_content",
+}
+
 export interface FioRequestContent {
   addressNList: BIP32Path;
   content: FioActionParameters.FioRequestContent | string;
