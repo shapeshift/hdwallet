@@ -261,7 +261,7 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
       Reject payment request
 
      */
-    test.only(
+    test(
       "fioRejectFundsRequestTx()",
       async () => {
         if (!wallet) return;
@@ -364,7 +364,7 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
       TIMEOUT
     )
 
-    test.only(
+    test(
       "fioEncryptDecryptObtContent()",
       async () => {
         if (!wallet) return;
@@ -394,7 +394,7 @@ export function fioTests(get: () => { wallet: HDWallet; info: HDWalletInfo; wall
           addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
           content: originalContent,
           publicKey: wallet2Pk,
-          contentType: c.OBT
+          contentType: FioEncryptionContentType.OBT
         });
         const decryptedContent = await wallet2.fioDecryptRequestContent({
           addressNList: bip32ToAddressNList("m/44'/235'/0'/0/0"),
