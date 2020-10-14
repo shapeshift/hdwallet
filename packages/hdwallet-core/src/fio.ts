@@ -86,6 +86,7 @@ export interface FioRequestContent {
   addressNList: BIP32Path;
   content: FioActionParameters.FioRequestContent | string;
   publicKey: string;
+  contentType: FioEncryptionContentType;
 }
 
 export function fioDescribePath(path: BIP32Path): PathDescription {
