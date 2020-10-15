@@ -1,4 +1,3 @@
-/// <reference path="../node_modules/@types/w3c-web-usb/index.d.ts" />
 import { SEGMENT_SIZE, KeepKeyTransport } from "@shapeshiftoss/hdwallet-keepkey";
 import { ConflictingApp, FirmwareUpdateRequired, Keyring } from "@shapeshiftoss/hdwallet-core";
 import { randomBytes, createHash } from "crypto";

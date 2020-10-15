@@ -29,20 +29,7 @@
     "resolveJsonModule": true,
     "baseUrl": "./packages",
     "paths": {
-      "@shapeshiftoss/hdwallet-core": ["hdwallet-core/src/*"],
-      "@shapeshiftoss/hdwallet-keepkey": ["hdwallet-keepkey/src/*"],
-      "@shapeshiftoss/hdwallet-keepkey-chromeusb": ["hdwallet-keepkey-chromeusb/src/*"],
-      "@shapeshiftoss/hdwallet-keepkey-nodehid": ["hdwallet-keepkey-nodehid/src/*"],
-      "@shapeshiftoss/hdwallet-keepkey-nodewebusb": ["hdwallet-keepkey-nodewebusb/src/*"],
-      "@shapeshiftoss/hdwallet-keepkey-tcp": ["hdwallet-keepkey-tcp/src/*"],
-      "@shapeshiftoss/hdwallet-keepkey-webusb": ["hdwallet-keepkey-webusb/src/*"],
-      "@shapeshiftoss/hdwallet-ledger": ["hdwallet-ledger/src/*"],
-      "@shapeshiftoss/hdwallet-ledger-u2f": ["hdwallet-ledger-u2f/src/*"],
-      "@shapeshiftoss/hdwallet-ledger-webusb": ["hdwallet-ledger-webusb/src/*"],
-      "@shapeshiftoss/hdwallet-native": ["hdwallet-native/src/*"],
-      "@shapeshiftoss/hdwallet-portis": ["hdwallet-portis/src/*"],
-      "@shapeshiftoss/hdwallet-trezor": ["hdwallet-trezor/src/*"],
-      "@shapeshiftoss/hdwallet-trezor-connect": ["hdwallet-trezor-connect/src/*"]
+      "@shapeshiftoss/*": ["$1/src/*"]
     },
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
@@ -54,6 +41,7 @@
   "files": [],
   "exclude": ["node_modules", "dist", "integration", "examples"],
   "references": [
+    { "path": "./integration" },
     { "path": "./packages/hdwallet-core" },
     { "path": "./packages/hdwallet-keepkey" },
     { "path": "./packages/hdwallet-keepkey-chromeusb" },

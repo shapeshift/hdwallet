@@ -20,8 +20,6 @@
     "eventemitter2": "^5.0.1"
   },
   "devDependencies": {
-    "@types/bytebuffer": "^5.0.40",
-    "@types/chrome": "^0.0.81",
-    "@types/w3c-web-usb": "^1.0.1"
+    "@types/chrome": "^0.0.81"
   }
 }

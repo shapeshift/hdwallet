@@ -23,9 +23,5 @@
     "@shapeshiftoss/hdwallet-ledger": "^1.4.8",
     "bytebuffer": "^5.0.1",
     "eventemitter2": "^5.0.1"
-  },
-  "devDependencies": {
-    "@types/bytebuffer": "^5.0.40",
-    "@types/w3c-web-usb": "^1.0.1"
   }
 }
