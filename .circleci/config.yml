@@ -33,7 +33,10 @@ orbs:
               command: yarn build
           - run:
               name: Run unit tests
-              command: yarn test:ci
+              command: yarn test --runInBand --coverage=false
+          - run:
+              name: Run integration tests
+              command: yarn test:integration --runInBand
           - store_test_results:
               path: test-results
           - persist_to_workspace:

@@ -1,5 +1,5 @@
 module.exports = {
-  // collectCoverage: true,
+  collectCoverage: false,
   // collectCoverageFrom: ["<rootDir>/**/*.ts", "!<rootDir>/**/*.test.ts"],
   preset: "ts-jest",
   // reporters: ["default", "jest-junit"],
