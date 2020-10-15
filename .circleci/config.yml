@@ -5,12 +5,17 @@ orbs:
     executors:
       node:
         docker:
-          - image: circleci/node:10.16.3
+          - image: circleci/node:12
+      kkemu:
+        docker:
+          - image: circleci/node:12
           - image: kktech/kkemu:latest
     jobs:
-      dependencies:
+      build:
         description: Get deps and persist to workspace
-        executor: node
+        executor: kkemu
+        environment:
+          JEST_JUNIT_OUTPUT: "test-results/js-test-results.xml"
         steps:
           - run: sudo apt-get install libudev-dev libusb-dev libusb-1.0
           - checkout
@@ -22,6 +27,15 @@ orbs:
               keys:
                 - cache-v4-{{ checksum "yarn.lock" }}
           - run: yarn --frozen-lockfile --cache-folder ./.yarn-cache
+          - run:
+              no_output_timeout: 30m
+              name: Build packages
+              command: yarn build
+          - run:
+              name: Run unit tests
+              command: yarn test:ci
+          - store_test_results:
+              path: test-results
           - persist_to_workspace:
               root: .
               paths:
@@ -36,64 +50,6 @@ orbs:
           - run:
               name: Ensure repo is clean from uncommitted changes, likely yarn.lock is out of date
               command: git diff --quiet || exit 1
-      build:
-        description: Build all modules
-        executor: node
-        steps:
-          - checkout
-          - attach_workspace:
-              at: .
-          - restore_cache:
-              keys:
-                - cache-v4-{{ checksum "yarn.lock" }}
-          - run: yarn --cache-folder .yarn-cache
-          - run:
-              no_output_timeout: 30m
-              name: Build packages
-              command: yarn build
-          - persist_to_workspace:
-              root: .
-              paths:
-                - packages/*/dist
-          - save_cache:
-              key: cache-v4-{{ checksum "yarn.lock" }}
-              paths:
-                - "packages/hdwallet-core/.rts2_cache_cjs"
-                - "packages/hdwallet-core/.rts2_cache_es"
-                - "packages/hdwallet-core/.rts2_cache_umd"
-                - "packages/hdwallet-keepkey/.rts2_cache_cjs"
-                - "packages/hdwallet-keepkey/.rts2_cache_es"
-                - "packages/hdwallet-keepkey/.rts2_cache_umd"
-                - "packages/hdwallet-trezor/.rts2_cache_cjs"
-                - "packages/hdwallet-trezor/.rts2_cache_es"
-                - "packages/hdwallet-trezor/.rts2_cache_umd"
-                - "packages/hdwallet-keepkey-chromeusb/.rts2_cache_cjs"
-                - "packages/hdwallet-keepkey-chromeusb/.rts2_cache_es"
-                - "packages/hdwallet-keepkey-chromeusb/.rts2_cache_umd"
-                - "packages/hdwallet-keepkey-nodehid/.rts2_cache_cjs"
-                - "packages/hdwallet-keepkey-nodehid/.rts2_cache_es"
-                - "packages/hdwallet-keepkey-nodehid/.rts2_cache_umd"
-                - "packages/hdwallet-keepkey-webusb/.rts2_cache_cjs"
-                - "packages/hdwallet-keepkey-webusb/.rts2_cache_es"
-                - "packages/hdwallet-keepkey-webusb/.rts2_cache_umd"
-      test:
-        description: Run tests
-        executor: node
-        environment:
-          JEST_JUNIT_OUTPUT: "test-results/js-test-results.xml"
-        steps:
-          - checkout
-          - attach_workspace:
-              at: .
-          - restore_cache:
-              keys:
-                - cache-v4-{{ checksum "yarn.lock" }}
-          - run: yarn --cache-folder .yarn-cache
-          - run:
-              name: Run tests
-              command: yarn run test:ci
-          - store_test_results:
-              path: test-results
       release-packages:
         description: Build and release local dependency packages
         executor: node
@@ -108,21 +64,11 @@ workflows:
   version: 2
   Build and Release:
     jobs:
-      - hdwallet/dependencies:
-          name: dependencies
       - hdwallet/build:
           name: build
-          requires:
-            - dependencies
-      - hdwallet/test:
-          name: test
-          requires:
-            - dependencies
-            - build
       - hdwallet/release-packages:
           name: release-packages
           requires:
-            - test
             - build
           filters:
             branches:
