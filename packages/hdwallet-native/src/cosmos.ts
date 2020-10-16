@@ -4,7 +4,6 @@ import txBuilder from "cosmos-tx-builder";
 import * as bitcoin from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
 import { getNetwork } from "./networks";
-import { mnemonicToSeed } from "bip39";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
 import util from "./util";
@@ -47,9 +46,9 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
 
     #wallet: BIP32Interface;
 
-    async cosmosInitializeWallet(mnemonic: string): Promise<void> {
+    async cosmosInitializeWallet(seed: Buffer): Promise<void> {
       const network = getNetwork("cosmos");
-      this.#wallet = bitcoin.bip32.fromSeed(await mnemonicToSeed(mnemonic), network);
+      this.#wallet = bitcoin.bip32.fromSeed(seed, network);
     }
 
     cosmosWipe(): void {

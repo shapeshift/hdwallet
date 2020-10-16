@@ -196,11 +196,15 @@ export class NativeHDWallet
   async initialize(): Promise<boolean> {
     return this.needsMnemonic(!!this.#mnemonic, async () => {
       try {
-        await super.btcInitializeWallet(this.#mnemonic);
-        await super.ethInitializeWallet(this.#mnemonic);
-        await super.cosmosInitializeWallet(this.#mnemonic);
-        await super.binanceInitializeWallet(this.#mnemonic);
-        await super.fioInitializeWallet(this.#mnemonic);
+        const seed = await mnemonicToSeed(this.#mnemonic);
+
+        await Promise.all([
+          super.btcInitializeWallet(seed),
+          super.ethInitializeWallet(seed),
+          super.cosmosInitializeWallet(seed),
+          super.binanceInitializeWallet(seed),
+          super.fioInitializeWallet(seed),
+        ]);
 
         this.#initialized = true;
       } catch (e) {
