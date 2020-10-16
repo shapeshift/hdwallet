@@ -11,7 +11,6 @@ export class EncryptedWallet {
   #encryptedWallet: string;
   #key: SymmetricCryptoKey;
   #password: string;
-  #passwordHash: string;
 
   constructor(engine: CryptoEngine) {
     if (!engine) {
@@ -22,7 +21,7 @@ export class EncryptedWallet {
   }
 
   get isInitialized() {
-    return Boolean(this.#email && this.#password && this.#passwordHash && this.#key);
+    return Boolean(this.#email && this.#password && this.#key);
   }
 
   get email() {
@@ -30,7 +29,7 @@ export class EncryptedWallet {
   }
 
   get passwordHash() {
-    return this.#passwordHash;
+    return this.#key?.hashKeyB64;
   }
 
   get encryptedWallet() {
@@ -57,7 +56,6 @@ export class EncryptedWallet {
     this.#email = email.normalize("NFKC").trim().toLowerCase();
     this.#password = password.normalize("NFKC");
     this.#key = await this.#helper.makeKey(this.#password, this.#email);
-    this.#passwordHash = await this.#helper.hashPassword(this.#password, this.#key);
 
     if (encryptedWallet) {
       this.encryptedWallet = encryptedWallet;
@@ -74,16 +72,14 @@ export class EncryptedWallet {
       throw new Error("Invalid mnemonic");
     }
 
-    const stretchedKey = await this.#helper.stretchKey(this.#key);
-    const encrypted = new CipherString(await this.#helper.aesEncrypt(utils.toArrayBuffer(mnemonic), stretchedKey));
-    this.#encryptedWallet = encrypted.encryptedString;
+    this.#encryptedWallet = (await this.#helper.aesEncrypt(utils.toArrayBuffer(mnemonic), this.#key)).toString();
 
     return this;
   }
 
   async decrypt(encryptedWallet = this.#encryptedWallet): Promise<string> {
     if (!this.isInitialized) throw new Error("Wallet is not initialized");
-    return this.#helper.decryptWallet(new CipherString(encryptedWallet), this.#key);
+    return this.#helper.decrypt(new CipherString(encryptedWallet), this.#key);
   }
 
   reset() {
@@ -91,6 +87,5 @@ export class EncryptedWallet {
     this.#encryptedWallet = undefined;
     this.#key = undefined;
     this.#password = undefined;
-    this.#passwordHash = undefined;
   }
 }

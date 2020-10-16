@@ -1,12 +1,12 @@
 /*
  Copied from portis: packages/portis-crypto/src/models/cipherString.ts
  */
-import * as utils from "../utils";
+import { fromBufferToB64 } from "../utils";
 import { EncryptedObject } from "./encryptedObject";
 import { EncryptionType } from "./encryptionType";
 
 export class CipherString {
-  encryptionType: EncryptionType;
+  readonly encryptionType: EncryptionType = EncryptionType.AesCbc256_HmacSha256_B64;
   data: string;
   iv: string;
   mac?: string;
@@ -23,9 +23,9 @@ export class CipherString {
     } else if (cipher instanceof EncryptedObject) {
       try {
         this.encryptionType = cipher.key.encType;
-        this.iv = utils.fromBufferToB64(cipher.iv);
-        this.data = utils.fromBufferToB64(cipher.data);
-        if (cipher.mac) this.mac = utils.fromBufferToB64(cipher.mac);
+        this.iv = fromBufferToB64(cipher.iv);
+        this.data = fromBufferToB64(cipher.data);
+        if (cipher.mac) this.mac = fromBufferToB64(cipher.mac);
       } catch (e) {
         throw new Error("Invalid encryption object");
       }
@@ -33,21 +33,12 @@ export class CipherString {
       throw new Error("Invalid cipher data. You must provide a string or Encrypted Object");
     }
 
-    switch (this.encryptionType) {
-      case EncryptionType.AesCbc128_HmacSha256_B64:
-      case EncryptionType.AesCbc256_HmacSha256_B64:
-        if (!this.mac) throw new Error("MAC required for encryption type.");
-        break;
-      case EncryptionType.AesCbc256_B64:
-        if (!this.iv) throw new Error("IV required for encryption type.");
-        break;
-      case EncryptionType.Rsa2048_OaepSha256_B64:
-      case EncryptionType.Rsa2048_OaepSha1_B64:
-        if (!this.data) throw new Error("Data required for encryption type");
-        break;
-      default:
-        return;
+    if (!EncryptionType[this.encryptionType]) {
+      throw new Error("Unsupported encryption method");
     }
+    if (!this.data) throw new Error("Encrypted data is missing");
+    if (!this.iv) throw new Error("IV is missing");
+    if (!this.mac) throw new Error("HMAC signature is missing");
   }
 
   get encryptedString() {

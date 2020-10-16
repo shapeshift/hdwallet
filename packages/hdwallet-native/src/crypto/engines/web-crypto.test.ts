@@ -6,9 +6,9 @@ import { fromB64ToArray, fromBufferToUtf8, fromBufferToB64, toArrayBuffer, fromU
 import WebCryptoEngine from "./web-crypto";
 import { Crypto } from "@peculiar/webcrypto";
 
-describe("WenCryptoEngine JavaScript", () => {
+describe("WebCryptoEngine JavaScript", () => {
   // Load shim to support running tests in node
-  global.crypto = new Crypto();
+  globalThis.crypto = new Crypto();
 
   const engine = new WebCryptoEngine();
   const helper = new CryptoHelper(engine);
@@ -35,57 +35,47 @@ describe("WenCryptoEngine JavaScript", () => {
     expect(fromBufferToUtf8(decrypted)).toEqual("test encrypted data");
   });
 
-  it("should generate a key from a password and email that matches mobile", async () => {
+  it("should generate a key from a password and email", async () => {
     const key = await helper.makeKey("password", "email");
-    expect(key.encKeyB64).toEqual("Dh3RT7Uq4C5YVpsXBjCFnQZRnYiYEydLQPBgBLJ5MS8=");
+    expect(key.encKeyB64).toEqual("Ohkd7bfLczTp+zRe74f0raBkF3deLRWS4MvnIsYG7xQ=");
   });
 
   it("should generate a different key from a different password", async () => {
     const key = await helper.makeKey("password2", "email");
-    expect(key.encKeyB64).not.toEqual("Dh3RT7Uq4C5YVpsXBjCFnQZRnYiYEydLQPBgBLJ5MS8=");
+    expect(key.encKeyB64).not.toEqual("Ohkd7bfLczTp+zRe74f0raBkF3deLRWS4MvnIsYG7xQ=");
   });
 
-  it("should generate a password hash from an encryption key and password that matches mobile", async () => {
+  it("should generate a different key from a different email", async () => {
+    const key = await helper.makeKey("password", "email2");
+    expect(key.encKeyB64).not.toEqual("Ohkd7bfLczTp+zRe74f0raBkF3deLRWS4MvnIsYG7xQ=");
+  });
+
+  it("should generate a password hash from an encryption key and password", async () => {
     const key = await helper.makeKey("password", "email");
-    const hash = await helper.pbkdf2(key.key, "password", 1);
-    expect(fromBufferToB64(hash)).toEqual("W/7DR3sIqcb8lnLXD/ToTS+imBVMTyPR7JMend9hxrM=");
+    expect(key.hashKeyB64).toEqual("W/7DR3sIqcb8lnLXD/ToTS+imBVMTyPR7JMend9hxrM=");
   });
 
   it("should generate a different password hash from an encryption key and password", async () => {
     const key = await helper.makeKey("password2", "email");
-    const hash = await helper.pbkdf2(key.key, "password2", 1);
+    const hash = await helper.pbkdf2(key.hashKey, "password2", 1);
     expect(fromBufferToB64(hash)).not.toEqual("W/7DR3sIqcb8lnLXD/ToTS+imBVMTyPR7JMend9hxrM=");
-  });
-
-  it("should generate a stretched key from the private key that matches mobile", async () => {
-    const key = await helper.makeKey("password", "email");
-    const stretched = await helper.stretchKey(key);
-
-    expect(stretched).toMatchObject({
-      encKeyB64: "Ohkd7bfLczTp+zRe74f0raBkF3deLRWS4MvnIsYG7xQ=",
-      encType: 2,
-      keyB64: "Ohkd7bfLczTp+zRe74f0raBkF3deLRWS4MvnIsYG7xSisttHbNlnITu7dsitOKWy1L6ROQfr2tYZURsNXJcPbw==",
-      macKeyB64: "orLbR2zZZyE7u3bIrTilstS+kTkH69rWGVEbDVyXD28=",
-    });
   });
 
   it("should encrypt a wallet with a password and email", async () => {
     const key = await helper.makeKey("password", "email");
-    const stretched = await helper.stretchKey(key);
 
     const mnemonic = fromUtf8ToArray("all all all all all all all all all all all all");
     const iv = fromB64ToArray("rnvfQhmCO27xxEk33ayinw==");
-    const encrypted = await engine.encrypt(mnemonic, stretched.encKey, iv);
+    const encrypted = await engine.encrypt(mnemonic, key.encKey, iv);
 
     expect(fromBufferToB64(encrypted)).toEqual("FC2M6J3aqlavEne0Sl72Xyh3XB2RzxmNpy/zKNqu1ys+3Xe7pxyRQd+GRsLcf/Rf");
   });
 
   it("should decrypt a wallet with a password and email", async () => {
     const key = await helper.makeKey("password", "email");
-    const stretched = await helper.stretchKey(key);
     const encryptedData = fromB64ToArray("FC2M6J3aqlavEne0Sl72Xyh3XB2RzxmNpy/zKNqu1ys+3Xe7pxyRQd+GRsLcf/Rf");
     const iv = fromB64ToArray("rnvfQhmCO27xxEk33ayinw==");
-    const decrypted = await engine.decrypt(encryptedData, stretched.encKey, iv);
+    const decrypted = await engine.decrypt(encryptedData, key.encKey, iv);
 
     expect(fromBufferToUtf8(decrypted)).toEqual("all all all all all all all all all all all all");
   });
@@ -125,7 +115,7 @@ that initializes the wallet:
 
 The result of that code was:
 
-key
+unstretched key
     {"encKey": {"data": [Array], "type": "Buffer"}, "encKeyB64": "Dh3RT7Uq4C5YVpsXBjCFnQZRnYiYEydLQPBgBLJ5MS8=", "encType": 0, "key": {"data": [Array], "type": "Buffer"}, "keyB64": "Dh3RT7Uq4C5YVpsXBjCFnQZRnYiYEydLQPBgBLJ5MS8=", "macKey": null, "macKeyB64": null}
 
 passwordHash

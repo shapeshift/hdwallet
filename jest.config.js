@@ -1,8 +1,9 @@
 module.exports = {
   collectCoverage: true,
   collectCoverageFrom: ["<rootDir>/**/*.ts", "!<rootDir>/**/*.test.ts"],
+  coverageDirectory: "<rootDir>/../coverage",
   preset: "ts-jest",
-  // reporters: ["default", "jest-junit"],
+  reporters: ["default", "jest-junit"],
   rootDir: "packages",
   testEnvironment: "node",
   testMatch: ["<rootDir>/**/*.test.ts"],

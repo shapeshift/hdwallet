@@ -1,5 +1,5 @@
 import { entropyToMnemonic } from "bip39";
-import { CipherString, EncryptedObject, EncryptionType, SymmetricCryptoKey } from "./classes";
+import { CipherString, EncryptedObject, SymmetricCryptoKey } from "./classes";
 import { CryptoEngine } from "./engines";
 import * as utils from "./utils";
 
@@ -58,48 +58,23 @@ export default class CryptoHelper {
   }
 
   async aesDecrypt(
-    encType: EncryptionType,
     data: ArrayBuffer,
     iv: ArrayBuffer,
     mac: ArrayBuffer,
     key: SymmetricCryptoKey
   ): Promise<ArrayBuffer> {
-    if (key.macKey != null && mac == null) {
-      console.warn("mac required.");
-      return null;
-    }
+    if (data == null) throw new Error("Required parameter [data] was not provided");
+    if (iv == null) throw new Error("Required parameter [iv] was not provided");
+    if (mac == null) throw new Error("Required parameter [mac] was not provided");
+    if (key == null || key.hashKey == null) throw new Error("Required parameter [key] was not provided");
 
-    if (key.encType !== encType) {
-      console.warn("encType required.");
-      return null;
-    }
+    const macData = new Uint8Array(iv.byteLength + data.byteLength);
+    macData.set(new Uint8Array(iv), 0);
+    macData.set(new Uint8Array(data), iv.byteLength);
+    const computedMac = await this.#engine.hmac(macData.buffer, key.macKey);
+    const macsMatch = await this.compare(mac, computedMac);
 
-    if (key.macKey != null && mac != null) {
-      const macData = new Uint8Array(iv.byteLength + data.byteLength);
-
-      macData.set(new Uint8Array(iv), 0);
-      macData.set(new Uint8Array(data), iv.byteLength);
-
-      const computedMac = await this.#engine.hmac(macData.buffer, key.macKey);
-
-      if (computedMac === null) {
-        return null;
-      }
-
-      const macsMatch = await this.compare(mac, computedMac);
-
-      if (!macsMatch) {
-        console.warn("mac failed.", {
-          encType,
-          macData: Buffer.from(macData).toString("base64"),
-          iv,
-          key,
-          mac: Buffer.from(mac).toString("hex"),
-          computedMac: Buffer.from(computedMac).toString("hex"),
-        });
-        return null;
-      }
-    }
+    if (!macsMatch) throw new Error("HMAC signature is not valid or data has been tampered with");
 
     return this.#engine.decrypt(data, key.encKey, iv);
   }
@@ -127,35 +102,11 @@ export default class CryptoHelper {
     return okm;
   }
 
-  async stretchKey(key: SymmetricCryptoKey): Promise<SymmetricCryptoKey> {
-    if (key.key.byteLength === 32) {
-      const newKey = new Uint8Array(64);
-
-      newKey.set(await this.hkdfExpand(key.key, utils.fromUtf8ToArray("enc"), 32));
-      newKey.set(await this.hkdfExpand(key.key, utils.fromUtf8ToArray("mac"), 32), 32);
-
-      return new SymmetricCryptoKey(newKey.buffer);
-    } else if (key.key.byteLength === 64) {
-      return key;
-    } else {
-      throw new Error("Invalid key size.");
-    }
-  }
-
   async pbkdf2(password: string | ArrayBuffer, salt: string | ArrayBuffer, iterations: number): Promise<ArrayBuffer> {
     password = utils.toArrayBuffer(password);
     salt = utils.toArrayBuffer(salt);
 
     return this.#engine.pbkdf2(password, salt, { iterations, keyLen: 32 });
-  }
-
-  async hashPassword(password: string, key: SymmetricCryptoKey): Promise<string> {
-    if (!password || !key) {
-      throw new Error("A password and symmetric crypto key are required to hash the password.");
-    }
-
-    const digest = await this.pbkdf2(key.key, password, 1);
-    return Buffer.from(digest).toString("base64");
   }
 
   async makeKey(password: string, email: string): Promise<SymmetricCryptoKey> {
@@ -170,29 +121,23 @@ export default class CryptoHelper {
       parallelism: 1,
       keyLength: 32,
     });
+    const hashKey = await this.pbkdf2(key, password, 1);
+    const stretchedKey = await this.hkdfExpand(key, utils.fromUtf8ToArray("enc"), 32);
+    const macKey = await this.hkdfExpand(key, utils.fromUtf8ToArray("mac"), 32);
 
-    return new SymmetricCryptoKey(key);
+    return new SymmetricCryptoKey(hashKey, stretchedKey, macKey);
   }
 
-  async decryptToUtf8(cipherString: CipherString, key: SymmetricCryptoKey): Promise<string> {
+  async decrypt(cipherString: CipherString, key: SymmetricCryptoKey): Promise<string> {
     const data = utils.fromB64ToArray(cipherString.data);
     const iv = utils.fromB64ToArray(cipherString.iv);
-    const mac = cipherString.mac ? utils.fromB64ToArray(cipherString.mac) : null;
-    const decipher = await this.aesDecrypt(cipherString.encryptionType, data, iv, mac, key);
-
-    if (decipher == null) {
-      return null;
-    }
+    const mac = utils.fromB64ToArray(cipherString.mac);
+    const decipher = await this.aesDecrypt(data, iv, mac, key);
 
     return utils.fromBufferToUtf8(decipher);
   }
 
-  async decryptWallet(cipherString: CipherString, key: SymmetricCryptoKey): Promise<string> {
-    return this.decryptToUtf8(cipherString, await this.stretchKey(key));
-  }
-
-  // bip39.generateMnemonic rng callback function signature didn't match RNSimpleCrypto
-  // use bip39.entropyToMenmonic to generate mnemonic instead so we can utilize randomBytes
+  // use entropyToMnemonic to generate mnemonic so we can utilize provided randomBytes function
   async generateMnemonic(strength: number = 128): Promise<string> {
     const entropy = await this.#engine.randomBytes(strength / 8);
     return entropyToMnemonic(Buffer.from(entropy));

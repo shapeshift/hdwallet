@@ -16,7 +16,7 @@ const ENCRYPTED_MNEMONIC2 =
 
 describe("EncryptedWallet", () => {
   // Load shim to support running tests in node
-  global.crypto = new Crypto();
+  globalThis.crypto = new Crypto();
   const engine = new WebCryptoEngine();
 
   describe("constructor", () => {

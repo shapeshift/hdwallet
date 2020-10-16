@@ -21,16 +21,21 @@ describe("CipherString", () => {
   });
 
   it("should accept an EncryptedObject", () => {
+    const buffer32 = new Uint8Array(32).fill(0);
+    const buffer16 = new Uint8Array(16).fill(0);
     const encrypted = new EncryptedObject();
-    encrypted.data = new Uint8Array(32).fill(0);
-    encrypted.iv = new Uint8Array(16).fill(0);
-    encrypted.key = new SymmetricCryptoKey(new Uint8Array(32).fill(0), EncryptionType.AesCbc256_B64);
+    encrypted.data = buffer32;
+    encrypted.iv = buffer16;
+    encrypted.mac = buffer32;
+    encrypted.key = new SymmetricCryptoKey(buffer32, buffer32, buffer32);
     const string = new CipherString(encrypted);
 
-    expect(string.encryptionType).toEqual(EncryptionType.AesCbc256_B64);
+    expect(string.encryptionType).toEqual(EncryptionType.AesCbc256_HmacSha256_B64);
     expect(string.data).toEqual("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
     expect(string.iv).toEqual("AAAAAAAAAAAAAAAAAAAAAA==");
-    expect(string.mac).toBeUndefined();
-    expect(string.encryptedString).toEqual("0.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=|AAAAAAAAAAAAAAAAAAAAAA==|");
+    expect(string.mac).toEqual("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
+    expect(string.encryptedString).toEqual(
+      "2.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=|AAAAAAAAAAAAAAAAAAAAAA==|AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+    );
   });
 });
