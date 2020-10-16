@@ -4,7 +4,6 @@ import BncClient from "bnb-javascript-sdk-nobroadcast";
 import * as bitcoin from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
 import { getNetwork } from "./networks";
-import { mnemonicToSeed } from "bip39";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
 import util from "./util";
@@ -46,9 +45,9 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
 
     #wallet: BIP32Interface;
 
-    async binanceInitializeWallet(mnemonic: string): Promise<void> {
+    async binanceInitializeWallet(seed: Buffer): Promise<void> {
       const network = getNetwork("cosmos");
-      this.#wallet = bitcoin.bip32.fromSeed(await mnemonicToSeed(mnemonic), network);
+      this.#wallet = bitcoin.bip32.fromSeed(seed, network);
     }
 
     binanceWipe(): void {

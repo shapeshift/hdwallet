@@ -1,4 +1,3 @@
-import { mnemonicToSeed } from "bip39";
 import { ECPairInterface } from "bitcoinjs-lib";
 import * as bitcoin from "bitcoinjs-lib";
 import { toCashAddress, toLegacyAddress } from "bchaddrjs";
@@ -136,8 +135,8 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
 
     #wallet: Buffer;
 
-    async btcInitializeWallet(mnemonic: string): Promise<void> {
-      this.#wallet = await mnemonicToSeed(mnemonic);
+    async btcInitializeWallet(seed: Buffer): Promise<void> {
+      this.#wallet = seed;
     }
 
     btcWipe(): void {
