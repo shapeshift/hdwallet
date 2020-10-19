@@ -3,7 +3,7 @@
  */
 import CryptoHelper from "./CryptoHelper";
 import WebCryptoEngine from "./engines/web-crypto";
-import { toArrayBuffer } from "./utils";
+import { fromBufferToUtf8, toArrayBuffer } from "./utils";
 import { Crypto } from "@peculiar/webcrypto";
 
 describe("CryptoHelpers", () => {
@@ -32,9 +32,76 @@ describe("CryptoHelpers", () => {
       expect(encrypted.mac.byteLength).toBe(32);
       expect(encrypted.data.byteLength).toBe(32);
     });
+
+    it.each([[undefined], [null], ["encrypteddatastring"], [[1, 2, 3, 4, 5, 6]], [{}]])(
+      "should throw an error if data is not an ArrayBuffer (%o)",
+      async (param) => {
+        // @ts-ignore
+        await expect(helper.aesEncrypt(param)).rejects.toThrow("is not an ArrayBuffer");
+      }
+    );
+
+    it.each([[undefined], [null], ["encrypteddatastring"], [[1, 2, 3, 4, 5, 6]], [{}]])(
+      "should throw an error if key is not a SymmetricCryptoKey (%o)",
+      async (param) => {
+        // @ts-ignore
+        await expect(helper.aesEncrypt(new Uint8Array(32), param)).rejects.toThrow("is not a SymmetricCryptoKey");
+      }
+    );
   });
 
-  describe("aesDecrypt", () => {});
+  describe("aesDecrypt", () => {
+    it("should decrypt data with an hmac signature", async () => {
+      const key = await helper.makeKey("password", "email");
+      const encrypted = await helper.aesEncrypt(toArrayBuffer("totally random secret data"), key);
+      const decrypted = await helper.aesDecrypt(encrypted.data, encrypted.iv, encrypted.mac, encrypted.key);
+      expect(fromBufferToUtf8(decrypted)).toEqual("totally random secret data");
+    });
+
+    it("should should fail if the mac is incorrect", async () => {
+      const key = await helper.makeKey("password", "email");
+      const encrypted = await helper.aesEncrypt(toArrayBuffer("totally random secret data"), key);
+      const mac = new Uint8Array(encrypted.mac.byteLength).fill(128);
+      await expect(helper.aesDecrypt(encrypted.data, encrypted.iv, mac, encrypted.key)).rejects.toThrow(
+        "HMAC signature is not valid"
+      );
+    });
+
+    it.each([[undefined], [null], ["encrypteddatastring"], [[1, 2, 3, 4, 5, 6]], [{}]])(
+      "should throw an error if data is not an ArrayBuffer (%o)",
+      async (param) => {
+        // @ts-ignore
+        await expect(helper.aesDecrypt(param)).rejects.toThrow("is not an ArrayBuffer");
+      }
+    );
+
+    it.each([[undefined], [null], ["encrypteddatastring"], [[1, 2, 3, 4, 5, 6]], [{}]])(
+      "should throw an error if iv is not an ArrayBuffer (%o)",
+      async (param) => {
+        const array = new Uint8Array(32).fill(0);
+        // @ts-ignore
+        await expect(helper.aesDecrypt(array, param)).rejects.toThrow("is not an ArrayBuffer");
+      }
+    );
+
+    it.each([[undefined], [null], ["encrypteddatastring"], [[1, 2, 3, 4, 5, 6]], [{}]])(
+      "should throw an error if mac is not an ArrayBuffer (%o)",
+      async (param) => {
+        const array = new Uint8Array(32).fill(0);
+        // @ts-ignore
+        await expect(helper.aesDecrypt(array, array, param)).rejects.toThrow("is not an ArrayBuffer");
+      }
+    );
+
+    it.each([[undefined], [null], ["encrypteddatastring"], [[1, 2, 3, 4, 5, 6]], [{}]])(
+      "should throw an error if key is not a SymmetricCryptoKey (%o)",
+      async (param) => {
+        const array = new Uint8Array(32).fill(0);
+        // @ts-ignore
+        await expect(helper.aesDecrypt(array, array, array, param)).rejects.toThrow("is not a SymmetricCryptoKey");
+      }
+    );
+  });
 
   describe("compare", () => {
     it("should return false if arrays are different sizes", async () => {
@@ -46,6 +113,21 @@ describe("CryptoHelpers", () => {
       const mac2 = new Uint8Array(16).fill(0);
       mac2.set([1], 15);
       await expect(helper.compare(mac1, mac2)).resolves.toBe(false);
+    });
+  });
+
+  describe("makeKey", () => {
+    it.each([[undefined], [null], [""], [[1, 2, 3, 4, 5, 6]], [{}]])(
+      "should require a password (%o)",
+      async (param) => {
+        // @ts-ignore
+        await expect(helper.makeKey(param)).rejects.toThrow("password");
+      }
+    );
+
+    it.each([[undefined], [null], [""], [[1, 2, 3, 4, 5, 6]], [{}]])("should require an email (%o)", async (param) => {
+      // @ts-ignore
+      await expect(helper.makeKey("mypassword", param)).rejects.toThrow("email");
     });
   });
 });

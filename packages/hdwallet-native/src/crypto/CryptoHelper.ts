@@ -38,6 +38,10 @@ export default class CryptoHelper {
   }
 
   async aesEncrypt(data: ArrayBuffer, key: SymmetricCryptoKey): Promise<EncryptedObject> {
+    if (data == null || !data?.byteLength)
+      throw new Error("Required parameter [data] was not provided or is not an ArrayBuffer");
+    if (key == null || key.encKey == null || key.macKey == null)
+      throw new Error("Required parameter [key] was not provided or is not a SymmetricCryptoKey");
     const iv = await this.#engine.randomBytes(16);
 
     const obj = new EncryptedObject();
@@ -45,14 +49,10 @@ export default class CryptoHelper {
     obj.iv = iv;
     obj.data = await this.#engine.encrypt(data, key.encKey, iv);
 
-    if (key.macKey != null) {
-      const macData = new Uint8Array(obj.iv.byteLength + obj.data.byteLength);
-
-      macData.set(new Uint8Array(obj.iv), 0);
-      macData.set(new Uint8Array(obj.data), obj.iv.byteLength);
-
-      obj.mac = await this.#engine.hmac(macData.buffer, obj.key.macKey);
-    }
+    const macData = new Uint8Array(obj.iv.byteLength + obj.data.byteLength);
+    macData.set(new Uint8Array(obj.iv), 0);
+    macData.set(new Uint8Array(obj.data), obj.iv.byteLength);
+    obj.mac = await this.#engine.hmac(macData.buffer, obj.key.macKey);
 
     return obj;
   }
@@ -63,10 +63,14 @@ export default class CryptoHelper {
     mac: ArrayBuffer,
     key: SymmetricCryptoKey
   ): Promise<ArrayBuffer> {
-    if (data == null) throw new Error("Required parameter [data] was not provided");
-    if (iv == null) throw new Error("Required parameter [iv] was not provided");
-    if (mac == null) throw new Error("Required parameter [mac] was not provided");
-    if (key == null || key.hashKey == null) throw new Error("Required parameter [key] was not provided");
+    if (data == null || !data?.byteLength)
+      throw new Error("Required parameter [data] was not provided or is not an ArrayBuffer");
+    if (iv == null || !iv?.byteLength)
+      throw new Error("Required parameter [iv] was not provided or is not an ArrayBuffer");
+    if (mac == null || !mac?.byteLength)
+      throw new Error("Required parameter [mac] was not provided or is not an ArrayBuffer");
+    if (key == null || key.encKey == null || key.macKey == null)
+      throw new Error("Required parameter [key] was not provided or is not a SymmetricCryptoKey");
 
     const macData = new Uint8Array(iv.byteLength + data.byteLength);
     macData.set(new Uint8Array(iv), 0);
@@ -110,7 +114,7 @@ export default class CryptoHelper {
   }
 
   async makeKey(password: string, email: string): Promise<SymmetricCryptoKey> {
-    if (!password || !email) {
+    if (!(password && email && typeof password === "string" && typeof email === "string")) {
       throw new Error("A password and email are required to make a symmetric crypto key.");
     }
 
