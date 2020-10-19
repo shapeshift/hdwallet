@@ -1,0 +1,139 @@
+/**
+ * @jest-environment jsdom
+ */
+import { Crypto } from "@peculiar/webcrypto";
+import WebCryptoEngine from "./engines/web-crypto";
+import { EncryptedWallet } from "./index";
+
+const PLAINTEXT_MNEMONIC = "boat garment fog other pony middle bronze ready grain betray load frame";
+const ENCRYPTED_MNEMONIC =
+  "2.Q1/C6FLg1MufcTAmEXEmQbuyPdjuXEGw3AP17sWhJ3Ws8Fcsl03XUDlC3zULVHY4+IU4lMtyjfnRNKlCF4Sy9OeUvS//i7JUCS6ieLAn5U8=|AAAAAAAAAAAAAAAAAAAAAA==|nuOb9GoiRhAkWRLLRqqDna05Jp03Botr3JF8A34SS3U=";
+
+const PLAINTEXT_MNEMONIC2 =
+  "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
+const ENCRYPTED_MNEMONIC2 =
+  "2.1gm0swmYoZCc/T/U1aSGTsp0NgSQFtNT/N8U4nAgTWeJ28xpjlrGAjZwezW4vrwR8+TprSfaNCsh9lv1Nr19+/R3Ya2kj9obHhZZz1FL6qVY1dOdqfoaEWiqui54zlCb|AAAAAAAAAAAAAAAAAAAAAA==|R5969JYt8Y5CH55TFsafDVl8CXx8tv2ii2wjOMurdf4=";
+
+describe("EncryptedWallet", () => {
+  // Load shim to support running tests in node
+  globalThis.crypto = new Crypto();
+  const engine = new WebCryptoEngine();
+
+  describe("constructor", () => {
+    it("should be instantiated", () => {
+      expect(new EncryptedWallet(engine)).toBeInstanceOf(EncryptedWallet);
+    });
+
+    it("should require a crypto engine", () => {
+      // @ts-ignore
+      expect(() => new EncryptedWallet()).toThrow("Missing");
+    });
+  });
+
+  describe("init", () => {
+    it("should generate a password hash and encrypted mnemonic from a given email and password", async () => {
+      const wallet = new EncryptedWallet(engine);
+      const result = await wallet.init("email", "password");
+
+      expect(result.email).toEqual("email");
+      expect(result.passwordHash).toEqual("W/7DR3sIqcb8lnLXD/ToTS+imBVMTyPR7JMend9hxrM=");
+      expect(result.encryptedWallet).toBeUndefined();
+    });
+
+    it.each([[], [null], [[1, 2, 3]], ""])(
+      "should not generate a password hash and encrypted mnemonic if no password is provided (%p)",
+      async (pw) => {
+        const wallet = new EncryptedWallet(engine);
+        // @ts-ignore
+        await expect(wallet.init("email", pw)).rejects.toThrow("Invalid password");
+      }
+    );
+
+    it.each([[], [null], [[1, 2, 3]], ""])(
+      "should not generate a password hash and encrypted mnemonic if no email is provided (%p)",
+      async (email) => {
+        const wallet = new EncryptedWallet(engine);
+        // @ts-ignore
+        await expect(wallet.init(email, "password")).rejects.toThrow("Invalid email");
+      }
+    );
+  });
+
+  describe("encryptedWallet", () => {
+    it("should allow settings the encrypted wallet string", async () => {
+      const wallet = new EncryptedWallet(engine);
+      await wallet.init("email", "password");
+      wallet.encryptedWallet = ENCRYPTED_MNEMONIC;
+      expect(wallet.encryptedWallet).toEqual(ENCRYPTED_MNEMONIC);
+    });
+
+    it("should throw an error", async () => {
+      const wallet = new EncryptedWallet(engine);
+      await wallet.init("email", "password");
+      expect(() => (wallet.encryptedWallet = "")).toThrow("Invalid");
+    });
+  });
+
+  describe("createWallet", () => {
+    it("should hash password on construction", async () => {
+      const wallet = new EncryptedWallet(engine);
+      await wallet.init("email", "password");
+
+      expect(wallet.email).toEqual("email");
+      expect(wallet.passwordHash).toEqual("W/7DR3sIqcb8lnLXD/ToTS+imBVMTyPR7JMend9hxrM=");
+    });
+
+    it("should create a new encrypted wallet", async () => {
+      const randomMock = jest
+        .spyOn(global.crypto, "getRandomValues")
+        .mockImplementation((array) => new Uint8Array(array.byteLength).fill(0));
+      const wallet = new EncryptedWallet(engine);
+      await wallet.init("email", "password");
+      await wallet.createWallet();
+      randomMock.mockRestore();
+
+      expect(wallet.encryptedWallet).toEqual(ENCRYPTED_MNEMONIC2);
+    });
+
+    it("should throw an error if the mnemonic is invalid", async () => {
+      const randomMock = jest.spyOn(require("bip39"), "validateMnemonic").mockReturnValue(false);
+      const wallet = new EncryptedWallet(engine);
+      const result = await wallet.init("email", "password");
+      await expect(result.createWallet()).rejects.toThrow("Invalid mnemonic");
+      randomMock.mockRestore();
+    });
+
+    it("should require the wallet to be initialized", async () => {
+      const wallet = new EncryptedWallet(engine);
+      await expect(wallet.createWallet()).rejects.toThrow("not initialized");
+    });
+  });
+
+  describe("decrypt", () => {
+    it.each([
+      [PLAINTEXT_MNEMONIC, ENCRYPTED_MNEMONIC],
+      [PLAINTEXT_MNEMONIC2, ENCRYPTED_MNEMONIC2],
+    ])("should decrypt a wallet with seed (%s)", async (PLAIN, ENCRYPTED) => {
+      const wallet = new EncryptedWallet(engine);
+      const result = await wallet.init("email", "password", ENCRYPTED);
+
+      await expect(result.decrypt()).resolves.toEqual(PLAIN);
+    });
+
+    it("should require the wallet to be initialized", async () => {
+      const wallet = new EncryptedWallet(engine);
+      await expect(wallet.decrypt()).rejects.toThrow("not initialized");
+    });
+  });
+
+  describe("reset", () => {
+    it("should remove all private data from the object", async () => {
+      const wallet = new EncryptedWallet(engine);
+      const result = await wallet.init("email", "password", ENCRYPTED_MNEMONIC);
+      result.reset();
+      expect(result.encryptedWallet).toBeUndefined();
+      expect(result.email).toBeUndefined();
+      expect(result.passwordHash).toBeUndefined();
+    });
+  });
+});

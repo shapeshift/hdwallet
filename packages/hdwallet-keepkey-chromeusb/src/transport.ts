@@ -1,5 +1,4 @@
 /// <reference path="../node_modules/@types/chrome/index.d.ts" />
-/// <reference path="../node_modules/@types/w3c-web-usb/index.d.ts" />
 
 import { Keyring } from "@shapeshiftoss/hdwallet-core";
 import { SEGMENT_SIZE, KeepKeyTransport } from "@shapeshiftoss/hdwallet-keepkey";

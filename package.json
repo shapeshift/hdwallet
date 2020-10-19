@@ -31,8 +31,8 @@
     "docker:run:emulator": "docker run -p 5000:5000 kktech/kkemu:latest",
     "docker:stop:run:emulator": "docker stop $(docker ps -a -q --filter ancestor=kktech/kkemu:latest --format=\"{{.ID}}\") && docker run -p 5000:5000 kktech/kkemu:latest",
     "now-build": "lerna run build --scope @shapeshiftoss/hdwallet-core && lerna run build --scope hdwallet-sandbox --ignore @shapeshiftoss/hdwallet-keepkey-nodehid --include-filtered-dependencies && mv examples/sandbox/public .",
-    "test": "yarn run jest --verbose --config jest.config.js",
-    "test:ci": "yarn run jest --verbose --runInBand --ci --reporters=default --reporters=jest-junit --coverage --config jest.config.js",
+    "test": "yarn jest --verbose --config jest.config.js",
+    "test:integration": "yarn jest -c integration/jest.config.js",
     "lerna:version": "lerna version --force-publish",
     "lerna-bump-version-alpha": "lerna publish --no-push --skip-npm --force-publish '*' prepatch --yes",
     "lerna-bump-version-patch": "lerna publish --no-push --skip-npm --force-publish '*' patch --yes",
@@ -40,12 +40,25 @@
     "lerna-bump-version-major": "lerna publish --no-push --skip-npm --force-publish '*' major --yes"
   },
   "devDependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/bchaddrjs": "^0.4.0",
+    "@types/bytebuffer": "^5.0.40",
+    "@types/crypto-js": "^3.1.9-1",
+    "@types/debug": "^4.1.2",
+    "@types/ethereumjs-tx": "^1.0.1",
+    "@types/google-protobuf": "^3.2.7",
+    "@types/jest": "^24.9.1",
+    "@types/node-fetch": "^2.5.7",
+    "@types/w3c-web-usb": "^1.0.3",
+    "debug": "^4.2.0",
+    "jest": "^24.9.0",
     "jest-junit": "^6.4.0",
     "lerna": "^3.22.1",
     "prettier": "^2.0.5",
     "pretty-quick": "^2.0.1",
+    "ts-jest": "^24.3.0",
     "typedoc": "^0.14.2",
-    "typescript": "^3.9.5"
+    "typescript": "^3.9.7"
   },
   "resolutions": {
     "**/whatwg-fetch": "^2.0.4"

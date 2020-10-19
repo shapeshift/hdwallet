@@ -1,8 +1,13 @@
 module.exports = {
+  collectCoverage: true,
+  collectCoverageFrom: ["<rootDir>/**/*.ts", "!<rootDir>/**/*.test.ts"],
+  coverageDirectory: "<rootDir>/../coverage",
   preset: "ts-jest",
-  testEnvironment: "node",
   reporters: ["default", "jest-junit"],
+  rootDir: "packages",
+  testEnvironment: "node",
+  testMatch: ["<rootDir>/**/*.test.ts"],
   moduleNameMapper: {
-    "^@shapeshiftoss/(.*)": "<rootDir>/packages/$1/dist/index.js",
+    "^@shapeshiftoss/(.*)": "<rootDir>/$1/src",
   },
 };

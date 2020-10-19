@@ -8,6 +8,7 @@ import { NativeHDWalletBase } from "./native";
 import { Fio as fiojs } from "@fioprotocol/fiojs"; // TODO use our forked fioSdk instead of fiojs
 import { TextDecoder as TextDecoderNode, TextEncoder as TextEncoderNode } from "util";
 import { TextDecoder as TextDecoderWeb, TextEncoder as TextEncoderWeb } from "text-encoding";
+import wif from "wif";
 
 const fetchJson = async (uri: RequestInfo, opts?: RequestInit) => {
   return fetch(uri, opts);
@@ -21,7 +22,6 @@ const getTextEncoderDecoder = () => {
 };
 
 function getKeyPair(seed: BIP32Interface, addressNList: number[]) {
-  const wif = require("wif");
   const path = addressNListToBIP32(addressNList);
   const key = seed.derivePath(path).privateKey;
   const privateKey = wif.encode(128, key, false);
