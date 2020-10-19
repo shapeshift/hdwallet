@@ -25,7 +25,7 @@ orbs:
           - restore_cache:
               name: Restore Yarn Package Cache
               keys:
-                - cache-v4-{{ checksum "yarn.lock" }}
+                - cache-v6-{{ checksum "yarn.lock" }}
           - run: yarn --frozen-lockfile --cache-folder ./.yarn-cache
           - run:
               no_output_timeout: 30m
@@ -44,7 +44,7 @@ orbs:
                 - .yarn-cache
           - save_cache:
               name: Save Yarn Package Cache
-              key: cache-v4-{{ checksum "yarn.lock" }}
+              key: cache-v6-{{ checksum "yarn.lock" }}
               paths:
                 - .yarn-cache
           - run:
