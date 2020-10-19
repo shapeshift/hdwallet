@@ -115,6 +115,8 @@ export default class CryptoHelper {
     }
 
     const salt = utils.toArrayBuffer(email);
+    // The same email/password MUST always generate the same encryption key, so
+    // scrypt parameters are hard-coded to ensure compatibility across implementations
     const key = await this.#engine.scrypt(utils.toArrayBuffer(password), salt, {
       iterations: 16384,
       blockSize: 8,
