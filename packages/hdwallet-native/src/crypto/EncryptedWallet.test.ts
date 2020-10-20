@@ -2,8 +2,8 @@
  * @jest-environment jsdom
  */
 import { Crypto } from "@peculiar/webcrypto";
-import WebCryptoEngine from "./engines/web-crypto";
-import { EncryptedWallet } from "./index";
+import { WebCryptoEngine } from "./engines";
+import { EncryptedWallet } from "./EncryptedWallet";
 
 const PLAINTEXT_MNEMONIC = "boat garment fog other pony middle bronze ready grain betray load frame";
 const ENCRYPTED_MNEMONIC =
@@ -123,6 +123,38 @@ describe("EncryptedWallet", () => {
     it("should require the wallet to be initialized", async () => {
       const wallet = new EncryptedWallet(engine);
       await expect(wallet.decrypt()).rejects.toThrow("not initialized");
+    });
+
+    it("should require that the wallet has an encrypted wallet", async () => {
+      const wallet = new EncryptedWallet(engine);
+      await wallet.init("email", "password");
+      await expect(wallet.decrypt()).rejects.toThrow("does not contain an encrypted wallet");
+    });
+
+    it("should throw an error if the wallet cannot decrypt the wallet", async () => {
+      const wallet = new EncryptedWallet(engine);
+      await wallet.init("email", "password2", ENCRYPTED_MNEMONIC);
+      await expect(wallet.decrypt()).rejects.toThrow("signature is not valid");
+    });
+  });
+
+  describe("deviceId", () => {
+    it("should return undefined if the wallet has not been initialized", async () => {
+      const wallet = new EncryptedWallet(engine);
+      expect(wallet.deviceId).toBeUndefined();
+    });
+
+    it("should return undefined if the wallet has not been decrypted", async () => {
+      const wallet = new EncryptedWallet(engine);
+      await wallet.init("email", "password", ENCRYPTED_MNEMONIC);
+      expect(wallet.deviceId).toBeUndefined();
+    });
+
+    it("should return a base64 hash", async () => {
+      const wallet = new EncryptedWallet(engine);
+      await wallet.init("email", "password", ENCRYPTED_MNEMONIC);
+      await wallet.decrypt();
+      expect(wallet.deviceId).toBe("0SUnRnGkhCt0T5qk5YmK10v5u+lgHiMMu1R76uD7kHE=");
     });
   });
 

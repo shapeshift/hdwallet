@@ -1,15 +1,20 @@
-import { CryptoEngine, ScryptParams } from "./index";
 import { scrypt } from "scrypt-js";
+import { CryptoEngine, DigestAlgorithm, ScryptParams } from "./index";
 
-export default class WebCryptoEngine implements CryptoEngine {
+export class WebCryptoEngine implements CryptoEngine {
   public async decrypt(data: ArrayBuffer, key: ArrayBuffer, iv: ArrayBuffer): Promise<ArrayBuffer> {
     const impKey = await globalThis.crypto.subtle.importKey("raw", key, { name: "AES-CBC" }, false, ["decrypt"]);
-    return await globalThis.crypto.subtle.decrypt({ name: "AES-CBC", iv }, impKey, data);
+    return globalThis.crypto.subtle.decrypt({ name: "AES-CBC", iv }, impKey, data);
+  }
+
+  public async digest(algorithm: DigestAlgorithm, data: ArrayBuffer): Promise<ArrayBuffer> {
+    const alg = algorithm === DigestAlgorithm.SHA512 ? "SHA-512" : "SHA-256";
+    return globalThis.crypto.subtle.digest(alg, data);
   }
 
   public async encrypt(data: ArrayBuffer, key: ArrayBuffer, iv: ArrayBuffer): Promise<ArrayBuffer> {
     const impKey = await globalThis.crypto.subtle.importKey("raw", key, { name: "AES-CBC" }, false, ["encrypt"]);
-    return await globalThis.crypto.subtle.encrypt({ name: "AES-CBC", iv }, impKey, data);
+    return globalThis.crypto.subtle.encrypt({ name: "AES-CBC", iv }, impKey, data);
   }
 
   public async hmac(value: ArrayBuffer, key: ArrayBuffer): Promise<ArrayBuffer> {
@@ -19,7 +24,7 @@ export default class WebCryptoEngine implements CryptoEngine {
     };
 
     const impKey = await globalThis.crypto.subtle.importKey("raw", key, signingAlgorithm, false, ["sign"]);
-    return await globalThis.crypto.subtle.sign(signingAlgorithm, impKey, value);
+    return globalThis.crypto.subtle.sign(signingAlgorithm, impKey, value);
   }
 
   public async pbkdf2(password: ArrayBuffer, salt: ArrayBuffer, options?: Pbkdf2Params) {
@@ -31,7 +36,7 @@ export default class WebCryptoEngine implements CryptoEngine {
     };
 
     const impKey = await globalThis.crypto.subtle.importKey("raw", password, { name: "PBKDF2" }, false, ["deriveBits"]);
-    return await globalThis.crypto.subtle.deriveBits(pbkdf2Params, impKey, 256);
+    return globalThis.crypto.subtle.deriveBits(pbkdf2Params, impKey, 256);
   }
 
   public async randomBytes(size: number): Promise<ArrayBuffer> {
