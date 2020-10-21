@@ -77,8 +77,6 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         const { privateKey } = util.getKeyPair(this.#wallet, msg.addressNList, "binance");
 
         const client = new BncClient("https://dex.binance.org"); // broadcast not used but available
-        //client.chainId = msg.chain_id;
-        //client.setAccountNumber(Number(msg.account_number) || undefined);
         await client.chooseNetwork("mainnet");
         await client.setPrivateKey(privateKey);
         await client.initChain();
@@ -92,11 +90,8 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         const amount = msg.tx.msgs[0].inputs[0].coins[0].amount;
         const asset = "BNB";
         const memo = msg.tx.memo;
-        const sequence = msg.sequence;
 
-        console.log({addressFrom, addressTo, amount, asset, memo})
-        const result:any = await client.transfer(addressFrom, addressTo, amount, asset, '', null);
-        console.log("result: ",result)
+        const result:any = await client.transfer(addressFrom, addressTo, amount, asset, memo, null);
         const pub_key = result.signatures[0].pub_key.toString("base64");
         const signature = Buffer.from(result.signatures[0].signature, "base64").toString("base64");
 
