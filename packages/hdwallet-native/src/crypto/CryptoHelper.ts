@@ -1,8 +1,11 @@
 import { entropyToMnemonic } from "bip39";
 import { CipherString, EncryptedObject, SymmetricCryptoKey } from "./classes";
-import { CryptoEngine } from "./engines";
+import { CryptoEngine, DigestAlgorithm } from "./engines";
 import * as utils from "./utils";
 
+/**
+ * This class is only intended to be used by the EncryptedWallet class
+ */
 export default class CryptoHelper {
   readonly #engine: CryptoEngine;
 
@@ -147,5 +150,19 @@ export default class CryptoHelper {
   async generateMnemonic(strength: number = 128): Promise<string> {
     const entropy = await this.#engine.randomBytes(strength / 8);
     return entropyToMnemonic(Buffer.from(entropy));
+  }
+
+  /**
+   * Generates a base64 hash based on the provided data
+   * Should be used to calculate a device ID for the wallet based on the mnemonic
+   */
+  async getDeviceId(data: string): Promise<string> {
+    if (!(typeof data === "string" && data.length > 0)) throw new Error("Invalid data to hash");
+    const digest = await this.#engine.digest(
+      DigestAlgorithm.SHA256,
+      await this.#engine.digest(DigestAlgorithm.SHA512, Buffer.from(data))
+    );
+
+    return utils.fromBufferToB64(digest);
   }
 }
