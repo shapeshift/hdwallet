@@ -81,7 +81,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         await client.setPrivateKey(privateKey);
         await client.initChain();
 
-        const addressFrom = msg.tx.msgs[0].inputs[0].address;
+        const addressFrom = msg.tx?.msgs?.[0]?..inputs?.[0]?.address;
         const addressFromVerify = client.getClientKeyAddress()
         if (addressFrom !== addressFromVerify) {
           throw Error("Invalid permissions to sign for address")
