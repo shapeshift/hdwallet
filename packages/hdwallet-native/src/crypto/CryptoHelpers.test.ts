@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 import CryptoHelper from "./CryptoHelper";
-import WebCryptoEngine from "./engines/web-crypto";
+import { WebCryptoEngine } from "./engines";
 import { fromBufferToUtf8, toArrayBuffer } from "./utils";
 import { Crypto } from "@peculiar/webcrypto";
 
@@ -129,5 +129,22 @@ describe("CryptoHelpers", () => {
       // @ts-ignore
       await expect(helper.makeKey("mypassword", param)).rejects.toThrow("email");
     });
+  });
+
+  describe("deviceId", () => {
+    it("should return undefined if the wallet has not been initialized", async () => {
+      await expect(
+        helper.getDeviceId(
+          "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+        )
+      ).resolves.toBe("40bdrat83JXH1jC8EnGPujqEtorp/J/ToNeAOoyMLPs=");
+    });
+
+    it.each([[undefined], [null], [""], [[1, 2, 3, 4, 5, 6]], [{}]])(
+      "should throw an error if invalid data is provided (%o)",
+      async (data: any) => {
+        await expect(helper.getDeviceId(data)).rejects.toThrow("Invalid data");
+      }
+    );
   });
 });

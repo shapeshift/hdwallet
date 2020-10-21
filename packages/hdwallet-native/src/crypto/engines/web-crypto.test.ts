@@ -3,7 +3,8 @@
  */
 import CryptoHelper from "../CryptoHelper";
 import { fromB64ToArray, fromBufferToUtf8, fromBufferToB64, toArrayBuffer, fromUtf8ToArray } from "../utils";
-import WebCryptoEngine from "./web-crypto";
+import { DigestAlgorithm } from "./index";
+import { WebCryptoEngine } from "./web-crypto";
 import { Crypto } from "@peculiar/webcrypto";
 
 describe("WebCryptoEngine JavaScript", () => {
@@ -89,6 +90,30 @@ describe("WebCryptoEngine JavaScript", () => {
     const typedArray = new Uint8Array(bytes);
     const sum = typedArray.reduce((sum, value) => sum + value, 0);
     expect(sum).toBeGreaterThan(0);
+  });
+
+  it.each([
+    [DigestAlgorithm.SHA256, "abc", "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"],
+    [
+      DigestAlgorithm.SHA256,
+      "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
+      "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1",
+    ],
+    [
+      DigestAlgorithm.SHA512,
+      "abc",
+      "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f",
+    ],
+    [
+      DigestAlgorithm.SHA512,
+      "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
+      "204a8fc6dda82f0a0ced7beb8e08a41657c16ef468b228a8279be331a703c33596fd15c13b1b07f9aa1d3bea57789ca031ad85c7a71dd70354ec631238ca3445",
+    ],
+  ])("should produce a valid SHA hash (alg %s) for %s", async (alg, data: string, hash: string) => {
+    const dataBuffer = fromUtf8ToArray(data);
+    const expected = Buffer.from(hash, "hex").buffer;
+    const result = await engine.digest(alg, dataBuffer);
+    expect(result).toEqual(expected);
   });
 });
 
