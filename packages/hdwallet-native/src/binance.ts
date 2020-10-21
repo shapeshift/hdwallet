@@ -78,7 +78,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
 
         const client = new BncClient("https://dex.binance.org"); // broadcast not used but available
         await client.chooseNetwork("mainnet");
-        await client.setPrivateKey(privateKey);
+        await client.setPrivateKey(privateKey, Number.isInteger(Number(msg.account_number)));
         await client.initChain();
 
         const addressFrom = msg.tx.msgs[0].inputs[0].address;
