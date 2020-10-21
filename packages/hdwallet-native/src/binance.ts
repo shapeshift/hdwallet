@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { BIP32Interface } from "bitcoinjs-lib";
-import {BncClient} from "bnb-javascript-sdk-nobroadcast";
+import { BncClient } from "bnb-javascript-sdk-nobroadcast";
 import * as bitcoin from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
 import { getNetwork } from "./networks";
@@ -81,9 +81,9 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         await client.setPrivateKey(privateKey, Number.isInteger(Number(msg.account_number)));
         await client.initChain();
 
-        const addressFrom = msg.tx.msgs[0].inputs[0].address;
+        const addressFrom = msg.tx?.msgs?.[0]?..inputs?.[0]?.address;
         const addressFromVerify = client.getClientKeyAddress()
-        if(addressFrom !== addressFromVerify){
+        if (addressFrom !== addressFromVerify) {
           throw Error("Invalid permissions to sign for address")
         }
         const addressTo = msg.tx.msgs[0].outputs[0].address;
