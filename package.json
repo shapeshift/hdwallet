@@ -21,6 +21,7 @@
     ]
   },
   "scripts": {
+    "yarn": "yarn",
     "pre-reqs": "npm install -g typescript prettier",
     "clean": "lerna run clean --scope @shapeshiftoss/* && rm -rf coverage test-report node_modules && yarn cache clean",
     "lint:ts": "tsc --noEmit",

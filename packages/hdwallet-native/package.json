@@ -9,6 +9,7 @@
   "source": "src/index.ts",
   "types": "dist/index.d.ts",
   "scripts": {
+    "test": "ts-node __teasts__/taest-module.ts",
     "build": "tsc --build",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "prepublishOnly": "yarn clean && yarn build"
@@ -19,7 +20,7 @@
     "bip32": "^2.0.5",
     "bip39": "^3.0.2",
     "bitcoinjs-lib": "^5.1.10",
-    "bnb-javascript-sdk-nobroadcast": "^2.16.7",
+    "bnb-javascript-sdk-nobroadcast": "^2.16.10",
     "cosmos-tx-builder": "^6.3.4",
     "crypto-js": "^3.1.9-1",
     "ethereum-tx-decoder": "^3.0.0",
