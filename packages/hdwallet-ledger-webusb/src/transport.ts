@@ -71,6 +71,7 @@ export async function getTransport(): Promise<TransportWebUSB> {
 export class LedgerWebUsbTransport extends LedgerTransport {
   device: USBDevice;
 
+  // @ts-ignore TODO why
   constructor(device: USBDevice, transport: Transport<USBDevice>, keyring: Keyring) {
     super(transport, keyring);
     this.device = device;

@@ -28,7 +28,7 @@ export async function binanceSignTx(
     signTx.setAddressNList(msg.addressNList);
     signTx.setAccountNumber(msg.account_number);
     signTx.setChainId(msg.chain_id);
-    signTx.setSequence(msg.sequence);
+    signTx.setSequence(String(msg.sequence));
     if (msg.tx.memo !== undefined) signTx.setMemo(msg.tx.memo);
 
     //verify not a batch tx

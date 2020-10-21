@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { BIP32Interface } from "bitcoinjs-lib";
-import BncClient from "bnb-javascript-sdk-nobroadcast";
+import { BncClient } from "bnb-javascript-sdk-nobroadcast";
 import * as bitcoin from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
 import { getNetwork } from "./networks";
@@ -77,20 +77,21 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         const { privateKey } = util.getKeyPair(this.#wallet, msg.addressNList, "binance");
 
         const client = new BncClient("https://dex.binance.org"); // broadcast not used but available
-        client.chainId = msg.chain_id;
-        client.setAccountNumber(Number(msg.account_number) || undefined);
         await client.chooseNetwork("mainnet");
         await client.setPrivateKey(privateKey, Number.isInteger(Number(msg.account_number)));
         await client.initChain();
 
-        const addressFrom = msg.tx.msgs[0].inputs[0].address;
+        const addressFrom = msg.tx?.msgs?.[0]?.inputs?.[0]?.address;
+        const addressFromVerify = client.getClientKeyAddress()
+        if (addressFrom !== addressFromVerify) {
+          throw Error("Invalid permissions to sign for address")
+        }
         const addressTo = msg.tx.msgs[0].outputs[0].address;
         const amount = msg.tx.msgs[0].inputs[0].coins[0].amount;
         const asset = "BNB";
         const memo = msg.tx.memo;
-        const sequence = msg.sequence;
 
-        const result = await client.transfer(addressFrom, addressTo, amount, asset, memo, sequence);
+        const result:any = await client.transfer(addressFrom, addressTo, amount, asset, memo, null);
         const pub_key = result.signatures[0].pub_key.toString("base64");
         const signature = Buffer.from(result.signatures[0].signature, "base64").toString("base64");
 

@@ -66,7 +66,7 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
           addressNList: bip32ToAddressNList("m/44'/714'/0'/0/0"),
           chain_id: "Binance-Chain-Nile",
           account_number: "24250",
-          sequence: "0",
+          sequence: 0,
         });
 
         if (isKeepKey(wallet)) {

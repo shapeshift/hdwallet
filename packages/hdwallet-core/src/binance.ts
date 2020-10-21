@@ -49,7 +49,7 @@ export interface BinanceSignTx {
   tx: BinanceTx;
   chain_id: string;
   account_number: string;
-  sequence: string;
+  sequence: number;
 }
 
 export type BinanceSignedTx = BinanceTx;
