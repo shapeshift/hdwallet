@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { EventEmitter2 } from "eventemitter2";
-import { mnemonicToSeed } from "bip39";
+import { mnemonicToSeed, validateMnemonic } from "bip39";
 import { fromSeed } from "bip32";
 import { isObject } from "lodash";
 import { getNetwork } from "./networks";
@@ -14,6 +14,11 @@ import type { NativeAdapterArgs } from "./adapter";
 export enum NativeEvents {
   MNEMONIC_REQUIRED = "MNEMONIC_REQUIRED",
   READY = "READY",
+}
+
+interface LoadDevice extends core.LoadDevice {
+  // Set this if your deviceId is dependent on the mnemonic
+  deviceId?: string;
 }
 
 export class NativeHDWalletBase {
@@ -131,7 +136,7 @@ export class NativeHDWallet
   _supportsDebugLink = false;
   _isNative = true;
 
-  readonly #deviceId: string;
+  #deviceId: string;
   #initialized: boolean;
   #mnemonic: string;
 
@@ -243,8 +248,13 @@ export class NativeHDWallet
 
   async recover(): Promise<void> {}
 
-  async loadDevice(msg: core.LoadDevice): Promise<void> {
+  async loadDevice(msg: LoadDevice): Promise<void> {
+    if (typeof msg?.mnemonic !== "string" || !validateMnemonic(msg.mnemonic))
+      throw new Error("Required property [mnemonic] is missing or invalid");
+
     this.#mnemonic = msg.mnemonic;
+    if (typeof msg.deviceId === "string") this.#deviceId = msg.deviceId;
+
     this.#initialized = false;
     await this.initialize();
 
