@@ -13,8 +13,9 @@ export function createInfo(): core.HDWalletInfo {
 }
 
 export async function createWallet(): Promise<core.HDWallet> {
-  const keyring = new core.Keyring();
-  return NativeAdapter.useKeyring(keyring, { mnemonic, deviceId }).pairDevice();
+  const wallet = new NativeHDWallet({ mnemonic, deviceId })
+  await wallet.initialize()
+  return wallet
 }
 
 export function selfTest(get: () => core.HDWallet): void {
