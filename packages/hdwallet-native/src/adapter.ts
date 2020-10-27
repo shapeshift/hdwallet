@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { create, NativeHDWallet } from "./native";
+import { NativeHDWallet } from "./native";
 
 export type NativeAdapterArgs = {
   mnemonic?: string;
@@ -8,42 +8,35 @@ export type NativeAdapterArgs = {
 
 export class NativeAdapter {
   keyring: core.Keyring;
-  deviceId: string;
-  #mnemonic: string;
 
-  private constructor(keyring: core.Keyring, args: NativeAdapterArgs) {
+  private constructor(keyring: core.Keyring) {
     this.keyring = keyring;
-    this.deviceId = args.deviceId;
-    this.#mnemonic = args.mnemonic;
   }
 
-  static useKeyring(keyring: core.Keyring, args: NativeAdapterArgs) {
-    return new NativeAdapter(keyring, args);
+  static useKeyring(keyring: core.Keyring) {
+    return new NativeAdapter(keyring);
   }
 
   async initialize(): Promise<number> {
-    let wallet = this.keyring.get<NativeHDWallet>(this.deviceId);
-
-    if (!wallet) {
-      wallet = create({ mnemonic: this.#mnemonic, deviceId: this.deviceId });
-      this.keyring.add(wallet, this.deviceId);
-      this.keyring.decorateEvents(this.deviceId, wallet.events);
-    }
-
-    if (this.#mnemonic) {
-      wallet.initialize();
-    }
-
-    return Object.keys(this.keyring.wallets).length;
+    return 0;
   }
 
-  async pairDevice(): Promise<core.HDWallet> {
-    await this.initialize();
+  async pairDevice(deviceId: string): Promise<core.HDWallet | null> {
+    let wallet = this.keyring.get<NativeHDWallet>(deviceId);
+    if (!wallet && deviceId) {
+      // If a wallet with that ID hasn't been added to the keychain, then create it
+      wallet = new NativeHDWallet({ deviceId });
+      this.keyring.add(wallet, deviceId);
+      this.keyring.decorateEvents(deviceId, wallet.events);
+    }
 
-    const wallet = this.keyring.get(this.deviceId);
+    if (wallet?._isNative) {
+      const id = await wallet.getDeviceID();
+      this.keyring.emit([wallet.getVendor(), id, core.Events.CONNECT], id);
 
-    this.keyring.emit([wallet.getVendor(), this.deviceId, core.Events.CONNECT], this.deviceId);
+      return wallet;
+    }
 
-    return wallet;
+    return null;
   }
 }
