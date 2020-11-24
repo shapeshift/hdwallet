@@ -404,6 +404,12 @@ $getXpubs.on("click", async (e) => {
       coin: "Litecoin",
     },
     {
+      addressNList: [0x80000000 + 44, 0x80000000 + 144, 0x80000000 + 0],
+      curve: "secp256k1",
+      showDisplay: false, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+      coin: "Ripple",
+    },
+    {
       addressNList: hardenedPath,
       curve: "secp256k1",
       showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
