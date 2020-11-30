@@ -26,9 +26,10 @@ export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor>(Base
     }
 
     cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
+      const slip44 = core.slip44ByCoin("Atom")
       return [
         {
-          addressNList: [0x80000000 + 44, 0x80000000 + 117, 0x80000000 + msg.accountIdx, 0, 0],
+          addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
         },
       ];
     }
