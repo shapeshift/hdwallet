@@ -46,7 +46,7 @@ export async function binanceSignTx(
     if (resp.message_type === Core.Events.FAILURE) throw resp;
 
     let coinOut = new BinanceTransferMsg.BinanceCoin();
-    coinOut.setAmount(message.outputs[0].coins[0].amount);
+    coinOut.setAmount(message.outputs[0].coins[0].amount.toString());
     coinOut.setDenom(message.outputs[0].coins[0].denom);
 
     let outputs = new BinanceTransferMsg.BinanceInputOutput();
@@ -54,7 +54,7 @@ export async function binanceSignTx(
     outputs.setCoinsList([coinOut]);
 
     let coinIn = new BinanceTransferMsg.BinanceCoin();
-    coinIn.setAmount(message.inputs[0].coins[0].amount);
+    coinIn.setAmount(message.inputs[0].coins[0].amount.toString());
     coinIn.setDenom(message.inputs[0].coins[0].denom);
 
     let inputs = new BinanceTransferMsg.BinanceInputOutput();
