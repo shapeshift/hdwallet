@@ -41,6 +41,7 @@ import * as dashTxJson from "./json/dashTx.json";
 import * as dogeTxJson from "./json/dogeTx.json";
 import * as ltcTxJson from "./json/ltcTx.json";
 import * as rippleTxJson from "./json/rippleTx.json";
+import * as bnbTxJson from "./json/bnbTx.json";
 
 const keyring = new Keyring();
 
@@ -553,37 +554,13 @@ $binanceTx.on("click", async (e) => {
     return;
   }
   if (supportsBinance(wallet)) {
-    let unsigned = {
-      account_number: "34",
-      chain_id: "Binance-Chain-Nile",
-      data: "null",
-      memo: "test",
-      msgs: [
-        {
-          inputs: [
-            {
-              address: "tbnb1hgm0p7khfk85zpz5v0j8wnej3a90w709zzlffd",
-              coins: [{ amount: "1000000000", denom: "BNB" }],
-            },
-          ],
-          outputs: [
-            {
-              address: "tbnb1ss57e8sa7xnwq030k2ctr775uac9gjzglqhvpy",
-              coins: [{ amount: "1000000000", denom: "BNB" }],
-            },
-          ],
-        },
-      ],
-      sequence: "31",
-      source: "1",
-    };
 
     let res = await wallet.binanceSignTx({
       addressNList: bip32ToAddressNList(`m/44'/714'/0'/0/0`),
       chain_id: "Binance-Chain-Nile",
       account_number: "24250",
-      sequence: "31",
-      tx: unsigned,
+      sequence: 31,
+      tx: bnbTxJson,
     });
     $binanceResults.val(JSON.stringify(res));
   } else {

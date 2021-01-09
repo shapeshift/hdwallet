@@ -88,7 +88,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
           throw Error("Invalid permissions to sign for address")
         }
         const addressTo = msg.tx.msgs[0].outputs[0].address;
-        const amount = msg.tx.msgs[0].inputs[0].coins[0].amount;
+        const amount = (msg.tx.msgs[0].inputs[0].coins[0].amount).toString();
         const asset = "BNB";
         const memo = msg.tx.memo;
 
