@@ -48,7 +48,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
     #wallet: BIP32Interface;
 
     async binanceInitializeWallet(seed: Buffer): Promise<void> {
-      const network = getNetwork("cosmos");
+      const network = getNetwork("binance");
       this.#wallet = bitcoin.bip32.fromSeed(seed, network);
     }
 
