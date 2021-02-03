@@ -280,6 +280,7 @@ export class NativeHDWallet
     super.ethWipe();
     super.cosmosWipe();
     super.binanceWipe();
+    super.fioWipe();
     super.thorchainWipe();
     super.secretWipe();
     super.terraWipe();

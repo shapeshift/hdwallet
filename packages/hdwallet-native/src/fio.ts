@@ -72,6 +72,10 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
       this.#wallet = bitcoin.bip32.fromSeed(seed);
     }
 
+    fioWipe(): void {
+      this.#wallet = undefined;
+    }
+
     async getFioSdk(addressNList: core.BIP32Path): Promise<fio.FIOSDK> {
       return this.needsMnemonic(!!this.#wallet, async () => {
         const { privateKey, publicKey } = getKeyPair(this.#wallet, addressNList);
