@@ -53,12 +53,35 @@ const networks: Networks = {
   bitcoin: {
     base: {
       messagePrefix: "\x18Bitcoin Signed Message:\n",
-      bech32: "bc",
-      pubKeyHash: 0x00,
-      scriptHash: 0x05,
-      wif: 0x80,
+      bech32: "tb",
+      pubKeyHash: 0x6f,
+      scriptHash: 0xc4,
+      wif: 0xef,
     },
-    ...bip32BTC,
+    p2sh: {
+      bip32: {
+        public: 0x043587cf,
+        private: 0x04358394,
+      },
+    },
+    p2pkh: {
+      bip32: {
+        public: 0x043587cf,
+        private: 0x04358394,
+      },
+    },
+    "p2sh-p2wpkh": {
+      bip32: {
+        public: 0x044a5262,
+        private: 0x044a4e28,
+      },
+    },
+    p2wpkh: {
+      bip32: {
+        public: 0x045f1cf6,
+        private: 0x045f18bc,
+      },
+    },
   },
   dash: {
     base: {

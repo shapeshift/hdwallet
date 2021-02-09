@@ -2,7 +2,7 @@
   "name": "@shapeshiftoss/hdwallet",
   "version": "1.0.2",
   "main": "index.js",
-  "private": true,
+  "private": false,
   "repository": "https://github.com/shapeshift/hdwallet",
   "author": "ShapeShift Open Source <oss@shapeshiftoss.io>",
   "license": "MIT",

@@ -123,7 +123,7 @@ export function base64toHEX(base64: string): string {
 
 export function slip44ByCoin(coin: Coin): number {
   return {
-    Bitcoin: 0,
+    Bitcoin: 1,
     Testnet: 1,
     BitcoinCash: 145,
     BitcoinGold: 156,
