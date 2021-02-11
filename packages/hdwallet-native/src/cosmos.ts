@@ -8,7 +8,7 @@ import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
 import util from "./util";
 
-const ATOM_CHAIN = "cosmoshub-3";
+const ATOM_CHAIN = "cosmoshub-4";
 
 export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeCosmosWalletInfo extends Base implements core.CosmosWalletInfo {
@@ -26,7 +26,7 @@ export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor>(Base
     }
 
     cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
-      const slip44 = core.slip44ByCoin("Atom")
+      const slip44 = core.slip44ByCoin("Atom");
       return [
         {
           addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
