@@ -66,7 +66,7 @@ export function eosTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): v
       TIMEOUT
     );
 
-    test(
+    test.skip(
       "kk integration eosSignTx()",
       async () => {
         if (!wallet) return;
