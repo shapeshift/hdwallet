@@ -14,6 +14,16 @@
         border: #ccc solid 1px;
         border-radius: 6px;
       }
+
+      .erc20DynamicContainer {
+        margin-top: 2em;
+        padding: 1em;
+      }
+
+      .row {
+        padding: 0.65em;
+      }
+
       .modal:before {
         content: "";
         display: none;
@@ -98,7 +108,7 @@
       <button id="portis">Pair Portis</button>
       <button id="native">Pair Native</button>
 
-      <select id="keyring" style="height: 100px;" size="4"></select>
+      <select id="keyring" style="height: 100px" size="4"></select>
     </div>
     <div class="container">
       <h4>Event Log</h4>
@@ -127,9 +137,7 @@
       <h4>Ledger Device</h4>
       <button class="button button-outline" id="openApp">Open App</button>
       <input type="text" id="ledgerApp" />
-      <button class="button button-outline" id="validateApp">
-        Validate Open App
-      </button>
+      <button class="button button-outline" id="validateApp">Validate Open App</button>
       <input type="text" id="appSymbol" />
       <button class="button button-outline" id="getAppInfo">App Info</button>
       <input type="text" id="appInfo" />
@@ -167,6 +175,21 @@
       <input type="text" id="ethResults" />
     </div>
     <div class="container">
+      <h4>ERC-20</h4>
+      <button class="button button-outline" name="erc20Button" id="erc20Addr">Address</button>
+      <button class="button button-outline" name="erc20Button" id="erc20Allowance">Allowance</button>
+      <button class="button button-outline" name="erc20Button" id="erc20Approve">Approve</button>
+      <button class="button button-outline" name="erc20Button" id="erc20BalanceOf">Balance Of</button>
+      <button class="button button-outline" name="erc20Button" id="erc20TotalSupply">Total Supply</button>
+      <button class="button button-outline" name="erc20Button" id="erc20Transfer">Transfer</button>
+      <button class="button button-outline" name="erc20Button" id="erc20TransferFrom">Transfer From</button>
+      <center><p id="erc20Tooltip">Select an option from the above row. Click "submit" below to process.</p></center>
+      <div class="erc20DynamicContainer" id="erc20DynamicContainer"></div>
+      <textarea disabled placeholder="Result" id="erc20Results" />
+      <button class="button" name="erc20Button" id="erc20Submit">Submit</button>
+    </div>
+
+    <div class="container">
       <h4>Bitcoin</h4>
       <button class="button button-outline" id="btcAddr">Address</button>
       <button class="button button-outline" id="btcTx">Tx</button>
@@ -177,16 +200,10 @@
 
     <div class="container">
       <h4>Bitcoin (segwit)</h4>
-      <button class="button button-outline" id="btcAddrSegWit">
-        Address (p2wsh)
-      </button>
-      <button class="button button-outline" id="btcAddrSegWitNative">
-        Address (bech32)
-      </button>
+      <button class="button button-outline" id="btcAddrSegWit">Address (p2wsh)</button>
+      <button class="button button-outline" id="btcAddrSegWitNative">Address (bech32)</button>
       <button class="button button-outline" id="btcTxSegWit">Tx Segwit</button>
-      <button class="button button-outline" id="btcTxSegWitNative">
-        Tx Segwit (Native)
-      </button>
+      <button class="button button-outline" id="btcTxSegWitNative">Tx Segwit (Native)</button>
       <input type="text" id="btcResultsSegWit" />
     </div>
 
@@ -226,47 +243,23 @@
       <div class="modal-dialog">
         <div class="modal-header">
           <h3>Enter PIN</h3>
-          <p>
-            Use the PIN layout shown on your device to find the location to press on this PIN pad.
-          </p>
+          <p>Use the PIN layout shown on your device to find the location to press on this PIN pad.</p>
         </div>
         <div class="modal-body">
-          <button onclick="handlePinDigit(7)" class="button button-outline">
-            &#x25CF;</button
-          >&nbsp;
-          <button onclick="handlePinDigit(8)" class="button button-outline">
-            &#x25CF;</button
-          >&nbsp;
-          <button onclick="handlePinDigit(9)" class="button button-outline">
-            &#x25CF;</button
-          ><br />
-          <button onclick="handlePinDigit(4)" class="button button-outline">
-            &#x25CF;</button
-          >&nbsp;
-          <button onclick="handlePinDigit(5)" class="button button-outline">
-            &#x25CF;</button
-          >&nbsp;
-          <button onclick="handlePinDigit(6)" class="button button-outline">
-            &#x25CF;</button
-          ><br />
-          <button onclick="handlePinDigit(1)" class="button button-outline">
-            &#x25CF;</button
-          >&nbsp;
-          <button onclick="handlePinDigit(2)" class="button button-outline">
-            &#x25CF;</button
-          >&nbsp;
-          <button onclick="handlePinDigit(3)" class="button button-outline">
-            &#x25CF;</button
-          ><br />
-          <input id="#pinInput" type="text" style="-webkit-text-security: disc;" />
-          <button onclick="handlePinDigit('')" class="button button-outline">
-            x
-          </button>
+          <button onclick="handlePinDigit(7)" class="button button-outline">&#x25CF;</button>&nbsp;
+          <button onclick="handlePinDigit(8)" class="button button-outline">&#x25CF;</button>&nbsp;
+          <button onclick="handlePinDigit(9)" class="button button-outline">&#x25CF;</button><br />
+          <button onclick="handlePinDigit(4)" class="button button-outline">&#x25CF;</button>&nbsp;
+          <button onclick="handlePinDigit(5)" class="button button-outline">&#x25CF;</button>&nbsp;
+          <button onclick="handlePinDigit(6)" class="button button-outline">&#x25CF;</button><br />
+          <button onclick="handlePinDigit(1)" class="button button-outline">&#x25CF;</button>&nbsp;
+          <button onclick="handlePinDigit(2)" class="button button-outline">&#x25CF;</button>&nbsp;
+          <button onclick="handlePinDigit(3)" class="button button-outline">&#x25CF;</button><br />
+          <input id="#pinInput" type="text" style="-webkit-text-security: disc" />
+          <button onclick="handlePinDigit('')" class="button button-outline">x</button>
         </div>
         <div class="modal-footer">
-          <button class="button button-outline" onclick="pinEntered()">
-            Unlock
-          </button>
+          <button class="button button-outline" onclick="pinEntered()">Unlock</button>
         </div>
       </div>
     </div>
@@ -283,9 +276,7 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button class="button button-outline" onclick="passphraseEntered()">
-            Unlock
-          </button>
+          <button class="button button-outline" onclick="passphraseEntered()">Unlock</button>
         </div>
       </div>
     </div>
@@ -302,9 +293,7 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button class="button button-outline" onclick="mnemonicEntered()">
-            Load mnemonic
-          </button>
+          <button class="button button-outline" onclick="mnemonicEntered()">Load mnemonic</button>
         </div>
       </div>
     </div>
