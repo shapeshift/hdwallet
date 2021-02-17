@@ -1,0 +1,38 @@
+{
+  "msg": [
+    {
+      "type": "cosmos-sdk/MsgSend",
+      "value": {
+        "from_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
+        "to_address": "cosmos1qjwdyn56ecagk8rjf7crrzwcyz6775cj89njn3",
+        "amount": [
+          {
+            "denom": "uatom",
+            "amount": "1000"
+          }
+        ]
+      }
+    }
+  ],
+  "fee": {
+    "amount": [
+      {
+        "denom": "uatom",
+        "amount": "100"
+      }
+    ],
+    "gas": "100000"
+  },
+  "signatures": [
+    {
+      "signature": "XLMK4OEpeJHzQLUe6lIPNMF2NiSQalz6MMpRnXhCIW9xgjOGNWFAysS5Vb8zR9e/nSGIdKtU9EhU0u2vrqYABA==",
+      "account_number": "16354",
+      "sequence": "5",
+      "pub_key": {
+        "type": "tendermint/PubKeySecp256k1",
+        "value": "A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
+      }
+    }
+  ],
+  "memo": "Sent from the citadel! "
+}

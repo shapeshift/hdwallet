@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import tx_unsigned from "./tx02.current.cosmoshub3.json";
-import tx_signed from "./tx02.current.cosmoshub3.signed.json";
+import tx_unsigned from "./tx03.future.cosmoshub4.json";
+import tx_signed from "./tx03.future.cosmoshub4.signed.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
@@ -61,7 +61,7 @@ export function cosmosTests(get: () => { wallet: core.HDWallet; info: core.HDWal
         const input: core.CosmosSignTx = {
           tx: (tx_unsigned as unknown) as core.CosmosTx,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
-          chain_id: "cosmoshub-3",
+          chain_id: "cosmoshub-4",
           account_number: "16354",
           sequence: "5",
         };
