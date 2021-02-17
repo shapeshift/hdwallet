@@ -61,7 +61,7 @@ export function cosmosTests(get: () => { wallet: core.HDWallet; info: core.HDWal
         const input: core.CosmosSignTx = {
           tx: (tx_unsigned as unknown) as core.CosmosTx,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
-          chain_id: "cosmoshub-3",
+          chain_id: "cosmoshub-4",
           account_number: "16354",
           sequence: "5",
         };
