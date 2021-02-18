@@ -92,7 +92,7 @@ export class EncryptedWallet {
   /**
    * Generate a new mnemonic and encrypt it with the email and password
    */
-  async createWallet(mnemonic?) {
+  async createWallet(mnemonic?: string) {
     if (!this.isInitialized) throw new Error("Wallet is not initialized");
     if(!mnemonic) mnemonic = await this.#helper.generateMnemonic();
 
