@@ -194,7 +194,7 @@ describe("NativeBinanceWallet", () => {
   });
 
   it("should only handle pubkeys returned from the BNB SDK if they are in amino format", async () => {
-    expect.assertions(5);
+    expect.assertions(6);
     const original = BinanceSDK.BncClient.prototype.transfer;
     const mock = jest
       .spyOn(BinanceSDK.BncClient.prototype, "transfer")
@@ -254,7 +254,7 @@ describe("NativeBinanceWallet", () => {
         sequence: Number.NaN,
       })
     ).rejects.toThrowError();
-    expect(mswMock).toHaveBeenCalledWith("GET", "https://dex.binance.org/api/v1/account/bnb1qzc0v2q7u6484czzal6ncuvqmg9fae8n2xe2c6");
+    expect(mswMock).toHaveBeenCalledWith("GET", "https://dex.binance.org/api/v1/node-info");
     mswMock.clear();
   });
 
