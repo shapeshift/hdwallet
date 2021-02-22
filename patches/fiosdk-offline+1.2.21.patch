@@ -1,0 +1,93 @@
+diff --git a/node_modules/fiosdk-offline/lib/FIOSDK.d.ts b/node_modules/fiosdk-offline/lib/FIOSDK.d.ts
+index 37db79f..a453cec 100644
+--- a/node_modules/fiosdk-offline/lib/FIOSDK.d.ts
++++ b/node_modules/fiosdk-offline/lib/FIOSDK.d.ts
+@@ -3,6 +3,7 @@ import { AddPublicAddressResponse, AvailabilityResponse, BalanceResponse, FioFee
+ import { EndPoint } from './entities/EndPoint';
+ import { PublicAddress } from './entities/PublicAddress';
+ import { Transactions } from './transactions/Transactions';
++import { PrivateKey } from '@fioprotocol/fiojs/dist/chain-jssig';
+ /**
+  * @ignore
+  */
+@@ -112,7 +113,7 @@ export declare class FIOSDK {
+     /**
+      * the fio private key of the client sending requests to FIO API.
+      */
+-    privateKey: string;
++    privateKey: PrivateKey;
+     /**
+      * the fio public key of the client sending requests to FIO API.
+      */
+@@ -141,7 +142,7 @@ export declare class FIOSDK {
+      * @param registerMockUrl the url to the mock server
+      * @param technologyProviderId Default FIO Address of the wallet which generates transactions.
+      */
+-    constructor(privateKey: string, publicKey: string, baseUrl: string, fetchjson: FetchJson, registerMockUrl?: string, technologyProviderId?: string);
++    constructor(privateKey: PrivateKey, publicKey: string, baseUrl: string, fetchjson: FetchJson, registerMockUrl?: string, technologyProviderId?: string);
+     /**
+      * Retrieves the FIO public key assigned to the FIOSDK instance.
+      */
+diff --git a/node_modules/fiosdk-offline/lib/FIOSDK.js b/node_modules/fiosdk-offline/lib/FIOSDK.js
+index 923f6b4..7a7cd15 100644
+--- a/node_modules/fiosdk-offline/lib/FIOSDK.js
++++ b/node_modules/fiosdk-offline/lib/FIOSDK.js
+@@ -108,7 +108,8 @@ class FIOSDK {
+      * @returns FIO public key derived from the FIO private key.
+      */
+     static derivedPublicKey(fioPrivateKey) {
+-        const publicKey = Ecc.privateToPublic(fioPrivateKey);
++        let publicKey = fioPrivateKey.publicKey;
++        if (typeof fioPrivateKey.publicKey !== "string") publicKey = Ecc.privateToPublic(fioPrivateKey);
+         return { publicKey };
+     }
+     /**
+diff --git a/node_modules/fiosdk-offline/lib/transactions/Transactions.d.ts b/node_modules/fiosdk-offline/lib/transactions/Transactions.d.ts
+index 52af9b9..a40d439 100644
+--- a/node_modules/fiosdk-offline/lib/transactions/Transactions.d.ts
++++ b/node_modules/fiosdk-offline/lib/transactions/Transactions.d.ts
+@@ -1,6 +1,7 @@
+ import { AbiResponse } from '../entities/AbiResponse';
+ import { RawTransaction } from '../entities/RawTransaction';
+ import 'fast-text-encoding';
++import { PrivateKey } from '@fioprotocol/fiojs/dist/chain-jssig';
+ declare type FetchJson = (uri: string, opts?: Object) => any;
+ export declare class Transactions {
+     static baseUrl: string;
+@@ -11,7 +12,7 @@ export declare class Transactions {
+     };
+     static fetchJson: FetchJson;
+     publicKey: string;
+-    privateKey: string;
++    privateKey: PrivateKey;
+     serilizeEndpoint: string;
+     validationData: object;
+     validationRules: any | null;
+@@ -20,8 +21,8 @@ export declare class Transactions {
+     getBlock(chain: any): Promise<any>;
+     pushToServer(transaction: RawTransaction, endpoint: string, dryRun: boolean): Promise<any>;
+     executeCall(endPoint: string, body: string, fetchOptions?: any): Promise<any>;
+-    getCipherContent(contentType: string, content: any, privateKey: string, publicKey: string): string;
+-    getUnCipherContent(contentType: string, content: any, privateKey: string, publicKey: string): any;
++    getCipherContent(contentType: string, content: any, privateKey: PrivateKey, publicKey: string): string;
++    getUnCipherContent(contentType: string, content: any, privateKey: PrivateKey, publicKey: string): any;
+     validate(): void;
+ }
+ export {};
+diff --git a/node_modules/fiosdk-offline/lib/transactions/signed/SignedTransaction.d.ts b/node_modules/fiosdk-offline/lib/transactions/signed/SignedTransaction.d.ts
+index 604ff47..9108fa6 100644
+--- a/node_modules/fiosdk-offline/lib/transactions/signed/SignedTransaction.d.ts
++++ b/node_modules/fiosdk-offline/lib/transactions/signed/SignedTransaction.d.ts
+@@ -1,10 +1,11 @@
++import { PrivateKey } from '@fioprotocol/fiojs/dist/chain-jssig';
+ import { Transactions } from '../Transactions';
+ export declare abstract class SignedTransaction extends Transactions {
+     abstract ENDPOINT: string;
+     abstract ACTION: string;
+     abstract ACCOUNT: string;
+     abstract getData(): any;
+-    execute(privateKey: string, publicKey: string, dryRun?: boolean): Promise<any>;
++    execute(privateKey: PrivateKey, publicKey: string, dryRun?: boolean): Promise<any>;
+     prepareResponse(result: any): any;
+     parseProcessedResult(processed: any): any;
+     getAction(): string;
