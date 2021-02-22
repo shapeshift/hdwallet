@@ -37,7 +37,8 @@
     "lerna-bump-version-alpha": "lerna publish --no-push --skip-npm --force-publish '*' prepatch --yes",
     "lerna-bump-version-patch": "lerna publish --no-push --skip-npm --force-publish '*' patch --yes",
     "lerna-bump-version-minor": "lerna publish --no-push --skip-npm --force-publish '*' minor --yes",
-    "lerna-bump-version-major": "lerna publish --no-push --skip-npm --force-publish '*' major --yes"
+    "lerna-bump-version-major": "lerna publish --no-push --skip-npm --force-publish '*' major --yes",
+    "postinstall": "patch-package"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",
@@ -65,5 +66,9 @@
   },
   "engines": {
     "node": "^10 || ^12 || ^14"
+  },
+  "dependencies": {
+    "patch-package": "^6.2.2",
+    "postinstall-postinstall": "^2.1.0"
   }
 }
