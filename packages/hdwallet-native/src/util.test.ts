@@ -1,9 +1,8 @@
 import { default as util } from "./util";
-import * as bip32 from "bip32";
-import * as bip39 from "bip39";
+import * as Isolation from "./crypto/isolation";
 
 describe("getKeyPair", () => {
-  const seed = bip32.fromSeed(bip39.mnemonicToSeedSync("all all all all all all all all all all all all"));
+  const seed = (new Isolation.BIP39.Mnemonic("all all all all all all all all all all all all")).toSeed();
 
   it("should produce the key pair at m/1337/0", async () => {
     expect(util.getKeyPair(seed, [1337, 0])).toEqual({

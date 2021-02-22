@@ -3,6 +3,8 @@ import { toCashAddress, toLegacyAddress } from "bchaddrjs";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { getNetwork } from "./networks";
 import { NativeHDWalletBase } from "./native";
+import util from "./util";
+import { SeedInterface as IsolatedBIP32Seed } from "./crypto/isolation/core/bip32/interfaces";
 
 const supportedCoins = ["bitcoin", "dash", "digibyte", "dogecoin", "litecoin", "bitcoincash", "testnet"];
 
@@ -29,13 +31,6 @@ type BchInputData = {
 }
 
 type InputData = UtxoData | ScriptData | BchInputData;
-
-function getKeyPair(seed: Buffer, addressNList: number[], coin, scriptType?: BTCScriptType): bitcoin.ECPairInterface {
-  const network = getNetwork(coin, scriptType);
-  const wallet = bitcoin.bip32.fromSeed(seed, network);
-  const path = core.addressNListToBIP32(addressNList);
-  return bitcoin.ECPair.fromWIF(wallet.derivePath(path).toWIF(), getNetwork(coin, scriptType));
-}
 
 export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeBTCWalletInfo extends Base implements core.BTCWalletInfo {
@@ -137,9 +132,9 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
   return class MixinNativeBTCWallet extends Base {
     _supportsBTC: boolean;
 
-    #wallet: Buffer;
+    #wallet: IsolatedBIP32Seed;
 
-    async btcInitializeWallet(seed: Buffer): Promise<void> {
+    async btcInitializeWallet(seed: IsolatedBIP32Seed): Promise<void> {
       this.#wallet = seed;
     }
 
@@ -215,7 +210,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
     buildInput(coin: core.Coin, input: core.BTCSignTxInput): InputData {
       return this.needsMnemonic(!!this.#wallet, () => {
         const { addressNList, amount, hex, scriptType, tx, vout } = input;
-        const keyPair = getKeyPair(this.#wallet, addressNList, coin, scriptType);
+        const keyPair = util.getKeyPair(this.#wallet, addressNList, coin, scriptType);
 
         const isSegwit = segwit.includes(scriptType);
         const nonWitnessUtxo = hex && Buffer.from(hex, "hex");
@@ -258,7 +253,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
     async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
       return this.needsMnemonic(!!this.#wallet, () => {
         const { addressNList, coin, scriptType } = msg;
-        const keyPair = getKeyPair(this.#wallet, addressNList, coin, scriptType);
+        const keyPair = util.getKeyPair(this.#wallet, addressNList, coin, scriptType);
         const { address } = this.createPayment(keyPair.publicKey, scriptType, keyPair.network);
         return coin.toLowerCase() === "bitcoincash" ? toCashAddress(address) : address;
       });
@@ -293,7 +288,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
 
             let address = addr;
             if (!address) {
-              const keyPair = getKeyPair(this.#wallet, addressNList, coin, scriptType);
+              const keyPair = util.getKeyPair(this.#wallet, addressNList, coin, scriptType);
               const { publicKey, network } = keyPair;
               const payment = this.createPayment(publicKey, scriptType, network);
               address = payment.address;
@@ -318,7 +313,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
         await Promise.all(inputs.map(async (input, idx) => {
           try {
             const { addressNList, scriptType } = input;
-            const keyPair = getKeyPair(this.#wallet, addressNList, coin, scriptType);
+            const keyPair = util.getKeyPair(this.#wallet, addressNList, coin, scriptType);
             await psbt.signInputAsync(idx, keyPair);
           } catch (e) {
             throw new Error(`failed to sign input: ${e}`);
