@@ -1,3 +1,7 @@
+import { splitSignature } from "@ethersproject/bytes";
+import { keccak256 } from "@ethersproject/keccak256";
+import { recoverPublicKey } from "@ethersproject/signing-key";
+import { computeAddress, parse as parseTransaction } from "@ethersproject/transactions";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as NativeHDWallet from "./native";
 
@@ -73,14 +77,25 @@ describe("NativeETHWallet", () => {
       data: "0xDEADBEEFDEADBEEFDEADBEEFDEADBEEF",
       chainId: 1,
     });
+    // This is the output from tiny-secp256k1.
     expect(sig).toMatchInlineSnapshot(`
-                  Object {
-                    "r": "0xec482d7dfc3bfaf395b72dd1de692ab57c24134fb0bea39e986b16a4ad422d2f",
-                    "s": "0x505506a0fb590d7ef63c24e9ae684eef608a6f48914d7cce762164d8c0a6fb29",
-                    "serialized": "0xf88984deadbeef84deadbeef84deadbeef94deadbeefdeadbeefdeadbeefdeadbeefdeadbeef90deadbeefdeadbeefdeadbeefdeadbeef90deadbeefdeadbeefdeadbeefdeadbeef26a0ec482d7dfc3bfaf395b72dd1de692ab57c24134fb0bea39e986b16a4ad422d2fa0505506a0fb590d7ef63c24e9ae684eef608a6f48914d7cce762164d8c0a6fb29",
-                    "v": 38,
-                  }
-              `);
+      Object {
+        "r": "0x7f21bb5a857db55c888355b2e48325062268ad62686fba56a4e57118f5783dda",
+        "s": "0x3e9893ed500842506a19288eb022b5f5b3cee6d1bbf6330f4304f60f8166f82a",
+        "serialized": "0xf88984deadbeef84deadbeef84deadbeef94deadbeefdeadbeefdeadbeefdeadbeefdeadbeef90deadbeefdeadbeefdeadbeefdeadbeef90deadbeefdeadbeefdeadbeefdeadbeef26a07f21bb5a857db55c888355b2e48325062268ad62686fba56a4e57118f5783ddaa03e9893ed500842506a19288eb022b5f5b3cee6d1bbf6330f4304f60f8166f82a",
+        "v": 38,
+      }
+    `);
+    // This is the output of the native library's own signing function.
+    /*expect(sig).toMatchInlineSnapshot(`
+      Object {
+        "r": "0xec482d7dfc3bfaf395b72dd1de692ab57c24134fb0bea39e986b16a4ad422d2f",
+        "s": "0x505506a0fb590d7ef63c24e9ae684eef608a6f48914d7cce762164d8c0a6fb29",
+        "serialized": "0xf88984deadbeef84deadbeef84deadbeef94deadbeefdeadbeefdeadbeefdeadbeefdeadbeef90deadbeefdeadbeefdeadbeefdeadbeef90deadbeefdeadbeefdeadbeefdeadbeef26a0ec482d7dfc3bfaf395b72dd1de692ab57c24134fb0bea39e986b16a4ad422d2fa0505506a0fb590d7ef63c24e9ae684eef608a6f48914d7cce762164d8c0a6fb29",
+        "v": 38,
+      }
+    `);*/
+    expect(parseTransaction(sig.serialized).from).toEqual("0x73d0385F4d8E00C5e6504C6030F47BF6212736A8");
   });
 
   it("should sign a message correctly", async () => {
@@ -89,12 +104,28 @@ describe("NativeETHWallet", () => {
       addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
       message: msg,
     });
+    // This is the output from tiny-secp256k1.
     expect(sig).toMatchInlineSnapshot(`
+      Object {
+        "address": "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
+        "signature": "0x72d4baca0c1ca0eea587decb0177ded99fb50f62c4bd24d8595000d70e6383833eb0700fb6c96086154c2607b735ee1047ed4060211b32a52b43d827615b3e691c",
+      }
+    `);
+    // This is the output of the native library's own signing function.
+    /*expect(sig).toMatchInlineSnapshot(`
       Object {
         "address": "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
         "signature": "0xd67ad52016d6fbc19fb9db81f32dd22cb67570b93b1c0e64ae30a4c2bc0b9c265c2d0f86906610d0cecac42ab90ee298a3474a5eb6d895aa7279d344f32aab191b",
       }
-    `);
+    `);*/
+    expect(
+      computeAddress(
+        recoverPublicKey(
+          keccak256(new TextEncoder().encode(`\x19Ethereum Signed Message:\n${msg.length}${msg}`)),
+          splitSignature(sig.signature)
+        )
+      )
+    ).toEqual(sig.address);
   });
 
   it("should verify a correctly signed message", async () => {
@@ -104,6 +135,17 @@ describe("NativeETHWallet", () => {
         message: "super secret message",
         signature:
           "0xd67ad52016d6fbc19fb9db81f32dd22cb67570b93b1c0e64ae30a4c2bc0b9c265c2d0f86906610d0cecac42ab90ee298a3474a5eb6d895aa7279d344f32aab191b",
+      })
+    ).toBe(true);
+  });
+
+  it("should verify a differently, but still correctly, signed message", async () => {
+    expect(
+      await wallet.ethVerifyMessage({
+        address: "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
+        message: "super secret message",
+        signature:
+          "0x72d4baca0c1ca0eea587decb0177ded99fb50f62c4bd24d8595000d70e6383833eb0700fb6c96086154c2607b735ee1047ed4060211b32a52b43d827615b3e691c",
       })
     ).toBe(true);
   });
