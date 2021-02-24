@@ -92,9 +92,9 @@ export class EncryptedWallet {
   /**
    * Generate a new mnemonic and encrypt it with the email and password
    */
-  async createWallet() {
+  async createWallet(mnemonic?: string) {
     if (!this.isInitialized) throw new Error("Wallet is not initialized");
-    const mnemonic = await this.#helper.generateMnemonic();
+    mnemonic = mnemonic ?? await this.#helper.generateMnemonic();
 
     if (!validateMnemonic(mnemonic)) {
       throw new Error("Invalid mnemonic");
