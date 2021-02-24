@@ -5,6 +5,7 @@ import { BinanceWallet, BinanceWalletInfo } from "./binance";
 import { RippleWallet, RippleWalletInfo } from "./ripple";
 import { EosWallet, EosWalletInfo } from "./eos";
 import { FioWallet, FioWalletInfo } from "./fio";
+import { ThorchainWallet, ThorchainWalletInfo } from "./thorchain";
 import { DebugLinkWallet } from "./debuglink";
 import { Transport } from "./transport";
 import { isObject } from "lodash";
@@ -143,6 +144,14 @@ export function infoCosmos(info: any): info is CosmosWalletInfo {
   return isObject(info) && (info as any)._supportsCosmosInfo;
 }
 
+export function supportsThorchain(wallet: any): wallet is ThorchainWallet {
+  return isObject(wallet) && (wallet as any)._supportsThorchain;
+}
+
+export function infoThorchain(info: any): info is ThorchainWalletInfo {
+  return isObject(info) && (info as any)._supportsThorchainInfo;
+}
+
 export function supportsEos(wallet: any): wallet is EosWallet {
   return isObject(wallet) && (wallet as any)._supportsEos;
 }
@@ -197,6 +206,7 @@ export interface HDWalletInfo {
   _supportsBinanceInfo: boolean;
   _supportsEosInfo: boolean;
   _supportsFioInfo: boolean;
+  _supportsThorchainInfo: boolean;
   /**
    * Retrieve the wallet's vendor string.
    */
@@ -245,6 +255,7 @@ export interface HDWallet extends HDWalletInfo {
   _supportsRipple: boolean;
   _supportsEos: boolean;
   _supportsFio: boolean;
+  _supportsThorchain: boolean;
   _supportsDebugLink: boolean;
 
   transport?: Transport;

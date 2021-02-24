@@ -4,6 +4,7 @@ export * from "./transport";
 export * from "./wallet";
 export * from "./bitcoin";
 export * from "./cosmos";
+export * from "./thorchain";
 export * from "./binance";
 export * from "./ethereum";
 export * from "./debuglink";

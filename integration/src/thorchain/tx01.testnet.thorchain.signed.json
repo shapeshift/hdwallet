@@ -1,0 +1,39 @@
+{
+  "type": "auth/StdTx",
+  "value": {
+    "fee": {
+      "amount": [
+        {
+          "amount": "1000",
+          "denom": "rune"
+        }
+      ],
+      "gas": "28000"
+    },
+    "memo": "KeepKey",
+    "msg": [
+      {
+        "type": "thorchain/MsgSend",
+        "value": {
+          "amount": [
+            {
+              "amount": "47000",
+              "denom": "rune"
+            }
+          ],
+          "from_address": "tthor1jvt443rvhq5h8yrna55yjysvhtju0el7ldnwwy",
+          "to_address": "tthor1dheycdevq39qlkxs2a6wuuzyn4aqxhve3hhmlw"
+        }
+      }
+    ],
+    "signatures": [
+      {
+        "pub_key": {
+          "type": "tendermint/PubKeySecp256k1",
+          "value": "A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
+        },
+        "signature": "ka8jz36z+IYOQFYJGMS6c/YBoKJhXHBevkjBwDTiT6kLxpU43j4T+78vAxPfnhatJJax1OejT+eHFrGfL8Cwaw=="
+      }
+    ]
+  }
+}
