@@ -1,26 +1,18 @@
-import {
-  bip32ToAddressNList,
-  HDWallet,
-  BinanceWallet,
-  supportsBinance,
-  BinanceTx,
-} from "@shapeshiftoss/hdwallet-core";
+import { bip32ToAddressNList, HDWallet, BinanceWallet, supportsBinance } from "@shapeshiftoss/hdwallet-core";
+import { isKeepKey } from "@shapeshiftoss/hdwallet-keepkey";
 import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
 
-import * as tx01_unsigned from "./tx01.unsigned.json";
-import * as tx01_signed from "./tx01.signed.json";
+import tx02_unsigned from "./tx02.mainnet.unsigned.json";
+import tx02_signed from "./tx02.mainnet.signed.json";
 
-const MNEMONIC12_NOPIN_NOPASSPHRASE =
-  "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
+const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
 const TIMEOUT = 60 * 1000;
 
 /**
  *  Main integration suite for testing BinanceWallet implementations' Cosmos support.
  */
-export function binanceTests(
-  get: () => { wallet: HDWallet; info: HDWalletInfo }
-): void {
+export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): void {
   let wallet: BinanceWallet & HDWallet;
 
   describe("Binance", () => {
@@ -43,18 +35,9 @@ export function binanceTests(
       "binanceGetAccountPaths()",
       () => {
         if (!wallet) return;
-        let paths = wallet.binanceGetAccountPaths({ accountIdx: 0 });
-        console.log("binanceGetAccountPaths: ", paths);
-
+        const paths = wallet.binanceGetAccountPaths({ accountIdx: 0 });
         expect(paths.length > 0).toBe(true);
         expect(paths[0].addressNList[0] > 0x80000000).toBe(true);
-        paths.forEach((path) => {
-          let curAddr = path.addressNList.join();
-          let nextAddr = wallet
-            .binanceNextAccountPath(path)
-            .addressNList.join();
-          expect(nextAddr === undefined || nextAddr !== curAddr).toBeTruthy();
-        });
       },
       TIMEOUT
     );
@@ -79,13 +62,18 @@ export function binanceTests(
         if (!wallet) return;
 
         let res = await wallet.binanceSignTx({
-          tx: (tx01_unsigned as unknown) as BinanceTx,
+          tx: tx02_unsigned,
           addressNList: bip32ToAddressNList("m/44'/714'/0'/0/0"),
           chain_id: "Binance-Chain-Nile",
           account_number: "24250",
-          sequence: "0",
+          sequence: 0,
         });
-        expect(res).toEqual((tx01_signed as unknown) as BinanceTx);
+
+        if (isKeepKey(wallet)) {
+          expect(res.signatures.signature).toEqual(tx02_signed.signatures.kksignature);
+        } else {
+          expect(res.signatures.signature).toEqual(tx02_signed.signatures.signature);
+        }
       },
       TIMEOUT
     );

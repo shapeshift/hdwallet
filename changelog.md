@@ -5,9 +5,99 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Current - Unreleased
+## [1.6.0] - 2020-10-28
 
-..
+### Changed
+
+- Native: Changed NativeAdapter to support more than one hdwallet instance by removing the need to provide a deviceId
+- Native: "deviceId" is now required when calling `pairDevice`
+
+## [1.5.0] - 2020-10-19
+
+## Added
+
+- Native: Add EncryptedWallet class to support encrypting/decrypting mnemonic phrases using an email/password
+
+## [1.3.0] - 2020-09-29
+
+### Added
+
+- Core: Fio types and interface
+- Native: Fio support
+
+## [1.2.4] - 2020-09-21
+
+### Fixed
+
+- Native: Use provided chain_id, account_number, and sequence if provided for Binance.
+
+### Changed
+
+- Native: Unique class variable/function names to prevent overriding wallet specific logic when mixing in classes.
+
+## [1.2.3] - 2020-09-18
+
+### Changed
+
+- Native: Add MNEMONIC_REQUIRED event when the wallet hasn't been initialized
+- Sandbox: Add "Event Log" area to help developers see the events being raised
+
+## [1.2.2] - 2020-09-15
+
+### Changed
+
+- Cosmos: Add an option "fee" property to CosmosSignTx interface
+
+## [1.2.0] - 2020-09-01
+
+### Changed
+
+- Native: Add binance support
+
+## [1.1.2] - 2020-08-12
+
+### Changed
+
+- Remove unused "hdkey" dependency
+
+## [1.1.0] - 2020-08-11
+
+### Changed
+
+- Native: Fix Cosmos support
+
+## [1.0.1] - 2020-07-13
+
+### Changed
+
+- Native: Keep the mnemonic private
+
+## [1.0.1] - 2020-07-13
+
+### Changed
+
+- Initialize each supported native wallet using seed derived from mnemonic (performance)
+
+## [1.0.0] - 2020-06-25
+
+### Added
+
+- Native: New native software hdwallet package
+- Native: Support for BTC, DASH, DGB, DOGE, LTC, ETH.
+- Native: Support for Non-Segwit, Segwit, and Native-Segwit for applicable coins
+- Native: Integration test suite
+- Native: No support for Bitcoin clones at this time (BCH, BTG, etc.)
+- Native: No support for UTXO message signing and verifying at this time
+- Prettier formatting rules and a husky pre-commit hook to run prettier against changed files
+
+### Changed
+
+- Switched HDWallet from using Microbundle to tsc (no umd or esm support)
+- Native wallet now utilizes mixins in an attempt to have a cleaner package
+
+### Fixed
+
+- Updated example payloads and data in the sandbox to support Native (using psbt which is validating inputs against pubkeyhash)
 
 ## [0.18.4] - 2020-01-08
 

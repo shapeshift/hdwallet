@@ -1,3 +1,4 @@
+import "regenerator-runtime/runtime";
 import $ from "jquery";
 import * as debug from "debug";
 import {
@@ -8,12 +9,13 @@ import {
   supportsRipple,
   supportsBinance,
   supportsEos,
-  EosPublicKeyKindMap,
-  EosSignedTx,
+  supportsFio,
   supportsDebugLink,
   bip32ToAddressNList,
   Events,
   toHexString,
+  Cosmos,
+  hardenedPath,
 } from "@shapeshiftoss/hdwallet-core";
 
 import { isKeepKey } from "@shapeshiftoss/hdwallet-keepkey";
@@ -24,11 +26,13 @@ import { TCPKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-tcp";
 import { TrezorAdapter } from "@shapeshiftoss/hdwallet-trezor-connect";
 import { WebUSBLedgerAdapter } from "@shapeshiftoss/hdwallet-ledger-webusb";
 import { PortisAdapter } from "@shapeshiftoss/hdwallet-portis";
+import { NativeAdapter, NativeEvents } from "@shapeshiftoss/hdwallet-native";
 
 import {
   BTCInputScriptType,
   BTCOutputScriptType,
   BTCOutputAddressType,
+  BTCSignTxOutput,
 } from "@shapeshiftoss/hdwallet-core/src/bitcoin";
 
 import * as btcBech32TxJson from "./json/btcBech32Tx.json";
@@ -38,23 +42,22 @@ import * as dashTxJson from "./json/dashTx.json";
 import * as dogeTxJson from "./json/dogeTx.json";
 import * as ltcTxJson from "./json/ltcTx.json";
 import * as rippleTxJson from "./json/rippleTx.json";
+import * as bnbTxJson from "./json/bnbTx.json";
 
 const keyring = new Keyring();
 
 const portisAppId = "ff763d3d-9e34-45a1-81d1-caa39b9c64f9";
+const mnemonic = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
 const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring);
 const kkemuAdapter = TCPKeepKeyAdapter.useKeyring(keyring);
 const portisAdapter = PortisAdapter.useKeyring(keyring, { portisAppId });
+const nativeAdapter = NativeAdapter.useKeyring(keyring, {
+  mnemonic,
+  deviceId: "native-wallet-test",
+});
 
 const log = debug.default("hdwallet");
-
-keyring.onAny((name: string[], ...values: any[]) => {
-  const [[deviceId, event]] = values;
-  const { from_wallet = false, message_type } = event;
-  let direction = from_wallet ? "🔑" : "💻";
-  debug.default(deviceId)(`${direction} ${message_type}`, event);
-});
 
 const trezorAdapter = TrezorAdapter.useKeyring(keyring, {
   debug: false,
@@ -79,12 +82,12 @@ const $kkemu = $("#kkemu");
 const $trezor = $("#trezor");
 const $ledger = $("#ledger");
 const $portis = $("#portis");
+const $native = $("#native");
 const $keyring = $("#keyring");
 
 $keepkey.on("click", async (e) => {
   e.preventDefault();
   wallet = await keepkeyAdapter.pairDevice(undefined, /*tryDebugLink=*/ true);
-  listen(wallet.transport);
   window["wallet"] = wallet;
   $("#keyring select").val(wallet.transport.getDeviceID());
 });
@@ -92,7 +95,6 @@ $keepkey.on("click", async (e) => {
 $kkemu.on("click", async (e) => {
   e.preventDefault();
   wallet = await kkemuAdapter.pairDevice("http://localhost:5000");
-  listen(wallet.transport);
   window["wallet"] = wallet;
   $("#keyring select").val(wallet.transport.getDeviceID());
 });
@@ -100,7 +102,6 @@ $kkemu.on("click", async (e) => {
 $trezor.on("click", async (e) => {
   e.preventDefault();
   wallet = await trezorAdapter.pairDevice();
-  listen(wallet.transport);
   window["wallet"] = wallet;
   $("#keyring select").val(await wallet.getDeviceID());
 });
@@ -126,8 +127,15 @@ $portis.on("click", async (e) => {
   $("#keyring select").val(deviceId);
 });
 
+$native.on("click", async (e) => {
+  e.preventDefault();
+  wallet = await nativeAdapter.pairDevice();
+  window["wallet"] = wallet;
+  $("#keyring select").val(await wallet.getDeviceID());
+});
+
 async function deviceConnected(deviceId) {
-  let wallet = keyring.get(deviceId);
+  wallet = keyring.get(deviceId);
   if (!$keyring.find(`option[value="${deviceId}"]`).length) {
     $keyring.append(
       $("<option></option>")
@@ -137,13 +145,36 @@ async function deviceConnected(deviceId) {
   }
 }
 
+/**
+ * START UP
+ * Initialize all adapters on page load
+ */
 (async () => {
+  keyring.onAny((name: string[], ...values: any[]) => {
+    const [[deviceId, event]] = values;
+    const { from_wallet = false, message_type } = event;
+    let direction = from_wallet ? "🔑" : "💻";
+    debug.default(deviceId)(`${direction} ${message_type}`, event);
+
+    const log = document.getElementById("eventLog");
+    log.innerHTML += `<div class="eventEntry">Event: ${name}<br />Values: ${JSON.stringify(values)}</div>`;
+    log.scrollTop = log.scrollHeight;
+  });
+
+  keyring.on(["*", "*", Events.CONNECT], async (deviceId) => {
+    await deviceConnected(deviceId);
+  });
+
+  keyring.on(["*", "*", Events.DISCONNECT], async (deviceId) => {
+    $keyring.find(`option[value="${deviceId}"]`).remove();
+  });
+
+  keyring.on(["*", "*", Events.PIN_REQUEST], () => window["pinOpen"]());
+  keyring.on(["*", "*", Events.PASSPHRASE_REQUEST], () => window["passphraseOpen"]());
+  keyring.on(["*", "*", NativeEvents.MNEMONIC_REQUIRED], () => window["mnemonicOpen"]());
+
   try {
-    await keepkeyAdapter.initialize(
-      undefined,
-      /*tryDebugLink=*/ true,
-      /*autoConnect=*/ false
-    );
+    await keepkeyAdapter.initialize(undefined, /*tryDebugLink=*/ true, /*autoConnect=*/ false);
   } catch (e) {
     console.error("Could not initialize KeepKeyAdapter", e);
   }
@@ -166,6 +197,12 @@ async function deviceConnected(deviceId) {
     console.error("Could not initialize PortisAdapter", e);
   }
 
+  try {
+    await nativeAdapter.initialize();
+  } catch (e) {
+    console.error("Could not initialize NativeAdapter", e);
+  }
+
   for (const [deviceID, wallet] of Object.entries(keyring.wallets)) {
     await deviceConnected(deviceID);
   }
@@ -176,12 +213,17 @@ async function deviceConnected(deviceId) {
     let deviceID = $keyring.find(":selected").val() as string;
     wallet = keyring.get(deviceID);
     if (wallet) {
-      await wallet.transport.connect();
-      if (isKeepKey(wallet)) {
-        console.log("try connect debuglink");
-        await wallet.transport.tryConnectDebugLink();
+      if (wallet.transport) {
+        await wallet.transport.connect();
+        if (isKeepKey(wallet)) {
+          console.log("try connect debuglink");
+          await wallet.transport.tryConnectDebugLink();
+        }
       }
-      await wallet.initialize();
+      // Initializing a native wallet will immediately prompt for the mnemonic
+      if ((await wallet.getModel()) !== "Native") {
+        await wallet.initialize();
+      }
     }
     window["wallet"] = wallet;
   });
@@ -191,18 +233,10 @@ async function deviceConnected(deviceId) {
     let deviceID = wallet.getDeviceID();
     $keyring.val(deviceID).change();
   }
-
-  keyring.on(["*", "*", Events.CONNECT], async (deviceId) => {
-    await deviceConnected(deviceId);
-  });
-
-  keyring.on(["*", "*", Events.DISCONNECT], async (deviceId) => {
-    $keyring.find(`option[value="${deviceId}"]`).remove();
-  });
 })();
 
 window["handlePinDigit"] = function (digit) {
-  let input = document.getElementById("#pinInput");
+  let input = document.getElementById("#pinInput") as HTMLInputElement;
   if (digit === "") {
     input.value = input.value.slice(0, -1);
   } else {
@@ -211,36 +245,34 @@ window["handlePinDigit"] = function (digit) {
 };
 
 window["pinOpen"] = function () {
-  document.getElementById("#pinModal").className = "modale opened";
+  document.getElementById("#pinModal").className = "modal opened";
 };
 
 window["pinEntered"] = function () {
-  let input = document.getElementById("#pinInput");
+  let input = document.getElementById("#pinInput") as HTMLInputElement;
   wallet.sendPin(input.value);
-  document.getElementById("#pinModal").className = "modale";
+  document.getElementById("#pinModal").className = "modal";
 };
 
 window["passphraseOpen"] = function () {
-  document.getElementById("#passphraseModal").className = "modale opened";
+  document.getElementById("#passphraseModal").className = "modal opened";
 };
 
 window["passphraseEntered"] = function () {
-  let input = document.getElementById("#passphraseInput");
+  let input = document.getElementById("#passphraseInput") as HTMLInputElement;
   wallet.sendPassphrase(input.value);
-  document.getElementById("#passphraseModal").className = "modale";
+  document.getElementById("#passphraseModal").className = "modal";
 };
 
-function listen(transport) {
-  if (!transport) return;
+window["mnemonicOpen"] = function () {
+  document.getElementById("#mnemonicModal").className = "modal opened";
+};
 
-  transport.on(Events.PIN_REQUEST, (e) => {
-    window["pinOpen"]();
-  });
-
-  transport.on(Events.PASSPHRASE_REQUEST, (e) => {
-    window["passphraseOpen"]();
-  });
-}
+window["mnemonicEntered"] = function () {
+  let input = document.getElementById("#mnemonicInput") as HTMLInputElement;
+  wallet.loadDevice({ mnemonic: input.value });
+  document.getElementById("#mnemonicModal").className = "modal";
+};
 
 const $yes = $("#yes");
 const $no = $("#no");
@@ -410,8 +442,7 @@ $doLoadDevice.on("click", (e) => {
     return;
   }
   wallet.loadDevice({
-    mnemonic:
-      /*trezor test seed:*/ "alcohol woman abuse must during monitor noble actual mixed trade anger aisle",
+    mnemonic: /*trezor test seed:*/ "alcohol woman abuse must during monitor noble actual mixed trade anger aisle",
   });
 });
 
@@ -524,37 +555,12 @@ $binanceTx.on("click", async (e) => {
     return;
   }
   if (supportsBinance(wallet)) {
-    let unsigned = {
-      account_number: "34",
-      chain_id: "Binance-Chain-Nile",
-      data: "null",
-      memo: "test",
-      msgs: [
-        {
-          inputs: [
-            {
-              address: "tbnb1hgm0p7khfk85zpz5v0j8wnej3a90w709zzlffd",
-              coins: [{ amount: 1000000000, denom: "BNB" }],
-            },
-          ],
-          outputs: [
-            {
-              address: "tbnb1ss57e8sa7xnwq030k2ctr775uac9gjzglqhvpy",
-              coins: [{ amount: 1000000000, denom: "BNB" }],
-            },
-          ],
-        },
-      ],
-      sequence: "31",
-      source: "1",
-    };
-
     let res = await wallet.binanceSignTx({
       addressNList: bip32ToAddressNList(`m/44'/714'/0'/0/0`),
       chain_id: "Binance-Chain-Nile",
       account_number: "24250",
-      sequence: "31",
-      tx: unsigned,
+      sequence: 31,
+      tx: bnbTxJson,
     });
     $binanceResults.val(JSON.stringify(res));
   } else {
@@ -562,8 +568,6 @@ $binanceTx.on("click", async (e) => {
     $binanceResults.val(label + " does not support Cosmos");
   }
 });
-
-
 
 /*
  * Ripple
@@ -635,13 +639,11 @@ $eosAddr.on("click", async (e) => {
     let result = await wallet.eosGetPublicKey({
       addressNList,
       showDisplay: false,
-      kind: 0,
     });
     result = await wallet.eosGetPublicKey({
       addressNList,
       showDisplay: true,
       kind: 0,
-      address: result,
     });
     $eosResults.val(result);
   } else {
@@ -658,34 +660,34 @@ $eosTx.on("click", async (e) => {
   }
   if (supportsEos(wallet)) {
     let unsigned_main = {
-      "expiration": "2020-04-30T22:00:00.000",
-      "ref_block_num": 54661,
-      "ref_block_prefix": 2118672142,
-      "max_net_usage_words": 0,
-      "max_cpu_usage_ms": 0,
-      "delay_sec": 0,
-      "context_free_actions": [],
-      "actions": [
+      expiration: "2020-04-30T22:00:00.000",
+      ref_block_num: 54661,
+      ref_block_prefix: 2118672142,
+      max_net_usage_words: 0,
+      max_cpu_usage_ms: 0,
+      delay_sec: 0,
+      context_free_actions: [],
+      actions: [
         {
-          "account": "eosio.token",
-          "name": "transfer",
-          "authorization": [
+          account: "eosio.token",
+          name: "transfer",
+          authorization: [
             {
-              "actor": "xhackmebrosx",
-              "permission": "active"
-            }
+              actor: "xhackmebrosx",
+              permission: "active",
+            },
           ],
-          "data": {
-            "from": "xhackmebrosx",
-            "to": "xhighlanderx",
-            "quantity": "0.0001 EOS",
-            "memo": "testmemo"
-          }
-        }
-      ]
+          data: {
+            from: "xhackmebrosx",
+            to: "xhighlanderx",
+            quantity: "0.0001 EOS",
+            memo: "testmemo",
+          },
+        },
+      ],
     };
 
-    let chainid_main = "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906"
+    let chainid_main = "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906";
     let res = await wallet.eosSignTx({
       addressNList: bip32ToAddressNList("m/44'/194'/0'/0/0"),
       chain_id: chainid_main,
@@ -697,13 +699,84 @@ $eosTx.on("click", async (e) => {
     console.log("sigR = %s", toHexString(res.signatureR));
     console.log("sigS = %s", toHexString(res.signatureS));
     console.log("hash = %s", toHexString(res.hash));
-    console.log("EosFormatSig = %s", res.eosFormSig)
-    console.log("EosFormReSig = SIG_K1_Jxa7NRL1hj4Q9wqufaSZa7oAXQQnRxSuAeFSwx6EzHnzPVeB5y6qQge16WCYa3Xod1mDWZv3MnEEPFeK3bEf3iN6es1iVy")
+    console.log("EosFormatSig = %s", res.eosFormSig);
+    console.log(
+      "EosFormReSig = SIG_K1_Jxa7NRL1hj4Q9wqufaSZa7oAXQQnRxSuAeFSwx6EzHnzPVeB5y6qQge16WCYa3Xod1mDWZv3MnEEPFeK3bEf3iN6es1iVy"
+    );
 
     $eosResults.val(res.eosFormSig);
   } else {
     let label = await wallet.getLabel();
     $eosResults.val(label + " does not support Eos");
+  }
+});
+
+/*
+ * Fio
+ */
+const $fioAddr = $("#fioAddr");
+const $fioTx = $("#fioTx");
+const $fioResults = $("#fioResults");
+
+$fioAddr.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $ethResults.val("No wallet?");
+    return;
+  }
+  if (supportsFio(wallet)) {
+    let { addressNList } = wallet.fioGetAccountPaths({ accountIdx: 0 })[0];
+    let result = await wallet.fioGetPublicKey({
+      addressNList,
+      showDisplay: false,
+      kind: 0,
+    });
+    result = await wallet.fioGetPublicKey({
+      addressNList,
+      showDisplay: true,
+      kind: 0,
+      address: result,
+    });
+    $fioResults.val(result);
+  } else {
+    let label = await wallet.getLabel();
+    $fioResults.val(label + " does not support ");
+  }
+});
+
+$fioTx.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $ethResults.val("No wallet?");
+    return;
+  }
+  if (supportsFio(wallet)) {
+    let unsigned_main = {
+      expiration: "2020-04-30T22:00:00.000",
+      ref_block_num: 54661,
+      ref_block_prefix: 2118672142,
+      max_net_usage_words: 0,
+      max_cpu_usage_ms: 0,
+      delay_sec: 0,
+      context_free_actions: [],
+      actions: [],
+    };
+
+    let chainid_main = "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906";
+    let res = await wallet.fioSignTx({
+      addressNList: bip32ToAddressNList("m/44'/194'/0'/0/0"),
+      chain_id: chainid_main,
+      tx: unsigned_main,
+    });
+
+    console.log(res);
+    console.log("signature = %d", res.signature);
+    console.log("serialized = %s", toHexString(res.serialized));
+
+    $eosResults.val(res.fioFormSig);
+  } else {
+    let label = await wallet.getLabel();
+    $fioResults.val(label + " does not support Fio");
   }
 });
 
@@ -726,10 +799,9 @@ $cosmosAddr.on("click", async (e) => {
       addressNList,
       showDisplay: false,
     });
-    result = await wallet.cosmosGetAddress({
+    await wallet.cosmosGetAddress({
       addressNList,
       showDisplay: true,
-      address: result,
     });
     $cosmosResults.val(result);
   } else {
@@ -745,36 +817,28 @@ $cosmosTx.on("click", async (e) => {
     return;
   }
   if (supportsCosmos(wallet)) {
-    let unsigned = {
-      type: "auth/StdTx",
-      value: {
-        fee: {
-          amount: [
-            {
-              amount: "1000",
-              denom: "uatom",
-            },
-          ],
-          gas: "28000",
-        },
-        memo: "KeepKey",
-        msg: [
-          {
-            type: "cosmos-sdk/MsgSend",
-            value: {
-              amount: [
-                {
-                  amount: "47000",
-                  denom: "uatom",
-                },
-              ],
-              from_address: "cosmos1934nqs0ke73lm5ej8hs9uuawkl3ztesg9jp5c5",
-              to_address: "cosmos14um3sf75lc0kpvgrpj9hspqtv0375epn05cpfa",
-            },
-          },
-        ],
-        signatures: null,
+    let unsigned: Cosmos.StdTx = {
+      memo: "KeepKey",
+      fee: {
+        amount: [{ amount: "100", denom: "ATOM" }],
+        gas: "1000",
       },
+      msg: [
+        {
+          type: "cosmos-sdk/MsgSend",
+          value: {
+            amount: [
+              {
+                amount: "47000",
+                denom: "uatom",
+              },
+            ],
+            from_address: "cosmos1934nqs0ke73lm5ej8hs9uuawkl3ztesg9jp5c5",
+            to_address: "cosmos14um3sf75lc0kpvgrpj9hspqtv0375epn05cpfa",
+          },
+        },
+      ],
+      signatures: null,
     };
 
     let res = await wallet.cosmosSignTx({
@@ -810,6 +874,7 @@ $ethAddr.on("click", async (e) => {
     $ethResults.val("No wallet?");
     return;
   }
+
   if (supportsETH(wallet)) {
     let { hardenedPath, relPath } = wallet.ethGetAccountPaths({
       coin: "Ethereum",
@@ -902,6 +967,228 @@ $ethVerify.on("click", async (e) => {
 });
 
 /*
+      ERC-20
+        * segwit: false
+        * mutltisig: false
+        * Bech32: false
+
+*/
+const $erc20DynamicContainer = $("#erc20DynamicContainer");
+
+const $erc20Addr = $("#erc20Addr");
+const $erc20Allowance = $("#erc20Allowance");
+const $erc20Approve = $("#erc20Approve");
+const $erc20BalanceOf = $("#erc20BalanceOf");
+const $erc20TotalSupply = $("#erc20TotalSupply");
+const $erc20Transfer = $("#erc20Transfer");
+const $erc20TransferFrom = $("#erc20TransferFrom");
+
+const $erc20Results = $("#erc20Results");
+const $erc20Submit = $("#erc20Submit");
+
+let erc20Selected: any;
+
+function erc20SetSetSelected(selectedButton: any) {
+  const erc20ButtonContentMap = [
+    {
+      button: $erc20Addr,
+      content: "",
+    },
+    {
+      button: $erc20Allowance,
+      content:
+        "\
+      <input type='text' placeholder='Contract Address' id='erc20ContractAddress' />\
+      <input type='text' placeholder='Owner Address' id='erc20OwnerAddress' />\
+      <input type='text' placeholder='Spender Address' id='erc20SpenderAddress' />\
+      ",
+    },
+    {
+      button: $erc20Approve,
+      content:
+        "\
+      <input type='text' placeholder='Contract Address' id='erc20ContractAddress' />\
+      <input type='text' placeholder='Spender Address' id='erc20SpenderAddress' />\
+      <input type='text' placeholder='Amount' id='erc20Amount' />\
+      ",
+    },
+    {
+      button: $erc20BalanceOf,
+      content:
+        "\
+      <input type='text' placeholder='Contract Address' id='erc20ContractAddress' />\
+      <input type='text' placeholder='Account Address' id='erc20AccountAddress' />\
+      ",
+    },
+    {
+      button: $erc20TotalSupply,
+      content: "\
+      <input type='text' placeholder='Contract Address' id='erc20ContractAddress' />\
+      ",
+    },
+    {
+      button: $erc20Transfer,
+      content:
+        "\
+      <input type='text' placeholder='Contract Address' id='erc20ContractAddress' />\
+      <input type='text' placeholder='Recipient Address' id='erc20RecipientAddress' />\
+      <input type='text' placeholder='Amount' id='erc20Amount' />\
+      ",
+    },
+    {
+      button: $erc20TransferFrom,
+      content:
+        "\
+      <input type='text' placeholder='Contract Address' id='erc20ContractAddress' />\
+      <input type='text' placeholder='Sender Address' id='erc20SenderAddress' />\
+      <input type='text' placeholder='Recipient Address' id='erc20RecipientAddress' />\
+      <input type='text' placeholder='Amount' id='erc20Amount' />\
+      ",
+    },
+  ];
+
+  erc20ButtonContentMap
+    .map((o) => o.button)
+    .forEach((button) => {
+      if (button == selectedButton) {
+        button.attr("class", "button");
+        $erc20DynamicContainer.empty();
+        $erc20DynamicContainer.append(erc20ButtonContentMap.filter((o) => o.button == button)[0].content);
+        erc20Selected = button;
+      } else {
+        button.attr("class", "button-outline");
+      }
+    });
+}
+
+$erc20Addr.on("click", async (e) => {
+  e.preventDefault();
+  erc20SetSetSelected($erc20Addr);
+});
+
+$erc20TotalSupply.on("click", async (e) => {
+  e.preventDefault();
+  erc20SetSetSelected($erc20TotalSupply);
+});
+
+$erc20BalanceOf.on("click", async (e) => {
+  e.preventDefault();
+  erc20SetSetSelected($erc20BalanceOf);
+});
+
+$erc20Allowance.on("click", async (e) => {
+  e.preventDefault();
+  erc20SetSetSelected($erc20Allowance);
+});
+
+$erc20Transfer.on("click", async (e) => {
+  e.preventDefault();
+  erc20SetSetSelected($erc20Transfer);
+});
+
+$erc20Approve.on("click", async (e) => {
+  e.preventDefault();
+  erc20SetSetSelected($erc20Approve);
+});
+
+$erc20TransferFrom.on("click", async (e) => {
+  e.preventDefault();
+  erc20SetSetSelected($erc20TransferFrom);
+});
+
+$erc20Submit.on("click", async (e) => {
+  if (!wallet) {
+    $erc20Results.val("No wallet?");
+    return;
+  }
+
+  let result: any;
+  let data: any;
+
+  if (supportsETH(wallet)) {
+    let { hardenedPath, relPath } = wallet.ethGetAccountPaths({
+      coin: "Ethereum",
+      accountIdx: 0,
+    })[0];
+
+    switch (erc20Selected) {
+      case $erc20Addr:
+        result = await wallet.ethGetAddress({
+          addressNList: hardenedPath.concat(relPath),
+          showDisplay: false,
+        });
+        result = await wallet.ethGetAddress({
+          addressNList: hardenedPath.concat(relPath),
+          showDisplay: true,
+          address: result,
+        });
+        break;
+      case $erc20Allowance:
+        data =
+          "0x" +
+          "dd62ed3e" + // ERC-20 contract allowance function identifier
+          $("#erc20OwnerAddress").val().replace("0x", "").padStart(64, "0") +
+          $("#erc20SpenderAddress").val().replace("0x", "").padStart(64, "0");
+
+        break;
+      case $erc20Approve:
+        data =
+          "0x" +
+          "095ea7b3" + // ERC-20 contract approve function identifier
+          $("#erc20SpenderAddress").val().replace("0x", "").padStart(64, "0") +
+          parseInt($("#erc20Amount").val(), 10).toString(16).padStart(64, "0");
+        break;
+      case $erc20BalanceOf:
+        data =
+          "0x" +
+          "70a08231" + // ERC-20 contract balanceOf function identifier
+          $("#erc20AccountAddress").val().replace("0x", "").padStart(64, "0");
+        break;
+      case $erc20TotalSupply:
+        data = "0x" + "18160ddd"; // ERC-20 contract totalSupply function identifier
+
+        break;
+      case $erc20Transfer:
+        data =
+          "0x" +
+          "a9059cbb" + // ERC-20 contract transfer function identifier
+          $("#erc20RecipientAddress").val().replace("0x", "").padStart(64, "0") +
+          parseInt($("#erc20Amount").val(), 10).toString(16).padStart(64, "0");
+        break;
+      case $erc20TransferFrom:
+        data =
+          "0x" +
+          "23b872dd" + // ERC-20 contract transferFrom function identifier
+          $("#erc20SenderAddress").val().replace("0x", "").padStart(64, "0") +
+          $("#erc20RecipientAddress").val().replace("0x", "").padStart(64, "0") +
+          parseInt($("#erc20Amount").val(), 10).toString(16).padStart(64, "0");
+        break;
+      default:
+        console.log("oops", erc20Selected);
+        return;
+    }
+    if (erc20Selected != $erc20Addr) {
+      result = await wallet.ethSignTx({
+        addressNList: hardenedPath.concat(relPath),
+        nonce: "0x0",
+        gasPrice: "0x5FB9ACA00",
+        gasLimit: "0x186A0",
+        value: "0x00",
+        to: $("#erc20ContractAddress").val(),
+        chainId: 1,
+        data: data,
+      });
+    }
+  } else {
+    const label = await wallet.getLabel();
+    $erc20Results.val(label + " does not support ETH");
+  }
+
+  console.log(result);
+  $erc20Results.val(JSON.stringify(result, null, 4));
+});
+
+/*
       Bitcoin
         * segwit: false
         * mutltisig: true
@@ -941,9 +1228,9 @@ $btcTx.on("click", async (e) => {
     $btcResults.val("No wallet?");
     return;
   }
+
   if (supportsBTC(wallet)) {
-    const txid =
-      "b3002cd9c033f4f3c2ee5a374673d7698b13c7f3525c1ae49a00d2e28e8678ea";
+    const txid = "b3002cd9c033f4f3c2ee5a374673d7698b13c7f3525c1ae49a00d2e28e8678ea";
     const hex =
       "010000000181f605ead676d8182975c16e7191c21d833972dd0ed50583ce4628254d28b6a3010000008a47304402207f3220930276204c83b1740bae1da18e5a3fa2acad34944ecdc3b361b419e3520220598381bdf8273126e11460a8c720afdbb679233123d2d4e94561f75e9b280ce30141045da61d81456b6d787d576dce817a2d61d7f8cb4623ee669cbe711b0bcff327a3797e3da53a2b4e3e210535076c087c8fb98aef60e42dfeea8388435fc99dca43ffffffff0250ec0e00000000001976a914f7b9e0239571434f0ccfdba6f772a6d23f2cfb1388ac10270000000000001976a9149c9d21f47382762df3ad81391ee0964b28dd951788ac00000000";
 
@@ -951,8 +1238,8 @@ $btcTx.on("click", async (e) => {
       {
         addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
         scriptType: BTCInputScriptType.SpendAddress,
-        amount: String(14657949219),
-        vout: 0,
+        amount: String(10000),
+        vout: 1,
         txid: txid,
         tx: btcTxJson,
         hex,
@@ -964,10 +1251,11 @@ $btcTx.on("click", async (e) => {
         address: "1MJ2tj2ThBE62zXbBYA5ZaN3fdve5CPAz1",
         addressType: BTCOutputAddressType.Spend,
         scriptType: BTCOutputScriptType.PayToAddress,
-        amount: String(390000 - 10000),
+        amount: String(10000 - 1000),
         isChange: false,
       },
     ];
+
     let res = await wallet.btcSignTx({
       coin: "Bitcoin",
       inputs: inputs,
@@ -975,6 +1263,7 @@ $btcTx.on("click", async (e) => {
       version: 1,
       locktime: 0,
     });
+
     $btcResults.val(res.serializedTx);
   } else {
     let label = await wallet.getLabel();
@@ -1067,8 +1356,7 @@ $ltcTx.on("click", async (e) => {
     return;
   }
   if (supportsBTC(wallet)) {
-    const txid =
-      "1de79c706f34c81bbefad49a9ff8d12b6ca86b77605a1998505e4f8792a5892d";
+    const txid = "1de79c706f34c81bbefad49a9ff8d12b6ca86b77605a1998505e4f8792a5892d";
     const hex =
       "010000000196f5704ef948abb958f32ff216112d3283142baf50723833c378882c14a9adea010000006a47304402207c899ba5197a23b1f3cc4b3621abbc682b5142f3ae29af4b951952573f6c82a002203fd7f038aa8403d2c06fd32c237ab4e915939c25aafa7bcb06fb0ddd46afbfd3012103eddbce765b6d7ae1c91b779696e8b8f72ce444070f83beba2f823af76fd4dfebffffffff0290680a00000000001976a91491e975a0238fa1dfff703e50f062e2544a3e372088aca6791100000000001976a91415757f526dc67b52ae9f74918db532eebc39608688ac00000000";
 
@@ -1173,8 +1461,7 @@ $dogeTx.on("click", async (e) => {
     return;
   }
   if (supportsBTC(wallet)) {
-    const txid =
-      "4ab8c81585bf61ddcba03f4b2f4958b3800d68b02874f4955e258775cb3e7068";
+    const txid = "4ab8c81585bf61ddcba03f4b2f4958b3800d68b02874f4955e258775cb3e7068";
     const hex =
       "01000000048831c8a8c7f06e5f4ecccb789cc9de0fc843208797652ff9edf6edaa64d02789010000006a473044022070e25a73ceebaf5b3a35d5e4930ebba77957a2fe485b9dcbaf982a7c63d4baab02206e75dcc4258db29a2803d6a14112d3d81f93ec23f9b2a61bfe8102d764d7c6390121031b49bb2c43daac784377bcca83c41f781007626e6e8b66cda9f57fed11494359feffffff52a8a6ac8ea9b436069c160caae68b2eb0a5b713a7b838179833af5a339e48e9000000006a47304402206b3aa1a4656d4859b87512a5fb50c73f0f6e05d45fa027850a3e1eb4f927675402201fb1c52d85380727d28bea7a21d434bed2d57d3a120082c6c69d578b4f3da07c0121033034cf66b3b153a81713b3ddbcdffd92c34c46510353cf01b237fcfbcf1348bdfeffffff35f6938fd9d9077d913bd6cfc546cbadb17d4db6ccb67d87a1f89e562d6bed8e000000006b483045022100a0e8a73fc2358a206a73a78582fd7ebba2fb08487aca78aaa89cbf7f9805da0102207704f4f27ff6297b11acd74f8e3f28d924c4006ac0d37dd37bbdba1ef8f401ae0121038ac65cabea63b92d3aabd3f17591c23bbec73b87220a3f0325fe2de9e62107e3feffffff07cd534960ea57fdb4195d3de7dae1feb1e630a022c08baca2f2423f4d190a27010000006a47304402203c89ade05e93ee9cb9bfa0703be55a76abd40330108a5e5272bcd0c8338c35df022042d8cb34275e87df1b77f19e9dde5da553b98bca67c1c332a53392b32d55ba580121038291eee31aa046a00938dda548c0c948f57bf5dc6e534abbe0d5078a6ce083a0feffffff02b8adfa31000000001976a9146ef1cda5c24d47934853aeccce14163e3a18be1388ac02bd9348080000001976a914d3f096cbc84bd6daf7e7fe2700c32548ca2f23f188acadd31600";
 
@@ -1182,8 +1469,8 @@ $dogeTx.on("click", async (e) => {
       {
         addressNList: dogeBip44.addressNList.concat([0, 0]),
         scriptType: BTCInputScriptType.SpendAddress,
-        amount: String(14657949219),
-        vout: 0,
+        amount: String(35577380098),
+        vout: 1,
         txid: txid,
         segwit: false,
         tx: dogeTxJson,
@@ -1196,7 +1483,7 @@ $dogeTx.on("click", async (e) => {
         address: "DMEHVGRsELY5zyYbfgta3pAhedKGeaDeJd",
         addressType: BTCOutputAddressType.Spend,
         scriptType: BTCOutputScriptType.PayToAddress,
-        amount: String(14557949219),
+        amount: String(35577380098),
         isChange: false,
       },
     ];
@@ -1258,8 +1545,7 @@ $bchTx.on("click", async (e) => {
     return;
   }
   if (supportsBTC(wallet)) {
-    const txid =
-      "35ec5b47eea3b45efb062c6fabad43987a79b855dc42630b34f8d26d4a646a2e";
+    const txid = "35ec5b47eea3b45efb062c6fabad43987a79b855dc42630b34f8d26d4a646a2e";
     const hex =
       "0100000002a90f75f5924be1fb8147885f6212fefeed3d192eb23a737265f01c822aa74be9000000006b48304502210092dbd26379c6a707b5974bf9ce242baf151a2cef95a5644f6bd4fa05bcbf433e0220125c3647fe473a7e9bf89cb092e1f5e2b26f10a33a12c23b2cfbf2bb1d72c6324121035942ab1589fb2f85c0b3e0c9a37b8ea3092ac749fcbc20733ed227322b5da9ecffffffffbaa5bc3a01a705c377b3ee88ae21ca70ee9d3694f05c466f420cc2bd1951afe5000000006b483045022100a79147c5cf806a2bb3bb6619113cc4bf9b522aaf529ea1b34a93b99bd33054020220019df030c623c9e782f23e755fa9259ec708427606cce8302d5a125e4147838a4121035942ab1589fb2f85c0b3e0c9a37b8ea3092ac749fcbc20733ed227322b5da9ecffffffff0188c7d200000000001976a914806b281a1dc91915339e1efdbce8ace8dd9d5e3388ac00000000";
 
@@ -1267,7 +1553,7 @@ $bchTx.on("click", async (e) => {
       {
         addressNList: bchBip44.addressNList.concat([0, 0]),
         scriptType: BTCInputScriptType.SpendAddress,
-        amount: String(1567200),
+        amount: String(13813640),
         vout: 0,
         txid: txid,
         segwit: false,
@@ -1277,15 +1563,12 @@ $bchTx.on("click", async (e) => {
 
     const outputs = [
       {
-        address: (await wallet.btcSupportsScriptType(
-          "BitcoinCash",
-          BTCInputScriptType.CashAddr
-        ))
+        address: (await wallet.btcSupportsScriptType("BitcoinCash", BTCInputScriptType.CashAddr))
           ? "bitcoincash:qq5mg2xtp9y5pvvgy7m4k2af5a7s5suulueyywgvnf"
           : "14oWXZFPhgP9DA3ggPzhHpUUaikDSjAuMC",
         addressType: BTCOutputAddressType.Spend,
         scriptType: BTCOutputScriptType.PayToAddress,
-        amount: String(1567200),
+        amount: String(13813640),
         isChange: false,
       },
     ];
@@ -1347,16 +1630,15 @@ $dashTx.on("click", async (e) => {
     return;
   }
   if (supportsBTC(wallet)) {
-    const txid =
-      "0602c9ef3c74de624f1bc613a79764e5c51650b4cc0d076547061782baeeabdb";
+    const txid = "94b3bbe89e5106d93d07be311a543958fa0de127d4bf747e9102c43e92cbb55f";
     const hex =
-      "0100000001ca2abfc4e998a904d9591ba0e7ac506c2e6eb6fb6cfd23dab3edf8525f5966b3000000006a47304402200452d3ad2aefe2b712c1eae89d1b96df5016570c7fcda3dcb49fd7ae51fe97a102201fe2a70aafb5355c4e4b5db8d98724df4e38e2951caef3cbb9b690d909922cbe0121036ac34cb12ac492c0eb0d1a07bd73a5a5f08bc6ba27b710276073704de9912921ffffffff01834f3b01000000001976a914546dabff283c7d6cf56dd85b5e5d3a4150449db688ac00000000";
+      "0100000001816b126842a9703a2c003cd32108d33b345bce68726bb4341fccf3703704c605000000006b483045022100f23368614d166894e5c75e3a99413b72b30ce45d13c00a50e836380819582c8602206bee0e276d684c794becf27f23426d0da457fcfedbb8c4a86bd3657ca357ee1c0121036ac34cb12ac492c0eb0d1a07bd73a5a5f08bc6ba27b710276073704de9912921ffffffff01f7984b00000000001976a914ed52e17e6d182a28148c3719385ced4e30b5c0bb88ac00000000";
 
     const inputs = [
       {
         addressNList: dashBip44.addressNList.concat([0, 0]),
         scriptType: BTCInputScriptType.SpendAddress,
-        amount: String(20654195),
+        amount: String(4954359),
         vout: 0,
         txid: txid,
         segwit: false,
@@ -1370,7 +1652,7 @@ $dashTx.on("click", async (e) => {
         address: "XexybzTUtH9V9eY4UJN2aCcBT3utan5C8N",
         addressType: BTCOutputAddressType.Spend,
         scriptType: BTCOutputScriptType.PayToAddress,
-        amount: String(20664195),
+        amount: String(4000000),
         isChange: false,
       },
     ];
@@ -1430,29 +1712,33 @@ $dgbTx.on("click", async (e) => {
     $dgbResults.val("No wallet?");
     return;
   }
+
+  // use all mnemonic as there is no valid tx on alcohol abuse to use for Native signing
+  await wallet.loadDevice({
+    mnemonic: "all all all all all all all all all all all all",
+  });
+
   if (supportsBTC(wallet)) {
     const inputs = [
       {
-        addressNList: dgbBip44.addressNList.concat([1, 8]),
+        addressNList: dgbBip44.addressNList.concat([0, 0]),
         scriptType: BTCInputScriptType.SpendAddress,
-        amount: String(6296665274),
-        vout: 1,
-        txid:
-          "e105f91187880e76fef52021866f5b8eed6654d89ee38ea2046729a89b91dd9d",
+        amount: String(480000000),
+        vout: 15,
+        txid: "be150359df4123b379f1f12de978bfced92644645da17b97c7613879f4306a90",
         tx: null,
         hex:
-          "0100000001c12804112b0eb2a57fd31674d6873376a11b22cdd30528c577ebaff1bd94f7d7000000006b483045022100939aa562ce80f49e959e6a65be95a8cef72c8d0363a191ff583556727bc56cf00220583fb9d7e9748c8df0489ed3d5d12d5c046bcc48413fa207dc5b8ae5aec02871012103d9225136ed8d7152b5a7b11fc8da236fe4221b1d5ae84ca458ef9f3aaa2d2335ffffffff02b95012dc1000000017a914bf98b6dea3c0d8b4be2d2855a0ca9bbdf06427e487ba7c4f77010000001976a914642bc1a3baac46e913f63c8c6b0a5572e221a90088ac00000000",
+          "01000000010b89406fd53f648dbf5cc7a46443794487684833c4bb7a067c86bdcf88362d4b010000006b4830450221009b38f01ca6b06c9fddb5d17ecaf306b140181074e06d50d38b4f61bc81c34d0202200eb9d37f551f6599a3488a8215cf53a347ced76b1dfb1c171855390a5576cd5a012102ee6d4720bc42ae172a1b1fbd1c0fccf4b9f364054f5ba1681f5e206c3b3a4d65ffffffff14486b9e7e750000001976a914f972645c9db830433fe9672b55452b4310c9501288ac0066a957160000001976a914584df25dff6f9eff9a86f2a49807249417913de288ac00bb4547170000001976a914cf934b123f7d1d0e6ecceff45dd881c6b3a1a7c588ac0020bcbe000000001976a91445ef856d2aa149ad66c4f98b115cd53ac88bcbbe88ac0063fe4e090000001976a91464d0c1a15eedb75f74a05b7282bbfc425e9a41ef88ac008b10e72e0300001976a91423cacb5aa41a375e057a38920396e889dd431e4d88ac6b884a1e0f0000001976a9149a32a47d48569012e3539a4be52c9436af9337a788ac003d7bc1210000001976a9147ba2fcb7d0d1321d8501019c2d9f68848e70bf7a88ac00389c1c0000000017a914d3b07c1aaea886f8ceddedec440623f812e49ddc87599e220afc0000001976a914e05ed2af3b5e20f3481e17fa26ef220a70237d7f88ac5475e2d91c0000001976a9147403f2f35e9c9e1f465a34d03afb7ff85f50770588acc9a9ce043c0000001976a914510fffca0668d410aea742e95a2fefa7952f695e88acf8f71c55890000001976a914916014ab503133671da74cfa18570debc332d63888acdfdeae45000000001976a9149cfc24e08cb9189839b0b5c973dec6cc1e1e662488ac8d10f92b954000001976a91433eed4c1b486b6c51824eab5a5d25dc47e0acc7e88ac00389c1c000000001976a914a4b8f22d44a76f96e035a75e01d55fc4cad081e188ac855ed4696f0000001976a9148d18463cb1e415242e49dfd3154a0edfcf16f25988ac439d5ff7180000001976a9144227b8ea4d92a707402bc96378a19ff5d83c5f9088ac9d2724980e0000001976a914b721f681fdbf9541cc5e2aed31a1fbb16a727fdf88ac893d1cf2e20000001976a91442f1d1103b1e9e10efdb5a0b1b88dfe627467dc288ac00000000",
       },
       {
-        addressNList: dgbBip44.addressNList.concat([0, 5]),
+        addressNList: dgbBip44.addressNList.concat([0, 0]),
         scriptType: BTCInputScriptType.SpendAddress,
-        amount: String(81931969674),
+        amount: String(10000000),
         vout: 0,
-        txid:
-          "eb46d956987d83edf39dea4f469e6fb96fb83626b2f0122a3e6592944047b971",
+        txid: "528ec23eaf123282e9bce297ebb3edfb05e8b4d5875cbc9c271a98d72a202340",
         tx: null,
         hex:
-          "0100000001c154deb896c45ea6c48313b79a8e6f5cb5637e489c1d50b62165dbd814955f29000000006a47304402206800f2e2496ebb637fab73aefee03d668fad979f6ee164479cedfdd134d5dd6c0220449d593cf638f455e37aebc54acfc177993f9244ad4c7b86bc3cac77d5d45b000121025306e93111a17603bf8e3d9dddc1a9215bbba1177779837978cd80544755f854ffffffff018aa48613130000001976a9145473f9ceaedb87e3d57d6c946e41c1fc1e99bb8988ac00000000",
+          "0100000001442377be8a2c1d8769dd417382f8ac1a35f33c86de89e2dcf997522e7ae9e6b7000000006a473044022004f4072085e7a9e1f84cb77653f02f7a5b301b3d3514fe750e86d42f617c429a0220338f779601a38ff18c7adfd1a1ccd8f723de12ff4f9c41b7b72f1c0f6f4738ac012103723d91852ec39078fb9d167fe2c4e86be1325057d707ab69ce625699d86a537fffffffff0280969800000000001976a914a4b8f22d44a76f96e035a75e01d55fc4cad081e188ac66e00c16000000001976a9144afe51fbe5fb6cd4814ce74b31d7535a5f4a63bc88ac00000000",
       },
     ];
 
@@ -1461,7 +1747,7 @@ $dgbTx.on("click", async (e) => {
         address: "SWpe93hQL2pLUDLy7swsDPWQJGCHSsgmun",
         addressType: null,
         scriptType: BTCOutputScriptType.PayToMultisig,
-        amount: String(49408035571),
+        amount: String(400000000),
         isChange: false,
       },
       {
@@ -1469,7 +1755,7 @@ $dgbTx.on("click", async (e) => {
         addressType: null,
         scriptType: BTCOutputScriptType.PayToAddress,
         relpath: "1/9",
-        amount: String(38820597425),
+        amount: String(90000000),
         isChange: true,
         index: 9,
       },
@@ -1487,6 +1773,9 @@ $dgbTx.on("click", async (e) => {
     let label = await wallet.getLabel();
     $dgbResults.val(label + " does not support Dash");
   }
+
+  // set mnemonic back to alcohol abuse
+  await wallet.loadDevice({ mnemonic });
 });
 
 /*
@@ -1553,8 +1842,7 @@ $btcTxSegWit.on("click", async (e) => {
     return;
   }
   if (supportsBTC(wallet)) {
-    const txid =
-      "609410a9eac51cdce2b9c1911c7b8705bc566e164bca07ae25f2dee87b5b6a91";
+    const txid = "609410a9eac51cdce2b9c1911c7b8705bc566e164bca07ae25f2dee87b5b6a91";
     const hex =
       "01000000021b09436d8f9fae331e8810ca8ddf5b2bac1c95338a98280ad75efb6773d54a03000000006b48304502210081734b9b58d109997241c85806e6a5c97ba79f4a76ddb98eb227626b21ac1d290220534bee7f3f2a1803b851570b62825a589b5989f69afa44ddee5b591b8f822d3d012103fa044f4e622a9dc7a877155efad20816c6994f95bd1dc21c339a820395a32e01ffffffffe4b64ecf01f1b2e2a8c0ca86662fada7abbb991e9b4974217f5977623d515ea1010000006b4830450221008a2c95c61db777e15ebb7220c9a84565080ed87b97778a0417854fefa87e447202205dafb62309770a98868737d25bc7779caffa4b50993c36c93acf1f07a5d6d69b012102000b4b1051a63e82eeede1f1990ab226685f83ba104a0946edc740e17ce2958bffffffff02a08601000000000017a91463c4b3af0eb54b8b58b07fbde95a4ab3af3b8735874f161100000000001976a91430f7daeb4336f786cb0cf3bb162d83393681ca2d88ac00000000";
 
@@ -1570,12 +1858,13 @@ $btcTxSegWit.on("click", async (e) => {
       },
     ];
 
-    let outputs = [
+    let outputs: BTCSignTxOutput[] = [
       {
         address: "3Eq3agTHEhMCC8sZHnJJcCcZFB7BBSJKWr",
         addressType: BTCOutputAddressType.Spend,
         scriptType: BTCOutputScriptType.PayToAddress,
         amount: String(89869),
+        isChange: false,
       },
     ];
     let res = await wallet.btcSignTx({
@@ -1598,16 +1887,21 @@ $btcTxSegWitNative.on("click", async (e) => {
     $btcResultsSegWit.val("No wallet?");
     return;
   }
+
+  // use all mnemonic as there is no valid tx on alcohol abuse to use for Native signing
+  await wallet.loadDevice({
+    mnemonic: "all all all all all all all all all all all all",
+  });
+
   if (supportsBTC(wallet)) {
-    const txid =
-      "2a873672cd30bfe60f05f16db4cadec26677af0971d8fd250aa0ea1bdd8e5942";
+    const txid = "fa80a9949f1094119195064462f54d0e0eabd3139becd4514ae635b8c7fe3a46";
     const hex =
-      "01000000016f992bb21c320dc0c1e906cd84a6a7aeb99da073e6a16ec0717a89827fd1a09d010000006b483045022100ecbc1d0613dedbc7ce8a9b92fe1bb96750ad5e613000046f9a609dca07518718022024613e251c64f97a14021a30b58a6833823a25c4b5aecf0a8d446cec01316ee1012103d8a07c480c7b3d665cf6b0f83989a34ee2c7dad91c18b8cae7633e9ec7413b18ffffffff02a086010000000000160014329035c39cb274eb9cdaa662a7ab0eaaae15612b7f7d0b00000000001976a914f81af3e36a72aceab07c54bf4afa66b23d7bc15288ac00000000";
+      "01000000000101360d7a720e95a6068678eb08e91b3a8a4774222c9f34becf57d0dc4329e0a686000000001716001495f41f5c0e0ec2c7fe27f0ac4bd59a5632a40b5fffffffff02d224000000000000160014ece6935b2a5a5b5ff997c87370b16fa10f16441088ba04000000000017a914dfe58cc93d35fb99e15436f47d3bbfce820328068702483045022100f312e8246e6a00d21fd762f12231c5fb7a20094a32940b9a84e28d712a5ced9b02203b9124d7a94aa7eb1e090ceda32e884511d7068b8d47593aa46537900e3e37d40121037e8bf05c6c7223cfba3ea484ecd61ee910ae38609ea89b4a4839beed2186b3fb00000000";
 
     let inputs = [
       {
-        addressNList: [0x80000000 + 84, 0x80000000 + 0, 0x80000000 + 0],
-        amount: String(100000),
+        addressNList: [0x80000000 + 84, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
+        amount: String(9426),
         vout: 0,
         txid: txid,
         scriptType: BTCInputScriptType.SpendWitness,
@@ -1616,12 +1910,13 @@ $btcTxSegWitNative.on("click", async (e) => {
       },
     ];
 
-    let outputs = [
+    let outputs: BTCSignTxOutput[] = [
       {
         address: "bc1qc5dgazasye0yrzdavnw6wau5up8td8gdqh7t6m",
         addressType: BTCOutputAddressType.Spend,
         scriptType: BTCOutputScriptType.PayToAddress,
-        amount: String(89869),
+        amount: String(1337),
+        isChange: false,
       },
     ];
     let res = await wallet.btcSignTx({
@@ -1636,4 +1931,7 @@ $btcTxSegWitNative.on("click", async (e) => {
     let label = await wallet.getLabel();
     $btcResultsSegWit.val(label + " does not support BTC");
   }
+
+  // set mnemonic back to alcohol abuse
+  await wallet.loadDevice({ mnemonic });
 });

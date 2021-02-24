@@ -5,10 +5,8 @@ import { KeepKeyTransport } from "./transport";
 import {
   EosGetPublicKey,
   EosPublicKey,
-  EosPublicKeyKindMap,
   EosSignTx,
   EosTxHeader,
-  EosTxActionRequest,
   EosTxActionAck,
   EosActionCommon,
   EosPermissionLevel,
@@ -18,60 +16,47 @@ import {
 } from "@keepkey/device-protocol/lib/messages-eos_pb";
 import { MessageType } from "@keepkey/device-protocol/lib/messages_pb";
 
-import { cloneDeep } from "lodash";
+const createHash = require("create-hash");
 
-var Long = require("long");
-const createHash = require('create-hash')
+function eosSigFormatter(r: Uint8Array, s: Uint8Array, v: number): string {
+  const base58 = require("bs58");
 
-function eosSigFormatter(r : Uint8Array, s : Uint8Array, v : number) : string {
-/*
-  Format the signature to be useful on the eos chain
-*/
-  const base58 = require('bs58')
+  var recoverId = 0x1f;
 
-  var recoverId = 0x1f
+  var signature: string = "SIG_K1_";
 
-  var signature : string = 'SIG_K1_'
-
-  console.log("formatter logs")
+  console.log("formatter logs");
   var keyBuffer = new Buffer(65);
-  var rbuf = Buffer.from(r)
-  var sbuf = Buffer.from(s)
+  var rbuf = Buffer.from(r);
+  var sbuf = Buffer.from(s);
   keyBuffer.writeUInt8(recoverId, 0);
   rbuf.copy(keyBuffer, 1);
   sbuf.copy(keyBuffer, 33);
 
-  console.log(keyBuffer)
-  const check = [keyBuffer]
-  var keyType = 'K1'      // we only sign using K1 curve
-  check.push(Buffer.from(keyType))
+  console.log(keyBuffer);
+  const check = [keyBuffer];
+  var keyType = "K1"; // we only sign using K1 curve
+  check.push(Buffer.from(keyType));
 
-  console.log(check)
+  console.log(check);
 
-  console.log("hash")
-  console.log(createHash("ripemd160").update(Buffer.concat(check)).digest())
-  const chksum = (createHash("ripemd160").update(Buffer.concat(check)).digest()).slice(0, 4)
+  console.log("hash");
+  console.log(createHash("ripemd160").update(Buffer.concat(check)).digest());
+  const chksum = createHash("ripemd160").update(Buffer.concat(check)).digest().slice(0, 4);
 
-  console.log(chksum)
-  signature = signature.concat(base58.encode(Buffer.concat([keyBuffer, chksum])))  
+  console.log(chksum);
+  signature = signature.concat(base58.encode(Buffer.concat([keyBuffer, chksum])));
 
-  console.log(signature)
+  console.log(signature);
 
-  return signature
-
+  return signature;
 }
 
 function charToSymbol(c: string): number {
-  if (
-    c.charCodeAt(0) >= "a".charCodeAt(0) &&
-    c.charCodeAt(0) <= "z".charCodeAt(0)
-  ) {
+  if (c.charCodeAt(0) >= "a".charCodeAt(0) && c.charCodeAt(0) <= "z".charCodeAt(0)) {
     return c.charCodeAt(0) - "a".charCodeAt(0) + 6;
   }
-  if (
-    c.charCodeAt(0) >= "1".charCodeAt(0) &&
-    c.charCodeAt(0) <= "5".charCodeAt(0)
-  ) {
+  if (c.charCodeAt(0) >= "1".charCodeAt(0) && c.charCodeAt(0) <= "5".charCodeAt(0)) {
     return c.charCodeAt(0) - "1".charCodeAt(0) + 1;
   }
   return 0;
@@ -139,36 +124,21 @@ function symbolFromString(p: number, name: string): number {
   return result;
 }
 
-export function eosGetAccountPaths(
-  msg: Core.EosGetAccountPaths
-): Array<Core.EosAccountPath> {
+export function eosGetAccountPaths(msg: Core.EosGetAccountPaths): Array<Core.EosAccountPath> {
   return [
     {
-      addressNList: [
-        0x80000000 + 44,
-        0x80000000 + Core.slip44ByCoin("Eos"),
-        0x80000000 + msg.accountIdx,
-        0,
-        0,
-      ],
+      addressNList: [0x80000000 + 44, 0x80000000 + Core.slip44ByCoin("Eos"), 0x80000000 + msg.accountIdx, 0, 0],
     },
   ];
 }
 
-export async function eosGetPublicKey(
-  transport: KeepKeyTransport,
-  msg: Core.EosGetPublicKey
-): Promise<string> {
+export async function eosGetPublicKey(transport: KeepKeyTransport, msg: Core.EosGetPublicKey): Promise<string> {
   const getPubkey = new EosGetPublicKey();
   getPubkey.setAddressNList(msg.addressNList);
   getPubkey.setShowDisplay(msg.showDisplay !== false);
   getPubkey.setKind(msg.kind);
 
-  const response = await transport.call(
-    MessageType.MESSAGETYPE_EOSGETPUBLICKEY,
-    getPubkey,
-    Core.LONG_TIMEOUT
-  );
+  const response = await transport.call(MessageType.MESSAGETYPE_EOSGETPUBLICKEY, getPubkey, Core.LONG_TIMEOUT);
 
   if (response.message_type === Core.Events.FAILURE) throw response;
 
@@ -176,18 +146,13 @@ export async function eosGetPublicKey(
   return eosPubkey.getWifPublicKey();
 }
 
-export async function eosSignTx(
-  transport: KeepKeyTransport,
-  msg: Core.EosToSignTx
-): Promise<Core.EosTxSigned> {
+export async function eosSignTx(transport: KeepKeyTransport, msg: Core.EosToSignTx): Promise<Core.EosTxSigned> {
   return transport.lockDuring(async () => {
     let resp;
 
     // check some params
     if (msg.tx.actions.length > 1) {
-      throw new Error(
-        `Too many actions in Eos transaction: Keepkey only supports one!`
-      );
+      throw new Error(`Too many actions in Eos transaction: Keepkey only supports one!`);
     }
 
     const signTx = new EosSignTx();
@@ -209,14 +174,9 @@ export async function eosSignTx(
     signTx.setHeader(txHeader);
     signTx.setNumActions(msg.tx.actions.length);
 
-    console.log("tx header")
-    console.log(txHeader)
-    resp = await transport.call(
-      MessageType.MESSAGETYPE_EOSSIGNTX,
-      signTx,
-      Core.LONG_TIMEOUT,
-      true
-    );
+    console.log("tx header");
+    console.log(txHeader);
+    resp = await transport.call(MessageType.MESSAGETYPE_EOSSIGNTX, signTx, Core.LONG_TIMEOUT, true);
     if (resp.message_type === Core.Events.FAILURE) {
       throw resp;
     }
@@ -231,12 +191,8 @@ export async function eosSignTx(
     // interate through authorizations and add them
     for (let n = 0; n < msg.tx.actions[0].authorization.length; n++) {
       let actPerm = new EosPermissionLevel();
-      actPerm.setActor(
-        nameToNumber(msg.tx.actions[0].authorization[n].actor).toString()
-      );
-      actPerm.setPermission(
-        nameToNumber(msg.tx.actions[0].authorization[n].permission).toString()
-      );
+      actPerm.setActor(nameToNumber(msg.tx.actions[0].authorization[n].actor).toString());
+      actPerm.setPermission(nameToNumber(msg.tx.actions[0].authorization[n].permission).toString());
       actCommon.addAuthorization(actPerm);
     }
 
@@ -264,15 +220,10 @@ export async function eosSignTx(
       }
     }
 
-    console.log("action data")
-    console.log(actAck)
+    console.log("action data");
+    console.log(actAck);
 
-    resp = await transport.call(
-      MessageType.MESSAGETYPE_EOSTXACTIONACK,
-      actAck,
-      Core.LONG_TIMEOUT,
-      true
-    );
+    resp = await transport.call(MessageType.MESSAGETYPE_EOSTXACTIONACK, actAck, Core.LONG_TIMEOUT, true);
     if (resp.message_enum !== MessageType.MESSAGETYPE_EOSSIGNEDTX) {
       throw new Error(`eos: unexpected response ${resp.message_type}`);
     }
@@ -281,15 +232,18 @@ export async function eosSignTx(
 
     // format signature for use in the eos system
 
-//    const EosFormatSig = eosSigFormatter(signedTx.getSignatureR() as Uint8Array, signedTx.getSignatureS() as Uint8Array, signedTx.getSignatureV())
-
+    //    const EosFormatSig = eosSigFormatter(signedTx.getSignatureR() as Uint8Array, signedTx.getSignatureS() as Uint8Array, signedTx.getSignatureV())
 
     var sig = {
       signatureV: signedTx.getSignatureV(),
       signatureR: signedTx.getSignatureR(),
       signatureS: signedTx.getSignatureS(),
       hash: signedTx.getHash(),
-      eosFormSig: eosSigFormatter(signedTx.getSignatureR() as Uint8Array, signedTx.getSignatureS() as Uint8Array, signedTx.getSignatureV())
+      eosFormSig: eosSigFormatter(
+        signedTx.getSignatureR() as Uint8Array,
+        signedTx.getSignatureS() as Uint8Array,
+        signedTx.getSignatureV()
+      ),
     } as Core.EosTxSigned;
 
     return sig;

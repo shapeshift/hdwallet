@@ -1,11 +1,6 @@
 import { create as createLedger } from "@shapeshiftoss/hdwallet-ledger";
 import { Events, Keyring, HDWallet } from "@shapeshiftoss/hdwallet-core";
-import {
-  LedgerWebUsbTransport,
-  getFirstLedgerDevice,
-  getTransport,
-  openTransport,
-} from "./transport";
+import { LedgerWebUsbTransport, getFirstLedgerDevice, getTransport, openTransport } from "./transport";
 
 const VENDOR_ID = 11415;
 const APP_NAVIGATION_DELAY = 3000;
@@ -18,14 +13,8 @@ export class WebUSBLedgerAdapter {
     this.keyring = keyring;
 
     if (window && window.navigator.usb) {
-      window.navigator.usb.addEventListener(
-        "connect",
-        this.handleConnectWebUSBLedger.bind(this)
-      );
-      window.navigator.usb.addEventListener(
-        "disconnect",
-        this.handleDisconnectWebUSBLedger.bind(this)
-      );
+      window.navigator.usb.addEventListener("connect", this.handleConnectWebUSBLedger.bind(this));
+      window.navigator.usb.addEventListener("disconnect", this.handleDisconnectWebUSBLedger.bind(this));
     }
   }
 
@@ -33,19 +22,14 @@ export class WebUSBLedgerAdapter {
     return new WebUSBLedgerAdapter(keyring);
   }
 
-  private async handleConnectWebUSBLedger(
-    e: USBConnectionEvent
-  ): Promise<void> {
+  private async handleConnectWebUSBLedger(e: USBConnectionEvent): Promise<void> {
     if (e.device.vendorId !== VENDOR_ID) return;
 
     this.currentEventTimestamp = Date.now();
 
     try {
       await this.initialize(e.device);
-      this.keyring.emit(
-        [e.device.manufacturerName, e.device.productName, Events.CONNECT],
-        e.device.serialNumber
-      );
+      this.keyring.emit([e.device.manufacturerName, e.device.productName, Events.CONNECT], e.device.serialNumber);
     } catch (error) {
       this.keyring.emit(
         [e.device.manufacturerName, e.device.productName, Events.FAILURE],
@@ -54,9 +38,7 @@ export class WebUSBLedgerAdapter {
     }
   }
 
-  private async handleDisconnectWebUSBLedger(
-    e: USBConnectionEvent
-  ): Promise<void> {
+  private async handleDisconnectWebUSBLedger(e: USBConnectionEvent): Promise<void> {
     if (e.device.vendorId !== VENDOR_ID) return;
 
     const ts = Date.now();
@@ -72,10 +54,7 @@ export class WebUSBLedgerAdapter {
       } catch (e) {
         console.error(e);
       } finally {
-        this.keyring.emit(
-          [e.device.manufacturerName, e.device.productName, Events.DISCONNECT],
-          e.device.serialNumber
-        );
+        this.keyring.emit([e.device.manufacturerName, e.device.productName, Events.DISCONNECT], e.device.serialNumber);
       }
     }, APP_NAVIGATION_DELAY);
   }
@@ -93,9 +72,7 @@ export class WebUSBLedgerAdapter {
 
       const ledgerTransport = await openTransport(device);
 
-      const wallet = createLedger(
-        new LedgerWebUsbTransport(device, ledgerTransport, this.keyring)
-      );
+      const wallet = createLedger(new LedgerWebUsbTransport(device, ledgerTransport, this.keyring));
 
       this.keyring.add(wallet, device.serialNumber);
     }

@@ -52,11 +52,7 @@ function describeETHPath(path: core.BIP32Path): core.PathDescription {
   };
 }
 
-function describeUTXOPath(
-  path: core.BIP32Path,
-  coin: core.Coin,
-  scriptType: core.BTCInputScriptType
-) {
+function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType: core.BTCInputScriptType) {
   let pathStr = core.addressNListToBIP32(path);
   let unknown: core.PathDescription = {
     verbose: pathStr,
@@ -77,14 +73,11 @@ function describeUTXOPath(
 
   if (![44, 49, 84].includes(purpose)) return unknown;
 
-  if (purpose === 44 && scriptType !== core.BTCInputScriptType.SpendAddress)
-    return unknown;
+  if (purpose === 44 && scriptType !== core.BTCInputScriptType.SpendAddress) return unknown;
 
-  if (purpose === 49 && scriptType !== core.BTCInputScriptType.SpendP2SHWitness)
-    return unknown;
+  if (purpose === 49 && scriptType !== core.BTCInputScriptType.SpendP2SHWitness) return unknown;
 
-  if (purpose === 84 && scriptType !== core.BTCInputScriptType.SpendWitness)
-    return unknown;
+  if (purpose === 84 && scriptType !== core.BTCInputScriptType.SpendWitness) return unknown;
 
   if (path[1] !== 0x80000000 + core.slip44ByCoin(coin)) return unknown;
 
@@ -135,14 +128,14 @@ function describeUTXOPath(
   }
 }
 
-export class LedgerHDWalletInfo
-  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
+export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = false; // TODO ledger supports cosmos
   _supportsBinanceInfo: boolean = false; // TODO ledger supports bnb
   _supportsRippleInfo: boolean = false; // TODO ledger supports XRP
- _supportsEosInfo: boolean = false;
+  _supportsEosInfo: boolean = false;
+  _supportsFioInfo: boolean = false;
 
   public getVendor(): string {
     return "Ledger";
@@ -152,10 +145,7 @@ export class LedgerHDWalletInfo
     return btc.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(
-    coin: core.Coin,
-    scriptType: core.BTCInputScriptType
-  ): Promise<boolean> {
+  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
     return btc.btcSupportsScriptType(coin, scriptType);
   }
 
@@ -167,9 +157,7 @@ export class LedgerHDWalletInfo
     return btc.btcSupportsNativeShapeShift();
   }
 
-  public btcGetAccountPaths(
-    msg: core.BTCGetAccountPaths
-  ): Array<core.BTCAccountPath> {
+  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
     return btc.btcGetAccountPaths(msg);
   }
 
@@ -189,9 +177,7 @@ export class LedgerHDWalletInfo
     return eth.ethSupportsNativeShapeShift();
   }
 
-  public ethGetAccountPaths(
-    msg: core.ETHGetAccountPath
-  ): Array<core.ETHAccountPath> {
+  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     return eth.ethGetAccountPaths(msg);
   }
 
@@ -224,14 +210,8 @@ export class LedgerHDWalletInfo
     }
   }
 
-  public btcNextAccountPath(
-    msg: core.BTCAccountPath
-  ): core.BTCAccountPath | undefined {
-    let description = describeUTXOPath(
-      msg.addressNList,
-      msg.coin,
-      msg.scriptType
-    );
+  public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
+    let description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType);
     if (!description.isKnown) {
       return undefined;
     }
@@ -253,9 +233,7 @@ export class LedgerHDWalletInfo
     return undefined;
   }
 
-  public ethNextAccountPath(
-    msg: core.ETHAccountPath
-  ): core.ETHAccountPath | undefined {
+  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
     let addressNList = msg.hardenedPath.concat(msg.relPath);
     let description = describeETHPath(addressNList);
     if (!description.isKnown) {
@@ -294,8 +272,7 @@ export class LedgerHDWalletInfo
   }
 }
 
-export class LedgerHDWallet
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet {
+export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet {
   _supportsETHInfo: boolean = true;
   _supportsBTCInfo: boolean = true;
   _supportsDebugLink: boolean = false;
@@ -309,6 +286,8 @@ export class LedgerHDWallet
   _supportsCosmos: boolean = false;
   _supportsEosInfo: boolean = false;
   _supportsEos: boolean = false;
+  _supportsFio: boolean = false;
+  _supportsFioInfo: boolean = false;
 
   _isLedger: boolean = true;
 
@@ -407,9 +386,7 @@ export class LedgerHDWallet
     return;
   }
 
-  public async getPublicKeys(
-    msg: Array<core.GetPublicKey>
-  ): Promise<Array<core.PublicKey | null>> {
+  public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
     const res = await this.transport.call(null, "getAppAndVersion");
     handleError(res, this.transport);
 
@@ -492,10 +469,7 @@ export class LedgerHDWallet
     return this.info.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(
-    coin: core.Coin,
-    scriptType: core.BTCInputScriptType
-  ): Promise<boolean> {
+  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
     return this.info.btcSupportsScriptType(coin, scriptType);
   }
 
@@ -517,9 +491,7 @@ export class LedgerHDWallet
     return this.info.btcSupportsNativeShapeShift();
   }
 
-  public async btcSignMessage(
-    msg: core.BTCSignMessage
-  ): Promise<core.BTCSignedMessage> {
+  public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
     await this.validateCurrentApp(msg.coin);
     return btc.btcSignMessage(this, this.transport, msg);
   }
@@ -528,9 +500,7 @@ export class LedgerHDWallet
     return btc.btcVerifyMessage(msg);
   }
 
-  public btcGetAccountPaths(
-    msg: core.BTCGetAccountPaths
-  ): Array<core.BTCAccountPath> {
+  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
     return this.info.btcGetAccountPaths(msg);
   }
 
@@ -548,9 +518,7 @@ export class LedgerHDWallet
     return eth.ethGetAddress(this.transport, msg);
   }
 
-  public async ethSignMessage(
-    msg: core.ETHSignMessage
-  ): Promise<core.ETHSignedMessage> {
+  public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
     await this.validateCurrentApp("Ethereum");
     return eth.ethSignMessage(this.transport, msg);
   }
@@ -571,9 +539,7 @@ export class LedgerHDWallet
     return this.info.ethSupportsNativeShapeShift();
   }
 
-  public ethGetAccountPaths(
-    msg: core.ETHGetAccountPath
-  ): Array<core.ETHAccountPath> {
+  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     return this.info.ethGetAccountPaths(msg);
   }
 
@@ -585,15 +551,11 @@ export class LedgerHDWallet
     return this.transport.disconnect();
   }
 
-  public btcNextAccountPath(
-    msg: core.BTCAccountPath
-  ): core.BTCAccountPath | undefined {
+  public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
     return this.info.btcNextAccountPath(msg);
   }
 
-  public ethNextAccountPath(
-    msg: core.ETHAccountPath
-  ): core.ETHAccountPath | undefined {
+  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
     return this.info.ethNextAccountPath(msg);
   }
 }

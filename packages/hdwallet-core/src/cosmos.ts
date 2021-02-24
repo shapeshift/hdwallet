@@ -1,29 +1,26 @@
-import { BIP32Path } from "./wallet";
+import { addressNListToBIP32, slip44ByCoin } from "./utils";
+import { BIP32Path, PathDescription } from "./wallet";
 
 export interface CosmosGetAddress {
   addressNList: BIP32Path;
   showDisplay?: boolean;
-  /** Optional. Required for showDisplay == true. */
-  address?: string;
 }
 
-namespace Cosmos {
-  namespace sdk {
-    export interface Msg {
-      type: string;
-      value: any;
-    }
+export namespace Cosmos {
+  export interface Msg {
+    type: string;
+    value: any;
+  }
 
-    export type Coins = Coin[];
+  export type Coins = Coin[];
 
-    export interface Coin {
-      denom: string;
-      amount: string;
-    }
+  export interface Coin {
+    denom: string;
+    amount: string;
   }
 
   export interface StdFee {
-    amount: sdk.Coins;
+    amount: Coins;
     gas: string;
   }
 
@@ -40,7 +37,7 @@ namespace Cosmos {
   }
 
   export interface StdTx {
-    msg: sdk.Msg[];
+    msg: Msg[];
     fee: StdFee;
     signatures: null | StdSignature[];
     memo: string;
@@ -48,16 +45,19 @@ namespace Cosmos {
 }
 
 export interface CosmosTx {
-  type: string; // 'auth/StdTx'
-  value: Cosmos.StdTx;
+  msg: Cosmos.Msg[];
+  fee: Cosmos.StdFee;
+  signatures: null | Cosmos.StdSignature[];
+  memo: string;
 }
 
 export interface CosmosSignTx {
   addressNList: BIP32Path;
-  tx: CosmosTx;
+  tx: Cosmos.StdTx;
   chain_id: string;
   account_number: string;
   sequence: string;
+  fee?: number;
 }
 
 export type CosmosSignedTx = CosmosTx;
@@ -90,4 +90,43 @@ export interface CosmosWallet extends CosmosWalletInfo {
 
   cosmosGetAddress(msg: CosmosGetAddress): Promise<string>;
   cosmosSignTx(msg: CosmosSignTx): Promise<CosmosSignedTx>;
+}
+
+export function cosmosDescribePath(path: BIP32Path): PathDescription {
+  let pathStr = addressNListToBIP32(path);
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin: "Atom",
+    isKnown: false,
+  };
+
+  if (path.length != 5) {
+    return unknown;
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown;
+  }
+
+  if (path[1] != 0x80000000 + slip44ByCoin("Atom")) {
+    return unknown;
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown;
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown;
+  }
+
+  let index = path[2] & 0x7fffffff;
+  return {
+    verbose: `Cosmos Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "Atom",
+    isKnown: true,
+    isPrefork: false,
+  };
 }

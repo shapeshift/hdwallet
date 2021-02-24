@@ -1,31 +1,23 @@
 {
   "name": "@shapeshiftoss/hdwallet-trezor-connect",
-  "version": "0.18.11",
+  "version": "1.10.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
   "main": "dist/index.js",
   "source": "src/index.ts",
-  "umd:main": "dist/index.umd.js",
-  "module": "dist/index.m.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "microbundle --target=web --name=trezorConnectTransport",
-    "clean": "rm -rf dist .rts2_*",
-    "dev": "microbundle watch --target=web --name=trezorConnectTransport --compress=false",
+    "build": "tsc --build",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^0.18.11",
-    "@shapeshiftoss/hdwallet-trezor": "^0.18.11",
+    "@shapeshiftoss/hdwallet-core": "^1.10.0",
+    "@shapeshiftoss/hdwallet-trezor": "^1.10.0",
     "bytebuffer": "^5.0.1",
     "eventemitter2": "^5.0.1",
     "trezor-connect": "^7.0.2"
-  },
-  "devDependencies": {
-    "@types/bytebuffer": "^5.0.40",
-    "@types/w3c-web-usb": "^1.0.1",
-    "microbundle": "^0.11.0"
   }
 }

@@ -1,0 +1,60 @@
+{
+  "compilerOptions": {
+    "target": "ES2016",
+    "module": "commonjs",
+    "lib": ["es2016", "dom", "es5"],
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "composite": true,
+
+    /* Strict Type-Checking Options */
+    "strict": false,
+    // "noImplicitAny": true,                 /* Raise error on expressions and declarations with an implied 'any' type. */
+    // "strictNullChecks": true,              /* Enable strict null checks. */
+    // "strictFunctionTypes": true,           /* Enable strict checking of function types. */
+    // "strictBindCallApply": true,           /* Enable strict 'bind', 'call', and 'apply' methods on functions. */
+    // "strictPropertyInitialization": true,  /* Enable strict checking of property initialization in classes. */
+    // "noImplicitThis": true,                /* Raise error on 'this' expressions with an implied 'any' type. */
+    // "alwaysStrict": true,                  /* Parse in strict mode and emit "use strict" for each source file. */
+
+    /* Additional Checks */
+    // "noUnusedLocals": true,
+    // "noUnusedParameters": true,
+    // "noImplicitReturns": true,
+    // "noFallthroughCasesInSwitch": true,
+
+    /* Module Resolution Options */
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "baseUrl": "./packages",
+    "paths": {
+      "@shapeshiftoss/*": ["$1/src/*"]
+    },
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+
+    /* Experimental Options */
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "files": [],
+  "exclude": ["node_modules", "dist", "integration", "examples"],
+  "references": [
+    { "path": "./integration" },
+    { "path": "./packages/hdwallet-core" },
+    { "path": "./packages/hdwallet-keepkey" },
+    { "path": "./packages/hdwallet-keepkey-chromeusb" },
+    { "path": "./packages/hdwallet-keepkey-nodehid" },
+    { "path": "./packages/hdwallet-keepkey-nodewebusb" },
+    { "path": "./packages/hdwallet-keepkey-tcp" },
+    { "path": "./packages/hdwallet-keepkey-webusb" },
+    { "path": "./packages/hdwallet-ledger" },
+    { "path": "./packages/hdwallet-ledger-u2f" },
+    { "path": "./packages/hdwallet-ledger-webusb" },
+    { "path": "./packages/hdwallet-native" },
+    { "path": "./packages/hdwallet-portis" },
+    { "path": "./packages/hdwallet-trezor" },
+    { "path": "./packages/hdwallet-trezor-connect" }
+  ]
+}

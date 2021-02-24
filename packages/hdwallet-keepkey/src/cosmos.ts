@@ -1,13 +1,3 @@
-// import {
-//   CosmosGetAddress,
-//   CosmosSignTx,
-//   CosmosGetAccountPath,
-//   CosmosAccountPath,
-//   CosmosSignedTx,
-//   slip44ByCoin,
-//   LONG_TIMEOUT,
-//   Events,
-// }
 import * as Core from "@shapeshiftoss/hdwallet-core";
 
 import { KeepKeyTransport } from "./transport";
@@ -24,36 +14,25 @@ import { MessageType } from "@keepkey/device-protocol/lib/messages_pb";
 
 import { cloneDeep } from "lodash";
 
-export function cosmosGetAccountPaths(
-  msg: Core.CosmosGetAccountPaths
-): Array<Core.CosmosAccountPath> {
+export function cosmosGetAccountPaths(msg: Core.CosmosGetAccountPaths): Array<Core.CosmosAccountPath> {
   return [
     {
-      addressNList: [
-        0x80000000 + 44,
-        0x80000000 + Core.slip44ByCoin("Atom"),
-        0x80000000 + msg.accountIdx,
-        0,
-        0,
-      ],
+      addressNList: [0x80000000 + 44, 0x80000000 + Core.slip44ByCoin("Atom"), 0x80000000 + msg.accountIdx, 0, 0],
     },
   ];
 }
 
-export async function cosmosSignTx(
-  transport: KeepKeyTransport,
-  msg: Core.CosmosSignTx
-): Promise<Core.CosmosSignedTx> {
+export async function cosmosSignTx(transport: KeepKeyTransport, msg: Core.CosmosSignTx): Promise<any> {
   return transport.lockDuring(async () => {
     const signTx = new CosmosSignTx();
     signTx.setAddressNList(msg.addressNList);
     signTx.setAccountNumber(msg.account_number);
     signTx.setChainId(msg.chain_id);
-    signTx.setFeeAmount(parseInt(msg.tx.value.fee.amount[0].amount));
-    signTx.setGas(parseInt(msg.tx.value.fee.gas));
+    signTx.setFeeAmount(parseInt(msg.tx.fee.amount[0].amount));
+    signTx.setGas(parseInt(msg.tx.fee.gas));
     signTx.setSequence(msg.sequence);
-    if (msg.tx.value.memo !== undefined) signTx.setMemo(msg.tx.value.memo);
-    signTx.setMsgCount(msg.tx.value.msg.length);
+    if (msg.tx.memo !== undefined) signTx.setMemo(msg.tx.memo);
+    signTx.setMsgCount(1);
 
     let resp = await transport.call(
       MessageType.MESSAGETYPE_COSMOSSIGNTX,
@@ -64,7 +43,7 @@ export async function cosmosSignTx(
 
     if (resp.message_type === Core.Events.FAILURE) throw resp;
 
-    for (let m of msg.tx.value.msg) {
+    for (let m of msg.tx.msg) {
       if (resp.message_enum !== MessageType.MESSAGETYPE_COSMOSMSGREQUEST) {
         throw new Error(`cosmos: unexpected response ${resp.message_type}`);
       }
@@ -92,12 +71,7 @@ export async function cosmosSignTx(
         throw new Error(`cosmos: Message ${m.type} is not yet supported`);
       }
 
-      resp = await transport.call(
-        MessageType.MESSAGETYPE_COSMOSMSGACK,
-        ack,
-        Core.LONG_TIMEOUT,
-        /*omitLock=*/ true
-      );
+      resp = await transport.call(MessageType.MESSAGETYPE_COSMOSMSGACK, ack, Core.LONG_TIMEOUT, /*omitLock=*/ true);
 
       if (resp.message_type === Core.Events.FAILURE) throw resp;
     }
@@ -110,7 +84,7 @@ export async function cosmosSignTx(
 
     const signed = cloneDeep(msg.tx);
 
-    signed.value.signatures = [
+    signed.signatures = [
       {
         pub_key: {
           type: "tendermint/PubKeySecp256k1",
@@ -124,18 +98,11 @@ export async function cosmosSignTx(
   });
 }
 
-export async function cosmosGetAddress(
-  transport: KeepKeyTransport,
-  msg: Core.CosmosGetAddress
-): Promise<string> {
+export async function cosmosGetAddress(transport: KeepKeyTransport, msg: CosmosGetAddress.AsObject): Promise<string> {
   const getAddr = new CosmosGetAddress();
   getAddr.setAddressNList(msg.addressNList);
   getAddr.setShowDisplay(msg.showDisplay !== false);
-  const response = await transport.call(
-    MessageType.MESSAGETYPE_COSMOSGETADDRESS,
-    getAddr,
-    Core.LONG_TIMEOUT
-  );
+  const response = await transport.call(MessageType.MESSAGETYPE_COSMOSGETADDRESS, getAddr, Core.LONG_TIMEOUT);
 
   if (response.message_type === Core.Events.FAILURE) throw response;
 

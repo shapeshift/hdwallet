@@ -1,8 +1,4 @@
-import {
-  Keyring,
-  HDWallet,
-  FirmwareUpdateRequired,
-} from "@shapeshiftoss/hdwallet-core";
+import { Keyring, HDWallet, FirmwareUpdateRequired } from "@shapeshiftoss/hdwallet-core";
 import { create as createKeepKey } from "@shapeshiftoss/hdwallet-keepkey";
 import { NodeWebUSBKeepKeyTransport } from "./transport";
 import { VENDOR_ID, WEBUSB_PRODUCT_ID, HID_PRODUCT_ID } from "./utils";
@@ -54,8 +50,7 @@ export class NodeWebUSBKeepKeyAdapter {
 
       if (usbDevice.vendorId !== VENDOR_ID) continue;
 
-      if (usbDevice.productId !== WEBUSB_PRODUCT_ID)
-        throw new FirmwareUpdateRequired("KeepKey", "6.1.0");
+      if (usbDevice.productId !== WEBUSB_PRODUCT_ID) throw new FirmwareUpdateRequired("KeepKey", "6.1.0");
 
       if (this.keyring.wallets[usbDevice.serialNumber]) continue;
 
@@ -75,10 +70,7 @@ export class NodeWebUSBKeepKeyAdapter {
     return Object.keys(this.keyring.wallets).length;
   }
 
-  public async pairDevice(
-    serialNumber: string = undefined,
-    tryDebugLink: boolean = false
-  ): Promise<HDWallet> {
+  public async pairDevice(serialNumber: string = undefined, tryDebugLink: boolean = false): Promise<HDWallet> {
     let device = await usb.requestDevice({
       filters: [
         { vendorId: VENDOR_ID, productId: WEBUSB_PRODUCT_ID, serialNumber },
@@ -86,8 +78,7 @@ export class NodeWebUSBKeepKeyAdapter {
       ],
     });
 
-    if (device === undefined)
-      throw new Error("Could not find a WebUsb KeepKey to pair with");
+    if (device === undefined) throw new Error("Could not find a WebUsb KeepKey to pair with");
 
     await this.initialize([device], tryDebugLink, /*autoConnect=*/ true);
 

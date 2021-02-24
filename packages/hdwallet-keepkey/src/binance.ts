@@ -11,18 +11,10 @@ import {
 } from "@keepkey/device-protocol/lib/messages-binance_pb";
 import { MessageType } from "@keepkey/device-protocol/lib/messages_pb";
 
-export function binanceGetAccountPaths(
-  msg: Core.BinanceGetAccountPaths
-): Array<Core.BinanceAccountPath> {
+export function binanceGetAccountPaths(msg: Core.BinanceGetAccountPaths): Array<Core.BinanceAccountPath> {
   return [
     {
-      addressNList: [
-        0x80000000 + 44,
-        0x80000000 + Core.slip44ByCoin("Binance"),
-        0x80000000 + msg.accountIdx,
-        0,
-        0,
-      ],
+      addressNList: [0x80000000 + 44, 0x80000000 + Core.slip44ByCoin("Binance"), 0x80000000 + msg.accountIdx, 0, 0],
     },
   ];
 }
@@ -36,12 +28,11 @@ export async function binanceSignTx(
     signTx.setAddressNList(msg.addressNList);
     signTx.setAccountNumber(msg.account_number);
     signTx.setChainId(msg.chain_id);
-    signTx.setSequence(msg.sequence);
+    signTx.setSequence(String(msg.sequence));
     if (msg.tx.memo !== undefined) signTx.setMemo(msg.tx.memo);
 
     //verify not a batch tx
-    if (msg.tx.msgs.length > 1)
-      throw new Error("Binance batch sending not supported!");
+    if (msg.tx.msgs.length > 1) throw new Error("Binance batch sending not supported!");
     let message = msg.tx.msgs[0];
     //tell device not a batch tx
     signTx.setMsgCount(1);
@@ -55,7 +46,7 @@ export async function binanceSignTx(
     if (resp.message_type === Core.Events.FAILURE) throw resp;
 
     let coinOut = new BinanceTransferMsg.BinanceCoin();
-    coinOut.setAmount(message.outputs[0].coins[0].amount);
+    coinOut.setAmount(message.outputs[0].coins[0].amount.toString());
     coinOut.setDenom(message.outputs[0].coins[0].denom);
 
     let outputs = new BinanceTransferMsg.BinanceInputOutput();
@@ -63,7 +54,7 @@ export async function binanceSignTx(
     outputs.setCoinsList([coinOut]);
 
     let coinIn = new BinanceTransferMsg.BinanceCoin();
-    coinIn.setAmount(message.inputs[0].coins[0].amount);
+    coinIn.setAmount(message.inputs[0].coins[0].amount.toString());
     coinIn.setDenom(message.inputs[0].coins[0].denom);
 
     let inputs = new BinanceTransferMsg.BinanceInputOutput();
@@ -107,18 +98,11 @@ export async function binanceSignTx(
   });
 }
 
-export async function binanceGetAddress(
-  transport: KeepKeyTransport,
-  msg: Core.BinanceGetAddress
-): Promise<string> {
+export async function binanceGetAddress(transport: KeepKeyTransport, msg: Core.BinanceGetAddress): Promise<string> {
   const getAddr = new BinanceGetAddress();
   getAddr.setAddressNList(msg.addressNList);
   getAddr.setShowDisplay(msg.showDisplay !== false);
-  const response = await transport.call(
-    MessageType.MESSAGETYPE_BINANCEGETADDRESS,
-    getAddr,
-    Core.LONG_TIMEOUT
-  );
+  const response = await transport.call(MessageType.MESSAGETYPE_BINANCEGETADDRESS, getAddr, Core.LONG_TIMEOUT);
 
   if (response.message_type === Core.Events.FAILURE) throw response;
 

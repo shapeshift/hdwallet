@@ -6,10 +6,7 @@ import {
   WebUSBCouldNotPair,
   ConflictingApp,
 } from "@shapeshiftoss/hdwallet-core";
-import {
-  LedgerTransport,
-  LedgerResponse,
-} from "@shapeshiftoss/hdwallet-ledger";
+import { LedgerTransport, LedgerResponse } from "@shapeshiftoss/hdwallet-ledger";
 import Transport from "@ledgerhq/hw-transport";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import Eth from "@ledgerhq/hw-app-eth";
@@ -43,9 +40,7 @@ export async function getFirstLedgerDevice(): Promise<USBDevice> {
   return existingDevices.length > 0 ? existingDevices[0] : null;
 }
 
-export async function openTransport(
-  device: USBDevice
-): Promise<TransportWebUSB> {
+export async function openTransport(device: USBDevice): Promise<TransportWebUSB> {
   if (!(window && window.navigator.usb)) throw new WebUSBNotAvailable();
 
   try {
@@ -76,11 +71,8 @@ export async function getTransport(): Promise<TransportWebUSB> {
 export class LedgerWebUsbTransport extends LedgerTransport {
   device: USBDevice;
 
-  constructor(
-    device: USBDevice,
-    transport: Transport<USBDevice>,
-    keyring: Keyring
-  ) {
+  // @ts-ignore TODO why
+  constructor(device: USBDevice, transport: Transport<USBDevice>, keyring: Keyring) {
     super(transport, keyring);
     this.device = device;
   }
@@ -89,11 +81,7 @@ export class LedgerWebUsbTransport extends LedgerTransport {
     return (this.device as any).deviceID;
   }
 
-  public async call(
-    coin: string,
-    method: string,
-    ...args: any[]
-  ): Promise<LedgerResponse> {
+  public async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
     let response;
 
     try {
@@ -107,9 +95,7 @@ export class LedgerWebUsbTransport extends LedgerTransport {
       );
 
       if (coin) {
-        response = await new (translateCoin(coin))(this.transport)[method](
-          ...args
-        );
+        response = await new (translateCoin(coin))(this.transport)[method](...args);
       } else {
         // @ts-ignore
         response = await translateMethod(method)(this.transport, ...args);
@@ -134,9 +120,9 @@ export class LedgerWebUsbTransport extends LedgerTransport {
     if (RECORD_CONFORMANCE_MOCKS) {
       // May need a slight amount of cleanup on escaping `'`s.
       console.log(
-        `this.memoize('${coin}', '${method}',\n  JSON.parse('${JSON.stringify(
-          args
-        )}'),\n  JSON.parse('${JSON.stringify(result)}'))`
+        `this.memoize('${coin}', '${method}',\n  JSON.parse('${JSON.stringify(args)}'),\n  JSON.parse('${JSON.stringify(
+          result
+        )}'))`
       );
     }
 

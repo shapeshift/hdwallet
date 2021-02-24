@@ -17,15 +17,9 @@ export class HIDKeepKeyAdapter {
     return new HIDKeepKeyAdapter(keyring);
   }
 
-  public async initialize(
-    devices?: HID.Device[],
-    autoConnect: boolean = true
-  ): Promise<number> {
+  public async initialize(devices?: HID.Device[], autoConnect: boolean = true): Promise<number> {
     const devicesToInitialize =
-      devices ||
-      HID.devices().filter(
-        (d) => d.vendorId === VENDOR_ID && d.productId === PRODUCT_ID
-      );
+      devices || HID.devices().filter((d) => d.vendorId === VENDOR_ID && d.productId === PRODUCT_ID);
 
     for (let i = 0; i < devicesToInitialize.length; i++) {
       const hidDevice = devicesToInitialize[i];
@@ -34,9 +28,7 @@ export class HIDKeepKeyAdapter {
         await this.keyring.remove(hidDevice.serialNumber);
       }
 
-      let wallet = createHIDKeepKey(
-        new HIDKeepKeyTransport(hidDevice, this.keyring)
-      );
+      let wallet = createHIDKeepKey(new HIDKeepKeyTransport(hidDevice, this.keyring));
 
       if (autoConnect) await wallet.initialize();
 
@@ -48,30 +40,16 @@ export class HIDKeepKeyAdapter {
 
   protected handleConnectKeepKey(device: HID.Device): void {
     const deviceID = device.serialNumber;
-    const devices = HID.devices().filter(
-      (d) => d.serialNumber === device.serialNumber
-    );
+    const devices = HID.devices().filter((d) => d.serialNumber === device.serialNumber);
     this.initialize(devices)
-      .then(() => () =>
-        this.keyring.emit([device.product, deviceID, Events.CONNECT], deviceID)
-      )
+      .then(() => () => this.keyring.emit([device.product, deviceID, Events.CONNECT], deviceID))
       .catch(console.error);
   }
 
   protected handleDisconnectKeepKey(device: HID.Device): void {
     this.keyring
       .remove(device.serialNumber)
-      .then(() =>
-        this.keyring.emit(
-          [device.product, device.serialNumber, Events.DISCONNECT],
-          device.serialNumber
-        )
-      )
-      .catch(() =>
-        this.keyring.emit(
-          [device.product, device.serialNumber, Events.DISCONNECT],
-          device.serialNumber
-        )
-      );
+      .then(() => this.keyring.emit([device.product, device.serialNumber, Events.DISCONNECT], device.serialNumber))
+      .catch(() => this.keyring.emit([device.product, device.serialNumber, Events.DISCONNECT], device.serialNumber));
   }
 }

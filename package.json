@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet",
-  "version": "0.1.0",
+  "version": "1.0.2",
   "main": "index.js",
   "private": true,
   "repository": "https://github.com/shapeshift/hdwallet",
@@ -21,26 +21,18 @@
     ]
   },
   "scripts": {
-    "yarn": "yarn",
-    "lint": "prettier --write '**/**/*.ts'",
-    "clean": "rm -rf coverage test-report && lerna run clean && lerna clean && rm -rf node_modules && yarn cache clean",
-    "build": "lerna run build --scope @shapeshiftoss/hdwallet-core && yarn build:wallets && yarn build:transports",
-    "build:chromeusb": "lerna run build --scope @shapeshiftoss/keepkey-chromeusb --include-filtered-dependencies",
-    "build:hid": "lerna run build --scope @shapeshiftoss/hdwallet-keepkey-nodehid --include-filtered-dependencies",
-    "build:ledger": "lerna run build --scope @shapeshiftoss/hdwallet-ledger --scope @shapeshiftoss/hdwallet-ledger-webusb --scope @shapeshiftoss/hdwallet-ledger-u2f --scope @shapeshiftoss/hdwallet-core --include-filtered-dependencies",
-    "build:transports": "lerna run build --scope @shapeshiftoss/hdwallet-keepkey-webusb --scope @shapeshiftoss/hdwallet-keepkey-tcp --scope @shapeshiftoss/hdwallet-keepkey-nodewebusb --scope @shapeshiftoss/hdwallet-ledger-webusb --scope @shapeshiftoss/hdwallet-ledger-u2f --scope @shapeshiftoss/hdwallet-portis",
-    "build:wallets": "lerna run build --scope @shapeshiftoss/hdwallet-keepkey --scope @shapeshiftoss/hdwallet-trezor --scope @shapeshiftoss/hdwallet-ledger --scope @shapeshiftoss/hdwallet-portis",
-    "build:webusb": "lerna run build --scope @shapeshiftoss/hdwallet-keepkey-webusb --scope @shapeshiftoss/hdwallet-ledger-webusb --include-filtered-dependencies",
-    "build:portis": "lerna run build --scope @shapeshiftoss/hdwallet-portis --scope @shapeshiftoss/hdwallet-core --include-filtered-dependencies",
-    "now-build": "lerna run build --scope @shapeshiftoss/hdwallet-core && lerna run build --scope hdwallet-sandbox --ignore @shapeshiftoss/hdwallet-keepkey-nodehid --include-filtered-dependencies && mv examples/sandbox/public .",
-    "dev:all": "lerna run dev --scope @shapeshiftoss/hdwallet-keepkey-webusb --scope @shapeshiftoss/hdwallet-keepkey-nodewebusb --scope @shapeshiftoss/hdwallet-ledger-webusb --scope @shapeshiftoss/hdwallet-ledger-u2f  --scope @shapeshiftoss/hdwallet-portis --scope @shapeshiftoss/hdwallet-trezor-connect --include-filtered-dependencies --parallel",
-    "dev:chromeusb": "lerna run dev --scope chromeusb-app --parallel --include-filtered-dependencies",
-    "dev:sandbox": "lerna run dev --scope hdwallet-sandbox --parallel --include-filtered-dependencies",
-    "dev:webusb": "lerna run dev --scope webusb --parallel --include-filtered-dependencies",
+    "pre-reqs": "npm install -g typescript prettier",
+    "clean": "lerna run clean --scope @shapeshiftoss/* && rm -rf coverage test-report node_modules && yarn cache clean",
+    "lint:ts": "tsc --noEmit",
+    "format": "prettier .",
+    "build": "yarn tsc --build",
+    "dev:all": "yarn tsc --build --watch",
+    "dev:sandbox": "cd examples/sandbox && yarn dev",
     "docker:run:emulator": "docker run -p 5000:5000 kktech/kkemu:latest",
     "docker:stop:run:emulator": "docker stop $(docker ps -a -q --filter ancestor=kktech/kkemu:latest --format=\"{{.ID}}\") && docker run -p 5000:5000 kktech/kkemu:latest",
-    "test": "yarn run jest --verbose --config jest.config.js",
-    "test:ci": "yarn run jest --verbose --runInBand --ci --reporters=default --reporters=jest-junit --coverage --config jest.config.js",
+    "now-build": "lerna run build --scope @shapeshiftoss/hdwallet-core && lerna run build --scope hdwallet-sandbox --ignore @shapeshiftoss/hdwallet-keepkey-nodehid --include-filtered-dependencies && mv examples/sandbox/public .",
+    "test": "yarn jest --verbose --config jest.config.js",
+    "test:integration": "yarn jest -c integration/jest.config.js",
     "lerna:version": "lerna version --force-publish",
     "lerna-bump-version-alpha": "lerna publish --no-push --skip-npm --force-publish '*' prepatch --yes",
     "lerna-bump-version-patch": "lerna publish --no-push --skip-npm --force-publish '*' patch --yes",
@@ -48,26 +40,30 @@
     "lerna-bump-version-major": "lerna publish --no-push --skip-npm --force-publish '*' major --yes"
   },
   "devDependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/bchaddrjs": "^0.4.0",
+    "@types/bytebuffer": "^5.0.40",
+    "@types/crypto-js": "^3.1.9-1",
+    "@types/debug": "^4.1.2",
+    "@types/ethereumjs-tx": "^1.0.1",
+    "@types/google-protobuf": "^3.2.7",
+    "@types/jest": "^24.9.1",
+    "@types/node-fetch": "^2.5.7",
+    "@types/w3c-web-usb": "^1.0.3",
+    "debug": "^4.2.0",
+    "jest": "^24.9.0",
     "jest-junit": "^6.4.0",
-    "lerna": "^3.13.0",
-    "standard": "^12.0.1",
+    "lerna": "^3.22.1",
+    "prettier": "^2.0.5",
+    "pretty-quick": "^2.0.1",
+    "ts-jest": "^24.3.0",
     "typedoc": "^0.14.2",
-    "typescript": "^3.3.3",
-    "typescript-eslint-parser": "^22.0.0"
-  },
-  "standard": {
-    "parser": "typescript-eslint-parser",
-    "plugins": [
-      "typescript"
-    ]
+    "typescript": "^3.9.7"
   },
   "resolutions": {
     "**/whatwg-fetch": "^2.0.4"
   },
   "engines": {
-    "node": "^10 || ^12"
-  },
-  "dependencies": {
-    "prettier": "^2.0.2"
+    "node": "^10 || ^12 || ^14"
   }
 }
