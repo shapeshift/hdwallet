@@ -129,7 +129,7 @@ $portis.on("click", async (e) => {
 
 $native.on("click", async (e) => {
   e.preventDefault();
-  wallet = await nativeAdapter.pairDevice();
+  wallet = await nativeAdapter.pairDevice('testid');
   window["wallet"] = wallet;
   $("#keyring select").val(await wallet.getDeviceID());
 });
