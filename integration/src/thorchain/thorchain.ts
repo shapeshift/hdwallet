@@ -49,7 +49,7 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
             addressNList: core.bip32ToAddressNList("m/44'/934'/0'/0/0"),
             showDisplay: false,
           })
-        ).toEqual("");
+        ).toEqual("tthor1xz76k44xrm8cks8h0knnvx3njdzwrmrq48xhzn");
       },
       TIMEOUT
     );
