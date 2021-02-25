@@ -12,6 +12,7 @@ import { binanceTests } from "./binance";
 import { rippleTests } from "./ripple";
 import { eosTests } from "./eos";
 import { fioTests } from "./fio";
+import { thorchainTests } from "./thorchain";
 import { WalletSuite } from "./wallets/suite";
 
 /**
@@ -106,6 +107,14 @@ export function integration(suite: WalletSuite): void {
       });
 
       rippleTests(() => ({ wallet, info }));
+    });
+
+    describe("ThorchainWallet", () => {
+      beforeAll(async () => {
+        wallet = await suite.createWallet("Thorchain");
+      });
+
+      thorchainTests(() => ({ wallet, info }));
     });
 
     describe("SelfTest", () => {
