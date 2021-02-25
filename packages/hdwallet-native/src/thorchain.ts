@@ -25,7 +25,7 @@ export function MixinNativeThorchainWalletInfo<TBase extends core.Constructor>(B
     }
 
     thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
-      const slip44 = core.slip44ByCoin("Atom")
+      const slip44 = core.slip44ByCoin("Thorchain")
       return [
         {
           addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
