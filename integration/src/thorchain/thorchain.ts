@@ -40,7 +40,7 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
       TIMEOUT
     );
 
-    test.only(
+    test(
       "thorchainGetAddress()",
       async () => {
         if (!wallet) return;
