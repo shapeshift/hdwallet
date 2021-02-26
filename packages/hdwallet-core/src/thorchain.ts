@@ -98,7 +98,7 @@ export function thorchainDescribePath(path: BIP32Path): PathDescription {
   let pathStr = addressNListToBIP32(path);
   let unknown: PathDescription = {
     verbose: pathStr,
-    coin: "Atom",
+    coin: "Thorchain",
     isKnown: false,
   };
 

@@ -49,7 +49,7 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
             addressNList: core.bip32ToAddressNList("m/44'/934'/0'/0/0"),
             showDisplay: false,
           })
-        ).toEqual("");
+        ).toEqual("tthor1xz76k44xrm8cks8h0knnvx3njdzwrmrq48xhzn");
       },
       TIMEOUT
     );
@@ -59,16 +59,15 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
       async () => {
         if (!wallet) return;
         const input: core.ThorchainSignTx = {
-          tx: (tx_unsigned as unknown) as core.ThorchainTx,
+          tx: tx_unsigned as any,
           addressNList: core.bip32ToAddressNList("m/44'/934'/0'/0/0"),
           chain_id: "thorchain",
-          account_number: "",
-          sequence: "",
+          account_number: "16354",
+          sequence: "5",
         };
 
         const res = await wallet.thorchainSignTx(input);
-        console.log("res: ",res)
-        //expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
+        expect(res.signatures[0].signature).toEqual(tx_signed.value.signatures[0].signature);
       },
       TIMEOUT
     );
