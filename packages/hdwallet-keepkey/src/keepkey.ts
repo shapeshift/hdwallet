@@ -393,6 +393,7 @@ export class KeepKeyHDWalletInfo
   _supportsBinanceInfo: boolean = true;
   _supportsEosInfo: boolean = true;
   _supportsFioInfo: boolean = false;
+  _supportsThorchainInfo: boolean = false;
 
   public getVendor(): string {
     return "KeepKey";
@@ -602,6 +603,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   _supportsBinanceInfo: boolean = true;
   _supportsEosInfo: boolean = true;
   _supportsFioInfo: boolean = false;
+  _supportsThorchainInfo: boolean = false;
   _supportsDebugLink: boolean;
   _isKeepKey: boolean = true;
   _supportsETH: boolean = true;
@@ -611,6 +613,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   _supportsBinance: boolean = true;
   _supportsEos: boolean = true;
   _supportsFio: boolean = false;
+  _supportsThorchain: boolean = false;
 
   transport: KeepKeyTransport;
   features?: Messages.Features.AsObject;

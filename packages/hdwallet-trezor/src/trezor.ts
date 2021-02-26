@@ -167,6 +167,7 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
   _supportsRippleInfo: boolean = false;
   _supportsEosInfo: boolean = false;
   _supportsFioInfo: boolean = false;
+  _supportsThorchainInfo: boolean = false;
 
   public getVendor(): string {
     return "Trezor";
@@ -304,6 +305,8 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
   _supportsEos: boolean = false;
   _supportsFioInfo: boolean = false;
   _supportsFio: boolean = false;
+  _supportsThorchainInfo: boolean = false;
+  _supportsThorchain: boolean = false;
 
   transport: TrezorTransport;
   featuresCache: any;

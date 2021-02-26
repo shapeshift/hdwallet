@@ -1,0 +1,28 @@
+{
+    "fee": {
+      "amount": [
+        {
+          "amount": "1000",
+          "denom": "rune"
+        }
+      ],
+      "gas": "28000"
+    },
+    "memo": "KeepKey",
+    "msg": [
+      {
+        "type": "thorchain/MsgSend",
+        "value": {
+          "amount": [
+            {
+              "amount": "47000",
+              "denom": "rune"
+            }
+          ],
+          "from_address": "tthor1jvt443rvhq5h8yrna55yjysvhtju0el7ldnwwy",
+          "to_address": "tthor1dheycdevq39qlkxs2a6wuuzyn4aqxhve3hhmlw"
+        }
+      }
+    ],
+    "signatures": null
+}

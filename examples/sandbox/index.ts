@@ -10,6 +10,7 @@ import {
   supportsBinance,
   supportsEos,
   supportsFio,
+  supportsThorchain,
   supportsDebugLink,
   bip32ToAddressNList,
   Events,
@@ -43,6 +44,7 @@ import * as dogeTxJson from "./json/dogeTx.json";
 import * as ltcTxJson from "./json/ltcTx.json";
 import * as rippleTxJson from "./json/rippleTx.json";
 import * as bnbTxJson from "./json/bnbTx.json";
+import * as thorchainTxJson from "./json/thorchainTx.json";
 
 const keyring = new Keyring();
 
@@ -790,7 +792,7 @@ const $cosmosResults = $("#cosmosResults");
 $cosmosAddr.on("click", async (e) => {
   e.preventDefault();
   if (!wallet) {
-    $ethResults.val("No wallet?");
+    $cosmosResults.val("No wallet?");
     return;
   }
   if (supportsCosmos(wallet)) {
@@ -813,7 +815,7 @@ $cosmosAddr.on("click", async (e) => {
 $cosmosTx.on("click", async (e) => {
   e.preventDefault();
   if (!wallet) {
-    $ethResults.val("No wallet?");
+    $cosmosResults.val("No wallet?");
     return;
   }
   if (supportsCosmos(wallet)) {
@@ -852,6 +854,57 @@ $cosmosTx.on("click", async (e) => {
   } else {
     let label = await wallet.getLabel();
     $cosmosResults.val(label + " does not support Cosmos");
+  }
+});
+
+/*
+ * THORChain
+ */
+const $thorchainAddr = $("#thorchainAddr");
+const $thorchainTx = $("#thorchainTx");
+const $thorchainResults = $("#thorchainResults");
+
+$thorchainAddr.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $thorchainResults.val("No wallet?");
+    return;
+  }
+  if (supportsThorchain(wallet)) {
+    let { addressNList } = wallet.thorchainGetAccountPaths({ accountIdx: 0 })[0];
+    let result = await wallet.thorchainGetAddress({
+      addressNList,
+      showDisplay: false,
+    });
+    await wallet.thorchainGetAddress({
+      addressNList,
+      showDisplay: true,
+    });
+    $thorchainResults.val(result);
+  } else {
+    let label = await wallet.getLabel();
+    $thorchainResults.val(label + " does not support THORChain");
+  }
+});
+
+$thorchainTx.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $thorchainResults.val("No wallet?");
+    return;
+  }
+  if (supportsThorchain(wallet)) {
+    let res = await wallet.thorchainSignTx({
+      addressNList: bip32ToAddressNList(`m/44'/931'/0'/0/0`),
+      chain_id: "thorchain",
+      account_number: "24250",
+      sequence: "3",
+      tx: thorchainTxJson,
+    });
+    $thorchainResults.val(JSON.stringify(res));
+  } else {
+    let label = await wallet.getLabel();
+    $thorchainResults.val(label + " does not support THORChain");
   }
 });
 

@@ -9,6 +9,8 @@ import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
 import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binance";
 import { MixinNativeFioWalletInfo, MixinNativeFioWallet } from "./fio";
+import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./thorchain";
+
 import type { NativeAdapterArgs } from "./adapter";
 
 export enum NativeEvents {
@@ -56,7 +58,7 @@ export class NativeHDWalletBase {
 class NativeHDWalletInfo
   extends MixinNativeBTCWalletInfo(
     MixinNativeFioWalletInfo(
-      MixinNativeETHWalletInfo(MixinNativeCosmosWalletInfo(MixinNativeBinanceWalletInfo(NativeHDWalletBase)))
+      MixinNativeETHWalletInfo(MixinNativeCosmosWalletInfo(MixinNativeBinanceWalletInfo(MixinNativeThorchainWalletInfo(NativeHDWalletBase))))
     )
   )
   implements core.HDWalletInfo {
@@ -67,6 +69,7 @@ class NativeHDWalletInfo
   _supportsRippleInfo: boolean = false;
   _supportsEosInfo: boolean = false;
   _supportsFioInfo: boolean = false;
+  _supportsThorchainInfo: boolean = true;
 
   getVendor(): string {
     return "Native";
@@ -111,6 +114,10 @@ class NativeHDWalletInfo
         return core.describeETHPath(msg.path);
       case "atom":
         return core.cosmosDescribePath(msg.path);
+      case "rune":
+      case "trune":
+      case "thorchain":
+        return core.thorchainDescribePath(msg.path);
       case "binance":
         return core.binanceDescribePath(msg.path);
       case "fio":
@@ -123,9 +130,9 @@ class NativeHDWalletInfo
 
 export class NativeHDWallet
   extends MixinNativeBTCWallet(
-    MixinNativeFioWallet(MixinNativeETHWallet(MixinNativeCosmosWallet(MixinNativeBinanceWallet(NativeHDWalletInfo))))
+    MixinNativeFioWallet(MixinNativeETHWallet(MixinNativeCosmosWallet(MixinNativeBinanceWallet(MixinNativeThorchainWallet(NativeHDWalletInfo)))))
   )
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet, core.FioWallet {
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet, core.FioWallet, core.ThorchainWallet {
   _supportsBTC = true;
   _supportsETH = true;
   _supportsCosmos = true;
@@ -133,6 +140,7 @@ export class NativeHDWallet
   _supportsRipple = false;
   _supportsEos = false;
   _supportsFio = true;
+  _supportsThorchain = true;
   _supportsDebugLink = false;
   _isNative = true;
 
@@ -209,6 +217,7 @@ export class NativeHDWallet
           super.cosmosInitializeWallet(seed),
           super.binanceInitializeWallet(seed),
           super.fioInitializeWallet(seed),
+          super.thorchainInitializeWallet(seed),
         ]);
 
         this.#initialized = true;
@@ -242,6 +251,7 @@ export class NativeHDWallet
     super.ethWipe();
     super.cosmosWipe();
     super.binanceWipe();
+    super.thorchainWipe();
   }
 
   async reset(): Promise<void> {}
