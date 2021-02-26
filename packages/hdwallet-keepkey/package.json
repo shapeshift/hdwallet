@@ -15,7 +15,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@keepkey/device-protocol": "^6.5.0",
+    "@keepkey/device-protocol": "^7.0.0",
     "@shapeshiftoss/hdwallet-core": "^1.10.0",
     "eip55": "^1.0.3",
     "ethereumjs-tx": "^1.3.7",
