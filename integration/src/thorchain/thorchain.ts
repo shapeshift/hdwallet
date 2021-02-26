@@ -46,7 +46,7 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
         if (!wallet) return;
         expect(
           await wallet.thorchainGetAddress({
-            addressNList: core.bip32ToAddressNList("m/44'/934'/0'/0/0"),
+            addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
             showDisplay: false,
           })
         ).toEqual("tthor1xz76k44xrm8cks8h0knnvx3njdzwrmrq48xhzn");
@@ -60,7 +60,7 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
         if (!wallet) return;
         const input: core.ThorchainSignTx = {
           tx: tx_unsigned as any,
-          addressNList: core.bip32ToAddressNList("m/44'/934'/0'/0/0"),
+          addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
           chain_id: "thorchain",
           account_number: "16354",
           sequence: "5",
