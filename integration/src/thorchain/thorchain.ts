@@ -67,7 +67,7 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
         };
 
         const res = await wallet.thorchainSignTx(input);
-        expect(res.signatures[0].signature).toEqual(tx_signed.value.signatures[0].signature);
+        expect(res.signatures[0].signature).toEqual(tx_signed.tx.signatures[0].signature);
       },
       TIMEOUT
     );
