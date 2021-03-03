@@ -89,7 +89,7 @@ export interface BTCSignTx {
   outputs: Array<BTCSignTxOutput>;
   version?: number;
   locktime?: number;
-  opReturnData: string;
+  opReturnData?: string;
 }
 
 export interface BTCSignedTx {
