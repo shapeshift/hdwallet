@@ -252,6 +252,12 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
           }
         });
 
+        if(msg.opReturnData) {
+          const data = Buffer.from(msg.opReturnData, 'utf8')
+          const embed = bitcoin.payments.embed({data: [data]})
+          psbt.addOutput({ script: embed.output, value: 0 })  
+        }
+
         inputs.forEach((input, idx) => {
           try {
             const { addressNList, scriptType } = input;
