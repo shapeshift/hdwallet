@@ -102,6 +102,7 @@ export async function thorchainGetAddress(transport: KeepKeyTransport, msg: Thor
   const getAddr = new ThorchainGetAddress();
   getAddr.setAddressNList(msg.addressNList);
   getAddr.setShowDisplay(msg.showDisplay !== false);
+  getAddr.setTestnet(msg.testnet)
   const response = await transport.call(MessageType.MESSAGETYPE_THORCHAINGETADDRESS, getAddr, Core.LONG_TIMEOUT);
 
   if (response.message_type === Core.Events.FAILURE) throw response;
