@@ -4,6 +4,7 @@ import * as BinanceMessages from "@keepkey/device-protocol/lib/messages-binance_
 import * as RippleMessages from "@keepkey/device-protocol/lib/messages-ripple_pb";
 import * as NanoMessages from "@keepkey/device-protocol/lib/messages-nano_pb";
 import * as EosMessages from "@keepkey/device-protocol/lib/messages-eos_pb";
+import * as ThorchainMessages from "@keepkey/device-protocol/lib/messages-thorchain_pb"
 
 import { Message } from "google-protobuf";
 
@@ -14,6 +15,7 @@ const { default: Cosmos } = CosmosMessages as any;
 const { default: Ripple } = RippleMessages as any;
 const { default: Nano } = NanoMessages as any;
 const { default: Eos } = EosMessages as any;
+const { default: Thorchain } = ThorchainMessages as any;
 
 const AllMessages = []
   .concat(Object.entries(Messages))
@@ -21,7 +23,8 @@ const AllMessages = []
   .concat(Object.entries(Binance))
   .concat(Object.entries(Ripple))
   .concat(Object.entries(Nano))
-  .concat(Object.entries(Eos));
+  .concat(Object.entries(Eos))
+  .concat(Object.entries(Thorchain));
 
 const upperCasedMessageClasses: {
   [msgTypeEnum: number]: any;
