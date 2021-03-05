@@ -4,6 +4,7 @@ import { BIP32Path, PathDescription } from "./wallet";
 export interface ThorchainGetAddress {
   addressNList: BIP32Path;
   showDisplay?: boolean;
+  testnet?: boolean;
   /** Optional. Required for showDisplay == true. */
   address?: string;
 }
@@ -60,6 +61,7 @@ export interface ThorchainSignTx {
   account_number: string;
   sequence: string;
   fee?: number;
+  testnet?: boolean;
 }
 
 export type ThorchainSignedTx = ThorchainTx;

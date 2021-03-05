@@ -48,6 +48,7 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
           await wallet.thorchainGetAddress({
             addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
             showDisplay: false,
+            testnet: true
           })
         ).toEqual("tthor1ls33ayg26kmltw7jjy55p32ghjna09zp6z69y8");
       },
@@ -67,7 +68,15 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
         };
 
         const res = await wallet.thorchainSignTx(input);
-        expect(res.signatures[0].signature).toEqual(tx_signed.value.signatures[0].signature);
+        switch(wallet.getVendor()){
+          case "KeepKey":
+            expect(res.signatures[0].signature).toEqual(tx_signed.tx.signatures[0].signature_keepkey);
+            break;
+          default:
+            expect(res.signatures[0].signature).toEqual(tx_signed.tx.signatures[0].signature);
+            break;
+
+        }
       },
       TIMEOUT
     );

@@ -10,7 +10,7 @@
     "packages": [
       "packages/*",
       "examples/*",
-      "integration/*"
+      "integration"
     ],
     "nohoist": [
       "**/@types/w3c-web-usb",

@@ -1,39 +1,41 @@
 {
-  "type": "auth/StdTx",
-  "value": {
-    "fee": {
-      "amount": [
+  "tx":{
+    "fee":{
+      "amount":[
         {
-          "amount": "1000",
-          "denom": "rune"
+          "amount":"3000",
+          "denom":"rune"
         }
       ],
-      "gas": "28000"
+      "gas":"200000"
     },
-    "memo": "KeepKey",
-    "msg": [
+    "memo":"foobar",
+    "msg":[
       {
-        "type": "thorchain/MsgSend",
-        "value": {
-          "amount": [
+        "type":"thorchain/MsgSend",
+        "value":{
+          "amount":[
             {
-              "amount": "47000",
-              "denom": "rune"
+              "amount":"10000",
+              "denom":"rune"
             }
           ],
-          "from_address": "tthor1jvt443rvhq5h8yrna55yjysvhtju0el7ldnwwy",
-          "to_address": "tthor1dheycdevq39qlkxs2a6wuuzyn4aqxhve3hhmlw"
+          "from_address":"tthor1ls33ayg26kmltw7jjy55p32ghjna09zp6z69y8",
+          "to_address":"tthor1jvt443rvhq5h8yrna55yjysvhtju0el7ldnwwy"
         }
       }
     ],
-    "signatures": [
+    "signatures":[
       {
-        "pub_key": {
-          "type": "tendermint/PubKeySecp256k1",
-          "value": "A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
-        },
-        "signature": "ReneeD7eoDU0uAPmmoCgjwRK0VQzth509BqtHyFSMCt757cxpIaHuXHegfqbqY0xy27XVd7rtkjAQF2UtplX/A=="
+        "signature":"EJWYz16qmhlfdNR72eFSRphX+VZVuQpa1+vZSqLFH88o2VDBL/AcFu+GSTWf7DN/8tF/FLybKIEc26NUZRAd7Q==",
+        "signature_keepkey":"0WS7q0kGUfsM/G56Azf99iky7N8KoSYqq4GyD+1qfL1yUy+3+ENkSYBAjTHzh/W2ttCPzzOP5qVyk7B4+wClIA==",
+        "pub_key":{
+          "type":"tendermint/PubKeySecp256k1",
+          "value":"AxUZcTuLQr3DZxEtMxMs8Uzt+SisV3HURLpFm5SXEXuj"
+        }
       }
     ]
-  }
+  },
+  "type":"cosmos-sdk/StdTx",
+  "mode":"sync"
 }

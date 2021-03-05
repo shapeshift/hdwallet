@@ -1,28 +1,28 @@
 {
-    "fee": {
-      "amount": [
-        {
-          "amount": "1000",
-          "denom": "rune"
-        }
-      ],
-      "gas": "28000"
-    },
-    "memo": "KeepKey",
-    "msg": [
+  "fee":{
+    "amount":[
       {
-        "type": "thorchain/MsgSend",
-        "value": {
-          "amount": [
-            {
-              "amount": "47000",
-              "denom": "rune"
-            }
-          ],
-          "from_address": "tthor1jvt443rvhq5h8yrna55yjysvhtju0el7ldnwwy",
-          "to_address": "tthor1dheycdevq39qlkxs2a6wuuzyn4aqxhve3hhmlw"
-        }
+        "amount":"3000",
+        "denom":"rune"
       }
     ],
-    "signatures": null
+    "gas":"200000"
+  },
+  "memo":"foobar",
+  "msg":[
+    {
+      "type":"thorchain/MsgSend",
+      "value":{
+        "amount":[
+          {
+            "amount":"10000",
+            "denom":"rune"
+          }
+        ],
+        "from_address":"tthor1ls33ayg26kmltw7jjy55p32ghjna09zp6z69y8",
+        "to_address":"tthor1jvt443rvhq5h8yrna55yjysvhtju0el7ldnwwy"
+      }
+    }
+  ],
+  "signatures":null
 }
