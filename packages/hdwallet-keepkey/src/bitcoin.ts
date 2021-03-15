@@ -145,6 +145,11 @@ function prepareSignTx(coin: Coin, inputs: Array<BTCSignTxInput>, outputs: Array
       newOutput.setScriptType(translateOutputScriptType(output.scriptType));
       newOutput.setAddressNList(output.addressNList);
       newOutput.setAddressType(OutputAddressType.CHANGE);
+    } else if (output.opReturnData){
+      newOutput.setScriptType(OutputScriptType.PAYTOOPRETURN);
+      newOutput.setAddress(output.address);
+      newOutput.setAddressType(OutputAddressType.SPEND);
+      newOutput.setOpReturnData(output.opReturnData);
     } else {
       newOutput.setScriptType(OutputScriptType.PAYTOADDRESS);
       newOutput.setAddress(output.address);
