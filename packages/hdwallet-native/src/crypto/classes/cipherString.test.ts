@@ -8,6 +8,11 @@ describe("CipherString", () => {
     }
   );
 
+  it("should throw an error if an invalid encryption type is specified", () => {
+    const string = "999.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=|AAAAAAAAAAAAAAAAAAAAAA==|AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    expect(() => new CipherString(string)).toThrow("Unsupported encryption method");
+  });
+
   it("should accept a properly formatted cipher string", () => {
     const string = new CipherString("2.AAAA|AAAA|AAAA");
     expect(string.encryptionType).toEqual(2);
