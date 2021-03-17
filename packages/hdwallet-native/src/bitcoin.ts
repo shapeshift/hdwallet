@@ -45,12 +45,16 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(Base: T
   return class MixinNativeBTCWalletInfo extends Base implements core.BTCWalletInfo {
     _supportsBTCInfo = true;
 
-    async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
+    btcSupportsCoinSync(coin: core.Coin): boolean {
       return supportedCoins.includes(String(coin).toLowerCase());
     }
 
-    async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
-      if (!(await this.btcSupportsCoin(coin))) return false;
+    async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
+      return this.btcSupportsCoinSync(coin);
+    }
+
+    btcSupportsScriptTypeSync(coin: core.Coin, scriptType: core.BTCInputScriptType): boolean {
+      if (!this.btcSupportsCoinSync(coin)) return false;
 
       switch (scriptType) {
         case core.BTCInputScriptType.SpendMultisig:
@@ -61,6 +65,10 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(Base: T
         default:
           return false;
       }
+    }
+
+    async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
+      return this.btcSupportsScriptTypeSync(coin, scriptType);
     }
 
     async btcSupportsSecureTransfer(): Promise<boolean> {

@@ -112,8 +112,8 @@ class NativeHDWalletInfo
       case "testnet":
         const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
 
-        if (!super.btcSupportsCoin(msg.coin)) return unknown;
-        if (!super.btcSupportsScriptType(msg.coin, msg.scriptType)) return unknown;
+        if (!super.btcSupportsCoinSync(msg.coin)) return unknown;
+        if (!super.btcSupportsScriptTypeSync(msg.coin, msg.scriptType)) return unknown;
 
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
       case "ethereum":
