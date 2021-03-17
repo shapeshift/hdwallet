@@ -250,6 +250,7 @@ export class NativeHDWallet
       } catch (e) {
         console.error("NativeHDWallet:initialize:error", e);
         this.#initialized = false;
+        await this.wipe();
       }
 
       return this.#initialized;
