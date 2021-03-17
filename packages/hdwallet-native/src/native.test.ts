@@ -97,6 +97,38 @@ describe("NativeHDWallet", () => {
       await expect(wallet.initialize()).resolves.toBe(true);
       await expect(wallet.isInitialized()).resolves.toBe(true);
       await expect(wallet.isLocked()).resolves.toBe(false);
+      ([
+        {
+          in: [{ coin: "bitcoin", addressNList: [] }],
+          out: [
+            {
+              xpub:
+                "xpub661MyMwAqRbcFLgDU7wpcEVubSF7NkswwmXBUkDiGUW6uopeUMys4AqKXNgpfZKRTLnpKQgffd6a2c3J8JxLkF1AQN17Pm9QYHEqEfo1Rsx",
+            },
+          ],
+        },
+        {
+          in: [{ coin: "bitcoin", addressNList: [1 + 0x80000000, 2 + 0x80000000] }],
+          out: [
+            {
+              xpub:
+                "xpub6A4ydEAik39rFLs1hcm6XiwpFN5XKEf9tdAZWK23tkXmSr8bHmfYyfVt2nTskZQj3yYydcST2DLUFq2iJAELtTVfW9UNnnK8zBi8bzFcQVB",
+            },
+          ],
+        },
+        // Note how this produces the same xpub as the path above. This is not intuitive behavior, and is probably a bug.
+        {
+          in: [{ coin: "bitcoin", addressNList: [1 + 0x80000000, 2 + 0x80000000, 3] }],
+          out: [
+            {
+              xpub:
+                "xpub6A4ydEAik39rFLs1hcm6XiwpFN5XKEf9tdAZWK23tkXmSr8bHmfYyfVt2nTskZQj3yYydcST2DLUFq2iJAELtTVfW9UNnnK8zBi8bzFcQVB",
+            },
+          ],
+        },
+      ] as Array<{ in: any; out: any }>).forEach((params) => {
+        expect(wallet.getPublicKeys(params.in)).resolves.toStrictEqual(params.out);
+      });
     });
 
     it("should load wallet with a mnemonic and deviceId", async () => {
