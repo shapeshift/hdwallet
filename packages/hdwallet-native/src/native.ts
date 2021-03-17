@@ -217,7 +217,7 @@ export class NativeHDWallet
   }
 
   async isInitialized(): Promise<boolean> {
-    return this.#initialized;
+    return !!this.#initialized;
   }
 
   async isLocked(): Promise<boolean> {
