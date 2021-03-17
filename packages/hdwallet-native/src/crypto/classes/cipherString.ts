@@ -10,7 +10,7 @@ export class CipherString {
   readonly encryptionType: EncryptionType = EncryptionType.AesCbc256_HmacSha256_B64;
   data: string;
   iv: string;
-  mac?: string;
+  mac: string;
 
   constructor(cipher: string | EncryptedObject) {
     if (typeof cipher === "string") {
@@ -43,7 +43,7 @@ export class CipherString {
   }
 
   get encryptedString() {
-    return `${this.encryptionType}.${[this.data, this.iv, this.mac || ""].join("|")}`;
+    return `${this.encryptionType}.${[this.data, this.iv, this.mac].join("|")}`;
   }
 
   toEncryptedObject(key: SymmetricCryptoKey): EncryptedObject {
