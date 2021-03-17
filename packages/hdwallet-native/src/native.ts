@@ -205,11 +205,10 @@ export class NativeHDWallet
           let { addressNList } = getPublicKey;
           const seed = await mnemonicToSeed(this.#mnemonic);
           const network = getNetwork(getPublicKey.coin, getPublicKey.scriptType);
-          const node = fromSeed(seed, network);
-          const xpub = node
-            .derivePath(core.addressNListToBIP32(core.hardenedPath(addressNList)))
-            .neutered()
-            .toBase58();
+          const hardenedPath = core.hardenedPath(addressNList);
+          let node = fromSeed(seed, network);
+          if (hardenedPath.length > 0) node = node.derivePath(core.addressNListToBIP32(hardenedPath))
+          const xpub = node.neutered().toBase58();
           return { xpub };
         })
       )
