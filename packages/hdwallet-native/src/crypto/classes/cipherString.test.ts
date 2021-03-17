@@ -1,7 +1,4 @@
-import { CipherString } from "./cipherString";
-import { EncryptedObject } from "./encryptedObject";
-import { EncryptionType } from "./encryptionType";
-import { SymmetricCryptoKey } from "./symmetricCryptoKey";
+import { CipherString, EncryptedObject, EncryptionType, SymmetricCryptoKey } from ".";
 
 describe("CipherString", () => {
   it.each([undefined, null, 0, [1, 2, 3], { data: "", iv: "", key: "" }, "", "abc|abc|abc"])(
