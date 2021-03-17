@@ -45,9 +45,7 @@ type NetworkDescription = {
   base: Omit<Network, "bip32">;
 } & BIP32ByScriptType;
 
-type Networks = {
-  [k: string]: NetworkDescription;
-};
+type Networks = Record<string, NetworkDescription>;
 
 const networks: Networks = {
   bitcoin: {
@@ -165,34 +163,15 @@ const networks: Networks = {
   },
 };
 
+//TODO: all below are missing network data
+for (const coin of ["bitcoincash", "thorchain", "secret", "terra", "kava", "cardano", "cosmos", "binance", "ethereum"])
+  networks[coin] = networks.bitcoin;
+
 export function getNetwork(coin: string, scriptType?: string): Network {
   coin = coin.toLowerCase();
 
-  let network: NetworkDescription;
-  switch (coin) {
-    case "dash":
-    case "digibyte":
-    case "dogecoin":
-    case "litecoin":
-    case "testnet":
-      network = networks[coin];
-      break;
-    case "bitcoin":
-    //TODO: all below are missing network data
-    case "bitcoincash":
-    case "thorchain":
-    case "secret":
-    case "terra":
-    case "kava":
-    case "cardano":
-    case "cosmos":
-    case "binance":
-    case "ethereum":
-      network = networks["bitcoin"];
-      break;
-    default:
-      throw new Error(`${coin} network not supported`);
-  }
+  if (!(coin in networks)) throw new Error(`${coin} network not supported`);
+  let network = networks[coin];
 
   const bip32 = network[scriptType || "p2sh"];
 
