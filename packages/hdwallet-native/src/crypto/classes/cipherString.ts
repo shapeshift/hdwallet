@@ -24,10 +24,10 @@ export class CipherString {
     } else if (cipher instanceof EncryptedObject) {
       try {
         this.encryptionType = cipher.key.encType;
-        this.iv = fromBufferToB64(cipher.iv);
-        this.data = fromBufferToB64(cipher.data);
+        if (cipher.iv) this.iv = fromBufferToB64(cipher.iv);
+        if (cipher.data) this.data = fromBufferToB64(cipher.data);
         if (cipher.mac) this.mac = fromBufferToB64(cipher.mac);
-      } catch (e) {
+      } catch {
         throw new Error("Invalid encryption object");
       }
     } else {
