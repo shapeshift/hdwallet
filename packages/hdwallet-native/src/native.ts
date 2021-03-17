@@ -271,6 +271,7 @@ export class NativeHDWallet
   async cancel(): Promise<void> {}
 
   async wipe(): Promise<void> {
+    this.#initialized = false;
     this.#mnemonic = null;
 
     super.btcWipe();
