@@ -6,6 +6,8 @@ import { WebCryptoEngine } from "./engines";
 import { fromBufferToUtf8, toArrayBuffer } from "./utils";
 import { Crypto } from "@peculiar/webcrypto";
 
+const PLAINTEXT_STRING = "totally random secret data"
+
 describe("CryptoHelpers", () => {
   // Load shim to support running tests in node
   globalThis.crypto = new Crypto();
@@ -26,7 +28,7 @@ describe("CryptoHelpers", () => {
   describe("aesEncrypt", () => {
     it("should encrypt data with an hmac signature", async () => {
       const key = await helper.makeKey("password", "email");
-      const encrypted = await helper.aesEncrypt(toArrayBuffer("totally random secret data"), key);
+      const encrypted = await helper.aesEncrypt(toArrayBuffer(PLAINTEXT_STRING), key);
       expect(encrypted.key).toEqual(key);
       expect(encrypted.iv.byteLength).toBe(16);
       expect(encrypted.mac.byteLength).toBe(32);
@@ -46,19 +48,33 @@ describe("CryptoHelpers", () => {
         await expect(helper.aesEncrypt(new Uint8Array(32), param)).rejects.toThrow("is not a SymmetricCryptoKey");
       }
     );
+
+    it("should work with ArrayBuffers", async () => {
+      const key = await helper.makeKey("password", "email");
+      const encrypted = await helper.aesEncrypt(toArrayBuffer(PLAINTEXT_STRING), key);
+      const decrypted = await helper.aesDecrypt(encrypted.data, encrypted.iv, encrypted.mac, key);
+      expect(fromBufferToUtf8(decrypted)).toEqual(PLAINTEXT_STRING);
+    });
+
+    it("should work with Uint8Arrays", async () => {
+      const key = await helper.makeKey("password", "email");
+      const encrypted = await helper.aesEncrypt(new Uint8Array(toArrayBuffer(PLAINTEXT_STRING)), key);
+      const decrypted = await helper.aesDecrypt(new Uint8Array(encrypted.data), new Uint8Array(encrypted.iv), new Uint8Array(encrypted.mac), key);
+      expect(fromBufferToUtf8(decrypted)).toEqual(PLAINTEXT_STRING);
+    });
   });
 
   describe("aesDecrypt", () => {
     it("should decrypt data with an hmac signature", async () => {
       const key = await helper.makeKey("password", "email");
-      const encrypted = await helper.aesEncrypt(toArrayBuffer("totally random secret data"), key);
+      const encrypted = await helper.aesEncrypt(toArrayBuffer(PLAINTEXT_STRING), key);
       const decrypted = await helper.aesDecrypt(encrypted.data, encrypted.iv, encrypted.mac, encrypted.key);
-      expect(fromBufferToUtf8(decrypted)).toEqual("totally random secret data");
+      expect(fromBufferToUtf8(decrypted)).toEqual(PLAINTEXT_STRING);
     });
 
     it("should fail if the mac is incorrect", async () => {
       const key = await helper.makeKey("password", "email");
-      const encrypted = await helper.aesEncrypt(toArrayBuffer("totally random secret data"), key);
+      const encrypted = await helper.aesEncrypt(toArrayBuffer(PLAINTEXT_STRING), key);
       const mac = new Uint8Array(encrypted.mac.byteLength).fill(128);
       await expect(helper.aesDecrypt(encrypted.data, encrypted.iv, mac, encrypted.key)).rejects.toThrow(
         "HMAC signature is not valid"
