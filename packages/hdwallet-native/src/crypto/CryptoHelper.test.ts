@@ -9,6 +9,7 @@ import { CipherString } from "./classes";
 
 const PLAINTEXT_STRING = "totally random secret data"
 const ENCRYPTED_STRING = "2.A/tC/OC0U/KN3XuAuz2L36lydOyr5x367tPSGSrPkvQ=|AAAAAAAAAAAAAAAAAAAAAA==|ZqR8HTeOg4+8mzcty10jVFZ5MqFFbn5bwEaqlL0c/Mg="
+const ENCRYPTED_EMPTY_STRING = "2.7wpUO5ISHHdT1voBnjzyXQ==|AAAAAAAAAAAAAAAAAAAAAA==|02KQ8aQWWXUX7foOmf4T2W0XCFAk4OTKFQO+hRhlRcY=";
 
 describe("CryptoHelpers", () => {
   // Load shim to support running tests in node
@@ -41,6 +42,21 @@ describe("CryptoHelpers", () => {
       expect(encrypted.mac.byteLength).toBe(32);
       expect(encrypted.data.byteLength).toBe(32);
       expect(encrypted.toString()).toEqual(ENCRYPTED_STRING);
+    });
+
+    it("should encrypt the empty string", async () => {
+      const randomMock = jest
+        .spyOn(global.crypto, "getRandomValues")
+        .mockImplementation((array) => new Uint8Array(array.byteLength).fill(0));
+      const key = await helper.makeKey("password", "email");
+      const encrypted = await helper.aesEncrypt(toArrayBuffer(""), key);
+      randomMock.mockRestore();
+
+      expect(encrypted.key).toEqual(key);
+      expect(encrypted.iv.byteLength).toBe(16);
+      expect(encrypted.mac.byteLength).toBe(32);
+      expect(encrypted.data.byteLength).toBe(16);
+      expect(encrypted.toString()).toEqual(ENCRYPTED_EMPTY_STRING);
     });
 
     it.each([[undefined], [null], ["encrypteddatastring"], [[1, 2, 3, 4, 5, 6]], [{}]])(
@@ -80,11 +96,37 @@ describe("CryptoHelpers", () => {
       expect(fromBufferToUtf8(decrypted)).toEqual(PLAINTEXT_STRING);
     });
 
+    it("should fail if the data is incorrect", async () => {
+      const key = await helper.makeKey("password", "email");
+      const encrypted = (new CipherString(ENCRYPTED_STRING)).toEncryptedObject(key);
+      const data = new Uint8Array(encrypted.data.byteLength).fill(0x80);
+      await expect(helper.aesDecrypt(data, encrypted.iv, encrypted.mac, encrypted.key)).rejects.toThrow(
+        "HMAC signature is not valid"
+      );
+    });
+
+    it("should fail if the iv is incorrect", async () => {
+      const key = await helper.makeKey("password", "email");
+      const encrypted = (new CipherString(ENCRYPTED_STRING)).toEncryptedObject(key);
+      const iv = new Uint8Array(encrypted.iv.byteLength).fill(0x80);
+      await expect(helper.aesDecrypt(encrypted.data, iv, encrypted.mac, encrypted.key)).rejects.toThrow(
+        "HMAC signature is not valid"
+      );
+    });
+
     it("should fail if the mac is incorrect", async () => {
       const key = await helper.makeKey("password", "email");
       const encrypted = (new CipherString(ENCRYPTED_STRING)).toEncryptedObject(key);
-      const mac = new Uint8Array(encrypted.mac.byteLength).fill(128);
+      const mac = new Uint8Array(encrypted.mac.byteLength).fill(0x80);
       await expect(helper.aesDecrypt(encrypted.data, encrypted.iv, mac, encrypted.key)).rejects.toThrow(
+        "HMAC signature is not valid"
+      );
+    });
+
+    it("should fail if the key is incorrect", async () => {
+      let key = await helper.makeKey("password2", "email");
+      const encrypted = (new CipherString(ENCRYPTED_STRING)).toEncryptedObject(key);
+      await expect(helper.aesDecrypt(encrypted.data, encrypted.iv, encrypted.mac, encrypted.key)).rejects.toThrow(
         "HMAC signature is not valid"
       );
     });
@@ -124,6 +166,16 @@ describe("CryptoHelpers", () => {
   describe("compare", () => {
     it("should return false if arrays are different sizes", async () => {
       await expect(helper.compare(new Uint8Array(32), new Uint8Array(16))).resolves.toBe(false);
+    });
+
+    it("should return false if the hmac results are different sizes", async () => {
+      let i = 0;
+      const mock = jest.spyOn(engine, "hmac").mockImplementation(async (value, key) => {
+        return (new Uint8Array(++i * 16)).buffer;
+      })
+      const result = await helper.compare(new Uint8Array(32), new Uint8Array(32));
+      mock.mockRestore();
+      await expect(result).toBe(false);
     });
 
     it("should return false if arrays are different", async () => {
