@@ -7,6 +7,7 @@ import { fromBufferToUtf8, toArrayBuffer } from "./utils";
 import { Crypto } from "@peculiar/webcrypto";
 
 const PLAINTEXT_STRING = "totally random secret data"
+const ENCRYPTED_STRING = "2.A/tC/OC0U/KN3XuAuz2L36lydOyr5x367tPSGSrPkvQ=|AAAAAAAAAAAAAAAAAAAAAA==|ZqR8HTeOg4+8mzcty10jVFZ5MqFFbn5bwEaqlL0c/Mg="
 
 describe("CryptoHelpers", () => {
   // Load shim to support running tests in node
@@ -27,12 +28,18 @@ describe("CryptoHelpers", () => {
 
   describe("aesEncrypt", () => {
     it("should encrypt data with an hmac signature", async () => {
+      const randomMock = jest
+        .spyOn(global.crypto, "getRandomValues")
+        .mockImplementation((array) => new Uint8Array(array.byteLength).fill(0));
       const key = await helper.makeKey("password", "email");
       const encrypted = await helper.aesEncrypt(toArrayBuffer(PLAINTEXT_STRING), key);
+      randomMock.mockRestore();
+
       expect(encrypted.key).toEqual(key);
       expect(encrypted.iv.byteLength).toBe(16);
       expect(encrypted.mac.byteLength).toBe(32);
       expect(encrypted.data.byteLength).toBe(32);
+      expect(encrypted.toString()).toEqual(ENCRYPTED_STRING);
     });
 
     it.each([[undefined], [null], ["encrypteddatastring"], [[1, 2, 3, 4, 5, 6]], [{}]])(
