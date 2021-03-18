@@ -56,7 +56,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
       this.#wallet = undefined;
     }
 
-    bech32ify(address: ArrayLike<number>, prefix: string): string {
+    binanceBech32ify(address: ArrayLike<number>, prefix: string): string {
       const words = toWords(address);
       return encode(prefix, words);
     }
@@ -65,7 +65,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
       const message = SHA256(CryptoJS.enc.Hex.parse(publicKey));
       const hash = RIPEMD160(message as any).toString();
       const address = Buffer.from(hash, `hex`);
-      return this.bech32ify(address, `bnb`);
+      return this.binanceBech32ify(address, `bnb`);
     }
 
     async binanceGetAddress(msg: core.BinanceGetAddress): Promise<string> {

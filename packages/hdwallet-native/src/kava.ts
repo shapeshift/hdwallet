@@ -58,7 +58,7 @@ export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWal
       this.#seed = undefined;
     }
 
-    bech32ify(address: ArrayLike<number>, prefix: string): string {
+    kavaBech32ify(address: ArrayLike<number>, prefix: string): string {
       const words = toWords(address);
       return encode(prefix, words);
     }
@@ -67,7 +67,7 @@ export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWal
       const message = SHA256(CryptoJS.enc.Hex.parse(publicKey));
       const hash = RIPEMD160(message as any).toString();
       const address = Buffer.from(hash, `hex`);
-      return this.bech32ify(address, `kava`);
+      return this.kavaBech32ify(address, `kava`);
     }
 
     async kavaGetAddress(msg: core.KavaGetAddress): Promise<string> {

@@ -55,7 +55,7 @@ export function MixinNativeThorchainWallet<TBase extends core.Constructor<Native
       this.#wallet = undefined;
     }
 
-    bech32ify(address: ArrayLike<number>, prefix: string): string {
+    thorchainBech32ify(address: ArrayLike<number>, prefix: string): string {
       const words = toWords(address);
       return encode(prefix, words);
     }
@@ -64,7 +64,7 @@ export function MixinNativeThorchainWallet<TBase extends core.Constructor<Native
       const message = SHA256(CryptoJS.enc.Hex.parse(publicKey));
       const hash = RIPEMD160(message as any).toString();
       const address = Buffer.from(hash, `hex`);
-      return this.bech32ify(address, `thor`);
+      return this.thorchainBech32ify(address, `thor`);
     }
 
     async thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string> {
