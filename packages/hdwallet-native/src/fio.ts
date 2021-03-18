@@ -6,19 +6,11 @@ import * as fio from "fiosdk-offline";
 import fetch, { RequestInfo, RequestInit } from "node-fetch";
 import { NativeHDWalletBase } from "./native";
 import { Fio as fiojs } from "@fioprotocol/fiojs"; // TODO use our forked fioSdk instead of fiojs
-import { TextDecoder as TextDecoderNode, TextEncoder as TextEncoderNode } from "util";
-import { TextDecoder as TextDecoderWeb, TextEncoder as TextEncoderWeb } from "text-encoding";
+import { TextEncoder, TextDecoder } from "web-encoding";
 import wif from "wif";
 
 const fetchJson = async (uri: RequestInfo, opts?: RequestInit) => {
   return fetch(uri, opts);
-};
-
-const getTextEncoderDecoder = () => {
-  return {
-    textDecoder: typeof window === "undefined" ? new TextDecoderNode() : new TextDecoderWeb(),
-    textEncoder: typeof window === "undefined" ? new TextEncoderNode() : new TextEncoderWeb(),
-  };
 };
 
 function getKeyPair(seed: BIP32Interface, addressNList: number[]) {
@@ -104,30 +96,26 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
     }
 
     async fioEncryptRequestContent(msg: core.FioRequestContent & {iv?: Uint8Array}): Promise<string> {
-      const { textEncoder, textDecoder } = getTextEncoderDecoder();
-
       return this.needsMnemonic(!!this.#wallet, async () => {
         const { privateKey } = getKeyPair(this.#wallet, msg.addressNList);
         const sharedCipher = fiojs.createSharedCipher({
           privateKey,
           publicKey: msg.publicKey,
-          textEncoder,
-          textDecoder,
+          textEncoder: new TextEncoder(),
+          textDecoder: new TextDecoder(),
         });
         return sharedCipher.encrypt(msg.contentType, msg.content, msg.iv && Buffer.from(msg.iv));
       });
     }
 
     async fioDecryptRequestContent(msg: core.FioRequestContent): Promise<any> {
-      const { textEncoder, textDecoder } = getTextEncoderDecoder();
-
       return this.needsMnemonic(!!this.#wallet, async () => {
         const { privateKey } = getKeyPair(this.#wallet, msg.addressNList);
         const sharedCipher = fiojs.createSharedCipher({
           privateKey,
           publicKey: msg.publicKey,
-          textEncoder,
-          textDecoder,
+          textEncoder: new TextEncoder(),
+          textDecoder: new TextDecoder(),
         });
         return sharedCipher.decrypt(msg.contentType, JSON.stringify(msg.content));
       });
