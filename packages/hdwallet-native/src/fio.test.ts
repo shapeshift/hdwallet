@@ -81,6 +81,27 @@ const mswMock = require("mswMock")({
   },
 }).startServer();
 
+const untouchable = require("untouchableMock");
+
+describe("NativeFioWalletInfo", () => {
+  const info = NativeHDWallet.info();
+
+  it("should return some static metadata", async () => {
+    await expect(untouchable.call(info, "fioSupportsNetwork")).resolves.toBe(true);
+    await expect(untouchable.call(info, "fioSupportsSecureTransfer")).resolves.toBe(false);
+    expect(untouchable.call(info, "fioSupportsNativeShapeShift")).toBe(false);
+  });
+
+  it("should return the correct account paths", async () => {
+    const paths = info.fioGetAccountPaths({ accountIdx: 0 });
+    expect(paths).toMatchObject([{ addressNList: core.bip32ToAddressNList("m/44'/235'/0'/0/0") }]);
+  });
+  
+  it("does not support getting the next account path", async()=>{
+    expect(untouchable.call(info, "fioNextAccountPath", {})).toBe(undefined);
+  })
+});
+
 describe("NativeFioWallet", () => {
   let wallet: NativeHDWallet.NativeHDWallet;
 
