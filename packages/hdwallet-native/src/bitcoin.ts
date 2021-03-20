@@ -281,8 +281,12 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
         const tx = psbt.extractTransaction(true);
 
         const signatures = tx.ins.map((input) => {
-          const sigLen = input.script[0];
-          return input.script.slice(1, sigLen).toString("hex");
+          if (input.witness.length > 0) {
+            return input.witness[0].toString("hex");
+          } else {
+            const sigLen = input.script[0];
+            return input.script.slice(1, sigLen).toString("hex");
+          }
         });
 
         return {
