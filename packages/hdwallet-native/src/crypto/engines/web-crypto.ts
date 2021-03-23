@@ -40,7 +40,7 @@ export class WebCryptoEngine implements CryptoEngine {
   }
 
   public async randomBytes(size: number): Promise<ArrayBuffer> {
-    return globalThis.crypto.getRandomValues(new Uint8Array(size));
+    return globalThis.crypto.getRandomValues(new Uint8Array(size)).buffer;
   }
 
   public async scrypt(password: ArrayBuffer, salt: ArrayBuffer, params: ScryptParams): Promise<ArrayBuffer> {
