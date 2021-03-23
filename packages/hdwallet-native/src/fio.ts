@@ -103,7 +103,7 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
       };
     }
 
-    async fioEncryptRequestContent(msg: core.FioRequestContent): Promise<string> {
+    async fioEncryptRequestContent(msg: core.FioRequestContent & {iv?: Uint8Array}): Promise<string> {
       const { textEncoder, textDecoder } = getTextEncoderDecoder();
 
       return this.needsMnemonic(!!this.#wallet, async () => {
@@ -114,7 +114,7 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
           textEncoder,
           textDecoder,
         });
-        return sharedCipher.encrypt(msg.contentType, msg.content);
+        return sharedCipher.encrypt(msg.contentType, msg.content, msg.iv && Buffer.from(msg.iv));
       });
     }
 
