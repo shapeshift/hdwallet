@@ -121,6 +121,11 @@ describe("NativeFioWallet", () => {
       expect(address).toBe("FIO8Pok1EBMsZWphhfUj2m3MXrxBZJq7erqyi7E1teAfZE18HyjK5");
     });
 
+    it("should generate another correct FIO address", async () => {
+      const address = await wallet.fioGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/235'/1'/0/0") });
+      expect(address).toMatchInlineSnapshot(`"FIO8HiUzsRDYo69AEmUk39f7h7nawTjn9msbX6oUY5wrX6ERCh3rA"`);
+    });
+
     it("should expose the FIO SDK", async () => {
       await expect(wallet.getFioSdk(core.bip32ToAddressNList("m/44'/235'/0'/0/0"))).resolves.toBeInstanceOf(fio.FIOSDK);
     });
@@ -157,5 +162,49 @@ describe("NativeFioWallet", () => {
       expect(mswMock.handlers.get["https://fio.eu.eosamsterdam.net/v1/chain/get_info"]).toHaveBeenCalled();
       expect(mswMock.handlers.post["https://fio.eu.eosamsterdam.net/v1/chain/get_block"]).toHaveBeenCalled();
     });
+  });
+
+  it("should encrypt a request", async () => {
+    await expect(
+      wallet.fioEncryptRequestContent({
+        addressNList: core.bip32ToAddressNList("m/44'/235'/0'/0/0"),
+        content: {
+          payee_public_address: "FIO5NSKecB4CcMpUxtpHzG4u43SmcGMAjRbxyG38rE4HPegGpaHu9",
+          amount: "1234",
+          chain_code: "foo",
+          token_code: "bar",
+          memo: "baz",
+          hash: "bash",
+          offline_url: "foobar",
+        },
+        publicKey: "FIO8HiUzsRDYo69AEmUk39f7h7nawTjn9msbX6oUY5wrX6ERCh3rA",
+        contentType: core.FioEncryptionContentType.REQUEST,
+        iv: Buffer.from("deadbeefdeadbeefdeadbeefdeadbeef", "hex"),
+      })
+    ).resolves.toMatchInlineSnapshot(
+      `"3q2+796tvu/erb7v3q2+7yeNoq+0I2pI2M5ylVEBuYkKwwHIJfKeuDZPp9bOLZNVbGtY7bfy/U9b7n316iuX1EQJHlIiHLOELx60jdWfF4A67x1T3WR8OW6lGBYCZDj8j50YbQM/oqcAIG5ND9MWK9U6Z2rcubAuZvQAcll1Jm4cIgVp49+ZxSKzEvH7Aasz"`
+    );
+  });
+
+  it("should decrypt a request", async () => {
+    await expect(
+      wallet.fioDecryptRequestContent({
+        addressNList: core.bip32ToAddressNList("m/44'/235'/1'/0/0"),
+        content:
+          "3q2+796tvu/erb7v3q2+7yeNoq+0I2pI2M5ylVEBuYkKwwHIJfKeuDZPp9bOLZNVbGtY7bfy/U9b7n316iuX1EQJHlIiHLOELx60jdWfF4A67x1T3WR8OW6lGBYCZDj8j50YbQM/oqcAIG5ND9MWK9U6Z2rcubAuZvQAcll1Jm4cIgVp49+ZxSKzEvH7Aasz",
+        publicKey: "FIO5NSKecB4CcMpUxtpHzG4u43SmcGMAjRbxyG38rE4HPegGpaHu9",
+        contentType: core.FioEncryptionContentType.REQUEST,
+      })
+    ).resolves.toMatchInlineSnapshot(`
+      Object {
+        "amount": "1234",
+        "chain_code": "foo",
+        "hash": "bash",
+        "memo": "baz",
+        "offline_url": "foobar",
+        "payee_public_address": "FIO5NSKecB4CcMpUxtpHzG4u43SmcGMAjRbxyG38rE4HPegGpaHu9",
+        "token_code": "bar",
+      }
+    `);
   });
 });
