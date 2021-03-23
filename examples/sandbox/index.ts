@@ -1,6 +1,7 @@
 import "regenerator-runtime/runtime";
 import $ from "jquery";
 import * as debug from "debug";
+import Web3 from "web3";
 import {
   Keyring,
   supportsETH,
@@ -44,7 +45,14 @@ import * as dogeTxJson from "./json/dogeTx.json";
 import * as ltcTxJson from "./json/ltcTx.json";
 import * as rippleTxJson from "./json/rippleTx.json";
 import * as bnbTxJson from "./json/bnbTx.json";
-import * as thorchainTxJson from "./json/thorchainTx.json";
+import {
+  thorchainUnsignedTx,
+  thorchainBitcoinBaseTx,
+  thorchainEthereumBaseTx,
+  thorchainBinanceBaseTx,
+  thorchainNativeRuneBaseTx,
+  thorchainRouterAbi,
+} from "./json/thorchainTx.json";
 
 const keyring = new Keyring();
 
@@ -131,7 +139,7 @@ $portis.on("click", async (e) => {
 
 $native.on("click", async (e) => {
   e.preventDefault();
-  wallet = await nativeAdapter.pairDevice('testid');
+  wallet = await nativeAdapter.pairDevice("testid");
   window["wallet"] = wallet;
   $("#keyring select").val(await wallet.getDeviceID());
 });
@@ -862,12 +870,18 @@ $cosmosTx.on("click", async (e) => {
  */
 const $thorchainAddr = $("#thorchainAddr");
 const $thorchainTx = $("#thorchainTx");
-const $thorchainResults = $("#thorchainResults");
+const $thorchainNativeResults = $("#thorchainNativeResults");
+const $thorchainSignSwap = $("#thorchainSignSwap");
+const $thorchainSourceChain = $("#thorchainSourceChain");
+const $thorchainDestChain = $("#thorchainDestChain");
+const $thorchainDestAddress = $("#thorchainDestAddress");
+const $thorchainAmount = $("#thorchainAmount");
+const $thorchainSwapResults = $("#thorchainSwapResults");
 
 $thorchainAddr.on("click", async (e) => {
   e.preventDefault();
   if (!wallet) {
-    $thorchainResults.val("No wallet?");
+    $thorchainNativeResults.val("No wallet?");
     return;
   }
   if (supportsThorchain(wallet)) {
@@ -880,17 +894,17 @@ $thorchainAddr.on("click", async (e) => {
       addressNList,
       showDisplay: true,
     });
-    $thorchainResults.val(result);
+    $thorchainNativeResults.val(result);
   } else {
     let label = await wallet.getLabel();
-    $thorchainResults.val(label + " does not support THORChain");
+    $thorchainNativeResults.val(label + " does not support THORChain");
   }
 });
 
 $thorchainTx.on("click", async (e) => {
   e.preventDefault();
   if (!wallet) {
-    $thorchainResults.val("No wallet?");
+    $thorchainNativeResults.val("No wallet?");
     return;
   }
   if (supportsThorchain(wallet)) {
@@ -899,13 +913,170 @@ $thorchainTx.on("click", async (e) => {
       chain_id: "thorchain",
       account_number: "24250",
       sequence: "3",
-      tx: thorchainTxJson,
+      tx: thorchainUnsignedTx,
     });
-    $thorchainResults.val(JSON.stringify(res));
+    $thorchainNativeResults.val(JSON.stringify(res));
   } else {
     let label = await wallet.getLabel();
-    $thorchainResults.val(label + " does not support THORChain");
+    $thorchainNativeResults.val(label + " does not support THORChain");
   }
+});
+
+$thorchainSignSwap.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $thorchainSwapResults.val("No wallet?");
+    return;
+  }
+  if (!$thorchainDestAddress.val().match(/^[a-z0-9]+$/i) && $thorchainDestAddress.val() != "") {
+    console.log($thorchainDestAddress.val());
+    $thorchainSwapResults.val("Invalid destination address");
+    return;
+  }
+  if (!$thorchainAmount.val().match(/^[0-9]+$/i) && $thorchainAmount.val() != "") {
+    $thorchainSwapResults.val("Amount is not a number");
+    return;
+  }
+  const routerContractAddress = "0x0000000000000000000000000000000000000000";
+  const vaultAddress = "0x0000000000000000000000000000000000000000";
+  let tx = {};
+  let res = {};
+  let memo = `SWAP:${$thorchainDestChain.val()}:${$thorchainDestAddress.val()}:${$thorchainAmount.val()}`;
+  switch ($thorchainSourceChain.val()) {
+    case "BTC.BTC":
+      tx = thorchainBitcoinBaseTx;
+
+      if (supportsBTC(wallet)) {
+        const txid = "b3002cd9c033f4f3c2ee5a374673d7698b13c7f3525c1ae49a00d2e28e8678ea";
+        const hex =
+          "010000000181f605ead676d8182975c16e7191c21d833972dd0ed50583ce4628254d28b6a3010000008a47304402207f3220930276204c83b1740bae1da18e5a3fa2acad34944ecdc3b361b419e3520220598381bdf8273126e11460a8c720afdbb679233123d2d4e94561f75e9b280ce30141045da61d81456b6d787d576dce817a2d61d7f8cb4623ee669cbe711b0bcff327a3797e3da53a2b4e3e210535076c087c8fb98aef60e42dfeea8388435fc99dca43ffffffff0250ec0e00000000001976a914f7b9e0239571434f0ccfdba6f772a6d23f2cfb1388ac10270000000000001976a9149c9d21f47382762df3ad81391ee0964b28dd951788ac00000000";
+
+        let inputs = [
+          {
+            addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
+            scriptType: BTCInputScriptType.SpendAddress,
+            amount: String(10000),
+            vout: 1,
+            txid: txid,
+            tx: btcTxJson,
+            hex,
+          },
+        ];
+
+        let outputs = [
+          {
+            addressType: BTCOutputAddressType.Spend,
+            opReturnData: Buffer.from(memo, 'utf-8'),
+            amount: 0,
+            isChange: false,
+          },
+        ];
+
+        let res = await wallet.btcSignTx({
+          coin: "Bitcoin",
+          inputs: inputs,
+          outputs: outputs,
+          version: 1,
+          locktime: 0,
+        });
+
+        $thorchainSwapResults.val(res.serializedTx);
+      } else {
+        let label = await wallet.getLabel();
+        $thorchainSwapResults.val(label + " does not support BTC");
+      }
+      break;
+    case "ETH.ETH":
+      if (supportsETH(wallet)) {
+        const web3 = new Web3();
+        console.log(thorchainRouterAbi[0]);
+        const routerContract = new web3.eth.Contract(thorchainRouterAbi, routerContractAddress);
+        tx = thorchainEthereumBaseTx;
+        tx["addressNList"] = bip32ToAddressNList("m/44'/60'/0'/0/0");
+        tx["data"] = routerContract.methods
+          .deposit(vaultAddress, "0x0000000000000000000000000000000000000000", 0, memo)
+          .encodeABI();
+        res = await wallet.ethSignTx(tx as any);
+        $thorchainSwapResults.val(JSON.stringify(res));
+      } else {
+        let label = await wallet.getLabel();
+        $thorchainSwapResults.val(label + " does not support ETH");
+      }
+      break;
+    case "BNB.BNB":
+      if (supportsBinance(wallet)) {
+        tx = thorchainBinanceBaseTx;
+        tx["memo"] = memo;
+        console.log(tx);
+        let res = await wallet.binanceSignTx({
+          addressNList: bip32ToAddressNList(`m/44'/714'/0'/0/0`),
+          chain_id: "Binance-Chain-Nile",
+          account_number: "24250",
+          sequence: 31,
+          tx: tx as any,
+        });
+        $thorchainSwapResults.val(JSON.stringify(res));
+      } else {
+        let label = await wallet.getLabel();
+        $thorchainSwapResults.val(label + " does not support Cosmos");
+      }
+      break;
+    case "BNB.RUNE-B1A":
+      if (supportsBinance(wallet)) {
+        tx = thorchainNativeRuneBaseTx;
+        tx["memo"] = memo;
+        console.log(tx);
+        let res = await wallet.binanceSignTx({
+          addressNList: bip32ToAddressNList(`m/44'/714'/0'/0/0`),
+          chain_id: "Binance-Chain-Nile",
+          account_number: "24250",
+          sequence: 31,
+          tx: tx as any,
+        });
+        $thorchainSwapResults.val(JSON.stringify(res));
+      } else {
+        let label = await wallet.getLabel();
+        $thorchainSwapResults.val(label + " does not support Cosmos");
+      }
+      break;
+    case "THOR.RUNE":
+      if (supportsThorchain(wallet)) {
+        tx = thorchainUnsignedTx;
+        tx["memo"] = memo;
+        console.log(tx);
+        let res = await wallet.thorchainSignTx({
+          addressNList: bip32ToAddressNList(`m/44'/931'/0'/0/0`),
+          chain_id: "thorchain",
+          account_number: "24250",
+          sequence: "3",
+          tx: tx as any,
+        });
+        $thorchainSwapResults.val(JSON.stringify(res));
+      } else {
+        let label = await wallet.getLabel();
+        $thorchainSwapResults.val(label + " does not support Cosmos");
+      }
+      break;
+    case "ETH.USDT-0xdac17f958d2ee523a2206206994597c13d831ec7":
+      if (supportsETH(wallet)) {
+        tx = thorchainEthereumBaseTx;
+        tx["addressNList"] = bip32ToAddressNList("m/44'/60'/0'/0/0");
+        tx["data"] = "0x";
+        res = await wallet.ethSignTx(tx as any);
+        $thorchainSwapResults.val(JSON.stringify(res));
+      } else {
+        let label = await wallet.getLabel();
+        $ethResults.val(label + " does not support ETH");
+      }
+      break;
+    default:
+      console.log("Base coin is Unknown.");
+      console.log("val:", $thorchainSourceChain.val());
+      $thorchainSwapResults.val("Invalid source chain");
+      return;
+  }
+  // $thorchainSwapResults.val(memo);
+  //let res = await wallet.thorchainSignTx();
 });
 
 /*

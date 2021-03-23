@@ -81,6 +81,7 @@ export interface BTCSignTxOutput {
    * Device must `btcSupportsNativeShapeShift()`
    */
   exchangeType?: ExchangeType;
+  opReturnData?: string;
 }
 
 export interface BTCSignTx {
