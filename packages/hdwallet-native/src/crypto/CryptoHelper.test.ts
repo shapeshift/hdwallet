@@ -5,6 +5,7 @@ import CryptoHelper from "./CryptoHelper";
 import { WebCryptoEngine } from "./engines";
 import { fromBufferToUtf8, toArrayBuffer } from "./utils";
 import { Crypto } from "@peculiar/webcrypto";
+import { CipherString } from "./classes";
 
 const PLAINTEXT_STRING = "totally random secret data"
 const ENCRYPTED_STRING = "2.A/tC/OC0U/KN3XuAuz2L36lydOyr5x367tPSGSrPkvQ=|AAAAAAAAAAAAAAAAAAAAAA==|ZqR8HTeOg4+8mzcty10jVFZ5MqFFbn5bwEaqlL0c/Mg="
@@ -74,14 +75,14 @@ describe("CryptoHelpers", () => {
   describe("aesDecrypt", () => {
     it("should decrypt data with an hmac signature", async () => {
       const key = await helper.makeKey("password", "email");
-      const encrypted = await helper.aesEncrypt(toArrayBuffer(PLAINTEXT_STRING), key);
+      const encrypted = (new CipherString(ENCRYPTED_STRING)).toEncryptedObject(key);
       const decrypted = await helper.aesDecrypt(encrypted.data, encrypted.iv, encrypted.mac, encrypted.key);
       expect(fromBufferToUtf8(decrypted)).toEqual(PLAINTEXT_STRING);
     });
 
     it("should fail if the mac is incorrect", async () => {
       const key = await helper.makeKey("password", "email");
-      const encrypted = await helper.aesEncrypt(toArrayBuffer(PLAINTEXT_STRING), key);
+      const encrypted = (new CipherString(ENCRYPTED_STRING)).toEncryptedObject(key);
       const mac = new Uint8Array(encrypted.mac.byteLength).fill(128);
       await expect(helper.aesDecrypt(encrypted.data, encrypted.iv, mac, encrypted.key)).rejects.toThrow(
         "HMAC signature is not valid"
