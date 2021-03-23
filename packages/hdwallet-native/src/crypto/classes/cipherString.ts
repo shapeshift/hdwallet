@@ -1,9 +1,10 @@
 /*
  Copied from portis: packages/portis-crypto/src/models/cipherString.ts
  */
-import { fromBufferToB64 } from "../utils";
+import { fromBufferToB64, fromB64ToArray } from "../utils";
 import { EncryptedObject } from "./encryptedObject";
 import { EncryptionType } from "./encryptionType";
+import { SymmetricCryptoKey } from "./symmetricCryptoKey";
 
 export class CipherString {
   readonly encryptionType: EncryptionType = EncryptionType.AesCbc256_HmacSha256_B64;
@@ -43,5 +44,14 @@ export class CipherString {
 
   get encryptedString() {
     return `${this.encryptionType}.${[this.data, this.iv, this.mac || ""].join("|")}`;
+  }
+
+  toEncryptedObject(key: SymmetricCryptoKey): EncryptedObject {
+    return Object.assign(new EncryptedObject(), {
+      data: fromB64ToArray(this.data),
+      iv: fromB64ToArray(this.iv),
+      mac: fromB64ToArray(this.mac),
+      key,
+    })
   }
 }
