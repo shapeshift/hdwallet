@@ -207,7 +207,7 @@ export class NativeHDWallet
           const network = getNetwork(getPublicKey.coin, getPublicKey.scriptType);
           const hardenedPath = core.hardenedPath(addressNList);
           let node = fromSeed(seed, network);
-          if (hardenedPath.length > 0) node = node.derivePath(core.addressNListToBIP32(hardenedPath))
+          if (hardenedPath.length > 0) node = node.derivePath(core.addressNListToBIP32(hardenedPath));
           const xpub = node.neutered().toBase58();
           return { xpub };
         })

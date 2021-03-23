@@ -29,9 +29,9 @@ describe("NativeETHWalletInfo", () => {
     ]);
   });
 
-  it("does not support getting the next account path", async()=>{
+  it("does not support getting the next account path", async () => {
     expect(untouchable.call(info, "ethNextAccountPath", {})).toBe(undefined);
-  })
+  });
 });
 
 describe("NativeETHWallet", () => {
