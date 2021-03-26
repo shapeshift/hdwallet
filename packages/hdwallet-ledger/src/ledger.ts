@@ -137,6 +137,14 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
   _supportsEosInfo: boolean = false;
   _supportsFioInfo: boolean = false;
   _supportsThorchainInfo: boolean = false;
+  _supportsSecret: boolean = false;
+  _supportsSecretInfo: boolean = false;
+  _supportsKava: boolean = false;
+  _supportsKavaInfo: boolean = false;
+  _supportsTerra: boolean = false;
+  _supportsTerraInfo: boolean = false;
+  _supportsCardano: boolean = false;
+  _supportsCardanoInfo: boolean = false;
 
   public getVendor(): string {
     return "Ledger";
@@ -291,6 +299,14 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   _supportsFioInfo: boolean = false;
   _supportsThorchain: boolean = false;
   _supportsThorchainInfo: boolean = false;
+  _supportsSecretInfo: boolean = false;
+  _supportsSecret: boolean = false;
+  _supportsKava: boolean = false;
+  _supportsKavaInfo: boolean = false;
+  _supportsTerra: boolean = false;
+  _supportsTerraInfo: boolean = false;
+  _supportsCardano: boolean = false;
+  _supportsCardanoInfo: boolean = false;
 
   _isLedger: boolean = true;
 

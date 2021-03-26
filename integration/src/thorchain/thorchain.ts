@@ -48,8 +48,7 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
         expect(
           wallet.describePath({
             path: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
-            coin: "Thorchain",
-            scriptType: "bech32"
+            coin: "Thorchain"
           }),
         );
       },

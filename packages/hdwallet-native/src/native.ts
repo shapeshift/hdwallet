@@ -69,7 +69,15 @@ class NativeHDWalletInfo
   _supportsRippleInfo: boolean = false;
   _supportsEosInfo: boolean = false;
   _supportsFioInfo: boolean = false;
-  _supportsThorchainInfo: boolean = true;
+  _supportsThorchainInfo: boolean = false;
+  _supportsSecretInfo: boolean = false;
+  _supportsSecret: boolean = false;
+  _supportsKava: boolean = false;
+  _supportsKavaInfo: boolean = false;
+  _supportsTerra: boolean = false;
+  _supportsTerraInfo: boolean = false;
+  _supportsCardano: boolean = false;
+  _supportsCardanoInfo: boolean = false;
 
   getVendor(): string {
     return "Native";

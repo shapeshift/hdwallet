@@ -6,6 +6,10 @@ import { RippleWallet, RippleWalletInfo } from "./ripple";
 import { EosWallet, EosWalletInfo } from "./eos";
 import { FioWallet, FioWalletInfo } from "./fio";
 import { ThorchainWallet, ThorchainWalletInfo } from "./thorchain";
+import { SecretWallet, SecretWalletInfo } from "./secret";
+import { KavaWallet, KavaWalletInfo } from "./kava";
+import { TerraWallet, TerraWalletInfo } from "./terra";
+import { CardanoWallet, CardanoWalletInfo } from "./cardano";
 import { DebugLinkWallet } from "./debuglink";
 import { Transport } from "./transport";
 import { isObject } from "lodash";
@@ -168,6 +172,14 @@ export function infoFio(info: any): info is FioWalletInfo {
   return isObject(info) && (info as any)._supportsFioInfo;
 }
 
+export function supportsSecret(wallet: any): wallet is SecretWallet {
+  return isObject(wallet) && (wallet as any)._supportsSecret;
+}
+
+export function infoSecret(info: any): info is SecretWalletInfo {
+  return isObject(info) && (info as any)._supportsSecretInfo;
+}
+
 /**
  * Type guard for RippleWallet Support
  *
@@ -207,6 +219,11 @@ export interface HDWalletInfo {
   _supportsEosInfo: boolean;
   _supportsFioInfo: boolean;
   _supportsThorchainInfo: boolean;
+  _supportsSecretInfo: boolean;
+  _supportsTerraInfo: boolean;
+  _supportsKavaInfo: boolean;
+  _supportsCardanoInfo: boolean;
+
   /**
    * Retrieve the wallet's vendor string.
    */
@@ -256,6 +273,10 @@ export interface HDWallet extends HDWalletInfo {
   _supportsEos: boolean;
   _supportsFio: boolean;
   _supportsThorchain: boolean;
+  _supportsSecret: boolean;
+  _supportsTerra: boolean;
+  _supportsKava: boolean;
+  _supportsCardano: boolean;
   _supportsDebugLink: boolean;
 
   transport?: Transport;
