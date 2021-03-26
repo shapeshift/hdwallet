@@ -14,7 +14,7 @@ const TIMEOUT = 60 * 1000;
 export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
   let wallet: core.SecretWallet & core.HDWallet;
 
-  describe.only("Secret", () => {
+  describe("Secret", () => {
     beforeAll(async () => {
       const { wallet: w } = get();
       if (core.supportsSecret(w)) wallet = w;
@@ -30,7 +30,7 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
       });
     }, TIMEOUT);
 
-    test(
+    test.skip(
       "secretGetAccountPaths()",
       () => {
         if (!wallet) return;
@@ -41,7 +41,7 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
       TIMEOUT
     );
 
-    test.only(
+    test.skip(
       "describePath() secret",
       async () => {
         if (!wallet) return;
