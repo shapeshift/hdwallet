@@ -180,6 +180,30 @@ export function infoSecret(info: any): info is SecretWalletInfo {
   return isObject(info) && (info as any)._supportsSecretInfo;
 }
 
+export function supportsTerra(wallet: any): wallet is TerraWallet {
+  return isObject(wallet) && (wallet as any)._supportsTerra;
+}
+
+export function infoTerra(info: any): info is TerraWalletInfo {
+  return isObject(info) && (info as any)._supportsTerraInfo;
+}
+
+export function supportsKava(wallet: any): wallet is KavaWallet {
+  return isObject(wallet) && (wallet as any)._supportsKava;
+}
+
+export function infoKava(info: any): info is KavaWalletInfo {
+  return isObject(info) && (info as any)._supportsKavaInfo;
+}
+
+export function supportsCardano(wallet: any): wallet is CardanoWallet {
+  return isObject(wallet) && (wallet as any)._supportsCardano;
+}
+
+export function infoCardano(info: any): info is CardanoWalletInfo {
+  return isObject(info) && (info as any)._supportsCardanoInfo;
+}
+
 /**
  * Type guard for RippleWallet Support
  *

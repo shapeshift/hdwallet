@@ -14,7 +14,7 @@ const TIMEOUT = 60 * 1000;
 export function terraTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
   let wallet: core.TerraWallet & core.HDWallet;
 
-  describe.only("Terra", () => {
+  describe("Terra", () => {
     beforeAll(async () => {
       const { wallet: w } = get();
       if (core.supportsTerra(w)) wallet = w;
