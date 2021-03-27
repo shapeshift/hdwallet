@@ -61,6 +61,7 @@ export interface SecretSignTx {
   account_number: string;
   sequence: string;
   fee?: number;
+  gas?: number;
   testnet?: boolean;
 }
 

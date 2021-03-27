@@ -181,6 +181,10 @@ export function getNetwork(coin: string, scriptType?: string): Network {
     //TODO: all below are missing network data
     case "bitcoincash":
     case "thorchain":
+    case "secret":
+    case "terra":
+    case "kava":
+    case "cardano":
     case "cosmos":
     case "binance":
     case "ethereum":

@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import txBuilder from "cosmos-tx-builder";
+import * as txBuilder from "@pioneer-platform/secret-tx-builder";
 import { BIP32Interface } from "bitcoinjs-lib";
 import * as bitcoin from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
@@ -7,7 +7,6 @@ import { getNetwork } from "./networks";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
 import util from "./util";
-const THOR_CHAIN = "secret";
 
 export function MixinNativeSecretWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeSecretWalletInfo extends Base implements core.SecretWalletInfo {
@@ -64,7 +63,7 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
       const message = SHA256(CryptoJS.enc.Hex.parse(publicKey));
       const hash = RIPEMD160(message as any).toString();
       const address = Buffer.from(hash, `hex`);
-      return this.bech32ify(address, `tthor`);
+      return this.bech32ify(address, `secret`);
     }
 
     async secretGetAddress(msg: core.SecretGetAddress): Promise<string> {
@@ -73,12 +72,13 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
       });
     }
 
-    async secretSignTx(msg: core.SecretSignTx): Promise<core.SecretSignedTx> {
+    async secretSignTx(msg: core.SecretSignTx): Promise<any> {
       return this.needsMnemonic(!!this.#wallet, async () => {
         const keyPair = util.getKeyPair(this.#wallet, msg.addressNList, "secret");
-        const result = await txBuilder.sign(msg.tx, keyPair, msg.sequence, msg.account_number, THOR_CHAIN);
+        const gas = ""
+        const result = await txBuilder.signTx(msg.tx, keyPair, msg.sequence, msg.account_number, THOR_CHAIN);
 
-        return txBuilder.createSignedTx(msg.tx, result);
+        return result;
       });
     }
   };

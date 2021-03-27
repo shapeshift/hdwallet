@@ -14,6 +14,8 @@ import { eosTests } from "./eos";
 import { fioTests } from "./fio";
 import { thorchainTests } from "./thorchain";
 import { secretTests } from "./secret";
+import { terraTests } from "./terra";
+import { kavaTests } from "./kava";
 import { WalletSuite } from "./wallets/suite";
 
 /**
@@ -118,12 +120,20 @@ export function integration(suite: WalletSuite): void {
       thorchainTests(() => ({ wallet, info }));
     });
 
-    describe("SecretWallet", () => {
+    describe.only("SecretWallet", () => {
       beforeAll(async () => {
         wallet = await suite.createWallet("Secret");
       });
 
       secretTests(() => ({ wallet, info }));
+    });
+
+    describe("TerraWallet", () => {
+      beforeAll(async () => {
+        wallet = await suite.createWallet("Terra");
+      });
+
+      terraTests(() => ({ wallet, info }));
     });
 
     describe("SelfTest", () => {

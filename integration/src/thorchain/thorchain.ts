@@ -14,7 +14,7 @@ const TIMEOUT = 60 * 1000;
 export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
   let wallet: core.ThorchainWallet & core.HDWallet;
 
-  describe.only("Thorchain", () => {
+  describe("Thorchain", () => {
     beforeAll(async () => {
       const { wallet: w } = get();
       if (core.supportsThorchain(w)) wallet = w;
@@ -41,7 +41,7 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
       TIMEOUT
     );
 
-    test.only(
+    test(
       "describePath() thorchain",
       async () => {
         if (!wallet) return;

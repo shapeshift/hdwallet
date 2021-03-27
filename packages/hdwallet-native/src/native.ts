@@ -10,6 +10,10 @@ import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
 import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binance";
 import { MixinNativeFioWalletInfo, MixinNativeFioWallet } from "./fio";
 import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./thorchain";
+import { MixinNativeSecretWalletInfo, MixinNativeSecretWallet } from "./secret";
+// import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./thorchain";
+// import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./thorchain";
+// import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./thorchain";
 
 import type { NativeAdapterArgs } from "./adapter";
 
@@ -58,7 +62,7 @@ export class NativeHDWalletBase {
 class NativeHDWalletInfo
   extends MixinNativeBTCWalletInfo(
     MixinNativeFioWalletInfo(
-      MixinNativeETHWalletInfo(MixinNativeCosmosWalletInfo(MixinNativeBinanceWalletInfo(MixinNativeThorchainWalletInfo(NativeHDWalletBase))))
+      MixinNativeETHWalletInfo(MixinNativeCosmosWalletInfo(MixinNativeBinanceWalletInfo(MixinNativeThorchainWalletInfo(MixinNativeSecretWalletInfo(NativeHDWalletBase)))))
     )
   )
   implements core.HDWalletInfo {
@@ -70,8 +74,8 @@ class NativeHDWalletInfo
   _supportsEosInfo: boolean = false;
   _supportsFioInfo: boolean = false;
   _supportsThorchainInfo: boolean = false;
-  _supportsSecretInfo: boolean = false;
-  _supportsSecret: boolean = false;
+  _supportsSecretInfo: boolean = true;
+  _supportsSecret: boolean = true;
   _supportsKava: boolean = false;
   _supportsKavaInfo: boolean = false;
   _supportsTerra: boolean = false;
@@ -138,9 +142,9 @@ class NativeHDWalletInfo
 
 export class NativeHDWallet
   extends MixinNativeBTCWallet(
-    MixinNativeFioWallet(MixinNativeETHWallet(MixinNativeCosmosWallet(MixinNativeBinanceWallet(MixinNativeThorchainWallet(NativeHDWalletInfo)))))
+    MixinNativeFioWallet(MixinNativeETHWallet(MixinNativeCosmosWallet(MixinNativeBinanceWallet(MixinNativeThorchainWallet(MixinNativeSecretWallet(NativeHDWalletInfo))))))
   )
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet, core.FioWallet, core.ThorchainWallet {
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet, core.FioWallet, core.ThorchainWallet, core.SecretWallet {
   _supportsBTC = true;
   _supportsETH = true;
   _supportsCosmos = true;
@@ -226,6 +230,7 @@ export class NativeHDWallet
           super.binanceInitializeWallet(seed),
           super.fioInitializeWallet(seed),
           super.thorchainInitializeWallet(seed),
+          super.secretInitializeWallet(seed),
         ]);
 
         this.#initialized = true;
