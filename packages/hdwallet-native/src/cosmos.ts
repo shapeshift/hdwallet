@@ -1,5 +1,4 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { BIP32Interface } from "bitcoinjs-lib";
 import txBuilder from "cosmos-tx-builder";
 import * as bitcoin from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
@@ -45,7 +44,7 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
   return class MixinNativeCosmosWallet extends Base {
     _supportsCosmos = true;
 
-    #wallet: BIP32Interface;
+    #wallet: bitcoin.BIP32Interface;
 
     async cosmosInitializeWallet(seed: Buffer): Promise<void> {
       const network = getNetwork("cosmos");

@@ -1,5 +1,4 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { BIP32Interface } from "bitcoinjs-lib";
 import * as bitcoin from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
 import { getNetwork } from "./networks";
@@ -43,7 +42,7 @@ export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWal
   return class MixinNativeKavaWallet extends Base {
     _supportsKava = true;
 
-    #wallet: BIP32Interface;
+    #wallet: bitcoin.BIP32Interface;
     #seed: string
 
     async kavaInitializeWallet(seed: Buffer): Promise<void> {
