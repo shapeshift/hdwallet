@@ -14,7 +14,9 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
+    "@cosmostation/cosmosjs": "^0.9.5",
     "@shapeshiftoss/hdwallet-core": "^1.11.1",
+    "@terra-money/terra.js": "^1.6.0",
     "bchaddrjs": "^0.4.9",
     "bip32": "^2.0.5",
     "bip39": "^3.0.2",
@@ -26,6 +28,7 @@
     "ethers": "^5.0.2",
     "fiosdk-offline": "^1.2.21",
     "lodash": "^4.17.15",
+    "secretjs-offline": "^0.11.2",
     "text-encoding": "^0.7.0"
   },
   "devDependencies": {

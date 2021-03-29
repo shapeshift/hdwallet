@@ -6,6 +6,9 @@ import { RippleWallet, RippleWalletInfo } from "./ripple";
 import { EosWallet, EosWalletInfo } from "./eos";
 import { FioWallet, FioWalletInfo } from "./fio";
 import { ThorchainWallet, ThorchainWalletInfo } from "./thorchain";
+import { SecretWallet, SecretWalletInfo } from "./secret";
+import { KavaWallet, KavaWalletInfo } from "./kava";
+import { TerraWallet, TerraWalletInfo } from "./terra";
 import { DebugLinkWallet } from "./debuglink";
 import { Transport } from "./transport";
 import { isObject } from "lodash";
@@ -168,6 +171,30 @@ export function infoFio(info: any): info is FioWalletInfo {
   return isObject(info) && (info as any)._supportsFioInfo;
 }
 
+export function supportsSecret(wallet: any): wallet is SecretWallet {
+  return isObject(wallet) && (wallet as any)._supportsSecret;
+}
+
+export function infoSecret(info: any): info is SecretWalletInfo {
+  return isObject(info) && (info as any)._supportsSecretInfo;
+}
+
+export function supportsTerra(wallet: any): wallet is TerraWallet {
+  return isObject(wallet) && (wallet as any)._supportsTerra;
+}
+
+export function infoTerra(info: any): info is TerraWalletInfo {
+  return isObject(info) && (info as any)._supportsTerraInfo;
+}
+
+export function supportsKava(wallet: any): wallet is KavaWallet {
+  return isObject(wallet) && (wallet as any)._supportsKava;
+}
+
+export function infoKava(info: any): info is KavaWalletInfo {
+  return isObject(info) && (info as any)._supportsKavaInfo;
+}
+
 /**
  * Type guard for RippleWallet Support
  *
@@ -207,6 +234,10 @@ export interface HDWalletInfo {
   _supportsEosInfo: boolean;
   _supportsFioInfo: boolean;
   _supportsThorchainInfo: boolean;
+  _supportsSecretInfo: boolean;
+  _supportsTerraInfo: boolean;
+  _supportsKavaInfo: boolean;
+
   /**
    * Retrieve the wallet's vendor string.
    */
@@ -256,6 +287,9 @@ export interface HDWallet extends HDWalletInfo {
   _supportsEos: boolean;
   _supportsFio: boolean;
   _supportsThorchain: boolean;
+  _supportsSecret: boolean;
+  _supportsTerra: boolean;
+  _supportsKava: boolean;
   _supportsDebugLink: boolean;
 
   transport?: Transport;
