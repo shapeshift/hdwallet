@@ -85,8 +85,6 @@ export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWal
         const amount = msg.tx.msg[0].value.amount[0].amount;
         const to = msg.tx.msg[0].value.to_address
         const from = msg.tx.msg[0].value.from_address
-
-        // let accountInfo = await kava.getAccounts(from)
         const accountNumber = msg.account_number
         const sequence = msg.sequence
 
