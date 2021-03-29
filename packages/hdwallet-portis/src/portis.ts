@@ -82,8 +82,6 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
   _supportsKavaInfo: boolean = false;
   _supportsTerra: boolean = false;
   _supportsTerraInfo: boolean = false;
-  _supportsCardano: boolean = false;
-  _supportsCardanoInfo: boolean = false;
 
   transport = new PortisTransport(new Keyring());
 
