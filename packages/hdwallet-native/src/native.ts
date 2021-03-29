@@ -13,7 +13,6 @@ import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./th
 import { MixinNativeSecretWalletInfo, MixinNativeSecretWallet } from "./secret";
 import { MixinNativeTerraWalletInfo, MixinNativeTerraWallet } from "./terra";
 import { MixinNativeKavaWalletInfo, MixinNativeKavaWallet } from "./kava";
-// import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./thorchain";
 
 import type { NativeAdapterArgs } from "./adapter";
 
