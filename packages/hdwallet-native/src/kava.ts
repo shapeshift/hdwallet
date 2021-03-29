@@ -6,7 +6,7 @@ import { getNetwork } from "./networks";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
 import util from "./util";
-const cosmosjs = require("@cosmostation/cosmosjs");
+import cosmosjs from "@cosmostation/cosmosjs";
 
 export function MixinNativeKavaWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeKavaWalletInfo extends Base implements core.KavaWalletInfo {
