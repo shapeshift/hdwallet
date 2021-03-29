@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@cosmostation/cosmosjs": "^0.9.5",
-    "@pioneer-platform/secret-tx-builder": "6.2.3",
     "@shapeshiftoss/hdwallet-core": "^1.11.1",
     "@terra-money/terra.js": "^1.6.0",
     "bchaddrjs": "^0.4.9",
