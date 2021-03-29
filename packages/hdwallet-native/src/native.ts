@@ -80,8 +80,6 @@ class NativeHDWalletInfo
   _supportsKavaInfo: boolean = true;
   _supportsTerra: boolean = true;
   _supportsTerraInfo: boolean = true;
-  _supportsCardano: boolean = false;
-  _supportsCardanoInfo: boolean = false;
 
   getVendor(): string {
     return "Native";

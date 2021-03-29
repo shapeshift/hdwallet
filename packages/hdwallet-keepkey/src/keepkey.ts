@@ -445,7 +445,6 @@ export class KeepKeyHDWalletInfo
   _supportsSecretInfo: boolean = false;
   _supportsKavaInfo: boolean = false;
   _supportsTerraInfo: boolean = false;
-  _supportsCardanoInfo: boolean = false;
 
   public getVendor(): string {
     return "KeepKey";
@@ -691,8 +690,6 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   _supportsKavaInfo: boolean = false;
   _supportsTerra: boolean = false;
   _supportsTerraInfo: boolean = false;
-  _supportsCardano: boolean = false;
-  _supportsCardanoInfo: boolean = false;
 
   transport: KeepKeyTransport;
   features?: Messages.Features.AsObject;
