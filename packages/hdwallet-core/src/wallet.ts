@@ -9,7 +9,6 @@ import { ThorchainWallet, ThorchainWalletInfo } from "./thorchain";
 import { SecretWallet, SecretWalletInfo } from "./secret";
 import { KavaWallet, KavaWalletInfo } from "./kava";
 import { TerraWallet, TerraWalletInfo } from "./terra";
-import { CardanoWallet, CardanoWalletInfo } from "./cardano";
 import { DebugLinkWallet } from "./debuglink";
 import { Transport } from "./transport";
 import { isObject } from "lodash";
@@ -196,14 +195,6 @@ export function infoKava(info: any): info is KavaWalletInfo {
   return isObject(info) && (info as any)._supportsKavaInfo;
 }
 
-export function supportsCardano(wallet: any): wallet is CardanoWallet {
-  return isObject(wallet) && (wallet as any)._supportsCardano;
-}
-
-export function infoCardano(info: any): info is CardanoWalletInfo {
-  return isObject(info) && (info as any)._supportsCardanoInfo;
-}
-
 /**
  * Type guard for RippleWallet Support
  *
@@ -246,7 +237,6 @@ export interface HDWalletInfo {
   _supportsSecretInfo: boolean;
   _supportsTerraInfo: boolean;
   _supportsKavaInfo: boolean;
-  _supportsCardanoInfo: boolean;
 
   /**
    * Retrieve the wallet's vendor string.
@@ -300,7 +290,6 @@ export interface HDWallet extends HDWalletInfo {
   _supportsSecret: boolean;
   _supportsTerra: boolean;
   _supportsKava: boolean;
-  _supportsCardano: boolean;
   _supportsDebugLink: boolean;
 
   transport?: Transport;
