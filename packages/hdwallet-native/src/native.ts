@@ -11,7 +11,7 @@ import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binanc
 import { MixinNativeFioWalletInfo, MixinNativeFioWallet } from "./fio";
 import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./thorchain";
 import { MixinNativeSecretWalletInfo, MixinNativeSecretWallet } from "./secret";
-// import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./thorchain";
+import { MixinNativeTerraWalletInfo, MixinNativeTerraWallet } from "./terra";
 // import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./thorchain";
 // import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./thorchain";
 
@@ -62,7 +62,7 @@ export class NativeHDWalletBase {
 class NativeHDWalletInfo
   extends MixinNativeBTCWalletInfo(
     MixinNativeFioWalletInfo(
-      MixinNativeETHWalletInfo(MixinNativeCosmosWalletInfo(MixinNativeBinanceWalletInfo(MixinNativeThorchainWalletInfo(MixinNativeSecretWalletInfo(NativeHDWalletBase)))))
+      MixinNativeETHWalletInfo(MixinNativeCosmosWalletInfo(MixinNativeBinanceWalletInfo(MixinNativeThorchainWalletInfo(MixinNativeSecretWalletInfo(MixinNativeTerraWalletInfo(NativeHDWalletBase))))))
     )
   )
   implements core.HDWalletInfo {
@@ -78,8 +78,8 @@ class NativeHDWalletInfo
   _supportsSecret: boolean = true;
   _supportsKava: boolean = false;
   _supportsKavaInfo: boolean = false;
-  _supportsTerra: boolean = false;
-  _supportsTerraInfo: boolean = false;
+  _supportsTerra: boolean = true;
+  _supportsTerraInfo: boolean = true;
   _supportsCardano: boolean = false;
   _supportsCardanoInfo: boolean = false;
 
@@ -130,6 +130,14 @@ class NativeHDWalletInfo
       case "trune":
       case "thorchain":
         return core.thorchainDescribePath(msg.path);
+      case "secret":
+      case "scrt":
+      case "tscrt":
+        return core.secretDescribePath(msg.path);
+      case "luna":
+      case "terra":
+      case "tluna":
+        return core.terraDescribePath(msg.path);
       case "binance":
         return core.binanceDescribePath(msg.path);
       case "fio":
@@ -142,9 +150,9 @@ class NativeHDWalletInfo
 
 export class NativeHDWallet
   extends MixinNativeBTCWallet(
-    MixinNativeFioWallet(MixinNativeETHWallet(MixinNativeCosmosWallet(MixinNativeBinanceWallet(MixinNativeThorchainWallet(MixinNativeSecretWallet(NativeHDWalletInfo))))))
+    MixinNativeFioWallet(MixinNativeETHWallet(MixinNativeCosmosWallet(MixinNativeBinanceWallet(MixinNativeThorchainWallet(MixinNativeSecretWallet(MixinNativeTerraWallet(NativeHDWalletInfo)))))))
   )
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet, core.FioWallet, core.ThorchainWallet, core.SecretWallet {
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet, core.FioWallet, core.ThorchainWallet, core.SecretWallet, core.TerraWallet {
   _supportsBTC = true;
   _supportsETH = true;
   _supportsCosmos = true;
@@ -153,6 +161,9 @@ export class NativeHDWallet
   _supportsEos = false;
   _supportsFio = true;
   _supportsThorchain = true;
+  _supportsSecret = true;
+  _supportsTerra = true;
+  _supportsKava = false;
   _supportsDebugLink = false;
   _isNative = true;
 
@@ -231,6 +242,9 @@ export class NativeHDWallet
           super.fioInitializeWallet(seed),
           super.thorchainInitializeWallet(seed),
           super.secretInitializeWallet(seed),
+          super.secretSetMnemonic(this.#mnemonic),
+          super.terraInitializeWallet(seed),
+          super.terraSetMnemonic(this.#mnemonic),
         ]);
 
         this.#initialized = true;
@@ -265,6 +279,8 @@ export class NativeHDWallet
     super.cosmosWipe();
     super.binanceWipe();
     super.thorchainWipe();
+    super.secretWipe();
+    super.terraWipe();
   }
 
   async reset(): Promise<void> {}

@@ -1,7 +1,8 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import tx_unsigned from "./tx01.testnet.secret.json";
-import tx_signed from "./tx01.testnet.secret.signed.json";
+import tx_verbose from "./tx01.mainnet.secret.verbose.json";
+import tx_unsigned from "./tx01.mainnet.secret.json";
+import tx_signed from "./tx01.mainnet.secret.signed.json";
 
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
@@ -14,7 +15,7 @@ const TIMEOUT = 60 * 1000;
 export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
   let wallet: core.SecretWallet & core.HDWallet;
 
-  describe.only("Secret", () => {
+  describe("Secret", () => {
     beforeAll(async () => {
       const { wallet: w } = get();
       if (core.supportsSecret(w)) wallet = w;
@@ -41,7 +42,7 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
       TIMEOUT
     );
 
-    test(
+    test.skip(
       "describePath() secret",
       async () => {
         if (!wallet) return;
@@ -77,9 +78,11 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
         const input: core.SecretSignTx = {
           tx: tx_unsigned as any,
           addressNList: core.bip32ToAddressNList("m/44'/529'/0'/0/0"),
-          chain_id: "secret",
-          account_number: "16354",
-          sequence: "5",
+          chain_id: tx_verbose.accountInfo.chainId,
+          // @ts-ignore
+          account_number: tx_verbose.accountInfo.accountNumber,
+          // @ts-ignore
+          sequence: tx_verbose.accountInfo.sequence,
         };
 
         const res = await wallet.secretSignTx(input);
@@ -89,7 +92,7 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
             //expect(res.signatures[0].signature).toEqual(tx_signed.tx.signatures[0].signature_keepkey);
             break;
           default:
-            //expect(res.signatures[0].signature).toEqual(tx_signed.tx.signatures[0].signature);
+            expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
             break;
 
         }

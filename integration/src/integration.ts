@@ -120,7 +120,7 @@ export function integration(suite: WalletSuite): void {
       thorchainTests(() => ({ wallet, info }));
     });
 
-    describe.only("SecretWallet", () => {
+    describe("SecretWallet", () => {
       beforeAll(async () => {
         wallet = await suite.createWallet("Secret");
       });
@@ -128,7 +128,7 @@ export function integration(suite: WalletSuite): void {
       secretTests(() => ({ wallet, info }));
     });
 
-    describe("TerraWallet", () => {
+    describe.only("TerraWallet", () => {
       beforeAll(async () => {
         wallet = await suite.createWallet("Terra");
       });

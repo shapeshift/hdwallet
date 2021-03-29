@@ -58,8 +58,8 @@ export interface SecretSignTx {
   addressNList: BIP32Path;
   tx: Secret.StdTx;
   chain_id: string;
-  account_number: string;
-  sequence: string;
+  account_number: number;
+  sequence: number;
   fee?: number;
   gas?: number;
   testnet?: boolean;

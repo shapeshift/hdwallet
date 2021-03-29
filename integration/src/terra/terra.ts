@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import tx_unsigned from "./tx01.testnet.terra.json";
-import tx_signed from "./tx01.testnet.terra.signed.json";
+import tx_unsigned from "./tx01.mainnet.terra.json";
+import tx_signed from "./tx01.mainnet.terra.signed.json";
 
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
@@ -65,7 +65,7 @@ export function terraTests(get: () => { wallet: core.HDWallet; info: core.HDWall
             showDisplay: false,
             testnet: true
           })
-        ).toEqual("tthor1ls33ayg26kmltw7jjy55p32ghjna09zp6z69y8");
+        ).toEqual("terra1ls33ayg26kmltw7jjy55p32ghjna09zp7kgw2a");
       },
       TIMEOUT
     );
@@ -78,17 +78,19 @@ export function terraTests(get: () => { wallet: core.HDWallet; info: core.HDWall
           tx: tx_unsigned as any,
           addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
           chain_id: "terra",
-          account_number: "16354",
-          sequence: "5",
+          account_number: "0",
+          sequence: "0",
         };
 
         const res = await wallet.terraSignTx(input);
+        console.log("res: ",res)
+
         switch(wallet.getVendor()){
           case "KeepKey":
             //expect(res.signatures[0].signature).toEqual(tx_signed.tx.signatures[0].signature_keepkey);
             break;
           default:
-            //expect(res.signatures[0].signature).toEqual(tx_signed.tx.signatures[0].signature);
+            expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
             break;
 
         }
