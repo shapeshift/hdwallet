@@ -1,5 +1,4 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { BIP32Interface } from "bitcoinjs-lib";
 import * as bitcoin from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
 import { getNetwork } from "./networks";
@@ -48,7 +47,7 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
   return class MixinNativeSecretWallet extends Base {
     _supportsSecret = true;
 
-    #wallet: BIP32Interface;
+    #wallet: bitcoin.BIP32Interface;
     #seed: string;
 
     async secretInitializeWallet(seed: Buffer): Promise<void> {
@@ -84,8 +83,6 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
 
     async secretSignTx(msg: core.SecretSignTx): Promise<any> {
       return this.needsMnemonic(!!this.#wallet, async () => {
-        console.log("msg: ",msg)
-        console.log("msg: ",JSON.stringify(msg))
 
         const httpUrl = '';
         const signingPen = await Secp256k1Pen.fromMnemonic(this.#seed);
@@ -112,7 +109,6 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
         const accountNumber = msg.account_number
         const sequence = msg.sequence
         const memo = msg.tx.memo
-        console.log("params: ",{rcpt,chainId, accountNumber, sequence, memo})
 
         const sent = await client.sendTokensOffline(rcpt, [{amount: amount, denom: "uscrt"}],chainId, accountNumber, sequence, memo)
 
