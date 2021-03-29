@@ -83,8 +83,17 @@ export function kavaTests(get: () => { wallet: core.HDWallet; info: core.HDWalle
         };
 
         const res = await wallet.kavaSignTx(input);
-        expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
+        console.log("res: ",res)
+        switch(wallet.getVendor()){
+          case "KeepKey":
+            //not supported yet
+            //expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature_keepkey);
+            break;
+          default:
+            expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
+            break;
 
+        }
       },
       TIMEOUT
     );
