@@ -1,0 +1,28 @@
+{
+  "msg":[
+    {
+      "type":"cosmos-sdk/MsgSend",
+      "value":{
+        "amount":[
+          {
+            "amount":"100000",
+            "denom":"ukava"
+          }
+        ],
+        "from_address":"kava1l4ylj687wmm7d0mk2l29pf9y4k3f09v5zzl0tx",
+        "to_address":"kava1lqk43hvysuzymrgg08q45234z6jzth325pg8sk"
+      }
+    }
+  ],
+  "fee":{
+    "amount":[
+      {
+        "amount":"5000",
+        "denom":"ukava"
+      }
+    ],
+    "gas":"200000"
+  },
+  "signatures":null,
+  "memo":"testmemo"
+}

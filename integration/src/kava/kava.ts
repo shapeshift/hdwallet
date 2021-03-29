@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import tx_unsigned from "./tx01.testnet.kava.json";
-import tx_signed from "./tx01.testnet.kava.signed.json";
+import tx_unsigned from "./tx01.mainnet.kava.json";
+import tx_signed from "./tx01.mainnet.kava.signed.json";
 
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
@@ -48,8 +48,7 @@ export function kavaTests(get: () => { wallet: core.HDWallet; info: core.HDWalle
         expect(
           wallet.describePath({
             path: core.bip32ToAddressNList("m/44'/459'/0'/0/0"),
-            coin: "Kava",
-            scriptType: "bech32"
+            coin: "Kava"
           }),
         );
       },
@@ -84,15 +83,8 @@ export function kavaTests(get: () => { wallet: core.HDWallet; info: core.HDWalle
         };
 
         const res = await wallet.kavaSignTx(input);
-        switch(wallet.getVendor()){
-          case "KeepKey":
-            expect(res.signatures[0].signature).toEqual(tx_signed.tx.signatures[0].signature_keepkey);
-            break;
-          default:
-            expect(res.signatures[0].signature).toEqual(tx_signed.tx.signatures[0].signature);
-            break;
+        expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
 
-        }
       },
       TIMEOUT
     );

@@ -97,9 +97,6 @@ export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWa
           to,
           { uluna: amount }
         );
-
-        let gas = "80000"
-
         let fee = new StdFee(1000000, { uluna: 1000000000 })
 
         let tx = new StdSignMsg(

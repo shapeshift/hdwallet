@@ -128,12 +128,20 @@ export function integration(suite: WalletSuite): void {
       secretTests(() => ({ wallet, info }));
     });
 
-    describe.only("TerraWallet", () => {
+    describe("TerraWallet", () => {
       beforeAll(async () => {
         wallet = await suite.createWallet("Terra");
       });
 
       terraTests(() => ({ wallet, info }));
+    });
+
+    describe("KavaWallet", () => {
+      beforeAll(async () => {
+        wallet = await suite.createWallet("Kava");
+      });
+
+      kavaTests(() => ({ wallet, info }));
     });
 
     describe("SelfTest", () => {

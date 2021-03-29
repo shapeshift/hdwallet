@@ -83,17 +83,8 @@ export function terraTests(get: () => { wallet: core.HDWallet; info: core.HDWall
         };
 
         const res = await wallet.terraSignTx(input);
-        console.log("res: ",res)
+        expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
 
-        switch(wallet.getVendor()){
-          case "KeepKey":
-            //expect(res.signatures[0].signature).toEqual(tx_signed.tx.signatures[0].signature_keepkey);
-            break;
-          default:
-            expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
-            break;
-
-        }
       },
       TIMEOUT
     );
