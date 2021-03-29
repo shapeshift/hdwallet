@@ -348,7 +348,6 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
   _supportsSecretInfo: boolean = false;
   _supportsKavaInfo: boolean = false;
   _supportsTerraInfo: boolean = false;
-  _supportsCardanoInfo: boolean = false;
 
   public getVendor(): string {
     return "Portis";
