@@ -7,12 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [1.11.2] - 2021-03-30
 
-- Portis: Upgrade @portis/web3 to 3.0.10 to help with SSR sign-in pop-up issues
-
-### Changed
-
-- Native: Changed NativeAdapter to support more than one hdwallet instance by removing the need to provide a deviceId
-- Native: "deviceId" is now required when calling `pairDevice`
+- Portis: Upgrade @portis/web3 to 3.0.10 to help with SSR sign-in pop-up issues 
 
 ## [1.6.0] - 2020-10-28
 
