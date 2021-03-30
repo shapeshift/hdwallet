@@ -2587,10 +2587,10 @@
     tslib "^2.0.1"
     webcrypto-core "^1.1.6"
 
-"@portis/web3@3.0.10":
-  version "3.0.10"
-  resolved "https://registry.yarnpkg.com/@portis/web3/-/web3-3.0.10.tgz#618499299a182c4e4a2ecb8316e63b8651b303df"
-  integrity sha512-Hmfa2gmEudxiEzalNSaaHDE0f2EezUfJxGcJ8c0sKAHli9K6jBRc1WPT9M4mu57M6cTpwUL1Na45vS06nj0rLQ==
+"@portis/web3@3.0.8":
+  version "3.0.8"
+  resolved "https://registry.yarnpkg.com/@portis/web3/-/web3-3.0.8.tgz#189d9cd77767c6ba84b39df7a03c5e92909cadb4"
+  integrity sha512-klMUf/sqDRF2Rcv5nXpEGfrJ1n2k8Uy3iiv/HU9lq5j9TJh1rNAvNm7ffZYawmQKmwGhjXNaJT1CLYf/xTbWQw==
   dependencies:
     ethereumjs-util "5.2.0"
     penpal "3.0.7"
