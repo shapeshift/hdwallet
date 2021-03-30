@@ -1,29 +1,29 @@
 {
-    "name": "@shapeshiftoss/integration",
-    "version": "2.11.2",
-    "main": "index.js",
-    "license": "MIT",
-    "private": true,
-    "scripts": {
-      "clean": "rm -rf dist .cache",
-      "test": "yarn jest --verbose",
-      "dev": "lerna run test --scope integration --parallel --include-filtered-dependencies"
-    },
-    "dependencies": {
-      "@shapeshiftoss/hdwallet-core": "^1.11.0",
-      "@shapeshiftoss/hdwallet-keepkey": "^1.11.0",
-      "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "^1.11.0",
-      "@shapeshiftoss/hdwallet-keepkey-tcp": "^1.11.0",
-      "@shapeshiftoss/hdwallet-trezor": "^1.11.0",
-      "debug": "^4.1.1",
-      "parcel-bundler": "^1.12.4",
-      "whatwg-fetch": "^2.0.4"
-    },
-    "devDependencies": {
-      "@types/debug": "^4.1.2",
-      "@types/jest": "^24.0.11",
-      "jest": "^24.6.0",
-      "ts-jest": "^24.0.1",
-      "typescript": "^3.4.1"
-    }
+  "name": "@shapeshiftoss/integration",
+  "version": "1.12.1",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf dist .cache",
+    "test": "yarn jest --verbose",
+    "dev": "lerna run test --scope integration --parallel --include-filtered-dependencies"
+  },
+  "dependencies": {
+    "@shapeshiftoss/hdwallet-core": "1.12.1",
+    "@shapeshiftoss/hdwallet-keepkey": "1.12.1",
+    "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "1.12.1",
+    "@shapeshiftoss/hdwallet-keepkey-tcp": "1.12.1",
+    "@shapeshiftoss/hdwallet-trezor": "1.12.1",
+    "debug": "^4.1.1",
+    "parcel-bundler": "^1.12.4",
+    "whatwg-fetch": "^2.0.4"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.2",
+    "@types/jest": "^24.0.11",
+    "jest": "^24.6.0",
+    "ts-jest": "^24.0.1",
+    "typescript": "^3.4.1"
   }
+}

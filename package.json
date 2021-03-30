@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet",
-  "version": "1.11.2",
+  "version": "1.12.1",
   "main": "index.js",
   "private": true,
   "repository": "https://github.com/shapeshift/hdwallet",
