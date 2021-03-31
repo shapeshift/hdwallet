@@ -168,7 +168,7 @@
       <button class="button button-outline" id="thorchainAddr">Address</button>
       <button class="button button-outline" id="thorchainTx">Tx</button>
       <input type="text" id="thorchainNativeResults" />
-      <hr>
+      <hr />
       <h5>Swaps</h5>
       <div class="row">
         <div class="column">
@@ -195,11 +195,28 @@
         </div>
       </div>
       <label for="thorchainDestAddress">Destination Address</label>
-      <input type="text" placeholder="Destination Address" id="thorchainDestAddress">
+      <input type="text" placeholder="Destination Address" id="thorchainDestAddress" />
       <label for="thorchainAmount">Amount</label>
-      <input type="text" placeholder="Ex: 10000000 = 1 full asset" id="thorchainAmount">
-      <button class="button button-outline" id="thorchainSignSwap">Sign Tx</button>
+      <input type="text" placeholder="Ex: 10000000 = 1 full asset" id="thorchainAmount" />
+      <button class="button button-outline" id="thorchainSignSwap">Sign Swap</button>
       <input type="text" id="thorchainSwapResults" />
+      <hr />
+      <h5>Add Liquidity</h5>
+      <label for="thorchainLiquidityAsset">Asset</label>
+      <select id="thorchainLiquidityAsset">
+        <option value="BTC.BTC">Bitcoin</option>
+        <option value="ETH.ETH">Ethereum</option>
+        <option value="BNB.BNB">Binance Chain</option>
+        <option value="BNB.RUNE-B1A">RUNE (BEP2)</option>
+        <option value="THOR.RUNE">RUNE (Native)</option>
+        <option value="ETH.USDT-0xdac17f958d2ee523a2206206994597c13d831ec7">USDT</option>
+      </select>
+      <label for="thorchainLiquidityPoolAddress">Pool Address</label>
+      <input type="text" placeholder="Pool Address" id="thorchainLiquidityPoolAddress" />
+      <label for="thorchainLiquidityAmount">Amount</label>
+      <input type="text" placeholder="Ex: 10000000 = 1 full asset" id="thorchainLiquidityAmount" />
+      <button class="button button-outline" id="thorchainSignAddLiquidity">Sign Add Liquidity</button>
+      <input type="text" id="thorchainAddLiquidityResults" />
     </div>
     <div class="container">
       <h4>Ethereum</h4>
