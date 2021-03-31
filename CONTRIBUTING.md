@@ -31,7 +31,7 @@ Our maintainers are committed to reviewing patches in a timely manner. That
 said, we do have other things on our plate, so please be patient.
 
 In order to ensure high quality of the codebase, we require signoff from at
-least one ShapeShift fox. If you use GPG, feel free to sign your commits.
+least one ShapeShift Fox. If you use GPG, feel free to sign your commits.
 
 Once your patch has been reviewed and has been accepted, you are free to merge it.
 
