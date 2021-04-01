@@ -1,4 +1,5 @@
 {
+  "account_number": "471113",
   "chain_id": "Binance-Chain-Tigris",
   "data": null,
   "memo": "",
@@ -6,35 +7,30 @@
     {
       "inputs": [
         {
-          "address": {
-            "type": "Buffer",
-            "data": [234, 93, 122, 233, 154, 156, 226, 249, 219, 124, 67, 169, 7, 55, 112, 36, 183, 243, 67, 232]
-          },
+          "address": "bnb1afwh46v6nn30nkmugw5swdmsyjmlxslgjfugre",
           "coins": [
             {
-              "denom": "BNB",
-              "amount": "1000"
+              "amount": "1000",
+              "denom": "BNB"
             }
           ]
         }
       ],
       "outputs": [
         {
-          "address": {
-            "type": "Buffer",
-            "data": [103, 156, 216, 31, 171, 65, 66, 104, 64, 250, 96, 40, 9, 112, 81, 59, 129, 14, 180, 30]
-          },
+          "address": "bnb1v7wds8atg9pxss86vq5qjuz38wqsadq7e5m2rr",
           "coins": [
             {
-              "denom": "BNB",
-              "amount": "1000"
+              "amount": "1000",
+              "denom": "BNB"
             }
           ]
         }
-      ],
-      "msgType": "MsgSend"
+      ]
     }
   ],
+  "sequence": "17",
+  "source": "0",
   "txid": "A640902638C0F08B6BF225D18AE9A15FD0B6DBA6C739BD3F5E390CE737BC8E75",
   "serialized": "c001f0625dee0a482a2c87fa0a200a14ea5d7ae99a9ce2f9db7c43a907377024b7f343e812080a03424e4210e80712200a14679cd81fab41426840fa60280970513b810eb41e12080a03424e4210e80712700a26eb5ae9872102ddf08b1f51a4132c63c73455cac6569404c78c9e3b5bffd1f64e07a9a2f109b412406cca9c5ac3d068d2acb58a8ff3ea68007120921eaecc7f4a2c31cfde9b753d4c158cae5719a03acf6524da57ca8d91634903c6dac183f789f088385f7784c78e18c9e01c2011",
   "signatures": {

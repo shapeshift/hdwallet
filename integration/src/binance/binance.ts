@@ -1,7 +1,9 @@
 import { bip32ToAddressNList, HDWallet, BinanceWallet, supportsBinance } from "@shapeshiftoss/hdwallet-core";
 import { isKeepKey } from "@shapeshiftoss/hdwallet-keepkey";
 import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
+import stableStringify from "fast-json-stable-stringify";
 
+import { decodeBnbTx, validateBnbTx } from "./bnbdecoder";
 import tx02_unsigned from "./tx02.mainnet.unsigned.json";
 import tx02_signed from "./tx02.mainnet.signed.json";
 
@@ -61,18 +63,37 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
       async () => {
         if (!wallet) return;
 
-        let res = await wallet.binanceSignTx({
-          tx: tx02_unsigned,
-          addressNList: bip32ToAddressNList("m/44'/714'/0'/0/0"),
-          chain_id: "Binance-Chain-Nile",
-          account_number: "24250",
-          sequence: 0,
-        });
+        // Check that tx02_unsigned and tx02_signed match
+        const { txid, serialized, signatures } = tx02_signed;
+        expect(Object.assign({}, tx02_unsigned, { txid, serialized, signatures })).toStrictEqual(tx02_signed);
+
+        const input = Object.assign(
+          {
+            tx: tx02_unsigned,
+            addressNList: bip32ToAddressNList("m/44'/714'/0'/0/0"),
+            chain_id: tx02_unsigned.chain_id,
+            account_number: tx02_unsigned.account_number,
+            sequence: Number(tx02_unsigned.sequence),
+          },
+          isKeepKey(wallet)
+            ? {
+                // The previous test vectors were generated with these parameters. KeepKey used them, but
+                // hdwallet-native did not. The inputs have been updated to match the actual input used by
+                // hdwallet-native, while these overrides ensure the existing KeepKey test vector still works.
+                chain_id: "Binance-Chain-Nile",
+                account_number: "24250",
+                sequence: 0,
+              }
+            : {}
+        );
+        const res = await wallet.binanceSignTx(input);
 
         // Check that the signed transaction matches tx02_signed -- KeepKey doesn't provide this field,
         // but the tests will be run with hdwallet-native as well, which will prove this invariant under
         // the assumption that both are generating signatures over the same data.
         if (res.serialized) expect(res.serialized).toEqual(tx02_signed.serialized);
+        const txBytes = Buffer.from(tx02_signed.serialized, "hex");
+        expect(validateBnbTx(txBytes, tx02_unsigned.chain_id)).toEqual(true);
 
         // Check that the pubkey used to sign the transaction matches the one used to sign tx02_signed
         const pubKeyHex = Buffer.from(res.signatures.pub_key, "base64").toString("hex");
@@ -82,6 +103,31 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
         const expectedSig = Buffer.from(tx02_signed.signatures[isKeepKey(wallet) ? "kksignature" : "signature"], "base64");
         const actualSig = Buffer.from(res.signatures.signature, "base64");
         expect(actualSig.toString("base64")).toEqual(expectedSig.toString("base64"));
+
+        const { signBytes, pubKey: serializedPubKey } = decodeBnbTx(txBytes, input.chain_id);
+        expect(serializedPubKey.toString("hex")).toEqual(pubKeyHex);
+
+        // signBytes treats amounts as numbers, not strings, even though it treats all
+        // other numbers as strings.
+        const msgNormalizerInner = (x) => ({
+          ...x,
+          coins: x.coins.map((y) => ({
+            ...y,
+            amount: Number(y.amount),
+          })),
+        });
+        const msgNormalizer = (x) => ({
+          ...x,
+          inputs: x.inputs.map((y) => msgNormalizerInner(y)),
+          outputs: x.outputs.map((y) => msgNormalizerInner(y)),
+        });
+        expect(signBytes).toEqual(
+          stableStringify({
+            ...tx02_unsigned,
+            chain_id: input.chain_id,
+            msgs: tx02_unsigned.msgs.map((x) => msgNormalizer(x)),
+          })
+        );
       },
       TIMEOUT
     );
