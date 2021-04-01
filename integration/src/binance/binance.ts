@@ -69,11 +69,19 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
           sequence: 0,
         });
 
-        if (isKeepKey(wallet)) {
-          expect(res.signatures.signature).toEqual(tx02_signed.signatures.kksignature);
-        } else {
-          expect(res.signatures.signature).toEqual(tx02_signed.signatures.signature);
-        }
+        // Check that the signed transaction matches tx02_signed -- KeepKey doesn't provide this field,
+        // but the tests will be run with hdwallet-native as well, which will prove this invariant under
+        // the assumption that both are generating signatures over the same data.
+        if (res.serialized) expect(res.serialized).toEqual(tx02_signed.serialized);
+
+        // Check that the pubkey used to sign the transaction matches the one used to sign tx02_signed
+        const pubKeyHex = Buffer.from(res.signatures.pub_key, "base64").toString("hex");
+        expect(pubKeyHex).toEqual(tx02_signed.signatures.pub_key);
+
+        // Check that the signature matches the one on tx02_signed
+        const expectedSig = Buffer.from(tx02_signed.signatures[isKeepKey(wallet) ? "kksignature" : "signature"], "base64");
+        const actualSig = Buffer.from(res.signatures.signature, "base64");
+        expect(actualSig.toString("base64")).toEqual(expectedSig.toString("base64"));
       },
       TIMEOUT
     );
