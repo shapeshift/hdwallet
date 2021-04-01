@@ -52,20 +52,6 @@
     ],
     "vout": [
       {
-        "value": "0.00978000",
-        "n": 0,
-        "scriptPubKey": {
-          "asm": "OP_DUP OP_HASH160 f7b9e0239571434f0ccfdba6f772a6d23f2cfb13 OP_EQUALVERIFY OP_CHECKSIG",
-          "hex": "76a914f7b9e0239571434f0ccfdba6f772a6d23f2cfb1388ac",
-          "reqSigs": 1,
-          "addresses": ["1ParaEza5Ew5ioT5c8zR2wSSvArqiSQbpT"],
-          "type": "pubkeyhash"
-        },
-        "spentTxId": "171113f0745f570d18199efcb944b8f742fc590c700a41968081c5655338e4fc",
-        "spentIndex": 0,
-        "spentHeight": 355935
-      },
-      {
         "value": "0.00010000",
         "n": 1,
         "scriptPubKey": {
@@ -88,8 +74,7 @@
     "valueOut": 0.00988,
     "valueIn": 0.00989,
     "fees": 0.00001
-  }
-  ,
+  },
   "thorchainEthereumBaseTx": {
     "nonce": "0x0",
     "gasPrice": "0x5FB9ACA00",
