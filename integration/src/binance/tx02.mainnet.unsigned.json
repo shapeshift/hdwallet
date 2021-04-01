@@ -10,7 +10,7 @@
           "address": "bnb1afwh46v6nn30nkmugw5swdmsyjmlxslgjfugre",
           "coins": [
             {
-              "amount": "0.00001",
+              "amount": "1000",
               "denom": "BNB"
             }
           ]
@@ -21,7 +21,7 @@
           "address": "bnb1v7wds8atg9pxss86vq5qjuz38wqsadq7e5m2rr",
           "coins": [
             {
-              "amount": "0.00001",
+              "amount": "1000",
               "denom": "BNB"
             }
           ]

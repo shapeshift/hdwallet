@@ -6,6 +6,7 @@ import { NativeHDWalletBase } from "./native";
 import { getNetwork } from "./networks";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
+import BigNumber from "bignumber.js";
 import util from "./util";
 
 export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor>(Base: TBase) {
@@ -88,11 +89,13 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
           throw Error("Invalid permissions to sign for address")
         }
         const addressTo = msg.tx.msgs[0].outputs[0].address;
-        const amount = (msg.tx.msgs[0].inputs[0].coins[0].amount).toString();
+        // The Binance SDK takes amounts as decimal strings.
+        const amount = new BigNumber(msg.tx.msgs[0].inputs[0].coins[0].amount);
+        if (!amount.isInteger()) throw new Error("amount must be an integer");
         const asset = "BNB";
         const memo = msg.tx.memo;
 
-        const result: any = await client.transfer(addressFrom, addressTo, amount, asset, memo, null);
+        const result: any = await client.transfer(addressFrom, addressTo, amount.shiftedBy(-8).toString(), asset, memo, null);
         const pub_key = result.signatures[0].pub_key.toString("base64");
         const signature = Buffer.from(result.signatures[0].signature, "base64").toString("base64");
 
