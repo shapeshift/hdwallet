@@ -96,8 +96,19 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         const memo = msg.tx.memo;
 
         const result: any = await client.transfer(addressFrom, addressTo, amount.shiftedBy(-8).toString(), asset, memo, null);
-        const pub_key = result.signatures[0].pub_key.toString("base64");
+        const aminoPubKey: Buffer = result.signatures[0].pub_key;
         const signature = Buffer.from(result.signatures[0].signature, "base64").toString("base64");
+
+        // BNB returns public keys serialized in its own format. The first four bytes are a type tag,
+        // and the fifth is the length of the rest of the data, which is always exactly 33 bytes.
+        if (
+          aminoPubKey.length !== 38 ||
+          aminoPubKey.readUInt32BE(0) !== 0xeb5ae987 ||
+          aminoPubKey.readUInt8(4) !== 33
+        ) {
+          throw new Error("Binance SDK returned public key in an incorrect format");
+        }
+        const pub_key = aminoPubKey.slice(5).toString("base64");
 
         return {
           account_number: result.account,
