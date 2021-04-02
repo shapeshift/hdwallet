@@ -91,22 +91,13 @@ describe("NativeHDWallet", () => {
   describe("loadDevice", () => {
     it("should load wallet with a mnemonic", async () => {
       const wallet = NativeHDWallet.create({ deviceId: "native" });
-      await expect(wallet.isInitialized()).resolves.toBe(false);
+      await expect(wallet.isInitialized()).resolves.toBeFalsy();
       await expect(wallet.isLocked()).resolves.toBe(false);
       await wallet.loadDevice({ mnemonic: MNEMONIC });
       await expect(wallet.initialize()).resolves.toBe(true);
       await expect(wallet.isInitialized()).resolves.toBe(true);
       await expect(wallet.isLocked()).resolves.toBe(false);
       ([
-        {
-          in: [{ coin: "bitcoin", addressNList: [] }],
-          out: [
-            {
-              xpub:
-                "xpub661MyMwAqRbcFLgDU7wpcEVubSF7NkswwmXBUkDiGUW6uopeUMys4AqKXNgpfZKRTLnpKQgffd6a2c3J8JxLkF1AQN17Pm9QYHEqEfo1Rsx",
-            },
-          ],
-        },
         {
           in: [{ coin: "bitcoin", addressNList: [1 + 0x80000000, 2 + 0x80000000] }],
           out: [
@@ -161,27 +152,6 @@ describe("NativeHDWallet", () => {
         );
       }
     );
-  });
-
-  it("should wipe if an error occurs during initialization", async () => {
-    expect.assertions(7);
-    const wallet = NativeHDWallet.create({ deviceId: "native" });
-    await wallet.loadDevice({ mnemonic: MNEMONIC });
-    const mocks = [
-      jest.spyOn(bip39, "mnemonicToSeed").mockImplementationOnce(() => {
-        throw "mock error";
-      }),
-      jest.spyOn(console, "error").mockImplementationOnce((msg, error) => {
-        expect(msg).toMatch("NativeHDWallet:initialize:error");
-        expect(error).toEqual("mock error");
-      }),
-      jest.spyOn(wallet, "wipe"),
-    ];
-    await expect(wallet.initialize()).resolves.toBe(false);
-    mocks.forEach((x) => {
-      expect(x).toHaveBeenCalled();
-      x.mockRestore();
-    });
   });
 
   it("should have correct metadata", async () => {
