@@ -26,7 +26,7 @@ export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor>(Bas
     }
 
     binanceGetAccountPaths(msg: core.BinanceGetAccountPaths): Array<core.BinanceAccountPath> {
-      const slip44 = core.slip44ByCoin("Binance")
+      const slip44 = core.slip44ByCoin("Binance");
       return [
         {
           addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
@@ -48,7 +48,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
     #wallet: BIP32Interface;
 
     async binanceInitializeWallet(seed: Buffer): Promise<void> {
-      const network = getNetwork("cosmos");
+      const network = getNetwork("binance");
       this.#wallet = bitcoin.bip32.fromSeed(seed, network);
     }
 
@@ -86,9 +86,9 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         await client.initChain();
 
         const addressFrom = msg.tx?.msgs?.[0]?.inputs?.[0]?.address;
-        const addressFromVerify = client.getClientKeyAddress()
+        const addressFromVerify = client.getClientKeyAddress();
         if (addressFrom !== addressFromVerify) {
-          throw Error("Invalid permissions to sign for address")
+          throw Error("Invalid permissions to sign for address");
         }
         const addressTo = msg.tx.msgs[0].outputs[0].address;
         // The Binance SDK takes amounts as decimal strings.
@@ -97,7 +97,14 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         const asset = "BNB";
         const memo = msg.tx.memo;
 
-        const result: any = await client.transfer(addressFrom, addressTo, amount.shiftedBy(-8).toString(), asset, memo, msg.sequence ?? null);
+        const result: any = await client.transfer(
+          addressFrom,
+          addressTo,
+          amount.shiftedBy(-8).toString(),
+          asset,
+          memo,
+          msg.sequence ?? null
+        );
         const aminoPubKey: Buffer = result.signatures[0].pub_key;
         const signature = Buffer.from(result.signatures[0].signature, "base64").toString("base64");
 

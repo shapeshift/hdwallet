@@ -58,7 +58,7 @@ describe("CryptoHelpers", () => {
       expect(fromBufferToUtf8(decrypted)).toEqual("totally random secret data");
     });
 
-    it("should should fail if the mac is incorrect", async () => {
+    it("should fail if the mac is incorrect", async () => {
       const key = await helper.makeKey("password", "email");
       const encrypted = await helper.aesEncrypt(toArrayBuffer("totally random secret data"), key);
       const mac = new Uint8Array(encrypted.mac.byteLength).fill(128);
