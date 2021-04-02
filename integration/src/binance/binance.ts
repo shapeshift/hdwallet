@@ -67,25 +67,13 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
         const { txid, serialized, signatures } = tx02_signed;
         expect(Object.assign({}, tx02_unsigned, { txid, serialized, signatures })).toStrictEqual(tx02_signed);
 
-        const input = Object.assign(
-          {
-            tx: tx02_unsigned,
-            addressNList: bip32ToAddressNList("m/44'/714'/0'/0/0"),
-            chain_id: tx02_unsigned.chain_id,
-            account_number: tx02_unsigned.account_number,
-            sequence: Number(tx02_unsigned.sequence),
-          },
-          isKeepKey(wallet)
-            ? {
-                // The previous test vectors were generated with these parameters. KeepKey used them, but
-                // hdwallet-native did not. The inputs have been updated to match the actual input used by
-                // hdwallet-native, while these overrides ensure the existing KeepKey test vector still works.
-                chain_id: "Binance-Chain-Nile",
-                account_number: "24250",
-                sequence: 0,
-              }
-            : {}
-        );
+        const input = {
+          tx: tx02_unsigned,
+          addressNList: bip32ToAddressNList("m/44'/714'/0'/0/0"),
+          chain_id: tx02_unsigned.chain_id,
+          account_number: tx02_unsigned.account_number,
+          sequence: Number(tx02_unsigned.sequence),
+        };
         const res = await wallet.binanceSignTx(input);
 
         // Check that the signed transaction matches tx02_signed -- KeepKey doesn't provide this field,
@@ -93,14 +81,14 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
         // the assumption that both are generating signatures over the same data.
         if (res.serialized) expect(res.serialized).toEqual(tx02_signed.serialized);
         const txBytes = Buffer.from(tx02_signed.serialized, "hex");
-        expect(validateBnbTx(txBytes, tx02_unsigned.chain_id)).toEqual(true);
+        expect(validateBnbTx(txBytes, input.chain_id)).toEqual(true);
 
         // Check that the pubkey used to sign the transaction matches the one used to sign tx02_signed
         const pubKeyHex = Buffer.from(res.signatures.pub_key, "base64").toString("hex");
         expect(pubKeyHex).toEqual(tx02_signed.signatures.pub_key);
 
         // Check that the signature matches the one on tx02_signed
-        const expectedSig = Buffer.from(tx02_signed.signatures[isKeepKey(wallet) ? "kksignature" : "signature"], "base64");
+        const expectedSig = Buffer.from(tx02_signed.signatures.signature, "base64");
         const actualSig = Buffer.from(res.signatures.signature, "base64");
         expect(actualSig.toString("base64")).toEqual(expectedSig.toString("base64"));
 
