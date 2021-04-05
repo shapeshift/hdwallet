@@ -9,6 +9,7 @@ import { CipherString } from "./classes";
 
 const PLAINTEXT_STRING = "totally random secret data"
 const ENCRYPTED_STRING = "2.A/tC/OC0U/KN3XuAuz2L36lydOyr5x367tPSGSrPkvQ=|AAAAAAAAAAAAAAAAAAAAAA==|ZqR8HTeOg4+8mzcty10jVFZ5MqFFbn5bwEaqlL0c/Mg="
+const ENCRYPTED_EMPTY_STRING = "2.7wpUO5ISHHdT1voBnjzyXQ==|AAAAAAAAAAAAAAAAAAAAAA==|02KQ8aQWWXUX7foOmf4T2W0XCFAk4OTKFQO+hRhlRcY=";
 
 const BAD_ARGS = [undefined, null, "encrypteddatastring", [1, 2, 3, 4, 5, 6], {}];
 
@@ -43,6 +44,21 @@ describe("CryptoHelpers", () => {
       expect(encrypted.mac.byteLength).toBe(32);
       expect(encrypted.data.byteLength).toBe(32);
       expect(encrypted.toString()).toEqual(ENCRYPTED_STRING);
+    });
+
+    it("should encrypt the empty string", async () => {
+      const randomMock = jest
+        .spyOn(global.crypto, "getRandomValues")
+        .mockImplementation((array) => new Uint8Array(array.byteLength).fill(0));
+      const key = await helper.makeKey("password", "email");
+      const encrypted = await helper.aesEncrypt(toArrayBuffer(""), key);
+      randomMock.mockRestore();
+
+      expect(encrypted.key).toEqual(key);
+      expect(encrypted.iv.byteLength).toBe(16);
+      expect(encrypted.mac.byteLength).toBe(32);
+      expect(encrypted.data.byteLength).toBe(16);
+      expect(encrypted.toString()).toEqual(ENCRYPTED_EMPTY_STRING);
     });
 
     it.each([
