@@ -77,7 +77,7 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
 
     async secretSignTx(msg: core.SecretSignTx): Promise<any> {
       return this.needsMnemonic(!!this.#wallet, async () => {
-        return null;
+        throw Error("Not Supported");
       });
     }
   };

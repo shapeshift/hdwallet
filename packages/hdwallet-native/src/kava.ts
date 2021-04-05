@@ -78,7 +78,7 @@ export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWal
 
     async kavaSignTx(msg: core.KavaSignTx): Promise<core.KavaSignedTx> {
       return this.needsMnemonic(!!this.#wallet, async () => {
-        return null
+        throw Error("Not Supported");
       });
     }
   };

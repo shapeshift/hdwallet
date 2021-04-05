@@ -80,7 +80,7 @@ export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWa
 
     async terraSignTx(msg: core.TerraSignTx): Promise<any> {
       return this.needsMnemonic(!!this.#wallet, async () => {
-        return null
+        throw Error("Not Supported");
       });
     }
   };
