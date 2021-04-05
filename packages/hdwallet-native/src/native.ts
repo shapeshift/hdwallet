@@ -73,12 +73,9 @@ class NativeHDWalletInfo
   _supportsEosInfo: boolean = false;
   _supportsFioInfo: boolean = false;
   _supportsThorchainInfo: boolean = false;
-  _supportsSecretInfo: boolean = true;
-  _supportsSecret: boolean = true;
-  _supportsKava: boolean = true;
-  _supportsKavaInfo: boolean = true;
-  _supportsTerra: boolean = true;
-  _supportsTerraInfo: boolean = true;
+  _supportsSecretInfo: boolean = false;
+  _supportsKavaInfo: boolean = false;
+  _supportsTerraInfo: boolean = false;
 
   getVendor(): string {
     return "Native";
@@ -161,9 +158,9 @@ export class NativeHDWallet
   _supportsEos = false;
   _supportsFio = true;
   _supportsThorchain = true;
-  _supportsSecret = true;
-  _supportsTerra = true;
-  _supportsKava = true;
+  _supportsSecret = false;
+  _supportsTerra = false;
+  _supportsKava = false;
   _supportsDebugLink = false;
   _isNative = true;
 
