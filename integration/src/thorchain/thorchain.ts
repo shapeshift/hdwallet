@@ -63,7 +63,7 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
           await wallet.thorchainGetAddress({
             addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
             showDisplay: false,
-            testnet: true
+            testnet: false
           })
         ).toEqual("thor1ls33ayg26kmltw7jjy55p32ghjna09zp74t4az");
       },
