@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import tx_unsigned from "./tx01.testnet.thorchain.json";
-import tx_signed from "./tx01.testnet.thorchain.signed.json";
+import tx_unsigned from "./tx02.mainnet.thorchain.json";
+import tx_signed from "./tx02.mainnet.thorchain.signed.json";
 
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
@@ -63,9 +63,9 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
           await wallet.thorchainGetAddress({
             addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
             showDisplay: false,
-            testnet: true
+            testnet: false
           })
-        ).toEqual("tthor1ls33ayg26kmltw7jjy55p32ghjna09zp6z69y8");
+        ).toEqual("thor1ls33ayg26kmltw7jjy55p32ghjna09zp74t4az");
       },
       TIMEOUT
     );
@@ -78,17 +78,16 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
           tx: tx_unsigned as any,
           addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
           chain_id: "thorchain",
-          account_number: "16354",
-          sequence: "5",
+          account_number: "17",
+          sequence: "2",
         };
 
         const res = await wallet.thorchainSignTx(input);
         switch(wallet.getVendor()){
           case "KeepKey":
-            expect(res.signatures[0].signature).toEqual(tx_signed.tx.signatures[0].signature_keepkey);
             break;
           default:
-            expect(res.signatures[0].signature).toEqual(tx_signed.tx.signatures[0].signature);
+            expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
             break;
 
         }
