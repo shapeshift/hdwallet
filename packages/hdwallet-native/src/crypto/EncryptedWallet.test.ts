@@ -14,6 +14,9 @@ const PLAINTEXT_MNEMONIC2 =
 const ENCRYPTED_MNEMONIC2 =
   "2.1gm0swmYoZCc/T/U1aSGTsp0NgSQFtNT/N8U4nAgTWeJ28xpjlrGAjZwezW4vrwR8+TprSfaNCsh9lv1Nr19+/R3Ya2kj9obHhZZz1FL6qVY1dOdqfoaEWiqui54zlCb|AAAAAAAAAAAAAAAAAAAAAA==|R5969JYt8Y5CH55TFsafDVl8CXx8tv2ii2wjOMurdf4=";
 
+const ENCRYPTED_EMPTY_STRING =
+  "2.7wpUO5ISHHdT1voBnjzyXQ==|AAAAAAAAAAAAAAAAAAAAAA==|02KQ8aQWWXUX7foOmf4T2W0XCFAk4OTKFQO+hRhlRcY=";
+
 describe("EncryptedWallet", () => {
   // Load shim to support running tests in node
   globalThis.crypto = new Crypto();
@@ -135,6 +138,12 @@ describe("EncryptedWallet", () => {
       const wallet = new EncryptedWallet(engine);
       await wallet.init("email", "password2", ENCRYPTED_MNEMONIC);
       await expect(wallet.decrypt()).rejects.toThrow("signature is not valid");
+    });
+
+    it("should throw an error if the decrypted mnemonic is the empty string", async () => {
+      const wallet = new EncryptedWallet(engine);
+      await wallet.init("email", "password", ENCRYPTED_EMPTY_STRING);
+      await expect(wallet.decrypt()).rejects.toThrow("Decryption failed");
     });
   });
 

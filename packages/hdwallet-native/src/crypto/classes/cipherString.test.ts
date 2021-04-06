@@ -1,7 +1,4 @@
-import { CipherString } from "./cipherString";
-import { EncryptedObject } from "./encryptedObject";
-import { EncryptionType } from "./encryptionType";
-import { SymmetricCryptoKey } from "./symmetricCryptoKey";
+import { CipherString, EncryptedObject, EncryptionType, SymmetricCryptoKey } from ".";
 
 describe("CipherString", () => {
   it.each([undefined, null, 0, [1, 2, 3], { data: "", iv: "", key: "" }, "", "abc|abc|abc"])(
@@ -10,6 +7,11 @@ describe("CipherString", () => {
       expect(() => new CipherString(cipher)).toThrow("Invalid cipher");
     }
   );
+
+  it("should throw an error if an invalid encryption type is specified", () => {
+    const string = "999.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=|AAAAAAAAAAAAAAAAAAAAAA==|AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    expect(() => new CipherString(string)).toThrow("Unsupported encryption method");
+  });
 
   it("should accept a properly formatted cipher string", () => {
     const string = new CipherString("2.AAAA|AAAA|AAAA");
