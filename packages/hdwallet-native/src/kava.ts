@@ -1,10 +1,9 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as bitcoin from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
-import { getNetwork } from "./networks";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
 import util from "./util";
+import * as Isolation from "./crypto/isolation";
 
 export function MixinNativeKavaWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeKavaWalletInfo extends Base implements core.KavaWalletInfo {
@@ -41,20 +40,13 @@ export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWal
   return class MixinNativeKavaWallet extends Base {
     _supportsKava = true;
 
-    #wallet: bitcoin.BIP32Interface;
-    #seed: string
+    #seed: Isolation.BIP32.SeedInterface;
 
-    async kavaInitializeWallet(seed: Buffer): Promise<void> {
-      const network = getNetwork("kava");
-      this.#wallet = bitcoin.bip32.fromSeed(seed, network);
-    }
-
-    kavaSetMnemonic(mnemonic: string): void {
-      this.#seed = mnemonic
+    async kavaInitializeWallet(seed: Isolation.BIP32.SeedInterface): Promise<void> {
+      this.#seed = seed;
     }
 
     kavaWipe(): void {
-      this.#wallet = undefined;
       this.#seed = undefined;
     }
 
@@ -71,13 +63,13 @@ export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWal
     }
 
     async kavaGetAddress(msg: core.KavaGetAddress): Promise<string> {
-      return this.needsMnemonic(!!this.#wallet, async () => {
-        return this.createKavaAddress(util.getKeyPair(this.#wallet, msg.addressNList, "kava").publicKey);
+      return this.needsMnemonic(!!this.#seed, async () => {
+        return this.createKavaAddress(util.getKeyPair(this.#seed, msg.addressNList, "kava").publicKey.toString("hex"));
       });
     }
 
     async kavaSignTx(msg: core.KavaSignTx): Promise<core.KavaSignedTx> {
-      return this.needsMnemonic(!!this.#wallet, async () => {
+      return this.needsMnemonic(!!this.#seed, async () => {
         throw Error("Not Supported");
       });
     }

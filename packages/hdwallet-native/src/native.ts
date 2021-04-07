@@ -239,11 +239,8 @@ export class NativeHDWallet
           super.fioInitializeWallet(seed),
           super.thorchainInitializeWallet(seed),
           super.secretInitializeWallet(seed),
-          super.secretSetMnemonic(this.#mnemonic),
           super.terraInitializeWallet(seed),
-          super.terraSetMnemonic(this.#mnemonic),
           super.kavaInitializeWallet(seed),
-          super.kavaSetMnemonic(this.#mnemonic),
         ]);
 
         this.#initialized = true;
