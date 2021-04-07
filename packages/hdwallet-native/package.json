@@ -20,7 +20,7 @@
     "bignumber.js": "^9.0.1",
     "bip32": "^2.0.5",
     "bip39": "^3.0.2",
-    "bitcoinjs-lib": "^5.1.10",
+    "bitcoinjs-lib": "^5.2.0",
     "bnb-javascript-sdk-nobroadcast": "^2.16.14",
     "cosmos-tx-builder": "^6.3.4",
     "crypto-js": "^3.1.9-1",
