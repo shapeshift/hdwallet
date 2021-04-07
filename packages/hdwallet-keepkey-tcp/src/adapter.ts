@@ -1,5 +1,6 @@
 import { HDWallet, Keyring } from "@shapeshiftoss/hdwallet-core";
 import { create as createKeepKey } from "@shapeshiftoss/hdwallet-keepkey";
+import { AxiosRequestConfig } from "axios";
 import { TCPKeepKeyTransport } from "./transport";
 
 export class TCPKeepKeyAdapter {
@@ -13,13 +14,14 @@ export class TCPKeepKeyAdapter {
     return new TCPKeepKeyAdapter(keyring);
   }
 
-  public async initialize(hosts: Array<string>): Promise<number> {
-    for (const host of hosts) {
+  public async initialize(hostsOrConfigs: Array<string | AxiosRequestConfig>): Promise<number> {
+    for (const hostOrConfig of hostsOrConfigs) {
+      const host = typeof hostOrConfig === "string" ? hostOrConfig : hostOrConfig.baseURL;
       if (this.keyring.wallets[host]) {
         await this.keyring.get(host).transport.connect();
         await this.keyring.get(host).initialize();
       } else {
-        let transport = new TCPKeepKeyTransport(host, this.keyring);
+        let transport = new TCPKeepKeyTransport(hostOrConfig, this.keyring);
 
         await transport.connect();
         let wallet = createKeepKey(transport);
@@ -31,8 +33,9 @@ export class TCPKeepKeyAdapter {
     return Object.keys(this.keyring.wallets).length;
   }
 
-  public async pairDevice(host: string): Promise<HDWallet> {
-    await this.initialize([host]);
+  public async pairDevice(hostOrConfig: string | AxiosRequestConfig): Promise<HDWallet> {
+    const host = typeof hostOrConfig === "string" ? hostOrConfig : hostOrConfig.baseURL;
+    await this.initialize([hostOrConfig]);
     return this.keyring.get(host);
   }
 }
