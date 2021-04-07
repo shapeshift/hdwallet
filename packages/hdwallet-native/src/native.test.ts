@@ -74,6 +74,22 @@ describe("NativeHDWalletInfo", () => {
         msg: { coin: "fio", path: [44 + 0x80000000, 235 + 0x80000000, 0 + 0x80000000, 0, 0] },
         out: { coin: "Fio", verbose: "Fio Account #0", isKnown: true },
       },
+      {
+        msg: { coin: "rune", path: [44 + 0x80000000, 931 + 0x80000000, 0 + 0x80000000, 0, 0] },
+        out: { coin: "Thorchain", verbose: "Thorchain Account #0", isKnown: true },
+      },
+      {
+        msg: { coin: "secret", path: [44 + 0x80000000, 529 + 0x80000000, 0 + 0x80000000, 0, 0] },
+        out: { coin: "Secret", verbose: "Secret Account #0", isKnown: true },
+      },
+      {
+        msg: { coin: "luna", path: [44 + 0x80000000, 330 + 0x80000000, 0 + 0x80000000, 0, 0] },
+        out: { coin: "Terra", verbose: "Terra Account #0", isKnown: true },
+      },
+      {
+        msg: { coin: "kava", path: [44 + 0x80000000, 459 + 0x80000000, 0 + 0x80000000, 0, 0] },
+        out: { coin: "Kava", verbose: "Kava Account #0", isKnown: true },
+      },
     ].forEach((x) => expect(info.describePath(x.msg)).toMatchObject(x.out));
     expect(() => info.describePath({ coin: "foobar", path: [1, 2, 3] })).toThrowError("Unsupported path");
   });
