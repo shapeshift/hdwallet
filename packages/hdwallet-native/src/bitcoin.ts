@@ -29,12 +29,7 @@ type ScriptData = {
 
 type InputData = UtxoData | ScriptData;
 
-function getKeyPair(
-  seed: Buffer,
-  addressNList: number[],
-  coin,
-  scriptType?: BTCScriptType
-): ECPairInterface {
+function getKeyPair(seed: Buffer, addressNList: number[], coin, scriptType?: BTCScriptType): ECPairInterface {
   const network = getNetwork(coin, scriptType);
   const wallet = bitcoin.bip32.fromSeed(seed, network);
   const path = core.addressNListToBIP32(addressNList);
@@ -260,10 +255,10 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
           }
         });
 
-        if(msg.opReturnData) {
-          const data = Buffer.from(msg.opReturnData, 'utf8')
-          const embed = bitcoin.payments.embed({data: [data]})
-          psbt.addOutput({ script: embed.output, value: 0 })  
+        if (msg.opReturnData) {
+          const data = Buffer.from(msg.opReturnData, "utf8");
+          const embed = bitcoin.payments.embed({ data: [data] });
+          psbt.addOutput({ script: embed.output, value: 0 });
         }
 
         inputs.forEach((input, idx) => {
