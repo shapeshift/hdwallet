@@ -146,7 +146,7 @@ describe("NativeBinanceWallet", () => {
         "signature": "BnbtioXs2KyTQeJFpYQM6JmLgE4XOMLIDCCYw7z7wwpRMVwV0uVoeBoNh5zJrDcJzCQw8qmwzC+I5Cl/pTz+jg==",
       }
     `);
-    expect(mswMock.handlers.get["https://dex.binance.org/api/v1/node-info"]).toHaveBeenCalled();
+    expect(mswMock).toHaveBeenCalledWith("GET", "https://dex.binance.org/api/v1/node-info");
     mswMock.clear();
   });
 
@@ -166,6 +166,8 @@ describe("NativeBinanceWallet", () => {
         sequence: Number.NaN,
       })
     ).rejects.toThrowError();
+    expect(mswMock).toHaveBeenCalledWith("GET", "https://dex.binance.org/api/v1/account/bnb1qzc0v2q7u6484czzal6ncuvqmg9fae8n2xe2c6");
+    mswMock.clear();
   });
 
   it("should not sign a transaction from a different account", async () => {
@@ -198,7 +200,7 @@ describe("NativeBinanceWallet", () => {
         sequence: 456,
       })
     ).rejects.toThrowError("Invalid permissions to sign for address");
-    expect(mswMock.handlers.get["https://dex.binance.org/api/v1/node-info"]).toHaveBeenCalled();
+    expect(mswMock).toHaveBeenCalledWith("GET", "https://dex.binance.org/api/v1/node-info");
     mswMock.clear();
   });
 });
