@@ -59,25 +59,25 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
       return encode(prefix, words);
     }
 
-    createBinanceAddress(publicKey: string) {
+    createBinanceAddress(publicKey: string, testnet?: boolean) {
       const message = SHA256(CryptoJS.enc.Hex.parse(publicKey));
       const hash = RIPEMD160(message as any).toString();
       const address = Buffer.from(hash, `hex`);
-      return this.binanceBech32ify(address, `bnb`);
+      return this.binanceBech32ify(address, `${testnet ? "t" : ""}bnb`);
     }
 
-    async binanceGetAddress(msg: core.BinanceGetAddress): Promise<string> {
+    async binanceGetAddress(msg: core.BinanceGetAddress & { testnet?: boolean }): Promise<string> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        return this.createBinanceAddress(util.getKeyPair(this.#seed, msg.addressNList, "binance").publicKey.toString("hex"));
+        return this.createBinanceAddress(util.getKeyPair(this.#seed, msg.addressNList, "binance").publicKey.toString("hex"), msg.testnet ?? false);
       });
     }
 
-    async binanceSignTx(msg: core.BinanceSignTx): Promise<core.BinanceSignedTx> {
+    async binanceSignTx(msg: core.BinanceSignTx & { testnet?: boolean }): Promise<core.BinanceSignedTx> {
       return this.needsMnemonic(!!this.#seed, async () => {
         const keyPair = util.getKeyPair(this.#seed, msg.addressNList, "binance");
 
-        const client = new BncClient("https://dex.binance.org"); // broadcast not used but available
-        await client.chooseNetwork("mainnet");
+        const client = new BncClient(msg.testnet ? "https://testnet-dex.binance.org" : "https://dex.binance.org"); // broadcast not used but available
+        await client.chooseNetwork(msg.testnet ? "testnet" : "mainnet");
         const haveAccountNumber = Number.isInteger(Number(msg.account_number));
         if (haveAccountNumber) await client.setAccountNumber(Number(msg.account_number));
         client.setSigningDelegate(Isolation.Adapters.Binance(keyPair));
