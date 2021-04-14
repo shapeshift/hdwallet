@@ -40,7 +40,7 @@ export class TrezorConnectTransport extends TrezorTransport {
     return this.device.deviceID;
   }
 
-  public async listen(): Promise<any> {
+  public async connect(): Promise<void> {
     TrezorConnect.on(DEVICE_EVENT, (event: any) => {
       if (!this.device.path && event.features && event.path && event.features.device_id === this.device.deviceID) {
         this.device.path = event.path;

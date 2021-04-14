@@ -12,8 +12,6 @@ export abstract class TrezorTransport extends Transport {
     super(keyring);
   }
 
-  public abstract listen(): Promise<any>;
-
   public abstract cancel(): Promise<void>;
 
   public abstract call(method: string, msg: any, msTimeout?: number): Promise<TrezorConnectResponse>;

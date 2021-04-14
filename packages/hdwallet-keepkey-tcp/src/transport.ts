@@ -52,10 +52,7 @@ export class TCPKeepKeyTransport extends KeepKeyTransport {
     return true;
   }
 
-  public async connect(): Promise<void> {
-    // Start reading data from usbDevice
-    this.listen();
-  }
+  public async connect(): Promise<void> {}
 
   public async disconnect(): Promise<void> {}
 

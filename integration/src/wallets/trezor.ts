@@ -30,8 +30,6 @@ export class MockTransport extends TrezorTransport {
     return "mock#1";
   }
 
-  public async listen(): Promise<any> {}
-
   public call(method: string, msg: any, msTimeout?: number): Promise<TrezorConnectResponse> {
     let key = JSON.stringify({ method: method, msg: msg });
     if (!this.memoized.has(key)) {

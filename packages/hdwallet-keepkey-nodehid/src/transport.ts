@@ -47,9 +47,6 @@ export class HIDKeepKeyTransport extends KeepKeyTransport {
     if (this.isOpened) return;
 
     this.hidRef.readSync();
-
-    // Start reading data from usbDevice
-    this.listen();
   }
 
   public async disconnect(): Promise<void> {

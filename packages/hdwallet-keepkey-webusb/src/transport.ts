@@ -55,9 +55,6 @@ export class WebUSBKeepKeyTransport extends KeepKeyTransport {
         throw new ConflictingApp("KeepKey");
       throw e;
     }
-
-    // Start reading data from usbDevice
-    this.listen();
   }
 
   public async tryConnectDebugLink(): Promise<boolean> {
