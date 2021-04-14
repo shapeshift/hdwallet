@@ -76,8 +76,6 @@ export abstract class KeepKeyTransport extends Transport {
     return this.callInProgress.main;
   }
 
-  public async listen() {}
-
   public async handleCancellableResponse(messageType: any) {
     const event = (await takeFirstOfManyEvents(this, [String(messageType), ...EXIT_TYPES]).toPromise()) as Event;
     return this.readResponse(false);

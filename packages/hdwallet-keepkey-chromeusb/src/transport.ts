@@ -72,9 +72,6 @@ export class ChromeUSBKeepKeyTransport extends KeepKeyTransport {
     if (this.connectionHandle.configuration === null)
       await makePromise(c.usb.setConfiguration, this.connectionHandle, 1);
     await makePromise(c.usb.claimInterface, this.connectionHandle, 0);
-
-    // Start reading data from usbDevice
-    this.listen();
   }
 
   public async disconnect(): Promise<void> {

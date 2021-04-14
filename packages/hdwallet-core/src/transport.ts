@@ -22,13 +22,6 @@ export abstract class Transport extends eventemitter2.EventEmitter2 {
   public async connect(): Promise<void> {}
 
   /**
-   * Optional method to bootstrap connection to device
-   */
-  public listen(): Promise<any> {
-    return;
-  }
-
-  /**
    * Optional function that gets called to clean up connection to device
    */
   public async disconnect(): Promise<void> {}
