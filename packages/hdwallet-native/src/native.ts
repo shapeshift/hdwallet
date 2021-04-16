@@ -72,7 +72,7 @@ class NativeHDWalletInfo
   _supportsRippleInfo: boolean = false;
   _supportsEosInfo: boolean = false;
   _supportsFioInfo: boolean = false;
-  _supportsThorchainInfo: boolean = false;
+  _supportsThorchainInfo: boolean = true;
   _supportsSecretInfo: boolean = false;
   _supportsKavaInfo: boolean = false;
   _supportsTerraInfo: boolean = false;
