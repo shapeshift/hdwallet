@@ -1,0 +1,14 @@
+export const VENDOR_ID = 0x2b24;
+export const WEBUSB_PRODUCT_ID = 0x0002;
+export const HID_PRODUCT_ID = 0x0001;
+export const PREFIX = "hdwallet-keepkey-electron";
+export const GET_DEVICE = `${PREFIX}:getDevice`;
+export const GET_DEVICES = `${PREFIX}:getDevices`;
+export const GET_TRANSPORT_DELEGATE = `${PREFIX}:getTransportDelegate`;
+export const IS_OPENED = `${PREFIX}:isOpened`;
+export const GET_DEVICE_ID = `${PREFIX}:getDeviceID`;
+export const CONNECT = `${PREFIX}:connect`;
+export const TRY_CONNECT_DEBUG_LINK = `${PREFIX}:tryConnectDebugLink`;
+export const DISCONNECT = `${PREFIX}:disconnect`;
+export const WRITE_CHUNK = `${PREFIX}:writeChunk`;
+export const READ_CHUNK = `${PREFIX}:readChunk`;
