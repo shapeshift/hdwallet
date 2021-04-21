@@ -29,12 +29,12 @@ export class NodeWebUSBKeepKeyTransport extends KeepKeyTransport {
     return hash.digest();
   }
 
-  public get isOpened(): boolean {
+  public async isOpened(): Promise<boolean> {
     return this.usbDevice.opened;
   }
 
   public async connect(): Promise<void> {
-    if (this.isOpened) return;
+    if (await this.isOpened()) return;
 
     await this.usbDevice.open();
 
