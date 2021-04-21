@@ -43,7 +43,7 @@ export abstract class KeepKeyTransport extends Transport {
 
   public abstract getDeviceID(): Promise<string>;
   public abstract getVendor(): string;
-  public abstract get isOpened(): boolean;
+  public abstract isOpened(): Promise<boolean>;
 
   public abstract disconnect(): Promise<void>;
   public abstract getEntropy(length: number): Uint8Array;

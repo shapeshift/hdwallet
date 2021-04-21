@@ -50,7 +50,7 @@ export class ChromeUSBKeepKeyTransport extends KeepKeyTransport {
     return this.chromeUSBDevice.serialNumber;
   }
 
-  public get isOpened(): boolean {
+  public async isOpened(): Promise<boolean> {
     return this.connectionHandle.interface > -1;
   }
 
@@ -66,7 +66,7 @@ export class ChromeUSBKeepKeyTransport extends KeepKeyTransport {
   }
 
   public async connect(): Promise<void> {
-    if (this.isOpened) return;
+    if (await this.isOpened()) return;
     this.connectionHandle = await makePromise(c.usb.openDevice, this.chromeUSBDevice);
 
     if (this.connectionHandle.configuration === null)

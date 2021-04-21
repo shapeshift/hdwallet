@@ -35,7 +35,7 @@ export class WebUSBKeepKeyTransport extends KeepKeyTransport {
     return hash;
   }
 
-  public get isOpened(): boolean {
+  public async isOpened(): Promise<boolean> {
     return this.usbDevice.opened;
   }
 

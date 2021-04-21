@@ -39,12 +39,12 @@ export class HIDKeepKeyTransport extends KeepKeyTransport {
     return hash.digest();
   }
 
-  public get isOpened(): boolean {
+  public async isOpened(): Promise<boolean> {
     return this.hidDevice.interface > -1;
   }
 
   public async connect(): Promise<void> {
-    if (this.isOpened) return;
+    if (await this.isOpened()) return;
 
     this.hidRef.readSync();
   }
