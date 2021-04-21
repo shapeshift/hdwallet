@@ -1045,7 +1045,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     this._supportsRipple = Semver.gte(fwVersion, "v6.4.0");
     this._supportsBinance = Semver.gte(fwVersion, "v6.4.0");
     this._supportsEos = Semver.gte(fwVersion, "v6.4.0");
-    // this._supportsCosmos = Semver.get(fwVersion, "v7.0.0");
+    // this._supportsThorchain = Semver.get(fwVersion, "v7.0.0");
 
     this.cacheFeatures(event.message);
     return event.message as Messages.Features.AsObject;
