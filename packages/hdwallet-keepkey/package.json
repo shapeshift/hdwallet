@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@keepkey/device-protocol": "^7.2.1",
-    "@shapeshiftoss/hdwallet-core": "^1.14.3",
+    "@shapeshiftoss/hdwallet-core": "1.14.3",
     "bignumber.js": "^9.0.1",
     "eip55": "^1.0.3",
     "ethereumjs-tx": "^1.3.7",
