@@ -10,11 +10,11 @@
     "dev": "lerna run test --scope integration --parallel --include-filtered-dependencies"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.15.2",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.15.2",
-    "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "^1.15.2",
-    "@shapeshiftoss/hdwallet-keepkey-tcp": "^1.15.2",
-    "@shapeshiftoss/hdwallet-trezor": "^1.15.2",
+    "@shapeshiftoss/hdwallet-core": "1.15.2",
+    "@shapeshiftoss/hdwallet-keepkey": "1.15.2",
+    "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "1.15.2",
+    "@shapeshiftoss/hdwallet-keepkey-tcp": "1.15.2",
+    "@shapeshiftoss/hdwallet-trezor": "1.15.2",
     "@types/debug": "^4.1.5",
     "@types/jest": "^26.0.23",
     "debug": "^4.2.0",

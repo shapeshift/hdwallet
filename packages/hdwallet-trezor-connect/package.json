@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.15.2",
-    "@shapeshiftoss/hdwallet-trezor": "^1.15.2",
+    "@shapeshiftoss/hdwallet-core": "1.15.2",
+    "@shapeshiftoss/hdwallet-trezor": "1.15.2",
     "trezor-connect": "^7.0.5"
   },
   "devDependencies": {
