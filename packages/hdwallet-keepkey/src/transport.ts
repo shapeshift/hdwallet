@@ -47,10 +47,10 @@ export abstract class KeepKeyTransport extends Transport {
 
   public abstract disconnect(): Promise<void>;
   public abstract getEntropy(length: number): Uint8Array;
-  public abstract async getFirmwareHash(firmware: any): Promise<any>;
+  public abstract getFirmwareHash(firmware: any): Promise<any>;
 
-  protected abstract async write(buff: ByteBuffer, debugLink: boolean): Promise<void>;
-  protected abstract async read(debugLink: boolean): Promise<ByteBuffer>;
+  protected abstract write(buff: ByteBuffer, debugLink: boolean): Promise<void>;
+  protected abstract read(debugLink: boolean): Promise<ByteBuffer>;
 
   /**
    * Utility function to cancel all pending calls whenver one of them is cancelled.
