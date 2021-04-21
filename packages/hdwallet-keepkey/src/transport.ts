@@ -183,7 +183,7 @@ export abstract class KeepKeyTransport extends Transport {
   public async call(
     msgTypeEnum: number,
     msg: Message,
-    msTimeout: number = DEFAULT_TIMEOUT,
+    msgTimeout: number = DEFAULT_TIMEOUT,
     omitLock: boolean = false,
     noWait: boolean = false
   ): Promise<any> {
@@ -249,7 +249,7 @@ export abstract class KeepKeyTransport extends Transport {
   public async callDebugLink(
     msgTypeEnum: number,
     msg: Message,
-    msTimeout: number = DEFAULT_TIMEOUT,
+    msgTimeout: number = DEFAULT_TIMEOUT,
     omitLock: boolean = false,
     noWait: boolean = false
   ): Promise<any> {

@@ -61,5 +61,5 @@ export function translateOutputScriptType(scriptType: BTCOutputScriptType): any 
     case BTCOutputScriptType.PayToWitness:
       return OutputScriptType.PAYTOWITNESS;
   }
-  throw new Error("unhandled OutputSriptType enum: " + scriptType);
+  throw new Error("unhandled OutputScriptType enum: " + scriptType);
 }

@@ -37,7 +37,7 @@ export function arrayify(value: string): Uint8Array {
     let match = value.match(/^(0x)?[0-9a-fA-F]*$/);
 
     if (!match) {
-      throw new Error("invalid hexidecimal string");
+      throw new Error("invalid hexadecimal string");
     }
 
     if (match[1] !== "0x") {

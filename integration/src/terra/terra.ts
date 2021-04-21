@@ -48,8 +48,8 @@ export function terraTests(get: () => { wallet: core.HDWallet; info: core.HDWall
         expect(
           wallet.describePath({
             path: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
-            coin: "Terra"
-          }),
+            coin: "Terra",
+          })
         );
       },
       TIMEOUT
@@ -63,7 +63,7 @@ export function terraTests(get: () => { wallet: core.HDWallet; info: core.HDWall
           await wallet.terraGetAddress({
             addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
             showDisplay: false,
-            testnet: true
+            testnet: true,
           })
         ).toEqual("terra1ls33ayg26kmltw7jjy55p32ghjna09zp7kgw2a");
       },
