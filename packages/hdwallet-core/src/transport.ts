@@ -19,9 +19,7 @@ export abstract class Transport extends eventemitter2.EventEmitter2 {
   /**
    * Optional method to bootstrap connection to device
    */
-  public connect(): Promise<any> {
-    return;
-  }
+  public async connect(): Promise<void> {}
 
   /**
    * Optional method to bootstrap connection to device
@@ -33,7 +31,5 @@ export abstract class Transport extends eventemitter2.EventEmitter2 {
   /**
    * Optional function that gets called to clean up connection to device
    */
-  public disconnect(): Promise<any> {
-    return;
-  }
+  public async disconnect(): Promise<void> {}
 }
