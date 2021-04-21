@@ -12,9 +12,9 @@ export abstract class TrezorTransport extends Transport {
     super(keyring);
   }
 
-  public abstract async listen(): Promise<any>;
+  public abstract listen(): Promise<any>;
 
-  public abstract async cancel(): Promise<void>;
+  public abstract cancel(): Promise<void>;
 
-  public abstract async call(method: string, msg: any, msTimeout?: number): Promise<TrezorConnectResponse>;
+  public abstract call(method: string, msg: any, msTimeout?: number): Promise<TrezorConnectResponse>;
 }
