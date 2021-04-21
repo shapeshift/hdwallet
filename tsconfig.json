@@ -48,6 +48,7 @@
     { "path": "./packages/hdwallet-keepkey-nodehid" },
     { "path": "./packages/hdwallet-keepkey-nodewebusb" },
     { "path": "./packages/hdwallet-keepkey-tcp" },
+    { "path": "./packages/hdwallet-keepkey-electron" },
     { "path": "./packages/hdwallet-keepkey-webusb" },
     { "path": "./packages/hdwallet-ledger" },
     { "path": "./packages/hdwallet-ledger-u2f" },
