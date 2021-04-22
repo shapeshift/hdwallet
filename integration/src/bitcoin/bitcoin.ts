@@ -10,6 +10,7 @@ import {
   BTCWalletInfo,
   infoBTC,
   HDWalletInfo,
+  BTCSignTxOutput,
 } from "@shapeshiftoss/hdwallet-core";
 import { isLedger } from "@shapeshiftoss/hdwallet-ledger";
 import { isTrezor } from "@shapeshiftoss/hdwallet-trezor";
@@ -284,6 +285,93 @@ export function bitcoinTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
             "010000000182488650ef25a58fef6788bd71b8212038d7f2bbe4750bc7bcb44701e85ef6d5000000006b4830450221009a0b7be0d4ed3146ee262b42202841834698bb3ee39c24e7437df208b8b7077102202b79ab1e7736219387dffe8d615bbdba87e11477104b867ef47afed1a5ede7810121023230848585885f63803a0a8aecdd6538792d5c539215c91698e315bf0253b43dffffffff0160cc0500000000001976a914de9b2a8da088824e8fe51debea566617d851537888ac00000000",
           signatures: [
             "30450221009a0b7be0d4ed3146ee262b42202841834698bb3ee39c24e7437df208b8b7077102202b79ab1e7736219387dffe8d615bbdba87e11477104b867ef47afed1a5ede781",
+          ],
+        });
+      },
+      TIMEOUT
+    );
+
+    test.only(
+      "btcSignTx() - thorchain swap",
+      async () => {
+        if (!wallet || isPortis(wallet)) return;
+        if (isLedger(wallet)) return; // FIXME: Expected failure
+        if (isTrezor(wallet)) return; //TODO: Add trezor support for op return data passed at top level
+        let inputs = [
+          {
+            addressNList: bip32ToAddressNList("m/0"),
+            scriptType: BTCInputScriptType.SpendAddress,
+            amount: String(390000),
+            vout: 0,
+            txid: "d5f65ee80147b4bcc70b75e4bbf2d7382021b871bd8867ef8fa525ef50864882",
+            tx: {
+              version: 1,
+              locktime: 0,
+              vin: [
+                {
+                  vout: 1,
+                  valueSat: 200000,
+                  sequence: 4294967295,
+                  scriptSig: {
+                    hex:
+                      "483045022072ba61305fe7cb542d142b8f3299a7b10f9ea61f6ffaab5dca8142601869d53c0221009a8027ed79eb3b9bc13577ac2853269323434558528c6b6a7e542be46e7e9a820141047a2d177c0f3626fc68c53610b0270fa6156181f46586c679ba6a88b34c6f4874686390b4d92e5769fbb89c8050b984f4ec0b257a0e5c4ff8bd3b035a51709503",
+                  },
+                  txid: "c16a03f1cf8f99f6b5297ab614586cacec784c2d259af245909dedb0e39eddcf",
+                },
+                {
+                  vout: 1,
+                  valueSat: 200000,
+                  sequence: 4294967295,
+                  scriptSig: {
+                    hex:
+                      "48304502200fd63adc8f6cb34359dc6cca9e5458d7ea50376cbd0a74514880735e6d1b8a4c0221008b6ead7fe5fbdab7319d6dfede3a0bc8e2a7c5b5a9301636d1de4aa31a3ee9b101410486ad608470d796236b003635718dfc07c0cac0cfc3bfc3079e4f491b0426f0676e6643a39198e8e7bdaffb94f4b49ea21baa107ec2e237368872836073668214",
+                  },
+                  txid: "1ae39a2f8d59670c8fc61179148a8e61e039d0d9e8ab08610cb69b4a19453eaf",
+                },
+              ],
+              vout: [
+                {
+                  value: "0.00390000",
+                  scriptPubKey: {
+                    hex: "76a91424a56db43cf6f2b02e838ea493f95d8d6047423188ac",
+                  },
+                },
+              ],
+            },
+            hex:
+              "0100000002cfdd9ee3b0ed9d9045f29a252d4c78ecac6c5814b67a29b5f6998fcff1036ac1010000008b483045022072ba61305fe7cb542d142b8f3299a7b10f9ea61f6ffaab5dca8142601869d53c0221009a8027ed79eb3b9bc13577ac2853269323434558528c6b6a7e542be46e7e9a820141047a2d177c0f3626fc68c53610b0270fa6156181f46586c679ba6a88b34c6f4874686390b4d92e5769fbb89c8050b984f4ec0b257a0e5c4ff8bd3b035a51709503ffffffffaf3e45194a9bb60c6108abe8d9d039e0618e8a147911c68f0c67598d2f9ae31a010000008b48304502200fd63adc8f6cb34359dc6cca9e5458d7ea50376cbd0a74514880735e6d1b8a4c0221008b6ead7fe5fbdab7319d6dfede3a0bc8e2a7c5b5a9301636d1de4aa31a3ee9b101410486ad608470d796236b003635718dfc07c0cac0cfc3bfc3079e4f491b0426f0676e6643a39198e8e7bdaffb94f4b49ea21baa107ec2e237368872836073668214ffffffff0170f30500000000001976a91424a56db43cf6f2b02e838ea493f95d8d6047423188ac00000000",
+          },
+        ];
+        let outputs: BTCSignTxOutput[] = [
+          {
+            address: "bc1qksxqxurvejkndenuv0alqawpr3e4vtqkn246cu",
+            addressType: BTCOutputAddressType.Spend,
+            scriptType: BTCOutputScriptType.PayToAddress,
+            amount: String(390000 - 10000),
+            isChange: false,
+          },
+          {
+            address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
+            addressType: BTCOutputAddressType.Change,
+            scriptType: BTCOutputScriptType.PayToAddress,
+            amount: String(9000),
+            isChange: false,
+          }
+        ];
+        let res = await wallet.btcSignTx({
+          coin: "Bitcoin",
+          inputs: inputs,
+          outputs: outputs,
+          version: 1,
+          locktime: 0,
+          vaultAddress: "bc1qksxqxurvejkndenuv0alqawpr3e4vtqkn246cu",
+          opReturnData: "SWAP:ETH.ETH:0x931D387731bBbC988B312206c74F77D004D6B84b:420",
+        });
+        expect(res).toEqual({
+          serializedTx:
+            "010000000182488650ef25a58fef6788bd71b8212038d7f2bbe4750bc7bcb44701e85ef6d5000000006a47304402207eee02e732e17618c90f8fdcaf3da24e2cfe2fdd6e37094b73f225360029515002205c29f80efc0bc077fa63633ff9ce2c44e0f109f70221a91afb7c531cdbb6305c0121023230848585885f63803a0a8aecdd6538792d5c539215c91698e315bf0253b43dffffffff0360cc050000000000160014b40c03706cccad36e67c63fbf075c11c73562c1628230000000000001976a9149c9d21f47382762df3ad81391ee0964b28dd951788ac00000000000000003d6a3b535741503a4554482e4554483a3078393331443338373733316242624339383842333132323036633734463737443030344436423834623a34323000000000",
+          signatures: [
+            "304402207eee02e732e17618c90f8fdcaf3da24e2cfe2fdd6e37094b73f225360029515002205c29f80efc0bc077fa63633ff9ce2c44e0f109f70221a91afb7c531cdbb6305c",
           ],
         });
       },

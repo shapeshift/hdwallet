@@ -161,6 +161,53 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
       }
     }
 
+    validateVoutOrdering(msg: core.BTCSignTx, tx: bitcoin.Transaction): boolean {
+      // From THORChain specification:
+      /* ignoreTx checks if we can already ignore a tx according to preset rules
+        
+         we expect array of "vout" for a BTC to have this format
+         OP_RETURN is mandatory only on inbound tx
+         vout:0 is our vault
+         vout:1 is any any change back to themselves
+         vout:2 is OP_RETURN (first 80 bytes)
+         vout:3 is OP_RETURN (next 80 bytes)
+        
+         Rules to ignore a tx are:
+         - vout:0 doesn't have coins (value)
+         - vout:0 doesn't have address
+         - count vouts > 4
+         - count vouts with coins (value) > 2
+      */
+
+      // Check that vout:0 contains the vault address
+      if (bitcoin.address.fromOutputScript(tx.outs[0].script) != msg.vaultAddress) {
+        console.error("Vout:0 does not contain vault address.");
+        return false;
+      }
+
+      // TODO: Can we check and  make sure vout:1 is our address?
+
+      // Check and make sure vout:2 exists
+      if (tx.outs.length < 3) {
+        console.error("Not enough outputs found in transaction.", msg);
+        return false;
+      }
+      // Check and make sure vout:2 has OP_RETURN data
+      let opcode = bitcoin.script.decompile(tx.outs[2].script)[0];
+      if (Object.keys(bitcoin.script.OPS).find((k) => bitcoin.script.OPS[k] === opcode) != "OP_RETURN") {
+        console.error("OP_RETURN output not found for transaction.");
+        return false;
+      }
+
+      // Make sure vout:3 does not exist
+      if (tx.outs[3]) {
+        console.error("Illegal second op_return output found.");
+        return false;
+      }
+
+      return true;
+    }
+
     buildInput(coin: core.Coin, input: core.BTCSignTxInput): InputData {
       return this.needsMnemonic(!!this.#wallet, () => {
         const { addressNList, amount, hex, scriptType, tx, vout } = input;
@@ -252,10 +299,10 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
           }
         });
 
-        if(msg.opReturnData) {
-          const data = Buffer.from(msg.opReturnData, 'utf8')
-          const embed = bitcoin.payments.embed({data: [data]})
-          psbt.addOutput({ script: embed.output, value: 0 })  
+        if (msg.opReturnData) {
+          const data = Buffer.from(msg.opReturnData, "utf-8");
+          const embed = bitcoin.payments.embed({ data: [data] });
+          psbt.addOutput({ script: embed.output, value: 0 });
         }
 
         inputs.forEach((input, idx) => {
@@ -271,6 +318,11 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
         psbt.finalizeAllInputs();
 
         const tx = psbt.extractTransaction(true);
+
+        // If this is a THORChain transaction, validate the vout ordering
+        if (msg.vaultAddress && !this.validateVoutOrdering(msg, tx)) {
+          throw new Error("Improper vout ordering for BTC Thorchain transaction");
+        }
 
         const signatures = tx.ins.map((input) => {
           const sigLen = input.script[0];

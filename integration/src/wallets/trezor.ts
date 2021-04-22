@@ -306,6 +306,15 @@ export class MockTransport extends TrezorTransport {
           '{"payload":{"signatures":["fixme"],"serializedTx":"010000000001016bb504f52d634e67966da4c0c3f930634a3bda329881b58aa16e855941b2b5e40000000000ffffffff0250c300000000000017a9147a55d61848e77ca266e79a39bfc85c580a6426c98768bf000000000000160014cc8067093f6f843d6d3e22004a4290cd0c0f336b0247304402200f62d997b9dafe79a7a680626f4510a0b1be7a6e6b67607985e611f771c8acaf022009b3fb8ea7d8a80daa3e4cb44d51ba40289b049c59741e906424c55e90df9900012103adc58245cf28406af0ef5cc24b8afba7f1be6c72f279b642d85c48798685f86200000000"},"id":2,"success":true}'
         )
       );
+      this.memoize(
+        "signTransaction",
+        JSON.parse(
+          '{"coin":"btc","inputs":[{"address_n":[0],"prev_hash":"d5f65ee80147b4bcc70b75e4bbf2d7382021b871bd8867ef8fa525ef50864882","prev_index":0,"amount":"390000","script_type":"SPENDADDRESS"}],"outputs":[{"address":"bc1qksxqxurvejkndenuv0alqawpr3e4vtqkn246cu","amount":"380000","script_type":"PAYTOADDRESS"},{"address":"1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM","amount":"9000","script_type":"PAYTOADDRESS"}],"push":false}'
+        ),
+        JSON.parse(
+          '{"payload":{"signatures":["304402207eee02e732e17618c90f8fdcaf3da24e2cfe2fdd6e37094b73f225360029515002205c29f80efc0bc077fa63633ff9ce2c44e0f109f70221a91afb7c531cdbb6305c"],"serializedTx":"010000000182488650ef25a58fef6788bd71b8212038d7f2bbe4750bc7bcb44701e85ef6d5000000006a47304402207eee02e732e17618c90f8fdcaf3da24e2cfe2fdd6e37094b73f225360029515002205c29f80efc0bc077fa63633ff9ce2c44e0f109f70221a91afb7c531cdbb6305c0121023230848585885f63803a0a8aecdd6538792d5c539215c91698e315bf0253b43dffffffff0360cc050000000000160014b40c03706cccad36e67c63fbf075c11c73562c1628230000000000001976a9149c9d21f47382762df3ad81391ee0964b28dd951788ac00000000000000003d6a3b535741503a4554482e4554483a3078393331443338373733316242624339383842333132323036633734463737443030344436423834623a34323000000000"},"id":2,"success":true}'
+        )
+      );
       this.memoize("getFeatures", {}, { success: true, payload: { initialized: true } });
     } catch (e) {
       console.error(e);

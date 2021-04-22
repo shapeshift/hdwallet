@@ -11,6 +11,7 @@ import {
   BTCSignedMessage,
   BTCVerifyMessage,
   BTCInputScriptType,
+  BTCOutputAddressType,
   BTCOutputScriptType,
   Constructor,
   fromHexString,
@@ -145,7 +146,7 @@ function prepareSignTx(coin: Coin, inputs: Array<BTCSignTxInput>, outputs: Array
       newOutput.setScriptType(translateOutputScriptType(output.scriptType));
       newOutput.setAddressNList(output.addressNList);
       newOutput.setAddressType(OutputAddressType.CHANGE);
-    } else if (output.opReturnData){
+    } else if (output.opReturnData) {
       newOutput.setScriptType(OutputScriptType.PAYTOOPRETURN);
       newOutput.setAddress(output.address);
       newOutput.setAddressType(OutputAddressType.SPEND);
@@ -236,6 +237,42 @@ async function ensureCoinSupport(wallet: BTCWallet, coin: Coin): Promise<void> {
   if (!wallet.btcSupportsCoin(coin)) throw new Error(`'${coin} is not supported in this firmware version`);
 }
 
+function validateVoutOrdering(msg: BTCSignTx): boolean {
+  // From THORChain specification:
+  /* ignoreTx checks if we can already ignore a tx according to preset rules
+    
+     we expect array of "vout" for a BTC to have this format
+     OP_RETURN is mandatory only on inbound tx
+     vout:0 is our vault
+     vout:1 is any any change back to themselves
+     vout:2 is OP_RETURN (first 80 bytes)
+     vout:3 is OP_RETURN (next 80 bytes)
+    
+     Rules to ignore a tx are:
+     - vout:0 doesn't have coins (value)
+     - vout:0 doesn't have address
+     - count vouts > 4
+     - count vouts with coins (value) > 2
+  */
+
+  // Check that vout:0 contains the vault address
+  if (msg.outputs[0].address != msg.vaultAddress) {
+    return false;
+  }
+
+  // Check that vout:1 is change address
+  if (msg.outputs[1].addressType != BTCOutputAddressType.Change) {
+    return false;
+  }
+
+  // Check and make sure vout:2 has OP_RETURN data
+  if (!(msg.outputs[2] && msg.outputs[2]?.opReturnData)) {
+    return false;
+  }
+
+  return true;
+}
+
 export async function btcSupportsCoin(coin: Coin): Promise<boolean> {
   // FIXME: inspect the CoinTable to determine which coins are actually supported by the device.
   return supportedCoins.includes(coin);
@@ -273,6 +310,24 @@ export async function btcGetAddress(
 export async function btcSignTx(wallet: BTCWallet, transport: KeepKeyTransport, msg: BTCSignTx): Promise<BTCSignedTx> {
   return transport.lockDuring(async () => {
     await ensureCoinSupport(wallet, msg.coin);
+
+    if (msg.opReturnData) {
+      if(msg.opReturnData.length > 80){
+        throw new Error("OP_RETURN output character count is too damn high.")
+      }
+      msg.outputs.push({
+        addressType: BTCOutputAddressType.Spend,
+        opReturnData: Buffer.from(msg.opReturnData).toString('base64'),
+        amount: "0",
+        isChange: false,
+      })
+    }
+
+    // If this is a THORChain transaction, validate the vout ordering
+    if (msg.vaultAddress && !validateVoutOrdering(msg)) {
+      throw new Error("Improper vout ordering for BTC Thorchain transaction");
+    }
+    
     const txmap = prepareSignTx(msg.coin, msg.inputs, msg.outputs);
 
     // Prepare and send initial message
@@ -292,8 +347,7 @@ export async function btcSignTx(wallet: BTCWallet, transport: KeepKeyTransport, 
       /*omitLock=*/ true
     )) as Event; // 5 Minute timeout
     responseType = message_enum;
-    response = proto;
-
+    response = proto;  
     // Prepare structure for signatures
     const signatures: string[] = new Array(msg.inputs.length).fill(null);
     let serializedTx: string = "";

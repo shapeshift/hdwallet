@@ -91,6 +91,7 @@ export interface BTCSignTx {
   version?: number;
   locktime?: number;
   opReturnData?: string;
+  vaultAddress?: string; 
 }
 
 export interface BTCSignedTx {
