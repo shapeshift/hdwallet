@@ -80,6 +80,7 @@ const mswMock = require("mswMock")({
     },
   },
 }).startServer();
+afterEach(() => expect(mswMock).not.toHaveBeenCalled());
 
 const untouchable = require("untouchableMock");
 
@@ -96,10 +97,10 @@ describe("NativeFioWalletInfo", () => {
     const paths = info.fioGetAccountPaths({ accountIdx: 0 });
     expect(paths).toMatchObject([{ addressNList: core.bip32ToAddressNList("m/44'/235'/0'/0/0") }]);
   });
-  
-  it("does not support getting the next account path", async()=>{
+
+  it("does not support getting the next account path", async () => {
     expect(untouchable.call(info, "fioNextAccountPath", {})).toBe(undefined);
-  })
+  });
 });
 
 describe("NativeFioWallet", () => {
@@ -109,10 +110,6 @@ describe("NativeFioWallet", () => {
     wallet = NativeHDWallet.create({ deviceId: "native" });
     await wallet.loadDevice({ mnemonic: MNEMONIC });
     await expect(wallet.initialize()).resolves.toBe(true);
-  });
-
-  afterEach(() => {
-    expect(mswMock).not.toHaveBeenCalled();
   });
 
   describe("stuff that uses the network", () => {
@@ -180,8 +177,10 @@ describe("NativeFioWallet", () => {
           "signature": "SIG_K1_JxgRLcqJHYjaqAhwHpsi8iGGkYVZRKMGT46xozonn2YwBF6vv3Jg7UZ95PsFKh9BFpHNTwhcLHhzyzhxdvw47zF12REeM2",
         }
       `);
-      expect(mswMock.handlers.get["https://fio.eu.eosamsterdam.net/v1/chain/get_info"]).toHaveBeenCalled();
-      expect(mswMock.handlers.post["https://fio.eu.eosamsterdam.net/v1/chain/get_block"]).toHaveBeenCalled();
+      expect(mswMock).toHaveBeenCalledWith("GET", "https://fio.eu.eosamsterdam.net/v1/chain/get_info");
+      expect(mswMock).toHaveBeenCalledWith("POST", "https://fio.eu.eosamsterdam.net/v1/chain/get_block", {
+        block_num_or_id: 61841978,
+      });
     });
   });
 

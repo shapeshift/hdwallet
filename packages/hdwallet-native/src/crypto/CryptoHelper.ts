@@ -40,11 +40,12 @@ export default class CryptoHelper {
     return true;
   }
 
-  async aesEncrypt(data: ArrayBuffer, key: SymmetricCryptoKey): Promise<EncryptedObject> {
-    if (data == null || !data?.byteLength)
-      throw new Error("Required parameter [data] was not provided or is not an ArrayBuffer");
+  async aesEncrypt(data: ArrayBuffer | Uint8Array, key: SymmetricCryptoKey): Promise<EncryptedObject> {
+    if (data == null || !(data instanceof ArrayBuffer || data instanceof Uint8Array))
+      throw new Error("Required parameter [data] is not of type ArrayBuffer or Uint8Array");
+    if (data instanceof Uint8Array) data = data.buffer;
     if (key == null || key.encKey == null || key.macKey == null)
-      throw new Error("Required parameter [key] was not provided or is not a SymmetricCryptoKey");
+      throw new Error("Required parameter [key] is not of type SymmetricCryptoKey");
     const iv = await this.#engine.randomBytes(16);
 
     const obj = new EncryptedObject();
@@ -61,19 +62,22 @@ export default class CryptoHelper {
   }
 
   async aesDecrypt(
-    data: ArrayBuffer,
-    iv: ArrayBuffer,
-    mac: ArrayBuffer,
+    data: ArrayBuffer | Uint8Array,
+    iv: ArrayBuffer | Uint8Array,
+    mac: ArrayBuffer | Uint8Array,
     key: SymmetricCryptoKey
   ): Promise<ArrayBuffer> {
-    if (data == null || !data?.byteLength)
-      throw new Error("Required parameter [data] was not provided or is not an ArrayBuffer");
-    if (iv == null || !iv?.byteLength)
-      throw new Error("Required parameter [iv] was not provided or is not an ArrayBuffer");
-    if (mac == null || !mac?.byteLength)
-      throw new Error("Required parameter [mac] was not provided or is not an ArrayBuffer");
+    if (data == null || !(data instanceof ArrayBuffer || data instanceof Uint8Array))
+      throw new Error("Required parameter [data] is not of type ArrayBuffer or Uint8Array");
+    if (data instanceof Uint8Array) data = data.buffer;
+    if (iv == null || !(iv instanceof ArrayBuffer || iv instanceof Uint8Array))
+      throw new Error("Required parameter [iv] is not of type ArrayBuffer or Uint8Array");
+    if (iv instanceof Uint8Array) iv = iv.buffer;
+    if (mac == null || !(mac instanceof ArrayBuffer || mac instanceof Uint8Array))
+      throw new Error("Required parameter [mac] is not of type ArrayBuffer or Uint8Array");
+    if (mac instanceof Uint8Array) mac = mac.buffer;
     if (key == null || key.encKey == null || key.macKey == null)
-      throw new Error("Required parameter [key] was not provided or is not a SymmetricCryptoKey");
+      throw new Error("Required parameter [key] is not of type SymmetricCryptoKey");
 
     const macData = new Uint8Array(iv.byteLength + data.byteLength);
     macData.set(new Uint8Array(iv), 0);

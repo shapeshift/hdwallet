@@ -112,8 +112,8 @@ class NativeHDWalletInfo
       case "testnet":
         const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
 
-        if (!super.btcSupportsCoin(msg.coin)) return unknown;
-        if (!super.btcSupportsScriptType(msg.coin, msg.scriptType)) return unknown;
+        if (!super.btcSupportsCoinSync(msg.coin)) return unknown;
+        if (!super.btcSupportsScriptTypeSync(msg.coin, msg.scriptType)) return unknown;
 
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
       case "ethereum":
@@ -205,11 +205,10 @@ export class NativeHDWallet
           let { addressNList } = getPublicKey;
           const seed = await mnemonicToSeed(this.#mnemonic);
           const network = getNetwork(getPublicKey.coin, getPublicKey.scriptType);
-          const node = fromSeed(seed, network);
-          const xpub = node
-            .derivePath(core.addressNListToBIP32(core.hardenedPath(addressNList)))
-            .neutered()
-            .toBase58();
+          const hardenedPath = core.hardenedPath(addressNList);
+          let node = fromSeed(seed, network);
+          if (hardenedPath.length > 0) node = node.derivePath(core.addressNListToBIP32(hardenedPath))
+          const xpub = node.neutered().toBase58();
           return { xpub };
         })
       )
@@ -217,7 +216,7 @@ export class NativeHDWallet
   }
 
   async isInitialized(): Promise<boolean> {
-    return this.#initialized;
+    return !!this.#initialized;
   }
 
   async isLocked(): Promise<boolean> {
@@ -250,6 +249,7 @@ export class NativeHDWallet
       } catch (e) {
         console.error("NativeHDWallet:initialize:error", e);
         this.#initialized = false;
+        await this.wipe();
       }
 
       return this.#initialized;
@@ -271,6 +271,7 @@ export class NativeHDWallet
   async cancel(): Promise<void> {}
 
   async wipe(): Promise<void> {
+    this.#initialized = false;
     this.#mnemonic = null;
 
     super.btcWipe();

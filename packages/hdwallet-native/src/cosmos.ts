@@ -55,7 +55,7 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
       this.#wallet = undefined;
     }
 
-    bech32ify(address: ArrayLike<number>, prefix: string): string {
+    cosmosBech32ify(address: ArrayLike<number>, prefix: string): string {
       const words = toWords(address);
       return encode(prefix, words);
     }
@@ -64,7 +64,7 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
       const message = SHA256(CryptoJS.enc.Hex.parse(publicKey));
       const hash = RIPEMD160(message as any).toString();
       const address = Buffer.from(hash, `hex`);
-      return this.bech32ify(address, `cosmos`);
+      return this.cosmosBech32ify(address, `cosmos`);
     }
 
     async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string> {

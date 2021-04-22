@@ -40,4 +40,21 @@ describe("CipherString", () => {
       "2.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=|AAAAAAAAAAAAAAAAAAAAAA==|AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
     );
   });
+
+  it.each([
+    ["key", "Invalid encryption object"],
+    ["data", "Encrypted data is missing"],
+    ["iv", "IV is missing"],
+    ["mac", "HMAC signature is missing"],
+  ])("should throw an error if an EncryptedObject with a missing %s is provided", (key, error) => {
+    const buffer32 = new Uint8Array(32).fill(0);
+    const buffer16 = new Uint8Array(16).fill(0);
+    const encrypted = new EncryptedObject();
+    encrypted.data = buffer32;
+    encrypted.iv = buffer16;
+    encrypted.mac = buffer32;
+    encrypted.key = new SymmetricCryptoKey(buffer32, buffer32, buffer32);
+    delete encrypted[key];
+    expect(() => new CipherString(encrypted)).toThrow(error);
+  });
 });

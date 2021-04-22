@@ -29,12 +29,7 @@ type ScriptData = {
 
 type InputData = UtxoData | ScriptData;
 
-function getKeyPair(
-  seed: Buffer,
-  addressNList: number[],
-  coin = "bitcoin",
-  scriptType?: BTCScriptType
-): ECPairInterface {
+function getKeyPair(seed: Buffer, addressNList: number[], coin, scriptType?: BTCScriptType): ECPairInterface {
   const network = getNetwork(coin, scriptType);
   const wallet = bitcoin.bip32.fromSeed(seed, network);
   const path = core.addressNListToBIP32(addressNList);
@@ -45,12 +40,16 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(Base: T
   return class MixinNativeBTCWalletInfo extends Base implements core.BTCWalletInfo {
     _supportsBTCInfo = true;
 
-    async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
+    btcSupportsCoinSync(coin: core.Coin): boolean {
       return supportedCoins.includes(String(coin).toLowerCase());
     }
 
-    async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
-      if (!(await this.btcSupportsCoin(coin))) return false;
+    async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
+      return this.btcSupportsCoinSync(coin);
+    }
+
+    btcSupportsScriptTypeSync(coin: core.Coin, scriptType: core.BTCInputScriptType): boolean {
+      if (!this.btcSupportsCoinSync(coin)) return false;
 
       switch (scriptType) {
         case core.BTCInputScriptType.SpendMultisig:
@@ -61,6 +60,10 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(Base: T
         default:
           return false;
       }
+    }
+
+    async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
+      return this.btcSupportsScriptTypeSync(coin, scriptType);
     }
 
     async btcSupportsSecureTransfer(): Promise<boolean> {
@@ -113,9 +116,9 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor>(Base: T
       let addressNList = msg.addressNList;
 
       if (
-        addressNList[0] === 0x80000000 + 44 ||
-        addressNList[0] === 0x80000000 + 49 ||
-        addressNList[0] === 0x80000000 + 84
+        (addressNList[0] === 0x80000000 + 44 && msg.scriptType == core.BTCInputScriptType.SpendAddress) ||
+        (addressNList[0] === 0x80000000 + 49 && msg.scriptType == core.BTCInputScriptType.SpendP2SHWitness) ||
+        (addressNList[0] === 0x80000000 + 84 && msg.scriptType == core.BTCInputScriptType.SpendWitness)
       ) {
         addressNList[2] += 1;
         return {
@@ -174,7 +177,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
         };
         const utxoData = isSegwit && witnessUtxo ? { witnessUtxo } : { nonWitnessUtxo };
 
-        if (!utxoData) {
+        if (!(utxoData.witnessUtxo || utxoData.nonWitnessUtxo)) {
           throw new Error(
             "failed to build input - must provide prev rawTx (segwit input can provide scriptPubKey hex and value instead)"
           );
@@ -185,8 +188,8 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
 
         let scriptData: ScriptData = {};
         switch (scriptType) {
-          case "p2sh":
           case "p2sh-p2wpkh":
+          case "p2sh":
             scriptData.redeemScript = payment.redeem.output;
             break;
         }
@@ -252,10 +255,10 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
           }
         });
 
-        if(msg.opReturnData) {
-          const data = Buffer.from(msg.opReturnData, 'utf8')
-          const embed = bitcoin.payments.embed({data: [data]})
-          psbt.addOutput({ script: embed.output, value: 0 })  
+        if (msg.opReturnData) {
+          const data = Buffer.from(msg.opReturnData, "utf8");
+          const embed = bitcoin.payments.embed({ data: [data] });
+          psbt.addOutput({ script: embed.output, value: 0 });
         }
 
         inputs.forEach((input, idx) => {
@@ -273,8 +276,12 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
         const tx = psbt.extractTransaction(true);
 
         const signatures = tx.ins.map((input) => {
-          const sigLen = input.script[0];
-          return input.script.slice(1, sigLen).toString("hex");
+          if (input.witness.length > 0) {
+            return input.witness[0].toString("hex");
+          } else {
+            const sigLen = input.script[0];
+            return input.script.slice(1, sigLen).toString("hex");
+          }
         });
 
         return {

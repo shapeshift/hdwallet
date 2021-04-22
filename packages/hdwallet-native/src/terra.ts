@@ -60,7 +60,7 @@ export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWa
       this.#seed = undefined;
     }
 
-    bech32ify(address: ArrayLike<number>, prefix: string): string {
+    terraBech32ify(address: ArrayLike<number>, prefix: string): string {
       const words = toWords(address);
       return encode(prefix, words);
     }
@@ -69,7 +69,7 @@ export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWa
       const message = SHA256(CryptoJS.enc.Hex.parse(publicKey));
       const hash = RIPEMD160(message as any).toString();
       const address = Buffer.from(hash, `hex`);
-      return this.bech32ify(address, `terra`);
+      return this.terraBech32ify(address, `terra`);
     }
 
     async terraGetAddress(msg: core.TerraGetAddress): Promise<string> {
