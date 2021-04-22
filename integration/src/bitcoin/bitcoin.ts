@@ -291,7 +291,7 @@ export function bitcoinTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
       TIMEOUT
     );
 
-    test.only(
+    test(
       "btcSignTx() - thorchain swap",
       async () => {
         if (!wallet || isPortis(wallet)) return;
