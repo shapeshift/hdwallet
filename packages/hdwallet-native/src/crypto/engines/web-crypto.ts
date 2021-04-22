@@ -27,12 +27,12 @@ export class WebCryptoEngine implements CryptoEngine {
     return globalThis.crypto.subtle.sign(signingAlgorithm, impKey, value);
   }
 
-  public async pbkdf2(password: ArrayBuffer, salt: ArrayBuffer, options?: Pbkdf2Params) {
+  public async pbkdf2(password: ArrayBuffer, salt: ArrayBuffer, options: Partial<Pbkdf2Params> & Pick<Pbkdf2Params, "iterations">) {
     const pbkdf2Params: Pbkdf2Params = {
       name: "PBKDF2",
       salt: new Uint8Array(salt),
-      iterations: options?.iterations,
       hash: { name: "SHA-256" },
+      ...options,
     };
 
     const impKey = await globalThis.crypto.subtle.importKey("raw", password, { name: "PBKDF2" }, false, ["deriveBits"]);
@@ -40,7 +40,7 @@ export class WebCryptoEngine implements CryptoEngine {
   }
 
   public async randomBytes(size: number): Promise<ArrayBuffer> {
-    return globalThis.crypto.getRandomValues(new Uint8Array(size));
+    return globalThis.crypto.getRandomValues(new Uint8Array(size)).buffer;
   }
 
   public async scrypt(password: ArrayBuffer, salt: ArrayBuffer, params: ScryptParams): Promise<ArrayBuffer> {

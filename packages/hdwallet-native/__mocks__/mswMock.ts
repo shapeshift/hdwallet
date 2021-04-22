@@ -17,11 +17,16 @@ export = function newMswMock(handlers = {}) {
           .map(([method, mocks]) =>
             Object.entries(mocks).map(([k, v]) =>
               rest[method](k, (req, res, ctx) => {
-                self();
+                const body = typeof req.body === "string" && req.body !== "" ? JSON.parse(req.body) : req.body;
+                if (body !== undefined && body !== "") {
+                  self(method.toUpperCase(), k, body);
+                } else {
+                  self(method.toUpperCase(), k);
+                }
                 let status = 200;
                 let out;
                 try {
-                  out = v(typeof req.body === "string" && req.body !== "" ? JSON.parse(req.body) : req.body);
+                  out = v(body);
                 } catch (e) {
                   if (typeof e !== "number") throw e;
                   status = e;
@@ -37,6 +42,7 @@ export = function newMswMock(handlers = {}) {
     startServer() {
       this.setupServer().listen({
         onUnhandledRequest(req) {
+          self(req.method, req.url.href);
           throw new Error(`Unhandled ${req.method} request to ${req.url.href}`);
         },
       });

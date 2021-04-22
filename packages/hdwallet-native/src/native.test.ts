@@ -74,6 +74,22 @@ describe("NativeHDWalletInfo", () => {
         msg: { coin: "fio", path: [44 + 0x80000000, 235 + 0x80000000, 0 + 0x80000000, 0, 0] },
         out: { coin: "Fio", verbose: "Fio Account #0", isKnown: true },
       },
+      {
+        msg: { coin: "rune", path: [44 + 0x80000000, 931 + 0x80000000, 0 + 0x80000000, 0, 0] },
+        out: { coin: "Thorchain", verbose: "Thorchain Account #0", isKnown: true },
+      },
+      {
+        msg: { coin: "secret", path: [44 + 0x80000000, 529 + 0x80000000, 0 + 0x80000000, 0, 0] },
+        out: { coin: "Secret", verbose: "Secret Account #0", isKnown: true },
+      },
+      {
+        msg: { coin: "luna", path: [44 + 0x80000000, 330 + 0x80000000, 0 + 0x80000000, 0, 0] },
+        out: { coin: "Terra", verbose: "Terra Account #0", isKnown: true },
+      },
+      {
+        msg: { coin: "kava", path: [44 + 0x80000000, 459 + 0x80000000, 0 + 0x80000000, 0, 0] },
+        out: { coin: "Kava", verbose: "Kava Account #0", isKnown: true },
+      },
     ].forEach((x) => expect(info.describePath(x.msg)).toMatchObject(x.out));
     expect(() => info.describePath({ coin: "foobar", path: [1, 2, 3] })).toThrowError("Unsupported path");
   });
@@ -91,13 +107,22 @@ describe("NativeHDWallet", () => {
   describe("loadDevice", () => {
     it("should load wallet with a mnemonic", async () => {
       const wallet = NativeHDWallet.create({ deviceId: "native" });
-      await expect(wallet.isInitialized()).resolves.toBeFalsy();
+      await expect(wallet.isInitialized()).resolves.toBe(false);
       await expect(wallet.isLocked()).resolves.toBe(false);
       await wallet.loadDevice({ mnemonic: MNEMONIC });
       await expect(wallet.initialize()).resolves.toBe(true);
       await expect(wallet.isInitialized()).resolves.toBe(true);
       await expect(wallet.isLocked()).resolves.toBe(false);
       ([
+        {
+          in: [{ coin: "bitcoin", addressNList: [] }],
+          out: [
+            {
+              xpub:
+                "xpub661MyMwAqRbcFLgDU7wpcEVubSF7NkswwmXBUkDiGUW6uopeUMys4AqKXNgpfZKRTLnpKQgffd6a2c3J8JxLkF1AQN17Pm9QYHEqEfo1Rsx",
+            },
+          ],
+        },
         {
           in: [{ coin: "bitcoin", addressNList: [1 + 0x80000000, 2 + 0x80000000] }],
           out: [
@@ -152,6 +177,27 @@ describe("NativeHDWallet", () => {
         );
       }
     );
+  });
+
+  it("should wipe if an error occurs during initialization", async () => {
+    expect.assertions(7);
+    const wallet = NativeHDWallet.create({ deviceId: "native" });
+    await wallet.loadDevice({ mnemonic: MNEMONIC });
+    const mocks = [
+      jest.spyOn(bip39, "mnemonicToSeed").mockImplementationOnce(() => {
+        throw "mock error";
+      }),
+      jest.spyOn(console, "error").mockImplementationOnce((msg, error) => {
+        expect(msg).toMatch("NativeHDWallet:initialize:error");
+        expect(error).toEqual("mock error");
+      }),
+      jest.spyOn(wallet, "wipe"),
+    ];
+    await expect(wallet.initialize()).resolves.toBe(false);
+    mocks.forEach((x) => {
+      expect(x).toHaveBeenCalled();
+      x.mockRestore();
+    });
   });
 
   it("should have correct metadata", async () => {

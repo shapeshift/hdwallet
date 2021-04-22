@@ -9,6 +9,9 @@ import { CipherString } from "./classes";
 
 const PLAINTEXT_STRING = "totally random secret data"
 const ENCRYPTED_STRING = "2.A/tC/OC0U/KN3XuAuz2L36lydOyr5x367tPSGSrPkvQ=|AAAAAAAAAAAAAAAAAAAAAA==|ZqR8HTeOg4+8mzcty10jVFZ5MqFFbn5bwEaqlL0c/Mg="
+const ENCRYPTED_EMPTY_STRING = "2.7wpUO5ISHHdT1voBnjzyXQ==|AAAAAAAAAAAAAAAAAAAAAA==|02KQ8aQWWXUX7foOmf4T2W0XCFAk4OTKFQO+hRhlRcY=";
+
+const BAD_ARGS = [undefined, null, "encrypteddatastring", [1, 2, 3, 4, 5, 6], {}];
 
 describe("CryptoHelpers", () => {
   // Load shim to support running tests in node
@@ -43,19 +46,32 @@ describe("CryptoHelpers", () => {
       expect(encrypted.toString()).toEqual(ENCRYPTED_STRING);
     });
 
-    it.each([[undefined], [null], ["encrypteddatastring"], [[1, 2, 3, 4, 5, 6]], [{}]])(
-      "should throw an error if data is not an ArrayBuffer (%o)",
-      async (param: any) => {
-        await expect(helper.aesEncrypt(param, undefined)).rejects.toThrow("is not an ArrayBuffer");
-      }
-    );
+    it("should encrypt the empty string", async () => {
+      const randomMock = jest
+        .spyOn(global.crypto, "getRandomValues")
+        .mockImplementation((array) => new Uint8Array(array.byteLength).fill(0));
+      const key = await helper.makeKey("password", "email");
+      const encrypted = await helper.aesEncrypt(toArrayBuffer(""), key);
+      randomMock.mockRestore();
 
-    it.each([[undefined], [null], ["encrypteddatastring"], [[1, 2, 3, 4, 5, 6]], [{}]])(
-      "should throw an error if key is not a SymmetricCryptoKey (%o)",
-      async (param: any) => {
-        await expect(helper.aesEncrypt(new Uint8Array(32), param)).rejects.toThrow("is not a SymmetricCryptoKey");
+      expect(encrypted.key).toEqual(key);
+      expect(encrypted.iv.byteLength).toBe(16);
+      expect(encrypted.mac.byteLength).toBe(32);
+      expect(encrypted.data.byteLength).toBe(16);
+      expect(encrypted.toString()).toEqual(ENCRYPTED_EMPTY_STRING);
+    });
+
+    it.each([
+      ["data", 0],
+      ["key", 1],
+    ])("should throw an error if %s is not the correct type", async (name, position) => {
+      const dummyArg = new Uint8Array(32).fill(0);
+      for (const arg of BAD_ARGS) {
+        const args = new Array(position).fill(dummyArg);
+        args.push(arg);
+        await expect((helper.aesEncrypt as any)(...(args as any))).rejects.toThrowError(`[${name}] is not of type`);
       }
-    );
+    });
 
     it("should work with ArrayBuffers", async () => {
       const key = await helper.makeKey("password", "email");
@@ -115,36 +131,20 @@ describe("CryptoHelpers", () => {
       );
     });
 
-    it.each([[undefined], [null], ["encrypteddatastring"], [[1, 2, 3, 4, 5, 6]], [{}]])(
-      "should throw an error if data is not an ArrayBuffer (%o)",
-      async (param: any) => {
-        await expect(helper.aesDecrypt(param, undefined, undefined, undefined)).rejects.toThrow("is not an ArrayBuffer");
+    it.each([
+      ["data", 0],
+      ["iv", 1],
+      ["mac", 2],
+      ["key", 3],
+    ])("should throw an error if %s is not the correct type", async (name, position) => {
+      const dummyArg = new Uint8Array(32).fill(0);
+      let i = 0;
+      for (const value of BAD_ARGS) {
+        const args = new Array(position).fill(dummyArg);
+        args.push(value);
+        await expect((helper.aesDecrypt as any)(...(args as any))).rejects.toThrowError(`[${name}] is not of type`);
       }
-    );
-
-    it.each([[undefined], [null], ["encrypteddatastring"], [[1, 2, 3, 4, 5, 6]], [{}]])(
-      "should throw an error if iv is not an ArrayBuffer (%o)",
-      async (param: any) => {
-        const array = new Uint8Array(32).fill(0);
-        await expect(helper.aesDecrypt(array, param, undefined, undefined)).rejects.toThrow("is not an ArrayBuffer");
-      }
-    );
-
-    it.each([[undefined], [null], ["encrypteddatastring"], [[1, 2, 3, 4, 5, 6]], [{}]])(
-      "should throw an error if mac is not an ArrayBuffer (%o)",
-      async (param: any) => {
-        const array = new Uint8Array(32).fill(0);
-        await expect(helper.aesDecrypt(array, array, param, undefined)).rejects.toThrow("is not an ArrayBuffer");
-      }
-    );
-
-    it.each([[undefined], [null], ["encrypteddatastring"], [[1, 2, 3, 4, 5, 6]], [{}]])(
-      "should throw an error if key is not a SymmetricCryptoKey (%o)",
-      async (param: any) => {
-        const array = new Uint8Array(32).fill(0);
-        await expect(helper.aesDecrypt(array, array, array, param)).rejects.toThrow("is not a SymmetricCryptoKey");
-      }
-    );
+    });
   });
 
   describe("compare", () => {

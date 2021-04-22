@@ -2,6 +2,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { Wallet, utils } from "ethers";
 import txDecoder from "ethereum-tx-decoder";
 import { HDNode, defaultPath } from "@ethersproject/hdnode";
+import * as _ from "lodash";
 import { NativeHDWalletBase } from "./native";
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(Base: TBase) {
@@ -55,6 +56,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     }
 
     async ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
+      if (!_.isEqual(msg.addressNList, core.bip32ToAddressNList("m/44'/60'/0'/0/0"))) throw new Error("path not supported");
       return this.needsMnemonic(!!this.#ethWallet, () => this.#ethWallet.getAddress());
     }
 

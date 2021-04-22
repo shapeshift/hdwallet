@@ -92,7 +92,7 @@ describe("EncryptedWallet", () => {
         .mockImplementation((array) => new Uint8Array(array.byteLength).fill(0));
       const wallet = new EncryptedWallet(engine);
       await wallet.init("email", "password");
-      await wallet.createWallet();
+      await wallet.createWallet(PLAINTEXT_MNEMONIC2);
       randomMock.mockRestore();
 
       expect(wallet.encryptedWallet).toEqual(ENCRYPTED_MNEMONIC2);
