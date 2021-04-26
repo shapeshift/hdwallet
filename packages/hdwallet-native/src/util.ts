@@ -1,12 +1,11 @@
 import { addressNListToBIP32, BTCInputScriptType, BTCOutputScriptType } from "@shapeshiftoss/hdwallet-core";
-import * as bitcoin from "bitcoinjs-lib";
-import { BIP32Interface } from "bitcoinjs-lib";
+import * as bitcoin from "@bithighlander/bitcoin-cash-js-lib";
 import { getNetwork } from "./networks";
 
 type BTCScriptType = BTCInputScriptType | BTCOutputScriptType;
 
 function getKeyPair(
-  seed: BIP32Interface,
+  seed: bitcoin.BIP32Interface,
   addressNList: number[],
   network = "bitcoin",
   scriptType?: BTCScriptType

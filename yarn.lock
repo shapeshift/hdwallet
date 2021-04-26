@@ -897,6 +897,28 @@
     lodash "^4.17.19"
     to-fast-properties "^2.0.0"
 
+"@bithighlander/bitcoin-cash-js-lib@5.2.1":
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/@bithighlander/bitcoin-cash-js-lib/-/bitcoin-cash-js-lib-5.2.1.tgz#3153dec5774b0574a2347f6ca75cf3d7399af1b2"
+  integrity sha512-FaqmntBmeiLxwwCuc6n7kZCUi3ZT1b75tWxpduV3Rdw3pOx17cuptsBuay30YX4v/gnXvPkjO8AF0XsO4kn6IQ==
+  dependencies:
+    bech32 "^1.1.2"
+    big-integer "^1.6.44"
+    bip174 "^2.0.1"
+    bip32 "^2.0.4"
+    bip66 "^1.1.0"
+    bitcoin-ops "^1.4.0"
+    bs58check "^2.0.0"
+    create-hash "^1.1.0"
+    create-hmac "^1.1.3"
+    merkle-lib "^2.0.10"
+    pushdata-bitcoin "^1.0.1"
+    randombytes "^2.0.1"
+    tiny-secp256k1 "^1.1.1"
+    typeforce "^1.11.3"
+    varuint-bitcoin "^1.0.4"
+    wif "^2.0.1"
+
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/@cnakazawa/watch/-/watch-1.0.4.tgz#f864ae85004d0fcab6f50be9141c4da368d1656a"
@@ -3619,6 +3641,11 @@ big-integer@1.6.36:
   resolved "https://registry.yarnpkg.com/big-integer/-/big-integer-1.6.36.tgz#78631076265d4ae3555c04f85e7d9d2f3a071a36"
   integrity sha512-t70bfa7HYEA1D9idDbmuv7YbsbVkQ+Hp+8KFSul4aE5e/i1bjCNIRYJZlA8Q8p0r9T8cF/RVvwUgRA//FydEyg==
 
+big-integer@^1.6.44:
+  version "1.6.48"
+  resolved "https://registry.yarnpkg.com/big-integer/-/big-integer-1.6.48.tgz#8fd88bd1632cba4a1c8c3e3d7159f08bb95b4b9e"
+  integrity sha512-j51egjPa7/i+RdiRuJbPdJ2FIUYYPhvYLjzoYbcMMm62ooO6F94fETG4MTs46zPAF9Brs04OajboA/qTGuz78w==
+
 big.js@^5.2.2:
   version "5.2.2"
   resolved "https://registry.yarnpkg.com/big.js/-/big.js-5.2.2.tgz#65f0af382f578bcdc742bd9c281e9cb2d7768328"
@@ -3701,7 +3728,7 @@ bitcoin-ops@^1.3.0, bitcoin-ops@^1.4.0, bitcoin-ops@^1.4.1:
   resolved "https://registry.yarnpkg.com/bitcoin-ops/-/bitcoin-ops-1.4.1.tgz#e45de620398e22fd4ca6023de43974ff42240278"
   integrity sha512-pef6gxZFztEhaE9RY9HmWVmiIHqCb2OyS4HPKkpc6CIiiOa3Qmuoylxc5P2EkU3w+5eTSifI9SEZC88idAIGow==
 
-bitcoinjs-lib@^5.1.10, bitcoinjs-lib@^5.1.6, bitcoinjs-lib@^5.2.0:
+bitcoinjs-lib@^5.1.10, bitcoinjs-lib@^5.1.6:
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/bitcoinjs-lib/-/bitcoinjs-lib-5.2.0.tgz#caf8b5efb04274ded1b67e0706960b93afb9d332"
   integrity sha512-5DcLxGUDejgNBYcieMIUfjORtUeNWl828VWLHJGVKZCb4zIS1oOySTUr0LGmcqJBQgTBz3bGbRQla4FgrdQEIQ==

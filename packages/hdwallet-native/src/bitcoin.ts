@@ -1,11 +1,8 @@
-import { ECPairInterface } from "bitcoinjs-lib";
-import * as bitcoin from "bitcoinjs-lib";
+import * as bitcoin from "@bithighlander/bitcoin-cash-js-lib";
 import { toCashAddress, toLegacyAddress } from "bchaddrjs";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { getNetwork } from "./networks";
 import { NativeHDWalletBase } from "./native";
-
-// TODO: add bitcoincash support. Everything is working outside of transaction signing. There is a fork of bitcoinjs-lib that supports bitcoin clones that would be worth looking into (see: https://github.com/junderw/bitcoinjs-lib/tree/cashv5).
 
 const supportedCoins = ["bitcoin", "dash", "digibyte", "dogecoin", "litecoin", "testnet"];
 
@@ -27,9 +24,13 @@ type ScriptData = {
   witnessScript?: Buffer;
 };
 
-type InputData = UtxoData | ScriptData;
+type BchInputData = {
+  sighashType?: number
+}
 
-function getKeyPair(seed: Buffer, addressNList: number[], coin, scriptType?: BTCScriptType): ECPairInterface {
+type InputData = UtxoData | ScriptData | BchInputData;
+
+function getKeyPair(seed: Buffer, addressNList: number[], coin, scriptType?: BTCScriptType): bitcoin.ECPairInterface {
   const network = getNetwork(coin, scriptType);
   const wallet = bitcoin.bip32.fromSeed(seed, network);
   const path = core.addressNListToBIP32(addressNList);
@@ -167,14 +168,14 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
     validateVoutOrdering(msg: core.BTCSignTx, tx: bitcoin.Transaction): boolean {
       // From THORChain specification:
       /* ignoreTx checks if we can already ignore a tx according to preset rules
-        
+
          we expect array of "vout" for a BTC to have this format
          OP_RETURN is mandatory only on inbound tx
          vout:0 is our vault
          vout:1 is any any change back to themselves
          vout:2 is OP_RETURN (first 80 bytes)
          vout:3 is OP_RETURN (next 80 bytes)
-        
+
          Rules to ignore a tx are:
          - vout:0 doesn't have coins (value)
          - vout:0 doesn't have address
@@ -241,8 +242,14 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
             break;
         }
 
+        let bchData: BchInputData = {};
+        if (coin.toLowerCase() === "bitcoincash") {
+          bchData.sighashType = bitcoin.Transaction.SIGHASH_ALL | bitcoin.Transaction.SIGHASH_BITCOINCASHBIP143
+        }
+
         return {
           ...utxoData,
+          ...bchData,
           ...scriptData,
         };
       });
