@@ -416,17 +416,6 @@ describe("NativeBTCWallet", () => {
     );
   });
 
-  it("should sign a pre-fork BitcoinCash transaction correctly", async () => {
-    const input = {
-      ...BIP44_BENCHMARK_TX,
-      coin: "BitcoinCash",
-    };
-
-    const out = await wallet.btcSignTx(input);
-    expect(out.signatures).toMatchObject([BIP44_BENCHMARK_TX_OUTPUT_SIG]);
-    expect(out.serializedTx).toBe(BIP44_BENCHMARK_TX_OUTPUT);
-  });
-
   it("should automatically set the output address for a transaction", async () => {
     const input = {
       ...BIP44_BENCHMARK_TX,
