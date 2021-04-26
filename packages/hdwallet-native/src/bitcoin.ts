@@ -4,7 +4,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { getNetwork } from "./networks";
 import { NativeHDWalletBase } from "./native";
 
-const supportedCoins = ["bitcoin", "dash", "digibyte", "dogecoin", "litecoin", "testnet"];
+const supportedCoins = ["bitcoin", "dash", "digibyte", "dogecoin", "litecoin", "bitcoincash", "testnet"];
 
 const segwit = ["p2wpkh", "p2sh-p2wpkh"];
 

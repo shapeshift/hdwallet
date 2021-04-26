@@ -132,7 +132,7 @@ describe("NativeBTCWalletInfo", () => {
 
   it("should return some dynamic metadata", async () => {
     await expect(info.btcSupportsCoin("bitcoin")).resolves.toBe(true);
-    await expect(info.btcSupportsCoin("bitcoincash")).resolves.toBe(false);
+    await expect(info.btcSupportsCoin("bitcoincash")).resolves.toBe(true);
 
     await expect(info.btcSupportsScriptType("bitcoin", "p2pkh" as any)).resolves.toBe(true);
     await expect(info.btcSupportsScriptType("bitcoin", "p2sh" as any)).resolves.toBe(true);
