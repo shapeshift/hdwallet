@@ -1,4 +1,3 @@
-import { ECPairInterface } from "@bithighlander/bitcoin-cash-js-lib";
 import * as bitcoin from "@bithighlander/bitcoin-cash-js-lib";
 import { toCashAddress, toLegacyAddress } from "bchaddrjs";
 import * as core from "@shapeshiftoss/hdwallet-core";
@@ -29,7 +28,7 @@ type ScriptData = {
 
 type InputData = UtxoData | ScriptData;
 
-function getKeyPair(seed: Buffer, addressNList: number[], coin, scriptType?: BTCScriptType): ECPairInterface {
+function getKeyPair(seed: Buffer, addressNList: number[], coin, scriptType?: BTCScriptType): bitcoin.ECPairInterface {
   const network = getNetwork(coin, scriptType);
   const wallet = bitcoin.bip32.fromSeed(seed, network);
   const path = core.addressNListToBIP32(addressNList);
