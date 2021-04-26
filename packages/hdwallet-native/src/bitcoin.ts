@@ -4,8 +4,6 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { getNetwork } from "./networks";
 import { NativeHDWalletBase } from "./native";
 
-// TODO: add bitcoincash support. Everything is working outside of transaction signing. There is a fork of bitcoinjs-lib that supports bitcoin clones that would be worth looking into (see: https://github.com/junderw/bitcoinjs-lib/tree/cashv5).
-
 const supportedCoins = ["bitcoin", "dash", "digibyte", "dogecoin", "litecoin", "testnet"];
 
 const segwit = ["p2wpkh", "p2sh-p2wpkh"];
@@ -26,7 +24,11 @@ type ScriptData = {
   witnessScript?: Buffer;
 };
 
-type InputData = UtxoData | ScriptData;
+type BchInputData = {
+  sighashType?:number
+}
+
+type InputData = UtxoData | ScriptData | BchInputData;
 
 function getKeyPair(seed: Buffer, addressNList: number[], coin, scriptType?: BTCScriptType): bitcoin.ECPairInterface {
   const network = getNetwork(coin, scriptType);
@@ -240,10 +242,16 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
             break;
         }
 
+        let bchData: BchInputData = {};
+        if (coin.toLowerCase() === "bitcoincash") {
+          bchData.sighashType = bitcoin.Transaction.SIGHASH_ALL | bitcoin.Transaction.SIGHASH_BITCOINCASHBIP143
+        }
         return {
           ...utxoData,
+          ...bchData,
           ...scriptData,
         };
+
       });
     }
 
@@ -275,11 +283,17 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
               ...inputData,
             }
             if(coin.toLowerCase() === "bitcoincash"){
-              //pash forkId
+              //hash forkId for replay protection
               const hashType = bitcoin.Transaction.SIGHASH_ALL | bitcoin.Transaction.SIGHASH_BITCOINCASHBIP143
               inputDataFinal.sighashType = hashType
             }
             psbt.addInput(inputDataFinal);
+            psbt.addInput({
+              hash: input.txid,
+              index: input.vout,
+              ...inputDataFinal
+            });
+
           } catch (e) {
             throw new Error(`failed to add input: ${e}`);
           }
