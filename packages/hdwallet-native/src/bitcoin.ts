@@ -25,7 +25,7 @@ type ScriptData = {
 };
 
 type BchInputData = {
-  sighashType?:number
+  sighashType?: number
 }
 
 type InputData = UtxoData | ScriptData | BchInputData;
@@ -246,12 +246,12 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
         if (coin.toLowerCase() === "bitcoincash") {
           bchData.sighashType = bitcoin.Transaction.SIGHASH_ALL | bitcoin.Transaction.SIGHASH_BITCOINCASHBIP143
         }
+
         return {
           ...utxoData,
           ...bchData,
           ...scriptData,
         };
-
       });
     }
 
