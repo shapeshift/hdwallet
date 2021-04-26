@@ -252,7 +252,6 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
           ...bchData,
           ...scriptData,
         };
-
       });
     }
 
