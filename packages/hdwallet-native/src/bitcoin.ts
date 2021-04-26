@@ -25,7 +25,7 @@ type ScriptData = {
 };
 
 type BchInputData = {
-  sighashType?:number
+  sighashType?: number
 }
 
 type InputData = UtxoData | ScriptData | BchInputData;
