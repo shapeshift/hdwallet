@@ -1,4 +1,4 @@
-import { ECPairInterface } from "bitcoinjs-lib";
+import { ECPairInterface } from "@bithighlander/bitcoin-cash-js-lib";
 import * as bitcoin from "@bithighlander/bitcoin-cash-js-lib";
 import { toCashAddress, toLegacyAddress } from "bchaddrjs";
 import * as core from "@shapeshiftoss/hdwallet-core";
