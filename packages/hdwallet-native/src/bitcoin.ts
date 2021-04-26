@@ -1,5 +1,5 @@
 import { ECPairInterface } from "bitcoinjs-lib";
-import * as bitcoin from "bitcoinjs-lib";
+import * as bitcoin from "@bithighlander/bitcoin-cash-js-lib";
 import { toCashAddress, toLegacyAddress } from "bchaddrjs";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { getNetwork } from "./networks";
@@ -167,14 +167,14 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
     validateVoutOrdering(msg: core.BTCSignTx, tx: bitcoin.Transaction): boolean {
       // From THORChain specification:
       /* ignoreTx checks if we can already ignore a tx according to preset rules
-        
+
          we expect array of "vout" for a BTC to have this format
          OP_RETURN is mandatory only on inbound tx
          vout:0 is our vault
          vout:1 is any any change back to themselves
          vout:2 is OP_RETURN (first 80 bytes)
          vout:3 is OP_RETURN (next 80 bytes)
-        
+
          Rules to ignore a tx are:
          - vout:0 doesn't have coins (value)
          - vout:0 doesn't have address
@@ -270,11 +270,17 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
           try {
             const inputData = this.buildInput(coin, input);
 
-            psbt.addInput({
+            let inputDataFinal:any = {
               hash: input.txid,
               index: input.vout,
               ...inputData,
-            });
+            }
+            if(coin.toLowerCase() === "bitcoincash"){
+              //pash forkId
+              let hashType = bitcoin.Transaction.SIGHASH_ALL | bitcoin.Transaction.SIGHASH_BITCOINCASHBIP143
+              inputDataFinal.sighashType = hashType
+            }
+            psbt.addInput(inputDataFinal);
           } catch (e) {
             throw new Error(`failed to add input: ${e}`);
           }
