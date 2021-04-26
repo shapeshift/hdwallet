@@ -61,7 +61,6 @@ export interface BTCSignTxInput {
   txid: string;
   tx?: BitcoinTx; // Required for p2sh, not required for segwit
   hex: string;
-  sighashType?:string,
   type?: number; // Dash
   extraPayloadSize?: number; // Dash
   extraPayload?: string; // Dash
