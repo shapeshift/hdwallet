@@ -139,7 +139,7 @@ describe("NativeBTCWalletInfo", () => {
     await expect(info.btcSupportsScriptType("bitcoin", "p2wpkh" as any)).resolves.toBe(true);
     await expect(info.btcSupportsScriptType("bitcoin", "p2sh-p2wpkh" as any)).resolves.toBe(true);
     await expect(info.btcSupportsScriptType("bitcoin", "cashaddr" as any)).resolves.toBe(false);
-    await expect(info.btcSupportsScriptType("bitcoincash", "cashaddr" as any)).resolves.toBe(true);
+    await expect(info.btcSupportsScriptType("bitcoincash", "cashaddr" as any)).resolves.toBe(false);
     await expect(info.btcSupportsScriptType("bitcoin", "foobar" as any)).resolves.toBe(false);
     await expect(info.btcSupportsScriptType("foobar", "p2pkh" as any)).resolves.toBe(false);
   });
