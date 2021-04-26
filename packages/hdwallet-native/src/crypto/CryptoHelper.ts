@@ -50,17 +50,14 @@ export default class CryptoHelper {
       throw new Error("Required parameter [key] is not of type SymmetricCryptoKey");
     const iv = await this.#engine.randomBytes(16);
 
-    const obj = new EncryptedObject();
-    obj.key = key;
-    obj.iv = iv;
-    obj.data = await this.#engine.encrypt(data, key.encKey, iv);
+    const encData = await this.#engine.encrypt(data, key.encKey, iv);
 
-    const macData = new Uint8Array(obj.iv.byteLength + obj.data.byteLength);
-    macData.set(new Uint8Array(obj.iv), 0);
-    macData.set(new Uint8Array(obj.data), obj.iv.byteLength);
-    obj.mac = await this.#engine.hmac(macData.buffer, obj.key.macKey);
+    const macData = new Uint8Array(iv.byteLength + encData.byteLength);
+    macData.set(new Uint8Array(iv), 0);
+    macData.set(new Uint8Array(encData), iv.byteLength);
+    const mac = await this.#engine.hmac(macData.buffer.slice(macData.byteOffset, macData.byteOffset + macData.byteLength), key.macKey);
 
-    return obj;
+    return new EncryptedObject({ key, iv, data: encData, mac });
   }
 
   async aesDecrypt(

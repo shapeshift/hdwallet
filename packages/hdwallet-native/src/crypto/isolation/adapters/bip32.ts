@@ -18,7 +18,7 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32.NodeInterface, 
         if (networkOrParent instanceof BIP32Adapter) this._parent = networkOrParent;
     }
 
-    get depth() { return (this._parent?.depth ?? -1) + 1; }
+    get depth(): number { return (this._parent?.depth ?? -1) + 1; }
     get chainCode() { return Buffer.from(this._isolatedNode.chainCode) as Buffer & BIP32.ChainCode; }
     get identifier() {
         return this._identifier = this._identifier ?? btccrypto.hash160(Buffer.from(SecP256K1.CompressedPoint.from(this._isolatedKey.publicKey)));
@@ -26,7 +26,7 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32.NodeInterface, 
     get fingerprint() { return this.identifier.slice(0, 4); }
     get parentFingerprint() { return (this._parent ? this._parent.fingerprint.readUInt32BE(0) : 0); }
 
-    get path() {
+    get path(): string {
         if (!this._parent) return "";
         let parentPath = this._parent.path ?? "";
         if (parentPath === "") parentPath = "m";

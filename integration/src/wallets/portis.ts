@@ -32,7 +32,7 @@ const mockSignERC20TxResponse = {
 };
 
 export async function createWallet(): Promise<core.HDWallet> {
-  const wallet = portis.create(mockPortis);
+  const wallet = portis.create(mockPortis as any);
 
   if (!wallet) throw new Error("No Portis wallet found");
 
@@ -46,7 +46,7 @@ export async function createWallet(): Promise<core.HDWallet> {
       getAccounts: () => ["0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"],
       sign: () =>
         "0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b",
-      signTransaction: ({ data }) => {
+      signTransaction: ({ data }: any) => {
         return data.length ? mockSignERC20TxResponse : mockSignEthTxResponse;
       },
     },
@@ -81,10 +81,10 @@ export function selfTest(get: () => core.HDWallet): void {
 
   it("does not support more than one account path", async () => {
     if (!wallet) return;
-    const paths = await wallet.ethGetAccountPaths({
+    const paths = core.mustBeDefined(await wallet.ethGetAccountPaths({
       coin: "Ethereum",
       accountIdx: 0,
-    });
+    }));
     expect(paths.length).toEqual(1);
     const nextPath = await wallet.ethNextAccountPath(paths[0]);
     expect(nextPath).toBeUndefined();

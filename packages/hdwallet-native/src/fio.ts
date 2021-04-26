@@ -12,17 +12,14 @@ const fetchJson = async (uri: RequestInfo, opts?: RequestInit) => {
 };
 
 function getKeyPair(seed: Isolation.BIP32.SeedInterface, addressNList: number[]) {
-  let out = seed.toMasterKey()
-  addressNList.forEach(x => {
-    out = out.derive(x);
-  });
-  if (typeof out["ecdh"] !== "function") throw new Error("fio requires keys that implement ECDH");
-  return new Isolation.Adapters.FIO(out as typeof out & Isolation.SecP256K1.ECDHKeyInterface);
+  const out = addressNList.reduce((a, x) => a.derive(x), seed.toMasterKey());
+  if (!Isolation.BIP32.nodeSupportsECDH(out)) throw new Error("fio requires keys that implement ECDH");
+  return new Isolation.Adapters.FIO(out);
 }
 
-export function MixinNativeFioWalletInfo<TBase extends core.Constructor>(Base: TBase) {
+export function MixinNativeFioWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   return class MixinNativeFioWalletInfo extends Base implements core.FioWalletInfo {
-    _supportsFioInfo = true;
+    readonly _supportsFioInfo = true;
 
     async fioSupportsNetwork(): Promise<boolean> {
       return true;
@@ -44,7 +41,7 @@ export function MixinNativeFioWalletInfo<TBase extends core.Constructor>(Base: T
       ];
     }
 
-    fioNextAccountPath(msg: core.FioAccountPath): core.FioAccountPath {
+    fioNextAccountPath(msg: core.FioAccountPath): core.FioAccountPath | undefined {
       // Only support one account for now (like portis).
       // the fioers library supports paths so it shouldnt be too hard if we decide multiple accounts are needed
       return undefined;
@@ -54,9 +51,9 @@ export function MixinNativeFioWalletInfo<TBase extends core.Constructor>(Base: T
 
 export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeFioWallet extends Base {
-    _supportsFio = true;
+    readonly _supportsFio = true;
     baseUrl = "https://fio.eu.eosamsterdam.net/v1/";
-    #seed: Isolation.BIP32.SeedInterface;
+    #seed: Isolation.BIP32.SeedInterface | undefined;
 
     async fioInitializeWallet(seed: Buffer | Isolation.BIP32.SeedInterface): Promise<void> {
       this.#seed = (seed instanceof Buffer ? new Isolation.BIP32.Seed(seed) : seed);
@@ -66,24 +63,26 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
       this.#seed = undefined;
     }
 
-    async getFioSdk(addressNList: core.BIP32Path): Promise<fio.FIOSDK> {
+    async getFioSdk(addressNList: core.BIP32Path): Promise<fio.FIOSDK | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        let key = getKeyPair(this.#seed, addressNList);
+        let key = getKeyPair(this.#seed!, addressNList);
         return new fio.FIOSDK(key as any, key.publicKey, this.baseUrl, fetchJson);
       });
     }
 
-    async fioGetAddress(msg: core.FioGetAddress): Promise<string> {
+    async fioGetAddress(msg: core.FioGetAddress): Promise<string | null> {
       const sdk = await this.getFioSdk(msg.addressNList);
-      return sdk.getFioPublicKey();
+      return sdk?.getFioPublicKey() ?? null;
     }
 
-    async fioSignTx(msg: core.FioSignTx): Promise<core.FioSignedTx> {
+    async fioSignTx(msg: core.FioSignTx): Promise<core.FioSignedTx | null> {
       const sdk = await this.getFioSdk(msg.addressNList);
+      if (!sdk) return null;
 
-      const account: fio.FioActionParameters.FioActionAccount = msg.actions[0].account;
-      const action: fio.FioActionParameters.FioActionName = msg.actions[0].name;
-      const data: fio.FioActionParameters.FioActionData = msg.actions[0].data;
+      const account = msg.actions[0].account;
+      const action = msg.actions[0].name;
+      const data = msg.actions[0].data;
+      if (!account || !action || !data) throw new Error("account, name, and data required");
 
       const res = await sdk.prepareTransaction(account, action, data);
 
@@ -93,9 +92,9 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
       };
     }
 
-    async fioEncryptRequestContent(msg: core.FioRequestContent & {iv?: Uint8Array}): Promise<string> {
+    async fioEncryptRequestContent(msg: core.FioRequestContent & {iv?: Uint8Array}): Promise<string | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        const privateKey = getKeyPair(this.#seed, msg.addressNList);
+        const privateKey = getKeyPair(this.#seed!, msg.addressNList);
         const sharedCipher = fioSdk.Fio.createSharedCipher({
           privateKey,
           publicKey: msg.publicKey,
@@ -106,9 +105,9 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
       });
     }
 
-    async fioDecryptRequestContent(msg: core.FioRequestContent): Promise<any> {
+    async fioDecryptRequestContent(msg: core.FioRequestContent): Promise<any | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        const privateKey = getKeyPair(this.#seed, msg.addressNList);
+        const privateKey = getKeyPair(this.#seed!, msg.addressNList);
         const sharedCipher = fioSdk.Fio.createSharedCipher({
           privateKey,
           publicKey: msg.publicKey,

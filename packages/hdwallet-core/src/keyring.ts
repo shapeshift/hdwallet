@@ -14,7 +14,7 @@ export class Keyring extends eventemitter2.EventEmitter2 {
     const id = deviceID || new Date().toString();
     if (!this.wallets[id]) {
       this.wallets[id] = wallet;
-      wallet.transport && this.decorateEvents(deviceID, wallet.transport);
+      wallet.transport && this.decorateEvents(id, wallet.transport);
       return true;
     }
     return false;
@@ -33,7 +33,11 @@ export class Keyring extends eventemitter2.EventEmitter2 {
   }
 
   public async exec(method: string, ...args: any[]): Promise<{ [deviceID: string]: any }> {
-    return Promise.all(Object.values(this.wallets).map((w) => w[method](...args))).then((values) =>
+    return Promise.all(Object.values(this.wallets).map((w) => {
+      const fn: unknown = (w as any)[method];
+      if (typeof fn !== "function") throw new Error(`can't exec non-existent method ${method}`);
+      return fn.call(w, ...args);
+    })).then((values) =>
       values.reduce((final, response, i) => {
         final[Object.keys(this.wallets)[i]] = response;
         return final;
@@ -41,10 +45,10 @@ export class Keyring extends eventemitter2.EventEmitter2 {
     );
   }
 
-  public get<T extends HDWallet>(deviceID?: string): T {
-    if (this.aliases[deviceID] && this.wallets[this.aliases[deviceID]])
+  public get<T extends HDWallet>(deviceID?: string): T | null {
+    if (deviceID && this.aliases[deviceID] && this.wallets[this.aliases[deviceID]])
       return this.wallets[this.aliases[deviceID]] as T;
-    if (this.wallets[deviceID]) return this.wallets[deviceID] as T;
+    if (deviceID && this.wallets[deviceID]) return this.wallets[deviceID] as T;
     if (!!Object.keys(this.wallets).length && !deviceID) return Object.values(this.wallets)[0] as T;
     return null;
   }
@@ -81,8 +85,9 @@ export class Keyring extends eventemitter2.EventEmitter2 {
   }
 
   public decorateEvents(deviceID: string, events: eventemitter2.EventEmitter2): void {
-    const wallet: HDWallet = this.get(deviceID);
+    const wallet: HDWallet | null = this.get(deviceID);
+    if (!wallet) return;
     const vendor: string = wallet.getVendor();
-    events.onAny((e: string, ...values: any[]) => this.emit([vendor, deviceID, e], [deviceID, ...values]));
+    events.onAny((e: string | string[], ...values: any[]) => this.emit([vendor, deviceID, (typeof e === "string" ? e : e.join(";"))], [deviceID, ...values]));
   }
 }

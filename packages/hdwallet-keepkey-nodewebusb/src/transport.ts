@@ -3,13 +3,20 @@ import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 
 import { VENDOR_ID, WEBUSB_PRODUCT_ID } from "./utils";
 
-export class TransportDelegate implements keepkey.TransportDelegate {
-  usbDevice: USBDevice;
+export type Device = USBDevice & {serialNumber: string};
 
-  constructor(usbDevice: USBDevice) {
-    if (usbDevice.vendorId !== VENDOR_ID) return null;
+export class TransportDelegate implements keepkey.TransportDelegate {
+  usbDevice: Device;
+
+  constructor(usbDevice: Device) {
+    if (usbDevice.vendorId !== VENDOR_ID) throw new core.WebUSBCouldNotPair("KeepKey", "bad vendor id");
     if (usbDevice.productId !== WEBUSB_PRODUCT_ID) throw new core.FirmwareUpdateRequired("KeepKey", "6.1.0");
     this.usbDevice = usbDevice
+  }
+
+  async create(usbDevice: Device): Promise<TransportDelegate | null> {
+    if (usbDevice.vendorId !== VENDOR_ID) return null;
+    return new TransportDelegate(usbDevice)
   }
 
   async isOpened(): Promise<boolean> {
@@ -61,19 +68,19 @@ export class TransportDelegate implements keepkey.TransportDelegate {
   }
 
   async writeChunk(buf: Uint8Array, debugLink?: boolean): Promise<void> {
-    const result = await this.usbDevice.transferOut(debugLink ? 2 : 1, buf.buffer);
+    const result = await this.usbDevice.transferOut(debugLink ? 2 : 1, buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
     if (result.status !== "ok" || result.bytesWritten !== buf.length) throw new Error("bad write");
   }
 
   async readChunk(debugLink?: boolean): Promise<Uint8Array> {
     const result = await this.usbDevice.transferIn(debugLink ? 2 : 1, keepkey.SEGMENT_SIZE + 1);
 
-    if (result.status === "stall") {
+    if (result.status === "stall" && result.data !== undefined) {
       await this.usbDevice.clearHalt("out", debugLink ? 2 : 1);
-    } else if (result.status !== "ok") {
+    } else if (result.status !== "ok" || result.data === undefined) {
       throw new Error("bad read");
     }
 
-    return new Uint8Array(result.data.buffer)
+    return new Uint8Array(result.data.buffer.slice(result.data.byteOffset, result.data.byteOffset + result.data.byteLength))
   }
 }

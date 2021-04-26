@@ -65,20 +65,21 @@ export const getderivationModeFromFormat = (format: string): string => {
   return derivationMode;
 };
 
-export const translateScriptType = (scriptType: core.BTCInputScriptType): string =>
-  ({
+export function translateScriptType(scriptType: core.BTCInputScriptType): string {
+  return core.mustBeDefined(({
     [core.BTCInputScriptType.SpendAddress]: "legacy",
     [core.BTCInputScriptType.CashAddr]: "legacy",
     [core.BTCInputScriptType.SpendWitness]: "bech32",
     [core.BTCInputScriptType.SpendP2SHWitness]: "p2sh",
-  }[scriptType]);
+  } as Partial<Record<core.BTCInputScriptType, string>>)[scriptType]);
+}
 
-const toHexDigit = (number) => {
+const toHexDigit = (number: number) => {
   const digits = "0123456789abcdef";
   return digits.charAt(number >> 4) + digits.charAt(number & 0x0f);
 };
 
-export const compressPublicKey = (publicKey) => {
+export const compressPublicKey = (publicKey: string) => {
   let compressedKeyIndex;
   if (publicKey.substring(0, 2) !== "04") {
     throw "Invalid public key format";
@@ -91,7 +92,7 @@ export const compressPublicKey = (publicKey) => {
   return compressedKeyIndex + publicKey.substring(2, 66);
 };
 
-export const parseHexString = (str) => {
+export const parseHexString = (str: string) => {
   var result = [];
   while (str.length >= 2) {
     result.push(parseInt(str.substring(0, 2), 16));
@@ -100,16 +101,16 @@ export const parseHexString = (str) => {
   return result;
 };
 
-export const encodeBase58Check = (vchIn) => {
-  vchIn = parseHexString(vchIn);
-  var chksum = bitcoin.crypto.sha256(vchIn);
+export const encodeBase58Check = (vchIn: string) => {
+  const vchIn2 = parseHexString(vchIn);
+  var chksum = bitcoin.crypto.sha256(Buffer.from(vchIn2));
   chksum = bitcoin.crypto.sha256(chksum);
   chksum = chksum.slice(0, 4);
-  var hash = vchIn.concat(Array.from(chksum));
+  var hash = vchIn2.concat(Array.from(chksum));
   return bs58.encode(Buffer.from(hash));
 };
 
-export const createXpub = (depth, fingerprint, childnum, chaincode, publicKey, network) =>
+export const createXpub = (depth: number, fingerprint: number, childnum: number, chaincode: string, publicKey: string, network: number) =>
   toHexInt(network) +
   _.padStart(depth.toString(16), 2, "0") +
   _.padStart(fingerprint.toString(16), 8, "0") +
@@ -117,13 +118,37 @@ export const createXpub = (depth, fingerprint, childnum, chaincode, publicKey, n
   chaincode +
   publicKey;
 
-const toHexInt = (number) =>
+const toHexInt = (number: number) =>
   toHexDigit((number >> 24) & 0xff) +
   toHexDigit((number >> 16) & 0xff) +
   toHexDigit((number >> 8) & 0xff) +
   toHexDigit(number & 0xff);
 
-export const networksUtil = {
+type NetworkMagic = {
+  apiName: string,
+  unit: string,
+  name: string,
+  appName?: string,
+  satoshi?: number,
+  bitcoinjs: {
+    bech32?: string,
+    bip32: {
+      private?: number,
+      public: Partial<Record<core.BTCInputScriptType, number>>,
+    },
+    messagePrefix: string,
+    pubKeyHash?: number,
+    scriptHash?: number,
+    wif?: number,
+  },
+  sigHash?: number,
+  isSegwitSupported?: boolean,
+  handleFeePerByte?: boolean,
+  additionals?: string[],
+  areTransactionTimestamped?: boolean,
+};
+
+export const networksUtil: Record<number, NetworkMagic> = {
   0: {
     apiName: "btc",
     unit: "BTC",

@@ -3,13 +3,15 @@ import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import { TransportDelegate } from "./transport";
 import { VENDOR_ID, WEBUSB_PRODUCT_ID, HID_PRODUCT_ID, assertChromeUSB, chromeUSB, makePromise } from "./utils";
 
+type Device = USBDevice & {serialNumber: string};
+
 export const ChromeUSBAdapterDelegate = {
-  async getTransportDelegate(device: USBDevice) {
-    return new TransportDelegate(device);
+  async getTransportDelegate(device: Device) {
+    return await TransportDelegate.create(device);
   },
-  async getDevices(): Promise<USBDevice[]> {
+  async getDevices(): Promise<Device[]> {
     assertChromeUSB(chromeUSB);
-    return (await makePromise(chromeUSB.getDevices, {
+    const devices = (await makePromise(chromeUSB.getDevices, {
       filters: [
         {
           vendorId: VENDOR_ID,
@@ -21,10 +23,11 @@ export const ChromeUSBAdapterDelegate = {
         },
       ],
     })) as USBDevice[];
+    return devices.filter((d) => d.serialNumber !== undefined) as Device[];
   },
   registerCallbacks(
-    handleConnect: (device: USBDevice) => void,
-    handleDisconnect: (device: USBDevice) => void
+    handleConnect: (device: Device) => void,
+    handleDisconnect: (device: Device) => void
   ) {
     assertChromeUSB(chromeUSB);
     chromeUSB.onDeviceAdded.addListener(handleConnect);

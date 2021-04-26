@@ -131,7 +131,7 @@ export async function eosGetPublicKey(transport: Transport, msg: core.EosGetPubl
   if (response.message_type === core.Events.FAILURE) throw response;
 
   const eosPubkey = response.proto as EosMessages.EosPublicKey;
-  return eosPubkey.getWifPublicKey();
+  return core.mustBeDefined(eosPubkey.getWifPublicKey());
 }
 
 export async function eosSignTx(transport: Transport, msg: core.EosToSignTx): Promise<core.EosTxSigned> {
@@ -222,16 +222,16 @@ export async function eosSignTx(transport: Transport, msg: core.EosToSignTx): Pr
 
     //    const EosFormatSig = eosSigFormatter(signedTx.getSignatureR() as Uint8Array, signedTx.getSignatureS() as Uint8Array, signedTx.getSignatureV())
 
+    const signatureR = signedTx.getSignatureR_asU8();
+    const signatureS = signedTx.getSignatureS_asU8();
+    const signatureV = signedTx.getSignatureV();
+    if (signatureV === undefined) throw new Error("missing signatureV");
     var sig = {
-      signatureV: signedTx.getSignatureV(),
-      signatureR: signedTx.getSignatureR(),
-      signatureS: signedTx.getSignatureS(),
+      signatureV,
+      signatureR,
+      signatureS,
       hash: signedTx.getHash(),
-      eosFormSig: eosSigFormatter(
-        signedTx.getSignatureR() as Uint8Array,
-        signedTx.getSignatureS() as Uint8Array,
-        signedTx.getSignatureV()
-      ),
+      eosFormSig: eosSigFormatter(signatureR, signatureS, signatureV),
     } as core.EosTxSigned;
 
     return sig;

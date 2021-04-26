@@ -4,13 +4,18 @@ import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import { VENDOR_ID, WEBUSB_PRODUCT_ID, chromeUSB, assertChromeUSB, makePromise } from "./utils";
 
 export class TransportDelegate implements keepkey.TransportDelegate {
-  usbDevice: USBDevice;
+  usbDevice: USBDevice & {serialNumber: string};
   private connectionHandle: any;
 
-  constructor(usbDevice: USBDevice) {
-    if (usbDevice.vendorId !== VENDOR_ID) return null;
+  constructor(usbDevice: USBDevice & {serialNumber: string}) {
+    if (usbDevice.vendorId !== VENDOR_ID) throw new core.WebUSBCouldNotPair("KeepKey", "bad vendor id");
     if (usbDevice.productId !== WEBUSB_PRODUCT_ID) throw new core.FirmwareUpdateRequired("KeepKey", "6.1.0");
     this.usbDevice = usbDevice;
+  }
+
+  static async create(usbDevice: USBDevice & {serialNumber: string}): Promise<TransportDelegate | null> {
+    if (usbDevice.vendorId !== VENDOR_ID) return null;
+    return new TransportDelegate(usbDevice);
   }
 
   async isOpened(): Promise<boolean> {

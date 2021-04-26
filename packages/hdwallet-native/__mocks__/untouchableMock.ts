@@ -3,7 +3,7 @@ function mockTraps(mock: Function) {
     {},
     {
       get(_, propName) {
-        return (...args: any[]) => (mock(), Reflect[propName](...args));
+        return (...args: any[]) => (mock(), (Reflect as any)[propName](...args));
       },
     }
   );
@@ -18,7 +18,7 @@ function doMock<T extends object>(target: T) {
 }
 export const mock = doMock;
 
-export function bind(obj, prop, ...args) {
+export function bind(obj: Record<string, Function>, prop: string, ...args: any[]) {
   const mock = jest.fn();
   const [objProxy, objMock] = doMock(obj);
   objMock.mockImplementation(() => mock());
@@ -30,7 +30,7 @@ export function bind(obj, prop, ...args) {
   return [Function.prototype.bind.call(obj[prop], objProxy, ...argProxies), mock];
 }
 
-export function call(obj, prop, ...args) {
+export function call(obj: Record<string, Function>, prop: string, ...args: any[]) {
   expect(obj[prop]).toBeInstanceOf(Function);
   const [fn, mock] = bind(obj, prop, ...args);
   const out = fn();

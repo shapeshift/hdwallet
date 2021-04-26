@@ -4,7 +4,7 @@ import * as bip32 from "bip32";
 import * as bitcoin from "bitcoinjs-lib";
 import * as bitcoinMsg from "bitcoinjs-message";
 
-export function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType: core.BTCInputScriptType): core.PathDescription {
+export function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: core.BTCInputScriptType): core.PathDescription {
   let pathStr = core.addressNListToBIP32(path);
   let unknown: core.PathDescription = {
     verbose: pathStr,
@@ -29,14 +29,16 @@ export function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptTy
 
   let wholeAccount = path.length === 3;
 
-  let script = {
+  let script = scriptType ? ({
     [core.BTCInputScriptType.SpendAddress]: ["Legacy"],
     [core.BTCInputScriptType.SpendP2SHWitness]: [],
     [core.BTCInputScriptType.SpendWitness]: ["Segwit Native"],
-  }[scriptType];
+  } as Partial<Record<core.BTCInputScriptType, string[]>>)[scriptType] ?? [] as string[] : [] as string[];
 
   let isPrefork = false;
-  if (path[1] !== 0x80000000 + core.slip44ByCoin(coin)) {
+  const slip44 = core.slip44ByCoin(coin);
+  if (slip44 === undefined) return unknown;
+  if (path[1] !== 0x80000000 + slip44) {
     switch (coin) {
       case "BitcoinCash":
       case "BitcoinGold": {
@@ -118,7 +120,7 @@ export async function btcGetAddress(msg: core.BTCGetAddress, portis: any): Promi
 
   const args = { pubkey: bip32.fromBase58(xpub).derivePath(relPathString).publicKey };
 
-  let result;
+  let result: bitcoin.payments.Payment;
   switch (scriptType) {
     case core.BTCInputScriptType.SpendAddress:
       result = bitcoin.payments.p2pkh(args);
@@ -143,7 +145,7 @@ export async function btcGetAddress(msg: core.BTCGetAddress, portis: any): Promi
     portis.showBitcoinWallet(core.addressNListToBIP32(msg.addressNList));
   }
 
-  return result.address;
+  return core.mustBeDefined(result.address);
 }
 
 export function verifyScriptTypePurpose(scriptType: core.BTCInputScriptType, purpose: number): boolean {
@@ -184,14 +186,15 @@ export function btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPat
 
 export function btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
   const slip44 = core.slip44ByCoin(msg.coin);
+  if (slip44 == undefined) return [];
   const bip44 = legacyAccount(msg.coin, slip44, msg.accountIdx);
   const bip49 = segwitAccount(msg.coin, slip44, msg.accountIdx);
   const bip84 = segwitNativeAccount(msg.coin, slip44, msg.accountIdx);
 
   let paths: Array<core.BTCAccountPath> =
-    {
+    ({
       Bitcoin: [bip44, bip49, bip84],
-    }[msg.coin] || [];
+    } as Partial<Record<core.Coin, core.BTCAccountPath[]>>)[msg.coin] || [];
 
   if (msg.scriptType !== undefined)
     paths = paths.filter((path) => {
@@ -201,7 +204,7 @@ export function btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTC
   return paths;
 }
 
-export async function btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
+export async function btcSupportsScriptType(coin: core.Coin, scriptType?: core.BTCInputScriptType): Promise<boolean> {
   if (coin !== "Bitcoin") return Promise.resolve(false);
 
   switch (scriptType) {
@@ -222,7 +225,8 @@ export async function btcSupportsCoin(coin: core.Coin): Promise<boolean> {
 export async function btcSignTx(msg: core.BTCSignTx, portis: any): Promise<core.BTCSignedTx> {
   const { result } = await portis.signBitcoinTransaction(msg);
   return {
-    signatures: ["signature1", "signature2", "signature3"],
+    // TODO: parse signatures out of serializedTx
+    signatures: core.untouchable("not implemented"),
     serializedTx: result.serializedTx,
   };
 }

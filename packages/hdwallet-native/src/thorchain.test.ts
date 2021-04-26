@@ -65,11 +65,11 @@ describe("NativeThorchainWallet", () => {
       account_number: "foo",
       sequence: "bar",
     });
-    expect(signed.signatures.length).toBe(1);
-    expect(signed.signatures[0].pub_key.value).toMatchInlineSnapshot(
+    expect(signed?.signatures?.length).toBe(1);
+    expect(signed?.signatures?.[0].pub_key?.value).toMatchInlineSnapshot(
       `"A1DSQ2pqr8D5di36Uj6M/sbvkSi7nMf/07yMwcBXyJHL"`
     );
-    expect(signed.signatures[0].signature).toMatchInlineSnapshot(
+    expect(signed?.signatures?.[0].signature).toMatchInlineSnapshot(
       `"3fYykzgna7MWg9VLhsYwHMEF55ZHQEmefq5KOH0jRtNDOYc2K0J9ss3sts54i5I52sg5dA4aGC/yJuSDGUlUJQ=="`
     );
   });

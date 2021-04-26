@@ -1,5 +1,5 @@
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
-import { BIP32Path, PathDescription } from "./wallet";
+import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
 export interface SecretGetAddress {
   addressNList: BIP32Path;
@@ -75,8 +75,8 @@ export interface SecretAccountPath {
   addressNList: BIP32Path;
 }
 
-export interface SecretWalletInfo {
-  _supportsSecretInfo: boolean;
+export interface SecretWalletInfo extends HDWalletInfo {
+  readonly _supportsSecretInfo: boolean;
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order
@@ -90,11 +90,11 @@ export interface SecretWalletInfo {
   secretNextAccountPath(msg: SecretAccountPath): SecretAccountPath | undefined;
 }
 
-export interface SecretWallet extends SecretWalletInfo {
-  _supportsSecret: boolean;
+export interface SecretWallet extends SecretWalletInfo, HDWallet {
+  readonly _supportsSecret: boolean;
 
-  secretGetAddress(msg: SecretGetAddress): Promise<string>;
-  secretSignTx(msg: SecretSignTx): Promise<SecretSignedTx>;
+  secretGetAddress(msg: SecretGetAddress): Promise<string | null>;
+  secretSignTx(msg: SecretSignTx): Promise<SecretSignedTx | null>;
 }
 
 export function secretDescribePath(path: BIP32Path): PathDescription {

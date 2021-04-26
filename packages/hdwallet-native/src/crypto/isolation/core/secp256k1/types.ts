@@ -117,7 +117,8 @@ const signatureStatic = {
     signCanonically: (x: ECDSAKeyInterface, message: Message, counter?: Uint32): Signature => {
         counter === undefined || Uint32.assert(counter);
         for (let i = counter; i === undefined || i < (counter ?? 0) + 128; i = (i ?? 0) + 1) {
-            const sig = x.ecdsaSign(message, i);
+            const sig = i === undefined ? x.ecdsaSign(message) : x.ecdsaSign(message, i);
+            if (sig === undefined) break;
             //TODO: do integrated lowS correction
             if (Signature.isCanonical(sig)) return sig;
         }
@@ -155,9 +156,11 @@ const recoverableSignatureStatic = {
     signCanonically: (x: ECDSAKeyInterface, message: Message, counter?: Uint32): RecoverableSignature => {
         counter === undefined || Uint32.assert(counter);
         for (let i = counter; i === undefined || i < (counter ?? 0) + 128; i = (i ?? 0) + 1) {
-            const sig = RecoverableSignature.fromSignature(x.ecdsaSign(message, i), message, x.publicKey);
+            const sig = i === undefined ? x.ecdsaSign(message) : x.ecdsaSign(message, i);
+            if (sig === undefined) break;
+            const recoverableSig = RecoverableSignature.fromSignature(sig, message, x.publicKey);
             //TODO: do integrated lowS correction
-            if (RecoverableSignature.isCanonical(sig)) return sig;
+            if (RecoverableSignature.isCanonical(recoverableSig)) return recoverableSig;
         }
         // This is cryptographically impossible (2^-128 chance) if the key is implemented correctly.
         throw new Error(`Unable to generate canonical recoverable signature with public key ${Buffer.from(x.publicKey).toString("hex")} over message ${Buffer.from(message).toString("hex")}; is your key implementation broken?`);

@@ -1,3 +1,4 @@
+import Portis from "@portis/web3";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import _ from "lodash";
 import Web3 from "web3";
@@ -20,43 +21,46 @@ export function isPortis(wallet: core.HDWallet): wallet is PortisHDWallet {
   return _.isObject(wallet) && (wallet as any)._isPortis;
 }
 
+type HasNonTrivialConstructor<T> = T extends { new (): any } ? never : T;
+export type Portis = InstanceType<HasNonTrivialConstructor<typeof Portis>>;
+
 export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWallet {
-  _supportsETH: boolean = true;
-  _supportsETHInfo: boolean = true;
-  _supportsBTCInfo: boolean = true;
-  _supportsBTC: boolean = true;
-  _supportsCosmosInfo: boolean = false;
-  _supportsCosmos: boolean = false;
-  _supportsBinanceInfo: boolean = false;
-  _supportsBinance: boolean = false;
-  _supportsDebugLink: boolean = false;
-  _isPortis: boolean = true;
-  _supportsRippleInfo: boolean = false;
-  _supportsRipple: boolean = false;
-  _supportsEosInfo: boolean = false;
-  _supportsEos: boolean = false;
-  _supportsFioInfo: boolean = false;
-  _supportsFio: boolean = false;
-  _supportsThorchainInfo: boolean = false;
-  _supportsThorchain: boolean = false;
-  _supportsSecretInfo: boolean = false;
-  _supportsSecret: boolean = false;
-  _supportsKava: boolean = false;
-  _supportsKavaInfo: boolean = false;
-  _supportsTerra: boolean = false;
-  _supportsTerraInfo: boolean = false;
+  readonly _supportsETH = true;
+  readonly _supportsETHInfo = true;
+  readonly _supportsBTCInfo = true;
+  readonly _supportsBTC = true;
+  readonly _supportsCosmosInfo = false;
+  readonly _supportsCosmos = false;
+  readonly _supportsBinanceInfo = false;
+  readonly _supportsBinance = false;
+  readonly _supportsDebugLink = false;
+  readonly _isPortis = true;
+  readonly _supportsRippleInfo = false;
+  readonly _supportsRipple = false;
+  readonly _supportsEosInfo = false;
+  readonly _supportsEos = false;
+  readonly _supportsFioInfo = false;
+  readonly _supportsFio = false;
+  readonly _supportsThorchainInfo = false;
+  readonly _supportsThorchain = false;
+  readonly _supportsSecretInfo = false;
+  readonly _supportsSecret = false;
+  readonly _supportsKava = false;
+  readonly _supportsKavaInfo = false;
+  readonly _supportsTerra = false;
+  readonly _supportsTerraInfo = false;
 
-  transport = new PortisTransport(new core.Keyring());
+  transport: core.Transport = new PortisTransport(new core.Keyring());
 
-  portis: any;
+  portis: Portis;
   web3: any;
   info: PortisHDWalletInfo & core.HDWalletInfo;
-  ethAddress: string;
+  ethAddress?: string;
 
   // used as a mutex to ensure calls to portis.getExtendedPublicKey cannot happen before a previous call has resolved
   portisCallInProgress: Promise<any> = Promise.resolve();
 
-  constructor(portis) {
+  constructor(portis: Portis) {
     this.portis = portis;
     this.web3 = new Web3(portis.provider);
     this.info = new PortisHDWalletInfo();
@@ -108,8 +112,8 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
     return this.info.hasNativeShapeShift(srcCoin, dstCoin);
   }
 
-  public clearSession(): Promise<void> {
-    return this.portis.logout();
+  public async clearSession(): Promise<void> {
+    await this.portis.logout();
   }
 
   public ping(msg: core.Ping): Promise<core.Pong> {
@@ -164,7 +168,7 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
   }
 
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
-    const publicKeys = [];
+    const publicKeys: { xpub: string }[] = [];
     this.portisCallInProgress = new Promise(async (resolve, reject) => {
       try {
         await this.portisCallInProgress;
@@ -175,7 +179,7 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
         const { addressNList, coin } = msg[i];
         const bitcoinSlip44 = 0x80000000 + core.slip44ByCoin("Bitcoin");
         // TODO we really shouldnt be every using the "bitcoin" string parameter but is here for now to make it work with their btc address on their portis wallet.
-        const portisResult = await this.portis.getExtendedPublicKey(
+        const portisResult: { error: string; result: string } = await this.portis.getExtendedPublicKey(
           core.addressNListToBIP32(addressNList),
           addressNList[1] === bitcoinSlip44 ? "Bitcoin" : ""
         );
@@ -290,25 +294,26 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
   }
 
   public async _ethGetAddress(): Promise<string> {
-    if (!this.ethAddress) {
-      this.ethAddress = (await this.web3.eth.getAccounts())[0];
-    }
-    return this.ethAddress;
+    if (this.ethAddress) return this.ethAddress;
+
+    const out: string = (await this.web3.eth.getAccounts())[0];
+    this.ethAddress = out;
+    return out;
   }
 }
 
 export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo, core.BTCWalletInfo {
-  _supportsBTCInfo: boolean = true;
-  _supportsETHInfo: boolean = true;
-  _supportsCosmosInfo: boolean = false;
-  _supportsBinanceInfo: boolean = false;
-  _supportsRippleInfo: boolean = false;
-  _supportsEosInfo: boolean = false;
-  _supportsFioInfo: boolean = false;
-  _supportsThorchainInfo: boolean = false;
-  _supportsSecretInfo: boolean = false;
-  _supportsKavaInfo: boolean = false;
-  _supportsTerraInfo: boolean = false;
+  readonly _supportsBTCInfo = true;
+  readonly _supportsETHInfo = true;
+  readonly _supportsCosmosInfo = false;
+  readonly _supportsBinanceInfo = false;
+  readonly _supportsRippleInfo = false;
+  readonly _supportsEosInfo = false;
+  readonly _supportsFioInfo = false;
+  readonly _supportsThorchainInfo = false;
+  readonly _supportsSecretInfo = false;
+  readonly _supportsKavaInfo = false;
+  readonly _supportsTerraInfo = false;
 
   public getVendor(): string {
     return "Portis";
@@ -399,8 +404,6 @@ export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
 export function info() {
   return new PortisHDWalletInfo();
 }
-
-export type Portis = any;
 
 export function create(portis: Portis): PortisHDWallet {
   return new PortisHDWallet(portis);

@@ -75,7 +75,7 @@ export function binanceTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           account_number: tx02_unsigned.account_number,
           sequence: tx02_unsigned.sequence,
         };
-        const res = await wallet.binanceSignTx(input);
+        const res = core.mustBeDefined(await wallet.binanceSignTx(input));
 
         // Check that the signed transaction matches tx02_signed -- KeepKey doesn't provide this field,
         // but the tests will be run with hdwallet-native as well, which will prove this invariant under
@@ -98,23 +98,23 @@ export function binanceTests(get: () => { wallet: core.HDWallet; info: core.HDWa
 
         // signBytes treats amounts as numbers, not strings, even though it treats all
         // other numbers as strings.
-        const msgNormalizerInner = (x) => ({
+        const msgNormalizerInner = (x: any) => ({
           ...x,
-          coins: x.coins.map((y) => ({
+          coins: x.coins.map((y: any) => ({
             ...y,
             amount: Number(y.amount),
           })),
         });
-        const msgNormalizer = (x) => ({
+        const msgNormalizer = (x: any) => ({
           ...x,
-          inputs: x.inputs.map((y) => msgNormalizerInner(y)),
-          outputs: x.outputs.map((y) => msgNormalizerInner(y)),
+          inputs: x.inputs.map((y: any) => msgNormalizerInner(y)),
+          outputs: x.outputs.map((y: any) => msgNormalizerInner(y)),
         });
         expect(signBytes).toEqual(
           stableStringify({
             ...tx02_unsigned,
             chain_id: input.chain_id,
-            msgs: tx02_unsigned.msgs.map((x) => msgNormalizer(x)),
+            msgs: tx02_unsigned.msgs.map((x: any) => msgNormalizer(x)),
           })
         );
       },

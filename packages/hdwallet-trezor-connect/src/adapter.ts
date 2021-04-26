@@ -32,7 +32,7 @@ export class TrezorAdapter {
     // until after init has resolved. This awkward sequence is needed because we
     // need TrezorConnect to be fully operational before we're able to process
     // the events.
-    let connectEvents = [];
+    let connectEvents: any[] = [];
     let connectHandler = (event: any) => {
       if (event.type === "device-connect") {
         connectEvents.push(event);
@@ -62,7 +62,7 @@ export class TrezorAdapter {
       }
     });
 
-    TrezorConnect.on(TRANSPORT_EVENT, (event) => {
+    TrezorConnect.on(TRANSPORT_EVENT, (event: any) => {
       // Log TrezorConnect's event raw:
       try {
         let device_id = event.payload && event.payload.features ? event.payload.features.device_id : "";
@@ -72,7 +72,7 @@ export class TrezorAdapter {
       }
     });
 
-    TrezorConnect.on(UI.ADDRESS_VALIDATION, (event) => {
+    TrezorConnect.on(UI.ADDRESS_VALIDATION, (event: any) => {
       console.log("Confirm on Trezor", event);
     });
 
@@ -88,7 +88,7 @@ export class TrezorAdapter {
     return new TrezorAdapter(keyring, args);
   }
 
-  public get(device: TrezorDevice): core.HDWallet {
+  public get(device: TrezorDevice): core.HDWallet | null {
     return this.keyring.get(device.deviceID);
   }
 
@@ -155,11 +155,10 @@ export class TrezorAdapter {
       if (wallet) {
         if (device.path && !(wallet.transport as TrezorConnectTransport).device.path)
           (wallet.transport as TrezorConnectTransport).device.path = device.path;
-        await wallet.initialize();
-        return;
+      } else {
+        wallet = trezor.create(new TrezorConnectTransport(device, this.keyring), true);
       }
 
-      wallet = trezor.create(new TrezorConnectTransport(device, this.keyring), true);
       await wallet.initialize();
       this.keyring.add(wallet, device.deviceID);
     }

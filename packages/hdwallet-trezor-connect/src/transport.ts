@@ -15,7 +15,7 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
 
   /// Gobal, shared between all instances of this class, since TrezorConnect only
   /// allows us to make one device call at a time.
-  static callInProgress: Promise<any> = undefined;
+  static callInProgress: Promise<any> = Promise.resolve();
 
   public static async cancellable(inProgress: Promise<any>): Promise<void> {
     try {
@@ -25,7 +25,7 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
     } catch (e) {
       // Unless it's a cancel, throw away the error, as the other context will handle it.
       if (e.type === core.HDWalletErrorType.ActionCancelled) {
-        TrezorConnectTransport.callInProgress = undefined;
+        TrezorConnectTransport.callInProgress = Promise.resolve();
         throw e;
       }
     }
@@ -47,7 +47,7 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
       }
     });
 
-    TrezorConnect.on(UI_EVENT, (event) => {
+    TrezorConnect.on(UI_EVENT, (event: any) => {
       if (!event.payload) return;
 
       if (!event.payload.device) return;
@@ -102,12 +102,12 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
   }
 
   public async cancel(): Promise<void> {
-    TrezorConnectTransport.callInProgress = undefined;
+    TrezorConnectTransport.callInProgress = Promise.resolve();
     await TrezorConnect.cancel();
   }
 
   public static async callQuiet(
-    device: TrezorDevice,
+    device: TrezorDevice | undefined,
     method: string,
     msg: any,
     msTimeout?: number

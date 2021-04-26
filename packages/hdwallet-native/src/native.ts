@@ -22,16 +22,51 @@ export enum NativeEvents {
   READY = "READY",
 }
 
+function isMnemonicInterface(x: any): x is Isolation.BIP39.MnemonicInterface {
+  return ["object", "function"].includes(typeof x) && "toSeed" in x && typeof x.toSeed === "function";
+}
+
 interface LoadDevice extends Omit<core.LoadDevice, "mnemonic"> {
   // Set this if your deviceId is dependent on the mnemonic
   deviceId?: string;
   mnemonic: string | Isolation.BIP39.MnemonicInterface;
 }
 
-export class NativeHDWalletBase {
+export class NativeHDWalletInfoBase implements core.HDWalletInfo {
+  getVendor(): string {
+    return "Native";
+  }
+
+  hasOnDevicePinEntry(): boolean {
+    return false;
+  }
+
+  hasOnDevicePassphrase(): boolean {
+    return false;
+  }
+
+  hasOnDeviceDisplay(): boolean {
+    return false;
+  }
+
+  hasOnDeviceRecovery(): boolean {
+    return false;
+  }
+
+  hasNativeShapeShift(): boolean {
+    return false;
+  }
+
+  describePath(msg: core.DescribePath): core.PathDescription {
+    throw new Error("unreachable");
+  }
+}
+
+export class NativeHDWalletBase extends NativeHDWalletInfoBase {
   readonly #events: eventemitter2.EventEmitter2;
 
   constructor() {
+    super();
     this.#events = new eventemitter2.EventEmitter2();
   }
 
@@ -63,45 +98,18 @@ export class NativeHDWalletBase {
 class NativeHDWalletInfo
   extends MixinNativeBTCWalletInfo(
     MixinNativeFioWalletInfo(
-      MixinNativeETHWalletInfo(MixinNativeCosmosWalletInfo(MixinNativeBinanceWalletInfo(MixinNativeThorchainWalletInfo(MixinNativeSecretWalletInfo(MixinNativeTerraWalletInfo(MixinNativeKavaWalletInfo(NativeHDWalletBase)))))))
+      MixinNativeETHWalletInfo(
+        MixinNativeCosmosWalletInfo(
+          MixinNativeBinanceWalletInfo(
+            MixinNativeThorchainWalletInfo(
+              MixinNativeSecretWalletInfo(MixinNativeTerraWalletInfo(MixinNativeKavaWalletInfo(NativeHDWalletBase)))
+            )
+          )
+        )
+      )
     )
   )
   implements core.HDWalletInfo {
-  _supportsBTCInfo: boolean = true;
-  _supportsETHInfo: boolean = true;
-  _supportsCosmosInfo: boolean = true;
-  _supportsBinanceInfo: boolean = true;
-  _supportsRippleInfo: boolean = false;
-  _supportsEosInfo: boolean = false;
-  _supportsFioInfo: boolean = false;
-  _supportsThorchainInfo: boolean = true;
-  _supportsSecretInfo: boolean = true;
-  _supportsKavaInfo: boolean = true;
-  _supportsTerraInfo: boolean = true;
-
-  getVendor(): string {
-    return "Native";
-  }
-
-  hasOnDevicePinEntry(): boolean {
-    return false;
-  }
-
-  hasOnDevicePassphrase(): boolean {
-    return false;
-  }
-
-  hasOnDeviceDisplay(): boolean {
-    return false;
-  }
-
-  hasOnDeviceRecovery(): boolean {
-    return false;
-  }
-
-  hasNativeShapeShift(): boolean {
-    return false;
-  }
 
   describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin.toLowerCase()) {
@@ -114,6 +122,7 @@ class NativeHDWalletInfo
       case "testnet":
         const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
 
+        if (!msg.scriptType) return unknown;
         if (!super.btcSupportsCoinSync(msg.coin)) return unknown;
         if (!super.btcSupportsScriptTypeSync(msg.coin, msg.scriptType)) return unknown;
 
@@ -149,26 +158,33 @@ class NativeHDWalletInfo
 
 export class NativeHDWallet
   extends MixinNativeBTCWallet(
-    MixinNativeFioWallet(MixinNativeETHWallet(MixinNativeCosmosWallet(MixinNativeBinanceWallet(MixinNativeThorchainWallet(MixinNativeSecretWallet(MixinNativeTerraWallet(MixinNativeKavaWallet(NativeHDWalletInfo))))))))
+    MixinNativeFioWallet(
+      MixinNativeETHWallet(
+        MixinNativeCosmosWallet(
+          MixinNativeBinanceWallet(
+            MixinNativeThorchainWallet(
+              MixinNativeSecretWallet(MixinNativeTerraWallet(MixinNativeKavaWallet(NativeHDWalletInfo)))
+            )
+          )
+        )
+      )
+    )
   )
   implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet, core.FioWallet, core.ThorchainWallet, core.SecretWallet, core.TerraWallet, core.KavaWallet {
-  _supportsBTC = true;
-  _supportsETH = true;
-  _supportsCosmos = true;
-  _supportsBinance = true;
-  _supportsRipple = false;
-  _supportsEos = false;
-  _supportsFio = true;
-  _supportsThorchain = true;
-  _supportsSecret = true;
-  _supportsTerra = true;
-  _supportsKava = true;
-  _supportsDebugLink = false;
-  _isNative = true;
+  readonly _supportsBTC = true;
+  readonly _supportsETH = true;
+  readonly _supportsCosmos = true;
+  readonly _supportsBinance = true;
+  readonly _supportsFio = true;
+  readonly _supportsThorchain = true;
+  readonly _supportsSecret = true;
+  readonly _supportsTerra = true;
+  readonly _supportsKava = true;
+  readonly _isNative = true;
 
   #deviceId: string;
-  #initialized: boolean;
-  #mnemonic: Isolation.BIP39.MnemonicInterface;
+  #initialized: boolean = false;
+  #mnemonic: Isolation.BIP39.MnemonicInterface | undefined;
 
   constructor({ mnemonic, deviceId }: NativeAdapterArgs) {
     super();
@@ -200,13 +216,15 @@ export class NativeHDWallet
    * @see: https://github.com/satoshilabs/slips/blob/master/slip-0132.md
    * to supports different styles of xpubs as can be defined by passing in a network to `fromSeed`
    */
-  getPublicKeys(msg: Array<core.GetPublicKey>): Promise<core.PublicKey[]> {
-    return this.needsMnemonic(!!this.#mnemonic, () =>
+  async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<core.PublicKey[] | null> {
+    return this.needsMnemonic(!!this.#mnemonic, async () =>
       Promise.all(
         msg.map(async (getPublicKey) => {
           let { addressNList } = getPublicKey;
-          const seed = this.#mnemonic.toSeed();
+          const seed = this.#mnemonic!.toSeed();
           const network = getNetwork(getPublicKey.coin, getPublicKey.scriptType);
+          // TODO: return the xpub that's actually asked for, not the key of the hardened path
+          // It's done this way for hilarious historical reasons and will break ETH if fixed
           const hardenedPath = core.hardenedPath(addressNList);
           let node = new Isolation.Adapters.BIP32(seed.toMasterKey(), network);
           if (hardenedPath.length > 0) node = node.derivePath(core.addressNListToBIP32(hardenedPath));
@@ -227,10 +245,10 @@ export class NativeHDWallet
 
   async clearSession(): Promise<void> {}
 
-  async initialize(): Promise<boolean> {
+  async initialize(): Promise<boolean | null> {
     return this.needsMnemonic(!!this.#mnemonic, async () => {
       try {
-        const seed = this.#mnemonic.toSeed();
+        const seed = this.#mnemonic!.toSeed();
 
         await Promise.all([
           super.btcInitializeWallet(seed),
@@ -271,7 +289,7 @@ export class NativeHDWallet
 
   async wipe(): Promise<void> {
     this.#initialized = false;
-    this.#mnemonic = null;
+    this.#mnemonic = undefined;
 
     super.btcWipe();
     super.ethWipe();
@@ -289,13 +307,13 @@ export class NativeHDWallet
   async recover(): Promise<void> {}
 
   async loadDevice(msg: LoadDevice): Promise<void> {
-    if (typeof msg?.mnemonic === "string" && bip39.validateMnemonic(msg.mnemonic)) {
-      this.#mnemonic = new Isolation.BIP39.Mnemonic(msg.mnemonic);
-    } else if (typeof msg?.mnemonic?.["toSeed"] === "function") {
-      this.#mnemonic = msg.mnemonic as Isolation.BIP39.MnemonicInterface;
-    } else {
+    this.#mnemonic = (x => {
+      if (x) {
+        if (isMnemonicInterface(x)) return x;
+        if (typeof x === "string" && bip39.validateMnemonic(x)) return new Isolation.BIP39.Mnemonic(x);
+      }
       throw new Error("Required property [mnemonic] is missing or invalid");
-    }
+    })(msg?.mnemonic);
 
     if (typeof msg.deviceId === "string") this.#deviceId = msg.deviceId;
 

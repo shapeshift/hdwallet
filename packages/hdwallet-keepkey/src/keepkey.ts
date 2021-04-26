@@ -50,7 +50,7 @@ function describeETHPath(path: core.BIP32Path): core.PathDescription {
   };
 }
 
-function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType: core.BTCInputScriptType): core.PathDescription {
+function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: core.BTCInputScriptType): core.PathDescription {
   let pathStr = core.addressNListToBIP32(path);
   let unknown: core.PathDescription = {
     verbose: pathStr,
@@ -58,6 +58,7 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType: cor
     scriptType,
     isKnown: false,
   };
+  if (!scriptType) return unknown;
 
   if (!Btc.btcSupportsCoin(coin)) return unknown;
 
@@ -79,14 +80,16 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType: cor
 
   let wholeAccount = path.length === 3;
 
-  let script = {
+  let script = scriptType ? ({
     [core.BTCInputScriptType.SpendAddress]: ["Legacy"],
     [core.BTCInputScriptType.SpendP2SHWitness]: [],
     [core.BTCInputScriptType.SpendWitness]: ["Segwit Native"],
-  }[scriptType];
+  } as Partial<Record<core.BTCInputScriptType, string[]>>)[scriptType] ?? [] : [];
 
   let isPrefork = false;
-  if (path[1] !== 0x80000000 + core.slip44ByCoin(coin)) {
+  const slip44 = core.slip44ByCoin(coin);
+  if (slip44 === undefined) return unknown;
+  if (path[1] !== 0x80000000 + slip44) {
     switch (coin) {
       case "BitcoinCash":
       case "BitcoinGold": {
@@ -357,17 +360,17 @@ export class KeepKeyHDWalletInfo
     core.RippleWalletInfo,
     core.EosWalletInfo,
     core.ThorchainWalletInfo {
-  _supportsBTCInfo: boolean = true;
-  _supportsETHInfo: boolean = true;
-  _supportsCosmosInfo: boolean = true;
-  _supportsRippleInfo: boolean = true;
-  _supportsBinanceInfo: boolean = true;
-  _supportsEosInfo: boolean = true;
-  _supportsFioInfo: boolean = false;
-  _supportsThorchainInfo: boolean = true;
-  _supportsSecretInfo: boolean = false;
-  _supportsKavaInfo: boolean = false;
-  _supportsTerraInfo: boolean = false;
+  readonly _supportsBTCInfo = true;
+  readonly _supportsETHInfo = true;
+  readonly _supportsCosmosInfo = true;
+  readonly _supportsRippleInfo = true;
+  readonly _supportsBinanceInfo = true;
+  readonly _supportsEosInfo = true;
+  readonly _supportsFioInfo = false;
+  readonly _supportsThorchainInfo = true;
+  readonly _supportsSecretInfo = false;
+  readonly _supportsKavaInfo = false;
+  readonly _supportsTerraInfo = false;
 
   public getVendor(): string {
     return "KeepKey";
@@ -589,36 +592,36 @@ export class KeepKeyHDWalletInfo
 }
 
 export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.DebugLinkWallet {
-  _supportsETHInfo: boolean = true;
-  _supportsBTCInfo: boolean = true;
-  _supportsCosmosInfo: boolean = true;
-  _supportsRippleInfo: boolean = true;
-  _supportsBinanceInfo: boolean = true;
-  _supportsEosInfo: boolean = true;
-  _supportsFioInfo: boolean = false;
-  _supportsDebugLink: boolean;
-  _isKeepKey: boolean = true;
-  _supportsETH: boolean = true;
-  _supportsBTC: boolean = true;
-  _supportsCosmos: boolean = true;
-  _supportsRipple: boolean = true;
-  _supportsBinance: boolean = true;
-  _supportsEos: boolean = true;
-  _supportsFio: boolean = false;
-  _supportsThorchainInfo: boolean = true;
-  _supportsThorchain: boolean = true;
-  _supportsSecretInfo: boolean = false;
-  _supportsSecret: boolean = false;
-  _supportsKava: boolean = false;
-  _supportsKavaInfo: boolean = false;
-  _supportsTerra: boolean = false;
-  _supportsTerraInfo: boolean = false;
+  readonly _supportsETHInfo = true;
+  readonly _supportsBTCInfo = true;
+  readonly _supportsCosmosInfo = true;
+  readonly _supportsRippleInfo = true;
+  readonly _supportsBinanceInfo = true;
+  readonly _supportsEosInfo = true;
+  readonly _supportsFioInfo = false;
+  readonly _supportsDebugLink: boolean;
+  readonly _isKeepKey = true;
+  readonly _supportsETH = true;
+  readonly _supportsBTC = true;
+  _supportsCosmos = true;
+  _supportsRipple = true;
+  _supportsBinance = true;
+  _supportsEos = true;
+  readonly _supportsFio = false;
+  readonly _supportsThorchainInfo = true;
+  readonly _supportsThorchain = true;
+  readonly _supportsSecretInfo = false;
+  readonly _supportsSecret = false;
+  readonly _supportsKava = false;
+  readonly _supportsKavaInfo = false;
+  readonly _supportsTerra = false;
+  readonly _supportsTerraInfo = false;
 
   transport: Transport;
   features?: Messages.Features.AsObject;
   info: KeepKeyHDWalletInfo & core.HDWalletInfo;
 
-  featuresCache: Messages.Features.AsObject;
+  featuresCache?: Messages.Features.AsObject;
 
   constructor(transport: Transport) {
     this.transport = transport;
@@ -635,7 +638,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
 
     // Some devices are showing up with empty string deviceId's in their
     // features object. Not sure how that's happening.
-    if (featuresId !== "") return featuresId;
+    if (featuresId) return featuresId;
 
     // Grabbing the one from the transport seems to be a reasonable fallback.
     return await this.transport.getDeviceID();
@@ -646,7 +649,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   }
 
   public async getModel(): Promise<string> {
-    return (await this.getFeatures(/*cached=*/ true)).model;
+    return core.mustBeDefined((await this.getFeatures(/*cached=*/ true)).model);
   }
 
   public async getFirmwareVersion(): Promise<string> {
@@ -655,11 +658,11 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   }
 
   public async getLabel(): Promise<string> {
-    return (await this.getFeatures(/*cached=*/ true)).label;
+    return core.mustBeDefined((await this.getFeatures(/*cached=*/ true)).label);
   }
 
   public async isInitialized(): Promise<boolean> {
-    return (await this.getFeatures()).initialized;
+    return !!(await this.getFeatures()).initialized;
   }
 
   public async isLocked(): Promise<boolean> {
@@ -689,7 +692,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
       if (event.message_type === core.Events.FAILURE) throw event;
       const publicKey = event.proto as Messages.PublicKey;
 
-      publicKeys.push({ xpub: publicKey.getXpub() });
+      publicKeys.push({ xpub: core.mustBeDefined(publicKey.getXpub()) });
     }
     return publicKeys;
   }
@@ -707,7 +710,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     )) as core.Event;
     if (event.message_type === core.Events.FAILURE) throw event;
     const message = event.proto as Messages.Success;
-    return { msg: message.getMessage() };
+    return { msg: core.mustBeDefined(message.getMessage()) };
   }
 
   public async reset(msg: core.ResetDevice): Promise<void> {
@@ -853,7 +856,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   }
 
   // ApplyPolicy enables or disables a named policy such as "ShapeShift" on the device
-  public async applyPolicy(p: Types.PolicyType.AsObject): Promise<void> {
+  public async applyPolicy(p: Required<Types.PolicyType.AsObject>): Promise<void> {
     const policy = new Types.PolicyType();
     policy.setPolicyName(p.policyName);
     policy.setEnabled(p.enabled);
@@ -903,13 +906,13 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   // This method encrypts if encrypt is true and decrypts if false, the confirm paramater determines wether
   // the user is prompted on the device. See EncryptKeyValue() and DecryptKeyValue() for convenience methods
   // NOTE: If the length of the value in bytes is not divisible by 16 it will be zero padded
-  public async cipherKeyValue(v: Messages.CipherKeyValue.AsObject): Promise<string | Uint8Array> {
+  public async cipherKeyValue(v: Messages.CipherKeyValue.AsObject & Required<Pick<Messages.CipherKeyValue.AsObject, "key">>): Promise<string | Uint8Array> {
     // if(val.length % 16 !== 0) val = val.concat() TODO THIS
     const cipherKeyValue = new Messages.CipherKeyValue();
     cipherKeyValue.setAddressNList(v.addressNList);
     cipherKeyValue.setKey(v.key);
     cipherKeyValue.setValue(v.value);
-    cipherKeyValue.setEncrypt(v.encrypt);
+    cipherKeyValue.setEncrypt(!!v.encrypt);
     cipherKeyValue.setAskOnEncrypt(v.askOnEncrypt || false);
     cipherKeyValue.setAskOnDecrypt(v.askOnDecrypt || false);
     cipherKeyValue.setIv(v.iv || "");
@@ -931,7 +934,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
 
   // DecryptKeyValue is a convenience method around decrypting with CipherKeyValue().
   // For more granular control of the process use CipherKeyValue()
-  public async decryptKeyValue(v: Messages.CipherKeyValue.AsObject): Promise<string | Uint8Array> {
+  public async decryptKeyValue(v:  Messages.CipherKeyValue.AsObject & Required<Pick<Messages.CipherKeyValue.AsObject, "key">>): Promise<string | Uint8Array> {
     return this.cipherKeyValue(v);
   }
 
@@ -956,27 +959,29 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   public async initialize(): Promise<Messages.Features.AsObject> {
     const initialize = new Messages.Initialize();
     const event = (await this.transport.call(Messages.MessageType.MESSAGETYPE_INITIALIZE, initialize)) as core.Event;
-    if (event.message_type === core.Events.FAILURE) throw event;
-    this.features = event.message;
+    if (event.message_type === core.Events.FAILURE || !event.message) throw event;
+    const out = event.message as Messages.Features.AsObject;
+    if (!out.deviceId) throw new Error("no deviceId in features object");
+    this.features = out;
 
     // v6.1.0 firmware changed usb serial numbers to match STM32 desig_device_id
     // If the deviceId in the features table doesn't match, then we need to
     // add another k-v pair to the keyring so it can be looked up either way.
     const transportDeviceID = await this.transport.getDeviceID();
-    if (transportDeviceID !== this.features.deviceId) {
-      this.transport.keyring.addAlias(transportDeviceID, this.features.deviceId);
+    if (transportDeviceID !== out.deviceId) {
+      this.transport.keyring.addAlias(transportDeviceID, out.deviceId);
     }
 
     // Cosmos isn't supported until v6.3.0
-    const fwVersion = `v${this.features.majorVersion}.${this.features.minorVersion}.${this.features.patchVersion}`;
+    const fwVersion = `v${out.majorVersion}.${out.minorVersion}.${out.patchVersion}`;
     this._supportsCosmos = semver.gte(fwVersion, "v6.3.0");
     this._supportsRipple = semver.gte(fwVersion, "v6.4.0");
     this._supportsBinance = semver.gte(fwVersion, "v6.4.0");
     this._supportsEos = semver.gte(fwVersion, "v6.4.0");
     // this._supportsThorchain = Semver.get(fwVersion, "v7.0.0");
 
-    this.cacheFeatures(event.message);
-    return event.message as Messages.Features.AsObject;
+    this.cacheFeatures(out);
+    return out;
   }
 
   // GetFeatures returns the features and other device information such as the version, label, and supported coins
@@ -989,7 +994,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     return event.message as Messages.Features.AsObject;
   }
 
-  public cacheFeatures(features: Messages.Features.AsObject): void {
+  public cacheFeatures(features?: Messages.Features.AsObject): void {
     this.featuresCache = features;
   }
 
@@ -1000,15 +1005,15 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     // send
     const event = await this.transport.call(Messages.MessageType.MESSAGETYPE_GETENTROPY, getEntropy, core.LONG_TIMEOUT);
     if (event.message_type === core.Events.FAILURE) throw event;
-    return (event.proto as Messages.Entropy).getEntropy_asU8();
+    return (core.mustBeDefined(event.proto) as Messages.Entropy).getEntropy_asU8();
   }
 
   // GetNumCoins returns the number of coins supported by the device regardless of if the hanve funds.
   public async getNumCoins(): Promise<number> {
     const getCoinTable = new Messages.GetCoinTable();
     const response = (await this.transport.call(Messages.MessageType.MESSAGETYPE_GETCOINTABLE, getCoinTable)) as core.Event;
-    if (response.message_type === core.Events.FAILURE) throw event;
-    return (response.proto as Messages.CoinTable).getNumCoins();
+    if (response.message_type === core.Events.FAILURE) throw response;
+    return core.mustBeDefined((core.mustBeDefined(response.proto) as Messages.CoinTable).getNumCoins());
   }
 
   // GetCoinTable returns an array of Types.CoinTypes, with start and end arguments for paging.
@@ -1050,7 +1055,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
 
   public async send(events: core.Event[]): Promise<void> {
     for (const event of events) {
-      const MessageType = messageTypeRegistry[event.message_enum] as any;
+      const MessageType = messageTypeRegistry[core.mustBeDefined(event.message_enum)] as any;
       const msg = new MessageType();
       Object.entries(event.message).forEach(([key, value]) => {
         const setterMethod = protoFieldToSetMethod(key);
@@ -1060,7 +1065,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
           msg[setterMethod](value);
         }
       });
-      await this.transport.call(event.message_enum, msg);
+      await this.transport.call(core.mustBeDefined(event.message_enum), msg);
     }
   }
 
@@ -1093,7 +1098,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     return Btc.btcGetAddress(this, this.transport, msg);
   }
 
-  public async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx> {
+  public async btcSignTx(msg: core.BTCSignTxKK): Promise<core.BTCSignedTx> {
     return Btc.btcSignTx(this, this.transport, msg);
   }
 
@@ -1186,7 +1191,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     return this.info.thorchainGetAccountPaths(msg);
   }
 
-  public thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string> {
+  public thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string | null> {
     return Thorchain.thorchainGetAddress(this.transport, msg);
   }
 

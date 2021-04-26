@@ -29,33 +29,33 @@ export function toHexString(arr: Uint8Array): string {
 
 // Copying this from ethers.js until their elliptic dep stops being circular
 export function arrayify(value: string): Uint8Array {
-  if (value == null) {
+  if (value === null) {
     throw new Error("cannot convert null value to array");
+  } else if (typeof value !== "string") {
+    throw new Error("can only convert hex strings");
   }
 
-  if (typeof value === "string") {
-    let match = value.match(/^(0x)?[0-9a-fA-F]*$/);
+  let match = value.match(/^(0x)?[0-9a-fA-F]*$/);
 
-    if (!match) {
-      throw new Error("invalid hexadecimal string");
-    }
-
-    if (match[1] !== "0x") {
-      throw new Error("hex string must have 0x prefix");
-    }
-
-    value = value.substring(2);
-    if (value.length % 2) {
-      value = "0" + value;
-    }
-
-    const result = [];
-    for (let i = 0; i < value.length; i += 2) {
-      result.push(parseInt(value.substr(i, 2), 16));
-    }
-
-    return new Uint8Array(result);
+  if (!match) {
+    throw new Error("invalid hexadecimal string");
   }
+
+  if (match[1] !== "0x") {
+    throw new Error("hex string must have 0x prefix");
+  }
+
+  value = value.substring(2);
+  if (value.length % 2) {
+    value = "0" + value;
+  }
+
+  const result = [];
+  for (let i = 0; i < value.length; i += 2) {
+    result.push(parseInt(value.substr(i, 2), 16));
+  }
+
+  return new Uint8Array(result);
 }
 
 const HARDENED = 0x80000000;
@@ -122,29 +122,31 @@ export function base64toHEX(base64: string): string {
 }
 
 // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
-export function slip44ByCoin(coin: Coin): number {
-  return {
-    Bitcoin: 0,
-    Testnet: 1,
-    BitcoinCash: 145,
-    BitcoinGold: 156,
-    Litecoin: 2,
-    Dash: 5,
-    DigiByte: 20,
-    Dogecoin: 3,
-    BitcoinSV: 236,
-    Ethereum: 60,
-    Atom: 118,
-    Binance: 714,
-    Ripple: 144,
-    Eos: 194,
-    Fio: 235,
-    Thorchain: 931,
-    Cardano: 1815,
-    Secret: 529,
-    Terra: 330,
-    Kava: 459,
-  }[coin];
+const slip44Table = Object.freeze({
+  Bitcoin: 0,
+  Testnet: 1,
+  BitcoinCash: 145,
+  BitcoinGold: 156,
+  Litecoin: 2,
+  Dash: 5,
+  DigiByte: 20,
+  Dogecoin: 3,
+  BitcoinSV: 236,
+  Ethereum: 60,
+  Atom: 118,
+  Binance: 714,
+  Ripple: 144,
+  Eos: 194,
+  Fio: 235,
+  Thorchain: 931,
+  Cardano: 1815,
+  Secret: 529,
+  Terra: 330,
+  Kava: 459,
+} as const);
+type Slip44ByCoin<T> = (T extends keyof typeof slip44Table ? typeof slip44Table[T] : number | undefined);
+export function slip44ByCoin<T extends Coin>(coin: T): Slip44ByCoin<T> {
+  return (slip44Table as any)[coin];
 }
 
 export function satsFromStr(coins: string): number {
@@ -164,4 +166,22 @@ export function relativePath(path: BIP32Path): BIP32Path {
 export function toArrayBuffer(x: ArrayBuffer | ArrayBufferView): ArrayBuffer {
   if (x instanceof ArrayBuffer) return x;
   return x.buffer.slice(x.byteOffset, x.byteOffset + x.byteLength);
+}
+
+export function mustBeDefined<T>(x: T): NonNullable<T> {
+  if (x === null || x === undefined) throw new Error("expected a value");
+  return x as NonNullable<T>;
+}
+
+// Returns a copyable object which satisfies any type constraint but produces a runtime error if
+// accessed in any other way. Useful as dummy data for required parameters. (Probably a bad idea
+// in production.)
+export function untouchable(message: string): any {
+  const out = new Proxy({}, new Proxy({}, { get(_, p) {
+    return (_, p2) => {
+      if (p === "get" && p2 === "valueOf") return () => out;
+      throw new Error(`${String(p)}(${String(p2)}): ${message}`);
+    };
+  }})) as any;
+  return out;
 }

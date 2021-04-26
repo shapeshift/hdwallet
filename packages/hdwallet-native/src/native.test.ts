@@ -167,7 +167,7 @@ describe("NativeHDWallet", () => {
 
     it("should throw an error when loadDevice is missing its parameters", async () => {
       const wallet = native.create({ deviceId: "native" });
-      await expect(wallet.loadDevice(undefined)).rejects.toThrow("Required property [mnemonic] is missing or invalid");
+      await expect(wallet.loadDevice(undefined as any)).rejects.toThrow("Required property [mnemonic] is missing");
     });
 
     it.each([[undefined], [null], [0], [[1, 2, 3]], [{}], [""], ["all all all all all all"]])(

@@ -111,11 +111,11 @@ export async function thorchainGetAddress(transport: Transport, msg: ThorchainMe
   const getAddr = new ThorchainMessages.ThorchainGetAddress();
   getAddr.setAddressNList(msg.addressNList);
   getAddr.setShowDisplay(msg.showDisplay !== false);
-  getAddr.setTestnet(msg.testnet)
+  if (msg.testnet !== undefined) getAddr.setTestnet(msg.testnet)
   const response = await transport.call(Messages.MessageType.MESSAGETYPE_THORCHAINGETADDRESS, getAddr, core.LONG_TIMEOUT);
 
   if (response.message_type === core.Events.FAILURE) throw response;
 
   const thorchainAddress = response.proto as ThorchainMessages.ThorchainAddress;
-  return thorchainAddress.getAddress();
+  return core.mustBeDefined(thorchainAddress.getAddress());
 }

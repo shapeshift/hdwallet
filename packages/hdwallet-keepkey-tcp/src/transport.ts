@@ -1,3 +1,4 @@
+import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import Axios, { AxiosInstance } from "axios";
 
@@ -39,13 +40,13 @@ export class TransportDelegate implements keepkey.TransportDelegate {
 
   async writeChunk(buf: Uint8Array, debugLink: boolean): Promise<void> {
     const data = Buffer.from(buf).toString("hex");
-    await this.axiosInstance.post(debugLink ? "/exchange/debug" : "/exchange/device", { data });
+    await core.mustBeDefined(this.axiosInstance).post(debugLink ? "/exchange/debug" : "/exchange/device", { data });
   }
 
   async readChunk(debugLink: boolean): Promise<Uint8Array> {
     const {
       data: { data },
-    } = await this.axiosInstance.get(debugLink ? "/exchange/debug" : "/exchange/device");
+    } = await core.mustBeDefined(this.axiosInstance).get(debugLink ? "/exchange/debug" : "/exchange/device");
     return Buffer.from(data, "hex");
   }
 }

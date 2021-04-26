@@ -7,9 +7,10 @@ import { NativeHDWalletBase } from "./native";
 import util from "./util";
 import * as Isolation from "./crypto/isolation";
 
-export function MixinNativeTerraWalletInfo<TBase extends core.Constructor>(Base: TBase) {
+export function MixinNativeTerraWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   return class MixinNativeTerraWalletInfo extends Base implements core.TerraWalletInfo {
-    _supportsTerraInfo = true;
+    readonly _supportsTerraInfo = true;
+
     async terraSupportsNetwork(): Promise<boolean> {
       return true;
     }
@@ -31,7 +32,7 @@ export function MixinNativeTerraWalletInfo<TBase extends core.Constructor>(Base:
       ];
     }
 
-    terraNextAccountPath(msg: core.TerraAccountPath): core.TerraAccountPath {
+    terraNextAccountPath(msg: core.TerraAccountPath): core.TerraAccountPath | undefined {
       // Only support one account for now (like portis).
       return undefined;
     }
@@ -40,9 +41,9 @@ export function MixinNativeTerraWalletInfo<TBase extends core.Constructor>(Base:
 
 export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeTerraWallet extends Base {
-    _supportsTerra = true;
+    readonly _supportsTerra = true;
 
-    #seed: Isolation.BIP32.SeedInterface;
+    #seed: Isolation.BIP32.SeedInterface | undefined;
 
     async terraInitializeWallet(seed: Isolation.BIP32.SeedInterface): Promise<void> {
       this.#seed = seed;
@@ -64,13 +65,13 @@ export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWa
       return this.terraBech32ify(address, `terra`);
     }
 
-    async terraGetAddress(msg: core.TerraGetAddress): Promise<string> {
+    async terraGetAddress(msg: core.TerraGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        return this.createTerraAddress(util.getKeyPair(this.#seed, msg.addressNList, "terra").publicKey.toString("hex"));
+        return this.createTerraAddress(util.getKeyPair(this.#seed!, msg.addressNList, "terra").publicKey.toString("hex"));
       });
     }
 
-    async terraSignTx(msg: core.TerraSignTx): Promise<any> {
+    async terraSignTx(msg: core.TerraSignTx): Promise<any | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
         const keyPair = util.getKeyPair(this.#seed, msg.addressNList, "terra");
         const adapter = new Isolation.Adapters.Cosmos(keyPair);

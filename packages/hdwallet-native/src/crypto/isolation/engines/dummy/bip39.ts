@@ -1,9 +1,12 @@
+/// <reference types="bip32/types/crypto" />
+
 export * from "../../core/bip39";
 import * as BIP39 from "../../core/bip39";
 
 import * as bip32crypto from "bip32/src/crypto";
 import { TextEncoder } from "web-encoding";
 
+import { safeBufferFrom } from "../../types";
 import * as BIP32 from "./bip32";
 
 // Poor man's single-block PBKDF2 implementation
@@ -19,10 +22,12 @@ function pbkdf2_sha512_singleblock(
     return indexBE;
     }
 
-    let out: Buffer & { length: 64 } = bip32crypto.hmacSHA512(password, Buffer.concat([salt, be32Buf(1)]));
+    const pwBuffer = safeBufferFrom(new TextEncoder().encode(password));
+
+    let out = bip32crypto.hmacSHA512(pwBuffer, Buffer.concat([salt, be32Buf(1)])) as Buffer & { length: 64 };
     let lastU = out;
     for (let i = 2; i <= iterations; i++) {
-    let newU = bip32crypto.hmacSHA512(password, lastU);
+    let newU = bip32crypto.hmacSHA512(pwBuffer, lastU) as Buffer & { length: 64 };
     for (let j = 0; j < out.length; j++) out[j] ^= newU[j];
     lastU = newU;
     }

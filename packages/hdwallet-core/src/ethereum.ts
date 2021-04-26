@@ -1,5 +1,5 @@
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
-import { ExchangeType, BIP32Path, PathDescription } from "./wallet";
+import { ExchangeType, BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
 export interface ETHGetAccountPath {
   coin: string;
@@ -79,8 +79,8 @@ export interface ETHVerifyMessage {
   signature: string;
 }
 
-export interface ETHWalletInfo {
-  _supportsETHInfo: boolean;
+export interface ETHWalletInfo extends HDWalletInfo {
+  readonly _supportsETHInfo: boolean;
 
   /**
    * Does the device support the Ethereum network with the given chain_id?
@@ -113,13 +113,13 @@ export interface ETHWalletInfo {
   ethNextAccountPath(msg: ETHAccountPath): ETHAccountPath | undefined;
 }
 
-export interface ETHWallet extends ETHWalletInfo {
-  _supportsETH: boolean;
+export interface ETHWallet extends ETHWalletInfo, HDWallet {
+  readonly _supportsETH: boolean;
 
-  ethGetAddress(msg: ETHGetAddress): Promise<string>;
-  ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx>;
-  ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage>;
-  ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean>;
+  ethGetAddress(msg: ETHGetAddress): Promise<string | null>;
+  ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx | null>;
+  ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage | null>;
+  ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean | null>;
 }
 
 export function describeETHPath(path: BIP32Path): PathDescription {

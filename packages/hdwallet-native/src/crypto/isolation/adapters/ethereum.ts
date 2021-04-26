@@ -26,7 +26,7 @@ export class SigningKeyAdapter implements ETHSigningKey {
   }
 
   get privateKey() {
-    return undefined;
+    return "";
   }
 
   _addPoint(other: BytesLike): string {

@@ -9,11 +9,11 @@ import * as utils from "./utils";
 export class EncryptedWallet {
   readonly #engine: CryptoEngine;
   readonly #helper: CryptoHelper;
-  #deviceId: string;
-  #email: string;
-  #encryptedWallet: string;
-  #key: SymmetricCryptoKey;
-  #password: string;
+  #deviceId: string | undefined;
+  #email: string | undefined;
+  #encryptedWallet: string | undefined;
+  #key: SymmetricCryptoKey | undefined;
+  #password: string | undefined;
 
   constructor(engine: CryptoEngine) {
     if (!engine) {
@@ -63,7 +63,8 @@ export class EncryptedWallet {
    * Set the encrypted wallet by providing a string representation
    * @throws {Error} throws if `wallet` is not a valid encrypted wallet string
    */
-  set encryptedWallet(wallet: string) {
+  set encryptedWallet(wallet: string | undefined) {
+    if (wallet === undefined) throw new Error("Invalid cipher string");
     this.#encryptedWallet = new CipherString(wallet).encryptedString;
   }
 
@@ -102,6 +103,7 @@ export class EncryptedWallet {
       throw new Error("Invalid mnemonic");
     }
 
+    if (!this.#key) throw new Error("Wallet does not contain a key");
     this.#encryptedWallet = (await this.#helper.aesEncrypt(core.toArrayBuffer(utils.fromUtf8ToArray(mnemonic)), this.#key)).toString();
 
     return this;
@@ -114,6 +116,7 @@ export class EncryptedWallet {
   async decrypt(encryptedWallet = this.#encryptedWallet): Promise<string> {
     if (!this.isInitialized) throw new Error("Wallet is not initialized");
     if (!this.encryptedWallet) throw new Error("Wallet does not contain an encrypted wallet");
+    if (!this.#key) throw new Error("Wallet does not contain a key");
     const decrypted = await this.#helper.decrypt(new CipherString(encryptedWallet), this.#key);
 
     if (typeof decrypted === "string" && decrypted.length > 0) {

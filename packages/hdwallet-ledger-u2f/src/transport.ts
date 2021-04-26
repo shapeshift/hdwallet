@@ -1,5 +1,6 @@
 import Btc from "@ledgerhq/hw-app-btc";
 import Eth from "@ledgerhq/hw-app-eth";
+import Transport from "@ledgerhq/hw-transport";
 import getAppAndVersion from "@ledgerhq/live-common/lib/hw/getAppAndVersion";
 import getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
 import openApp from "@ledgerhq/live-common/lib/hw/openApp";
@@ -8,25 +9,25 @@ import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
 const RECORD_CONFORMANCE_MOCKS = false;
 
-function translateCoin(coin: string): (any) => void {
-  return {
+function translateCoin(coin: string): { new (transport: Transport): Record<string, (...args: any[]) => unknown> } {
+  return core.mustBeDefined(({
     Btc: Btc,
     Eth: Eth,
-  }[coin];
+  } as any)[coin]);
 }
 
-function translateMethod(method: string): (any) => void {
-  return {
+function translateMethod(method: string): (transport: Transport, ...args: any[]) => unknown {
+  return core.mustBeDefined(({
     getAppAndVersion: getAppAndVersion,
     getDeviceInfo: getDeviceInfo,
     openApp: openApp,
-  }[method];
+  } as any)[method]);
 }
 
 export class LedgerU2FTransport extends ledger.LedgerTransport {
   device: any;
 
-  constructor(device: any, transport: any, keyring: core.Keyring) {
+  constructor(device: any, transport: Transport, keyring: core.Keyring) {
     super(transport, keyring);
     this.device = device;
   }
@@ -51,7 +52,6 @@ export class LedgerU2FTransport extends ledger.LedgerTransport {
       if (coin) {
         response = await new (translateCoin(coin))(this.transport)[method](...args);
       } else {
-        // @ts-ignore
         response = await translateMethod(method)(this.transport, ...args);
       }
     } catch (e) {

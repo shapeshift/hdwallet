@@ -45,17 +45,17 @@ export function createInfo(): core.HDWalletInfo {
 export async function createWallet(): Promise<core.HDWallet> {
   const keyring = new core.Keyring();
 
-  let wallet = (await getDevice(keyring)) || (await getEmulator(keyring));
+  const wallet = (await getDevice(keyring)) || (await getEmulator(keyring));
 
   if (!wallet) throw new Error("No suitable test KeepKey found");
 
-  wallet.transport.on(core.Events.BUTTON_REQUEST, async () => {
+  wallet.transport?.on(core.Events.BUTTON_REQUEST, async () => {
     if (autoButton && core.supportsDebugLink(wallet)) {
       await wallet.pressYes();
     }
   });
 
-  wallet.transport.onAny((event: string[], ...values: any[]) => {
+  wallet.transport?.onAny((event: string | string[], ...values: any[]) => {
     //console.info(event, ...values)
   });
 
@@ -122,8 +122,8 @@ export function selfTest(get: () => core.HDWallet): void {
     async () => {
       if (!wallet) return;
 
-      let addrs = [];
-      await new Promise(async (resolve) => {
+      let addrs = [] as string[];
+      await new Promise<void>(async (resolve) => {
         wallet
           .btcGetAddress({
             coin: "Bitcoin",
@@ -244,7 +244,7 @@ export function selfTest(get: () => core.HDWallet): void {
 
     expect(
       paths
-        .map((path) => wallet.ethNextAccountPath(path))
+        .map((path) => core.mustBeDefined(wallet.ethNextAccountPath(path)))
         .map((path) =>
           wallet.describePath({
             ...path,
@@ -274,7 +274,7 @@ export function selfTest(get: () => core.HDWallet): void {
 
     expect(
       paths
-        .map((path) => wallet.btcNextAccountPath(path))
+        .map((path) => core.mustBeDefined(wallet.btcNextAccountPath(path)))
         .map((path) =>
           wallet.describePath({
             ...path,

@@ -23,11 +23,15 @@ export async function ethGetAddress(transport: TrezorTransport, msg: core.ETHGet
   return res.payload.address;
 }
 
-export async function ethSignTx(wallet: core.ETHWallet, transport: TrezorTransport, msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
-  if (msg.toAddressNList !== undefined && !(await this.ethSupportsSecureTransfer()))
+export async function ethSignTx(
+  wallet: core.ETHWallet,
+  transport: TrezorTransport,
+  msg: core.ETHSignTx
+): Promise<core.ETHSignedTx> {
+  if (msg.toAddressNList !== undefined && !(await ethSupportsSecureTransfer()))
     throw new Error("Trezor does not support SecureTransfer");
 
-  if (msg.exchangeType !== undefined && !this.ethSupportsNativeShapeShift())
+  if (msg.exchangeType !== undefined && !ethSupportsNativeShapeShift())
     throw new Error("Trezor does not support Native ShapeShift");
 
   const utx = {
@@ -60,7 +64,10 @@ export async function ethSignTx(wallet: core.ETHWallet, transport: TrezorTranspo
   };
 }
 
-export async function ethSignMessage(transport: TrezorTransport, msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
+export async function ethSignMessage(
+  transport: TrezorTransport,
+  msg: core.ETHSignMessage
+): Promise<core.ETHSignedMessage> {
   let res = await transport.call("ethereumSignMessage", {
     path: msg.addressNList,
     message: msg.message,
@@ -91,10 +98,12 @@ export function ethSupportsNativeShapeShift(): boolean {
 }
 
 export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
+  const slip44 = core.slip44ByCoin(msg.coin);
+  if (slip44 === undefined) return [];
   return [
     {
-      addressNList: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + 0, 0, msg.accountIdx],
-      hardenedPath: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + 0],
+      addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + 0, 0, msg.accountIdx],
+      hardenedPath: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + 0],
       relPath: [0, msg.accountIdx],
       description: "Trezor",
     },

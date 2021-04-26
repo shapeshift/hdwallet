@@ -1,9 +1,9 @@
-import { BIP32Path } from "./wallet";
+import { BIP32Path, HDWallet, HDWalletInfo } from "./wallet";
 
 export interface EosGetPublicKey {
   addressNList: Array<number>;
   showDisplay?: boolean;
-  kind?: 0 | 1 | 2;
+  kind: 0 | 1 | 2;
 }
 
 export interface EosGetAccountPaths {
@@ -20,27 +20,27 @@ export interface eosNextAccountPath {
 
 export namespace Eos {
   export interface EosPermissionLevel {
-    actor?: string;
-    permission?: string;
+    actor: string;
+    permission: string;
   }
 
   /* add action acks here as they are added to the wallet */
   export interface EosTxActionAck {
-    account?: string;
-    name?: string;
-    authorization?: Array<Eos.EosPermissionLevel>;
-    data?: any;
+    account: string;
+    name: string;
+    authorization: Array<Eos.EosPermissionLevel>;
+    data: any;
   }
 }
 
 export interface EosTx {
-  expiration?: string;
-  ref_block_num?: number;
-  ref_block_prefix?: number;
-  max_net_usage_words?: number;
-  max_cpu_usage_ms?: number;
-  delay_sec?: number;
-  actions: Array<Eos.EosTxActionAck>; // could be several kinds of actions
+  expiration: string;
+  ref_block_num: number;
+  ref_block_prefix: number;
+  max_net_usage_words: number;
+  max_cpu_usage_ms: number;
+  delay_sec: number;
+  actions: [Eos.EosTxActionAck]; // could be several kinds of actions
 }
 
 export interface EosToSignTx {
@@ -70,8 +70,8 @@ export interface EosTxSigned {
   eosFormSig: string;
 }
 
-export interface EosWalletInfo {
-  _supportsEosInfo: boolean;
+export interface EosWalletInfo extends HDWalletInfo {
+  readonly _supportsEosInfo: boolean;
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order
@@ -85,9 +85,9 @@ export interface EosWalletInfo {
   eosNextAccountPath(msg: EosAccountPath): EosAccountPath | undefined;
 }
 
-export interface EosWallet extends EosWalletInfo {
-  _supportsEos: boolean;
+export interface EosWallet extends EosWalletInfo, HDWallet {
+  readonly _supportsEos: boolean;
 
-  eosGetPublicKey(msg: EosGetPublicKey): Promise<string>;
-  eosSignTx(msg: EosToSignTx): Promise<EosTxSigned>;
+  eosGetPublicKey(msg: EosGetPublicKey): Promise<string | null>;
+  eosSignTx(msg: EosToSignTx): Promise<EosTxSigned | null>;
 }

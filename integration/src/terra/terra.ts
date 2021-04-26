@@ -82,8 +82,7 @@ export function terraTests(get: () => { wallet: core.HDWallet; info: core.HDWall
         };
 
         const res = await wallet.terraSignTx(input);
-        expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
-
+        expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
       },
       TIMEOUT
     );

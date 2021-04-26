@@ -3,17 +3,18 @@ import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 
 import { VENDOR_ID, WEBUSB_PRODUCT_ID } from "./utils"
 
+export type Device = USBDevice & {serialNumber: string};
 export class TransportDelegate implements keepkey.TransportDelegate {
-  usbDevice: USBDevice;
-  keyring: core.Keyring;
+  usbDevice: Device;
 
-  constructor(usbDevice: USBDevice) {
-    if (usbDevice.vendorId !== VENDOR_ID) return null;
+  constructor(usbDevice: Device) {
+    if (usbDevice.vendorId !== VENDOR_ID) throw new core.WebUSBCouldNotPair("KeepKey", "bad vendor id");
     if (usbDevice.productId !== WEBUSB_PRODUCT_ID) throw new core.FirmwareUpdateRequired("KeepKey", "6.1.0");
     this.usbDevice = usbDevice;
   }
 
-  static async create(device: USBDevice) {
+  static async create(device: Device) {
+    if (device.vendorId !== VENDOR_ID) return null;
     return new TransportDelegate(device);
   }
 
@@ -65,7 +66,7 @@ export class TransportDelegate implements keepkey.TransportDelegate {
   }
 
   async writeChunk(buf: Uint8Array, debugLink: boolean): Promise<void> {
-    await this.usbDevice.transferOut(debugLink ? 2 : 1, buf.buffer);
+    await this.usbDevice.transferOut(debugLink ? 2 : 1, buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
   }
 
   async readChunk(debugLink: boolean): Promise<Uint8Array> {
@@ -75,6 +76,7 @@ export class TransportDelegate implements keepkey.TransportDelegate {
       await this.usbDevice.clearHalt("out", debugLink ? 2 : 1);
     }
 
+    if (data === undefined) throw new Error("bad read");
     return new Uint8Array(core.toArrayBuffer(data));
   }
 }

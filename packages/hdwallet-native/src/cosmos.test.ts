@@ -65,11 +65,11 @@ describe("NativeCosmosWallet", () => {
       account_number: "foo",
       sequence: "bar",
     });
-    await expect(signed.signatures.length).toBe(1);
-    await expect(signed.signatures[0].pub_key.value).toMatchInlineSnapshot(
+    await expect(signed?.signatures?.length).toBe(1);
+    await expect(signed?.signatures?.[0].pub_key?.value).toMatchInlineSnapshot(
       `"AuGwbxSqxtP4HsVyUqrWiAZfb7Ur+gKYcAQ+Ru8mIBxQ"`
     );
-    await expect(signed.signatures[0].signature).toMatchInlineSnapshot(
+    await expect(signed?.signatures?.[0].signature).toMatchInlineSnapshot(
       `"pWgTUZC5NUcqVrJJQL3BhLtIRcerd21H6EaTkkYIw/VGCau1hMDQDSKzKDvVICN7CSS4i1I7BhZs8nqF/E3Y9w=="`
     );
   });

@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@types/bs58": "^4.0.1",
+    "@types/ledgerhq__hw-transport": "^4.21.3",
     "typescript": "^3.9.7"
   },
   "engines": {

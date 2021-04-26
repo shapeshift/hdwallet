@@ -41,7 +41,7 @@ function describeETHPath(path: core.BIP32Path): core.PathDescription {
   };
 }
 
-function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType: core.BTCInputScriptType) {
+function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: core.BTCInputScriptType) {
   let pathStr = core.addressNListToBIP32(path);
   let unknown: core.PathDescription = {
     verbose: pathStr,
@@ -68,15 +68,16 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType: cor
 
   if (purpose === 84 && scriptType !== core.BTCInputScriptType.SpendWitness) return unknown;
 
-  if (path[1] !== 0x80000000 + core.slip44ByCoin(coin)) return unknown;
+  const slip44 = core.slip44ByCoin(coin);
+  if (slip44 == undefined || path[1] !== 0x80000000 + slip44) return unknown;
 
   let wholeAccount = path.length === 3;
 
-  let script = {
+  let script = scriptType ? ({
     [core.BTCInputScriptType.SpendAddress]: " (Legacy)",
     [core.BTCInputScriptType.SpendP2SHWitness]: "",
     [core.BTCInputScriptType.SpendWitness]: " (Segwit Native)",
-  }[scriptType];
+  } as Partial<Record<core.BTCInputScriptType, string>>)[scriptType] ?? "" : "";
 
   switch (coin) {
     case "Bitcoin":
@@ -118,17 +119,17 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType: cor
 }
 
 export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
-  _supportsBTCInfo: boolean = true;
-  _supportsETHInfo: boolean = true;
-  _supportsCosmosInfo: boolean = false;
-  _supportsBinanceInfo: boolean = false; //TODO trezor actually supports bnb
-  _supportsRippleInfo: boolean = false;
-  _supportsEosInfo: boolean = false;
-  _supportsFioInfo: boolean = false;
-  _supportsThorchainInfo: boolean = false;
-  _supportsSecretInfo: boolean = false;
-  _supportsKavaInfo: boolean = false;
-  _supportsTerraInfo: boolean = false;
+  readonly _supportsBTCInfo = true;
+  readonly _supportsETHInfo = true;
+  readonly _supportsCosmosInfo = false;
+  readonly _supportsBinanceInfo = false; //TODO trezor actually supports bnb
+  readonly _supportsRippleInfo = false;
+  readonly _supportsEosInfo = false;
+  readonly _supportsFioInfo = false;
+  readonly _supportsThorchainInfo = false;
+  readonly _supportsSecretInfo = false;
+  readonly _supportsKavaInfo = false;
+  readonly _supportsTerraInfo = false;
 
 
   public getVendor(): string {
@@ -251,30 +252,30 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
 }
 
 export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet {
-  _supportsETHInfo: boolean = true;
-  _supportsBTCInfo: boolean = true;
-  _supportsDebugLink: boolean = false;
-  _supportsBTC: boolean = true;
-  _supportsETH: boolean = true;
-  _supportsCosmosInfo: boolean = false;
-  _supportsCosmos: boolean = false;
-  _supportsBinanceInfo: boolean = false;
-  _supportsBinance: boolean = false;
-  _isTrezor: boolean = true;
-  _supportsRippleInfo: boolean = false;
-  _supportsRipple: boolean = false;
-  _supportsEosInfo: boolean = false;
-  _supportsEos: boolean = false;
-  _supportsFioInfo: boolean = false;
-  _supportsFio: boolean = false;
-  _supportsThorchainInfo: boolean = false;
-  _supportsThorchain: boolean = false;
-  _supportsSecretInfo: boolean = false;
-  _supportsSecret: boolean = false;
-  _supportsKava: boolean = false;
-  _supportsKavaInfo: boolean = true;
-  _supportsTerra: boolean = false;
-  _supportsTerraInfo: boolean = true;
+  readonly _supportsETHInfo = true;
+  readonly _supportsBTCInfo = true;
+  readonly _supportsDebugLink = false;
+  readonly _supportsBTC = true;
+  readonly _supportsETH = true;
+  readonly _supportsCosmosInfo = false;
+  readonly _supportsCosmos = false;
+  readonly _supportsBinanceInfo = false;
+  readonly _supportsBinance = false;
+  readonly _isTrezor = true;
+  readonly _supportsRippleInfo = false;
+  readonly _supportsRipple = false;
+  readonly _supportsEosInfo = false;
+  readonly _supportsEos = false;
+  readonly _supportsFioInfo = false;
+  readonly _supportsFio = false;
+  readonly _supportsThorchainInfo = false;
+  readonly _supportsThorchain = false;
+  readonly _supportsSecretInfo = false;
+  readonly _supportsSecret = false;
+  readonly _supportsKava = false;
+  readonly _supportsKavaInfo = true;
+  readonly _supportsTerra = false;
+  readonly _supportsTerraInfo = true;
 
   transport: TrezorTransport;
   featuresCache: any;
@@ -347,19 +348,25 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
       }),
     });
     handleError(this.transport, res, "Could not load xpubs from Trezor");
-    return res.payload.map((result, i) => {
+    return (res.payload as Array<{xpubSegwit?: string, xpub?: string}>).map((result, i) => {
       const scriptType = msg[i].scriptType;
       switch (scriptType) {
         case core.BTCInputScriptType.SpendP2SHWitness:
-        case core.BTCInputScriptType.SpendWitness:
+        case core.BTCInputScriptType.SpendWitness: {
+          const xpub = result.xpubSegwit;
+          if (!xpub) throw new Error("unable to get public key");
           return {
-            xpub: result.xpubSegwit,
+            xpub,
           };
+        }
         case core.BTCInputScriptType.SpendAddress:
-        default:
+        default: {
+          const xpub = result.xpub;
+          if (!xpub) throw new Error("unable to get public key");
           return {
-            xpub: result.xpub,
+            xpub,
           };
+        }
       }
     });
   }
@@ -475,7 +482,7 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return Btc.btcGetAddress(this.transport, msg);
   }
 
-  public async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx> {
+  public async btcSignTx(msg: core.BTCSignTxTrezor): Promise<core.BTCSignedTx> {
     return Btc.btcSignTx(this, this.transport, msg);
   }
 

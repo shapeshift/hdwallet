@@ -85,10 +85,10 @@ export function kavaTests(get: () => { wallet: core.HDWallet; info: core.HDWalle
         switch (wallet.getVendor()) {
           case "KeepKey":
             //not supported yet
-            //expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature_keepkey);
+            //expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature_keepkey);
             break;
           default:
-            expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
+            expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
             break;
         }
       },

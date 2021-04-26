@@ -36,7 +36,7 @@ describe("CryptoHelpers", () => {
     it("should encrypt data with an hmac signature", async () => {
       const randomMock = jest
         .spyOn(global.crypto, "getRandomValues")
-        .mockImplementation((array) => new Uint8Array(array.byteLength).fill(0));
+        .mockImplementation((array) => array && new Uint8Array(array.byteLength).fill(0));
       const key = await helper.makeKey("password", "email");
       const encrypted = await helper.aesEncrypt(utils.fromUtf8ToArray(PLAINTEXT_STRING), key);
       randomMock.mockRestore();
@@ -51,7 +51,7 @@ describe("CryptoHelpers", () => {
     it("should encrypt the empty string", async () => {
       const randomMock = jest
         .spyOn(global.crypto, "getRandomValues")
-        .mockImplementation((array) => new Uint8Array(array.byteLength).fill(0));
+        .mockImplementation((array) => array && new Uint8Array(array.byteLength).fill(0));
       const key = await helper.makeKey("password", "email");
       const encrypted = await helper.aesEncrypt(utils.fromUtf8ToArray(""), key);
       randomMock.mockRestore();
@@ -176,7 +176,7 @@ describe("CryptoHelpers", () => {
     it.each([[undefined], [null], [""], [[1, 2, 3, 4, 5, 6]], [{}]])(
       "should require a password (%o)",
       async (param: any) => {
-        await expect(helper.makeKey(param, undefined)).rejects.toThrow("password");
+        await expect(helper.makeKey(param, undefined as any)).rejects.toThrow("password");
       }
     );
 

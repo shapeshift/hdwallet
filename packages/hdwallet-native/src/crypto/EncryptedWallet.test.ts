@@ -90,7 +90,7 @@ describe("EncryptedWallet", () => {
     it("should create a new encrypted wallet", async () => {
       const randomMock = jest
         .spyOn(global.crypto, "getRandomValues")
-        .mockImplementation((array) => new Uint8Array(array.byteLength).fill(0));
+        .mockImplementation((array) => array && new Uint8Array(array.byteLength).fill(0));
       const wallet = new EncryptedWallet(engine);
       await wallet.init("email", "password");
       await wallet.createWallet(PLAINTEXT_MNEMONIC2);

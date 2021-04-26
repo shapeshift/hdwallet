@@ -1,5 +1,5 @@
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
-import { BIP32Path, PathDescription } from "./wallet";
+import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
 export interface BinanceGetAddress {
   addressNList: BIP32Path;
@@ -76,8 +76,8 @@ export interface BinanceAccountPath {
   addressNList: BIP32Path;
 }
 
-export interface BinanceWalletInfo {
-  _supportsBinanceInfo: boolean;
+export interface BinanceWalletInfo extends HDWalletInfo {
+  readonly _supportsBinanceInfo: boolean;
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order
@@ -91,12 +91,12 @@ export interface BinanceWalletInfo {
   binanceNextAccountPath(msg: BinanceAccountPath): BinanceAccountPath | undefined;
 }
 
-export interface BinanceWallet extends BinanceWalletInfo {
-  _supportsBinance: boolean;
+export interface BinanceWallet extends BinanceWalletInfo, HDWallet {
+  readonly _supportsBinance: boolean;
 
-  binanceGetAddress(msg: BinanceGetAddress): Promise<string>;
+  binanceGetAddress(msg: BinanceGetAddress): Promise<string | null>;
 
-  binanceSignTx(msg: BinanceSignTx): Promise<BinanceSignedTx>;
+  binanceSignTx(msg: BinanceSignTx): Promise<BinanceSignedTx | null>;
 }
 
 export function binanceDescribePath(path: BIP32Path): PathDescription {

@@ -9,9 +9,9 @@ import util from "./util";
 import { SeedInterface as IsolatedBIP32Seed } from "./crypto/isolation/core/bip32/interfaces";
 import * as Isolation from "./crypto/isolation";
 
-export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor>(Base: TBase) {
+export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   return class MixinNativeBinanceWalletInfo extends Base implements core.BinanceWalletInfo {
-    _supportsBinanceInfo = true;
+    readonly _supportsBinanceInfo = true;
 
     async binanceSupportsNetwork(): Promise<boolean> {
       return true;
@@ -34,7 +34,7 @@ export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor>(Bas
       ];
     }
 
-    binanceNextAccountPath(msg: core.BinanceAccountPath): core.BinanceAccountPath {
+    binanceNextAccountPath(msg: core.BinanceAccountPath): core.BinanceAccountPath | undefined {
       // Only support one account for now (like portis).
       return undefined;
     }
@@ -43,9 +43,9 @@ export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor>(Bas
 
 export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeBinanceWallet extends Base {
-    _supportsBinance = true;
+    readonly _supportsBinance = true;
 
-    #seed: IsolatedBIP32Seed;
+    #seed: IsolatedBIP32Seed | undefined;
 
     async binanceInitializeWallet(seed: IsolatedBIP32Seed): Promise<void> {
       this.#seed = seed;
@@ -67,15 +67,15 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
       return this.binanceBech32ify(address, `${testnet ? "t" : ""}bnb`);
     }
 
-    async binanceGetAddress(msg: core.BinanceGetAddress & { testnet?: boolean }): Promise<string> {
+    async binanceGetAddress(msg: core.BinanceGetAddress & { testnet?: boolean }): Promise<string | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        return this.createBinanceAddress(util.getKeyPair(this.#seed, msg.addressNList, "binance").publicKey.toString("hex"), msg.testnet ?? false);
+        return this.createBinanceAddress(util.getKeyPair(this.#seed!, msg.addressNList, "binance").publicKey.toString("hex"), msg.testnet ?? false);
       });
     }
 
-    async binanceSignTx(msg: core.BinanceSignTx & { testnet?: boolean }): Promise<core.BinanceSignedTx> {
+    async binanceSignTx(msg: core.BinanceSignTx & { testnet?: boolean }): Promise<core.BinanceSignedTx | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        const keyPair = util.getKeyPair(this.#seed, msg.addressNList, "binance");
+        const keyPair = util.getKeyPair(this.#seed!, msg.addressNList, "binance");
 
         const tx = Object.assign({}, msg.tx)
         if (!tx.data) tx.data = null
@@ -85,7 +85,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
 
         const client = new bnbSdk.BncClient(msg.testnet ? "https://testnet-dex.binance.org" : "https://dex.binance.org"); // broadcast not used but available
         await client.chooseNetwork(msg.testnet ? "testnet" : "mainnet");
-        const haveAccountNumber = msg.tx.account_number && Number.isInteger(Number(msg.tx.account_number));
+        const haveAccountNumber = !!msg.tx.account_number && Number.isInteger(Number(msg.tx.account_number));
         if (haveAccountNumber) await client.setAccountNumber(Number(msg.tx.account_number));
         client.setSigningDelegate(Isolation.Adapters.Binance(keyPair));
 
@@ -127,14 +127,23 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         const asset = tx.msgs[0].inputs[0].coins[0].denom;
         if (asset !== tx.msgs[0].outputs[0].coins[0].denom) throw new Error("denomination in input and output must be the same");
 
-        const result: any = await client.transfer(
+        const result = (await client.transfer(
           addressFrom,
           addressTo,
           amount.shiftedBy(-8).toString(),
           asset,
           tx.memo,
           Number(tx.sequence) ?? null
-        );
+        ) as unknown) as Omit<bnbSdk.Transaction, "accountNumber" | "msgs" | "signatures"> & {
+          accountNumber: number,
+          // msgs: core.BinanceTx["msgs"],
+          signatures: Array<{
+            pub_key: Buffer,
+            signature: string,
+          }>,
+        };
+        const serialized = result.serialize();
+
         const aminoPubKey: Buffer = result.signatures[0].pub_key;
         const signature = Buffer.from(result.signatures[0].signature, "base64").toString("base64");
 
@@ -149,14 +158,16 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         }
         const pub_key = aminoPubKey.slice(5).toString("base64");
 
-        return Object.assign({}, tx as core.BinanceTx, {
-          msgs: result.msgs,
+        return Object.assign({
+          account_number: result.accountNumber,
+        }, tx as core.BinanceTx, {
+          // msgs: result.msgs,
           signatures: {
             pub_key,
             signature,
           },
-          serialized: result.serialized,
-          txid: CryptoJS.SHA256(result.serialized, "hex").toString(),
+          serialized,
+          txid: CryptoJS.SHA256(CryptoJS.enc.Hex.parse(serialized)).toString(),
         });
       });
     }

@@ -3,6 +3,7 @@ import { keccak256 } from "@ethersproject/keccak256";
 import { recoverPublicKey } from "@ethersproject/signing-key";
 import { computeAddress, parse as parseTransaction } from "@ethersproject/transactions";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { TextEncoder } from "web-encoding";
 
 import * as native from "./native";
 
@@ -96,7 +97,7 @@ describe("NativeETHWallet", () => {
         "v": 38,
       }
     `);*/
-    expect(parseTransaction(sig.serialized).from).toEqual("0x73d0385F4d8E00C5e6504C6030F47BF6212736A8");
+    expect(parseTransaction(sig!.serialized).from).toEqual("0x73d0385F4d8E00C5e6504C6030F47BF6212736A8");
   });
 
   it("should sign a message correctly", async () => {
@@ -123,10 +124,10 @@ describe("NativeETHWallet", () => {
       computeAddress(
         recoverPublicKey(
           keccak256(new TextEncoder().encode(`\x19Ethereum Signed Message:\n${msg.length}${msg}`)),
-          splitSignature(sig.signature)
+          splitSignature(sig!.signature)
         )
       )
-    ).toEqual(sig.address);
+    ).toEqual(sig!.address);
   });
 
   it("should verify a correctly signed message", async () => {

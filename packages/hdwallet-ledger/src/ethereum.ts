@@ -26,6 +26,7 @@ export async function ethGetPublicKeys(
 
   for (const getPublicKey of msg) {
     let { addressNList, coin, scriptType } = getPublicKey;
+    if (!scriptType) scriptType = core.BTCInputScriptType.SpendAddress;
 
     // Only get public keys for ETH account paths
     if (!addressNList.includes(0x80000000 + 44, 0) || !addressNList.includes(0x80000000 + 60, 1)) {
@@ -57,9 +58,10 @@ export async function ethGetPublicKeys(
     } = res2;
     publicKey = compressPublicKey(publicKey);
 
-    const coinDetails: any = networksUtil[core.slip44ByCoin(coin)];
+    const coinDetails = networksUtil[core.mustBeDefined(core.slip44ByCoin(coin))];
     const childNum: number = addressNList[addressNList.length - 1];
     const networkMagic = coinDetails.bitcoinjs.bip32.public[scriptType];
+    if (networkMagic === undefined) throw new Error(`scriptType ${scriptType} not supported`);
 
     const xpub = createXpub(addressNList.length, fingerprint, childNum, chainCode, publicKey, networkMagic);
 
@@ -115,16 +117,18 @@ export function ethSupportsNativeShapeShift(): boolean {
 }
 
 export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
+  const slip44 = core.slip44ByCoin(msg.coin)
+  if (slip44 === undefined) return [];
   return [
     {
-      addressNList: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx, 0, 0],
-      hardenedPath: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx],
+      addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
+      hardenedPath: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
       relPath: [0, 0],
       description: "BIP 44: Ledger (Ledger Live)",
     },
     {
-      addressNList: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + 0, msg.accountIdx],
-      hardenedPath: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + 0],
+      addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + 0, msg.accountIdx],
+      hardenedPath: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + 0],
       relPath: [msg.accountIdx],
       description: "Non BIP 44: Ledger (legacy, Ledger Chrome App)",
     },

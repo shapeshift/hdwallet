@@ -15,7 +15,7 @@ export class MockTransport extends ledger.LedgerTransport {
     return "mock#1";
   }
 
-  public call(coin: string, method: string, ...args: any[]): Promise<ledger.LedgerResponse> {
+  public call(coin: string | null, method: string, ...args: any[]): Promise<ledger.LedgerResponse> {
     let key = JSON.stringify({ coin: coin, method: method, args: args });
 
     if (!this.memoized.has(key)) {
@@ -26,7 +26,7 @@ export class MockTransport extends ledger.LedgerTransport {
     return Promise.resolve(this.memoized.get(key));
   }
 
-  public memoize(coin: string, method: string, args: any, response: any) {
+  public memoize(coin: string | null, method: string, args: any, response: any) {
     let key = JSON.stringify({ coin: coin, method: method, args: args });
     this.memoized.set(key, response);
   }
@@ -245,7 +245,7 @@ export function selfTest(get: () => core.HDWallet): void {
   it("validates current app", async () => {
     if (!wallet) return;
     expect(await wallet.validateCurrentApp("Bitcoin")).resolves;
-    await expect(wallet.validateCurrentApp(null)).rejects.toThrow(); // no coin
+    await expect(wallet.validateCurrentApp(undefined)).rejects.toThrow(); // no coin
     await expect(wallet.validateCurrentApp("FakeCoin")).rejects.toThrow(); // invalid coin
     await expect(wallet.validateCurrentApp("Ethereum")).rejects.toThrow(); // wrong coin
   });
@@ -312,14 +312,14 @@ export function selfTest(get: () => core.HDWallet): void {
   it("supports btcNextAccountPath", () => {
     if (!wallet) return;
 
-    let paths = wallet.btcGetAccountPaths({
+    let paths = core.mustBeDefined(wallet.btcGetAccountPaths({
       coin: "Litecoin",
       accountIdx: 3,
-    });
+    }));
 
     expect(
       paths
-        .map((path) => wallet.btcNextAccountPath(path))
+        .map((path) => core.mustBeDefined(wallet.btcNextAccountPath(path)))
         .map((path) =>
           wallet.describePath({
             ...path,

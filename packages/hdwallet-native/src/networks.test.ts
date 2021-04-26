@@ -24,6 +24,6 @@ describe("getNetwork", () => {
   });
 
   it("should throw if asked for an unsupported script type", () => {
-    expect(() => getNetwork("bitcoin", "foobar")).toThrowError("foobar not supported for bitcoin network");
+    expect(() => getNetwork("bitcoin", "foobar" as any)).toThrowError("foobar not supported for bitcoin network");
   });
 });

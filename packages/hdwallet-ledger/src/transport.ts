@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import Transport from "@ledgerhq/hw-transport";
 
 export interface LedgerResponse {
   success: boolean;
@@ -8,12 +9,12 @@ export interface LedgerResponse {
 }
 
 export abstract class LedgerTransport extends core.Transport {
-  transport: any;
+  transport: Transport;
 
-  constructor(transport: any, keyring: core.Keyring) {
+  constructor(transport: Transport, keyring: core.Keyring) {
     super(keyring);
     this.transport = transport;
   }
 
-  public abstract call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse>;
+  public abstract call(coin: string | null, method: string, ...args: any[]): Promise<LedgerResponse>;
 }

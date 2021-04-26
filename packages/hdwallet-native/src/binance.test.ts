@@ -149,7 +149,7 @@ describe("NativeBinanceWallet", () => {
         sequence: "456",
       },
     });
-    expect(sig.signatures).toMatchInlineSnapshot(`
+    expect(sig?.signatures).toMatchInlineSnapshot(`
       Object {
         "pub_key": "A/7/niWhEmyNrOL5jDyKiFyN1fMYjCxVPgyucVvj9UNT",
         "signature": "BnbtioXs2KyTQeJFpYQM6JmLgE4XOMLIDCCYw7z7wwpRMVwV0uVoeBoNh5zJrDcJzCQw8qmwzC+I5Cl/pTz+jg==",
@@ -202,8 +202,8 @@ describe("NativeBinanceWallet", () => {
     const original = bnbSdk.BncClient.prototype.transfer;
     const mock = jest
       .spyOn(bnbSdk.BncClient.prototype, "transfer")
-      .mockImplementation(async function (...args: any[]) {
-        const out = await original.call(this, ...args);
+      .mockImplementation(async function (this: any, ...args: any[]) {
+        const out: any = await original.apply(this, args as any);
         out.signatures[0].pub_key = out.signatures[0].pub_key.slice(5);
         expect(out.signatures[0].pub_key.toString("base64")).toEqual("A/7/niWhEmyNrOL5jDyKiFyN1fMYjCxVPgyucVvj9UNT");
         return out;

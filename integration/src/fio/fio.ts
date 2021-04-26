@@ -182,12 +182,12 @@ export function fioTests(get: () => { wallet: core.HDWallet; info: core.HDWallet
           offline_url: "offline_url",
         };
 
-        const encryptedContent: string = await wallet.fioEncryptRequestContent({
+        const encryptedContent: string = core.mustBeDefined(await wallet.fioEncryptRequestContent({
           addressNList: core.bip32ToAddressNList("m/44'/235'/0'/0/0"),
           content: originalContent,
           publicKey: "FIO6Lxx7BTA8zbgPuqn4QidNNdTCHisXU7RpxJxLwxAka7NV7SoBW",
           contentType: core.FioEncryptionContentType.REQUEST
-        });
+        }));
 
         const data: fio.FioActionParameters.FioNewFundsRequestActionData = {
           payer_fio_address: "highlander@scatter",
@@ -344,27 +344,27 @@ export function fioTests(get: () => { wallet: core.HDWallet; info: core.HDWallet
           hash: "hash",
           offline_url: "offline_url",
         };
-        const walletPk = await wallet.fioGetAddress({
+        const walletPk = core.mustBeDefined(await wallet.fioGetAddress({
           addressNList: core.bip32ToAddressNList("m/44'/235'/0'/0/0"),
           showDisplay: false,
-        });
-        const wallet2Pk = await wallet2.fioGetAddress({
+        }));
+        const wallet2Pk = core.mustBeDefined(await wallet2.fioGetAddress({
           addressNList: core.bip32ToAddressNList("m/44'/235'/0'/0/0"),
           showDisplay: false,
-        });
+        }));
 
-        const encryptedContent = await wallet.fioEncryptRequestContent({
+        const encryptedContent = core.mustBeDefined(await wallet.fioEncryptRequestContent({
           addressNList: core.bip32ToAddressNList("m/44'/235'/0'/0/0"),
           content: originalContent,
           publicKey: wallet2Pk,
           contentType: core.FioEncryptionContentType.REQUEST
-        });
-        const decryptedContent = await wallet2.fioDecryptRequestContent({
+        }));
+        const decryptedContent = core.mustBeDefined(await wallet2.fioDecryptRequestContent({
           addressNList: core.bip32ToAddressNList("m/44'/235'/0'/0/0"),
           content: encryptedContent,
           publicKey: walletPk,
           contentType: core.FioEncryptionContentType.REQUEST
-        });
+        }));
         expect(originalContent).toEqual(decryptedContent);
       },
       TIMEOUT
@@ -387,27 +387,27 @@ export function fioTests(get: () => { wallet: core.HDWallet; info: core.HDWallet
           hash: "hash",
           offline_url: "offline_url",
         };
-        const walletPk = await wallet.fioGetAddress({
+        const walletPk = core.mustBeDefined(await wallet.fioGetAddress({
           addressNList: core.bip32ToAddressNList("m/44'/235'/0'/0/0"),
           showDisplay: false,
-        });
-        const wallet2Pk = await wallet2.fioGetAddress({
+        }));
+        const wallet2Pk = core.mustBeDefined(await wallet2.fioGetAddress({
           addressNList: core.bip32ToAddressNList("m/44'/235'/0'/0/0"),
           showDisplay: false,
-        });
+        }));
 
-        const encryptedContent = await wallet.fioEncryptRequestContent({
+        const encryptedContent = core.mustBeDefined(await wallet.fioEncryptRequestContent({
           addressNList: core.bip32ToAddressNList("m/44'/235'/0'/0/0"),
           content: originalContent,
           publicKey: wallet2Pk,
           contentType: core.FioEncryptionContentType.OBT
-        });
-        const decryptedContent = await wallet2.fioDecryptRequestContent({
+        }));
+        const decryptedContent = core.mustBeDefined(await wallet2.fioDecryptRequestContent({
           addressNList: core.bip32ToAddressNList("m/44'/235'/0'/0/0"),
           content: encryptedContent,
           publicKey: walletPk,
           contentType: core.FioEncryptionContentType.OBT
-        });
+        }));
         expect(originalContent).toEqual(decryptedContent);
       },
       TIMEOUT

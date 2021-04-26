@@ -7,11 +7,13 @@ export function requestPair(): hid.HID {
   return new hid.HID(VENDOR_ID, PRODUCT_ID);
 }
 
+export type Device = hid.Device & { path: string; serialNumber: string };
+
 export class TransportDelegate implements keepkey.TransportDelegate {
   public hidRef: hid.HID;
-  public hidDevice: hid.Device;
+  public hidDevice: Device;
 
-  constructor(hidDevice: hid.Device, hidRef?: hid.HID) {
+  constructor(hidDevice: Device, hidRef?: hid.HID) {
     this.hidDevice = hidDevice;
     this.hidRef = hidRef || new hid.HID(hidDevice.path);
   }

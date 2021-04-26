@@ -8,7 +8,7 @@ import { checkType } from "../../types"
 // to repeat them here, which means we have to build the Enum object in a way that
 // type inference can't follow. Luckily, because the names are statically known,
 // we can assert the type even though it can't be inferred.
-function algorithmNameBase<L extends NonNegativeInteger = undefined>(length?: L): Enum<{[N in AlgorithmName<L>]: N}> {
+function algorithmNameBase<L extends NonNegativeInteger | undefined = undefined>(length?: L): Enum<{[N in AlgorithmName<L>]: N}> {
     return Enum(`AlgorithmName(${length ?? ""})`, Object.entries(AlgorithmLength)
         .filter(x => length === undefined || length === x[1])
         .map(x => x[0])
@@ -18,7 +18,7 @@ function algorithmNameBase<L extends NonNegativeInteger = undefined>(length?: L)
 // This can't be inline (or use generic type bounds) because it needs to distributed over the members of a union type.
 type algorithmNameInner<K, L> = K extends (keyof typeof AlgorithmLength) ? ((typeof AlgorithmLength[K]) extends L ? K : never) : never;
 // The generic parameter is optional, and will restrict the type to algorithm names whose entries on AlgorithmLength match the specified length.
-export type AlgorithmName<L extends NonNegativeInteger = undefined> = L extends undefined ? (keyof typeof AlgorithmLength) : algorithmNameInner<(keyof typeof AlgorithmLength), L>;
+export type AlgorithmName<L extends NonNegativeInteger | undefined = undefined> = L extends undefined ? (keyof typeof AlgorithmLength) : algorithmNameInner<(keyof typeof AlgorithmLength), L>;
 const algorithmNameStatic = {
     forEach(callbackfn: (value: AlgorithmName, index: number, array: AlgorithmName[]) => void, thisarg?: any) {
         (Object.keys(AlgorithmName().enumObject) as AlgorithmName[]).forEach(callbackfn, thisarg)
@@ -81,9 +81,9 @@ export const Algorithms = (()=>{
         AlgorithmName.assert(name);
         if (name in algorithms) throw new Error(`digest algorithm implementation already provided for ${name}`);
         algorithms[name] = Algorithm(name).enforce((x: ByteArray) => {
-            const out = checkType(ByteArray(AlgorithmLength[name]), fn(x));
-            out["preimage"] = x;
-            out["algorithm"] = name;
+            const out = checkType(ByteArray(AlgorithmLength[name]), fn(x)) as Partial<UnverifiedDigest<N>>;
+            out.preimage = x;
+            out.algorithm = name;
             return checkType(UnverifiedDigest(name), out);
         }) as Algorithm<any>;
     });

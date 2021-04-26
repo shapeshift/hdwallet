@@ -1,5 +1,5 @@
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
-import { BIP32Path, PathDescription } from "./wallet";
+import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
 export interface CosmosGetAddress {
   addressNList: BIP32Path;
@@ -70,8 +70,8 @@ export interface CosmosAccountPath {
   addressNList: BIP32Path;
 }
 
-export interface CosmosWalletInfo {
-  _supportsCosmosInfo: boolean;
+export interface CosmosWalletInfo extends HDWalletInfo {
+  readonly _supportsCosmosInfo: boolean;
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order
@@ -85,11 +85,11 @@ export interface CosmosWalletInfo {
   cosmosNextAccountPath(msg: CosmosAccountPath): CosmosAccountPath | undefined;
 }
 
-export interface CosmosWallet extends CosmosWalletInfo {
-  _supportsCosmos: boolean;
+export interface CosmosWallet extends CosmosWalletInfo, HDWallet {
+  readonly _supportsCosmos: boolean;
 
-  cosmosGetAddress(msg: CosmosGetAddress): Promise<string>;
-  cosmosSignTx(msg: CosmosSignTx): Promise<CosmosSignedTx>;
+  cosmosGetAddress(msg: CosmosGetAddress): Promise<string | null>;
+  cosmosSignTx(msg: CosmosSignTx): Promise<CosmosSignedTx | null>;
 }
 
 export function cosmosDescribePath(path: BIP32Path): PathDescription {

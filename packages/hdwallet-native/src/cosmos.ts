@@ -9,9 +9,9 @@ import * as Isolation from "./crypto/isolation";
 
 const ATOM_CHAIN = "cosmoshub-4";
 
-export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor>(Base: TBase) {
+export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   return class MixinNativeCosmosWalletInfo extends Base implements core.CosmosWalletInfo {
-    _supportsCosmosInfo = true;
+    readonly _supportsCosmosInfo = true;
     async cosmosSupportsNetwork(): Promise<boolean> {
       return true;
     }
@@ -33,7 +33,7 @@ export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor>(Base
       ];
     }
 
-    cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath {
+    cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
       // Only support one account for now (like portis).
       return undefined;
     }
@@ -42,9 +42,9 @@ export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor>(Base
 
 export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeCosmosWallet extends Base {
-    _supportsCosmos = true;
+    readonly _supportsCosmos = true;
 
-    #seed: Isolation.BIP32.SeedInterface;
+    #seed: Isolation.BIP32.SeedInterface | undefined;
 
     async cosmosInitializeWallet(seed: Isolation.BIP32.SeedInterface): Promise<void> {
       this.#seed = seed;
@@ -66,15 +66,15 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
       return this.cosmosBech32ify(address, `cosmos`);
     }
 
-    async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string> {
+    async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        return this.createCosmosAddress(util.getKeyPair(this.#seed, msg.addressNList, "cosmos").publicKey.toString("hex"));
+        return this.createCosmosAddress(util.getKeyPair(this.#seed!, msg.addressNList, "cosmos").publicKey.toString("hex"));
       });
     }
 
-    async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx> {
+    async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        const keyPair = util.getKeyPair(this.#seed, msg.addressNList, "cosmos");
+        const keyPair = util.getKeyPair(this.#seed!, msg.addressNList, "cosmos");
         const adapter = new Isolation.Adapters.Cosmos(keyPair);
         const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, ATOM_CHAIN);
 

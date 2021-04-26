@@ -17,7 +17,7 @@ export class U2FLedgerAdapter {
     return new U2FLedgerAdapter(keyring);
   }
 
-  public get(device: any): core.HDWallet {
+  public get(device: any): core.HDWallet | null {
     return this.keyring.get(device.deviceID);
   }
 
@@ -59,6 +59,6 @@ export class U2FLedgerAdapter {
 
     await this.initialize([device]);
 
-    return this.keyring.get(device.deviceID);
+    return core.mustBeDefined(this.keyring.get(device.deviceID));
   }
 }

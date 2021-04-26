@@ -7,9 +7,10 @@ import { NativeHDWalletBase } from "./native";
 import util from "./util";
 import * as Isolation from "./crypto/isolation";
 
-export function MixinNativeKavaWalletInfo<TBase extends core.Constructor>(Base: TBase) {
+export function MixinNativeKavaWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   return class MixinNativeKavaWalletInfo extends Base implements core.KavaWalletInfo {
-    _supportsKavaInfo = true;
+    readonly _supportsKavaInfo = true;
+
     async kavaSupportsNetwork(): Promise<boolean> {
       return true;
     }
@@ -31,7 +32,7 @@ export function MixinNativeKavaWalletInfo<TBase extends core.Constructor>(Base: 
       ];
     }
 
-    kavaNextAccountPath(msg: core.KavaAccountPath): core.KavaAccountPath {
+    kavaNextAccountPath(msg: core.KavaAccountPath): core.KavaAccountPath | undefined {
       // Only support one account for now (like portis).
       return undefined;
     }
@@ -40,9 +41,9 @@ export function MixinNativeKavaWalletInfo<TBase extends core.Constructor>(Base: 
 
 export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeKavaWallet extends Base {
-    _supportsKava = true;
+    readonly _supportsKava = true;
 
-    #seed: Isolation.BIP32.SeedInterface;
+    #seed: Isolation.BIP32.SeedInterface | undefined;
 
     async kavaInitializeWallet(seed: Isolation.BIP32.SeedInterface): Promise<void> {
       this.#seed = seed;
@@ -64,13 +65,13 @@ export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWal
       return this.kavaBech32ify(address, `kava`);
     }
 
-    async kavaGetAddress(msg: core.KavaGetAddress): Promise<string> {
+    async kavaGetAddress(msg: core.KavaGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        return this.createKavaAddress(util.getKeyPair(this.#seed, msg.addressNList, "kava").publicKey.toString("hex"));
+        return this.createKavaAddress(util.getKeyPair(this.#seed!, msg.addressNList, "kava").publicKey.toString("hex"));
       });
     }
 
-    async kavaSignTx(msg: core.KavaSignTx): Promise<core.KavaSignedTx> {
+    async kavaSignTx(msg: core.KavaSignTx): Promise<core.KavaSignedTx | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
         const keyPair = util.getKeyPair(this.#seed, msg.addressNList, "kava");
         const adapter = new Isolation.Adapters.Cosmos(keyPair);

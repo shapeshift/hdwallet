@@ -21,10 +21,12 @@ export function ethSupportsNativeShapeShift(): boolean {
 }
 
 export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
+  const slip44 = core.slip44ByCoin(msg.coin);
+  if (slip44 === undefined) return [];
   return [
     {
-      addressNList: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx, 0, 0],
-      hardenedPath: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx],
+      addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
+      hardenedPath: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
       relPath: [0, 0],
       description: "KeepKey",
     },
@@ -70,8 +72,8 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
       est.setTo(core.arrayify(msg.to));
     }
 
-    let dataChunk = null;
-    let dataRemaining = undefined;
+    let dataChunk: Uint8Array | null | undefined = null;
+    let dataRemaining: Uint8Array | null | undefined = undefined;
 
     if (msg.data) {
       dataRemaining = core.arrayify(msg.data);
@@ -100,6 +102,7 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
     try {
       while (response.hasDataLength()) {
         const dataLength = response.getDataLength();
+        dataRemaining = core.mustBeDefined(dataRemaining);
         dataChunk = dataRemaining.slice(0, dataLength);
         dataRemaining = dataRemaining.slice(dataLength, dataRemaining.length);
 
@@ -121,7 +124,9 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
 
     const r = "0x" + core.toHexString(response.getSignatureR_asU8());
     const s = "0x" + core.toHexString(response.getSignatureS_asU8());
-    const v = "0x" + response.getSignatureV().toString(16);
+    const v = response.getSignatureV();
+    if (!v) throw new Error("could not get v");
+    const v2 = "0x" + v.toString(16);
 
     const utx = {
       to: msg.to,
@@ -133,7 +138,7 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
       gasPrice: msg.gasPrice,
       r,
       s,
-      v,
+      v: v2,
     };
 
     const tx = new EthereumTx(utx);
@@ -141,7 +146,7 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
     return {
       r,
       s,
-      v: response.getSignatureV(),
+      v,
       serialized: "0x" + core.toHexString(tx.serialize()),
     };
   });
@@ -156,8 +161,8 @@ export async function ethGetAddress(transport: Transport, msg: core.ETHGetAddres
 
   if (response.message_type === core.Events.FAILURE) throw response;
 
-  let address = null;
-  if (ethAddress.hasAddressStr()) address = ethAddress.getAddressStr();
+  let address: string;
+  if (ethAddress.hasAddressStr()) address = ethAddress.getAddressStr()!;
   else if (ethAddress.hasAddress()) address = "0x" + core.toHexString(ethAddress.getAddress_asU8());
   else throw new Error("Unable to obtain ETH address from device.");
 

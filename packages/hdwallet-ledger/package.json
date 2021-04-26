@@ -27,6 +27,7 @@
   "devDependencies": {
     "@types/bchaddrjs": "^0.4.0",
     "@types/ethereumjs-tx": "^1.0.1",
+    "@types/ledgerhq__hw-transport": "^4.21.3",
     "@types/lodash": "^4.14.168",
     "typedoc": "^0.14.2",
     "typescript": "^3.9.7"

@@ -16,7 +16,7 @@ describe("NativeAdapter", () => {
   it("won't pair if the deviceId isn't specified", async () => {
     const keyring = new core.Keyring();
     const adapter = NativeAdapter.useKeyring(keyring);
-    expect(await adapter.pairDevice(undefined)).toBe(null);
+    expect(await adapter.pairDevice(undefined as any)).toBe(null);
   });
 
   it("won't pair if a non-native wallet with the same deviceId is present in the keyring", async () => {

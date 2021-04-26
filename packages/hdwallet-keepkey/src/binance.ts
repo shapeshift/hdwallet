@@ -101,7 +101,7 @@ export async function binanceSignTx(
       tx,
       Buffer.from(signedTx.getPublicKey_asU8()),
       Buffer.from(signedTx.getSignature_asU8())
-    );
+    ).toString("hex");
 
     const out: core.BinanceSignedTx = {
       ...tx,
@@ -109,8 +109,8 @@ export async function binanceSignTx(
         pub_key: signedTx.getPublicKey_asB64(),
         signature: signedTx.getSignature_asB64(),
       },
-      serialized: serialized.toString("hex"),
-      txid: CryptoJS.SHA256(CryptoJS.lib.WordArray.create(serialized)).toString(),
+      serialized,
+      txid: CryptoJS.SHA256(CryptoJS.enc.Hex.parse(serialized)).toString(),
     };
 
     return out;
@@ -126,5 +126,5 @@ export async function binanceGetAddress(transport: Transport, msg: core.BinanceG
   if (response.message_type === core.Events.FAILURE) throw response;
 
   const binanceAddress = response.proto as BinanceMessages.BinanceAddress;
-  return binanceAddress.getAddress();
+  return core.mustBeDefined(binanceAddress.getAddress());
 }

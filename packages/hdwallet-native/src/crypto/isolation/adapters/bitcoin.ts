@@ -1,18 +1,22 @@
 import { ECPairInterface, Network, Signer } from "@bithighlander/bitcoin-cash-js-lib";
+import { bitcoin } from "@bithighlander/bitcoin-cash-js-lib/src/networks"
 import { SecP256K1, IsolationError } from "../core"
-import { CurvePoint } from "../core/secp256k1";
 
 const DigestSourceHint = Symbol.for("hdwallet_isolation_digest_source_hint");
 
 export class ECPairAdapter implements SecP256K1.ECDSAKeyInterface, Signer, ECPairInterface {
     protected _isolatedKey: SecP256K1.ECDSAKeyInterface;
-    readonly network: Network;
+    readonly _network: Network | undefined;
     compressed: boolean = false;
     lowR: boolean = false;
 
     constructor(isolatedKey: SecP256K1.ECDSAKeyInterface, network?: Network) {
         this._isolatedKey = isolatedKey;
-        this.network = network;
+        this._network = network;
+    }
+
+    get network() {
+        return this._network ?? bitcoin;
     }
 
     get ecdsaSign() {
@@ -20,17 +24,19 @@ export class ECPairAdapter implements SecP256K1.ECDSAKeyInterface, Signer, ECPai
     }
 
     get ecdh() {
-        const out = this._isolatedKey["ecdh"];
-        return (typeof out === "function" ? out.bind(this._isolatedKey) : undefined);
+        const isolatedKey = this._isolatedKey as object as Record<string, unknown>;
+        if (!("ecdh" in isolatedKey && typeof isolatedKey.ecdh === "function")) return undefined;
+        return isolatedKey.ecdh.bind(isolatedKey);
     }
 
     get ecdhRaw() {
-        const out = this._isolatedKey["ecdhRaw"];
-        return (typeof out === "function" ? out.bind(this._isolatedKey) : undefined);
+        const isolatedKey = this._isolatedKey as object as Record<string, unknown>;
+        if (!("ecdhRaw" in isolatedKey && typeof isolatedKey.ecdhRaw === "function")) return undefined;
+        return isolatedKey.ecdhRaw.bind(isolatedKey);
     }
 
     sign(hash: Uint8Array, lowR?: boolean): Buffer {
-        const hint: {preimage: Buffer, algorithm: string} = hash[DigestSourceHint];
+        const hint = (DigestSourceHint in hash ? (hash as {[DigestSourceHint]?: {preimage: Buffer, algorithm: string}})[DigestSourceHint] : undefined);
         const msg = Object.assign(Buffer.from(hash), hint ?? {});
         
         lowR = lowR ?? this.lowR;
@@ -41,7 +47,7 @@ export class ECPairAdapter implements SecP256K1.ECDSAKeyInterface, Signer, ECPai
     getPublicKey() {
         const publicKey = this._isolatedKey.publicKey;
         const key = (this.compressed ? SecP256K1.CompressedPoint.from(publicKey) : SecP256K1.UncompressedPoint.from(publicKey));
-        return Buffer.from(key) as Buffer & CurvePoint;
+        return Buffer.from(key) as Buffer & SecP256K1.CurvePoint;
     }
 
     toWIF(): never { throw new IsolationError("WIF"); }

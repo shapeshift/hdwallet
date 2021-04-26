@@ -51,10 +51,12 @@ export function selfTest(get: () => core.HDWallet): void {
   it("uses correct eth bip44 paths", () => {
     if (!wallet) return;
     [0, 1, 3, 27].forEach((account) => {
-      let paths = wallet.ethGetAccountPaths({
-        coin: "Ethereum",
-        accountIdx: account,
-      });
+      let paths = core.mustBeDefined(
+        wallet.ethGetAccountPaths({
+          coin: "Ethereum",
+          accountIdx: account,
+        })
+      );
       expect(paths).toEqual([
         {
           addressNList: core.bip32ToAddressNList(`m/44'/60'/${account}'/0/0`),
@@ -104,14 +106,16 @@ export function selfTest(get: () => core.HDWallet): void {
   it.skip("supports ethNextAccountPath", () => {
     if (!wallet) return;
 
-    let paths = wallet.ethGetAccountPaths({
-      coin: "Ethereum",
-      accountIdx: 5,
-    });
+    let paths = core.mustBeDefined(
+      wallet.ethGetAccountPaths({
+        coin: "Ethereum",
+        accountIdx: 5,
+      })
+    );
 
     expect(
       paths
-        .map((path) => wallet.ethNextAccountPath(path))
+        .map((path) => core.mustBeDefined(wallet.ethNextAccountPath(path)))
         .map((path) =>
           wallet.describePath({
             ...path,
@@ -134,14 +138,16 @@ export function selfTest(get: () => core.HDWallet): void {
   it("supports btcNextAccountPath", () => {
     if (!wallet) return;
 
-    let paths = wallet.btcGetAccountPaths({
-      coin: "Litecoin",
-      accountIdx: 3,
-    });
+    let paths = core.mustBeDefined(
+      wallet.btcGetAccountPaths({
+        coin: "Litecoin",
+        accountIdx: 3,
+      })
+    );
 
     expect(
       paths
-        .map((path) => wallet.btcNextAccountPath(path))
+        .map((path) => core.mustBeDefined(wallet.btcNextAccountPath(path)))
         .map((path) =>
           wallet.describePath({
             ...path,

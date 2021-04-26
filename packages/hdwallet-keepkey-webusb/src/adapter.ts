@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 
-import { TransportDelegate } from "./transport";
+import { Device, TransportDelegate } from "./transport";
 import { VENDOR_ID, WEBUSB_PRODUCT_ID, HID_PRODUCT_ID } from "./utils";
 
 const webUSB = window?.navigator?.usb as unknown;
@@ -12,26 +12,29 @@ function assertWebUSB(webUSB: any): asserts webUSB is WebUSB {
 }
 
 export const AdapterDelegate = {
-  async getDevices(): Promise<USBDevice[]> {
+  async getDevices(): Promise<Device[]> {
     assertWebUSB(webUSB);
-    return (await webUSB.getDevices()).filter(
+    const devices = (await webUSB.getDevices()).filter((d) => d.serialNumber !== undefined) as Device[];
+    return devices.filter(
       (x) => x.vendorId === VENDOR_ID && [WEBUSB_PRODUCT_ID, HID_PRODUCT_ID].includes(x.productId)
     );
   },
-  async getDevice(serialNumber?: string): Promise<USBDevice> {
+  async getDevice(serialNumber?: string): Promise<Device> {
     assertWebUSB(webUSB);
     try {
-      return await webUSB.requestDevice({
+      const out = await webUSB.requestDevice({
         filters: [
           { vendorId: VENDOR_ID, productId: WEBUSB_PRODUCT_ID, serialNumber },
           { vendorId: VENDOR_ID, productId: HID_PRODUCT_ID, serialNumber },
         ],
       });
+      if (out.serialNumber === undefined) throw new Error("expected serial number");
+      return out as Device;
     } catch (e) {
       throw new core.WebUSBCouldNotPair("KeepKey", e.message);
     }
   },
-  async getTransportDelegate(device: USBDevice) {
+  async getTransportDelegate(device: Device) {
     return new TransportDelegate(device);
   },
   registerCallbacks(handleConnect: (device: USBDevice) => void, handleDisconnect: (device: USBDevice) => void): void {

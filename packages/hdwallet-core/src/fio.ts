@@ -1,7 +1,7 @@
 import type * as fioSdk from "fiosdk-offline";
 
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
-import { BIP32Path, PathDescription } from "./wallet";
+import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
 export interface FioGetAddress {
   addressNList: BIP32Path;
@@ -56,8 +56,8 @@ export interface FioSignedTx {
   signature: string;
 }
 
-export interface FioWalletInfo {
-  _supportsFioInfo: boolean;
+export interface FioWalletInfo extends HDWalletInfo {
+  readonly _supportsFioInfo: boolean;
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order
@@ -71,12 +71,12 @@ export interface FioWalletInfo {
   fioNextAccountPath(msg: FioAccountPath): FioAccountPath | undefined;
 }
 
-export interface FioWallet extends FioWalletInfo {
-  _supportsFio: boolean;
-  fioGetAddress(msg: FioGetAddress): Promise<string>;
-  fioSignTx(msg: FioSignTx): Promise<FioSignedTx>;
-  fioDecryptRequestContent(msg: FioRequestContent): Promise<any>;
-  fioEncryptRequestContent(msg: FioRequestContent): Promise<string>;
+export interface FioWallet extends FioWalletInfo, HDWallet {
+  readonly _supportsFio: boolean;
+  fioGetAddress(msg: FioGetAddress): Promise<string | null>;
+  fioSignTx(msg: FioSignTx): Promise<FioSignedTx | null>;
+  fioDecryptRequestContent(msg: FioRequestContent): Promise<any | null>;
+  fioEncryptRequestContent(msg: FioRequestContent): Promise<string | null>;
 }
 
 export enum FioEncryptionContentType {

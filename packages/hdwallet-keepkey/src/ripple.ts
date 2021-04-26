@@ -24,7 +24,7 @@ export async function rippleSignTx(transport: Transport, msg: core.RippleSignTx)
     const payment = new RippleMessages.RipplePayment();
     payment.setAmount(parseInt(msg.payment.amount));
     payment.setDestination(msg.payment.destination);
-    payment.setDestinationTag(parseInt(msg.payment.destinationTag));
+    if (msg.payment.destinationTag !== undefined) payment.setDestinationTag(parseInt(msg.payment.destinationTag));
     signTx.setPayment(payment);
 
     let resp = await transport.call(
@@ -82,5 +82,5 @@ export async function rippleGetAddress(transport: Transport, msg: core.RippleGet
   if (response.message_type === core.Events.FAILURE) throw response;
 
   const rippleAddress = response.proto as RippleMessages.RippleAddress;
-  return rippleAddress.getAddress();
+  return core.mustBeDefined(rippleAddress.getAddress());
 }

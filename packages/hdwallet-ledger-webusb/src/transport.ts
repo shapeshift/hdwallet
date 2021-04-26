@@ -10,22 +10,22 @@ import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
 const RECORD_CONFORMANCE_MOCKS = false;
 
-function translateCoin(coin: string): (any) => void {
-  return {
+function translateCoin(coin: string): { new (transport: Transport): Record<string, (...args: any[]) => unknown> } {
+  return core.mustBeDefined(({
     Btc: Btc,
     Eth: Eth,
-  }[coin];
+  } as any)[coin]);
 }
 
-function translateMethod(method: string): (any) => void {
-  return {
+function translateMethod(method: string): (transport: Transport, ...args: any[]) => unknown {
+  return core.mustBeDefined(({
     getAppAndVersion: getAppAndVersion,
     getDeviceInfo: getDeviceInfo,
     openApp: openApp,
-  }[method];
+  } as any)[method]);
 }
 
-export async function getFirstLedgerDevice(): Promise<USBDevice> {
+export async function getFirstLedgerDevice(): Promise<USBDevice | null> {
   if (!(window && window.navigator.usb)) throw new core.WebUSBNotAvailable();
 
   const existingDevices = await TransportWebUSB.list();
@@ -64,7 +64,7 @@ export async function getTransport(): Promise<TransportWebUSB> {
 export class LedgerWebUsbTransport extends ledger.LedgerTransport {
   device: USBDevice;
 
-  constructor(device: USBDevice, transport: Transport<USBDevice>, keyring: core.Keyring) {
+  constructor(device: USBDevice, transport: Transport, keyring: core.Keyring) {
     super(transport, keyring);
     this.device = device;
   }
@@ -74,7 +74,7 @@ export class LedgerWebUsbTransport extends ledger.LedgerTransport {
   }
 
   public async call(coin: string, method: string, ...args: any[]): Promise<ledger.LedgerResponse> {
-    let response;
+    let response: unknown;
 
     try {
       this.emit(
@@ -89,7 +89,6 @@ export class LedgerWebUsbTransport extends ledger.LedgerTransport {
       if (coin) {
         response = await new (translateCoin(coin))(this.transport)[method](...args);
       } else {
-        // @ts-ignore
         response = await translateMethod(method)(this.transport, ...args);
       }
     } catch (e) {

@@ -444,14 +444,16 @@ export function selfTest(get: () => core.HDWallet): void {
   it("supports btcNextAccountPath", () => {
     if (!wallet) return;
 
-    let paths = wallet.btcGetAccountPaths({
-      coin: "Litecoin",
-      accountIdx: 3,
-    });
+    let paths = core.mustBeDefined(
+      wallet.btcGetAccountPaths({
+        coin: "Litecoin",
+        accountIdx: 3,
+      })
+    );
 
     expect(
       paths
-        .map((path) => wallet.btcNextAccountPath(path))
+        .map((path) => core.mustBeDefined(wallet.btcNextAccountPath(path)))
         .map((path) =>
           wallet.describePath({
             ...path,

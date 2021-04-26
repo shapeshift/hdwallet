@@ -13,7 +13,7 @@ type BTCTrezorSignTxOutput = {
 };
 
 function translateCoin(coin: core.Coin): string {
-  return {
+  return core.mustBeDefined(({
     Bitcoin: "btc",
     Litecoin: "ltc",
     Zcash: "zec",
@@ -23,12 +23,12 @@ function translateCoin(coin: core.Coin): string {
     DigiByte: "dgb",
     Testnet: "testnet",
     Dogecoin: "doge",
-  }[coin];
+  } as Partial<Record<core.Coin, string>>)[coin]);
 }
 
 const segwitCoins = ["Bitcoin", "Litecoin", "BitcoinGold", "Testnet"];
 
-function translateInputScriptType(scriptType: core.BTCInputScriptType): string {
+function translateInputScriptType(scriptType?: core.BTCInputScriptType): string {
   switch (scriptType) {
     case core.BTCInputScriptType.SpendAddress:
       return "SPENDADDRESS";
@@ -42,7 +42,7 @@ function translateInputScriptType(scriptType: core.BTCInputScriptType): string {
   throw new Error(`Un-handled enum entry: '${scriptType}'`);
 }
 
-function translateOutputScriptType(scriptType: core.BTCOutputScriptType): string {
+function translateOutputScriptType(scriptType?: core.BTCOutputScriptType): string {
   switch (scriptType) {
     case core.BTCOutputScriptType.PayToAddress:
       return "PAYTOADDRESS";
@@ -60,7 +60,7 @@ export async function btcSupportsCoin(coin: core.Coin): Promise<boolean> {
   return translateCoin(coin) !== undefined;
 }
 
-export async function btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
+export async function btcSupportsScriptType(coin: core.Coin, scriptType?: core.BTCInputScriptType): Promise<boolean> {
   if (translateCoin(coin) === undefined) return false;
   if (!segwitCoins.includes(coin) && scriptType === core.BTCInputScriptType.SpendP2SHWitness) return false;
   if (!segwitCoins.includes(coin) && scriptType === core.BTCInputScriptType.SpendWitness) return false;
@@ -88,7 +88,7 @@ export async function btcGetAddress(transport: TrezorTransport, msg: core.BTCGet
   return res.payload.address;
 }
 
-export async function btcSignTx(wallet: core.BTCWallet, transport: TrezorTransport, msg: core.BTCSignTx): Promise<core.BTCSignedTx> {
+export async function btcSignTx(wallet: core.BTCWallet, transport: TrezorTransport, msg: core.BTCSignTxTrezor): Promise<core.BTCSignedTx> {
   let supportsShapeShift = wallet.btcSupportsNativeShapeShift();
   let supportsSecureTransfer = await wallet.btcSupportsSecureTransfer();
 
@@ -105,7 +105,7 @@ export async function btcSignTx(wallet: core.BTCWallet, transport: TrezorTranspo
   let outputs: BTCTrezorSignTxOutput[] = msg.outputs.map((output) => {
     if (output.exchangeType && !supportsShapeShift) throw new Error("Trezor does not support Native ShapeShift");
 
-    if (output.addressNList) {
+    if ("addressNList" in output) {
       if (output.addressType === core.BTCOutputAddressType.Transfer && !supportsSecureTransfer)
         throw new Error("Trezor does not support SecureTransfer");
 
@@ -114,7 +114,7 @@ export async function btcSignTx(wallet: core.BTCWallet, transport: TrezorTranspo
         amount: output.amount,
         script_type: translateOutputScriptType(output.scriptType),
       };
-    } else if (output.addressType == core.BTCOutputAddressType.Transfer) {
+    } else if (output.addressType as core.BTCOutputAddressType == core.BTCOutputAddressType.Transfer) {
       throw new Error("invalid arguments");
     }
 
@@ -167,7 +167,7 @@ export async function btcSignMessage(transport: TrezorTransport, msg: core.BTCSi
   let res = await transport.call("signMessage", {
     path: msg.addressNList,
     message: msg.message,
-    coin: translateCoin(msg.coin),
+    coin: msg.coin ? translateCoin(msg.coin) : undefined,
   });
 
   handleError(transport, res, "Could not sign message with Trezor");
@@ -195,6 +195,7 @@ export async function btcVerifyMessage(transport: TrezorTransport, msg: core.BTC
 
 export function btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
   const slip44 = core.slip44ByCoin(msg.coin);
+  if (slip44 === undefined) return [];
   const bip44 = {
     coin: msg.coin,
     scriptType: core.BTCInputScriptType.SpendAddress,

@@ -88,16 +88,17 @@ export function checkType<T extends Runtype<unknown>>(rt: T, value: any): Static
 //     }) as unknown as U
 // }
 
-function byteArrayBase<T extends NonNegativeInteger = undefined>(length?: T) {
+type Ternary<T, U, V> = T extends undefined ? V : unknown extends T ? V : U;
+function byteArrayBase<T extends NonNegativeInteger | undefined = undefined>(length?: T) {
     length === undefined || NonNegativeInteger.assert(length);
     const indefinite = InstanceOf(Uint8Array);
     const literalConstraint = (length !== undefined ? Literal(length) : Unknown);
     const definite = InstanceOf(Uint8Array).And(Obj({
         length: literalConstraint as Literal<T>,
     }));
-    return (length === undefined ? indefinite : definite) as (T extends undefined ? (typeof indefinite) : (typeof definite));
+    return (length === undefined ? indefinite : definite) as Ternary<T, typeof definite, typeof indefinite>;
 }
-export type ByteArray<T extends NonNegativeInteger = undefined> = Uint8Array & (T extends undefined ? unknown : {length: T});
+export type ByteArray<T extends NonNegativeInteger | undefined = undefined> = Uint8Array & (T extends undefined ? unknown : {length: T});
 const byteArrayStatic = {
     equal(lhs: ByteArray, rhs: ByteArray): boolean {
         const length = lhs.length;
@@ -111,10 +112,11 @@ const byteArrayStatic = {
 const byteArray = Object.assign(byteArrayBase, byteArrayStatic);
 export const ByteArray: typeof byteArray = byteArray;
 
-function bigEndianIntegerBase<T extends NonNegativeInteger = undefined>(length?: T) {
-    return ByteArray(length).Or(Never);
+function bigEndianIntegerBase<T extends NonNegativeInteger | undefined = undefined>(length?: T) {
+    return ByteArray(length);
 }
-export type BigEndianInteger<T extends NonNegativeInteger> = ByteArray<T>;
+
+export type BigEndianInteger<T extends NonNegativeInteger | undefined> = ByteArray<T>;
 const bigEndianIntegerStatic = {
     isHigh: <T extends number>(x: BigEndianInteger<T>) => (x[0] & 0x80) !== 0,
     isOdd: <T extends number>(x: BigEndianInteger<T>) => (x[x.length - 1] & 1) === 1,
@@ -122,8 +124,8 @@ const bigEndianIntegerStatic = {
 const bigEndianInteger = Object.assign(bigEndianIntegerBase, ByteArray, bigEndianIntegerStatic);
 export const BigEndianInteger: typeof bigEndianInteger = bigEndianInteger;
 
-export function safeBufferFrom(input: ByteArray): Buffer {
+export function safeBufferFrom<T extends NonNegativeInteger | undefined = undefined>(input: ByteArray<T>): Buffer & ByteArray<T> {
     if (Buffer.isBuffer(input)) return input;
-    input = checkType(ByteArray(), input);
-    return Buffer.alloc(input.byteLength).fill(input);
+    input = checkType(ByteArray(), input) as ByteArray<T>;
+    return Buffer.alloc(input.byteLength).fill(input) as Buffer & ByteArray<T>;
 }

@@ -98,5 +98,5 @@ export async function cosmosGetAddress(transport: Transport, msg: CosmosMessages
   if (response.message_type === core.Events.FAILURE) throw response;
 
   const cosmosAddress = response.proto as CosmosMessages.CosmosAddress;
-  return cosmosAddress.getAddress();
+  return core.mustBeDefined(cosmosAddress.getAddress());
 }

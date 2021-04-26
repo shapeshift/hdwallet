@@ -38,7 +38,7 @@ export function rippleTests(get: () => { wallet: core.HDWallet; info: core.HDWal
         expect(paths[0].addressNList[0] > 0x80000000).toBe(true);
         paths.forEach((path) => {
           let curAddr = path.addressNList.join();
-          let nextAddr = wallet.rippleNextAccountPath(path).addressNList.join();
+          let nextAddr = core.mustBeDefined(wallet.rippleNextAccountPath(path)).addressNList.join();
           expect(nextAddr === undefined || nextAddr !== curAddr).toBeTruthy();
         });
       },

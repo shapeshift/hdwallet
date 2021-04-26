@@ -39,7 +39,7 @@ export function eosTests(get: () => { wallet: core.HDWallet; info: core.HDWallet
         expect(paths[0].addressNList[0] > 0x80000000).toBe(true);
         paths.forEach((path) => {
           let curAddr = path.addressNList.join();
-          let nextAddr = wallet.eosNextAccountPath(path).addressNList.join();
+          let nextAddr = core.mustBeDefined(wallet.eosNextAccountPath(path)).addressNList.join();
           expect(nextAddr === undefined || nextAddr !== curAddr).toBeTruthy();
         });
       },
@@ -66,11 +66,11 @@ export function eosTests(get: () => { wallet: core.HDWallet; info: core.HDWallet
       async () => {
         if (!wallet) return;
         let txData = tx01_unsigned as any;
-        let res = await wallet.eosSignTx({
+        let res = core.mustBeDefined(await wallet.eosSignTx({
           addressNList: core.bip32ToAddressNList("m/44'/194'/0'/0/0"),
           chain_id: txData.chain_id as string,
           tx: txData.transaction as core.EosTx,
-        });
+        }));
         expect(res.signatureV).toEqual(31);
         expect(core.toHexString(res.signatureR)).toEqual("3a58d0889c6e4dde052b76ca092f59f314e2ab4e867164083e108e7a3f40d737");
         expect(core.toHexString(res.signatureS)).toEqual("448f8175217c2fd9bf9dac753adf1baabdfa3132eab7235158fbdf3cbe346805");
@@ -84,11 +84,11 @@ export function eosTests(get: () => { wallet: core.HDWallet; info: core.HDWallet
       async () => {
         if (!wallet) return;
         let txData = tx02_unsigned as any;
-        let res = await wallet.eosSignTx({
+        let res = core.mustBeDefined(await wallet.eosSignTx({
           addressNList: core.bip32ToAddressNList("m/44'/194'/0'/0/0"),
           chain_id: txData.chain_id as string,
           tx: txData.transaction as core.EosTx,
-        });
+        }));
         expect(res.signatureV).toEqual(31);
         expect(core.toHexString(res.signatureR)).toEqual("14ce00681a621d1f80a98d5f47a7d703ed515fb9169f0c1f1b54c5199fad7080");
         expect(core.toHexString(res.signatureS)).toEqual("767e9b510b789763fa62aaa8285f48f57ef3d56bb62ce6ebf650ec8a88aca8f0");

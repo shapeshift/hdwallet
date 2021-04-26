@@ -33,7 +33,7 @@ export class NativeAdapter {
       this.keyring.decorateEvents(deviceId, wallet.events);
     }
 
-    if (native.isNative(wallet)) {
+    if (wallet && native.isNative(wallet)) {
       const id = await wallet.getDeviceID();
       this.keyring.emit([wallet.getVendor(), id, core.Events.CONNECT], id);
 

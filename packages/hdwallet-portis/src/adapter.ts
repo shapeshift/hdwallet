@@ -13,15 +13,15 @@ export class PortisAdapter {
   portisAppId: string;
 
   /// wallet id to remove from the keyring when the active wallet changes
-  currentDeviceId: string;
+  currentDeviceId?: string;
 
-  private constructor(keyring: core.Keyring, args: { portis?: PortisWallet; portisAppId?: string }) {
+  private constructor(keyring: core.Keyring, args: { portis?: PortisWallet; portisAppId: string }) {
     this.portis = args.portis;
     this.portisAppId = args.portisAppId;
     this.keyring = keyring;
   }
 
-  public static useKeyring(keyring: core.Keyring, args: { portis?: PortisWallet; portisAppId?: string }) {
+  public static useKeyring(keyring: core.Keyring, args: { portis?: PortisWallet; portisAppId: string }) {
     return new PortisAdapter(keyring, args);
   }
 
@@ -32,18 +32,23 @@ export class PortisAdapter {
   public async pairDevice(): Promise<core.HDWallet> {
     try {
       const wallet = await this.pairPortisDevice();
-      this.portis.onActiveWalletChanged(async (wallAddr) => {
+      this.portis.onActiveWalletChanged(async (wallAddr: string) => {
         // check if currentDeviceId has changed
         const walletAddress = "portis:" + wallAddr;
         if (!this.currentDeviceId || walletAddress.toLowerCase() !== this.currentDeviceId.toLowerCase()) {
-          this.keyring.emit(["Portis", this.currentDeviceId, core.Events.DISCONNECT], this.currentDeviceId);
-          this.keyring.remove(this.currentDeviceId);
+          const currentDeviceId = this.currentDeviceId;
+          if (currentDeviceId) {
+            this.keyring.emit(["Portis", currentDeviceId, core.Events.DISCONNECT], currentDeviceId);
+            this.keyring.remove(currentDeviceId);
+          }
           this.pairPortisDevice();
         }
       });
       this.portis.onLogout(() => {
-        this.keyring.emit(["Portis", this.currentDeviceId, core.Events.DISCONNECT], this.currentDeviceId);
-        this.keyring.remove(this.currentDeviceId);
+        const currentDeviceId = this.currentDeviceId;
+        if (!currentDeviceId) return;
+        this.keyring.emit(["Portis", currentDeviceId, core.Events.DISCONNECT], currentDeviceId);
+        this.keyring.remove(currentDeviceId);
       });
       return wallet;
     } catch (e) {
@@ -65,7 +70,7 @@ export class PortisAdapter {
     this.keyring.emit(["Portis", deviceId, core.Events.CONNECT], deviceId);
 
     const watchForInactivity = () => {
-      let time;
+      let time: ReturnType<typeof setTimeout>;
       const resetTimer = () => {
         clearTimeout(time);
         time = setTimeout(() => {

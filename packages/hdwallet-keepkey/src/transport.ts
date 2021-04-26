@@ -20,15 +20,15 @@ export interface TransportDelegate {
 }
 
 export class Transport extends core.Transport {
-  debugLink: boolean;
+  debugLink: boolean = false;
   userActionRequired: boolean = false;
   delegate: TransportDelegate;
 
   /// One per transport, unlike on Trezor, since the contention is
   /// only per-device, not global.
   callInProgress: {
-    main: Promise<any>;
-    debug: Promise<any>;
+    main?: Promise<any>;
+    debug?: Promise<any>;
   } = {
     main: undefined,
     debug: undefined,
@@ -127,7 +127,7 @@ export class Transport extends core.Transport {
   /**
    * Utility function to cancel all pending calls whenver one of them is cancelled.
    */
-  public async cancellable(inProgress: Promise<any>): Promise<void> {
+  public async cancellable(inProgress?: Promise<any>): Promise<void> {
     try {
       await inProgress;
     } catch (e) {

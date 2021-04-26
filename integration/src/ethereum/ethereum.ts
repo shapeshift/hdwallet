@@ -63,7 +63,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
             gasPrice: "0x14",
             gasLimit: "0x14",
             value: "0x00",
-            to: account1Addr,
+            to: core.mustBeDefined(account1Addr),
             toAddressNList: account1,
             chainId: 1,
             data: "",
@@ -91,10 +91,8 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
         expect(paths.length > 0).toBe(true);
         expect(paths[0].hardenedPath[0] > 0x80000000).toBe(true);
         paths.forEach((path) => {
-          expect(
-            wallet.ethNextAccountPath(path) === undefined ||
-              wallet.ethNextAccountPath(path).addressNList.join() !== path.addressNList.join()
-          ).toBeTruthy();
+          const nextPath = wallet.ethNextAccountPath(path);
+          expect(nextPath === undefined || nextPath.addressNList.join() !== path.addressNList.join()).toBeTruthy();
         });
       },
       TIMEOUT
@@ -177,8 +175,8 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
           message: "Hello World",
         });
-        expect(res.address).toEqual("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8");
-        expect(res.signature).toEqual(
+        expect(res?.address).toEqual("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8");
+        expect(res?.signature).toEqual(
           "0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b"
         );
       },
