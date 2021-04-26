@@ -276,7 +276,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
             }
             if(coin.toLowerCase() === "bitcoincash"){
               //pash forkId
-              let hashType = bitcoin.Transaction.SIGHASH_ALL | bitcoin.Transaction.SIGHASH_BITCOINCASHBIP143
+              const hashType = bitcoin.Transaction.SIGHASH_ALL | bitcoin.Transaction.SIGHASH_BITCOINCASHBIP143
               inputDataFinal.sighashType = hashType
             }
             psbt.addInput(inputDataFinal);
