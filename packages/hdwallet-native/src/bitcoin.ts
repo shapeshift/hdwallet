@@ -277,23 +277,11 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
           try {
             const inputData = this.buildInput(coin, input);
 
-            let inputDataFinal:any = {
-              hash: input.txid,
-              index: input.vout,
-              ...inputData,
-            }
-            if(coin.toLowerCase() === "bitcoincash"){
-              //hash forkId for replay protection
-              const hashType = bitcoin.Transaction.SIGHASH_ALL | bitcoin.Transaction.SIGHASH_BITCOINCASHBIP143
-              inputDataFinal.sighashType = hashType
-            }
-            psbt.addInput(inputDataFinal);
             psbt.addInput({
               hash: input.txid,
               index: input.vout,
-              ...inputDataFinal
+              ...inputData,
             });
-
           } catch (e) {
             throw new Error(`failed to add input: ${e}`);
           }
