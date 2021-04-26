@@ -1,3 +1,4 @@
+import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bip39 from "bip39";
 
 import CryptoHelper from "./CryptoHelper";
@@ -101,7 +102,7 @@ export class EncryptedWallet {
       throw new Error("Invalid mnemonic");
     }
 
-    this.#encryptedWallet = (await this.#helper.aesEncrypt(utils.toArrayBuffer(mnemonic), this.#key)).toString();
+    this.#encryptedWallet = (await this.#helper.aesEncrypt(core.toArrayBuffer(utils.fromUtf8ToArray(mnemonic)), this.#key)).toString();
 
     return this;
   }

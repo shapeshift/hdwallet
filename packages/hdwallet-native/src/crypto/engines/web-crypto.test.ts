@@ -2,9 +2,10 @@
  * @jest-environment jsdom
  */
 import * as webcrypto from "@peculiar/webcrypto";
+import * as core from "@shapeshiftoss/hdwallet-core";
 
 import CryptoHelper from "../CryptoHelper";
-import { fromB64ToArray, fromBufferToUtf8, fromBufferToB64, toArrayBuffer, fromUtf8ToArray } from "../utils";
+import * as utils from "../utils";
 import { DigestAlgorithm } from "./index";
 import { WebCryptoEngine } from "./web-crypto";
 
@@ -16,25 +17,25 @@ describe("WebCryptoEngine JavaScript", () => {
   const helper = new CryptoHelper(engine);
 
   it("should decrypt what it encrypts", async () => {
-    const data = toArrayBuffer("test all seed phrase words for to see this to work maybe");
-    const key = toArrayBuffer("12345678901234561234567890123456");
-    const iv = toArrayBuffer("1234567890123456");
+    const data = core.toArrayBuffer(utils.fromUtf8ToArray("test all seed phrase words for to see this to work maybe"));
+    const key = core.toArrayBuffer(utils.fromUtf8ToArray("12345678901234561234567890123456"));
+    const iv = core.toArrayBuffer(utils.fromUtf8ToArray("1234567890123456"));
     const engine = new WebCryptoEngine();
 
     const encrypted = await engine.encrypt(data, key, iv);
 
-    const decrypted = fromBufferToUtf8(await engine.decrypt(encrypted, key, iv));
+    const decrypted = utils.fromBufferToUtf8(await engine.decrypt(encrypted, key, iv));
     expect(decrypted).toEqual("test all seed phrase words for to see this to work maybe");
   });
 
   it("should decrypt what it encrypts with random key", async () => {
-    const data = toArrayBuffer("test encrypted data");
+    const data = core.toArrayBuffer(utils.fromUtf8ToArray("test encrypted data"));
     const key = await engine.randomBytes(32);
     const iv = await engine.randomBytes(16);
 
     const encrypted = await engine.encrypt(data, key, iv);
     const decrypted = await engine.decrypt(encrypted, key, iv);
-    expect(fromBufferToUtf8(decrypted)).toEqual("test encrypted data");
+    expect(utils.fromBufferToUtf8(decrypted)).toEqual("test encrypted data");
   });
 
   it("should generate a key from a password and email", async () => {
@@ -60,26 +61,26 @@ describe("WebCryptoEngine JavaScript", () => {
   it("should generate a different password hash from an encryption key and password", async () => {
     const key = await helper.makeKey("password2", "email");
     const hash = await helper.pbkdf2(key.hashKey, "password2", 1);
-    expect(fromBufferToB64(hash)).not.toEqual("W/7DR3sIqcb8lnLXD/ToTS+imBVMTyPR7JMend9hxrM=");
+    expect(utils.fromBufferToB64(hash)).not.toEqual("W/7DR3sIqcb8lnLXD/ToTS+imBVMTyPR7JMend9hxrM=");
   });
 
   it("should encrypt a wallet with a password and email", async () => {
     const key = await helper.makeKey("password", "email");
 
-    const mnemonic = fromUtf8ToArray("all all all all all all all all all all all all");
-    const iv = fromB64ToArray("rnvfQhmCO27xxEk33ayinw==");
+    const mnemonic = utils.fromUtf8ToArray("all all all all all all all all all all all all");
+    const iv = utils.fromB64ToArray("rnvfQhmCO27xxEk33ayinw==");
     const encrypted = await engine.encrypt(mnemonic, key.encKey, iv);
 
-    expect(fromBufferToB64(encrypted)).toEqual("FC2M6J3aqlavEne0Sl72Xyh3XB2RzxmNpy/zKNqu1ys+3Xe7pxyRQd+GRsLcf/Rf");
+    expect(utils.fromBufferToB64(encrypted)).toEqual("FC2M6J3aqlavEne0Sl72Xyh3XB2RzxmNpy/zKNqu1ys+3Xe7pxyRQd+GRsLcf/Rf");
   });
 
   it("should decrypt a wallet with a password and email", async () => {
     const key = await helper.makeKey("password", "email");
-    const encryptedData = fromB64ToArray("FC2M6J3aqlavEne0Sl72Xyh3XB2RzxmNpy/zKNqu1ys+3Xe7pxyRQd+GRsLcf/Rf");
-    const iv = fromB64ToArray("rnvfQhmCO27xxEk33ayinw==");
+    const encryptedData = utils.fromB64ToArray("FC2M6J3aqlavEne0Sl72Xyh3XB2RzxmNpy/zKNqu1ys+3Xe7pxyRQd+GRsLcf/Rf");
+    const iv = utils.fromB64ToArray("rnvfQhmCO27xxEk33ayinw==");
     const decrypted = await engine.decrypt(encryptedData, key.encKey, iv);
 
-    expect(fromBufferToUtf8(decrypted)).toEqual("all all all all all all all all all all all all");
+    expect(utils.fromBufferToUtf8(decrypted)).toEqual("all all all all all all all all all all all all");
   });
 
   it("should generate random bytes", async () => {
@@ -111,8 +112,8 @@ describe("WebCryptoEngine JavaScript", () => {
       "204a8fc6dda82f0a0ced7beb8e08a41657c16ef468b228a8279be331a703c33596fd15c13b1b07f9aa1d3bea57789ca031ad85c7a71dd70354ec631238ca3445",
     ],
   ])("should produce a valid SHA hash (alg %s) for %s", async (alg, data: string, hash: string) => {
-    const dataBuffer = fromUtf8ToArray(data);
-    const expected = Buffer.from(hash, "hex").buffer;
+    const dataBuffer = utils.fromUtf8ToArray(data);
+    const expected = core.toArrayBuffer(Buffer.from(hash, "hex"));
     const result = await engine.digest(alg, dataBuffer);
     expect(result).toEqual(expected);
   });

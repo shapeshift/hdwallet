@@ -45,7 +45,7 @@ export class TransportDelegate implements keepkey.TransportDelegate {
     await makePromise(chromeUSB.interruptTransfer, this.connectionHandle, {
       direction: "out",
       endpoint: 1,
-      data: buffer.buffer,
+      data: core.toArrayBuffer(buffer),
       timeout: 0,
     });
   }

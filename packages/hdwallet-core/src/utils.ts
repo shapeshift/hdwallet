@@ -160,3 +160,8 @@ export function hardenedPath(path: BIP32Path): BIP32Path {
 export function relativePath(path: BIP32Path): BIP32Path {
   return path.filter((segment) => segment < 0x80000000);
 }
+
+export function toArrayBuffer(x: ArrayBuffer | ArrayBufferView): ArrayBuffer {
+  if (x instanceof ArrayBuffer) return x;
+  return x.buffer.slice(x.byteOffset, x.byteOffset + x.byteLength);
+}

@@ -1,3 +1,4 @@
+import * as core from "@shapeshiftoss/hdwallet-core";
 import * as scryptJs from "scrypt-js";
 
 import { CryptoEngine, DigestAlgorithm, ScryptParams } from "./index";
@@ -41,11 +42,11 @@ export class WebCryptoEngine implements CryptoEngine {
   }
 
   public async randomBytes(size: number): Promise<ArrayBuffer> {
-    return globalThis.crypto.getRandomValues(new Uint8Array(size)).buffer;
+    return core.toArrayBuffer(globalThis.crypto.getRandomValues(new Uint8Array(size)));
   }
 
   public async scrypt(password: ArrayBuffer, salt: ArrayBuffer, params: ScryptParams): Promise<ArrayBuffer> {
-    return (
+    return core.toArrayBuffer(
       await scryptJs.scrypt(
         new Uint8Array(password),
         new Uint8Array(salt),
@@ -54,6 +55,6 @@ export class WebCryptoEngine implements CryptoEngine {
         params.parallelism,
         params.keyLength
       )
-    ).buffer;
+    );
   }
 }

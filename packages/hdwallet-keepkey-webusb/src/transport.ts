@@ -75,6 +75,6 @@ export class TransportDelegate implements keepkey.TransportDelegate {
       await this.usbDevice.clearHalt("out", debugLink ? 2 : 1);
     }
 
-    return new Uint8Array(data.buffer);
+    return new Uint8Array(core.toArrayBuffer(data));
   }
 }

@@ -1,3 +1,4 @@
+import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bip39 from "bip39";
 
 import { CipherString, EncryptedObject, SymmetricCryptoKey } from "./classes";
@@ -44,7 +45,7 @@ export default class CryptoHelper {
   async aesEncrypt(data: ArrayBuffer | Uint8Array, key: SymmetricCryptoKey): Promise<EncryptedObject> {
     if (data == null || !(data instanceof ArrayBuffer || data instanceof Uint8Array))
       throw new Error("Required parameter [data] is not of type ArrayBuffer or Uint8Array");
-    if (data instanceof Uint8Array) data = data.buffer;
+    if (data instanceof Uint8Array) data = core.toArrayBuffer(data);
     if (key == null || key.encKey == null || key.macKey == null)
       throw new Error("Required parameter [key] is not of type SymmetricCryptoKey");
     const iv = await this.#engine.randomBytes(16);
@@ -70,20 +71,23 @@ export default class CryptoHelper {
   ): Promise<ArrayBuffer> {
     if (data == null || !(data instanceof ArrayBuffer || data instanceof Uint8Array))
       throw new Error("Required parameter [data] is not of type ArrayBuffer or Uint8Array");
-    if (data instanceof Uint8Array) data = data.buffer;
+    if (data instanceof Uint8Array) data = core.toArrayBuffer(data);
     if (iv == null || !(iv instanceof ArrayBuffer || iv instanceof Uint8Array))
       throw new Error("Required parameter [iv] is not of type ArrayBuffer or Uint8Array");
-    if (iv instanceof Uint8Array) iv = iv.buffer;
+    if (iv instanceof Uint8Array) iv = core.toArrayBuffer(iv);
     if (mac == null || !(mac instanceof ArrayBuffer || mac instanceof Uint8Array))
       throw new Error("Required parameter [mac] is not of type ArrayBuffer or Uint8Array");
-    if (mac instanceof Uint8Array) mac = mac.buffer;
+    if (mac instanceof Uint8Array) mac = core.toArrayBuffer(mac)
     if (key == null || key.encKey == null || key.macKey == null)
       throw new Error("Required parameter [key] is not of type SymmetricCryptoKey");
 
     const macData = new Uint8Array(iv.byteLength + data.byteLength);
     macData.set(new Uint8Array(iv), 0);
     macData.set(new Uint8Array(data), iv.byteLength);
-    const computedMac = await this.#engine.hmac(macData.buffer, key.macKey);
+    const computedMac = await this.#engine.hmac(
+      core.toArrayBuffer(macData),
+      key.macKey
+    );
     const macsMatch = await this.compare(mac, computedMac);
 
     if (!macsMatch) throw new Error("HMAC signature is not valid or data has been tampered with");
@@ -106,7 +110,9 @@ export default class CryptoHelper {
       t.set(info, previousT.length);
       t.set([i + 1], t.length - 1);
 
-      previousT = new Uint8Array(await this.#engine.hmac(t.buffer, prk));
+      previousT = new Uint8Array(
+        await this.#engine.hmac(core.toArrayBuffer(t), prk)
+      );
 
       okm.set(previousT, i * hashLen);
     }
@@ -115,8 +121,8 @@ export default class CryptoHelper {
   }
 
   async pbkdf2(password: string | ArrayBuffer, salt: string | ArrayBuffer, iterations: number): Promise<ArrayBuffer> {
-    password = utils.toArrayBuffer(password);
-    salt = utils.toArrayBuffer(salt);
+    password = typeof password !== "string" ? password : core.toArrayBuffer(utils.fromUtf8ToArray(password));
+    salt = typeof salt !== "string" ? salt : core.toArrayBuffer(utils.fromUtf8ToArray(salt));
 
     return this.#engine.pbkdf2(password, salt, { iterations, keyLen: 32 });
   }
@@ -126,10 +132,10 @@ export default class CryptoHelper {
       throw new Error("A password and email are required to make a symmetric crypto key.");
     }
 
-    const salt = utils.toArrayBuffer(email);
+    const salt = core.toArrayBuffer(utils.fromUtf8ToArray(email));
     // The same email/password MUST always generate the same encryption key, so
     // scrypt parameters are hard-coded to ensure compatibility across implementations
-    const key = await this.#engine.scrypt(utils.toArrayBuffer(password), salt, {
+    const key = await this.#engine.scrypt(core.toArrayBuffer(utils.fromUtf8ToArray(password)), salt, {
       iterations: 16384,
       blockSize: 8,
       parallelism: 1,
