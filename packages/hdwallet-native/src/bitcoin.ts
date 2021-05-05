@@ -265,7 +265,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
     }
 
     async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx> {
-      return this.needsMnemonic(!!this.#wallet, () => {
+      return this.needsMnemonic(!!this.#wallet, async () => {
         const { coin, inputs, outputs, version, locktime } = msg;
 
         const psbt = new bitcoin.Psbt({ network: getNetwork(coin) });
@@ -315,15 +315,15 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
           psbt.addOutput({ script: embed.output, value: 0 });
         }
 
-        inputs.forEach((input, idx) => {
+        await Promise.all(inputs.map(async (input, idx) => {
           try {
             const { addressNList, scriptType } = input;
             const keyPair = getKeyPair(this.#wallet, addressNList, coin, scriptType);
-            psbt.signInput(idx, keyPair);
+            await psbt.signInputAsync(idx, keyPair);
           } catch (e) {
             throw new Error(`failed to sign input: ${e}`);
           }
-        });
+        }));
 
         psbt.finalizeAllInputs();
 
