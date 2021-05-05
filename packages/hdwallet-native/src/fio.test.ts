@@ -88,8 +88,8 @@ describe("NativeFioWalletInfo", () => {
   const info = NativeHDWallet.info();
 
   it("should return some static metadata", async () => {
-    await expect(untouchable.call(info, "fioSupportsNetwork")).resolves.toBe(true);
-    await expect(untouchable.call(info, "fioSupportsSecureTransfer")).resolves.toBe(false);
+    expect(await untouchable.call(info, "fioSupportsNetwork")).toBe(true);
+    expect(await untouchable.call(info, "fioSupportsSecureTransfer")).toBe(false);
     expect(untouchable.call(info, "fioSupportsNativeShapeShift")).toBe(false);
   });
 
@@ -109,7 +109,7 @@ describe("NativeFioWallet", () => {
   beforeEach(async () => {
     wallet = NativeHDWallet.create({ deviceId: "native" });
     await wallet.loadDevice({ mnemonic: MNEMONIC });
-    await expect(wallet.initialize()).resolves.toBe(true);
+    expect(await wallet.initialize()).toBe(true);
   });
 
   describe("stuff that uses the network", () => {
@@ -145,33 +145,32 @@ describe("NativeFioWallet", () => {
     });
 
     it("should expose the FIO SDK", async () => {
-      await expect(wallet.getFioSdk(core.bip32ToAddressNList("m/44'/235'/0'/0/0"))).resolves.toBeInstanceOf(fio.FIOSDK);
+      expect(await wallet.getFioSdk(core.bip32ToAddressNList("m/44'/235'/0'/0/0"))).toBeInstanceOf(fio.FIOSDK);
     });
 
     it("should sign a message", async () => {
-      await expect(
-        wallet.fioSignTx({
-          addressNList: core.bip32ToAddressNList("m/44'/235'/0'/0/0"),
-          actions: [
-            {
-              account: "fio.address",
-              name: "addaddress",
-              data: {
-                fio_address: "FIO5NSKecB4CcMpUxtpHzG4u43SmcGMAjRbxyG38rE4HPegGpaHu9",
-                public_addresses: [
-                  {
-                    chain_code: "foo",
-                    token_code: "bar",
-                    public_address: "baz",
-                  },
-                ],
-                max_fee: 0,
-                tpid: "FIO5NSKecB4CcMpUxtpHzG4u43SmcGMAjRbxyG38rE4HPegGpaHu9",
-              },
+      const sig = await wallet.fioSignTx({
+        addressNList: core.bip32ToAddressNList("m/44'/235'/0'/0/0"),
+        actions: [
+          {
+            account: "fio.address",
+            name: "addaddress",
+            data: {
+              fio_address: "FIO5NSKecB4CcMpUxtpHzG4u43SmcGMAjRbxyG38rE4HPegGpaHu9",
+              public_addresses: [
+                {
+                  chain_code: "foo",
+                  token_code: "bar",
+                  public_address: "baz",
+                },
+              ],
+              max_fee: 0,
+              tpid: "FIO5NSKecB4CcMpUxtpHzG4u43SmcGMAjRbxyG38rE4HPegGpaHu9",
             },
-          ],
-        })
-      ).resolves.toMatchInlineSnapshot(`
+          },
+        ],
+      });
+      expect(sig).toMatchInlineSnapshot(`
         Object {
           "serialized": "ee9952603aa2ef1c7ca90000000001003056372503a85b0000c6eaa66452320180f2f085077460fd00000000a8ed323289013546494f354e534b6563423443634d7055787470487a4734753433536d63474d416a5262787947333872453448506567477061487539010362617203666f6f0362617a000000000000000080f2f085077460fd3546494f354e534b6563423443634d7055787470487a4734753433536d63474d416a526278794733387245344850656747706148753900",
           "signature": "SIG_K1_JxgRLcqJHYjaqAhwHpsi8iGGkYVZRKMGT46xozonn2YwBF6vv3Jg7UZ95PsFKh9BFpHNTwhcLHhzyzhxdvw47zF12REeM2",
@@ -185,8 +184,8 @@ describe("NativeFioWallet", () => {
   });
 
   it("should encrypt a request", async () => {
-    await expect(
-      wallet.fioEncryptRequestContent({
+    expect(
+      await wallet.fioEncryptRequestContent({
         addressNList: core.bip32ToAddressNList("m/44'/235'/0'/0/0"),
         content: {
           payee_public_address: "FIO5NSKecB4CcMpUxtpHzG4u43SmcGMAjRbxyG38rE4HPegGpaHu9",
@@ -200,22 +199,22 @@ describe("NativeFioWallet", () => {
         publicKey: "FIO8HiUzsRDYo69AEmUk39f7h7nawTjn9msbX6oUY5wrX6ERCh3rA",
         contentType: core.FioEncryptionContentType.REQUEST,
         iv: Buffer.from("deadbeefdeadbeefdeadbeefdeadbeef", "hex"),
-      })
-    ).resolves.toMatchInlineSnapshot(
+      } as any)
+    ).toMatchInlineSnapshot(
       `"3q2+796tvu/erb7v3q2+7yeNoq+0I2pI2M5ylVEBuYkKwwHIJfKeuDZPp9bOLZNVbGtY7bfy/U9b7n316iuX1EQJHlIiHLOELx60jdWfF4A67x1T3WR8OW6lGBYCZDj8j50YbQM/oqcAIG5ND9MWK9U6Z2rcubAuZvQAcll1Jm4cIgVp49+ZxSKzEvH7Aasz"`
     );
   });
 
   it("should decrypt a request", async () => {
-    await expect(
-      wallet.fioDecryptRequestContent({
+    expect(
+      await wallet.fioDecryptRequestContent({
         addressNList: core.bip32ToAddressNList("m/44'/235'/1'/0/0"),
         content:
           "3q2+796tvu/erb7v3q2+7yeNoq+0I2pI2M5ylVEBuYkKwwHIJfKeuDZPp9bOLZNVbGtY7bfy/U9b7n316iuX1EQJHlIiHLOELx60jdWfF4A67x1T3WR8OW6lGBYCZDj8j50YbQM/oqcAIG5ND9MWK9U6Z2rcubAuZvQAcll1Jm4cIgVp49+ZxSKzEvH7Aasz",
         publicKey: "FIO5NSKecB4CcMpUxtpHzG4u43SmcGMAjRbxyG38rE4HPegGpaHu9",
         contentType: core.FioEncryptionContentType.REQUEST,
       })
-    ).resolves.toMatchInlineSnapshot(`
+    ).toMatchInlineSnapshot(`
       Object {
         "amount": "1234",
         "chain_code": "foo",

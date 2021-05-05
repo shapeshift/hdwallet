@@ -81,8 +81,8 @@ describe("NativeBinanceWalletInfo", () => {
   const info = NativeHDWallet.info();
 
   it("should return some static metadata", async () => {
-    await expect(untouchable.call(info, "binanceSupportsNetwork")).resolves.toBe(true);
-    await expect(untouchable.call(info, "binanceSupportsSecureTransfer")).resolves.toBe(false);
+    expect(await untouchable.call(info, "binanceSupportsNetwork")).toBe(true);
+    expect(await untouchable.call(info, "binanceSupportsSecureTransfer")).toBe(false);
     expect(untouchable.call(info, "binanceSupportsNativeShapeShift")).toBe(false);
   });
 
@@ -106,19 +106,19 @@ describe("NativeBinanceWallet", () => {
   beforeEach(async () => {
     wallet = NativeHDWallet.create({ deviceId: "native" });
     await wallet.loadDevice({ mnemonic: MNEMONIC });
-    await expect(wallet.initialize()).resolves.toBe(true);
+    expect(await wallet.initialize()).toBe(true);
   });
 
   it("should generate a correct binance address", async () => {
-    await expect(
+    expect(await 
       wallet.binanceGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/714'/0'/0/0") })
-    ).resolves.toBe("bnb1qzc0v2q7u6484czzal6ncuvqmg9fae8n2xe2c6");
+    ).toBe("bnb1qzc0v2q7u6484czzal6ncuvqmg9fae8n2xe2c6");
   });
 
   it("should generate another correct binance address", async () => {
-    await expect(
+    expect(await 
       wallet.binanceGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/714'/1337'/123/4") })
-    ).resolves.toBe("bnb14awl92k30hyhu36wjy6pg0trx3zlqrpfgsf3xk");
+    ).toBe("bnb14awl92k30hyhu36wjy6pg0trx3zlqrpfgsf3xk");
   });
 
   it("should sign a transaction correctly", async () => {
