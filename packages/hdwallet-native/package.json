@@ -27,7 +27,9 @@
     "ethereum-tx-decoder": "^3.0.0",
     "ethers": "^5.1.0",
     "fiosdk-offline": "^1.2.21",
+    "funtypes": "^3.0.1",
     "lodash": "^4.17.15",
+    "tiny-secp256k1": "^1.1.6",
     "web-encoding": "^1.1.0"
   },
   "devDependencies": {

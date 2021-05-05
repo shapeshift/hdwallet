@@ -6702,6 +6702,11 @@ functional-red-black-tree@^1.0.1:
   resolved "https://registry.yarnpkg.com/functional-red-black-tree/-/functional-red-black-tree-1.0.1.tgz#1b0ab3bd553b2a0d6399d29c0e3ea0b252078327"
   integrity sha1-GwqzvVU7Kg1jmdKcDj6gslIHgyc=
 
+funtypes@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/funtypes/-/funtypes-3.0.1.tgz#419dff32d0abb3ef8dab7768fde45d64db8f7d27"
+  integrity sha512-1HxfmS7Xpa0g8fVGXCK9Xr+JzGaqUb12joeA//nfQXUvaK2Dioyc0+XOpXrZWkPqM9SXyyffE+Zgc6Zs+oZk1A==
+
 gauge@~2.7.3:
   version "2.7.4"
   resolved "https://registry.yarnpkg.com/gauge/-/gauge-2.7.4.tgz#2c03405c7538c39d7eb37b317022e325fb018bf7"
@@ -12945,6 +12950,17 @@ tiny-secp256k1@^1.1.1, tiny-secp256k1@^1.1.3:
   version "1.1.5"
   resolved "https://registry.yarnpkg.com/tiny-secp256k1/-/tiny-secp256k1-1.1.5.tgz#3dc37b9bf0fa5b4390b9fa29e953228810cebc18"
   integrity sha512-duE2hSLSQIpHGzmK48OgRrGTi+4OTkXLC6aa86uOYQ6LLCYZSarVKIAvEtY7MoXjoL6bOXMSerEGMzrvW4SkDw==
+  dependencies:
+    bindings "^1.3.0"
+    bn.js "^4.11.8"
+    create-hmac "^1.1.7"
+    elliptic "^6.4.0"
+    nan "^2.13.2"
+
+tiny-secp256k1@^1.1.6:
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/tiny-secp256k1/-/tiny-secp256k1-1.1.6.tgz#7e224d2bee8ab8283f284e40e6b4acb74ffe047c"
+  integrity sha512-FmqJZGduTyvsr2cF3375fqGHUovSwDi/QytexX1Se4BPuPZpTE5Ftp5fg+EFSuEf3lhZqgCRjEG3ydUQ/aNiwA==
   dependencies:
     bindings "^1.3.0"
     bn.js "^4.11.8"
