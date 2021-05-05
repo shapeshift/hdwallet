@@ -1,6 +1,6 @@
 import * as NativeHDWallet from "./native";
-import * as bip39 from "bip39";
 import { BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
+import * as Isolation from "./crypto/isolation";
 
 const MNEMONIC = "all all all all all all all all all all all all";
 
@@ -183,9 +183,10 @@ describe("NativeHDWallet", () => {
   it("should wipe if an error occurs during initialization", async () => {
     expect.assertions(7);
     const wallet = NativeHDWallet.create({ deviceId: "native" });
-    await wallet.loadDevice({ mnemonic: MNEMONIC });
+    const mockMnemonic = new Isolation.BIP39.Mnemonic(MNEMONIC);
+    await wallet.loadDevice({ mnemonic: mockMnemonic });
     const mocks = [
-      jest.spyOn(bip39, "mnemonicToSeed").mockImplementationOnce(() => {
+      jest.spyOn(mockMnemonic, "toSeed").mockImplementationOnce(() => {
         throw "mock error";
       }),
       jest.spyOn(console, "error").mockImplementationOnce((msg, error) => {
