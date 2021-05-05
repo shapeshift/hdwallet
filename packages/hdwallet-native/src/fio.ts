@@ -1,25 +1,22 @@
-import { addressNListToBIP32 } from "@shapeshiftoss/hdwallet-core";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { BIP32Interface } from "bitcoinjs-lib";
-import * as bitcoin from "bitcoinjs-lib";
 import * as fio from "fiosdk-offline";
 import fetch, { RequestInfo, RequestInit } from "node-fetch";
 import { NativeHDWalletBase } from "./native";
 import { Fio as fiojs } from "@fioprotocol/fiojs"; // TODO use our forked fioSdk instead of fiojs
 import { TextEncoder, TextDecoder } from "web-encoding";
-import wif from "wif";
+import * as Isolation from "./crypto/isolation";
 
 const fetchJson = async (uri: RequestInfo, opts?: RequestInit) => {
   return fetch(uri, opts);
 };
 
-function getKeyPair(seed: BIP32Interface, addressNList: number[]) {
-  const path = addressNListToBIP32(addressNList);
-  const key = seed.derivePath(path).privateKey;
-  const privateKey = wif.encode(128, key, false);
-  const { publicKey } = fio.FIOSDK.derivedPublicKey(privateKey);
-
-  return { privateKey, publicKey };
+function getKeyPair(seed: Isolation.BIP32.SeedInterface, addressNList: number[]) {
+  let out = seed.toMasterKey()
+  addressNList.forEach(x => {
+    out = out.derive(x);
+  });
+  if (typeof out["ecdh"] !== "function") throw new Error("fio requires keys that implement ECDH");
+  return new Isolation.Adapters.FIO(out as typeof out & Isolation.SecP256K1.ECDHKeyInterface);
 }
 
 export function MixinNativeFioWalletInfo<TBase extends core.Constructor>(Base: TBase) {
@@ -58,20 +55,20 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
   return class MixinNativeFioWallet extends Base {
     _supportsFio = true;
     baseUrl = "https://fio.eu.eosamsterdam.net/v1/";
-    #wallet: BIP32Interface;
+    #seed: Isolation.BIP32.SeedInterface;
 
-    async fioInitializeWallet(seed: Buffer): Promise<void> {
-      this.#wallet = bitcoin.bip32.fromSeed(seed);
+    async fioInitializeWallet(seed: Buffer | Isolation.BIP32.SeedInterface): Promise<void> {
+      this.#seed = (seed instanceof Buffer ? new Isolation.BIP32.Seed(seed) : seed);
     }
 
     fioWipe(): void {
-      this.#wallet = undefined;
+      this.#seed = undefined;
     }
 
     async getFioSdk(addressNList: core.BIP32Path): Promise<fio.FIOSDK> {
-      return this.needsMnemonic(!!this.#wallet, async () => {
-        const { privateKey, publicKey } = getKeyPair(this.#wallet, addressNList);
-        return new fio.FIOSDK(privateKey, publicKey, this.baseUrl, fetchJson);
+      return this.needsMnemonic(!!this.#seed, async () => {
+        let key = getKeyPair(this.#seed, addressNList);
+        return new fio.FIOSDK(key as any, key.publicKey, this.baseUrl, fetchJson);
       });
     }
 
@@ -96,8 +93,8 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
     }
 
     async fioEncryptRequestContent(msg: core.FioRequestContent & {iv?: Uint8Array}): Promise<string> {
-      return this.needsMnemonic(!!this.#wallet, async () => {
-        const { privateKey } = getKeyPair(this.#wallet, msg.addressNList);
+      return this.needsMnemonic(!!this.#seed, async () => {
+        const privateKey = getKeyPair(this.#seed, msg.addressNList);
         const sharedCipher = fiojs.createSharedCipher({
           privateKey,
           publicKey: msg.publicKey,
@@ -109,8 +106,8 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
     }
 
     async fioDecryptRequestContent(msg: core.FioRequestContent): Promise<any> {
-      return this.needsMnemonic(!!this.#wallet, async () => {
-        const { privateKey } = getKeyPair(this.#wallet, msg.addressNList);
+      return this.needsMnemonic(!!this.#seed, async () => {
+        const privateKey = getKeyPair(this.#seed, msg.addressNList);
         const sharedCipher = fiojs.createSharedCipher({
           privateKey,
           publicKey: msg.publicKey,

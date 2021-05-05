@@ -1,6 +1,8 @@
 import * as fio from "fiosdk-offline";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as NativeHDWallet from "./native";
+import { base58, sha256 } from "ethers/lib/utils";
+import * as tinyecc from "tiny-secp256k1";
 
 const MNEMONIC = "all all all all all all all all all all all all";
 
@@ -170,16 +172,35 @@ describe("NativeFioWallet", () => {
           },
         ],
       });
-      expect(sig).toMatchInlineSnapshot(`
+      // This is the output of the native library's own signing function.
+      /*expect(sig).toMatchInlineSnapshot(`
         Object {
           "serialized": "ee9952603aa2ef1c7ca90000000001003056372503a85b0000c6eaa66452320180f2f085077460fd00000000a8ed323289013546494f354e534b6563423443634d7055787470487a4734753433536d63474d416a5262787947333872453448506567477061487539010362617203666f6f0362617a000000000000000080f2f085077460fd3546494f354e534b6563423443634d7055787470487a4734753433536d63474d416a526278794733387245344850656747706148753900",
           "signature": "SIG_K1_JxgRLcqJHYjaqAhwHpsi8iGGkYVZRKMGT46xozonn2YwBF6vv3Jg7UZ95PsFKh9BFpHNTwhcLHhzyzhxdvw47zF12REeM2",
+        }
+      `);*/
+      // This is the output from tiny-secp256k1.
+      expect(sig).toMatchInlineSnapshot(`
+        Object {
+          "serialized": "ee9952603aa2ef1c7ca90000000001003056372503a85b0000c6eaa66452320180f2f085077460fd00000000a8ed323289013546494f354e534b6563423443634d7055787470487a4734753433536d63474d416a5262787947333872453448506567477061487539010362617203666f6f0362617a000000000000000080f2f085077460fd3546494f354e534b6563423443634d7055787470487a4734753433536d63474d416a526278794733387245344850656747706148753900",
+          "signature": "SIG_K1_KtHZaEcAbNfEJZPZKNPyYZrQJxPPZFy4MDEADYYAP7L8Hwni1uCzw8zjvDohaEZ5av5Pgwijxjuv7j5qyZpw3xvuKGhmtz",
         }
       `);
       expect(mswMock).toHaveBeenCalledWith("GET", "https://fio.eu.eosamsterdam.net/v1/chain/get_info");
       expect(mswMock).toHaveBeenCalledWith("POST", "https://fio.eu.eosamsterdam.net/v1/chain/get_block", {
         block_num_or_id: 61841978,
       });
+
+      const chainId = Buffer.from(
+        mswMock.handlers.get["https://fio.eu.eosamsterdam.net/v1/chain/get_info"].chain_id,
+        "hex"
+      );
+      const msgRaw = Buffer.concat([chainId, Buffer.from(sig.serialized, "hex"), Buffer.alloc(32)]);
+
+      const msgHash = Buffer.from(sha256(msgRaw).slice(2), "hex");
+      const pubKey = base58.decode("FIO5NSKecB4CcMpUxtpHzG4u43SmcGMAjRbxyG38rE4HPegGpaHu9".slice(3)).slice(0, -4);
+      const sigRaw = base58.decode(sig.signature.slice(7)).slice(1, -4);
+      expect(tinyecc.verify(msgHash, pubKey, sigRaw)).toBe(true);
     });
   });
 
