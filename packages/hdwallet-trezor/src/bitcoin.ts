@@ -1,4 +1,5 @@
 import {
+  BIP32Path,
   BTCWallet,
   BTCGetAddress,
   BTCSignTx,
@@ -23,6 +24,14 @@ import { handleError } from "./utils";
 import { TrezorTransport } from "./transport";
 
 import Base64 from "base64-js";
+
+type BTCTrezorSignTxOutput = {
+  amount?: string;
+  address?: string;
+  address_n?: BIP32Path | string;
+  script_type?: string;
+  op_return_data?: Buffer;
+};
 
 function translateCoin(coin: Coin): string {
   return {
@@ -112,7 +121,7 @@ export async function btcSignTx(wallet: BTCWallet, transport: TrezorTransport, m
     };
   });
 
-  let outputs = msg.outputs.map((output) => {
+  let outputs: BTCTrezorSignTxOutput[] = msg.outputs.map((output) => {
     if (output.exchangeType && !supportsShapeShift) throw new Error("Trezor does not support Native ShapeShift");
 
     if (output.addressNList) {
