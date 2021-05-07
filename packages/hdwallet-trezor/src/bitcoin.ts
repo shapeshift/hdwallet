@@ -146,7 +146,7 @@ export async function btcSignTx(wallet: BTCWallet, transport: TrezorTransport, m
     outputs.push({
       amount: "0",
       op_return_data: Buffer.from(msg.opReturnData),
-      script_type: 3, // Trezor firmware uses enumerated type with value of 3 for "PAYTOOPRETURN"
+      script_type: "3", // Trezor firmware uses enumerated type with value of 3 for "PAYTOOPRETURN"
     });
   }
 
