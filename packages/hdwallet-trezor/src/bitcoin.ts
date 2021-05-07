@@ -111,6 +111,7 @@ export async function btcSignTx(wallet: BTCWallet, transport: TrezorTransport, m
       script_type: translateInputScriptType(input.scriptType),
     };
   });
+
   let outputs = msg.outputs.map((output) => {
     if (output.exchangeType && !supportsShapeShift) throw new Error("Trezor does not support Native ShapeShift");
 
@@ -137,6 +138,17 @@ export async function btcSignTx(wallet: BTCWallet, transport: TrezorTransport, m
 
     throw new Error("invalid arguments");
   });
+
+  if (msg.opReturnData) {
+    if (msg.opReturnData.length > 80) {
+      throw new Error("OP_RETURN data must be less than 80 chars.");
+    }
+    outputs.push({
+      amount: "0",
+      op_return_data: Buffer.from(msg.opReturnData),
+      script_type: 3, // Trezor firmware uses enumerated type with value of 3 for "PAYTOOPRETURN"
+    });
+  }
 
   let res = await transport.call("signTransaction", {
     coin: translateCoin(msg.coin),
