@@ -971,9 +971,9 @@ $thorchainSignSwap.on("click", async (e) => {
 
         let outputs = [
           {
+            address: "bc1q6m9u2qsu8mh8y7v8rr2ywavtj8g5arzlyhcej7",
             addressType: BTCOutputAddressType.Spend,
-            opReturnData: Buffer.from(memo, 'utf-8'),
-            amount: 0,
+            amount: String(1000),
             isChange: false,
           },
         ];
@@ -984,6 +984,7 @@ $thorchainSignSwap.on("click", async (e) => {
           outputs: outputs,
           version: 1,
           locktime: 0,
+          opReturnData: memo
         });
 
         $thorchainSwapResults.val(res.serializedTx);

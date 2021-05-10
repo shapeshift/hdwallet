@@ -1,7 +1,7 @@
 import { zip } from "lodash";
 import Base64 from "base64-js";
 import { isCashAddress, toLegacyAddress } from "bchaddrjs";
-import { crypto, TransactionBuilder, networks } from "bitcoinjs-lib";
+import { crypto, opcodes, script, TransactionBuilder, networks } from "bitcoinjs-lib";
 import { verify } from "bitcoinjs-message";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { LedgerTransport } from "./transport";
@@ -162,6 +162,14 @@ export async function btcSignTx(
     }
     txBuilder.addOutput(output.address, Number(output.amount));
   });
+
+  if (msg.opReturnData) {
+    if (msg.opReturnData.length > 80) {
+      throw new Error("OP_RETURN data must be less than 80 chars.");
+    }
+    const ret = script.compile([opcodes.OP_RETURN, Buffer.from(msg.opReturnData)]);
+    txBuilder.addOutput(ret, 0);
+  }
 
   let unsignedHex = txBuilder.buildIncomplete().toHex();
   let splitTx = await transport.call("Btc", "splitTransaction", unsignedHex);
