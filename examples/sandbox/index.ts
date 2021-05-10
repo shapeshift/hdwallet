@@ -972,7 +972,7 @@ $thorchainSignSwap.on("click", async (e) => {
         let outputs = [
           {
             addressType: BTCOutputAddressType.Spend,
-            opReturnData: Buffer.from(memo, 'utf-8'),
+            opReturnData: Buffer.from(memo, "utf-8"),
             amount: 0,
             isChange: false,
           },
@@ -1129,7 +1129,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
         let outputs = [
           {
             addressType: BTCOutputAddressType.Spend,
-            opReturnData: Buffer.from(memo, 'utf-8'),
+            opReturnData: Buffer.from(memo, "utf-8"),
             amount: $thorchainLiquidityAmount.val(),
             isChange: false,
           },
@@ -1172,10 +1172,10 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
       if (supportsBinance(wallet)) {
         tx = thorchainBinanceBaseTx;
         tx["memo"] = memo;
-        tx["msgs"]["outputs"][0] =           {
-          "address": $thorchainLiquidityPoolAddress.val(),
-          "coins": [{ "amount": $thorchainLiquidityAmount.val(), "denom": "BNB" }]
-        }
+        tx["msgs"]["outputs"][0] = {
+          address: $thorchainLiquidityPoolAddress.val(),
+          coins: [{ amount: $thorchainLiquidityAmount.val(), denom: "BNB" }],
+        };
         let res = await wallet.binanceSignTx({
           addressNList: bip32ToAddressNList(`m/44'/714'/0'/0/0`),
           chain_id: "Binance-Chain-Nile",
@@ -1193,10 +1193,10 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
       if (supportsBinance(wallet)) {
         tx = thorchainNativeRuneBaseTx;
         tx["memo"] = memo;
-        tx["msgs"]["outputs"][0] =           {
-          "address": $thorchainLiquidityPoolAddress.val(),
-          "coins": [{ "amount": $thorchainLiquidityAmount.val(), "denom": "BNB" }]
-        }
+        tx["msgs"]["outputs"][0] = {
+          address: $thorchainLiquidityPoolAddress.val(),
+          coins: [{ amount: $thorchainLiquidityAmount.val(), denom: "BNB" }],
+        };
         let res = await wallet.binanceSignTx({
           addressNList: bip32ToAddressNList(`m/44'/714'/0'/0/0`),
           chain_id: "Binance-Chain-Nile",
@@ -1214,10 +1214,10 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
       if (supportsThorchain(wallet)) {
         tx = thorchainUnsignedTx;
         tx["memo"] = memo;
-        tx["msgs"]["outputs"][0] =           {
-          "address": $thorchainLiquidityPoolAddress.val(),
-          "coins": [{ "amount": $thorchainLiquidityAmount.val(), "denom": "RUNE" }]
-        }
+        tx["msgs"]["outputs"][0] = {
+          address: $thorchainLiquidityPoolAddress.val(),
+          coins: [{ amount: $thorchainLiquidityAmount.val(), denom: "RUNE" }],
+        };
         console.log(tx);
         let res = await wallet.thorchainSignTx({
           addressNList: bip32ToAddressNList(`m/44'/931'/0'/0/0`),
@@ -1252,6 +1252,126 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
       $thorchainAddLiquidityResults.val("Invalid source chain");
       return;
   }
+});
+
+/*
+      Tendermint
+        * segwit: false
+        * mutltisig: false
+        * Bech32: false
+
+*/
+const $tendermintChainSelector = $("#tendermintChainSelector");
+const $tendermintAmountInput = $("#tendermintAmountInput");
+const $tendermintTestnetTrueButton = $("#tendermintTestnetTrueButton");
+const $tendermintTestnetFalseButton = $("#tendermintTestnetFalseButton");
+const $tendermintChainInput = $("#tendermintChainInput");
+const $tendermintDenominationInput = $("#tendermintDenominationInput");
+const $tendermintSubDenominationInput = $("#tendermintSubDenominationInput");
+const $tendermintDecimalsInput = $("#tendermintDecimalsInput");
+const $tendermintChainIDInput = $("#tendermintChainIDInput");
+const $tendermintChainNameInput = $("#tendermintChainNameInput");
+const $tendermintMessageTypePrefixInput = $("#tendermintMessageTypePrefixInput");
+const $tendermintAddressPrefixInput = $("#tendermintAddressPrefixInput");
+const $tendermintSignTransactionButton = $("#tendermintSignTransactionButton");
+const $tendermintGetAddressButton = $("tendermintGetAddressButton");
+let testnetState: boolean = true;
+
+function toggleTestnetState() {
+  if (testnetState === true) {
+    $tendermintTestnetTrueButton.attr("class", "button");
+    $tendermintTestnetFalseButton.attr("class", "button button-outline");
+  } else {
+    $tendermintTestnetTrueButton.attr("class", "button button-outline");
+    $tendermintTestnetFalseButton.attr("class", "button ");
+  }
+  testnetState = !testnetState;
+}
+
+$tendermintChainSelector.on("change", async (e) => {
+  e.preventDefault();
+  console.log($tendermintChainSelector.val());
+  switch ($tendermintChainSelector.val()) {
+    case "Terra":
+      $tendermintChainInput.attr("value", "Terra");
+      $tendermintDenominationInput.attr("value", "LUNA");
+      $tendermintSubDenominationInput.attr("value", "uLUNA");
+      $tendermintDecimalsInput.attr("value", "9");
+      $tendermintChainIDInput.attr("value", "columbus-3");
+      $tendermintChainNameInput.attr("value", "terra");
+      $tendermintMessageTypePrefixInput.attr("value", "terra-sdk");
+      $tendermintAddressPrefixInput.attr("value", "terra");
+      break;
+    case "Kava":
+      $tendermintChainInput.attr("value", "Kava");
+      $tendermintDenominationInput.attr("value", "KAVA");
+      $tendermintSubDenominationInput.attr("value", "uKAVA");
+      $tendermintDecimalsInput.attr("value", "8");
+      $tendermintChainIDInput.attr("value", "kava-4");
+      $tendermintChainNameInput.attr("value", "kava");
+      $tendermintMessageTypePrefixInput.attr("value", "kava-sdk");
+      $tendermintAddressPrefixInput.attr("value", "kava");
+      break;
+    case "Secret":
+      $tendermintChainInput.attr("value", "Secret");
+      $tendermintDenominationInput.attr("value", "SCRT");
+      $tendermintSubDenominationInput.attr("value", "uSCRT");
+      $tendermintDecimalsInput.attr("value", "8");
+      $tendermintChainIDInput.attr("value", "secret-2");
+      $tendermintChainNameInput.attr("value", "secret");
+      $tendermintMessageTypePrefixInput.attr("value", "secret-sdk");
+      $tendermintAddressPrefixInput.attr("value", "secret");
+      break;
+    case "Other":
+      $tendermintAddressPrefixInput.attr("disabled", false);
+      $tendermintAddressPrefixInput.attr("placeholder", "terra");
+      $tendermintAddressPrefixInput.attr("value", "");
+      $tendermintChainIDInput.attr("disabled", false);
+      $tendermintChainIDInput.attr("placeholder", "columbus-3");
+      $tendermintChainIDInput.attr("value", "");
+      $tendermintChainInput.attr("disabled", false);
+      $tendermintChainInput.attr("placeholder", "Terra");
+      $tendermintChainInput.attr("value", "");
+      $tendermintChainNameInput.attr("disabled", false);
+      $tendermintChainNameInput.attr("placeholder", "terra");
+      $tendermintChainNameInput.attr("value", "");
+      $tendermintDecimalsInput.attr("disabled", false);
+      $tendermintDecimalsInput.attr("placeholder", "8");
+      $tendermintDecimalsInput.attr("value", "");
+      $tendermintDenominationInput.attr("disabled", false);
+      $tendermintDenominationInput.attr("placeholder", "LUNA");
+      $tendermintDenominationInput.attr("value", "");
+      $tendermintMessageTypePrefixInput.attr("disabled", false);
+      $tendermintMessageTypePrefixInput.attr("placeholder", "terra-sdk");
+      $tendermintMessageTypePrefixInput.attr("value", "");
+      $tendermintSubDenominationInput.attr("disabled", false);
+      $tendermintSubDenominationInput.attr("placeholder", "uLUNA");
+      $tendermintSubDenominationInput.attr("value", "");
+      break;
+
+    default:
+      break;
+  }
+});
+
+$tendermintTestnetTrueButton.on("click", async (e) => {
+  e.preventDefault();
+  toggleTestnetState();
+});
+
+$tendermintTestnetFalseButton.on("click", async (e) => {
+  e.preventDefault();
+  toggleTestnetState();
+});
+
+$tendermintGetAddressButton.on("click", async (e) => {
+  e.preventDefault();
+  console.log("GetAddress Clicked.")
+});
+
+$tendermintSignTransactionButton.on("click", async (e) => {
+  e.preventDefault();
+  console.log("SignTransaction Clicked.")
 });
 
 /*
