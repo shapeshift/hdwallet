@@ -1,0 +1,17 @@
+diff --git a/node_modules/@bithighlander/bitcoin-cash-js-lib/src/crypto.js b/node_modules/@bithighlander/bitcoin-cash-js-lib/src/crypto.js
+index e7dd596..212ca83 100644
+--- a/node_modules/@bithighlander/bitcoin-cash-js-lib/src/crypto.js
++++ b/node_modules/@bithighlander/bitcoin-cash-js-lib/src/crypto.js
+@@ -30,6 +30,11 @@ function hash160(buffer) {
+ }
+ exports.hash160 = hash160;
+ function hash256(buffer) {
+-  return sha256(sha256(buffer));
++  const out = sha256(sha256(buffer));
++  out[Symbol.for("hdwallet_isolation_digest_source_hint")] = {
++    preimage: buffer,
++    algorithm: "hash256",
++  };
++  return out;
+ }
+ exports.hash256 = hash256;

@@ -1,0 +1,40 @@
+diff --git a/node_modules/bip32/src/bip32.js b/node_modules/bip32/src/bip32.js
+index 718b44d..0bdad0d 100644
+--- a/node_modules/bip32/src/bip32.js
++++ b/node_modules/bip32/src/bip32.js
+@@ -282,6 +282,7 @@ function fromPublicKeyLocal(publicKey, chainCode, network, depth, index, parentF
+         throw new TypeError('Point is not on the curve');
+     return new BIP32(undefined, publicKey, chainCode, network, depth, index, parentFingerprint);
+ }
++exports.fromPublicKeyLocal = fromPublicKeyLocal;
+ function fromSeed(seed, network) {
+     typeforce(typeforce.Buffer, seed);
+     if (seed.length < 16)
+diff --git a/node_modules/bip32/src/index.js b/node_modules/bip32/src/index.js
+index 6088e3d..1da1282 100644
+--- a/node_modules/bip32/src/index.js
++++ b/node_modules/bip32/src/index.js
+@@ -4,4 +4,5 @@ var bip32_1 = require("./bip32");
+ exports.fromSeed = bip32_1.fromSeed;
+ exports.fromBase58 = bip32_1.fromBase58;
+ exports.fromPublicKey = bip32_1.fromPublicKey;
++exports.fromPublicKeyLocal = bip32_1.fromPublicKeyLocal;
+ exports.fromPrivateKey = bip32_1.fromPrivateKey;
+diff --git a/node_modules/bip32/types/bip32.d.ts b/node_modules/bip32/types/bip32.d.ts
+index e0791a4..d4fab9b 100644
+--- a/node_modules/bip32/types/bip32.d.ts
++++ b/node_modules/bip32/types/bip32.d.ts
+@@ -34,5 +34,6 @@ export interface BIP32Interface {
+ export declare function fromBase58(inString: string, network?: Network): BIP32Interface;
+ export declare function fromPrivateKey(privateKey: Buffer, chainCode: Buffer, network?: Network): BIP32Interface;
+ export declare function fromPublicKey(publicKey: Buffer, chainCode: Buffer, network?: Network): BIP32Interface;
++export declare function fromPublicKeyLocal(publicKey: Buffer, chainCode: Buffer, network?: Network, depth?: number, index?: number, parentFingerprint?: number): BIP32Interface;
+ export declare function fromSeed(seed: Buffer, network?: Network): BIP32Interface;
+ export {};
+diff --git a/node_modules/bip32/types/index.d.ts b/node_modules/bip32/types/index.d.ts
+index 430ac47..9da3076 100644
+--- a/node_modules/bip32/types/index.d.ts
++++ b/node_modules/bip32/types/index.d.ts
+@@ -1 +1 @@
+-export { BIP32Interface, fromSeed, fromBase58, fromPublicKey, fromPrivateKey, } from './bip32';
++export { BIP32Interface, fromSeed, fromBase58, fromPublicKey, fromPublicKeyLocal, fromPrivateKey, } from './bip32';

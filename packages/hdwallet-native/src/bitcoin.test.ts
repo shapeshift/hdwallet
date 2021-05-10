@@ -126,22 +126,22 @@ describe("NativeBTCWalletInfo", () => {
 
   it("should return some static metadata", async () => {
     expect(info["btcSupportsNetwork"]).not.toBeDefined();
-    await expect(untouchable.call(info, "btcSupportsSecureTransfer")).resolves.toBe(false);
+    expect(await untouchable.call(info, "btcSupportsSecureTransfer")).toBe(false);
     expect(untouchable.call(info, "btcSupportsNativeShapeShift")).toBe(false);
   });
 
   it("should return some dynamic metadata", async () => {
-    await expect(info.btcSupportsCoin("bitcoin")).resolves.toBe(true);
-    await expect(info.btcSupportsCoin("bitcoincash")).resolves.toBe(true);
+    expect(await info.btcSupportsCoin("bitcoin")).toBe(true);
+    expect(await info.btcSupportsCoin("bitcoincash")).toBe(true);
 
-    await expect(info.btcSupportsScriptType("bitcoin", "p2pkh" as any)).resolves.toBe(true);
-    await expect(info.btcSupportsScriptType("bitcoin", "p2sh" as any)).resolves.toBe(true);
-    await expect(info.btcSupportsScriptType("bitcoin", "p2wpkh" as any)).resolves.toBe(true);
-    await expect(info.btcSupportsScriptType("bitcoin", "p2sh-p2wpkh" as any)).resolves.toBe(true);
-    await expect(info.btcSupportsScriptType("bitcoin", "cashaddr" as any)).resolves.toBe(false);
-    await expect(info.btcSupportsScriptType("bitcoincash", "cashaddr" as any)).resolves.toBe(false);
-    await expect(info.btcSupportsScriptType("bitcoin", "foobar" as any)).resolves.toBe(false);
-    await expect(info.btcSupportsScriptType("foobar", "p2pkh" as any)).resolves.toBe(false);
+    expect(await info.btcSupportsScriptType("bitcoin", "p2pkh" as any)).toBe(true);
+    expect(await info.btcSupportsScriptType("bitcoin", "p2sh" as any)).toBe(true);
+    expect(await info.btcSupportsScriptType("bitcoin", "p2wpkh" as any)).toBe(true);
+    expect(await info.btcSupportsScriptType("bitcoin", "p2sh-p2wpkh" as any)).toBe(true);
+    expect(await info.btcSupportsScriptType("bitcoin", "cashaddr" as any)).toBe(false);
+    expect(await info.btcSupportsScriptType("bitcoincash", "cashaddr" as any)).toBe(false);
+    expect(await info.btcSupportsScriptType("bitcoin", "foobar" as any)).toBe(false);
+    expect(await info.btcSupportsScriptType("foobar", "p2pkh" as any)).toBe(false);
   });
 
   it("should not do anything when btcIsSameAccount is called", async () => {
@@ -292,7 +292,7 @@ describe("NativeBTCWallet", () => {
   beforeEach(async () => {
     wallet = NativeHDWallet.create({ deviceId: "native" });
     await wallet.loadDevice({ mnemonic: MNEMONIC });
-    await expect(wallet.initialize()).resolves.toBe(true);
+    expect(await wallet.initialize()).toBe(true);
   });
 
   it.each([

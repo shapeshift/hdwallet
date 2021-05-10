@@ -1,11 +1,10 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import txBuilder from "cosmos-tx-builder";
-import * as bitcoin from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
-import { getNetwork } from "./networks";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
 import util from "./util";
+import * as Isolation from "./crypto/isolation";
 
 const ATOM_CHAIN = "cosmoshub-4";
 
@@ -44,15 +43,14 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
   return class MixinNativeCosmosWallet extends Base {
     _supportsCosmos = true;
 
-    #wallet: bitcoin.BIP32Interface;
+    #seed: Isolation.BIP32.SeedInterface;
 
-    async cosmosInitializeWallet(seed: Buffer): Promise<void> {
-      const network = getNetwork("cosmos");
-      this.#wallet = bitcoin.bip32.fromSeed(seed, network);
+    async cosmosInitializeWallet(seed: Isolation.BIP32.SeedInterface): Promise<void> {
+      this.#seed = seed;
     }
 
     cosmosWipe(): void {
-      this.#wallet = undefined;
+      this.#seed = undefined;
     }
 
     cosmosBech32ify(address: ArrayLike<number>, prefix: string): string {
@@ -68,15 +66,16 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
     }
 
     async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string> {
-      return this.needsMnemonic(!!this.#wallet, async () => {
-        return this.createCosmosAddress(util.getKeyPair(this.#wallet, msg.addressNList, "cosmos").publicKey);
+      return this.needsMnemonic(!!this.#seed, async () => {
+        return this.createCosmosAddress(util.getKeyPair(this.#seed, msg.addressNList, "cosmos").publicKey.toString("hex"));
       });
     }
 
     async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx> {
-      return this.needsMnemonic(!!this.#wallet, async () => {
-        const keyPair = util.getKeyPair(this.#wallet, msg.addressNList, "cosmos");
-        const result = await txBuilder.sign(msg.tx, keyPair, msg.sequence, msg.account_number, ATOM_CHAIN);
+      return this.needsMnemonic(!!this.#seed, async () => {
+        const keyPair = util.getKeyPair(this.#seed, msg.addressNList, "cosmos");
+        const adapter = new Isolation.Adapters.Cosmos(keyPair);
+        const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, ATOM_CHAIN);
 
         return txBuilder.createSignedTx(msg.tx, result);
       });

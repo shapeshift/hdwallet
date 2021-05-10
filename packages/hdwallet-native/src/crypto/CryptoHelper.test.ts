@@ -149,7 +149,7 @@ describe("CryptoHelpers", () => {
 
   describe("compare", () => {
     it("should return false if arrays are different sizes", async () => {
-      await expect(helper.compare(new Uint8Array(32), new Uint8Array(16))).resolves.toBe(false);
+      expect(await helper.compare(new Uint8Array(32), new Uint8Array(16))).toBe(false);
     });
 
     it("should return false if the hmac results are different sizes", async () => {
@@ -166,7 +166,7 @@ describe("CryptoHelpers", () => {
       const mac1 = new Uint8Array(16).fill(0);
       const mac2 = new Uint8Array(16).fill(0);
       mac2.set([1], 15);
-      await expect(helper.compare(mac1, mac2)).resolves.toBe(false);
+      expect(await helper.compare(mac1, mac2)).toBe(false);
     });
   });
 
@@ -185,11 +185,11 @@ describe("CryptoHelpers", () => {
 
   describe("deviceId", () => {
     it("should return undefined if the wallet has not been initialized", async () => {
-      await expect(
-        helper.getDeviceId(
+      expect(
+        await helper.getDeviceId(
           "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
         )
-      ).resolves.toBe("40bdrat83JXH1jC8EnGPujqEtorp/J/ToNeAOoyMLPs=");
+      ).toBe("40bdrat83JXH1jC8EnGPujqEtorp/J/ToNeAOoyMLPs=");
     });
 
     it.each([[undefined], [null], [""], [[1, 2, 3, 4, 5, 6]], [{}]])(

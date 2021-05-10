@@ -16,6 +16,7 @@ import { KeepKeyHDWallet, KeepKeyHDWalletInfo, isKeepKey, info } from "@shapeshi
 import { NodeWebUSBKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-nodewebusb";
 import { TCPKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-tcp";
 import * as debug from "debug";
+import AxiosHTTPAdapter from 'axios/lib/adapters/http';
 
 const log = debug.default("keepkey");
 
@@ -38,7 +39,10 @@ async function getDevice(keyring: Keyring) {
 async function getEmulator(keyring: Keyring) {
   try {
     const tcpAdapter = TCPKeepKeyAdapter.useKeyring(keyring);
-    let wallet = await tcpAdapter.pairDevice("http://localhost:5000");
+    let wallet = await tcpAdapter.pairDevice({
+      baseURL: "http://localhost:5000",
+      adapter: AxiosHTTPAdapter,
+    });
     if (wallet) console.log("Using KeepKey Emulator for tests");
     return wallet;
   } catch (e) {}

@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import { SEGMENT_SIZE, KeepKeyTransport } from "@shapeshiftoss/hdwallet-keepkey";
 import { Keyring } from "@shapeshiftoss/hdwallet-core";
 import ByteBuffer from "bytebuffer";
@@ -8,11 +8,12 @@ export class TCPKeepKeyTransport extends KeepKeyTransport {
   public keepkeyInstance: AxiosInstance;
   debugLink: boolean;
 
-  constructor(host: string, keyring: Keyring) {
+  constructor(host: string | AxiosRequestConfig, keyring: Keyring) {
     super(keyring);
-    this.host = host;
+    const config = (typeof host === "string" ? { baseURL: host } : host);
+    this.host = config.baseURL;
     this.keepkeyInstance = axios.create({
-      baseURL: host,
+      ...config,
       headers: {
         "content-type": "application/json",
         "Access-Control-Allow-Origin": host,

@@ -1,9 +1,10 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Wallet, utils } from "ethers";
 import txDecoder from "ethereum-tx-decoder";
-import { HDNode, defaultPath } from "@ethersproject/hdnode";
+import { defaultPath } from "@ethersproject/hdnode";
 import * as _ from "lodash";
 import { NativeHDWalletBase } from "./native";
+import * as Isolation from "./crypto/isolation";
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeETHWalletInfo extends Base implements core.ETHWalletInfo {
@@ -46,9 +47,9 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
 
     #ethWallet: Wallet;
 
-    async ethInitializeWallet(seed: Buffer): Promise<void> {
-      const address = `0x${seed.toString("hex")}`;
-      this.#ethWallet = new Wallet(HDNode.fromSeed(address).derivePath(defaultPath));
+    async ethInitializeWallet(seed: Isolation.BIP32.SeedInterface): Promise<void> {
+      const isolatedSigner = new Isolation.Adapters.BIP32(seed.toMasterKey()).derivePath(defaultPath);
+      this.#ethWallet = new Wallet(new Isolation.Adapters.Ethereum(isolatedSigner));
     }
 
     ethWipe() {

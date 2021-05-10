@@ -1,7 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { EventEmitter2 } from "eventemitter2";
-import { mnemonicToSeed, validateMnemonic } from "bip39";
-import { fromSeed } from "bip32";
+import { validateMnemonic } from "bip39";
 import { isObject } from "lodash";
 import { getNetwork } from "./networks";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
@@ -15,15 +14,17 @@ import { MixinNativeTerraWalletInfo, MixinNativeTerraWallet } from "./terra";
 import { MixinNativeKavaWalletInfo, MixinNativeKavaWallet } from "./kava";
 
 import type { NativeAdapterArgs } from "./adapter";
+import * as Isolation from "./crypto/isolation";
 
 export enum NativeEvents {
   MNEMONIC_REQUIRED = "MNEMONIC_REQUIRED",
   READY = "READY",
 }
 
-interface LoadDevice extends core.LoadDevice {
+interface LoadDevice extends Omit<core.LoadDevice, "mnemonic"> {
   // Set this if your deviceId is dependent on the mnemonic
   deviceId?: string;
+  mnemonic: string | Isolation.BIP39.MnemonicInterface;
 }
 
 export class NativeHDWalletBase {
@@ -166,11 +167,11 @@ export class NativeHDWallet
 
   #deviceId: string;
   #initialized: boolean;
-  #mnemonic: string;
+  #mnemonic: Isolation.BIP39.MnemonicInterface;
 
   constructor({ mnemonic, deviceId }: NativeAdapterArgs) {
     super();
-    this.#mnemonic = mnemonic;
+    this.#mnemonic = (typeof mnemonic == "string" ? new Isolation.BIP39.Mnemonic(mnemonic) : mnemonic);
     this.#deviceId = deviceId;
   }
 
@@ -203,11 +204,11 @@ export class NativeHDWallet
       Promise.all(
         msg.map(async (getPublicKey) => {
           let { addressNList } = getPublicKey;
-          const seed = await mnemonicToSeed(this.#mnemonic);
+          const seed = this.#mnemonic.toSeed();
           const network = getNetwork(getPublicKey.coin, getPublicKey.scriptType);
           const hardenedPath = core.hardenedPath(addressNList);
-          let node = fromSeed(seed, network);
-          if (hardenedPath.length > 0) node = node.derivePath(core.addressNListToBIP32(hardenedPath))
+          let node = new Isolation.Adapters.BIP32(seed.toMasterKey(), network);
+          if (hardenedPath.length > 0) node = node.derivePath(core.addressNListToBIP32(hardenedPath));
           const xpub = node.neutered().toBase58();
           return { xpub };
         })
@@ -228,7 +229,7 @@ export class NativeHDWallet
   async initialize(): Promise<boolean> {
     return this.needsMnemonic(!!this.#mnemonic, async () => {
       try {
-        const seed = await mnemonicToSeed(this.#mnemonic);
+        const seed = this.#mnemonic.toSeed();
 
         await Promise.all([
           super.btcInitializeWallet(seed),
@@ -238,11 +239,8 @@ export class NativeHDWallet
           super.fioInitializeWallet(seed),
           super.thorchainInitializeWallet(seed),
           super.secretInitializeWallet(seed),
-          super.secretSetMnemonic(this.#mnemonic),
           super.terraInitializeWallet(seed),
-          super.terraSetMnemonic(this.#mnemonic),
           super.kavaInitializeWallet(seed),
-          super.kavaSetMnemonic(this.#mnemonic),
         ]);
 
         this.#initialized = true;
@@ -290,10 +288,14 @@ export class NativeHDWallet
   async recover(): Promise<void> {}
 
   async loadDevice(msg: LoadDevice): Promise<void> {
-    if (typeof msg?.mnemonic !== "string" || !validateMnemonic(msg.mnemonic))
+    if (typeof msg?.mnemonic === "string" && validateMnemonic(msg.mnemonic)) {
+      this.#mnemonic = new Isolation.BIP39.Mnemonic(msg.mnemonic);
+    } else if (typeof msg?.mnemonic?.["toSeed"] === "function") {
+      this.#mnemonic = msg.mnemonic as Isolation.BIP39.MnemonicInterface;
+    } else {
       throw new Error("Required property [mnemonic] is missing or invalid");
+    }
 
-    this.#mnemonic = msg.mnemonic;
     if (typeof msg.deviceId === "string") this.#deviceId = msg.deviceId;
 
     this.#initialized = false;
