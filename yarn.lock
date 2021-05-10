@@ -1646,10 +1646,10 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^13.0.0"
 
-"@keepkey/device-protocol@^7.0.2":
-  version "7.0.2"
-  resolved "https://registry.yarnpkg.com/@keepkey/device-protocol/-/device-protocol-7.0.2.tgz#0fda263e8c72f833e03e7b17ceb518a6a5bdbb82"
-  integrity sha512-le0zKwbGuu62XcjhciV7Al6y4wMKejw0O63+Zlwm505MXyuygLvKXXzoa6OE8oA2m5KWmfGvq4j8rk2wWEaCZg==
+"@keepkey/device-protocol@^7.2.0":
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/@keepkey/device-protocol/-/device-protocol-7.2.0.tgz#515184c61bb4ea2b6a02707bbfba68eea6b09ebf"
+  integrity sha512-j+Tu1z627fbTXqvYKN3uIpBcH7yJMkk9xqVmWZ91QKPTWy0SPm9ncep7g2PiHWzfDQ4Rrxnpu5Vvn8g3q/THTQ==
   dependencies:
     google-protobuf "^3.7.0-rc.2"
     pbjs "^0.0.5"
