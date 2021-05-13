@@ -70,7 +70,7 @@ export async function btcSupportsScriptType(coin: core.Coin, scriptType: core.BT
 export async function btcGetAddress(transport: TrezorTransport, msg: core.BTCGetAddress): Promise<string> {
   let args: any = {
     path: core.addressNListToBIP32(msg.addressNList),
-    showOnTrezor: msg.showDisplay !== false,
+    showOnTrezor: !!msg.showDisplay,
     coin: translateCoin(msg.coin),
   };
   if (msg.showDisplay) {

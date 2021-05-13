@@ -192,7 +192,6 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
               coin: coin,
               showDisplay: mode === "Show",
               scriptType: scriptType,
-              address: expected,
             });
             expect(res).toEqual(expected);
           }
