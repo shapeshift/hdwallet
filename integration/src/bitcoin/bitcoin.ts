@@ -375,7 +375,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           return;
         }
 
-        let res = await wallet.btcSignMessage({
+        let res = wallet.btcSignMessage({
           addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
           coin: "Bitcoin",
           scriptType: core.BTCInputScriptType.SpendAddress,
@@ -384,11 +384,11 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
 
         // not implemented on portis
         if (portis.isPortis(wallet)) {
-          expect(res).toEqual(undefined);
+          await expect(res).rejects.toThrowError("not supported");
           return;
         }
 
-        expect(res).toEqual({
+        await expect(res).resolves.toEqual({
           address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
           signature:
             "20a037c911044cd6c851b6508317d8892067b0b62074b2cf1c0df9abd4aa053a3c243ffdc37f64d7af2c857128eafc81947c380995596615e5dcc313a15f512cdd",

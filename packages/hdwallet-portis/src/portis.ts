@@ -210,7 +210,7 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
 
   public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
     // portis doesnt support this for btc
-    return undefined;
+    throw new Error("not supported");
   }
 
   public async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
