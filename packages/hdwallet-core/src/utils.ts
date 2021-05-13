@@ -139,6 +139,7 @@ const slip44Table = Object.freeze({
   Eos: 194,
   Fio: 235,
   Thorchain: 931,
+  Rune: 931,
   Cardano: 1815,
   Secret: 529,
   Terra: 330,
