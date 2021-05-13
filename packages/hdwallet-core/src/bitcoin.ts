@@ -6,8 +6,6 @@ export interface BTCGetAddress {
   coin: Coin;
   showDisplay?: boolean;
   scriptType?: BTCInputScriptType;
-  /** Optional. Required for showDisplay == true. */
-  address?: string;
 }
 
 export interface BitcoinScriptSig {

@@ -68,16 +68,18 @@ export async function btcSupportsScriptType(coin: core.Coin, scriptType: core.BT
 }
 
 export async function btcGetAddress(transport: TrezorTransport, msg: core.BTCGetAddress): Promise<string> {
-  console.assert(
-    !msg.showDisplay || !!msg.address,
-    "HDWalletTrezor::btcGetAddress: expected address is required for showDisplay"
-  );
   let args: any = {
     path: core.addressNListToBIP32(msg.addressNList),
     showOnTrezor: msg.showDisplay !== false,
     coin: translateCoin(msg.coin),
   };
-  if (msg.address) args.address = msg.address;
+  if (msg.showDisplay) {
+    args.address = await btcGetAddress(transport, {
+      ...msg,
+      showDisplay: false,
+    });
+  }
+
   // TODO: TrezorConnect doesn't support setting scriptType on getAddress
   let res = await transport.call("getAddress", args);
 

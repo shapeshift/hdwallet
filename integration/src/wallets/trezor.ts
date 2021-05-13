@@ -121,6 +121,15 @@ export class MockTransport extends trezor.TrezorTransport {
       this.memoize(
         "getAddress",
         JSON.parse(
+          '{"path":"m/49\'/0\'/0\'/0/0","showOnTrezor":true,"coin":"btc"}'
+        ),
+        JSON.parse(
+          '{"payload":{"address":"3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX","path":[2147483697,2147483648,2147483648,0,0],"serializedPath":"m/49\'/0\'/0\'/0/0"},"id":2,"success":true}'
+        )
+      );
+      this.memoize(
+        "getAddress",
+        JSON.parse(
           '{"path":"m/49\'/0\'/0\'/0/0","showOnTrezor":true,"coin":"btc","address":"3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX"}'
         ),
         JSON.parse(
@@ -177,6 +186,15 @@ export class MockTransport extends trezor.TrezorTransport {
       this.memoize(
         "getAddress",
         JSON.parse(
+          '{"path":"m/44\'/0\'/0\'/0/0","showOnTrezor":false,"coin":"btc"}'
+        ),
+        JSON.parse(
+          '{"payload":{"address":"1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM","path":[2147483692,2147483648,2147483648,0,0],"serializedPath":"m/44\'/0\'/0\'/0/0"},"id":2,"success":true}'
+        )
+      );
+      this.memoize(
+        "getAddress",
+        JSON.parse(
           '{"path":"m/44\'/0\'/0\'/0/0","showOnTrezor":true,"coin":"btc","address":"1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM"}'
         ),
         JSON.parse(
@@ -186,7 +204,7 @@ export class MockTransport extends trezor.TrezorTransport {
       this.memoize(
         "getAddress",
         JSON.parse(
-          '{"path":"m/49\'/2\'/0\'/0/0","showOnTrezor":false,"coin":"ltc","address":"MFoQRU1KQq365Sy3cXhix3ygycEU4YWB1V"}'
+          '{"path":"m/49\'/2\'/0\'/0/0","showOnTrezor":false,"coin":"ltc"}'
         ),
         JSON.parse(
           '{"payload":{"address":"MFoQRU1KQq365Sy3cXhix3ygycEU4YWB1V","path":[2147483697,2147483650,2147483648,0,0],"serializedPath":"m/49\'/2\'/0\'/0/0"},"id":2,"success":true}'
@@ -195,10 +213,19 @@ export class MockTransport extends trezor.TrezorTransport {
       this.memoize(
         "getAddress",
         JSON.parse(
-          '{"path":"m/44\'/5\'/0\'/0/0","showOnTrezor":false,"coin":"dash","address":"XxKhGNv6ECbqVswm9KYcLPQnyWgZ86jJ6Q"}'
+          '{"path":"m/44\'/5\'/0\'/0/0","showOnTrezor":false,"coin":"dash"}'
         ),
         JSON.parse(
           '{"payload":{"address":"XxKhGNv6ECbqVswm9KYcLPQnyWgZ86jJ6Q","path":[2147483692,2147483653,2147483648,0,0],"serializedPath":"m/44\'/5\'/0\'/0/0"},"id":2,"success":true}'
+        )
+      );
+      this.memoize(
+        "getAddress",
+        JSON.parse(
+          '{"path":"m/44\'/2\'/0\'/0/0","showOnTrezor":false,"coin":"ltc"}'
+        ),
+        JSON.parse(
+          '{"payload":{"address":"LYXTv5RdsPYKC4qGmb6x6SuKoFMxUdSjLQ","path":[2147483692,2147483650,2147483648,0,0],"serializedPath":"m/44\'/2\'/0\'/0/0"},"id":2,"success":true}'
         )
       );
       this.memoize(
@@ -213,7 +240,16 @@ export class MockTransport extends trezor.TrezorTransport {
       this.memoize(
         "getAddress",
         JSON.parse(
-          '{"path":"m/84\'/2\'/0\'/0/0","showOnTrezor":false,"coin":"ltc","address":"ltc1qf6pwfkw4wd0fetq2pfrwzlfknskjg6nyvt6ngv"}'
+          '{"path":"m/84\'/2\'/0\'/0/0","showOnTrezor":false,"coin":"ltc"}'
+        ),
+        JSON.parse(
+          '{"payload":{"address":"ltc1qf6pwfkw4wd0fetq2pfrwzlfknskjg6nyvt6ngv","path":[2147483732,2147483650,2147483648,0,0],"serializedPath":"m/84\'/2\'/0\'/0/0"},"id":2,"success":true}'
+        )
+      );
+      this.memoize(
+        "getAddress",
+        JSON.parse(
+          '{"path":"m/84\'/2\'/0\'/0/0","showOnTrezor":false,"coin":"ltc"}'
         ),
         JSON.parse(
           '{"payload":{"address":"ltc1qf6pwfkw4wd0fetq2pfrwzlfknskjg6nyvt6ngv","path":[2147483732,2147483650,2147483648,0,0],"serializedPath":"m/84\'/2\'/0\'/0/0"},"id":2,"success":true}'
@@ -236,7 +272,16 @@ export class MockTransport extends trezor.TrezorTransport {
       this.memoize(
         "getAddress",
         JSON.parse(
-          '{"path":"m/49\'/0\'/0\'/0/0","showOnTrezor":false,"coin":"btc","address":"3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX"}'
+          '{"path":"m/49\'/0\'/0\'/0/0","showOnTrezor":false,"coin":"btc"}'
+        ),
+        JSON.parse(
+          '{"payload":{"address":"3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX","path":[2147483697,2147483648,2147483648,0,0],"serializedPath":"m/49\'/0\'/0\'/0/0"},"id":2,"success":true}'
+        )
+      );
+      this.memoize(
+        "getAddress",
+        JSON.parse(
+          '{"path":"m/49\'/0\'/0\'/0/0","showOnTrezor":false,"coin":"btc"}'
         ),
         JSON.parse(
           '{"payload":{"address":"3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX","path":[2147483697,2147483648,2147483648,0,0],"serializedPath":"m/49\'/0\'/0\'/0/0"},"id":2,"success":true}'

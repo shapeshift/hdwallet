@@ -4,8 +4,6 @@ import { BIP32Path, PathDescription } from "./wallet";
 export interface BinanceGetAddress {
   addressNList: BIP32Path;
   showDisplay?: boolean;
-  /** Optional. Required for showDisplay == true. */
-  address?: string;
 }
 
 namespace Binance {
