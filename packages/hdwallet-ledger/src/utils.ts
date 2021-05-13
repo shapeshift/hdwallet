@@ -53,18 +53,6 @@ export function handleError(result: any, transport?: LedgerTransport, message?: 
   }
 }
 
-export const getderivationModeFromFormat = (format: string): string => {
-  let derivationMode;
-  switch (format) {
-    case "bech32":
-      derivationMode = "segwit";
-      break;
-    default:
-      derivationMode = "";
-  }
-  return derivationMode;
-};
-
 export function translateScriptType(scriptType: core.BTCInputScriptType): string {
   return core.mustBeDefined(({
     [core.BTCInputScriptType.SpendAddress]: "legacy",
