@@ -268,7 +268,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
 
         const psbt = new bitcoin.Psbt({ network: getNetwork(coin) });
 
-        psbt.setVersion(version | 1);
+        psbt.setVersion(version ?? 1);
         locktime && psbt.setLocktime(locktime);
 
         inputs.forEach((input) => {
