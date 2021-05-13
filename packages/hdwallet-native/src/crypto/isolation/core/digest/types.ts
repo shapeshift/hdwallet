@@ -88,7 +88,7 @@ export const Algorithms = (()=>{
         }) as Algorithm<any>;
     });
 
-    Object.freeze(Algorithms);
+    Object.freeze(algorithms);
     AlgorithmName.forEach(x => {
         if (!algorithms[x]) throw new Error(`digest algorithm implementation missing for ${x}`)
     });
