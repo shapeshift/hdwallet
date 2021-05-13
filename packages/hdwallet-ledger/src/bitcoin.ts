@@ -9,10 +9,8 @@ import { LedgerTransport } from "./transport";
 import {
   createXpub,
   compressPublicKey,
-  encodeBase58Check,
   translateScriptType,
   networksUtil,
-  parseHexString,
   handleError,
 } from "./utils";
 
@@ -70,23 +68,20 @@ export async function btcGetPublicKeys(
     const res1 = await transport.call("Btc", "getWalletPublicKey", parentBip32path, opts);
     handleError(res1, transport, "Unable to obtain public key from device.");
 
-    let {
-      payload: { publicKey: parentPublicKey },
+    const {
+      payload: { publicKey: parentPublicKeyHex },
     } = res1;
-    parentPublicKey = parseHexString(compressPublicKey(parentPublicKey));
-
-    let result = bitcoin.crypto.sha256(parentPublicKey);
-    result = bitcoin.crypto.ripemd160(result);
-
-    const fingerprint: number = ((result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3]) >>> 0;
+    const parentPublicKey = compressPublicKey(Buffer.from(parentPublicKeyHex, "hex"));
+    const parentFingerprint = new DataView(bitcoin.crypto.ripemd160(bitcoin.crypto.sha256(parentPublicKey))).getUint32(0);
 
     const res2 = await transport.call("Btc", "getWalletPublicKey", bip32path, opts);
     handleError(res2, transport, "Unable to obtain public key from device.");
 
-    let {
-      payload: { publicKey, chainCode },
+    const {
+      payload: { publicKeyHex, chainCodeHex },
     } = res2;
-    publicKey = compressPublicKey(publicKey);
+    const publicKey = compressPublicKey(Buffer.from(publicKeyHex, "hex"));
+    const chainCode = Buffer.from(chainCodeHex, "hex");
 
     const coinDetails = networksUtil[core.mustBeDefined(core.slip44ByCoin(coin))];
     const childNum: number = addressNList[addressNList.length - 1];
@@ -95,9 +90,7 @@ export async function btcGetPublicKeys(
     const networkMagic = coinDetails.bitcoinjs.bip32.public[scriptType];
     if (!networkMagic) throw new Error("unable to get networkMagic");
 
-    const xpub = createXpub(addressNList.length, fingerprint, childNum, chainCode, publicKey, networkMagic);
-
-    xpubs.push({ xpub: encodeBase58Check(xpub) });
+    xpubs.push({ xpub: createXpub(addressNList.length, parentFingerprint, childNum, chainCode, publicKey, networkMagic) });
   }
 
   return xpubs;

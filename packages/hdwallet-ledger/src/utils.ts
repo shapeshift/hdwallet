@@ -1,7 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as bitcoin from "bitcoinjs-lib";
-import bs58 from "bs58";
-import _ from "lodash";
+import bs58check from "bs58check";
 
 import { LedgerTransport } from "./transport";
 
@@ -62,55 +60,31 @@ export function translateScriptType(scriptType: core.BTCInputScriptType): string
   } as Partial<Record<core.BTCInputScriptType, string>>)[scriptType]);
 }
 
-const toHexDigit = (number: number) => {
-  const digits = "0123456789abcdef";
-  return digits.charAt(number >> 4) + digits.charAt(number & 0x0f);
+export const compressPublicKey = (publicKey: Uint8Array) => {
+  if ([0x02, 0x03].includes(publicKey[0]) && publicKey.length === 33) return Buffer.from(publicKey);
+  if (!(publicKey[0] === 0x04 && publicKey.length === 65)) throw new Error("Invalid public key format");
+
+  return Buffer.concat([
+    Buffer.from([((publicKey[64] & 0x01) === 0x00 ? 0x02 : 0x03)]),
+    publicKey.slice(1,33),
+  ]);
 };
 
-export const compressPublicKey = (publicKey: string) => {
-  let compressedKeyIndex;
-  if (publicKey.substring(0, 2) !== "04") {
-    throw "Invalid public key format";
-  }
-  if (parseInt(publicKey.substring(128, 130), 16) % 2 !== 0) {
-    compressedKeyIndex = "03";
-  } else {
-    compressedKeyIndex = "02";
-  }
-  return compressedKeyIndex + publicKey.substring(2, 66);
+export const createXpub = (depth: number, parentFp: number, childNum: number, chainCode: Uint8Array, publicKey: Uint8Array, network: number) => {
+  const header = new Uint8Array(4 + 1 + 4 + 4);
+  const headerView = new DataView(header);
+  headerView.setUint32(0, network);
+  headerView.setUint8(4, depth);
+  headerView.setUint32(5, parentFp);
+  headerView.setUint32(9, childNum);
+  return bs58check.encode(
+    Buffer.concat([
+      header,
+      chainCode,
+      publicKey,
+    ])
+  );
 };
-
-export const parseHexString = (str: string) => {
-  var result = [];
-  while (str.length >= 2) {
-    result.push(parseInt(str.substring(0, 2), 16));
-    str = str.substring(2, str.length);
-  }
-  return result;
-};
-
-export const encodeBase58Check = (vchIn: string) => {
-  const vchIn2 = parseHexString(vchIn);
-  var chksum = bitcoin.crypto.sha256(Buffer.from(vchIn2));
-  chksum = bitcoin.crypto.sha256(chksum);
-  chksum = chksum.slice(0, 4);
-  var hash = vchIn2.concat(Array.from(chksum));
-  return bs58.encode(Buffer.from(hash));
-};
-
-export const createXpub = (depth: number, fingerprint: number, childnum: number, chaincode: string, publicKey: string, network: number) =>
-  toHexInt(network) +
-  _.padStart(depth.toString(16), 2, "0") +
-  _.padStart(fingerprint.toString(16), 8, "0") +
-  _.padStart(childnum.toString(16), 8, "0") +
-  chaincode +
-  publicKey;
-
-const toHexInt = (number: number) =>
-  toHexDigit((number >> 24) & 0xff) +
-  toHexDigit((number >> 16) & 0xff) +
-  toHexDigit((number >> 8) & 0xff) +
-  toHexDigit(number & 0xff);
 
 type NetworkMagic = {
   apiName: string,

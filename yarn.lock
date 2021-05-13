@@ -2821,6 +2821,13 @@
   dependencies:
     base-x "^3.0.6"
 
+"@types/bs58check@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@types/bs58check/-/bs58check-2.1.0.tgz#7d25a8b88fe7a9e315d2647335ee3c43c8fdb0c0"
+  integrity sha512-OxsysnJQh82vy9DRbOcw9m2j/WiyqZLn0YBhKxdQ+aCwoHj+tWzyCgpwAkr79IfDXZKxc6h7k89T9pwS78CqTQ==
+  dependencies:
+    "@types/node" "*"
+
 "@types/cookie@^0.4.0":
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/@types/cookie/-/cookie-0.4.0.tgz#14f854c0f93d326e39da6e3b6f34f7d37513d108"
@@ -4143,7 +4150,7 @@ bs58@^4.0.0, bs58@^4.0.1:
   dependencies:
     base-x "^3.0.2"
 
-bs58check@<3.0.0, bs58check@^2.0.0, bs58check@^2.1.1, bs58check@^2.1.2:
+bs58check@2.1.2, bs58check@<3.0.0, bs58check@^2.0.0, bs58check@^2.1.1, bs58check@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/bs58check/-/bs58check-2.1.2.tgz#53b018291228d82a5aa08e7d796fdafda54aebfc"
   integrity sha512-0TS1jicxdU09dwJMNZtVAfzPi6Q6QeN0pM1Fkzrjn+XYHvzMKPU3pHVpva+769iNVSfIYWf7LJ6WR+BuuMf8cA==
