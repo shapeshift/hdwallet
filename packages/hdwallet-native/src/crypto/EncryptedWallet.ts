@@ -115,7 +115,7 @@ export class EncryptedWallet {
    */
   async decrypt(encryptedWallet = this.#encryptedWallet): Promise<string> {
     if (!this.isInitialized) throw new Error("Wallet is not initialized");
-    if (!this.encryptedWallet) throw new Error("Wallet does not contain an encrypted wallet");
+    if (!encryptedWallet) throw new Error("Wallet does not contain an encrypted wallet");
     if (!this.#key) throw new Error("Wallet does not contain a key");
     const decrypted = await this.#helper.decrypt(new CipherString(encryptedWallet), this.#key);
 
