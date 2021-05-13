@@ -42,13 +42,15 @@
     "@types/big.js": "^6.0.2",
     "@types/crypto-js": "^4.0.0",
     "@types/elliptic": "^6.4.12",
-    "@types/jest": "^24.9.1",
+    "@types/jest": "^26.0.23",
     "@types/lodash": "^4.14.168",
     "@types/node-fetch": "^2.5.10",
     "@types/tiny-secp256k1": "^1.0.0",
     "@types/wif": "^2.0.2",
-    "jest": "^24.9.0",
+    "jest": "^26.6.3",
+    "jest-environment-jsdom": "^25.5.0",
     "msw": "^0.27.1",
+    "ts-jest": "^26.5.5",
     "typescript": "^4.3.2"
   },
   "engines": {
