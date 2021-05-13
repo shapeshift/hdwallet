@@ -1,6 +1,8 @@
 # HDWallet
 
 [![CircleCI](https://circleci.com/gh/shapeshift/hdwallet.svg?style=svg)](https://circleci.com/gh/shapeshift/hdwallet)
+[![Maintainability](https://api.codeclimate.com/v1/badges/14971955b0ca56c815f0/maintainability)](https://codeclimate.com/github/shapeshift/hdwallet/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/14971955b0ca56c815f0/test_coverage)](https://codeclimate.com/github/shapeshift/hdwallet/test_coverage)
 
 A library for interacting with hardware wallets from JS/TS. Supports KeepKey,
 Trezor, and Ledger. Intended for use in web apps, chrome apps/extensions, and

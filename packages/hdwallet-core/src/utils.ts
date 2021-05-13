@@ -62,7 +62,7 @@ const HARDENED = 0x80000000;
 export function bip32ToAddressNList(path: string): number[] {
   if (!bip32Like(path)) {
     throw new Error(`Not a bip32 path: '${path}'`);
-  }
+  }bip32Like
   if (/^m\//i.test(path)) {
     path = path.slice(2);
   }

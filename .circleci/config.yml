@@ -53,6 +53,9 @@ orbs:
           - run:
               name: Ensure repo is clean from uncommitted changes, likely yarn.lock is out of date
               command: git diff --quiet || exit 1
+          - run:
+              name: publish coverage report
+              command: npm install -g codeclimate-test-reporter && CODECLIMATE_REPO_TOKEN=${CODECLIMATE_REPO_TOKEN} codeclimate-test-reporter < coverage/lcov.info
       release-packages:
         description: Build and release local dependency packages
         executor: node
