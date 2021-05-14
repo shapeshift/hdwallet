@@ -1,0 +1,36 @@
+{
+  "fee":{
+    "amount":[
+      {
+        "amount":"3000",
+        "denom":"rune"
+      }
+    ],
+    "gas":"200000"
+  },
+  "memo":"",
+  "msg":[
+    {
+      "type":"thorchain/MsgDeposit",
+      "value":{
+        "amount":[
+          {
+            "amount":"100",
+            "denom":"rune"
+          }
+        ],
+        "from_address":"thor1ls33ayg26kmltw7jjy55p32ghjna09zp74t4az",
+        "to_address":"thor1wy58774wagy4hkljz9mchhqtgk949zdwwe80d5"
+      }
+    }
+  ],
+  "signatures":[
+    {
+      "signature":"e11VDf8WzPioJHH0JzVK3XIZkxShGfZRBCA6NuZiFgJ+R0odVXyhiB99PpE/KAW0VK7jzlWjxdC2x/S+0IgTdw==",
+      "pub_key":{
+        "type":"tendermint/PubKeySecp256k1",
+        "value":"AxUZcTuLQr3DZxEtMxMs8Uzt+SisV3HURLpFm5SXEXuj"
+      }
+    }
+  ]
+}
