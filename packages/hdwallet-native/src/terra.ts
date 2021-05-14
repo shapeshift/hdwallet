@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-
+import txBuilder from "tendermint-tx-builder";
 import { BIP32Interface } from "bitcoinjs-lib";
 import * as bitcoin from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
@@ -80,7 +80,10 @@ export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWa
 
     async terraSignTx(msg: core.TerraSignTx): Promise<any> {
       return this.needsMnemonic(!!this.#wallet, async () => {
-        throw Error("Not Supported");
+        const keyPair = util.getKeyPair(this.#wallet, msg.addressNList, "terra");
+        console.log("Input Thorchain: ",msg.tx, keyPair, msg.sequence, msg.account_number, "terra")
+        const result = await txBuilder.sign(msg.tx, keyPair, msg.sequence, msg.account_number, "terra");
+        return txBuilder.createSignedTx(msg.tx, result);
       });
     }
   };
