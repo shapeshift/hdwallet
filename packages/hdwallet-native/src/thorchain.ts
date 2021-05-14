@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import txBuilder from "cosmos-tx-builder";
+import txBuilder from "tendermint-tx-builder";
 import { BIP32Interface } from "bitcoinjs-lib";
 import * as bitcoin from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
@@ -76,6 +76,7 @@ export function MixinNativeThorchainWallet<TBase extends core.Constructor<Native
     async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx> {
       return this.needsMnemonic(!!this.#wallet, async () => {
         const keyPair = util.getKeyPair(this.#wallet, msg.addressNList, "thorchain");
+        console.log("Input Thorchain: ",msg.tx, keyPair, msg.sequence, msg.account_number, THOR_CHAIN)
         const result = await txBuilder.sign(msg.tx, keyPair, msg.sequence, msg.account_number, THOR_CHAIN);
 
         return txBuilder.createSignedTx(msg.tx, result);
