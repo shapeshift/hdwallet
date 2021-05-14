@@ -89,7 +89,6 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
           case "KeepKey":
             break;
           default:
-            console.log("res: ",res)
             expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
             break;
 
@@ -98,7 +97,7 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
       TIMEOUT
     );
 
-    test.only(
+    test(
       "thorchainSignTx() (thorchain/MsgDeposit)",
       async () => {
         if (!wallet) return;
@@ -117,7 +116,6 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
           default:
             expect(res.signatures[0].signature).toEqual(tx_signed_swap.signatures[0].signature);
             break;
-
         }
       },
       TIMEOUT
