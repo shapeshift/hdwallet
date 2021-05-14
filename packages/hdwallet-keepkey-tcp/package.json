@@ -16,10 +16,9 @@
   "dependencies": {
     "@shapeshiftoss/hdwallet-core": "1.14.3",
     "@shapeshiftoss/hdwallet-keepkey": "1.14.3",
-    "axios": "^0.18.0"
+    "axios": "^0.21.1"
   },
   "devDependencies": {
-    "@types/axios": "^0.14.0",
     "typescript": "^3.9.7"
   },
   "engines": {
