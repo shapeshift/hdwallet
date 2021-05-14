@@ -155,7 +155,7 @@ export async function ethSignMessage(
 
 // Adapted from https://github.com/kvhnuke/etherwallet/blob/2a5bc0db1c65906b14d8c33ce9101788c70d3774/app/scripts/controllers/signMsgCtrl.js#L118
 export async function ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
-  const sigb = new Buffer(core.stripHexPrefixAndLower(msg.signature), "hex");
+  const sigb = Buffer.from(core.stripHexPrefixAndLower(msg.signature), "hex");
   if (sigb.length !== 65) {
     return false;
   }

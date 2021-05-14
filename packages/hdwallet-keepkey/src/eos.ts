@@ -26,7 +26,7 @@ function eosSigFormatter(r: Uint8Array, s: Uint8Array, v: number): string {
   var signature: string = "SIG_K1_";
 
   console.log("formatter logs");
-  var keyBuffer = new Buffer(65);
+  var keyBuffer = Buffer.alloc(65);
   var rbuf = Buffer.from(r);
   var sbuf = Buffer.from(s);
   keyBuffer.writeUInt8(recoverId, 0);
