@@ -11,7 +11,7 @@
   "memo":"",
   "msg":[
     {
-      "type":"thorchain/MsgDeposit",
+      "type":"thorchain/MsgSend",
       "value":{
         "amount":[
           {
@@ -24,5 +24,13 @@
       }
     }
   ],
-  "signatures":[]
+  "signatures":[
+    {
+      "signature":"EHwZQ8wDiiPkwB4V+1R3h0jO0+OisdjtMZR02pb5SpFnte2MIkoqz/T6tsltcXFvhsvNxH8ilm6XBk8EPo6Hsg==",
+      "pub_key":{
+        "type":"tendermint/PubKeySecp256k1",
+        "value":"AxUZcTuLQr3DZxEtMxMs8Uzt+SisV3HURLpFm5SXEXuj"
+      }
+    }
+  ]
 }
