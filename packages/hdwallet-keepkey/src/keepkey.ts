@@ -703,6 +703,10 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     this.info = new KeepKeyHDWalletInfo();
   }
 
+  static async create(transport: KeepKeyTransport): Promise<KeepKeyHDWallet> {
+    return new KeepKeyHDWallet(transport);
+  }
+
   public async getDeviceID(): Promise<string> {
     const featuresId = (await this.getFeatures(/*cached=*/ true)).deviceId;
 
