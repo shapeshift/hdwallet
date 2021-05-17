@@ -121,3 +121,9 @@ const bigEndianIntegerStatic = {
 };
 const bigEndianInteger = Object.assign(bigEndianIntegerBase, ByteArray, bigEndianIntegerStatic);
 export const BigEndianInteger: typeof bigEndianInteger = bigEndianInteger;
+
+export function safeBufferFrom(input: ByteArray): Buffer {
+    if (Buffer.isBuffer(input)) return input;
+    input = checkType(ByteArray(), input);
+    return Buffer.alloc(input.byteLength).fill(input);
+}
