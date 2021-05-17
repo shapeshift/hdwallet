@@ -1,3 +1,4 @@
+export * from "./adapter";
 export * from "./keepkey";
 export * from "./responseTypeRegistry";
 export * from "./transport";

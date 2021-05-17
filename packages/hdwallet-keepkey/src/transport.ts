@@ -1,5 +1,4 @@
 import { Message, BinaryReader } from "google-protobuf";
-import * as ByteBuffer from "bytebuffer";
 
 import {
   Transport,
@@ -18,14 +17,24 @@ import { FailureType } from "@keepkey/device-protocol/lib/types_pb";
 
 import { messageTypeRegistry, messageNameRegistry } from "./typeRegistry";
 import { EXIT_TYPES } from "./responseTypeRegistry";
+import { SEGMENT_SIZE } from "./utils";
 
-const {
-  default: { concat: concatBuffers, wrap },
-} = ByteBuffer as any;
+export interface TransportDelegate {
+  isOpened(): Promise<boolean>;
+  getDeviceID(): Promise<string>;
 
-export abstract class KeepKeyTransport extends Transport {
+  connect(): Promise<void>;
+  tryConnectDebugLink?(): Promise<boolean>;
+  disconnect(): Promise<void>;
+
+  writeChunk(buf: Uint8Array, debugLink?: boolean): Promise<void>;
+  readChunk(debugLink?: boolean): Promise<Uint8Array>;
+}
+
+export class KeepKeyTransport extends Transport {
   debugLink: boolean;
   userActionRequired: boolean = false;
+  delegate: TransportDelegate;
 
   /// One per transport, unlike on Trezor, since the contention is
   /// only per-device, not global.
@@ -37,20 +46,95 @@ export abstract class KeepKeyTransport extends Transport {
     debug: undefined,
   };
 
-  constructor(keyring: Keyring) {
+  constructor(keyring: Keyring, delegate: TransportDelegate) {
     super(keyring);
+    this.delegate = delegate;
   }
 
-  public abstract getDeviceID(): Promise<string>;
-  public abstract getVendor(): string;
-  public abstract isOpened(): Promise<boolean>;
+  public static async create(keyring: Keyring, delegate: TransportDelegate): Promise<KeepKeyTransport> {
+    return new KeepKeyTransport(keyring, delegate);
+  }
 
-  public abstract disconnect(): Promise<void>;
-  public abstract getEntropy(length: number): Uint8Array;
-  public abstract getFirmwareHash(firmware: any): Promise<any>;
+  public isOpened(): Promise<boolean> {
+    return this.delegate.isOpened();
+  }
+  public getDeviceID(): Promise<string> {
+    return this.delegate.getDeviceID();
+  }
 
-  protected abstract write(buff: ByteBuffer, debugLink: boolean): Promise<void>;
-  protected abstract read(debugLink: boolean): Promise<ByteBuffer>;
+  public connect(): Promise<void> {
+    return this.delegate.connect();
+  }
+  public async tryConnectDebugLink(): Promise<boolean> {
+    let out = false
+    if (this.delegate.tryConnectDebugLink && await this.delegate.tryConnectDebugLink()) out = true;
+    this.debugLink = out;
+    return out;
+  }
+  public disconnect(): Promise<void> {
+    return this.delegate.disconnect();
+  }
+
+  private async write(buf: Uint8Array, debugLink: boolean): Promise<void> {
+    // break frame into segments
+    for (let i = 0; i < buf.length; i += SEGMENT_SIZE) {
+      const segment = buf.slice(i, i + SEGMENT_SIZE);
+      const padding = new Uint8Array(SEGMENT_SIZE - segment.length);
+      const fragments: Array<Uint8Array> = [];
+      fragments.push(new Uint8Array([63]));
+      fragments.push(segment);
+      fragments.push(padding);
+      const fragmentBuffer = new Uint8Array(fragments.map((x) => x.length).reduce((a, x) => a + x, 0));
+      fragments.reduce((a, x) => (fragmentBuffer.set(x, a), a + x.length), 0);
+      await this.delegate.writeChunk(fragmentBuffer, debugLink);
+    }
+  }
+
+  private async read(debugLink: boolean): Promise<Uint8Array> {
+    const first = await this.delegate.readChunk(debugLink);
+
+    // Check that buffer starts with: "?##" [ 0x3f, 0x23, 0x23 ]
+    // "?" = USB reportId, "##" = KeepKey magic bytes
+    // Message ID is bytes 4-5. Message length starts at byte 6.
+    const firstView = new DataView(first.buffer.slice(first.byteOffset, first.byteOffset + first.byteLength));
+    const valid = (firstView.getUint32(0) & 0xffffff00) === 0x3f232300;
+    const msgLength = firstView.getUint32(5);
+    if (!valid) throw new Error("message not valid");
+
+    const buffer = new Uint8Array(9 + 2 + msgLength);
+    buffer.set(first.slice(0, Math.min(first.length, buffer.length)));
+
+    for (let offset = first.length; offset < buffer.length; ) {
+      // Drop USB "?" reportId in the first byte
+      let next = (await this.delegate.readChunk(debugLink)).slice(1);
+      buffer.set(next.slice(0, Math.min(next.length, buffer.length - offset)), offset);
+      offset += next.length;
+    }
+
+    return buffer;
+  }
+
+  public getVendor(): string {
+    return "KeepKey";
+  }
+
+  public getEntropy(length: number): Uint8Array {
+    if (typeof window !== "undefined" && window?.crypto) {
+      return window.crypto.getRandomValues(new Uint8Array(length));
+    }
+    const { randomBytes } = require("crypto");
+    return randomBytes(length);
+  }
+
+  public async getFirmwareHash(firmware: Uint8Array): Promise<Uint8Array> {
+    if (typeof window !== "undefined" && window?.crypto) {
+      return new Uint8Array(await window.crypto.subtle.digest({ name: "SHA-256" }, firmware));
+    }
+    const { createHash } = require("crypto");
+    const hash = createHash("sha256");
+    hash.update(firmware);
+    return hash.digest();
+  }
 
   /**
    * Utility function to cancel all pending calls whenver one of them is cancelled.
@@ -292,22 +376,25 @@ export abstract class KeepKeyTransport extends Transport {
     }
   }
 
-  protected toMessageBuffer(msgTypeEnum: number, msg: Message): ByteBuffer {
+  protected toMessageBuffer(msgTypeEnum: number, msg: Message): Uint8Array {
     const messageBuffer = msg.serializeBinary();
 
-    const headerBuffer = new ArrayBuffer(8);
-    const headerView = new DataView(headerBuffer);
+    const headerBuffer = new Uint8Array(8);
+    const headerView = new DataView(headerBuffer.buffer);
 
     headerView.setUint8(0, 0x23);
     headerView.setUint8(1, 0x23);
     headerView.setUint16(2, msgTypeEnum);
     headerView.setUint32(4, messageBuffer.byteLength);
 
-    return concatBuffers([headerView.buffer, messageBuffer]);
+    const fragments = [headerBuffer, messageBuffer];
+    const fragmentBuffer = new Uint8Array(fragments.map((x) => x.length).reduce((a, x) => a + x, 0));
+    fragments.reduce((a, x) => (fragmentBuffer.set(x, a), a + x.length), 0);
+    return fragmentBuffer;
   }
 
-  protected fromMessageBuffer(bb: ByteBuffer): [number, Message] {
-    const typeID = bb.readUint16(3);
+  protected fromMessageBuffer(buf: Uint8Array): [number, Message] {
+    const typeID = new DataView(buf.buffer).getUint16(3);
     const MType = messageTypeRegistry[typeID] as any;
     if (!MType) {
       const msg = new Failure();
@@ -316,11 +403,11 @@ export abstract class KeepKeyTransport extends Transport {
       return [MessageType.MESSAGETYPE_FAILURE, msg];
     }
     const msg = new MType();
-    const reader = new BinaryReader(bb.toBuffer(), 9, bb.limit - (9 + 2));
+    const reader = new BinaryReader(buf, 9, buf.length - (9 + 2));
     return [typeID, MType.deserializeBinaryFromReader(msg, reader)];
   }
 
-  protected static failureMessageFactory(e?: Error | string) {
+  protected static failureMessageFactory(e?: Error | string): Uint8Array {
     const msg = new Failure();
     msg.setCode(FailureType.FAILURE_UNEXPECTEDMESSAGE);
     if (typeof e === "string") {
@@ -328,6 +415,6 @@ export abstract class KeepKeyTransport extends Transport {
     } else {
       msg.setMessage(String(e));
     }
-    return wrap(msg.serializeBinary());
+    return msg.serializeBinary();
   }
 }
