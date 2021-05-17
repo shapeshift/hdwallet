@@ -22,7 +22,7 @@ export class TCPKeepKeyTransport extends KeepKeyTransport {
     this.debugLink = true;
   }
 
-  public getDeviceID(): string {
+  public async getDeviceID(): Promise<string> {
     return this.host;
   }
 

@@ -28,7 +28,7 @@ export class MockTransport extends LedgerTransport {
     this.populate();
   }
 
-  public getDeviceID(): string {
+  public async getDeviceID(): Promise<string> {
     return "mock#1";
   }
 

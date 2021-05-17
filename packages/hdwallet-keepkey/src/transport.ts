@@ -41,7 +41,7 @@ export abstract class KeepKeyTransport extends Transport {
     super(keyring);
   }
 
-  public abstract getDeviceID(): string;
+  public abstract getDeviceID(): Promise<string>;
   public abstract getVendor(): string;
   public abstract get isOpened(): boolean;
 

@@ -44,7 +44,7 @@ import { isObject } from "lodash";
 
 // We might not need this. Leaving it for now to debug further
 class PortisTransport extends Transport {
-  public getDeviceID() {
+  public async getDeviceID() {
     return "portis:0";
   }
 

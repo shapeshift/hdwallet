@@ -36,7 +36,7 @@ export class TrezorConnectTransport extends TrezorTransport {
     this.device = device;
   }
 
-  public getDeviceID(): string {
+  public async getDeviceID(): Promise<string> {
     return this.device.deviceID;
   }
 

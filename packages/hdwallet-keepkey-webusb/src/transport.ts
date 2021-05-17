@@ -16,7 +16,7 @@ export class WebUSBKeepKeyTransport extends KeepKeyTransport {
     this.debugLink = false;
   }
 
-  public getDeviceID(): string {
+  async getDeviceID(): Promise<string> {
     return this.usbDevice.serialNumber;
   }
 
