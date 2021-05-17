@@ -77,9 +77,7 @@ export function MixinNativeThorchainWallet<TBase extends core.Constructor<Native
         const adapter = new Isolation.Adapters.Cosmos(keyPair);
         const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, THOR_CHAIN);
 
-        let finalResult = await txBuilder.createSignedTx(msg.tx, result);
-        console.log("finalResult: ",JSON.stringify(finalResult))
-        return finalResult
+        return txBuilder.createSignedTx(msg.tx, result);
       });
     }
   };
