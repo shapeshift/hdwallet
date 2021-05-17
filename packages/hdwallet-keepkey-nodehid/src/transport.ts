@@ -25,7 +25,7 @@ export class HIDKeepKeyTransport extends KeepKeyTransport {
     this.hidRef = hidRef || new HID(hidDevice.path);
   }
 
-  public getDeviceID(): string {
+  public async getDeviceID(): Promise<string> {
     return this.hidDevice.serialNumber;
   }
 

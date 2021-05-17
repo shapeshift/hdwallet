@@ -99,14 +99,14 @@ $keepkey.on("click", async (e) => {
   e.preventDefault();
   wallet = await keepkeyAdapter.pairDevice(undefined, /*tryDebugLink=*/ true);
   window["wallet"] = wallet;
-  $("#keyring select").val(wallet.transport.getDeviceID());
+  $("#keyring select").val(await wallet.transport.getDeviceID());
 });
 
 $kkemu.on("click", async (e) => {
   e.preventDefault();
   wallet = await kkemuAdapter.pairDevice("http://localhost:5000");
   window["wallet"] = wallet;
-  $("#keyring select").val(wallet.transport.getDeviceID());
+  $("#keyring select").val(await wallet.transport.getDeviceID());
 });
 
 $trezor.on("click", async (e) => {
@@ -240,7 +240,7 @@ async function deviceConnected(deviceId) {
   wallet = keyring.get();
   window["wallet"] = wallet;
   if (wallet) {
-    let deviceID = wallet.getDeviceID();
+    let deviceID = await wallet.getDeviceID();
     $keyring.val(deviceID).change();
   }
 })();

@@ -26,7 +26,7 @@ export class MockTransport extends TrezorTransport {
     this.populate();
   }
 
-  public getDeviceID(): string {
+  public async getDeviceID(): Promise<string> {
     return "mock#1";
   }
 

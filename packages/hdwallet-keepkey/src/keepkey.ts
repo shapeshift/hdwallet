@@ -711,7 +711,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     if (featuresId !== "") return featuresId;
 
     // Grabbing the one from the transport seems to be a reasonable fallback.
-    return this.transport.getDeviceID();
+    return await this.transport.getDeviceID();
   }
 
   public getVendor(): string {
@@ -1035,8 +1035,9 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     // v6.1.0 firmware changed usb serial numbers to match STM32 desig_device_id
     // If the deviceId in the features table doesn't match, then we need to
     // add another k-v pair to the keyring so it can be looked up either way.
-    if (this.transport.getDeviceID() !== this.features.deviceId) {
-      this.transport.keyring.addAlias(this.transport.getDeviceID(), this.features.deviceId);
+    const transportDeviceID = await this.transport.getDeviceID();
+    if (transportDeviceID !== this.features.deviceId) {
+      this.transport.keyring.addAlias(transportDeviceID, this.features.deviceId);
     }
 
     // Cosmos isn't supported until v6.3.0

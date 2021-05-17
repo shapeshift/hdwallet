@@ -46,7 +46,7 @@ export class ChromeUSBKeepKeyTransport extends KeepKeyTransport {
     return "KeepKey";
   }
 
-  public getDeviceID(): string {
+  public async getDeviceID(): Promise<string> {
     return this.chromeUSBDevice.serialNumber;
   }
 

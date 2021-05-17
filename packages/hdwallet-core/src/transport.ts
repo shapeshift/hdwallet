@@ -9,7 +9,7 @@ export abstract class Transport extends eventemitter2.EventEmitter2 {
     this.keyring = keyring;
   }
 
-  public abstract getDeviceID(): string;
+  public abstract getDeviceID(): Promise<string>;
 
   /**
    * Must emit outgoing message events and communicate with underlying interface

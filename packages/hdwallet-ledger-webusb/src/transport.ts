@@ -77,7 +77,7 @@ export class LedgerWebUsbTransport extends LedgerTransport {
     this.device = device;
   }
 
-  public getDeviceID(): string {
+  public async getDeviceID(): Promise<string> {
     return (this.device as any).deviceID;
   }
 
