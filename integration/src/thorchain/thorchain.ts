@@ -97,7 +97,7 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
       TIMEOUT
     );
 
-    test.only(
+    test(
       "thorchainSignTx() (thorchain/MsgDeposit)",
       async () => {
         if (!wallet) return;
