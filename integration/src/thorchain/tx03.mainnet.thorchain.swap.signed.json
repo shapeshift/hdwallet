@@ -2,11 +2,11 @@
   "fee":{
     "amount":[
       {
-        "amount":"3000",
+        "amount":"0",
         "denom":"rune"
       }
     ],
-    "gas":"200000"
+    "gas":"350000"
   },
   "memo":"",
   "msg":[
@@ -16,7 +16,7 @@
         "coins": [
           {
             "asset": "THOR.RUNE",
-            "amount": "100000000"
+            "amount": "50994000"
           }
         ],
         "memo": "SWAP:BNB.BNB:bnb12splwpg8jenr9pjw3dwc5rr35t8792y8pc4mtf:348953501",
@@ -26,7 +26,7 @@
   ],
   "signatures":[
     {
-      "signature":"R67CfY7lBc331BVphWK5twaRsu0HAH6mFdFY8iyfVpgd4ioRSugAfrrXWwY8uJ14se696pQ7oXV0CnVvn/Jpeg==",
+      "signature":"4zQlTS6gx4hGdWRZC+V4x24e1DejZufEl5Vf6DeKWFtXcxXcGu/lAIB/PyyGSWiDSTH9v3PNFR16OUy/ED09lg==",
       "pub_key":{
         "type":"tendermint/PubKeySecp256k1",
         "value":"AxUZcTuLQr3DZxEtMxMs8Uzt+SisV3HURLpFm5SXEXuj"

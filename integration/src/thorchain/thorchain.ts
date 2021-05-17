@@ -97,7 +97,7 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
       TIMEOUT
     );
 
-    test(
+    test.only(
       "thorchainSignTx() (thorchain/MsgDeposit)",
       async () => {
         if (!wallet) return;
@@ -107,7 +107,7 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
             addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
             chain_id: "thorchain",
             account_number: "2722",
-            sequence: "1",
+            sequence: "3",
           };
 
           const res = await wallet.thorchainSignTx(input);

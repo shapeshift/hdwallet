@@ -2,11 +2,11 @@
   "fee":{
     "amount":[
       {
-        "amount":"3000",
+        "amount":"0",
         "denom":"rune"
       }
     ],
-    "gas":"200000"
+    "gas":"350000"
   },
   "memo":"",
   "msg":[
@@ -16,7 +16,7 @@
         "coins": [
           {
             "asset": "THOR.RUNE",
-            "amount": "100000000"
+            "amount": "50994000"
           }
         ],
         "memo": "SWAP:BNB.BNB:bnb12splwpg8jenr9pjw3dwc5rr35t8792y8pc4mtf:348953501",
