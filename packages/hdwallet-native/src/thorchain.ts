@@ -1,12 +1,11 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import txBuilder from "tendermint-tx-builder";
-import { BIP32Interface } from "bitcoinjs-lib";
-import * as bitcoin from "bitcoinjs-lib";
+import txBuilder from "cosmos-tx-builder";
 import { NativeHDWalletBase } from "./native";
-import { getNetwork } from "./networks";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
 import util from "./util";
+import * as Isolation from "./crypto/isolation";
+
 const THOR_CHAIN = "thorchain";
 
 export function MixinNativeThorchainWalletInfo<TBase extends core.Constructor>(Base: TBase) {
@@ -44,15 +43,14 @@ export function MixinNativeThorchainWallet<TBase extends core.Constructor<Native
   return class MixinNativeThorchainWallet extends Base {
     _supportsThorchain = true;
 
-    #wallet: BIP32Interface;
+    #seed: Isolation.BIP32.SeedInterface;
 
-    async thorchainInitializeWallet(seed: Buffer): Promise<void> {
-      const network = getNetwork("thorchain");
-      this.#wallet = bitcoin.bip32.fromSeed(seed, network);
+    async thorchainInitializeWallet(seed: Isolation.BIP32.SeedInterface): Promise<void> {
+      this.#seed = seed;
     }
 
     thorchainWipe(): void {
-      this.#wallet = undefined;
+      this.#seed = undefined;
     }
 
     thorchainBech32ify(address: ArrayLike<number>, prefix: string): string {
@@ -68,16 +66,16 @@ export function MixinNativeThorchainWallet<TBase extends core.Constructor<Native
     }
 
     async thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string> {
-      return this.needsMnemonic(!!this.#wallet, async () => {
-        return this.createThorchainAddress(util.getKeyPair(this.#wallet, msg.addressNList, "thorchain").publicKey);
+      return this.needsMnemonic(!!this.#seed, async () => {
+        return this.createThorchainAddress(util.getKeyPair(this.#seed, msg.addressNList, "thorchain").publicKey.toString("hex"));
       });
     }
 
     async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx> {
-      return this.needsMnemonic(!!this.#wallet, async () => {
-        const keyPair = util.getKeyPair(this.#wallet, msg.addressNList, "thorchain");
-        console.log("Input Thorchain: ",msg.tx, keyPair, msg.sequence, msg.account_number, THOR_CHAIN)
-        const result = await txBuilder.sign(msg.tx, keyPair, msg.sequence, msg.account_number, THOR_CHAIN);
+      return this.needsMnemonic(!!this.#seed, async () => {
+        const keyPair = util.getKeyPair(this.#seed, msg.addressNList, "thorchain");
+        const adapter = new Isolation.Adapters.Cosmos(keyPair);
+        const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, THOR_CHAIN);
 
         return txBuilder.createSignedTx(msg.tx, result);
       });

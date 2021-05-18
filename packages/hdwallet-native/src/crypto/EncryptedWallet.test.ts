@@ -120,7 +120,7 @@ describe("EncryptedWallet", () => {
       const wallet = new EncryptedWallet(engine);
       const result = await wallet.init("email", "password", ENCRYPTED);
 
-      await expect(result.decrypt()).resolves.toEqual(PLAIN);
+      expect(await result.decrypt()).toEqual(PLAIN);
     });
 
     it("should require the wallet to be initialized", async () => {

@@ -1,6 +1,6 @@
 import * as NativeHDWallet from "./native";
-import * as bip39 from "bip39";
 import { BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
+import * as Isolation from "./crypto/isolation";
 
 const MNEMONIC = "all all all all all all all all all all all all";
 
@@ -107,13 +107,13 @@ describe("NativeHDWallet", () => {
   describe("loadDevice", () => {
     it("should load wallet with a mnemonic", async () => {
       const wallet = NativeHDWallet.create({ deviceId: "native" });
-      await expect(wallet.isInitialized()).resolves.toBe(false);
-      await expect(wallet.isLocked()).resolves.toBe(false);
+      expect(await wallet.isInitialized()).toBe(false);
+      expect(await wallet.isLocked()).toBe(false);
       await wallet.loadDevice({ mnemonic: MNEMONIC });
-      await expect(wallet.initialize()).resolves.toBe(true);
-      await expect(wallet.isInitialized()).resolves.toBe(true);
-      await expect(wallet.isLocked()).resolves.toBe(false);
-      ([
+      expect(await wallet.initialize()).toBe(true);
+      expect(await wallet.isInitialized()).toBe(true);
+      expect(await wallet.isLocked()).toBe(false);
+      const testCases: Array<{ in: any; out: any }> = [
         {
           in: [{ coin: "bitcoin", addressNList: [] }],
           out: [
@@ -142,16 +142,17 @@ describe("NativeHDWallet", () => {
             },
           ],
         },
-      ] as Array<{ in: any; out: any }>).forEach((params) => {
-        expect(wallet.getPublicKeys(params.in)).resolves.toStrictEqual(params.out);
-      });
+      ];
+      for (const params of testCases) {
+        expect(await wallet.getPublicKeys(params.in)).toStrictEqual(params.out);
+      };
     });
 
     it("should load wallet with a mnemonic and deviceId", async () => {
       const wallet = NativeHDWallet.create({ deviceId: "native" });
       await wallet.loadDevice({ mnemonic: MNEMONIC, deviceId: "0SUnRnGkhCt0T5qk5YmK10v5u+lgHiMMu1R76uD7kHE=" });
-      await expect(wallet.initialize()).resolves.toBe(true);
-      await expect(wallet.getDeviceID()).resolves.toBe("0SUnRnGkhCt0T5qk5YmK10v5u+lgHiMMu1R76uD7kHE=");
+      expect(await wallet.initialize()).toBe(true);
+      expect(await wallet.getDeviceID()).toBe("0SUnRnGkhCt0T5qk5YmK10v5u+lgHiMMu1R76uD7kHE=");
     });
 
     it.each([[undefined], [null], [0], [[1, 2, 3]], [{}]])(
@@ -159,7 +160,7 @@ describe("NativeHDWallet", () => {
       async (param: any) => {
         const wallet = NativeHDWallet.create({ deviceId: "native" });
         await wallet.loadDevice({ mnemonic: MNEMONIC, deviceId: param });
-        await expect(wallet.getDeviceID()).resolves.toBe("native");
+        expect(await wallet.getDeviceID()).toBe("native");
       }
     );
 
@@ -182,9 +183,10 @@ describe("NativeHDWallet", () => {
   it("should wipe if an error occurs during initialization", async () => {
     expect.assertions(7);
     const wallet = NativeHDWallet.create({ deviceId: "native" });
-    await wallet.loadDevice({ mnemonic: MNEMONIC });
+    const mockMnemonic = new Isolation.BIP39.Mnemonic(MNEMONIC);
+    await wallet.loadDevice({ mnemonic: mockMnemonic });
     const mocks = [
-      jest.spyOn(bip39, "mnemonicToSeed").mockImplementationOnce(() => {
+      jest.spyOn(mockMnemonic, "toSeed").mockImplementationOnce(() => {
         throw "mock error";
       }),
       jest.spyOn(console, "error").mockImplementationOnce((msg, error) => {
@@ -193,7 +195,7 @@ describe("NativeHDWallet", () => {
       }),
       jest.spyOn(wallet, "wipe"),
     ];
-    await expect(wallet.initialize()).resolves.toBe(false);
+    expect(await wallet.initialize()).toBe(false);
     mocks.forEach((x) => {
       expect(x).toHaveBeenCalled();
       x.mockRestore();
@@ -203,11 +205,11 @@ describe("NativeHDWallet", () => {
   it("should have correct metadata", async () => {
     const deviceId = "foobar";
     const wallet = NativeHDWallet.create({ deviceId });
-    await expect(wallet.getFeatures()).resolves.toEqual({});
-    await expect(wallet.getDeviceID()).resolves.toEqual(deviceId);
-    await expect(wallet.getFirmwareVersion()).resolves.toEqual("Software");
-    await expect(wallet.getModel()).resolves.toEqual("Native");
-    await expect(wallet.getLabel()).resolves.toEqual("Native");
+    expect(await wallet.getFeatures()).toEqual({});
+    expect(await wallet.getDeviceID()).toEqual(deviceId);
+    expect(await wallet.getFirmwareVersion()).toEqual("Software");
+    expect(await wallet.getModel()).toEqual("Native");
+    expect(await wallet.getLabel()).toEqual("Native");
   });
 
   it("should emit MNEMONIC_REQUIRED when initialized without a mnemonic", async () => {
@@ -220,7 +222,7 @@ describe("NativeHDWallet", () => {
     });
     wallet.events.addListener(NativeHDWallet.NativeEvents.READY, readyMock);
     wallet.events.addListener(NativeHDWallet.NativeEvents.MNEMONIC_REQUIRED, mnemonicRequiredMock);
-    await expect(wallet.initialize()).resolves.toBe(null);
+    expect(await wallet.initialize()).toBe(null);
     expect(mnemonicRequiredMock).toHaveBeenCalled();
     expect(readyMock).not.toHaveBeenCalled();
   });
@@ -236,7 +238,7 @@ describe("NativeHDWallet", () => {
     wallet.events.addListener(NativeHDWallet.NativeEvents.READY, readyMock);
     wallet.events.addListener(NativeHDWallet.NativeEvents.MNEMONIC_REQUIRED, mnemonicRequiredMock);
     await wallet.loadDevice({ mnemonic: MNEMONIC });
-    await expect(wallet.initialize()).resolves.toBe(true);
+    expect(await wallet.initialize()).toBe(true);
     expect(mnemonicRequiredMock).not.toHaveBeenCalled();
     expect(readyMock).toHaveBeenCalled();
   });
@@ -246,10 +248,10 @@ describe("NativeHDWallet", () => {
     const mock = jest.fn();
     wallet.events.addListener(NativeHDWallet.NativeEvents.MNEMONIC_REQUIRED, mock);
     await wallet.loadDevice({ mnemonic: MNEMONIC });
-    await expect(wallet.initialize()).resolves.toBe(true);
+    expect(await wallet.initialize()).toBe(true);
     await wallet.wipe();
     expect(mock).not.toHaveBeenCalled();
-    await expect(wallet.initialize()).resolves.toBe(null);
+    expect(await wallet.initialize()).toBe(null);
     expect(mock).toHaveBeenCalled();
   });
 
@@ -260,7 +262,7 @@ describe("NativeHDWallet", () => {
 
   it("should respond to .ping()", async () => {
     const wallet = NativeHDWallet.create({ deviceId: "native" });
-    await expect(wallet.ping({ msg: "pong" })).resolves.toEqual({ msg: "pong" });
+    expect(await wallet.ping({ msg: "pong" })).toEqual({ msg: "pong" });
   });
 
   describe("nothing happens", () => {
@@ -277,7 +279,7 @@ describe("NativeHDWallet", () => {
       ["recover"],
       ["disconnect"],
     ])("when %s is called", async (methodName) => {
-      await expect(untouchable.call(wallet, methodName)).resolves.toBe(undefined);
+      expect(await untouchable.call(wallet, methodName)).toBe(undefined);
     });
   });
 });

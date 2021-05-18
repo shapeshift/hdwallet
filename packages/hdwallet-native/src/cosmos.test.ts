@@ -12,8 +12,8 @@ describe("NativeCosmosWalletInfo", () => {
   const info = NativeHDWallet.info();
 
   it("should return some static metadata", async () => {
-    await expect(untouchable.call(info, "cosmosSupportsNetwork")).resolves.toBe(true);
-    await expect(untouchable.call(info, "cosmosSupportsSecureTransfer")).resolves.toBe(false);
+    expect(await untouchable.call(info, "cosmosSupportsNetwork")).toBe(true);
+    expect(await untouchable.call(info, "cosmosSupportsSecureTransfer")).toBe(false);
     expect(untouchable.call(info, "cosmosSupportsNativeShapeShift")).toBe(false);
   });
 
@@ -33,19 +33,19 @@ describe("NativeCosmosWallet", () => {
   beforeEach(async () => {
     wallet = NativeHDWallet.create({ deviceId: "native" });
     await wallet.loadDevice({ mnemonic: MNEMONIC });
-    await expect(wallet.initialize()).resolves.toBe(true);
+    expect(await wallet.initialize()).toBe(true);
   });
 
   it("should generate a correct cosmos address", async () => {
-    await expect(
-      wallet.cosmosGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0") })
-    ).resolves.toBe("cosmos1knuunh0lmwyrkjmrj7sky49uxk3peyzhzsvqqf");
+    expect(
+      await wallet.cosmosGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0") })
+    ).toBe("cosmos1knuunh0lmwyrkjmrj7sky49uxk3peyzhzsvqqf");
   });
 
   it("should generate another correct cosmos address", async () => {
-    await expect(
-      wallet.cosmosGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/118'/1337'/123/4") })
-    ).resolves.toBe("cosmos14k4dnrrmxdch6nkvvuugsywrgmvlwrqszjfxjt");
+    expect(
+      await wallet.cosmosGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/118'/1337'/123/4") })
+    ).toBe("cosmos14k4dnrrmxdch6nkvvuugsywrgmvlwrqszjfxjt");
   });
 
   it("should sign a transaction correctly", async () => {

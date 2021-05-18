@@ -1,6 +1,6 @@
 {
-  "name": "@shapeshiftoss/tendermint-tx-builder",
-  "version": "1.14.0",
+  "name": "@shapeshiftoss/hdwallet-native",
+  "version": "1.14.1-alpha.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,19 +15,21 @@
   },
   "dependencies": {
     "@bithighlander/bitcoin-cash-js-lib": "5.2.1",
-    "@shapeshiftoss/hdwallet-core": "^1.14.0",
+    "@shapeshiftoss/hdwallet-core": "^1.14.1-alpha.0",
     "@zxing/text-encoding": "^0.9.0",
     "bchaddrjs": "^0.4.9",
     "bignumber.js": "^9.0.1",
     "bip32": "^2.0.5",
     "bip39": "^3.0.2",
     "bnb-javascript-sdk-nobroadcast": "^2.16.14",
+    "cosmos-tx-builder": "^6.3.4",
     "crypto-js": "^3.1.9-1",
     "ethereum-tx-decoder": "^3.0.0",
     "ethers": "^5.1.0",
     "fiosdk-offline": "^1.2.21",
+    "funtypes": "^3.0.1",
     "lodash": "^4.17.15",
-    "tendermint-tx-builder": "^1.0.5",
+    "tiny-secp256k1": "^1.1.6",
     "web-encoding": "^1.1.0"
   },
   "devDependencies": {

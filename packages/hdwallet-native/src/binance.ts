@@ -1,13 +1,12 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { BIP32Interface } from "bitcoinjs-lib";
 import { BncClient } from "bnb-javascript-sdk-nobroadcast";
-import * as bitcoin from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
-import { getNetwork } from "./networks";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
 import BigNumber from "bignumber.js";
 import util from "./util";
+import { SeedInterface as IsolatedBIP32Seed } from "./crypto/isolation/core/bip32/interfaces";
+import * as Isolation from "./crypto/isolation";
 
 export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeBinanceWalletInfo extends Base implements core.BinanceWalletInfo {
@@ -45,15 +44,14 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
   return class MixinNativeBinanceWallet extends Base {
     _supportsBinance = true;
 
-    #wallet: BIP32Interface;
+    #seed: IsolatedBIP32Seed;
 
-    async binanceInitializeWallet(seed: Buffer): Promise<void> {
-      const network = getNetwork("binance");
-      this.#wallet = bitcoin.bip32.fromSeed(seed, network);
+    async binanceInitializeWallet(seed: IsolatedBIP32Seed): Promise<void> {
+      this.#seed = seed;
     }
 
     binanceWipe(): void {
-      this.#wallet = undefined;
+      this.#seed = undefined;
     }
 
     binanceBech32ify(address: ArrayLike<number>, prefix: string): string {
@@ -69,24 +67,25 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
     }
 
     async binanceGetAddress(msg: core.BinanceGetAddress): Promise<string> {
-      return this.needsMnemonic(!!this.#wallet, async () => {
-        return this.createBinanceAddress(util.getKeyPair(this.#wallet, msg.addressNList, "binance").publicKey);
+      return this.needsMnemonic(!!this.#seed, async () => {
+        return this.createBinanceAddress(util.getKeyPair(this.#seed, msg.addressNList, "binance").publicKey.toString("hex"));
       });
     }
 
     async binanceSignTx(msg: core.BinanceSignTx): Promise<core.BinanceSignedTx> {
-      return this.needsMnemonic(!!this.#wallet, async () => {
-        const { privateKey } = util.getKeyPair(this.#wallet, msg.addressNList, "binance");
+      return this.needsMnemonic(!!this.#seed, async () => {
+        const keyPair = util.getKeyPair(this.#seed, msg.addressNList, "binance");
 
         const client = new BncClient("https://dex.binance.org"); // broadcast not used but available
         await client.chooseNetwork("mainnet");
         const haveAccountNumber = Number.isInteger(Number(msg.account_number));
         if (haveAccountNumber) await client.setAccountNumber(Number(msg.account_number));
-        await client.setPrivateKey(privateKey, haveAccountNumber);
+        client.setSigningDelegate(Isolation.Adapters.Binance(keyPair));
+
         await client.initChain();
 
         const addressFrom = msg.tx.msgs[0].inputs[0].address;
-        const addressFromVerify = client.getClientKeyAddress();
+        const addressFromVerify = this.createBinanceAddress(keyPair.publicKey.toString("hex"));
         if (addressFrom !== addressFromVerify) {
           throw Error("Invalid permissions to sign for address");
         }

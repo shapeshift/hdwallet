@@ -1,11 +1,9 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as bitcoin from "bitcoinjs-lib";
-import txBuilder from "tendermint-tx-builder";
 import { NativeHDWalletBase } from "./native";
-import { getNetwork } from "./networks";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
 import util from "./util";
+import * as Isolation from "./crypto/isolation";
 
 export function MixinNativeSecretWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeSecretWalletInfo extends Base implements core.SecretWalletInfo {
@@ -42,20 +40,14 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
   return class MixinNativeSecretWallet extends Base {
     _supportsSecret = true;
 
-    #wallet: bitcoin.BIP32Interface;
-    #seed: string;
+    #seed: Isolation.BIP32.SeedInterface;
 
-    async secretInitializeWallet(seed: Buffer): Promise<void> {
-      const network = getNetwork("secret");
-      this.#wallet = bitcoin.bip32.fromSeed(seed, network);
-    }
-
-    secretSetMnemonic(mnemonic: string): void {
-      this.#seed = mnemonic
+    async secretInitializeWallet(seed: Isolation.BIP32.SeedInterface): Promise<void> {
+      this.#seed = seed;
     }
 
     secretWipe(): void {
-      this.#wallet = undefined;
+      this.#seed = undefined;
     }
 
     secretBech32ify(address: ArrayLike<number>, prefix: string): string {
@@ -71,17 +63,14 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
     }
 
     async secretGetAddress(msg: core.SecretGetAddress): Promise<string> {
-      return this.needsMnemonic(!!this.#wallet, async () => {
-        return this.createSecretAddress(util.getKeyPair(this.#wallet, msg.addressNList, "secret").publicKey);
+      return this.needsMnemonic(!!this.#seed, async () => {
+        return this.createSecretAddress(util.getKeyPair(this.#seed, msg.addressNList, "secret").publicKey.toString("hex"));
       });
     }
 
     async secretSignTx(msg: core.SecretSignTx): Promise<any> {
-      return this.needsMnemonic(!!this.#wallet, async () => {
-        const keyPair = util.getKeyPair(this.#wallet, msg.addressNList, "terra");
-        console.log("Input Thorchain: ",msg.tx, keyPair, msg.sequence, msg.account_number, "terra")
-        const result = await txBuilder.sign(msg.tx, keyPair, msg.sequence, msg.account_number, "terra");
-        return txBuilder.createSignedTx(msg.tx, result);
+      return this.needsMnemonic(!!this.#seed, async () => {
+        throw Error("Not Supported");
       });
     }
   };

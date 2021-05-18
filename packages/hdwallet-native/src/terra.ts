@@ -1,12 +1,9 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import txBuilder from "tendermint-tx-builder";
-import { BIP32Interface } from "bitcoinjs-lib";
-import * as bitcoin from "bitcoinjs-lib";
 import { NativeHDWalletBase } from "./native";
-import { getNetwork } from "./networks";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
 import util from "./util";
+import * as Isolation from "./crypto/isolation";
 
 export function MixinNativeTerraWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeTerraWalletInfo extends Base implements core.TerraWalletInfo {
@@ -43,20 +40,13 @@ export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWa
   return class MixinNativeTerraWallet extends Base {
     _supportsTerra = true;
 
-    #wallet: BIP32Interface;
-    #seed: string;
+    #seed: Isolation.BIP32.SeedInterface;
 
-    async terraInitializeWallet(seed: Buffer): Promise<void> {
-      const network = getNetwork("terra");
-      this.#wallet = bitcoin.bip32.fromSeed(seed, network);
-    }
-
-    terraSetMnemonic(mnemonic: string): void {
-      this.#seed = mnemonic
+    async terraInitializeWallet(seed: Isolation.BIP32.SeedInterface): Promise<void> {
+      this.#seed = seed;
     }
 
     terraWipe(): void {
-      this.#wallet = undefined;
       this.#seed = undefined;
     }
 
@@ -73,17 +63,14 @@ export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWa
     }
 
     async terraGetAddress(msg: core.TerraGetAddress): Promise<string> {
-      return this.needsMnemonic(!!this.#wallet, async () => {
-        return this.createTerraAddress(util.getKeyPair(this.#wallet, msg.addressNList, "terra").publicKey);
+      return this.needsMnemonic(!!this.#seed, async () => {
+        return this.createTerraAddress(util.getKeyPair(this.#seed, msg.addressNList, "terra").publicKey.toString("hex"));
       });
     }
 
     async terraSignTx(msg: core.TerraSignTx): Promise<any> {
-      return this.needsMnemonic(!!this.#wallet, async () => {
-        const keyPair = util.getKeyPair(this.#wallet, msg.addressNList, "terra");
-        console.log("Input Thorchain: ",msg.tx, keyPair, msg.sequence, msg.account_number, "terra")
-        const result = await txBuilder.sign(msg.tx, keyPair, msg.sequence, msg.account_number, "terra");
-        return txBuilder.createSignedTx(msg.tx, result);
+      return this.needsMnemonic(!!this.#seed, async () => {
+        throw Error("Not Supported");
       });
     }
   };
