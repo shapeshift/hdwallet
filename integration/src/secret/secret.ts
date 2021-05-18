@@ -86,7 +86,7 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
         };
 
         const res = await wallet.secretSignTx(input);
-        console.log("res: ",res)
+
         switch(wallet.getVendor()){
           case "KeepKey":
             //expect(res.signatures[0].signature).toEqual(tx_signed.tx.signatures[0].signature_keepkey);

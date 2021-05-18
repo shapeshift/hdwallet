@@ -29,7 +29,7 @@
     "fiosdk-offline": "^1.2.21",
     "funtypes": "^3.0.1",
     "lodash": "^4.17.15",
-    "tendermint-tx-builder": "^1.0.6",
+    "tendermint-tx-builder": "1.0.7",
     "tiny-secp256k1": "^1.1.6",
     "web-encoding": "^1.1.0"
   },

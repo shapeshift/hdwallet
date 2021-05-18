@@ -70,7 +70,7 @@ export function terraTests(get: () => { wallet: core.HDWallet; info: core.HDWall
       TIMEOUT
     );
 
-    test(
+    test.only(
       "terraSignTx()",
       async () => {
         if (!wallet) return;

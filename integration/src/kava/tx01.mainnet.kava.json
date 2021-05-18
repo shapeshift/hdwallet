@@ -5,24 +5,24 @@
       "value":{
         "amount":[
           {
-            "amount":"100000",
+            "amount":"1000000",
             "denom":"ukava"
           }
         ],
         "from_address":"kava1l4ylj687wmm7d0mk2l29pf9y4k3f09v5zzl0tx",
-        "to_address":"kava1lqk43hvysuzymrgg08q45234z6jzth325pg8sk"
+        "to_address":"kava1ys70jvnajkv88529ys6urjcyle3k2j9r24g6a7"
       }
     }
   ],
   "fee":{
     "amount":[
       {
-        "amount":"5000",
+        "amount":"1000",
         "denom":"ukava"
       }
     ],
     "gas":"200000"
   },
   "signatures":null,
-  "memo":"testmemo"
+  "memo":"100942091"
 }

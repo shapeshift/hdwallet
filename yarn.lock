@@ -13087,10 +13087,10 @@ temp-write@^3.4.0:
     temp-dir "^1.0.0"
     uuid "^3.0.1"
 
-tendermint-tx-builder@^1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/tendermint-tx-builder/-/tendermint-tx-builder-1.0.6.tgz#5d3a5969340d201325c23421c3dcd5858d67f3df"
-  integrity sha512-3cIN3Bg9OC0WWsiEyGwer6nL+sMk5/wgLagUT4PO9PFd7JlWyELG4X+4RzFxl3UDj65/O+9C8JVSK7cHVqZyhg==
+tendermint-tx-builder@1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/tendermint-tx-builder/-/tendermint-tx-builder-1.0.7.tgz#b1bfb76b0d848f99ddd9643bc56bc75f797e807c"
+  integrity sha512-qK86qtLq6irdstAOIY5ihYaql7ZoKrEKn3KA8y8uThXSwG9iKBfmoqQjvqfnRUtgP9ZqeAY0V1RcjCaerlh5OA==
   dependencies:
     "@bithighlander/bitcoin-cash-js-lib" "^5.2.1"
     "@pioneer-platform/loggerdog" "^8.0.1"
