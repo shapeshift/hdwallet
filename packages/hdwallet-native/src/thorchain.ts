@@ -8,8 +8,6 @@ import * as Isolation from "./crypto/isolation";
 
 const THOR_CHAIN = "thorchain";
 
-console.log("txBuilder: ",txBuilder)
-
 export function MixinNativeThorchainWalletInfo<TBase extends core.Constructor>(Base: TBase) {
   return class MixinNativeThorchainWalletInfo extends Base implements core.ThorchainWalletInfo {
     _supportsThorchainInfo = true;
