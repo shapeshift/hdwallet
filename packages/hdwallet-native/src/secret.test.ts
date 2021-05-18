@@ -48,7 +48,7 @@ describe("NativeSecretWallet", () => {
     ).resolves.toBe("secret1wmmewcjt2s09r48ya8mtdfyy0rnnza20xnx6fs");
   });
 
-  it.only("should signing transactions", async () => {
+  it("should signing transactions", async () => {
     const signed = await wallet.secretSignTx({
       addressNList: core.bip32ToAddressNList("m/44'/529'/0'/0/0"),
       tx: {
