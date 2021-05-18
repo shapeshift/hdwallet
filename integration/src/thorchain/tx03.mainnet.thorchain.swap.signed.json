@@ -2,31 +2,31 @@
   "fee":{
     "amount":[
       {
-        "amount":"3000",
+        "amount":"0",
         "denom":"rune"
       }
     ],
-    "gas":"200000"
+    "gas":"350000"
   },
   "memo":"",
   "msg":[
     {
-      "type":"thorchain/MsgSend",
+      "type":"thorchain/MsgDeposit",
       "value":{
-        "amount":[
+        "coins": [
           {
-            "amount":"100",
-            "denom":"rune"
+            "asset": "THOR.RUNE",
+            "amount": "50994000"
           }
         ],
-        "from_address":"thor1ls33ayg26kmltw7jjy55p32ghjna09zp74t4az",
-        "to_address":"thor1wy58774wagy4hkljz9mchhqtgk949zdwwe80d5"
+        "memo": "SWAP:BNB.BNB:bnb12splwpg8jenr9pjw3dwc5rr35t8792y8pc4mtf:348953501",
+        "signer": "thor1ls33ayg26kmltw7jjy55p32ghjna09zp74t4az"
       }
     }
   ],
   "signatures":[
     {
-      "signature":"EHwZQ8wDiiPkwB4V+1R3h0jO0+OisdjtMZR02pb5SpFnte2MIkoqz/T6tsltcXFvhsvNxH8ilm6XBk8EPo6Hsg==",
+      "signature":"4zQlTS6gx4hGdWRZC+V4x24e1DejZufEl5Vf6DeKWFtXcxXcGu/lAIB/PyyGSWiDSTH9v3PNFR16OUy/ED09lg==",
       "pub_key":{
         "type":"tendermint/PubKeySecp256k1",
         "value":"AxUZcTuLQr3DZxEtMxMs8Uzt+SisV3HURLpFm5SXEXuj"
