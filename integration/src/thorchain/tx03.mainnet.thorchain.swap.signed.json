@@ -1,0 +1,36 @@
+{
+  "fee":{
+    "amount":[
+      {
+        "amount":"0",
+        "denom":"rune"
+      }
+    ],
+    "gas":"350000"
+  },
+  "memo":"",
+  "msg":[
+    {
+      "type":"thorchain/MsgDeposit",
+      "value":{
+        "coins": [
+          {
+            "asset": "THOR.RUNE",
+            "amount": "50994000"
+          }
+        ],
+        "memo": "SWAP:BNB.BNB:bnb12splwpg8jenr9pjw3dwc5rr35t8792y8pc4mtf:348953501",
+        "signer": "thor1ls33ayg26kmltw7jjy55p32ghjna09zp74t4az"
+      }
+    }
+  ],
+  "signatures":[
+    {
+      "signature":"4zQlTS6gx4hGdWRZC+V4x24e1DejZufEl5Vf6DeKWFtXcxXcGu/lAIB/PyyGSWiDSTH9v3PNFR16OUy/ED09lg==",
+      "pub_key":{
+        "type":"tendermint/PubKeySecp256k1",
+        "value":"AxUZcTuLQr3DZxEtMxMs8Uzt+SisV3HURLpFm5SXEXuj"
+      }
+    }
+  ]
+}

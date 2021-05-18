@@ -3,6 +3,8 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import tx_unsigned from "./tx02.mainnet.thorchain.json";
 import tx_signed from "./tx02.mainnet.thorchain.signed.json";
 
+import tx_unsigned_swap from "./tx03.mainnet.thorchain.swap.json";
+import tx_signed_swap from "./tx03.mainnet.thorchain.swap.signed.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
@@ -94,5 +96,27 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
       },
       TIMEOUT
     );
+
+    test(
+      "thorchainSignTx() (thorchain/MsgDeposit)",
+      async () => {
+        if (!wallet) return;
+        if(wallet.getVendor() !== 'KeepKey'){
+          const input: core.ThorchainSignTx = {
+            tx: tx_unsigned_swap as any,
+            addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
+            chain_id: "thorchain",
+            account_number: "2722",
+            sequence: "3",
+          };
+
+          const res = await wallet.thorchainSignTx(input);
+          expect(res.signatures[0].signature).toEqual(tx_signed_swap.signatures[0].signature);
+
+        }
+      },
+      TIMEOUT
+    );
+
   });
 }
