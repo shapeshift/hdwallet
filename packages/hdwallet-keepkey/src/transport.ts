@@ -222,6 +222,7 @@ export abstract class KeepKeyTransport extends Transport {
           this.callInProgress = { main: undefined, debug: undefined };
           throw new ActionCancelled();
         }
+        console.log("msg", msg, "resp", response);
         return response;
       }
     };

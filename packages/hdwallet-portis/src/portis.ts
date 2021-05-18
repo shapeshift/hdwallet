@@ -82,6 +82,8 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
   _supportsKavaInfo: boolean = false;
   _supportsTerra: boolean = false;
   _supportsTerraInfo: boolean = false;
+  _supportsTendermint: boolean = false;
+  _supportsTendermintInfo: boolean = true;
 
   transport = new PortisTransport(new Keyring());
 
@@ -346,6 +348,7 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
   _supportsSecretInfo: boolean = false;
   _supportsKavaInfo: boolean = false;
   _supportsTerraInfo: boolean = false;
+  _supportsTendermintInfo: boolean = true;
 
   public getVendor(): string {
     return "Portis";

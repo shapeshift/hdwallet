@@ -171,6 +171,7 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
   _supportsSecretInfo: boolean = false;
   _supportsKavaInfo: boolean = false;
   _supportsTerraInfo: boolean = false;
+  _supportsTendermintInfo: boolean = true;
 
 
   public getVendor(): string {
@@ -317,6 +318,8 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
   _supportsKavaInfo: boolean = true;
   _supportsTerra: boolean = false;
   _supportsTerraInfo: boolean = true;
+  _supportsTendermint: boolean = false;
+  _supportsTendermintInfo: boolean = true;
 
   transport: TrezorTransport;
   featuresCache: any;

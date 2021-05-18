@@ -29,6 +29,12 @@ import {
   CosmosGetAddress,
   CosmosSignTx,
   CosmosSignedTx,
+  TendermintWalletInfo,
+  TendermintGetAccountPaths,
+  TendermintAccountPath,
+  TendermintGetAddress,
+  TendermintSignTx,
+  TendermintSignedTx,
   ThorchainWalletInfo,
   ThorchainGetAccountPaths,
   ThorchainAccountPath,
@@ -87,6 +93,7 @@ import * as Thorchain from "./thorchain";
 import * as Ripple from "./ripple";
 import * as Binance from "./binance";
 import * as Eos from "./eos";
+import * as Tendermint from "./tendermint";
 
 import { KeepKeyTransport } from "./transport";
 
@@ -263,6 +270,45 @@ function describeCosmosPath(path: BIP32Path): PathDescription {
     accountIdx: index,
     wholeAccount: true,
     coin: "Atom",
+    isKnown: true,
+    isPrefork: false,
+  };
+}
+
+function describeTendermintPath(path: BIP32Path, coin: string): PathDescription {
+  let pathStr = addressNListToBIP32(path);
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin: "Atom",
+    isKnown: false,
+  };
+
+  if (path.length != 5) {
+    return unknown;
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown;
+  }
+
+  if (path[1] != 0x80000000 + slip44ByCoin(coin)) {
+    return unknown;
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown;
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown;
+  }
+
+  let index = path[2] & 0x7fffffff;
+  return {
+    verbose: `${coin} Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: coin,
     isKnown: true,
     isPrefork: false,
   };
@@ -445,6 +491,8 @@ export class KeepKeyHDWalletInfo
   _supportsSecretInfo: boolean = false;
   _supportsKavaInfo: boolean = false;
   _supportsTerraInfo: boolean = false;
+  _supportsTendermint: boolean = true;
+  _supportsTendermintInfo: boolean = true;
 
   public getVendor(): string {
     return "KeepKey";
@@ -492,6 +540,10 @@ export class KeepKeyHDWalletInfo
 
   public cosmosGetAccountPaths(msg: CosmosGetAccountPaths): Array<CosmosAccountPath> {
     return Cosmos.cosmosGetAccountPaths(msg);
+  }
+
+  public tendermintGetAccountPaths(msg: TendermintGetAccountPaths, coin: string): Array<TendermintAccountPath> {
+    return Tendermint.tendermintGetAccountPaths(msg, coin);
   }
 
   public thorchainGetAccountPaths(msg: ThorchainGetAccountPaths): Array<ThorchainAccountPath> {
@@ -605,6 +657,21 @@ export class KeepKeyHDWalletInfo
     };
   }
 
+  public tendermintNextAccountPath(msg: TendermintAccountPath, coin: string): TendermintAccountPath | undefined {
+    let description = describeTendermintPath(msg.addressNList, coin);
+    if (!description.isKnown) {
+      return undefined;
+    }
+
+    let addressNList = msg.addressNList;
+    addressNList[2] += 1;
+
+    return {
+      ...msg,
+      addressNList,
+    };
+  }
+
   public thorchainNextAccountPath(msg: ThorchainAccountPath): ThorchainAccountPath | undefined {
     let description = describeThorchainPath(msg.addressNList);
     if (!description.isKnown) {
@@ -690,6 +757,8 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   _supportsKavaInfo: boolean = false;
   _supportsTerra: boolean = false;
   _supportsTerraInfo: boolean = false;
+  _supportsTendermint: boolean = true;
+  _supportsTendermintInfo: boolean = true;
 
   transport: KeepKeyTransport;
   features?: Messages.Features.AsObject;
@@ -738,8 +807,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
   public async isLocked(): Promise<boolean> {
     const features = await this.getFeatures();
     if (features.pinProtection && !features.pinCached) return true;
-    if (features.passphraseProtection && !features.passphraseCached)
-      return true;
+    if (features.passphraseProtection && !features.passphraseCached) return true;
     return false;
   }
 
@@ -1045,6 +1113,7 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     this._supportsRipple = Semver.gte(fwVersion, "v6.4.0");
     this._supportsBinance = Semver.gte(fwVersion, "v6.4.0");
     this._supportsEos = Semver.gte(fwVersion, "v6.4.0");
+    // this._supportsTendermint = Semver.gte(fwVersion, "v7.2.0");
     // this._supportsCosmos = Semver.get(fwVersion, "v7.0.0");
 
     this.cacheFeatures(event.message);
@@ -1254,6 +1323,18 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
     return Cosmos.cosmosSignTx(this.transport, msg);
   }
 
+  public tendermintGetAccountPaths(msg: TendermintGetAccountPaths, coin: string): Array<TendermintAccountPath> {
+    return this.info.tendermintGetAccountPaths(msg, coin);
+  }
+
+  public tendermintGetAddress(msg: TendermintGetAddress): Promise<string> {
+    return Tendermint.tendermintGetAddress(this.transport, msg);
+  }
+
+  public tendermintSignTx(msg: TendermintSignTx): Promise<TendermintSignedTx> {
+    return Tendermint.tendermintSignTx(this.transport, msg);
+  }
+
   public thorchainGetAccountPaths(msg: ThorchainGetAccountPaths): Array<ThorchainAccountPath> {
     return this.info.thorchainGetAccountPaths(msg);
   }
@@ -1312,6 +1393,10 @@ export class KeepKeyHDWallet implements HDWallet, BTCWallet, ETHWallet, DebugLin
 
   public cosmosNextAccountPath(msg: CosmosAccountPath): CosmosAccountPath | undefined {
     return this.info.cosmosNextAccountPath(msg);
+  }
+
+  public tendermintNextAccountPath(msg: TendermintAccountPath, coin: string): TendermintAccountPath | undefined {
+    return this.info.tendermintNextAccountPath(msg, coin);
   }
 
   public rippleNextAccountPath(msg: RippleAccountPath): RippleAccountPath | undefined {

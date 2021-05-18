@@ -233,7 +233,9 @@
         <option value="Other">Other</option>
       </select>
       <label for="tendermintAmountInput">Amount</label>
-      <input type="text" value="8" id="tendermintAmountInput" disabled="true" />
+      <input type="text" id="tendermintAmountInput" />
+      <label for="tendermintDestinationAddressInput">Destination Address</label>
+      <input type="text" value="terra1wg2mlrxdmnnkkykgqg4znky86nyrtc45q336yv" id="tendermintDestinationAddressInput" />
       <label for="tendermintTestnetSelector">Testnet</label>
       <div class="indentedRow">
         <button class="button button-outline" name="tendermintTestnetButton" id="tendermintTestnetTrueButton">
@@ -256,7 +258,7 @@
       <label for="tendermintDecimalsInput">Decimals</label>
       <input type="text" value="8" id="tendermintDecimalsInput" disabled="true" />
       <label for="tendermintChainIDInput">Chain ID</label>
-      <input type="text" value="columbus-3" id="tendermintChainIDInput" disabled="true" />
+      <input type="text" value="columbus-4" id="tendermintChainIDInput" disabled="true" />
       <label for="tendermintChainNameInput">Chain Name</label>
       <input type="text" value="terra" id="tendermintChainNameInput" disabled="true" />
       <label for="tendermintMessageTypePrefixInput">Message Type Prefix</label>
@@ -265,11 +267,11 @@
       <input type="text" value="terra" id="tendermintAddressPrefixInput" disabled="true" />
       <hr />
       <label for="tendermintAddressResults">Get Address</label>
-      <input type="text" placeholder="generated address" disabled="true" id="tendermintAddressResults" />
+      <textarea disabled placeholder="generated address" id="tendermintAddressResults" />
       <button class="button button-outline" id="tendermintGetAddressButton">Get Address</button>
       <hr />
       <label for="tendermintTransactionResults">Sign Transaction</label>
-      <input type="text" placeholder="signed transaction" disabled="true" id="tendermintTransactionResults" />
+      <textarea disabled placeholder="signed transaction" id="tendermintTransactionResults" />
       <button class="button button-outline" id="tendermintSignTransactionButton">Sign Transaction</button>
     </div>
 

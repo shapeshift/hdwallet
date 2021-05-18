@@ -16,4 +16,5 @@ export * from "./fio";
 export * from "./kava";
 export * from "./secret";
 export * from "./terra";
+export * from "./tendermint";
 

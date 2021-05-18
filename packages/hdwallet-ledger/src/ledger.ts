@@ -145,6 +145,8 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
   _supportsTerraInfo: boolean = false;
   _supportsCardano: boolean = false;
   _supportsCardanoInfo: boolean = false;
+  _supportsTendermint: boolean = false;
+  _supportsTendermintInfo: boolean = true;
 
   public getVendor(): string {
     return "Ledger";
@@ -307,6 +309,8 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   _supportsTerraInfo: boolean = false;
   _supportsCardano: boolean = false;
   _supportsCardanoInfo: boolean = false;
+  _supportsTendermint: boolean = false;
+  _supportsTendermintInfo: boolean = true;
 
   _isLedger: boolean = true;
 

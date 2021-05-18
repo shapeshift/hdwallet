@@ -76,6 +76,7 @@ class NativeHDWalletInfo
   _supportsSecretInfo: boolean = false;
   _supportsKavaInfo: boolean = false;
   _supportsTerraInfo: boolean = false;
+  _supportsTendermintInfo: boolean = true;
 
   getVendor(): string {
     return "Native";
@@ -161,6 +162,7 @@ export class NativeHDWallet
   _supportsSecret = false;
   _supportsTerra = false;
   _supportsKava = false;
+  _supportsTendermint: boolean = false;
   _supportsDebugLink = false;
   _isNative = true;
 

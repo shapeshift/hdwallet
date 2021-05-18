@@ -12,11 +12,14 @@ import {
   supportsEos,
   supportsFio,
   supportsThorchain,
+  supportsTendermint,
   supportsDebugLink,
   bip32ToAddressNList,
   Events,
   toHexString,
   Cosmos,
+  Tendermint,
+  TendermintSignTx,
   hardenedPath,
 } from "@shapeshiftoss/hdwallet-core";
 
@@ -1263,6 +1266,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
 */
 const $tendermintChainSelector = $("#tendermintChainSelector");
 const $tendermintAmountInput = $("#tendermintAmountInput");
+const $tendermintDestinationAddressInput = $("#tendermintDestinationAddressInput");
 const $tendermintTestnetTrueButton = $("#tendermintTestnetTrueButton");
 const $tendermintTestnetFalseButton = $("#tendermintTestnetFalseButton");
 const $tendermintChainInput = $("#tendermintChainInput");
@@ -1274,8 +1278,47 @@ const $tendermintChainNameInput = $("#tendermintChainNameInput");
 const $tendermintMessageTypePrefixInput = $("#tendermintMessageTypePrefixInput");
 const $tendermintAddressPrefixInput = $("#tendermintAddressPrefixInput");
 const $tendermintSignTransactionButton = $("#tendermintSignTransactionButton");
-const $tendermintGetAddressButton = $("tendermintGetAddressButton");
+const $tendermintGetAddressButton = $("#tendermintGetAddressButton");
+const $tendermintAddressResults = $("#tendermintAddressResults");
+const $tendermintTransactionResults = $("#tendermintTransactionResults");
+
 let testnetState: boolean = true;
+let tendermintActiveAssetPrev = "";
+let formCache = {
+  tendermintAddressPrefixInput: "",
+  tendermintChainIDInput: "",
+  tendermintChainInput: "",
+  tendermintChainNameInput: "",
+  tendermintDecimalsInput: "",
+  tendermintDenominationInput: "",
+  tendermintDestinationAddressInput: "",
+  tendermintMessageTypePrefixInput: "",
+  tendermintSubDenominationInput: "",
+};
+
+function tendermintSaveFormCache() {
+  formCache["tendermintAddressPrefixInput"] = $tendermintAddressPrefixInput.val();
+  formCache["tendermintChainIDInput"] = $tendermintChainIDInput.val();
+  formCache["tendermintChainInput"] = $tendermintChainInput.val();
+  formCache["tendermintChainNameInput"] = $tendermintChainNameInput.val();
+  formCache["tendermintDecimalsInput"] = $tendermintDecimalsInput.val();
+  formCache["tendermintDenominationInput"] = $tendermintDenominationInput.val();
+  formCache["tendermintDestinationAddressInput"] = $tendermintDestinationAddressInput.val();
+  formCache["tendermintMessageTypePrefixInput"] = $tendermintMessageTypePrefixInput.val();
+  formCache["tendermintSubDenominationInput"] = $tendermintSubDenominationInput.val();
+}
+
+function tendermintRestoreFormCache() {
+  $tendermintAddressPrefixInput.val(formCache["tendermintAddressPrefixInput"]);
+  $tendermintChainIDInput.val(formCache["tendermintChainIDInput"]);
+  $tendermintChainInput.val(formCache["tendermintChainInput"]);
+  $tendermintChainNameInput.val(formCache["tendermintChainNameInput"]);
+  $tendermintDecimalsInput.val(formCache["tendermintDecimalsInput"]);
+  $tendermintDenominationInput.val(formCache["tendermintDenominationInput"]);
+  $tendermintGetAddressButton.val(formCache["tendermintGetAddressButton"]);
+  $tendermintMessageTypePrefixInput.val(formCache["tendermintMessageTypePrefixInput"]);
+  $tendermintSubDenominationInput.val(formCache["tendermintSubDenominationInput"]);
+}
 
 function toggleTestnetState() {
   if (testnetState === true) {
@@ -1290,63 +1333,86 @@ function toggleTestnetState() {
 
 $tendermintChainSelector.on("change", async (e) => {
   e.preventDefault();
-  console.log($tendermintChainSelector.val());
+  if(tendermintActiveAssetPrev == "Other"){
+    tendermintSaveFormCache();
+  }
   switch ($tendermintChainSelector.val()) {
     case "Terra":
-      $tendermintChainInput.attr("value", "Terra");
-      $tendermintDenominationInput.attr("value", "LUNA");
-      $tendermintSubDenominationInput.attr("value", "uLUNA");
-      $tendermintDecimalsInput.attr("value", "9");
-      $tendermintChainIDInput.attr("value", "columbus-3");
-      $tendermintChainNameInput.attr("value", "terra");
-      $tendermintMessageTypePrefixInput.attr("value", "terra-sdk");
-      $tendermintAddressPrefixInput.attr("value", "terra");
+      $tendermintAddressPrefixInput.attr("disabled", true);
+      $tendermintAddressPrefixInput.val("terra");
+      $tendermintChainIDInput.attr("disabled", true);
+      $tendermintChainIDInput.val("columbus-3");
+      $tendermintChainInput.attr("disabled", true);
+      $tendermintChainInput.val("Terra");
+      $tendermintChainNameInput.attr("disabled", true);
+      $tendermintChainNameInput.val("terra");
+      $tendermintDecimalsInput.attr("disabled", true);
+      $tendermintDecimalsInput.val("9");
+      $tendermintDenominationInput.attr("disabled", true);
+      $tendermintDenominationInput.val("LUNA");
+      $tendermintMessageTypePrefixInput.attr("disabled", true);
+      $tendermintMessageTypePrefixInput.val("terra-sdk");
+      $tendermintSubDenominationInput.attr("disabled", true);
+      $tendermintSubDenominationInput.val("uLUNA");
+      tendermintActiveAssetPrev = "Terra";
       break;
     case "Kava":
-      $tendermintChainInput.attr("value", "Kava");
-      $tendermintDenominationInput.attr("value", "KAVA");
-      $tendermintSubDenominationInput.attr("value", "uKAVA");
-      $tendermintDecimalsInput.attr("value", "8");
-      $tendermintChainIDInput.attr("value", "kava-4");
-      $tendermintChainNameInput.attr("value", "kava");
-      $tendermintMessageTypePrefixInput.attr("value", "kava-sdk");
-      $tendermintAddressPrefixInput.attr("value", "kava");
+      $tendermintAddressPrefixInput.attr("disabled", true);
+      $tendermintAddressPrefixInput.val("kava");
+      $tendermintChainIDInput.attr("disabled", true);
+      $tendermintChainIDInput.val("kava-4");
+      $tendermintChainInput.attr("disabled", true);
+      $tendermintChainInput.val("Kava");
+      $tendermintChainNameInput.attr("disabled", true);
+      $tendermintChainNameInput.val("kava");
+      $tendermintDecimalsInput.attr("disabled", true);
+      $tendermintDecimalsInput.val("8");
+      $tendermintDenominationInput.attr("disabled", true);
+      $tendermintDenominationInput.val("KAVA");
+      $tendermintMessageTypePrefixInput.attr("disabled", true);
+      $tendermintMessageTypePrefixInput.val("kava-sdk");
+      $tendermintSubDenominationInput.attr("disabled", true);
+      $tendermintSubDenominationInput.val("uKAVA");
+      tendermintActiveAssetPrev = "Kava";
       break;
     case "Secret":
-      $tendermintChainInput.attr("value", "Secret");
-      $tendermintDenominationInput.attr("value", "SCRT");
-      $tendermintSubDenominationInput.attr("value", "uSCRT");
-      $tendermintDecimalsInput.attr("value", "8");
-      $tendermintChainIDInput.attr("value", "secret-2");
-      $tendermintChainNameInput.attr("value", "secret");
-      $tendermintMessageTypePrefixInput.attr("value", "secret-sdk");
-      $tendermintAddressPrefixInput.attr("value", "secret");
+      $tendermintAddressPrefixInput.attr("disabled", true);
+      $tendermintAddressPrefixInput.val("secret");
+      $tendermintChainIDInput.attr("disabled", true);
+      $tendermintChainIDInput.val("secret-2");
+      $tendermintChainInput.attr("disabled", true);
+      $tendermintChainInput.val("Secret");
+      $tendermintChainNameInput.attr("disabled", true);
+      $tendermintChainNameInput.val("secret");
+      $tendermintDecimalsInput.attr("disabled", true);
+      $tendermintDecimalsInput.val("8");
+      $tendermintDenominationInput.attr("disabled", true);
+      $tendermintDenominationInput.val("SCRT");
+      $tendermintMessageTypePrefixInput.attr("disabled", true);
+      $tendermintMessageTypePrefixInput.val("secret-sdk");
+      $tendermintSubDenominationInput.attr("disabled", true);
+      $tendermintSubDenominationInput.val("uSCRT");
+      tendermintActiveAssetPrev = "Secret";
       break;
     case "Other":
       $tendermintAddressPrefixInput.attr("disabled", false);
       $tendermintAddressPrefixInput.attr("placeholder", "terra");
-      $tendermintAddressPrefixInput.attr("value", "");
       $tendermintChainIDInput.attr("disabled", false);
       $tendermintChainIDInput.attr("placeholder", "columbus-3");
-      $tendermintChainIDInput.attr("value", "");
       $tendermintChainInput.attr("disabled", false);
       $tendermintChainInput.attr("placeholder", "Terra");
-      $tendermintChainInput.attr("value", "");
       $tendermintChainNameInput.attr("disabled", false);
       $tendermintChainNameInput.attr("placeholder", "terra");
-      $tendermintChainNameInput.attr("value", "");
       $tendermintDecimalsInput.attr("disabled", false);
       $tendermintDecimalsInput.attr("placeholder", "8");
-      $tendermintDecimalsInput.attr("value", "");
       $tendermintDenominationInput.attr("disabled", false);
       $tendermintDenominationInput.attr("placeholder", "LUNA");
-      $tendermintDenominationInput.attr("value", "");
       $tendermintMessageTypePrefixInput.attr("disabled", false);
       $tendermintMessageTypePrefixInput.attr("placeholder", "terra-sdk");
-      $tendermintMessageTypePrefixInput.attr("value", "");
       $tendermintSubDenominationInput.attr("disabled", false);
       $tendermintSubDenominationInput.attr("placeholder", "uLUNA");
-      $tendermintSubDenominationInput.attr("value", "");
+      tendermintRestoreFormCache();
+      tendermintActiveAssetPrev = "Other";
       break;
 
     default:
@@ -1366,12 +1432,82 @@ $tendermintTestnetFalseButton.on("click", async (e) => {
 
 $tendermintGetAddressButton.on("click", async (e) => {
   e.preventDefault();
-  console.log("GetAddress Clicked.")
+  console.log("GetAddress Clicked.");
+  if (!wallet) {
+    $tendermintAddressResults.val("No wallet?");
+    return;
+  }
+  if (supportsTendermint(wallet)) {
+    let { addressNList } = wallet.tendermintGetAccountPaths({ accountIdx: 0 }, $tendermintChainSelector.val())[0];
+    let result = await wallet.tendermintGetAddress({
+      addressNList,
+      showDisplay: false,
+      testnet: $tendermintTestnetTrueButton.val() === true ? true : false;
+    });
+    await wallet.tendermintGetAddress({
+      addressNList,
+      showDisplay: true,
+    });
+    $tendermintAddressResults.val(result);
+  } else {
+    let label = await wallet.getLabel();
+    $tendermintAddressResults.val(label + " does not support Tendermint");
+  }
 });
 
 $tendermintSignTransactionButton.on("click", async (e) => {
   e.preventDefault();
-  console.log("SignTransaction Clicked.")
+  console.log("SignTransaction Clicked.");
+  if (!wallet) {
+    $tendermintTransactionResults.val("No wallet?");
+    return;
+  }
+  if (supportsTendermint(wallet)) {
+    let unsigned: Tendermint.StdTx = {
+      memo: "KeepKey",
+      fee: {
+        amount: [{ amount: "100", denom: $tendermintDenominationInput.val()}],
+        gas: "1000",
+      },
+      msg: [
+        {
+          type: $tendermintMessageTypePrefixInput.val() + "/MsgSend",
+          value: {
+            amount: [
+              {
+                amount: $tendermintAmountInput.val(),
+                denom: $tendermintDenominationInput.val(),
+              },
+            ],
+            from_address: $tendermintChainNameInput.val() + "1934nqs0ke73lm5ej8hs9uuawkl3ztesg9jp5c5",
+            to_address: $tendermintDestinationAddressInput.val(),
+          },
+        },
+      ],
+      signatures: null,
+    };
+
+    let outMsg: TendermintSignTx = {
+      account_number: "24250",
+      addressNList: wallet.tendermintGetAccountPaths({ accountIdx: 0 }, $tendermintChainSelector.val())[0],
+      chain_id: $tendermintChainIDInput.val(),
+      chain_name: $tendermintChainNameInput.val(),
+      decimals: $tendermintDecimalsInput.val(),
+      denom: $tendermintDenominationInput.val(),
+      message_type_prefix: $tendermintMessageTypePrefixInput.val(),
+      sequence: "3",
+      testnet: testnetState,
+      tx: unsigned,
+    }
+    console.log(outMsg);
+    let res = await wallet.tendermintSignTx(outMsg);
+    $tendermintTransactionResults.val(JSON.stringify(res));
+    console.log(JSON.stringify(unsigned, null, 2))
+  } else {
+    console.log(wallet);
+    let label = await wallet.getLabel();
+    $tendermintTransactionResults.val(label + " does not support Tendermint");
+  }
 });
 
 /*
