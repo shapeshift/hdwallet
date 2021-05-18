@@ -4973,20 +4973,6 @@ cosmiconfig@^5.0.0, cosmiconfig@^5.1.0:
     js-yaml "^3.13.1"
     parse-json "^4.0.0"
 
-cosmos-tx-builder@^6.3.4:
-  version "6.3.4"
-  resolved "https://registry.yarnpkg.com/cosmos-tx-builder/-/cosmos-tx-builder-6.3.4.tgz#f5b2a10308d712d3ff07cf6b4a997032440edb32"
-  integrity sha512-Sy1qAV9btwvUGFke/5lwN30wxLgPmfXy/1jap9gLNm1pbbpIebf/cC31nC6knjqvPkc1xf9cO1HKNrlFNqr0rQ==
-  dependencies:
-    bech32 "^1.1.4"
-    bip32 "^2.0.5"
-    bip39 "^3.0.2"
-    bitcoinjs-lib "^5.1.10"
-    coininfo "^5.1.0"
-    crypto-js "^3.3.0"
-    dotenv "^8.2.0"
-    secp256k1 "^3.8.0"
-
 create-ecdh@^4.0.0:
   version "4.0.4"
   resolved "https://registry.yarnpkg.com/create-ecdh/-/create-ecdh-4.0.4.tgz#d6e7f4bffa66736085a0762fd3a632684dabcc4e"
@@ -13087,10 +13073,10 @@ temp-write@^3.4.0:
     temp-dir "^1.0.0"
     uuid "^3.0.1"
 
-tendermint-tx-builder@1.0.7:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/tendermint-tx-builder/-/tendermint-tx-builder-1.0.7.tgz#b1bfb76b0d848f99ddd9643bc56bc75f797e807c"
-  integrity sha512-qK86qtLq6irdstAOIY5ihYaql7ZoKrEKn3KA8y8uThXSwG9iKBfmoqQjvqfnRUtgP9ZqeAY0V1RcjCaerlh5OA==
+tendermint-tx-builder@^1.0.9:
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/tendermint-tx-builder/-/tendermint-tx-builder-1.0.9.tgz#58ea6bc1837f7d3b8985de10ae698bfd29e59205"
+  integrity sha512-mZ2FVJY6w+u9zhX3zOtC2DEmDFTUzz8KgD0akhffJpNvXQSqMnzKj8hb5Qo1tMvnCEtg5VFOzDqzAo4drt0W2g==
   dependencies:
     "@bithighlander/bitcoin-cash-js-lib" "^5.2.1"
     "@pioneer-platform/loggerdog" "^8.0.1"
