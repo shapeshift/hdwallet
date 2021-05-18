@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as txBuilder from "tendermint-tx-builder";
 import { NativeHDWalletBase } from "./native";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
@@ -70,7 +71,11 @@ export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWa
 
     async terraSignTx(msg: core.TerraSignTx): Promise<any> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        throw Error("Not Supported");
+        const keyPair = util.getKeyPair(this.#seed, msg.addressNList, "terra");
+        const adapter = new Isolation.Adapters.Cosmos(keyPair);
+        const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, "terra");
+
+        return txBuilder.createSignedTx(msg.tx, result);
       });
     }
   };

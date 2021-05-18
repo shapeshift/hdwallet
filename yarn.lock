@@ -2723,36 +2723,6 @@
     pocket-js-core "0.0.3"
     web3-provider-engine "16.0.1"
 
-"@shapeshiftoss/hdwallet-core@^1.14.1-alpha.0":
-  version "1.14.1-alpha.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.14.1-alpha.0.tgz#14fa5f7b7bd927034b971cec784cabcd88b70915"
-  integrity sha512-yN/arnyP0qcUO1D9UTJFwpB7ai62xsg33NcIzoRZ31BUzWePCrq+IvgHRTnacfE+oO9WbiR7N1tQd4IQFWrXfA==
-  dependencies:
-    eventemitter2 "^5.0.1"
-    lodash "^4.17.15"
-    rxjs "^6.4.0"
-
-"@shapeshiftoss/hdwallet-native@^1.14.0":
-  version "1.14.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.14.0.tgz#3e6f168b42a1e57fa450ecd6ed337404353330cd"
-  integrity sha512-z4pRRTF9dyett1E4sO+kKsSNBF2+91tBVYsaFxtEeNh6HeKNGhyk5+YvLpNFw2my3wVYOGAUzKjRo3VH1GhQhQ==
-  dependencies:
-    "@bithighlander/bitcoin-cash-js-lib" "5.2.1"
-    "@shapeshiftoss/hdwallet-core" "^1.14.0"
-    "@zxing/text-encoding" "^0.9.0"
-    bchaddrjs "^0.4.9"
-    bignumber.js "^9.0.1"
-    bip32 "^2.0.5"
-    bip39 "^3.0.2"
-    bnb-javascript-sdk-nobroadcast "^2.16.14"
-    cosmos-tx-builder "^6.3.4"
-    crypto-js "^3.1.9-1"
-    ethereum-tx-decoder "^3.0.0"
-    ethers "^5.1.0"
-    fiosdk-offline "^1.2.21"
-    lodash "^4.17.15"
-    web-encoding "^1.1.0"
-
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.14.0.tgz#9fb3a3cf3132328151f353de4632e01e52102bea"
@@ -13117,10 +13087,10 @@ temp-write@^3.4.0:
     temp-dir "^1.0.0"
     uuid "^3.0.1"
 
-tendermint-tx-builder@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/tendermint-tx-builder/-/tendermint-tx-builder-1.0.5.tgz#e84ecb65e4d4a29664a48881c38b884a4374fb48"
-  integrity sha512-urkSyxsYkW1qbWsUuf0HlTCJWLyzWOx1uv2joX62AdhCf/p2zlgzueT7YAN/awmLXGPfxMVfKDjC0TX4eoWaWQ==
+tendermint-tx-builder@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/tendermint-tx-builder/-/tendermint-tx-builder-1.0.6.tgz#5d3a5969340d201325c23421c3dcd5858d67f3df"
+  integrity sha512-3cIN3Bg9OC0WWsiEyGwer6nL+sMk5/wgLagUT4PO9PFd7JlWyELG4X+4RzFxl3UDj65/O+9C8JVSK7cHVqZyhg==
   dependencies:
     "@bithighlander/bitcoin-cash-js-lib" "^5.2.1"
     "@pioneer-platform/loggerdog" "^8.0.1"
@@ -14530,15 +14500,10 @@ whatwg-encoding@^1.0.1, whatwg-encoding@^1.0.3, whatwg-encoding@^1.0.5:
   dependencies:
     iconv-lite "0.4.24"
 
-whatwg-fetch@2.0.4, whatwg-fetch@^2.0.4:
+whatwg-fetch@2.0.4, whatwg-fetch@^2.0.4, whatwg-fetch@^3.0.0:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/whatwg-fetch/-/whatwg-fetch-2.0.4.tgz#dde6a5df315f9d39991aa17621853d720b85566f"
   integrity sha512-dcQ1GWpOD/eEQ97k66aiEVpNnapVj90/+R+SXTPYGHpYBBypfKJEQjLrvMZ7YXbKm21gXd4NcuxUTjiv1YtLng==
-
-whatwg-fetch@^3.0.0:
-  version "3.6.2"
-  resolved "https://registry.yarnpkg.com/whatwg-fetch/-/whatwg-fetch-3.6.2.tgz#dced24f37f2624ed0281725d51d0e2e3fe677f8c"
-  integrity sha512-bJlen0FcuU/0EMLrdbJ7zOnW6ITZLrZMIarMUVmdKtsGvZna8vxKYaexICWPfZ8qwf9fzNq+UEIZrnSaApt6RA==
 
 whatwg-mimetype@^2.1.0, whatwg-mimetype@^2.2.0, whatwg-mimetype@^2.3.0:
   version "2.3.0"

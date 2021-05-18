@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { NativeHDWalletBase } from "./native";
+import * as txBuilder from "tendermint-tx-builder";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
 import util from "./util";
@@ -70,7 +71,11 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
 
     async secretSignTx(msg: core.SecretSignTx): Promise<any> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        throw Error("Not Supported");
+        const keyPair = util.getKeyPair(this.#seed, msg.addressNList, "secret");
+        const adapter = new Isolation.Adapters.Cosmos(keyPair);
+        const result = await txBuilder.sign(msg.tx, adapter, String(msg.sequence), String(msg.account_number), "secret");
+
+        return txBuilder.createSignedTx(msg.tx, result);
       });
     }
   };
