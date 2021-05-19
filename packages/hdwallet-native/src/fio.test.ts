@@ -200,7 +200,7 @@ describe("NativeFioWallet", () => {
       const msgHash = Buffer.from(sha256(msgRaw).slice(2), "hex");
       const pubKey = base58.decode("FIO5NSKecB4CcMpUxtpHzG4u43SmcGMAjRbxyG38rE4HPegGpaHu9".slice(3)).slice(0, -4);
       const sigRaw = base58.decode(sig.signature.slice(7)).slice(1, -4);
-      expect(tinyecc.verify(msgHash, pubKey, sigRaw)).toBe(true);
+      expect(tinyecc.verify(msgHash, Buffer.from(pubKey), Buffer.from(sigRaw))).toBe(true);
     });
   });
 

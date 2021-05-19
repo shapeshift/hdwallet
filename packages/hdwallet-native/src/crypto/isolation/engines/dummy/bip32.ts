@@ -36,7 +36,7 @@ export class Seed implements BIP32.SeedInterface {
 }
 
 export class Node implements BIP32.NodeInterface, SecP256K1.ECDSARecoverableKeyInterface, SecP256K1.ECDHKeyInterface {
-    readonly #privateKey: ByteArray<32>;
+    readonly #privateKey: Buffer & ByteArray<32>;
     readonly chainCode: Buffer & BIP32.ChainCode;
     #publicKey: SecP256K1.CompressedPoint;
 

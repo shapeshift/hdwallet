@@ -1,0 +1,20 @@
+diff --git a/node_modules/@types/tiny-secp256k1/index.d.ts b/node_modules/@types/tiny-secp256k1/index.d.ts
+index 01ce4d1..600d6ee 100644
+--- a/node_modules/@types/tiny-secp256k1/index.d.ts
++++ b/node_modules/@types/tiny-secp256k1/index.d.ts
+@@ -85,6 +85,15 @@ export function privateSub(d: Buffer, tweak: Buffer): Buffer | null;
+  */
+ export function sign(message: Buffer, privateKey: Buffer): Buffer;
+ 
++/**
++ * Returns normalized signatures, each of (r, s) values are guaranteed to less than order / 2. Uses RFC6979.
++ * Adds e as Added Entropy to the deterministic k generation.
++ * @param message should be 256-bit
++ * @param privateKey isPrivate(privateKey) should be true
++ * @param entropy should be 256-bit
++ */
++ export function signWithEntropy(message: Buffer, privateKey: Buffer, entropy: Buffer): Buffer;
++
+ /**
+  * Returns false if any of (r, s) values are equal to 0, or if the signature is rejected.
+  * @param message should be 256-bit
