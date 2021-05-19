@@ -4,11 +4,11 @@ import { recoverPublicKey as ethRecoverPublicKey } from "@ethersproject/signing-
 import { splitSignature as ethSplitSignature } from "@ethersproject/bytes";
 
 import { Digest } from "../digest";
-import { BigEndianInteger, ByteArray, Uint32, checkType } from "../../types";
+import { BigEndianInteger, ByteArray, Uint32, checkType, safeBufferFrom } from "../../types";
 import { ECDSAKeyInterface } from "./interfaces";
 
 const fieldElementBase = BigEndianInteger(32).withConstraint(
-    x => tinyecc.isPrivate(x) || `expected ${x} to be within the order of the curve`,
+    x => tinyecc.isPrivate(safeBufferFrom(x)) || `expected ${x} to be within the order of the curve`,
     {name: "FieldElement"},
 );
 export type FieldElement = Static<typeof fieldElementBase>;
@@ -125,7 +125,7 @@ const signatureStatic = {
         throw new Error(`Unable to generate canonical signature with public key ${x} over message ${message}; is your key implementation broken?`);
     },
     verify: (x: Signature, message: Message, publicKey: CurvePoint): boolean => {
-        return tinyecc.verify(Buffer.from(message), publicKey, x);
+        return tinyecc.verify(Buffer.from(message), Buffer.from(publicKey), Buffer.from(x));
     },
 };
 const signature = Object.assign(signatureBase, ByteArray, signatureStatic);
