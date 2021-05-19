@@ -22,7 +22,7 @@
     "eventemitter2": "^5.0.1"
   },
   "optionalDependencies": {
-    "webusb": "^1.1.1"
+    "webusb": "^2.2.0"
   },
   "jest": {
     "modulePathIgnorePatterns": [

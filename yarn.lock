@@ -3066,7 +3066,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/w3c-web-usb@^1.0.3":
+"@types/w3c-web-usb@^1.0.3", "@types/w3c-web-usb@^1.0.4":
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/@types/w3c-web-usb/-/w3c-web-usb-1.0.4.tgz#57e4181041dc1ad2bfad59b737caa7bddc7e1a27"
   integrity sha512-aaOB3EL5WCWBBOYX7W1MKuzspOM9ZJI9s3iziRVypr1N+QyvIgXzCM4lm1iiOQ1VFzZioUPX9bsa23myCbKK4A==
@@ -14470,13 +14470,14 @@ websocket@^1.0.32:
     utf-8-validate "^5.0.2"
     yaeti "^0.0.6"
 
-webusb@^1.1.1:
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/webusb/-/webusb-1.3.1.tgz#d11343ae10a0673050c1485c8bee4c96f138d51e"
-  integrity sha512-Z7JLoko7LHavfeuLteaT2B4+79EKME6EbTGw+Kg2iXCHNlQ2e57A5GZM6wd0uLeLuW+CnvCSV3ZP1u3l9Yxmgw==
+webusb@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/webusb/-/webusb-2.2.0.tgz#2e666afb182e6a6a1e9e279cc3a343b10aad7a5e"
+  integrity sha512-EP6JOFIqR4vLoDWwtMROs94Sl/sZlmX1WApK9O8/rBMBEiYTrDlgQrfUQ4CW5o+GSxfbA+MpDRgGbEBa5q0ECw==
   dependencies:
     "@types/node" "^8.0.54"
     "@types/usb" "^1.5.1"
+    "@types/w3c-web-usb" "^1.0.4"
     usb "^1.6.0"
 
 whatwg-encoding@^1.0.1, whatwg-encoding@^1.0.3, whatwg-encoding@^1.0.5:

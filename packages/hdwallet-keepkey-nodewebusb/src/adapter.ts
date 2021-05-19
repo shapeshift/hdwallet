@@ -13,8 +13,8 @@ export const NodeWebUSBAdapterDelegate = {
   async getDevice(serialNumber?: string): Promise<USBDevice> {
     return await usb.requestDevice({
       filters: [
-        { vendorId: VENDOR_ID, productId: WEBUSB_PRODUCT_ID, serialnumber: serialNumber },
-        { vendorId: VENDOR_ID, productId: HID_PRODUCT_ID, serialnumber: serialNumber },
+        { vendorId: VENDOR_ID, productId: WEBUSB_PRODUCT_ID, serialNumber },
+        { vendorId: VENDOR_ID, productId: HID_PRODUCT_ID, serialNumber },
       ],
     });
   },
