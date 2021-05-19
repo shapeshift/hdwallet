@@ -1,20 +1,8 @@
-import {
-  PathDescription,
-  addressNListToBIP32,
-  BIP32Path,
-  slip44ByCoin,
-  ETHVerifyMessage,
-  ETHGetAccountPath,
-  ETHAccountPath,
-  ETHSignTx,
-  ETHSignedTx,
-  ETHSignMessage,
-  ETHSignedMessage,
-} from "@shapeshiftoss/hdwallet-core";
+import * as core from "@shapeshiftoss/hdwallet-core";
 
-export function describeETHPath(path: BIP32Path): PathDescription {
-  let pathStr = addressNListToBIP32(path);
-  let unknown: PathDescription = {
+export function describeETHPath(path: core.BIP32Path): core.PathDescription {
+  let pathStr = core.addressNListToBIP32(path);
+  let unknown: core.PathDescription = {
     verbose: pathStr,
     coin: "Ethereum",
     isKnown: false,
@@ -24,7 +12,7 @@ export function describeETHPath(path: BIP32Path): PathDescription {
 
   if (path[0] !== 0x80000000 + 44) return unknown;
 
-  if (path[1] !== 0x80000000 + slip44ByCoin("Ethereum")) return unknown;
+  if (path[1] !== 0x80000000 + core.slip44ByCoin("Ethereum")) return unknown;
 
   if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
 
@@ -42,23 +30,23 @@ export function describeETHPath(path: BIP32Path): PathDescription {
   };
 }
 
-export async function ethVerifyMessage(msg: ETHVerifyMessage, web3: any): Promise<boolean> {
+export async function ethVerifyMessage(msg: core.ETHVerifyMessage, web3: any): Promise<boolean> {
   const signingAddress = await web3.eth.accounts.recover(msg.message, "0x" + msg.signature, false);
   return signingAddress === msg.address;
 }
 
-export function ethGetAccountPaths(msg: ETHGetAccountPath): Array<ETHAccountPath> {
+export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
   return [
     {
-      addressNList: [0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx, 0, 0],
-      hardenedPath: [0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx],
+      addressNList: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx, 0, 0],
+      hardenedPath: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx],
       relPath: [0, 0],
       description: "Portis",
     },
   ];
 }
 
-export async function ethSignTx(msg: ETHSignTx, web3: any, from: string): Promise<ETHSignedTx> {
+export async function ethSignTx(msg: core.ETHSignTx, web3: any, from: string): Promise<core.ETHSignedTx> {
   const result = await web3.eth.signTransaction({
     from,
     to: msg.to,
@@ -76,7 +64,7 @@ export async function ethSignTx(msg: ETHSignTx, web3: any, from: string): Promis
   };
 }
 
-export async function ethSignMessage(msg: ETHSignMessage, web3: any, address: string): Promise<ETHSignedMessage> {
+export async function ethSignMessage(msg: core.ETHSignMessage, web3: any, address: string): Promise<core.ETHSignedMessage> {
   const result = await web3.eth.sign(msg.message, address);
   return {
     address,

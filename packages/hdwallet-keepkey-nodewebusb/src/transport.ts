@@ -1,13 +1,14 @@
-import { SEGMENT_SIZE, TransportDelegate as KeepKeyTransportDelegate } from "@shapeshiftoss/hdwallet-keepkey";
-import { ConflictingApp, FirmwareUpdateRequired } from "@shapeshiftoss/hdwallet-core";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
+
 import { VENDOR_ID, WEBUSB_PRODUCT_ID } from "./utils";
 
-export class TransportDelegate implements KeepKeyTransportDelegate {
+export class TransportDelegate implements keepkey.TransportDelegate {
   usbDevice: USBDevice;
 
   constructor(usbDevice: USBDevice) {
     if (usbDevice.vendorId !== VENDOR_ID) return null;
-    if (usbDevice.productId !== WEBUSB_PRODUCT_ID) throw new FirmwareUpdateRequired("KeepKey", "6.1.0");
+    if (usbDevice.productId !== WEBUSB_PRODUCT_ID) throw new core.FirmwareUpdateRequired("KeepKey", "6.1.0");
     this.usbDevice = usbDevice
   }
 
@@ -31,10 +32,10 @@ export class TransportDelegate implements KeepKeyTransportDelegate {
     } catch (e) {
       if (e.code === 18)
         // "The requested interface implements a protected class"
-        throw new FirmwareUpdateRequired("KeepKey", "6.1.0");
+        throw new core.FirmwareUpdateRequired("KeepKey", "6.1.0");
       if (e.code === 19)
         // "Unable to claim interface"
-        throw new ConflictingApp("KeepKey");
+        throw new core.ConflictingApp("KeepKey");
       throw e;
     }
   }
@@ -65,7 +66,7 @@ export class TransportDelegate implements KeepKeyTransportDelegate {
   }
 
   async readChunk(debugLink?: boolean): Promise<Uint8Array> {
-    const result = await this.usbDevice.transferIn(debugLink ? 2 : 1, SEGMENT_SIZE + 1);
+    const result = await this.usbDevice.transferIn(debugLink ? 2 : 1, keepkey.SEGMENT_SIZE + 1);
 
     if (result.status === "stall") {
       await this.usbDevice.clearHalt("out", debugLink ? 2 : 1);

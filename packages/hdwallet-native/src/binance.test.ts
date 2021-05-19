@@ -1,6 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as NativeHDWallet from "./native";
-import * as BinanceSDK from "bnb-javascript-sdk-nobroadcast";
+import * as bnbSdk from "bnb-javascript-sdk-nobroadcast";
+
+import * as native from "./native";
 
 const MNEMONIC = "all all all all all all all all all all all all";
 
@@ -78,7 +79,7 @@ afterEach(() => expect(mswMock).not.toHaveBeenCalled());
 const untouchable = require("untouchableMock");
 
 describe("NativeBinanceWalletInfo", () => {
-  const info = NativeHDWallet.info();
+  const info = native.info();
 
   it("should return some static metadata", async () => {
     expect(await untouchable.call(info, "binanceSupportsNetwork")).toBe(true);
@@ -101,10 +102,10 @@ describe("NativeBinanceWalletInfo", () => {
 });
 
 describe("NativeBinanceWallet", () => {
-  let wallet: NativeHDWallet.NativeHDWallet;
+  let wallet: native.NativeHDWallet;
 
   beforeEach(async () => {
-    wallet = NativeHDWallet.create({ deviceId: "native" });
+    wallet = native.create({ deviceId: "native" });
     await wallet.loadDevice({ mnemonic: MNEMONIC });
     expect(await wallet.initialize()).toBe(true);
   });
@@ -198,9 +199,9 @@ describe("NativeBinanceWallet", () => {
 
   it("should only handle pubkeys returned from the BNB SDK if they are in amino format", async () => {
     expect.assertions(6);
-    const original = BinanceSDK.BncClient.prototype.transfer;
+    const original = bnbSdk.BncClient.prototype.transfer;
     const mock = jest
-      .spyOn(BinanceSDK.BncClient.prototype, "transfer")
+      .spyOn(bnbSdk.BncClient.prototype, "transfer")
       .mockImplementation(async function (...args: any[]) {
         const out = await original.call(this, ...args);
         out.signatures[0].pub_key = out.signatures[0].pub_key.slice(5);

@@ -1,9 +1,9 @@
-import { crypto } from "bitcoinjs-lib";
-import bs58 from "bs58";
-import { padStart } from "lodash";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as bitcoin from "bitcoinjs-lib";
+import bs58 from "bs58";
+import _ from "lodash";
+
 import { LedgerTransport } from "./transport";
-import { Buffer } from "buffer";
 
 export function handleError(result: any, transport?: LedgerTransport, message?: string): void | Error {
   if (result.success) return;
@@ -102,8 +102,8 @@ export const parseHexString = (str) => {
 
 export const encodeBase58Check = (vchIn) => {
   vchIn = parseHexString(vchIn);
-  var chksum = crypto.sha256(vchIn);
-  chksum = crypto.sha256(chksum);
+  var chksum = bitcoin.crypto.sha256(vchIn);
+  chksum = bitcoin.crypto.sha256(chksum);
   chksum = chksum.slice(0, 4);
   var hash = vchIn.concat(Array.from(chksum));
   return bs58.encode(Buffer.from(hash));
@@ -111,9 +111,9 @@ export const encodeBase58Check = (vchIn) => {
 
 export const createXpub = (depth, fingerprint, childnum, chaincode, publicKey, network) =>
   toHexInt(network) +
-  padStart(depth.toString(16), 2, "0") +
-  padStart(fingerprint.toString(16), 8, "0") +
-  padStart(childnum.toString(16), 8, "0") +
+  _.padStart(depth.toString(16), 2, "0") +
+  _.padStart(fingerprint.toString(16), 8, "0") +
+  _.padStart(childnum.toString(16), 8, "0") +
   chaincode +
   publicKey;
 

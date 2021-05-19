@@ -1,22 +1,23 @@
-import { create as createLedger } from "@shapeshiftoss/hdwallet-ledger";
-import { Events, Keyring, HDWallet } from "@shapeshiftoss/hdwallet-core";
-import { LedgerU2FTransport } from "./transport";
 import TransportU2F from "@ledgerhq/hw-transport-u2f";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+
+import { LedgerU2FTransport } from "./transport";
 
 const VENDOR_ID = 11415;
 
 export class U2FLedgerAdapter {
-  keyring: Keyring;
+  keyring: core.Keyring;
 
-  constructor(keyring: Keyring) {
+  constructor(keyring: core.Keyring) {
     this.keyring = keyring;
   }
 
-  public static useKeyring(keyring: Keyring) {
+  public static useKeyring(keyring: core.Keyring) {
     return new U2FLedgerAdapter(keyring);
   }
 
-  public get(device: any): HDWallet {
+  public get(device: any): core.HDWallet {
     return this.keyring.get(device.deviceID);
   }
 
@@ -42,16 +43,16 @@ export class U2FLedgerAdapter {
 
       const ledgerTransport = await TransportU2F.open();
 
-      const wallet = createLedger(new LedgerU2FTransport(device, ledgerTransport, this.keyring));
+      const wallet = ledger.create(new LedgerU2FTransport(device, ledgerTransport, this.keyring));
 
       this.keyring.add(wallet, device.deviceID);
-      this.keyring.emit(["Ledger", device.deviceID, Events.CONNECT], device.deviceID);
+      this.keyring.emit(["Ledger", device.deviceID, core.Events.CONNECT], device.deviceID);
     }
 
     return Object.keys(this.keyring.wallets).length;
   }
 
-  public async pairDevice(): Promise<HDWallet> {
+  public async pairDevice(): Promise<core.HDWallet> {
     const transport = await TransportU2F.open();
 
     const device = transport.device;

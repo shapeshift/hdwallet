@@ -1,17 +1,18 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { EventEmitter2 } from "eventemitter2";
-import { validateMnemonic } from "bip39";
-import { isObject } from "lodash";
-import { getNetwork } from "./networks";
-import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
-import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
-import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
+import * as bip39 from "bip39";
+import * as eventemitter2 from "eventemitter2";
+import _ from "lodash";
+
 import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binance";
+import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
+import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
+import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 import { MixinNativeFioWalletInfo, MixinNativeFioWallet } from "./fio";
-import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./thorchain";
+import { MixinNativeKavaWalletInfo, MixinNativeKavaWallet } from "./kava";
+import { getNetwork } from "./networks";
 import { MixinNativeSecretWalletInfo, MixinNativeSecretWallet } from "./secret";
 import { MixinNativeTerraWalletInfo, MixinNativeTerraWallet } from "./terra";
-import { MixinNativeKavaWalletInfo, MixinNativeKavaWallet } from "./kava";
+import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./thorchain";
 
 import type { NativeAdapterArgs } from "./adapter";
 import * as Isolation from "./crypto/isolation";
@@ -28,10 +29,10 @@ interface LoadDevice extends Omit<core.LoadDevice, "mnemonic"> {
 }
 
 export class NativeHDWalletBase {
-  readonly #events: EventEmitter2;
+  readonly #events: eventemitter2.EventEmitter2;
 
   constructor() {
-    this.#events = new EventEmitter2();
+    this.#events = new eventemitter2.EventEmitter2();
   }
 
   get events() {
@@ -288,7 +289,7 @@ export class NativeHDWallet
   async recover(): Promise<void> {}
 
   async loadDevice(msg: LoadDevice): Promise<void> {
-    if (typeof msg?.mnemonic === "string" && validateMnemonic(msg.mnemonic)) {
+    if (typeof msg?.mnemonic === "string" && bip39.validateMnemonic(msg.mnemonic)) {
       this.#mnemonic = new Isolation.BIP39.Mnemonic(msg.mnemonic);
     } else if (typeof msg?.mnemonic?.["toSeed"] === "function") {
       this.#mnemonic = msg.mnemonic as Isolation.BIP39.MnemonicInterface;
@@ -315,7 +316,7 @@ export class NativeHDWallet
 }
 
 export function isNative(wallet: core.HDWallet): wallet is NativeHDWallet {
-  return isObject(wallet) && (wallet as any)._isNative;
+  return _.isObject(wallet) && (wallet as any)._isNative;
 }
 
 export function info() {

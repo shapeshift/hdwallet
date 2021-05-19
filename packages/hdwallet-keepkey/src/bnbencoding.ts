@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bnbSdk from "bnb-javascript-sdk-nobroadcast";
-import tinyecc from "tiny-secp256k1";
-import * as crypto from "crypto";
+import CryptoJS from "crypto-js";
+import TinySecP256K1 from "tiny-secp256k1";
 
 export function encodeBnbTx(unsignedTx: core.BinanceTx, publicKey: Buffer, signature: Buffer) {
   const { account_number, chain_id, sequence, source } = unsignedTx;
@@ -95,7 +95,7 @@ export function decodeBnbTx(txBytes: Buffer, chainId: string) {
     source: String(txDecoded.source),
   });
 
-  const signBytesHash = crypto.createHash("sha256").update(Buffer.from(signBytes, "utf8")).digest();
+  const signBytesHash = CryptoJS.SHA256(CryptoJS.enc.Utf8.parse(signBytes)).toString();
 
   const pubKeyAmino = Buffer.from(txDecoded.signatures[0].pubKey);
   if (pubKeyAmino.readUInt32BE(0) !== 0xeb5ae987) throw new Error("bad pubkey aminoPrefix");
@@ -108,5 +108,5 @@ export function decodeBnbTx(txBytes: Buffer, chainId: string) {
 
 export function validateBnbTx(txBytes: Buffer, chainId: string) {
   const { signBytesHash, pubKey, signature } = decodeBnbTx(txBytes, chainId);
-  return tinyecc.verify(signBytesHash, pubKey, signature);
+  return TinySecP256K1.verify(Buffer.from(signBytesHash, "hex"), pubKey, signature);
 }

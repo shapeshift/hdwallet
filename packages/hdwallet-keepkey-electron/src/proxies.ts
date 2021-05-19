@@ -1,4 +1,5 @@
-import { TransportDelegate } from "@shapeshiftoss/hdwallet-keepkey";
+import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
+
 import { CLIENT_TAG, Client } from "./client";
 
 function getClient(): Client {
@@ -18,7 +19,7 @@ export const AdapterDelegateProxy = {
   },
 };
 
-export class TransportDelegateProxy implements TransportDelegate {
+export class TransportDelegateProxy implements keepkey.TransportDelegate {
   handle: string;
   constructor(handle: string) {
     this.handle = handle;

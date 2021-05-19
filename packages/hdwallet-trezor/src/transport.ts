@@ -1,14 +1,14 @@
-import { Transport, Keyring } from "@shapeshiftoss/hdwallet-core";
+import * as core from "@shapeshiftoss/hdwallet-core";
 
 export interface TrezorConnectResponse {
   success: boolean;
   payload: any | { error: string };
 }
 
-export abstract class TrezorTransport extends Transport {
+export abstract class TrezorTransport extends core.Transport {
   hasPopup: boolean;
 
-  constructor(keyring: Keyring) {
+  constructor(keyring: core.Keyring) {
     super(keyring);
   }
 

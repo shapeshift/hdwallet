@@ -1,8 +1,9 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as bech32 from "bech32";
+import CryptoJS from "crypto-js";
 import * as txBuilder from "tendermint-tx-builder";
+
 import { NativeHDWalletBase } from "./native";
-import { toWords, encode } from "bech32";
-import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
 import util from "./util";
 import * as Isolation from "./crypto/isolation";
 
@@ -52,13 +53,13 @@ export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWa
     }
 
     terraBech32ify(address: ArrayLike<number>, prefix: string): string {
-      const words = toWords(address);
-      return encode(prefix, words);
+      const words = bech32.toWords(address);
+      return bech32.encode(prefix, words);
     }
 
     createTerraAddress(publicKey: string) {
-      const message = SHA256(CryptoJS.enc.Hex.parse(publicKey));
-      const hash = RIPEMD160(message as any).toString();
+      const message = CryptoJS.SHA256(CryptoJS.enc.Hex.parse(publicKey));
+      const hash = CryptoJS.RIPEMD160(message as any).toString();
       const address = Buffer.from(hash, `hex`);
       return this.terraBech32ify(address, `terra`);
     }

@@ -1,5 +1,5 @@
-import { ExchangeType, BIP32Path, Coin, PathDescription } from "./wallet";
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
+import { ExchangeType, BIP32Path, Coin, PathDescription } from "./wallet";
 
 export interface BTCGetAddress {
   addressNList: BIP32Path;

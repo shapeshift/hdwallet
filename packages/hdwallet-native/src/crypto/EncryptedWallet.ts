@@ -1,6 +1,7 @@
-import { validateMnemonic } from "bip39";
-import { CryptoEngine } from "./engines";
+import * as bip39 from "bip39";
+
 import CryptoHelper from "./CryptoHelper";
+import { CryptoEngine } from "./engines";
 import { CipherString, SymmetricCryptoKey } from "./classes";
 import * as utils from "./utils";
 
@@ -96,7 +97,7 @@ export class EncryptedWallet {
     if (!this.isInitialized) throw new Error("Wallet is not initialized");
     mnemonic = mnemonic ?? await this.#helper.generateMnemonic();
 
-    if (!validateMnemonic(mnemonic)) {
+    if (!bip39.validateMnemonic(mnemonic)) {
       throw new Error("Invalid mnemonic");
     }
 

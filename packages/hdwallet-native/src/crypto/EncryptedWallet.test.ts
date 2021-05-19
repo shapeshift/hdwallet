@@ -1,9 +1,10 @@
 /**
  * @jest-environment jsdom
  */
-import { Crypto } from "@peculiar/webcrypto";
-import { WebCryptoEngine } from "./engines";
+import * as webcrypto from "@peculiar/webcrypto";
+
 import { EncryptedWallet } from "./EncryptedWallet";
+import { WebCryptoEngine } from "./engines";
 
 const PLAINTEXT_MNEMONIC = "boat garment fog other pony middle bronze ready grain betray load frame";
 const ENCRYPTED_MNEMONIC =
@@ -19,7 +20,7 @@ const ENCRYPTED_EMPTY_STRING =
 
 describe("EncryptedWallet", () => {
   // Load shim to support running tests in node
-  globalThis.crypto = new Crypto();
+  globalThis.crypto = new webcrypto.Crypto();
   const engine = new WebCryptoEngine();
 
   describe("constructor", () => {

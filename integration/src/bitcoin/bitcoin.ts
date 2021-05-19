@@ -1,21 +1,8 @@
-import {
-  bip32ToAddressNList,
-  HDWallet,
-  BTCWallet,
-  supportsBTC,
-  BTCInputScriptType,
-  BTCOutputAddressType,
-  BTCOutputScriptType,
-  Coin,
-  BTCWalletInfo,
-  infoBTC,
-  HDWalletInfo,
-  BTCSignTxOutput,
-} from "@shapeshiftoss/hdwallet-core";
-import { isLedger } from "@shapeshiftoss/hdwallet-ledger";
-import { isTrezor } from "@shapeshiftoss/hdwallet-trezor";
-import { isPortis } from "@shapeshiftoss/hdwallet-portis";
-import { isNative } from "@shapeshiftoss/hdwallet-native";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+import * as native from "@shapeshiftoss/hdwallet-native";
+import * as portis from "@shapeshiftoss/hdwallet-portis";
+import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 
 import { each } from "../utils";
 
@@ -26,17 +13,17 @@ const TIMEOUT = 60 * 1000;
 /**
  *  Main integration suite for testing BTCWallet implementations' Bitcoin support.
  */
-export function bitcoinTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): void {
-  let wallet: BTCWallet & HDWallet;
-  let info: BTCWalletInfo;
+export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
+  let wallet: core.BTCWallet & core.HDWallet;
+  let info: core.BTCWalletInfo;
 
   describe("Bitcoin", () => {
     beforeAll(() => {
       const { wallet: w, info: i } = get();
 
-      if (supportsBTC(w)) {
+      if (core.supportsBTC(w)) {
         wallet = w;
-        if (!infoBTC(i)) {
+        if (!core.infoBTC(i)) {
           throw new Error("wallet info does not _supportsBTCInfo?");
         }
         info = i;
@@ -61,7 +48,7 @@ export function bitcoinTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
     test(
       "btcSupportsCoin()",
       async () => {
-        if (!wallet || isPortis(wallet)) return;
+        if (!wallet || portis.isPortis(wallet)) return;
         expect(wallet.btcSupportsCoin("Bitcoin")).toBeTruthy();
         expect(await info.btcSupportsCoin("Bitcoin")).toBeTruthy();
         expect(wallet.btcSupportsCoin("Testnet")).toBeTruthy();
@@ -71,7 +58,7 @@ export function bitcoinTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
     );
 
     test("getPublicKeys", async () => {
-      if (!wallet || isLedger(wallet) || isTrezor(wallet) || isPortis(wallet)) return;
+      if (!wallet || ledger.isLedger(wallet) || trezor.isTrezor(wallet) || portis.isPortis(wallet)) return;
 
       /* FIXME: Expected failure (trezor does not use scriptType in deriving public keys
           and ledger's dependency bitcoinjs-lib/src/crypto.js throws a mysterious TypeError
@@ -81,44 +68,44 @@ export function bitcoinTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
         await wallet.getPublicKeys([
           {
             coin: "Bitcoin",
-            addressNList: bip32ToAddressNList(`m/44'/0'/0'`),
+            addressNList: core.bip32ToAddressNList(`m/44'/0'/0'`),
             curve: "secp256k1",
           },
           {
             coin: "Bitcoin",
-            addressNList: bip32ToAddressNList(`m/49'/0'/0'`),
+            addressNList: core.bip32ToAddressNList(`m/49'/0'/0'`),
             curve: "secp256k1",
-            scriptType: BTCInputScriptType.SpendAddress,
+            scriptType: core.BTCInputScriptType.SpendAddress,
           },
           {
             coin: "Bitcoin",
-            addressNList: bip32ToAddressNList(`m/49'/0'/0'`),
+            addressNList: core.bip32ToAddressNList(`m/49'/0'/0'`),
             curve: "secp256k1",
-            scriptType: BTCInputScriptType.SpendP2SHWitness,
+            scriptType: core.BTCInputScriptType.SpendP2SHWitness,
           },
           {
             coin: "Bitcoin",
-            addressNList: bip32ToAddressNList(`m/49'/0'/0'`),
+            addressNList: core.bip32ToAddressNList(`m/49'/0'/0'`),
             curve: "secp256k1",
-            scriptType: BTCInputScriptType.SpendAddress,
+            scriptType: core.BTCInputScriptType.SpendAddress,
           },
           {
             coin: "Bitcoin",
-            addressNList: bip32ToAddressNList(`m/84'/0'/0'`),
+            addressNList: core.bip32ToAddressNList(`m/84'/0'/0'`),
             curve: "secp256k1",
-            scriptType: BTCInputScriptType.SpendWitness,
+            scriptType: core.BTCInputScriptType.SpendWitness,
           },
           {
             coin: "Bitcoin",
-            addressNList: bip32ToAddressNList(`m/0'/0'/0'`),
+            addressNList: core.bip32ToAddressNList(`m/0'/0'/0'`),
             curve: "secp256k1",
-            scriptType: BTCInputScriptType.SpendAddress,
+            scriptType: core.BTCInputScriptType.SpendAddress,
           },
           {
             coin: "Litecoin",
-            addressNList: bip32ToAddressNList(`m/0'/0'/0'`),
+            addressNList: core.bip32ToAddressNList(`m/0'/0'/0'`),
             curve: "secp256k1",
-            scriptType: BTCInputScriptType.SpendAddress,
+            scriptType: core.BTCInputScriptType.SpendAddress,
           },
         ])
       ).toEqual([
@@ -156,44 +143,44 @@ export function bitcoinTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
     test(
       "btcGetAddress()",
       async () => {
-        if (!wallet || isPortis(wallet)) return;
+        if (!wallet || portis.isPortis(wallet)) return;
         await each(
           [
             [
               "Show",
               "Bitcoin",
               "m/44'/0'/0'/0/0",
-              BTCInputScriptType.SpendAddress,
+              core.BTCInputScriptType.SpendAddress,
               "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
             ],
             [
               "Show",
               "Bitcoin",
               "m/49'/0'/0'/0/0",
-              BTCInputScriptType.SpendP2SHWitness,
+              core.BTCInputScriptType.SpendP2SHWitness,
               "3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX",
             ],
             [
               "Tell",
               "Bitcoin",
               "m/49'/0'/0'/0/0",
-              BTCInputScriptType.SpendP2SHWitness,
+              core.BTCInputScriptType.SpendP2SHWitness,
               "3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX",
             ],
             [
               "Tell",
               "Litecoin",
               "m/49'/2'/0'/0/0",
-              BTCInputScriptType.SpendP2SHWitness,
+              core.BTCInputScriptType.SpendP2SHWitness,
               "MFoQRU1KQq365Sy3cXhix3ygycEU4YWB1V",
             ],
-            ["Tell", "Dash", "m/44'/5'/0'/0/0", BTCInputScriptType.SpendAddress, "XxKhGNv6ECbqVswm9KYcLPQnyWgZ86jJ6Q"],
+            ["Tell", "Dash", "m/44'/5'/0'/0/0", core.BTCInputScriptType.SpendAddress, "XxKhGNv6ECbqVswm9KYcLPQnyWgZ86jJ6Q"],
           ],
           async (args) => {
             let mode = args[0] as string;
-            let coin = args[1] as Coin;
+            let coin = args[1] as core.Coin;
             let path = args[2] as string;
-            let scriptType = args[3] as BTCInputScriptType;
+            let scriptType = args[3] as core.BTCInputScriptType;
             let expected = args[4] as string;
 
             if (!(await wallet.btcSupportsCoin(coin))) return;
@@ -201,7 +188,7 @@ export function bitcoinTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
             if (!(await wallet.btcSupportsScriptType(coin, scriptType))) return;
             expect(await info.btcSupportsScriptType(coin, scriptType)).toBeTruthy();
             let res = await wallet.btcGetAddress({
-              addressNList: bip32ToAddressNList(path),
+              addressNList: core.bip32ToAddressNList(path),
               coin: coin,
               showDisplay: mode === "Show",
               scriptType: scriptType,
@@ -217,12 +204,12 @@ export function bitcoinTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
     test(
       "btcSignTx() - p2pkh",
       async () => {
-        if (!wallet || isPortis(wallet)) return;
-        if (isLedger(wallet)) return; // FIXME: Expected failure
-        let inputs = [
+        if (!wallet || portis.isPortis(wallet)) return;
+        if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
+        const inputs = [
           {
-            addressNList: bip32ToAddressNList("m/0"),
-            scriptType: BTCInputScriptType.SpendAddress,
+            addressNList: core.bip32ToAddressNList("m/0"),
+            scriptType: core.BTCInputScriptType.SpendAddress,
             amount: String(390000),
             vout: 0,
             txid: "d5f65ee80147b4bcc70b75e4bbf2d7382021b871bd8867ef8fa525ef50864882",
@@ -267,8 +254,8 @@ export function bitcoinTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
         let outputs = [
           {
             address: "1MJ2tj2ThBE62zXbBYA5ZaN3fdve5CPAz1",
-            addressType: BTCOutputAddressType.Spend,
-            scriptType: BTCOutputScriptType.PayToAddress,
+            addressType: core.BTCOutputAddressType.Spend,
+            scriptType: core.BTCOutputScriptType.PayToAddress,
             amount: String(390000 - 10000),
             isChange: false,
           },
@@ -294,13 +281,13 @@ export function bitcoinTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
     test(
       "btcSignTx() - thorchain swap",
       async () => {
-        if (!wallet || isPortis(wallet)) return;
-        if (isLedger(wallet)) return; // FIXME: Expected failure
-        if (isTrezor(wallet)) return; //TODO: Add trezor support for op return data passed at top level
+        if (!wallet || portis.isPortis(wallet)) return;
+        if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
+        if (trezor.isTrezor(wallet)) return; //TODO: Add trezor support for op return data passed at top level
         let inputs = [
           {
-            addressNList: bip32ToAddressNList("m/0"),
-            scriptType: BTCInputScriptType.SpendAddress,
+            addressNList: core.bip32ToAddressNList("m/0"),
+            scriptType: core.BTCInputScriptType.SpendAddress,
             amount: String(390000),
             vout: 0,
             txid: "d5f65ee80147b4bcc70b75e4bbf2d7382021b871bd8867ef8fa525ef50864882",
@@ -342,18 +329,18 @@ export function bitcoinTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
               "0100000002cfdd9ee3b0ed9d9045f29a252d4c78ecac6c5814b67a29b5f6998fcff1036ac1010000008b483045022072ba61305fe7cb542d142b8f3299a7b10f9ea61f6ffaab5dca8142601869d53c0221009a8027ed79eb3b9bc13577ac2853269323434558528c6b6a7e542be46e7e9a820141047a2d177c0f3626fc68c53610b0270fa6156181f46586c679ba6a88b34c6f4874686390b4d92e5769fbb89c8050b984f4ec0b257a0e5c4ff8bd3b035a51709503ffffffffaf3e45194a9bb60c6108abe8d9d039e0618e8a147911c68f0c67598d2f9ae31a010000008b48304502200fd63adc8f6cb34359dc6cca9e5458d7ea50376cbd0a74514880735e6d1b8a4c0221008b6ead7fe5fbdab7319d6dfede3a0bc8e2a7c5b5a9301636d1de4aa31a3ee9b101410486ad608470d796236b003635718dfc07c0cac0cfc3bfc3079e4f491b0426f0676e6643a39198e8e7bdaffb94f4b49ea21baa107ec2e237368872836073668214ffffffff0170f30500000000001976a91424a56db43cf6f2b02e838ea493f95d8d6047423188ac00000000",
           },
         ];
-        let outputs: BTCSignTxOutput[] = [
+        let outputs: core.BTCSignTxOutput[] = [
           {
             address: "bc1qksxqxurvejkndenuv0alqawpr3e4vtqkn246cu",
-            addressType: BTCOutputAddressType.Spend,
-            scriptType: BTCOutputScriptType.PayToAddress,
+            addressType: core.BTCOutputAddressType.Spend,
+            scriptType: core.BTCOutputScriptType.PayToAddress,
             amount: String(390000 - 10000),
             isChange: false,
           },
           {
             address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
-            addressType: BTCOutputAddressType.Change,
-            scriptType: BTCOutputScriptType.PayToAddress,
+            addressType: core.BTCOutputAddressType.Change,
+            scriptType: core.BTCOutputScriptType.PayToAddress,
             amount: String(9000),
             isChange: false,
           }
@@ -384,19 +371,19 @@ export function bitcoinTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
         if (!wallet) return;
 
         // not implemented for native
-        if (isNative(wallet)) {
+        if (native.isNative(wallet)) {
           return;
         }
 
         let res = await wallet.btcSignMessage({
-          addressNList: bip32ToAddressNList("m/44'/0'/0'/0/0"),
+          addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
           coin: "Bitcoin",
-          scriptType: BTCInputScriptType.SpendAddress,
+          scriptType: core.BTCInputScriptType.SpendAddress,
           message: "Hello World",
         });
 
         // not implemented on portis
-        if (isPortis(wallet)) {
+        if (portis.isPortis(wallet)) {
           expect(res).toEqual(undefined);
           return;
         }
@@ -416,7 +403,7 @@ export function bitcoinTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
         if (!wallet) return;
 
         // not implemented for native
-        if (isNative(wallet)) {
+        if (native.isNative(wallet)) {
           return;
         }
 
@@ -439,7 +426,7 @@ export function bitcoinTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
         if (!wallet) return;
 
         // not implemented for native
-        if (isNative(wallet)) {
+        if (native.isNative(wallet)) {
           return;
         }
 
@@ -488,20 +475,20 @@ export function bitcoinTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
         await each(
           [
             ["Bitcoin", 0, undefined],
-            ["Bitcoin", 1, BTCInputScriptType.SpendAddress],
-            ["Bitcoin", 3, BTCInputScriptType.SpendP2SHWitness],
-            ["Bitcoin", 2, BTCInputScriptType.SpendWitness],
-            ["Litecoin", 1, BTCInputScriptType.SpendAddress],
-            ["Litecoin", 1, BTCInputScriptType.SpendP2SHWitness],
-            ["Dash", 0, BTCInputScriptType.SpendAddress],
-            ["Dogecoin", 0, BTCInputScriptType.SpendAddress],
-            ["BitcoinCash", 0, BTCInputScriptType.SpendAddress],
-            ["BitcoinGold", 0, BTCInputScriptType.SpendAddress],
+            ["Bitcoin", 1, core.BTCInputScriptType.SpendAddress],
+            ["Bitcoin", 3, core.BTCInputScriptType.SpendP2SHWitness],
+            ["Bitcoin", 2, core.BTCInputScriptType.SpendWitness],
+            ["Litecoin", 1, core.BTCInputScriptType.SpendAddress],
+            ["Litecoin", 1, core.BTCInputScriptType.SpendP2SHWitness],
+            ["Dash", 0, core.BTCInputScriptType.SpendAddress],
+            ["Dogecoin", 0, core.BTCInputScriptType.SpendAddress],
+            ["BitcoinCash", 0, core.BTCInputScriptType.SpendAddress],
+            ["BitcoinGold", 0, core.BTCInputScriptType.SpendAddress],
           ],
           async (args) => {
-            let coin = args[0] as Coin;
+            let coin = args[0] as core.Coin;
             let accountIdx = args[1] as number;
-            let scriptType = args[2] as BTCInputScriptType;
+            let scriptType = args[2] as core.BTCInputScriptType;
             if (!wallet) return;
             if (!(await wallet.btcSupportsCoin(coin))) return;
             expect(await info.btcSupportsCoin(coin)).toBeTruthy();

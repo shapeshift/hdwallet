@@ -1,10 +1,11 @@
-import { KeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey";
-import * as HID from "node-hid";
+import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
+import * as hid from "node-hid";
+
 import { TransportDelegate } from "./transport";
 import { VENDOR_ID, PRODUCT_ID } from "./utils";
 
 export const HIDKeepKeyAdapterDelegate = {
-  async inspectDevice(device: HID.Device) {
+  async inspectDevice(device: hid.Device) {
     return {
       get productName() {
         return device.product;
@@ -14,12 +15,13 @@ export const HIDKeepKeyAdapterDelegate = {
       },
     };
   },
-  async getDevices(): Promise<HID.Device[]> {
-    return HID.devices().filter((d) => d.vendorId === VENDOR_ID && d.productId === PRODUCT_ID);
+  async getDevices(): Promise<hid.Device[]> {
+    return hid.devices().filter((d) => d.vendorId === VENDOR_ID && d.productId === PRODUCT_ID);
   },
-  async getTransportDelegate(device: HID.Device) {
+  async getTransportDelegate(device: hid.Device) {
     return new TransportDelegate(device);
   },
 };
 
-export const HIDKeepKeyAdapter = KeepKeyAdapter.withDelegate(HIDKeepKeyAdapterDelegate);
+export const Adapter = keepkey.Adapter.fromDelegate(HIDKeepKeyAdapterDelegate);
+export const HIDKeepKeyAdapter = Adapter;

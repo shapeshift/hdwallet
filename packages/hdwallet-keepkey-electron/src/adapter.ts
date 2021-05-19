@@ -1,4 +1,5 @@
-import { KeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey";
+import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
+
 import { AdapterDelegateProxy } from "./proxies";
 
-export const ElectronKeepKeyAdapter = KeepKeyAdapter.withDelegate(AdapterDelegateProxy);
+export const Adapter = keepkey.Adapter.fromDelegate(AdapterDelegateProxy);

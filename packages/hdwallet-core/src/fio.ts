@@ -1,6 +1,8 @@
+import type * as fioSdk from "fiosdk-offline";
+
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { BIP32Path, PathDescription } from "./wallet";
-import { FioActionParameters } from "fiosdk-offline";
+
 export interface FioGetAddress {
   addressNList: BIP32Path;
   showDisplay?: boolean;
@@ -34,10 +36,10 @@ export namespace Fio {
 
   /* add action acks here as they are added to the wallet */
   export interface FioTxActionAck {
-    account?: FioActionParameters.FioActionAccount;
-    name?: FioActionParameters.FioActionName;
+    account?: fioSdk.FioActionParameters.FioActionAccount;
+    name?: fioSdk.FioActionParameters.FioActionName;
     authorization?: Array<Fio.FioPermissionLevel>;
-    data?: FioActionParameters.FioActionData;
+    data?: fioSdk.FioActionParameters.FioActionData;
   }
 }
 
@@ -84,7 +86,7 @@ export enum FioEncryptionContentType {
 
 export interface FioRequestContent {
   addressNList: BIP32Path;
-  content: FioActionParameters.FioRequestContent | string;
+  content: fioSdk.FioActionParameters.FioRequestContent | string;
   publicKey: string;
   contentType: FioEncryptionContentType
 }

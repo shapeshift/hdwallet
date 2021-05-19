@@ -1,15 +1,16 @@
 /**
  * @jest-environment jsdom
  */
+import * as webcrypto from "@peculiar/webcrypto";
+
 import CryptoHelper from "../CryptoHelper";
 import { fromB64ToArray, fromBufferToUtf8, fromBufferToB64, toArrayBuffer, fromUtf8ToArray } from "../utils";
 import { DigestAlgorithm } from "./index";
 import { WebCryptoEngine } from "./web-crypto";
-import { Crypto } from "@peculiar/webcrypto";
 
 describe("WebCryptoEngine JavaScript", () => {
   // Load shim to support running tests in node
-  globalThis.crypto = new Crypto();
+  globalThis.crypto = new webcrypto.Crypto();
 
   const engine = new WebCryptoEngine();
   const helper = new CryptoHelper(engine);

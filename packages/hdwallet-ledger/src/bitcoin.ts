@@ -1,9 +1,10 @@
-import { zip } from "lodash";
-import Base64 from "base64-js";
-import { isCashAddress, toLegacyAddress } from "bchaddrjs";
-import { crypto, opcodes, script, TransactionBuilder, networks } from "bitcoinjs-lib";
-import { verify } from "bitcoinjs-message";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import Base64 from "base64-js";
+import * as bchAddr from "bchaddrjs";
+import * as bitcoin from "bitcoinjs-lib";
+import * as bitcoinMsg from "bitcoinjs-message";
+import _ from "lodash";
+
 import { LedgerTransport } from "./transport";
 import {
   createXpub,
@@ -72,8 +73,8 @@ export async function btcGetPublicKeys(
     } = res1;
     parentPublicKey = parseHexString(compressPublicKey(parentPublicKey));
 
-    let result = crypto.sha256(parentPublicKey);
-    result = crypto.ripemd160(result);
+    let result = bitcoin.crypto.sha256(parentPublicKey);
+    result = bitcoin.crypto.ripemd160(result);
 
     const fingerprint: number = ((result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3]) >>> 0;
 
@@ -143,7 +144,7 @@ export async function btcSignTx(
   let supportsShapeShift = wallet.btcSupportsNativeShapeShift();
   let supportsSecureTransfer = await wallet.btcSupportsSecureTransfer();
   let slip44 = core.slip44ByCoin(msg.coin);
-  let txBuilder = new TransactionBuilder(networksUtil[slip44].bitcoinjs);
+  let txBuilder = new bitcoin.TransactionBuilder(networksUtil[slip44].bitcoinjs);
   let indexes = [];
   let txs = [];
   let paths = [];
@@ -157,8 +158,8 @@ export async function btcSignTx(
       if (output.addressType === core.BTCOutputAddressType.Transfer && !supportsSecureTransfer)
         throw new Error("Ledger does not support SecureTransfer");
     }
-    if (msg.coin === "BitcoinCash" && isCashAddress(output.address)) {
-      output.address = toLegacyAddress(output.address);
+    if (msg.coin === "BitcoinCash" && bchAddr.isCashAddress(output.address)) {
+      output.address = bchAddr.toLegacyAddress(output.address);
     }
     txBuilder.addOutput(output.address, Number(output.amount));
   });
@@ -167,7 +168,7 @@ export async function btcSignTx(
     if (msg.opReturnData.length > 80) {
       throw new Error("OP_RETURN data must be less than 80 chars.");
     }
-    const ret = script.compile([opcodes.OP_RETURN, Buffer.from(msg.opReturnData)]);
+    const ret = bitcoin.script.compile([bitcoin.opcodes.OP_RETURN, Buffer.from(msg.opReturnData)]);
     txBuilder.addOutput(ret, 0);
   }
 
@@ -198,7 +199,7 @@ export async function btcSignTx(
     txs.push(tx.payload);
     paths.push(path);
   }
-  const inputs = zip(txs, indexes);
+  const inputs = _.zip(txs, indexes);
   const additionals = msg.coin === "BitcoinCash" ? ["abc"] : [];
 
   //sign createPaymentTransaction
@@ -259,7 +260,7 @@ export async function btcSignMessage(
 
 export async function btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
   const signature = Base64.fromByteArray(core.fromHexString(msg.signature));
-  return verify(msg.message, msg.address, signature);
+  return bitcoinMsg.verify(msg.message, msg.address, signature);
 }
 
 export function btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {

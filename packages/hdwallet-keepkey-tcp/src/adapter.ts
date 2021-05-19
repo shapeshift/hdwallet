@@ -1,5 +1,6 @@
-import { KeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey";
+import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import { AxiosRequestConfig } from "axios";
+
 import { TransportDelegate } from "./transport";
 
 export type Config = AxiosRequestConfig & Required<Pick<AxiosRequestConfig, "baseURL">>;
@@ -20,4 +21,5 @@ export const TCPKeepKeyAdapterDelegate = {
   },
 };
 
-export const TCPKeepKeyAdapter = KeepKeyAdapter.withDelegate(TCPKeepKeyAdapterDelegate);
+export const Adapter = keepkey.Adapter.fromDelegate(TCPKeepKeyAdapterDelegate);
+export const TCPKeepKeyAdapter = Adapter;

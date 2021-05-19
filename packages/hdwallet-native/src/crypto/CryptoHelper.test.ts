@@ -1,11 +1,12 @@
 /**
  * @jest-environment jsdom
  */
+import * as webcrypto from "@peculiar/webcrypto";
+
 import CryptoHelper from "./CryptoHelper";
+import { CipherString } from "./classes";
 import { WebCryptoEngine } from "./engines";
 import { fromBufferToUtf8, toArrayBuffer } from "./utils";
-import { Crypto } from "@peculiar/webcrypto";
-import { CipherString } from "./classes";
 
 const PLAINTEXT_STRING = "totally random secret data"
 const ENCRYPTED_STRING = "2.A/tC/OC0U/KN3XuAuz2L36lydOyr5x367tPSGSrPkvQ=|AAAAAAAAAAAAAAAAAAAAAA==|ZqR8HTeOg4+8mzcty10jVFZ5MqFFbn5bwEaqlL0c/Mg="
@@ -15,7 +16,7 @@ const BAD_ARGS = [undefined, null, "encrypteddatastring", [1, 2, 3, 4, 5, 6], {}
 
 describe("CryptoHelpers", () => {
   // Load shim to support running tests in node
-  globalThis.crypto = new Crypto();
+  globalThis.crypto = new webcrypto.Crypto();
   const engine = new WebCryptoEngine();
   const helper = new CryptoHelper(engine);
 

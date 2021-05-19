@@ -1,4 +1,5 @@
-import { entropyToMnemonic } from "bip39";
+import * as bip39 from "bip39";
+
 import { CipherString, EncryptedObject, SymmetricCryptoKey } from "./classes";
 import { CryptoEngine, DigestAlgorithm } from "./engines";
 import * as utils from "./utils";
@@ -153,7 +154,7 @@ export default class CryptoHelper {
   // use entropyToMnemonic to generate mnemonic so we can utilize provided randomBytes function
   async generateMnemonic(strength: number = 128): Promise<string> {
     const entropy = await this.#engine.randomBytes(strength / 8);
-    return entropyToMnemonic(Buffer.from(entropy));
+    return bip39.entropyToMnemonic(Buffer.from(entropy));
   }
 
   /**

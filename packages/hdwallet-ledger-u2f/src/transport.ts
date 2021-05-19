@@ -1,10 +1,10 @@
-import { makeEvent, Keyring } from "@shapeshiftoss/hdwallet-core";
-import { LedgerTransport, LedgerResponse } from "@shapeshiftoss/hdwallet-ledger";
-import Eth from "@ledgerhq/hw-app-eth";
 import Btc from "@ledgerhq/hw-app-btc";
+import Eth from "@ledgerhq/hw-app-eth";
 import getAppAndVersion from "@ledgerhq/live-common/lib/hw/getAppAndVersion";
 import getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
 import openApp from "@ledgerhq/live-common/lib/hw/openApp";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
 const RECORD_CONFORMANCE_MOCKS = false;
 
@@ -23,10 +23,10 @@ function translateMethod(method: string): (any) => void {
   }[method];
 }
 
-export class LedgerU2FTransport extends LedgerTransport {
+export class LedgerU2FTransport extends ledger.LedgerTransport {
   device: any;
 
-  constructor(device: any, transport: any, keyring: Keyring) {
+  constructor(device: any, transport: any, keyring: core.Keyring) {
     super(transport, keyring);
     this.device = device;
   }
@@ -35,13 +35,13 @@ export class LedgerU2FTransport extends LedgerTransport {
     return (this.device as any).deviceID;
   }
 
-  public async call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
+  public async call(coin: string, method: string, ...args: any[]): Promise<ledger.LedgerResponse> {
     let response;
 
     try {
       this.emit(
         `ledger.${coin}.${method}.call`,
-        makeEvent({
+        core.makeEvent({
           message_type: method,
           from_wallet: false,
           message: {},

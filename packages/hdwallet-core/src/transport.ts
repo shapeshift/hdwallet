@@ -1,4 +1,5 @@
 import * as eventemitter2 from "eventemitter2";
+
 import { Keyring } from "./keyring";
 
 export abstract class Transport extends eventemitter2.EventEmitter2 {

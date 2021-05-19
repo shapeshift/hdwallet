@@ -20,8 +20,14 @@
     "bip32": "^2.0.4",
     "bitcoinjs-lib": "^5.1.6",
     "bitcoinjs-message": "^2.1.0",
-    "eventemitter2": "^5.0.1",
     "lodash": "^4.17.15",
     "web3": "^1.2.1"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.168",
+    "typescript": "^3.9.7"
+  },
+  "engines": {
+    "node": "^10 || ^12 || ^14"
   }
 }

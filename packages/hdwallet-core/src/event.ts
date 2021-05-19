@@ -1,4 +1,4 @@
-import type { Message } from "google-protobuf";
+import type * as jspb from "google-protobuf";
 
 export interface Event {
   message_type?: string;
@@ -7,7 +7,7 @@ export interface Event {
   wallet_id?: string;
   interface?: string;
   message?: any;
-  proto?: Message;
+  proto?: jspb.Message;
   date?: number;
 }
 

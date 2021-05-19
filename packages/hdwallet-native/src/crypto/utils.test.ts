@@ -1,4 +1,5 @@
 import * as utils from "./utils";
+
 describe("util", () => {
   describe("fromUtf8ToArray", () => {
     it("should convert a string to a Uint8Array", () => {
@@ -38,15 +39,13 @@ describe("util", () => {
   describe("toArrayBuffer", () => {
     it("should convert a string to ArrayBuffer", () => {
       const result = utils.toArrayBuffer("my_Fancy-P$ssw0rd");
-      // A polyfill is overwriting the global node functions causing instanceof to fail
-      expect(result.constructor.name).toBe("ArrayBuffer");
+      expect(result).toBeInstanceOf(ArrayBuffer);
       expect(result.byteLength).toBe(17);
     });
 
     it("should convert a Uint8Array to ArrayBuffer", () => {
       const result = utils.toArrayBuffer(new Uint8Array(32));
-      // A polyfill is overwriting the global node functions causing instanceof to fail
-      expect(result.constructor.name).toBe("ArrayBuffer");
+      expect(result).toBeInstanceOf(ArrayBuffer);
       expect(result.byteLength).toBe(32);
     });
   });

@@ -15,16 +15,16 @@
     "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "1.14.3",
     "@shapeshiftoss/hdwallet-keepkey-tcp": "1.14.3",
     "@shapeshiftoss/hdwallet-trezor": "1.14.3",
-    "debug": "^4.1.1",
-    "fast-json-stable-stringify": "^2.1.0",
-    "parcel-bundler": "^1.12.4",
-    "whatwg-fetch": "^2.0.4"
-  },
-  "devDependencies": {
     "@types/debug": "^4.1.2",
     "@types/jest": "^24.0.11",
+    "debug": "^4.1.1",
+    "fast-json-stable-stringify": "^2.1.0",
     "jest": "^24.6.0",
-    "ts-jest": "^24.0.1",
-    "typescript": "^3.4.1"
+    "jest-junit": "^6.4.0",
+    "lerna": "^3.22.1",
+    "parcel-bundler": "^1.12.4",
+    "ts-jest": "^24.3.0",
+    "typescript": "^3.9.7",
+    "whatwg-fetch": "^2.0.4"
   }
 }

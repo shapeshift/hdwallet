@@ -1,9 +1,10 @@
+import * as fioSdk from "@fioprotocol/fiojs"; // TODO use our forked fioSdk instead of fiojs
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as fio from "fiosdk-offline";
 import fetch, { RequestInfo, RequestInit } from "node-fetch";
-import { NativeHDWalletBase } from "./native";
-import { Fio as fiojs } from "@fioprotocol/fiojs"; // TODO use our forked fioSdk instead of fiojs
 import { TextEncoder, TextDecoder } from "web-encoding";
+
+import { NativeHDWalletBase } from "./native";
 import * as Isolation from "./crypto/isolation";
 
 const fetchJson = async (uri: RequestInfo, opts?: RequestInit) => {
@@ -95,7 +96,7 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
     async fioEncryptRequestContent(msg: core.FioRequestContent & {iv?: Uint8Array}): Promise<string> {
       return this.needsMnemonic(!!this.#seed, async () => {
         const privateKey = getKeyPair(this.#seed, msg.addressNList);
-        const sharedCipher = fiojs.createSharedCipher({
+        const sharedCipher = fioSdk.Fio.createSharedCipher({
           privateKey,
           publicKey: msg.publicKey,
           textEncoder: new TextEncoder(),
@@ -108,7 +109,7 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
     async fioDecryptRequestContent(msg: core.FioRequestContent): Promise<any> {
       return this.needsMnemonic(!!this.#seed, async () => {
         const privateKey = getKeyPair(this.#seed, msg.addressNList);
-        const sharedCipher = fiojs.createSharedCipher({
+        const sharedCipher = fioSdk.Fio.createSharedCipher({
           privateKey,
           publicKey: msg.publicKey,
           textEncoder: new TextEncoder(),
