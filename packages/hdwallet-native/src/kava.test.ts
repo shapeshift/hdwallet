@@ -49,7 +49,7 @@ describe("NativeKavaWallet", () => {
   });
 
   it("does not support signing transactions", async () => {
-    await expect(wallet.kavaSignTx({
+    const signed = await wallet.kavaSignTx({
       addressNList: core.bip32ToAddressNList("m/44'/459'/0'/0/0"),
       tx: {
         msg: [{ type: "foo", value: "bar" }],
@@ -63,6 +63,14 @@ describe("NativeKavaWallet", () => {
       chain_id: "foobar",
       account_number: "foo",
       sequence: "bar",
-    })).rejects.toThrowError("Not Supported");
+    })
+    expect(signed.signatures.length).toBe(1);
+    expect(signed.signatures[0].pub_key.value).toMatchInlineSnapshot(
+      `"AlW0vIrn08ANEFwNKufFfnoU/1pTSjyzo8SMlPKoit3V"`
+    );
+    expect(signed.signatures[0].signature).toMatchInlineSnapshot(
+      `"77iUQFCVMfXvEj11YOEdMWOC4KDYxZzRz0WKzRFWnX18AwetdDh15be+iFsVgZ4RJFl2jj1JYoCGKrd9YN+Eew=="`
+    );
+
   });
 });

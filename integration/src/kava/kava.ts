@@ -78,12 +78,11 @@ export function kavaTests(get: () => { wallet: core.HDWallet; info: core.HDWalle
           tx: tx_unsigned as any,
           addressNList: core.bip32ToAddressNList("m/44'/459'/0'/0/0"),
           chain_id: "kava",
-          account_number: "16354",
-          sequence: "5",
+          account_number: "223646",
+          sequence: "2",
         };
 
         const res = await wallet.kavaSignTx(input);
-        console.log("res: ",res)
         switch(wallet.getVendor()){
           case "KeepKey":
             //not supported yet

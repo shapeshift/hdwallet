@@ -49,7 +49,7 @@ describe("NativeTerraWallet", () => {
   });
 
   it("does not support signing transactions", async () => {
-    await expect(wallet.terraSignTx({
+    const signed = await wallet.terraSignTx({
       addressNList: core.bip32ToAddressNList("m/44'/330'/0'/0/0"),
       tx: {
         msg: [{ type: "foo", value: "bar" }],
@@ -63,6 +63,13 @@ describe("NativeTerraWallet", () => {
       chain_id: "foobar",
       account_number: "foo",
       sequence: "bar",
-    })).rejects.toThrowError("Not Supported");
+    })
+    expect(signed.signatures.length).toBe(1);
+    expect(signed.signatures[0].pub_key.value).toMatchInlineSnapshot(
+      `"A6cAUgKWL3/P3nQY+j2fMUBaAW/QC/FGmQzTJ4nqXo0E"`
+    );
+    expect(signed.signatures[0].signature).toMatchInlineSnapshot(
+      `"zUPR10sr2QwRa10fcb3z/KC6/mWuLq0iff5ImhylIJpqU1RSg49Jxbmvp07D3sWuY0fE5mcSdMWQXWJFw2zsWQ=="`
+    );
   });
 });

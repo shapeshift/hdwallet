@@ -48,8 +48,8 @@ describe("NativeSecretWallet", () => {
     ).resolves.toBe("secret1wmmewcjt2s09r48ya8mtdfyy0rnnza20xnx6fs");
   });
 
-  it("does not support signing transactions", async () => {
-    await expect(wallet.secretSignTx({
+  it("should signing transactions", async () => {
+    const signed = await wallet.secretSignTx({
       addressNList: core.bip32ToAddressNList("m/44'/529'/0'/0/0"),
       tx: {
         msg: [{ type: "foo", value: "bar" }],
@@ -63,6 +63,13 @@ describe("NativeSecretWallet", () => {
       chain_id: "foobar",
       account_number: 123,
       sequence: 456,
-    })).rejects.toThrowError("Not Supported");
+    })
+    expect(signed.signatures.length).toBe(1);
+    expect(signed.signatures[0].pub_key.value).toMatchInlineSnapshot(
+      `"A2UVKphVsesrnAQEtX4K+qk8Z84wa5xD5mxzdPykAiyR"`
+    );
+    expect(signed.signatures[0].signature).toMatchInlineSnapshot(
+      `"f4HKv09XvsGQn74y4MHL+M+wP/uBjHsIn5PwPfq7xMI7CJkS22Pxx7KlXpeUzCjiaSZvEEIuxbkd9J+Q4g86jg=="`
+    );
   });
 });

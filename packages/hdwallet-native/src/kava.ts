@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as txBuilder from "tendermint-tx-builder";
 import { NativeHDWalletBase } from "./native";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
@@ -70,7 +71,10 @@ export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWal
 
     async kavaSignTx(msg: core.KavaSignTx): Promise<core.KavaSignedTx> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        throw Error("Not Supported");
+        const keyPair = util.getKeyPair(this.#seed, msg.addressNList, "kava");
+        const adapter = new Isolation.Adapters.Cosmos(keyPair);
+        const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, msg.chain_id);
+        return txBuilder.createSignedTx(msg.tx, result);
       });
     }
   };

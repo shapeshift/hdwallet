@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import txBuilder from "cosmos-tx-builder";
+import * as txBuilder from "tendermint-tx-builder";
 import { NativeHDWalletBase } from "./native";
 import { toWords, encode } from "bech32";
 import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
@@ -76,7 +76,6 @@ export function MixinNativeThorchainWallet<TBase extends core.Constructor<Native
         const keyPair = util.getKeyPair(this.#seed, msg.addressNList, "thorchain");
         const adapter = new Isolation.Adapters.Cosmos(keyPair);
         const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, THOR_CHAIN);
-
         return txBuilder.createSignedTx(msg.tx, result);
       });
     }
