@@ -74,8 +74,7 @@ export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWa
         const keyPair = util.getKeyPair(this.#seed, msg.addressNList, "terra");
         const adapter = new Isolation.Adapters.Cosmos(keyPair);
         const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, "terra");
-        const resultFinal = await txBuilder.createSignedTx(msg.tx, result);
-        return resultFinal
+        return txBuilder.createSignedTx(msg.tx, result);
       });
     }
   };

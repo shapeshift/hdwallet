@@ -64,11 +64,11 @@ describe("NativeKavaWallet", () => {
       account_number: "foo",
       sequence: "bar",
     })
-    await expect(signed.signatures.length).toBe(1);
-    await expect(signed.signatures[0].pub_key.value).toMatchInlineSnapshot(
+    expect(signed.signatures.length).toBe(1);
+    expect(signed.signatures[0].pub_key.value).toMatchInlineSnapshot(
       `"AlW0vIrn08ANEFwNKufFfnoU/1pTSjyzo8SMlPKoit3V"`
     );
-    await expect(signed.signatures[0].signature).toMatchInlineSnapshot(
+    expect(signed.signatures[0].signature).toMatchInlineSnapshot(
       `"77iUQFCVMfXvEj11YOEdMWOC4KDYxZzRz0WKzRFWnX18AwetdDh15be+iFsVgZ4RJFl2jj1JYoCGKrd9YN+Eew=="`
     );
 

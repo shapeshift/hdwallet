@@ -64,11 +64,11 @@ describe("NativeTerraWallet", () => {
       account_number: "foo",
       sequence: "bar",
     })
-    await expect(signed.signatures.length).toBe(1);
-    await expect(signed.signatures[0].pub_key.value).toMatchInlineSnapshot(
+    expect(signed.signatures.length).toBe(1);
+    expect(signed.signatures[0].pub_key.value).toMatchInlineSnapshot(
       `"A6cAUgKWL3/P3nQY+j2fMUBaAW/QC/FGmQzTJ4nqXo0E"`
     );
-    await expect(signed.signatures[0].signature).toMatchInlineSnapshot(
+    expect(signed.signatures[0].signature).toMatchInlineSnapshot(
       `"zUPR10sr2QwRa10fcb3z/KC6/mWuLq0iff5ImhylIJpqU1RSg49Jxbmvp07D3sWuY0fE5mcSdMWQXWJFw2zsWQ=="`
     );
   });

@@ -74,8 +74,7 @@ export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWal
         const keyPair = util.getKeyPair(this.#seed, msg.addressNList, "kava");
         const adapter = new Isolation.Adapters.Cosmos(keyPair);
         const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, msg.chain_id);
-        const returnFinal = await txBuilder.createSignedTx(msg.tx, result);
-        return returnFinal
+        return txBuilder.createSignedTx(msg.tx, result);
       });
     }
   };
