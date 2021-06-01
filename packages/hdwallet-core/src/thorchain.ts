@@ -40,10 +40,10 @@ export namespace Thorchain {
   }
 
   export interface StdTx {
-    msg: Msg[];
     fee: StdFee;
-    signatures: null | StdSignature[];
     memo: string;
+    msg: Msg[];
+    signatures: null | StdSignature[];
   }
 }
 
@@ -57,9 +57,9 @@ export interface ThorchainTx {
 export interface ThorchainSignTx {
   addressNList: BIP32Path;
   tx: Thorchain.StdTx;
-  chain_id: string;
-  account_number: string;
   sequence: string;
+  account_number: string;
+  chain_id: string;
   fee?: number;
   testnet?: boolean;
 }

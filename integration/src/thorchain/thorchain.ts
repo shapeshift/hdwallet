@@ -85,14 +85,9 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
         };
 
         const res = await wallet.thorchainSignTx(input);
-        switch(wallet.getVendor()){
-          case "KeepKey":
-            break;
-          default:
-            expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
-            break;
 
-        }
+        expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
+
       },
       TIMEOUT
     );
@@ -101,19 +96,17 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
       "thorchainSignTx() (thorchain/MsgDeposit)",
       async () => {
         if (!wallet) return;
-        if(wallet.getVendor() !== 'KeepKey'){
-          const input: core.ThorchainSignTx = {
-            tx: tx_unsigned_swap as any,
-            addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
-            chain_id: "thorchain",
-            account_number: "2722",
-            sequence: "3",
-          };
+        const input: core.ThorchainSignTx = {
+          tx: tx_unsigned_swap as any,
+          addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
+          chain_id: "thorchain",
+          account_number: "2722",
+          sequence: "4",
+        };
+        const res = await wallet.thorchainSignTx(input);
+    
+        expect(res.signatures[0].signature).toEqual(tx_signed_swap.signatures[0].signature)
 
-          const res = await wallet.thorchainSignTx(input);
-          expect(res.signatures[0].signature).toEqual(tx_signed_swap.signatures[0].signature);
-
-        }
       },
       TIMEOUT
     );
