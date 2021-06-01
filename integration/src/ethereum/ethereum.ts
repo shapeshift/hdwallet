@@ -1,7 +1,7 @@
 import { bip32ToAddressNList, HDWallet, ETHWallet, supportsETH } from "@shapeshiftoss/hdwallet-core";
 import { isLedger } from "@shapeshiftoss/hdwallet-ledger";
 import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
-
+import { ethers } from 'ethers'
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
 const TIMEOUT = 60 * 1000;
@@ -136,6 +136,11 @@ export function ethereumTests(get: () => { wallet: HDWallet; info: HDWalletInfo 
           serialized:
             "0xf86b018501dcd650008256229412ec06288edd7ae2cc41a843fe089237fc7354f0872c68af0bb140008026a063db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0aa028297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
         });
+
+        //decode
+        const { from } = ethers.utils.parseTransaction(res.serialized)
+        expect(from).toEqual("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8")
+
       },
       TIMEOUT
     );
