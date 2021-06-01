@@ -9,6 +9,7 @@ import {
   ThorchainMsgAck,
   ThorchainSignedTx,
   ThorchainMsgSend,
+  ThorchainMsgDeposit,
 } from "@keepkey/device-protocol/lib/messages-thorchain_pb";
 import { MessageType } from "@keepkey/device-protocol/lib/messages_pb";
 
@@ -52,7 +53,7 @@ export async function thorchainSignTx(transport: KeepKeyTransport, msg: Core.Tho
 
       if (m.type === "thorchain/MsgSend") {
         if (m.value.amount.length !== 1) {
-          throw new Error("THORChain: Multiple amounts per msg not supported");
+          throw new Error("THORChain: Multiple amounts per MsgSend not supported");
         }
 
         const denom = m.value.amount[0].denom;
@@ -67,6 +68,24 @@ export async function thorchainSignTx(transport: KeepKeyTransport, msg: Core.Tho
 
         ack = new ThorchainMsgAck();
         ack.setSend(send);
+      } else if (m.type === "thorchain/MsgDeposit") {
+        if (m.value.coins.length !== 1) {
+          throw new Error("THORChain: Multiple amounts per MsgDeposit not supported");
+        }
+
+        const coinAsset = m.value.coins[0].asset;
+        if (coinAsset !== "THOR.RUNE") {
+          throw new Error("THORChain: Unsupported coin asset: " + coinAsset);
+        }
+
+        const deposit = new ThorchainMsgDeposit();
+        deposit.setAsset(m.value.coins[0].asset);
+        deposit.setAmount(m.value.coins[0].amount);
+        deposit.setMemo(m.value.memo);
+        deposit.setSigner(m.value.signer)
+
+        ack = new ThorchainMsgAck();
+        ack.setDeposit(deposit);
       } else {
         throw new Error(`THORChain: Message ${m.type} is not yet supported`);
       }
@@ -86,11 +105,11 @@ export async function thorchainSignTx(transport: KeepKeyTransport, msg: Core.Tho
 
     signed.signatures = [
       {
+        signature: signedTx.getSignature_asB64(),
         pub_key: {
           type: "tendermint/PubKeySecp256k1",
           value: signedTx.getPublicKey_asB64(),
         },
-        signature: signedTx.getSignature_asB64(),
       },
     ];
 
