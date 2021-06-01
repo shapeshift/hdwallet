@@ -113,7 +113,6 @@ export async function thorchainSignTx(transport: KeepKeyTransport, msg: Core.Tho
       },
     ];
 
-    console.log(signed.msg[0].value)
     return signed;
   });
 }
