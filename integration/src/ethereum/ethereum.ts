@@ -2,6 +2,7 @@ import { bip32ToAddressNList, HDWallet, ETHWallet, supportsETH } from "@shapeshi
 import { isLedger } from "@shapeshiftoss/hdwallet-ledger";
 import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
 import { ethers } from 'ethers'
+
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
 const TIMEOUT = 60 * 1000;
