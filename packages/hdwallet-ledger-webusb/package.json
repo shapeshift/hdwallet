@@ -22,7 +22,7 @@
     "@shapeshiftoss/hdwallet-core": "1.14.3",
     "@shapeshiftoss/hdwallet-ledger": "1.14.3",
     "@types/w3c-web-usb": "^1.0.4",
-    "typescript": "^3.9.7"
+    "typescript": "^4.3.2"
   },
   "engines": {
     "node": "^10 || ^12 || ^14"

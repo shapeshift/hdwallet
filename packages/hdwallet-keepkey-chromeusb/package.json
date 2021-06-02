@@ -18,7 +18,7 @@
     "@shapeshiftoss/hdwallet-keepkey": "1.14.3"
   },
   "devDependencies": {
-    "typescript": "^3.9.7"
+    "typescript": "^4.3.2"
   },
   "engines": {
     "node": "^10 || ^12 || ^14"
