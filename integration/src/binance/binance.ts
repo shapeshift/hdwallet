@@ -68,11 +68,14 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
         expect(Object.assign({}, tx02_unsigned, { txid, serialized, signatures })).toStrictEqual(tx02_signed);
 
         const input = {
-          tx: tx02_unsigned,
+          // Kludgy hack required until microsoft/TypeScript#32063 is fixed
+          tx: tx02_unsigned as Omit<typeof tx02_unsigned, "msgs"> & {
+            msgs: typeof tx02_unsigned.msgs extends Array<infer R> ? [R] : never;
+          },
           addressNList: bip32ToAddressNList("m/44'/714'/0'/0/0"),
           chain_id: tx02_unsigned.chain_id,
           account_number: tx02_unsigned.account_number,
-          sequence: Number(tx02_unsigned.sequence),
+          sequence: tx02_unsigned.sequence,
         };
         const res = await wallet.binanceSignTx(input);
 

@@ -127,27 +127,26 @@ describe("NativeBinanceWallet", () => {
       tx: {
         chain_id: "foo",
         account_number: "123",
-        data: "bar",
+        data: null,
         memo: "memo",
         msgs: [
           {
             inputs: [
               {
                 address: "bnb1qzc0v2q7u6484czzal6ncuvqmg9fae8n2xe2c6",
-                coins: [
-                  {
-                    amount: 1234,
-                  },
-                ],
+                coins: [{ amount: 1234, denom: "BNB" }],
               },
             ],
-            outputs: [{ address: "bnb14awl92k30hyhu36wjy6pg0trx3zlqrpfgsf3xk" }],
+            outputs: [
+              {
+                address: "bnb14awl92k30hyhu36wjy6pg0trx3zlqrpfgsf3xk",
+                coins: [{ amount: 1234, denom: "BNB" }],
+              },
+            ],
           },
         ],
+        sequence: "456",
       },
-      chain_id: "foo",
-      account_number: "123",
-      sequence: 456,
     });
     expect(sig.signatures).toMatchInlineSnapshot(`
       Object {
@@ -163,25 +162,26 @@ describe("NativeBinanceWallet", () => {
     const sig = await wallet.binanceSignTx({
       addressNList: core.bip32ToAddressNList("m/44'/714'/0'/0/0"),
       tx: {
-        data: "bar",
+        data: null,
         memo: "memo",
         msgs: [
           {
             inputs: [
               {
                 address: "bnb1qzc0v2q7u6484czzal6ncuvqmg9fae8n2xe2c6",
-                coins: [
-                  {
-                    amount: 1234,
-                  },
-                ],
+                coins: [{ amount: 1234, denom: "BNB" }],
               },
             ],
-            outputs: [{ address: "bnb14awl92k30hyhu36wjy6pg0trx3zlqrpfgsf3xk" }],
+            outputs: [
+              {
+                address: "bnb14awl92k30hyhu36wjy6pg0trx3zlqrpfgsf3xk",
+                coins: [{ amount: 1234, denom: "BNB" }],
+              },
+            ],
           },
         ],
-      } as any,
-    } as any);
+      },
+    });
     expect(sig.signatures).toMatchInlineSnapshot(`
       Object {
         "pub_key": "A/7/niWhEmyNrOL5jDyKiFyN1fMYjCxVPgyucVvj9UNT",
@@ -189,7 +189,10 @@ describe("NativeBinanceWallet", () => {
       }
     `);
     expect(mswMock).toHaveBeenCalledWith("GET", "https://dex.binance.org/api/v1/node-info");
-    expect(mswMock).toHaveBeenCalledWith("GET", "https://dex.binance.org/api/v1/account/bnb1qzc0v2q7u6484czzal6ncuvqmg9fae8n2xe2c6");
+    expect(mswMock).toHaveBeenCalledWith(
+      "GET",
+      "https://dex.binance.org/api/v1/account/bnb1qzc0v2q7u6484czzal6ncuvqmg9fae8n2xe2c6"
+    );
     mswMock.clear();
   });
 
@@ -217,20 +220,19 @@ describe("NativeBinanceWallet", () => {
               inputs: [
                 {
                   address: "bnb1qzc0v2q7u6484czzal6ncuvqmg9fae8n2xe2c6",
-                  coins: [
-                    {
-                      amount: 1234,
-                    },
-                  ],
+                  coins: [{ amount: 1234, denom: "BNB" }],
                 },
               ],
-              outputs: [{ address: "bnb14awl92k30hyhu36wjy6pg0trx3zlqrpfgsf3xk" }],
+              outputs: [
+                {
+                  address: "bnb14awl92k30hyhu36wjy6pg0trx3zlqrpfgsf3xk",
+                  coins: [{ amount: 1234, denom: "BNB" }],
+                },
+              ],
             },
           ],
+          sequence: "456",
         },
-        chain_id: "foo",
-        account_number: "123",
-        sequence: 456,
       })
     ).rejects.toThrowError("Binance SDK returned public key in an incorrect format");
     mock.mockRestore();
@@ -247,45 +249,47 @@ describe("NativeBinanceWallet", () => {
           account_number: "",
           data: "",
           memo: "",
-          msgs: [{}],
+          msgs: [{}] as any,
+          sequence: "NaN",
         },
-        chain_id: "",
-        account_number: "foobar",
-        sequence: Number.NaN,
       })
     ).rejects.toThrowError();
-    expect(mswMock).toHaveBeenCalledWith("GET", "https://dex.binance.org/api/v1/node-info");
+    expect(mswMock).toHaveBeenCalledWith(
+      "GET",
+      "https://dex.binance.org/api/v1/node-info"
+    );
     mswMock.clear();
   });
 
   it("should not sign a transaction for a non-integer amount", async () => {
-    await expect(wallet.binanceSignTx({
-      addressNList: core.bip32ToAddressNList("m/44'/714'/0'/0/0"),
-      tx: {
-        chain_id: "foo",
-        account_number: "123",
-        data: "bar",
-        memo: "memo",
-        msgs: [
-          {
-            inputs: [
-              {
-                address: "bnb1qzc0v2q7u6484czzal6ncuvqmg9fae8n2xe2c6",
-                coins: [
-                  {
-                    amount: 123.4,
-                  },
-                ],
-              },
-            ],
-            outputs: [{ address: "bnb14awl92k30hyhu36wjy6pg0trx3zlqrpfgsf3xk" }],
-          },
-        ],
-      },
-      chain_id: "foo",
-      account_number: "123",
-      sequence: 456,
-    })).rejects.toThrowError("amount must be an integer");
+    await expect(
+      wallet.binanceSignTx({
+        addressNList: core.bip32ToAddressNList("m/44'/714'/0'/0/0"),
+        tx: {
+          chain_id: "foo",
+          account_number: "123",
+          data: "bar",
+          memo: "memo",
+          msgs: [
+            {
+              inputs: [
+                {
+                  address: "bnb1qzc0v2q7u6484czzal6ncuvqmg9fae8n2xe2c6",
+                  coins: [{ amount: 123.4, denom: "BNB" }],
+                },
+              ],
+              outputs: [
+                {
+                  address: "bnb14awl92k30hyhu36wjy6pg0trx3zlqrpfgsf3xk",
+                  coins: [{ amount: 123.4, denom: "BNB" }],
+                },
+              ],
+            },
+          ],
+          sequence: "456",
+        },
+      })
+    ).rejects.toThrowError("amount must be an integer");
     expect(mswMock).toHaveBeenCalledWith("GET", "https://dex.binance.org/api/v1/node-info");
     mswMock.clear();
   });
@@ -304,20 +308,19 @@ describe("NativeBinanceWallet", () => {
               inputs: [
                 {
                   address: "bnb14awl92k30hyhu36wjy6pg0trx3zlqrpfgsf3xk",
-                  coins: [
-                    {
-                      amount: 1234,
-                    },
-                  ],
+                  coins: [{ amount: 1234, denom: "BNB" }],
                 },
               ],
-              outputs: [{ address: "bnb1qzc0v2q7u6484czzal6ncuvqmg9fae8n2xe2c6" }],
+              outputs: [
+                {
+                  address: "bnb1qzc0v2q7u6484czzal6ncuvqmg9fae8n2xe2c6",
+                  coins: [{ amount: 1234, denom: "BNB" }],
+                },
+              ],
             },
           ],
+          sequence: "456",
         },
-        chain_id: "foo",
-        account_number: "123",
-        sequence: 456,
       })
     ).rejects.toThrowError("Invalid permissions to sign for address");
     expect(mswMock).toHaveBeenCalledWith("GET", "https://dex.binance.org/api/v1/node-info");

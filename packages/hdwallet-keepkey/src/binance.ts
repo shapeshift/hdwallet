@@ -11,6 +11,9 @@ import {
 } from "@keepkey/device-protocol/lib/messages-binance_pb";
 import { MessageType } from "@keepkey/device-protocol/lib/messages_pb";
 import BigNumber from "bignumber.js";
+import * as CryptoJS from "crypto-js";
+
+import { encodeBnbTx } from "./bnbencoding";
 
 export function binanceGetAccountPaths(msg: Core.BinanceGetAccountPaths): Array<Core.BinanceAccountPath> {
   return [
@@ -25,12 +28,26 @@ export async function binanceSignTx(
   msg: Core.BinanceSignTx
 ): Promise<Core.BinanceSignedTx> {
   return transport.lockDuring(async () => {
+    if (msg.testnet) throw new Error("testnet not supported");
+
+    const partialTx = Object.assign({}, msg.tx);
+    if (!partialTx.data) partialTx.data = null;
+    if (!partialTx.memo) partialTx.memo = "";
+    if (!partialTx.sequence) partialTx.sequence = "0";
+    if (!partialTx.source) partialTx.source = "0";
+
+    if (!partialTx.account_number) throw new Error("account_number is required");
+    if (!partialTx.chain_id) throw new Error("chain_id is required");
+
+    const tx = partialTx as Core.BinanceTx;
+    if (tx.data) throw new Error("tx data field not supported");
+
     const signTx = new BinanceSignTx();
     signTx.setAddressNList(msg.addressNList);
-    signTx.setAccountNumber(msg.account_number);
-    signTx.setChainId(msg.chain_id);
-    signTx.setSequence(String(msg.sequence));
-    if (msg.tx.memo !== undefined) signTx.setMemo(msg.tx.memo);
+    signTx.setAccountNumber(tx.account_number);
+    signTx.setChainId(tx.chain_id);
+    signTx.setSequence(tx.sequence);
+    if (tx.memo) signTx.setMemo(tx.memo);
 
     //verify not a batch tx
     if (msg.tx.msgs.length > 1) throw new Error("Binance batch sending not supported!");
@@ -88,19 +105,23 @@ export async function binanceSignTx(
     signedTx.setSignature(resp.message.signature);
     signedTx.setPublicKey(resp.message.publicKey);
 
-    let output: Core.BinanceSignedTx = {
-      account_number: msg.account_number,
-      chain_id: msg.chain_id,
-      data: null,
-      memo: msg.tx.memo,
-      msgs: msg.tx.msgs,
+    const serialized = encodeBnbTx(
+      tx,
+      Buffer.from(signedTx.getPublicKey_asU8()),
+      Buffer.from(signedTx.getSignature_asU8())
+    );
+
+    const out: Core.BinanceSignedTx = {
+      ...tx,
       signatures: {
         pub_key: signedTx.getPublicKey_asB64(),
         signature: signedTx.getSignature_asB64(),
       },
+      serialized: serialized.toString("hex"),
+      txid: CryptoJS.SHA256(CryptoJS.lib.WordArray.create(serialized)).toString(),
     };
 
-    return output;
+    return out;
   });
 }
 

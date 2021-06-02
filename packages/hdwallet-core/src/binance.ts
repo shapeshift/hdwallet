@@ -14,7 +14,7 @@ namespace Binance {
 
     export interface Coin {
       denom: string;
-      amount: string;
+      amount: number;
     }
   }
 
@@ -27,32 +27,48 @@ namespace Binance {
     pub_key: string;
     signature: string;
   }
+
+  export interface MsgSend {
+    inputs: Array<{
+      address: string;
+      coins: sdk.Coins;
+    }>;
+    outputs: Array<{
+      address: string;
+      coins: sdk.Coins;
+    }>;
+  }
+
+  export type Msg = MsgSend;
 }
 
 export interface BinanceTx {
   account_number: string;
   chain_id: string;
-  data: string;
+  data: string | null;
   memo: string;
-  //TODO type the tx msg
-  msgs: any;
-  signatures?: {
-    pub_key: string;
-    signature: string;
-  };
-  txid?: string;
-  serialized?: string;
+  msgs: [Binance.Msg];
+  // These are actually numbers, but they're encoded as strings by the chain.
+  sequence: string;
+  source?: string;
 }
+
+export type BinancePartialTx = Partial<BinanceTx> & Pick<BinanceTx, "msgs">;
 
 export interface BinanceSignTx {
   addressNList: BIP32Path;
-  tx: BinanceTx;
-  chain_id: string;
-  account_number: string;
-  sequence: number;
+  testnet?: boolean;
+  tx: BinancePartialTx;
 }
 
-export type BinanceSignedTx = BinanceTx;
+export interface BinanceSignedTx extends BinanceTx {
+  signatures: {
+    pub_key: string;
+    signature: string;
+  };
+  txid: string;
+  serialized: string;
+}
 
 export interface BinanceGetAccountPaths {
   accountIdx: number;
