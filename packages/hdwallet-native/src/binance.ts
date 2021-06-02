@@ -76,39 +76,69 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
       return this.needsMnemonic(!!this.#seed, async () => {
         const keyPair = util.getKeyPair(this.#seed, msg.addressNList, "binance");
 
+        const tx = Object.assign({}, msg.tx)
+        if (!tx.data) tx.data = null
+        if (!tx.memo) tx.memo = ""
+        if (!tx.sequence) tx.sequence = "0"
+        if (!tx.source) tx.source = "0"
+
         const client = new BncClient(msg.testnet ? "https://testnet-dex.binance.org" : "https://dex.binance.org"); // broadcast not used but available
         await client.chooseNetwork(msg.testnet ? "testnet" : "mainnet");
-        const haveAccountNumber = Number.isInteger(Number(msg.account_number));
-        if (haveAccountNumber) await client.setAccountNumber(Number(msg.account_number));
+        const haveAccountNumber = msg.tx.account_number && Number.isInteger(Number(msg.tx.account_number));
+        if (haveAccountNumber) await client.setAccountNumber(Number(msg.tx.account_number));
         client.setSigningDelegate(Isolation.Adapters.Binance(keyPair));
 
         await client.initChain();
 
-        const addressFrom = msg.tx.msgs[0].inputs[0].address;
-        const addressFromVerify = this.createBinanceAddress(keyPair.publicKey.toString("hex"));
-        if (addressFrom !== addressFromVerify) {
-          throw Error("Invalid permissions to sign for address");
+        if (!tx.chain_id) {
+          const { chainId } = client;
+          if (!chainId) throw new Error("unable to load chain id");
+          tx.chain_id = chainId;
         }
-        const addressTo = msg.tx.msgs[0].outputs[0].address;
+        if (!tx.account_number) {
+          const { account_number } = client;
+          if (account_number) tx.account_number = account_number.toString();
+        }
+
+        if (
+          tx.msgs?.length !== 1 ||
+          tx.msgs[0].inputs?.length !== 1 ||
+          tx.msgs[0].inputs[0].coins?.length !== 1 ||
+          tx.msgs[0].outputs?.length !== 1 || 
+          tx.msgs[0].outputs[0].coins?.length !== 1
+        ) throw new Error("malformed or unsupported tx message");
+
+        const addressTo = tx.msgs[0].outputs[0].address;
+        const addressFrom = tx.msgs[0].inputs[0].address;
+        const addressFromVerify = this.createBinanceAddress(keyPair.publicKey.toString("hex"), !!msg.testnet);
+        if (addressFrom !== addressFromVerify) throw Error("Invalid permissions to sign for address");
+
+        if (!tx.account_number) {
+          const { result, status }: {result: Record<string, unknown>, status: number} = await client.getAccount(addressFrom);
+          if (!(status === 200 && "account_number" in result && typeof result.account_number === "number")) throw new Error("unable to load account number");
+          tx.account_number = result.account_number.toString();
+        }
+
         // The Binance SDK takes amounts as decimal strings.
-        const amount = new BigNumber(msg.tx.msgs[0].inputs[0].coins[0].amount);
+        const amount = new BigNumber(tx.msgs[0].inputs[0].coins[0].amount);
         if (!amount.isInteger()) throw new Error("amount must be an integer");
-        const asset = "BNB";
-        const memo = msg.tx.memo;
+        if (!amount.isEqualTo(tx.msgs[0].outputs[0].coins[0].amount)) throw new Error("amount in input and output must be equal");
+        const asset = tx.msgs[0].inputs[0].coins[0].denom;
+        if (asset !== tx.msgs[0].outputs[0].coins[0].denom) throw new Error("denomination in input and output must be the same");
 
         const result: any = await client.transfer(
           addressFrom,
           addressTo,
           amount.shiftedBy(-8).toString(),
           asset,
-          memo,
-          msg.sequence ?? null
+          tx.memo,
+          Number(tx.sequence) ?? null
         );
         const aminoPubKey: Buffer = result.signatures[0].pub_key;
         const signature = Buffer.from(result.signatures[0].signature, "base64").toString("base64");
 
-        // BNB returns public keys serialized in its own format. The first four bytes are a type tag,
-        // and the fifth is the length of the rest of the data, which is always exactly 33 bytes.
+        // The BNB SDK returns public keys serialized in its own format. The first four bytes are a type
+        // tag, and the fifth is the length of the rest of the data, which is always exactly 33 bytes.
         if (
           aminoPubKey.length !== 38 ||
           aminoPubKey.readUInt32BE(0) !== 0xeb5ae987 ||
@@ -118,18 +148,15 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         }
         const pub_key = aminoPubKey.slice(5).toString("base64");
 
-        return {
-          account_number: result.account,
-          chain_id: result.chain_id,
-          data: null,
-          memo: result.memo,
+        return Object.assign({}, tx as core.BinanceTx, {
           msgs: result.msgs,
           signatures: {
             pub_key,
             signature,
           },
           serialized: result.serialized,
-        };
+          txid: SHA256(result.serialized, "hex").toString(),
+        });
       });
     }
   };
