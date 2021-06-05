@@ -26,7 +26,7 @@
   ],
   "signatures":[
     {
-      "signature":"4zQlTS6gx4hGdWRZC+V4x24e1DejZufEl5Vf6DeKWFtXcxXcGu/lAIB/PyyGSWiDSTH9v3PNFR16OUy/ED09lg==",
+      "signature":"ZRRXwAGESNaon0pYE1GZjU1qGsCXZkpKZJpdkAicNyN7J7ywDoGjsVD/lNhrKyrmCj51wmH3unOW7NFi+jcJXw==",
       "pub_key":{
         "type":"tendermint/PubKeySecp256k1",
         "value":"AxUZcTuLQr3DZxEtMxMs8Uzt+SisV3HURLpFm5SXEXuj"
