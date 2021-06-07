@@ -177,7 +177,7 @@ export function ethereumTests(get: () => { wallet: HDWallet; info: HDWalletInfo 
     );
 
     test(
-      "ethSignTx() - ETH (0 nonce)",
+      "ethSignTx() - ETH (null nonce)",
       async () => {
         if (!wallet) return;
         let res = await wallet.ethSignTx({
