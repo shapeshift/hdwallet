@@ -84,7 +84,7 @@ export class MockTransport extends TrezorTransport {
         path: [2147483692, 2147483708, 2147483648, 0, 0],
         transaction: {
           to: "0x41e5560054824ea6b0732e656e3ad64e20e94e45",
-          value: "0x00",
+          value: "0x",
           data:
             "0xa9059cbb0000000000000000000000001d8ce9022f6284c3a5c317f8f34620107214e54500000000000000000000000000000000000000000000000000000002540be400",
           chainId: 1,
@@ -99,6 +99,56 @@ export class MockTransport extends TrezorTransport {
           v: 37,
           r: "0x1238fd332545415f09a01470350a5a20abc784dbf875cf58f7460560e66c597f",
           s: "0x10efa4dd6fdb381c317db8f815252c2ac0d2a883bd364901dee3dec5b7d3660a",
+        },
+      }
+    );
+
+    this.memoize(
+      "ethereumSignTransaction",
+      {
+        path: [2147483692, 2147483708, 2147483648, 0, 0],
+        transaction: {
+          to: "0x41e5560054824ea6b0732e656e3ad64e20e94e45",
+          value: "0x0",
+          data:
+            "",
+          chainId: 1,
+          nonce: "0x01",
+          gasLimit: "0x14",
+          gasPrice: "0x14",
+        },
+      },
+      {
+        success: true,
+        payload: {
+          v: 37,
+          r: "0x63db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0a",
+          s: "0x28297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
+        },
+      }
+    );
+
+    this.memoize(
+      "ethereumSignTransaction",
+      {
+        path: [2147483692, 2147483708, 2147483648, 0, 0],
+        transaction: {
+          to: "0x41e5560054824ea6b0732e656e3ad64e20e94e45",
+          value: "0x",
+          data:
+            "",
+          chainId: 1,
+          nonce: "0x01",
+          gasLimit: "0x14",
+          gasPrice: "0x14",
+        },
+      },
+      {
+        success: true,
+        payload: {
+          v: 37,
+          r: "0x63db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0a",
+          s: "0x28297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
         },
       }
     );

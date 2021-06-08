@@ -161,11 +161,11 @@ export function ethereumTests(get: () => { wallet: HDWallet; info: HDWalletInfo 
           data: "",
         });
         expect(res).toEqual({
-          r: "0x5515df19df63ed4889cd23ad3e4840b73bb018a385b3ded0b971e09f01fc9de2",
-          s: "0x202db671a2d33954a401fb6382315f9a1da80c54b92475c02e184bcb52d2fe4e",
+          r: "0x63db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0a",
+          s: "0x28297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
           v: 38,
           serialized:
-            "0xf86b808501dcd650008256229412ec06288edd7ae2cc41a843fe089237fc7354f0872c68af0bb140008025a05515df19df63ed4889cd23ad3e4840b73bb018a385b3ded0b971e09f01fc9de2a0202db671a2d33954a401fb6382315f9a1da80c54b92475c02e184bcb52d2fe4e",
+            "0xf86b018501dcd650008256229412ec06288edd7ae2cc41a843fe089237fc7354f0872c68af0bb140008026a063db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0aa028297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
         });
 
         //decode
@@ -191,11 +191,11 @@ export function ethereumTests(get: () => { wallet: HDWallet; info: HDWalletInfo 
           data: "",
         });
         expect(res).toEqual({
-          r: "0x5515df19df63ed4889cd23ad3e4840b73bb018a385b3ded0b971e09f01fc9de2",
-          s: "0x202db671a2d33954a401fb6382315f9a1da80c54b92475c02e184bcb52d2fe4e",
+          r: "0x63db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0a",
+          s: "0x28297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
           v: 38,
           serialized:
-            "0xf86b808501dcd650008256229412ec06288edd7ae2cc41a843fe089237fc7354f0872c68af0bb140008025a05515df19df63ed4889cd23ad3e4840b73bb018a385b3ded0b971e09f01fc9de2a0202db671a2d33954a401fb6382315f9a1da80c54b92475c02e184bcb52d2fe4e",
+            "0xf86b018501dcd650008256229412ec06288edd7ae2cc41a843fe089237fc7354f0872c68af0bb140008026a063db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0aa028297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
         });
 
         //decode
