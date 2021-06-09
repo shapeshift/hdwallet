@@ -57,7 +57,7 @@ export class Node implements BIP32.NodeInterface, SecP256K1.ECDSARecoverableKeyI
         counter === undefined || Uint32.assert(counter);
 
         // When running tests, this will keep us aware of any codepaths that don't pass in the preimage
-        if (expect) expect(SecP256K1.MessageWithPreimage.test(msg)).toBeTruthy();
+        if (typeof expect === "function") expect(SecP256K1.MessageWithPreimage.test(msg)).toBeTruthy();
 
         if (SecP256K1.MessageWithPreimage.test(msg)) {
             console.log(`signing ${msg.algorithm} hash of ${Buffer.from(msg.preimage).toString("hex")}`);
