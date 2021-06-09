@@ -1,4 +1,5 @@
 import * as bip32 from "bip32";
+import bs58check from "bs58check";
 import { crypto as btccrypto, Network } from "@bithighlander/bitcoin-cash-js-lib";
 
 import { BIP32, SecP256K1, IsolationError } from ".."
@@ -10,6 +11,7 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32.NodeInterface, 
     readonly _parent?: BIP32Adapter;
     readonly _children = new Map<number, this>();
     _identifier?: Buffer;
+    _base58?: string;
 
     constructor(isolatedNode: BIP32.NodeInterface, networkOrParent?: BIP32Adapter | Network, index?: number) {
         super(isolatedNode, (networkOrParent instanceof BIP32Adapter ? networkOrParent.network : networkOrParent));
@@ -38,7 +40,19 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32.NodeInterface, 
     get publicKey() { return Buffer.from(SecP256K1.CompressedPoint.from(this._isolatedNode.publicKey)) as Buffer & SecP256K1.CompressedPoint }
 
     isNeutered() { return false; }
-    neutered() { return bip32.fromPublicKeyLocal(this.publicKey, this.chainCode, this.network, this.depth, this.index, this.parentFingerprint); }
+    neutered() {
+        if (!this._base58) {
+            const xpub = Buffer.alloc(78);
+            xpub.writeUInt32BE(this.network.bip32.public, 0);
+            xpub.writeUInt8(this.depth, 4);
+            xpub.writeUInt32BE(this.parentFingerprint, 5);
+            xpub.writeUInt32BE(this.index, 9);
+            xpub.set(this.chainCode, 13);
+            xpub.set(this.publicKey, 45);
+            this._base58 = bs58check.encode(xpub);
+        }
+        return bip32.fromBase58(this._base58, this.network);
+    }
 
     toBase58(): never { throw new IsolationError("xpriv"); }
 
