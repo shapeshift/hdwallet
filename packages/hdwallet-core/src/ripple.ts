@@ -1,4 +1,4 @@
-import { BIP32Path } from "./wallet";
+import { BIP32Path, HDWallet, HDWalletInfo } from "./wallet";
 
 export interface RippleGetAddress {
   addressNList: BIP32Path;
@@ -59,8 +59,8 @@ export interface RippleSignTx {
   tx: RippleTx;
   flags?: string;
   sequence: string;
-  lastLedgerSequence?: string;
-  payment?: RipplePayment;
+  lastLedgerSequence: string;
+  payment: RipplePayment;
 }
 
 export declare type RippleSignedTx = RippleTx;
@@ -73,8 +73,8 @@ export interface RippleAccountPath {
   addressNList: BIP32Path;
 }
 
-export interface RippleWalletInfo {
-  _supportsRippleInfo: boolean;
+export interface RippleWalletInfo extends HDWalletInfo {
+  readonly _supportsRippleInfo: boolean;
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order
@@ -88,9 +88,9 @@ export interface RippleWalletInfo {
   rippleNextAccountPath(msg: RippleAccountPath): RippleAccountPath | undefined;
 }
 
-export interface RippleWallet extends RippleWalletInfo {
-  _supportsRipple: boolean;
+export interface RippleWallet extends RippleWalletInfo, HDWallet {
+  readonly _supportsRipple: boolean;
 
-  rippleGetAddress(msg: RippleGetAddress): Promise<string>;
-  rippleSignTx(msg: RippleSignTx): Promise<RippleSignedTx>;
+  rippleGetAddress(msg: RippleGetAddress): Promise<string | null>;
+  rippleSignTx(msg: RippleSignTx): Promise<RippleSignedTx | null>;
 }

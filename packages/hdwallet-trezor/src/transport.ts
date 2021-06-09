@@ -1,20 +1,18 @@
-import { Transport, Keyring } from "@shapeshiftoss/hdwallet-core";
+import * as core from "@shapeshiftoss/hdwallet-core";
 
 export interface TrezorConnectResponse {
   success: boolean;
   payload: any | { error: string };
 }
 
-export abstract class TrezorTransport extends Transport {
-  hasPopup: boolean;
+export abstract class TrezorTransport extends core.Transport {
+  hasPopup: boolean = false;
 
-  constructor(keyring: Keyring) {
+  constructor(keyring: core.Keyring) {
     super(keyring);
   }
 
-  public abstract async listen(): Promise<any>;
+  public abstract cancel(): Promise<void>;
 
-  public abstract async cancel(): Promise<void>;
-
-  public abstract async call(method: string, msg: any, msTimeout?: number): Promise<TrezorConnectResponse>;
+  public abstract call(method: string, msg: any, msTimeout?: number): Promise<TrezorConnectResponse>;
 }

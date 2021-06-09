@@ -1,6 +1,5 @@
-import { BTCInputScriptType, BTCOutputScriptType } from "@shapeshiftoss/hdwallet-core";
-
-import { InputScriptType, OutputScriptType } from "@keepkey/device-protocol/lib/types_pb";
+import * as Types from "@keepkey/device-protocol/lib/types_pb";
+import * as core from "@shapeshiftoss/hdwallet-core";
 
 export const SEGMENT_SIZE = 63;
 
@@ -35,31 +34,31 @@ export function toUTF8Array(str: string): Uint8Array {
   return new Uint8Array(utf8);
 }
 
-export function translateInputScriptType(scriptType: BTCInputScriptType): any {
+export function translateInputScriptType(scriptType: core.BTCInputScriptType): any {
   switch (scriptType) {
-    case BTCInputScriptType.CashAddr:
-    case BTCInputScriptType.SpendAddress:
-      return InputScriptType.SPENDADDRESS;
-    case BTCInputScriptType.SpendMultisig:
-      return InputScriptType.SPENDMULTISIG;
-    case BTCInputScriptType.SpendP2SHWitness:
-      return InputScriptType.SPENDP2SHWITNESS;
-    case BTCInputScriptType.SpendWitness:
-      return InputScriptType.SPENDWITNESS;
+    case core.BTCInputScriptType.CashAddr:
+    case core.BTCInputScriptType.SpendAddress:
+      return Types.InputScriptType.SPENDADDRESS;
+    case core.BTCInputScriptType.SpendMultisig:
+      return Types.InputScriptType.SPENDMULTISIG;
+    case core.BTCInputScriptType.SpendP2SHWitness:
+      return Types.InputScriptType.SPENDP2SHWITNESS;
+    case core.BTCInputScriptType.SpendWitness:
+      return Types.InputScriptType.SPENDWITNESS;
   }
   throw new Error("unhandled InputSriptType enum: " + scriptType);
 }
 
-export function translateOutputScriptType(scriptType: BTCOutputScriptType): any {
+export function translateOutputScriptType(scriptType: core.BTCOutputScriptType): any {
   switch (scriptType) {
-    case BTCOutputScriptType.PayToAddress:
-      return OutputScriptType.PAYTOADDRESS;
-    case BTCOutputScriptType.PayToMultisig:
-      return OutputScriptType.PAYTOMULTISIG;
-    case BTCOutputScriptType.PayToP2SHWitness:
-      return OutputScriptType.PAYTOP2SHWITNESS;
-    case BTCOutputScriptType.PayToWitness:
-      return OutputScriptType.PAYTOWITNESS;
+    case core.BTCOutputScriptType.PayToAddress:
+      return Types.OutputScriptType.PAYTOADDRESS;
+    case core.BTCOutputScriptType.PayToMultisig:
+      return Types.OutputScriptType.PAYTOMULTISIG;
+    case core.BTCOutputScriptType.PayToP2SHWitness:
+      return Types.OutputScriptType.PAYTOP2SHWITNESS;
+    case core.BTCOutputScriptType.PayToWitness:
+      return Types.OutputScriptType.PAYTOWITNESS;
   }
-  throw new Error("unhandled OutputSriptType enum: " + scriptType);
+  throw new Error("unhandled OutputScriptType enum: " + scriptType);
 }

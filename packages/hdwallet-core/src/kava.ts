@@ -1,5 +1,5 @@
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
-import { BIP32Path, PathDescription } from "./wallet";
+import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
 export interface KavaGetAddress {
   addressNList: BIP32Path;
@@ -74,8 +74,8 @@ export interface KavaAccountPath {
   addressNList: BIP32Path;
 }
 
-export interface KavaWalletInfo {
-  _supportsKavaInfo: boolean;
+export interface KavaWalletInfo extends HDWalletInfo {
+  readonly _supportsKavaInfo: boolean;
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order
@@ -89,11 +89,11 @@ export interface KavaWalletInfo {
   kavaNextAccountPath(msg: KavaAccountPath): KavaAccountPath | undefined;
 }
 
-export interface KavaWallet extends KavaWalletInfo {
-  _supportsKava: boolean;
+export interface KavaWallet extends KavaWalletInfo, HDWallet {
+  readonly _supportsKava: boolean;
 
-  kavaGetAddress(msg: KavaGetAddress): Promise<string>;
-  kavaSignTx(msg: KavaSignTx): Promise<KavaSignedTx>;
+  kavaGetAddress(msg: KavaGetAddress): Promise<string | null>;
+  kavaSignTx(msg: KavaSignTx): Promise<KavaSignedTx | null>;
 }
 
 export function kavaDescribePath(path: BIP32Path): PathDescription {

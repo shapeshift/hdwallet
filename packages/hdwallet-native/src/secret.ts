@@ -1,14 +1,15 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { NativeHDWalletBase } from "./native";
+import * as bech32 from "bech32";
+import CryptoJS from "crypto-js";
 import * as txBuilder from "tendermint-tx-builder";
-import { toWords, encode } from "bech32";
-import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
+
+import { NativeHDWalletBase } from "./native";
 import util from "./util";
 import * as Isolation from "./crypto/isolation";
 
-export function MixinNativeSecretWalletInfo<TBase extends core.Constructor>(Base: TBase) {
+export function MixinNativeSecretWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   return class MixinNativeSecretWalletInfo extends Base implements core.SecretWalletInfo {
-    _supportsSecretInfo = true;
+    readonly _supportsSecretInfo = true;
     async secretSupportsNetwork(): Promise<boolean> {
       return true;
     }
@@ -30,7 +31,7 @@ export function MixinNativeSecretWalletInfo<TBase extends core.Constructor>(Base
       ];
     }
 
-    secretNextAccountPath(msg: core.SecretAccountPath): core.SecretAccountPath {
+    secretNextAccountPath(msg: core.SecretAccountPath): core.SecretAccountPath | undefined {
       // Only support one account for now (like portis).
       return undefined;
     }
@@ -39,9 +40,9 @@ export function MixinNativeSecretWalletInfo<TBase extends core.Constructor>(Base
 
 export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeSecretWallet extends Base {
-    _supportsSecret = true;
+    readonly _supportsSecret = true;
 
-    #seed: Isolation.BIP32.SeedInterface;
+    #seed: Isolation.BIP32.SeedInterface | undefined;
 
     async secretInitializeWallet(seed: Isolation.BIP32.SeedInterface): Promise<void> {
       this.#seed = seed;
@@ -52,24 +53,24 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
     }
 
     secretBech32ify(address: ArrayLike<number>, prefix: string): string {
-      const words = toWords(address);
-      return encode(prefix, words);
+      const words = bech32.toWords(address);
+      return bech32.encode(prefix, words);
     }
 
     createSecretAddress(publicKey: string) {
-      const message = SHA256(CryptoJS.enc.Hex.parse(publicKey));
-      const hash = RIPEMD160(message as any).toString();
+      const message = CryptoJS.SHA256(CryptoJS.enc.Hex.parse(publicKey));
+      const hash = CryptoJS.RIPEMD160(message as any).toString();
       const address = Buffer.from(hash, `hex`);
       return this.secretBech32ify(address, `secret`);
     }
 
-    async secretGetAddress(msg: core.SecretGetAddress): Promise<string> {
+    async secretGetAddress(msg: core.SecretGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        return this.createSecretAddress(util.getKeyPair(this.#seed, msg.addressNList, "secret").publicKey.toString("hex"));
+        return this.createSecretAddress(util.getKeyPair(this.#seed!, msg.addressNList, "secret").publicKey.toString("hex"));
       });
     }
 
-    async secretSignTx(msg: core.SecretSignTx): Promise<any> {
+    async secretSignTx(msg: core.SecretSignTx): Promise<any | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
         const keyPair = util.getKeyPair(this.#seed, msg.addressNList, "secret");
         const adapter = new Isolation.Adapters.Cosmos(keyPair);

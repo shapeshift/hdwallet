@@ -50,8 +50,8 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
         expect(
           wallet.describePath({
             path: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
-            coin: "Thorchain"
-          }),
+            coin: "Thorchain",
+          })
         );
       },
       TIMEOUT
@@ -65,7 +65,7 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
           await wallet.thorchainGetAddress({
             addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
             showDisplay: false,
-            testnet: false
+            testnet: false,
           })
         ).toEqual("thor1ls33ayg26kmltw7jjy55p32ghjna09zp74t4az");
       },
@@ -85,8 +85,7 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
         };
 
         const res = await wallet.thorchainSignTx(input);
-
-        expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
+        expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
 
       },
       TIMEOUT
@@ -103,13 +102,12 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
           account_number: "2722",
           sequence: "4",
         };
+
         const res = await wallet.thorchainSignTx(input);
-    
-        expect(res.signatures[0].signature).toEqual(tx_signed_swap.signatures[0].signature)
+        expect(res?.signatures?.[0].signature).toEqual(tx_signed_swap.signatures[0].signature)
 
       },
       TIMEOUT
     );
-
   });
 }

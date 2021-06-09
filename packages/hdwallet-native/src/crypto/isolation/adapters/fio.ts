@@ -1,3 +1,5 @@
+/// <reference types="@fioprotocol/fiojs/dist/chain-jssig" />
+
 import { ExternalPrivateKey as FIOExternalPrivateKey } from "@fioprotocol/fiojs/dist/chain-jssig";
 import { Signature as FIOSignature } from "@fioprotocol/fiojs/dist/ecc";
 import bs58 from "bs58"

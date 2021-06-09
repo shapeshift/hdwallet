@@ -67,7 +67,7 @@ export function cosmosTests(get: () => { wallet: core.HDWallet; info: core.HDWal
         };
 
         const res = await wallet.cosmosSignTx(input);
-        expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
+        expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
       },
       TIMEOUT
     );

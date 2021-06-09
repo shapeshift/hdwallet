@@ -1,41 +1,16 @@
-import "regenerator-runtime/runtime";
-import $ from "jquery";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
+import * as keepkeyTcp from "@shapeshiftoss/hdwallet-keepkey-tcp";
+import * as keepkeyWebUSB from "@shapeshiftoss/hdwallet-keepkey-webusb";
+import * as ledgerWebUSB from "@shapeshiftoss/hdwallet-ledger-webusb";
+import * as native from "@shapeshiftoss/hdwallet-native";
+import * as portis from "@shapeshiftoss/hdwallet-portis";
+import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
+
 import * as debug from "debug";
+import $ from "jquery";
+import "regenerator-runtime/runtime";
 import Web3 from "web3";
-import {
-  Keyring,
-  supportsETH,
-  supportsBTC,
-  supportsCosmos,
-  supportsRipple,
-  supportsBinance,
-  supportsEos,
-  supportsFio,
-  supportsThorchain,
-  supportsDebugLink,
-  bip32ToAddressNList,
-  Events,
-  toHexString,
-  Cosmos,
-  hardenedPath,
-} from "@shapeshiftoss/hdwallet-core";
-
-import { isKeepKey } from "@shapeshiftoss/hdwallet-keepkey";
-import { isPortis } from "@shapeshiftoss/hdwallet-portis";
-
-import { WebUSBKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-webusb";
-import { TCPKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-tcp";
-import { TrezorAdapter } from "@shapeshiftoss/hdwallet-trezor-connect";
-import { WebUSBLedgerAdapter } from "@shapeshiftoss/hdwallet-ledger-webusb";
-import { PortisAdapter } from "@shapeshiftoss/hdwallet-portis";
-import { NativeAdapter, NativeEvents } from "@shapeshiftoss/hdwallet-native";
-
-import {
-  BTCInputScriptType,
-  BTCOutputScriptType,
-  BTCOutputAddressType,
-  BTCSignTxOutput,
-} from "@shapeshiftoss/hdwallet-core/src/bitcoin";
 
 import * as btcBech32TxJson from "./json/btcBech32Tx.json";
 import * as btcTxJson from "./json/btcTx.json";
@@ -54,22 +29,22 @@ import {
   thorchainRouterAbi,
 } from "./json/thorchainTx.json";
 
-const keyring = new Keyring();
+const keyring = new core.Keyring();
 
 const portisAppId = "ff763d3d-9e34-45a1-81d1-caa39b9c64f9";
 const mnemonic = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
-const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring);
-const kkemuAdapter = TCPKeepKeyAdapter.useKeyring(keyring);
-const portisAdapter = PortisAdapter.useKeyring(keyring, { portisAppId });
-const nativeAdapter = NativeAdapter.useKeyring(keyring, {
+const keepkeyAdapter = keepkeyWebUSB.WebUSBKeepKeyAdapter.useKeyring(keyring);
+const kkemuAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
+const portisAdapter = portis.PortisAdapter.useKeyring(keyring, { portisAppId });
+const nativeAdapter = native.NativeAdapter.useKeyring(keyring, {
   mnemonic,
   deviceId: "native-wallet-test",
 });
 
 const log = debug.default("hdwallet");
 
-const trezorAdapter = TrezorAdapter.useKeyring(keyring, {
+const trezorAdapter = trezorConnect.TrezorAdapter.useKeyring(keyring, {
   debug: false,
   manifest: {
     email: "oss@shapeshiftoss.io",
@@ -77,7 +52,7 @@ const trezorAdapter = TrezorAdapter.useKeyring(keyring, {
   },
 });
 
-const ledgerAdapter = WebUSBLedgerAdapter.useKeyring(keyring);
+const ledgerAdapter = ledgerWebUSB.WebUSBLedgerAdapter.useKeyring(keyring);
 
 window["keyring"] = keyring;
 
@@ -99,14 +74,14 @@ $keepkey.on("click", async (e) => {
   e.preventDefault();
   wallet = await keepkeyAdapter.pairDevice(undefined, /*tryDebugLink=*/ true);
   window["wallet"] = wallet;
-  $("#keyring select").val(wallet.transport.getDeviceID());
+  $("#keyring select").val(await wallet.transport.getDeviceID());
 });
 
 $kkemu.on("click", async (e) => {
   e.preventDefault();
   wallet = await kkemuAdapter.pairDevice("http://localhost:5000");
   window["wallet"] = wallet;
-  $("#keyring select").val(wallet.transport.getDeviceID());
+  $("#keyring select").val(await wallet.transport.getDeviceID());
 });
 
 $trezor.on("click", async (e) => {
@@ -171,17 +146,17 @@ async function deviceConnected(deviceId) {
     log.scrollTop = log.scrollHeight;
   });
 
-  keyring.on(["*", "*", Events.CONNECT], async (deviceId) => {
+  keyring.on(["*", "*", core.Events.CONNECT], async (deviceId) => {
     await deviceConnected(deviceId);
   });
 
-  keyring.on(["*", "*", Events.DISCONNECT], async (deviceId) => {
+  keyring.on(["*", "*", core.Events.DISCONNECT], async (deviceId) => {
     $keyring.find(`option[value="${deviceId}"]`).remove();
   });
 
-  keyring.on(["*", "*", Events.PIN_REQUEST], () => window["pinOpen"]());
-  keyring.on(["*", "*", Events.PASSPHRASE_REQUEST], () => window["passphraseOpen"]());
-  keyring.on(["*", "*", NativeEvents.MNEMONIC_REQUIRED], () => window["mnemonicOpen"]());
+  keyring.on(["*", "*", core.Events.PIN_REQUEST], () => window["pinOpen"]());
+  keyring.on(["*", "*", core.Events.PASSPHRASE_REQUEST], () => window["passphraseOpen"]());
+  keyring.on(["*", "*", native.NativeEvents.MNEMONIC_REQUIRED], () => window["mnemonicOpen"]());
 
   try {
     await keepkeyAdapter.initialize(undefined, /*tryDebugLink=*/ true, /*autoConnect=*/ false);
@@ -225,7 +200,7 @@ async function deviceConnected(deviceId) {
     if (wallet) {
       if (wallet.transport) {
         await wallet.transport.connect();
-        if (isKeepKey(wallet)) {
+        if (keepkey.isKeepKey(wallet)) {
           console.log("try connect debuglink");
           await wallet.transport.tryConnectDebugLink();
         }
@@ -240,7 +215,7 @@ async function deviceConnected(deviceId) {
   wallet = keyring.get();
   window["wallet"] = wallet;
   if (wallet) {
-    let deviceID = wallet.getDeviceID();
+    let deviceID = await wallet.getDeviceID();
     $keyring.val(deviceID).change();
   }
 })();
@@ -292,7 +267,7 @@ $yes.on("click", async (e) => {
   e.preventDefault();
   if (!wallet) return;
 
-  if (!supportsDebugLink(wallet)) return;
+  if (!core.supportsDebugLink(wallet)) return;
 
   await wallet.pressYes();
 });
@@ -301,7 +276,7 @@ $no.on("click", async (e) => {
   e.preventDefault();
   if (!wallet) return;
 
-  if (!supportsDebugLink(wallet)) return;
+  if (!core.supportsDebugLink(wallet)) return;
 
   await wallet.pressNo();
 });
@@ -407,7 +382,7 @@ $getXpubs.on("click", async (e) => {
       curve: "secp256k1",
       showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
       coin: "Bitcoin",
-      scriptType: BTCInputScriptType.SpendP2SHWitness,
+      scriptType: core.BTCInputScriptType.SpendP2SHWitness,
     },
     {
       addressNList: [0x80000000 + 44, 0x80000000 + 2, 0x80000000 + 0],
@@ -419,7 +394,7 @@ $getXpubs.on("click", async (e) => {
       addressNList: hardenedPath,
       curve: "secp256k1",
       showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-      coin: isPortis(wallet) ? "Bitcoin" : "Ethereum",
+      coin: portis.isPortis(wallet) ? "Bitcoin" : "Ethereum",
     },
   ]);
 
@@ -540,7 +515,7 @@ $binanceAddr.on("click", async (e) => {
     $binanceResults.val("No wallet?");
     return;
   }
-  if (supportsBinance(wallet)) {
+  if (core.supportsBinance(wallet)) {
     let { addressNList } = wallet.binanceGetAccountPaths({ accountIdx: 0 })[0];
     let result = await wallet.binanceGetAddress({
       addressNList,
@@ -564,9 +539,9 @@ $binanceTx.on("click", async (e) => {
     $binanceResults.val("No wallet?");
     return;
   }
-  if (supportsBinance(wallet)) {
+  if (core.supportsBinance(wallet)) {
     let res = await wallet.binanceSignTx({
-      addressNList: bip32ToAddressNList(`m/44'/714'/0'/0/0`),
+      addressNList: core.bip32ToAddressNList(`m/44'/714'/0'/0/0`),
       chain_id: "Binance-Chain-Nile",
       account_number: "24250",
       sequence: 31,
@@ -592,7 +567,7 @@ $rippleAddr.on("click", async (e) => {
     $rippleResults.val("No wallet?");
     return;
   }
-  if (supportsRipple(wallet)) {
+  if (core.supportsRipple(wallet)) {
     let { addressNList } = wallet.rippleGetAccountPaths({ accountIdx: 0 })[0];
     let result = await wallet.rippleGetAddress({
       addressNList,
@@ -611,9 +586,9 @@ $rippleTx.on("click", async (e) => {
     $ethResults.val("No wallet?");
     return;
   }
-  if (supportsRipple(wallet)) {
+  if (core.supportsRipple(wallet)) {
     let res = await wallet.rippleSignTx({
-      addressNList: bip32ToAddressNList(`m/44'/144'/0'/0/0`),
+      addressNList: core.bip32ToAddressNList(`m/44'/144'/0'/0/0`),
       tx: rippleTxJson,
       flags: undefined,
       sequence: "3",
@@ -644,7 +619,7 @@ $eosAddr.on("click", async (e) => {
     $ethResults.val("No wallet?");
     return;
   }
-  if (supportsEos(wallet)) {
+  if (core.supportsEos(wallet)) {
     let { addressNList } = wallet.eosGetAccountPaths({ accountIdx: 0 })[0];
     let result = await wallet.eosGetPublicKey({
       addressNList,
@@ -668,7 +643,7 @@ $eosTx.on("click", async (e) => {
     $ethResults.val("No wallet?");
     return;
   }
-  if (supportsEos(wallet)) {
+  if (core.supportsEos(wallet)) {
     let unsigned_main = {
       expiration: "2020-04-30T22:00:00.000",
       ref_block_num: 54661,
@@ -699,16 +674,16 @@ $eosTx.on("click", async (e) => {
 
     let chainid_main = "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906";
     let res = await wallet.eosSignTx({
-      addressNList: bip32ToAddressNList("m/44'/194'/0'/0/0"),
+      addressNList: core.bip32ToAddressNList("m/44'/194'/0'/0/0"),
       chain_id: chainid_main,
       tx: unsigned_main,
     });
 
     console.log(res);
     console.log("sigV = %d", res.signatureV);
-    console.log("sigR = %s", toHexString(res.signatureR));
-    console.log("sigS = %s", toHexString(res.signatureS));
-    console.log("hash = %s", toHexString(res.hash));
+    console.log("sigR = %s", core.toHexString(res.signatureR));
+    console.log("sigS = %s", core.toHexString(res.signatureS));
+    console.log("hash = %s", core.toHexString(res.hash));
     console.log("EosFormatSig = %s", res.eosFormSig);
     console.log(
       "EosFormReSig = SIG_K1_Jxa7NRL1hj4Q9wqufaSZa7oAXQQnRxSuAeFSwx6EzHnzPVeB5y6qQge16WCYa3Xod1mDWZv3MnEEPFeK3bEf3iN6es1iVy"
@@ -734,7 +709,7 @@ $fioAddr.on("click", async (e) => {
     $ethResults.val("No wallet?");
     return;
   }
-  if (supportsFio(wallet)) {
+  if (core.supportsFio(wallet)) {
     let { addressNList } = wallet.fioGetAccountPaths({ accountIdx: 0 })[0];
     let result = await wallet.fioGetPublicKey({
       addressNList,
@@ -760,7 +735,7 @@ $fioTx.on("click", async (e) => {
     $ethResults.val("No wallet?");
     return;
   }
-  if (supportsFio(wallet)) {
+  if (core.supportsFio(wallet)) {
     let unsigned_main = {
       expiration: "2020-04-30T22:00:00.000",
       ref_block_num: 54661,
@@ -774,14 +749,14 @@ $fioTx.on("click", async (e) => {
 
     let chainid_main = "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906";
     let res = await wallet.fioSignTx({
-      addressNList: bip32ToAddressNList("m/44'/194'/0'/0/0"),
+      addressNList: core.bip32ToAddressNList("m/44'/194'/0'/0/0"),
       chain_id: chainid_main,
       tx: unsigned_main,
     });
 
     console.log(res);
     console.log("signature = %d", res.signature);
-    console.log("serialized = %s", toHexString(res.serialized));
+    console.log("serialized = %s", core.toHexString(res.serialized));
 
     $eosResults.val(res.fioFormSig);
   } else {
@@ -803,7 +778,7 @@ $cosmosAddr.on("click", async (e) => {
     $cosmosResults.val("No wallet?");
     return;
   }
-  if (supportsCosmos(wallet)) {
+  if (core.supportsCosmos(wallet)) {
     let { addressNList } = wallet.cosmosGetAccountPaths({ accountIdx: 0 })[0];
     let result = await wallet.cosmosGetAddress({
       addressNList,
@@ -826,8 +801,8 @@ $cosmosTx.on("click", async (e) => {
     $cosmosResults.val("No wallet?");
     return;
   }
-  if (supportsCosmos(wallet)) {
-    let unsigned: Cosmos.StdTx = {
+  if (core.supportsCosmos(wallet)) {
+    let unsigned: core.Cosmos.StdTx = {
       memo: "KeepKey",
       fee: {
         amount: [{ amount: "100", denom: "ATOM" }],
@@ -852,7 +827,7 @@ $cosmosTx.on("click", async (e) => {
     };
 
     let res = await wallet.cosmosSignTx({
-      addressNList: bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
       chain_id: "cosmoshub-2",
       account_number: "24250",
       sequence: "3",
@@ -890,7 +865,7 @@ $thorchainAddr.on("click", async (e) => {
     $thorchainNativeResults.val("No wallet?");
     return;
   }
-  if (supportsThorchain(wallet)) {
+  if (core.supportsThorchain(wallet)) {
     let { addressNList } = wallet.thorchainGetAccountPaths({ accountIdx: 0 })[0];
     let result = await wallet.thorchainGetAddress({
       addressNList,
@@ -913,9 +888,9 @@ $thorchainTx.on("click", async (e) => {
     $thorchainNativeResults.val("No wallet?");
     return;
   }
-  if (supportsThorchain(wallet)) {
+  if (core.supportsThorchain(wallet)) {
     let res = await wallet.thorchainSignTx({
-      addressNList: bip32ToAddressNList(`m/44'/931'/0'/0/0`),
+      addressNList: core.bip32ToAddressNList(`m/44'/931'/0'/0/0`),
       chain_id: "thorchain",
       account_number: "24250",
       sequence: "3",
@@ -952,7 +927,7 @@ $thorchainSignSwap.on("click", async (e) => {
     case "BTC.BTC":
       tx = thorchainBitcoinBaseTx;
 
-      if (supportsBTC(wallet)) {
+      if (core.supportsBTC(wallet)) {
         const txid = "b3002cd9c033f4f3c2ee5a374673d7698b13c7f3525c1ae49a00d2e28e8678ea";
         const hex =
           "010000000181f605ead676d8182975c16e7191c21d833972dd0ed50583ce4628254d28b6a3010000008a47304402207f3220930276204c83b1740bae1da18e5a3fa2acad34944ecdc3b361b419e3520220598381bdf8273126e11460a8c720afdbb679233123d2d4e94561f75e9b280ce30141045da61d81456b6d787d576dce817a2d61d7f8cb4623ee669cbe711b0bcff327a3797e3da53a2b4e3e210535076c087c8fb98aef60e42dfeea8388435fc99dca43ffffffff0250ec0e00000000001976a914f7b9e0239571434f0ccfdba6f772a6d23f2cfb1388ac10270000000000001976a9149c9d21f47382762df3ad81391ee0964b28dd951788ac00000000";
@@ -960,7 +935,7 @@ $thorchainSignSwap.on("click", async (e) => {
         let inputs = [
           {
             addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
-            scriptType: BTCInputScriptType.SpendAddress,
+            scriptType: core.BTCInputScriptType.SpendAddress,
             amount: String(10000),
             vout: 1,
             txid: txid,
@@ -972,8 +947,9 @@ $thorchainSignSwap.on("click", async (e) => {
         let outputs = [
           {
             address: "bc1q6m9u2qsu8mh8y7v8rr2ywavtj8g5arzlyhcej7",
-            addressType: BTCOutputAddressType.Spend,
-            amount: String(1000),
+            addressType: core.BTCOutputAddressType.Spend,
+            opReturnData: Buffer.from(memo, 'utf-8'),
+            amount: String(0),
             isChange: false,
           },
         ];
@@ -994,12 +970,12 @@ $thorchainSignSwap.on("click", async (e) => {
       }
       break;
     case "ETH.ETH":
-      if (supportsETH(wallet)) {
+      if (core.supportsETH(wallet)) {
         const web3 = new Web3();
         console.log(thorchainRouterAbi[0]);
         const routerContract = new web3.eth.Contract(thorchainRouterAbi, routerContractAddress);
         tx = thorchainEthereumBaseTx;
-        tx["addressNList"] = bip32ToAddressNList("m/44'/60'/0'/0/0");
+        tx["addressNList"] = core.bip32ToAddressNList("m/44'/60'/0'/0/0");
         tx["data"] = routerContract.methods
           .deposit(vaultAddress, "0x0000000000000000000000000000000000000000", 0, memo)
           .encodeABI();
@@ -1011,12 +987,12 @@ $thorchainSignSwap.on("click", async (e) => {
       }
       break;
     case "BNB.BNB":
-      if (supportsBinance(wallet)) {
+      if (core.supportsBinance(wallet)) {
         tx = thorchainBinanceBaseTx;
         tx["memo"] = memo;
         console.log(tx);
         let res = await wallet.binanceSignTx({
-          addressNList: bip32ToAddressNList(`m/44'/714'/0'/0/0`),
+          addressNList: core.bip32ToAddressNList(`m/44'/714'/0'/0/0`),
           chain_id: "Binance-Chain-Nile",
           account_number: "24250",
           sequence: 31,
@@ -1029,12 +1005,12 @@ $thorchainSignSwap.on("click", async (e) => {
       }
       break;
     case "BNB.RUNE-B1A":
-      if (supportsBinance(wallet)) {
+      if (core.supportsBinance(wallet)) {
         tx = thorchainNativeRuneBaseTx;
         tx["memo"] = memo;
         console.log(tx);
         let res = await wallet.binanceSignTx({
-          addressNList: bip32ToAddressNList(`m/44'/714'/0'/0/0`),
+          addressNList: core.bip32ToAddressNList(`m/44'/714'/0'/0/0`),
           chain_id: "Binance-Chain-Nile",
           account_number: "24250",
           sequence: 31,
@@ -1047,12 +1023,12 @@ $thorchainSignSwap.on("click", async (e) => {
       }
       break;
     case "THOR.RUNE":
-      if (supportsThorchain(wallet)) {
+      if (core.supportsThorchain(wallet)) {
         tx = thorchainUnsignedTx;
         tx["memo"] = memo;
         console.log(tx);
         let res = await wallet.thorchainSignTx({
-          addressNList: bip32ToAddressNList(`m/44'/931'/0'/0/0`),
+          addressNList: core.bip32ToAddressNList(`m/44'/931'/0'/0/0`),
           chain_id: "thorchain",
           account_number: "24250",
           sequence: "3",
@@ -1065,9 +1041,9 @@ $thorchainSignSwap.on("click", async (e) => {
       }
       break;
     case "ETH.USDT-0xdac17f958d2ee523a2206206994597c13d831ec7":
-      if (supportsETH(wallet)) {
+      if (core.supportsETH(wallet)) {
         tx = thorchainEthereumBaseTx;
-        tx["addressNList"] = bip32ToAddressNList("m/44'/60'/0'/0/0");
+        tx["addressNList"] = core.bip32ToAddressNList("m/44'/60'/0'/0/0");
         tx["data"] = "0x";
         res = await wallet.ethSignTx(tx as any);
         $thorchainSwapResults.val(JSON.stringify(res));
@@ -1110,7 +1086,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
     case "BTC.BTC":
       tx = thorchainBitcoinBaseTx;
 
-      if (supportsBTC(wallet)) {
+      if (core.supportsBTC(wallet)) {
         const txid = "b3002cd9c033f4f3c2ee5a374673d7698b13c7f3525c1ae49a00d2e28e8678ea";
         const hex =
           "010000000181f605ead676d8182975c16e7191c21d833972dd0ed50583ce4628254d28b6a3010000008a47304402207f3220930276204c83b1740bae1da18e5a3fa2acad34944ecdc3b361b419e3520220598381bdf8273126e11460a8c720afdbb679233123d2d4e94561f75e9b280ce30141045da61d81456b6d787d576dce817a2d61d7f8cb4623ee669cbe711b0bcff327a3797e3da53a2b4e3e210535076c087c8fb98aef60e42dfeea8388435fc99dca43ffffffff0250ec0e00000000001976a914f7b9e0239571434f0ccfdba6f772a6d23f2cfb1388ac10270000000000001976a9149c9d21f47382762df3ad81391ee0964b28dd951788ac00000000";
@@ -1118,7 +1094,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
         let inputs = [
           {
             addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
-            scriptType: BTCInputScriptType.SpendAddress,
+            scriptType: core.BTCInputScriptType.SpendAddress,
             amount: String(10000),
             vout: 1,
             txid: txid,
@@ -1129,7 +1105,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
 
         let outputs = [
           {
-            addressType: BTCOutputAddressType.Spend,
+            addressType: core.BTCOutputAddressType.Spend,
             opReturnData: Buffer.from(memo, 'utf-8'),
             amount: $thorchainLiquidityAmount.val(),
             isChange: false,
@@ -1151,13 +1127,13 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
       }
       break;
     case "ETH.ETH":
-      if (supportsETH(wallet)) {
+      if (core.supportsETH(wallet)) {
         const web3 = new Web3();
         console.log(thorchainRouterAbi[0]);
         const routerContract = new web3.eth.Contract(thorchainRouterAbi, routerContractAddress);
         tx = thorchainEthereumBaseTx;
         tx["value"] = "0x" + $thorchainLiquidityAmount.val().toString(16);
-        tx["addressNList"] = bip32ToAddressNList("m/44'/60'/0'/0/0");
+        tx["addressNList"] = core.bip32ToAddressNList("m/44'/60'/0'/0/0");
         tx["data"] = routerContract.methods
           .deposit(vaultAddress, "0x0000000000000000000000000000000000000000", 0, memo)
           .encodeABI();
@@ -1170,7 +1146,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
       }
       break;
     case "BNB.BNB":
-      if (supportsBinance(wallet)) {
+      if (core.supportsBinance(wallet)) {
         tx = thorchainBinanceBaseTx;
         tx["memo"] = memo;
         tx["msgs"]["outputs"][0] =           {
@@ -1178,7 +1154,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
           "coins": [{ "amount": $thorchainLiquidityAmount.val(), "denom": "BNB" }]
         }
         let res = await wallet.binanceSignTx({
-          addressNList: bip32ToAddressNList(`m/44'/714'/0'/0/0`),
+          addressNList: core.bip32ToAddressNList(`m/44'/714'/0'/0/0`),
           chain_id: "Binance-Chain-Nile",
           account_number: "24250",
           sequence: 31,
@@ -1191,7 +1167,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
       }
       break;
     case "BNB.RUNE-B1A":
-      if (supportsBinance(wallet)) {
+      if (core.supportsBinance(wallet)) {
         tx = thorchainNativeRuneBaseTx;
         tx["memo"] = memo;
         tx["msgs"]["outputs"][0] =           {
@@ -1199,7 +1175,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
           "coins": [{ "amount": $thorchainLiquidityAmount.val(), "denom": "BNB" }]
         }
         let res = await wallet.binanceSignTx({
-          addressNList: bip32ToAddressNList(`m/44'/714'/0'/0/0`),
+          addressNList: core.bip32ToAddressNList(`m/44'/714'/0'/0/0`),
           chain_id: "Binance-Chain-Nile",
           account_number: "24250",
           sequence: 31,
@@ -1212,7 +1188,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
       }
       break;
     case "THOR.RUNE":
-      if (supportsThorchain(wallet)) {
+      if (core.supportsThorchain(wallet)) {
         tx = thorchainUnsignedTx;
         tx["memo"] = memo;
         tx["msgs"]["outputs"][0] =           {
@@ -1221,7 +1197,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
         }
         console.log(tx);
         let res = await wallet.thorchainSignTx({
-          addressNList: bip32ToAddressNList(`m/44'/931'/0'/0/0`),
+          addressNList: core.bip32ToAddressNList(`m/44'/931'/0'/0/0`),
           chain_id: "thorchain",
           account_number: "24250",
           sequence: "3",
@@ -1234,9 +1210,9 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
       }
       break;
     case "ETH.USDT-0xdac17f958d2ee523a2206206994597c13d831ec7":
-      if (supportsETH(wallet)) {
+      if (core.supportsETH(wallet)) {
         tx = thorchainEthereumBaseTx;
-        tx["addressNList"] = bip32ToAddressNList("m/44'/60'/0'/0/0");
+        tx["addressNList"] = core.bip32ToAddressNList("m/44'/60'/0'/0/0");
         tx["data"] = "0x";
         tx["to"] = $thorchainLiquidityPoolAddress.val();
         tx["value"] = $thorchainLiquidityAmount.val();
@@ -1275,7 +1251,7 @@ $ethAddr.on("click", async (e) => {
     return;
   }
 
-  if (supportsETH(wallet)) {
+  if (core.supportsETH(wallet)) {
     let { hardenedPath, relPath } = wallet.ethGetAccountPaths({
       coin: "Ethereum",
       accountIdx: 0,
@@ -1302,9 +1278,9 @@ $ethTx.on("click", async (e) => {
     $ethResults.val("No wallet?");
     return;
   }
-  if (supportsETH(wallet)) {
+  if (core.supportsETH(wallet)) {
     let res = await wallet.ethSignTx({
-      addressNList: bip32ToAddressNList("m/44'/60'/0'/0/0"),
+      addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
       nonce: "0x0",
       gasPrice: "0x5FB9ACA00",
       gasLimit: "0x186A0",
@@ -1330,7 +1306,7 @@ $ethSign.on("click", async (e) => {
     $ethResults.val("No wallet?");
     return;
   }
-  if (supportsETH(wallet)) {
+  if (core.supportsETH(wallet)) {
     let { hardenedPath: hard, relPath: rel } = wallet.ethGetAccountPaths({
       coin: "Ethereum",
       accountIdx: 0,
@@ -1352,7 +1328,7 @@ $ethVerify.on("click", async (e) => {
     $ethResults.val("No wallet?");
     return;
   }
-  if (supportsETH(wallet)) {
+  if (core.supportsETH(wallet)) {
     let result = await wallet.ethVerifyMessage({
       address: "0x2068dD92B6690255553141Dfcf00dF308281f763",
       message: "Hello World",
@@ -1505,7 +1481,7 @@ $erc20Submit.on("click", async (e) => {
   let result: any;
   let data: any;
 
-  if (supportsETH(wallet)) {
+  if (core.supportsETH(wallet)) {
     let { hardenedPath, relPath } = wallet.ethGetAccountPaths({
       coin: "Ethereum",
       accountIdx: 0,
@@ -1606,13 +1582,13 @@ $btcAddr.on("click", async (e) => {
     $btcResults.val("No wallet?");
     return;
   }
-  if (supportsBTC(wallet)) {
+  if (core.supportsBTC(wallet)) {
     //coin 0 (mainnet bitcoin)
     //path 0
     let res = await wallet.btcGetAddress({
       addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
       coin: "Bitcoin",
-      scriptType: BTCInputScriptType.SpendAddress,
+      scriptType: core.BTCInputScriptType.SpendAddress,
       showDisplay: true,
     });
     $btcResults.val(res);
@@ -1629,7 +1605,7 @@ $btcTx.on("click", async (e) => {
     return;
   }
 
-  if (supportsBTC(wallet)) {
+  if (core.supportsBTC(wallet)) {
     const txid = "b3002cd9c033f4f3c2ee5a374673d7698b13c7f3525c1ae49a00d2e28e8678ea";
     const hex =
       "010000000181f605ead676d8182975c16e7191c21d833972dd0ed50583ce4628254d28b6a3010000008a47304402207f3220930276204c83b1740bae1da18e5a3fa2acad34944ecdc3b361b419e3520220598381bdf8273126e11460a8c720afdbb679233123d2d4e94561f75e9b280ce30141045da61d81456b6d787d576dce817a2d61d7f8cb4623ee669cbe711b0bcff327a3797e3da53a2b4e3e210535076c087c8fb98aef60e42dfeea8388435fc99dca43ffffffff0250ec0e00000000001976a914f7b9e0239571434f0ccfdba6f772a6d23f2cfb1388ac10270000000000001976a9149c9d21f47382762df3ad81391ee0964b28dd951788ac00000000";
@@ -1637,7 +1613,7 @@ $btcTx.on("click", async (e) => {
     let inputs = [
       {
         addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
-        scriptType: BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCInputScriptType.SpendAddress,
         amount: String(10000),
         vout: 1,
         txid: txid,
@@ -1649,8 +1625,8 @@ $btcTx.on("click", async (e) => {
     let outputs = [
       {
         address: "1MJ2tj2ThBE62zXbBYA5ZaN3fdve5CPAz1",
-        addressType: BTCOutputAddressType.Spend,
-        scriptType: BTCOutputScriptType.PayToAddress,
+        addressType: core.BTCOutputAddressType.Spend,
+        scriptType: core.BTCOutputScriptType.PayToAddress,
         amount: String(10000 - 1000),
         isChange: false,
       },
@@ -1677,11 +1653,11 @@ $btcSign.on("click", async (e) => {
     $btcResults.val("No wallet?");
     return;
   }
-  if (supportsBTC(wallet)) {
+  if (core.supportsBTC(wallet)) {
     let res = await wallet.btcSignMessage({
-      addressNList: bip32ToAddressNList("m/44'/0'/0'/0/0"),
+      addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
       coin: "Bitcoin",
-      scriptType: BTCInputScriptType.SpendAddress,
+      scriptType: core.BTCInputScriptType.SpendAddress,
       message: "Hello World",
     });
     $btcResults.val(res.address + " " + res.signature);
@@ -1697,7 +1673,7 @@ $btcVerify.on("click", async (e) => {
     $btcResults.val("No wallet?");
     return;
   }
-  if (supportsBTC(wallet)) {
+  if (core.supportsBTC(wallet)) {
     let res = await wallet.btcVerifyMessage({
       address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
       coin: "Bitcoin",
@@ -1725,7 +1701,7 @@ const $ltcVerify = $("#ltcVerify");
 const $ltcResults = $("#ltcResults");
 
 const ltcBip44 = {
-  scriptType: BTCInputScriptType.SpendAddress,
+  scriptType: core.BTCInputScriptType.SpendAddress,
   addressNList: [0x80000000 + 44, 0x80000000 + 2, 0x80000000 + 0, 0, 0],
 };
 
@@ -1735,7 +1711,7 @@ $ltcAddr.on("click", async (e) => {
     $ltcResults.val("No wallet?");
     return;
   }
-  if (supportsBTC(wallet)) {
+  if (core.supportsBTC(wallet)) {
     let res = await wallet.btcGetAddress({
       addressNList: ltcBip44.addressNList,
       coin: "Litecoin",
@@ -1755,7 +1731,7 @@ $ltcTx.on("click", async (e) => {
     $ltcResults.val("No wallet?");
     return;
   }
-  if (supportsBTC(wallet)) {
+  if (core.supportsBTC(wallet)) {
     const txid = "1de79c706f34c81bbefad49a9ff8d12b6ca86b77605a1998505e4f8792a5892d";
     const hex =
       "010000000196f5704ef948abb958f32ff216112d3283142baf50723833c378882c14a9adea010000006a47304402207c899ba5197a23b1f3cc4b3621abbc682b5142f3ae29af4b951952573f6c82a002203fd7f038aa8403d2c06fd32c237ab4e915939c25aafa7bcb06fb0ddd46afbfd3012103eddbce765b6d7ae1c91b779696e8b8f72ce444070f83beba2f823af76fd4dfebffffffff0290680a00000000001976a91491e975a0238fa1dfff703e50f062e2544a3e372088aca6791100000000001976a91415757f526dc67b52ae9f74918db532eebc39608688ac00000000";
@@ -1763,7 +1739,7 @@ $ltcTx.on("click", async (e) => {
     const inputs = [
       {
         addressNList: ltcBip44.addressNList,
-        scriptType: BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCInputScriptType.SpendAddress,
         amount: String(2160258),
         vout: 0,
         txid,
@@ -1776,8 +1752,8 @@ $ltcTx.on("click", async (e) => {
     const outputs = [
       {
         address: "LLe4PciAJgMMJSAtQQ5nkC13t6SSMmERJ3",
-        addressType: BTCOutputAddressType.Spend,
-        scriptType: BTCOutputScriptType.PayToAddress,
+        addressType: core.BTCOutputAddressType.Spend,
+        scriptType: core.BTCOutputScriptType.PayToAddress,
         amount: String(261614),
         isChange: false,
       },
@@ -1803,11 +1779,11 @@ $ltcSign.on("click", async (e) => {
     $ltcResults.val("No wallet?");
     return;
   }
-  if (supportsBTC(wallet)) {
+  if (core.supportsBTC(wallet)) {
     let res = await wallet.btcSignMessage({
       addressNList: ltcBip44.addressNList,
       coin: "Litecoin",
-      scriptType: BTCInputScriptType.SpendAddress,
+      scriptType: core.BTCInputScriptType.SpendAddress,
       message: "Hello World",
     });
     $ltcResults.val(res.address + " " + res.signature);
@@ -1831,7 +1807,7 @@ const $dogeTx = $("#dogeTx");
 const $dogeResults = $("#dogeResults");
 
 const dogeBip44 = {
-  scriptType: BTCInputScriptType.SpendAddress,
+  scriptType: core.BTCInputScriptType.SpendAddress,
   addressNList: [0x80000000 + 44, 0x80000000 + 3, 0x80000000 + 0],
 };
 $dogeAddr.on("click", async (e) => {
@@ -1840,7 +1816,7 @@ $dogeAddr.on("click", async (e) => {
     $dogeResults.val("No wallet?");
     return;
   }
-  if (supportsBTC(wallet)) {
+  if (core.supportsBTC(wallet)) {
     let res = await wallet.btcGetAddress({
       addressNList: dogeBip44.addressNList.concat([0, 0]),
       coin: "Dogecoin",
@@ -1860,7 +1836,7 @@ $dogeTx.on("click", async (e) => {
     $dogeResults.val("No wallet?");
     return;
   }
-  if (supportsBTC(wallet)) {
+  if (core.supportsBTC(wallet)) {
     const txid = "4ab8c81585bf61ddcba03f4b2f4958b3800d68b02874f4955e258775cb3e7068";
     const hex =
       "01000000048831c8a8c7f06e5f4ecccb789cc9de0fc843208797652ff9edf6edaa64d02789010000006a473044022070e25a73ceebaf5b3a35d5e4930ebba77957a2fe485b9dcbaf982a7c63d4baab02206e75dcc4258db29a2803d6a14112d3d81f93ec23f9b2a61bfe8102d764d7c6390121031b49bb2c43daac784377bcca83c41f781007626e6e8b66cda9f57fed11494359feffffff52a8a6ac8ea9b436069c160caae68b2eb0a5b713a7b838179833af5a339e48e9000000006a47304402206b3aa1a4656d4859b87512a5fb50c73f0f6e05d45fa027850a3e1eb4f927675402201fb1c52d85380727d28bea7a21d434bed2d57d3a120082c6c69d578b4f3da07c0121033034cf66b3b153a81713b3ddbcdffd92c34c46510353cf01b237fcfbcf1348bdfeffffff35f6938fd9d9077d913bd6cfc546cbadb17d4db6ccb67d87a1f89e562d6bed8e000000006b483045022100a0e8a73fc2358a206a73a78582fd7ebba2fb08487aca78aaa89cbf7f9805da0102207704f4f27ff6297b11acd74f8e3f28d924c4006ac0d37dd37bbdba1ef8f401ae0121038ac65cabea63b92d3aabd3f17591c23bbec73b87220a3f0325fe2de9e62107e3feffffff07cd534960ea57fdb4195d3de7dae1feb1e630a022c08baca2f2423f4d190a27010000006a47304402203c89ade05e93ee9cb9bfa0703be55a76abd40330108a5e5272bcd0c8338c35df022042d8cb34275e87df1b77f19e9dde5da553b98bca67c1c332a53392b32d55ba580121038291eee31aa046a00938dda548c0c948f57bf5dc6e534abbe0d5078a6ce083a0feffffff02b8adfa31000000001976a9146ef1cda5c24d47934853aeccce14163e3a18be1388ac02bd9348080000001976a914d3f096cbc84bd6daf7e7fe2700c32548ca2f23f188acadd31600";
@@ -1868,7 +1844,7 @@ $dogeTx.on("click", async (e) => {
     const inputs = [
       {
         addressNList: dogeBip44.addressNList.concat([0, 0]),
-        scriptType: BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCInputScriptType.SpendAddress,
         amount: String(35577380098),
         vout: 1,
         txid: txid,
@@ -1881,8 +1857,8 @@ $dogeTx.on("click", async (e) => {
     const outputs = [
       {
         address: "DMEHVGRsELY5zyYbfgta3pAhedKGeaDeJd",
-        addressType: BTCOutputAddressType.Spend,
-        scriptType: BTCOutputScriptType.PayToAddress,
+        addressType: core.BTCOutputAddressType.Spend,
+        scriptType: core.BTCOutputScriptType.PayToAddress,
         amount: String(35577380098),
         isChange: false,
       },
@@ -1914,7 +1890,7 @@ const $bchTx = $("#bchTx");
 const $bchResults = $("#bchResults");
 
 const bchBip44 = {
-  scriptType: BTCInputScriptType.SpendAddress,
+  scriptType: core.BTCInputScriptType.SpendAddress,
   addressNList: [0x80000000 + 44, 0x80000000 + 145, 0x80000000 + 0],
 };
 
@@ -1924,7 +1900,7 @@ $bchAddr.on("click", async (e) => {
     $bchResults.val("No wallet?");
     return;
   }
-  if (supportsBTC(wallet)) {
+  if (core.supportsBTC(wallet)) {
     let res = await wallet.btcGetAddress({
       addressNList: bchBip44.addressNList.concat([0, 0]),
       coin: "BitcoinCash",
@@ -1944,7 +1920,7 @@ $bchTx.on("click", async (e) => {
     $bchResults.val("No wallet?");
     return;
   }
-  if (supportsBTC(wallet)) {
+  if (core.supportsBTC(wallet)) {
     const txid = "35ec5b47eea3b45efb062c6fabad43987a79b855dc42630b34f8d26d4a646a2e";
     const hex =
       "0100000002a90f75f5924be1fb8147885f6212fefeed3d192eb23a737265f01c822aa74be9000000006b48304502210092dbd26379c6a707b5974bf9ce242baf151a2cef95a5644f6bd4fa05bcbf433e0220125c3647fe473a7e9bf89cb092e1f5e2b26f10a33a12c23b2cfbf2bb1d72c6324121035942ab1589fb2f85c0b3e0c9a37b8ea3092ac749fcbc20733ed227322b5da9ecffffffffbaa5bc3a01a705c377b3ee88ae21ca70ee9d3694f05c466f420cc2bd1951afe5000000006b483045022100a79147c5cf806a2bb3bb6619113cc4bf9b522aaf529ea1b34a93b99bd33054020220019df030c623c9e782f23e755fa9259ec708427606cce8302d5a125e4147838a4121035942ab1589fb2f85c0b3e0c9a37b8ea3092ac749fcbc20733ed227322b5da9ecffffffff0188c7d200000000001976a914806b281a1dc91915339e1efdbce8ace8dd9d5e3388ac00000000";
@@ -1952,7 +1928,7 @@ $bchTx.on("click", async (e) => {
     const inputs = [
       {
         addressNList: bchBip44.addressNList.concat([0, 0]),
-        scriptType: BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCInputScriptType.SpendAddress,
         amount: String(13813640),
         vout: 0,
         txid: txid,
@@ -1963,11 +1939,11 @@ $bchTx.on("click", async (e) => {
 
     const outputs = [
       {
-        address: (await wallet.btcSupportsScriptType("BitcoinCash", BTCInputScriptType.CashAddr))
+        address: (await wallet.btcSupportsScriptType("BitcoinCash", core.BTCInputScriptType.CashAddr))
           ? "bitcoincash:qq5mg2xtp9y5pvvgy7m4k2af5a7s5suulueyywgvnf"
           : "14oWXZFPhgP9DA3ggPzhHpUUaikDSjAuMC",
-        addressType: BTCOutputAddressType.Spend,
-        scriptType: BTCOutputScriptType.PayToAddress,
+        addressType: core.BTCOutputAddressType.Spend,
+        scriptType: core.BTCOutputScriptType.PayToAddress,
         amount: String(13813640),
         isChange: false,
       },
@@ -1999,7 +1975,7 @@ const $dashTx = $("#dashTx");
 const $dashResults = $("#dashResults");
 
 const dashBip44 = {
-  scriptType: BTCInputScriptType.SpendAddress,
+  scriptType: core.BTCInputScriptType.SpendAddress,
   addressNList: [0x80000000 + 44, 0x80000000 + 5, 0x80000000 + 0],
 };
 
@@ -2009,7 +1985,7 @@ $dashAddr.on("click", async (e) => {
     $dashResults.val("No wallet?");
     return;
   }
-  if (supportsBTC(wallet)) {
+  if (core.supportsBTC(wallet)) {
     let res = await wallet.btcGetAddress({
       addressNList: dashBip44.addressNList.concat([0, 0]),
       coin: "Dash",
@@ -2029,7 +2005,7 @@ $dashTx.on("click", async (e) => {
     $dashResults.val("No wallet?");
     return;
   }
-  if (supportsBTC(wallet)) {
+  if (core.supportsBTC(wallet)) {
     const txid = "94b3bbe89e5106d93d07be311a543958fa0de127d4bf747e9102c43e92cbb55f";
     const hex =
       "0100000001816b126842a9703a2c003cd32108d33b345bce68726bb4341fccf3703704c605000000006b483045022100f23368614d166894e5c75e3a99413b72b30ce45d13c00a50e836380819582c8602206bee0e276d684c794becf27f23426d0da457fcfedbb8c4a86bd3657ca357ee1c0121036ac34cb12ac492c0eb0d1a07bd73a5a5f08bc6ba27b710276073704de9912921ffffffff01f7984b00000000001976a914ed52e17e6d182a28148c3719385ced4e30b5c0bb88ac00000000";
@@ -2037,7 +2013,7 @@ $dashTx.on("click", async (e) => {
     const inputs = [
       {
         addressNList: dashBip44.addressNList.concat([0, 0]),
-        scriptType: BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCInputScriptType.SpendAddress,
         amount: String(4954359),
         vout: 0,
         txid: txid,
@@ -2050,8 +2026,8 @@ $dashTx.on("click", async (e) => {
     const outputs = [
       {
         address: "XexybzTUtH9V9eY4UJN2aCcBT3utan5C8N",
-        addressType: BTCOutputAddressType.Spend,
-        scriptType: BTCOutputScriptType.PayToAddress,
+        addressType: core.BTCOutputAddressType.Spend,
+        scriptType: core.BTCOutputScriptType.PayToAddress,
         amount: String(4000000),
         isChange: false,
       },
@@ -2082,7 +2058,7 @@ const $dgbTx = $("#dgbTx");
 const $dgbResults = $("#dgbResults");
 
 const dgbBip44 = {
-  scriptType: BTCInputScriptType.SpendAddress,
+  scriptType: core.BTCInputScriptType.SpendAddress,
   addressNList: [0x80000000 + 44, 0x80000000 + 20, 0x80000000 + 0],
 };
 
@@ -2092,7 +2068,7 @@ $dgbAddr.on("click", async (e) => {
     $dgbResults.val("No wallet?");
     return;
   }
-  if (supportsBTC(wallet)) {
+  if (core.supportsBTC(wallet)) {
     let res = await wallet.btcGetAddress({
       addressNList: dgbBip44.addressNList.concat([0, 0]),
       coin: "DigiByte",
@@ -2118,11 +2094,11 @@ $dgbTx.on("click", async (e) => {
     mnemonic: "all all all all all all all all all all all all",
   });
 
-  if (supportsBTC(wallet)) {
+  if (core.supportsBTC(wallet)) {
     const inputs = [
       {
         addressNList: dgbBip44.addressNList.concat([0, 0]),
-        scriptType: BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCInputScriptType.SpendAddress,
         amount: String(480000000),
         vout: 15,
         txid: "be150359df4123b379f1f12de978bfced92644645da17b97c7613879f4306a90",
@@ -2132,7 +2108,7 @@ $dgbTx.on("click", async (e) => {
       },
       {
         addressNList: dgbBip44.addressNList.concat([0, 0]),
-        scriptType: BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCInputScriptType.SpendAddress,
         amount: String(10000000),
         vout: 0,
         txid: "528ec23eaf123282e9bce297ebb3edfb05e8b4d5875cbc9c271a98d72a202340",
@@ -2146,14 +2122,14 @@ $dgbTx.on("click", async (e) => {
       {
         address: "SWpe93hQL2pLUDLy7swsDPWQJGCHSsgmun",
         addressType: null,
-        scriptType: BTCOutputScriptType.PayToMultisig,
+        scriptType: core.BTCOutputScriptType.PayToMultisig,
         amount: String(400000000),
         isChange: false,
       },
       {
         address: "DNLcBry65dHehGExGYjBkM8kxDYr7mZ3BT",
         addressType: null,
-        scriptType: BTCOutputScriptType.PayToAddress,
+        scriptType: core.BTCOutputScriptType.PayToAddress,
         relpath: "1/9",
         amount: String(90000000),
         isChange: true,
@@ -2196,13 +2172,13 @@ $btcAddrSegWit.on("click", async (e) => {
     $btcResultsSegWit.val("No wallet?");
     return;
   }
-  if (supportsBTC(wallet)) {
+  if (core.supportsBTC(wallet)) {
     //coin 0 (mainnet bitcoin)
     //path 0
     let res = await wallet.btcGetAddress({
       addressNList: [0x80000000 + 49, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
       coin: "Bitcoin",
-      scriptType: BTCInputScriptType.SpendP2SHWitness,
+      scriptType: core.BTCInputScriptType.SpendP2SHWitness,
       showDisplay: true,
     });
 
@@ -2219,13 +2195,13 @@ $btcAddrSegWitNative.on("click", async (e) => {
     $btcResultsSegWit.val("No wallet?");
     return;
   }
-  if (supportsBTC(wallet)) {
+  if (core.supportsBTC(wallet)) {
     //coin 0 (mainnet bitcoin)
     //path 0
     let res = await wallet.btcGetAddress({
       addressNList: [0x80000000 + 84, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
       coin: "Bitcoin",
-      scriptType: BTCInputScriptType.SpendWitness,
+      scriptType: core.BTCInputScriptType.SpendWitness,
       showDisplay: true,
     });
     $btcResultsSegWit.val(res);
@@ -2241,7 +2217,7 @@ $btcTxSegWit.on("click", async (e) => {
     $btcResultsSegWit.val("No wallet?");
     return;
   }
-  if (supportsBTC(wallet)) {
+  if (core.supportsBTC(wallet)) {
     const txid = "609410a9eac51cdce2b9c1911c7b8705bc566e164bca07ae25f2dee87b5b6a91";
     const hex =
       "01000000021b09436d8f9fae331e8810ca8ddf5b2bac1c95338a98280ad75efb6773d54a03000000006b48304502210081734b9b58d109997241c85806e6a5c97ba79f4a76ddb98eb227626b21ac1d290220534bee7f3f2a1803b851570b62825a589b5989f69afa44ddee5b591b8f822d3d012103fa044f4e622a9dc7a877155efad20816c6994f95bd1dc21c339a820395a32e01ffffffffe4b64ecf01f1b2e2a8c0ca86662fada7abbb991e9b4974217f5977623d515ea1010000006b4830450221008a2c95c61db777e15ebb7220c9a84565080ed87b97778a0417854fefa87e447202205dafb62309770a98868737d25bc7779caffa4b50993c36c93acf1f07a5d6d69b012102000b4b1051a63e82eeede1f1990ab226685f83ba104a0946edc740e17ce2958bffffffff02a08601000000000017a91463c4b3af0eb54b8b58b07fbde95a4ab3af3b8735874f161100000000001976a91430f7daeb4336f786cb0cf3bb162d83393681ca2d88ac00000000";
@@ -2252,17 +2228,17 @@ $btcTxSegWit.on("click", async (e) => {
         amount: String(100000),
         vout: 0,
         txid: txid,
-        scriptType: BTCInputScriptType.SpendP2SHWitness,
+        scriptType: core.BTCInputScriptType.SpendP2SHWitness,
         tx: btcSegWitTxJson,
         hex,
       },
     ];
 
-    let outputs: BTCSignTxOutput[] = [
+    let outputs: core.BTCSignTxOutput[] = [
       {
         address: "3Eq3agTHEhMCC8sZHnJJcCcZFB7BBSJKWr",
-        addressType: BTCOutputAddressType.Spend,
-        scriptType: BTCOutputScriptType.PayToAddress,
+        addressType: core.BTCOutputAddressType.Spend,
+        scriptType: core.BTCOutputScriptType.PayToAddress,
         amount: String(89869),
         isChange: false,
       },
@@ -2293,7 +2269,7 @@ $btcTxSegWitNative.on("click", async (e) => {
     mnemonic: "all all all all all all all all all all all all",
   });
 
-  if (supportsBTC(wallet)) {
+  if (core.supportsBTC(wallet)) {
     const txid = "fa80a9949f1094119195064462f54d0e0eabd3139becd4514ae635b8c7fe3a46";
     const hex =
       "01000000000101360d7a720e95a6068678eb08e91b3a8a4774222c9f34becf57d0dc4329e0a686000000001716001495f41f5c0e0ec2c7fe27f0ac4bd59a5632a40b5fffffffff02d224000000000000160014ece6935b2a5a5b5ff997c87370b16fa10f16441088ba04000000000017a914dfe58cc93d35fb99e15436f47d3bbfce820328068702483045022100f312e8246e6a00d21fd762f12231c5fb7a20094a32940b9a84e28d712a5ced9b02203b9124d7a94aa7eb1e090ceda32e884511d7068b8d47593aa46537900e3e37d40121037e8bf05c6c7223cfba3ea484ecd61ee910ae38609ea89b4a4839beed2186b3fb00000000";
@@ -2304,17 +2280,17 @@ $btcTxSegWitNative.on("click", async (e) => {
         amount: String(9426),
         vout: 0,
         txid: txid,
-        scriptType: BTCInputScriptType.SpendWitness,
+        scriptType: core.BTCInputScriptType.SpendWitness,
         tx: btcBech32TxJson,
         hex,
       },
     ];
 
-    let outputs: BTCSignTxOutput[] = [
+    let outputs: core.BTCSignTxOutput[] = [
       {
         address: "bc1qc5dgazasye0yrzdavnw6wau5up8td8gdqh7t6m",
-        addressType: BTCOutputAddressType.Spend,
-        scriptType: BTCOutputScriptType.PayToAddress,
+        addressType: core.BTCOutputAddressType.Spend,
+        scriptType: core.BTCOutputScriptType.PayToAddress,
         amount: String(1337),
         isChange: false,
       },

@@ -1,26 +1,27 @@
-import { BTCInputScriptType, BTCWallet, BTCWalletInfo } from "./bitcoin";
-import { ETHWallet, ETHWalletInfo } from "./ethereum";
-import { CosmosWallet, CosmosWalletInfo } from "./cosmos";
+import _ from "lodash";
+
 import { BinanceWallet, BinanceWalletInfo } from "./binance";
-import { RippleWallet, RippleWalletInfo } from "./ripple";
-import { EosWallet, EosWalletInfo } from "./eos";
-import { FioWallet, FioWalletInfo } from "./fio";
-import { ThorchainWallet, ThorchainWalletInfo } from "./thorchain";
-import { SecretWallet, SecretWalletInfo } from "./secret";
-import { KavaWallet, KavaWalletInfo } from "./kava";
-import { TerraWallet, TerraWalletInfo } from "./terra";
+import { BTCInputScriptType, BTCWallet, BTCWalletInfo } from "./bitcoin";
+import { CosmosWallet, CosmosWalletInfo } from "./cosmos";
 import { DebugLinkWallet } from "./debuglink";
+import { EosWallet, EosWalletInfo } from "./eos";
+import { ETHWallet, ETHWalletInfo } from "./ethereum";
+import { FioWallet, FioWalletInfo } from "./fio";
+import { KavaWallet, KavaWalletInfo } from "./kava";
+import { RippleWallet, RippleWalletInfo } from "./ripple";
+import { SecretWallet, SecretWalletInfo } from "./secret";
+import { TerraWallet, TerraWalletInfo } from "./terra";
+import { ThorchainWallet, ThorchainWalletInfo } from "./thorchain";
 import { Transport } from "./transport";
-import { isObject } from "lodash";
 
 export type BIP32Path = Array<number>;
 
 export interface GetPublicKey {
   addressNList: BIP32Path;
   showDisplay?: boolean;
-  scriptType?: BTCInputScriptType;
+  scriptType?: BTCInputScriptType; // Defaults to BTCInputScriptType.SpendAddress
   curve: string;
-  coin?: Coin;
+  coin: Coin;
 }
 
 export interface PublicKey {
@@ -41,7 +42,7 @@ export interface Pong {
 export interface ResetDevice {
   /** Bits. Either 128 (12 words), 192 (18 words), or 256 (24 words)*/
   entropy?: 128 | 192 | 256;
-  label?: string;
+  label: string;
   passphrase?: boolean;
   pin?: boolean;
   autoLockDelayMs?: number;
@@ -50,10 +51,10 @@ export interface ResetDevice {
 
 export interface RecoverDevice {
   /** Bits. Either 128 (12 words), 192 (18 words), or 256 (24 words)*/
-  entropy?: 128 | 192 | 256;
-  label?: string;
-  passphrase?: boolean;
-  pin?: boolean;
+  entropy: 128 | 192 | 256;
+  label: string;
+  passphrase: boolean;
+  pin: boolean;
   language?: string;
   autoLockDelayMs?: number;
   u2fCounter?: number;
@@ -113,12 +114,12 @@ export type Symbol = string;
  }
  ```
  */
-export function supportsBTC(wallet: any): wallet is BTCWallet {
-  return isObject(wallet) && (wallet as any)._supportsBTC;
+export function supportsBTC(wallet: HDWallet): wallet is BTCWallet {
+  return _.isObject(wallet) && (wallet as any)._supportsBTC;
 }
 
-export function infoBTC(info: any): info is BTCWalletInfo {
-  return isObject(info) && (info as any)._supportsBTCInfo;
+export function infoBTC(info: HDWalletInfo): info is BTCWalletInfo {
+  return _.isObject(info) && (info as any)._supportsBTCInfo;
 }
 
 /**
@@ -131,68 +132,68 @@ export function infoBTC(info: any): info is BTCWalletInfo {
  }
  ```
  */
-export function supportsETH(wallet: any): wallet is ETHWallet {
-  return isObject(wallet) && (wallet as any)._supportsETH;
+export function supportsETH(wallet: HDWallet): wallet is ETHWallet {
+  return _.isObject(wallet) && (wallet as any)._supportsETH;
 }
 
-export function infoETH(info: any): info is ETHWalletInfo {
-  return isObject(info) && (info as any)._supportsETHInfo;
+export function infoETH(info: HDWalletInfo): info is ETHWalletInfo {
+  return _.isObject(info) && (info as any)._supportsETHInfo;
 }
 
-export function supportsCosmos(wallet: any): wallet is CosmosWallet {
-  return isObject(wallet) && (wallet as any)._supportsCosmos;
+export function supportsCosmos(wallet: HDWallet): wallet is CosmosWallet {
+  return _.isObject(wallet) && (wallet as any)._supportsCosmos;
 }
 
-export function infoCosmos(info: any): info is CosmosWalletInfo {
-  return isObject(info) && (info as any)._supportsCosmosInfo;
+export function infoCosmos(info: HDWalletInfo): info is CosmosWalletInfo {
+  return _.isObject(info) && (info as any)._supportsCosmosInfo;
 }
 
-export function supportsThorchain(wallet: any): wallet is ThorchainWallet {
-  return isObject(wallet) && (wallet as any)._supportsThorchain;
+export function supportsThorchain(wallet: HDWallet): wallet is ThorchainWallet {
+  return _.isObject(wallet) && (wallet as any)._supportsThorchain;
 }
 
-export function infoThorchain(info: any): info is ThorchainWalletInfo {
-  return isObject(info) && (info as any)._supportsThorchainInfo;
+export function infoThorchain(info: HDWalletInfo): info is ThorchainWalletInfo {
+  return _.isObject(info) && (info as any)._supportsThorchainInfo;
 }
 
-export function supportsEos(wallet: any): wallet is EosWallet {
-  return isObject(wallet) && (wallet as any)._supportsEos;
+export function supportsEos(wallet: HDWallet): wallet is EosWallet {
+  return _.isObject(wallet) && (wallet as any)._supportsEos;
 }
 
-export function infoEos(info: any): info is EosWalletInfo {
-  return isObject(info) && (info as any)._supportsEosInfo;
+export function infoEos(info: HDWalletInfo): info is EosWalletInfo {
+  return _.isObject(info) && (info as any)._supportsEosInfo;
 }
 
-export function supportsFio(wallet: any): wallet is FioWallet {
-  return isObject(wallet) && (wallet as any)._supportsFio;
+export function supportsFio(wallet: HDWallet): wallet is FioWallet {
+  return _.isObject(wallet) && (wallet as any)._supportsFio;
 }
 
-export function infoFio(info: any): info is FioWalletInfo {
-  return isObject(info) && (info as any)._supportsFioInfo;
+export function infoFio(info: HDWalletInfo): info is FioWalletInfo {
+  return _.isObject(info) && (info as any)._supportsFioInfo;
 }
 
-export function supportsSecret(wallet: any): wallet is SecretWallet {
-  return isObject(wallet) && (wallet as any)._supportsSecret;
+export function supportsSecret(wallet: HDWallet): wallet is SecretWallet {
+  return _.isObject(wallet) && (wallet as any)._supportsSecret;
 }
 
-export function infoSecret(info: any): info is SecretWalletInfo {
-  return isObject(info) && (info as any)._supportsSecretInfo;
+export function infoSecret(info: HDWalletInfo): info is SecretWalletInfo {
+  return _.isObject(info) && (info as any)._supportsSecretInfo;
 }
 
-export function supportsTerra(wallet: any): wallet is TerraWallet {
-  return isObject(wallet) && (wallet as any)._supportsTerra;
+export function supportsTerra(wallet: HDWallet): wallet is TerraWallet {
+  return _.isObject(wallet) && (wallet as any)._supportsTerra;
 }
 
-export function infoTerra(info: any): info is TerraWalletInfo {
-  return isObject(info) && (info as any)._supportsTerraInfo;
+export function infoTerra(info: HDWalletInfo): info is TerraWalletInfo {
+  return _.isObject(info) && (info as any)._supportsTerraInfo;
 }
 
-export function supportsKava(wallet: any): wallet is KavaWallet {
-  return isObject(wallet) && (wallet as any)._supportsKava;
+export function supportsKava(wallet: HDWallet): wallet is KavaWallet {
+  return _.isObject(wallet) && (wallet as any)._supportsKava;
 }
 
-export function infoKava(info: any): info is KavaWalletInfo {
-  return isObject(info) && (info as any)._supportsKavaInfo;
+export function infoKava(info: HDWalletInfo): info is KavaWalletInfo {
+  return _.isObject(info) && (info as any)._supportsKavaInfo;
 }
 
 /**
@@ -205,39 +206,27 @@ export function infoKava(info: any): info is KavaWalletInfo {
  }
  ```
  */
-export function supportsRipple(wallet: any): wallet is RippleWallet {
-  return isObject(wallet) && (wallet as any)._supportsRipple;
+export function supportsRipple(wallet: HDWallet): wallet is RippleWallet {
+  return _.isObject(wallet) && (wallet as any)._supportsRipple;
 }
 
-export function infoRipple(info: any): info is RippleWalletInfo {
-  return isObject(info) && (info as any)._supportsRippleInfo;
+export function infoRipple(info: HDWalletInfo): info is RippleWalletInfo {
+  return _.isObject(info) && (info as any)._supportsRippleInfo;
 }
 
-export function supportsBinance(wallet: any): wallet is BinanceWallet {
-  return isObject(wallet) && (wallet as any)._supportsBinance;
+export function supportsBinance(wallet: HDWallet): wallet is BinanceWallet {
+  return _.isObject(wallet) && (wallet as any)._supportsBinance;
 }
 
-export function infoBinance(info: any): info is BinanceWalletInfo {
-  return isObject(info) && (info as any)._supportsBinanceInfo;
+export function infoBinance(info: HDWalletInfo): info is BinanceWalletInfo {
+  return _.isObject(info) && (info as any)._supportsBinanceInfo;
 }
 
-export function supportsDebugLink(wallet: any): wallet is DebugLinkWallet {
-  return isObject(wallet) && (wallet as any)._supportsDebugLink;
+export function supportsDebugLink(wallet: HDWallet): wallet is DebugLinkWallet {
+  return _.isObject(wallet) && (wallet as any)._supportsDebugLink;
 }
 
 export interface HDWalletInfo {
-  _supportsETHInfo: boolean;
-  _supportsBTCInfo: boolean;
-  _supportsCosmosInfo: boolean;
-  _supportsRippleInfo: boolean;
-  _supportsBinanceInfo: boolean;
-  _supportsEosInfo: boolean;
-  _supportsFioInfo: boolean;
-  _supportsThorchainInfo: boolean;
-  _supportsSecretInfo: boolean;
-  _supportsTerraInfo: boolean;
-  _supportsKavaInfo: boolean;
-
   /**
    * Retrieve the wallet's vendor string.
    */
@@ -279,19 +268,6 @@ export interface HDWalletInfo {
 }
 
 export interface HDWallet extends HDWalletInfo {
-  _supportsBTC: boolean;
-  _supportsETH: boolean;
-  _supportsCosmos: boolean;
-  _supportsBinance: boolean;
-  _supportsRipple: boolean;
-  _supportsEos: boolean;
-  _supportsFio: boolean;
-  _supportsThorchain: boolean;
-  _supportsSecret: boolean;
-  _supportsTerra: boolean;
-  _supportsKava: boolean;
-  _supportsDebugLink: boolean;
-
   transport?: Transport;
 
   /**
@@ -321,7 +297,7 @@ export interface HDWallet extends HDWalletInfo {
   /**
    * Derive one or more xpubs.
    */
-  getPublicKeys(msg: Array<GetPublicKey>): Promise<Array<PublicKey | null>>;
+  getPublicKeys(msg: Array<GetPublicKey>): Promise<Array<PublicKey | null> | null>;
 
   /**
    * Check whether the device has been initialized with a secret.

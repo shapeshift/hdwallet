@@ -1,9 +1,10 @@
 /**
  * @jest-environment jsdom
  */
-import { Crypto } from "@peculiar/webcrypto";
-import { WebCryptoEngine } from "./engines";
+import * as webcrypto from "@peculiar/webcrypto";
+
 import { EncryptedWallet } from "./EncryptedWallet";
+import { WebCryptoEngine } from "./engines";
 
 const PLAINTEXT_MNEMONIC = "boat garment fog other pony middle bronze ready grain betray load frame";
 const ENCRYPTED_MNEMONIC =
@@ -19,7 +20,7 @@ const ENCRYPTED_EMPTY_STRING =
 
 describe("EncryptedWallet", () => {
   // Load shim to support running tests in node
-  globalThis.crypto = new Crypto();
+  globalThis.crypto = new webcrypto.Crypto();
   const engine = new WebCryptoEngine();
 
   describe("constructor", () => {
@@ -89,7 +90,7 @@ describe("EncryptedWallet", () => {
     it("should create a new encrypted wallet", async () => {
       const randomMock = jest
         .spyOn(global.crypto, "getRandomValues")
-        .mockImplementation((array) => new Uint8Array(array.byteLength).fill(0));
+        .mockImplementation((array) => array && new Uint8Array(array.byteLength).fill(0));
       const wallet = new EncryptedWallet(engine);
       await wallet.init("email", "password");
       await wallet.createWallet(PLAINTEXT_MNEMONIC2);

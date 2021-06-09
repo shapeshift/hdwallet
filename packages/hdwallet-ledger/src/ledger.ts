@@ -1,12 +1,13 @@
-import { isObject, get } from "lodash";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import _ from "lodash";
+
 import * as btc from "./bitcoin";
 import * as eth from "./ethereum";
 import { LedgerTransport } from "./transport";
 import { networksUtil, handleError } from "./utils";
 
 export function isLedger(wallet: core.HDWallet): wallet is LedgerHDWallet {
-  return isObject(wallet) && (wallet as any)._isLedger;
+  return _.isObject(wallet) && (wallet as any)._isLedger;
 }
 
 function describeETHPath(path: core.BIP32Path): core.PathDescription {
@@ -52,7 +53,7 @@ function describeETHPath(path: core.BIP32Path): core.PathDescription {
   };
 }
 
-function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType: core.BTCInputScriptType) {
+function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: core.BTCInputScriptType) {
   let pathStr = core.addressNListToBIP32(path);
   let unknown: core.PathDescription = {
     verbose: pathStr,
@@ -79,15 +80,16 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType: cor
 
   if (purpose === 84 && scriptType !== core.BTCInputScriptType.SpendWitness) return unknown;
 
-  if (path[1] !== 0x80000000 + core.slip44ByCoin(coin)) return unknown;
+  const slip44 = core.slip44ByCoin(coin);
+  if (slip44 === undefined || path[1] !== 0x80000000 + slip44) return unknown;
 
   let wholeAccount = path.length === 3;
 
-  let script = {
+  let script = (scriptType ? ({
     [core.BTCInputScriptType.SpendAddress]: " (Legacy)",
     [core.BTCInputScriptType.SpendP2SHWitness]: "",
     [core.BTCInputScriptType.SpendWitness]: " (Segwit Native)",
-  }[scriptType];
+  } as Partial<Record<core.BTCInputScriptType, string>>)[scriptType] : undefined);
 
   switch (coin) {
     case "Bitcoin":
@@ -129,22 +131,22 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType: cor
 }
 
 export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
-  _supportsBTCInfo: boolean = true;
-  _supportsETHInfo: boolean = true;
-  _supportsCosmosInfo: boolean = false; // TODO ledger supports cosmos
-  _supportsBinanceInfo: boolean = false; // TODO ledger supports bnb
-  _supportsRippleInfo: boolean = false; // TODO ledger supports XRP
-  _supportsEosInfo: boolean = false;
-  _supportsFioInfo: boolean = false;
-  _supportsThorchainInfo: boolean = false;
-  _supportsSecret: boolean = false;
-  _supportsSecretInfo: boolean = false;
-  _supportsKava: boolean = false;
-  _supportsKavaInfo: boolean = false;
-  _supportsTerra: boolean = false;
-  _supportsTerraInfo: boolean = false;
-  _supportsCardano: boolean = false;
-  _supportsCardanoInfo: boolean = false;
+  readonly _supportsBTCInfo = true;
+  readonly _supportsETHInfo = true;
+  readonly _supportsCosmosInfo = false; // TODO ledger supports cosmos
+  readonly _supportsBinanceInfo = false; // TODO ledger supports bnb
+  readonly _supportsRippleInfo = false; // TODO ledger supports XRP
+  readonly _supportsEosInfo = false;
+  readonly _supportsFioInfo = false;
+  readonly _supportsThorchainInfo = false;
+  readonly _supportsSecret = false;
+  readonly _supportsSecretInfo = false;
+  readonly _supportsKava = false;
+  readonly _supportsKavaInfo = false;
+  readonly _supportsTerra = false;
+  readonly _supportsTerraInfo = false;
+  readonly _supportsCardano = false;
+  readonly _supportsCardanoInfo = false;
 
   public getVendor(): string {
     return "Ledger";
@@ -282,31 +284,31 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
 }
 
 export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet {
-  _supportsETHInfo: boolean = true;
-  _supportsBTCInfo: boolean = true;
-  _supportsDebugLink: boolean = false;
-  _supportsBTC: boolean = true;
-  _supportsETH: boolean = true;
-  _supportsBinanceInfo: boolean = false;
-  _supportsBinance: boolean = false;
-  _supportsRippleInfo: boolean = false;
-  _supportsRipple: boolean = false;
-  _supportsCosmosInfo: boolean = false;
-  _supportsCosmos: boolean = false;
-  _supportsEosInfo: boolean = false;
-  _supportsEos: boolean = false;
-  _supportsFio: boolean = false;
-  _supportsFioInfo: boolean = false;
-  _supportsThorchain: boolean = false;
-  _supportsThorchainInfo: boolean = false;
-  _supportsSecretInfo: boolean = false;
-  _supportsSecret: boolean = false;
-  _supportsKava: boolean = false;
-  _supportsKavaInfo: boolean = false;
-  _supportsTerra: boolean = false;
-  _supportsTerraInfo: boolean = false;
-  _supportsCardano: boolean = false;
-  _supportsCardanoInfo: boolean = false;
+  readonly _supportsETHInfo = true;
+  readonly _supportsBTCInfo = true;
+  readonly _supportsDebugLink = false;
+  readonly _supportsBTC = true;
+  readonly _supportsETH = true;
+  readonly _supportsBinanceInfo = false;
+  readonly _supportsBinance = false;
+  readonly _supportsRippleInfo = false;
+  readonly _supportsRipple = false;
+  readonly _supportsCosmosInfo = false;
+  readonly _supportsCosmos = false;
+  readonly _supportsEosInfo = false;
+  readonly _supportsEos = false;
+  readonly _supportsFio = false;
+  readonly _supportsFioInfo = false;
+  readonly _supportsThorchain = false;
+  readonly _supportsThorchainInfo = false;
+  readonly _supportsSecretInfo = false;
+  readonly _supportsSecret = false;
+  readonly _supportsKava = false;
+  readonly _supportsKavaInfo = false;
+  readonly _supportsTerra = false;
+  readonly _supportsTerraInfo = false;
+  readonly _supportsCardano = false;
+  readonly _supportsCardanoInfo = false;
 
   _isLedger: boolean = true;
 
@@ -346,12 +348,12 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
    * Throws WrongApp error if app associated with coin is not open
    * @param coin  Name of coin for app name lookup
    */
-  public async validateCurrentApp(coin: core.Coin): Promise<void> {
+  public async validateCurrentApp(coin?: core.Coin): Promise<void> {
     if (!coin) {
       throw new Error(`No coin provided`);
     }
 
-    const appName = get(networksUtil[core.slip44ByCoin(coin)], "appName");
+    const appName = _.get(networksUtil[core.mustBeDefined(core.slip44ByCoin(coin))], "appName");
     if (!appName) {
       throw new Error(`Unable to find associated app name for coin: ${coin}`);
     }
@@ -497,7 +499,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return btc.btcGetAddress(this.transport, msg);
   }
 
-  public async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx> {
+  public async btcSignTx(msg: core.BTCSignTxLedger): Promise<core.BTCSignedTx> {
     await this.validateCurrentApp(msg.coin);
     return btc.btcSignTx(this, this.transport, msg);
   }

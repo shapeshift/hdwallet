@@ -1,38 +1,20 @@
-import {
-  ETHWallet,
-  ETHGetAddress,
-  ETHSignTx,
-  ETHSignedTx,
-  ETHGetAccountPath,
-  ETHAccountPath,
-  ETHSignMessage,
-  ETHSignedMessage,
-  ETHVerifyMessage,
-  Constructor,
-  toHexString,
-  slip44ByCoin,
-  stripHexPrefix,
-  addressNListToBIP32,
-} from "@shapeshiftoss/hdwallet-core";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import EthereumTx from "ethereumjs-tx";
 
 import { handleError } from "./utils";
 import { TrezorTransport } from "./transport";
-
-// @ts-ignore
-import * as Ethereumjs from "ethereumjs-tx";
-const { default: EthereumTx } = Ethereumjs as any;
 
 export async function ethSupportsNetwork(chain_id: number): Promise<boolean> {
   return true;
 }
 
-export async function ethGetAddress(transport: TrezorTransport, msg: ETHGetAddress): Promise<string> {
+export async function ethGetAddress(transport: TrezorTransport, msg: core.ETHGetAddress): Promise<string> {
   console.assert(
     !msg.showDisplay || !!msg.address,
     "HDWalletTrezor::ethGetAddress: expected address is required for showDisplay"
   );
   let args: any = {
-    path: addressNListToBIP32(msg.addressNList),
+    path: core.addressNListToBIP32(msg.addressNList),
     showOnTrezor: msg.showDisplay !== false,
   };
   if (msg.address) args.address = msg.address;
@@ -41,11 +23,15 @@ export async function ethGetAddress(transport: TrezorTransport, msg: ETHGetAddre
   return res.payload.address;
 }
 
-export async function ethSignTx(wallet: ETHWallet, transport: TrezorTransport, msg: ETHSignTx): Promise<ETHSignedTx> {
-  if (msg.toAddressNList !== undefined && !(await this.ethSupportsSecureTransfer()))
+export async function ethSignTx(
+  wallet: core.ETHWallet,
+  transport: TrezorTransport,
+  msg: core.ETHSignTx
+): Promise<core.ETHSignedTx> {
+  if (msg.toAddressNList !== undefined && !(await ethSupportsSecureTransfer()))
     throw new Error("Trezor does not support SecureTransfer");
 
-  if (msg.exchangeType !== undefined && !this.ethSupportsNativeShapeShift())
+  if (msg.exchangeType !== undefined && !ethSupportsNativeShapeShift())
     throw new Error("Trezor does not support Native ShapeShift");
 
   const utx = {
@@ -74,11 +60,14 @@ export async function ethSignTx(wallet: ETHWallet, transport: TrezorTransport, m
     v: parseInt(res.payload.v),
     r: res.payload.r,
     s: res.payload.s,
-    serialized: "0x" + toHexString(tx.serialize()),
+    serialized: "0x" + core.toHexString(tx.serialize()),
   };
 }
 
-export async function ethSignMessage(transport: TrezorTransport, msg: ETHSignMessage): Promise<ETHSignedMessage> {
+export async function ethSignMessage(
+  transport: TrezorTransport,
+  msg: core.ETHSignMessage
+): Promise<core.ETHSignedMessage> {
   let res = await transport.call("ethereumSignMessage", {
     path: msg.addressNList,
     message: msg.message,
@@ -90,11 +79,11 @@ export async function ethSignMessage(transport: TrezorTransport, msg: ETHSignMes
   };
 }
 
-export async function ethVerifyMessage(transport: TrezorTransport, msg: ETHVerifyMessage): Promise<boolean> {
+export async function ethVerifyMessage(transport: TrezorTransport, msg: core.ETHVerifyMessage): Promise<boolean> {
   let res = await transport.call("ethereumVerifyMessage", {
     address: msg.address,
     message: msg.message,
-    signature: stripHexPrefix(msg.signature),
+    signature: core.stripHexPrefix(msg.signature),
   });
   handleError(transport, res, "Could not verify ETH message with Trezor");
   return res.payload.message === "Message verified";
@@ -108,11 +97,13 @@ export function ethSupportsNativeShapeShift(): boolean {
   return false;
 }
 
-export function ethGetAccountPaths(msg: ETHGetAccountPath): Array<ETHAccountPath> {
+export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
+  const slip44 = core.slip44ByCoin(msg.coin);
+  if (slip44 === undefined) return [];
   return [
     {
-      addressNList: [0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + 0, 0, msg.accountIdx],
-      hardenedPath: [0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + 0],
+      addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + 0, 0, msg.accountIdx],
+      hardenedPath: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + 0],
       relPath: [0, msg.accountIdx],
       description: "Trezor",
     },

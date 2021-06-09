@@ -1,11 +1,13 @@
 /**
  * @jest-environment jsdom
  */
+import * as webcrypto from "@peculiar/webcrypto";
+import * as core from "@shapeshiftoss/hdwallet-core";
+
 import CryptoHelper from "./CryptoHelper";
-import { WebCryptoEngine } from "./engines";
-import { fromBufferToUtf8, toArrayBuffer } from "./utils";
-import { Crypto } from "@peculiar/webcrypto";
 import { CipherString } from "./classes";
+import { WebCryptoEngine } from "./engines";
+import * as utils from "./utils";
 
 const PLAINTEXT_STRING = "totally random secret data"
 const ENCRYPTED_STRING = "2.A/tC/OC0U/KN3XuAuz2L36lydOyr5x367tPSGSrPkvQ=|AAAAAAAAAAAAAAAAAAAAAA==|ZqR8HTeOg4+8mzcty10jVFZ5MqFFbn5bwEaqlL0c/Mg="
@@ -15,7 +17,7 @@ const BAD_ARGS = [undefined, null, "encrypteddatastring", [1, 2, 3, 4, 5, 6], {}
 
 describe("CryptoHelpers", () => {
   // Load shim to support running tests in node
-  globalThis.crypto = new Crypto();
+  globalThis.crypto = new webcrypto.Crypto();
   const engine = new WebCryptoEngine();
   const helper = new CryptoHelper(engine);
 
@@ -34,9 +36,9 @@ describe("CryptoHelpers", () => {
     it("should encrypt data with an hmac signature", async () => {
       const randomMock = jest
         .spyOn(global.crypto, "getRandomValues")
-        .mockImplementation((array) => new Uint8Array(array.byteLength).fill(0));
+        .mockImplementation((array) => array && new Uint8Array(array.byteLength).fill(0));
       const key = await helper.makeKey("password", "email");
-      const encrypted = await helper.aesEncrypt(toArrayBuffer(PLAINTEXT_STRING), key);
+      const encrypted = await helper.aesEncrypt(utils.fromUtf8ToArray(PLAINTEXT_STRING), key);
       randomMock.mockRestore();
 
       expect(encrypted.key).toEqual(key);
@@ -49,9 +51,9 @@ describe("CryptoHelpers", () => {
     it("should encrypt the empty string", async () => {
       const randomMock = jest
         .spyOn(global.crypto, "getRandomValues")
-        .mockImplementation((array) => new Uint8Array(array.byteLength).fill(0));
+        .mockImplementation((array) => array && new Uint8Array(array.byteLength).fill(0));
       const key = await helper.makeKey("password", "email");
-      const encrypted = await helper.aesEncrypt(toArrayBuffer(""), key);
+      const encrypted = await helper.aesEncrypt(utils.fromUtf8ToArray(""), key);
       randomMock.mockRestore();
 
       expect(encrypted.key).toEqual(key);
@@ -75,16 +77,16 @@ describe("CryptoHelpers", () => {
 
     it("should work with ArrayBuffers", async () => {
       const key = await helper.makeKey("password", "email");
-      const encrypted = await helper.aesEncrypt(toArrayBuffer(PLAINTEXT_STRING), key);
+      const encrypted = await helper.aesEncrypt(core.toArrayBuffer(utils.fromUtf8ToArray(PLAINTEXT_STRING)), key);
       const decrypted = await helper.aesDecrypt(encrypted.data, encrypted.iv, encrypted.mac, key);
-      expect(fromBufferToUtf8(decrypted)).toEqual(PLAINTEXT_STRING);
+      expect(utils.fromBufferToUtf8(decrypted)).toEqual(PLAINTEXT_STRING);
     });
 
     it("should work with Uint8Arrays", async () => {
       const key = await helper.makeKey("password", "email");
-      const encrypted = await helper.aesEncrypt(new Uint8Array(toArrayBuffer(PLAINTEXT_STRING)), key);
+      const encrypted = await helper.aesEncrypt(utils.fromUtf8ToArray(PLAINTEXT_STRING), key);
       const decrypted = await helper.aesDecrypt(new Uint8Array(encrypted.data), new Uint8Array(encrypted.iv), new Uint8Array(encrypted.mac), key);
-      expect(fromBufferToUtf8(decrypted)).toEqual(PLAINTEXT_STRING);
+      expect(utils.fromBufferToUtf8(decrypted)).toEqual(PLAINTEXT_STRING);
     });
   });
 
@@ -93,7 +95,7 @@ describe("CryptoHelpers", () => {
       const key = await helper.makeKey("password", "email");
       const encrypted = (new CipherString(ENCRYPTED_STRING)).toEncryptedObject(key);
       const decrypted = await helper.aesDecrypt(encrypted.data, encrypted.iv, encrypted.mac, encrypted.key);
-      expect(fromBufferToUtf8(decrypted)).toEqual(PLAINTEXT_STRING);
+      expect(utils.fromBufferToUtf8(decrypted)).toEqual(PLAINTEXT_STRING);
     });
 
     it("should fail if the data is incorrect", async () => {
@@ -155,7 +157,7 @@ describe("CryptoHelpers", () => {
     it("should return false if the hmac results are different sizes", async () => {
       let i = 0;
       const mock = jest.spyOn(engine, "hmac").mockImplementation(async (value, key) => {
-        return (new Uint8Array(++i * 16)).buffer;
+        return core.toArrayBuffer(new Uint8Array(++i * 16));
       })
       const result = await helper.compare(new Uint8Array(32), new Uint8Array(32));
       mock.mockRestore();
@@ -174,7 +176,7 @@ describe("CryptoHelpers", () => {
     it.each([[undefined], [null], [""], [[1, 2, 3, 4, 5, 6]], [{}]])(
       "should require a password (%o)",
       async (param: any) => {
-        await expect(helper.makeKey(param, undefined)).rejects.toThrow("password");
+        await expect(helper.makeKey(param, undefined as any)).rejects.toThrow("password");
       }
     );
 

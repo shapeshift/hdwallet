@@ -1,7 +1,8 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as NativeHDWallet from "./native";
+import _ from "lodash";
+
+import * as native from "./native";
 import * as Networks from "./networks";
-import * as _ from "lodash";
 
 const MNEMONIC = "all all all all all all all all all all all all";
 
@@ -10,7 +11,17 @@ afterEach(() => expect(mswMock).not.toHaveBeenCalled());
 
 const untouchable = require("untouchableMock");
 
-function benchmarkTx(inPath, inScriptType, inTxId, inVout, inAmount, inputExtra, outAddr, outAmount, outExtra = {}) {
+function benchmarkTx(
+  inPath: string,
+  inScriptType: string,
+  inTxId: string,
+  inVout: number,
+  inAmount: string,
+  inputExtra: object,
+  outAddr: string,
+  outAmount: string,
+  outExtra: object = {}
+): core.BTCSignTx {
   return {
     coin: "Bitcoin",
     inputs: [
@@ -21,7 +32,7 @@ function benchmarkTx(inPath, inScriptType, inTxId, inVout, inAmount, inputExtra,
         vout: inVout,
         txid: inTxId,
         ...inputExtra,
-      },
+      } as any,
     ],
     outputs: [
       {
@@ -31,7 +42,7 @@ function benchmarkTx(inPath, inScriptType, inTxId, inVout, inAmount, inputExtra,
         isChange: false,
       },
     ],
-    ...outExtra
+    ...outExtra,
   };
 }
 
@@ -104,7 +115,8 @@ const BIP84_BENCHMARK_TX = benchmarkTx(
 // Funding Tx: https://api.blockcypher.com/v1/btc/main/txs/799a8923515e0303b15dda074b8341b2cf5efab946fce0d68a6614f32a8fc935?includeHex=true
 // Spending Tx: https://api.blockcypher.com/v1/btc/main/txs/8841a6007c2a01376260c3dfa1469d5f215de310aaed72e0a300c88ecc9d11b9?includeHex=true
 const OP_RETURN_BENCHMARK_TX_INPUT_TXID = "799a8923515e0303b15dda074b8341b2cf5efab946fce0d68a6614f32a8fc935";
-const OP_RETURN_BENCHMARK_TX_INPUT_HEX = "01000000000102303a686b8bca00ebb484919f11addd3b2787cc26e1b2d3cd0f12af83623a3c210100000017160014838e24a1d99c435bde880e4dbc283c7ae1f7859cffffffff30b2fba7ee86f9de44bda798b70e7118e671e5ab8dc499da23b62156d46362510000000017160014e4540cd724d36d6dc3fa913f9fc4b476ff6aad13ffffffff023075000000000000160014ece6935b2a5a5b5ff997c87370b16fa10f1644104e0f00000000000017a9146d24979924837c0699c8abc91fe02907f2b992a48702483045022100ab0d3ad7fee9a20dac59fa70a4f6156ef9f725c841406ee722724e4d1084048302206a091bc9758b9205fc3c53f355e81c20d0d52cbaa17445865e56bd576c107eac012102cf98f208e8d659bd49127013a80d8ffb43931b8ebfad65fe0292ca48593ed31c02473044022070c0adba6d23521d8583d59769f7ec448c2188cc2bff6d16ab47ad02c10dc37e02204527a6c46f52782fe79e2a5964bafdd4ecd56c3d59e2bd42aaf907dcdef34a76012103c5412363b7a052398d213c79895f0d00f3237b86a354267697b75530664c0fce00000000";
+const OP_RETURN_BENCHMARK_TX_INPUT_HEX =
+  "01000000000102303a686b8bca00ebb484919f11addd3b2787cc26e1b2d3cd0f12af83623a3c210100000017160014838e24a1d99c435bde880e4dbc283c7ae1f7859cffffffff30b2fba7ee86f9de44bda798b70e7118e671e5ab8dc499da23b62156d46362510000000017160014e4540cd724d36d6dc3fa913f9fc4b476ff6aad13ffffffff023075000000000000160014ece6935b2a5a5b5ff997c87370b16fa10f1644104e0f00000000000017a9146d24979924837c0699c8abc91fe02907f2b992a48702483045022100ab0d3ad7fee9a20dac59fa70a4f6156ef9f725c841406ee722724e4d1084048302206a091bc9758b9205fc3c53f355e81c20d0d52cbaa17445865e56bd576c107eac012102cf98f208e8d659bd49127013a80d8ffb43931b8ebfad65fe0292ca48593ed31c02473044022070c0adba6d23521d8583d59769f7ec448c2188cc2bff6d16ab47ad02c10dc37e02204527a6c46f52782fe79e2a5964bafdd4ecd56c3d59e2bd42aaf907dcdef34a76012103c5412363b7a052398d213c79895f0d00f3237b86a354267697b75530664c0fce00000000";
 const OP_RETURN_BENCHMARK_TX_OUTPUT_ADDR = "38hU3uzGmB5ST37DW8SwvdhiWE7zvZPsyf";
 const OP_RETURN_BENCHMARK_TX_OUTPUT =
   "0100000000010135c98f2af314668ad6e0fc46b9fa5ecfb241834b07da5db103035e5123899a790000000000ffffffff02a86100000000000017a9144cdeb0b5d429c2589fef2d6d088fce317f8dac44870000000000000000086a06666f6f62617202483045022100eb59a33fd25396ba5494aefb2a37be5c1956718815bd9404800ac274c2c937da02202a3b5e9796a1c8fc03be3a01bc0cdfb56b1002658b45abd7ca4a7d18bad3b9c101210396070f2813933502e907c011ae7ba928683a9c2f0e888dae7ebd2c41120ee6b500000000";
@@ -118,14 +130,14 @@ const OP_RETURN_BENCHMARK_TX = benchmarkTx(
   { hex: OP_RETURN_BENCHMARK_TX_INPUT_HEX },
   OP_RETURN_BENCHMARK_TX_OUTPUT_ADDR,
   "25000",
-  { opReturnData: "foobar" },
+  { opReturnData: "foobar" }
 );
 
 describe("NativeBTCWalletInfo", () => {
-  const info = NativeHDWallet.info();
+  const info = native.info();
 
   it("should return some static metadata", async () => {
-    expect(info["btcSupportsNetwork"]).not.toBeDefined();
+    expect((info as any)["btcSupportsNetwork"]).not.toBeDefined();
     expect(await untouchable.call(info, "btcSupportsSecureTransfer")).toBe(false);
     expect(untouchable.call(info, "btcSupportsNativeShapeShift")).toBe(false);
   });
@@ -287,10 +299,10 @@ describe("NativeBTCWalletInfo", () => {
 });
 
 describe("NativeBTCWallet", () => {
-  let wallet: NativeHDWallet.NativeHDWallet;
+  let wallet: native.NativeHDWallet;
 
   beforeEach(async () => {
-    wallet = NativeHDWallet.create({ deviceId: "native" });
+    wallet = native.create({ deviceId: "native" });
     await wallet.loadDevice({ mnemonic: MNEMONIC });
     expect(await wallet.initialize()).toBe(true);
   });
@@ -350,7 +362,7 @@ describe("NativeBTCWallet", () => {
   });
 
   it("should not generate addresses for bad script types", async () => {
-    const mock = jest.spyOn(Networks, "getNetwork").mockReturnValue(Networks.getNetwork("bitcoin", "p2pkh"));
+    const mock = jest.spyOn(Networks, "getNetwork").mockReturnValue(Networks.getNetwork("bitcoin", "p2pkh" as any));
     await expect(
       wallet.btcGetAddress({
         coin: "Bitcoin",
@@ -364,36 +376,36 @@ describe("NativeBTCWallet", () => {
   it("should sign a BIP44 transaction correctly", async () => {
     const input = BIP44_BENCHMARK_TX;
     const out = await wallet.btcSignTx(input);
-    expect(out.signatures).toMatchObject([BIP44_BENCHMARK_TX_OUTPUT_SIG]);
-    expect(out.serializedTx).toBe(BIP44_BENCHMARK_TX_OUTPUT);
+    expect(out?.signatures).toMatchObject([BIP44_BENCHMARK_TX_OUTPUT_SIG]);
+    expect(out?.serializedTx).toBe(BIP44_BENCHMARK_TX_OUTPUT);
   });
 
   it("should sign a BIP49 transaction correctly", async () => {
     const input = BIP49_BENCHMARK_TX;
     const out = await wallet.btcSignTx(input);
-    expect(out.signatures).toMatchObject([BIP49_BENCHMARK_TX_OUTPUT_SIG]);
-    expect(out.serializedTx).toBe(BIP49_BENCHMARK_TX_OUTPUT);
+    expect(out?.signatures).toMatchObject([BIP49_BENCHMARK_TX_OUTPUT_SIG]);
+    expect(out?.serializedTx).toBe(BIP49_BENCHMARK_TX_OUTPUT);
   });
 
   it("should sign a BIP84 transaction correctly", async () => {
     const input = BIP84_BENCHMARK_TX;
     const out = await wallet.btcSignTx(input);
 
-    expect(out.signatures).toMatchObject([BIP84_BENCHMARK_TX_OUTPUT_SIG]);
-    expect(out.serializedTx).toBe(BIP84_BENCHMARK_TX_OUTPUT);
+    expect(out?.signatures).toMatchObject([BIP84_BENCHMARK_TX_OUTPUT_SIG]);
+    expect(out?.serializedTx).toBe(BIP84_BENCHMARK_TX_OUTPUT);
   });
 
   it("should sign a BIP84 transaction with an OP_RETURN message correctly", async () => {
     const input = OP_RETURN_BENCHMARK_TX;
     const out = await wallet.btcSignTx(input);
 
-    expect(out.signatures).toMatchObject([OP_RETURN_BENCHMARK_TX_OUTPUT_SIG]);
-    expect(out.serializedTx).toBe(OP_RETURN_BENCHMARK_TX_OUTPUT);
+    expect(out?.signatures).toMatchObject([OP_RETURN_BENCHMARK_TX_OUTPUT_SIG]);
+    expect(out?.serializedTx).toBe(OP_RETURN_BENCHMARK_TX_OUTPUT);
   });
 
   it("should not sign a transaction without having the raw input transaction", async () => {
     const input = _.cloneDeep(BIP44_BENCHMARK_TX);
-    delete input.inputs[0].hex;
+    delete (input.inputs[0] as any).hex;
     await expect(wallet.btcSignTx(input)).rejects.toThrowError("must provide prev rawTx");
   });
 
@@ -410,8 +422,8 @@ describe("NativeBTCWallet", () => {
     const out = await wallet.btcSignTx(input);
     const sigHex =
       "3044022006e609c8a9bedb7088d46140ab5f54a1a2023bc49b44cdf8fa147a181974b39702203e159bd869d8ccc85468856d9165cfc5df1885a8d8f1ebeaaaa5b8211f6317af";
-    expect(out.signatures).toMatchObject([sigHex]);
-    expect(out.serializedTx).toBe(
+    expect(out?.signatures).toMatchObject([sigHex]);
+    expect(out?.serializedTx).toBe(
       `${BIP44_BENCHMARK_TX_OUTPUT.slice(0, 86)}${sigHex}${BIP44_BENCHMARK_TX_OUTPUT.slice(-156, -8)}${locktimeHex}`
     );
   });
@@ -431,10 +443,10 @@ describe("NativeBTCWallet", () => {
 
     const out = await wallet.btcSignTx(input as any);
 
-    expect(out.signatures[0]).toMatchInlineSnapshot(
+    expect(out?.signatures[0]).toMatchInlineSnapshot(
       `"3045022100b5971b81e1da04beec2ebe58b909953119b57490581de23e55721832b70c361a022038478c5a5036026fab419ccdae380143b6f14c379186dafa2a7e04735808aa1f"`
     );
-    expect(out.serializedTx).toMatchInlineSnapshot(
+    expect(out?.serializedTx).toMatchInlineSnapshot(
       `"0100000001396559eb5d84715ac64b6833a6c3ab74d1a017a3fcb5719b33e22c01c1eb0e35000000006b483045022100b5971b81e1da04beec2ebe58b909953119b57490581de23e55721832b70c361a022038478c5a5036026fab419ccdae380143b6f14c379186dafa2a7e04735808aa1f012103c6d9cc725bb7e19c026df03bf693ee1171371a8eaf25f04b7a58f6befabcd38cffffffff01b8820100000000001976a91402eea9ab5f88d829c501760bec348a5baa55cf3888ac00000000"`
     );
   });
@@ -465,6 +477,7 @@ describe("NativeBTCWallet", () => {
   it("doesn't support signing messages", async () => {
     await expect(
       wallet.btcSignMessage({
+        coin: "Bitcoin",
         addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
         message: "foobar",
       })

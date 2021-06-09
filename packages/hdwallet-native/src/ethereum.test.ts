@@ -3,7 +3,9 @@ import { keccak256 } from "@ethersproject/keccak256";
 import { recoverPublicKey } from "@ethersproject/signing-key";
 import { computeAddress, parse as parseTransaction } from "@ethersproject/transactions";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as NativeHDWallet from "./native";
+import { TextEncoder } from "web-encoding";
+
+import * as native from "./native";
 
 const MNEMONIC = "all all all all all all all all all all all all";
 
@@ -13,7 +15,7 @@ afterEach(() => expect(mswMock).not.toHaveBeenCalled());
 const untouchable = require("untouchableMock");
 
 describe("NativeETHWalletInfo", () => {
-  const info = NativeHDWallet.info();
+  const info = native.info();
 
   it("should return some static metadata", async () => {
     expect(await untouchable.call(info, "ethSupportsNetwork")).toBe(true);
@@ -39,10 +41,10 @@ describe("NativeETHWalletInfo", () => {
 });
 
 describe("NativeETHWallet", () => {
-  let wallet: NativeHDWallet.NativeHDWallet;
+  let wallet: native.NativeHDWallet;
 
   beforeEach(async () => {
-    wallet = NativeHDWallet.create({ deviceId: "native" });
+    wallet = native.create({ deviceId: "native" });
     await wallet.loadDevice({ mnemonic: MNEMONIC });
     expect(await wallet.initialize()).toBe(true);
   });
@@ -95,7 +97,7 @@ describe("NativeETHWallet", () => {
         "v": 38,
       }
     `);*/
-    expect(parseTransaction(sig.serialized).from).toEqual("0x73d0385F4d8E00C5e6504C6030F47BF6212736A8");
+    expect(parseTransaction(sig!.serialized).from).toEqual("0x73d0385F4d8E00C5e6504C6030F47BF6212736A8");
   });
 
   it("should sign a message correctly", async () => {
@@ -122,10 +124,10 @@ describe("NativeETHWallet", () => {
       computeAddress(
         recoverPublicKey(
           keccak256(new TextEncoder().encode(`\x19Ethereum Signed Message:\n${msg.length}${msg}`)),
-          splitSignature(sig.signature)
+          splitSignature(sig!.signature)
         )
       )
-    ).toEqual(sig.address);
+    ).toEqual(sig!.address);
   });
 
   it("should verify a correctly signed message", async () => {

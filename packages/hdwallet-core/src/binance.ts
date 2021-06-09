@@ -1,11 +1,9 @@
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
-import { BIP32Path, PathDescription } from "./wallet";
+import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
 export interface BinanceGetAddress {
   addressNList: BIP32Path;
   showDisplay?: boolean;
-  /** Optional. Required for showDisplay == true. */
-  address?: string;
 }
 
 namespace Binance {
@@ -14,7 +12,7 @@ namespace Binance {
 
     export interface Coin {
       denom: string;
-      amount: string;
+      amount: number;
     }
   }
 
@@ -27,32 +25,48 @@ namespace Binance {
     pub_key: string;
     signature: string;
   }
+
+  export interface MsgSend {
+    inputs: Array<{
+      address: string;
+      coins: sdk.Coins;
+    }>;
+    outputs: Array<{
+      address: string;
+      coins: sdk.Coins;
+    }>;
+  }
+
+  export type Msg = MsgSend;
 }
 
 export interface BinanceTx {
   account_number: string;
   chain_id: string;
-  data: string;
+  data: string | null;
   memo: string;
-  //TODO type the tx msg
-  msgs: any;
-  signatures?: {
-    pub_key: string;
-    signature: string;
-  };
-  txid?: string;
-  serialized?: string;
+  msgs: [Binance.Msg];
+  // These are actually numbers, but they're encoded as strings by the chain.
+  sequence: string;
+  source?: string;
 }
+
+export type BinancePartialTx = Partial<BinanceTx> & Pick<BinanceTx, "msgs">;
 
 export interface BinanceSignTx {
   addressNList: BIP32Path;
-  tx: BinanceTx;
-  chain_id: string;
-  account_number: string;
-  sequence: number;
+  testnet?: boolean;
+  tx: BinancePartialTx;
 }
 
-export type BinanceSignedTx = BinanceTx;
+export interface BinanceSignedTx extends BinanceTx {
+  signatures: {
+    pub_key: string;
+    signature: string;
+  };
+  txid: string;
+  serialized: string;
+}
 
 export interface BinanceGetAccountPaths {
   accountIdx: number;
@@ -62,8 +76,8 @@ export interface BinanceAccountPath {
   addressNList: BIP32Path;
 }
 
-export interface BinanceWalletInfo {
-  _supportsBinanceInfo: boolean;
+export interface BinanceWalletInfo extends HDWalletInfo {
+  readonly _supportsBinanceInfo: boolean;
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order
@@ -77,12 +91,12 @@ export interface BinanceWalletInfo {
   binanceNextAccountPath(msg: BinanceAccountPath): BinanceAccountPath | undefined;
 }
 
-export interface BinanceWallet extends BinanceWalletInfo {
-  _supportsBinance: boolean;
+export interface BinanceWallet extends BinanceWalletInfo, HDWallet {
+  readonly _supportsBinance: boolean;
 
-  binanceGetAddress(msg: BinanceGetAddress): Promise<string>;
+  binanceGetAddress(msg: BinanceGetAddress): Promise<string | null>;
 
-  binanceSignTx(msg: BinanceSignTx): Promise<BinanceSignedTx>;
+  binanceSignTx(msg: BinanceSignTx): Promise<BinanceSignedTx | null>;
 }
 
 export function binanceDescribePath(path: BIP32Path): PathDescription {

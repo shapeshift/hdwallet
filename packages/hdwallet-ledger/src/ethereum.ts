@@ -1,11 +1,9 @@
-import { ecrecover, hashPersonalMessage, pubToAddress, sha256, ripemd160 } from "ethereumjs-util";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { LedgerTransport } from "./transport";
-import { createXpub, compressPublicKey, encodeBase58Check, networksUtil, parseHexString, handleError } from "./utils";
+import EthereumTx from "ethereumjs-tx";
+import * as ethereumUtil from "ethereumjs-util";
 
-// @ts-ignore
-import * as Ethereumjs from "ethereumjs-tx";
-const { default: EthereumTx } = Ethereumjs as any;
+import { LedgerTransport } from "./transport";
+import { createXpub, compressPublicKey, networksUtil, handleError } from "./utils";
 
 export async function ethSupportsNetwork(chain_id: number): Promise<boolean> {
   return chain_id === 1;
@@ -28,6 +26,7 @@ export async function ethGetPublicKeys(
 
   for (const getPublicKey of msg) {
     let { addressNList, coin, scriptType } = getPublicKey;
+    if (!scriptType) scriptType = core.BTCInputScriptType.SpendAddress;
 
     // Only get public keys for ETH account paths
     if (!addressNList.includes(0x80000000 + 44, 0) || !addressNList.includes(0x80000000 + 60, 1)) {
@@ -41,31 +40,27 @@ export async function ethGetPublicKeys(
     const res1 = await transport.call("Eth", "getAddress", parentBip32path, /* display */ false, /* chain code */ true);
     handleError(res1, transport, "Unable to obtain public key from device.");
 
-    let {
-      payload: { publicKey: parentPublicKey },
+    const {
+      payload: { publicKey: parentPublicKeyHex },
     } = res1;
-    parentPublicKey = parseHexString(compressPublicKey(parentPublicKey));
-
-    let result = sha256(parentPublicKey);
-    result = ripemd160(result, false);
-
-    const fingerprint: number = ((result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3]) >>> 0;
+    const parentPublicKey = compressPublicKey(Buffer.from(parentPublicKeyHex, "hex"));
+    const parentFingerprint = new DataView(ethereumUtil.ripemd160(ethereumUtil.sha256(parentPublicKey), false)).getUint32(0);
 
     const res2 = await transport.call("Eth", "getAddress", bip32path, /* display */ false, /* chain code */ true);
     handleError(res2, transport, "Unable to obtain public key from device.");
 
-    let {
-      payload: { publicKey, chainCode },
+    const {
+      payload: { publicKeyHex, chainCodeHex },
     } = res2;
-    publicKey = compressPublicKey(publicKey);
+    const publicKey = compressPublicKey(Buffer.from(publicKeyHex, "hex"));
+    const chainCode = Buffer.from(chainCodeHex, "hex");
 
-    const coinDetails: any = networksUtil[core.slip44ByCoin(coin)];
+    const coinDetails = networksUtil[core.mustBeDefined(core.slip44ByCoin(coin))];
     const childNum: number = addressNList[addressNList.length - 1];
     const networkMagic = coinDetails.bitcoinjs.bip32.public[scriptType];
+    if (networkMagic === undefined) throw new Error(`scriptType ${scriptType} not supported`);
 
-    const xpub = createXpub(addressNList.length, fingerprint, childNum, chainCode, publicKey, networkMagic);
-
-    xpubs.push({ xpub: encodeBase58Check(xpub) });
+    xpubs.push({ xpub: createXpub(addressNList.length, parentFingerprint, childNum, chainCode, publicKey, networkMagic) });
   }
 
   return xpubs;
@@ -117,16 +112,18 @@ export function ethSupportsNativeShapeShift(): boolean {
 }
 
 export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
+  const slip44 = core.slip44ByCoin(msg.coin)
+  if (slip44 === undefined) return [];
   return [
     {
-      addressNList: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx, 0, 0],
-      hardenedPath: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx],
+      addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
+      hardenedPath: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
       relPath: [0, 0],
       description: "BIP 44: Ledger (Ledger Live)",
     },
     {
-      addressNList: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + 0, msg.accountIdx],
-      hardenedPath: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin(msg.coin), 0x80000000 + 0],
+      addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + 0, msg.accountIdx],
+      hardenedPath: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + 0],
       relPath: [msg.accountIdx],
       description: "Non BIP 44: Ledger (legacy, Ledger Chrome App)",
     },
@@ -155,13 +152,13 @@ export async function ethSignMessage(
 
 // Adapted from https://github.com/kvhnuke/etherwallet/blob/2a5bc0db1c65906b14d8c33ce9101788c70d3774/app/scripts/controllers/signMsgCtrl.js#L118
 export async function ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
-  const sigb = new Buffer(core.stripHexPrefixAndLower(msg.signature), "hex");
+  const sigb = Buffer.from(core.stripHexPrefixAndLower(msg.signature), "hex");
   if (sigb.length !== 65) {
     return false;
   }
   sigb[64] = sigb[64] === 0 || sigb[64] === 1 ? sigb[64] + 27 : sigb[64];
-  const hash = hashPersonalMessage(Buffer.from(msg.message));
-  const pubKey = ecrecover(hash, sigb[64], sigb.slice(0, 32), sigb.slice(32, 64));
+  const hash = ethereumUtil.hashPersonalMessage(Buffer.from(msg.message));
+  const pubKey = ethereumUtil.ecrecover(hash, sigb[64], sigb.slice(0, 32), sigb.slice(32, 64));
 
-  return core.stripHexPrefixAndLower(msg.address) === pubToAddress(pubKey).toString("hex");
+  return core.stripHexPrefixAndLower(msg.address) === ethereumUtil.pubToAddress(pubKey).toString("hex");
 }

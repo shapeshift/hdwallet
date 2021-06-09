@@ -3,7 +3,6 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import tx_unsigned from "./tx01.mainnet.terra.json";
 import tx_signed from "./tx01.mainnet.terra.signed.json";
 
-
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
 const TIMEOUT = 60 * 1000;
@@ -48,8 +47,8 @@ export function terraTests(get: () => { wallet: core.HDWallet; info: core.HDWall
         expect(
           wallet.describePath({
             path: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
-            coin: "Terra"
-          }),
+            coin: "Terra",
+          })
         );
       },
       TIMEOUT
@@ -63,7 +62,7 @@ export function terraTests(get: () => { wallet: core.HDWallet; info: core.HDWall
           await wallet.terraGetAddress({
             addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
             showDisplay: false,
-            testnet: true
+            testnet: true,
           })
         ).toEqual("terra1ls33ayg26kmltw7jjy55p32ghjna09zp7kgw2a");
       },
@@ -83,8 +82,7 @@ export function terraTests(get: () => { wallet: core.HDWallet; info: core.HDWall
         };
 
         const res = await wallet.terraSignTx(input);
-        expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
-
+        expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
       },
       TIMEOUT
     );

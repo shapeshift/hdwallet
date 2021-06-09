@@ -4,11 +4,11 @@ import { recoverPublicKey as ethRecoverPublicKey } from "@ethersproject/signing-
 import { splitSignature as ethSplitSignature } from "@ethersproject/bytes";
 
 import { Digest } from "../digest";
-import { BigEndianInteger, ByteArray, Uint32, checkType } from "../../types";
+import { BigEndianInteger, ByteArray, Uint32, checkType, safeBufferFrom } from "../../types";
 import { ECDSAKeyInterface } from "./interfaces";
 
 const fieldElementBase = BigEndianInteger(32).withConstraint(
-    x => tinyecc.isPrivate(x) || `expected ${x} to be within the order of the curve`,
+    x => tinyecc.isPrivate(safeBufferFrom(x)) || `expected ${x} to be within the order of the curve`,
     {name: "FieldElement"},
 );
 export type FieldElement = Static<typeof fieldElementBase>;
@@ -117,7 +117,8 @@ const signatureStatic = {
     signCanonically: (x: ECDSAKeyInterface, message: Message, counter?: Uint32): Signature => {
         counter === undefined || Uint32.assert(counter);
         for (let i = counter; i === undefined || i < (counter ?? 0) + 128; i = (i ?? 0) + 1) {
-            const sig = x.ecdsaSign(message, i);
+            const sig = i === undefined ? x.ecdsaSign(message) : x.ecdsaSign(message, i);
+            if (sig === undefined) break;
             //TODO: do integrated lowS correction
             if (Signature.isCanonical(sig)) return sig;
         }
@@ -125,7 +126,7 @@ const signatureStatic = {
         throw new Error(`Unable to generate canonical signature with public key ${x} over message ${message}; is your key implementation broken?`);
     },
     verify: (x: Signature, message: Message, publicKey: CurvePoint): boolean => {
-        return tinyecc.verify(Buffer.from(message), publicKey, x);
+        return tinyecc.verify(Buffer.from(message), Buffer.from(publicKey), Buffer.from(x));
     },
 };
 const signature = Object.assign(signatureBase, ByteArray, signatureStatic);
@@ -155,9 +156,11 @@ const recoverableSignatureStatic = {
     signCanonically: (x: ECDSAKeyInterface, message: Message, counter?: Uint32): RecoverableSignature => {
         counter === undefined || Uint32.assert(counter);
         for (let i = counter; i === undefined || i < (counter ?? 0) + 128; i = (i ?? 0) + 1) {
-            const sig = RecoverableSignature.fromSignature(x.ecdsaSign(message, i), message, x.publicKey);
+            const sig = i === undefined ? x.ecdsaSign(message) : x.ecdsaSign(message, i);
+            if (sig === undefined) break;
+            const recoverableSig = RecoverableSignature.fromSignature(sig, message, x.publicKey);
             //TODO: do integrated lowS correction
-            if (RecoverableSignature.isCanonical(sig)) return sig;
+            if (RecoverableSignature.isCanonical(recoverableSig)) return recoverableSig;
         }
         // This is cryptographically impossible (2^-128 chance) if the key is implemented correctly.
         throw new Error(`Unable to generate canonical recoverable signature with public key ${Buffer.from(x.publicKey).toString("hex")} over message ${Buffer.from(message).toString("hex")}; is your key implementation broken?`);

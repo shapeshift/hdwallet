@@ -1,11 +1,9 @@
-import { bip32ToAddressNList, HDWallet, BinanceWallet, supportsBinance } from "@shapeshiftoss/hdwallet-core";
-import { isKeepKey } from "@shapeshiftoss/hdwallet-keepkey";
-import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
+import * as core from "@shapeshiftoss/hdwallet-core";
 import stableStringify from "fast-json-stable-stringify";
 
 import { decodeBnbTx, validateBnbTx } from "./bnbdecoder";
-import tx02_unsigned from "./tx02.mainnet.unsigned.json";
 import tx02_signed from "./tx02.mainnet.signed.json";
+import tx02_unsigned from "./tx02.mainnet.unsigned.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
@@ -14,13 +12,13 @@ const TIMEOUT = 60 * 1000;
 /**
  *  Main integration suite for testing BinanceWallet implementations' Cosmos support.
  */
-export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): void {
-  let wallet: BinanceWallet & HDWallet;
+export function binanceTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
+  let wallet: core.BinanceWallet & core.HDWallet;
 
   describe("Binance", () => {
     beforeAll(async () => {
       const { wallet: w } = get();
-      if (supportsBinance(w)) wallet = w;
+      if (core.supportsBinance(w)) wallet = w;
     });
 
     beforeEach(async () => {
@@ -50,7 +48,7 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
         if (!wallet) return;
         expect(
           await wallet.binanceGetAddress({
-            addressNList: bip32ToAddressNList("m/44'/714'/0'/0/0"),
+            addressNList: core.bip32ToAddressNList("m/44'/714'/0'/0/0"),
             showDisplay: false,
           })
         ).toEqual("bnb1afwh46v6nn30nkmugw5swdmsyjmlxslgjfugre");
@@ -68,13 +66,16 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
         expect(Object.assign({}, tx02_unsigned, { txid, serialized, signatures })).toStrictEqual(tx02_signed);
 
         const input = {
-          tx: tx02_unsigned,
-          addressNList: bip32ToAddressNList("m/44'/714'/0'/0/0"),
+          // Kludgy hack required until microsoft/TypeScript#32063 is fixed
+          tx: tx02_unsigned as Omit<typeof tx02_unsigned, "msgs"> & {
+            msgs: typeof tx02_unsigned.msgs extends Array<infer R> ? [R] : never;
+          },
+          addressNList: core.bip32ToAddressNList("m/44'/714'/0'/0/0"),
           chain_id: tx02_unsigned.chain_id,
           account_number: tx02_unsigned.account_number,
-          sequence: Number(tx02_unsigned.sequence),
+          sequence: tx02_unsigned.sequence,
         };
-        const res = await wallet.binanceSignTx(input);
+        const res = core.mustBeDefined(await wallet.binanceSignTx(input));
 
         // Check that the signed transaction matches tx02_signed -- KeepKey doesn't provide this field,
         // but the tests will be run with hdwallet-native as well, which will prove this invariant under
@@ -97,23 +98,23 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
 
         // signBytes treats amounts as numbers, not strings, even though it treats all
         // other numbers as strings.
-        const msgNormalizerInner = (x) => ({
+        const msgNormalizerInner = (x: any) => ({
           ...x,
-          coins: x.coins.map((y) => ({
+          coins: x.coins.map((y: any) => ({
             ...y,
             amount: Number(y.amount),
           })),
         });
-        const msgNormalizer = (x) => ({
+        const msgNormalizer = (x: any) => ({
           ...x,
-          inputs: x.inputs.map((y) => msgNormalizerInner(y)),
-          outputs: x.outputs.map((y) => msgNormalizerInner(y)),
+          inputs: x.inputs.map((y: any) => msgNormalizerInner(y)),
+          outputs: x.outputs.map((y: any) => msgNormalizerInner(y)),
         });
         expect(signBytes).toEqual(
           stableStringify({
             ...tx02_unsigned,
             chain_id: input.chain_id,
-            msgs: tx02_unsigned.msgs.map((x) => msgNormalizer(x)),
+            msgs: tx02_unsigned.msgs.map((x: any) => msgNormalizer(x)),
           })
         );
       },

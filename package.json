@@ -1,7 +1,5 @@
 {
   "name": "@shapeshiftoss/hdwallet",
-  "version": "1.12.1",
-  "main": "index.js",
   "private": true,
   "repository": "https://github.com/shapeshift/hdwallet",
   "author": "ShapeShift Open Source <oss@shapeshiftoss.io>",
@@ -13,15 +11,10 @@
       "integration"
     ],
     "nohoist": [
-      "**/@types/w3c-web-usb",
-      "**/@types/w3c-web-usb/**",
-      "**/@types/chrome",
-      "**/@types/chrome/**",
       "**/examples/test/**"
     ]
   },
   "scripts": {
-    "pre-reqs": "npm install -g typescript prettier lerna",
     "clean": "lerna run clean --scope @shapeshiftoss/* && rm -rf coverage test-report node_modules && yarn cache clean",
     "lint:ts": "tsc --noEmit",
     "format": "prettier .",
@@ -41,28 +34,13 @@
     "postinstall": "patch-package"
   },
   "devDependencies": {
-    "@types/axios": "^0.14.0",
-    "@types/bchaddrjs": "^0.4.0",
-    "@types/bytebuffer": "^5.0.40",
-    "@types/crypto-js": "^3.1.9-1",
-    "@types/debug": "^4.1.2",
-    "@types/ethereumjs-tx": "^1.0.1",
-    "@types/google-protobuf": "^3.2.7",
-    "@types/jest": "^24.9.1",
-    "@types/node-fetch": "^2.5.7",
-    "@types/w3c-web-usb": "^1.0.3",
-    "debug": "^4.2.0",
-    "jest": "^24.9.0",
-    "jest-junit": "^6.4.0",
+    "jest": "^26.6.3",
+    "jest-environment-jsdom": "^25.5.0",
+    "jest-junit": "^12.0.0",
     "lerna": "^3.22.1",
     "prettier": "^2.0.5",
-    "pretty-quick": "^2.0.1",
-    "ts-jest": "^24.3.0",
-    "typedoc": "^0.14.2",
-    "typescript": "^3.9.7"
-  },
-  "resolutions": {
-    "**/whatwg-fetch": "^2.0.4"
+    "ts-jest": "^26.5.5",
+    "typescript": "^4.3.2"
   },
   "engines": {
     "node": "^10 || ^12 || ^14 || ^16"

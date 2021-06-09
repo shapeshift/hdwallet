@@ -1,20 +1,8 @@
-import * as Core from "@shapeshiftoss/hdwallet-core";
+import * as EosMessages from "@keepkey/device-protocol/lib/messages-eos_pb";
+import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
+import * as core from "@shapeshiftoss/hdwallet-core";
 
-import { KeepKeyTransport } from "./transport";
-
-import {
-  EosGetPublicKey,
-  EosPublicKey,
-  EosSignTx,
-  EosTxHeader,
-  EosTxActionAck,
-  EosActionCommon,
-  EosPermissionLevel,
-  EosAsset,
-  EosActionTransfer,
-  EosSignedTx,
-} from "@keepkey/device-protocol/lib/messages-eos_pb";
-import { MessageType } from "@keepkey/device-protocol/lib/messages_pb";
+import { Transport } from "./transport";
 
 const createHash = require("create-hash");
 
@@ -26,7 +14,7 @@ function eosSigFormatter(r: Uint8Array, s: Uint8Array, v: number): string {
   var signature: string = "SIG_K1_";
 
   console.log("formatter logs");
-  var keyBuffer = new Buffer(65);
+  var keyBuffer = Buffer.alloc(65);
   var rbuf = Buffer.from(r);
   var sbuf = Buffer.from(s);
   keyBuffer.writeUInt8(recoverId, 0);
@@ -124,29 +112,29 @@ function symbolFromString(p: number, name: string): number {
   return result;
 }
 
-export function eosGetAccountPaths(msg: Core.EosGetAccountPaths): Array<Core.EosAccountPath> {
+export function eosGetAccountPaths(msg: core.EosGetAccountPaths): Array<core.EosAccountPath> {
   return [
     {
-      addressNList: [0x80000000 + 44, 0x80000000 + Core.slip44ByCoin("Eos"), 0x80000000 + msg.accountIdx, 0, 0],
+      addressNList: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin("Eos"), 0x80000000 + msg.accountIdx, 0, 0],
     },
   ];
 }
 
-export async function eosGetPublicKey(transport: KeepKeyTransport, msg: Core.EosGetPublicKey): Promise<string> {
-  const getPubkey = new EosGetPublicKey();
+export async function eosGetPublicKey(transport: Transport, msg: core.EosGetPublicKey): Promise<string> {
+  const getPubkey = new EosMessages.EosGetPublicKey();
   getPubkey.setAddressNList(msg.addressNList);
   getPubkey.setShowDisplay(msg.showDisplay !== false);
   getPubkey.setKind(msg.kind);
 
-  const response = await transport.call(MessageType.MESSAGETYPE_EOSGETPUBLICKEY, getPubkey, Core.LONG_TIMEOUT);
+  const response = await transport.call(Messages.MessageType.MESSAGETYPE_EOSGETPUBLICKEY, getPubkey, core.LONG_TIMEOUT);
 
-  if (response.message_type === Core.Events.FAILURE) throw response;
+  if (response.message_type === core.Events.FAILURE) throw response;
 
-  const eosPubkey = response.proto as EosPublicKey;
-  return eosPubkey.getWifPublicKey();
+  const eosPubkey = response.proto as EosMessages.EosPublicKey;
+  return core.mustBeDefined(eosPubkey.getWifPublicKey());
 }
 
-export async function eosSignTx(transport: KeepKeyTransport, msg: Core.EosToSignTx): Promise<Core.EosTxSigned> {
+export async function eosSignTx(transport: Transport, msg: core.EosToSignTx): Promise<core.EosTxSigned> {
   return transport.lockDuring(async () => {
     let resp;
 
@@ -155,10 +143,10 @@ export async function eosSignTx(transport: KeepKeyTransport, msg: Core.EosToSign
       throw new Error(`Too many actions in Eos transaction: Keepkey only supports one!`);
     }
 
-    const signTx = new EosSignTx();
+    const signTx = new EosMessages.EosSignTx();
     signTx.setAddressNList(msg.addressNList);
-    signTx.setChainId(Core.fromHexString(msg.chain_id));
-    const txHeader = new EosTxHeader();
+    signTx.setChainId(core.fromHexString(msg.chain_id));
+    const txHeader = new EosMessages.EosTxHeader();
 
     txHeader.setExpiration(
       (Date.parse(msg.tx.expiration) -
@@ -176,37 +164,37 @@ export async function eosSignTx(transport: KeepKeyTransport, msg: Core.EosToSign
 
     console.log("tx header");
     console.log(txHeader);
-    resp = await transport.call(MessageType.MESSAGETYPE_EOSSIGNTX, signTx, Core.LONG_TIMEOUT, true);
-    if (resp.message_type === Core.Events.FAILURE) {
+    resp = await transport.call(Messages.MessageType.MESSAGETYPE_EOSSIGNTX, signTx, core.LONG_TIMEOUT, true);
+    if (resp.message_type === core.Events.FAILURE) {
       throw resp;
     }
 
-    if (resp.message_enum !== MessageType.MESSAGETYPE_EOSTXACTIONREQUEST) {
+    if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_EOSTXACTIONREQUEST) {
       throw new Error(`eos: unexpected response ${resp.message_type}`);
     }
     // parse the common block of the action
-    let actCommon = new EosActionCommon();
+    let actCommon = new EosMessages.EosActionCommon();
     actCommon.setAccount(nameToNumber(msg.tx.actions[0].account).toString());
     actCommon.setName(nameToNumber(msg.tx.actions[0].name).toString());
     // interate through authorizations and add them
     for (let n = 0; n < msg.tx.actions[0].authorization.length; n++) {
-      let actPerm = new EosPermissionLevel();
+      let actPerm = new EosMessages.EosPermissionLevel();
       actPerm.setActor(nameToNumber(msg.tx.actions[0].authorization[n].actor).toString());
       actPerm.setPermission(nameToNumber(msg.tx.actions[0].authorization[n].permission).toString());
       actCommon.addAuthorization(actPerm);
     }
 
-    let actAck = new EosTxActionAck();
+    let actAck = new EosMessages.EosTxActionAck();
     actAck.setCommon(actCommon);
     // parse the various action types here.
     switch (msg.tx.actions[0].name) {
       case "transfer": {
         // build the transfer action
-        let actType = new EosActionTransfer();
+        let actType = new EosMessages.EosActionTransfer();
         actType.setSender(nameToNumber(msg.tx.actions[0].data.from).toString());
         actType.setReceiver(nameToNumber(msg.tx.actions[0].data.to).toString());
 
-        let actAsset = new EosAsset();
+        let actAsset = new EosMessages.EosAsset();
         let assetParse = assetToNumber(msg.tx.actions[0].data.quantity);
         actAsset.setAmount(assetParse[0].toString());
         actAsset.setSymbol(assetParse[1].toString());
@@ -223,28 +211,28 @@ export async function eosSignTx(transport: KeepKeyTransport, msg: Core.EosToSign
     console.log("action data");
     console.log(actAck);
 
-    resp = await transport.call(MessageType.MESSAGETYPE_EOSTXACTIONACK, actAck, Core.LONG_TIMEOUT, true);
-    if (resp.message_enum !== MessageType.MESSAGETYPE_EOSSIGNEDTX) {
+    resp = await transport.call(Messages.MessageType.MESSAGETYPE_EOSTXACTIONACK, actAck, core.LONG_TIMEOUT, true);
+    if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_EOSSIGNEDTX) {
       throw new Error(`eos: unexpected response ${resp.message_type}`);
     }
 
-    const signedTx = resp.proto as EosSignedTx;
+    const signedTx = resp.proto as EosMessages.EosSignedTx;
 
     // format signature for use in the eos system
 
     //    const EosFormatSig = eosSigFormatter(signedTx.getSignatureR() as Uint8Array, signedTx.getSignatureS() as Uint8Array, signedTx.getSignatureV())
 
+    const signatureR = signedTx.getSignatureR_asU8();
+    const signatureS = signedTx.getSignatureS_asU8();
+    const signatureV = signedTx.getSignatureV();
+    if (signatureV === undefined) throw new Error("missing signatureV");
     var sig = {
-      signatureV: signedTx.getSignatureV(),
-      signatureR: signedTx.getSignatureR(),
-      signatureS: signedTx.getSignatureS(),
+      signatureV,
+      signatureR,
+      signatureS,
       hash: signedTx.getHash(),
-      eosFormSig: eosSigFormatter(
-        signedTx.getSignatureR() as Uint8Array,
-        signedTx.getSignatureS() as Uint8Array,
-        signedTx.getSignatureV()
-      ),
-    } as Core.EosTxSigned;
+      eosFormSig: eosSigFormatter(signatureR, signatureS, signatureV),
+    } as core.EosTxSigned;
 
     return sig;
   });

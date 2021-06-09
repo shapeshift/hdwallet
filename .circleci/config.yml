@@ -5,10 +5,10 @@ orbs:
     executors:
       node:
         docker:
-          - image: circleci/node:12
+          - image: circleci/node:14
       kkemu:
         docker:
-          - image: circleci/node:12
+          - image: circleci/node:14
           - image: kktech/kkemu:latest
     jobs:
       build:

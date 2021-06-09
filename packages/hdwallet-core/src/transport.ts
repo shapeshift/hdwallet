@@ -1,4 +1,5 @@
 import * as eventemitter2 from "eventemitter2";
+
 import { Keyring } from "./keyring";
 
 export abstract class Transport extends eventemitter2.EventEmitter2 {
@@ -9,7 +10,7 @@ export abstract class Transport extends eventemitter2.EventEmitter2 {
     this.keyring = keyring;
   }
 
-  public abstract getDeviceID(): string;
+  public abstract getDeviceID(): Promise<string>;
 
   /**
    * Must emit outgoing message events and communicate with underlying interface
@@ -19,21 +20,10 @@ export abstract class Transport extends eventemitter2.EventEmitter2 {
   /**
    * Optional method to bootstrap connection to device
    */
-  public connect(): Promise<any> {
-    return;
-  }
-
-  /**
-   * Optional method to bootstrap connection to device
-   */
-  public listen(): Promise<any> {
-    return;
-  }
+  public async connect(): Promise<void> {}
 
   /**
    * Optional function that gets called to clean up connection to device
    */
-  public disconnect(): Promise<any> {
-    return;
-  }
+  public async disconnect(): Promise<void> {}
 }

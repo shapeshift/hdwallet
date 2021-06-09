@@ -1,9 +1,8 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as fio from "fiosdk-offline";
+import * as fio from "@fioprotocol/fiosdk";
 import fetch, { RequestInfo, RequestInit } from "node-fetch";
+
 import { NativeHDWalletBase } from "./native";
-import { Fio as fiojs } from "@fioprotocol/fiojs"; // TODO use our forked fioSdk instead of fiojs
-import { TextEncoder, TextDecoder } from "web-encoding";
 import * as Isolation from "./crypto/isolation";
 
 const fetchJson = async (uri: RequestInfo, opts?: RequestInit) => {
@@ -11,17 +10,14 @@ const fetchJson = async (uri: RequestInfo, opts?: RequestInit) => {
 };
 
 function getKeyPair(seed: Isolation.BIP32.SeedInterface, addressNList: number[]) {
-  let out = seed.toMasterKey()
-  addressNList.forEach(x => {
-    out = out.derive(x);
-  });
-  if (typeof out["ecdh"] !== "function") throw new Error("fio requires keys that implement ECDH");
-  return new Isolation.Adapters.FIO(out as typeof out & Isolation.SecP256K1.ECDHKeyInterface);
+  const out = addressNList.reduce((a, x) => a.derive(x), seed.toMasterKey());
+  if (!Isolation.BIP32.nodeSupportsECDH(out)) throw new Error("fio requires keys that implement ECDH");
+  return new Isolation.Adapters.FIO(out);
 }
 
-export function MixinNativeFioWalletInfo<TBase extends core.Constructor>(Base: TBase) {
+export function MixinNativeFioWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   return class MixinNativeFioWalletInfo extends Base implements core.FioWalletInfo {
-    _supportsFioInfo = true;
+    readonly _supportsFioInfo = true;
 
     async fioSupportsNetwork(): Promise<boolean> {
       return true;
@@ -43,7 +39,7 @@ export function MixinNativeFioWalletInfo<TBase extends core.Constructor>(Base: T
       ];
     }
 
-    fioNextAccountPath(msg: core.FioAccountPath): core.FioAccountPath {
+    fioNextAccountPath(msg: core.FioAccountPath): core.FioAccountPath | undefined {
       // Only support one account for now (like portis).
       // the fioers library supports paths so it shouldnt be too hard if we decide multiple accounts are needed
       return undefined;
@@ -53,9 +49,9 @@ export function MixinNativeFioWalletInfo<TBase extends core.Constructor>(Base: T
 
 export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeFioWallet extends Base {
-    _supportsFio = true;
+    readonly _supportsFio = true;
     baseUrl = "https://fio.eu.eosamsterdam.net/v1/";
-    #seed: Isolation.BIP32.SeedInterface;
+    #seed: Isolation.BIP32.SeedInterface | undefined;
 
     async fioInitializeWallet(seed: Buffer | Isolation.BIP32.SeedInterface): Promise<void> {
       this.#seed = (seed instanceof Buffer ? new Isolation.BIP32.Seed(seed) : seed);
@@ -65,26 +61,158 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
       this.#seed = undefined;
     }
 
-    async getFioSdk(addressNList: core.BIP32Path): Promise<fio.FIOSDK> {
+    async getFioSdk(addressNList: core.BIP32Path): Promise<fio.FIOSDK | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        let key = getKeyPair(this.#seed, addressNList);
-        return new fio.FIOSDK(key as any, key.publicKey, this.baseUrl, fetchJson);
+        const key = getKeyPair(this.#seed!, addressNList);
+        const sdk = new fio.FIOSDK(key as any, key.publicKey, this.baseUrl, fetchJson);
+        sdk.setSignedTrxReturnOption(true);
+        return sdk;
       });
     }
 
-    async fioGetAddress(msg: core.FioGetAddress): Promise<string> {
+    async fioGetAddress(msg: core.FioGetAddress): Promise<string | null> {
       const sdk = await this.getFioSdk(msg.addressNList);
-      return sdk.getFioPublicKey();
+      return sdk?.getFioPublicKey() ?? null;
     }
 
-    async fioSignTx(msg: core.FioSignTx): Promise<core.FioSignedTx> {
+    async fioSignTx(msg: core.FioSignTx): Promise<core.FioSignedTx | null> {
       const sdk = await this.getFioSdk(msg.addressNList);
+      if (!sdk) return null;
 
-      const account: fio.FioActionParameters.FioActionAccount = msg.actions[0].account;
-      const action: fio.FioActionParameters.FioActionName = msg.actions[0].name;
-      const data: fio.FioActionParameters.FioActionData = msg.actions[0].data;
+      const action = msg.actions[0];
+      if (!action.account || !action.name || !action.data) throw new Error("account, name, and data required");
 
-      const res = await sdk.prepareTransaction(account, action, data);
+      let genericAction: string = "";
+      let genericActionParams: Record<string, unknown> = {};
+      switch (action.name) {
+        case "addaddress": {
+          genericAction = "addPublicAddresses";
+          genericActionParams = {
+            fioAddress: action.data.fio_address,
+            publicAddresses: action.data.public_addresses,
+            maxFee: action.data.max_fee,
+            technologyProviderId: action.data.tpid,
+          }
+          break;
+        }
+        case "newfundsreq": {
+          genericAction = "requestFunds";
+          const payerPublicKey = (await sdk.getFioPublicAddress(action.data.payer_fio_address)).public_address;
+          const decryptedContent = await this.fioDecryptRequestContent({
+            contentType: core.Fio.ContentType.REQUEST,
+            content: action.data.content,
+            addressNList: msg.addressNList,
+            publicKey: payerPublicKey,
+          } as const);
+          genericActionParams = {
+            payerFioAddress: action.data.payer_fio_address,
+            payeeFioAddress: action.data.payee_fio_address,
+            payeeTokenPublicAddress: decryptedContent.payee_public_address,
+            amount: decryptedContent.amount,
+            chainCode: decryptedContent.chain_code,
+            tokenCode: decryptedContent.token_code,
+            memo: decryptedContent.memo,
+            maxFee: action.data.max_fee,
+            payerFioPublicKey: null,
+            technologyProviderId: action.data.tpid,
+            hash: decryptedContent.hash,
+            offlineUrl: decryptedContent.offline_url,
+          }
+          break;
+        }
+        case "recordobt": {
+          genericAction = "recordObtData";
+          genericActionParams = {
+            fioRequestId: action.data.fio_request_id,
+            payerFioAddress: action.data.payer_fio_address,
+            payeeFioAddress: action.data.payee_fio_address,
+            payerTokenPublicAddress: action.data.content.payer_public_address,
+            payeeTokenPublicAddress: action.data.content.payee_public_address,
+            amount: action.data.content.amount,
+            chainCode: action.data.content.chain_code,
+            tokenCode: action.data.content.token_code,
+            status: action.data.content.status,
+            obtId: action.data.content.obt_id,
+            maxFee: action.data.max_fee,
+            technologyProviderId: action.data.tpid,
+            payeeFioPublicKey: null,
+            memo: action.data.content.memo,
+            hash: action.data.content.hash,
+            offLineUrl: action.data.content.offline_url,
+          }
+          break;
+        }
+        case "regaddress": {
+          genericAction = "registerOwnerFioAddress";
+          genericActionParams = {
+            fioAddress: action.data.fio_address,
+            ownerPublicKey: action.data.owner_fio_public_key,
+            maxFee: action.data.max_fee,
+            technologyProviderId: action.data.tpid,
+          }
+          break;
+        }
+        case "regdomain": {
+          genericAction = "registerOwnerFioDomain";
+          genericActionParams = {
+            fioDomain: action.data.fio_domain,
+            ownerPublicKey: action.data.owner_fio_public_key,
+            maxFee: action.data.max_fee,
+            technologyProviderId: action.data.tpid,
+          }
+          break;
+        }
+        case "rejectfndreq": {
+          genericAction = "rejectFundsRequest";
+          genericActionParams = {
+            fioRequestId: action.data.fio_request_id,
+            maxFee: action.data.max_fee,
+            technologyProviderId: action.data.tpid,
+          }
+          break;
+        }
+        case "renewaddress": {
+          genericAction = "renewFioAddress";
+          genericActionParams = {
+            fioAddress: action.data.fio_address,
+            maxFee: action.data.max_fee,
+            technologyProviderId: action.data.tpid,
+          }
+          break;
+        }
+        case "renewdomain": {
+          genericAction = "renewFioDomain";
+          genericActionParams = {
+            fioDomain: action.data.fio_domain,
+            maxFee: action.data.max_fee,
+            technologyProviderId: action.data.tpid,
+          }
+          break;
+        }
+        case "setdomainpub": {
+          genericAction = "setFioDomainVisibility";
+          genericActionParams = {
+            fioDomain: action.data.fio_domain,
+            isPublic: action.data.is_public,
+            maxFee: action.data.max_fee,
+            technologyProviderId: action.data.tpid,
+          }
+          break;
+        }
+        case "trnsfiopubky": {
+          genericAction = "transferTokens";
+          genericActionParams = {
+            payeeFioPublicKey: action.data.payee_public_key,
+            amount: action.data.amount,
+            maxFee: action.data.max_fee,
+            technologyProviderId: action.data.tpid,
+          };
+          break;
+        }
+        default: throw new Error(`unsupported FIO action: ${JSON.stringify(action)}`);
+      }
+
+      const res = await sdk.genericAction(genericAction, genericActionParams);
 
       return {
         serialized: res.packed_trx,
@@ -92,29 +220,19 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
       };
     }
 
-    async fioEncryptRequestContent(msg: core.FioRequestContent & {iv?: Uint8Array}): Promise<string> {
+    async fioEncryptRequestContent<T extends core.Fio.ContentType>(msg: core.FioEncryptRequestContentMsg<T>): Promise<string | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        const privateKey = getKeyPair(this.#seed, msg.addressNList);
-        const sharedCipher = fiojs.createSharedCipher({
-          privateKey,
-          publicKey: msg.publicKey,
-          textEncoder: new TextEncoder(),
-          textDecoder: new TextDecoder(),
-        });
-        return sharedCipher.encrypt(msg.contentType, msg.content, msg.iv && Buffer.from(msg.iv));
+        const privateKey = getKeyPair(this.#seed!, msg.addressNList);
+        const sdk = await this.getFioSdk(msg.addressNList);
+        return await sdk.transactions.getCipherContent(msg.contentType, msg.content, privateKey, msg.publicKey, msg.iv && Buffer.from(msg.iv));
       });
     }
 
-    async fioDecryptRequestContent(msg: core.FioRequestContent): Promise<any> {
+    async fioDecryptRequestContent<T extends core.Fio.ContentType>(msg: core.FioDecryptRequestContentMsg<T>): Promise<core.Fio.Content<T> | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        const privateKey = getKeyPair(this.#seed, msg.addressNList);
-        const sharedCipher = fiojs.createSharedCipher({
-          privateKey,
-          publicKey: msg.publicKey,
-          textEncoder: new TextEncoder(),
-          textDecoder: new TextDecoder(),
-        });
-        return sharedCipher.decrypt(msg.contentType, JSON.stringify(msg.content));
+        const privateKey = getKeyPair(this.#seed!, msg.addressNList);
+        const sdk = await this.getFioSdk(msg.addressNList);
+        return await sdk.transactions.getUnCipherContent(msg.contentType, JSON.stringify(msg.content), privateKey, msg.publicKey);
       });
     }
   };

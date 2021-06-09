@@ -1,67 +1,139 @@
-import { Message, BinaryReader } from "google-protobuf";
-import * as ByteBuffer from "bytebuffer";
+import * as Messages from "@keepkey/device-protocol/lib/messages_pb"
+import * as Types from "@keepkey/device-protocol/lib/types_pb"
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as jspb from "google-protobuf";
 
-import {
-  Transport,
-  takeFirstOfManyEvents,
-  makeEvent,
-  Event,
-  Events,
-  DEFAULT_TIMEOUT,
-  LONG_TIMEOUT,
-  Keyring,
-  ActionCancelled,
-  HDWalletErrorType,
-} from "@shapeshiftoss/hdwallet-core";
-import { MessageType, ButtonAck, Cancel, EntropyAck, Failure } from "@keepkey/device-protocol/lib/messages_pb";
-import { FailureType } from "@keepkey/device-protocol/lib/types_pb";
-
-import { messageTypeRegistry, messageNameRegistry } from "./typeRegistry";
 import { EXIT_TYPES } from "./responseTypeRegistry";
+import { messageTypeRegistry, messageNameRegistry } from "./typeRegistry";
+import { SEGMENT_SIZE } from "./utils";
 
-const {
-  default: { concat: concatBuffers, wrap },
-} = ByteBuffer as any;
+export interface TransportDelegate {
+  isOpened(): Promise<boolean>;
+  getDeviceID(): Promise<string>;
 
-export abstract class KeepKeyTransport extends Transport {
-  debugLink: boolean;
+  connect(): Promise<void>;
+  tryConnectDebugLink?(): Promise<boolean>;
+  disconnect(): Promise<void>;
+
+  writeChunk(buf: Uint8Array, debugLink?: boolean): Promise<void>;
+  readChunk(debugLink?: boolean): Promise<Uint8Array>;
+}
+
+export class Transport extends core.Transport {
+  debugLink: boolean = false;
   userActionRequired: boolean = false;
+  delegate: TransportDelegate;
 
   /// One per transport, unlike on Trezor, since the contention is
   /// only per-device, not global.
   callInProgress: {
-    main: Promise<any>;
-    debug: Promise<any>;
+    main?: Promise<any>;
+    debug?: Promise<any>;
   } = {
     main: undefined,
     debug: undefined,
   };
 
-  constructor(keyring: Keyring) {
+  constructor(keyring: core.Keyring, delegate: TransportDelegate) {
     super(keyring);
+    this.delegate = delegate;
   }
 
-  public abstract getDeviceID(): string;
-  public abstract getVendor(): string;
-  public abstract get isOpened(): boolean;
+  public static async create(keyring: core.Keyring, delegate: TransportDelegate): Promise<Transport> {
+    return new Transport(keyring, delegate);
+  }
 
-  public abstract disconnect(): Promise<void>;
-  public abstract getEntropy(length: number): Uint8Array;
-  public abstract async getFirmwareHash(firmware: any): Promise<any>;
+  public isOpened(): Promise<boolean> {
+    return this.delegate.isOpened();
+  }
+  public getDeviceID(): Promise<string> {
+    return this.delegate.getDeviceID();
+  }
 
-  protected abstract async write(buff: ByteBuffer, debugLink: boolean): Promise<void>;
-  protected abstract async read(debugLink: boolean): Promise<ByteBuffer>;
+  public connect(): Promise<void> {
+    return this.delegate.connect();
+  }
+  public async tryConnectDebugLink(): Promise<boolean> {
+    let out = false
+    if (this.delegate.tryConnectDebugLink && await this.delegate.tryConnectDebugLink()) out = true;
+    this.debugLink = out;
+    return out;
+  }
+  public disconnect(): Promise<void> {
+    return this.delegate.disconnect();
+  }
+
+  private async write(buf: Uint8Array, debugLink: boolean): Promise<void> {
+    // break frame into segments
+    for (let i = 0; i < buf.length; i += SEGMENT_SIZE) {
+      const segment = buf.slice(i, i + SEGMENT_SIZE);
+      const padding = new Uint8Array(SEGMENT_SIZE - segment.length);
+      const fragments: Array<Uint8Array> = [];
+      fragments.push(new Uint8Array([63]));
+      fragments.push(segment);
+      fragments.push(padding);
+      const fragmentBuffer = new Uint8Array(fragments.map((x) => x.length).reduce((a, x) => a + x, 0));
+      fragments.reduce((a, x) => (fragmentBuffer.set(x, a), a + x.length), 0);
+      await this.delegate.writeChunk(fragmentBuffer, debugLink);
+    }
+  }
+
+  private async read(debugLink: boolean): Promise<Uint8Array> {
+    const first = await this.delegate.readChunk(debugLink);
+
+    // Check that buffer starts with: "?##" [ 0x3f, 0x23, 0x23 ]
+    // "?" = USB reportId, "##" = KeepKey magic bytes
+    // Message ID is bytes 4-5. Message length starts at byte 6.
+    const firstView = new DataView(first.buffer.slice(first.byteOffset, first.byteOffset + first.byteLength));
+    const valid = (firstView.getUint32(0) & 0xffffff00) === 0x3f232300;
+    const msgLength = firstView.getUint32(5);
+    if (!valid) throw new Error("message not valid");
+
+    const buffer = new Uint8Array(9 + 2 + msgLength);
+    buffer.set(first.slice(0, Math.min(first.length, buffer.length)));
+
+    for (let offset = first.length; offset < buffer.length; ) {
+      // Drop USB "?" reportId in the first byte
+      let next = (await this.delegate.readChunk(debugLink)).slice(1);
+      buffer.set(next.slice(0, Math.min(next.length, buffer.length - offset)), offset);
+      offset += next.length;
+    }
+
+    return buffer;
+  }
+
+  public getVendor(): string {
+    return "KeepKey";
+  }
+
+  public getEntropy(length: number): Uint8Array {
+    if (typeof window !== "undefined" && window?.crypto) {
+      return window.crypto.getRandomValues(new Uint8Array(length));
+    }
+    const { randomBytes } = require("crypto");
+    return randomBytes(length);
+  }
+
+  public async getFirmwareHash(firmware: Uint8Array): Promise<Uint8Array> {
+    if (typeof window !== "undefined" && window?.crypto) {
+      return new Uint8Array(await window.crypto.subtle.digest({ name: "SHA-256" }, firmware));
+    }
+    const { createHash } = require("crypto");
+    const hash = createHash("sha256");
+    hash.update(firmware);
+    return hash.digest();
+  }
 
   /**
    * Utility function to cancel all pending calls whenver one of them is cancelled.
    */
-  public async cancellable(inProgress: Promise<any>): Promise<void> {
+  public async cancellable(inProgress?: Promise<any>): Promise<void> {
     try {
       await inProgress;
     } catch (e) {
       // Throw away the error, as the other context will handle it,
       // unless it was a cancel, in which case we cancel everything.
-      if (e.type === HDWalletErrorType.ActionCancelled) {
+      if (e.type === core.HDWalletErrorType.ActionCancelled) {
         this.callInProgress = { main: undefined, debug: undefined };
         throw e;
       }
@@ -76,20 +148,18 @@ export abstract class KeepKeyTransport extends Transport {
     return this.callInProgress.main;
   }
 
-  public async listen() {}
-
   public async handleCancellableResponse(messageType: any) {
-    const event = (await takeFirstOfManyEvents(this, [String(messageType), ...EXIT_TYPES]).toPromise()) as Event;
+    const event = (await core.takeFirstOfManyEvents(this, [String(messageType), ...EXIT_TYPES]).toPromise()) as core.Event;
     return this.readResponse(false);
   }
 
-  public async readResponse(debugLink: boolean): Promise<Event> {
+  public async readResponse(debugLink: boolean): Promise<core.Event> {
     let buf;
     do {
       buf = await this.read(debugLink);
     } while (!buf);
     const [msgTypeEnum, msg] = this.fromMessageBuffer(buf);
-    let event = makeEvent({
+    let event = core.makeEvent({
       message_type: messageNameRegistry[msgTypeEnum],
       message_enum: msgTypeEnum,
       message: msg.toObject(),
@@ -100,81 +170,81 @@ export abstract class KeepKeyTransport extends Transport {
 
     if (debugLink) return event;
 
-    if (msgTypeEnum === MessageType.MESSAGETYPE_FAILURE) {
-      const failureEvent = makeEvent({
-        message_type: Events.FAILURE,
+    if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_FAILURE) {
+      const failureEvent = core.makeEvent({
+        message_type: core.Events.FAILURE,
         message_enum: msgTypeEnum,
         message: msg.toObject(),
         from_wallet: true,
       });
-      this.emit(Events.FAILURE, failureEvent);
+      this.emit(core.Events.FAILURE, failureEvent);
       return failureEvent;
     }
 
-    if (msgTypeEnum === MessageType.MESSAGETYPE_BUTTONREQUEST) {
+    if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_BUTTONREQUEST) {
       this.emit(
-        Events.BUTTON_REQUEST,
-        makeEvent({
-          message_type: Events.BUTTON_REQUEST,
+        core.Events.BUTTON_REQUEST,
+        core.makeEvent({
+          message_type: core.Events.BUTTON_REQUEST,
           from_wallet: true,
         })
       );
       this.userActionRequired = true;
-      return this.call(MessageType.MESSAGETYPE_BUTTONACK, new ButtonAck(), LONG_TIMEOUT, true, false);
+      return this.call(Messages.MessageType.MESSAGETYPE_BUTTONACK, new Messages.ButtonAck(), core.LONG_TIMEOUT, true, false);
     }
 
-    if (msgTypeEnum === MessageType.MESSAGETYPE_ENTROPYREQUEST) {
-      const ack = new EntropyAck();
+    if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_ENTROPYREQUEST) {
+      const ack = new Messages.EntropyAck();
       ack.setEntropy(this.getEntropy(32));
-      return this.call(MessageType.MESSAGETYPE_ENTROPYACK, ack, LONG_TIMEOUT, true, false);
+      return this.call(Messages.MessageType.MESSAGETYPE_ENTROPYACK, ack, core.LONG_TIMEOUT, true, false);
     }
 
-    if (msgTypeEnum === MessageType.MESSAGETYPE_PINMATRIXREQUEST) {
+    if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_PINMATRIXREQUEST) {
       this.emit(
-        Events.PIN_REQUEST,
-        makeEvent({
-          message_type: Events.PIN_REQUEST,
+        core.Events.PIN_REQUEST,
+        core.makeEvent({
+          message_type: core.Events.PIN_REQUEST,
           from_wallet: true,
         })
       );
       this.userActionRequired = true;
-      return this.handleCancellableResponse(MessageType.MESSAGETYPE_PINMATRIXACK);
+      return this.handleCancellableResponse(Messages.MessageType.MESSAGETYPE_PINMATRIXACK);
     }
 
-    if (msgTypeEnum === MessageType.MESSAGETYPE_PASSPHRASEREQUEST) {
+    if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_PASSPHRASEREQUEST) {
       this.emit(
-        Events.PASSPHRASE_REQUEST,
-        makeEvent({
-          message_type: Events.PASSPHRASE_REQUEST,
+        core.Events.PASSPHRASE_REQUEST,
+        core.makeEvent({
+          message_type: core.Events.PASSPHRASE_REQUEST,
           from_wallet: true,
         })
       );
       this.userActionRequired = true;
-      return this.handleCancellableResponse(MessageType.MESSAGETYPE_PASSPHRASEACK);
+      return this.handleCancellableResponse(Messages.MessageType.MESSAGETYPE_PASSPHRASEACK);
     }
 
-    if (msgTypeEnum === MessageType.MESSAGETYPE_CHARACTERREQUEST) {
+    if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_CHARACTERREQUEST) {
       this.emit(
-        Events.CHARACTER_REQUEST,
-        makeEvent({
-          message_type: Events.CHARACTER_REQUEST,
+        core.Events.CHARACTER_REQUEST,
+        core.makeEvent({
+          message_type: core.Events.CHARACTER_REQUEST,
           from_wallet: true,
         })
       );
       this.userActionRequired = true;
-      return this.handleCancellableResponse(MessageType.MESSAGETYPE_CHARACTERACK);
+      return this.handleCancellableResponse(Messages.MessageType.MESSAGETYPE_CHARACTERACK);
     }
 
-    if (msgTypeEnum === MessageType.MESSAGETYPE_WORDREQUEST) {
+    if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_WORDREQUEST) {
       this.emit(
-        Events.WORD_REQUEST,
-        makeEvent({
-          message_type: Events.WORD_REQUEST,
+        core.Events.WORD_REQUEST,
+        core.makeEvent({
+          message_type: core.Events.WORD_REQUEST,
           from_wallet: true,
         })
       );
       this.userActionRequired = true;
-      return this.handleCancellableResponse(MessageType.MESSAGETYPE_WORDACK);
+      return this.handleCancellableResponse(Messages.MessageType.MESSAGETYPE_WORDACK);
     }
 
     return event;
@@ -182,14 +252,14 @@ export abstract class KeepKeyTransport extends Transport {
 
   public async call(
     msgTypeEnum: number,
-    msg: Message,
-    msTimeout: number = DEFAULT_TIMEOUT,
+    msg: jspb.Message,
+    msgTimeout: number = core.DEFAULT_TIMEOUT,
     omitLock: boolean = false,
     noWait: boolean = false
   ): Promise<any> {
     this.emit(
       String(msgTypeEnum),
-      makeEvent({
+      core.makeEvent({
         message_type: messageNameRegistry[msgTypeEnum],
         message_enum: msgTypeEnum,
         message: msg.toObject(),
@@ -201,11 +271,11 @@ export abstract class KeepKeyTransport extends Transport {
     let makePromise = async () => {
       if (
         ([
-          MessageType.MESSAGETYPE_BUTTONACK,
-          MessageType.MESSAGETYPE_PASSPHRASEACK,
-          MessageType.MESSAGETYPE_CHARACTERACK,
-          MessageType.MESSAGETYPE_PINMATRIXACK,
-          MessageType.MESSAGETYPE_WORDACK,
+          Messages.MessageType.MESSAGETYPE_BUTTONACK,
+          Messages.MessageType.MESSAGETYPE_PASSPHRASEACK,
+          Messages.MessageType.MESSAGETYPE_CHARACTERACK,
+          Messages.MessageType.MESSAGETYPE_PINMATRIXACK,
+          Messages.MessageType.MESSAGETYPE_WORDACK,
         ] as Array<number>).includes(msgTypeEnum)
       ) {
         this.userActionRequired = true;
@@ -216,11 +286,11 @@ export abstract class KeepKeyTransport extends Transport {
         const response = await this.readResponse(false);
         this.userActionRequired = false;
         if (
-          response.message_enum === MessageType.MESSAGETYPE_FAILURE &&
-          response.message.code === FailureType.FAILURE_ACTIONCANCELLED
+          response.message_enum === Messages.MessageType.MESSAGETYPE_FAILURE &&
+          response.message.code === Types.FailureType.FAILURE_ACTIONCANCELLED
         ) {
           this.callInProgress = { main: undefined, debug: undefined };
-          throw new ActionCancelled();
+          throw new core.ActionCancelled();
         }
         return response;
       }
@@ -248,14 +318,14 @@ export abstract class KeepKeyTransport extends Transport {
 
   public async callDebugLink(
     msgTypeEnum: number,
-    msg: Message,
-    msTimeout: number = DEFAULT_TIMEOUT,
+    msg: jspb.Message,
+    msgTimeout: number = core.DEFAULT_TIMEOUT,
     omitLock: boolean = false,
     noWait: boolean = false
   ): Promise<any> {
     this.emit(
       String(msgTypeEnum),
-      makeEvent({
+      core.makeEvent({
         message_type: messageNameRegistry[msgTypeEnum],
         message_enum: msgTypeEnum,
         message: msg.toObject(),
@@ -285,8 +355,8 @@ export abstract class KeepKeyTransport extends Transport {
     if (!this.userActionRequired) return;
     try {
       this.callInProgress = { main: undefined, debug: undefined };
-      const cancelMsg = new Cancel();
-      await this.call(MessageType.MESSAGETYPE_CANCEL, cancelMsg, DEFAULT_TIMEOUT, false, this.userActionRequired);
+      const cancelMsg = new Messages.Cancel();
+      await this.call(Messages.MessageType.MESSAGETYPE_CANCEL, cancelMsg, core.DEFAULT_TIMEOUT, false, this.userActionRequired);
     } catch (e) {
       console.error("Cancel Pending Error", e);
     } finally {
@@ -294,42 +364,45 @@ export abstract class KeepKeyTransport extends Transport {
     }
   }
 
-  protected toMessageBuffer(msgTypeEnum: number, msg: Message): ByteBuffer {
+  protected toMessageBuffer(msgTypeEnum: number, msg: jspb.Message): Uint8Array {
     const messageBuffer = msg.serializeBinary();
 
-    const headerBuffer = new ArrayBuffer(8);
-    const headerView = new DataView(headerBuffer);
+    const headerBuffer = new Uint8Array(8);
+    const headerView = new DataView(headerBuffer.buffer);
 
     headerView.setUint8(0, 0x23);
     headerView.setUint8(1, 0x23);
     headerView.setUint16(2, msgTypeEnum);
     headerView.setUint32(4, messageBuffer.byteLength);
 
-    return concatBuffers([headerView.buffer, messageBuffer]);
+    const fragments = [headerBuffer, messageBuffer];
+    const fragmentBuffer = new Uint8Array(fragments.map((x) => x.length).reduce((a, x) => a + x, 0));
+    fragments.reduce((a, x) => (fragmentBuffer.set(x, a), a + x.length), 0);
+    return fragmentBuffer;
   }
 
-  protected fromMessageBuffer(bb: ByteBuffer): [number, Message] {
-    const typeID = bb.readUint16(3);
+  protected fromMessageBuffer(buf: Uint8Array): [number, jspb.Message] {
+    const typeID = new DataView(buf.buffer).getUint16(3);
     const MType = messageTypeRegistry[typeID] as any;
     if (!MType) {
-      const msg = new Failure();
-      msg.setCode(FailureType.FAILURE_UNEXPECTEDMESSAGE);
+      const msg = new Messages.Failure();
+      msg.setCode(Types.FailureType.FAILURE_UNEXPECTEDMESSAGE);
       msg.setMessage("Unknown message type received");
-      return [MessageType.MESSAGETYPE_FAILURE, msg];
+      return [Messages.MessageType.MESSAGETYPE_FAILURE, msg];
     }
     const msg = new MType();
-    const reader = new BinaryReader(bb.toBuffer(), 9, bb.limit - (9 + 2));
+    const reader = new jspb.BinaryReader(buf, 9, buf.length - (9 + 2));
     return [typeID, MType.deserializeBinaryFromReader(msg, reader)];
   }
 
-  protected static failureMessageFactory(e?: Error | string) {
-    const msg = new Failure();
-    msg.setCode(FailureType.FAILURE_UNEXPECTEDMESSAGE);
+  protected static failureMessageFactory(e?: Error | string): Uint8Array {
+    const msg = new Messages.Failure();
+    msg.setCode(Types.FailureType.FAILURE_UNEXPECTEDMESSAGE);
     if (typeof e === "string") {
       msg.setMessage(e);
     } else {
       msg.setMessage(String(e));
     }
-    return wrap(msg.serializeBinary());
+    return msg.serializeBinary();
   }
 }

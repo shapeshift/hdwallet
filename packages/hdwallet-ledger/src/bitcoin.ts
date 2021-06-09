@@ -1,17 +1,16 @@
-import { zip } from "lodash";
-import Base64 from "base64-js";
-import { isCashAddress, toLegacyAddress } from "bchaddrjs";
-import { crypto, opcodes, script, TransactionBuilder, networks } from "bitcoinjs-lib";
-import { verify } from "bitcoinjs-message";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import Base64 from "base64-js";
+import * as bchAddr from "bchaddrjs";
+import * as bitcoin from "bitcoinjs-lib";
+import * as bitcoinMsg from "bitcoinjs-message";
+import _ from "lodash";
+
 import { LedgerTransport } from "./transport";
 import {
   createXpub,
   compressPublicKey,
-  encodeBase58Check,
   translateScriptType,
   networksUtil,
-  parseHexString,
   handleError,
 } from "./utils";
 
@@ -23,7 +22,7 @@ export async function btcSupportsCoin(coin: core.Coin): Promise<boolean> {
   return supportedCoins.includes(coin);
 }
 
-export async function btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
+export async function btcSupportsScriptType(coin: core.Coin, scriptType?: core.BTCInputScriptType): Promise<boolean> {
   const supported = {
     Bitcoin: [
       core.BTCInputScriptType.SpendAddress,
@@ -31,16 +30,17 @@ export async function btcSupportsScriptType(coin: core.Coin, scriptType: core.BT
       core.BTCInputScriptType.SpendP2SHWitness,
     ],
     BitcoinCash: [core.BTCInputScriptType.SpendAddress],
-  };
+  } as Partial<Record<core.Coin, Array<core.BTCInputScriptType>>>;
 
-  return !!supported[coin] && supported[coin].includes(scriptType);
+  const scriptTypes = supported[coin];
+  return !!scriptTypes && !!scriptType && scriptTypes.includes(scriptType);
 }
 
 export async function btcGetAddress(transport: LedgerTransport, msg: core.BTCGetAddress): Promise<string> {
   const bip32path = core.addressNListToBIP32(msg.addressNList);
   const opts = {
     verify: !!msg.showDisplay,
-    format: translateScriptType(msg.scriptType),
+    format: translateScriptType(msg.scriptType ?? core.BTCInputScriptType.SpendAddress),
   };
 
   const res = await transport.call("Btc", "getWalletPublicKey", bip32path, opts);
@@ -54,10 +54,11 @@ export async function btcGetPublicKeys(
   transport: LedgerTransport,
   msg: Array<core.GetPublicKey>
 ): Promise<Array<core.PublicKey | null>> {
-  const xpubs = [];
+  const xpubs: Array<core.PublicKey | null> = [];
 
   for (const getPublicKey of msg) {
     let { addressNList, coin, scriptType } = getPublicKey;
+    if (!coin) throw new Error("coin is required");
 
     const parentBip32path: string = core.addressNListToBIP32(addressNList.slice(0, -1)).substring(2); // i.e. "44'/0'"
     const bip32path: string = core.addressNListToBIP32(addressNList).substring(2); // i.e 44'/0'/0'
@@ -67,33 +68,29 @@ export async function btcGetPublicKeys(
     const res1 = await transport.call("Btc", "getWalletPublicKey", parentBip32path, opts);
     handleError(res1, transport, "Unable to obtain public key from device.");
 
-    let {
-      payload: { publicKey: parentPublicKey },
+    const {
+      payload: { publicKey: parentPublicKeyHex },
     } = res1;
-    parentPublicKey = parseHexString(compressPublicKey(parentPublicKey));
-
-    let result = crypto.sha256(parentPublicKey);
-    result = crypto.ripemd160(result);
-
-    const fingerprint: number = ((result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3]) >>> 0;
+    const parentPublicKey = compressPublicKey(Buffer.from(parentPublicKeyHex, "hex"));
+    const parentFingerprint = new DataView(bitcoin.crypto.ripemd160(bitcoin.crypto.sha256(parentPublicKey))).getUint32(0);
 
     const res2 = await transport.call("Btc", "getWalletPublicKey", bip32path, opts);
     handleError(res2, transport, "Unable to obtain public key from device.");
 
-    let {
-      payload: { publicKey, chainCode },
+    const {
+      payload: { publicKeyHex, chainCodeHex },
     } = res2;
-    publicKey = compressPublicKey(publicKey);
+    const publicKey = compressPublicKey(Buffer.from(publicKeyHex, "hex"));
+    const chainCode = Buffer.from(chainCodeHex, "hex");
 
-    const coinDetails: any = networksUtil[core.slip44ByCoin(coin)];
+    const coinDetails = networksUtil[core.mustBeDefined(core.slip44ByCoin(coin))];
     const childNum: number = addressNList[addressNList.length - 1];
 
     scriptType = scriptType || core.BTCInputScriptType.SpendAddress;
     const networkMagic = coinDetails.bitcoinjs.bip32.public[scriptType];
+    if (!networkMagic) throw new Error("unable to get networkMagic");
 
-    const xpub = createXpub(addressNList.length, fingerprint, childNum, chainCode, publicKey, networkMagic);
-
-    xpubs.push({ xpub: encodeBase58Check(xpub) });
+    xpubs.push({ xpub: createXpub(addressNList.length, parentFingerprint, childNum, chainCode, publicKey, networkMagic) });
   }
 
   return xpubs;
@@ -138,12 +135,12 @@ export async function btcGetPublicKeys(
 export async function btcSignTx(
   wallet: core.BTCWallet,
   transport: LedgerTransport,
-  msg: core.BTCSignTx
+  msg: core.BTCSignTxLedger
 ): Promise<core.BTCSignedTx> {
   let supportsShapeShift = wallet.btcSupportsNativeShapeShift();
   let supportsSecureTransfer = await wallet.btcSupportsSecureTransfer();
-  let slip44 = core.slip44ByCoin(msg.coin);
-  let txBuilder = new TransactionBuilder(networksUtil[slip44].bitcoinjs);
+  let slip44 = core.mustBeDefined(core.slip44ByCoin(msg.coin));
+  let txBuilder = new bitcoin.TransactionBuilder(networksUtil[slip44].bitcoinjs as any);
   let indexes = [];
   let txs = [];
   let paths = [];
@@ -153,21 +150,28 @@ export async function btcSignTx(
   msg.outputs.map((output) => {
     if (output.exchangeType && !supportsShapeShift) throw new Error("Ledger does not support Native ShapeShift");
 
-    if (output.addressNList) {
+    if (output.addressNList !== undefined) {
       if (output.addressType === core.BTCOutputAddressType.Transfer && !supportsSecureTransfer)
         throw new Error("Ledger does not support SecureTransfer");
     }
-    if (msg.coin === "BitcoinCash" && isCashAddress(output.address)) {
-      output.address = toLegacyAddress(output.address);
+
+    let outputAddress: string;
+    if (output.address !== undefined) {
+      outputAddress = output.address;
+    } else {
+      throw new Error("could not determine output address");
     }
-    txBuilder.addOutput(output.address, Number(output.amount));
+    if (msg.coin === "BitcoinCash" && bchAddr.isCashAddress(outputAddress)) {
+      outputAddress = bchAddr.toLegacyAddress(outputAddress);
+    }
+    txBuilder.addOutput(outputAddress, Number(output.amount));
   });
 
   if (msg.opReturnData) {
     if (msg.opReturnData.length > 80) {
       throw new Error("OP_RETURN data must be less than 80 chars.");
     }
-    const ret = script.compile([opcodes.OP_RETURN, Buffer.from(msg.opReturnData)]);
+    const ret = bitcoin.script.compile([bitcoin.opcodes.OP_RETURN, Buffer.from(msg.opReturnData)]);
     txBuilder.addOutput(ret, 0);
   }
 
@@ -198,7 +202,7 @@ export async function btcSignTx(
     txs.push(tx.payload);
     paths.push(path);
   }
-  const inputs = zip(txs, indexes);
+  const inputs = _.zip(txs, indexes);
   const additionals = msg.coin === "BitcoinCash" ? ["abc"] : [];
 
   //sign createPaymentTransaction
@@ -244,11 +248,13 @@ export async function btcSignMessage(
 
   const signature = Buffer.from(v.toString(16) + res.payload["r"] + res.payload["s"], "hex").toString("hex");
 
+  const coin = msg.coin;
+  if (!coin) throw new Error("could not determine type of coin");
   const address = await btcGetAddress(transport, {
     addressNList: msg.addressNList,
-    coin: msg.coin,
+    coin,
     showDisplay: false,
-    scriptType: msg.scriptType,
+    scriptType: msg.scriptType ?? core.BTCInputScriptType.SpendAddress,
   });
 
   return {
@@ -259,11 +265,12 @@ export async function btcSignMessage(
 
 export async function btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
   const signature = Base64.fromByteArray(core.fromHexString(msg.signature));
-  return verify(msg.message, msg.address, signature);
+  return bitcoinMsg.verify(msg.message, msg.address, signature);
 }
 
 export function btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
   const slip44 = core.slip44ByCoin(msg.coin);
+  if (slip44 === undefined) return [];
   const bip49 = {
     coin: msg.coin,
     scriptType: core.BTCInputScriptType.SpendP2SHWitness,

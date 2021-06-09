@@ -1,9 +1,8 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import tx_verbose from "./tx01.mainnet.secret.verbose.json";
 import tx_unsigned from "./tx01.mainnet.secret.json";
 import tx_signed from "./tx01.mainnet.secret.signed.json";
-
+import tx_verbose from "./tx01.mainnet.secret.verbose.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
@@ -49,8 +48,8 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
         expect(
           wallet.describePath({
             path: core.bip32ToAddressNList("m/44'/529'/0'/0/0"),
-            coin: "Secret"
-          }),
+            coin: "Secret",
+          })
         );
       },
       TIMEOUT
@@ -64,7 +63,7 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
           await wallet.secretGetAddress({
             addressNList: core.bip32ToAddressNList("m/44'/529'/0'/0/0"),
             showDisplay: false,
-            testnet: true
+            testnet: true,
           })
         ).toEqual("secret1vhtdhfmttwxlvu4ewueqt73tt8y9zv385fagty");
       },
@@ -86,15 +85,13 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
         };
 
         const res = await wallet.secretSignTx(input);
-
-        switch(wallet.getVendor()){
+        switch (wallet.getVendor()) {
           case "KeepKey":
-            //expect(res.signatures[0].signature).toEqual(tx_signed.tx.signatures[0].signature_keepkey);
+            //expect(res?.signatures?.[0].signature).toEqual(tx_signed.tx.signatures[0].signature_keepkey);
             break;
           default:
-            expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
+            expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
             break;
-
         }
       },
       TIMEOUT

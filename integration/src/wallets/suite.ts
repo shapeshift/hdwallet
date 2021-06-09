@@ -1,8 +1,8 @@
-import { HDWallet, HDWalletInfo } from "@shapeshiftoss/hdwallet-core";
+import * as core from "@shapeshiftoss/hdwallet-core";
 
-export type InfoCreater = () => HDWalletInfo;
-export type Creater = (type?: any) => Promise<HDWallet>;
-export type Getter = () => HDWallet;
+export type InfoCreater = () => core.HDWalletInfo;
+export type Creater = (type?: any) => Promise<core.HDWallet>;
+export type Getter = () => core.HDWallet;
 export type Suite = (get: Getter) => void;
 
 /**

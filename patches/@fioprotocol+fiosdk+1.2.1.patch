@@ -1,0 +1,32 @@
+diff --git a/node_modules/@fioprotocol/fiosdk/lib/transactions/Transactions.js b/node_modules/@fioprotocol/fiosdk/lib/transactions/Transactions.js
+index cf9b05b..e67fa06 100644
+--- a/node_modules/@fioprotocol/fiosdk/lib/transactions/Transactions.js
++++ b/node_modules/@fioprotocol/fiosdk/lib/transactions/Transactions.js
+@@ -148,9 +148,9 @@ class Transactions {
+             }
+         });
+     }
+-    getCipherContent(contentType, content, privateKey, publicKey) {
++    getCipherContent(contentType, content, privateKey, publicKey, iv) {
+         const cipher = fiojs_1.Fio.createSharedCipher({ privateKey, publicKey, textEncoder, textDecoder });
+-        return cipher.encrypt(contentType, content);
++        return cipher.encrypt(contentType, content, iv);
+     }
+     getUnCipherContent(contentType, content, privateKey, publicKey) {
+         const cipher = fiojs_1.Fio.createSharedCipher({ privateKey, publicKey, textEncoder, textDecoder });
+diff --git a/node_modules/@fioprotocol/fiosdk/src/transactions/Transactions.ts b/node_modules/@fioprotocol/fiosdk/src/transactions/Transactions.ts
+index f4ec118..25941f0 100644
+--- a/node_modules/@fioprotocol/fiosdk/src/transactions/Transactions.ts
++++ b/node_modules/@fioprotocol/fiosdk/src/transactions/Transactions.ts
+@@ -141,9 +141,9 @@ export class Transactions {
+     }
+   }
+ 
+-  public getCipherContent(contentType: string, content: any, privateKey: string, publicKey: string) {
++  public getCipherContent(contentType: string, content: any, privateKey: string, publicKey: string, iv?: Buffer) {
+     const cipher = Fio.createSharedCipher({ privateKey, publicKey, textEncoder, textDecoder })
+-    return cipher.encrypt(contentType, content)
++    return cipher.encrypt(contentType, content, iv)
+   }
+ 
+   public getUnCipherContent(contentType: string, content: any, privateKey: string, publicKey: string) {

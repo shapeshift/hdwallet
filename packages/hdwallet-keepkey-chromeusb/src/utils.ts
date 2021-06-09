@@ -7,3 +7,20 @@ export function makePromise(func: Function, ...args: any[]): Promise<any> {
     func(...args, resolve);
   });
 }
+
+declare const chrome: any;
+export const chromeUSB = chrome?.["usb"] as unknown
+export type ChromeUSB = {
+  openDevice: any,
+  onDeviceAdded: { addListener: Function },
+  onDeviceRemoved: { addListener: Function },
+  getDevices: any,
+  closeDevice: any,
+  setConfiguration: any,
+  claimInterface: any,
+  interruptTransfer: any,
+}
+
+export function assertChromeUSB(c: any): asserts c is ChromeUSB {
+  if (!c) throw new Error("ChromeUSB is not available in this process. This package is intended for Chrome apps and extensions.");
+}

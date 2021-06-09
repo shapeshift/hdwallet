@@ -25,11 +25,12 @@ describe("CipherString", () => {
   it("should accept an EncryptedObject", () => {
     const buffer32 = new Uint8Array(32).fill(0);
     const buffer16 = new Uint8Array(16).fill(0);
-    const encrypted = new EncryptedObject();
-    encrypted.data = buffer32;
-    encrypted.iv = buffer16;
-    encrypted.mac = buffer32;
-    encrypted.key = new SymmetricCryptoKey(buffer32, buffer32, buffer32);
+    const encrypted = new EncryptedObject({
+      data: buffer32,
+      iv: buffer16,
+      mac: buffer32,
+      key: new SymmetricCryptoKey(buffer32, buffer32, buffer32),
+    });
     const string = new CipherString(encrypted);
 
     expect(string.encryptionType).toEqual(EncryptionType.AesCbc256_HmacSha256_B64);
@@ -49,12 +50,13 @@ describe("CipherString", () => {
   ])("should throw an error if an EncryptedObject with a missing %s is provided", (key, error) => {
     const buffer32 = new Uint8Array(32).fill(0);
     const buffer16 = new Uint8Array(16).fill(0);
-    const encrypted = new EncryptedObject();
-    encrypted.data = buffer32;
-    encrypted.iv = buffer16;
-    encrypted.mac = buffer32;
-    encrypted.key = new SymmetricCryptoKey(buffer32, buffer32, buffer32);
-    delete encrypted[key];
+    const encrypted = new EncryptedObject({
+      data: buffer32,
+      iv: buffer16,
+      mac: buffer32,
+      key: new SymmetricCryptoKey(buffer32, buffer32, buffer32),
+    });
+    delete (encrypted as any)[key];
     expect(() => new CipherString(encrypted)).toThrow(error);
   });
 });

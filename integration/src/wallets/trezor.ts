@@ -1,38 +1,19 @@
-import {
-  HDWallet,
-  BTCWallet,
-  ETHWallet,
-  supportsBTC,
-  supportsETH,
-  bip32ToAddressNList,
-  Keyring,
-  HDWalletInfo,
-  BTCInputScriptType,
-} from "@shapeshiftoss/hdwallet-core";
-import {
-  create as createTrezor,
-  TrezorConnectResponse,
-  TrezorTransport,
-  TrezorHDWallet,
-  isTrezor,
-  info,
-} from "@shapeshiftoss/hdwallet-trezor";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 
-export class MockTransport extends TrezorTransport {
+export class MockTransport extends trezor.TrezorTransport {
   memoized = new Map();
 
-  constructor(keyring: Keyring) {
+  constructor(keyring: core.Keyring) {
     super(keyring);
     this.populate();
   }
 
-  public getDeviceID(): string {
+  public async getDeviceID(): Promise<string> {
     return "mock#1";
   }
 
-  public async listen(): Promise<any> {}
-
-  public call(method: string, msg: any, msTimeout?: number): Promise<TrezorConnectResponse> {
+  public call(method: string, msg: any, msTimeout?: number): Promise<trezor.TrezorConnectResponse> {
     let key = JSON.stringify({ method: method, msg: msg });
     if (!this.memoized.has(key)) {
       console.error(method, `JSON.parse('${JSON.stringify(msg)}')`);
@@ -140,6 +121,15 @@ export class MockTransport extends TrezorTransport {
       this.memoize(
         "getAddress",
         JSON.parse(
+          '{"path":"m/49\'/0\'/0\'/0/0","showOnTrezor":true,"coin":"btc"}'
+        ),
+        JSON.parse(
+          '{"payload":{"address":"3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX","path":[2147483697,2147483648,2147483648,0,0],"serializedPath":"m/49\'/0\'/0\'/0/0"},"id":2,"success":true}'
+        )
+      );
+      this.memoize(
+        "getAddress",
+        JSON.parse(
           '{"path":"m/49\'/0\'/0\'/0/0","showOnTrezor":true,"coin":"btc","address":"3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX"}'
         ),
         JSON.parse(
@@ -196,6 +186,15 @@ export class MockTransport extends TrezorTransport {
       this.memoize(
         "getAddress",
         JSON.parse(
+          '{"path":"m/44\'/0\'/0\'/0/0","showOnTrezor":false,"coin":"btc"}'
+        ),
+        JSON.parse(
+          '{"payload":{"address":"1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM","path":[2147483692,2147483648,2147483648,0,0],"serializedPath":"m/44\'/0\'/0\'/0/0"},"id":2,"success":true}'
+        )
+      );
+      this.memoize(
+        "getAddress",
+        JSON.parse(
           '{"path":"m/44\'/0\'/0\'/0/0","showOnTrezor":true,"coin":"btc","address":"1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM"}'
         ),
         JSON.parse(
@@ -205,7 +204,7 @@ export class MockTransport extends TrezorTransport {
       this.memoize(
         "getAddress",
         JSON.parse(
-          '{"path":"m/49\'/2\'/0\'/0/0","showOnTrezor":false,"coin":"ltc","address":"MFoQRU1KQq365Sy3cXhix3ygycEU4YWB1V"}'
+          '{"path":"m/49\'/2\'/0\'/0/0","showOnTrezor":false,"coin":"ltc"}'
         ),
         JSON.parse(
           '{"payload":{"address":"MFoQRU1KQq365Sy3cXhix3ygycEU4YWB1V","path":[2147483697,2147483650,2147483648,0,0],"serializedPath":"m/49\'/2\'/0\'/0/0"},"id":2,"success":true}'
@@ -214,10 +213,19 @@ export class MockTransport extends TrezorTransport {
       this.memoize(
         "getAddress",
         JSON.parse(
-          '{"path":"m/44\'/5\'/0\'/0/0","showOnTrezor":false,"coin":"dash","address":"XxKhGNv6ECbqVswm9KYcLPQnyWgZ86jJ6Q"}'
+          '{"path":"m/44\'/5\'/0\'/0/0","showOnTrezor":false,"coin":"dash"}'
         ),
         JSON.parse(
           '{"payload":{"address":"XxKhGNv6ECbqVswm9KYcLPQnyWgZ86jJ6Q","path":[2147483692,2147483653,2147483648,0,0],"serializedPath":"m/44\'/5\'/0\'/0/0"},"id":2,"success":true}'
+        )
+      );
+      this.memoize(
+        "getAddress",
+        JSON.parse(
+          '{"path":"m/44\'/2\'/0\'/0/0","showOnTrezor":false,"coin":"ltc"}'
+        ),
+        JSON.parse(
+          '{"payload":{"address":"LYXTv5RdsPYKC4qGmb6x6SuKoFMxUdSjLQ","path":[2147483692,2147483650,2147483648,0,0],"serializedPath":"m/44\'/2\'/0\'/0/0"},"id":2,"success":true}'
         )
       );
       this.memoize(
@@ -232,7 +240,16 @@ export class MockTransport extends TrezorTransport {
       this.memoize(
         "getAddress",
         JSON.parse(
-          '{"path":"m/84\'/2\'/0\'/0/0","showOnTrezor":false,"coin":"ltc","address":"ltc1qf6pwfkw4wd0fetq2pfrwzlfknskjg6nyvt6ngv"}'
+          '{"path":"m/84\'/2\'/0\'/0/0","showOnTrezor":false,"coin":"ltc"}'
+        ),
+        JSON.parse(
+          '{"payload":{"address":"ltc1qf6pwfkw4wd0fetq2pfrwzlfknskjg6nyvt6ngv","path":[2147483732,2147483650,2147483648,0,0],"serializedPath":"m/84\'/2\'/0\'/0/0"},"id":2,"success":true}'
+        )
+      );
+      this.memoize(
+        "getAddress",
+        JSON.parse(
+          '{"path":"m/84\'/2\'/0\'/0/0","showOnTrezor":false,"coin":"ltc"}'
         ),
         JSON.parse(
           '{"payload":{"address":"ltc1qf6pwfkw4wd0fetq2pfrwzlfknskjg6nyvt6ngv","path":[2147483732,2147483650,2147483648,0,0],"serializedPath":"m/84\'/2\'/0\'/0/0"},"id":2,"success":true}'
@@ -255,7 +272,16 @@ export class MockTransport extends TrezorTransport {
       this.memoize(
         "getAddress",
         JSON.parse(
-          '{"path":"m/49\'/0\'/0\'/0/0","showOnTrezor":false,"coin":"btc","address":"3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX"}'
+          '{"path":"m/49\'/0\'/0\'/0/0","showOnTrezor":false,"coin":"btc"}'
+        ),
+        JSON.parse(
+          '{"payload":{"address":"3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX","path":[2147483697,2147483648,2147483648,0,0],"serializedPath":"m/49\'/0\'/0\'/0/0"},"id":2,"success":true}'
+        )
+      );
+      this.memoize(
+        "getAddress",
+        JSON.parse(
+          '{"path":"m/49\'/0\'/0\'/0/0","showOnTrezor":false,"coin":"btc"}'
         ),
         JSON.parse(
           '{"payload":{"address":"3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX","path":[2147483697,2147483648,2147483648,0,0],"serializedPath":"m/49\'/0\'/0\'/0/0"},"id":2,"success":true}'
@@ -326,22 +352,22 @@ export function name(): string {
   return "Trezor";
 }
 
-export async function createWallet(): Promise<HDWallet> {
-  let keyring = new Keyring();
+export async function createWallet(): Promise<core.HDWallet> {
+  let keyring = new core.Keyring();
   let transport = new MockTransport(keyring);
-  return createTrezor(transport as TrezorTransport, true);
+  return trezor.create(transport as trezor.TrezorTransport, true);
 }
 
-export function createInfo(): HDWalletInfo {
-  return info();
+export function createInfo(): core.HDWalletInfo {
+  return trezor.info();
 }
 
-export function selfTest(get: () => HDWallet): void {
-  let wallet: TrezorHDWallet & ETHWallet & BTCWallet & HDWallet;
+export function selfTest(get: () => core.HDWallet): void {
+  let wallet: trezor.TrezorHDWallet & core.ETHWallet & core.BTCWallet & core.HDWallet;
 
   beforeAll(async () => {
     let w = get();
-    if (isTrezor(w) && supportsBTC(w) && supportsETH(w)) wallet = w;
+    if (trezor.isTrezor(w) && core.supportsBTC(w) && core.supportsETH(w)) wallet = w;
     else fail("Wallet is not a Trezor");
   });
 
@@ -371,9 +397,9 @@ export function selfTest(get: () => HDWallet): void {
       });
       expect(paths).toEqual([
         {
-          addressNList: bip32ToAddressNList(`m/44'/60'/0'/0/${account}`),
-          hardenedPath: bip32ToAddressNList("m/44'/60'/0'"),
-          relPath: bip32ToAddressNList(`m/0/${account}`),
+          addressNList: core.bip32ToAddressNList(`m/44'/60'/0'/0/${account}`),
+          hardenedPath: core.bip32ToAddressNList("m/44'/60'/0'"),
+          relPath: core.bip32ToAddressNList(`m/0/${account}`),
           description: "Trezor",
         },
       ]);
@@ -399,17 +425,17 @@ export function selfTest(get: () => HDWallet): void {
     expect(paths).toEqual([
       {
         addressNList: [2147483697, 2147483650, 2147483651],
-        scriptType: BTCInputScriptType.SpendP2SHWitness,
+        scriptType: core.BTCInputScriptType.SpendP2SHWitness,
         coin: "Litecoin",
       },
       {
         addressNList: [2147483692, 2147483650, 2147483651],
-        scriptType: BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCInputScriptType.SpendAddress,
         coin: "Litecoin",
       },
       {
         addressNList: [2147483732, 2147483650, 2147483651],
-        scriptType: BTCInputScriptType.SpendWitness,
+        scriptType: core.BTCInputScriptType.SpendWitness,
         coin: "Litecoin",
       },
     ]);
@@ -418,14 +444,16 @@ export function selfTest(get: () => HDWallet): void {
   it("supports btcNextAccountPath", () => {
     if (!wallet) return;
 
-    let paths = wallet.btcGetAccountPaths({
-      coin: "Litecoin",
-      accountIdx: 3,
-    });
+    let paths = core.mustBeDefined(
+      wallet.btcGetAccountPaths({
+        coin: "Litecoin",
+        accountIdx: 3,
+      })
+    );
 
     expect(
       paths
-        .map((path) => wallet.btcNextAccountPath(path))
+        .map((path) => core.mustBeDefined(wallet.btcNextAccountPath(path)))
         .map((path) =>
           wallet.describePath({
             ...path,
@@ -466,14 +494,14 @@ export function selfTest(get: () => HDWallet): void {
   it("can describe paths", () => {
     expect(
       wallet.info.describePath({
-        path: bip32ToAddressNList("m/44'/0'/0'/0/0"),
+        path: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
         coin: "Bitcoin",
-        scriptType: BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCInputScriptType.SpendAddress,
       })
     ).toEqual({
       verbose: "Bitcoin Account #0, Address #0 (Legacy)",
       coin: "Bitcoin",
-      scriptType: BTCInputScriptType.SpendAddress,
+      scriptType: core.BTCInputScriptType.SpendAddress,
       isKnown: true,
       accountIdx: 0,
       addressIdx: 0,
@@ -484,14 +512,14 @@ export function selfTest(get: () => HDWallet): void {
 
     expect(
       wallet.info.describePath({
-        path: bip32ToAddressNList("m/44'/0'/7'/1/5"),
+        path: core.bip32ToAddressNList("m/44'/0'/7'/1/5"),
         coin: "Bitcoin",
-        scriptType: BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCInputScriptType.SpendAddress,
       })
     ).toEqual({
       verbose: "Bitcoin Account #7, Change Address #5 (Legacy)",
       coin: "Bitcoin",
-      scriptType: BTCInputScriptType.SpendAddress,
+      scriptType: core.BTCInputScriptType.SpendAddress,
       isKnown: true,
       accountIdx: 7,
       addressIdx: 5,
@@ -502,20 +530,20 @@ export function selfTest(get: () => HDWallet): void {
 
     expect(
       wallet.info.describePath({
-        path: bip32ToAddressNList("m/44'/0'/7'/1/5"),
+        path: core.bip32ToAddressNList("m/44'/0'/7'/1/5"),
         coin: "BitcoinCash",
-        scriptType: BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCInputScriptType.SpendAddress,
       })
     ).toEqual({
       verbose: "m/44'/0'/7'/1/5",
       coin: "BitcoinCash",
-      scriptType: BTCInputScriptType.SpendAddress,
+      scriptType: core.BTCInputScriptType.SpendAddress,
       isKnown: false,
     });
 
     expect(
       wallet.info.describePath({
-        path: bip32ToAddressNList("m/44'/60'/0'/0/0"),
+        path: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
         coin: "Ethereum",
       })
     ).toEqual({
@@ -529,7 +557,7 @@ export function selfTest(get: () => HDWallet): void {
 
     expect(
       wallet.info.describePath({
-        path: bip32ToAddressNList("m/44'/60'/3'/0/0"),
+        path: core.bip32ToAddressNList("m/44'/60'/3'/0/0"),
         coin: "Ethereum",
       })
     ).toEqual({
@@ -540,7 +568,7 @@ export function selfTest(get: () => HDWallet): void {
 
     expect(
       wallet.info.describePath({
-        path: bip32ToAddressNList("m/44'/60'/0'/0/3"),
+        path: core.bip32ToAddressNList("m/44'/60'/0'/0/3"),
         coin: "Ethereum",
       })
     ).toEqual({

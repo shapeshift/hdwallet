@@ -5,6 +5,7 @@
     "outDir": "dist"
   },
   "include": ["src/**/*"],
+  "files": ["./src/modules.d.ts"],
   "exclude": ["node_modules", "dist"],
   "references": [{ "path": "../hdwallet-core" }, { "path": "../hdwallet-ledger" }]
 }

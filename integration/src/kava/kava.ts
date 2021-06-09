@@ -3,7 +3,6 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import tx_unsigned from "./tx01.mainnet.kava.json";
 import tx_signed from "./tx01.mainnet.kava.signed.json";
 
-
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
 const TIMEOUT = 60 * 1000;
@@ -48,8 +47,8 @@ export function kavaTests(get: () => { wallet: core.HDWallet; info: core.HDWalle
         expect(
           wallet.describePath({
             path: core.bip32ToAddressNList("m/44'/459'/0'/0/0"),
-            coin: "Kava"
-          }),
+            coin: "Kava",
+          })
         );
       },
       TIMEOUT
@@ -63,7 +62,7 @@ export function kavaTests(get: () => { wallet: core.HDWallet; info: core.HDWalle
           await wallet.kavaGetAddress({
             addressNList: core.bip32ToAddressNList("m/44'/459'/0'/0/0"),
             showDisplay: false,
-            testnet: true
+            testnet: true,
           })
         ).toEqual("kava1l4ylj687wmm7d0mk2l29pf9y4k3f09v5zzl0tx");
       },
@@ -83,15 +82,14 @@ export function kavaTests(get: () => { wallet: core.HDWallet; info: core.HDWalle
         };
 
         const res = await wallet.kavaSignTx(input);
-        switch(wallet.getVendor()){
+        switch (wallet.getVendor()) {
           case "KeepKey":
             //not supported yet
-            //expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature_keepkey);
+            //expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature_keepkey);
             break;
           default:
-            expect(res.signatures[0].signature).toEqual(tx_signed.signatures[0].signature);
+            expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
             break;
-
         }
       },
       TIMEOUT

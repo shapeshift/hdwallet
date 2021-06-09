@@ -1,5 +1,5 @@
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
-import { BIP32Path, PathDescription } from "./wallet";
+import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
 export interface ThorchainGetAddress {
   addressNList: BIP32Path;
@@ -74,8 +74,8 @@ export interface ThorchainAccountPath {
   addressNList: BIP32Path;
 }
 
-export interface ThorchainWalletInfo {
-  _supportsThorchainInfo: boolean;
+export interface ThorchainWalletInfo extends HDWalletInfo {
+  readonly _supportsThorchainInfo: boolean;
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order
@@ -89,18 +89,18 @@ export interface ThorchainWalletInfo {
   thorchainNextAccountPath(msg: ThorchainAccountPath): ThorchainAccountPath | undefined;
 }
 
-export interface ThorchainWallet extends ThorchainWalletInfo {
-  _supportsThorchain: boolean;
+export interface ThorchainWallet extends ThorchainWalletInfo, HDWallet {
+  readonly _supportsThorchain: boolean;
 
-  thorchainGetAddress(msg: ThorchainGetAddress): Promise<string>;
-  thorchainSignTx(msg: ThorchainSignTx): Promise<ThorchainSignedTx>;
+  thorchainGetAddress(msg: ThorchainGetAddress): Promise<string | null>;
+  thorchainSignTx(msg: ThorchainSignTx): Promise<ThorchainSignedTx | null>;
 }
 
 export function thorchainDescribePath(path: BIP32Path): PathDescription {
   let pathStr = addressNListToBIP32(path);
   let unknown: PathDescription = {
     verbose: pathStr,
-    coin: "Thorchain",
+    coin: "Rune",
     isKnown: false,
   };
 
@@ -112,7 +112,7 @@ export function thorchainDescribePath(path: BIP32Path): PathDescription {
     return unknown;
   }
 
-  if (path[1] != 0x80000000 + slip44ByCoin("Thorchain")) {
+  if (path[1] != 0x80000000 + slip44ByCoin("Rune")) {
     return unknown;
   }
 

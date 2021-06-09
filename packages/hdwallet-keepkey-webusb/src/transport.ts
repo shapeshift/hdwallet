@@ -1,45 +1,32 @@
-import { SEGMENT_SIZE, KeepKeyTransport } from "@shapeshiftoss/hdwallet-keepkey";
-import { ConflictingApp, FirmwareUpdateRequired, Keyring } from "@shapeshiftoss/hdwallet-core";
-import * as ByteBuffer from "bytebuffer";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 
-const {
-  default: { concat, wrap },
-} = ByteBuffer as any;
+import { VENDOR_ID, WEBUSB_PRODUCT_ID } from "./utils"
 
-export class WebUSBKeepKeyTransport extends KeepKeyTransport {
-  public usbDevice: USBDevice;
-  public keyring: Keyring;
+export type Device = USBDevice & {serialNumber: string};
+export class TransportDelegate implements keepkey.TransportDelegate {
+  usbDevice: Device;
 
-  constructor(usbDevice: USBDevice, keyring: Keyring) {
-    super(keyring);
+  constructor(usbDevice: Device) {
+    if (usbDevice.vendorId !== VENDOR_ID) throw new core.WebUSBCouldNotPair("KeepKey", "bad vendor id");
+    if (usbDevice.productId !== WEBUSB_PRODUCT_ID) throw new core.FirmwareUpdateRequired("KeepKey", "6.1.0");
     this.usbDevice = usbDevice;
-    this.debugLink = false;
   }
 
-  public getDeviceID(): string {
+  static async create(device: Device) {
+    if (device.vendorId !== VENDOR_ID) return null;
+    return new TransportDelegate(device);
+  }
+
+  async getDeviceID(): Promise<string> {
     return this.usbDevice.serialNumber;
   }
 
-  public getVendor(): string {
-    return this.usbDevice.productName;
-  }
-
-  public async getFirmwareHash(firmware: ArrayBuffer): Promise<ArrayBuffer> {
-    const hash = await window.crypto.subtle.digest(
-      {
-        name: "SHA-256",
-      },
-      new Uint8Array(firmware) //The data you want to hash as an ArrayBuffer
-    );
-
-    return hash;
-  }
-
-  public get isOpened(): boolean {
+  async isOpened(): Promise<boolean> {
     return this.usbDevice.opened;
   }
 
-  public async connect(): Promise<void> {
+  async connect(): Promise<void> {
     await this.usbDevice.open();
     if (this.usbDevice.configuration === null) await this.usbDevice.selectConfiguration(1);
 
@@ -49,31 +36,26 @@ export class WebUSBKeepKeyTransport extends KeepKeyTransport {
       console.error("Could not claim interface 0", this.usbDevice, { e });
       if (e.code === 18)
         // "The requested interface implements a protected class"
-        throw new FirmwareUpdateRequired("KeepKey", "6.1.0");
+        throw new core.FirmwareUpdateRequired("KeepKey", "6.1.0");
       if (e.code === 19)
         // "Unable to claim interface"
-        throw new ConflictingApp("KeepKey");
+        throw new core.ConflictingApp("KeepKey");
       throw e;
     }
-
-    // Start reading data from usbDevice
-    this.listen();
   }
 
-  public async tryConnectDebugLink(): Promise<boolean> {
+  async tryConnectDebugLink(): Promise<boolean> {
     // We have to use "guess & check" here because the browser doesn't give us a
     // way to inspect the descriptors :(
     try {
       await this.usbDevice.claimInterface(1);
-      this.debugLink = true;
+      return true;
     } catch (e) {
-      this.debugLink = false;
+      return false;
     }
-
-    return this.debugLink;
   }
 
-  public async disconnect(): Promise<void> {
+  async disconnect(): Promise<void> {
     if (!this.usbDevice.opened) return;
     try {
       // If the device is disconnected, this will fail and throw, which is fine.
@@ -83,63 +65,18 @@ export class WebUSBKeepKeyTransport extends KeepKeyTransport {
     }
   }
 
-  public getEntropy(length: number = 64): Uint8Array {
-    return window.crypto.getRandomValues(new Uint8Array(length));
+  async writeChunk(buf: Uint8Array, debugLink: boolean): Promise<void> {
+    await this.usbDevice.transferOut(debugLink ? 2 : 1, buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
   }
 
-  protected async write(buff: ByteBuffer, debugLink: boolean): Promise<void> {
-    // break frame into segments
-    for (let i = 0; i < buff.limit; i += SEGMENT_SIZE) {
-      let segment = buff.toArrayBuffer().slice(i, i + SEGMENT_SIZE);
-      let padding = new Array(SEGMENT_SIZE - segment.byteLength + 1).join("\0");
-      let fragments: Array<any> = [];
-      fragments.push([63]);
-      fragments.push(segment);
-      fragments.push(padding);
-      const fragmentBuffer = concat(fragments);
-      await this.writeChunk(fragmentBuffer, debugLink);
-    }
-  }
+  async readChunk(debugLink: boolean): Promise<Uint8Array> {
+    const { status, data } = await this.usbDevice.transferIn(debugLink ? 2 : 1, keepkey.SEGMENT_SIZE + 1);
 
-  protected async read(debugLink: boolean): Promise<ByteBuffer> {
-    let first = await this.readChunk(debugLink);
-    // Check that buffer starts with: "?##" [ 0x3f, 0x23, 0x23 ]
-    // "?" = USB reportId, "##" = KeepKey magic bytes
-    // Message ID is bytes 4-5. Message length starts at byte 6.
-    const valid = (first.getUint32(0) & 0xffffff00) === 0x3f232300;
-    const msgLength = first.getUint32(5);
-    if (valid && msgLength >= 0) {
-      // FIXME: why doesn't ByteBuffer.concat() work?
-      const buffer = new Uint8Array(9 + 2 + msgLength);
-      for (let k = 0; k < first.byteLength; k++) {
-        buffer[k] = first.getUint8(k);
-      }
-      let offset = first.byteLength;
-
-      while (offset < buffer.length) {
-        const next = await this.readChunk(debugLink);
-        // Drop USB "?" reportId in the first byte
-        for (let k = 1; k < next.byteLength && offset < buffer.length; k++) {
-          buffer[offset] = next.getUint8(k);
-          offset++;
-        }
-      }
-
-      return wrap(buffer);
-    }
-  }
-
-  private async writeChunk(buffer: ByteBuffer, debugLink: boolean): Promise<USBOutTransferResult> {
-    return this.usbDevice.transferOut(debugLink ? 2 : 1, buffer.toArrayBuffer());
-  }
-
-  private async readChunk(debugLink: boolean): Promise<DataView> {
-    const result = await this.usbDevice.transferIn(debugLink ? 2 : 1, SEGMENT_SIZE + 1);
-
-    if (result.status === "stall") {
+    if (status === "stall") {
       await this.usbDevice.clearHalt("out", debugLink ? 2 : 1);
     }
 
-    return Promise.resolve(result.data);
+    if (data === undefined) throw new Error("bad read");
+    return new Uint8Array(core.toArrayBuffer(data));
   }
 }

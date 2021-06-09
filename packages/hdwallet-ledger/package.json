@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger",
-  "version": "1.14.3",
+  "version": "1.15.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,23 +15,26 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.4.0",
-    "@ledgerhq/live-common": "^8.4.1",
-    "@shapeshiftoss/hdwallet-core": "^1.14.3",
-    "base64-js": "^1.3.0",
+    "@shapeshiftoss/hdwallet-core": "^1.15.0",
+    "base64-js": "^1.5.1",
     "bchaddrjs": "^0.4.4",
-    "bip32-path": "^0.4.2",
     "bitcoinjs-lib": "^5.1.6",
     "bitcoinjs-message": "^2.0.0",
-    "buffer": "^5.4.3",
-    "build-output-script": "^1.0.3",
-    "create-xpub": "^2.1.0",
+    "bs58check": "2.1.2",
     "ethereumjs-tx": "^1.3.7",
     "ethereumjs-util": "^6.1.0",
-    "eventemitter2": "^5.0.1",
-    "lodash": "^4.17.11"
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@types/ethereumjs-tx": "^1.0.1"
+    "@types/bchaddrjs": "^0.4.0",
+    "@types/bs58check": "^2.1.0",
+    "@types/ethereumjs-tx": "^1.0.1",
+    "@types/ledgerhq__hw-transport": "^4.21.3",
+    "@types/lodash": "^4.14.168",
+    "typedoc": "^0.20.36",
+    "typescript": "^4.3.2"
+  },
+  "engines": {
+    "node": "^10 || ^12 || ^14"
   }
 }

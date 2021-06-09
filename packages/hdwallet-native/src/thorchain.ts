@@ -1,14 +1,15 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as bech32 from "bech32";
+import CryptoJS from "crypto-js";
 import * as txBuilder from "tendermint-tx-builder";
+
 import { NativeHDWalletBase } from "./native";
-import { toWords, encode } from "bech32";
-import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
 import util from "./util";
 import * as Isolation from "./crypto/isolation";
 
 const THOR_CHAIN = "thorchain";
 
-export function MixinNativeThorchainWalletInfo<TBase extends core.Constructor>(Base: TBase) {
+export function MixinNativeThorchainWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   return class MixinNativeThorchainWalletInfo extends Base implements core.ThorchainWalletInfo {
     _supportsThorchainInfo = true;
     async thorchainSupportsNetwork(): Promise<boolean> {
@@ -32,7 +33,7 @@ export function MixinNativeThorchainWalletInfo<TBase extends core.Constructor>(B
       ];
     }
 
-    thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath {
+    thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
       // Only support one account for now (like portis).
       return undefined;
     }
@@ -43,7 +44,7 @@ export function MixinNativeThorchainWallet<TBase extends core.Constructor<Native
   return class MixinNativeThorchainWallet extends Base {
     _supportsThorchain = true;
 
-    #seed: Isolation.BIP32.SeedInterface;
+    #seed: Isolation.BIP32.SeedInterface | undefined;
 
     async thorchainInitializeWallet(seed: Isolation.BIP32.SeedInterface): Promise<void> {
       this.#seed = seed;
@@ -54,26 +55,26 @@ export function MixinNativeThorchainWallet<TBase extends core.Constructor<Native
     }
 
     thorchainBech32ify(address: ArrayLike<number>, prefix: string): string {
-      const words = toWords(address);
-      return encode(prefix, words);
+      const words = bech32.toWords(address);
+      return bech32.encode(prefix, words);
     }
 
     createThorchainAddress(publicKey: string) {
-      const message = SHA256(CryptoJS.enc.Hex.parse(publicKey));
-      const hash = RIPEMD160(message as any).toString();
+      const message = CryptoJS.SHA256(CryptoJS.enc.Hex.parse(publicKey));
+      const hash = CryptoJS.RIPEMD160(message as any).toString();
       const address = Buffer.from(hash, `hex`);
       return this.thorchainBech32ify(address, `thor`);
     }
 
-    async thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string> {
+    async thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        return this.createThorchainAddress(util.getKeyPair(this.#seed, msg.addressNList, "thorchain").publicKey.toString("hex"));
+        return this.createThorchainAddress(util.getKeyPair(this.#seed!, msg.addressNList, "thorchain").publicKey.toString("hex"));
       });
     }
 
-    async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx> {
+    async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        const keyPair = util.getKeyPair(this.#seed, msg.addressNList, "thorchain");
+        const keyPair = util.getKeyPair(this.#seed!, msg.addressNList, "thorchain");
         const adapter = new Isolation.Adapters.Cosmos(keyPair);
         const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, THOR_CHAIN);
         return txBuilder.createSignedTx(msg.tx, result);

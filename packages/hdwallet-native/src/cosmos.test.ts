@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as NativeHDWallet from "./native";
+
+import * as native from "./native";
 
 const MNEMONIC = "all all all all all all all all all all all all";
 
@@ -9,7 +10,7 @@ afterEach(() => expect(mswMock).not.toHaveBeenCalled());
 const untouchable = require("untouchableMock");
 
 describe("NativeCosmosWalletInfo", () => {
-  const info = NativeHDWallet.info();
+  const info = native.info();
 
   it("should return some static metadata", async () => {
     expect(await untouchable.call(info, "cosmosSupportsNetwork")).toBe(true);
@@ -28,10 +29,10 @@ describe("NativeCosmosWalletInfo", () => {
 });
 
 describe("NativeCosmosWallet", () => {
-  let wallet: NativeHDWallet.NativeHDWallet;
+  let wallet: native.NativeHDWallet;
 
   beforeEach(async () => {
-    wallet = NativeHDWallet.create({ deviceId: "native" });
+    wallet = native.create({ deviceId: "native" });
     await wallet.loadDevice({ mnemonic: MNEMONIC });
     expect(await wallet.initialize()).toBe(true);
   });
@@ -64,11 +65,11 @@ describe("NativeCosmosWallet", () => {
       account_number: "foo",
       sequence: "bar",
     });
-    await expect(signed.signatures.length).toBe(1);
-    await expect(signed.signatures[0].pub_key.value).toMatchInlineSnapshot(
+    await expect(signed?.signatures?.length).toBe(1);
+    await expect(signed?.signatures?.[0].pub_key?.value).toMatchInlineSnapshot(
       `"AuGwbxSqxtP4HsVyUqrWiAZfb7Ur+gKYcAQ+Ru8mIBxQ"`
     );
-    await expect(signed.signatures[0].signature).toMatchInlineSnapshot(
+    await expect(signed?.signatures?.[0].signature).toMatchInlineSnapshot(
       `"pWgTUZC5NUcqVrJJQL3BhLtIRcerd21H6EaTkkYIw/VGCau1hMDQDSKzKDvVICN7CSS4i1I7BhZs8nqF/E3Y9w=="`
     );
   });

@@ -1,48 +1,12 @@
-import {
-  ETHWallet,
-  ETHGetAddress,
-  ETHSignTx,
-  ETHSignedTx,
-  ETHGetAccountPath,
-  ETHAccountPath,
-  ETHSignMessage,
-  ETHSignedMessage,
-  ETHVerifyMessage,
-  Constructor,
-  toHexString,
-  fromHexString,
-  arrayify,
-  Event,
-  Events,
-  LONG_TIMEOUT,
-  base64toHEX,
-  slip44ByCoin,
-  BTCInputScriptType,
-} from "@shapeshiftoss/hdwallet-core";
-
-import { KeepKeyTransport } from "./transport";
-
-import {
-  MessageType,
-  EthereumSignTx,
-  EthereumTxRequest,
-  EthereumGetAddress,
-  EthereumAddress,
-  EthereumSignMessage,
-  EthereumMessageSignature,
-  EthereumVerifyMessage,
-  Success,
-} from "@keepkey/device-protocol/lib/messages_pb";
-import { SignedExchangeResponse } from "@keepkey/device-protocol/lib/exchange_pb";
-import { ExchangeType, OutputAddressType } from "@keepkey/device-protocol/lib/types_pb";
-
-// @ts-ignore
-import * as Ethereumjs from "ethereumjs-tx";
-const { default: EthereumTx } = Ethereumjs as any;
+import * as Exchange from "@keepkey/device-protocol/lib/exchange_pb";
+import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
+import * as Types from "@keepkey/device-protocol/lib/types_pb";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import EthereumTx from "ethereumjs-tx";
+import * as eip55 from "eip55";
 
 import { toUTF8Array, translateInputScriptType } from "./utils";
-
-import * as EIP55 from "eip55";
+import { Transport } from "./transport";
 
 export async function ethSupportsNetwork(chain_id: number): Promise<boolean> {
   return true;
@@ -56,63 +20,63 @@ export function ethSupportsNativeShapeShift(): boolean {
   return true;
 }
 
-export function ethGetAccountPaths(msg: ETHGetAccountPath): Array<ETHAccountPath> {
+export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
+  const slip44 = core.slip44ByCoin(msg.coin);
+  if (slip44 === undefined) return [];
   return [
     {
-      addressNList: [0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx, 0, 0],
-      hardenedPath: [0x80000000 + 44, 0x80000000 + slip44ByCoin(msg.coin), 0x80000000 + msg.accountIdx],
+      addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
+      hardenedPath: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
       relPath: [0, 0],
       description: "KeepKey",
     },
   ];
 }
 
-export async function ethSignTx(transport: KeepKeyTransport, msg: ETHSignTx): Promise<ETHSignedTx> {
+export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
   return transport.lockDuring(async () => {
-    const est: EthereumSignTx = new EthereumSignTx();
+    const est: Messages.EthereumSignTx = new Messages.EthereumSignTx();
     est.setAddressNList(msg.addressNList);
-    let nonce = arrayify(msg.nonce);
-    while (nonce.length > 0 && nonce[0] == 0x00) nonce = nonce.slice(1);
-    est.setNonce(nonce);
-    est.setGasPrice(arrayify(msg.gasPrice));
-    est.setGasLimit(arrayify(msg.gasLimit));
+    est.setNonce(core.arrayify(msg.nonce));
+    est.setGasPrice(core.arrayify(msg.gasPrice));
+    est.setGasLimit(core.arrayify(msg.gasLimit));
     if (msg.value.match("^0x0*$") === null) {
-      est.setValue(arrayify(msg.value));
+      est.setValue(core.arrayify(msg.value));
     }
 
     if (msg.toAddressNList) {
-      est.setAddressType(OutputAddressType.SPEND);
+      est.setAddressType(Types.OutputAddressType.SPEND);
       est.setToAddressNList(msg.toAddressNList);
     } else if (msg.exchangeType) {
-      est.setAddressType(OutputAddressType.EXCHANGE);
+      est.setAddressType(Types.OutputAddressType.EXCHANGE);
 
-      const signedHex = base64toHEX(msg.exchangeType.signedExchangeResponse);
-      const signedExchangeOut = SignedExchangeResponse.deserializeBinary(arrayify(signedHex));
-      const exchangeType = new ExchangeType();
+      const signedHex = core.base64toHEX(msg.exchangeType.signedExchangeResponse);
+      const signedExchangeOut = Exchange.SignedExchangeResponse.deserializeBinary(core.arrayify(signedHex));
+      const exchangeType = new Types.ExchangeType();
       exchangeType.setSignedExchangeResponse(signedExchangeOut);
       exchangeType.setWithdrawalCoinName(msg.exchangeType.withdrawalCoinName); // KeepKey firmware will complain if this doesn't match signed exchange response
       exchangeType.setWithdrawalAddressNList(msg.exchangeType.withdrawalAddressNList);
       exchangeType.setWithdrawalScriptType(
-        translateInputScriptType(msg.exchangeType.withdrawalScriptType || BTCInputScriptType.SpendAddress)
+        translateInputScriptType(msg.exchangeType.withdrawalScriptType || core.BTCInputScriptType.SpendAddress)
       );
       exchangeType.setReturnAddressNList(msg.exchangeType.returnAddressNList);
       exchangeType.setReturnScriptType(
-        translateInputScriptType(msg.exchangeType.returnScriptType || BTCInputScriptType.SpendAddress)
+        translateInputScriptType(msg.exchangeType.returnScriptType || core.BTCInputScriptType.SpendAddress)
       );
       est.setExchangeType(exchangeType);
     } else {
-      est.setAddressType(OutputAddressType.SPEND);
+      est.setAddressType(Types.OutputAddressType.SPEND);
     }
 
     if (msg.to) {
-      est.setTo(arrayify(msg.to));
+      est.setTo(core.arrayify(msg.to));
     }
 
-    let dataChunk = null;
-    let dataRemaining = undefined;
+    let dataChunk: Uint8Array | null | undefined = null;
+    let dataRemaining: Uint8Array | null | undefined = undefined;
 
     if (msg.data) {
-      dataRemaining = arrayify(msg.data);
+      dataRemaining = core.arrayify(msg.data);
       est.setDataLength(dataRemaining.length);
       dataChunk = dataRemaining.slice(0, 1024);
       dataRemaining = dataRemaining.slice(dataChunk.length);
@@ -123,43 +87,46 @@ export async function ethSignTx(transport: KeepKeyTransport, msg: ETHSignTx): Pr
       est.setChainId(msg.chainId);
     }
 
-    let response: EthereumTxRequest;
+    let response: Messages.EthereumTxRequest;
     let nextResponse = await transport.call(
-      MessageType.MESSAGETYPE_ETHEREUMSIGNTX,
+      Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNTX,
       est,
-      LONG_TIMEOUT,
+      core.LONG_TIMEOUT,
       /*omitLock=*/ true
     );
-    if (nextResponse.message_enum === MessageType.MESSAGETYPE_FAILURE) {
+    if (nextResponse.message_enum === Messages.MessageType.MESSAGETYPE_FAILURE) {
       throw nextResponse;
     }
-    response = nextResponse.proto as EthereumTxRequest;
+    response = nextResponse.proto as Messages.EthereumTxRequest;
 
     try {
       while (response.hasDataLength()) {
         const dataLength = response.getDataLength();
+        dataRemaining = core.mustBeDefined(dataRemaining);
         dataChunk = dataRemaining.slice(0, dataLength);
         dataRemaining = dataRemaining.slice(dataLength, dataRemaining.length);
 
         nextResponse = await transport.call(
-          MessageType.MESSAGETYPE_ETHEREUMSIGNTX,
+          Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNTX,
           est,
-          LONG_TIMEOUT,
+          core.LONG_TIMEOUT,
           /*omitLock=*/ true
         );
-        if (nextResponse.message_enum === MessageType.MESSAGETYPE_FAILURE) {
+        if (nextResponse.message_enum === Messages.MessageType.MESSAGETYPE_FAILURE) {
           throw nextResponse;
         }
-        response = nextResponse.proto as EthereumTxRequest;
+        response = nextResponse.proto as Messages.EthereumTxRequest;
       }
     } catch (error) {
       console.error({ error });
       throw new Error("Failed to sign ETH transaction");
     }
 
-    const r = "0x" + toHexString(response.getSignatureR_asU8());
-    const s = "0x" + toHexString(response.getSignatureS_asU8());
-    const v = "0x" + response.getSignatureV().toString(16);
+    const r = "0x" + core.toHexString(response.getSignatureR_asU8());
+    const s = "0x" + core.toHexString(response.getSignatureS_asU8());
+    const v = response.getSignatureV();
+    if (!v) throw new Error("could not get v");
+    const v2 = "0x" + v.toString(16);
 
     const utx = {
       to: msg.to,
@@ -171,7 +138,7 @@ export async function ethSignTx(transport: KeepKeyTransport, msg: ETHSignTx): Pr
       gasPrice: msg.gasPrice,
       r,
       s,
-      v,
+      v: v2,
     };
 
     const tx = new EthereumTx(utx);
@@ -179,47 +146,47 @@ export async function ethSignTx(transport: KeepKeyTransport, msg: ETHSignTx): Pr
     return {
       r,
       s,
-      v: response.getSignatureV(),
-      serialized: "0x" + toHexString(tx.serialize()),
+      v,
+      serialized: "0x" + core.toHexString(tx.serialize()),
     };
   });
 }
 
-export async function ethGetAddress(transport: KeepKeyTransport, msg: ETHGetAddress): Promise<string> {
-  const getAddr = new EthereumGetAddress();
+export async function ethGetAddress(transport: Transport, msg: core.ETHGetAddress): Promise<string> {
+  const getAddr = new Messages.EthereumGetAddress();
   getAddr.setAddressNList(msg.addressNList);
   getAddr.setShowDisplay(msg.showDisplay !== false);
-  const response = await transport.call(MessageType.MESSAGETYPE_ETHEREUMGETADDRESS, getAddr, LONG_TIMEOUT);
-  const ethAddress = response.proto as EthereumAddress;
+  const response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMGETADDRESS, getAddr, core.LONG_TIMEOUT);
+  const ethAddress = response.proto as Messages.EthereumAddress;
 
-  if (response.message_type === Events.FAILURE) throw response;
+  if (response.message_type === core.Events.FAILURE) throw response;
 
-  let address = null;
-  if (ethAddress.hasAddressStr()) address = ethAddress.getAddressStr();
-  else if (ethAddress.hasAddress()) address = "0x" + toHexString(ethAddress.getAddress_asU8());
+  let address: string;
+  if (ethAddress.hasAddressStr()) address = ethAddress.getAddressStr()!;
+  else if (ethAddress.hasAddress()) address = "0x" + core.toHexString(ethAddress.getAddress_asU8());
   else throw new Error("Unable to obtain ETH address from device.");
 
   return address;
 }
 
-export async function ethSignMessage(transport: KeepKeyTransport, msg: ETHSignMessage): Promise<ETHSignedMessage> {
-  const m = new EthereumSignMessage();
+export async function ethSignMessage(transport: Transport, msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
+  const m = new Messages.EthereumSignMessage();
   m.setAddressNList(msg.addressNList);
   m.setMessage(toUTF8Array(msg.message));
-  const response = (await transport.call(MessageType.MESSAGETYPE_ETHEREUMSIGNMESSAGE, m, LONG_TIMEOUT)) as Event;
-  const sig = response.proto as EthereumMessageSignature;
+  const response = (await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNMESSAGE, m, core.LONG_TIMEOUT)) as core.Event;
+  const sig = response.proto as Messages.EthereumMessageSignature;
   return {
-    address: EIP55.encode("0x" + toHexString(sig.getAddress_asU8())), // FIXME: this should be done in the firmware
-    signature: "0x" + toHexString(sig.getSignature_asU8()),
+    address: eip55.encode("0x" + core.toHexString(sig.getAddress_asU8())), // FIXME: this should be done in the firmware
+    signature: "0x" + core.toHexString(sig.getSignature_asU8()),
   };
 }
 
-export async function ethVerifyMessage(transport: KeepKeyTransport, msg: ETHVerifyMessage): Promise<boolean> {
-  const m = new EthereumVerifyMessage();
-  m.setAddress(arrayify(msg.address));
-  m.setSignature(arrayify(msg.signature));
+export async function ethVerifyMessage(transport: Transport, msg: core.ETHVerifyMessage): Promise<boolean> {
+  const m = new Messages.EthereumVerifyMessage();
+  m.setAddress(core.arrayify(msg.address));
+  m.setSignature(core.arrayify(msg.signature));
   m.setMessage(toUTF8Array(msg.message));
-  const event = (await transport.call(MessageType.MESSAGETYPE_ETHEREUMVERIFYMESSAGE, m, LONG_TIMEOUT)) as Event;
-  const success = event.proto as Success;
+  const event = (await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMVERIFYMESSAGE, m, core.LONG_TIMEOUT)) as core.Event;
+  const success = event.proto as Messages.Success;
   return success.getMessage() === "Message verified";
 }

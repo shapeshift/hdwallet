@@ -1,9 +1,9 @@
-import { HDWallet, HDWalletInfo } from "@shapeshiftoss/hdwallet-core";
-import { isKeepKey } from "@shapeshiftoss/hdwallet-keepkey";
-import { isTrezor } from "@shapeshiftoss/hdwallet-trezor";
-import { isLedger } from "@shapeshiftoss/hdwallet-ledger";
-import { isPortis } from "@shapeshiftoss/hdwallet-portis";
-import { isNative } from "@shapeshiftoss/hdwallet-native";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
+import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+import * as native from "@shapeshiftoss/hdwallet-native";
+import * as portis from "@shapeshiftoss/hdwallet-portis";
+import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 
 import { btcTests } from "./bitcoin";
 import { ethTests } from "./ethereum";
@@ -30,8 +30,8 @@ import { WalletSuite } from "./wallets/suite";
 export function integration(suite: WalletSuite): void {
   const name: string = suite.name();
 
-  let wallet: HDWallet;
-  let info: HDWalletInfo;
+  let wallet: core.HDWallet;
+  let info: core.HDWalletInfo;
 
   describe(`${name}`, () => {
     beforeAll(() => {
@@ -45,11 +45,11 @@ export function integration(suite: WalletSuite): void {
 
       it("has only one vendor", () => {
         expect(
-          (isKeepKey(wallet) ? 1 : 0) +
-            (isTrezor(wallet) ? 1 : 0) +
-            (isLedger(wallet) ? 1 : 0) +
-            (isPortis(wallet) ? 1 : 0) +
-            (isNative(wallet) ? 1 : 0)
+          (keepkey.isKeepKey(wallet) ? 1 : 0) +
+            (trezor.isTrezor(wallet) ? 1 : 0) +
+            (ledger.isLedger(wallet) ? 1 : 0) +
+            (portis.isPortis(wallet) ? 1 : 0) +
+            (native.isNative(wallet) ? 1 : 0)
         ).toEqual(1);
       });
     });
@@ -79,7 +79,7 @@ export function integration(suite: WalletSuite): void {
     });
 
     describe("FioWallet", () => {
-      let wallet2: HDWallet
+      let wallet2: core.HDWallet
       beforeAll(async () => {
         wallet = await suite.createWallet("Fio");
         wallet2 = await suite.createWallet("Fio");

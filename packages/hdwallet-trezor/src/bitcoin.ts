@@ -1,40 +1,19 @@
-import {
-  BIP32Path,
-  BTCWallet,
-  BTCGetAddress,
-  BTCSignTx,
-  BTCSignedTx,
-  BTCGetAccountPaths,
-  BTCAccountPath,
-  BTCSignMessage,
-  BTCSignedMessage,
-  BTCVerifyMessage,
-  BTCInputScriptType,
-  Constructor,
-  Coin,
-  BTCOutputScriptType,
-  BTCOutputAddressType,
-  toHexString,
-  fromHexString,
-  slip44ByCoin,
-  addressNListToBIP32,
-} from "@shapeshiftoss/hdwallet-core";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import Base64 from "base64-js";
 
 import { handleError } from "./utils";
 import { TrezorTransport } from "./transport";
 
-import Base64 from "base64-js";
-
 type BTCTrezorSignTxOutput = {
   amount?: string;
   address?: string;
-  address_n?: BIP32Path | string;
+  address_n?: core.BIP32Path | string;
   script_type?: string;
   op_return_data?: Buffer;
 };
 
-function translateCoin(coin: Coin): string {
-  return {
+function translateCoin(coin: core.Coin): string {
+  return core.mustBeDefined(({
     Bitcoin: "btc",
     Litecoin: "ltc",
     Zcash: "zec",
@@ -44,61 +23,63 @@ function translateCoin(coin: Coin): string {
     DigiByte: "dgb",
     Testnet: "testnet",
     Dogecoin: "doge",
-  }[coin];
+  } as Partial<Record<core.Coin, string>>)[coin]);
 }
 
 const segwitCoins = ["Bitcoin", "Litecoin", "BitcoinGold", "Testnet"];
 
-function translateInputScriptType(scriptType: BTCInputScriptType): string {
+function translateInputScriptType(scriptType?: core.BTCInputScriptType): string {
   switch (scriptType) {
-    case BTCInputScriptType.SpendAddress:
+    case core.BTCInputScriptType.SpendAddress:
       return "SPENDADDRESS";
-    case BTCInputScriptType.SpendMultisig:
+    case core.BTCInputScriptType.SpendMultisig:
       return "SPENDMULTISIG";
-    case BTCInputScriptType.SpendWitness:
+    case core.BTCInputScriptType.SpendWitness:
       return "SPENDWITNESS";
-    case BTCInputScriptType.SpendP2SHWitness:
+    case core.BTCInputScriptType.SpendP2SHWitness:
       return "SPENDP2SHWITNESS";
   }
   throw new Error(`Un-handled enum entry: '${scriptType}'`);
 }
 
-function translateOutputScriptType(scriptType: BTCOutputScriptType): string {
+function translateOutputScriptType(scriptType?: core.BTCOutputScriptType): string {
   switch (scriptType) {
-    case BTCOutputScriptType.PayToAddress:
+    case core.BTCOutputScriptType.PayToAddress:
       return "PAYTOADDRESS";
-    case BTCOutputScriptType.PayToMultisig:
+    case core.BTCOutputScriptType.PayToMultisig:
       return "PAYTOMULTISIG";
-    case BTCOutputScriptType.PayToWitness:
+    case core.BTCOutputScriptType.PayToWitness:
       return "PAYTOWITNESS";
-    case BTCOutputScriptType.PayToP2SHWitness:
+    case core.BTCOutputScriptType.PayToP2SHWitness:
       return "PAYTOP2SHWITNESS";
   }
   throw new Error(`Un-handled enum entry: '${scriptType}'`);
 }
 
-export async function btcSupportsCoin(coin: Coin): Promise<boolean> {
+export async function btcSupportsCoin(coin: core.Coin): Promise<boolean> {
   return translateCoin(coin) !== undefined;
 }
 
-export async function btcSupportsScriptType(coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
+export async function btcSupportsScriptType(coin: core.Coin, scriptType?: core.BTCInputScriptType): Promise<boolean> {
   if (translateCoin(coin) === undefined) return false;
-  if (!segwitCoins.includes(coin) && scriptType === BTCInputScriptType.SpendP2SHWitness) return false;
-  if (!segwitCoins.includes(coin) && scriptType === BTCInputScriptType.SpendWitness) return false;
+  if (!segwitCoins.includes(coin) && scriptType === core.BTCInputScriptType.SpendP2SHWitness) return false;
+  if (!segwitCoins.includes(coin) && scriptType === core.BTCInputScriptType.SpendWitness) return false;
   return true;
 }
 
-export async function btcGetAddress(transport: TrezorTransport, msg: BTCGetAddress): Promise<string> {
-  console.assert(
-    !msg.showDisplay || !!msg.address,
-    "HDWalletTrezor::btcGetAddress: expected address is required for showDisplay"
-  );
+export async function btcGetAddress(transport: TrezorTransport, msg: core.BTCGetAddress): Promise<string> {
   let args: any = {
-    path: addressNListToBIP32(msg.addressNList),
-    showOnTrezor: msg.showDisplay !== false,
+    path: core.addressNListToBIP32(msg.addressNList),
+    showOnTrezor: !!msg.showDisplay,
     coin: translateCoin(msg.coin),
   };
-  if (msg.address) args.address = msg.address;
+  if (msg.showDisplay) {
+    args.address = await btcGetAddress(transport, {
+      ...msg,
+      showDisplay: false,
+    });
+  }
+
   // TODO: TrezorConnect doesn't support setting scriptType on getAddress
   let res = await transport.call("getAddress", args);
 
@@ -107,7 +88,7 @@ export async function btcGetAddress(transport: TrezorTransport, msg: BTCGetAddre
   return res.payload.address;
 }
 
-export async function btcSignTx(wallet: BTCWallet, transport: TrezorTransport, msg: BTCSignTx): Promise<BTCSignedTx> {
+export async function btcSignTx(wallet: core.BTCWallet, transport: TrezorTransport, msg: core.BTCSignTxTrezor): Promise<core.BTCSignedTx> {
   let supportsShapeShift = wallet.btcSupportsNativeShapeShift();
   let supportsSecureTransfer = await wallet.btcSupportsSecureTransfer();
 
@@ -124,8 +105,8 @@ export async function btcSignTx(wallet: BTCWallet, transport: TrezorTransport, m
   let outputs: BTCTrezorSignTxOutput[] = msg.outputs.map((output) => {
     if (output.exchangeType && !supportsShapeShift) throw new Error("Trezor does not support Native ShapeShift");
 
-    if (output.addressNList) {
-      if (output.addressType === BTCOutputAddressType.Transfer && !supportsSecureTransfer)
+    if ("addressNList" in output) {
+      if (output.addressType === core.BTCOutputAddressType.Transfer && !supportsSecureTransfer)
         throw new Error("Trezor does not support SecureTransfer");
 
       return {
@@ -133,7 +114,7 @@ export async function btcSignTx(wallet: BTCWallet, transport: TrezorTransport, m
         amount: output.amount,
         script_type: translateOutputScriptType(output.scriptType),
       };
-    } else if (output.addressType == BTCOutputAddressType.Transfer) {
+    } else if (output.addressType as core.BTCOutputAddressType == core.BTCOutputAddressType.Transfer) {
       throw new Error("invalid arguments");
     }
 
@@ -182,26 +163,26 @@ export function btcSupportsNativeShapeShift(): boolean {
   return false;
 }
 
-export async function btcSignMessage(transport: TrezorTransport, msg: BTCSignMessage): Promise<BTCSignedMessage> {
+export async function btcSignMessage(transport: TrezorTransport, msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
   let res = await transport.call("signMessage", {
     path: msg.addressNList,
     message: msg.message,
-    coin: translateCoin(msg.coin),
+    coin: msg.coin ? translateCoin(msg.coin) : undefined,
   });
 
   handleError(transport, res, "Could not sign message with Trezor");
 
   return {
     address: res.payload.address,
-    signature: toHexString(Uint8Array.from(Base64.toByteArray(res.payload.signature))),
+    signature: core.toHexString(Uint8Array.from(Base64.toByteArray(res.payload.signature))),
   };
 }
 
-export async function btcVerifyMessage(transport: TrezorTransport, msg: BTCVerifyMessage): Promise<boolean> {
+export async function btcVerifyMessage(transport: TrezorTransport, msg: core.BTCVerifyMessage): Promise<boolean> {
   let res = await transport.call("verifyMessage", {
     address: msg.address,
     message: msg.message,
-    signature: Base64.fromByteArray(fromHexString(msg.signature)),
+    signature: Base64.fromByteArray(core.fromHexString(msg.signature)),
     coin: translateCoin(msg.coin),
   });
 
@@ -212,25 +193,26 @@ export async function btcVerifyMessage(transport: TrezorTransport, msg: BTCVerif
   return res.payload.message === "Message verified";
 }
 
-export function btcGetAccountPaths(msg: BTCGetAccountPaths): Array<BTCAccountPath> {
-  const slip44 = slip44ByCoin(msg.coin);
+export function btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
+  const slip44 = core.slip44ByCoin(msg.coin);
+  if (slip44 === undefined) return [];
   const bip44 = {
     coin: msg.coin,
-    scriptType: BTCInputScriptType.SpendAddress,
+    scriptType: core.BTCInputScriptType.SpendAddress,
     addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
   };
   const bip49 = {
     coin: msg.coin,
-    scriptType: BTCInputScriptType.SpendP2SHWitness,
+    scriptType: core.BTCInputScriptType.SpendP2SHWitness,
     addressNList: [0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
   };
   const bip84 = {
     coin: msg.coin,
-    scriptType: BTCInputScriptType.SpendWitness,
+    scriptType: core.BTCInputScriptType.SpendWitness,
     addressNList: [0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
   };
 
-  let paths: Array<BTCAccountPath>;
+  let paths: Array<core.BTCAccountPath>;
 
   if (segwitCoins.includes(msg.coin)) paths = [bip49, bip44, bip84];
   else paths = [bip44];
@@ -243,7 +225,7 @@ export function btcGetAccountPaths(msg: BTCGetAccountPaths): Array<BTCAccountPat
   return paths;
 }
 
-export function btcIsSameAccount(msg: Array<BTCAccountPath>): boolean {
+export function btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
   // Trezor does not support mixed-mode segwit, and only lets you spend from
   // a single account (otherwise change is represented as an output).
   return msg.length == 1;

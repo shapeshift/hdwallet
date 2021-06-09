@@ -1,6 +1,6 @@
 import * as bnbSdk from "bnb-javascript-sdk-nobroadcast";
-import tinyecc from "tiny-secp256k1";
 import * as crypto from "crypto";
+import tinyecc from "tiny-secp256k1";
 
 export function decodeBnbTx(txBytes: Buffer, chainId: string) {
   const txDecoded = bnbSdk.amino.decoder.unMarshalBinaryLengthPrefixed(txBytes, {

@@ -1,22 +1,9 @@
-import {
-  Keyring,
-  HDWallet,
-  BTCWallet,
-  ETHWallet,
-  Events,
-  supportsDebugLink,
-  supportsBTC,
-  supportsETH,
-  bip32ToAddressNList,
-  ActionCancelled,
-  HDWalletInfo,
-  BTCInputScriptType,
-} from "@shapeshiftoss/hdwallet-core";
-import { KeepKeyHDWallet, KeepKeyHDWalletInfo, isKeepKey, info } from "@shapeshiftoss/hdwallet-keepkey";
-import { NodeWebUSBKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-nodewebusb";
-import { TCPKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-tcp";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
+import * as keepkeyNodeWebUSB from "@shapeshiftoss/hdwallet-keepkey-nodewebusb";
+import * as keepkeyTcp from "@shapeshiftoss/hdwallet-keepkey-tcp";
 import * as debug from "debug";
-import AxiosHTTPAdapter from 'axios/lib/adapters/http';
+import AxiosHTTPAdapter from "axios/lib/adapters/http";
 
 const log = debug.default("keepkey");
 
@@ -26,9 +13,9 @@ export function name(): string {
   return "KeepKey";
 }
 
-async function getDevice(keyring: Keyring) {
+async function getDevice(keyring: core.Keyring) {
   try {
-    const keepkeyAdapter = NodeWebUSBKeepKeyAdapter.useKeyring(keyring);
+    const keepkeyAdapter = keepkeyNodeWebUSB.NodeWebUSBKeepKeyAdapter.useKeyring(keyring);
     let wallet = await keepkeyAdapter.pairDevice(undefined, true);
     if (wallet) console.log("Using attached WebUSB KeepKey for tests");
     return wallet;
@@ -36,13 +23,13 @@ async function getDevice(keyring: Keyring) {
   return undefined;
 }
 
-async function getEmulator(keyring: Keyring) {
+async function getEmulator(keyring: core.Keyring) {
   try {
-    const tcpAdapter = TCPKeepKeyAdapter.useKeyring(keyring);
-    let wallet = await tcpAdapter.pairDevice({
+    const tcpAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
+    const wallet = await tcpAdapter.pairRawDevice({
       baseURL: "http://localhost:5000",
       adapter: AxiosHTTPAdapter,
-    });
+    }, true);
     if (wallet) console.log("Using KeepKey Emulator for tests");
     return wallet;
   } catch (e) {}
@@ -51,36 +38,36 @@ async function getEmulator(keyring: Keyring) {
 
 let autoButton = true;
 
-export function createInfo(): HDWalletInfo {
-  return info();
+export function createInfo(): core.HDWalletInfo {
+  return keepkey.info();
 }
 
-export async function createWallet(): Promise<HDWallet> {
-  const keyring = new Keyring();
+export async function createWallet(): Promise<core.HDWallet> {
+  const keyring = new core.Keyring();
 
-  let wallet = (await getDevice(keyring)) || (await getEmulator(keyring));
+  const wallet = (await getDevice(keyring)) || (await getEmulator(keyring));
 
   if (!wallet) throw new Error("No suitable test KeepKey found");
 
-  wallet.transport.on(Events.BUTTON_REQUEST, async () => {
-    if (autoButton && supportsDebugLink(wallet)) {
+  wallet.transport?.on(core.Events.BUTTON_REQUEST, async () => {
+    if (autoButton && core.supportsDebugLink(wallet)) {
       await wallet.pressYes();
     }
   });
 
-  wallet.transport.onAny((event: string[], ...values: any[]) => {
+  wallet.transport?.onAny((event: string | string[], ...values: any[]) => {
     //console.info(event, ...values)
   });
 
   return wallet;
 }
 
-export function selfTest(get: () => HDWallet): void {
-  let wallet: KeepKeyHDWallet & BTCWallet & ETHWallet & HDWallet;
+export function selfTest(get: () => core.HDWallet): void {
+  let wallet: keepkey.KeepKeyHDWallet & core.BTCWallet & core.ETHWallet & core.HDWallet;
 
   beforeAll(async () => {
     let w = get();
-    if (isKeepKey(w) && supportsBTC(w) && supportsETH(w)) wallet = w;
+    if (keepkey.isKeepKey(w) && core.supportsBTC(w) && core.supportsETH(w)) wallet = w;
     else fail("Wallet is not a KeepKey");
 
     await wallet.wipe();
@@ -113,8 +100,8 @@ export function selfTest(get: () => HDWallet): void {
       });
       expect(paths).toEqual([
         {
-          addressNList: bip32ToAddressNList(`m/44'/60'/${account}'/0/0`),
-          hardenedPath: bip32ToAddressNList(`m/44'/60'/${account}'`),
+          addressNList: core.bip32ToAddressNList(`m/44'/60'/${account}'/0/0`),
+          hardenedPath: core.bip32ToAddressNList(`m/44'/60'/${account}'`),
           relPath: [0, 0],
           description: "KeepKey",
         },
@@ -135,12 +122,12 @@ export function selfTest(get: () => HDWallet): void {
     async () => {
       if (!wallet) return;
 
-      let addrs = [];
-      await new Promise(async (resolve) => {
+      let addrs = [] as string[];
+      await new Promise<void>(async (resolve) => {
         wallet
           .btcGetAddress({
             coin: "Bitcoin",
-            addressNList: bip32ToAddressNList("m/44'/0'/0'/0/0"),
+            addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
             showDisplay: true,
           })
           .then((address) => {
@@ -150,7 +137,7 @@ export function selfTest(get: () => HDWallet): void {
         wallet
           .btcGetAddress({
             coin: "Bitcoin",
-            addressNList: bip32ToAddressNList("m/44'/0'/0'/0/1"),
+            addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/1"),
             showDisplay: true,
           })
           .then((address) => {
@@ -160,7 +147,7 @@ export function selfTest(get: () => HDWallet): void {
         wallet
           .btcGetAddress({
             coin: "Bitcoin",
-            addressNList: bip32ToAddressNList("m/44'/0'/0'/0/2"),
+            addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/2"),
             showDisplay: true,
           })
           .then((address) => {
@@ -189,12 +176,12 @@ export function selfTest(get: () => HDWallet): void {
 
       const addrPromise = wallet.btcGetAddress({
         coin: "Bitcoin",
-        addressNList: bip32ToAddressNList("m/44'/0'/0'/0/0"),
+        addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
         showDisplay: true,
       });
 
       await wallet.cancel();
-      await expect(addrPromise).rejects.toThrow(ActionCancelled);
+      await expect(addrPromise).rejects.toThrow(core.ActionCancelled);
 
       autoButton = true;
     },
@@ -212,7 +199,7 @@ export function selfTest(get: () => HDWallet): void {
       await expect(
         wallet.btcGetAddress({
           coin: "Bitcoin",
-          addressNList: bip32ToAddressNList("m/44'/0'/0'/0/0"),
+          addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
           showDisplay: true,
         })
       ).resolves.toEqual("1JAd7XCBzGudGpJQSDSfpmJhiygtLQWaGL");
@@ -231,17 +218,17 @@ export function selfTest(get: () => HDWallet): void {
     expect(paths).toEqual([
       {
         addressNList: [2147483692, 2147483650, 2147483651],
-        scriptType: BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCInputScriptType.SpendAddress,
         coin: "Litecoin",
       },
       {
         addressNList: [2147483697, 2147483650, 2147483651],
-        scriptType: BTCInputScriptType.SpendP2SHWitness,
+        scriptType: core.BTCInputScriptType.SpendP2SHWitness,
         coin: "Litecoin",
       },
       {
         addressNList: [2147483732, 2147483650, 2147483651],
-        scriptType: BTCInputScriptType.SpendWitness,
+        scriptType: core.BTCInputScriptType.SpendWitness,
         coin: "Litecoin",
       },
     ]);
@@ -257,7 +244,7 @@ export function selfTest(get: () => HDWallet): void {
 
     expect(
       paths
-        .map((path) => wallet.ethNextAccountPath(path))
+        .map((path) => core.mustBeDefined(wallet.ethNextAccountPath(path)))
         .map((path) =>
           wallet.describePath({
             ...path,
@@ -287,7 +274,7 @@ export function selfTest(get: () => HDWallet): void {
 
     expect(
       paths
-        .map((path) => wallet.btcNextAccountPath(path))
+        .map((path) => core.mustBeDefined(wallet.btcNextAccountPath(path)))
         .map((path) =>
           wallet.describePath({
             ...path,
@@ -328,15 +315,15 @@ export function selfTest(get: () => HDWallet): void {
   it("can describe a Bitcoin path", () => {
     expect(
       wallet.info.describePath({
-        path: bip32ToAddressNList("m/44'/0'/0'/0/0"),
+        path: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
         coin: "Bitcoin",
-        scriptType: BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCInputScriptType.SpendAddress,
       })
     ).toEqual({
       verbose: "Bitcoin Account #0, Address #0 (Legacy)",
       coin: "Bitcoin",
       isKnown: true,
-      scriptType: BTCInputScriptType.SpendAddress,
+      scriptType: core.BTCInputScriptType.SpendAddress,
       accountIdx: 0,
       addressIdx: 0,
       wholeAccount: false,
@@ -348,15 +335,15 @@ export function selfTest(get: () => HDWallet): void {
   it("can describe prefork BitcoinCash", () => {
     expect(
       wallet.info.describePath({
-        path: bip32ToAddressNList("m/44'/0'/0'/0/0"),
+        path: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
         coin: "BitcoinCash",
-        scriptType: BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCInputScriptType.SpendAddress,
       })
     ).toEqual({
       verbose: "BitcoinCash Account #0, Address #0 (Prefork)",
       coin: "BitcoinCash",
       isKnown: true,
-      scriptType: BTCInputScriptType.SpendAddress,
+      scriptType: core.BTCInputScriptType.SpendAddress,
       accountIdx: 0,
       addressIdx: 0,
       wholeAccount: false,
@@ -368,15 +355,15 @@ export function selfTest(get: () => HDWallet): void {
   it("can describe prefork Segwit Native BTG", () => {
     expect(
       wallet.info.describePath({
-        path: bip32ToAddressNList("m/84'/0'/0'/0/0"),
+        path: core.bip32ToAddressNList("m/84'/0'/0'/0/0"),
         coin: "BitcoinGold",
-        scriptType: BTCInputScriptType.SpendWitness,
+        scriptType: core.BTCInputScriptType.SpendWitness,
       })
     ).toEqual({
       verbose: "BitcoinGold Account #0, Address #0 (Prefork, Segwit Native)",
       coin: "BitcoinGold",
       isKnown: true,
-      scriptType: BTCInputScriptType.SpendWitness,
+      scriptType: core.BTCInputScriptType.SpendWitness,
       accountIdx: 0,
       addressIdx: 0,
       wholeAccount: false,
@@ -388,15 +375,15 @@ export function selfTest(get: () => HDWallet): void {
   it("can describe Bitcoin Change Addresses", () => {
     expect(
       wallet.info.describePath({
-        path: bip32ToAddressNList("m/44'/0'/7'/1/5"),
+        path: core.bip32ToAddressNList("m/44'/0'/7'/1/5"),
         coin: "Bitcoin",
-        scriptType: BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCInputScriptType.SpendAddress,
       })
     ).toEqual({
       verbose: "Bitcoin Account #7, Change Address #5 (Legacy)",
       coin: "Bitcoin",
       isKnown: true,
-      scriptType: BTCInputScriptType.SpendAddress,
+      scriptType: core.BTCInputScriptType.SpendAddress,
       accountIdx: 7,
       addressIdx: 5,
       wholeAccount: false,
@@ -408,9 +395,9 @@ export function selfTest(get: () => HDWallet): void {
   it("can describe prefork paths", () => {
     expect(
       wallet.info.describePath({
-        path: bip32ToAddressNList("m/44'/0'/7'/1/5"),
+        path: core.bip32ToAddressNList("m/44'/0'/7'/1/5"),
         coin: "BitcoinCash",
-        scriptType: BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCInputScriptType.SpendAddress,
       })
     ).toEqual({
       accountIdx: 7,
@@ -428,7 +415,7 @@ export function selfTest(get: () => HDWallet): void {
   it("can describe eth paths", () => {
     expect(
       wallet.info.describePath({
-        path: bip32ToAddressNList("m/44'/60'/0'/0/0"),
+        path: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
         coin: "Ethereum",
       })
     ).toEqual({
@@ -442,7 +429,7 @@ export function selfTest(get: () => HDWallet): void {
 
     expect(
       wallet.info.describePath({
-        path: bip32ToAddressNList("m/44'/60'/3'/0/0"),
+        path: core.bip32ToAddressNList("m/44'/60'/3'/0/0"),
         coin: "Ethereum",
       })
     ).toEqual({
@@ -456,7 +443,7 @@ export function selfTest(get: () => HDWallet): void {
 
     expect(
       wallet.info.describePath({
-        path: bip32ToAddressNList("m/44'/60'/0'/0/3"),
+        path: core.bip32ToAddressNList("m/44'/60'/0'/0/3"),
         coin: "Ethereum",
       })
     ).toEqual({

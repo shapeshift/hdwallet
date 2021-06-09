@@ -1,5 +1,5 @@
-import { HDWallet, ETHWallet, supportsETH, HDWalletInfo } from "@shapeshiftoss/hdwallet-core";
-import { PortisAdapter, PortisHDWallet, isPortis, info, create } from "@shapeshiftoss/hdwallet-portis";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as portis from "@shapeshiftoss/hdwallet-portis";
 
 export function name(): string {
   return "Portis";
@@ -31,8 +31,8 @@ const mockSignERC20TxResponse = {
     "0xf8a20114149441e5560054824ea6b0732e656e3ad64e20e94e4580b844a9059cbb0000000000000000000000001d8ce9022f6284c3a5c317f8f34620107214e54500000000000000000000000000000000000000000000000000000002540be40025a01238fd332545415f09a01470350a5a20abc784dbf875cf58f7460560e66c597fa010efa4dd6fdb381c317db8f815252c2ac0d2a883bd364901dee3dec5b7d3660a",
 };
 
-export async function createWallet(): Promise<HDWallet> {
-  const wallet = create(mockPortis);
+export async function createWallet(): Promise<core.HDWallet> {
+  const wallet = portis.create(mockPortis as any);
 
   if (!wallet) throw new Error("No Portis wallet found");
 
@@ -46,7 +46,7 @@ export async function createWallet(): Promise<HDWallet> {
       getAccounts: () => ["0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"],
       sign: () =>
         "0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b",
-      signTransaction: ({ data }) => {
+      signTransaction: ({ data }: any) => {
         return data.length ? mockSignERC20TxResponse : mockSignEthTxResponse;
       },
     },
@@ -56,16 +56,16 @@ export async function createWallet(): Promise<HDWallet> {
   return wallet;
 }
 
-export function createInfo(): HDWalletInfo {
-  return info();
+export function createInfo(): core.HDWalletInfo {
+  return portis.info();
 }
 
-export function selfTest(get: () => HDWallet): void {
-  let wallet: PortisHDWallet & ETHWallet & HDWallet;
+export function selfTest(get: () => core.HDWallet): void {
+  let wallet: portis.PortisHDWallet & core.ETHWallet & core.HDWallet;
 
   beforeAll(() => {
     let w = get();
-    if (isPortis(w) && supportsETH(w)) wallet = w;
+    if (portis.isPortis(w) && core.supportsETH(w)) wallet = w;
     else fail("Wallet is not Portis");
   });
 
@@ -81,10 +81,10 @@ export function selfTest(get: () => HDWallet): void {
 
   it("does not support more than one account path", async () => {
     if (!wallet) return;
-    const paths = await wallet.ethGetAccountPaths({
+    const paths = core.mustBeDefined(await wallet.ethGetAccountPaths({
       coin: "Ethereum",
       accountIdx: 0,
-    });
+    }));
     expect(paths.length).toEqual(1);
     const nextPath = await wallet.ethNextAccountPath(paths[0]);
     expect(nextPath).toBeUndefined();

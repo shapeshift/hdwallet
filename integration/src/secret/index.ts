@@ -1,7 +1,7 @@
-import { HDWallet, HDWalletInfo } from "@shapeshiftoss/hdwallet-core";
+import * as core from "@shapeshiftoss/hdwallet-core";
 
 import { secretTests as tests } from "./secret";
 
-export function secretTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): void {
+export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
   tests(get);
 }

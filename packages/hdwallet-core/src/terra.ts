@@ -1,5 +1,5 @@
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
-import { BIP32Path, PathDescription } from "./wallet";
+import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
 export interface TerraGetAddress {
   addressNList: BIP32Path;
@@ -74,8 +74,8 @@ export interface TerraAccountPath {
   addressNList: BIP32Path;
 }
 
-export interface TerraWalletInfo {
-  _supportsTerraInfo: boolean;
+export interface TerraWalletInfo extends HDWalletInfo {
+  readonly _supportsTerraInfo: boolean;
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order
@@ -89,11 +89,11 @@ export interface TerraWalletInfo {
   terraNextAccountPath(msg: TerraAccountPath): TerraAccountPath | undefined;
 }
 
-export interface TerraWallet extends TerraWalletInfo {
-  _supportsTerra: boolean;
+export interface TerraWallet extends TerraWalletInfo, HDWallet {
+  readonly _supportsTerra: boolean;
 
-  terraGetAddress(msg: TerraGetAddress): Promise<string>;
-  terraSignTx(msg: TerraSignTx): Promise<TerraSignedTx>;
+  terraGetAddress(msg: TerraGetAddress): Promise<string | null>;
+  terraSignTx(msg: TerraSignTx): Promise<TerraSignedTx | null>;
 }
 
 export function terraDescribePath(path: BIP32Path): PathDescription {

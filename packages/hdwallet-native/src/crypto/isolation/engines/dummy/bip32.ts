@@ -5,15 +5,9 @@ import * as bip32crypto from "bip32/src/crypto";
 import * as tinyecc from "tiny-secp256k1";
 import { TextEncoder } from "web-encoding";
 
-import { ByteArray, Uint32, checkType } from "../../types";
+import { ByteArray, Uint32, checkType, safeBufferFrom } from "../../types";
 import { Digest, SecP256K1 } from "../..";
 import { ChainCode } from "../../core/bip32";
-
-function safeBufferFrom(input: ByteArray): Buffer {
-  if (Buffer.isBuffer(input)) return input;
-  input = checkType(ByteArray(), input);
-  return Buffer.alloc(input.byteLength).fill(input);
-}
 
 export class Seed implements BIP32.SeedInterface {
     readonly #seed: Buffer;
@@ -36,9 +30,9 @@ export class Seed implements BIP32.SeedInterface {
 }
 
 export class Node implements BIP32.NodeInterface, SecP256K1.ECDSARecoverableKeyInterface, SecP256K1.ECDHKeyInterface {
-    readonly #privateKey: ByteArray<32>;
+    readonly #privateKey: Buffer & ByteArray<32>;
     readonly chainCode: Buffer & BIP32.ChainCode;
-    #publicKey: SecP256K1.CompressedPoint;
+    #publicKey: SecP256K1.CompressedPoint | undefined;
 
     constructor(privateKey: Uint8Array, chainCode: Uint8Array) {
         // We avoid handing the private key to any non-platform code -- including our type-checking machinery.
@@ -57,7 +51,7 @@ export class Node implements BIP32.NodeInterface, SecP256K1.ECDSARecoverableKeyI
         counter === undefined || Uint32.assert(counter);
 
         // When running tests, this will keep us aware of any codepaths that don't pass in the preimage
-        if (expect) expect(SecP256K1.MessageWithPreimage.test(msg)).toBeTruthy();
+        if (typeof expect === "function") expect(SecP256K1.MessageWithPreimage.test(msg)).toBeTruthy();
 
         if (SecP256K1.MessageWithPreimage.test(msg)) {
             console.log(`signing ${msg.algorithm} hash of ${Buffer.from(msg.preimage).toString("hex")}`);
@@ -66,9 +60,11 @@ export class Node implements BIP32.NodeInterface, SecP256K1.ECDSARecoverableKeyI
         }
 
         const entropy = (counter === undefined ? undefined : Buffer.alloc(32));
-        entropy?.writeUInt32BE(counter, 24);
+        entropy?.writeUInt32BE(counter ?? 0, 24);
         return SecP256K1.RecoverableSignature.fromSignature(
-            checkType(SecP256K1.Signature, tinyecc.signWithEntropy(Buffer.from(msg), this.#privateKey, entropy)),
+            checkType(SecP256K1.Signature, (tinyecc as typeof tinyecc & {
+                signWithEntropy: (message: Buffer, privateKey: Buffer, entropy?: Buffer) => Buffer,
+            }).signWithEntropy(Buffer.from(msg), this.#privateKey, entropy)),
             msg,
             this.publicKey,
         );
@@ -89,6 +85,7 @@ export class Node implements BIP32.NodeInterface, SecP256K1.ECDSARecoverableKeyI
         const IL = I.slice(0, 32);
         const IR = I.slice(32, 64);
         const ki = tinyecc.privateAdd(this.#privateKey, IL);
+        if (ki === null) throw new Error("ki is null; this should be cryptographically impossible");
         return new Node(ki, IR) as this;
     }
   
