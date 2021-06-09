@@ -71,9 +71,8 @@ export async function ethSignTx(transport: KeepKeyTransport, msg: ETHSignTx): Pr
   return transport.lockDuring(async () => {
     const est: EthereumSignTx = new EthereumSignTx();
     est.setAddressNList(msg.addressNList);
-    let nonce = arrayify(msg.nonce);
-    while (nonce.length > 0 && nonce[0] == 0x00) nonce = nonce.slice(1);
-    est.setNonce(nonce);
+    const idx = arrayify(msg.nonce).findIndex((x) => x != 0x00);
+    est.setNonce(idx > -1 ? msg.nonce?.slice(idx) : [0x00]);
     est.setGasPrice(arrayify(msg.gasPrice));
     est.setGasLimit(arrayify(msg.gasLimit));
     if (msg.value.match("^0x0*$") === null) {
