@@ -1,5 +1,3 @@
-import type * as fioSdk from "fiosdk-offline";
-
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
@@ -23,32 +21,168 @@ export interface FioNextAccountPath {
 }
 
 export namespace Fio {
-  export interface FioPermissionLevel {
+  export interface PermissionLevel {
     actor?: string;
     permission?: string;
   }
 
-  export interface FioTxActionData {
-    tpid?: string;
-    actor?: string;
-    [x: string]: any;
+  export type PublicAddress = {
+    chain_code: string;
+    token_code: string;
+    public_address: string;
+  };
+
+  export type FeeRatio = {
+    end_point: string;
+    value: number;
+  };
+
+  export enum ContentType {
+    REQUEST = "new_funds_content",
+    OBT = "record_obt_data_content",
   }
 
+  export type RequestContent = {
+    payee_public_address: string;
+    amount: string;
+    chain_code: string;
+    token_code: string;
+    memo: string;
+    hash: string;
+    offline_url: string;
+  };
+
+  export type OBTContent = {
+    payee_public_address: string;
+    payer_public_address: string;
+    amount: string;
+    chain_code: string;
+    token_code: string;
+    status: string;
+    obt_id: string;
+    memo: string;
+    hash: string;
+    offline_url: string;
+  };
+
+  export type Content<T> = T extends ContentType
+    ? T extends ContentType.REQUEST
+      ? RequestContent
+      : T extends ContentType.OBT
+      ? OBTContent
+      : never
+    : never;
+
   /* add action acks here as they are added to the wallet */
-  export interface FioTxActionAck {
-    account?: fioSdk.FioActionParameters.FioActionAccount;
-    name?: fioSdk.FioActionParameters.FioActionName;
-    authorization?: Array<Fio.FioPermissionLevel>;
-    data?: fioSdk.FioActionParameters.FioActionData;
-  }
+  export type TxActionAck = {
+    authorization?: Array<PermissionLevel>;
+    data: {
+      max_fee?: number;
+      tpid?: string;
+      actor?: "";
+    };
+  } & (
+    | {
+        account: "fio.address";
+        name: "addaddress";
+        data: {
+          fio_address: string;
+          public_addresses: Array<PublicAddress>;
+        };
+      }
+    | {
+        account: "fio.reqobt";
+        name: "newfundsreq";
+        data: {
+          payer_fio_address: string;
+          payee_fio_address: string;
+          content: string;
+        };
+      }
+    | {
+        account: "fio.reqobt";
+        name: "recordobt";
+        data: {
+          payer_fio_address: string;
+          payee_fio_address: string;
+          content: OBTContent;
+          fio_request_id: string;
+        };
+      }
+    | {
+        account: "fio.address";
+        name: "regaddress";
+        data: {
+          fio_address: string;
+          owner_fio_public_key: string;
+        };
+      }
+    | {
+        account: "fio.address";
+        name: "regdomain";
+        data: {
+          fio_domain: string;
+          owner_fio_public_key: string;
+        };
+      }
+    | {
+        account: "fio.reqobt";
+        name: "rejectfndreq";
+        data: {
+          fio_request_id: string;
+        };
+      }
+    | {
+        account: "fio.address";
+        name: "renewaddress";
+        data: {
+          fio_address: string;
+        };
+      }
+    | {
+        account: "fio.address";
+        name: "renewdomain";
+        data: {
+          fio_domain: string;
+        };
+      }
+    | {
+        account: "fio.address";
+        name: "setdomainpub";
+        data: {
+          fio_domain: string;
+          is_public: boolean;
+        };
+      }
+    | {
+        account: "fio.token";
+        name: "trnsfiopubky";
+        data: {
+          payee_public_key: string;
+          amount: string;
+        };
+      }
+  );
+
+  export type ActionName = TxActionAck["name"];
+  export type ActionAccount = TxActionAck["account"];
+  export type ActionData = TxActionAck["data"];
+
+  // for compatibility
+  export type FioPermissionLevel = PermissionLevel;
+  export type FioTxActionAck = TxActionAck;
+  export type FioTxActionData = ActionData;
 }
+
+export type FioEncryptionContentType = Fio.ContentType;
+export const FioEncryptionContentType = Fio.ContentType;
 
 export interface FioSignTx {
   addressNList: BIP32Path;
   expiration?: string;
   ref_block_num?: number;
   ref_block_prefix?: number;
-  actions: Array<Fio.FioTxActionAck>;
+  actions: [Fio.TxActionAck];
 }
 
 export interface FioSignedTx {
@@ -71,24 +205,29 @@ export interface FioWalletInfo extends HDWalletInfo {
   fioNextAccountPath(msg: FioAccountPath): FioAccountPath | undefined;
 }
 
+export type FioEncryptRequestContentMsg<T extends Fio.ContentType> = {
+  addressNList: BIP32Path;
+  content: Fio.Content<T>;
+  publicKey: string;
+  contentType: T;
+  iv?: Uint8Array;
+};
+
+export type FioDecryptRequestContentMsg<T extends Fio.ContentType = Fio.ContentType> = {
+  addressNList: BIP32Path;
+  content: string;
+  publicKey: string;
+  contentType: T;
+};
+
 export interface FioWallet extends FioWalletInfo, HDWallet {
   readonly _supportsFio: boolean;
   fioGetAddress(msg: FioGetAddress): Promise<string | null>;
   fioSignTx(msg: FioSignTx): Promise<FioSignedTx | null>;
-  fioDecryptRequestContent(msg: FioRequestContent): Promise<any | null>;
-  fioEncryptRequestContent(msg: FioRequestContent): Promise<string | null>;
-}
-
-export enum FioEncryptionContentType {
-  REQUEST = "new_funds_content",
-  OBT = "record_obt_data_content"
-}
-
-export interface FioRequestContent {
-  addressNList: BIP32Path;
-  content: fioSdk.FioActionParameters.FioRequestContent | string;
-  publicKey: string;
-  contentType: FioEncryptionContentType
+  fioEncryptRequestContent<T extends Fio.ContentType>(msg: FioEncryptRequestContentMsg<T>): Promise<string | null>;
+  fioDecryptRequestContent<T extends Fio.ContentType>(
+    msg: FioDecryptRequestContentMsg<T>
+  ): Promise<Fio.Content<T> | null>;
 }
 
 export function fioDescribePath(path: BIP32Path): PathDescription {

@@ -1730,6 +1730,18 @@
     randombytes "^2.1.0"
     text-encoding "0.7.0"
 
+"@fioprotocol/fiosdk@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@fioprotocol/fiosdk/-/fiosdk-1.2.1.tgz#02cd7e664c57663f68fa1d721415fbf25b5f033d"
+  integrity sha512-2AzdcKwUNwbz29xAkYFmQhsj/pj7WK7dZ0MWdVmU9IZiILF2kM6LuuDmGUkDcqSUkLa09kbZJCEV7iLi4jTpxw==
+  dependencies:
+    "@fioprotocol/fiojs" "1.0.1"
+    "@types/text-encoding" "0.0.35"
+    bip39 "^3.0.2"
+    hdkey "^1.1.1"
+    validate "^5.1.0"
+    wif "^2.0.6"
+
 "@iarna/toml@^2.2.0":
   version "2.2.5"
   resolved "https://registry.yarnpkg.com/@iarna/toml/-/toml-2.2.5.tgz#b32366c89b43c6f8cefbdefac778b9c828e3ba8c"
@@ -3385,6 +3397,11 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-2.0.0.tgz#7036640b4e21cc2f259ae826ce843d277dad8cff"
   integrity sha512-RJJrrySY7A8havqpGObOB4W92QXKJo63/jFLLgpvOtsGUqbQZ9Sbgl35KMm1DjC6j7AvmmU2bIno+3IyEaemaw==
+
+"@types/text-encoding@0.0.35":
+  version "0.0.35"
+  resolved "https://registry.yarnpkg.com/@types/text-encoding/-/text-encoding-0.0.35.tgz#6f14474e0b232bc70c59677aadc65dcc5a99c3a9"
+  integrity sha512-jfo/A88XIiAweUa8np+1mPbm3h2w0s425YrI8t3wk5QxhH6UI7w517MboNVnGDeMSuoFwA8Rwmklno+FicvV4g==
 
 "@types/through@*":
   version "0.0.30"
