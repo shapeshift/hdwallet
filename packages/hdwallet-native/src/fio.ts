@@ -1,5 +1,5 @@
+import * as fio from "@shapeshiftoss/fiosdk";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as fio from "@fioprotocol/fiosdk";
 import fetch, { RequestInfo, RequestInit } from "node-fetch";
 
 import { NativeHDWalletBase } from "./native";
