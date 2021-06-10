@@ -29,11 +29,11 @@ function eosSigFormatter(r: Uint8Array, s: Uint8Array, v: number): string {
   console.log(check);
 
   console.log("hash");
-  console.log(createHash("ripemd160").update(Buffer.concat(check)).digest());
-  const chksum = createHash("ripemd160").update(Buffer.concat(check)).digest().slice(0, 4);
+  console.log(createHash("ripemd160").update(core.compatibleBufferConcat(check)).digest());
+  const chksum = createHash("ripemd160").update(core.compatibleBufferConcat(check)).digest().slice(0, 4);
 
   console.log(chksum);
-  signature = signature.concat(base58.encode(Buffer.concat([keyBuffer, chksum])));
+  signature = signature.concat(base58.encode(core.compatibleBufferConcat([keyBuffer, chksum])));
 
   console.log(signature);
 

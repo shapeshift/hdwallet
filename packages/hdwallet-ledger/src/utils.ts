@@ -64,7 +64,7 @@ export const compressPublicKey = (publicKey: Uint8Array) => {
   if ([0x02, 0x03].includes(publicKey[0]) && publicKey.length === 33) return Buffer.from(publicKey);
   if (!(publicKey[0] === 0x04 && publicKey.length === 65)) throw new Error("Invalid public key format");
 
-  return Buffer.concat([
+  return core.compatibleBufferConcat([
     Buffer.from([((publicKey[64] & 0x01) === 0x00 ? 0x02 : 0x03)]),
     publicKey.slice(1,33),
   ]);
@@ -78,7 +78,7 @@ export const createXpub = (depth: number, parentFp: number, childNum: number, ch
   headerView.setUint32(5, parentFp);
   headerView.setUint32(9, childNum);
   return bs58check.encode(
-    Buffer.concat([
+    core.compatibleBufferConcat([
       header,
       chainCode,
       publicKey,

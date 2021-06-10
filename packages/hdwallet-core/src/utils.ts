@@ -186,3 +186,24 @@ export function untouchable(message: string): any {
   }})) as any;
   return out;
 }
+
+// Webpack 4's Buffer.concat() polyfill requires Buffer[] instead of Uint8Array[]. This is a
+// kludgy compatibility hack until everything gets bumped to Webpack 5.
+let needCompatibleBufferConcat: boolean | undefined = undefined;
+
+export function checkBufferConcat(): boolean {
+  if (needCompatibleBufferConcat === undefined) {
+    try {
+      Buffer.concat([new Uint8Array()]);
+      needCompatibleBufferConcat = false;
+    } catch {
+      needCompatibleBufferConcat = true;
+    }
+  }
+  return needCompatibleBufferConcat;
+}
+
+export function compatibleBufferConcat(list: Uint8Array[]): Buffer {
+  if (!checkBufferConcat()) return Buffer.concat(list);
+  return Buffer.concat(list.map(x => Buffer.isBuffer(x) ? x : Buffer.from(x)));
+}
