@@ -1,4 +1,4 @@
-import * as fio from "@fioprotocol/fiosdk";
+import * as fio from "@shapeshiftoss/fiosdk";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as utils from "ethers/lib/utils";
 import * as tinyecc from "tiny-secp256k1";

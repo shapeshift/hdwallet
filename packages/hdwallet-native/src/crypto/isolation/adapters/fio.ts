@@ -1,12 +1,15 @@
-/// <reference types="@fioprotocol/fiojs/dist/chain-jssig" />
-
-import { ExternalPrivateKey as FIOExternalPrivateKey } from "@fioprotocol/fiojs/dist/chain-jssig";
-import { Signature as FIOSignature } from "@fioprotocol/fiojs/dist/ecc";
+import { ExternalPrivateKey as FIOExternalPrivateKey } from "@shapeshiftoss/fiojs";
 import bs58 from "bs58"
 
 import { SecP256K1 } from "..";
 import * as Digest from "../core/digest";
 import { checkType } from "../types";
+
+function bs58FioEncode(raw: Uint8Array, keyType: string = ""): string {
+    const typeBuf = Buffer.from(keyType, "utf8");
+    const checksum = Digest.Algorithms["ripemd160"](Buffer.concat([raw, typeBuf])).slice(0, 4);
+    return bs58.encode(Buffer.concat([raw, checksum]));
+}
 
 type IsolatedKey = SecP256K1.ECDSAKeyInterface & SecP256K1.ECDHKeyInterface;
 export class ExternalSignerAdapter implements FIOExternalPrivateKey {
@@ -16,15 +19,13 @@ export class ExternalSignerAdapter implements FIOExternalPrivateKey {
     }
     get publicKey(): string {
         const raw = SecP256K1.CompressedPoint.from(this._isolatedKey.publicKey)
-        const FIO_PUBLIC_PREFIX = "FIO";
-        const checksum = Digest.Algorithms["ripemd160"](raw).slice(0, 4);
-        return `FIO${bs58.encode(Buffer.concat([raw, checksum]))}`;
+        return `FIO${bs58FioEncode(raw)}`;
     }
     sign(signBuf: Uint8Array): string {
         const signBufHash = Digest.Algorithms["sha256"](signBuf);
         const sig = SecP256K1.RecoverableSignature.fromSignature(this._isolatedKey.ecdsaSign(signBufHash), signBufHash, this._isolatedKey.publicKey);
         const fioSigBuf = Buffer.concat([Buffer.from([sig.recoveryParam + 4 + 27]), SecP256K1.RecoverableSignature.r(sig), SecP256K1.RecoverableSignature.s(sig)]);
-        return FIOSignature.fromBuffer(fioSigBuf).toString();
+        return `SIG_K1_${bs58FioEncode(fioSigBuf, "K1")}`;
     }
     getSharedSecret(publicKey: any): Buffer {
         return Buffer.from(Digest.Algorithms["sha512"](this._isolatedKey.ecdh(checkType(SecP256K1.CurvePoint, publicKey.toBuffer()))));
