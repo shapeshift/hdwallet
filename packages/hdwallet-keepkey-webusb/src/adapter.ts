@@ -4,7 +4,8 @@ import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import { Device, TransportDelegate } from "./transport";
 import { VENDOR_ID, WEBUSB_PRODUCT_ID, HID_PRODUCT_ID } from "./utils";
 
-const webUSB = window?.navigator?.usb as unknown;
+// This avoids a prompt ReferenceError if the module is imported outside a browser.
+const webUSB = typeof window === "object" && window?.navigator?.usb as unknown;
 type WebUSB = typeof window.navigator.usb;
 
 function assertWebUSB(webUSB: any): asserts webUSB is WebUSB {
