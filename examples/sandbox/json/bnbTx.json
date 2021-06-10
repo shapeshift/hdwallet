@@ -7,13 +7,13 @@
     {
       "inputs": [
         {
-          "address": "tbnb1hgm0p7khfk85zpz5v0j8wnej3a90w709zzlffd",
+          "address": "bnb1afwh46v6nn30nkmugw5swdmsyjmlxslgjfugre",
           "coins": [{ "amount": 1000000000, "denom": "BNB" }]
         }
       ],
       "outputs": [
         {
-          "address": "tbnb1ss57e8sa7xnwq030k2ctr775uac9gjzglqhvpy",
+          "address": "bnb1ss57e8sa7xnwq030k2ctr775uac9gjzg347gp4",
           "coins": [{ "amount": 1000000000, "denom": "BNB" }]
         }
       ]
