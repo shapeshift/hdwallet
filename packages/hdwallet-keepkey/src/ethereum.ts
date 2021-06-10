@@ -37,7 +37,9 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
   return transport.lockDuring(async () => {
     const est: Messages.EthereumSignTx = new Messages.EthereumSignTx();
     est.setAddressNList(msg.addressNList);
-    est.setNonce(core.arrayify(msg.nonce));
+    let nonce = core.arrayify(msg.nonce);
+    while (nonce.length > 0 && nonce[0] == 0x00) nonce = nonce.slice(1);
+    est.setNonce(nonce);
     est.setGasPrice(core.arrayify(msg.gasPrice));
     est.setGasLimit(core.arrayify(msg.gasLimit));
     if (msg.value.match("^0x0*$") === null) {
