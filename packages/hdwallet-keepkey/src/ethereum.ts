@@ -33,13 +33,16 @@ export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHA
   ];
 }
 
+function stripLeadingZeroes(buf: Uint8Array) {
+  const firstZeroIndex = buf.findIndex(x => x !== 0);
+  return buf.slice(firstZeroIndex !== -1 ? firstZeroIndex : buf.length);
+}
+
 export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
   return transport.lockDuring(async () => {
     const est: Messages.EthereumSignTx = new Messages.EthereumSignTx();
     est.setAddressNList(msg.addressNList);
-    let nonce = core.arrayify(msg.nonce);
-    while (nonce.length > 0 && nonce[0] == 0x00) nonce = nonce.slice(1);
-    est.setNonce(nonce);
+    est.setNonce(stripLeadingZeroes(core.arrayify(msg.nonce)));
     est.setGasPrice(core.arrayify(msg.gasPrice));
     est.setGasLimit(core.arrayify(msg.gasLimit));
     if (msg.value.match("^0x0*$") === null) {
