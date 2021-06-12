@@ -1,5 +1,6 @@
-import { WebUSBNotAvailable, WebUSBCouldNotPair } from "@shapeshiftoss/hdwallet-core";
-import { KeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
+
 import { TransportDelegate } from "./transport";
 import { VENDOR_ID, WEBUSB_PRODUCT_ID, HID_PRODUCT_ID } from "./utils";
 
@@ -7,10 +8,10 @@ const webUSB = window?.navigator?.usb as unknown;
 type WebUSB = typeof window.navigator.usb;
 
 function assertWebUSB(webUSB: any): asserts webUSB is WebUSB {
-  if (!webUSB) throw new WebUSBNotAvailable();
+  if (!webUSB) throw new core.WebUSBNotAvailable();
 }
 
-export const WebUSBKeepKeyAdapterDelegate = {
+export const AdapterDelegate = {
   async getDevices(): Promise<USBDevice[]> {
     assertWebUSB(webUSB);
     return (await webUSB.getDevices()).filter(
@@ -27,7 +28,7 @@ export const WebUSBKeepKeyAdapterDelegate = {
         ],
       });
     } catch (e) {
-      throw new WebUSBCouldNotPair("KeepKey", e.message);
+      throw new core.WebUSBCouldNotPair("KeepKey", e.message);
     }
   },
   async getTransportDelegate(device: USBDevice) {
@@ -48,4 +49,5 @@ export const WebUSBKeepKeyAdapterDelegate = {
   },
 };
 
-export const WebUSBKeepKeyAdapter = KeepKeyAdapter.withDelegate(WebUSBKeepKeyAdapterDelegate);
+export const Adapter = keepkey.Adapter.fromDelegate(AdapterDelegate);
+export const WebUSBKeepKeyAdapter = Adapter;

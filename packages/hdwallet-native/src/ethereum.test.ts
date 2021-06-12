@@ -3,7 +3,8 @@ import { keccak256 } from "@ethersproject/keccak256";
 import { recoverPublicKey } from "@ethersproject/signing-key";
 import { computeAddress, parse as parseTransaction } from "@ethersproject/transactions";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as NativeHDWallet from "./native";
+
+import * as native from "./native";
 
 const MNEMONIC = "all all all all all all all all all all all all";
 
@@ -13,7 +14,7 @@ afterEach(() => expect(mswMock).not.toHaveBeenCalled());
 const untouchable = require("untouchableMock");
 
 describe("NativeETHWalletInfo", () => {
-  const info = NativeHDWallet.info();
+  const info = native.info();
 
   it("should return some static metadata", async () => {
     expect(await untouchable.call(info, "ethSupportsNetwork")).toBe(true);
@@ -39,10 +40,10 @@ describe("NativeETHWalletInfo", () => {
 });
 
 describe("NativeETHWallet", () => {
-  let wallet: NativeHDWallet.NativeHDWallet;
+  let wallet: native.NativeHDWallet;
 
   beforeEach(async () => {
-    wallet = NativeHDWallet.create({ deviceId: "native" });
+    wallet = native.create({ deviceId: "native" });
     await wallet.loadDevice({ mnemonic: MNEMONIC });
     expect(await wallet.initialize()).toBe(true);
   });

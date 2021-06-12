@@ -1,10 +1,11 @@
-import { Keyring, Events, HDWallet } from "@shapeshiftoss/hdwallet-core";
-import { KeepKeyHDWallet } from "./keepkey";
-import { KeepKeyTransport, TransportDelegate } from "./transport";
+import * as core from "@shapeshiftoss/hdwallet-core";
 
-export interface KeepKeyAdapterConstructor<DelegateType extends AdapterDelegate<unknown>> {
-  new (keyring: Keyring): KeepKeyAdapter<DelegateType>;
-  useKeyring(keyring: Keyring): KeepKeyAdapter<DelegateType>;
+import { KeepKeyHDWallet } from "./keepkey";
+import { Transport, TransportDelegate } from "./transport";
+
+export interface AdapterConstructor<DelegateType extends AdapterDelegate<unknown>> {
+  new (keyring: core.Keyring): Adapter<DelegateType>;
+  useKeyring(keyring: core.Keyring): Adapter<DelegateType>;
 }
 
 export type DeviceProperties = {
@@ -22,11 +23,11 @@ export interface AdapterDelegate<DeviceType> {
 
 export type DeviceType<T extends AdapterDelegate<any>> = T extends AdapterDelegate<infer R> ? R : never;
 
-export class KeepKeyAdapter<DelegateType extends AdapterDelegate<any>> {
-  keyring: Keyring;
+export class Adapter<DelegateType extends AdapterDelegate<any>> {
+  keyring: core.Keyring;
   delegate: DelegateType;
 
-  private constructor(keyring: Keyring, delegate: DelegateType) {
+  private constructor(keyring: core.Keyring, delegate: DelegateType) {
     this.keyring = keyring;
     this.delegate = delegate;
     try {
@@ -36,11 +37,11 @@ export class KeepKeyAdapter<DelegateType extends AdapterDelegate<any>> {
     }
   }
 
-  static withDelegate<DelegateType extends AdapterDelegate<unknown>>(
+  static fromDelegate<DelegateType extends AdapterDelegate<unknown>>(
     delegate: DelegateType
-  ): KeepKeyAdapterConstructor<DelegateType> {
-    const fn = (keyring: Keyring) => new KeepKeyAdapter(keyring, delegate);
-    const out = fn as unknown as KeepKeyAdapterConstructor<DelegateType>;
+  ): AdapterConstructor<DelegateType> {
+    const fn = (keyring: core.Keyring) => new Adapter(keyring, delegate);
+    const out = fn as unknown as AdapterConstructor<DelegateType>
     out.useKeyring = fn;
     return out;
   }
@@ -67,14 +68,14 @@ export class KeepKeyAdapter<DelegateType extends AdapterDelegate<any>> {
   }
 
   async inspectDevice(device: DeviceType<DelegateType>): Promise<DeviceProperties> {
-    return KeepKeyAdapter.inspectDevice(this.delegate, device);
+    return Adapter.inspectDevice(this.delegate, device);
   }
 
   private async handleConnect(device: DeviceType<DelegateType>): Promise<void> {
     try {
       await this.initialize([device]);
       const { productName, serialNumber } = await this.inspectDevice(device);
-      await this.keyring.emit([productName, serialNumber, Events.CONNECT], serialNumber);
+      await this.keyring.emit([productName, serialNumber, core.Events.CONNECT], serialNumber);
     } catch (e) {
       console.error(e);
     }
@@ -85,7 +86,7 @@ export class KeepKeyAdapter<DelegateType extends AdapterDelegate<any>> {
     try {
       await this.keyring.remove(serialNumber);
     } catch {}
-    await this.keyring.emit([productName, serialNumber, Events.DISCONNECT], serialNumber);
+    await this.keyring.emit([productName, serialNumber, core.Events.DISCONNECT], serialNumber);
   }
 
   async initialize(
@@ -101,7 +102,7 @@ export class KeepKeyAdapter<DelegateType extends AdapterDelegate<any>> {
       const delegate = await this.getTransportDelegate(device);
       if (delegate === null) continue;
 
-      const transport = await KeepKeyTransport.create(this.keyring, delegate);
+      const transport = await Transport.create(this.keyring, delegate);
       await transport.connect();
       if (tryDebugLink) await transport.tryConnectDebugLink();
 
@@ -138,7 +139,7 @@ export class KeepKeyAdapter<DelegateType extends AdapterDelegate<any>> {
     return await this.delegate.getTransportDelegate(device);
   }
 
-  async pairDevice(serialNumber?: string, tryDebugLink?: boolean): Promise<HDWallet> {
+  async pairDevice(serialNumber?: string, tryDebugLink?: boolean): Promise<core.HDWallet> {
     const device = await this.getDevice(serialNumber);
     if (!device)
       throw new Error(
@@ -149,7 +150,7 @@ export class KeepKeyAdapter<DelegateType extends AdapterDelegate<any>> {
     return this.pairRawDevice(device, tryDebugLink);
   }
 
-  async pairRawDevice(device: DeviceType<DelegateType>, tryDebugLink?: boolean): Promise<HDWallet> {
+  async pairRawDevice(device: DeviceType<DelegateType>, tryDebugLink?: boolean): Promise<core.HDWallet> {
     await this.initialize([device], tryDebugLink, true);
     return this.keyring.get((await this.inspectDevice(device)).serialNumber);
   }

@@ -1,16 +1,16 @@
-import { Coin, Transport, Keyring } from "@shapeshiftoss/hdwallet-core";
+import * as core from "@shapeshiftoss/hdwallet-core";
 
 export interface LedgerResponse {
   success: boolean;
   payload: any | { error: string };
-  coin: Coin;
+  coin: core.Coin;
   method: string;
 }
 
-export abstract class LedgerTransport extends Transport {
+export abstract class LedgerTransport extends core.Transport {
   transport: any;
 
-  constructor(transport: any, keyring: Keyring) {
+  constructor(transport: any, keyring: core.Keyring) {
     super(keyring);
     this.transport = transport;
   }

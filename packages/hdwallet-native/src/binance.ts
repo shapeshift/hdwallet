@@ -1,9 +1,10 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { BncClient } from "bnb-javascript-sdk-nobroadcast";
-import { NativeHDWalletBase } from "./native";
-import { toWords, encode } from "bech32";
-import CryptoJS, { RIPEMD160, SHA256 } from "crypto-js";
+import * as bech32 from "bech32";
 import BigNumber from "bignumber.js";
+import * as bnbSdk from "bnb-javascript-sdk-nobroadcast";
+import CryptoJS from "crypto-js";
+
+import { NativeHDWalletBase } from "./native";
 import util from "./util";
 import { SeedInterface as IsolatedBIP32Seed } from "./crypto/isolation/core/bip32/interfaces";
 import * as Isolation from "./crypto/isolation";
@@ -55,13 +56,13 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
     }
 
     binanceBech32ify(address: ArrayLike<number>, prefix: string): string {
-      const words = toWords(address);
-      return encode(prefix, words);
+      const words = bech32.toWords(address);
+      return bech32.encode(prefix, words);
     }
 
     createBinanceAddress(publicKey: string, testnet?: boolean) {
-      const message = SHA256(CryptoJS.enc.Hex.parse(publicKey));
-      const hash = RIPEMD160(message as any).toString();
+      const message = CryptoJS.SHA256(CryptoJS.enc.Hex.parse(publicKey));
+      const hash = CryptoJS.RIPEMD160(message as any).toString();
       const address = Buffer.from(hash, `hex`);
       return this.binanceBech32ify(address, `${testnet ? "t" : ""}bnb`);
     }
@@ -82,7 +83,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         if (!tx.sequence) tx.sequence = "0"
         if (!tx.source) tx.source = "0"
 
-        const client = new BncClient(msg.testnet ? "https://testnet-dex.binance.org" : "https://dex.binance.org"); // broadcast not used but available
+        const client = new bnbSdk.BncClient(msg.testnet ? "https://testnet-dex.binance.org" : "https://dex.binance.org"); // broadcast not used but available
         await client.chooseNetwork(msg.testnet ? "testnet" : "mainnet");
         const haveAccountNumber = msg.tx.account_number && Number.isInteger(Number(msg.tx.account_number));
         if (haveAccountNumber) await client.setAccountNumber(Number(msg.tx.account_number));
@@ -155,7 +156,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
             signature,
           },
           serialized: result.serialized,
-          txid: SHA256(result.serialized, "hex").toString(),
+          txid: CryptoJS.SHA256(result.serialized, "hex").toString(),
         });
       });
     }

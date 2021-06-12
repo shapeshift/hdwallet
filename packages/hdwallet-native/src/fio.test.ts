@@ -1,8 +1,9 @@
-import * as fio from "fiosdk-offline";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as NativeHDWallet from "./native";
-import { base58, sha256 } from "ethers/lib/utils";
+import * as utils from "ethers/lib/utils";
+import * as fio from "fiosdk-offline";
 import * as tinyecc from "tiny-secp256k1";
+
+import * as native from "./native";
 
 const MNEMONIC = "all all all all all all all all all all all all";
 
@@ -87,7 +88,7 @@ afterEach(() => expect(mswMock).not.toHaveBeenCalled());
 const untouchable = require("untouchableMock");
 
 describe("NativeFioWalletInfo", () => {
-  const info = NativeHDWallet.info();
+  const info = native.info();
 
   it("should return some static metadata", async () => {
     expect(await untouchable.call(info, "fioSupportsNetwork")).toBe(true);
@@ -106,10 +107,10 @@ describe("NativeFioWalletInfo", () => {
 });
 
 describe("NativeFioWallet", () => {
-  let wallet: NativeHDWallet.NativeHDWallet;
+  let wallet: native.NativeHDWallet;
 
   beforeEach(async () => {
-    wallet = NativeHDWallet.create({ deviceId: "native" });
+    wallet = native.create({ deviceId: "native" });
     await wallet.loadDevice({ mnemonic: MNEMONIC });
     expect(await wallet.initialize()).toBe(true);
   });
@@ -197,9 +198,9 @@ describe("NativeFioWallet", () => {
       );
       const msgRaw = Buffer.concat([chainId, Buffer.from(sig.serialized, "hex"), Buffer.alloc(32)]);
 
-      const msgHash = Buffer.from(sha256(msgRaw).slice(2), "hex");
-      const pubKey = base58.decode("FIO5NSKecB4CcMpUxtpHzG4u43SmcGMAjRbxyG38rE4HPegGpaHu9".slice(3)).slice(0, -4);
-      const sigRaw = base58.decode(sig.signature.slice(7)).slice(1, -4);
+      const msgHash = Buffer.from(utils.sha256(msgRaw).slice(2), "hex");
+      const pubKey = utils.base58.decode("FIO5NSKecB4CcMpUxtpHzG4u43SmcGMAjRbxyG38rE4HPegGpaHu9".slice(3)).slice(0, -4);
+      const sigRaw = utils.base58.decode(sig.signature.slice(7)).slice(1, -4);
       expect(tinyecc.verify(msgHash, Buffer.from(pubKey), Buffer.from(sigRaw))).toBe(true);
     });
   });

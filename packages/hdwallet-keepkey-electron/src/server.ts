@@ -1,13 +1,14 @@
-import { AdapterDelegate, TransportDelegate } from "@shapeshiftoss/hdwallet-keepkey";
-import { ipcMain } from "electron";
+import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
+import * as electron from "electron";
 import * as uuid from "uuid";
+
 import { GET_DEVICE, GET_DEVICES, GET_TRANSPORT_DELEGATE, PREFIX } from "./utils";
 
-export class Server<DeviceType extends object, DelegateType extends AdapterDelegate<DeviceType>> {
+export class Server<DeviceType extends object, DelegateType extends keepkey.AdapterDelegate<DeviceType>> {
   delegate: DelegateType;
   devices: Map<string, DeviceType> = new Map();
   handles: WeakMap<DeviceType, string> = new WeakMap();
-  delegates: WeakMap<DeviceType, TransportDelegate> = new WeakMap();
+  delegates: WeakMap<DeviceType, keepkey.TransportDelegate> = new WeakMap();
 
   constructor(delegate: DelegateType) {
     this.delegate = delegate;
@@ -42,9 +43,9 @@ export class Server<DeviceType extends object, DelegateType extends AdapterDeleg
   }
 
   listen() {
-    if (this.delegate.getDevice !== undefined) ipcMain.handle(GET_DEVICE, (_, serialNumber?: string) => this.getDevice(serialNumber));
-    if (this.delegate.getDevices !== undefined) ipcMain.handle(GET_DEVICES, (_) => this.getDevices());
-    ipcMain.handle(GET_TRANSPORT_DELEGATE, (_, handle: string) => this.getTransportDelegate(handle));
+    if (this.delegate.getDevice !== undefined) electron.ipcMain.handle(GET_DEVICE, (_, serialNumber?: string) => this.getDevice(serialNumber));
+    if (this.delegate.getDevices !== undefined) electron.ipcMain.handle(GET_DEVICES, (_) => this.getDevices());
+    electron.ipcMain.handle(GET_TRANSPORT_DELEGATE, (_, handle: string) => this.getTransportDelegate(handle));
     for (const delegateMethod of [
       "isOpened",
       "getDeviceID",
@@ -55,7 +56,7 @@ export class Server<DeviceType extends object, DelegateType extends AdapterDeleg
       "writeChunk",
       "readChunk",
     ] as const) {
-      ipcMain.handle(`${PREFIX}:${delegateMethod}`, async (_, handle: string, ...args: any[]): Promise<any> => {
+      electron.ipcMain.handle(`${PREFIX}:${delegateMethod}`, async (_, handle: string, ...args: any[]): Promise<any> => {
         const device = this.devices.get(handle);
         if (!device) throw new Error("invalid device handle");
         const delegate = this.delegates.get(device);

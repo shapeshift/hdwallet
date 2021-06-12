@@ -1,9 +1,8 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import tx_verbose from "./tx01.mainnet.secret.verbose.json";
 import tx_unsigned from "./tx01.mainnet.secret.json";
 import tx_signed from "./tx01.mainnet.secret.signed.json";
-
+import tx_verbose from "./tx01.mainnet.secret.verbose.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 

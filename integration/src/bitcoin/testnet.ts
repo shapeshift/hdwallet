@@ -1,20 +1,7 @@
-import {
-  bip32ToAddressNList,
-  HDWallet,
-  BTCWallet,
-  supportsBTC,
-  BTCInputScriptType,
-  BTCOutputAddressType,
-  BTCOutputScriptType,
-  Coin,
-  HDWalletInfo,
-} from "@shapeshiftoss/hdwallet-core";
-import { isLedger } from "@shapeshiftoss/hdwallet-ledger";
-import { isPortis } from "@shapeshiftoss/hdwallet-portis";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+import * as portis from "@shapeshiftoss/hdwallet-portis";
 
-import { each } from "../utils";
-
-const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 const MNEMONIC12_ALLALL = "all all all all all all all all all all all all";
 
 const TIMEOUT = 60 * 1000;
@@ -22,13 +9,13 @@ const TIMEOUT = 60 * 1000;
 /**
  *  Main integration suite for testing BTCWallet implementations' Bitcoin Testnet support.
  */
-export function testnetTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): void {
-  let wallet: BTCWallet & HDWallet;
+export function testnetTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
+  let wallet: core.BTCWallet & core.HDWallet;
 
   describe("Testnet", () => {
     beforeAll(() => {
       const { wallet: w } = get();
-      if (supportsBTC(w)) wallet = w;
+      if (core.supportsBTC(w)) wallet = w;
     });
 
     beforeEach(async () => {
@@ -44,13 +31,13 @@ export function testnetTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
     test(
       "btcSignTx() - p2sh-p2wpkh",
       async () => {
-        if (!wallet || isPortis(wallet)) return;
-        if (isLedger(wallet)) return; // FIXME: Expected failure
+        if (!wallet || portis.isPortis(wallet)) return;
+        if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
         if (!wallet.btcSupportsCoin("Testnet")) return;
         let inputs = [
           {
-            addressNList: bip32ToAddressNList("m/49'/1'/0'/1/0"),
-            scriptType: BTCInputScriptType.SpendP2SHWitness,
+            addressNList: core.bip32ToAddressNList("m/49'/1'/0'/1/0"),
+            scriptType: core.BTCInputScriptType.SpendP2SHWitness,
             amount: String(123456789),
             vout: 0,
             txid: "20912f98ea3ed849042efed0fdac8cb4fc301961c5988cba56902d8ffb61c337",
@@ -61,14 +48,14 @@ export function testnetTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
         let outputs = [
           {
             address: "mhRx1CeVfaayqRwq5zgRQmD7W5aWBfD5mC",
-            addressType: BTCOutputAddressType.Spend,
+            addressType: core.BTCOutputAddressType.Spend,
             amount: String(12300000),
             isChange: false,
           },
           {
-            addressNList: bip32ToAddressNList("m/49'/1'/0'/1/0"),
-            scriptType: BTCOutputScriptType.PayToP2SHWitness,
-            addressType: BTCOutputAddressType.Change,
+            addressNList: core.bip32ToAddressNList("m/49'/1'/0'/1/0"),
+            scriptType: core.BTCOutputScriptType.PayToP2SHWitness,
+            addressType: core.BTCOutputAddressType.Change,
             amount: String(123456789 - 11000 - 12300000),
             isChange: true,
           },
@@ -88,13 +75,13 @@ export function testnetTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
     );
 
     test("btcSignTx() - p2wpkh", async () => {
-      if (!wallet || isPortis(wallet)) return;
-      if (isLedger(wallet)) return; // FIXME: Expected failure
+      if (!wallet || portis.isPortis(wallet)) return;
+      if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
       if (!wallet.btcSupportsCoin("Testnet")) return;
       let inputs = [
         {
-          addressNList: bip32ToAddressNList("m/84'/1'/0'/0/0"),
-          scriptType: BTCInputScriptType.SpendWitness,
+          addressNList: core.bip32ToAddressNList("m/84'/1'/0'/0/0"),
+          scriptType: core.BTCInputScriptType.SpendWitness,
           amount: String(100000),
           vout: 0,
           txid: "e4b5b24159856ea18ab5819832da3b4a6330f9c3c0a46d96674e632df504b56b",
@@ -112,14 +99,14 @@ export function testnetTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
       let outputs = [
         {
           address: "2N4Q5FhU2497BryFfUgbqkAJE87aKHUhXMp",
-          addressType: BTCOutputAddressType.Spend,
+          addressType: core.BTCOutputAddressType.Spend,
           amount: String(50000),
           isChange: false,
         },
         {
-          addressNList: bip32ToAddressNList("m/84'/1'/0'/1/0"),
-          scriptType: BTCOutputScriptType.PayToWitness,
-          addressType: BTCOutputAddressType.Change,
+          addressNList: core.bip32ToAddressNList("m/84'/1'/0'/1/0"),
+          scriptType: core.BTCOutputScriptType.PayToWitness,
+          addressType: core.BTCOutputAddressType.Change,
           amount: String(100000 - 1000 - 50000),
           isChange: true,
         },

@@ -1,5 +1,6 @@
-import { HDWallet } from "./wallet";
 import * as eventemitter2 from "eventemitter2";
+
+import { HDWallet } from "./wallet";
 
 export class Keyring extends eventemitter2.EventEmitter2 {
   public wallets: { [deviceID: string]: HDWallet } = {};

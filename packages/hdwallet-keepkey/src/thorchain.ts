@@ -1,31 +1,21 @@
-import * as Core from "@shapeshiftoss/hdwallet-core";
+import * as ThorchainMessages from "@keepkey/device-protocol/lib/messages-thorchain_pb";
+import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import _ from "lodash";
 
-import { KeepKeyTransport } from "./transport";
+import { Transport } from "./transport";
 
-import {
-  ThorchainGetAddress,
-  ThorchainAddress,
-  ThorchainSignTx,
-  ThorchainMsgAck,
-  ThorchainSignedTx,
-  ThorchainMsgSend,
-  ThorchainMsgDeposit,
-} from "@keepkey/device-protocol/lib/messages-thorchain_pb";
-import { MessageType } from "@keepkey/device-protocol/lib/messages_pb";
-
-import { cloneDeep } from "lodash";
-
-export function thorchainGetAccountPaths(msg: Core.ThorchainGetAccountPaths): Array<Core.ThorchainAccountPath> {
+export function thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
   return [
     {
-      addressNList: [0x80000000 + 44, 0x80000000 + Core.slip44ByCoin("Thorchain"), 0x80000000 + msg.accountIdx, 0, 0],
+      addressNList: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin("Thorchain"), 0x80000000 + msg.accountIdx, 0, 0],
     },
   ];
 }
 
-export async function thorchainSignTx(transport: KeepKeyTransport, msg: Core.ThorchainSignTx): Promise<any> {
+export async function thorchainSignTx(transport: Transport, msg: core.ThorchainSignTx): Promise<any> {
   return transport.lockDuring(async () => {
-    const signTx = new ThorchainSignTx();
+    const signTx = new ThorchainMessages.ThorchainSignTx();
     signTx.setAddressNList(msg.addressNList);
     signTx.setAccountNumber(msg.account_number);
     signTx.setChainId(msg.chain_id);
@@ -36,16 +26,16 @@ export async function thorchainSignTx(transport: KeepKeyTransport, msg: Core.Tho
     signTx.setMsgCount(1);
 
     let resp = await transport.call(
-      MessageType.MESSAGETYPE_THORCHAINSIGNTX,
+      Messages.MessageType.MESSAGETYPE_THORCHAINSIGNTX,
       signTx,
-      Core.LONG_TIMEOUT,
+      core.LONG_TIMEOUT,
       /*omitLock=*/ true
     );
 
-    if (resp.message_type === Core.Events.FAILURE) throw resp;
+    if (resp.message_type === core.Events.FAILURE) throw resp;
 
     for (let m of msg.tx.msg) {
-      if (resp.message_enum !== MessageType.MESSAGETYPE_THORCHAINMSGREQUEST) {
+      if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_THORCHAINMSGREQUEST) {
         throw new Error(`THORChain: unexpected response ${resp.message_type}`);
       }
 
@@ -61,12 +51,12 @@ export async function thorchainSignTx(transport: KeepKeyTransport, msg: Core.Tho
           throw new Error("THORChain: Unsupported denomination: " + denom);
         }
 
-        const send = new ThorchainMsgSend();
+        const send = new ThorchainMessages.ThorchainMsgSend();
         send.setFromAddress(m.value.from_address);
         send.setToAddress(m.value.to_address);
         send.setAmount(m.value.amount[0].amount);
 
-        ack = new ThorchainMsgAck();
+        ack = new ThorchainMessages.ThorchainMsgAck();
         ack.setSend(send);
       } else if (m.type === "thorchain/MsgDeposit") {
         if (m.value.coins.length !== 1) {
@@ -78,30 +68,30 @@ export async function thorchainSignTx(transport: KeepKeyTransport, msg: Core.Tho
           throw new Error("THORChain: Unsupported coin asset: " + coinAsset);
         }
 
-        const deposit = new ThorchainMsgDeposit();
+        const deposit = new ThorchainMessages.ThorchainMsgDeposit();
         deposit.setAsset(m.value.coins[0].asset);
         deposit.setAmount(m.value.coins[0].amount);
         deposit.setMemo(m.value.memo);
         deposit.setSigner(m.value.signer)
 
-        ack = new ThorchainMsgAck();
+        ack = new ThorchainMessages.ThorchainMsgAck();
         ack.setDeposit(deposit);
       } else {
         throw new Error(`THORChain: Message ${m.type} is not yet supported`);
       }
 
-      resp = await transport.call(MessageType.MESSAGETYPE_THORCHAINMSGACK, ack, Core.LONG_TIMEOUT, /*omitLock=*/ true);
+      resp = await transport.call(Messages.MessageType.MESSAGETYPE_THORCHAINMSGACK, ack, core.LONG_TIMEOUT, /*omitLock=*/ true);
 
-      if (resp.message_type === Core.Events.FAILURE) throw resp;
+      if (resp.message_type === core.Events.FAILURE) throw resp;
     }
 
-    if (resp.message_enum !== MessageType.MESSAGETYPE_THORCHAINSIGNEDTX) {
+    if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_THORCHAINSIGNEDTX) {
       throw new Error(`THORChain: unexpected response ${resp.message_type}`);
     }
 
-    const signedTx = resp.proto as ThorchainSignedTx;
+    const signedTx = resp.proto as ThorchainMessages.ThorchainSignedTx;
 
-    const signed = cloneDeep(msg.tx);
+    const signed = _.cloneDeep(msg.tx);
 
     signed.signatures = [
       {
@@ -117,15 +107,15 @@ export async function thorchainSignTx(transport: KeepKeyTransport, msg: Core.Tho
   });
 }
 
-export async function thorchainGetAddress(transport: KeepKeyTransport, msg: ThorchainGetAddress.AsObject): Promise<string> {
-  const getAddr = new ThorchainGetAddress();
+export async function thorchainGetAddress(transport: Transport, msg: ThorchainMessages.ThorchainGetAddress.AsObject): Promise<string> {
+  const getAddr = new ThorchainMessages.ThorchainGetAddress();
   getAddr.setAddressNList(msg.addressNList);
   getAddr.setShowDisplay(msg.showDisplay !== false);
   getAddr.setTestnet(msg.testnet)
-  const response = await transport.call(MessageType.MESSAGETYPE_THORCHAINGETADDRESS, getAddr, Core.LONG_TIMEOUT);
+  const response = await transport.call(Messages.MessageType.MESSAGETYPE_THORCHAINGETADDRESS, getAddr, core.LONG_TIMEOUT);
 
-  if (response.message_type === Core.Events.FAILURE) throw response;
+  if (response.message_type === core.Events.FAILURE) throw response;
 
-  const thorchainAddress = response.proto as ThorchainAddress;
+  const thorchainAddress = response.proto as ThorchainMessages.ThorchainAddress;
   return thorchainAddress.getAddress();
 }

@@ -1,14 +1,15 @@
-import { KeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey";
+import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
+
 import { TransportDelegate } from "./transport";
-import { VENDOR_ID, WEBUSB_PRODUCT_ID, HID_PRODUCT_ID, assertChromeUSB, chromeUsb, makePromise } from "./utils";
+import { VENDOR_ID, WEBUSB_PRODUCT_ID, HID_PRODUCT_ID, assertChromeUSB, chromeUSB, makePromise } from "./utils";
 
 export const ChromeUSBAdapterDelegate = {
   async getTransportDelegate(device: USBDevice) {
     return new TransportDelegate(device);
   },
   async getDevices(): Promise<USBDevice[]> {
-    assertChromeUSB(chromeUsb);
-    return (await makePromise(chromeUsb.getDevices, {
+    assertChromeUSB(chromeUSB);
+    return (await makePromise(chromeUSB.getDevices, {
       filters: [
         {
           vendorId: VENDOR_ID,
@@ -25,10 +26,11 @@ export const ChromeUSBAdapterDelegate = {
     handleConnect: (device: USBDevice) => void,
     handleDisconnect: (device: USBDevice) => void
   ) {
-    assertChromeUSB(chromeUsb);
-    chromeUsb.onDeviceAdded.addListener(handleConnect);
-    chromeUsb.onDeviceRemoved.addListener(handleDisconnect);
+    assertChromeUSB(chromeUSB);
+    chromeUSB.onDeviceAdded.addListener(handleConnect);
+    chromeUSB.onDeviceRemoved.addListener(handleDisconnect);
   }
 };
 
-export const ChromeUSBAdapter = KeepKeyAdapter.withDelegate(ChromeUSBAdapterDelegate);
+export const Adapter = keepkey.Adapter.fromDelegate(ChromeUSBAdapterDelegate);
+export const ChromeUSBAdapter = Adapter;

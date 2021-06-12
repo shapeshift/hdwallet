@@ -1,5 +1,5 @@
-import { HDWallet, ETHWallet, supportsETH, HDWalletInfo } from "@shapeshiftoss/hdwallet-core";
-import { PortisAdapter, PortisHDWallet, isPortis, info, create } from "@shapeshiftoss/hdwallet-portis";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as portis from "@shapeshiftoss/hdwallet-portis";
 
 export function name(): string {
   return "Portis";
@@ -31,8 +31,8 @@ const mockSignERC20TxResponse = {
     "0xf8a20114149441e5560054824ea6b0732e656e3ad64e20e94e4580b844a9059cbb0000000000000000000000001d8ce9022f6284c3a5c317f8f34620107214e54500000000000000000000000000000000000000000000000000000002540be40025a01238fd332545415f09a01470350a5a20abc784dbf875cf58f7460560e66c597fa010efa4dd6fdb381c317db8f815252c2ac0d2a883bd364901dee3dec5b7d3660a",
 };
 
-export async function createWallet(): Promise<HDWallet> {
-  const wallet = create(mockPortis);
+export async function createWallet(): Promise<core.HDWallet> {
+  const wallet = portis.create(mockPortis);
 
   if (!wallet) throw new Error("No Portis wallet found");
 
@@ -56,16 +56,16 @@ export async function createWallet(): Promise<HDWallet> {
   return wallet;
 }
 
-export function createInfo(): HDWalletInfo {
-  return info();
+export function createInfo(): core.HDWalletInfo {
+  return portis.info();
 }
 
-export function selfTest(get: () => HDWallet): void {
-  let wallet: PortisHDWallet & ETHWallet & HDWallet;
+export function selfTest(get: () => core.HDWallet): void {
+  let wallet: portis.PortisHDWallet & core.ETHWallet & core.HDWallet;
 
   beforeAll(() => {
     let w = get();
-    if (isPortis(w) && supportsETH(w)) wallet = w;
+    if (portis.isPortis(w) && core.supportsETH(w)) wallet = w;
     else fail("Wallet is not Portis");
   });
 

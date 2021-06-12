@@ -1,8 +1,8 @@
-import * as ProtoMessages from "@keepkey/device-protocol/lib/messages_pb";
+import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 
 const {
   default: { MessageType },
-} = ProtoMessages as any; // Conflict between typedef and actual js export
+} = Messages as any; // Conflict between typedef and actual js export
 
 export const EXIT_TYPES = [
   String(MessageType.MESSAGETYPE_SUCCESS),

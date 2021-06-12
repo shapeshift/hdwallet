@@ -1,12 +1,13 @@
-import { isObject, get } from "lodash";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import _ from "lodash";
+
 import * as btc from "./bitcoin";
 import * as eth from "./ethereum";
 import { LedgerTransport } from "./transport";
 import { networksUtil, handleError } from "./utils";
 
 export function isLedger(wallet: core.HDWallet): wallet is LedgerHDWallet {
-  return isObject(wallet) && (wallet as any)._isLedger;
+  return _.isObject(wallet) && (wallet as any)._isLedger;
 }
 
 function describeETHPath(path: core.BIP32Path): core.PathDescription {
@@ -351,7 +352,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
       throw new Error(`No coin provided`);
     }
 
-    const appName = get(networksUtil[core.slip44ByCoin(coin)], "appName");
+    const appName = _.get(networksUtil[core.slip44ByCoin(coin)], "appName");
     if (!appName) {
       throw new Error(`Unable to find associated app name for coin: ${coin}`);
     }

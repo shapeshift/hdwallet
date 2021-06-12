@@ -1,7 +1,8 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as NativeHDWallet from "./native";
+import _ from "lodash";
+
+import * as native from "./native";
 import * as Networks from "./networks";
-import * as _ from "lodash";
 
 const MNEMONIC = "all all all all all all all all all all all all";
 
@@ -123,7 +124,7 @@ const OP_RETURN_BENCHMARK_TX = benchmarkTx(
 );
 
 describe("NativeBTCWalletInfo", () => {
-  const info = NativeHDWallet.info();
+  const info = native.info();
 
   it("should return some static metadata", async () => {
     expect(info["btcSupportsNetwork"]).not.toBeDefined();
@@ -288,10 +289,10 @@ describe("NativeBTCWalletInfo", () => {
 });
 
 describe("NativeBTCWallet", () => {
-  let wallet: NativeHDWallet.NativeHDWallet;
+  let wallet: native.NativeHDWallet;
 
   beforeEach(async () => {
-    wallet = NativeHDWallet.create({ deviceId: "native" });
+    wallet = native.create({ deviceId: "native" });
     await wallet.loadDevice({ mnemonic: MNEMONIC });
     expect(await wallet.initialize()).toBe(true);
   });

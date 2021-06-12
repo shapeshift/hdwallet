@@ -1,6 +1,7 @@
-import * as bitcoin from "@bithighlander/bitcoin-cash-js-lib";
-import { toCashAddress, toLegacyAddress } from "bchaddrjs";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as bchAddr from "bchaddrjs";
+import * as bitcoin from "@bithighlander/bitcoin-cash-js-lib";
+
 import { getNetwork } from "./networks";
 import { NativeHDWalletBase } from "./native";
 import util from "./util";
@@ -255,7 +256,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
         const { addressNList, coin, scriptType } = msg;
         const keyPair = util.getKeyPair(this.#wallet, addressNList, coin, scriptType);
         const { address } = this.createPayment(keyPair.publicKey, scriptType, keyPair.network);
-        return coin.toLowerCase() === "bitcoincash" ? toCashAddress(address) : address;
+        return coin.toLowerCase() === "bitcoincash" ? bchAddr.toCashAddress(address) : address;
       });
     }
 
@@ -295,7 +296,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
             }
 
             if (coin.toLowerCase() === "bitcoincash") {
-              address = toLegacyAddress(address);
+              address = bchAddr.toLegacyAddress(address);
             }
 
             psbt.addOutput({ address, value: Number(amount) });

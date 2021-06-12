@@ -1,4 +1,5 @@
-import { scrypt } from "scrypt-js";
+import * as scryptJs from "scrypt-js";
+
 import { CryptoEngine, DigestAlgorithm, ScryptParams } from "./index";
 
 export class WebCryptoEngine implements CryptoEngine {
@@ -45,7 +46,7 @@ export class WebCryptoEngine implements CryptoEngine {
 
   public async scrypt(password: ArrayBuffer, salt: ArrayBuffer, params: ScryptParams): Promise<ArrayBuffer> {
     return (
-      await scrypt(
+      await scryptJs.scrypt(
         new Uint8Array(password),
         new Uint8Array(salt),
         params.iterations,

@@ -1,60 +1,18 @@
-import {
-  HDWallet,
-  GetPublicKey,
-  PublicKey,
-  RecoverDevice,
-  ResetDevice,
-  LoadDevice,
-  Coin,
-  Ping,
-  Pong,
-  BTCWallet,
-  ETHWallet,
-  Constructor,
-  ActionCancelled,
-  DeviceDisconnected,
-  PopupClosedError,
-  BTCInputScriptType,
-  BTCGetAddress,
-  BTCSignTx,
-  BTCSignedTx,
-  BTCSignMessage,
-  BTCVerifyMessage,
-  BTCAccountPath,
-  BTCSignedMessage,
-  BTCGetAccountPaths,
-  ETHSignTx,
-  ETHSignedTx,
-  ETHGetAddress,
-  ETHSignMessage,
-  ETHSignedMessage,
-  ETHVerifyMessage,
-  ETHGetAccountPath,
-  ETHAccountPath,
-  HDWalletInfo,
-  BTCWalletInfo,
-  ETHWalletInfo,
-  slip44ByCoin,
-  BIP32Path,
-  DescribePath,
-  PathDescription,
-  addressNListToBIP32,
-  hardenedPath,
-  relativePath,
-} from "@shapeshiftoss/hdwallet-core";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import _ from "lodash";
+
 import { handleError } from "./utils";
 import * as Btc from "./bitcoin";
 import * as Eth from "./ethereum";
 import { TrezorTransport } from "./transport";
-import { isObject } from "lodash";
 
-export function isTrezor(wallet: HDWallet): wallet is TrezorHDWallet {
-  return isObject(wallet) && (wallet as any)._isTrezor;
+export function isTrezor(wallet: core.HDWallet): wallet is TrezorHDWallet {
+  return _.isObject(wallet) && (wallet as any)._isTrezor;
 }
 
-function describeETHPath(path: BIP32Path): PathDescription {
-  let pathStr = addressNListToBIP32(path);
-  let unknown: PathDescription = {
+function describeETHPath(path: core.BIP32Path): core.PathDescription {
+  let pathStr = core.addressNListToBIP32(path);
+  let unknown: core.PathDescription = {
     verbose: pathStr,
     coin: "Ethereum",
     isKnown: false,
@@ -64,7 +22,7 @@ function describeETHPath(path: BIP32Path): PathDescription {
 
   if (path[0] != 0x80000000 + 44) return unknown;
 
-  if (path[1] != 0x80000000 + slip44ByCoin("Ethereum")) return unknown;
+  if (path[1] != 0x80000000 + core.slip44ByCoin("Ethereum")) return unknown;
 
   if (path[2] !== 0x80000000) return unknown;
 
@@ -83,9 +41,9 @@ function describeETHPath(path: BIP32Path): PathDescription {
   };
 }
 
-function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInputScriptType) {
-  let pathStr = addressNListToBIP32(path);
-  let unknown: PathDescription = {
+function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType: core.BTCInputScriptType) {
+  let pathStr = core.addressNListToBIP32(path);
+  let unknown: core.PathDescription = {
     verbose: pathStr,
     coin,
     scriptType,
@@ -104,20 +62,20 @@ function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInputScrip
 
   if (![44, 49, 84].includes(purpose)) return unknown;
 
-  if (purpose === 44 && scriptType !== BTCInputScriptType.SpendAddress) return unknown;
+  if (purpose === 44 && scriptType !== core.BTCInputScriptType.SpendAddress) return unknown;
 
-  if (purpose === 49 && scriptType !== BTCInputScriptType.SpendP2SHWitness) return unknown;
+  if (purpose === 49 && scriptType !== core.BTCInputScriptType.SpendP2SHWitness) return unknown;
 
-  if (purpose === 84 && scriptType !== BTCInputScriptType.SpendWitness) return unknown;
+  if (purpose === 84 && scriptType !== core.BTCInputScriptType.SpendWitness) return unknown;
 
-  if (path[1] !== 0x80000000 + slip44ByCoin(coin)) return unknown;
+  if (path[1] !== 0x80000000 + core.slip44ByCoin(coin)) return unknown;
 
   let wholeAccount = path.length === 3;
 
   let script = {
-    [BTCInputScriptType.SpendAddress]: " (Legacy)",
-    [BTCInputScriptType.SpendP2SHWitness]: "",
-    [BTCInputScriptType.SpendWitness]: " (Segwit Native)",
+    [core.BTCInputScriptType.SpendAddress]: " (Legacy)",
+    [core.BTCInputScriptType.SpendP2SHWitness]: "",
+    [core.BTCInputScriptType.SpendWitness]: " (Segwit Native)",
   }[scriptType];
 
   switch (coin) {
@@ -159,7 +117,7 @@ function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInputScrip
   }
 }
 
-export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalletInfo {
+export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = false;
@@ -177,11 +135,11 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
     return "Trezor";
   }
 
-  public async btcSupportsCoin(coin: Coin): Promise<boolean> {
+  public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
     return Btc.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
+  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
     return Btc.btcSupportsScriptType(coin, scriptType);
   }
 
@@ -193,11 +151,11 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
     return Btc.btcSupportsNativeShapeShift();
   }
 
-  public btcGetAccountPaths(msg: BTCGetAccountPaths): Array<BTCAccountPath> {
+  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
     return Btc.btcGetAccountPaths(msg);
   }
 
-  public btcIsSameAccount(msg: Array<BTCAccountPath>): boolean {
+  public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
     return Btc.btcIsSameAccount(msg);
   }
 
@@ -213,7 +171,7 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
     return Eth.ethSupportsNativeShapeShift();
   }
 
-  public ethGetAccountPaths(msg: ETHGetAccountPath): Array<ETHAccountPath> {
+  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     return Eth.ethGetAccountPaths(msg);
   }
 
@@ -234,12 +192,12 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
     return true;
   }
 
-  public hasNativeShapeShift(srcCoin: Coin, dstCoin: Coin): boolean {
+  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     // It doesn't... yet?
     return false;
   }
 
-  public describePath(msg: DescribePath): PathDescription {
+  public describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin) {
       case "Ethereum":
         return describeETHPath(msg.path);
@@ -248,7 +206,7 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
     }
   }
 
-  public btcNextAccountPath(msg: BTCAccountPath): BTCAccountPath | undefined {
+  public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
     let description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType);
     if (!description.isKnown) {
       return undefined;
@@ -271,7 +229,7 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
     return undefined;
   }
 
-  public ethNextAccountPath(msg: ETHAccountPath): ETHAccountPath | undefined {
+  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
     let addressNList = msg.hardenedPath.concat(msg.relPath);
     let description = describeETHPath(addressNList);
     if (!description.isKnown) {
@@ -283,8 +241,8 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
       return {
         ...msg,
         addressNList,
-        hardenedPath: hardenedPath(addressNList),
-        relPath: relativePath(addressNList),
+        hardenedPath: core.hardenedPath(addressNList),
+        relPath: core.relativePath(addressNList),
       };
     }
 
@@ -292,7 +250,7 @@ export class TrezorHDWalletInfo implements HDWalletInfo, BTCWalletInfo, ETHWalle
   }
 }
 
-export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
+export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet {
   _supportsETHInfo: boolean = true;
   _supportsBTCInfo: boolean = true;
   _supportsDebugLink: boolean = false;
@@ -320,7 +278,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
 
   transport: TrezorTransport;
   featuresCache: any;
-  info: TrezorHDWalletInfo & HDWalletInfo;
+  info: TrezorHDWalletInfo & core.HDWalletInfo;
 
   constructor(transport: TrezorTransport) {
     this.transport = transport;
@@ -377,7 +335,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
     this.featuresCache = features;
   }
 
-  public async getPublicKeys(msg: Array<GetPublicKey>): Promise<Array<PublicKey | null>> {
+  public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
     if (!msg.length) return [];
     let res = await this.transport.call("getPublicKey", {
       bundle: msg.map((request) => {
@@ -392,12 +350,12 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return res.payload.map((result, i) => {
       const scriptType = msg[i].scriptType;
       switch (scriptType) {
-        case BTCInputScriptType.SpendP2SHWitness:
-        case BTCInputScriptType.SpendWitness:
+        case core.BTCInputScriptType.SpendP2SHWitness:
+        case core.BTCInputScriptType.SpendWitness:
           return {
             xpub: result.xpubSegwit,
           };
-        case BTCInputScriptType.SpendAddress:
+        case core.BTCInputScriptType.SpendAddress:
         default:
           return {
             xpub: result.xpub,
@@ -442,8 +400,8 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
     throw new Error("Trezor does not yet support recoverDevice");
   }
 
-  public async ping(msg: Ping): Promise<Pong> {
-    // TrezorConnect doesn't expose the device's normal 'Ping' message, so we
+  public async ping(msg: core.Ping): Promise<core.Pong> {
+    // TrezorConnect doesn't expose the device's normal 'Core.Ping' message, so we
     // have to fake it here:
     return { msg: msg.msg };
   }
@@ -453,7 +411,7 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
     handleError(this.transport, res, "Could not wipe Trezor");
   }
 
-  public async reset(msg: ResetDevice): Promise<void> {
+  public async reset(msg: core.ResetDevice): Promise<void> {
     let res = await this.transport.call("resetDevice", {
       strength: msg.entropy,
       label: msg.label,
@@ -467,12 +425,12 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
     await this.transport.cancel();
   }
 
-  public async recover(msg: RecoverDevice): Promise<void> {
+  public async recover(msg: core.RecoverDevice): Promise<void> {
     // https://github.com/trezor/connect/pull/320
-    throw new Error("TrezorConnect does not expose RecoverDevice... yet?");
+    throw new Error("TrezorConnect does not expose Core.RecoverDevice... yet?");
   }
 
-  public async loadDevice(msg: LoadDevice): Promise<void> {
+  public async loadDevice(msg: core.LoadDevice): Promise<void> {
     // https://github.com/trezor/connect/issues/363
     let res = await this.transport.call("loadDevice", {
       mnemonic: msg.mnemonic,
@@ -500,24 +458,24 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return this.transport.hasPopup;
   }
 
-  public hasNativeShapeShift(srcCoin: Coin, dstCoin: Coin): boolean {
+  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     // It doesn't... yet?
     return false;
   }
 
-  public async btcSupportsCoin(coin: Coin): Promise<boolean> {
+  public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
     return this.info.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
+  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
     return this.info.btcSupportsScriptType(coin, scriptType);
   }
 
-  public async btcGetAddress(msg: BTCGetAddress): Promise<string> {
+  public async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
     return Btc.btcGetAddress(this.transport, msg);
   }
 
-  public async btcSignTx(msg: BTCSignTx): Promise<BTCSignedTx> {
+  public async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx> {
     return Btc.btcSignTx(this, this.transport, msg);
   }
 
@@ -529,35 +487,35 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return this.info.btcSupportsNativeShapeShift();
   }
 
-  public async btcSignMessage(msg: BTCSignMessage): Promise<BTCSignedMessage> {
+  public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
     return Btc.btcSignMessage(this.transport, msg);
   }
 
-  public async btcVerifyMessage(msg: BTCVerifyMessage): Promise<boolean> {
+  public async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
     return Btc.btcVerifyMessage(this.transport, msg);
   }
 
-  public btcGetAccountPaths(msg: BTCGetAccountPaths): Array<BTCAccountPath> {
+  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
     return Btc.btcGetAccountPaths(msg);
   }
 
-  public btcIsSameAccount(msg: Array<BTCAccountPath>): boolean {
+  public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
     return this.info.btcIsSameAccount(msg);
   }
 
-  public async ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx> {
+  public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
     return Eth.ethSignTx(this, this.transport, msg);
   }
 
-  public async ethGetAddress(msg: ETHGetAddress): Promise<string> {
+  public async ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
     return Eth.ethGetAddress(this.transport, msg);
   }
 
-  public async ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage> {
+  public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
     return Eth.ethSignMessage(this.transport, msg);
   }
 
-  public async ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean> {
+  public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
     return Eth.ethVerifyMessage(this.transport, msg);
   }
 
@@ -573,11 +531,11 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return this.info.ethSupportsNativeShapeShift();
   }
 
-  public ethGetAccountPaths(msg: ETHGetAccountPath): Array<ETHAccountPath> {
+  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     return this.info.ethGetAccountPaths(msg);
   }
 
-  public describePath(msg: DescribePath): PathDescription {
+  public describePath(msg: core.DescribePath): core.PathDescription {
     return this.info.describePath(msg);
   }
 
@@ -585,11 +543,11 @@ export class TrezorHDWallet implements HDWallet, BTCWallet, ETHWallet {
     return this.transport.disconnect();
   }
 
-  public btcNextAccountPath(msg: BTCAccountPath): BTCAccountPath | undefined {
+  public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
     return this.info.btcNextAccountPath(msg);
   }
 
-  public ethNextAccountPath(msg: ETHAccountPath): ETHAccountPath | undefined {
+  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
     return this.info.ethNextAccountPath(msg);
   }
 }

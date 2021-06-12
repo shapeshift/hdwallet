@@ -1,18 +1,19 @@
-import { TransportDelegate as KeepKeyTransportDelegate } from "@shapeshiftoss/hdwallet-keepkey";
-import { Device as NodeHIDDevice, HID } from "node-hid";
+import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
+import * as hid from "node-hid";
+
 import { VENDOR_ID, PRODUCT_ID } from "./utils";
 
-export function requestPair(): HID {
-  return new HID(VENDOR_ID, PRODUCT_ID);
+export function requestPair(): hid.HID {
+  return new hid.HID(VENDOR_ID, PRODUCT_ID);
 }
 
-export class TransportDelegate implements KeepKeyTransportDelegate {
-  public hidRef: HID;
-  public hidDevice: NodeHIDDevice;
+export class TransportDelegate implements keepkey.TransportDelegate {
+  public hidRef: hid.HID;
+  public hidDevice: hid.Device;
 
-  constructor(hidDevice: NodeHIDDevice, hidRef?: HID) {
+  constructor(hidDevice: hid.Device, hidRef?: hid.HID) {
     this.hidDevice = hidDevice;
-    this.hidRef = hidRef || new HID(hidDevice.path);
+    this.hidRef = hidRef || new hid.HID(hidDevice.path);
   }
 
   async getDeviceID(): Promise<string> {

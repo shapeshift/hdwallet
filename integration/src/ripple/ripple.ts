@@ -1,8 +1,7 @@
-import { bip32ToAddressNList, HDWallet, RippleWallet, supportsRipple, RippleTx } from "@shapeshiftoss/hdwallet-core";
-import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
+import * as core from "@shapeshiftoss/hdwallet-core";
 
-import * as tx01_unsigned from "./tx01.unsigned.json";
 import * as tx01_signed from "./tx01.signed.json";
+import * as tx01_unsigned from "./tx01.unsigned.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
@@ -11,13 +10,13 @@ const TIMEOUT = 60 * 1000;
 /**
  *  Main integration suite for testing RippleWallet implementations' Ripple support.
  */
-export function rippleTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): void {
-  let wallet: RippleWallet & HDWallet;
+export function rippleTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
+  let wallet: core.RippleWallet & core.HDWallet;
 
   describe("Ripple", () => {
     beforeAll(async () => {
       const { wallet: w } = get();
-      if (supportsRipple(w)) wallet = w;
+      if (core.supportsRipple(w)) wallet = w;
     });
 
     beforeEach(async () => {
@@ -52,7 +51,7 @@ export function rippleTests(get: () => { wallet: HDWallet; info: HDWalletInfo })
         if (!wallet) return;
         expect(
           await wallet.rippleGetAddress({
-            addressNList: bip32ToAddressNList("m/44'/144'/0'/0/0"),
+            addressNList: core.bip32ToAddressNList("m/44'/144'/0'/0/0"),
             showDisplay: false,
           })
         ).toEqual("rh5ZnEVySAy7oGd3nebT3wrohGDrsNS83E");
@@ -66,8 +65,8 @@ export function rippleTests(get: () => { wallet: HDWallet; info: HDWalletInfo })
         if (!wallet) return;
 
         let res = await wallet.rippleSignTx({
-          addressNList: bip32ToAddressNList(`m/44'/144'/0'/0/0`),
-          tx: (tx01_unsigned as unknown) as RippleTx,
+          addressNList: core.bip32ToAddressNList(`m/44'/144'/0'/0/0`),
+          tx: (tx01_unsigned as unknown) as core.RippleTx,
           flags: undefined,
           sequence: "3",
           lastLedgerSequence: "0",
@@ -77,7 +76,7 @@ export function rippleTests(get: () => { wallet: HDWallet; info: HDWalletInfo })
             destinationTag: "1234567890",
           },
         });
-        expect(res).toEqual((tx01_signed as unknown) as RippleTx);
+        expect(res).toEqual((tx01_signed as unknown) as core.RippleTx);
       },
       TIMEOUT
     );

@@ -1,9 +1,9 @@
-import axios, { AxiosInstance } from "axios";
-import { TransportDelegate as KeepKeyTransportDelegate } from "@shapeshiftoss/hdwallet-keepkey";
+import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
+import Axios, { AxiosInstance } from "axios";
 
 import { Config } from "./adapter";
 
-export class TransportDelegate implements KeepKeyTransportDelegate {
+export class TransportDelegate implements keepkey.TransportDelegate {
   config: Config;
   axiosInstance: AxiosInstance | null = null;
 
@@ -26,7 +26,7 @@ export class TransportDelegate implements KeepKeyTransportDelegate {
   }
 
   async connect(): Promise<void> {
-    this.axiosInstance = axios.create(this.config);
+    this.axiosInstance = Axios.create(this.config);
   }
 
   async tryConnectDebugLink(): Promise<boolean> {

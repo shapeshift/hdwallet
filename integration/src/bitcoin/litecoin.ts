@@ -1,12 +1,4 @@
-import {
-  bip32ToAddressNList,
-  HDWallet,
-  BTCWallet,
-  supportsBTC,
-  BTCInputScriptType,
-  Coin,
-  HDWalletInfo,
-} from "@shapeshiftoss/hdwallet-core";
+import * as core from "@shapeshiftoss/hdwallet-core";
 
 import { each } from "../utils";
 
@@ -17,13 +9,13 @@ const TIMEOUT = 60 * 1000;
 /**
  *  Main integration suite for testing BTCWallet implementations' Litecoin support.
  */
-export function litecoinTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): void {
-  let wallet: BTCWallet & HDWallet;
+export function litecoinTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
+  let wallet: core.BTCWallet & core.HDWallet;
 
   describe("Litecoin", () => {
     beforeAll(() => {
       const { wallet: w } = get();
-      if (supportsBTC(w)) wallet = w;
+      if (core.supportsBTC(w)) wallet = w;
     });
 
     beforeEach(async () => {
@@ -47,34 +39,34 @@ export function litecoinTests(get: () => { wallet: HDWallet; info: HDWalletInfo 
               "Show",
               "Litecoin",
               "m/44'/2'/0'/0/0",
-              BTCInputScriptType.SpendAddress,
+              core.BTCInputScriptType.SpendAddress,
               "LYXTv5RdsPYKC4qGmb6x6SuKoFMxUdSjLQ",
             ],
             [
               "Tell",
               "Litecoin",
               "m/49'/2'/0'/0/0",
-              BTCInputScriptType.SpendP2SHWitness,
+              core.BTCInputScriptType.SpendP2SHWitness,
               "MFoQRU1KQq365Sy3cXhix3ygycEU4YWB1V",
             ],
             [
               "Tell",
               "Litecoin",
               "m/84'/2'/0'/0/0",
-              BTCInputScriptType.SpendWitness,
+              core.BTCInputScriptType.SpendWitness,
               "ltc1qf6pwfkw4wd0fetq2pfrwzlfknskjg6nyvt6ngv",
             ],
           ],
           async (args) => {
             let mode = args[0] as string;
-            let coin = args[1] as Coin;
+            let coin = args[1] as core.Coin;
             let path = args[2] as string;
-            let scriptType = args[3] as BTCInputScriptType;
+            let scriptType = args[3] as core.BTCInputScriptType;
             let expected = args[4] as string;
 
             if (!(await wallet.btcSupportsScriptType(coin, scriptType))) return;
             let res = await wallet.btcGetAddress({
-              addressNList: bip32ToAddressNList(path),
+              addressNList: core.bip32ToAddressNList(path),
               coin: coin,
               showDisplay: mode === "Show",
               scriptType: scriptType,
@@ -92,14 +84,14 @@ export function litecoinTests(get: () => { wallet: HDWallet; info: HDWalletInfo 
       async () => {
         await each(
           [
-            ["Litecoin", 1, BTCInputScriptType.SpendAddress],
-            ["Litecoin", 1, BTCInputScriptType.SpendP2SHWitness],
-            ["Litecoin", 1, BTCInputScriptType.SpendWitness],
+            ["Litecoin", 1, core.BTCInputScriptType.SpendAddress],
+            ["Litecoin", 1, core.BTCInputScriptType.SpendP2SHWitness],
+            ["Litecoin", 1, core.BTCInputScriptType.SpendWitness],
           ],
           async (args) => {
-            let coin = args[0] as Coin;
+            let coin = args[0] as core.Coin;
             let accountIdx = args[1] as number;
-            let scriptType = args[2] as BTCInputScriptType;
+            let scriptType = args[2] as core.BTCInputScriptType;
             if (!wallet) return;
             if (!(await wallet.btcSupportsCoin(coin))) return;
             if (!(await wallet.btcSupportsScriptType(coin, scriptType))) return;

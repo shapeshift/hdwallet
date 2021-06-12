@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { info, isNative, NativeAdapter, NativeHDWallet } from "@shapeshiftoss/hdwallet-native";
+import * as native from "@shapeshiftoss/hdwallet-native";
 
 const mnemonic = "all all all all all all all all all all all all";
 const deviceId = "native-test";
@@ -9,22 +9,22 @@ export function name(): string {
 }
 
 export function createInfo(): core.HDWalletInfo {
-  return info();
+  return native.info();
 }
 
 export async function createWallet(): Promise<core.HDWallet> {
-  const wallet = new NativeHDWallet({ mnemonic, deviceId })
+  const wallet = new native.NativeHDWallet({ mnemonic, deviceId })
   await wallet.initialize()
   return wallet
 }
 
 export function selfTest(get: () => core.HDWallet): void {
-  let wallet: NativeHDWallet;
+  let wallet: native.NativeHDWallet;
 
   beforeAll(async () => {
-    let w = get() as NativeHDWallet;
+    let w = get() as native.NativeHDWallet;
 
-    if (isNative(w) && core.supportsBTC(w) && core.supportsETH(w)) {
+    if (native.isNative(w) && core.supportsBTC(w) && core.supportsETH(w)) {
       wallet = w;
     } else {
       fail("Wallet is not native");

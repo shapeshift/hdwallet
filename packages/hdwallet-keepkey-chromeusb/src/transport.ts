@@ -1,18 +1,15 @@
-/// <reference path="../node_modules/@types/chrome/index.d.ts" />
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 
-import { FirmwareUpdateRequired } from "@shapeshiftoss/hdwallet-core";
-import { SEGMENT_SIZE, TransportDelegate as KeepKeyTransportDelegate } from "@shapeshiftoss/hdwallet-keepkey";
-import { VENDOR_ID, WEBUSB_PRODUCT_ID, makePromise } from "./utils";
+import { VENDOR_ID, WEBUSB_PRODUCT_ID, chromeUSB, assertChromeUSB, makePromise } from "./utils";
 
-const c = chrome as any;
-
-export class TransportDelegate implements KeepKeyTransportDelegate {
+export class TransportDelegate implements keepkey.TransportDelegate {
   usbDevice: USBDevice;
   private connectionHandle: any;
 
   constructor(usbDevice: USBDevice) {
     if (usbDevice.vendorId !== VENDOR_ID) return null;
-    if (usbDevice.productId !== WEBUSB_PRODUCT_ID) throw new FirmwareUpdateRequired("KeepKey", "6.1.0");
+    if (usbDevice.productId !== WEBUSB_PRODUCT_ID) throw new core.FirmwareUpdateRequired("KeepKey", "6.1.0");
     this.usbDevice = usbDevice;
   }
 
@@ -25,24 +22,27 @@ export class TransportDelegate implements KeepKeyTransportDelegate {
   }
 
   async connect(): Promise<void> {
+    assertChromeUSB(chromeUSB);
     if (await this.isOpened()) throw new Error("cannot connect an already-connected connection");
-    this.connectionHandle = await makePromise(c.usb.openDevice, this.usbDevice);
+    this.connectionHandle = await makePromise(chromeUSB.openDevice, this.usbDevice);
 
-    if (this.connectionHandle.configuration === null) await makePromise(c.usb.setConfiguration, this.connectionHandle, 1);
-    await makePromise(c.usb.claimInterface, this.connectionHandle, 0);
+    if (this.connectionHandle.configuration === null) await makePromise(chromeUSB.setConfiguration, this.connectionHandle, 1);
+    await makePromise(chromeUSB.claimInterface, this.connectionHandle, 0);
   }
 
   async disconnect(): Promise<void> {
+    assertChromeUSB(chromeUSB);
     try {
       // If the device is disconnected, this will fail and throw, which is fine.
-      c.usb.closeDevice(this.connectionHandle);
+      chromeUSB.closeDevice(this.connectionHandle);
     } catch (e) {
       console.log("Disconnect Error (Ignored):", e);
     }
   }
 
   async writeChunk(buffer: Uint8Array): Promise<void> {
-    await makePromise(c.usb.interruptTransfer, this.connectionHandle, {
+    assertChromeUSB(chromeUSB);
+    await makePromise(chromeUSB.interruptTransfer, this.connectionHandle, {
       direction: "out",
       endpoint: 1,
       data: buffer.buffer,
@@ -51,10 +51,11 @@ export class TransportDelegate implements KeepKeyTransportDelegate {
   }
 
   async readChunk(): Promise<Uint8Array> {
-    const { resultCode, data } = await makePromise(c.usb.interruptTransfer, this.connectionHandle, {
+    assertChromeUSB(chromeUSB);
+    const { resultCode, data } = await makePromise(chromeUSB.interruptTransfer, this.connectionHandle, {
       direction: "in",
       endpoint: 1,
-      length: SEGMENT_SIZE + 1,
+      length: keepkey.SEGMENT_SIZE + 1,
       timeout: 0,
     });
     console.log(resultCode, data);

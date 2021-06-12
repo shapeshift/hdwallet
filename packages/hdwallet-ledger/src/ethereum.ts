@@ -1,11 +1,9 @@
-import { ecrecover, hashPersonalMessage, pubToAddress, sha256, ripemd160 } from "ethereumjs-util";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import EthereumTx from "ethereumjs-tx";
+import * as ethereumUtil from "ethereumjs-util";
+
 import { LedgerTransport } from "./transport";
 import { createXpub, compressPublicKey, encodeBase58Check, networksUtil, parseHexString, handleError } from "./utils";
-
-// @ts-ignore
-import * as Ethereumjs from "ethereumjs-tx";
-const { default: EthereumTx } = Ethereumjs as any;
 
 export async function ethSupportsNetwork(chain_id: number): Promise<boolean> {
   return chain_id === 1;
@@ -46,8 +44,8 @@ export async function ethGetPublicKeys(
     } = res1;
     parentPublicKey = parseHexString(compressPublicKey(parentPublicKey));
 
-    let result = sha256(parentPublicKey);
-    result = ripemd160(result, false);
+    let result = ethereumUtil.sha256(parentPublicKey);
+    result = ethereumUtil.ripemd160(result, false);
 
     const fingerprint: number = ((result[0] << 24) | (result[1] << 16) | (result[2] << 8) | result[3]) >>> 0;
 
@@ -160,8 +158,8 @@ export async function ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<bool
     return false;
   }
   sigb[64] = sigb[64] === 0 || sigb[64] === 1 ? sigb[64] + 27 : sigb[64];
-  const hash = hashPersonalMessage(Buffer.from(msg.message));
-  const pubKey = ecrecover(hash, sigb[64], sigb.slice(0, 32), sigb.slice(32, 64));
+  const hash = ethereumUtil.hashPersonalMessage(Buffer.from(msg.message));
+  const pubKey = ethereumUtil.ecrecover(hash, sigb[64], sigb.slice(0, 32), sigb.slice(32, 64));
 
-  return core.stripHexPrefixAndLower(msg.address) === pubToAddress(pubKey).toString("hex");
+  return core.stripHexPrefixAndLower(msg.address) === ethereumUtil.pubToAddress(pubKey).toString("hex");
 }

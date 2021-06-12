@@ -1,4 +1,4 @@
-import { Network } from "bitcoinjs-lib";
+import * as bitcoin from "bitcoinjs-lib";
 
 type BIP32 = {
   bip32: {
@@ -42,7 +42,7 @@ const bip32BTC: BIP32ByScriptType = {
 };
 
 type NetworkDescription = {
-  base: Omit<Network, "bip32">;
+  base: Omit<bitcoin.Network, "bip32">;
 } & BIP32ByScriptType;
 
 type Networks = Record<string, NetworkDescription>;
@@ -167,7 +167,7 @@ const networks: Networks = {
 for (const coin of ["bitcoincash", "thorchain", "secret", "terra", "kava", "cardano", "cosmos", "binance", "ethereum"])
   networks[coin] = networks.bitcoin;
 
-export function getNetwork(coin: string, scriptType?: string): Network {
+export function getNetwork(coin: string, scriptType?: string): bitcoin.Network {
   coin = coin.toLowerCase();
 
   if (!(coin in networks)) throw new Error(`${coin} network not supported`);

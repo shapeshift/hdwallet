@@ -1,11 +1,9 @@
-import { bip32ToAddressNList, HDWallet, BinanceWallet, supportsBinance } from "@shapeshiftoss/hdwallet-core";
-import { isKeepKey } from "@shapeshiftoss/hdwallet-keepkey";
-import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
+import * as core from "@shapeshiftoss/hdwallet-core";
 import stableStringify from "fast-json-stable-stringify";
 
 import { decodeBnbTx, validateBnbTx } from "./bnbdecoder";
-import tx02_unsigned from "./tx02.mainnet.unsigned.json";
 import tx02_signed from "./tx02.mainnet.signed.json";
+import tx02_unsigned from "./tx02.mainnet.unsigned.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
@@ -14,13 +12,13 @@ const TIMEOUT = 60 * 1000;
 /**
  *  Main integration suite for testing BinanceWallet implementations' Cosmos support.
  */
-export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): void {
-  let wallet: BinanceWallet & HDWallet;
+export function binanceTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
+  let wallet: core.BinanceWallet & core.HDWallet;
 
   describe("Binance", () => {
     beforeAll(async () => {
       const { wallet: w } = get();
-      if (supportsBinance(w)) wallet = w;
+      if (core.supportsBinance(w)) wallet = w;
     });
 
     beforeEach(async () => {
@@ -50,7 +48,7 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
         if (!wallet) return;
         expect(
           await wallet.binanceGetAddress({
-            addressNList: bip32ToAddressNList("m/44'/714'/0'/0/0"),
+            addressNList: core.bip32ToAddressNList("m/44'/714'/0'/0/0"),
             showDisplay: false,
           })
         ).toEqual("bnb1afwh46v6nn30nkmugw5swdmsyjmlxslgjfugre");
@@ -72,7 +70,7 @@ export function binanceTests(get: () => { wallet: HDWallet; info: HDWalletInfo }
           tx: tx02_unsigned as Omit<typeof tx02_unsigned, "msgs"> & {
             msgs: typeof tx02_unsigned.msgs extends Array<infer R> ? [R] : never;
           },
-          addressNList: bip32ToAddressNList("m/44'/714'/0'/0/0"),
+          addressNList: core.bip32ToAddressNList("m/44'/714'/0'/0/0"),
           chain_id: tx02_unsigned.chain_id,
           account_number: tx02_unsigned.account_number,
           sequence: tx02_unsigned.sequence,

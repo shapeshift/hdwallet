@@ -1,28 +1,11 @@
-import {
-  HDWallet,
-  BTCWallet,
-  ETHWallet,
-  supportsBTC,
-  supportsETH,
-  Keyring,
-  HDWalletInfo,
-  BTCInputScriptType,
-  bip32ToAddressNList,
-} from "@shapeshiftoss/hdwallet-core";
-import {
-  create as createLedger,
-  LedgerTransport,
-  LedgerHDWallet,
-  LedgerResponse,
-  isLedger,
-  info,
-} from "@shapeshiftoss/hdwallet-ledger";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
-export class MockTransport extends LedgerTransport {
+export class MockTransport extends ledger.LedgerTransport {
   memoized = new Map();
   currentApp: string;
 
-  constructor(keyring: Keyring, type: string) {
+  constructor(keyring: core.Keyring, type: string) {
     super(undefined, keyring);
     this.currentApp = type;
     this.populate();
@@ -32,7 +15,7 @@ export class MockTransport extends LedgerTransport {
     return "mock#1";
   }
 
-  public call(coin: string, method: string, ...args: any[]): Promise<LedgerResponse> {
+  public call(coin: string, method: string, ...args: any[]): Promise<ledger.LedgerResponse> {
     let key = JSON.stringify({ coin: coin, method: method, args: args });
 
     if (!this.memoized.has(key)) {
@@ -223,22 +206,22 @@ export function name(): string {
   return "Ledger";
 }
 
-export function createInfo(): HDWalletInfo {
-  return info();
+export function createInfo(): core.HDWalletInfo {
+  return ledger.info();
 }
 
-export async function createWallet(type: any = "Bitcoin"): Promise<HDWallet> {
-  let keyring = new Keyring();
+export async function createWallet(type: any = "Bitcoin"): Promise<core.HDWallet> {
+  let keyring = new core.Keyring();
   let transport = new MockTransport(keyring, type);
-  return createLedger(transport as any);
+  return ledger.create(transport as any);
 }
 
-export function selfTest(get: () => HDWallet): void {
-  let wallet: LedgerHDWallet & ETHWallet & BTCWallet & HDWallet;
+export function selfTest(get: () => core.HDWallet): void {
+  let wallet: ledger.LedgerHDWallet & core.ETHWallet & core.BTCWallet & core.HDWallet;
 
   beforeAll(async () => {
     let w = get();
-    if (isLedger(w) && supportsBTC(w) && supportsETH(w)) wallet = w;
+    if (ledger.isLedger(w) && core.supportsBTC(w) && core.supportsETH(w)) wallet = w;
     else fail("Wallet is not a Ledger");
   });
 
@@ -310,17 +293,17 @@ export function selfTest(get: () => HDWallet): void {
     expect(paths).toEqual([
       {
         addressNList: [2147483697, 2147483650, 2147483651],
-        scriptType: BTCInputScriptType.SpendP2SHWitness,
+        scriptType: core.BTCInputScriptType.SpendP2SHWitness,
         coin: "Litecoin",
       },
       {
         addressNList: [2147483692, 2147483650, 2147483651],
-        scriptType: BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCInputScriptType.SpendAddress,
         coin: "Litecoin",
       },
       {
         addressNList: [2147483732, 2147483650, 2147483651],
-        scriptType: BTCInputScriptType.SpendWitness,
+        scriptType: core.BTCInputScriptType.SpendWitness,
         coin: "Litecoin",
       },
     ]);
@@ -377,14 +360,14 @@ export function selfTest(get: () => HDWallet): void {
   it("can describe paths", () => {
     expect(
       wallet.info.describePath({
-        path: bip32ToAddressNList("m/44'/0'/0'/0/0"),
+        path: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
         coin: "Bitcoin",
-        scriptType: BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCInputScriptType.SpendAddress,
       })
     ).toEqual({
       verbose: "Bitcoin Account #0, Address #0 (Legacy)",
       coin: "Bitcoin",
-      scriptType: BTCInputScriptType.SpendAddress,
+      scriptType: core.BTCInputScriptType.SpendAddress,
       isKnown: true,
       accountIdx: 0,
       addressIdx: 0,
@@ -395,14 +378,14 @@ export function selfTest(get: () => HDWallet): void {
 
     expect(
       wallet.info.describePath({
-        path: bip32ToAddressNList("m/44'/0'/7'/1/5"),
+        path: core.bip32ToAddressNList("m/44'/0'/7'/1/5"),
         coin: "Bitcoin",
-        scriptType: BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCInputScriptType.SpendAddress,
       })
     ).toEqual({
       verbose: "Bitcoin Account #7, Change Address #5 (Legacy)",
       coin: "Bitcoin",
-      scriptType: BTCInputScriptType.SpendAddress,
+      scriptType: core.BTCInputScriptType.SpendAddress,
       isKnown: true,
       accountIdx: 7,
       addressIdx: 5,
@@ -413,20 +396,20 @@ export function selfTest(get: () => HDWallet): void {
 
     expect(
       wallet.info.describePath({
-        path: bip32ToAddressNList("m/44'/0'/7'/1/5"),
+        path: core.bip32ToAddressNList("m/44'/0'/7'/1/5"),
         coin: "BitcoinCash",
-        scriptType: BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCInputScriptType.SpendAddress,
       })
     ).toEqual({
       verbose: "m/44'/0'/7'/1/5",
       coin: "BitcoinCash",
-      scriptType: BTCInputScriptType.SpendAddress,
+      scriptType: core.BTCInputScriptType.SpendAddress,
       isKnown: false,
     });
 
     expect(
       wallet.info.describePath({
-        path: bip32ToAddressNList("m/44'/60'/0'/0/0"),
+        path: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
         coin: "Ethereum",
       })
     ).toEqual({
@@ -440,7 +423,7 @@ export function selfTest(get: () => HDWallet): void {
 
     expect(
       wallet.info.describePath({
-        path: bip32ToAddressNList("m/44'/60'/3'/0/0"),
+        path: core.bip32ToAddressNList("m/44'/60'/3'/0/0"),
         coin: "Ethereum",
       })
     ).toEqual({
@@ -454,7 +437,7 @@ export function selfTest(get: () => HDWallet): void {
 
     expect(
       wallet.info.describePath({
-        path: bip32ToAddressNList("m/44'/60'/0'/42"),
+        path: core.bip32ToAddressNList("m/44'/60'/0'/42"),
         coin: "Ethereum",
       })
     ).toEqual({

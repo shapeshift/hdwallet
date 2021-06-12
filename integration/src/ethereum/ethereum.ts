@@ -1,6 +1,5 @@
-import { bip32ToAddressNList, HDWallet, ETHWallet, supportsETH } from "@shapeshiftoss/hdwallet-core";
-import { isLedger } from "@shapeshiftoss/hdwallet-ledger";
-import { HDWalletInfo } from "@shapeshiftoss/hdwallet-core/src/wallet";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
@@ -9,13 +8,13 @@ const TIMEOUT = 60 * 1000;
 /**
  *  Main integration suite for testing ETHWallet implementations' Ethereum support.
  */
-export function ethereumTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): void {
-  let wallet: ETHWallet & HDWallet;
+export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
+  let wallet: core.ETHWallet & core.HDWallet;
 
   describe("Ethereum", () => {
     beforeAll(async () => {
       const { wallet: w } = get();
-      if (supportsETH(w)) wallet = w;
+      if (core.supportsETH(w)) wallet = w;
     });
 
     beforeEach(async () => {
@@ -52,8 +51,8 @@ export function ethereumTests(get: () => { wallet: HDWallet; info: HDWalletInfo 
       async () => {
         if (!wallet) return;
         if (await wallet.ethSupportsSecureTransfer()) {
-          let account0 = bip32ToAddressNList("m/44'/60'/0'/0/0");
-          let account1 = bip32ToAddressNList("m/44'/60'/1'/0/0");
+          let account0 = core.bip32ToAddressNList("m/44'/60'/0'/0/0");
+          let account1 = core.bip32ToAddressNList("m/44'/60'/1'/0/0");
           let account1Addr = await wallet.ethGetAddress({
             addressNList: account1,
             showDisplay: false,
@@ -107,7 +106,7 @@ export function ethereumTests(get: () => { wallet: HDWallet; info: HDWalletInfo 
         if (!wallet) return;
         expect(
           await wallet.ethGetAddress({
-            addressNList: bip32ToAddressNList("m/44'/60'/0'/0/0"),
+            addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
             showDisplay: false,
           })
         ).toEqual("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8");
@@ -120,7 +119,7 @@ export function ethereumTests(get: () => { wallet: HDWallet; info: HDWalletInfo 
       async () => {
         if (!wallet) return;
         let res = await wallet.ethSignTx({
-          addressNList: bip32ToAddressNList("m/44'/60'/0'/0/0"),
+          addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
           nonce: "0x01",
           gasPrice: "0x1dcd65000",
           gasLimit: "0x5622",
@@ -145,7 +144,7 @@ export function ethereumTests(get: () => { wallet: HDWallet; info: HDWalletInfo 
       async () => {
         if (!wallet) return;
         let res = await wallet.ethSignTx({
-          addressNList: bip32ToAddressNList("m/44'/60'/0'/0/0"),
+          addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
           nonce: "0x01",
           gasPrice: "0x14",
           gasLimit: "0x14",
@@ -173,9 +172,9 @@ export function ethereumTests(get: () => { wallet: HDWallet; info: HDWalletInfo 
       "ethSignMessage()",
       async () => {
         if (!wallet) return;
-        if (isLedger(wallet)) return; // FIXME: Expected failure
+        if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
         let res = await wallet.ethSignMessage({
-          addressNList: bip32ToAddressNList("m/44'/60'/0'/0/0"),
+          addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
           message: "Hello World",
         });
         expect(res.address).toEqual("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8");

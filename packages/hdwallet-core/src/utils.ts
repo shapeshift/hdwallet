@@ -1,8 +1,8 @@
 import * as eventemitter2 from "eventemitter2";
-import { Observable, fromEvent, merge } from "rxjs";
-import { first } from "rxjs/operators";
-import { Coin } from "./wallet";
-import { BIP32Path } from "./wallet";
+import * as Rx from "rxjs";
+import * as RxOp from "rxjs/operators";
+
+import { BIP32Path, Coin } from "./wallet";
 
 export type Constructor<T = {}> = new (...args: any[]) => T;
 
@@ -96,8 +96,8 @@ export function bip32Like(path: string): boolean {
   return /^m(((\/[0-9]+h)+|(\/[0-9]+H)+|(\/[0-9]+')*)((\/[0-9]+)*))$/.test(path);
 }
 
-export function takeFirstOfManyEvents(eventEmitter: eventemitter2.EventEmitter2, events: string[]): Observable<{}> {
-  return merge(...events.map((event) => fromEvent<Event>(eventEmitter, event))).pipe(first());
+export function takeFirstOfManyEvents(eventEmitter: eventemitter2.EventEmitter2, events: string[]): Rx.Observable<{}> {
+  return Rx.merge(...events.map((event) => Rx.fromEvent<Event>(eventEmitter, event))).pipe(RxOp.first());
 }
 
 export function stripHexPrefix(value: string) {

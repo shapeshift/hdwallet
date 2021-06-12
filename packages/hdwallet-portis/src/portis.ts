@@ -1,49 +1,12 @@
+import * as core from "@shapeshiftoss/hdwallet-core";
+import _ from "lodash";
 import Web3 from "web3";
-import {
-  HDWallet,
-  GetPublicKey,
-  PublicKey,
-  RecoverDevice,
-  ResetDevice,
-  Coin,
-  Ping,
-  Pong,
-  LoadDevice,
-  ETHWallet,
-  ETHGetAddress,
-  ETHSignTx,
-  ETHGetAccountPath,
-  ETHAccountPath,
-  ETHSignMessage,
-  ETHSignedMessage,
-  ETHVerifyMessage,
-  ETHSignedTx,
-  DescribePath,
-  PathDescription,
-  addressNListToBIP32,
-  Transport,
-  Keyring,
-  HDWalletInfo,
-  ETHWalletInfo,
-  BTCWallet,
-  BTCGetAddress,
-  BTCSignTx,
-  BTCSignedTx,
-  BTCSignMessage,
-  BTCSignedMessage,
-  BTCVerifyMessage,
-  BTCInputScriptType,
-  BTCGetAccountPaths,
-  BTCAccountPath,
-  BTCWalletInfo,
-  slip44ByCoin,
-} from "@shapeshiftoss/hdwallet-core";
-import * as eth from "./ethereum";
+
 import * as btc from "./bitcoin";
-import { isObject } from "lodash";
+import * as eth from "./ethereum";
 
 // We might not need this. Leaving it for now to debug further
-class PortisTransport extends Transport {
+class PortisTransport extends core.Transport {
   public async getDeviceID() {
     return "portis:0";
   }
@@ -53,11 +16,11 @@ class PortisTransport extends Transport {
   }
 }
 
-export function isPortis(wallet: HDWallet): wallet is PortisHDWallet {
-  return isObject(wallet) && (wallet as any)._isPortis;
+export function isPortis(wallet: core.HDWallet): wallet is PortisHDWallet {
+  return _.isObject(wallet) && (wallet as any)._isPortis;
 }
 
-export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
+export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWallet {
   _supportsETH: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsBTCInfo: boolean = true;
@@ -83,11 +46,11 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
   _supportsTerra: boolean = false;
   _supportsTerraInfo: boolean = false;
 
-  transport = new PortisTransport(new Keyring());
+  transport = new PortisTransport(new core.Keyring());
 
   portis: any;
   web3: any;
-  info: PortisHDWalletInfo & HDWalletInfo;
+  info: PortisHDWalletInfo & core.HDWalletInfo;
   ethAddress: string;
 
   // used as a mutex to ensure calls to portis.getExtendedPublicKey cannot happen before a previous call has resolved
@@ -141,7 +104,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.info.hasOnDeviceRecovery();
   }
 
-  public hasNativeShapeShift(srcCoin: Coin, dstCoin: Coin): boolean {
+  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return this.info.hasNativeShapeShift(srcCoin, dstCoin);
   }
 
@@ -149,8 +112,8 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.portis.logout();
   }
 
-  public ping(msg: Ping): Promise<Pong> {
-    // no ping function for Portis, so just returning Pong
+  public ping(msg: core.Ping): Promise<core.Pong> {
+    // no ping function for Portis, so just returning Core.Pong
     return Promise.resolve({ msg: msg.msg });
   }
 
@@ -183,24 +146,24 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return Promise.resolve();
   }
 
-  public reset(msg: ResetDevice): Promise<void> {
+  public reset(msg: core.ResetDevice): Promise<void> {
     return Promise.resolve();
   }
 
-  public recover(msg: RecoverDevice): Promise<void> {
+  public recover(msg: core.RecoverDevice): Promise<void> {
     // no concept of recover in Portis
     return Promise.resolve();
   }
 
-  public loadDevice(msg: LoadDevice): Promise<void> {
+  public loadDevice(msg: core.LoadDevice): Promise<void> {
     return this.portis.importWallet(msg.mnemonic);
   }
 
-  public describePath(msg: DescribePath): PathDescription {
+  public describePath(msg: core.DescribePath): core.PathDescription {
     return this.info.describePath(msg);
   }
 
-  public async getPublicKeys(msg: Array<GetPublicKey>): Promise<Array<PublicKey | null>> {
+  public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
     const publicKeys = [];
     this.portisCallInProgress = new Promise(async (resolve, reject) => {
       try {
@@ -210,10 +173,10 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
       }
       for (let i = 0; i < msg.length; i++) {
         const { addressNList, coin } = msg[i];
-        const bitcoinSlip44 = 0x80000000 + slip44ByCoin("Bitcoin");
+        const bitcoinSlip44 = 0x80000000 + core.slip44ByCoin("Bitcoin");
         // TODO we really shouldnt be every using the "bitcoin" string parameter but is here for now to make it work with their btc address on their portis wallet.
         const portisResult = await this.portis.getExtendedPublicKey(
-          addressNListToBIP32(addressNList),
+          core.addressNListToBIP32(addressNList),
           addressNList[1] === bitcoinSlip44 ? "Bitcoin" : ""
         );
         const { result, error } = portisResult;
@@ -233,28 +196,28 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return Promise.resolve();
   }
 
-  public async btcGetAddress(msg: BTCGetAddress): Promise<string> {
+  public async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
     return btc.btcGetAddress(msg, this.portis);
   }
 
-  public async btcSignTx(msg: BTCSignTx): Promise<BTCSignedTx> {
+  public async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx> {
     return btc.btcSignTx(msg, this.portis);
   }
 
-  public async btcSignMessage(msg: BTCSignMessage): Promise<BTCSignedMessage> {
+  public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
     // portis doesnt support this for btc
     return undefined;
   }
 
-  public async btcVerifyMessage(msg: BTCVerifyMessage): Promise<boolean> {
+  public async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
     return btc.btcVerifyMessage(msg);
   }
 
-  public async btcSupportsCoin(coin: Coin): Promise<boolean> {
+  public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
     return this.info.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
+  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
     return this.info.btcSupportsScriptType(coin, scriptType);
   }
 
@@ -266,15 +229,15 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.info.btcSupportsNativeShapeShift();
   }
 
-  public btcGetAccountPaths(msg: BTCGetAccountPaths): Array<BTCAccountPath> {
+  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
     return this.info.btcGetAccountPaths(msg);
   }
 
-  public btcIsSameAccount(msg: Array<BTCAccountPath>): boolean {
+  public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
     return this.info.btcIsSameAccount(msg);
   }
 
-  public btcNextAccountPath(msg: BTCAccountPath): BTCAccountPath | undefined {
+  public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
     return this.info.btcNextAccountPath(msg);
   }
 
@@ -290,28 +253,28 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.info.ethSupportsNativeShapeShift();
   }
 
-  public async ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean> {
+  public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
     return eth.ethVerifyMessage(msg, this.web3);
   }
 
-  public ethNextAccountPath(msg: ETHAccountPath): ETHAccountPath | undefined {
+  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
     // Portis only supports one account for eth
     return this.info.ethNextAccountPath(msg);
   }
 
-  public async ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx> {
+  public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
     return eth.ethSignTx(msg, this.web3, await this._ethGetAddress());
   }
 
-  public async ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage> {
+  public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
     return eth.ethSignMessage(msg, this.web3, await this._ethGetAddress());
   }
 
-  public ethGetAccountPaths(msg: ETHGetAccountPath): Array<ETHAccountPath> {
+  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     return this.info.ethGetAccountPaths(msg);
   }
 
-  public async ethGetAddress(msg: ETHGetAddress): Promise<string> {
+  public async ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
     if (msg.showDisplay === true) {
       this.portis.showPortis();
     }
@@ -334,7 +297,7 @@ export class PortisHDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 }
 
-export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalletInfo {
+export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo, core.BTCWalletInfo {
   _supportsBTCInfo: boolean = true;
   _supportsETHInfo: boolean = true;
   _supportsCosmosInfo: boolean = false;
@@ -367,12 +330,12 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
     return true;
   }
 
-  public hasNativeShapeShift(srcCoin: Coin, dstCoin: Coin): boolean {
+  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     // It doesn't... yet?
     return false;
   }
 
-  public describePath(msg: DescribePath): PathDescription {
+  public describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin) {
       case "Ethereum":
         return eth.describeETHPath(msg.path);
@@ -383,11 +346,11 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
     }
   }
 
-  public async btcSupportsCoin(coin: Coin): Promise<boolean> {
+  public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
     return btc.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(coin: Coin, scriptType: BTCInputScriptType): Promise<boolean> {
+  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
     return btc.btcSupportsScriptType(coin, scriptType);
   }
 
@@ -399,19 +362,19 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
     return false;
   }
 
-  public btcGetAccountPaths(msg: BTCGetAccountPaths): Array<BTCAccountPath> {
+  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
     return btc.btcGetAccountPaths(msg);
   }
 
-  public btcIsSameAccount(msg: Array<BTCAccountPath>): boolean {
+  public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
     return false;
   }
 
-  public btcNextAccountPath(msg: BTCAccountPath): BTCAccountPath | undefined {
+  public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
     return btc.btcNextAccountPath(msg);
   }
 
-  public ethNextAccountPath(msg: ETHAccountPath): ETHAccountPath | undefined {
+  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
     // Portis only supports one account for eth
     return undefined;
   }
@@ -428,7 +391,7 @@ export class PortisHDWalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalle
     return false;
   }
 
-  public ethGetAccountPaths(msg: ETHGetAccountPath): Array<ETHAccountPath> {
+  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     return eth.ethGetAccountPaths(msg);
   }
 }

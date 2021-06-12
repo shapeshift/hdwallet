@@ -1,5 +1,5 @@
-import { Events, makeEvent, Keyring, HDWalletErrorType, ActionCancelled } from "@shapeshiftoss/hdwallet-core";
-import { TrezorHDWallet, TrezorTransport, TrezorConnectResponse } from "@shapeshiftoss/hdwallet-trezor";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 import TrezorConnect, { DEVICE_EVENT, UI_EVENT } from "trezor-connect";
 
 export const POPUP = true;
@@ -9,7 +9,7 @@ export type TrezorDevice = {
   deviceID: string;
 };
 
-export class TrezorConnectTransport extends TrezorTransport {
+export class TrezorConnectTransport extends trezor.TrezorTransport {
   readonly hasPopup = POPUP;
   device: TrezorDevice;
 
@@ -24,14 +24,14 @@ export class TrezorConnectTransport extends TrezorTransport {
       await inProgress;
     } catch (e) {
       // Unless it's a cancel, throw away the error, as the other context will handle it.
-      if (e.type === HDWalletErrorType.ActionCancelled) {
+      if (e.type === core.HDWalletErrorType.ActionCancelled) {
         TrezorConnectTransport.callInProgress = undefined;
         throw e;
       }
     }
   }
 
-  constructor(device: TrezorDevice, keyring: Keyring) {
+  constructor(device: TrezorDevice, keyring: core.Keyring) {
     super(keyring);
     this.device = device;
   }
@@ -59,7 +59,7 @@ export class TrezorConnectTransport extends TrezorTransport {
       // Log TrezorConnect's event raw:
       this.emit(
         event.type,
-        makeEvent({
+        core.makeEvent({
           message_type: event.type,
           message: event,
           from_wallet: true,
@@ -69,17 +69,17 @@ export class TrezorConnectTransport extends TrezorTransport {
       // Then log it the 'unified' way:
       if (event.type === "ui-request_pin") {
         this.emit(
-          Events.PIN_REQUEST,
-          makeEvent({
-            message_type: Events.PIN_REQUEST,
+          core.Events.PIN_REQUEST,
+          core.makeEvent({
+            message_type: core.Events.PIN_REQUEST,
             from_wallet: true,
           })
         );
       } else if (event.type === "ui-request_passphrase") {
         this.emit(
-          Events.PASSPHRASE_REQUEST,
-          makeEvent({
-            message_type: Events.PASSPHRASE_REQUEST,
+          core.Events.PASSPHRASE_REQUEST,
+          core.makeEvent({
+            message_type: core.Events.PASSPHRASE_REQUEST,
             from_wallet: true,
           })
         );
@@ -90,9 +90,9 @@ export class TrezorConnectTransport extends TrezorTransport {
       } else if (event.type === "ui-button") {
         let kind = event.payload.code;
         this.emit(
-          Events.BUTTON_REQUEST,
-          makeEvent({
-            message_type: Events.BUTTON_REQUEST,
+          core.Events.BUTTON_REQUEST,
+          core.makeEvent({
+            message_type: core.Events.BUTTON_REQUEST,
             from_wallet: true,
             message: kind,
           })
@@ -111,7 +111,7 @@ export class TrezorConnectTransport extends TrezorTransport {
     method: string,
     msg: any,
     msTimeout?: number
-  ): Promise<TrezorConnectResponse> {
+  ): Promise<trezor.TrezorConnectResponse> {
     // TrezorConnect only lets us make one call at a time. If this library is
     // used in a concurrent environment like say, React, then we need to guard
     // against promises resolving in strange orders. To force an ordering here,
@@ -130,10 +130,10 @@ export class TrezorConnectTransport extends TrezorTransport {
           result.payload.error === "Cancelled" ||
           result.payload.code === "Failure_ActionCancelled"
         )
-          throw new ActionCancelled();
+          throw new core.ActionCancelled();
         return result;
       } catch (error) {
-        if (error.type === HDWalletErrorType.ActionCancelled) {
+        if (error.type === core.HDWalletErrorType.ActionCancelled) {
           throw error;
         }
         console.error("TrezorConnect isn't supposed to throw?", error);
@@ -147,10 +147,10 @@ export class TrezorConnectTransport extends TrezorTransport {
     return TrezorConnectTransport.callInProgress;
   }
 
-  public async call(method: string, msg: any, msTimeout?: number): Promise<TrezorConnectResponse> {
+  public async call(method: string, msg: any, msTimeout?: number): Promise<trezor.TrezorConnectResponse> {
     this.emit(
       method,
-      makeEvent({
+      core.makeEvent({
         message_type: method,
         message: this.censor(method, msg),
         from_wallet: false,
@@ -161,7 +161,7 @@ export class TrezorConnectTransport extends TrezorTransport {
 
     this.emit(
       method,
-      makeEvent({
+      core.makeEvent({
         message_type: method,
         message: response,
         from_wallet: true,

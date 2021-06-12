@@ -1,8 +1,9 @@
+import * as hdNode from "@ethersproject/hdnode";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { Wallet, utils } from "ethers";
 import txDecoder from "ethereum-tx-decoder";
-import { defaultPath } from "@ethersproject/hdnode";
-import * as _ from "lodash";
+import * as ethers from "ethers";
+import _ from "lodash";
+
 import { NativeHDWalletBase } from "./native";
 import * as Isolation from "./crypto/isolation";
 
@@ -45,11 +46,11 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
   return class MixinNativeETHWallet extends Base {
     _supportsETH = true;
 
-    #ethWallet: Wallet;
+    #ethWallet: ethers.Wallet;
 
     async ethInitializeWallet(seed: Isolation.BIP32.SeedInterface): Promise<void> {
-      const isolatedSigner = new Isolation.Adapters.BIP32(seed.toMasterKey()).derivePath(defaultPath);
-      this.#ethWallet = new Wallet(new Isolation.Adapters.Ethereum(isolatedSigner));
+      const isolatedSigner = new Isolation.Adapters.BIP32(seed.toMasterKey()).derivePath(hdNode.defaultPath);
+      this.#ethWallet = new ethers.Wallet(new Isolation.Adapters.Ethereum(isolatedSigner));
     }
 
     ethWipe() {
@@ -95,7 +96,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
 
     async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
       if (!msg.signature.startsWith("0x")) msg.signature = `0x${msg.signature}`;
-      const signingAddress = utils.verifyMessage(msg.message, msg.signature);
+      const signingAddress = ethers.utils.verifyMessage(msg.message, msg.signature);
       return signingAddress === msg.address;
     }
   };
