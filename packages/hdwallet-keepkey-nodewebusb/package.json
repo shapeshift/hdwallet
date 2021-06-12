@@ -21,7 +21,8 @@
     "webusb": "^2.2.0"
   },
   "devDependencies": {
-    "typescript": "^3.9.7"
+    "typescript": "^3.9.7",
+    "webusb": "^2.2.0"
   },
   "engines": {
     "node": "^10 || ^12 || ^14"
