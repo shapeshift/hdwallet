@@ -2772,6 +2772,13 @@
   dependencies:
     "@types/pvutils" "*"
 
+"@types/axios@^0.14.0":
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/@types/axios/-/axios-0.14.0.tgz#ec2300fbe7d7dddd7eb9d3abf87999964cafce46"
+  integrity sha1-7CMA++fX3d1+udOr+HmZlkyvzkY=
+  dependencies:
+    axios "*"
+
 "@types/babel__core@^7.1.0":
   version "7.1.10"
   resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.1.10.tgz#ca58fc195dd9734e77e57c6f2df565623636ab40"
@@ -2836,13 +2843,6 @@
   dependencies:
     base-x "^3.0.6"
 
-"@types/chrome@^0.0.81":
-  version "0.0.81"
-  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.81.tgz#4fbf34c370a60235be4f97f32429e701fb644d10"
-  integrity sha512-NKkQGMJSppFwUwMbEbYcq8/p/ACVHmQCUpWaqJVdHn81tU3by+YXnxw86KFa0tUSLamu35wtzFaMyY4TFaMceQ==
-  dependencies:
-    "@types/filesystem" "*"
-
 "@types/cookie@^0.4.0":
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/@types/cookie/-/cookie-0.4.0.tgz#14f854c0f93d326e39da6e3b6f34f7d37513d108"
@@ -2877,18 +2877,6 @@
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@types/fast-text-encoding/-/fast-text-encoding-1.0.1.tgz#7a9e6d8dd2ac1fa70772b500a307c2620cec1fe3"
   integrity sha512-DRFqoqjXfvuX3f5jIQKAQr/QzuFdNoHOtou0KQ9bzUJOreCciO7T/kFJHgEote7QusmgE1fTxsQSqNvXVR0GBw==
-
-"@types/filesystem@*":
-  version "0.0.30"
-  resolved "https://registry.yarnpkg.com/@types/filesystem/-/filesystem-0.0.30.tgz#a7373a2edf34d13e298baf7ee1101f738b2efb7e"
-  integrity sha512-NCoRgmGmLpTT9VFL6Bb6z0jQuqI3d0E5FGl7M0JOv/J5RQYo9s5aOItPYnpckx9MbYQk1APLXcF8f20Vqnf2yA==
-  dependencies:
-    "@types/filewriter" "*"
-
-"@types/filewriter@*":
-  version "0.0.29"
-  resolved "https://registry.yarnpkg.com/@types/filewriter/-/filewriter-0.0.29.tgz#a48795ecadf957f6c0d10e0c34af86c098fa5bee"
-  integrity sha512-BsPXH/irW0ht0Ji6iw/jJaK8Lj3FJemon2gvEqHKpCdDCeemHa+rI3WBGq5z7cDMZgoLjY40oninGxqk+8NzNQ==
 
 "@types/fs-extra@^5.0.3":
   version "5.1.0"
@@ -3070,6 +3058,11 @@
   integrity sha512-+ZjSA8ELlOp8SlKi0YLB2tz9d5iPNEmOBd+8Rz21wTMdaXQIa9b6TEnD6l5qKOCypE7FSyPyck12qZJxSDNoog==
   dependencies:
     "@types/node" "*"
+
+"@types/semver@^5.5.0":
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/@types/semver/-/semver-5.5.0.tgz#146c2a29ee7d3bae4bf2fcb274636e264c813c45"
+  integrity sha512-41qEJgBH/TWgo5NFSvBCJ1qkoi3Q6ONSF2avrHq1LVEZfYpdHmj0y9SuTK+u9ZhG1sYQKBL1AWXKyLWP4RaUoQ==
 
 "@types/set-cookie-parser@^2.4.0":
   version "2.4.0"
@@ -3571,6 +3564,13 @@ aws4@^1.8.0:
   version "1.10.1"
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.10.1.tgz#e1e82e4f3e999e2cfd61b161280d16a111f86428"
   integrity sha512-zg7Hz2k5lI8kb7U32998pRRFin7zJlkfezGJjUc2heaD4Pw2wObakCDVzkKztTm/Ln7eiVvYsjqak0Ed4LkMDA==
+
+axios@*:
+  version "0.21.1"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.1.tgz#22563481962f4d6bde9a76d516ef0e5d3c09b2b8"
+  integrity sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==
+  dependencies:
+    follow-redirects "^1.10.0"
 
 axios@^0.18.0:
   version "0.18.1"
@@ -6758,6 +6758,11 @@ follow-redirects@1.5.10:
   integrity sha512-0V5l4Cizzvqt5D44aTXbFZz+FtyXV1vrDN6qrelxtfYQKW0KO0W2T/hkE8xvGa/540LkZlkaUjO4ailYTFtHVQ==
   dependencies:
     debug "=3.1.0"
+
+follow-redirects@^1.10.0:
+  version "1.14.1"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.1.tgz#d9114ded0a1cfdd334e164e6662ad02bfd91ff43"
+  integrity sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==
 
 for-in@^1.0.2:
   version "1.0.2"

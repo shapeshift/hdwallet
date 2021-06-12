@@ -16,13 +16,13 @@
   "dependencies": {
     "@shapeshiftoss/hdwallet-core": "1.14.3",
     "@shapeshiftoss/hdwallet-keepkey": "1.14.3",
-    "axios": "^0.18.0",
-    "bytebuffer": "^5.0.1",
-    "eventemitter2": "^5.0.1"
+    "axios": "^0.18.0"
   },
-  "jest": {
-    "modulePathIgnorePatterns": [
-      "node_modules"
-    ]
+  "devDependencies": {
+    "@types/axios": "^0.14.0",
+    "typescript": "^3.9.7"
+  },
+  "engines": {
+    "node": "^10 || ^12 || ^14"
   }
 }
