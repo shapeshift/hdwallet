@@ -31,7 +31,8 @@ export class SigningKeyAdapter implements ETHSigningKey {
   }
 
   _addPoint(other: BytesLike): string {
-    return `0x${tinyecc.pointAddScalar(Buffer.from(this._isolatedKey.publicKey), Buffer.from(other), true)}`;
+    if (typeof other === "string") other = Buffer.from((other.startsWith("0x") ? other.slice(2) : other), "hex");
+    return `0x${tinyecc.pointAddScalar(Buffer.from(this._isolatedKey.publicKey), Buffer.from(Uint8Array.from(other)), true)}`;
   }
   signDigest(digest: BytesLike): ethSignature {
     const rawSig = SecP256K1.RecoverableSignature.signCanonically(this._isolatedKey, digest instanceof Uint8Array ? digest : arrayify(digest));
