@@ -16,11 +16,16 @@
   "dependencies": {
     "@ledgerhq/hw-app-btc": "^4.48.0",
     "@ledgerhq/hw-app-eth": "^4.48.0",
-    "@ledgerhq/hw-transport": "^4.48.0",
     "@ledgerhq/hw-transport-u2f": "^4.48.0",
+    "@ledgerhq/live-common": "^8.4.1",
     "@shapeshiftoss/hdwallet-core": "1.14.3",
-    "@shapeshiftoss/hdwallet-ledger": "1.14.3",
-    "bytebuffer": "^5.0.1",
-    "eventemitter2": "^5.0.1"
+    "@shapeshiftoss/hdwallet-ledger": "1.14.3"
+  },
+  "devDependencies": {
+    "@types/bs58": "^4.0.1",
+    "typescript": "^3.9.7"
+  },
+  "engines": {
+    "node": "^10 || ^12 || ^14"
   }
 }

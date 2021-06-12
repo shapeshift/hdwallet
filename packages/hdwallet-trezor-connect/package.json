@@ -16,8 +16,12 @@
   "dependencies": {
     "@shapeshiftoss/hdwallet-core": "1.14.3",
     "@shapeshiftoss/hdwallet-trezor": "1.14.3",
-    "bytebuffer": "^5.0.1",
-    "eventemitter2": "^5.0.1",
     "trezor-connect": "^7.0.2"
+  },
+  "devDependencies": {
+    "typescript": "^3.9.7"
+  },
+  "engines": {
+    "node": "^10 || ^12 || ^14"
   }
 }
