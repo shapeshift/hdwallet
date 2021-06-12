@@ -15,13 +15,13 @@
   },
   "dependencies": {
     "@shapeshiftoss/hdwallet-core": "1.14.3",
-    "@shapeshiftoss/hdwallet-keepkey": "1.14.3",
-    "bytebuffer": "^5.0.1",
-    "eventemitter2": "^5.0.1"
+    "@shapeshiftoss/hdwallet-keepkey": "1.14.3"
   },
-  "jest": {
-    "modulePathIgnorePatterns": [
-      "node_modules"
-    ]
+  "devDependencies": {
+    "@types/w3c-web-usb": "^1.0.3",
+    "typescript": "^3.9.7"
+  },
+  "engines": {
+    "node": "^10 || ^12 || ^14"
   }
 }
