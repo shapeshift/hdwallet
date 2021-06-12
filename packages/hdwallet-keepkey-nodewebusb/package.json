@@ -23,11 +23,6 @@
   "peerDependencies": {
     "webusb": "^2.2.0"
   },
-  "jest": {
-    "modulePathIgnorePatterns": [
-      "node_modules"
-    ]
-  },
   "engines": {
     "node": "^10 || ^12 || ^14"
   }
