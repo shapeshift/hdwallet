@@ -17,5 +17,17 @@
     "eventemitter2": "^5.0.1",
     "lodash": "^4.17.15",
     "rxjs": "^6.4.0"
+  },
+  "devDependencies": {
+    "@types/google-protobuf": "^3.2.7",
+    "@types/jest": "^24.9.1",
+    "@types/lodash": "^4.14.168",
+    "fiosdk-offline": "^1.2.21",
+    "jest": "^24.9.0",
+    "ts-jest": "^24.3.0",
+    "typescript": "^3.9.7"
+  },
+  "engines": {
+    "node": "^10 || ^12 || ^14"
   }
 }
