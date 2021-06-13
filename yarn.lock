@@ -2668,10 +2668,10 @@
     pocket-js-core "0.0.3"
     web3-provider-engine "16.0.1"
 
-"@shapeshiftoss/fiojs@>=1.0.1-shapeshift.0 <1.0.1":
-  version "1.0.1-shapeshift.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/fiojs/-/fiojs-1.0.1-shapeshift.1.tgz#6046d32de82411c627087437e32b495943e0b356"
-  integrity sha512-dGQ8LGjyPsLrVM/dB5tbSCF8jaiOd+F/SGvcwLQQPKqZwDCbk3+p5mPVMNV5L/S4wvSxf/BdwpfDjcS9wclemw==
+"@shapeshiftoss/fiojs@1.0.1-shapeshift.2":
+  version "1.0.1-shapeshift.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/fiojs/-/fiojs-1.0.1-shapeshift.2.tgz#d439c542b627f5a79ffa3a4ab0c5804c8d3a5452"
+  integrity sha512-1pu30rI6mI+47uv9CqnG3+ixLuXjWqbETxY9XK9AlEQuwnj6paFILyNwQqQu2Lfpv1zqqdDGbxISUbXOx2k6bA==
   dependencies:
     ajv "^6.10.2"
     babel-runtime "6.26.0"
@@ -2685,12 +2685,12 @@
     randombytes "^2.1.0"
     web-encoding "^1.1.5"
 
-"@shapeshiftoss/fiosdk@>=1.2.1-shapeshift.2 <1.2.1":
-  version "1.2.1-shapeshift.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/fiosdk/-/fiosdk-1.2.1-shapeshift.2.tgz#3b28da26b90f4b7724a9ed3ff938bcefc8d3d02b"
-  integrity sha512-bBIwK2aI9NhhmSeH1k5jVe94ELrYT7hTG9TPgWtMiXkAyBwtTjF1gGdfH23iWMprtTV132UuSWQz61XERvsFZw==
+"@shapeshiftoss/fiosdk@1.2.1-shapeshift.4":
+  version "1.2.1-shapeshift.4"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/fiosdk/-/fiosdk-1.2.1-shapeshift.4.tgz#f9b057852befb0309d94ea8623feaa06194fae2f"
+  integrity sha512-WM3jrRw3H9AvBYUb0OGkYNI4BzjQl17HdeVpcpIhhOMX6hvsPptLpUd22MEovilz34B4f1X0QcTF15PH4LdMoA==
   dependencies:
-    "@shapeshiftoss/fiojs" ">=1.0.1-shapeshift.0 <1.0.1"
+    "@shapeshiftoss/fiojs" "1.0.1-shapeshift.2"
     bip39 "^3.0.2"
     hdkey "^1.1.1"
     validate "^5.1.0"

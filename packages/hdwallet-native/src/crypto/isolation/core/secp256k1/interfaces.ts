@@ -12,13 +12,13 @@ export interface ECDSAKeyInterface {
     // This can be used, for example, to find a signature whose r-value does not have the MSB set (i.e. a lowR signature),
     // which can be encoded in DER format with one less byte. If an implementation does not support the use of the counter
     // value, it MUST return undefined rather than perform a signing operation which ignores it.
-    ecdsaSign(message: Message): NonNullable<Signature>;
-    ecdsaSign(message: Message, counter: Uint32): NonNullable<Signature> | undefined;
+    ecdsaSign(message: Message): Promise<NonNullable<Signature>>;
+    ecdsaSign(message: Message, counter: Uint32): Promise<NonNullable<Signature> | undefined>;
 }
 
 export interface ECDSARecoverableKeyInterface extends ECDSAKeyInterface {
-    ecdsaSign(message: Message): NonNullable<RecoverableSignature>;
-    ecdsaSign(message: Message, counter: Uint32): NonNullable<RecoverableSignature> | undefined;
+    ecdsaSign(message: Message): Promise<NonNullable<RecoverableSignature>>;
+    ecdsaSign(message: Message, counter: Uint32): Promise<NonNullable<RecoverableSignature> | undefined>;
 }
 
 export interface ECDHKeyInterface {
@@ -30,6 +30,6 @@ export interface ECDHKeyInterface {
     //
     // A key derivation function is required to convert the output into a usable key; a plain, unkeyed cryptographic hash
     // function such as SHA-256 is typically used for this purpose.
-    ecdh(publicKey: CurvePoint, digestAlgorithm?: Digest.AlgorithmName<32>): NonNullable<ByteArray<32>>;
-    ecdhRaw?(publicKey: CurvePoint): NonNullable<CurvePoint>;
+    ecdh(publicKey: CurvePoint, digestAlgorithm?: Digest.AlgorithmName<32>): Promise<NonNullable<ByteArray<32>>>;
+    ecdhRaw?(publicKey: CurvePoint): Promise<NonNullable<CurvePoint>>;
 }

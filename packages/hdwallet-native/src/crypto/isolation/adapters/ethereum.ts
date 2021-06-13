@@ -34,15 +34,15 @@ export class SigningKeyAdapter implements ETHSigningKey {
     if (typeof other === "string") other = Buffer.from((other.startsWith("0x") ? other.slice(2) : other), "hex");
     return `0x${tinyecc.pointAddScalar(Buffer.from(this._isolatedKey.publicKey), Buffer.from(Uint8Array.from(other)), true)}`;
   }
-  signDigest(digest: BytesLike): ethSignature {
-    const rawSig = SecP256K1.RecoverableSignature.signCanonically(this._isolatedKey, digest instanceof Uint8Array ? digest : arrayify(digest));
+  async signDigest(digest: BytesLike): Promise<ethSignature> {
+    const rawSig = await SecP256K1.RecoverableSignature.signCanonically(this._isolatedKey, digest instanceof Uint8Array ? digest : arrayify(digest));
     return splitSignature(core.compatibleBufferConcat([rawSig, Buffer.from([rawSig.recoveryParam])]));
   }
-  signTx(txData: BytesLike): ethSignature {
+  async signTransaction(txData: BytesLike): Promise<ethSignature> {
     const txBuf = arrayify(txData);
     return this.signDigest(Isolation.Digest.Algorithms["keccak256"](txBuf));
   }
-  signMessage(messageData: BytesLike | string): ethSignature {
+  async signMessage(messageData: BytesLike | string): Promise<ethSignature> {
     const messageDataBuf =
       typeof messageData === "string"
         ? Buffer.from(messageData.normalize("NFKD"), "utf8")
@@ -50,8 +50,8 @@ export class SigningKeyAdapter implements ETHSigningKey {
     const messageBuf = core.compatibleBufferConcat([Buffer.from(`\x19Ethereum Signed Message:\n${messageDataBuf.length}`, "utf8"), messageDataBuf]);
     return this.signDigest(Isolation.Digest.Algorithms["keccak256"](messageBuf));
   }
-  computeSharedSecret(otherKey: BytesLike): string {
-    return `0x${this._isolatedKey.ecdh(checkType(SecP256K1.CurvePoint, arrayify(otherKey)))}`;
+  async computeSharedSecret(otherKey: BytesLike): Promise<string> {
+    return `0x${await this._isolatedKey.ecdh(checkType(SecP256K1.CurvePoint, arrayify(otherKey)))}`;
   }
 }
 

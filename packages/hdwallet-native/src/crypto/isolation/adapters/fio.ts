@@ -22,14 +22,14 @@ export class ExternalSignerAdapter implements FIOExternalPrivateKey {
         const raw = SecP256K1.CompressedPoint.from(this._isolatedKey.publicKey)
         return `FIO${bs58FioEncode(raw)}`;
     }
-    sign(signBuf: Uint8Array): string {
+    async sign(signBuf: Uint8Array): Promise<string> {
         const signBufHash = Digest.Algorithms["sha256"](signBuf);
-        const sig = SecP256K1.RecoverableSignature.fromSignature(this._isolatedKey.ecdsaSign(signBufHash), signBufHash, this._isolatedKey.publicKey);
+        const sig = SecP256K1.RecoverableSignature.fromSignature(await this._isolatedKey.ecdsaSign(signBufHash), signBufHash, this._isolatedKey.publicKey);
         const fioSigBuf = core.compatibleBufferConcat([Buffer.from([sig.recoveryParam + 4 + 27]), SecP256K1.RecoverableSignature.r(sig), SecP256K1.RecoverableSignature.s(sig)]);
         return `SIG_K1_${bs58FioEncode(fioSigBuf, "K1")}`;
     }
-    getSharedSecret(publicKey: any): Buffer {
-        return Buffer.from(Digest.Algorithms["sha512"](this._isolatedKey.ecdh(checkType(SecP256K1.CurvePoint, publicKey.toBuffer()))));
+    async getSharedSecret(publicKey: any): Promise<Buffer> {
+        return Buffer.from(Digest.Algorithms["sha512"](await this._isolatedKey.ecdh(checkType(SecP256K1.CurvePoint, publicKey.toBuffer()))));
     }
 }
 

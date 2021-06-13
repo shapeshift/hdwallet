@@ -1,10 +1,12 @@
-import { ECPairInterface, Network, Signer } from "@bithighlander/bitcoin-cash-js-lib";
+import { ECPairInterface, Network, SignerAsync } from "@bithighlander/bitcoin-cash-js-lib";
 import { bitcoin } from "@bithighlander/bitcoin-cash-js-lib/src/networks"
 import { SecP256K1, IsolationError } from "../core"
 
 const DigestSourceHint = Symbol.for("hdwallet_isolation_digest_source_hint");
 
-export class ECPairAdapter implements SecP256K1.ECDSAKeyInterface, Signer, ECPairInterface {
+export type ECPairInterfaceAsync = Omit<ECPairInterface, "sign"> & Pick<SignerAsync, "sign">;
+
+export class ECPairAdapter implements SecP256K1.ECDSAKeyInterface, SignerAsync, ECPairInterfaceAsync {
     protected _isolatedKey: SecP256K1.ECDSAKeyInterface;
     readonly _network: Network | undefined;
     compressed: boolean = false;
@@ -35,12 +37,12 @@ export class ECPairAdapter implements SecP256K1.ECDSAKeyInterface, Signer, ECPai
         return isolatedKey.ecdhRaw.bind(isolatedKey);
     }
 
-    sign(hash: Uint8Array, lowR?: boolean): Buffer {
+    async sign(hash: Uint8Array, lowR?: boolean): Promise<Buffer> {
         const hint = (DigestSourceHint in hash ? (hash as {[DigestSourceHint]?: {preimage: Buffer, algorithm: string}})[DigestSourceHint] : undefined);
         const msg = Object.assign(Buffer.from(hash), hint ?? {});
         
         lowR = lowR ?? this.lowR;
-        const sig = (!lowR ? this._isolatedKey.ecdsaSign(msg) : SecP256K1.Signature.signCanonically(this._isolatedKey, hash));
+        const sig = (!lowR ? await this._isolatedKey.ecdsaSign(msg) : await SecP256K1.Signature.signCanonically(this._isolatedKey, hash));
         return Buffer.from(sig);
     }
     get publicKey() { return this.getPublicKey(); }

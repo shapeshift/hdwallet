@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@bithighlander/bitcoin-cash-js-lib": "5.2.1",
-    "@shapeshiftoss/fiosdk": ">=1.2.1-shapeshift.2 <1.2.1",
+    "@shapeshiftoss/fiosdk": "1.2.1-shapeshift.4",
     "@shapeshiftoss/hdwallet-core": "1.15.2",
     "@zxing/text-encoding": "^0.9.0",
     "bchaddrjs": "^0.4.9",
