@@ -26,11 +26,11 @@
     "now-build": "lerna run build --scope @shapeshiftoss/hdwallet-core && lerna run build --scope hdwallet-sandbox --ignore @shapeshiftoss/hdwallet-keepkey-nodehid --include-filtered-dependencies && mv examples/sandbox/public .",
     "test": "yarn jest --verbose --config jest.config.js",
     "test:integration": "yarn jest -c integration/jest.config.js",
-    "lerna:version": "lerna version --force-publish",
-    "lerna-bump-version-alpha": "lerna publish --no-push --skip-npm --force-publish '*' prepatch --yes --exact",
-    "lerna-bump-version-patch": "lerna publish --no-push --skip-npm --force-publish '*' patch --yes --exact",
-    "lerna-bump-version-minor": "lerna publish --no-push --skip-npm --force-publish '*' minor --yes --exact",
-    "lerna-bump-version-major": "lerna publish --no-push --skip-npm --force-publish '*' major --yes --exact",
+    "lerna:version-alpha": "lerna version prerelease --no-push --exact --yes",
+    "lerna:version-patch": "lerna version patch --no-push --exact --yes",
+    "lerna:version-minor": "lerna version minor --no-push --exact --yes",
+    "lerna:version-major": "lerna version major --no-push --exact --yes",
+    "lerna:publish": "lerna publish from-package",
     "postinstall": "patch-package"
   },
   "devDependencies": {
