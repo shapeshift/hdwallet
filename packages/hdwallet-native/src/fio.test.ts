@@ -1,9 +1,10 @@
 import * as fio from "@shapeshiftoss/fiosdk";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as utils from "ethers/lib/utils";
+import * as bs58 from "bs58";
 import * as tinyecc from "tiny-secp256k1";
 
 import * as native from "./native";
+import * as Isolation from "./crypto/isolation";
 
 const MNEMONIC = "all all all all all all all all all all all all";
 
@@ -227,10 +228,10 @@ describe("NativeFioWallet", () => {
       );
       const msgRaw = Buffer.concat([chainId, Buffer.from(sig!.serialized, "hex"), Buffer.alloc(32)]);
 
-      const msgHash = Buffer.from(utils.sha256(msgRaw).slice(2), "hex");
-      const pubKey = utils.base58.decode("FIO5NSKecB4CcMpUxtpHzG4u43SmcGMAjRbxyG38rE4HPegGpaHu9".slice(3)).slice(0, -4);
-      const sigRaw = utils.base58.decode(sig!.signature.slice(7)).slice(1, -4);
-      expect(tinyecc.verify(msgHash, Buffer.from(pubKey), Buffer.from(sigRaw))).toBe(true);
+      const msgHash = Buffer.from(Isolation.Digest.Algorithms["sha256"](msgRaw));
+      const pubKey = bs58.decode("FIO5NSKecB4CcMpUxtpHzG4u43SmcGMAjRbxyG38rE4HPegGpaHu9".slice(3)).slice(0, -4);
+      const sigRaw = bs58.decode(sig!.signature.slice(7)).slice(1, -4);
+      expect(tinyecc.verify(msgHash, pubKey, sigRaw)).toBe(true);
     });
 
     it("should encrypt a request", async () => {
