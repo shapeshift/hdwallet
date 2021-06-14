@@ -8,7 +8,7 @@ export function signingDelegate(keyPair: BIP32.NodeInterface): SigningDelegate {
         const signBytes = tx.getSignBytes(signMsg);
         const signHash = Digest.Algorithms["sha256"](signBytes);
         const pubKey = crypto.getPublicKey(Buffer.from(keyPair.publicKey).toString("hex"));
-        tx.addSignature(pubKey, Buffer.from(keyPair.ecdsaSign(signHash)));
+        tx.addSignature(pubKey, Buffer.from(await keyPair.ecdsaSign(signHash)));
         return tx;
     };
 }

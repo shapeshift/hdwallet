@@ -1,3 +1,5 @@
+
+import * as core from "@shapeshiftoss/hdwallet-core"
 import * as tinyecc from "tiny-secp256k1";
 import { Literal, Partial, Object as Obj, Static, Union } from "funtypes";
 import { recoverPublicKey as ethRecoverPublicKey } from "@ethersproject/signing-key";
@@ -114,10 +116,10 @@ const signatureStatic = {
     isLowR: (x: Signature): boolean => { return !FieldElement.isHigh(Signature.r(x)); },
     isLowS: (x: Signature): boolean => { return !FieldElement.isHigh(Signature.s(x)); },
     isCanonical: (x: Signature): boolean => { return Signature.isLowR(x) && Signature.isLowS(x); },
-    signCanonically: (x: ECDSAKeyInterface, message: Message, counter?: Uint32): Signature => {
+    signCanonically: async (x: ECDSAKeyInterface, message: Message, counter?: Uint32): Promise<Signature> => {
         counter === undefined || Uint32.assert(counter);
         for (let i = counter; i === undefined || i < (counter ?? 0) + 128; i = (i ?? 0) + 1) {
-            const sig = i === undefined ? x.ecdsaSign(message) : x.ecdsaSign(message, i);
+            const sig = i === undefined ? await x.ecdsaSign(message) : await x.ecdsaSign(message, i);
             if (sig === undefined) break;
             //TODO: do integrated lowS correction
             if (Signature.isCanonical(sig)) return sig;
@@ -153,10 +155,10 @@ const recoverableSignatureStatic = {
     },
     isLowRecoveryParam: (x: RecoverableSignature) => x.recoveryParam === 0 || x.recoveryParam === 1,
     isCanonical: (x: RecoverableSignature): boolean => Signature.isCanonical(x) && RecoverableSignature.isLowRecoveryParam(x),
-    signCanonically: (x: ECDSAKeyInterface, message: Message, counter?: Uint32): RecoverableSignature => {
+    signCanonically: async (x: ECDSAKeyInterface, message: Message, counter?: Uint32): Promise<RecoverableSignature> => {
         counter === undefined || Uint32.assert(counter);
         for (let i = counter; i === undefined || i < (counter ?? 0) + 128; i = (i ?? 0) + 1) {
-            const sig = i === undefined ? x.ecdsaSign(message) : x.ecdsaSign(message, i);
+            const sig = i === undefined ? await x.ecdsaSign(message) : await x.ecdsaSign(message, i);
             if (sig === undefined) break;
             const recoverableSig = RecoverableSignature.fromSignature(sig, message, x.publicKey);
             //TODO: do integrated lowS correction
@@ -167,7 +169,7 @@ const recoverableSignatureStatic = {
     },
     recoverPublicKey: (x: RecoverableSignature, message: Message): CurvePoint => {
       // TODO: do this better
-      const ethSigBytes = Buffer.concat([x, Buffer.from([x.recoveryParam])]);
+      const ethSigBytes = core.compatibleBufferConcat([x, Buffer.from([x.recoveryParam])]);
       const ethRecovered = ethRecoverPublicKey(message, ethSplitSignature(ethSigBytes));
       return checkType(UncompressedPoint, Buffer.from(ethRecovered.slice(2), "hex"));
     },

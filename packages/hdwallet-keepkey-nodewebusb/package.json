@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-nodewebusb",
-  "version": "1.15.2",
+  "version": "1.15.3",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.15.2",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.15.2"
+    "@shapeshiftoss/hdwallet-core": "1.15.3",
+    "@shapeshiftoss/hdwallet-keepkey": "1.15.3"
   },
   "peerDependencies": {
     "webusb": "^2.2.0"
@@ -23,8 +23,5 @@
   "devDependencies": {
     "typescript": "^4.3.2",
     "webusb": "^2.2.0"
-  },
-  "engines": {
-    "node": "^10 || ^12 || ^14"
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey",
-  "version": "1.15.2",
+  "version": "1.15.3",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@keepkey/device-protocol": "^7.2.1",
-    "@shapeshiftoss/hdwallet-core": "^1.15.2",
+    "@shapeshiftoss/hdwallet-core": "1.15.3",
     "bignumber.js": "^9.0.1",
     "bnb-javascript-sdk-nobroadcast": "^2.16.14",
     "crypto-js": "^4.0.0",
@@ -35,8 +35,5 @@
     "@types/tiny-secp256k1": "^1.0.0",
     "typedoc": "^0.20.36",
     "typescript": "^4.3.2"
-  },
-  "engines": {
-    "node": "^10 || ^12 || ^14"
   }
 }

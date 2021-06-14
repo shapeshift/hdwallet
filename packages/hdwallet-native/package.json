@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-native",
-  "version": "1.15.2",
+  "version": "1.15.3",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,8 +15,8 @@
   },
   "dependencies": {
     "@bithighlander/bitcoin-cash-js-lib": "5.2.1",
-    "@shapeshiftoss/fiosdk": ">=1.2.1-shapeshift.2 <1.2.1",
-    "@shapeshiftoss/hdwallet-core": "^1.15.2",
+    "@shapeshiftoss/fiosdk": "1.2.1-shapeshift.4",
+    "@shapeshiftoss/hdwallet-core": "1.15.3",
     "@zxing/text-encoding": "^0.9.0",
     "bchaddrjs": "^0.4.9",
     "bignumber.js": "^9.0.1",
@@ -51,8 +51,5 @@
     "msw": "^0.27.1",
     "ts-jest": "^26.5.5",
     "typescript": "^4.3.2"
-  },
-  "engines": {
-    "node": "^10 || ^12 || ^14"
   }
 }

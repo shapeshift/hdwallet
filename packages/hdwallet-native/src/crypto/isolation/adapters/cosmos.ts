@@ -10,10 +10,10 @@ export class WalletAdapter {
     get publicKey(): string {
         return Buffer.from(this._isolatedKey.publicKey).toString("hex");
     }
-    sign(signMessage: string): Buffer {
+    async sign(signMessage: string): Promise<Buffer> {
         const signBuf = Buffer.from(signMessage.normalize("NFKD"), "utf8");
         const signBufHash = Digest.Algorithms["sha256"](signBuf);
-        return Buffer.from(this._isolatedKey.ecdsaSign(signBufHash));
+        return Buffer.from(await this._isolatedKey.ecdsaSign(signBufHash));
     }
 }
 

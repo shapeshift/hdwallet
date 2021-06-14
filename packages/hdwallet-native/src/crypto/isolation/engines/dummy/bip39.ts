@@ -1,5 +1,7 @@
 /// <reference types="bip32/types/crypto" />
 
+import * as core from "@shapeshiftoss/hdwallet-core"
+
 export * from "../../core/bip39";
 import * as BIP39 from "../../core/bip39";
 
@@ -24,7 +26,7 @@ function pbkdf2_sha512_singleblock(
 
     const pwBuffer = safeBufferFrom(new TextEncoder().encode(password));
 
-    let out = bip32crypto.hmacSHA512(pwBuffer, Buffer.concat([salt, be32Buf(1)])) as Buffer & { length: 64 };
+    let out = bip32crypto.hmacSHA512(pwBuffer, core.compatibleBufferConcat([salt, be32Buf(1)])) as Buffer & { length: 64 };
     let lastU = out;
     for (let i = 2; i <= iterations; i++) {
     let newU = bip32crypto.hmacSHA512(pwBuffer, lastU) as Buffer & { length: 64 };

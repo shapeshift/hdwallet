@@ -46,7 +46,7 @@ export class Node implements BIP32.NodeInterface, SecP256K1.ECDSARecoverableKeyI
         return this.#publicKey;
     }
 
-    ecdsaSign(msg: SecP256K1.Message, counter?: Uint32): SecP256K1.RecoverableSignature {
+    async ecdsaSign(msg: SecP256K1.Message, counter?: Uint32): Promise<SecP256K1.RecoverableSignature> {
         SecP256K1.Message.assert(msg);
         counter === undefined || Uint32.assert(counter);
 
@@ -89,16 +89,16 @@ export class Node implements BIP32.NodeInterface, SecP256K1.ECDSARecoverableKeyI
         return new Node(ki, IR) as this;
     }
   
-    ecdh(publicKey: SecP256K1.CurvePoint, digestAlgorithm?: Digest.AlgorithmName<32>): ByteArray<32> {
+    async ecdh(publicKey: SecP256K1.CurvePoint, digestAlgorithm?: Digest.AlgorithmName<32>): Promise<ByteArray<32>> {
         SecP256K1.CurvePoint.assert(publicKey);
         digestAlgorithm === undefined || Digest.AlgorithmName(32).assert(digestAlgorithm);
 
-        let out = SecP256K1.CurvePoint.x(this.ecdhRaw(publicKey));
+        let out = SecP256K1.CurvePoint.x(await this.ecdhRaw(publicKey));
         if (digestAlgorithm !== undefined) out = Digest.Algorithms[digestAlgorithm](out);
         return out;
     }
 
-    ecdhRaw(publicKey: SecP256K1.CurvePoint): SecP256K1.UncompressedPoint {
+    async ecdhRaw(publicKey: SecP256K1.CurvePoint): Promise<SecP256K1.UncompressedPoint> {
         SecP256K1.CurvePoint.assert(publicKey);
 
         return checkType(SecP256K1.UncompressedPoint, tinyecc.pointMultiply(Buffer.from(publicKey), this.#privateKey, false));
