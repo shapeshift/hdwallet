@@ -24,8 +24,5 @@
     "@types/uuid": "^8.3.0",
     "electron": "^12.0.9",
     "typescript": "^4.3.2"
-  },
-  "engines": {
-    "node": "^10 || ^12 || ^14"
   }
 }
