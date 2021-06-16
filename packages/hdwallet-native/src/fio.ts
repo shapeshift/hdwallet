@@ -122,23 +122,30 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
         }
         case "recordobt": {
           genericAction = "recordObtData";
+          const payeePublicKey = (await sdk.getFioPublicAddress(action.data.payee_fio_address)).public_address;
+          const decryptedContent = await this.fioDecryptRequestContent({
+            contentType: core.Fio.ContentType.OBT,
+            content: action.data.content,
+            addressNList: msg.addressNList,
+            publicKey: payeePublicKey,
+          } as const);
           genericActionParams = {
-            fioRequestId: action.data.fio_request_id,
+            fioRequestId: action.data.fio_request_id ?? null,
             payerFioAddress: action.data.payer_fio_address,
             payeeFioAddress: action.data.payee_fio_address,
-            payerTokenPublicAddress: action.data.content.payer_public_address,
-            payeeTokenPublicAddress: action.data.content.payee_public_address,
-            amount: action.data.content.amount,
-            chainCode: action.data.content.chain_code,
-            tokenCode: action.data.content.token_code,
-            status: action.data.content.status,
-            obtId: action.data.content.obt_id,
+            payerTokenPublicAddress: decryptedContent.payer_public_address,
+            payeeTokenPublicAddress: decryptedContent.payee_public_address,
+            amount: decryptedContent.amount,
+            chainCode: decryptedContent.chain_code,
+            tokenCode: decryptedContent.token_code,
+            status: decryptedContent.status,
+            obtId: decryptedContent.obt_id,
             maxFee: action.data.max_fee,
             technologyProviderId: action.data.tpid,
             payeeFioPublicKey: null,
-            memo: action.data.content.memo,
-            hash: action.data.content.hash,
-            offLineUrl: action.data.content.offline_url,
+            memo: decryptedContent.memo,
+            hash: decryptedContent.hash,
+            offLineUrl: decryptedContent.offline_url,
           }
           break;
         }
