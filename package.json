@@ -31,7 +31,7 @@
     "lerna:version-patch": "lerna version patch --force-publish --no-push --exact --yes",
     "lerna:version-minor": "lerna version minor --force-publish --no-push --exact --yes",
     "lerna:version-major": "lerna version major --force-publish --no-push --exact --yes",
-    "lerna:publish": "lerna publish from-package",
+    "lerna:publish": "lerna publish --pre-dist-tag alpha from-package",
     "postinstall": "patch-package"
   },
   "devDependencies": {
