@@ -1,7 +1,7 @@
-import { splitSignature } from "@ethersproject/bytes";
-import { keccak256 } from "@ethersproject/keccak256";
-import { recoverPublicKey } from "@ethersproject/signing-key";
-import { computeAddress, parse as parseTransaction } from "@ethersproject/transactions";
+import { splitSignature } from "@shapeshiftoss/ethers-bytes";
+import { keccak256 } from "@shapeshiftoss/ethers-keccak256";
+import { recoverPublicKey } from "@shapeshiftoss/ethers-signing-key";
+import { computeAddress, parse as parseTransaction } from "@shapeshiftoss/ethers-transactions";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { TextEncoder } from "web-encoding";
 

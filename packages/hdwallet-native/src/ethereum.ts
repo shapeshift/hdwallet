@@ -1,7 +1,7 @@
-import * as hdNode from "@ethersproject/hdnode";
+import * as hdNode from "@shapeshiftoss/ethers-hdnode";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import txDecoder from "ethereum-tx-decoder";
-import * as ethers from "ethers";
+import * as ethers from "@shapeshiftoss/ethers";
 import _ from "lodash";
 
 import { NativeHDWalletBase } from "./native";

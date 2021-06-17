@@ -2,8 +2,8 @@
 import * as core from "@shapeshiftoss/hdwallet-core"
 import * as tinyecc from "tiny-secp256k1";
 import { Literal, Partial, Object as Obj, Static, Union } from "funtypes";
-import { recoverPublicKey as ethRecoverPublicKey } from "@ethersproject/signing-key";
-import { splitSignature as ethSplitSignature } from "@ethersproject/bytes";
+import { recoverPublicKey as ethRecoverPublicKey } from "@shapeshiftoss/ethers-signing-key";
+import { splitSignature as ethSplitSignature } from "@shapeshiftoss/ethers-bytes";
 
 import { Digest } from "../digest";
 import { BigEndianInteger, ByteArray, Uint32, checkType, safeBufferFrom } from "../../types";

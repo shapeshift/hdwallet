@@ -1,5 +1,5 @@
-import { SigningKey as ETHSigningKey } from "@ethersproject/signing-key";
-import { splitSignature, BytesLike, Signature as ethSignature, arrayify } from "@ethersproject/bytes";
+import { SigningKey as ETHSigningKey } from "@shapeshiftoss/ethers-signing-key";
+import { splitSignature, BytesLike, Signature as ethSignature, arrayify } from "@shapeshiftoss/ethers-bytes";
 import * as core from "@shapeshiftoss/hdwallet-core"
 import * as tinyecc from "tiny-secp256k1";
 
