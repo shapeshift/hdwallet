@@ -7,6 +7,7 @@
     "declarationMap": true,
     "sourceMap": true,
     "composite": true,
+    "isolatedModules": true,
 
     /* Strict Type-Checking Options */
     "strict": false,
