@@ -4,7 +4,7 @@ import * as native from "./native";
 import * as Isolation from "./crypto/isolation";
 
 export type NativeAdapterArgs = {
-  mnemonic?: string | Isolation.BIP39.Mnemonic;
+  mnemonic?: string | Isolation.Core.BIP39.Mnemonic;
   deviceId: string;
 };
 

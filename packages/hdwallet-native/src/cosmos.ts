@@ -44,9 +44,9 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
   return class MixinNativeCosmosWallet extends Base {
     readonly _supportsCosmos = true;
 
-    #seed: Isolation.BIP32.SeedInterface | undefined;
+    #seed: Isolation.Core.BIP32.Seed | undefined;
 
-    async cosmosInitializeWallet(seed: Isolation.BIP32.SeedInterface): Promise<void> {
+    async cosmosInitializeWallet(seed: Isolation.Core.BIP32.Seed): Promise<void> {
       this.#seed = seed;
     }
 

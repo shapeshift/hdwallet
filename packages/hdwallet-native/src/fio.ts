@@ -9,9 +9,9 @@ const fetchJson = async (uri: RequestInfo, opts?: RequestInit) => {
   return fetch(uri, opts);
 };
 
-function getKeyPair(seed: Isolation.BIP32.SeedInterface, addressNList: number[]) {
+function getKeyPair(seed: Isolation.Core.BIP32.Seed, addressNList: number[]) {
   const out = addressNList.reduce((a, x) => a.derive(x), seed.toMasterKey());
-  if (!Isolation.BIP32.nodeSupportsECDH(out)) throw new Error("fio requires keys that implement ECDH");
+  if (!Isolation.Core.BIP32.nodeSupportsECDH(out)) throw new Error("fio requires keys that implement ECDH");
   return new Isolation.Adapters.FIO(out);
 }
 
@@ -51,10 +51,10 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
   return class MixinNativeFioWallet extends Base {
     readonly _supportsFio = true;
     baseUrl = "https://fio.eu.eosamsterdam.net/v1/";
-    #seed: Isolation.BIP32.SeedInterface | undefined;
+    #seed: Isolation.Core.BIP32.Seed | undefined;
 
-    async fioInitializeWallet(seed: Buffer | Isolation.BIP32.SeedInterface): Promise<void> {
-      this.#seed = (seed instanceof Buffer ? new Isolation.BIP32.Seed(seed) : seed);
+    async fioInitializeWallet(seed: Buffer | Isolation.Core.BIP32.Seed): Promise<void> {
+      this.#seed = (seed instanceof Buffer ? new Isolation.Engines.Dummy.BIP32.Seed(seed) : seed);
     }
 
     fioWipe(): void {
@@ -130,7 +130,7 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
             publicKey: payeePublicKey,
           } as const);
           genericActionParams = {
-            fioRequestId: action.data.fio_request_id ?? null,
+            fioRequestId: action.data.fio_request_id ? Number(action.data.fio_request_id) : null,
             payerFioAddress: action.data.payer_fio_address,
             payeeFioAddress: action.data.payee_fio_address,
             payerTokenPublicAddress: decryptedContent.payer_public_address,
@@ -172,7 +172,7 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
         case "rejectfndreq": {
           genericAction = "rejectFundsRequest";
           genericActionParams = {
-            fioRequestId: action.data.fio_request_id,
+            fioRequestId: Number(action.data.fio_request_id),
             maxFee: action.data.max_fee,
             technologyProviderId: action.data.tpid,
           }

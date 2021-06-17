@@ -43,9 +43,9 @@ export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWa
   return class MixinNativeTerraWallet extends Base {
     readonly _supportsTerra = true;
 
-    #seed: Isolation.BIP32.SeedInterface | undefined;
+    #seed: Isolation.Core.BIP32.Seed | undefined;
 
-    async terraInitializeWallet(seed: Isolation.BIP32.SeedInterface): Promise<void> {
+    async terraInitializeWallet(seed: Isolation.Core.BIP32.Seed): Promise<void> {
       this.#seed = seed;
     }
 

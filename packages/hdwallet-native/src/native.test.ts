@@ -184,7 +184,7 @@ describe("NativeHDWallet", () => {
   it("should wipe if an error occurs during initialization", async () => {
     expect.assertions(7);
     const wallet = native.create({ deviceId: "native" });
-    const mockMnemonic = new Isolation.BIP39.Mnemonic(MNEMONIC);
+    const mockMnemonic = new Isolation.Engines.Dummy.BIP39.Mnemonic(MNEMONIC);
     await wallet.loadDevice({ mnemonic: mockMnemonic });
     const mocks = [
       jest.spyOn(mockMnemonic, "toSeed").mockImplementationOnce(() => {

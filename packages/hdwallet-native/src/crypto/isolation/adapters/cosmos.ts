@@ -1,7 +1,7 @@
-import { SecP256K1 } from "..";
+import { SecP256K1 } from "../core";
 import * as Digest from "../core/digest";
 
-type IsolatedKey = SecP256K1.ECDSAKeyInterface;
+type IsolatedKey = SecP256K1.ECDSAKey;
 export class WalletAdapter {
     _isolatedKey: IsolatedKey;
     constructor(isolatedKey: IsolatedKey) {

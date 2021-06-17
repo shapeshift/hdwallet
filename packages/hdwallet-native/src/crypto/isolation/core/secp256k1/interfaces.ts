@@ -2,7 +2,7 @@ import { ByteArray, Uint32 } from "../../types";
 import { CurvePoint, Message, RecoverableSignature, Signature } from "./types";
 import * as Digest from "../digest";
 
-export interface ECDSAKeyInterface {
+export interface ECDSAKey {
     readonly publicKey: CurvePoint;
 
     // Signatures MUST use a determinsitic nonce generation algorithm, which SHOULD be the one specified in RFC6979. The
@@ -16,12 +16,12 @@ export interface ECDSAKeyInterface {
     ecdsaSign(message: Message, counter: Uint32): Promise<NonNullable<Signature> | undefined>;
 }
 
-export interface ECDSARecoverableKeyInterface extends ECDSAKeyInterface {
+export interface ECDSARecoverableKey extends ECDSAKey {
     ecdsaSign(message: Message): Promise<NonNullable<RecoverableSignature>>;
     ecdsaSign(message: Message, counter: Uint32): Promise<NonNullable<RecoverableSignature> | undefined>;
 }
 
-export interface ECDHKeyInterface {
+export interface ECDHKey {
     readonly publicKey: CurvePoint;
 
     // Calculates a shared secret field element according to the ECDH key-agreement scheme specified in SEC 1 section 3.3.2,

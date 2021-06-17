@@ -6,10 +6,10 @@ import * as tinyecc from "tiny-secp256k1";
 import { TextEncoder } from "web-encoding";
 
 import { ByteArray, Uint32, checkType, safeBufferFrom } from "../../types";
-import { Digest, SecP256K1 } from "../..";
+import { Digest, SecP256K1 } from "../../core";
 import { ChainCode } from "../../core/bip32";
 
-export class Seed implements BIP32.SeedInterface {
+export class Seed implements BIP32.Seed {
     readonly #seed: Buffer;
 
     constructor(seed: Uint8Array) {
@@ -29,7 +29,7 @@ export class Seed implements BIP32.SeedInterface {
     }
 }
 
-export class Node implements BIP32.NodeInterface, SecP256K1.ECDSARecoverableKeyInterface, SecP256K1.ECDHKeyInterface {
+export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K1.ECDHKey {
     readonly #privateKey: Buffer & ByteArray<32>;
     readonly chainCode: Buffer & BIP32.ChainCode;
     #publicKey: SecP256K1.CompressedPoint | undefined;

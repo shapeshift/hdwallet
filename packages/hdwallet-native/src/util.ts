@@ -4,12 +4,12 @@ import { BTCScriptType } from "./bitcoin";
 import { getNetwork } from "./networks";
 import * as Isolation from "./crypto/isolation";
 
-function isSeed(x: any): x is Isolation.BIP32.SeedInterface {
+function isSeed(x: any): x is Isolation.Core.BIP32.Seed {
   return "toMasterKey" in x && typeof x.toMasterKey === "function"
 }
 
 function getKeyPair(
-  nodeOrSeed: Isolation.BIP32.SeedInterface | Isolation.BIP32.NodeInterface,
+  nodeOrSeed: Isolation.Core.BIP32.Seed | Isolation.Core.BIP32.Node,
   addressNList: number[],
   coin: core.Coin,
   scriptType?: BTCScriptType,

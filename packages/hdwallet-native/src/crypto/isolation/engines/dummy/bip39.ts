@@ -37,7 +37,7 @@ function pbkdf2_sha512_singleblock(
     return out;
 }
 
-export class Mnemonic implements BIP39.MnemonicInterface {
+export class Mnemonic implements BIP39.Mnemonic {
     readonly #mnemonic: string;
     constructor(mnemonic: string) {
         this.#mnemonic = mnemonic.normalize("NFKD");

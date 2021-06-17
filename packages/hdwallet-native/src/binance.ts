@@ -6,7 +6,7 @@ import CryptoJS from "crypto-js";
 
 import { NativeHDWalletBase } from "./native";
 import util from "./util";
-import { SeedInterface as IsolatedBIP32Seed } from "./crypto/isolation/core/bip32/interfaces";
+import { Seed as IsolatedBIP32Seed } from "./crypto/isolation/core/bip32/interfaces";
 import * as Isolation from "./crypto/isolation";
 
 export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
