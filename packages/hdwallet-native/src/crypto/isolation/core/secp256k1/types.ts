@@ -118,7 +118,7 @@ const signatureStatic = {
     isCanonical: (x: Signature): boolean => { return Signature.isLowR(x) && Signature.isLowS(x); },
     signCanonically: async (x: ECDSAKeyInterface, message: Message, counter?: Uint32): Promise<Signature> => {
         counter === undefined || Uint32.assert(counter);
-        for (let i = counter; i === undefined || i < (counter ?? 0) + 128; i = (i ?? 0) + 1) {
+        for (let i = counter; i === undefined || i < (counter ?? 0) + 128; i = (i ?? -1) + 1) {
             const sig = i === undefined ? await x.ecdsaSign(message) : await x.ecdsaSign(message, i);
             if (sig === undefined) break;
             //TODO: do integrated lowS correction
@@ -157,7 +157,7 @@ const recoverableSignatureStatic = {
     isCanonical: (x: RecoverableSignature): boolean => Signature.isCanonical(x) && RecoverableSignature.isLowRecoveryParam(x),
     signCanonically: async (x: ECDSAKeyInterface, message: Message, counter?: Uint32): Promise<RecoverableSignature> => {
         counter === undefined || Uint32.assert(counter);
-        for (let i = counter; i === undefined || i < (counter ?? 0) + 128; i = (i ?? 0) + 1) {
+        for (let i = counter; i === undefined || i < (counter ?? 0) + 128; i = (i ?? -1) + 1) {
             const sig = i === undefined ? await x.ecdsaSign(message) : await x.ecdsaSign(message, i);
             if (sig === undefined) break;
             const recoverableSig = RecoverableSignature.fromSignature(sig, message, x.publicKey);

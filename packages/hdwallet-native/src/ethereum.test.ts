@@ -110,7 +110,7 @@ describe("NativeETHWallet", () => {
     expect(sig).toMatchInlineSnapshot(`
       Object {
         "address": "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
-        "signature": "0x72d4baca0c1ca0eea587decb0177ded99fb50f62c4bd24d8595000d70e6383833eb0700fb6c96086154c2607b735ee1047ed4060211b32a52b43d827615b3e691c",
+        "signature": "0x05f51140905ffa33ffdc57f46b0b8d8fbb1d2a99f8cd843ca27893c01c31351c08b76d83dce412731c846e3b50649724415deb522d00950fbf4f2c1459c2b70b1b",
       }
     `);
     // This is the output of the native library's own signing function.
