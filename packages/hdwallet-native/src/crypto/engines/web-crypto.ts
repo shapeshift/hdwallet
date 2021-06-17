@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as scryptJs from "scrypt-js";
 
-import { CryptoEngine, DigestAlgorithm, ScryptParams } from "./index";
+import { CryptoEngine, DigestAlgorithm, ScryptParams } from "./types";
 
 export class WebCryptoEngine implements CryptoEngine {
   public async decrypt(data: ArrayBuffer, key: ArrayBuffer, iv: ArrayBuffer): Promise<ArrayBuffer> {
