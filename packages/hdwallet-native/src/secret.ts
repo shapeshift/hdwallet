@@ -42,9 +42,9 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
   return class MixinNativeSecretWallet extends Base {
     readonly _supportsSecret = true;
 
-    #seed: Isolation.BIP32.SeedInterface | undefined;
+    #seed: Isolation.Core.BIP32.Seed | undefined;
 
-    async secretInitializeWallet(seed: Isolation.BIP32.SeedInterface): Promise<void> {
+    async secretInitializeWallet(seed: Isolation.Core.BIP32.Seed): Promise<void> {
       this.#seed = seed;
     }
 

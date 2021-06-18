@@ -5,7 +5,7 @@ import * as bitcoin from "@bithighlander/bitcoin-cash-js-lib";
 import { getNetwork } from "./networks";
 import { NativeHDWalletBase } from "./native";
 import util from "./util";
-import { SeedInterface as IsolatedBIP32Seed } from "./crypto/isolation/core/bip32/interfaces";
+import { Seed as IsolatedBIP32Seed } from "./crypto/isolation/core/bip32/interfaces";
 
 const supportedCoins = ["bitcoin", "dash", "digibyte", "dogecoin", "litecoin", "bitcoincash", "testnet"];
 

@@ -6,10 +6,10 @@ import * as tinyecc from "tiny-secp256k1";
 import { TextEncoder } from "web-encoding";
 
 import { ByteArray, Uint32, checkType, safeBufferFrom } from "../../types";
-import { Digest, SecP256K1 } from "../..";
+import { Digest, SecP256K1 } from "../../core";
 import { ChainCode } from "../../core/bip32";
 
-export class Seed implements BIP32.SeedInterface {
+export class Seed implements BIP32.Seed {
     readonly #seed: Buffer;
 
     constructor(seed: Uint8Array) {
@@ -29,7 +29,7 @@ export class Seed implements BIP32.SeedInterface {
     }
 }
 
-export class Node implements BIP32.NodeInterface, SecP256K1.ECDSARecoverableKeyInterface, SecP256K1.ECDHKeyInterface {
+export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K1.ECDHKey {
     readonly #privateKey: Buffer & ByteArray<32>;
     readonly chainCode: Buffer & BIP32.ChainCode;
     #publicKey: SecP256K1.CompressedPoint | undefined;
@@ -54,9 +54,9 @@ export class Node implements BIP32.NodeInterface, SecP256K1.ECDSARecoverableKeyI
         if (typeof expect === "function") expect(SecP256K1.MessageWithPreimage.test(msg)).toBeTruthy();
 
         if (SecP256K1.MessageWithPreimage.test(msg)) {
-            console.log(`signing ${msg.algorithm} hash of ${Buffer.from(msg.preimage).toString("hex")}`);
+            console.log(`signing ${msg.algorithm} hash of ${Buffer.from(msg.preimage).toString("hex")}${counter === undefined ? "" : ` (counter: ${counter})`}`);
         } else {
-            console.log(`signing raw data: ${Buffer.from(msg).toString("hex")}`);
+            console.log(`signing raw data: ${Buffer.from(msg).toString("hex")}${counter === undefined ? "" : ` (counter: ${counter})`}`);
         }
 
         const entropy = (counter === undefined ? undefined : Buffer.alloc(32));
@@ -93,14 +93,24 @@ export class Node implements BIP32.NodeInterface, SecP256K1.ECDSARecoverableKeyI
         SecP256K1.CurvePoint.assert(publicKey);
         digestAlgorithm === undefined || Digest.AlgorithmName(32).assert(digestAlgorithm);
 
-        let out = SecP256K1.CurvePoint.x(await this.ecdhRaw(publicKey));
-        if (digestAlgorithm !== undefined) out = Digest.Algorithms[digestAlgorithm](out);
-        return out;
+        return checkType(ByteArray(32), await this._ecdh(publicKey, digestAlgorithm));
     }
 
     async ecdhRaw(publicKey: SecP256K1.CurvePoint): Promise<SecP256K1.UncompressedPoint> {
-        SecP256K1.CurvePoint.assert(publicKey);
+        return checkType(SecP256K1.UncompressedPoint, await this._ecdh(publicKey, null));
+    }
 
-        return checkType(SecP256K1.UncompressedPoint, tinyecc.pointMultiply(Buffer.from(publicKey), this.#privateKey, false));
+    private async _ecdh(publicKey: SecP256K1.CurvePoint, digestAlgorithm?: Digest.AlgorithmName<32> | null): Promise<ByteArray<32> | SecP256K1.UncompressedPoint> {
+        SecP256K1.CurvePoint.assert(publicKey);
+        digestAlgorithm === undefined || digestAlgorithm === null || Digest.AlgorithmName(32).assert(digestAlgorithm);
+
+        console.log(`deriving ECDH ${digestAlgorithm == undefined ? 'shared secret' : (digestAlgorithm === null ? 'shared field element' : `key using digest ${digestAlgorithm}`)} for public key ${Buffer.from(publicKey).toString("hex")}`);
+
+        const sharedFieldElement = checkType(SecP256K1.UncompressedPoint, tinyecc.pointMultiply(Buffer.from(publicKey), this.#privateKey, false));
+        if (digestAlgorithm === null) return sharedFieldElement;
+
+        let out = SecP256K1.CurvePoint.x(sharedFieldElement);
+        if (digestAlgorithm !== undefined) out = Digest.Algorithms[digestAlgorithm](out);
+        return out;
     }
 }

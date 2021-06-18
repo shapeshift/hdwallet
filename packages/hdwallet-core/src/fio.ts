@@ -105,8 +105,8 @@ export namespace Fio {
         data: {
           payer_fio_address: string;
           payee_fio_address: string;
-          content: OBTContent;
-          fio_request_id: string;
+          content: string;
+          fio_request_id?: string;
         };
       }
     | {

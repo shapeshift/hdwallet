@@ -2,9 +2,9 @@ export * from "./types";
 export * from "./interfaces";
 
 import { Path } from "./types";
-import { NodeInterface } from "./interfaces";
+import { Node } from "./interfaces";
 
-export function derivePath<T extends NodeInterface>(node: T, path: Path): T {
+export function derivePath<T extends Node>(node: T, path: Path): T {
     // This logic is copied (almost) wholesale from the bip32 package.
     Path.assert(path);
 

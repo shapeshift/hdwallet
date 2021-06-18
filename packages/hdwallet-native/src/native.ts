@@ -22,14 +22,14 @@ export enum NativeEvents {
   READY = "READY",
 }
 
-function isMnemonicInterface(x: any): x is Isolation.BIP39.MnemonicInterface {
+function isMnemonicInterface(x: any): x is Isolation.Core.BIP39.Mnemonic {
   return ["object", "function"].includes(typeof x) && "toSeed" in x && typeof x.toSeed === "function";
 }
 
 interface LoadDevice extends Omit<core.LoadDevice, "mnemonic"> {
   // Set this if your deviceId is dependent on the mnemonic
   deviceId?: string;
-  mnemonic: string | Isolation.BIP39.MnemonicInterface;
+  mnemonic: string | Isolation.Core.BIP39.Mnemonic;
 }
 
 export class NativeHDWalletInfoBase implements core.HDWalletInfo {
@@ -184,11 +184,11 @@ export class NativeHDWallet
 
   #deviceId: string;
   #initialized: boolean = false;
-  #mnemonic: Isolation.BIP39.MnemonicInterface | undefined;
+  #mnemonic: Isolation.Core.BIP39.Mnemonic | undefined;
 
   constructor({ mnemonic, deviceId }: NativeAdapterArgs) {
     super();
-    this.#mnemonic = (typeof mnemonic == "string" ? new Isolation.BIP39.Mnemonic(mnemonic) : mnemonic);
+    this.#mnemonic = (typeof mnemonic == "string" ? new Isolation.Engines.Dummy.BIP39.Mnemonic(mnemonic) : mnemonic);
     this.#deviceId = deviceId;
   }
 
@@ -310,7 +310,7 @@ export class NativeHDWallet
     this.#mnemonic = (x => {
       if (x) {
         if (isMnemonicInterface(x)) return x;
-        if (typeof x === "string" && bip39.validateMnemonic(x)) return new Isolation.BIP39.Mnemonic(x);
+        if (typeof x === "string" && bip39.validateMnemonic(x)) return new Isolation.Engines.Dummy.BIP39.Mnemonic(x);
       }
       throw new Error("Required property [mnemonic] is missing or invalid");
     })(msg?.mnemonic);

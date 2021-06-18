@@ -2,7 +2,7 @@ import { ExternalPrivateKey as FIOExternalPrivateKey } from "@shapeshiftoss/fioj
 import * as core from "@shapeshiftoss/hdwallet-core"
 import bs58 from "bs58"
 
-import { SecP256K1 } from "..";
+import { SecP256K1 } from "../core";
 import * as Digest from "../core/digest";
 import { checkType } from "../types";
 
@@ -12,7 +12,7 @@ function bs58FioEncode(raw: Uint8Array, keyType: string = ""): string {
     return bs58.encode(core.compatibleBufferConcat([raw, checksum]));
 }
 
-type IsolatedKey = SecP256K1.ECDSAKeyInterface & SecP256K1.ECDHKeyInterface;
+type IsolatedKey = SecP256K1.ECDSAKey & SecP256K1.ECDHKey;
 export class ExternalSignerAdapter implements FIOExternalPrivateKey {
     _isolatedKey: IsolatedKey;
     constructor(isolatedKey: IsolatedKey) {
@@ -24,7 +24,7 @@ export class ExternalSignerAdapter implements FIOExternalPrivateKey {
     }
     async sign(signBuf: Uint8Array): Promise<string> {
         const signBufHash = Digest.Algorithms["sha256"](signBuf);
-        const sig = SecP256K1.RecoverableSignature.fromSignature(await this._isolatedKey.ecdsaSign(signBufHash), signBufHash, this._isolatedKey.publicKey);
+        const sig = await SecP256K1.RecoverableSignature.signCanonically(this._isolatedKey, signBufHash);
         const fioSigBuf = core.compatibleBufferConcat([Buffer.from([sig.recoveryParam + 4 + 27]), SecP256K1.RecoverableSignature.r(sig), SecP256K1.RecoverableSignature.s(sig)]);
         return `SIG_K1_${bs58FioEncode(fioSigBuf, "K1")}`;
     }

@@ -43,9 +43,9 @@ export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWal
   return class MixinNativeKavaWallet extends Base {
     readonly _supportsKava = true;
 
-    #seed: Isolation.BIP32.SeedInterface | undefined;
+    #seed: Isolation.Core.BIP32.Seed | undefined;
 
-    async kavaInitializeWallet(seed: Isolation.BIP32.SeedInterface): Promise<void> {
+    async kavaInitializeWallet(seed: Isolation.Core.BIP32.Seed): Promise<void> {
       this.#seed = seed;
     }
 

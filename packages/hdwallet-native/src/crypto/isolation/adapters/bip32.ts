@@ -2,7 +2,7 @@ import * as bip32 from "bip32";
 import bs58check from "bs58check";
 import { crypto as btccrypto, Network, SignerAsync } from "@bithighlander/bitcoin-cash-js-lib";
 
-import { BIP32, SecP256K1, IsolationError } from "..";
+import { BIP32, SecP256K1, IsolationError } from "../core";
 import { ECPairAdapter } from "./bitcoin";
 
 export type BIP32InterfaceAsync = Omit<bip32.BIP32Interface, "sign" | "derive" | "deriveHardened" | "derivePath"> &
@@ -12,15 +12,15 @@ export type BIP32InterfaceAsync = Omit<bip32.BIP32Interface, "sign" | "derive" |
     derivePath(path: string): BIP32InterfaceAsync;
   };
 
-export class BIP32Adapter extends ECPairAdapter implements BIP32.NodeInterface, BIP32InterfaceAsync {
-  protected readonly _isolatedNode: BIP32.NodeInterface;
+export class BIP32Adapter extends ECPairAdapter implements BIP32.Node, BIP32InterfaceAsync {
+  protected readonly _isolatedNode: BIP32.Node;
   readonly index: number;
   readonly _parent?: BIP32Adapter;
   readonly _children = new Map<number, this>();
   _identifier?: Buffer;
   _base58?: string;
 
-  constructor(isolatedNode: BIP32.NodeInterface, networkOrParent?: BIP32Adapter | Network, index?: number) {
+  constructor(isolatedNode: BIP32.Node, networkOrParent?: BIP32Adapter | Network, index?: number) {
     super(isolatedNode, networkOrParent instanceof BIP32Adapter ? networkOrParent.network : networkOrParent);
     this._isolatedNode = isolatedNode;
     this.index = index ?? 0;

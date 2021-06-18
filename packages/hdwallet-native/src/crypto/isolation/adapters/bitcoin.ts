@@ -6,13 +6,13 @@ const DigestSourceHint = Symbol.for("hdwallet_isolation_digest_source_hint");
 
 export type ECPairInterfaceAsync = Omit<ECPairInterface, "sign"> & Pick<SignerAsync, "sign">;
 
-export class ECPairAdapter implements SecP256K1.ECDSAKeyInterface, SignerAsync, ECPairInterfaceAsync {
-    protected _isolatedKey: SecP256K1.ECDSAKeyInterface;
+export class ECPairAdapter implements SecP256K1.ECDSAKey, SignerAsync, ECPairInterfaceAsync {
+    protected _isolatedKey: SecP256K1.ECDSAKey;
     readonly _network: Network | undefined;
     compressed: boolean = false;
     lowR: boolean = false;
 
-    constructor(isolatedKey: SecP256K1.ECDSAKeyInterface, network?: Network) {
+    constructor(isolatedKey: SecP256K1.ECDSAKey, network?: Network) {
         this._isolatedKey = isolatedKey;
         this._network = network;
     }

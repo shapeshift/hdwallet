@@ -44,9 +44,9 @@ export function MixinNativeThorchainWallet<TBase extends core.Constructor<Native
   return class MixinNativeThorchainWallet extends Base {
     _supportsThorchain = true;
 
-    #seed: Isolation.BIP32.SeedInterface | undefined;
+    #seed: Isolation.Core.BIP32.Seed | undefined;
 
-    async thorchainInitializeWallet(seed: Isolation.BIP32.SeedInterface): Promise<void> {
+    async thorchainInitializeWallet(seed: Isolation.Core.BIP32.Seed): Promise<void> {
       this.#seed = seed;
     }
 

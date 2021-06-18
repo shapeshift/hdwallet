@@ -2,12 +2,12 @@
 import * as core from "@shapeshiftoss/hdwallet-core"
 import * as tinyecc from "tiny-secp256k1";
 import { Literal, Partial, Object as Obj, Static, Union } from "funtypes";
-import { recoverPublicKey as ethRecoverPublicKey } from "@ethersproject/signing-key";
-import { splitSignature as ethSplitSignature } from "@ethersproject/bytes";
+import { recoverPublicKey as ethRecoverPublicKey } from "@shapeshiftoss/ethers-signing-key";
+import { splitSignature as ethSplitSignature } from "@shapeshiftoss/ethers-bytes";
 
 import { Digest } from "../digest";
 import { BigEndianInteger, ByteArray, Uint32, checkType, safeBufferFrom } from "../../types";
-import { ECDSAKeyInterface } from "./interfaces";
+import { ECDSAKey } from "./interfaces";
 
 const fieldElementBase = BigEndianInteger(32).withConstraint(
     x => tinyecc.isPrivate(safeBufferFrom(x)) || `expected ${x} to be within the order of the curve`,
@@ -116,9 +116,9 @@ const signatureStatic = {
     isLowR: (x: Signature): boolean => { return !FieldElement.isHigh(Signature.r(x)); },
     isLowS: (x: Signature): boolean => { return !FieldElement.isHigh(Signature.s(x)); },
     isCanonical: (x: Signature): boolean => { return Signature.isLowR(x) && Signature.isLowS(x); },
-    signCanonically: async (x: ECDSAKeyInterface, message: Message, counter?: Uint32): Promise<Signature> => {
+    signCanonically: async (x: ECDSAKey, message: Message, counter?: Uint32): Promise<Signature> => {
         counter === undefined || Uint32.assert(counter);
-        for (let i = counter; i === undefined || i < (counter ?? 0) + 128; i = (i ?? 0) + 1) {
+        for (let i = counter; i === undefined || i < (counter ?? 0) + 128; i = (i ?? -1) + 1) {
             const sig = i === undefined ? await x.ecdsaSign(message) : await x.ecdsaSign(message, i);
             if (sig === undefined) break;
             //TODO: do integrated lowS correction
@@ -155,9 +155,9 @@ const recoverableSignatureStatic = {
     },
     isLowRecoveryParam: (x: RecoverableSignature) => x.recoveryParam === 0 || x.recoveryParam === 1,
     isCanonical: (x: RecoverableSignature): boolean => Signature.isCanonical(x) && RecoverableSignature.isLowRecoveryParam(x),
-    signCanonically: async (x: ECDSAKeyInterface, message: Message, counter?: Uint32): Promise<RecoverableSignature> => {
+    signCanonically: async (x: ECDSAKey, message: Message, counter?: Uint32): Promise<RecoverableSignature> => {
         counter === undefined || Uint32.assert(counter);
-        for (let i = counter; i === undefined || i < (counter ?? 0) + 128; i = (i ?? 0) + 1) {
+        for (let i = counter; i === undefined || i < (counter ?? 0) + 128; i = (i ?? -1) + 1) {
             const sig = i === undefined ? await x.ecdsaSign(message) : await x.ecdsaSign(message, i);
             if (sig === undefined) break;
             const recoverableSig = RecoverableSignature.fromSignature(sig, message, x.publicKey);

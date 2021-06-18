@@ -1,15 +1,14 @@
-import { SigningKey as ETHSigningKey } from "@ethersproject/signing-key";
-import { splitSignature, BytesLike, Signature as ethSignature, arrayify } from "@ethersproject/bytes";
+import { SigningKey as ETHSigningKey } from "@shapeshiftoss/ethers-signing-key";
+import { splitSignature, BytesLike, Signature as ethSignature, arrayify } from "@shapeshiftoss/ethers-bytes";
 import * as core from "@shapeshiftoss/hdwallet-core"
 import * as tinyecc from "tiny-secp256k1";
 
-import { SecP256K1 } from "../core";
+import { SecP256K1, Digest } from "../core";
 import { checkType } from "../types";
-import * as Isolation from "..";
 
 export class SigningKeyAdapter implements ETHSigningKey {
-  protected readonly _isolatedKey: SecP256K1.ECDSAKeyInterface & SecP256K1.ECDHKeyInterface;
-  constructor(isolatedKey: SecP256K1.ECDSAKeyInterface & SecP256K1.ECDHKeyInterface) {
+  protected readonly _isolatedKey: SecP256K1.ECDSAKey & SecP256K1.ECDHKey;
+  constructor(isolatedKey: SecP256K1.ECDSAKey & SecP256K1.ECDHKey) {
     this._isolatedKey = isolatedKey;
   }
 
@@ -40,7 +39,7 @@ export class SigningKeyAdapter implements ETHSigningKey {
   }
   async signTransaction(txData: BytesLike): Promise<ethSignature> {
     const txBuf = arrayify(txData);
-    return this.signDigest(Isolation.Digest.Algorithms["keccak256"](txBuf));
+    return this.signDigest(Digest.Algorithms["keccak256"](txBuf));
   }
   async signMessage(messageData: BytesLike | string): Promise<ethSignature> {
     const messageDataBuf =
@@ -48,7 +47,7 @@ export class SigningKeyAdapter implements ETHSigningKey {
         ? Buffer.from(messageData.normalize("NFKD"), "utf8")
         : Buffer.from(arrayify(messageData));
     const messageBuf = core.compatibleBufferConcat([Buffer.from(`\x19Ethereum Signed Message:\n${messageDataBuf.length}`, "utf8"), messageDataBuf]);
-    return this.signDigest(Isolation.Digest.Algorithms["keccak256"](messageBuf));
+    return this.signDigest(Digest.Algorithms["keccak256"](messageBuf));
   }
   async computeSharedSecret(otherKey: BytesLike): Promise<string> {
     return `0x${await this._isolatedKey.ecdh(checkType(SecP256K1.CurvePoint, arrayify(otherKey)))}`;
