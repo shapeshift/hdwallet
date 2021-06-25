@@ -103,17 +103,18 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
       throw nextResponse;
     }
     response = nextResponse.proto as Messages.EthereumTxRequest;
-
     try {
+      const esa: Messages.EthereumTxAck = new Messages.EthereumTxAck();
       while (response.hasDataLength()) {
         const dataLength = response.getDataLength();
         dataRemaining = core.mustBeDefined(dataRemaining);
         dataChunk = dataRemaining.slice(0, dataLength);
         dataRemaining = dataRemaining.slice(dataLength, dataRemaining.length);
 
+        esa.setDataChunk(dataChunk);
         nextResponse = await transport.call(
-          Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNTX,
-          est,
+          Messages.MessageType.MESSAGETYPE_ETHEREUMTXACK,
+          esa,
           core.LONG_TIMEOUT,
           /*omitLock=*/ true
         );
