@@ -1,5 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+import * as trezor from "@shapeshiftoss/hdwallet-trezor";
+import * as portis from "@shapeshiftoss/hdwallet-portis";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
@@ -170,6 +172,9 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
       "ethSignTx() - long contract data",
       async () => {
         if (!wallet) return;
+        if (ledger.isLedger(wallet)) return; // FIXME: just test kk for now
+        if (trezor.isTrezor(wallet)) return; // FIXME: just test kk for now
+        if (portis.isPortis(wallet)) return; // FIXME: just test kk for now  
         let res = await wallet.ethSignTx({
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
           nonce: "0xab",
