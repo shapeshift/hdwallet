@@ -1,8 +1,5 @@
-import { splitSignature } from "@shapeshiftoss/ethers-bytes";
-import { keccak256 } from "@shapeshiftoss/ethers-keccak256";
-import { recoverPublicKey } from "@shapeshiftoss/ethers-signing-key";
-import { computeAddress, parse as parseTransaction } from "@shapeshiftoss/ethers-transactions";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ethers from "ethers"
 import { TextEncoder } from "web-encoding";
 
 import * as native from "./native";
@@ -97,7 +94,7 @@ describe("NativeETHWallet", () => {
         "v": 38,
       }
     `);*/
-    expect(parseTransaction(sig!.serialized).from).toEqual("0x73d0385F4d8E00C5e6504C6030F47BF6212736A8");
+    expect(ethers.utils.parseTransaction(sig!.serialized).from).toEqual("0x73d0385F4d8E00C5e6504C6030F47BF6212736A8");
   });
 
   it("should sign a message correctly", async () => {
@@ -121,10 +118,10 @@ describe("NativeETHWallet", () => {
       }
     `);*/
     expect(
-      computeAddress(
-        recoverPublicKey(
-          keccak256(new TextEncoder().encode(`\x19Ethereum Signed Message:\n${msg.length}${msg}`)),
-          splitSignature(sig!.signature)
+      ethers.utils.computeAddress(
+        ethers.utils.recoverPublicKey(
+          ethers.utils.keccak256(new TextEncoder().encode(`\x19Ethereum Signed Message:\n${msg.length}${msg}`)),
+          ethers.utils.splitSignature(sig!.signature)
         )
       )
     ).toEqual(sig!.address);

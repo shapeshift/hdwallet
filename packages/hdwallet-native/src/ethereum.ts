@@ -1,7 +1,6 @@
-import * as hdNode from "@shapeshiftoss/ethers-hdnode";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import txDecoder from "ethereum-tx-decoder";
-import * as ethers from "@shapeshiftoss/ethers";
+import * as ethers from "ethers";
 import _ from "lodash";
 
 import { NativeHDWalletBase } from "./native";
@@ -48,27 +47,27 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
   return class MixinNativeETHWallet extends Base {
     readonly _supportsETH = true;
 
-    #ethWallet: ethers.Wallet | undefined;
+    #ethSigner: ethers.Signer | undefined;
 
     async ethInitializeWallet(seed: Isolation.Core.BIP32.Seed): Promise<void> {
-      const isolatedSigner = new Isolation.Adapters.BIP32(seed.toMasterKey()).derivePath(hdNode.defaultPath);
-      this.#ethWallet = new ethers.Wallet(new Isolation.Adapters.Ethereum(isolatedSigner));
+      const isolatedSigner = new Isolation.Adapters.BIP32(seed.toMasterKey()).derivePath(ethers.utils.defaultPath);
+      this.#ethSigner = new Isolation.Adapters.Ethereum(isolatedSigner);
     }
 
     ethWipe() {
-      this.#ethWallet = undefined;
+      this.#ethSigner = undefined;
     }
 
     async ethGetAddress(msg: core.ETHGetAddress): Promise<string | null> {
       if (!_.isEqual(msg.addressNList, core.bip32ToAddressNList("m/44'/60'/0'/0/0"))) throw new Error("path not supported");
-      return this.needsMnemonic(!!this.#ethWallet, () => this.#ethWallet!.getAddress());
+      return this.needsMnemonic(!!this.#ethSigner, () => this.#ethSigner!.getAddress());
     }
 
     async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {
-      return this.needsMnemonic(!!this.#ethWallet, async () => {
-        const result = await this.#ethWallet!.signTransaction({
+      return this.needsMnemonic(!!this.#ethSigner, async () => {
+        const result = await this.#ethSigner!.signTransaction({
           to: msg.to,
-          from: await this.#ethWallet!.getAddress(),
+          from: await this.#ethSigner!.getAddress(),
           nonce: msg.nonce,
           gasLimit: msg.gasLimit,
           gasPrice: msg.gasPrice,
@@ -87,10 +86,10 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     }
 
     async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
-      return this.needsMnemonic(!!this.#ethWallet, async () => {
-        const result = await this.#ethWallet!.signMessage(msg.message);
+      return this.needsMnemonic(!!this.#ethSigner, async () => {
+        const result = await this.#ethSigner!.signMessage(msg.message);
         return {
-          address: await this.#ethWallet!.getAddress(),
+          address: await this.#ethSigner!.getAddress(),
           signature: result,
         };
       });

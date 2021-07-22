@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@bithighlander/bitcoin-cash-js-lib": "5.2.1",
-    "@shapeshiftoss/ethers": "5.3.0-shapeshift.1",
     "@shapeshiftoss/fiosdk": "1.2.1-shapeshift.4",
     "@shapeshiftoss/hdwallet-core": "1.15.4",
     "@zxing/text-encoding": "^0.9.0",
@@ -26,6 +25,7 @@
     "bnb-javascript-sdk-nobroadcast": "^2.16.14",
     "crypto-js": "^4.0.0",
     "ethereum-tx-decoder": "^3.0.0",
+    "ethers": "5.4.1",
     "eventemitter2": "^5.0.1",
     "funtypes": "^3.0.1",
     "lodash": "^4.17.21",
