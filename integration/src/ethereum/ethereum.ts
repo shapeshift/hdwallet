@@ -140,6 +140,60 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
     );
 
     test(
+      "ethSignTx() - ETH EIP-1559",
+      async () => {
+        if (!wallet) return;
+        let res = await wallet.ethSignTx({
+          addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+          nonce: "0x01",
+          gasPrice: "0x1dcd65000",
+          gasLimit: "0x5622",
+          maxFeePerGas: "0x400",
+          maxPriorityFeePerGas: "0x400",
+          value: "0x2c68af0bb14000",
+          to: "0x12eC06288EDD7Ae2CC41A843fE089237fC7354F0",
+          chainId: 1,
+          data: "",
+        });
+        expect(res).toEqual({
+          r: "0x63db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0a",
+          s: "0x28297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
+          v: 38,
+          serialized:
+            "0xf86b018501dcd650008256229412ec06288edd7ae2cc41a843fe089237fc7354f0872c68af0bb140008026a063db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0aa028297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
+        });
+      },
+      TIMEOUT
+    );
+
+    test(
+      "ethSignTx() - ETH EIP-1559 (optional)",
+      async () => {
+        if (!wallet) return;
+        let res = await wallet.ethSignTx({
+          addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+          nonce: "0x01",
+          gasPrice: "0x1dcd65000",
+          gasLimit: "0x5622",
+          maxFeePerGas: "",
+          maxPriorityFeePerGas: "",
+          value: "0x2c68af0bb14000",
+          to: "0x12eC06288EDD7Ae2CC41A843fE089237fC7354F0",
+          chainId: 1,
+          data: "",
+        });
+        expect(res).toEqual({
+          r: "0x63db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0a",
+          s: "0x28297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
+          v: 38,
+          serialized:
+            "0xf86b018501dcd650008256229412ec06288edd7ae2cc41a843fe089237fc7354f0872c68af0bb140008026a063db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0aa028297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
+        });
+      },
+      TIMEOUT
+    );
+
+    test(
       "ethSignTx() - ERC20",
       async () => {
         if (!wallet) return;
