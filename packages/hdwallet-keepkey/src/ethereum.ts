@@ -34,7 +34,7 @@ export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHA
 }
 
 function stripLeadingZeroes(buf: Uint8Array) {
-  const firstZeroIndex = buf.findIndex(x => x !== 0);
+  const firstZeroIndex = buf.findIndex((x) => x !== 0);
   return buf.slice(firstZeroIndex !== -1 ? firstZeroIndex : buf.length);
 }
 
@@ -43,8 +43,16 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
     const est: Messages.EthereumSignTx = new Messages.EthereumSignTx();
     est.setAddressNList(msg.addressNList);
     est.setNonce(stripLeadingZeroes(core.arrayify(msg.nonce)));
-    est.setGasPrice(core.arrayify(msg.gasPrice));
     est.setGasLimit(core.arrayify(msg.gasLimit));
+    if (msg.gasPrice) {
+      est.setGasPrice(core.arrayify(msg.gasPrice));
+    }
+    if (msg.maxFeePerGas) {
+      est.setMaxFeePerGas(core.arrayify(msg.maxFeePerGas));
+    }
+    if (msg.maxPriorityFeePerGas) {
+      est.setMaxPriorityFeePerGas(core.arrayify(msg.maxPriorityFeePerGas));
+    }
     if (msg.value.match("^0x0*$") === null) {
       est.setValue(core.arrayify(msg.value));
     }
@@ -142,6 +150,8 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
       nonce: msg.nonce,
       gasLimit: msg.gasLimit,
       gasPrice: msg.gasPrice,
+      maxFeePerGas: msg.maxFeePerGas,
+      maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
       r,
       s,
       v: v2,
@@ -162,7 +172,11 @@ export async function ethGetAddress(transport: Transport, msg: core.ETHGetAddres
   const getAddr = new Messages.EthereumGetAddress();
   getAddr.setAddressNList(msg.addressNList);
   getAddr.setShowDisplay(msg.showDisplay !== false);
-  const response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMGETADDRESS, getAddr, core.LONG_TIMEOUT);
+  const response = await transport.call(
+    Messages.MessageType.MESSAGETYPE_ETHEREUMGETADDRESS,
+    getAddr,
+    core.LONG_TIMEOUT
+  );
   const ethAddress = response.proto as Messages.EthereumAddress;
 
   if (response.message_type === core.Events.FAILURE) throw response;
@@ -179,7 +193,11 @@ export async function ethSignMessage(transport: Transport, msg: core.ETHSignMess
   const m = new Messages.EthereumSignMessage();
   m.setAddressNList(msg.addressNList);
   m.setMessage(toUTF8Array(msg.message));
-  const response = (await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNMESSAGE, m, core.LONG_TIMEOUT)) as core.Event;
+  const response = (await transport.call(
+    Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNMESSAGE,
+    m,
+    core.LONG_TIMEOUT
+  )) as core.Event;
   const sig = response.proto as Messages.EthereumMessageSignature;
   return {
     address: eip55.encode("0x" + core.toHexString(sig.getAddress_asU8())), // FIXME: this should be done in the firmware
@@ -192,7 +210,11 @@ export async function ethVerifyMessage(transport: Transport, msg: core.ETHVerify
   m.setAddress(core.arrayify(msg.address));
   m.setSignature(core.arrayify(msg.signature));
   m.setMessage(toUTF8Array(msg.message));
-  const event = (await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMVERIFYMESSAGE, m, core.LONG_TIMEOUT)) as core.Event;
+  const event = (await transport.call(
+    Messages.MessageType.MESSAGETYPE_ETHEREUMVERIFYMESSAGE,
+    m,
+    core.LONG_TIMEOUT
+  )) as core.Event;
   const success = event.proto as Messages.Success;
   return success.getMessage() === "Message verified";
 }

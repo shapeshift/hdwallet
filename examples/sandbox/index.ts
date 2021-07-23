@@ -948,7 +948,7 @@ $thorchainSignSwap.on("click", async (e) => {
           {
             address: "bc1q6m9u2qsu8mh8y7v8rr2ywavtj8g5arzlyhcej7",
             addressType: core.BTCOutputAddressType.Spend,
-            opReturnData: Buffer.from(memo, 'utf-8'),
+            opReturnData: Buffer.from(memo, "utf-8"),
             amount: String(0),
             isChange: false,
           },
@@ -960,7 +960,7 @@ $thorchainSignSwap.on("click", async (e) => {
           outputs: outputs,
           version: 1,
           locktime: 0,
-          opReturnData: memo
+          opReturnData: memo,
         });
 
         $thorchainSwapResults.val(res.serializedTx);
@@ -1106,7 +1106,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
         let outputs = [
           {
             addressType: core.BTCOutputAddressType.Spend,
-            opReturnData: Buffer.from(memo, 'utf-8'),
+            opReturnData: Buffer.from(memo, "utf-8"),
             amount: $thorchainLiquidityAmount.val(),
             isChange: false,
           },
@@ -1149,10 +1149,10 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
       if (core.supportsBinance(wallet)) {
         tx = thorchainBinanceBaseTx;
         tx["memo"] = memo;
-        tx["msgs"]["outputs"][0] =           {
-          "address": $thorchainLiquidityPoolAddress.val(),
-          "coins": [{ "amount": $thorchainLiquidityAmount.val(), "denom": "BNB" }]
-        }
+        tx["msgs"]["outputs"][0] = {
+          address: $thorchainLiquidityPoolAddress.val(),
+          coins: [{ amount: $thorchainLiquidityAmount.val(), denom: "BNB" }],
+        };
         let res = await wallet.binanceSignTx({
           addressNList: core.bip32ToAddressNList(`m/44'/714'/0'/0/0`),
           chain_id: "Binance-Chain-Nile",
@@ -1170,10 +1170,10 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
       if (core.supportsBinance(wallet)) {
         tx = thorchainNativeRuneBaseTx;
         tx["memo"] = memo;
-        tx["msgs"]["outputs"][0] =           {
-          "address": $thorchainLiquidityPoolAddress.val(),
-          "coins": [{ "amount": $thorchainLiquidityAmount.val(), "denom": "BNB" }]
-        }
+        tx["msgs"]["outputs"][0] = {
+          address: $thorchainLiquidityPoolAddress.val(),
+          coins: [{ amount: $thorchainLiquidityAmount.val(), denom: "BNB" }],
+        };
         let res = await wallet.binanceSignTx({
           addressNList: core.bip32ToAddressNList(`m/44'/714'/0'/0/0`),
           chain_id: "Binance-Chain-Nile",
@@ -1191,10 +1191,10 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
       if (core.supportsThorchain(wallet)) {
         tx = thorchainUnsignedTx;
         tx["memo"] = memo;
-        tx["msgs"]["outputs"][0] =           {
-          "address": $thorchainLiquidityPoolAddress.val(),
-          "coins": [{ "amount": $thorchainLiquidityAmount.val(), "denom": "RUNE" }]
-        }
+        tx["msgs"]["outputs"][0] = {
+          address: $thorchainLiquidityPoolAddress.val(),
+          coins: [{ amount: $thorchainLiquidityAmount.val(), denom: "RUNE" }],
+        };
         console.log(tx);
         let res = await wallet.thorchainSignTx({
           addressNList: core.bip32ToAddressNList(`m/44'/931'/0'/0/0`),
@@ -1243,6 +1243,40 @@ const $ethTx = $("#ethTx");
 const $ethSign = $("#ethSign");
 const $ethVerify = $("#ethVerify");
 const $ethResults = $("#ethResults");
+const $ethEIP1559 = $("#ethEIP1559");
+
+let ethEIP1559Selected = false;
+
+const ethTx = {
+  addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+  nonce: "0x0",
+  gasPrice: "0x5FB9ACA00",
+  gasLimit: "0x186A0",
+  value: "0x00",
+  to: "0x41e5560054824ea6b0732e656e3ad64e20e94e45",
+  chainId: 1,
+  data:
+    "0x" +
+    "a9059cbb000000000000000000000000" +
+    "9BB9E5bb9b04e8CE993104309A1f180feBf63DB6" +
+    "0000000000000000000000000000000000000000000000000000000005F5E100",
+};
+
+const ethTx1559 = {
+  addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+  nonce: "0x0",
+  gasLimit: "0x5FB9ACA00",
+  maxFeePerGas: "0x186A0",
+  maxPriorityFeePerGas: "0x186A0",
+  value: "0x00",
+  to: "0x41e5560054824ea6b0732e656e3ad64e20e94e45",
+  chainId: 1,
+  data:
+    "0x" +
+    "a9059cbb000000000000000000000000" +
+    "9BB9E5bb9b04e8CE993104309A1f180feBf63DB6" +
+    "0000000000000000000000000000000000000000000000000000000005F5E100",
+};
 
 $ethAddr.on("click", async (e) => {
   e.preventDefault();
@@ -1279,20 +1313,7 @@ $ethTx.on("click", async (e) => {
     return;
   }
   if (core.supportsETH(wallet)) {
-    let res = await wallet.ethSignTx({
-      addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-      nonce: "0x0",
-      gasPrice: "0x5FB9ACA00",
-      gasLimit: "0x186A0",
-      value: "0x00",
-      to: "0x41e5560054824ea6b0732e656e3ad64e20e94e45",
-      chainId: 1,
-      data:
-        "0x" +
-        "a9059cbb000000000000000000000000" +
-        "9BB9E5bb9b04e8CE993104309A1f180feBf63DB6" +
-        "0000000000000000000000000000000000000000000000000000000005F5E100",
-    });
+    let res = ethEIP1559Selected ? await wallet.ethSignTx(ethTx1559) : await wallet.ethSignTx(ethTx);
     $ethResults.val(JSON.stringify(res));
   } else {
     let label = await wallet.getLabel();
@@ -1340,6 +1361,15 @@ $ethVerify.on("click", async (e) => {
     let label = await wallet.getLabel();
     $ethResults.val(label + " does not support ETH");
   }
+});
+
+$ethEIP1559.on("click", async (e) => {
+  if (!ethEIP1559Selected) {
+    $ethEIP1559.attr("class", "button");
+  } else {
+    $ethEIP1559.attr("class", "button-outline");
+  }
+  ethEIP1559Selected = !ethEIP1559Selected;
 });
 
 /*
@@ -2103,8 +2133,7 @@ $dgbTx.on("click", async (e) => {
         vout: 15,
         txid: "be150359df4123b379f1f12de978bfced92644645da17b97c7613879f4306a90",
         tx: null,
-        hex:
-          "01000000010b89406fd53f648dbf5cc7a46443794487684833c4bb7a067c86bdcf88362d4b010000006b4830450221009b38f01ca6b06c9fddb5d17ecaf306b140181074e06d50d38b4f61bc81c34d0202200eb9d37f551f6599a3488a8215cf53a347ced76b1dfb1c171855390a5576cd5a012102ee6d4720bc42ae172a1b1fbd1c0fccf4b9f364054f5ba1681f5e206c3b3a4d65ffffffff14486b9e7e750000001976a914f972645c9db830433fe9672b55452b4310c9501288ac0066a957160000001976a914584df25dff6f9eff9a86f2a49807249417913de288ac00bb4547170000001976a914cf934b123f7d1d0e6ecceff45dd881c6b3a1a7c588ac0020bcbe000000001976a91445ef856d2aa149ad66c4f98b115cd53ac88bcbbe88ac0063fe4e090000001976a91464d0c1a15eedb75f74a05b7282bbfc425e9a41ef88ac008b10e72e0300001976a91423cacb5aa41a375e057a38920396e889dd431e4d88ac6b884a1e0f0000001976a9149a32a47d48569012e3539a4be52c9436af9337a788ac003d7bc1210000001976a9147ba2fcb7d0d1321d8501019c2d9f68848e70bf7a88ac00389c1c0000000017a914d3b07c1aaea886f8ceddedec440623f812e49ddc87599e220afc0000001976a914e05ed2af3b5e20f3481e17fa26ef220a70237d7f88ac5475e2d91c0000001976a9147403f2f35e9c9e1f465a34d03afb7ff85f50770588acc9a9ce043c0000001976a914510fffca0668d410aea742e95a2fefa7952f695e88acf8f71c55890000001976a914916014ab503133671da74cfa18570debc332d63888acdfdeae45000000001976a9149cfc24e08cb9189839b0b5c973dec6cc1e1e662488ac8d10f92b954000001976a91433eed4c1b486b6c51824eab5a5d25dc47e0acc7e88ac00389c1c000000001976a914a4b8f22d44a76f96e035a75e01d55fc4cad081e188ac855ed4696f0000001976a9148d18463cb1e415242e49dfd3154a0edfcf16f25988ac439d5ff7180000001976a9144227b8ea4d92a707402bc96378a19ff5d83c5f9088ac9d2724980e0000001976a914b721f681fdbf9541cc5e2aed31a1fbb16a727fdf88ac893d1cf2e20000001976a91442f1d1103b1e9e10efdb5a0b1b88dfe627467dc288ac00000000",
+        hex: "01000000010b89406fd53f648dbf5cc7a46443794487684833c4bb7a067c86bdcf88362d4b010000006b4830450221009b38f01ca6b06c9fddb5d17ecaf306b140181074e06d50d38b4f61bc81c34d0202200eb9d37f551f6599a3488a8215cf53a347ced76b1dfb1c171855390a5576cd5a012102ee6d4720bc42ae172a1b1fbd1c0fccf4b9f364054f5ba1681f5e206c3b3a4d65ffffffff14486b9e7e750000001976a914f972645c9db830433fe9672b55452b4310c9501288ac0066a957160000001976a914584df25dff6f9eff9a86f2a49807249417913de288ac00bb4547170000001976a914cf934b123f7d1d0e6ecceff45dd881c6b3a1a7c588ac0020bcbe000000001976a91445ef856d2aa149ad66c4f98b115cd53ac88bcbbe88ac0063fe4e090000001976a91464d0c1a15eedb75f74a05b7282bbfc425e9a41ef88ac008b10e72e0300001976a91423cacb5aa41a375e057a38920396e889dd431e4d88ac6b884a1e0f0000001976a9149a32a47d48569012e3539a4be52c9436af9337a788ac003d7bc1210000001976a9147ba2fcb7d0d1321d8501019c2d9f68848e70bf7a88ac00389c1c0000000017a914d3b07c1aaea886f8ceddedec440623f812e49ddc87599e220afc0000001976a914e05ed2af3b5e20f3481e17fa26ef220a70237d7f88ac5475e2d91c0000001976a9147403f2f35e9c9e1f465a34d03afb7ff85f50770588acc9a9ce043c0000001976a914510fffca0668d410aea742e95a2fefa7952f695e88acf8f71c55890000001976a914916014ab503133671da74cfa18570debc332d63888acdfdeae45000000001976a9149cfc24e08cb9189839b0b5c973dec6cc1e1e662488ac8d10f92b954000001976a91433eed4c1b486b6c51824eab5a5d25dc47e0acc7e88ac00389c1c000000001976a914a4b8f22d44a76f96e035a75e01d55fc4cad081e188ac855ed4696f0000001976a9148d18463cb1e415242e49dfd3154a0edfcf16f25988ac439d5ff7180000001976a9144227b8ea4d92a707402bc96378a19ff5d83c5f9088ac9d2724980e0000001976a914b721f681fdbf9541cc5e2aed31a1fbb16a727fdf88ac893d1cf2e20000001976a91442f1d1103b1e9e10efdb5a0b1b88dfe627467dc288ac00000000",
       },
       {
         addressNList: dgbBip44.addressNList.concat([0, 0]),
@@ -2113,8 +2142,7 @@ $dgbTx.on("click", async (e) => {
         vout: 0,
         txid: "528ec23eaf123282e9bce297ebb3edfb05e8b4d5875cbc9c271a98d72a202340",
         tx: null,
-        hex:
-          "0100000001442377be8a2c1d8769dd417382f8ac1a35f33c86de89e2dcf997522e7ae9e6b7000000006a473044022004f4072085e7a9e1f84cb77653f02f7a5b301b3d3514fe750e86d42f617c429a0220338f779601a38ff18c7adfd1a1ccd8f723de12ff4f9c41b7b72f1c0f6f4738ac012103723d91852ec39078fb9d167fe2c4e86be1325057d707ab69ce625699d86a537fffffffff0280969800000000001976a914a4b8f22d44a76f96e035a75e01d55fc4cad081e188ac66e00c16000000001976a9144afe51fbe5fb6cd4814ce74b31d7535a5f4a63bc88ac00000000",
+        hex: "0100000001442377be8a2c1d8769dd417382f8ac1a35f33c86de89e2dcf997522e7ae9e6b7000000006a473044022004f4072085e7a9e1f84cb77653f02f7a5b301b3d3514fe750e86d42f617c429a0220338f779601a38ff18c7adfd1a1ccd8f723de12ff4f9c41b7b72f1c0f6f4738ac012103723d91852ec39078fb9d167fe2c4e86be1325057d707ab69ce625699d86a537fffffffff0280969800000000001976a914a4b8f22d44a76f96e035a75e01d55fc4cad081e188ac66e00c16000000001976a9144afe51fbe5fb6cd4814ce74b31d7535a5f4a63bc88ac00000000",
       },
     ];
 

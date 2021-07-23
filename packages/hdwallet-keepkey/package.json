@@ -15,7 +15,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@keepkey/device-protocol": "^7.2.1",
+    "@keepkey/device-protocol": "^7.2.3",
     "@shapeshiftoss/hdwallet-core": "1.15.4",
     "bignumber.js": "^9.0.1",
     "bnb-javascript-sdk-nobroadcast": "^2.16.14",
