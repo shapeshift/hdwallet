@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/integration",
-  "version": "1.15.4",
+  "version": "1.15.5-alpha.0",
   "main": "index.js",
   "license": "MIT",
   "private": true,
@@ -10,11 +10,11 @@
     "dev": "lerna run test --scope integration --parallel --include-filtered-dependencies"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "1.15.4",
-    "@shapeshiftoss/hdwallet-keepkey": "1.15.4",
-    "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "1.15.4",
-    "@shapeshiftoss/hdwallet-keepkey-tcp": "1.15.4",
-    "@shapeshiftoss/hdwallet-trezor": "1.15.4",
+    "@shapeshiftoss/hdwallet-core": "1.15.5-alpha.0",
+    "@shapeshiftoss/hdwallet-keepkey": "1.15.5-alpha.0",
+    "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "1.15.5-alpha.0",
+    "@shapeshiftoss/hdwallet-keepkey-tcp": "1.15.5-alpha.0",
+    "@shapeshiftoss/hdwallet-trezor": "1.15.5-alpha.0",
     "@types/debug": "^4.1.5",
     "@types/jest": "^26.0.23",
     "debug": "^4.2.0",
