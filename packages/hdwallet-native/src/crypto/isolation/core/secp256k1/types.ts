@@ -1,9 +1,8 @@
 
 import * as core from "@shapeshiftoss/hdwallet-core"
-import * as tinyecc from "tiny-secp256k1";
+import * as ethers from "ethers"
 import { Literal, Partial, Object as Obj, Static, Union } from "funtypes";
-import { recoverPublicKey as ethRecoverPublicKey } from "@shapeshiftoss/ethers-signing-key";
-import { splitSignature as ethSplitSignature } from "@shapeshiftoss/ethers-bytes";
+import * as tinyecc from "tiny-secp256k1";
 
 import { Digest } from "../digest";
 import { BigEndianInteger, ByteArray, Uint32, checkType, safeBufferFrom } from "../../types";
@@ -170,7 +169,7 @@ const recoverableSignatureStatic = {
     recoverPublicKey: (x: RecoverableSignature, message: Message): CurvePoint => {
       // TODO: do this better
       const ethSigBytes = core.compatibleBufferConcat([x, Buffer.from([x.recoveryParam])]);
-      const ethRecovered = ethRecoverPublicKey(message, ethSplitSignature(ethSigBytes));
+      const ethRecovered = ethers.utils.recoverPublicKey(message, ethers.utils.splitSignature(ethSigBytes));
       return checkType(UncompressedPoint, Buffer.from(ethRecovered.slice(2), "hex"));
     },
 };

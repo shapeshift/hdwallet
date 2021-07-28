@@ -1,57 +1,58 @@
-import { SigningKey as ETHSigningKey } from "@shapeshiftoss/ethers-signing-key";
-import { splitSignature, BytesLike, Signature as ethSignature, arrayify } from "@shapeshiftoss/ethers-bytes";
 import * as core from "@shapeshiftoss/hdwallet-core"
-import * as tinyecc from "tiny-secp256k1";
+import * as ethers from "ethers";
 
 import { SecP256K1, Digest } from "../core";
-import { checkType } from "../types";
 
-export class SigningKeyAdapter implements ETHSigningKey {
+export class SignerAdapter extends ethers.Signer {
   protected readonly _isolatedKey: SecP256K1.ECDSAKey & SecP256K1.ECDHKey;
-  constructor(isolatedKey: SecP256K1.ECDSAKey & SecP256K1.ECDHKey) {
+  readonly provider?: ethers.providers.Provider
+
+  constructor(isolatedKey: SecP256K1.ECDSAKey & SecP256K1.ECDHKey, provider?: ethers.providers.Provider) {
+    super();
     this._isolatedKey = isolatedKey;
+    this.provider = provider;
   }
 
-  get _isSigningKey() {
-    return true;
-  }
-  get curve() {
-    return "secp256k1";
-  }
-  get publicKey() {
-    return `0x${Buffer.from(SecP256K1.UncompressedPoint.from(this._isolatedKey.publicKey)).toString("hex")}`;
-  }
-  get compressedPublicKey() {
-    return `0x${Buffer.from(SecP256K1.CompressedPoint.from(this._isolatedKey.publicKey)).toString("hex")}`;
+  connect(provider: ethers.providers.Provider): SignerAdapter {
+    return new SignerAdapter(this._isolatedKey, provider);
   }
 
-  get privateKey() {
-    return "";
+  async getAddress(): Promise<string> {
+    return ethers.utils.computeAddress(SecP256K1.UncompressedPoint.from(this._isolatedKey.publicKey));
   }
 
-  _addPoint(other: BytesLike): string {
-    if (typeof other === "string") other = Buffer.from((other.startsWith("0x") ? other.slice(2) : other), "hex");
-    return `0x${tinyecc.pointAddScalar(Buffer.from(this._isolatedKey.publicKey), Buffer.from(Uint8Array.from(other)), true)}`;
+  async signDigest(digest: ethers.BytesLike): Promise<ethers.Signature> {
+    const rawSig = await SecP256K1.RecoverableSignature.signCanonically(this._isolatedKey, digest instanceof Uint8Array ? digest : ethers.utils.arrayify(digest));
+    return ethers.utils.splitSignature(core.compatibleBufferConcat([rawSig, Buffer.from([rawSig.recoveryParam])]));
   }
-  async signDigest(digest: BytesLike): Promise<ethSignature> {
-    const rawSig = await SecP256K1.RecoverableSignature.signCanonically(this._isolatedKey, digest instanceof Uint8Array ? digest : arrayify(digest));
-    return splitSignature(core.compatibleBufferConcat([rawSig, Buffer.from([rawSig.recoveryParam])]));
+
+  async signTransaction(transaction: ethers.utils.Deferrable<ethers.providers.TransactionRequest>): Promise<string> {
+    const tx = await ethers.utils.resolveProperties(transaction);
+    if (tx.from != null) {
+      if (ethers.utils.getAddress(tx.from) !== await this.getAddress()) {
+        throw new Error("transaction from address mismatch");
+      }
+      delete tx.from;
+    }
+    const unsignedTx: ethers.UnsignedTransaction = {
+      ...tx,
+      nonce: tx.nonce !== undefined ? ethers.BigNumber.from(tx.nonce).toNumber() : undefined,
+    }
+
+    const txBuf = ethers.utils.arrayify(ethers.utils.serializeTransaction(unsignedTx));
+    const signature = await this.signDigest(Digest.Algorithms["keccak256"](txBuf));
+    return ethers.utils.serializeTransaction(unsignedTx, signature);
   }
-  async signTransaction(txData: BytesLike): Promise<ethSignature> {
-    const txBuf = arrayify(txData);
-    return this.signDigest(Digest.Algorithms["keccak256"](txBuf));
-  }
-  async signMessage(messageData: BytesLike | string): Promise<ethSignature> {
+
+  async signMessage(messageData: ethers.Bytes | string): Promise<string> {
     const messageDataBuf =
       typeof messageData === "string"
         ? Buffer.from(messageData.normalize("NFKD"), "utf8")
-        : Buffer.from(arrayify(messageData));
+        : Buffer.from(ethers.utils.arrayify(messageData));
     const messageBuf = core.compatibleBufferConcat([Buffer.from(`\x19Ethereum Signed Message:\n${messageDataBuf.length}`, "utf8"), messageDataBuf]);
-    return this.signDigest(Digest.Algorithms["keccak256"](messageBuf));
-  }
-  async computeSharedSecret(otherKey: BytesLike): Promise<string> {
-    return `0x${await this._isolatedKey.ecdh(checkType(SecP256K1.CurvePoint, arrayify(otherKey)))}`;
+    const signature = await this.signDigest(Digest.Algorithms["keccak256"](messageBuf));
+    return ethers.utils.joinSignature(signature);
   }
 }
 
-export default SigningKeyAdapter;
+export default SignerAdapter;
