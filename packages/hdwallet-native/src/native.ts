@@ -6,6 +6,7 @@ import _ from "lodash";
 import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binance";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
+import { MixinNativeOsmosisWallet, MixinNativeOsmosisWalletInfo } from "./osmosis";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
 import { MixinNativeFioWalletInfo, MixinNativeFioWallet } from "./fio";
 import { MixinNativeKavaWalletInfo, MixinNativeKavaWallet } from "./kava";
@@ -102,7 +103,13 @@ class NativeHDWalletInfo
         MixinNativeCosmosWalletInfo(
           MixinNativeBinanceWalletInfo(
             MixinNativeThorchainWalletInfo(
-              MixinNativeSecretWalletInfo(MixinNativeTerraWalletInfo(MixinNativeKavaWalletInfo(NativeHDWalletBase)))
+              MixinNativeSecretWalletInfo(
+                MixinNativeTerraWalletInfo(
+                  MixinNativeKavaWalletInfo(
+                    MixinNativeOsmosisWalletInfo(NativeHDWalletBase)
+                  )
+                )
+              )
             )
           )
         )
@@ -163,7 +170,13 @@ export class NativeHDWallet
         MixinNativeCosmosWallet(
           MixinNativeBinanceWallet(
             MixinNativeThorchainWallet(
-              MixinNativeSecretWallet(MixinNativeTerraWallet(MixinNativeKavaWallet(NativeHDWalletInfo)))
+              MixinNativeSecretWallet(
+                MixinNativeTerraWallet(
+                  MixinNativeKavaWallet(
+                    MixinNativeOsmosisWallet(NativeHDWalletInfo)
+                  )
+                )
+              )
             )
           )
         )
@@ -174,6 +187,7 @@ export class NativeHDWallet
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
   readonly _supportsCosmos = true;
+  readonly _supportsOsmosis = true;
   readonly _supportsBinance = true;
   readonly _supportsFio = true;
   readonly _supportsThorchain = true;
@@ -254,6 +268,7 @@ export class NativeHDWallet
           super.btcInitializeWallet(seed),
           super.ethInitializeWallet(seed),
           super.cosmosInitializeWallet(seed),
+          super.osmosisInitializeWallet(seed),
           super.binanceInitializeWallet(seed),
           super.fioInitializeWallet(seed),
           super.thorchainInitializeWallet(seed),
@@ -294,6 +309,7 @@ export class NativeHDWallet
     super.btcWipe();
     super.ethWipe();
     super.cosmosWipe();
+    super.osmosisWipe();
     super.binanceWipe();
     super.fioWipe();
     super.thorchainWipe();
