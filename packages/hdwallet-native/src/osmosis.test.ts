@@ -9,7 +9,7 @@ afterEach(() => expect(mswMock).not.toHaveBeenCalled());
 
 const untouchable = require("untouchableMock");
 
-describe("NativeOsmosisWalletInfo", () => {
+describe.only("NativeOsmosisWalletInfo", () => {
   const info = native.info();
 
   it("should return some static metadata", async () => {
