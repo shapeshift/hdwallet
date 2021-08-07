@@ -13,7 +13,7 @@ const TIMEOUT = 60 * 1000;
 export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
   let wallet: core.OsmosisWallet & core.HDWallet;
 
-  describe.only("Osmosis", () => {
+  describe("Osmosis", () => {
     beforeAll(async () => {
       const { wallet: w } = get();
       if (core.supportsOsmosis(w)) wallet = w;

@@ -31,6 +31,8 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
   readonly _supportsBTC = true;
   readonly _supportsCosmosInfo = false;
   readonly _supportsCosmos = false;
+  readonly _supportsOsmosisInfo = false;
+  readonly _supportsOsmosis = false;
   readonly _supportsBinanceInfo = false;
   readonly _supportsBinance = false;
   readonly _supportsDebugLink = false;
