@@ -102,7 +102,7 @@ export function integration(suite: WalletSuite): void {
         wallet = await suite.createWallet("Osmosis");
       });
 
-      cosmosTests(() => ({ wallet, info }));
+      osmosisTests(() => ({ wallet, info }));
     });
 
     describe("BinanceWallet", () => {
