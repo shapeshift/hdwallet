@@ -21,7 +21,7 @@
     "bitcoinjs-lib": "^5.1.6",
     "bitcoinjs-message": "^2.1.0",
     "lodash": "^4.17.15",
-    "web3": "^1.2.1"
+    "web3": "^1.5.1"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.168",
