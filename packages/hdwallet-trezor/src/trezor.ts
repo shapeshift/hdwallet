@@ -321,7 +321,7 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   public async getLabel(): Promise<string> {
     let features = await this.getFeatures(/*cached*/ true);
-    return features.label;
+    return typeof features.label === "string" ? features.label : "";
   }
 
   public async getFeatures(cached: boolean = false): Promise<any> {

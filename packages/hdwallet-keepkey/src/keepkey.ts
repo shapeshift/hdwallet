@@ -658,7 +658,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   }
 
   public async getLabel(): Promise<string> {
-    return core.mustBeDefined((await this.getFeatures(/*cached=*/ true)).label);
+    return (await this.getFeatures(/*cached=*/ true)).label ?? "";
   }
 
   public async isInitialized(): Promise<boolean> {
