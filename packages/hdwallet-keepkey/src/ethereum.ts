@@ -2,7 +2,8 @@ import * as Exchange from "@keepkey/device-protocol/lib/exchange_pb";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import EthereumTx from "ethereumjs-tx";
+import Common from "@ethereumjs/common";
+import { TransactionFactory } from "@ethereumjs/tx";
 import * as eip55 from "eip55";
 
 import { toUTF8Array, translateInputScriptType } from "./utils";
@@ -136,12 +137,6 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
       throw new Error("Failed to sign ETH transaction");
     }
 
-    const r = "0x" + core.toHexString(response.getSignatureR_asU8());
-    const s = "0x" + core.toHexString(response.getSignatureS_asU8());
-    const v = response.getSignatureV();
-    if (!v) throw new Error("could not get v");
-    const v2 = "0x" + v.toString(16);
-
     const utx = {
       to: msg.to,
       value: msg.value,
@@ -152,12 +147,16 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
       gasPrice: msg.gasPrice,
       maxFeePerGas: msg.maxFeePerGas,
       maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
-      r,
-      s,
-      v: v2,
     };
 
-    const tx = new EthereumTx(utx);
+    const r = "0x" + core.toHexString(response.getSignatureR_asU8());
+    const s = "0x" + core.toHexString(response.getSignatureS_asU8());
+    const v = response.getSignatureV();
+    if (!v) throw new Error("could not get v");
+    const v2 = "0x" + v.toString(16);
+
+    const common = new Common({ chain: "mainnet", hardfork: "london" });
+    const tx = TransactionFactory.fromTxData({ ...utx, r: r, s: s, v: v2 }, { common });
 
     return {
       r,

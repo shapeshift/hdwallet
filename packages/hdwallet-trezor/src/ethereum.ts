@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import EthereumTx from "ethereumjs-tx";
+import Common from "@ethereumjs/common";
+import { Transaction } from "@ethereumjs/tx";
 
 import { handleError } from "./utils";
 import { TrezorTransport } from "./transport";
@@ -51,10 +52,8 @@ export async function ethSignTx(
 
   handleError(transport, res, "Could not sign ETH transaction with Trezor");
 
-  const tx = new EthereumTx(utx);
-  tx.v = res.payload.v;
-  tx.r = res.payload.r;
-  tx.s = res.payload.s;
+  const common = new Common({ chain: "mainnet", hardfork: "london" });
+  const tx = Transaction.fromTxData({ ...utx, v: res.payload.v, r: res.payload.r, s: res.payload.s }, { common });
 
   return {
     v: parseInt(res.payload.v),
