@@ -63,7 +63,7 @@ export function MixinNativeOsmosisWallet<TBase extends core.Constructor<NativeHD
       const message = CryptoJS.SHA256(CryptoJS.enc.Hex.parse(publicKey));
       const hash = CryptoJS.RIPEMD160(message as any).toString();
       const address = Buffer.from(hash, `hex`);
-      return this.osmosisBech32ify(address, `osmosis`);
+      return this.osmosisBech32ify(address, `osmo`);
     }
 
     async osmosisGetAddress(msg: core.OsmosisGetAddress): Promise<string | null> {

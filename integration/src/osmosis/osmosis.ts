@@ -49,7 +49,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
             addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
             showDisplay: false,
           })
-        ).toEqual("");
+        ).toEqual("osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq");
       },
       TIMEOUT
     );

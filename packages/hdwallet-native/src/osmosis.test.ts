@@ -9,7 +9,7 @@ afterEach(() => expect(mswMock).not.toHaveBeenCalled());
 
 const untouchable = require("untouchableMock");
 
-describe.only("NativeOsmosisWalletInfo", () => {
+describe("NativeOsmosisWalletInfo", () => {
   const info = native.info();
 
   it("should return some static metadata", async () => {
@@ -40,13 +40,13 @@ describe("NativeOsmosisWallet", () => {
   it("should generate a correct osmosis address", async () => {
     expect(
       await wallet.osmosisGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0") })
-    ).toBe("osmosis1knuunh0lmwyrkjmrj7sky49uxk3peyzhzsvqqf");
+    ).toBe("osmo1knuunh0lmwyrkjmrj7sky49uxk3peyzh2tlskm");
   });
 
   it("should generate another correct osmosis address", async () => {
     expect(
       await wallet.osmosisGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/118'/1337'/123/4") })
-    ).toBe("osmosis14k4dnrrmxdch6nkvvuugsywrgmvlwrqszjfxjt");
+    ).toBe("osmo14k4dnrrmxdch6nkvvuugsywrgmvlwrqs2f6kye");
   });
 
   it("should sign a transaction correctly", async () => {
@@ -70,7 +70,7 @@ describe("NativeOsmosisWallet", () => {
       `"AuGwbxSqxtP4HsVyUqrWiAZfb7Ur+gKYcAQ+Ru8mIBxQ"`
     );
     await expect(signed?.signatures?.[0].signature).toMatchInlineSnapshot(
-      `"pWgTUZC5NUcqVrJJQL3BhLtIRcerd21H6EaTkkYIw/VGCau1hMDQDSKzKDvVICN7CSS4i1I7BhZs8nqF/E3Y9w=="`
+      `"dK12yPvgiRwtXzfss9F4BWMBHbNazdp0KgdKlMOVBLpbcBEagczPLHQnqXhB+t+bP8osVA3OdwUldGodmTYgBg=="`
     );
   });
 });
