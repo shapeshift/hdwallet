@@ -59,23 +59,40 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     }
 
     async ethGetAddress(msg: core.ETHGetAddress): Promise<string | null> {
-      if (!_.isEqual(msg.addressNList, core.bip32ToAddressNList("m/44'/60'/0'/0/0"))) throw new Error("path not supported");
+      if (!_.isEqual(msg.addressNList, core.bip32ToAddressNList("m/44'/60'/0'/0/0")))
+        throw new Error("path not supported");
       return this.needsMnemonic(!!this.#ethSigner, () => this.#ethSigner!.getAddress());
     }
 
     async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {
       return this.needsMnemonic(!!this.#ethSigner, async () => {
-        const result = await this.#ethSigner!.signTransaction({
-          to: msg.to,
-          from: await this.#ethSigner!.getAddress(),
-          nonce: msg.nonce,
-          gasLimit: msg.gasLimit,
-          gasPrice: msg.gasPrice,
-          data: msg.data,
-          value: msg.value,
-          chainId: msg.chainId,
-        });
-        const decoded = txDecoder.decodeTx(result);
+        let result: string = msg.maxFeePerGas
+          ? await this.#ethSigner!.signTransaction({
+              to: msg.to,
+              from: await this.#ethSigner!.getAddress(),
+              nonce: msg.nonce,
+              gasLimit: msg.gasLimit,
+              maxFeePerGas: msg.maxFeePerGas,
+              maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
+              data: msg.data,
+              value: msg.value,
+              chainId: msg.chainId,
+              type: core.ETHTransactionType.ETH_TX_TYPE_EIP_1559,
+            })
+          : await this.#ethSigner!.signTransaction({
+              to: msg.to,
+              from: await this.#ethSigner!.getAddress(),
+              nonce: msg.nonce,
+              gasLimit: msg.gasLimit,
+              gasPrice: msg.gasPrice,
+              data: msg.data,
+              value: msg.value,
+              chainId: msg.chainId,
+              type: core.ETHTransactionType.ETH_TX_TYPE_LEGACY,
+            });
+
+        console.warn("Result: ", result);
+        const decoded = ethers.utils.parseTransaction(result);
         return {
           v: decoded.v,
           r: decoded.r,
