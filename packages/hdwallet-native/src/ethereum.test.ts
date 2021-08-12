@@ -79,10 +79,10 @@ describe("NativeETHWallet", () => {
     // This is the output from tiny-secp256k1.
     expect(sig).toMatchInlineSnapshot(`
       Object {
-        "r": "0x442b60f4fb7551cbcdac3de3c2aa0b67ac3f9a73045e49f829ee0b22118ac08a",
-        "s": "0x07f2f12cbcfa9d497a2b8dfd2b31e0df4bdefe10709ec660beb0974c27de244b",
-        "serialized": "0x01f88b0184deadbeef84deadbeef84deadbeef94deadbeefdeadbeefdeadbeefdeadbeefdeadbeef90deadbeefdeadbeefdeadbeefdeadbeef90deadbeefdeadbeefdeadbeefdeadbeefc001a0442b60f4fb7551cbcdac3de3c2aa0b67ac3f9a73045e49f829ee0b22118ac08aa007f2f12cbcfa9d497a2b8dfd2b31e0df4bdefe10709ec660beb0974c27de244b",
-        "v": 1,
+        "r": "0x7f21bb5a857db55c888355b2e48325062268ad62686fba56a4e57118f5783dda",
+        "s": "0x3e9893ed500842506a19288eb022b5f5b3cee6d1bbf6330f4304f60f8166f82a",
+        "serialized": "0xf88984deadbeef84deadbeef84deadbeef94deadbeefdeadbeefdeadbeefdeadbeefdeadbeef90deadbeefdeadbeefdeadbeefdeadbeef90deadbeefdeadbeefdeadbeefdeadbeef26a07f21bb5a857db55c888355b2e48325062268ad62686fba56a4e57118f5783ddaa03e9893ed500842506a19288eb022b5f5b3cee6d1bbf6330f4304f60f8166f82a",
+        "v": 38,
       }
     `);
     // This is the output of the native library's own signing function.
