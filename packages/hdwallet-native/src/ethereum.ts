@@ -22,6 +22,10 @@ export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDW
       return false;
     }
 
+    ethSupportsEIP1559(): boolean {
+      return true;
+    }
+
     ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
       const slip44 = core.slip44ByCoin(msg.coin);
       if (slip44 === undefined) return [];
@@ -66,32 +70,28 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
 
     async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {
       return this.needsMnemonic(!!this.#ethSigner, async () => {
+        const utx = {
+          to: msg.to,
+          from: await this.#ethSigner!.getAddress(),
+          nonce: msg.nonce,
+          gasLimit: msg.gasLimit,
+          data: msg.data,
+          value: msg.value,
+          chainId: msg.chainId,
+        };
         let result: string = msg.maxFeePerGas
           ? await this.#ethSigner!.signTransaction({
-              to: msg.to,
-              from: await this.#ethSigner!.getAddress(),
-              nonce: msg.nonce,
-              gasLimit: msg.gasLimit,
+              ...utx,
               maxFeePerGas: msg.maxFeePerGas,
               maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
-              data: msg.data,
-              value: msg.value,
-              chainId: msg.chainId,
               type: core.ETHTransactionType.ETH_TX_TYPE_EIP_1559,
             })
           : await this.#ethSigner!.signTransaction({
-              to: msg.to,
-              from: await this.#ethSigner!.getAddress(),
-              nonce: msg.nonce,
-              gasLimit: msg.gasLimit,
+              ...utx,
               gasPrice: msg.gasPrice,
-              data: msg.data,
-              value: msg.value,
-              chainId: msg.chainId,
               type: core.ETHTransactionType.ETH_TX_TYPE_LEGACY,
             });
 
-        console.warn("Result: ", result);
         const decoded = ethers.utils.parseTransaction(result);
         return {
           v: decoded.v,
