@@ -2,8 +2,9 @@ import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { ExchangeType, BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
 export enum ETHTransactionType {
-  ETH_TX_TYPE_LEGACY = 1,
-  ETH_TX_TYPE_EIP_1559 = 2
+  ETH_TX_TYPE_LEGACY = 0,
+  ETH_TX_TYPE_EIP_2930 = 1,
+  ETH_TX_TYPE_EIP_1559 = 2,
 }
 
 export interface ETHGetAccountPath {
@@ -59,8 +60,6 @@ export interface ETHSignTx {
    * Device must `ethSupportsNativeShapeShift()`
    */
   exchangeType?: ExchangeType;
-  /** Legacy or EIP-1559 fee structure? */
-  type?: ETHTransactionType;
 }
 
 export interface ETHSignedTx {
@@ -108,6 +107,12 @@ export interface ETHWalletInfo extends HDWalletInfo {
    * Does the device support `/sendamountProto2` style ShapeShift trades?
    */
   ethSupportsNativeShapeShift(): boolean;
+
+  /**
+   * 
+   * Does the device support transactions with EIP-1559 fee parameters?
+   */
+  ethSupportsEIP1559(): boolean;
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order
