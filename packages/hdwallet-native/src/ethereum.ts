@@ -68,7 +68,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
       return this.needsMnemonic(!!this.#ethSigner, () => this.#ethSigner!.getAddress());
     }
 
-    async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {
+    async ethSignTx(msg: core.ETHSignTx | core.ETHSignTxEIP1559): Promise<core.ETHSignedTx | null> {
       return this.needsMnemonic(!!this.#ethSigner, async () => {
         const utx = {
           to: msg.to,

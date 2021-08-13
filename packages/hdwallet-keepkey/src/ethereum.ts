@@ -42,7 +42,7 @@ function stripLeadingZeroes(buf: Uint8Array) {
   return buf.slice(firstZeroIndex !== -1 ? firstZeroIndex : buf.length);
 }
 
-export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
+export async function ethSignTx(transport: Transport, msg: core.ETHSignTx | core.ETHSignTxEIP1559): Promise<core.ETHSignedTx> {
   return transport.lockDuring(async () => {
     const est: Messages.EthereumSignTx = new Messages.EthereumSignTx();
     est.setAddressNList(msg.addressNList);

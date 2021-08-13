@@ -595,7 +595,7 @@ export class KeepKeyHDWalletInfo
   }
 }
 
-export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.DebugLinkWallet {
+export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWalletEIP1559, core.DebugLinkWallet {
   readonly _supportsETHInfo = true;
   readonly _supportsBTCInfo = true;
   readonly _supportsCosmosInfo = true;
@@ -1139,7 +1139,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     return this.info.btcIsSameAccount(msg);
   }
 
-  public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
+  public async ethSignTx(msg: core.ETHSignTx | core.ETHSignTxEIP1559): Promise<core.ETHSignedTx> {
     return Eth.ethSignTx(this.transport, msg);
   }
 

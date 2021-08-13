@@ -39,13 +39,11 @@ export interface ETHSignTx {
   /** big-endian hex, prefixed with '0x' */
   nonce: string;
   /** big-endian hex, prefixed with '0x' */
-  gasPrice?: string;
+  gasPrice: string;
+  maxFeePerGas?: never;
+  maxPriorityFeePerGas?: never;
   /** big-endian hex, prefixed with '0x' */
   gasLimit: string;
-  /** EIP-1559 - The maximum total fee per gas the sender is willing to pay. <=256 bit unsigned big endian (in wei) */
-  maxFeePerGas?: string;
-  /** EIP-1559 - Maximum fee per gas the sender is willing to pay to miners. <=256 bit unsigned big endian (in wei) */
-  maxPriorityFeePerGas?: string;
   /** address, with '0x' prefix */
   to: string;
   /** bip32 path for destination (device must `ethSupportsSecureTransfer()`) */
@@ -61,6 +59,14 @@ export interface ETHSignTx {
    */
   exchangeType?: ExchangeType;
 }
+
+export type ETHSignTxEIP1559 = Omit<ETHSignTx, "gasPrice" | "maxFeePerGas" | "maxPriorityFeePerGas"> & {
+  gasPrice?: never
+  /** EIP-1559 - The maximum total fee per gas the sender is willing to pay. <=256 bit unsigned big endian (in wei) */
+  maxFeePerGas: string;
+  /** EIP-1559 - Maximum fee per gas the sender is willing to pay to miners. <=256 bit unsigned big endian (in wei) */
+  maxPriorityFeePerGas?: string;
+};
 
 export interface ETHSignedTx {
   /** uint32 */
@@ -112,7 +118,7 @@ export interface ETHWalletInfo extends HDWalletInfo {
    *
    * Does the device support transactions with EIP-1559 fee parameters?
    */
-  ethSupportsEIP1559(): boolean;
+  ethSupportsEIP1559(): this is ETHWalletEIP1559;
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order
@@ -136,6 +142,10 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
   ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx | null>;
   ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage | null>;
   ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean | null>;
+}
+
+export interface ETHWalletEIP1559 extends ETHWallet {
+  ethSignTx(msg: ETHSignTx | ETHSignTxEIP1559): Promise<ETHSignedTx | null>;
 }
 
 export function describeETHPath(path: BIP32Path): PathDescription {
