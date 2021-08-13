@@ -172,6 +172,10 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     return Eth.ethSupportsNativeShapeShift();
   }
 
+  public ethSupportsEIP1559(): boolean {
+    return Eth.ethSupportsEIP1559();
+  }
+
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     return Eth.ethGetAccountPaths(msg);
   }
@@ -536,6 +540,10 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   public ethSupportsNativeShapeShift(): boolean {
     return this.info.ethSupportsNativeShapeShift();
+  }
+
+  public ethSupportsEIP1559(): boolean {
+    return this.info.ethSupportsEIP1559();
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {

@@ -188,6 +188,10 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     return eth.ethSupportsNativeShapeShift();
   }
 
+  public ethSupportsEIP1559(): boolean {
+    return eth.ethSupportsEIP1559();
+  }
+
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     return eth.ethGetAccountPaths(msg);
   }
@@ -558,6 +562,10 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   public ethSupportsNativeShapeShift(): boolean {
     return this.info.ethSupportsNativeShapeShift();
+  }
+
+  public ethSupportsEIP1559(): boolean {
+    return this.info.ethSupportsEIP1559();
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
