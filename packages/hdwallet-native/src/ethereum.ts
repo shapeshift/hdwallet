@@ -5,7 +5,7 @@ import _ from "lodash";
 import { NativeHDWalletBase } from "./native";
 import * as Isolation from "./crypto/isolation";
 
-export enum EthersTransactionType {
+enum EthersTransactionType {
   LEGACY = 0,
   EIP_2930 = 1,
   EIP_1559 = 2,
