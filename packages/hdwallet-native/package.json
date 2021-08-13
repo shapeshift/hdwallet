@@ -24,6 +24,7 @@
     "bip39": "^3.0.2",
     "bnb-javascript-sdk-nobroadcast": "^2.16.14",
     "crypto-js": "^4.0.0",
+    "ethereum-tx-decoder": "^3.0.0",
     "ethers": "5.4.4",
     "eventemitter2": "^5.0.1",
     "funtypes": "^3.0.1",

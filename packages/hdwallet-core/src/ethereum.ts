@@ -1,6 +1,11 @@
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { ExchangeType, BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
+export enum ETHTransactionType {
+  ETH_TX_TYPE_LEGACY = 1,
+  ETH_TX_TYPE_EIP_1559 = 2
+}
+
 export interface ETHGetAccountPath {
   coin: string;
   accountIdx: number;
@@ -27,13 +32,19 @@ export interface ETHGetAddress {
   address?: string;
 }
 
-export type ETHSignTx = {
+export interface ETHSignTx {
   /** bip32 path to sign the transaction from */
   addressNList: BIP32Path;
   /** big-endian hex, prefixed with '0x' */
   nonce: string;
   /** big-endian hex, prefixed with '0x' */
+  gasPrice?: string;
+  /** big-endian hex, prefixed with '0x' */
   gasLimit: string;
+  /** EIP-1559 - The maximum total fee per gas the sender is willing to pay. <=256 bit unsigned big endian (in wei) */
+  maxFeePerGas?: string;
+  /** EIP-1559 - Maximum fee per gas the sender is willing to pay to miners. <=256 bit unsigned big endian (in wei) */
+  maxPriorityFeePerGas?: string;
   /** address, with '0x' prefix */
   to: string;
   /** bip32 path for destination (device must `ethSupportsSecureTransfer()`) */
@@ -48,18 +59,9 @@ export type ETHSignTx = {
    * Device must `ethSupportsNativeShapeShift()`
    */
   exchangeType?: ExchangeType;
-} & ({
-  /** big-endian hex, prefixed with '0x' */
-  gasPrice: string;
-  maxFeePerGas?: never;
-  maxPriorityFeePerGas?: never;
-} | {
-  gasPrice?: never;
-  /** EIP-1559 - The maximum total fee per gas the sender is willing to pay. <=256 bit unsigned big endian (in wei) */
-  maxFeePerGas: string;
-  /** EIP-1559 - Maximum fee per gas the sender is willing to pay to miners. <=256 bit unsigned big endian (in wei) */
-  maxPriorityFeePerGas?: string;
-})
+  /** Legacy or EIP-1559 fee structure? */
+  type?: ETHTransactionType;
+}
 
 export interface ETHSignedTx {
   /** uint32 */
