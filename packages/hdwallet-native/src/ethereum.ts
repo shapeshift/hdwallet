@@ -1,5 +1,4 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import txDecoder from "ethereum-tx-decoder";
 import * as ethers from "ethers";
 import _ from "lodash";
 
