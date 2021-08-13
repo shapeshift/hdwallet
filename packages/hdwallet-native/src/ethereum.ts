@@ -5,6 +5,12 @@ import _ from "lodash";
 import { NativeHDWalletBase } from "./native";
 import * as Isolation from "./crypto/isolation";
 
+export enum EthersTransactionType {
+  LEGACY = 0,
+  EIP_2930 = 1,
+  EIP_1559 = 2,
+}
+
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   return class MixinNativeETHWalletInfo extends Base implements core.ETHWalletInfo {
     readonly _supportsETHInfo = true;
@@ -84,12 +90,12 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
               ...utx,
               maxFeePerGas: msg.maxFeePerGas,
               maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
-              type: core.ETHTransactionType.ETH_TX_TYPE_EIP_1559,
+              type: EthersTransactionType.EIP_1559,
             })
           : await this.#ethSigner!.signTransaction({
               ...utx,
               gasPrice: msg.gasPrice,
-              type: core.ETHTransactionType.ETH_TX_TYPE_LEGACY,
+              type: EthersTransactionType.LEGACY,
             });
 
         const decoded = ethers.utils.parseTransaction(result);

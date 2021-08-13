@@ -1,12 +1,6 @@
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { ExchangeType, BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
-export enum ETHTransactionType {
-  ETH_TX_TYPE_LEGACY = 0,
-  ETH_TX_TYPE_EIP_2930 = 1,
-  ETH_TX_TYPE_EIP_1559 = 2,
-}
-
 export interface ETHGetAccountPath {
   coin: string;
   accountIdx: number;
