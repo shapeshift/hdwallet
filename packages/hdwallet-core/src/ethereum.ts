@@ -109,7 +109,7 @@ export interface ETHWalletInfo extends HDWalletInfo {
   ethSupportsNativeShapeShift(): boolean;
 
   /**
-   * 
+   *
    * Does the device support transactions with EIP-1559 fee parameters?
    */
   ethSupportsEIP1559(): boolean;
