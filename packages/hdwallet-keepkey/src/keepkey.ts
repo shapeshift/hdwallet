@@ -412,6 +412,10 @@ export class KeepKeyHDWalletInfo
     return Eth.ethSupportsNativeShapeShift();
   }
 
+  public ethSupportsEIP1559(): boolean {
+    return Eth.ethSupportsEIP1559();
+  }
+
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     return Eth.ethGetAccountPaths(msg);
   }
@@ -1108,6 +1112,10 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
 
   public btcSupportsNativeShapeShift(): boolean {
     return this.info.btcSupportsNativeShapeShift();
+  }
+
+  public ethSupportsEIP1559(): boolean {
+    return this.info.ethSupportsEIP1559();
   }
 
   public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {

@@ -97,6 +97,10 @@ export function ethSupportsNativeShapeShift(): boolean {
   return false;
 }
 
+export function ethSupportsEIP1559(): boolean {
+  return false;
+}
+
 export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
   const slip44 = core.slip44ByCoin(msg.coin);
   if (slip44 === undefined) return [];
