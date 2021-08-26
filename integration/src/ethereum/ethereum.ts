@@ -153,7 +153,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
           value: "0x2c68af0bb14000",
           to: "0x12eC06288EDD7Ae2CC41A843fE089237fC7354F0",
           chainId: 1,
-          data: "",
+          data: ""
         });
         const sig = wallet.ethSupportsEIP1559()
           ? {

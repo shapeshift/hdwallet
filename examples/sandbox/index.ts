@@ -1249,33 +1249,27 @@ let ethEIP1559Selected = false;
 
 const ethTx = {
   addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-  nonce: "0x0",
-  gasPrice: "0x5FB9ACA00",
-  gasLimit: "0x186A0",
-  value: "0x00",
-  to: "0x41e5560054824ea6b0732e656e3ad64e20e94e45",
+  nonce: "0x01",
+  gasPrice: "0x1dcd65000",
+  gasLimit: "0x5622",
+  value: "0x2c68af0bb14000",
+  to: "0x12eC06288EDD7Ae2CC41A843fE089237fC7354F0",
   chainId: 1,
   data:
-    "0x" +
-    "a9059cbb000000000000000000000000" +
-    "9BB9E5bb9b04e8CE993104309A1f180feBf63DB6" +
-    "0000000000000000000000000000000000000000000000000000000005F5E100",
+    "",
 };
 
 const ethTx1559 = {
   addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-  nonce: "0x0",
-  gasLimit: "0x5FB9ACA00",
-  maxFeePerGas: "0x186A0",
-  maxPriorityFeePerGas: "0x186A0",
-  value: "0x00",
-  to: "0x41e5560054824ea6b0732e656e3ad64e20e94e45",
+  nonce: "0x01",
+  gasLimit: "0x5622",
+  maxFeePerGas: "0x400",
+  maxPriorityFeePerGas: "0x400",
+  value: "0x2c68af0bb14000",
+  to: "0x12eC06288EDD7Ae2CC41A843fE089237fC7354F0",
   chainId: 1,
   data:
-    "0x" +
-    "a9059cbb000000000000000000000000" +
-    "9BB9E5bb9b04e8CE993104309A1f180feBf63DB6" +
-    "0000000000000000000000000000000000000000000000000000000005F5E100",
+    "",
 };
 
 $ethAddr.on("click", async (e) => {
