@@ -142,7 +142,12 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
     test(
       "ethSignTx() - ETH EIP-1559",
       async () => {
-        if (!wallet) return;
+        if (!wallet) {
+          return;
+        }
+        if (!wallet.ethSupportsEIP1559()) {
+          return;
+        }
         let res = await wallet.ethSignTx({
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
           nonce: "0x01",
@@ -155,22 +160,13 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
           chainId: 1,
           data: "",
         });
-        const sig = wallet.ethSupportsEIP1559()
-          ? {
-              r: "0x429c6ce090e272049a94b13466b3d27a4d79e31dcf50dbc614db7e239f3103c7",
-              s: "0x2ffc46592f561f7fdbac10cd3521dca47d1afa00ebc03af7ea0d05081e503cb7",
-              v: 1,
-              serialized:
-                "0x02f86d01018204008204008256229412ec06288edd7ae2cc41a843fe089237fc7354f0872c68af0bb1400080c001a0429c6ce090e272049a94b13466b3d27a4d79e31dcf50dbc614db7e239f3103c7a02ffc46592f561f7fdbac10cd3521dca47d1afa00ebc03af7ea0d05081e503cb7",
-            }
-          : {
-              r: "0x63db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0a",
-              s: "0x28297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
-              v: 38,
-              serialized:
-                "0xf86b018501dcd650008256229412ec06288edd7ae2cc41a843fe089237fc7354f0872c68af0bb140008026a063db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0aa028297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
-            };
-        expect(res).toEqual(sig);
+        expect(res).toEqual({
+          r: "0x429c6ce090e272049a94b13466b3d27a4d79e31dcf50dbc614db7e239f3103c7",
+          s: "0x2ffc46592f561f7fdbac10cd3521dca47d1afa00ebc03af7ea0d05081e503cb7",
+          v: 1,
+          serialized:
+            "0x02f86d01018204008204008256229412ec06288edd7ae2cc41a843fe089237fc7354f0872c68af0bb1400080c001a0429c6ce090e272049a94b13466b3d27a4d79e31dcf50dbc614db7e239f3103c7a02ffc46592f561f7fdbac10cd3521dca47d1afa00ebc03af7ea0d05081e503cb7",
+        });
       },
       TIMEOUT
     );

@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger-u2f",
-  "version": "1.15.5-alpha.1",
+  "version": "1.16.1-alpha.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -18,8 +18,8 @@
     "@ledgerhq/hw-app-eth": "^4.48.0",
     "@ledgerhq/hw-transport-u2f": "^4.48.0",
     "@ledgerhq/live-common": "^8.4.1",
-    "@shapeshiftoss/hdwallet-core": "1.15.5-alpha.1",
-    "@shapeshiftoss/hdwallet-ledger": "1.15.5-alpha.1"
+    "@shapeshiftoss/hdwallet-core": "1.16.1-alpha.0",
+    "@shapeshiftoss/hdwallet-ledger": "1.16.1-alpha.0"
   },
   "devDependencies": {
     "@types/bs58": "^4.0.1",
