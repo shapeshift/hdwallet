@@ -602,7 +602,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   readonly _supportsRippleInfo = true;
   readonly _supportsBinanceInfo = true;
   readonly _supportsEosInfo = true;
-  readonly _supportsFioInfo = false;
+  readonly _supportsFioInfo = true;
   readonly _supportsDebugLink: boolean;
   readonly _isKeepKey = true;
   readonly _supportsETH = true;
@@ -611,7 +611,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   _supportsRipple = true;
   _supportsBinance = true;
   _supportsEos = true;
-  readonly _supportsFio = false;
+  readonly _supportsFio = true;
   readonly _supportsThorchainInfo = true;
   readonly _supportsThorchain = true;
   readonly _supportsSecretInfo = false;
