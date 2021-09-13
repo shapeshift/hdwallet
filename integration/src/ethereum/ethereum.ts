@@ -4,6 +4,7 @@ import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
+const MNEMONIC_TEST = "smooth antenna immense oppose august casual fresh meadow happy ugly wave control";
 
 const TIMEOUT = 60 * 1000;
 
@@ -118,6 +119,13 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
       "ethSignTx() - ETH",
       async () => {
         if (!wallet) return;
+        let addr = await wallet.ethGetAddress({
+          addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+          showDisplay: false,
+        });
+        console.log('ethaddr')
+        console.log(addr)
+
         let res = await wallet.ethSignTx({
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
           nonce: "0x01",
@@ -146,26 +154,40 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
           return;
         }
         if (!wallet.ethSupportsEIP1559()) {
+          console.log("no 1559 support")
           return;
         }
+
+        // for some reason MNEMONIC12_NOPIN_NOPASSPHRASE will not produce sigs that match on native an kk
+        await wallet.wipe();
+        await wallet.loadDevice({
+          mnemonic: MNEMONIC_TEST,
+          label: "test",
+          skipChecksum: true,
+        });
+
+        let addr = await wallet.ethGetAddress({
+          addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+          showDisplay: false,
+        });
+
         let res = await wallet.ethSignTx({
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-          nonce: "0x01",
-          gasPrice: "0x1dcd65000",
-          gasLimit: "0x5622",
-          maxFeePerGas: "0x400",
-          maxPriorityFeePerGas: "0x400",
-          value: "0x2c68af0bb14000",
-          to: "0x12eC06288EDD7Ae2CC41A843fE089237fC7354F0",
+          nonce: "0x0",
+          gasLimit: "0x5ac3",
+          maxFeePerGas: "0x16854be509",
+          maxPriorityFeePerGas: "0x540ae480",
+          value: "0x1550f7dca70000",   // 0.006 eth
+          to: "0xfc0cc6e85dff3d75e3985e0cb83b090cfd498dd1",
           chainId: 1,
           data: "",
         });
         expect(res).toEqual({
-          r: "0x429c6ce090e272049a94b13466b3d27a4d79e31dcf50dbc614db7e239f3103c7",
-          s: "0x2ffc46592f561f7fdbac10cd3521dca47d1afa00ebc03af7ea0d05081e503cb7",
+          r: "0x122269dc9cffc02962cdaa5af54913ac3e7293c3dd2a8ba7e38da2bc638f92df",
+          s: "0x36334d475fc12eb62681fb2cb10f177101d5cf4c3a735c94460d92bfa2389cc8",
           v: 1,
           serialized:
-            "0x02f86d01018204008204008256229412ec06288edd7ae2cc41a843fe089237fc7354f0872c68af0bb1400080c001a0429c6ce090e272049a94b13466b3d27a4d79e31dcf50dbc614db7e239f3103c7a02ffc46592f561f7fdbac10cd3521dca47d1afa00ebc03af7ea0d05081e503cb7",
+            "0x02f872018084540ae4808516854be509825ac394fc0cc6e85dff3d75e3985e0cb83b090cfd498dd1871550f7dca7000080c001a0122269dc9cffc02962cdaa5af54913ac3e7293c3dd2a8ba7e38da2bc638f92dfa036334d475fc12eb62681fb2cb10f177101d5cf4c3a735c94460d92bfa2389cc8",
         });
       },
       TIMEOUT

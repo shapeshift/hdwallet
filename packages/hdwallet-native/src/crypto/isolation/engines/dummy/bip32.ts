@@ -53,12 +53,6 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
         // When running tests, this will keep us aware of any codepaths that don't pass in the preimage
         if (typeof expect === "function") expect(SecP256K1.MessageWithPreimage.test(msg)).toBeTruthy();
 
-        if (SecP256K1.MessageWithPreimage.test(msg)) {
-            console.log(`signing ${msg.algorithm} hash of ${Buffer.from(msg.preimage).toString("hex")}${counter === undefined ? "" : ` (counter: ${counter})`}`);
-        } else {
-            console.log(`signing raw data: ${Buffer.from(msg).toString("hex")}${counter === undefined ? "" : ` (counter: ${counter})`}`);
-        }
-
         const entropy = (counter === undefined ? undefined : Buffer.alloc(32));
         entropy?.writeUInt32BE(counter ?? 0, 24);
         return SecP256K1.RecoverableSignature.fromSignature(
