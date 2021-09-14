@@ -123,8 +123,6 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
           showDisplay: false,
         });
-        console.log('ethaddr')
-        console.log(addr)
 
         let res = await wallet.ethSignTx({
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
@@ -153,8 +151,8 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
         if (!wallet) {
           return;
         }
+
         if (!wallet.ethSupportsEIP1559()) {
-          console.log("no 1559 support")
           return;
         }
 
@@ -197,6 +195,11 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
       "ethSignTx() - ETH EIP-1559 (optional)",
       async () => {
         if (!wallet) return;
+  
+         if (!wallet.ethSupportsEIP1559()) {
+           return;
+         }
+  
         let res = await wallet.ethSignTx({
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
           nonce: "0x01",
@@ -357,5 +360,5 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
       },
       TIMEOUT
     );
-  });
+   });
 }

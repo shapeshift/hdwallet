@@ -22,7 +22,7 @@ export function ethSupportsNativeShapeShift(): boolean {
 }
 
 export function ethSupportsEIP1559(): boolean {
-  return false;
+  return this.ethSupportsEIP1559();
 }
 
 export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {

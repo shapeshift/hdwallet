@@ -98,8 +98,6 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
         SecP256K1.CurvePoint.assert(publicKey);
         digestAlgorithm === undefined || digestAlgorithm === null || Digest.AlgorithmName(32).assert(digestAlgorithm);
 
-        console.log(`deriving ECDH ${digestAlgorithm == undefined ? 'shared secret' : (digestAlgorithm === null ? 'shared field element' : `key using digest ${digestAlgorithm}`)} for public key ${Buffer.from(publicKey).toString("hex")}`);
-
         const sharedFieldElement = checkType(SecP256K1.UncompressedPoint, tinyecc.pointMultiply(Buffer.from(publicKey), this.#privateKey, false));
         if (digestAlgorithm === null) return sharedFieldElement;
 
