@@ -1255,21 +1255,19 @@ const ethTx = {
   value: "0x2c68af0bb14000",
   to: "0x12eC06288EDD7Ae2CC41A843fE089237fC7354F0",
   chainId: 1,
-  data:
-    "",
+  data: "",
 };
 
 const ethTx1559 = {
   addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-  nonce: "0x01",
-  gasLimit: "0x5622",
-  maxFeePerGas: "0x400",
-  maxPriorityFeePerGas: "0x400",
-  value: "0x2c68af0bb14000",
-  to: "0x12eC06288EDD7Ae2CC41A843fE089237fC7354F0",
+  nonce: "0x0",
+  gasLimit: "0x5ac3",
+  maxFeePerGas: "0x16854be509",
+  maxPriorityFeePerGas: "0x540ae480",
+  value: "0x1550f7dca70000",   // 0.006 eth
+  to: "0xfc0cc6e85dff3d75e3985e0cb83b090cfd498dd1",
   chainId: 1,
-  data:
-    "",
+  data: "",
 };
 
 $ethAddr.on("click", async (e) => {

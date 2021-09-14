@@ -611,6 +611,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   _supportsRipple = true;
   _supportsBinance = true;
   _supportsEos = true;
+  _supportsEthEip1559 = false;
   readonly _supportsFio = false;
   readonly _supportsThorchainInfo = true;
   readonly _supportsThorchain = true;
@@ -984,6 +985,9 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     this._supportsEos = semver.gte(fwVersion, "v6.4.0");
     // this._supportsThorchain = Semver.get(fwVersion, "v7.0.0");
 
+    // EIP-1559 isn't supported until v7.2.1
+    this._supportsEthEip1559 = semver.gte(fwVersion, "v7.2.1");
+
     this.cacheFeatures(out);
     return out;
   }
@@ -1115,7 +1119,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   }
 
   public ethSupportsEIP1559(): boolean {
-    return this.info.ethSupportsEIP1559();
+    return this._supportsEthEip1559;
   }
 
   public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
