@@ -611,7 +611,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   _supportsRipple = true;
   _supportsBinance = true;
   _supportsEos = true;
-  _supportsEip1559 = false;
+  _supportsEthEip1559 = false;
   readonly _supportsFio = false;
   readonly _supportsThorchainInfo = true;
   readonly _supportsThorchain = true;
