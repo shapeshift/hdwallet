@@ -1119,7 +1119,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   }
 
   public ethSupportsEIP1559(): boolean {
-    return this._supportsEip1559;
+    return this._supportsEthEip1559;
   }
 
   public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
