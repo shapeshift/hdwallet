@@ -152,7 +152,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
           return;
         }
 
-        if (!wallet.ethSupportsEIP1559()) {
+        if (!await wallet.ethSupportsEIP1559()) {
           return;
         }
 
@@ -196,7 +196,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
       async () => {
         if (!wallet) return;
   
-         if (!wallet.ethSupportsEIP1559()) {
+         if (!await wallet.ethSupportsEIP1559()) {
            return;
          }
   
