@@ -240,6 +240,7 @@ export enum BTCInputScriptType {
 export enum BTCOutputScriptType {
   PayToAddress = "p2pkh",
   PayToMultisig = "p2sh",
+  Bech32 = "bech32",
   PayToWitness = "p2wpkh",
   PayToP2SHWitness = "p2sh-p2wpkh",
 }

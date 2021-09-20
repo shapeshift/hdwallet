@@ -133,7 +133,7 @@ const OP_RETURN_BENCHMARK_TX = benchmarkTx(
   { opReturnData: "foobar" }
 );
 
-describe("NativeBTCWalletInfo", () => {
+describe.only("NativeBTCWalletInfo", () => {
   const info = native.info();
 
   it("should return some static metadata", async () => {
@@ -145,11 +145,11 @@ describe("NativeBTCWalletInfo", () => {
   it("should return some dynamic metadata", async () => {
     expect(await info.btcSupportsCoin("bitcoin")).toBe(true);
     expect(await info.btcSupportsCoin("bitcoincash")).toBe(true);
-
     expect(await info.btcSupportsScriptType("bitcoin", "p2pkh" as any)).toBe(true);
     expect(await info.btcSupportsScriptType("bitcoin", "p2sh" as any)).toBe(true);
     expect(await info.btcSupportsScriptType("bitcoin", "p2wpkh" as any)).toBe(true);
     expect(await info.btcSupportsScriptType("bitcoin", "p2sh-p2wpkh" as any)).toBe(true);
+    expect(await info.btcSupportsScriptType("bitcoin", "bech32" as any)).toBe(true);
     expect(await info.btcSupportsScriptType("bitcoin", "cashaddr" as any)).toBe(false);
     expect(await info.btcSupportsScriptType("bitcoincash", "cashaddr" as any)).toBe(false);
     expect(await info.btcSupportsScriptType("bitcoin", "foobar" as any)).toBe(false);
@@ -181,7 +181,7 @@ describe("NativeBTCWalletInfo", () => {
           coin: "Bitcoin",
           scriptType: "p2wpkh",
           addressNList: core.bip32ToAddressNList("m/84'/0'/0'"),
-        },
+        }
       ],
     ],
     [
