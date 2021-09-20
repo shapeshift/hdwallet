@@ -112,7 +112,7 @@ export interface ETHWalletInfo extends HDWalletInfo {
    *
    * Does the device support transactions with EIP-1559 fee parameters?
    */
-  ethSupportsEIP1559(): boolean;
+  ethSupportsEIP1559(): Promise<boolean>;
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order

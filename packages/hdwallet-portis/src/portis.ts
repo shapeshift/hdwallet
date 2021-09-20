@@ -257,8 +257,8 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
     return this.info.ethSupportsNativeShapeShift();
   }
 
-  public ethSupportsEIP1559(): boolean {
-    return this.info.ethSupportsEIP1559();
+  public async ethSupportsEIP1559(): Promise<boolean> {
+    return await this.info.ethSupportsEIP1559();
   }
 
   public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
@@ -400,7 +400,7 @@ export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
     return false;
   }
 
-  public ethSupportsEIP1559(): boolean {
+  public async ethSupportsEIP1559(): Promise<boolean> {
     return false;
   }
 

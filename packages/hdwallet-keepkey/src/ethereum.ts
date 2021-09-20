@@ -21,8 +21,8 @@ export function ethSupportsNativeShapeShift(): boolean {
   return true;
 }
 
-export function ethSupportsEIP1559(): boolean {
-  return this.ethSupportsEIP1559();
+export async function ethSupportsEIP1559(): Promise<boolean> {
+  return await this.ethSupportsEIP1559();
 }
 
 export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
