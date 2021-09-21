@@ -360,6 +360,26 @@ export function selfTest(get: () => core.HDWallet): void {
     });
   });
 
+  it("can describe a Bitcoin bech32 path", () => {
+    expect(
+      wallet.describePath({
+        path: core.bip32ToAddressNList("m/84'/0'/0'/0/0"),
+        coin: "Bitcoin",
+        scriptType: core.BTCInputScriptType.Bech32,
+      })
+    ).toEqual({
+      verbose: "Bitcoin Account #0, Address #0 (Legacy)",
+      coin: "Bitcoin",
+      isKnown: true,
+      scriptType: core.BTCInputScriptType.Bech32,
+      accountIdx: 0,
+      addressIdx: 0,
+      wholeAccount: false,
+      isChange: false,
+      isPrefork: false,
+    });
+  });
+
   it("can describe Bitcoin Change Addresses", () => {
     expect(
       wallet.describePath({

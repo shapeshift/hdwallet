@@ -167,13 +167,6 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
               core.BTCInputScriptType.SpendP2SHWitness,
               "3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX",
             ],
-            // [
-            //   "Tell",
-            //   "Bitcoin",
-            //   "m/84'/0'/0'/0/0",
-            //   core.BTCInputScriptType.Bech32,
-            //   "3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX",
-            // ],
             [
               "Tell",
               "Litecoin",
