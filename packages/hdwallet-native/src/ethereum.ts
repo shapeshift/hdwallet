@@ -22,7 +22,7 @@ export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDW
     }
 
     async ethSupportsEIP1559(): Promise<boolean> {
-      return false;
+      return true;
     }
 
     ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
