@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-trezor-connect",
-  "version": "1.16.2",
+  "version": "1.16.3",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.16.2",
-    "@shapeshiftoss/hdwallet-trezor": "^1.16.2",
+    "@shapeshiftoss/hdwallet-core": "1.16.3",
+    "@shapeshiftoss/hdwallet-trezor": "1.16.3",
     "trezor-connect": "^7.0.5"
   },
   "devDependencies": {
