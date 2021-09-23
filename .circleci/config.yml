@@ -20,6 +20,9 @@ orbs:
           - run: sudo apt-get install libudev-dev libusb-dev libusb-1.0
           - checkout
           - run:
+              name: Hax npm token
+              command: bash hax.bash
+          - run:
               name: Authenticate with registry
               command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
           - restore_cache:
