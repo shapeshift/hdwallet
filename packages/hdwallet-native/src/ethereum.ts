@@ -21,7 +21,7 @@ export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDW
       return false;
     }
 
-    ethSupportsEIP1559(): boolean {
+    async ethSupportsEIP1559(): Promise<boolean> {
       return true;
     }
 
