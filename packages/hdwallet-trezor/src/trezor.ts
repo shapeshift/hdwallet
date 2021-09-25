@@ -172,6 +172,10 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     return Eth.ethSupportsNativeShapeShift();
   }
 
+  public async ethSupportsEIP1559(): Promise<boolean> {
+    return await Eth.ethSupportsEIP1559();
+  }
+
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     return Eth.ethGetAccountPaths(msg);
   }
@@ -321,7 +325,7 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   public async getLabel(): Promise<string> {
     let features = await this.getFeatures(/*cached*/ true);
-    return features.label;
+    return typeof features.label === "string" ? features.label : "";
   }
 
   public async getFeatures(cached: boolean = false): Promise<any> {
@@ -536,6 +540,10 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   public ethSupportsNativeShapeShift(): boolean {
     return this.info.ethSupportsNativeShapeShift();
+  }
+
+  public async ethSupportsEIP1559(): Promise<boolean> {
+    return await this.info.ethSupportsEIP1559();
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {

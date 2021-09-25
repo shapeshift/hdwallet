@@ -53,12 +53,6 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
         // When running tests, this will keep us aware of any codepaths that don't pass in the preimage
         if (typeof expect === "function") expect(SecP256K1.MessageWithPreimage.test(msg)).toBeTruthy();
 
-        if (SecP256K1.MessageWithPreimage.test(msg)) {
-            console.log(`signing ${msg.algorithm} hash of ${Buffer.from(msg.preimage).toString("hex")}${counter === undefined ? "" : ` (counter: ${counter})`}`);
-        } else {
-            console.log(`signing raw data: ${Buffer.from(msg).toString("hex")}${counter === undefined ? "" : ` (counter: ${counter})`}`);
-        }
-
         const entropy = (counter === undefined ? undefined : Buffer.alloc(32));
         entropy?.writeUInt32BE(counter ?? 0, 24);
         return SecP256K1.RecoverableSignature.fromSignature(
@@ -103,8 +97,6 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
     private async _ecdh(publicKey: SecP256K1.CurvePoint, digestAlgorithm?: Digest.AlgorithmName<32> | null): Promise<ByteArray<32> | SecP256K1.UncompressedPoint> {
         SecP256K1.CurvePoint.assert(publicKey);
         digestAlgorithm === undefined || digestAlgorithm === null || Digest.AlgorithmName(32).assert(digestAlgorithm);
-
-        console.log(`deriving ECDH ${digestAlgorithm == undefined ? 'shared secret' : (digestAlgorithm === null ? 'shared field element' : `key using digest ${digestAlgorithm}`)} for public key ${Buffer.from(publicKey).toString("hex")}`);
 
         const sharedFieldElement = checkType(SecP256K1.UncompressedPoint, tinyecc.pointMultiply(Buffer.from(publicKey), this.#privateKey, false));
         if (digestAlgorithm === null) return sharedFieldElement;

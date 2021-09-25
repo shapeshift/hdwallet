@@ -1,5 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import Common from "@ethereumjs/common";
 import EthereumTx from "ethereumjs-tx";
+import { Transaction} from "@ethereumjs/tx";
 import * as ethereumUtil from "ethereumjs-util";
 
 import { LedgerTransport } from "./transport";
@@ -44,7 +46,9 @@ export async function ethGetPublicKeys(
       payload: { publicKey: parentPublicKeyHex },
     } = res1;
     const parentPublicKey = compressPublicKey(Buffer.from(parentPublicKeyHex, "hex"));
-    const parentFingerprint = new DataView(ethereumUtil.ripemd160(ethereumUtil.sha256(parentPublicKey), false)).getUint32(0);
+    const parentFingerprint = new DataView(
+      ethereumUtil.ripemd160(ethereumUtil.sha256(parentPublicKey), false)
+    ).getUint32(0);
 
     const res2 = await transport.call("Eth", "getAddress", bip32path, /* display */ false, /* chain code */ true);
     handleError(res2, transport, "Unable to obtain public key from device.");
@@ -60,7 +64,9 @@ export async function ethGetPublicKeys(
     const networkMagic = coinDetails.bitcoinjs.bip32.public[scriptType];
     if (networkMagic === undefined) throw new Error(`scriptType ${scriptType} not supported`);
 
-    xpubs.push({ xpub: createXpub(addressNList.length, parentFingerprint, childNum, chainCode, publicKey, networkMagic) });
+    xpubs.push({
+      xpub: createXpub(addressNList.length, parentFingerprint, childNum, chainCode, publicKey, networkMagic),
+    });
   }
 
   return xpubs;
@@ -68,6 +74,7 @@ export async function ethGetPublicKeys(
 
 export async function ethSignTx(transport: LedgerTransport, msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
   const bip32path = core.addressNListToBIP32(msg.addressNList);
+  const common = new Common({chain: "mainnet", hardfork: "london"});
   const txParams = {
     to: msg.to,
     value: msg.value,
@@ -88,12 +95,12 @@ export async function ethSignTx(transport: LedgerTransport, msg: core.ETHSignTx)
 
   const { v, r, s } = res.payload;
 
-  const tx = new EthereumTx({
+  const tx = Transaction.fromTxData({
     ...txParams,
     v: "0x" + v,
     r: "0x" + r,
     s: "0x" + s,
-  });
+  }, { common });
 
   return {
     v: parseInt(v, 16),
@@ -111,8 +118,12 @@ export function ethSupportsNativeShapeShift(): boolean {
   return false;
 }
 
+export function ethSupportsEIP1559(): boolean {
+  return false;
+}
+
 export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
-  const slip44 = core.slip44ByCoin(msg.coin)
+  const slip44 = core.slip44ByCoin(msg.coin);
   if (slip44 === undefined) return [];
   return [
     {

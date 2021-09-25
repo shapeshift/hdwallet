@@ -412,6 +412,10 @@ export class KeepKeyHDWalletInfo
     return Eth.ethSupportsNativeShapeShift();
   }
 
+  public async ethSupportsEIP1559(): Promise<boolean> {
+    return await Eth.ethSupportsEIP1559();
+  }
+
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     return Eth.ethGetAccountPaths(msg);
   }
@@ -658,7 +662,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   }
 
   public async getLabel(): Promise<string> {
-    return core.mustBeDefined((await this.getFeatures(/*cached=*/ true)).label);
+    return (await this.getFeatures(/*cached=*/ true)).label ?? "";
   }
 
   public async isInitialized(): Promise<boolean> {
@@ -1108,6 +1112,11 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
 
   public btcSupportsNativeShapeShift(): boolean {
     return this.info.btcSupportsNativeShapeShift();
+  }
+
+  public async ethSupportsEIP1559(): Promise<boolean> {
+    // EIP1559 support starts in v7.2.1
+    return semver.gte(await this.getFirmwareVersion(), "v7.2.1")
   }
 
   public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {

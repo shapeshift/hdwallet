@@ -2,7 +2,8 @@ import * as Exchange from "@keepkey/device-protocol/lib/exchange_pb";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import EthereumTx from "ethereumjs-tx";
+import Common from "@ethereumjs/common";
+import { FeeMarketEIP1559Transaction, Transaction } from "@ethereumjs/tx";
 import * as eip55 from "eip55";
 
 import { toUTF8Array, translateInputScriptType } from "./utils";
@@ -18,6 +19,10 @@ export async function ethSupportsSecureTransfer(): Promise<boolean> {
 
 export function ethSupportsNativeShapeShift(): boolean {
   return true;
+}
+
+export async function ethSupportsEIP1559(): Promise<boolean> {
+  return await this.ethSupportsEIP1559();
 }
 
 export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
@@ -46,13 +51,16 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
     est.setGasLimit(core.arrayify(msg.gasLimit));
     if (msg.gasPrice) {
       est.setGasPrice(core.arrayify(msg.gasPrice));
+      est.setType(core.ETHTransactionType.ETH_TX_TYPE_LEGACY);
     }
     if (msg.maxFeePerGas) {
       est.setMaxFeePerGas(core.arrayify(msg.maxFeePerGas));
+      est.setType(core.ETHTransactionType.ETH_TX_TYPE_EIP_1559);
+      if (msg.maxPriorityFeePerGas) {
+        est.setMaxPriorityFeePerGas(core.arrayify(msg.maxPriorityFeePerGas));
+      }
     }
-    if (msg.maxPriorityFeePerGas) {
-      est.setMaxPriorityFeePerGas(core.arrayify(msg.maxPriorityFeePerGas));
-    }
+
     if (msg.value.match("^0x0*$") === null) {
       est.setValue(core.arrayify(msg.value));
     }
@@ -136,28 +144,34 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
       throw new Error("Failed to sign ETH transaction");
     }
 
-    const r = "0x" + core.toHexString(response.getSignatureR_asU8());
-    const s = "0x" + core.toHexString(response.getSignatureS_asU8());
-    const v = response.getSignatureV();
-    if (!v) throw new Error("could not get v");
-    const v2 = "0x" + v.toString(16);
-
-    const utx = {
+    const utxBase = {
       to: msg.to,
       value: msg.value,
       data: msg.data,
       chainId: msg.chainId,
       nonce: msg.nonce,
       gasLimit: msg.gasLimit,
-      gasPrice: msg.gasPrice,
       maxFeePerGas: msg.maxFeePerGas,
       maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
-      r,
-      s,
-      v: v2,
     };
 
-    const tx = new EthereumTx(utx);
+    const r = "0x" + core.toHexString(response.getSignatureR_asU8());
+    const s = "0x" + core.toHexString(response.getSignatureS_asU8());
+    if (!response.hasSignatureV()) throw new Error("could not get v");
+    const v = response.getSignatureV();
+    const v2 = "0x" + v.toString(16);
+
+    const common = new Common({ chain: "mainnet", hardfork: "london" });
+    const tx = msg.maxFeePerGas
+      ? FeeMarketEIP1559Transaction.fromTxData({
+          ...utxBase,
+          maxFeePerGas: msg.maxFeePerGas,
+          maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
+          r: r,
+          s: s,
+          v: v2,
+        })
+      : Transaction.fromTxData({ ...utxBase, gasPrice: msg.gasPrice, r: r, s: s, v: v2 }, { common });
 
     return {
       r,
