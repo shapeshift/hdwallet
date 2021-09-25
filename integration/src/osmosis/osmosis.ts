@@ -3,6 +3,10 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import tx_unsigned from "./tx01.mainnet.osmosis.json";
 import tx_signed from "./tx01.mainnet.osmosis.json";
 
+//delgation
+import tx_signed_delegation from "./tx01.mainnet.osmosis.delegate.json";
+//
+
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
 const TIMEOUT = 60 * 1000;
@@ -71,5 +75,39 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       },
       TIMEOUT
     );
+
+    //delegate tx
+    test(
+      "osmosisSignTx()",
+      async () => {
+        if (!wallet) return;
+        const input: core.OsmosisSignTx = {
+          tx: (tx_unsigned as unknown) as core.OsmosisTx,
+          addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
+          chain_id: "osmosis-1",
+          account_number: "16354",
+          sequence: "5",
+        };
+
+        const res = await wallet.osmosisSignTx(input);
+        expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
+      },
+      TIMEOUT
+    );
+
+    //redelegate
+
+    //undelegate
+
+    //ibc deposit
+
+    //ibc withdrawal
+
+    //lp add
+
+    //lp stake
+
+
+
   });
 }
