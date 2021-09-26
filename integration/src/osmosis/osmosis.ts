@@ -5,7 +5,12 @@ import tx_signed from "./tx01.mainnet.osmosis.json";
 
 //delgation
 import tx_signed_delegation from "./tx01.mainnet.osmosis.delegate.json";
-//
+import tx_signed_undelegate from "./tx01.mainnet.osmosis.undelegate.json";
+import tx_signed_redelegate from "./tx01.mainnet.osmosis.redelegate.json";
+
+//IBC
+
+//LP
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
@@ -78,11 +83,11 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
 
     //delegate tx
     test(
-      "osmosisSignTx()",
+      "(delegate) osmosisSignTx()",
       async () => {
         if (!wallet) return;
         const input: core.OsmosisSignTx = {
-          tx: (tx_unsigned as unknown) as core.OsmosisTx,
+          tx: (tx_signed_delegation as unknown) as core.OsmosisTx,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "osmosis-1",
           account_number: "16354",
@@ -90,12 +95,29 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         };
 
         const res = await wallet.osmosisSignTx(input);
-        expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
+        expect(res?.signatures?.[0].signature).toEqual(tx_signed_delegation.signatures[0].signature);
       },
       TIMEOUT
     );
 
     //redelegate
+    test(
+      "(delegate) osmosisSignTx()",
+      async () => {
+        if (!wallet) return;
+        const input: core.OsmosisSignTx = {
+          tx: (tx_signed_redelegate as unknown) as core.OsmosisTx,
+          addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
+          chain_id: "osmosis-1",
+          account_number: "16354",
+          sequence: "5",
+        };
+
+        const res = await wallet.osmosisSignTx(input);
+        expect(res?.signatures?.[0].signature).toEqual(tx_signed_redelegate.signatures[0].signature);
+      },
+      TIMEOUT
+    );
 
     //undelegate
 

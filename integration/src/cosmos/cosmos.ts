@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import tx_unsigned from "./tx03.future.cosmoshub4.json";
-import tx_signed from "./tx03.future.cosmoshub4.signed.json";
+import tx_unsigned from "./tx03.cosmoshub4.json";
+import tx_signed from "./tx03.cosmoshub4.signed.json";
 import tx_signed_deposit from "./tx01.mainnet.cosmos.ibc.depsosit.json";
 import tx_signed_withdrawal from "./tx01.mainnet.cosmos.ibc.withdrawal.json";
 
