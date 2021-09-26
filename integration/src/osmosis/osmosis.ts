@@ -5,7 +5,6 @@ import tx_signed from "./tx01.mainnet.osmosis.json";
 
 //delgation
 import tx_signed_delegation from "./tx01.mainnet.osmosis.delegate.json";
-import tx_signed_undelegate from "./tx01.mainnet.osmosis.undelegate.json";
 import tx_signed_redelegate from "./tx01.mainnet.osmosis.redelegate.json";
 
 //IBC
