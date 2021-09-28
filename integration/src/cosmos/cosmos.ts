@@ -57,7 +57,8 @@ export function cosmosTests(get: () => { wallet: core.HDWallet; info: core.HDWal
     );
 
     //deposit
-    test(
+    //TODO keepkey
+    test.skip(
       "(ibc deposit) cosmosSignTx()",
       async () => {
         if (!wallet) return;
@@ -76,7 +77,8 @@ export function cosmosTests(get: () => { wallet: core.HDWallet; info: core.HDWal
     );
 
     //IBC deposit
-    test(
+    //TODO keepkey
+    test.skip(
       "(ibc withdrawal) cosmosSignTx()",
       async () => {
         if (!wallet) return;
