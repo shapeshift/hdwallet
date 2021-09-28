@@ -67,7 +67,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       async () => {
         if (!wallet) return;
         const input: core.OsmosisSignTx = {
-          tx: (tx_unsigned as unknown) as core.OsmosisTx,
+          tx: (tx_unsigned as unknown) as any,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "osmosis-1",
           account_number: "16354",
@@ -86,7 +86,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       async () => {
         if (!wallet) return;
         const input: core.OsmosisSignTx = {
-          tx: (tx_signed_delegation as unknown) as core.OsmosisTx,
+          tx: (tx_signed_delegation as unknown) as any,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "osmosis-1",
           account_number: "16354",
@@ -94,6 +94,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         };
 
         const res = await wallet.osmosisSignTx(input);
+        // @ts-ignore
         expect(res?.signatures?.[0].signature).toEqual(tx_signed_delegation.signatures[0].signature);
       },
       TIMEOUT
@@ -105,7 +106,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       async () => {
         if (!wallet) return;
         const input: core.OsmosisSignTx = {
-          tx: (tx_signed_redelegate as unknown) as core.OsmosisTx,
+          tx: (tx_signed_redelegate as unknown) as any,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "osmosis-1",
           account_number: "16354",
@@ -113,6 +114,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         };
 
         const res = await wallet.osmosisSignTx(input);
+        // @ts-ignore
         expect(res?.signatures?.[0].signature).toEqual(tx_signed_redelegate.signatures[0].signature);
       },
       TIMEOUT
