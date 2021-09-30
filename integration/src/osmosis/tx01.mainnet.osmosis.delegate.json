@@ -1,44 +1,34 @@
 {
-  "type":"cosmos-sdk/StdTx",
-  "value":{
-    "msg":[
+  "fee":{
+    "amount":[
       {
-        "type":"cosmos-sdk/MsgTransfer",
-        "value":{
-          "source_port":"transfer",
-          "source_channel":"channel-0",
-          "token":{
-            "denom":"ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
-            "amount":"8614"
-          },
-          "sender":"osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
-          "receiver":"cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
-          "timeout_height":{
-            "revision_number":"4",
-            "revision_height":"7268630"
-          }
-        }
+        "amount":"2800",
+        "denom":"uosmo"
       }
     ],
-    "fee":{
-      "amount":[
-        {
+    "gas":"290000"
+  },
+  "memo":"",
+  "msg":[
+    {
+      "type":"cosmos-sdk/MsgDelegate",
+      "value":{
+        "delegator_address":"osmo17htlvce5ys8hqhxlkatyuhv8qwtx72ayggsgqz",
+        "validator_address":"osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n",
+        "amount":{
           "denom":"uosmo",
-          "amount":"0"
+          "amount":"1000"
         }
-      ],
-      "gas":"500000"
-    },
-    "signatures":[
-      {
-        "pub_key":{
-          "type":"tendermint/PubKeySecp256k1",
-          "value":"A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
-        },
-        "signature":"DcC8UFnFZCOBc3RZFG+NadlspjvNCfid0s+9cfb+xVVtE+s8AiaGR7o5GpVlop5FmnR/ZpwPe3Ke8tTunOXXrw=="
       }
-    ],
-    "memo":"",
-    "timeout_height":"0"
-  }
+    }
+  ],
+  "signatures":[
+    {
+      "signature":"JdqKfOlTgVNl/2iqiMMa91IuyIEK3d+yhYVE8Bxu9kptUASW8lLo1CerKr7hkCVxeSbwkkarRW7yFfej1E7jTA==",
+      "pub_key":{
+        "type":"tendermint/PubKeySecp256k1",
+        "value":"AmrURAPLuqG8lK8M9F8Scq5JA4oOU5aB3qEXDsFJwU4h"
+      }
+    }
+  ]
 }
