@@ -379,7 +379,8 @@ export function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInp
     {
       [BTCInputScriptType.SpendAddress]: ["Legacy"],
       [BTCInputScriptType.SpendP2SHWitness]: [],
-      [BTCInputScriptType.SpendWitness]: ["Segwit Native"],
+      [BTCInputScriptType.SpendWitness]: ["Segwit"],
+      [BTCInputScriptType.Bech32]: ["Segwit Native"],
     } as Partial<Record<BTCInputScriptType, string[]>>
   )[scriptType];
 
