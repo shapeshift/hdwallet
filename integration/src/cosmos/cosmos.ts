@@ -56,45 +56,5 @@ export function cosmosTests(get: () => { wallet: core.HDWallet; info: core.HDWal
       TIMEOUT
     );
 
-    //deposit
-    //TODO keepkey
-    test.skip(
-      "(ibc deposit) cosmosSignTx()",
-      async () => {
-        if (!wallet) return;
-        const input: core.CosmosSignTx = {
-          tx: (tx_signed_deposit as unknown) as core.CosmosTx,
-          addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
-          chain_id: "cosmoshub-4",
-          account_number: "16354",
-          sequence: "5",
-        };
-
-        const res = await wallet.cosmosSignTx(input);
-        expect(res?.signatures?.[0].signature).toEqual(tx_signed_deposit.signatures[0].signature);
-      },
-      TIMEOUT
-    );
-
-    //IBC deposit
-    //TODO keepkey
-    test.skip(
-      "(ibc withdrawal) cosmosSignTx()",
-      async () => {
-        if (!wallet) return;
-        const input: core.CosmosSignTx = {
-          tx: (tx_signed_withdrawal as unknown) as core.CosmosTx,
-          addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
-          chain_id: "cosmoshub-4",
-          account_number: "16354",
-          sequence: "5",
-        };
-
-        const res = await wallet.cosmosSignTx(input);
-        expect(res?.signatures?.[0].signature).toEqual(tx_signed_withdrawal.signatures[0].signature);
-      },
-      TIMEOUT
-    );
-
   });
 }
