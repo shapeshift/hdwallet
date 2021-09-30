@@ -133,7 +133,7 @@ const OP_RETURN_BENCHMARK_TX = benchmarkTx(
   { opReturnData: "foobar" }
 );
 
-describe.only("NativeBTCWalletInfo", () => {
+describe("NativeBTCWalletInfo", () => {
   const info = native.info();
 
   it("should return some static metadata", async () => {
