@@ -2,8 +2,6 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 
 import tx_unsigned from "./tx03.cosmoshub4.json";
 import tx_signed from "./tx03.cosmoshub4.signed.json";
-import tx_signed_deposit from "./tx01.mainnet.cosmos.ibc.depsosit.json";
-import tx_signed_withdrawal from "./tx01.mainnet.cosmos.ibc.withdrawal.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
@@ -55,6 +53,26 @@ export function cosmosTests(get: () => { wallet: core.HDWallet; info: core.HDWal
       },
       TIMEOUT
     );
+
+    //deposit
+    test(
+      "cosmosSignTx()",
+      async () => {
+        if (!wallet) return;
+        const input: core.CosmosSignTx = {
+          tx: (tx_unsigned as unknown) as core.CosmosTx,
+          addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
+          chain_id: "cosmoshub-4",
+          account_number: "16354",
+          sequence: "5",
+        };
+
+        const res = await wallet.cosmosSignTx(input);
+        expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
+      },
+      TIMEOUT
+    );
+
 
   });
 }
