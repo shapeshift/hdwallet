@@ -3230,15 +3230,6 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-core@1.15.5-alpha.1":
-  version "1.15.5-alpha.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.15.5-alpha.1.tgz#c40d2ecc44c0a1430552e40ac7b57346e6977a24"
-  integrity sha512-eCXbXe0hu7CetsDESOCj3pPMYa6Zig21Qhn293nodKvNFFRHh2COBjg9zHuJQSvnIDJ0QSUxpWBbVpKp8WP+uQ==
-  dependencies:
-    eventemitter2 "^5.0.1"
-    lodash "^4.17.21"
-    rxjs "^6.4.0"
-
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.14.0.tgz#9fb3a3cf3132328151f353de4632e01e52102bea"

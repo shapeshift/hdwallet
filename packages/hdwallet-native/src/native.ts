@@ -155,6 +155,9 @@ class NativeHDWalletInfo
         return core.kavaDescribePath(msg.path);
       case "binance":
         return core.binanceDescribePath(msg.path);
+      case "osmosis":
+      case "osmo":
+        return core.osmosisDescribePath(msg.path);
       case "fio":
         return core.fioDescribePath(msg.path);
       default:

@@ -99,9 +99,8 @@ export function integration(suite: WalletSuite): void {
 
     describe("OsmosisWallet", () => {
       beforeAll(async () => {
-        wallet = await suite.createWallet("Osmosis");
+        wallet = await suite.createWallet("Osmo");
       });
-      expect(wallet).toBeDefined();
       osmosisTests(() => ({ wallet, info }));
     });
 

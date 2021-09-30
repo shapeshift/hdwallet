@@ -28,8 +28,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     });
 
     beforeEach(async () => {
-      // if (!wallet) return;
-      if (!wallet) throw Error("No wallet found! osmosis");
+      if (!wallet) return;
       await wallet.wipe();
       await wallet.loadDevice({
         mnemonic: MNEMONIC12_NOPIN_NOPASSPHRASE,
