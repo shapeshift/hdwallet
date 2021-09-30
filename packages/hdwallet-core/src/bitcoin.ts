@@ -227,6 +227,7 @@ export interface BTCSignedTx {
   serializedTx: string;
 }
 
+// Bech32 info https://en.bitcoin.it/wiki/BIP_0173
 export enum BTCInputScriptType {
   CashAddr = "cashaddr", // for Bitcoin Cash
   Bech32 = "bech32",
@@ -240,6 +241,7 @@ export enum BTCInputScriptType {
 export enum BTCOutputScriptType {
   PayToAddress = "p2pkh",
   PayToMultisig = "p2sh",
+  Bech32 = "bech32",
   PayToWitness = "p2wpkh",
   PayToP2SHWitness = "p2sh-p2wpkh",
 }
@@ -372,15 +374,14 @@ export function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInp
 
   if (purpose === 49 && scriptType !== BTCInputScriptType.SpendP2SHWitness) return unknown;
 
-  if (purpose === 84 && scriptType !== BTCInputScriptType.SpendWitness) return unknown;
-
   let wholeAccount = path.length === 3;
 
   let script = (
     {
       [BTCInputScriptType.SpendAddress]: ["Legacy"],
       [BTCInputScriptType.SpendP2SHWitness]: [],
-      [BTCInputScriptType.SpendWitness]: ["Segwit Native"],
+      [BTCInputScriptType.SpendWitness]: ["Segwit"],
+      [BTCInputScriptType.Bech32]: ["Segwit Native"],
     } as Partial<Record<BTCInputScriptType, string[]>>
   )[scriptType];
 
