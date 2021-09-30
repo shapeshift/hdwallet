@@ -227,6 +227,7 @@ export interface BTCSignedTx {
   serializedTx: string;
 }
 
+// Bech32 info https://en.bitcoin.it/wiki/BIP_0173
 export enum BTCInputScriptType {
   CashAddr = "cashaddr", // for Bitcoin Cash
   Bech32 = "bech32",

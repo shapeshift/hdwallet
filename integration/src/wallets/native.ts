@@ -368,7 +368,7 @@ export function selfTest(get: () => core.HDWallet): void {
         scriptType: core.BTCInputScriptType.Bech32,
       })
     ).toEqual({
-      verbose: "Bitcoin Account #0, Address #0 (Legacy)",
+      verbose: "Bitcoin Account #0, Address #0 (Segwit Native)",
       coin: "Bitcoin",
       isKnown: true,
       scriptType: core.BTCInputScriptType.Bech32,
