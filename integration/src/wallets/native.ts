@@ -333,7 +333,7 @@ export function selfTest(get: () => core.HDWallet): void {
         coin: "Litecoin",
         isKnown: true,
         scriptType: "p2wpkh",
-        verbose: "Litecoin Account #4 (Segwit Native)",
+        verbose: "Litecoin Account #4 (Segwit)",
         wholeAccount: true,
         isPrefork: false,
       },
@@ -352,6 +352,26 @@ export function selfTest(get: () => core.HDWallet): void {
       coin: "Bitcoin",
       isKnown: true,
       scriptType: core.BTCInputScriptType.SpendAddress,
+      accountIdx: 0,
+      addressIdx: 0,
+      wholeAccount: false,
+      isChange: false,
+      isPrefork: false,
+    });
+  });
+
+  it("can describe a Bitcoin bech32 path", () => {
+    expect(
+      wallet.describePath({
+        path: core.bip32ToAddressNList("m/84'/0'/0'/0/0"),
+        coin: "Bitcoin",
+        scriptType: core.BTCInputScriptType.Bech32,
+      })
+    ).toEqual({
+      verbose: "Bitcoin Account #0, Address #0 (Segwit Native)",
+      coin: "Bitcoin",
+      isKnown: true,
+      scriptType: core.BTCInputScriptType.Bech32,
       accountIdx: 0,
       addressIdx: 0,
       wholeAccount: false,
