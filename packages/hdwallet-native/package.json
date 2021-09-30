@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-native",
-  "version": "1.16.3",
+  "version": "1.16.5",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -16,7 +16,7 @@
   "dependencies": {
     "@bithighlander/bitcoin-cash-js-lib": "5.2.1",
     "@shapeshiftoss/fiosdk": "1.2.1-shapeshift.4",
-    "@shapeshiftoss/hdwallet-core": "1.16.3",
+    "@shapeshiftoss/hdwallet-core": "1.16.5",
     "@zxing/text-encoding": "^0.9.0",
     "bchaddrjs": "^0.4.9",
     "bignumber.js": "^9.0.1",
