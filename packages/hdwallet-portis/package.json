@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-portis",
-  "version": "1.13.6",
+  "version": "1.16.6",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@portis/web3": "3.0.10",
-    "@shapeshiftoss/hdwallet-core": "1.13.6",
+    "@shapeshiftoss/hdwallet-core": "1.16.6",
     "base64-js": "^1.5.1",
     "bip32": "^2.0.4",
     "bitcoinjs-lib": "^5.1.6",

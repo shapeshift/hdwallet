@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-trezor",
-  "version": "1.13.6",
+  "version": "1.16.6",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -17,7 +17,7 @@
   "dependencies": {
     "@ethereumjs/common": "^2.4.0",
     "@ethereumjs/tx": "^3.3.0",
-    "@shapeshiftoss/hdwallet-core": "1.13.6",
+    "@shapeshiftoss/hdwallet-core": "1.16.6",
     "base64-js": "^1.5.1",
     "lodash": "^4.17.21"
   },
