@@ -5,7 +5,7 @@ import tx_signed from "./tx01.mainnet.osmosis.json";
 
 //delgation
 import tx_signed_delegation from "./tx01.mainnet.osmosis.delegate.json";
-import tx_signed_redelegate from "./tx01.mainnet.osmosis.redelegate.json";
+import tx_signed_undelegate from "./tx01.mainnet.osmosis.undelegate.json";
 
 //IBC
 
@@ -100,13 +100,13 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       TIMEOUT
     );
 
-    //redelegate
+    //undelegate
     test(
-      "(delegate) osmosisSignTx()",
+      "(undelegate) osmosisSignTx()",
       async () => {
         if (!wallet) return;
         const input: core.OsmosisSignTx = {
-          tx: (tx_signed_redelegate as unknown) as any,
+          tx: (tx_signed_undelegate as unknown) as any,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "osmosis-1",
           account_number: "16354",
@@ -115,7 +115,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
 
         const res = await wallet.osmosisSignTx(input);
         // @ts-ignore
-        expect(res?.signatures?.[0].signature).toEqual(tx_signed_redelegate.signatures[0].signature);
+        expect(res?.signatures?.[0].signature).toEqual(tx_signed_undelegate.signatures[0].signature);
       },
       TIMEOUT
     );
