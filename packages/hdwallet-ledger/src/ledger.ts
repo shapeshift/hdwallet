@@ -189,7 +189,7 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {
-    return await eth.ethSupportsEIP1559();
+    return eth.ethSupportsEIP1559();
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {

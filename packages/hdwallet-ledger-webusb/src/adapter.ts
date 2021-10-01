@@ -60,15 +60,13 @@ export class WebUSBLedgerAdapter {
     }, APP_NAVIGATION_DELAY);
   }
 
-  public get(device: USBDevice): core.HDWallet | null {
-    if (!device.serialNumber) throw new Error("missing serial number");
-    return this.keyring.get(device.serialNumber);
+  public get(device: USBDevice): core.HDWallet {
+    return this.keyring.get((device as any).serialNumber);
   }
 
   // without unique device identifiers, we should only ever have one ledger device on the keyring at a time
   public async initialize(usbDevice?: USBDevice): Promise<number> {
     const device = usbDevice ?? (await getFirstLedgerDevice());
-    if (!device?.serialNumber) throw new Error("missing serial number");
 
     if (device) {
       await this.keyring.remove(device.serialNumber);
