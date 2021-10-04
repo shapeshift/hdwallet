@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
-import TrezorConnect, { DEVICE_EVENT, TRANSPORT_EVENT, UI } from "trezor-connect";
+import TrezorConnect, { DEVICE, DEVICE_EVENT, TRANSPORT_EVENT, UI } from "trezor-connect";
 
 import { TrezorConnectTransport, POPUP, TrezorDevice } from "./transport";
 
@@ -34,7 +34,7 @@ export class TrezorAdapter {
     // the events.
     let connectEvents: any[] = [];
     let connectHandler = (event: any) => {
-      if (event.type === "device-connect") {
+      if (event.type === DEVICE.CONNECT) {
         connectEvents.push(event);
       }
     };
@@ -53,11 +53,11 @@ export class TrezorAdapter {
     for (const connectEvent of connectEvents) this.handleConnectTrezor(connectEvent);
 
     TrezorConnect.on(DEVICE_EVENT, (event: any) => {
-      if (event.type === "device-connect") {
+      if (event.type === DEVICE.CONNECT) {
         this.handleConnectTrezor(event);
-      } else if (event.type === "device-changed") {
+      } else if (event.type === DEVICE.CHANGED) {
         this.handleChangeTrezor(event);
-      } else if (event.type === "device-disconnect") {
+      } else if (event.type === DEVICE.DISCONNECT) {
         this.handleDisconnectTrezor(event);
       }
     });

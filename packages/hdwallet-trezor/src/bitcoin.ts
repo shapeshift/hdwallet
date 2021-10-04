@@ -13,7 +13,7 @@ type BTCTrezorSignTxOutput = {
 };
 
 function translateCoin(coin: core.Coin): string {
-  return core.mustBeDefined(({
+  return {
     Bitcoin: "btc",
     Litecoin: "ltc",
     Zcash: "zec",
@@ -23,7 +23,7 @@ function translateCoin(coin: core.Coin): string {
     DigiByte: "dgb",
     Testnet: "testnet",
     Dogecoin: "doge",
-  } as Partial<Record<core.Coin, string>>)[coin]);
+  }[coin];
 }
 
 const segwitCoins = ["Bitcoin", "Litecoin", "BitcoinGold", "Testnet"];
@@ -105,7 +105,7 @@ export async function btcSignTx(wallet: core.BTCWallet, transport: TrezorTranspo
   let outputs: BTCTrezorSignTxOutput[] = msg.outputs.map((output) => {
     if (output.exchangeType && !supportsShapeShift) throw new Error("Trezor does not support Native ShapeShift");
 
-    if ("addressNList" in output) {
+    if (output.addressNList) {
       if (output.addressType === core.BTCOutputAddressType.Transfer && !supportsSecureTransfer)
         throw new Error("Trezor does not support SecureTransfer");
 
@@ -122,7 +122,7 @@ export async function btcSignTx(wallet: core.BTCWallet, transport: TrezorTranspo
       return {
         address: output.address,
         amount: output.amount,
-        script_type: "PAYTOADDRESS",
+        script_type: translateOutputScriptType(core.BTCOutputScriptType.PayToAddress)
       };
     }
 
