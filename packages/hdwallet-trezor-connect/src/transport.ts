@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
-import TrezorConnect, { DEVICE_EVENT, UI_EVENT } from "trezor-connect";
+import TrezorConnect, { DEVICE, DEVICE_EVENT, UI_EVENT } from "trezor-connect";
 
 export const POPUP = true;
 
@@ -19,7 +19,7 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
 
   public static async cancellable(inProgress: Promise<any>): Promise<void> {
     try {
-      // We thrrow away the result, since it's either undefined, or meant for the
+      // We throw away the result, since it's either undefined, or meant for the
       // other concurrent thread, possibly involving a different TrezorConnectTransport.
       await inProgress;
     } catch (e) {
@@ -67,7 +67,7 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
       );
 
       // Then log it the 'unified' way:
-      if (event.type === "ui-request_pin") {
+      if (event.type === DEVICE.PIN) {
         this.emit(
           core.Events.PIN_REQUEST,
           core.makeEvent({
