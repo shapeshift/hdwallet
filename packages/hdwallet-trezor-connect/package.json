@@ -16,6 +16,7 @@
   "dependencies": {
     "@shapeshiftoss/hdwallet-core": "1.16.7",
     "@shapeshiftoss/hdwallet-trezor": "1.16.7",
+    "@trezor/rollout": "^1.2.0",
     "trezor-connect": "^8.2.1"
   },
   "devDependencies": {
