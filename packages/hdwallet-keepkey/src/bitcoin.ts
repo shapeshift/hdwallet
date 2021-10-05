@@ -269,10 +269,11 @@ export async function btcSignTx(
   msgIn: core.BTCSignTxKK
 ): Promise<core.BTCSignedTx> {
   return transport.lockDuring(async () => {
-    await ensureCoinSupport(wallet, msg.coin);
-
     // Make a copy of the input parameter so as to not mutate the caller's data
     const msg = { ...msgIn };
+    
+    await ensureCoinSupport(wallet, msg.coin);
+
 
     if (msg.opReturnData) {
       if (msg.opReturnData.length > 80) {
