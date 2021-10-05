@@ -3048,6 +3048,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/icepick@^2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@types/icepick/-/icepick-2.3.0.tgz#5abda9af4f7b91be390c8ea242bd9f6c39c1fbf5"
+  integrity sha512-1NjupwGyCzA0tJoIu+Sm2OyGNoi8wsg5UkJSoEwK+QWWz67b17oOxQObV6Md+LbFRnevfCaTfzccHAv8h0+IfQ==
+
 "@types/inquirer@^7.3.1":
   version "7.3.3"
   resolved "https://registry.yarnpkg.com/@types/inquirer/-/inquirer-7.3.3.tgz#92e6676efb67fa6925c69a2ee638f67a822952ac"
@@ -7755,6 +7760,11 @@ humanize-ms@^1.2.1:
   integrity sha1-xG4xWaKT9riW2ikxbYtv6Lt5u+0=
   dependencies:
     ms "^2.0.0"
+
+icepick@^2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/icepick/-/icepick-2.4.0.tgz#1ff31e080d9b64ca5d164916ea725f8cb9514b7a"
+  integrity sha512-tr62H2DxpN9dEdgFZ4CGKiE0yzcz/kST4dJiRN6jkPn4CllniywYl1LvPTErWTBxJ2GAG4c7Em/pzy0WZi9eNw==
 
 iconv-lite@0.4.24, iconv-lite@^0.4.24:
   version "0.4.24"
