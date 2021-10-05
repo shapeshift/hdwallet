@@ -24,6 +24,7 @@
     "crypto-js": "^4.0.0",
     "eip55": "^2.1.0",
     "google-protobuf": "^3.15.8",
+    "icepick": "^2.4.0",
     "lodash": "^4.17.21",
     "semver": "^6.3.0",
     "tiny-secp256k1": "^1.1.6"
@@ -31,6 +32,7 @@
   "devDependencies": {
     "@types/crypto-js": "^4.0.0",
     "@types/google-protobuf": "^3.15.1",
+    "@types/icepick": "^2.3.0",
     "@types/lodash": "^4.14.168",
     "@types/semver": "^6.2.2",
     "@types/tiny-secp256k1": "^1.0.0",
