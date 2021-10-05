@@ -279,14 +279,14 @@ export async function btcSignTx(
 
     if (msg.opReturnData) {
       if (msg.opReturnData.length > 80) {
-        throw new Error("OP_RETURN output character count is too damn high.");
+        throw new Error("OP_RETURN output character count is too damn high.")
       }
       msg.outputs.push({
         addressType: core.BTCOutputAddressType.Spend,
-        opReturnData: Buffer.from(msg.opReturnData).toString("base64"),
+        opReturnData: Buffer.from(msg.opReturnData).toString('base64'),
         amount: "0",
         isChange: false,
-      });
+      })
     }
 
     // If this is a THORChain transaction, validate the vout ordering
