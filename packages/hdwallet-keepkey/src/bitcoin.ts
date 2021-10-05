@@ -6,6 +6,8 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { Transport } from "./transport";
 import { toUTF8Array, translateInputScriptType, translateOutputScriptType } from "./utils";
 
+import { thaw } from "icepick";
+
 // FIXME: load this from the device's coin table, or from some static features
 // table... instead of, you know, adding another God-forsaken coin table.
 // :facepalm:
@@ -269,11 +271,11 @@ export async function btcSignTx(
   msgIn: core.BTCSignTxKK
 ): Promise<core.BTCSignedTx> {
   return transport.lockDuring(async () => {
-    // Make a copy of the input parameter so as to not mutate the caller's data
-    const msg = { ...msgIn };
-    
-    await ensureCoinSupport(wallet, msg.coin);
+    // Make a copy of the input parameter so as to not mutate the caller's data.
+    // Unfreezing a recursively-frozen object is nontrivial, so we leverage an existing package
+    const msg = thaw(msgIn);
 
+    await ensureCoinSupport(wallet, msg.coin);
 
     if (msg.opReturnData) {
       if (msg.opReturnData.length > 80) {
