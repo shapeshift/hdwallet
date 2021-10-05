@@ -34,7 +34,7 @@ const keyring = new core.Keyring();
 const portisAppId = "ff763d3d-9e34-45a1-81d1-caa39b9c64f9";
 const mnemonic = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
-//const keepkeyAdapter = keepkeyWebUSB.WebUSBKeepKeyAdapter.useKeyring(keyring);
+const keepkeyAdapter = keepkeyWebUSB.WebUSBKeepKeyAdapter.useKeyring(keyring);
 const kkbridgeAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const kkemuAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const portisAdapter = portis.PortisAdapter.useKeyring(keyring, { portisAppId });
@@ -168,22 +168,10 @@ async function deviceConnected(deviceId) {
   keyring.on(["*", "*", core.Events.PASSPHRASE_REQUEST], () => window["passphraseOpen"]());
   keyring.on(["*", "*", native.NativeEvents.MNEMONIC_REQUIRED], () => window["mnemonicOpen"]());
 
-  // try {
-  //   await keepkeyAdapter.initialize(undefined, /*tryDebugLink=*/ true, /*autoConnect=*/ false);
-  // } catch (e) {
-  //   console.error("Could not initialize KeepKeyAdapter", e);
-  // }
-
   try {
     await kkbridgeAdapter.pairDevice("http://localhost:1646");
-    //await kkbridgeAdapter.initialize();
   } catch (e) {
     console.error("Could not initialize keepkey bridge", e);
-    // try {
-    //   await keepkeyAdapter.initialize(undefined, /*tryDebugLink=*/ true, /*autoConnect=*/ false);
-    // } catch (e) {
-    //   console.error("Could not initialize KeepKeyAdapter", e);
-    // }
   }
 
   try {
