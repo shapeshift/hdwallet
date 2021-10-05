@@ -13,6 +13,19 @@ export function name(): string {
   return "KeepKey";
 }
 
+async function getBridge(keyring: core.Keyring) {
+  try {
+    const tcpAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
+    const wallet = await tcpAdapter.pairRawDevice({
+      baseURL: "http://localhost:1646",
+      adapter: AxiosHTTPAdapter,
+    }, true);
+    if (wallet) console.log("Using KeepKey Bridge for tests");
+    return wallet;
+  } catch (e) {}
+  return undefined;
+}
+
 async function getDevice(keyring: core.Keyring) {
   try {
     const keepkeyAdapter = keepkeyNodeWebUSB.NodeWebUSBKeepKeyAdapter.useKeyring(keyring);
@@ -45,7 +58,7 @@ export function createInfo(): core.HDWalletInfo {
 export async function createWallet(): Promise<core.HDWallet> {
   const keyring = new core.Keyring();
 
-  const wallet = (await getDevice(keyring)) || (await getEmulator(keyring));
+  const wallet = ((await getBridge(keyring) || await getDevice(keyring))) || (await getEmulator(keyring));
 
   if (!wallet) throw new Error("No suitable test KeepKey found");
 
