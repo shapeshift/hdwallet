@@ -83,11 +83,14 @@ export class WebUSBLedgerAdapter {
 
   public async pairDevice(): Promise<core.HDWallet> {
     const ledgerTransport = await getTransport();
+    console.log('pairDevice ledgerTransport:', ledgerTransport)
 
     const device = ledgerTransport.device;
+    console.log('pairDevice device:', device)
 
     await this.initialize(device);
+    console.log('pairDevice device.?serialNumber:', device?.serialNumber)
 
-    return core.mustBeDefined(this.keyring.get(device.serialNumber));
+    return this.keyring.get(device?.serialNumber)
   }
 }
