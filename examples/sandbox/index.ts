@@ -34,7 +34,7 @@ const keyring = new core.Keyring();
 const portisAppId = "ff763d3d-9e34-45a1-81d1-caa39b9c64f9";
 const mnemonic = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
-const keepkeyAdapter = keepkeyWebUSB.WebUSBKeepKeyAdapter.useKeyring(keyring);
+//const keepkeyAdapter = keepkeyWebUSB.WebUSBKeepKeyAdapter.useKeyring(keyring);
 const kkbridgeAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const kkemuAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const portisAdapter = portis.PortisAdapter.useKeyring(keyring, { portisAppId });
@@ -64,6 +64,7 @@ let wallet;
 window["wallet"] = wallet;
 
 const $keepkey = $("#keepkey");
+const $keepkeybridge = $("#keepkeybridge");
 const $kkemu = $("#kkemu");
 const $trezor = $("#trezor");
 const $ledger = $("#ledger");
@@ -77,6 +78,14 @@ $keepkey.on("click", async (e) => {
   window["wallet"] = wallet;
   $("#keyring select").val(await wallet.transport.getDeviceID());
 });
+
+$keepkeybridge.on("click", async (e) => {
+  e.preventDefault();
+  wallet = await kkbridgeAdapter.pairDevice("http://localhost:1646");
+  window["wallet"] = wallet;
+  $("#keyring select").val(await wallet.transport.getDeviceID());
+});
+
 
 $kkemu.on("click", async (e) => {
   e.preventDefault();
@@ -167,13 +176,14 @@ async function deviceConnected(deviceId) {
 
   try {
     await kkbridgeAdapter.pairDevice("http://localhost:1646");
+    //await kkbridgeAdapter.initialize();
   } catch (e) {
     console.error("Could not initialize keepkey bridge", e);
-    try {
-      await keepkeyAdapter.initialize(undefined, /*tryDebugLink=*/ true, /*autoConnect=*/ false);
-    } catch (e) {
-      console.error("Could not initialize KeepKeyAdapter", e);
-    }
+    // try {
+    //   await keepkeyAdapter.initialize(undefined, /*tryDebugLink=*/ true, /*autoConnect=*/ false);
+    // } catch (e) {
+    //   console.error("Could not initialize KeepKeyAdapter", e);
+    // }
   }
 
   try {
