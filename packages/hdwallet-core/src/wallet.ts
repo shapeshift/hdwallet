@@ -3,6 +3,7 @@ import _ from "lodash";
 import { BinanceWallet, BinanceWalletInfo } from "./binance";
 import { BTCInputScriptType, BTCWallet, BTCWalletInfo } from "./bitcoin";
 import { CosmosWallet, CosmosWalletInfo } from "./cosmos";
+import { OsmosisWallet, OsmosisWalletInfo } from "./osmosis";
 import { DebugLinkWallet } from "./debuglink";
 import { EosWallet, EosWalletInfo } from "./eos";
 import { ETHWallet, ETHWalletInfo } from "./ethereum";
@@ -146,6 +147,14 @@ export function supportsCosmos(wallet: HDWallet): wallet is CosmosWallet {
 
 export function infoCosmos(info: HDWalletInfo): info is CosmosWalletInfo {
   return _.isObject(info) && (info as any)._supportsCosmosInfo;
+}
+
+export function supportsOsmosis(wallet: HDWallet): wallet is OsmosisWallet {
+  return _.isObject(wallet) && (wallet as any)._supportsOsmosis;
+}
+
+export function infoOsmosis(info: HDWalletInfo): info is OsmosisWalletInfo {
+  return _.isObject(info) && (info as any)._supportsOsmosisInfo;
 }
 
 export function supportsThorchain(wallet: HDWallet): wallet is ThorchainWallet {

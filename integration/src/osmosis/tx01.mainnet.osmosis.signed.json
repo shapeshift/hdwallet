@@ -1,0 +1,38 @@
+{
+  "msg":[
+    {
+      "type":"cosmos-sdk/MsgSend",
+      "value":{
+        "from_address":"osmo1a7xqkxa4wyjfllme9u3yztgsz363dalz3lxtj6",
+        "to_address":"osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
+        "amount":[
+          {
+            "denom":"uosmo",
+            "amount":"1000"
+          }
+        ]
+      }
+    }
+  ],
+  "fee":{
+    "amount":[
+      {
+        "denom":"uosmo",
+        "amount":"2800"
+      }
+    ],
+    "gas":"80000"
+  },
+  "signatures":[
+    {
+      "pub_key":{
+        "type":"tendermint/PubKeySecp256k1",
+        "value":"A6enCcw1NHqwuGmQTse6ve3iP6oIfJBeM9oJt/1g1l9B"
+      },
+      "signature":"ko3FHToUoVPU54TNvjVWYjFALqWfZQ0QNFLVQRCHx5oySalvbFljfKDi0uEr9Ro6wE0B5CI0bJkcEUnVI2dAvw=="
+    }
+  ],
+  "memo":"hello world",
+  "timeout_height":"0"
+}
+

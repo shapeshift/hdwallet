@@ -8,6 +8,7 @@ import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 import { btcTests } from "./bitcoin";
 import { ethTests } from "./ethereum";
 import { cosmosTests } from "./cosmos";
+import { osmosisTests } from "./osmosis";
 import { binanceTests } from "./binance";
 import { rippleTests } from "./ripple";
 import { eosTests } from "./eos";
@@ -94,6 +95,13 @@ export function integration(suite: WalletSuite): void {
       });
 
       cosmosTests(() => ({ wallet, info }));
+    });
+
+    describe("OsmosisWallet", () => {
+      beforeAll(async () => {
+        wallet = await suite.createWallet("Osmo");
+      });
+      osmosisTests(() => ({ wallet, info }));
     });
 
     describe("BinanceWallet", () => {
