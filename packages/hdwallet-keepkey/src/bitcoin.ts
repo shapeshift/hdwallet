@@ -6,6 +6,8 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { Transport } from "./transport";
 import { toUTF8Array, translateInputScriptType, translateOutputScriptType } from "./utils";
 
+import { thaw } from "icepick";
+
 // FIXME: load this from the device's coin table, or from some static features
 // table... instead of, you know, adding another God-forsaken coin table.
 // :facepalm:
@@ -44,7 +46,11 @@ function packVarint(n: number): string {
   else return "FF" + n.toString(16).padStart(16, "0");
 }
 
-function prepareSignTx(coin: core.Coin, inputs: Array<core.BTCSignTxInputKK>, outputs: Array<core.BTCSignTxOutput>): any {
+function prepareSignTx(
+  coin: core.Coin,
+  inputs: Array<core.BTCSignTxInputKK>,
+  outputs: Array<core.BTCSignTxOutput>
+): any {
   const unsignedTx = new Types.TransactionType();
   unsignedTx.setInputsCnt(inputs.length);
   unsignedTx.setOutputsCnt(outputs.length);
@@ -98,7 +104,7 @@ function prepareSignTx(coin: core.Coin, inputs: Array<core.BTCSignTxInputKK>, ou
       newOutput.setScriptType(translateOutputScriptType(output.scriptType));
       newOutput.setAddressNList(output.addressNList);
       newOutput.setAddressType(output.isChange ? Types.OutputAddressType.CHANGE : Types.OutputAddressType.TRANSFER);
-    } else if (output.opReturnData !== undefined && output.opReturnData !== null){
+    } else if (output.opReturnData !== undefined && output.opReturnData !== null) {
       // BTCSignTxOutputMemo
       newOutput.setScriptType(Types.OutputScriptType.PAYTOOPRETURN);
       newOutput.setAddressType(Types.OutputAddressType.SPEND);
@@ -246,7 +252,11 @@ export async function btcGetAddress(
   addr.setShowDisplay(msg.showDisplay || false);
   addr.setScriptType(translateInputScriptType(msg.scriptType || core.BTCInputScriptType.SpendAddress));
 
-  const response = (await transport.call(Messages.MessageType.MESSAGETYPE_GETADDRESS, addr, core.LONG_TIMEOUT)) as core.Event;
+  const response = (await transport.call(
+    Messages.MessageType.MESSAGETYPE_GETADDRESS,
+    addr,
+    core.LONG_TIMEOUT
+  )) as core.Event;
 
   if (response.message_type === core.Events.FAILURE) throw response;
   if (response.message_type === core.Events.CANCEL) throw response;
@@ -255,12 +265,20 @@ export async function btcGetAddress(
   return core.mustBeDefined(btcAddress.getAddress());
 }
 
-export async function btcSignTx(wallet: core.BTCWallet, transport: Transport, msg: core.BTCSignTxKK): Promise<core.BTCSignedTx> {
+export async function btcSignTx(
+  wallet: core.BTCWallet,
+  transport: Transport,
+  msgIn: core.BTCSignTxKK
+): Promise<core.BTCSignedTx> {
   return transport.lockDuring(async () => {
+    // Make a copy of the input parameter so as to not mutate the caller's data.
+    // Unfreezing a recursively-frozen object is nontrivial, so we leverage an existing package
+    const msg = thaw(msgIn);
+
     await ensureCoinSupport(wallet, msg.coin);
 
     if (msg.opReturnData) {
-      if(msg.opReturnData.length > 80){
+      if (msg.opReturnData.length > 80) {
         throw new Error("OP_RETURN output character count is too damn high.")
       }
       msg.outputs.push({
@@ -275,7 +293,7 @@ export async function btcSignTx(wallet: core.BTCWallet, transport: Transport, ms
     if (msg.vaultAddress && !validateVoutOrdering(msg)) {
       throw new Error("Improper vout ordering for BTC Thorchain transaction");
     }
-    
+
     const txmap = prepareSignTx(msg.coin, msg.inputs, msg.outputs);
 
     // Prepare and send initial message
@@ -295,7 +313,7 @@ export async function btcSignTx(wallet: core.BTCWallet, transport: Transport, ms
       /*omitLock=*/ true
     )) as core.Event; // 5 Minute timeout
     responseType = message_enum;
-    response = proto;  
+    response = proto;
     // Prepare structure for signatures
     const signatures: (string | null)[] = new Array(msg.inputs.length).fill(null);
     let serializedTx: string = "";
@@ -324,9 +342,7 @@ export async function btcSignTx(wallet: core.BTCWallet, transport: Transport, ms
           if (signatures[sigIdx] !== null) {
             throw new Error(`Signature for index ${sigIdx} already filled`);
           }
-          signatures[sigIdx] = core.toHexString(
-            txRequest.getSerialized()!.getSignature_asU8()
-          );
+          signatures[sigIdx] = core.toHexString(txRequest.getSerialized()!.getSignature_asU8());
         }
 
         if (txRequest.getRequestType() === Types.RequestType.TXFINISHED) {
@@ -341,7 +357,7 @@ export async function btcSignTx(wallet: core.BTCWallet, transport: Transport, ms
         // Device asked for one more information, let's process it.
         if (!txRequest.hasDetails()) throw new Error("expected details");
         const reqDetails = txRequest.getDetails()!;
-        
+
         if (!reqDetails!.hasTxHash()) {
           currentTx = txmap["unsigned"];
         } else {
@@ -418,7 +434,8 @@ export async function btcSignTx(wallet: core.BTCWallet, transport: Transport, ms
         }
 
         if (txRequest.getRequestType() === Types.RequestType.TXEXTRADATA) {
-          if (!reqDetails.hasExtraDataOffset() || !reqDetails.hasExtraDataLen()) throw new Error("missing extra data offset and length");
+          if (!reqDetails.hasExtraDataOffset() || !reqDetails.hasExtraDataLen())
+            throw new Error("missing extra data offset and length");
           let offset = reqDetails.getExtraDataOffset()!;
           let length = reqDetails.getExtraDataLen()!;
           msg = new Types.TransactionType();
@@ -471,7 +488,11 @@ export async function btcSignMessage(
   sign.setMessage(toUTF8Array(msg.message));
   sign.setCoinName(msg.coin || "Bitcoin");
   sign.setScriptType(translateInputScriptType(msg.scriptType ?? core.BTCInputScriptType.SpendAddress));
-  const event = (await transport.call(Messages.MessageType.MESSAGETYPE_SIGNMESSAGE, sign, core.LONG_TIMEOUT)) as core.Event;
+  const event = (await transport.call(
+    Messages.MessageType.MESSAGETYPE_SIGNMESSAGE,
+    sign,
+    core.LONG_TIMEOUT
+  )) as core.Event;
   const messageSignature = event.proto as Messages.MessageSignature;
   const address = messageSignature.getAddress();
   if (!address) throw new Error("btcSignMessage failed");
@@ -516,17 +537,19 @@ export function btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTC
   const bchLegacy = legacyAccount(msg.coin, core.slip44ByCoin("BitcoinCash"), msg.accountIdx);
 
   let paths: Array<core.BTCAccountPath> =
-    ({
-      Bitcoin: [bip44, bip49, bip84],
-      Litecoin: [bip44, bip49, bip84],
-      Dash: [bip44],
-      DigiByte: [bip44, bip49, bip84],
-      Dogecoin: [bip44],
-      Testnet: [bip44, bip49, bip84],
-      BitcoinCash: [bip44, btcLegacy],
-      BitcoinSV: [bip44, bchLegacy, btcLegacy],
-      BitcoinGold: [bip44, bip49, bip84, btcLegacy, btcSegwit, btcSegwitNative],
-    } as Partial<Record<core.Coin, core.BTCAccountPath[]>>)[msg.coin] ?? [];
+    (
+      {
+        Bitcoin: [bip44, bip49, bip84],
+        Litecoin: [bip44, bip49, bip84],
+        Dash: [bip44],
+        DigiByte: [bip44, bip49, bip84],
+        Dogecoin: [bip44],
+        Testnet: [bip44, bip49, bip84],
+        BitcoinCash: [bip44, btcLegacy],
+        BitcoinSV: [bip44, bchLegacy, btcLegacy],
+        BitcoinGold: [bip44, bip49, bip84, btcLegacy, btcSegwit, btcSegwitNative],
+      } as Partial<Record<core.Coin, core.BTCAccountPath[]>>
+    )[msg.coin] ?? [];
 
   if (msg.scriptType !== undefined)
     paths = paths.filter((path) => {

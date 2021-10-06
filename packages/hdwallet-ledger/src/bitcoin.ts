@@ -72,13 +72,13 @@ export async function btcGetPublicKeys(
       payload: { publicKey: parentPublicKeyHex },
     } = res1;
     const parentPublicKey = compressPublicKey(Buffer.from(parentPublicKeyHex, "hex"));
-    const parentFingerprint = new DataView(bitcoin.crypto.ripemd160(bitcoin.crypto.sha256(parentPublicKey))).getUint32(0);
+    const parentFingerprint = new DataView(bitcoin.crypto.ripemd160(bitcoin.crypto.sha256(parentPublicKey)).buffer).getUint32(0);
 
     const res2 = await transport.call("Btc", "getWalletPublicKey", bip32path, opts);
     handleError(res2, transport, "Unable to obtain public key from device.");
 
     const {
-      payload: { publicKeyHex, chainCodeHex },
+      payload: { publicKey: publicKeyHex, chainCode: chainCodeHex },
     } = res2;
     const publicKey = compressPublicKey(Buffer.from(publicKeyHex, "hex"));
     const chainCode = Buffer.from(chainCodeHex, "hex");

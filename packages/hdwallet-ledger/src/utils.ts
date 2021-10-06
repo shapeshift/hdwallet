@@ -71,7 +71,7 @@ export const compressPublicKey = (publicKey: Uint8Array) => {
 };
 
 export const createXpub = (depth: number, parentFp: number, childNum: number, chainCode: Uint8Array, publicKey: Uint8Array, network: number) => {
-  const header = new Uint8Array(4 + 1 + 4 + 4);
+  const header = new Uint8Array(4 + 1 + 4 + 4).buffer;
   const headerView = new DataView(header);
   headerView.setUint32(0, network);
   headerView.setUint8(4, depth);
@@ -79,7 +79,7 @@ export const createXpub = (depth: number, parentFp: number, childNum: number, ch
   headerView.setUint32(9, childNum);
   return bs58check.encode(
     core.compatibleBufferConcat([
-      header,
+      new Uint8Array(header),
       chainCode,
       publicKey,
     ])
