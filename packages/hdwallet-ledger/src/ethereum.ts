@@ -46,11 +46,9 @@ export async function ethGetPublicKeys(
       payload: { publicKey: parentPublicKeyHex },
     } = res1;
     const parentPublicKey = compressPublicKey(Buffer.from(parentPublicKeyHex, "hex"));
-    console.log('before parentFingerprint')
     const parentFingerprint = new DataView(
       ethereumUtil.ripemd160(ethereumUtil.sha256(parentPublicKey), false).buffer
     ).getUint32(0);
-    console.log('after parentFingerprint')
     const res2 = await transport.call("Eth", "getAddress", bip32path, /* display */ false, /* chain code */ true);
     handleError(res2, transport, "Unable to obtain public key from device.");
 
