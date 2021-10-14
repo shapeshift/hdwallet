@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-core",
-  "version": "1.16.10",
+  "version": "1.17.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -12,6 +12,9 @@
     "build": "tsc --build",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "prepublishOnly": "yarn clean && yarn build"
+  },
+  "engines": {
+    "node": "14.x"
   },
   "dependencies": {
     "eventemitter2": "^5.0.1",

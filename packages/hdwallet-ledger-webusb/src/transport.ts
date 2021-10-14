@@ -10,19 +10,20 @@ import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
 const RECORD_CONFORMANCE_MOCKS = false;
 
-function translateCoin(coin: string): { new (transport: Transport): Record<string, (...args: any[]) => unknown> } {
-  return core.mustBeDefined(({
+function translateCoin(coin: string): any | unknown {
+  return ({
     Btc: Btc,
     Eth: Eth,
-  } as any)[coin]);
+  }[coin]);
 }
 
-function translateMethod(method: string): (transport: Transport, ...args: any[]) => unknown {
-  return core.mustBeDefined(({
+function translateMethod(method: string): (transport: Transport, ...args: any[]) => any {
+  return ({
+    decorateAppAPIMethods: TransportWebUSB.decorateAppAPIMethods,
     getAppAndVersion: getAppAndVersion,
     getDeviceInfo: getDeviceInfo,
     openApp: openApp,
-  } as any)[method]);
+  }[method]);
 }
 
 export async function getFirstLedgerDevice(): Promise<USBDevice | null> {
@@ -51,7 +52,7 @@ export async function getTransport(): Promise<TransportWebUSB> {
   if (!(window && window.navigator.usb)) throw new core.WebUSBNotAvailable();
 
   try {
-    return await TransportWebUSB.request();
+    return await TransportWebUSB.create();
   } catch (err) {
     if (err.name === "TransportInterfaceNotAvailable") {
       throw new core.ConflictingApp("Ledger");
@@ -87,7 +88,9 @@ export class LedgerWebUsbTransport extends ledger.LedgerTransport {
       );
 
       if (coin) {
-        response = await new (translateCoin(coin))(this.transport)[method](...args);
+        const app = translateCoin(coin);
+        const appInstance = new app(this.transport);
+        response = await appInstance[method](...args);
       } else {
         response = await translateMethod(method)(this.transport, ...args);
       }

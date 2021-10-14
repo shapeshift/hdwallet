@@ -48,9 +48,6 @@ digraph D {
 
     hdwalletledgerwebusb [label="hdwallet-ledger-webusb", shape=box, fillcolor="darkseagreen1", style=filled]
     hdwalletledgerwebusb -> hdwalletledger
-
-    hdwalletledgeru2f [label="hdwallet-ledger-u2f", shape=box, fillcolor="darkseagreen1", style=filled]
-    hdwalletledgeru2f -> hdwalletledger
   }
 }
 

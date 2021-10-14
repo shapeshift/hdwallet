@@ -58,7 +58,7 @@ export function arrayify(value: string): Uint8Array {
   return new Uint8Array(result);
 }
 
-const HARDENED = 0x80000000;
+export const HARDENED = 0x80000000;
 export function bip32ToAddressNList(path: string): number[] {
   if (!bip32Like(path)) {
     throw new Error(`Not a bip32 path: '${path}'`);

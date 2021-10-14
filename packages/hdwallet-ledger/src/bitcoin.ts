@@ -14,7 +14,7 @@ import {
   handleError,
 } from "./utils";
 
-const supportedCoins = ["Testnet", "Bitcoin", "BitcoinCash", "Litecoin", "Dash", "DigiByte", "Dogecoin"];
+export const supportedCoins = ["Testnet", "Bitcoin", "BitcoinCash", "Litecoin", "Dash", "DigiByte", "Dogecoin"];
 
 const segwitCoins = ["Bitcoin", "DigiByte", "Litecoin", "BitcoinGold", "Testnet"];
 
@@ -113,24 +113,29 @@ export async function btcGetPublicKeys(
     raw Unsigned Tx
 
   createPaymentTransactionNew
-   * inputs Array<[Transaction, number, string?, number?]> is an array of [ transaction, output_index, optional redeem script, optional sequence ]
-   * where- transaction is the previously computed transaction object for this UTXO
-        * output_index is the output in the transaction used as input for this UTXO (counting from 0)
-        * redeem script is the optional redeem script to use when consuming a Segregated Witness input
-        * sequence is the sequence number to use for this input (when using RBF), or non present
-    * associatedKeysets Array<string> is an array of BIP 32 paths pointing to the path to the private key used for each UTXO
-    * changePath string is an optional BIP 32 path pointing to the path to the public key used to compute the change address
-    * outputScriptHex string is the hexadecimal serialized outputs of the transaction to sign
-           ( lockTime number is the optional lockTime of the transaction to sign, or default (0)
-    * sigHashType number is the hash type of the transaction to sign, or default (all)
-    * segwit boolean (is an optional boolean indicating whether to use segwit or not)
-    * initialTimestamp number is an optional timestamp of the function call to use for coins that necessitate timestamps only, (not the one that the tx will include)
-    * additionals Array<string> list of additional options- "abc" for bch
-        "gold" for btg
-        "bipxxx" for using BIPxxx
-        "sapling" to indicate a zec transaction is supporting sapling (to be set over block 419200)
-    * expiryHeight Buffer is an optional Buffer for zec overwinter / sapling Txs
+To sign a transaction involving standard (P2PKH) inputs, call createTransaction with the following parameters
 
+Parameters
+ * arg CreateTransactionArg:
+   * inputs is an array of [ transaction, output_index, optional redeem script, optional sequence ] where- transaction is the previously computed transaction object for this UTXO
+     * output_index is the output in the transaction used as input for this UTXO (counting from 0)
+     * redeem script is the optional redeem script to use when consuming a Segregated Witness input
+     * sequence is the sequence number to use for this input (when using RBF), or non present
+   * associatedKeysets is an array of BIP 32 paths pointing to the path to the private key used for each UTXO
+   * changePath is an optional BIP 32 path pointing to the path to the public key used to compute the change address
+   * outputScriptHex is the hexadecimal serialized outputs of the transaction to sign
+   * lockTime is the optional lockTime of the transaction to sign, or default (0)
+   * sigHashType is the hash type of the transaction to sign, or default (all)
+   * segwit is an optional boolean indicating whether to use segwit or not
+   * initialTimestamp is an optional timestamp of the function call to use for coins that necessitate timestamps only, (not the one that the tx will include)
+   * additionals list of additional options:
+     * "bech32" for spending native segwit outputs
+     * "abc" for bch
+     * "gold" for btg
+     * "bipxxx" for using BIPxxx
+     * "sapling" to indicate a zec transaction is supporting sapling (to be set over block 419200)
+   * expiryHeight is an optional Buffer for zec overwinter / sapling Txs
+   * useTrustedInputForSegwit trust inputs for segwit transactions
  */
 export async function btcSignTx(
   wallet: core.BTCWallet,
@@ -143,7 +148,7 @@ export async function btcSignTx(
   let txBuilder = new bitcoin.TransactionBuilder(networksUtil[slip44].bitcoinjs as any);
   let indexes = [];
   let txs = [];
-  let paths = [];
+  let associatedKeysets = [];
   let segwit = false;
 
   //bitcoinjs-lib
@@ -187,10 +192,13 @@ export async function btcSignTx(
     )
       segwit = true;
 
-    let path = core.addressNListToBIP32(msg.inputs[i].addressNList);
+    const keySet = msg.inputs[i].addressNList
+      .map((num) => (num >= core.HARDENED ? `${num - core.HARDENED}'` : num))
+      .join("/")
+
     let vout = msg.inputs[i].vout;
 
-    let tx = await transport.call(
+    const tx = await transport.call(
       "Btc",
       "splitTransaction",
       msg.inputs[i].hex,
@@ -200,24 +208,25 @@ export async function btcSignTx(
 
     indexes.push(vout);
     txs.push(tx.payload);
-    paths.push(path);
+    associatedKeysets.push(keySet);
   }
-  const inputs = _.zip(txs, indexes);
-  const additionals = msg.coin === "BitcoinCash" ? ["abc"] : [];
 
-  //sign createPaymentTransaction
+  const createTxArg: any = {
+    inputs: _.zip(txs, indexes),
+    associatedKeysets,
+    outputScriptHex,
+    additionals: msg.coin === "BitcoinCash" ? ["abc"] : [],
+    segwit
+  }
+
+  if (networksUtil[slip44].sigHash) {
+    createTxArg.sigHashType = networksUtil[slip44].sigHash
+  }
+
   let signedTx = await transport.call(
     "Btc",
     "createPaymentTransactionNew",
-    inputs,
-    paths,
-    undefined,
-    outputScriptHex,
-    null,
-    networksUtil[slip44].sigHash,
-    segwit,
-    undefined,
-    additionals
+    createTxArg
   );
   handleError(signedTx, transport, "Could not sign transaction with device");
 

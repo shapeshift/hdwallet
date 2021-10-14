@@ -52,7 +52,6 @@
     { "path": "./packages/hdwallet-keepkey-electron" },
     { "path": "./packages/hdwallet-keepkey-webusb" },
     { "path": "./packages/hdwallet-ledger" },
-    { "path": "./packages/hdwallet-ledger-u2f" },
     { "path": "./packages/hdwallet-ledger-webusb" },
     { "path": "./packages/hdwallet-native" },
     { "path": "./packages/hdwallet-portis" },

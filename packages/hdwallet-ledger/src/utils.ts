@@ -52,12 +52,12 @@ export function handleError(result: any, transport?: LedgerTransport, message?: 
 }
 
 export function translateScriptType(scriptType: core.BTCInputScriptType): string {
-  return core.mustBeDefined(({
+  return {
     [core.BTCInputScriptType.SpendAddress]: "legacy",
     [core.BTCInputScriptType.CashAddr]: "legacy",
     [core.BTCInputScriptType.SpendWitness]: "bech32",
     [core.BTCInputScriptType.SpendP2SHWitness]: "p2sh",
-  } as Partial<Record<core.BTCInputScriptType, string>>)[scriptType]);
+  }[scriptType];
 }
 
 export const compressPublicKey = (publicKey: Uint8Array) => {

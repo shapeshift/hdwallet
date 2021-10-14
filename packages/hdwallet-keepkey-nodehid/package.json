@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-nodehid",
-  "version": "1.16.10",
+  "version": "1.17.0",
   "license": "MIT",
   "private": true,
   "main": "dist/index.js",
@@ -11,8 +11,11 @@
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "prepublishOnly": "yarn clean && yarn build"
   },
+  "engines": {
+    "node": "14.x"
+  },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-keepkey": "1.16.10"
+    "@shapeshiftoss/hdwallet-keepkey": "1.17.0"
   },
   "peerDependencies": {
     "node-hid": "^0.7.7"

@@ -357,19 +357,14 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
       throw new Error(`No coin provided`);
     }
 
-    const appName = _.get(networksUtil[core.mustBeDefined(core.slip44ByCoin(coin))], "appName");
-    if (!appName) {
-      throw new Error(`Unable to find associated app name for coin: ${coin}`);
-    }
-
     const res = await this.transport.call(null, "getAppAndVersion");
     handleError(res, this.transport);
 
     const {
       payload: { name: currentApp },
     } = res;
-    if (currentApp !== appName) {
-      throw new core.WrongApp("Ledger", appName);
+    if (currentApp !== coin) {
+      throw new core.WrongApp("Ledger", coin);
     }
   }
 
@@ -420,7 +415,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     } = res;
 
     switch (name) {
-      case "Bitcoin":
+      case btc.supportedCoins.find(coin => coin === name):
         return btc.btcGetPublicKeys(this.transport, msg);
       case "Ethereum":
         return eth.ethGetPublicKeys(this.transport, msg);

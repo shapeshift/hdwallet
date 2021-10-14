@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger-webusb",
-  "version": "1.16.10",
+  "version": "1.17.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -13,18 +13,24 @@
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "prepublishOnly": "yarn clean && yarn build"
   },
+  "engines": {
+    "node": "14.x"
+  },
   "dependencies": {
-    "@ledgerhq/hw-app-btc": "^4.73.4",
-    "@ledgerhq/hw-app-eth": "^4.73.4",
-    "@ledgerhq/hw-transport": "^4.73.4",
-    "@ledgerhq/hw-transport-webusb": "^4.73.4",
-    "@ledgerhq/live-common": "^8.4.1",
-    "@shapeshiftoss/hdwallet-core": "1.16.10",
-    "@shapeshiftoss/hdwallet-ledger": "1.16.10",
+    "@ledgerhq/hw-app-btc": "6.7.0",
+    "@ledgerhq/hw-app-eth": "6.9.0",
+    "@ledgerhq/hw-transport": "6.7.0",
+    "@ledgerhq/hw-transport-webusb": "6.7.0",
+    "@ledgerhq/live-common": "21.8.2",
+    "@shapeshiftoss/hdwallet-core": "1.17.0",
+    "@shapeshiftoss/hdwallet-ledger": "1.17.0",
     "@types/w3c-web-usb": "^1.0.4",
     "typescript": "^4.3.2"
   },
   "devDependencies": {
-    "@types/ledgerhq__hw-transport": "^4.21.3"
+    "@types/ledgerhq__hw-app-btc": "5.19.3",
+    "@types/ledgerhq__hw-transport": "4.21.4",
+    "@types/ledgerhq__hw-transport-webusb": "4.70.1"
+
   }
 }
