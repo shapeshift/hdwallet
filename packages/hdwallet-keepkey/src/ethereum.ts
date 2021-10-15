@@ -21,10 +21,6 @@ export function ethSupportsNativeShapeShift(): boolean {
   return true;
 }
 
-export async function ethSupportsEIP1559(): Promise<boolean> {
-  return await this.ethSupportsEIP1559();
-}
-
 export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
   const slip44 = core.slip44ByCoin(msg.coin);
   if (slip44 === undefined) return [];
