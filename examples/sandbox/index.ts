@@ -42,9 +42,6 @@ const nativeAdapter = native.NativeAdapter.useKeyring(keyring, {
   mnemonic,
   deviceId: "native-wallet-test",
 });
-
-const log = debug.default("hdwallet");
-
 const trezorAdapter = trezorConnect.TrezorAdapter.useKeyring(keyring, {
   debug: false,
   manifest: {
@@ -52,13 +49,11 @@ const trezorAdapter = trezorConnect.TrezorAdapter.useKeyring(keyring, {
     appUrl: "https://shapeshift.com",
   },
 });
-
 const ledgerAdapter = ledgerWebUSB.WebUSBLedgerAdapter.useKeyring(keyring);
 
 window["keyring"] = keyring;
 
 window.localStorage.debug = "*";
-const loggers: { [deviceID: string]: debug.Debugger } = {};
 
 let wallet;
 window["wallet"] = wallet;

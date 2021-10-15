@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import Common from "@ethereumjs/common";
 import EthereumTx from "ethereumjs-tx";
-import { Transaction} from "@ethereumjs/tx";
+import { Transaction } from "@ethereumjs/tx";
 import * as ethereumUtil from "ethereumjs-util";
 
 import { LedgerTransport } from "./transport";
