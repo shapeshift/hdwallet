@@ -4,7 +4,7 @@ import _ from "lodash";
 import * as btc from "./bitcoin";
 import * as eth from "./ethereum";
 import { LedgerTransport } from "./transport";
-import { networksUtil, handleError } from "./utils";
+import { coinToLedgerAppName, handleError } from "./utils";
 
 export function isLedger(wallet: core.HDWallet): wallet is LedgerHDWallet {
   return _.isObject(wallet) && (wallet as any)._isLedger;
@@ -357,7 +357,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
       throw new Error(`No coin provided`);
     }
 
-    const appName = _.get(networksUtil[core.mustBeDefined(core.slip44ByCoin(coin))], "appName");
+    const appName = coinToLedgerAppName(coin);
     if (!appName) {
       throw new Error(`Unable to find associated app name for coin: ${coin}`);
     }
@@ -419,9 +419,10 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
       payload: { name },
     } = res;
 
+    const btcApps = new Set(btc.supportedCoins.map(x => coinToLedgerAppName(x)).filter(x => x !== undefined))
+    if (btcApps.has(name)) return btc.btcGetPublicKeys(this.transport, msg);
+
     switch (name) {
-      case "Bitcoin":
-        return btc.btcGetPublicKeys(this.transport, msg);
       case "Ethereum":
         return eth.ethGetPublicKeys(this.transport, msg);
       default:

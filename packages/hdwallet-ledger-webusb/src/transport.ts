@@ -7,23 +7,14 @@ import getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
 import openApp from "@ledgerhq/live-common/lib/hw/openApp";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+import {
+  LedgerResponse,
+  LedgerTransportCoinType,
+  LedgerTransportMethod,
+  LedgerTransportMethodName,
+} from "hdwallet-ledger/src/transport";
 
 const RECORD_CONFORMANCE_MOCKS = false;
-
-function translateCoin(coin: string): { new (transport: Transport): Record<string, (...args: any[]) => unknown> } {
-  return core.mustBeDefined(({
-    Btc: Btc,
-    Eth: Eth,
-  } as any)[coin]);
-}
-
-function translateMethod(method: string): (transport: Transport, ...args: any[]) => unknown {
-  return core.mustBeDefined(({
-    getAppAndVersion: getAppAndVersion,
-    getDeviceInfo: getDeviceInfo,
-    openApp: openApp,
-  } as any)[method]);
-}
 
 export async function getFirstLedgerDevice(): Promise<USBDevice | null> {
   if (!(window && window.navigator.usb)) throw new core.WebUSBNotAvailable();
@@ -51,13 +42,59 @@ export async function getTransport(): Promise<TransportWebUSB> {
   if (!(window && window.navigator.usb)) throw new core.WebUSBNotAvailable();
 
   try {
-    return await TransportWebUSB.request();
+    return (await TransportWebUSB.create()) as TransportWebUSB;
   } catch (err) {
     if (err.name === "TransportInterfaceNotAvailable") {
       throw new core.ConflictingApp("Ledger");
     }
 
     throw new core.WebUSBCouldNotPair("Ledger", err.message);
+  }
+}
+
+export function translateCoinAndMethod<T extends LedgerTransportCoinType, U extends LedgerTransportMethodName<T>>(
+  transport: Transport,
+  coin: T,
+  method: U
+): LedgerTransportMethod<T, U> {
+  switch (coin) {
+    case "Btc": {
+      const btc = new Btc(transport);
+      const methodInstance = btc[method as LedgerTransportMethodName<"Btc">].bind(btc)
+      return methodInstance as LedgerTransportMethod<T, U>;
+    }
+    case "Eth": {
+      const eth = new Eth(transport);
+      const methodInstance = eth[method as LedgerTransportMethodName<"Eth">].bind(eth)
+      return methodInstance as LedgerTransportMethod<T, U>;
+    }
+    case null: {
+      switch (method) {
+        case "decorateAppAPIMethods": {
+          const out: LedgerTransportMethod<null, "decorateAppAPIMethods"> =
+            transport.decorateAppAPIMethods.bind(transport);
+          return out as LedgerTransportMethod<T, U>;
+        }
+        case "getAppAndVersion": {
+          const out: LedgerTransportMethod<null, "getAppAndVersion"> = getAppAndVersion.bind(undefined, transport);
+          return out as LedgerTransportMethod<T, U>;
+        }
+        case "getDeviceInfo": {
+          const out: LedgerTransportMethod<null, "getDeviceInfo"> = getDeviceInfo.bind(undefined, transport);
+          return out as LedgerTransportMethod<T, U>;
+        }
+        case "openApp": {
+          const out: LedgerTransportMethod<null, "openApp"> = openApp.bind(undefined, transport);
+          return out as LedgerTransportMethod<T, U>;
+        }
+        default: {
+          throw new TypeError("method");
+        }
+      }
+    }
+    default: {
+      throw new TypeError("coin");
+    }
   }
 }
 
@@ -70,53 +107,51 @@ export class LedgerWebUsbTransport extends ledger.LedgerTransport {
   }
 
   public async getDeviceID(): Promise<string> {
-    return (this.device as any).deviceID;
+    return core.mustBeDefined(this.device.serialNumber);
   }
 
-  public async call(coin: string, method: string, ...args: any[]): Promise<ledger.LedgerResponse> {
-    let response: unknown;
+  public async call<T extends LedgerTransportCoinType, U extends LedgerTransportMethodName<T>>(
+    coin: T,
+    method: U,
+    ...args: Parameters<LedgerTransportMethod<T, U>>
+  ): Promise<LedgerResponse<T, U>> {
+    this.emit(
+      `ledger.${coin}.${method}.call`,
+      core.makeEvent({
+        message_type: method,
+        from_wallet: false,
+        message: {},
+      })
+    );
 
     try {
-      this.emit(
-        `ledger.${coin}.${method}.call`,
-        core.makeEvent({
-          message_type: method,
-          from_wallet: false,
-          message: {},
-        })
-      );
+      const methodInstance: LedgerTransportMethod<T, U> = translateCoinAndMethod(this.transport, coin, method);
+      const response = await methodInstance(...args);
+      const result = {
+        success: true,
+        payload: response,
+        coin,
+        method,
+      };
 
-      if (coin) {
-        response = await new (translateCoin(coin))(this.transport)[method](...args);
-      } else {
-        response = await translateMethod(method)(this.transport, ...args);
+      if (RECORD_CONFORMANCE_MOCKS) {
+        // May need a slight amount of cleanup on escaping `'`s.
+        console.log(
+          `this.memoize('${coin}', '${method}',\n  JSON.parse('${JSON.stringify(
+            args
+          )}'),\n  JSON.parse('${JSON.stringify(result)}'))`
+        );
       }
+
+      return result;
     } catch (e) {
       console.error(e);
       return {
         success: false,
-        payload: { error: e.toString() },
+        payload: { error: String(e) },
         coin,
         method,
       };
     }
-
-    let result = {
-      success: true,
-      payload: response,
-      coin,
-      method,
-    };
-
-    if (RECORD_CONFORMANCE_MOCKS) {
-      // May need a slight amount of cleanup on escaping `'`s.
-      console.log(
-        `this.memoize('${coin}', '${method}',\n  JSON.parse('${JSON.stringify(args)}'),\n  JSON.parse('${JSON.stringify(
-          result
-        )}'))`
-      );
-    }
-
-    return result;
   }
 }
