@@ -11,6 +11,7 @@ import * as Eos from "./eos";
 import * as Eth from "./ethereum";
 import * as Ripple from "./ripple";
 import * as Thorchain from "./thorchain";
+import * as Osmosis from "./osmosis";
 import { Transport } from "./transport";
 import { messageTypeRegistry } from "./typeRegistry";
 import { protoFieldToSetMethod, translateInputScriptType } from "./utils";
@@ -350,6 +351,45 @@ function describeBinancePath(path: core.BIP32Path): core.PathDescription {
   };
 }
 
+function describeOsmosisPath(path: core.BIP32Path): core.PathDescription {
+  let pathStr = core.addressNListToBIP32(path);
+  let unknown: core.PathDescription = {
+    verbose: pathStr,
+    coin: "Osmo",
+    isKnown: false,
+  };
+
+  if (path.length != 5) {
+    return unknown;
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown;
+  }
+
+  if (path[1] != 0x80000000 + core.slip44ByCoin("Osmo")) {
+    return unknown;
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown;
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown;
+  }
+
+  let index = path[2] & 0x7fffffff;
+  return {
+    verbose: `Osmosis Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "Osmo",
+    isKnown: true,
+    isPrefork: false,
+  };
+}
+
 export class KeepKeyHDWalletInfo
   implements
     core.HDWalletInfo,
@@ -359,7 +399,8 @@ export class KeepKeyHDWalletInfo
     core.BinanceWalletInfo,
     core.RippleWalletInfo,
     core.EosWalletInfo,
-    core.ThorchainWalletInfo {
+    core.ThorchainWalletInfo, 
+    core.OsmosisWalletInfo {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
   readonly _supportsCosmosInfo = true;
@@ -371,6 +412,7 @@ export class KeepKeyHDWalletInfo
   readonly _supportsSecretInfo = false;
   readonly _supportsKavaInfo = false;
   readonly _supportsTerraInfo = false;
+  readonly _supportsOsmosisInfo = true;
 
   public getVendor(): string {
     return "KeepKey";
@@ -440,6 +482,10 @@ export class KeepKeyHDWalletInfo
     return Eos.eosGetAccountPaths(msg);
   }
 
+  public osmosisGetAccountPaths(msg: core.OsmosisGetAccountPaths): Array<core.OsmosisAccountPath> {
+    return Osmosis.osmosisGetAccountPaths(msg);
+  }
+
   public hasOnDevicePinEntry(): boolean {
     return false;
   }
@@ -472,6 +518,9 @@ export class KeepKeyHDWalletInfo
         return describeRipplePath(msg.path);
       case "Eos":
         return describeEosPath(msg.path);
+      case "Osmosis":
+      case "Osmo":
+        return describeOsmosisPath(msg.path);
       default:
         return describeUTXOPath(msg.path, msg.coin, msg.scriptType);
     }
@@ -593,6 +642,21 @@ export class KeepKeyHDWalletInfo
       addressNList,
     };
   }
+
+  public osmosisNextAccountPath(msg: core.OsmosisAccountPath): core.OsmosisAccountPath | undefined {
+    let description = describeOsmosisPath(msg.addressNList);
+    if (!description.isKnown) {
+      return undefined;
+    }
+
+    let addressNList = msg.addressNList;
+    addressNList[2] += 1;
+
+    return {
+      ...msg,
+      addressNList,
+    };
+  }
 }
 
 export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.DebugLinkWallet {
@@ -620,6 +684,8 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   readonly _supportsKavaInfo = false;
   readonly _supportsTerra = false;
   readonly _supportsTerraInfo = false;
+  readonly _supportsOsmosis = true;
+  readonly _supportsOsmosisInfo = true;
 
   transport: Transport;
   features?: Messages.Features.AsObject;
@@ -1232,6 +1298,18 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     return Eos.eosSignTx(this.transport, msg);
   }
 
+  public osmosisGetAccountPaths(msg: core.OsmosisGetAccountPaths): Array<core.OsmosisAccountPath> {
+    return this.info.osmosisGetAccountPaths(msg);
+  }
+
+  public osmosisGetAddress(msg: core.OsmosisGetAddress): Promise<string> {
+    return Osmosis.osmosisGetAddress(this.transport, msg);
+  }
+
+  public osmosisSignTx(msg: core.OsmosisSignTx): Promise<core.OsmosisSignedTx> {
+    return Osmosis.osmosisSignTx(this.transport, msg);
+  }
+
   public describePath(msg: core.DescribePath): core.PathDescription {
     return this.info.describePath(msg);
   }
@@ -1262,6 +1340,10 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
 
   public binanceNextAccountPath(msg: core.BinanceAccountPath): core.BinanceAccountPath | undefined {
     return this.info.binanceNextAccountPath(msg);
+  }
+
+  public osmosisNextAccountPath(msg: core.OsmosisAccountPath): core.OsmosisAccountPath | undefined {
+    return this.info.osmosisNextAccountPath(msg);
   }
 }
 

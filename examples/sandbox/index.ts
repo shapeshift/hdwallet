@@ -1068,8 +1068,6 @@ $thorchainSignSwap.on("click", async (e) => {
       $thorchainSwapResults.val("Invalid source chain");
       return;
   }
-  // $thorchainSwapResults.val(memo);
-  //let res = await wallet.thorchainSignTx();
 });
 
 $thorchainSignAddLiquidity.on("click", async (e) => {
@@ -1250,15 +1248,11 @@ const $osmosisSignTxAddress = $("#osmosisSignTxAddress");
 const $osmosisSignTxAmount = $("#osmosisSignTxAmount");
 const $osmosisSignTxResults = $("#osmosisSignTxResults");
 const $osmosisSignTx = $("#osmosisSignTx");
-const $osmosisDelegateDelegatorAddress = $("#osmosisDelegateDelegatorAddress");
-const $osmosisDelegateValidatorAddress = $("#osmosisDelegateValidatorAddress");
 const $osmosisDelegateAmount = $("#osmosisDelegateAmount");
 const $osmosisDelegate = $("#osmosisDelegate");
 const $osmosisDelegateResults = $("#osmosisDelegateResults");
-const $osmosisUndelegateDelegatorAddress = $("#osmosisDelegateDelegatorAddress");
-const $osmosisUndelegateValidatorAddress = $("#osmosisDelegateValidatorAddress");
-const $osmosisUndelegateAmount = $("#osmosisDelegateAmount");
-const $osmosisUndelegate = $("#osmosisDelegate");
+const $osmosisUndelegateAmount = $("#osmosisUndelegateAmount");
+const $osmosisUndelegate = $("#osmosisUndelegate");
 const $osmosisUndelegateResults = $("#osmosisUndelegateResults");
 
 $osmosisAddress.on("click", async (e) => {
@@ -1359,8 +1353,8 @@ $osmosisDelegate.on("click", async (e) => {
           {
             type: "cosmos-sdk/MsgDelegate",
             value: {
-              delegator_address: $osmosisDelegateDelegatorAddress.val(),
-              validator_address: $osmosisDelegateValidatorAddress.val(),
+              delegator_address: "osmo1a7xqkxa4wyjfllme9u3yztgsz363dalz3lxtj6",
+              validator_address: "osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n",
               amount: {
                 denom: "uosmo",
                 amount: $osmosisDelegateAmount.val(),
@@ -1404,8 +1398,8 @@ $osmosisUndelegate.on("click", async (e) => {
           {
             type: "cosmos-sdk/MsgUndelegate",
             value: {
-              delegator_address: $osmosisUndelegateDelegatorAddress.val(),
-              validator_address: $osmosisUndelegateValidatorAddress.val(),
+              delegator_address: "osmo1a7xqkxa4wyjfllme9u3yztgsz363dalz3lxtj6",
+              validator_address: "osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n",
               amount: {
                 denom: "uosmo",
                 amount: $osmosisUndelegateAmount.val(),

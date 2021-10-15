@@ -41,6 +41,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       () => {
         if (!wallet) return;
         const paths = wallet.osmosisGetAccountPaths({ accountIdx: 0 });
+        console.log("ACCOUNT PATH = ", paths[0].addressNList[0])
         expect(paths.length > 0).toBe(true);
         expect(paths[0].addressNList[0] > 0x80000000).toBe(true);
       },

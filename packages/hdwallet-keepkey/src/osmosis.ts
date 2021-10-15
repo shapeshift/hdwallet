@@ -1,0 +1,147 @@
+import * as OsmosisMessages from "@keepkey/device-protocol/lib/messages-osmosis_pb";
+import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import _ from "lodash";
+
+import { Transport } from "./transport";
+
+export function osmosisGetAccountPaths(msg: core.OsmosisGetAccountPaths): Array<core.OsmosisAccountPath> {
+  return [
+    {
+      addressNList: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin("Osmo"), 0x80000000 + msg.accountIdx, 0, 0],
+    },
+  ];
+}
+
+export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignTx): Promise<any> {
+  return transport.lockDuring(async () => {
+    const signTx = new OsmosisMessages.OsmosisSignTx();
+    signTx.setAddressNList(msg.addressNList);
+    signTx.setAccountNumber(msg.account_number);
+    signTx.setChainId(msg.chain_id);
+    signTx.setFeeAmount(parseInt(msg.tx.fee.amount[0].amount));
+    signTx.setGas(parseInt(msg.tx.fee.gas));
+    signTx.setSequence(msg.sequence);
+    if (msg.tx.memo !== undefined) signTx.setMemo(msg.tx.memo);
+    signTx.setMsgCount(1);
+
+    let resp = await transport.call(
+      Messages.MessageType.MESSAGETYPE_OSMOSISSIGNTX,
+      signTx,
+      core.LONG_TIMEOUT,
+      /*omitLock=*/ true
+    );
+
+    if (resp.message_type === core.Events.FAILURE) throw resp;
+
+    for (let m of msg.tx.msg) {
+      if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_OSMOSISMSGREQUEST) {
+        throw new Error(`THORChain: unexpected response ${resp.message_type}`);
+      }
+
+      let ack;
+
+      if (m.type === "cosmos-sdk/MsgSend") {
+        const denom = m.value.amount[0].denom;
+        if (denom !== "uosmo") {
+          console.error(JSON.stringify(m))
+          throw new Error("Osmosis: Unsupported denomination: " + denom);
+        }
+
+        const send = new OsmosisMessages.OsmosisMsgSend();
+        send.setFromAddress(m.value.from_address);
+        send.setToAddress(m.value.to_address);
+        send.setAmount(m.value.amount[0].amount);
+
+        ack = new OsmosisMessages.OsmosisMsgAck();
+        ack.setSend(send);
+      } else if (m.type === "cosmos-sdk/MsgDelegate") {
+        const denom = m.value.amount.denom;
+        if (denom !== "uosmo") {
+          throw new Error("Osmosis: Unsupported denomination: " + denom);
+        }
+
+        const delegate = new OsmosisMessages.OsmosisMsgDelegate();
+        delegate.setDelegatorAddress(m.value.delegator_address);
+        delegate.setValidatorAddress(m.value.validator_address);
+        delegate.setAmount(m.value.amount.amount);
+
+        ack = new OsmosisMessages.OsmosisMsgAck();
+        ack.setDelegate(delegate);
+      } else if (m.type === "cosmos-sdk/MsgUndelegate") {
+        const denom = m.value.amount.denom;
+        if (denom !== "uosmo") {
+          throw new Error("Osmosis: Unsupported denomination: " + denom);
+        }
+
+        const undelegate = new OsmosisMessages.OsmosisMsgUndelegate();
+        undelegate.setDelegatorAddress(m.value.delegator_address);
+        undelegate.setValidatorAddress(m.value.validator_address);
+        undelegate.setAmount(m.value.amount.amount);
+
+        ack = new OsmosisMessages.OsmosisMsgAck();
+        ack.setUndelegate(undelegate);
+      } else if (m.type === "cosmos-sdk/MsgClaim") {
+        const denom = m.value.amount.denom;
+        if (denom !== "uosmo") {
+          throw new Error("Osmosis: Unsupported denomination: " + denom);
+        }
+
+        const claim = new OsmosisMessages.OsmosisMsgClaim();
+        claim.setDelegatorAddress(m.value.delegator_address);
+        claim.setValidatorAddress(m.value.validator_address);
+        claim.setAmount(m.value.amount.amount);
+
+        ack = new OsmosisMessages.OsmosisMsgAck();
+        ack.setClaim(claim);
+      } else {
+        throw new Error(`Osmosis: Message ${m.type} is not yet supported`);
+      }
+
+      resp = await transport.call(
+        Messages.MessageType.MESSAGETYPE_OSMOSISMSGACK,
+        ack,
+        core.LONG_TIMEOUT,
+        /*omitLock=*/ true
+      );
+
+      if (resp.message_type === core.Events.FAILURE) throw resp;
+    }
+
+    if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_OSMOSISSIGNEDTX) {
+      throw new Error(`Osmosis: unexpected response ${resp.message_type}`);
+    }
+
+    const signedTx = resp.proto as OsmosisMessages.OsmosisSignedTx;
+
+    const signed = _.cloneDeep(msg.tx);
+
+    signed.signatures = [
+      {
+        signature: signedTx.getSignature_asB64(),
+        pub_key: {
+          type: "tendermint/PubKeySecp256k1",
+          value: signedTx.getPublicKey_asB64(),
+        },
+      },
+    ];
+
+    return signed;
+  });
+}
+
+export async function osmosisGetAddress(
+  transport: Transport,
+  msg: OsmosisMessages.OsmosisGetAddress.AsObject
+): Promise<string> {
+  const getAddr = new OsmosisMessages.OsmosisGetAddress();
+  getAddr.setAddressNList(msg.addressNList);
+  getAddr.setShowDisplay(msg.showDisplay !== false);
+  if (msg.testnet !== undefined) getAddr.setTestnet(msg.testnet);
+  const response = await transport.call(Messages.MessageType.MESSAGETYPE_OSMOSISGETADDRESS, getAddr, core.LONG_TIMEOUT);
+
+  if (response.message_type === core.Events.FAILURE) throw response;
+
+  const osmosisAddress = response.proto as OsmosisMessages.OsmosisAddress;
+  return core.mustBeDefined(osmosisAddress.getAddress());
+}

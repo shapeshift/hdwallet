@@ -1814,10 +1814,10 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
-"@keepkey/device-protocol@^7.2.4":
-  version "7.2.4"
-  resolved "https://registry.yarnpkg.com/@keepkey/device-protocol/-/device-protocol-7.2.4.tgz#442b0ed445476ddcbe0fa28c7526f6c85e288457"
-  integrity sha512-81vUzr8FcGyGByj+JQvVJnXBtkeIpPERBh/wlFLVgwE95UjnMbMki/sfUOsLAzg0Afx7gO/sZ4M1cX9iKuFCRg==
+"@keepkey/device-protocol@^7.3.0":
+  version "7.3.0"
+  resolved "https://registry.yarnpkg.com/@keepkey/device-protocol/-/device-protocol-7.3.0.tgz#4b35df4dee91921fedb9b6d8e55f77a27f439572"
+  integrity sha512-jY45XarbeWQoPkbDdMwAj/b9kUyRb7jjzlQvJOUo9b9rYJKZ/XhioEDKgOv7tnKwR6nmbPPXf/9lUm7o2A64sQ==
   dependencies:
     google-protobuf "^3.7.0-rc.2"
     pbjs "^0.0.5"
