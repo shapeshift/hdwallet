@@ -274,6 +274,7 @@ export async function btcSignTx(
     // Make a copy of the input parameter so as to not mutate the caller's data.
     // Unfreezing a recursively-frozen object is nontrivial, so we leverage an existing package
     const msg = thaw(msgIn);
+    msg.outputs = thaw(msgIn.outputs);
 
     await ensureCoinSupport(wallet, msg.coin);
 
