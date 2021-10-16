@@ -21,10 +21,6 @@ export function ethSupportsNativeShapeShift(): boolean {
   return true;
 }
 
-export async function ethSupportsEIP1559(): Promise<boolean> {
-  return await this.ethSupportsEIP1559();
-}
-
 export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
   const slip44 = core.slip44ByCoin(msg.coin);
   if (slip44 === undefined) return [];
@@ -51,7 +47,6 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
     est.setGasLimit(core.arrayify(msg.gasLimit));
     if (msg.gasPrice) {
       est.setGasPrice(core.arrayify(msg.gasPrice));
-      est.setType(core.ETHTransactionType.ETH_TX_TYPE_LEGACY);
     }
     if (msg.maxFeePerGas) {
       est.setMaxFeePerGas(core.arrayify(msg.maxFeePerGas));
