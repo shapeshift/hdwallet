@@ -25,9 +25,7 @@ export class PortisAdapter {
     return new PortisAdapter(keyring, args);
   }
 
-  public async initialize(): Promise<number> {
-    return Object.keys(this.keyring.wallets).length;
-  }
+  public async initialize(): Promise<void> { }
 
   public async pairDevice(): Promise<core.HDWallet> {
     try {
@@ -39,7 +37,7 @@ export class PortisAdapter {
           const currentDeviceId = this.currentDeviceId;
           if (currentDeviceId) {
             this.keyring.emit(["Portis", currentDeviceId, core.Events.DISCONNECT], currentDeviceId);
-            this.keyring.remove(currentDeviceId);
+            this.keyring.delete(currentDeviceId);
           }
           this.pairPortisDevice();
         }
@@ -48,7 +46,7 @@ export class PortisAdapter {
         const currentDeviceId = this.currentDeviceId;
         if (!currentDeviceId) return;
         this.keyring.emit(["Portis", currentDeviceId, core.Events.DISCONNECT], currentDeviceId);
-        this.keyring.remove(currentDeviceId);
+        this.keyring.delete(currentDeviceId);
       });
       return wallet;
     } catch (e) {
@@ -64,7 +62,7 @@ export class PortisAdapter {
     const wallet = new PortisHDWallet(this.portis);
     await wallet.initialize();
     const deviceId = await wallet.getDeviceID();
-    this.keyring.add(wallet, deviceId);
+    await this.keyring.add(wallet, deviceId);
     this.currentDeviceId = deviceId;
     this.keyring.emit(["Portis", deviceId, core.Events.CONNECT], deviceId);
 

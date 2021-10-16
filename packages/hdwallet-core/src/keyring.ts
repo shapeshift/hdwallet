@@ -3,91 +3,110 @@ import * as eventemitter2 from "eventemitter2";
 import { HDWallet } from "./wallet";
 
 export class Keyring extends eventemitter2.EventEmitter2 {
-  public wallets: { [deviceID: string]: HDWallet } = {};
-  public aliases: { [deviceID: string]: string } = {};
+  protected wallets: Set<HDWallet> = new Set();
+  protected deviceIDs: Map<string, HDWallet> = new Map();
+  protected eventListeners: WeakMap<HDWallet, eventemitter2.Listener> = new WeakMap();
 
   constructor() {
     super({ wildcard: true });
   }
 
-  public add(wallet: HDWallet, deviceID?: string): boolean {
-    const id = deviceID || new Date().toString();
-    if (!this.wallets[id]) {
-      this.wallets[id] = wallet;
-      wallet.transport && this.decorateEvents(id, wallet.transport);
-      return true;
+  public async add(wallet: HDWallet, deviceID?: string): Promise<this> {
+    this.wallets.add(wallet);
+    const walletDeviceId = await wallet.getDeviceID()
+    this.setDeviceId(wallet, walletDeviceId);
+    if (deviceID && deviceID !== walletDeviceId) this.setDeviceId(wallet, deviceID);
+    this.decorateEvents(wallet, deviceID ?? walletDeviceId);
+    return this
+  }
+
+  public get(deviceID?: string): HDWallet | undefined {
+    if (!deviceID) return [...this.wallets.values()]?.[0]
+    return this.deviceIDs.get(deviceID);
+  }
+
+  public delete(deviceID: string): Promise<void>;
+  public delete(wallet: HDWallet): Promise<void>;
+  public async delete(deviceIDOrWallet: string | HDWallet): Promise<void> {
+    if (typeof deviceIDOrWallet === "string") {
+      const wallet = this.get(deviceIDOrWallet)
+      if (!wallet) return;
+      return await this.delete(wallet);
     }
-    return false;
-  }
 
-  public addAlias(aliasee: string, alias: string): void {
-    this.aliases[alias] = aliasee;
-  }
-
-  public getAlias(aliasee: string): string {
-    const keys = Object.keys(this.aliases);
-    const values = Object.values(this.aliases);
-    const index = values.indexOf(aliasee);
-    if (index !== -1) return keys[index];
-    return aliasee;
-  }
-
-  public async exec(method: string, ...args: any[]): Promise<{ [deviceID: string]: any }> {
-    return Promise.all(Object.values(this.wallets).map((w) => {
-      const fn: unknown = (w as any)[method];
-      if (typeof fn !== "function") throw new Error(`can't exec non-existent method ${method}`);
-      return fn.call(w, ...args);
-    })).then((values) =>
-      values.reduce((final, response, i) => {
-        final[Object.keys(this.wallets)[i]] = response;
-        return final;
-      }, {})
-    );
-  }
-
-  public get<T extends HDWallet>(deviceID?: string): T | null {
-    if (deviceID && this.aliases[deviceID] && this.wallets[this.aliases[deviceID]])
-      return this.wallets[this.aliases[deviceID]] as T;
-    if (deviceID && this.wallets[deviceID]) return this.wallets[deviceID] as T;
-    if (!!Object.keys(this.wallets).length && !deviceID) return Object.values(this.wallets)[0] as T;
-    return null;
-  }
-
-  public async remove(deviceID: string): Promise<void> {
-    const wallet = this.get(deviceID);
-    if (!wallet) return;
+    const wallet = deviceIDOrWallet;
 
     try {
       await wallet.disconnect();
     } catch (e) {
       console.error(e);
-    } finally {
-      let aliasee = this.aliases[deviceID];
-      if (aliasee) {
-        delete this.aliases[deviceID];
-        delete this.wallets[aliasee];
-      } else {
-        delete this.wallets[deviceID];
-      }
     }
+
+    const deviceIDs = [...this.deviceIDs.entries()].filter(([k, v])=>v === wallet).map(([k, _])=>k);
+    for (const deviceID of deviceIDs) {
+      this.deviceIDs.delete(deviceID);
+    }
+    this.wallets.delete(wallet);
+
+    this.decorateEvents(wallet);
+  }
+  
+  // Returns all device IDs, grouped by wallet, in order of wallet insertion.
+  public keys(): Iterable<string> {
+    return [...this.wallets.values()].map((wallet) =>
+      [...this.deviceIDs.entries()].filter(([_, v]) => v === wallet).map(([k, _]) => k)
+    ).reduce((a, x) => a.concat(x), [])
   }
 
-  public async removeAll(): Promise<void> {
-    await Promise.all(Object.keys(this.wallets).map(this.remove.bind(this)));
-    this.aliases = {};
+  // Returns all [deviceID, wallet] pairs, with dupes for wallets with multiple IDs registered.
+  public entries(): Iterable<[string, HDWallet]> {
+    return [...this.keys()].map(x => [x, this.deviceIDs.get(x)!])
+  }
+
+  // Returns all wallets registered in order of insertion. No dupes this time.
+  public values(): Iterable<HDWallet> {
+    return this.wallets.values();
+  }
+
+  public get size(): number {
+    return this.wallets.size;
+  }
+
+  public async deleteAll(): Promise<void> {
+    await Promise.all([...this.wallets.values()].map(x=>this.delete(x)))
   }
 
   public async disconnectAll(): Promise<void> {
-    const wallets = Object.values(this.wallets);
-    for (let i = 0; i < wallets.length; i++) {
-      await wallets[i].disconnect();
-    }
+    await Promise.all([...this.wallets.values()].map(x=>x.disconnect()))
   }
 
-  public decorateEvents(deviceID: string, events: eventemitter2.EventEmitter2): void {
-    const wallet: HDWallet | null = this.get(deviceID);
-    if (!wallet) return;
+  protected setDeviceId(wallet: HDWallet, deviceID: string): void {
+    if (!this.wallets.has(wallet)) return;
+    const oldWallet = this.deviceIDs.get(deviceID);
+    if (oldWallet === wallet) return;
+    if (oldWallet) throw new Error("Keyring: wallets must have unique device IDs");
+    this.deviceIDs.set(deviceID, wallet);
+    this.decorateEvents(wallet, deviceID);
+  }
+
+  protected decorateEvents(wallet: HDWallet, deviceID?: string): void {
+    const oldListener = this.eventListeners.get(wallet);
+    if (oldListener) {
+      wallet.transport?.offAny(oldListener);
+      wallet.events?.offAny(oldListener);
+    }
+
+    if (!this.wallets.has(wallet)) return;
+
     const vendor: string = wallet.getVendor();
-    events.onAny((e: string | string[], ...values: any[]) => this.emit([vendor, deviceID, (typeof e === "string" ? e : e.join(";"))], [deviceID, ...values]));
+    const deviceIDPromise: Promise<string> = deviceID ? Promise.resolve(deviceID) : wallet.getDeviceID();
+    const listener = async (e: string | string[], ...values: any[]) => {
+      const deviceID = await deviceIDPromise;
+      const msg = typeof e === "string" ? e : e.join(";");
+      this.emit([vendor, deviceID, msg], [deviceID, ...values]);
+    }
+    wallet.transport?.onAny(listener);
+    wallet.events?.onAny(listener);
+    this.eventListeners.set(wallet, listener);
   }
 }

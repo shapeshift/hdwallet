@@ -22,8 +22,11 @@ describe("NativeAdapter", () => {
   it("won't pair if a non-native wallet with the same deviceId is present in the keyring", async () => {
     const keyring = new core.Keyring();
     const adapter = NativeAdapter.useKeyring(keyring);
-    const dummyWallet = {};
-    keyring.add(dummyWallet as any, "foobar");
+    const dummyWallet = {
+      getVendor() { return "dummy"; },
+      async getDeviceID() { return "foobar" },
+    };
+    await keyring.add(dummyWallet as any, "foobar");
     expect(await adapter.pairDevice("foobar")).toBe(null);
   });
 });

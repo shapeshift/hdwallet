@@ -15,6 +15,7 @@ import { TerraWallet, TerraWalletInfo } from "./terra";
 import { ThorchainWallet, ThorchainWalletInfo } from "./thorchain";
 import { Transport } from "./transport";
 import { binanceDescribePath, btcDescribePath, cosmosDescribePath, eosDescribePath, ethDescribePath, fioDescribePath, kavaDescribePath, osmosisDescribePath, rippleDescribePath, secretDescribePath, terraDescribePath, thorchainDescribePath, unknownUTXOPath } from ".";
+import { EventEmitter2 } from "eventemitter2";
 
 export type BIP32Path = Array<number>;
 
@@ -245,6 +246,7 @@ export interface HDWalletInfo {
 
 export interface HDWallet extends HDWalletInfo {
   transport?: Transport;
+  events?: EventEmitter2;
 
   /**
    * Retrieve the wallet's unique ID

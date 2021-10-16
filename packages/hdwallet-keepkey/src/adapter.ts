@@ -87,7 +87,7 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
   private async handleDisconnect(device: DeviceType<DelegateType>): Promise<void> {
     const { productName, serialNumber } = await this.inspectDevice(device);
     try {
-      await this.keyring.remove(serialNumber);
+      await this.keyring.delete(serialNumber);
     } catch {}
     await this.keyring.emit([productName, serialNumber, core.Events.DISCONNECT], serialNumber);
   }
@@ -96,14 +96,18 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
     devices?: Array<DeviceType<DelegateType>>,
     tryDebugLink?: boolean,
     autoConnect?: boolean
-  ): Promise<number> {
+  ): Promise<Array<KeepKeyHDWallet | null>> {
+    const out: Array<KeepKeyHDWallet | null> = [];
     devices = devices ?? (await this.getDevices());
     for (const device of devices) {
       const { serialNumber } = await this.inspectDevice(device);
-      if (this.keyring.wallets[serialNumber]) await this.keyring.remove(serialNumber);
+      await this.keyring.delete(serialNumber);
 
       const delegate = await this.getTransportDelegate(device);
-      if (delegate === null) continue;
+      if (delegate === null) {
+        out.push(null);
+        continue;
+      }
 
       const transport = await Transport.create(this.keyring, delegate);
       await transport.connect();
@@ -111,9 +115,10 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
 
       const wallet = await KeepKeyHDWallet.create(transport);
       if (autoConnect) await wallet.initialize();
-      this.keyring.add(wallet, serialNumber);
+      await this.keyring.add(wallet, serialNumber);
+      out.push(wallet);
     }
-    return Object.keys(this.keyring.wallets).length;
+    return out
   }
 
   async getDevice(serialNumber?: string): Promise<DeviceType<DelegateType>> {
@@ -154,7 +159,7 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
   }
 
   async pairRawDevice(device: DeviceType<DelegateType>, tryDebugLink?: boolean): Promise<core.HDWallet> {
-    await this.initialize([device], tryDebugLink, true);
-    return core.mustBeDefined(this.keyring.get((await this.inspectDevice(device)).serialNumber));
+    const wallet = await this.initialize(device, tryDebugLink, true);
+    return core.mustBeDefined(wallet);
   }
 }

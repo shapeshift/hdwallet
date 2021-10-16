@@ -607,9 +607,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     // If the deviceId in the features table doesn't match, then we need to
     // add another k-v pair to the keyring so it can be looked up either way.
     const transportDeviceID = await this.transport.getDeviceID();
-    if (transportDeviceID !== out.deviceId) {
-      this.transport.keyring.addAlias(transportDeviceID, out.deviceId);
-    }
+    await this.transport.keyring.add(this, transportDeviceID);
 
     // Cosmos isn't supported until v6.3.0
     const fwVersion = `v${out.majorVersion}.${out.minorVersion}.${out.patchVersion}`;
