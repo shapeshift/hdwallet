@@ -65,7 +65,7 @@ export function selfTest(get: () => core.HDWallet): void {
 
   beforeAll(() => {
     let w = get();
-    if (portis.isPortis(w) && core.supportsETH(w)) wallet = w;
+    if (w instanceof portis.PortisHDWallet && core.supportsETH(w)) wallet = w;
     else fail("Wallet is not Portis");
   });
 

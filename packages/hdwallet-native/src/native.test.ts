@@ -271,11 +271,6 @@ describe("NativeHDWallet", () => {
     expect(mock).toHaveBeenCalled();
   });
 
-  it("should work with isNative", () => {
-    const wallet = native.create({ deviceId: "native" });
-    expect(native.isNative(wallet)).toBe(true);
-  });
-
   it("should respond to .ping()", async () => {
     const wallet = native.create({ deviceId: "native" });
     expect(await wallet.ping({ msg: "pong" })).toEqual({ msg: "pong" });

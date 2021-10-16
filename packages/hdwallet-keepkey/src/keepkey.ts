@@ -15,10 +15,6 @@ import { Transport } from "./transport";
 import { messageTypeRegistry } from "./typeRegistry";
 import { protoFieldToSetMethod, translateInputScriptType } from "./utils";
 
-export function isKeepKey(wallet: core.HDWallet): wallet is KeepKeyHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isKeepKey;
-}
-
 function describeETHPath(path: core.BIP32Path): core.PathDescription {
   let pathStr = core.addressNListToBIP32(path);
   let unknown: core.PathDescription = {
@@ -618,24 +614,15 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   readonly _supportsRippleInfo = true;
   readonly _supportsBinanceInfo = true;
   readonly _supportsEosInfo = true;
-  readonly _supportsFioInfo = false;
   readonly _supportsDebugLink: boolean;
-  readonly _isKeepKey = true;
   readonly _supportsETH = true;
   readonly _supportsBTC = true;
   _supportsCosmos = true;
   _supportsRipple = true;
   _supportsBinance = true;
   _supportsEos = true;
-  readonly _supportsFio = false;
   readonly _supportsThorchainInfo = true;
   readonly _supportsThorchain = true;
-  readonly _supportsSecretInfo = false;
-  readonly _supportsSecret = false;
-  readonly _supportsKava = false;
-  readonly _supportsKavaInfo = false;
-  readonly _supportsTerra = false;
-  readonly _supportsTerraInfo = false;
 
   transport: Transport;
   features?: Messages.Features.AsObject;

@@ -257,7 +257,7 @@ async function deviceConnected(deviceId) {
     if (wallet) {
       if (wallet.transport) {
         await wallet.transport.connect();
-        if (keepkey.isKeepKey(wallet)) {
+        if (wallet instanceof keepkey.KeepKeyHDWallet) {
           console.log("try connect debuglink");
           await wallet.transport.tryConnectDebugLink();
         }
@@ -451,7 +451,7 @@ $getXpubs.on("click", async (e) => {
       addressNList: hardenedPath,
       curve: "secp256k1",
       showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-      coin: portis.isPortis(wallet) ? "Bitcoin" : "Ethereum",
+      coin: wallet instanceof portis.PortisHDWallet ? "Bitcoin" : "Ethereum",
     },
   ]);
 

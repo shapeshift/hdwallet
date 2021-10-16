@@ -21,7 +21,7 @@ export function selfTest(get: () => core.HDWallet): void {
   beforeAll(async () => {
     let w = get() as metamask.MetaMaskHDWallet;
 
-    if (metamask.isMetaMask(w) && !core.supportsBTC(w) && core.supportsETH(w)) {
+    if (w instanceof metamask.MetaMaskHDWallet && !core.supportsBTC(w) && core.supportsETH(w)) {
       wallet = w;
     } else {
       fail("Wallet is not a MetaMask");

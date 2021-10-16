@@ -367,7 +367,7 @@ export function selfTest(get: () => core.HDWallet): void {
 
   beforeAll(async () => {
     let w = get();
-    if (trezor.isTrezor(w) && core.supportsBTC(w) && core.supportsETH(w)) wallet = w;
+    if (w instanceof trezor.TrezorHDWallet && core.supportsBTC(w) && core.supportsETH(w)) wallet = w;
     else fail("Wallet is not a Trezor");
   });
 

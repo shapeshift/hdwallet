@@ -6,10 +6,6 @@ import * as Btc from "./bitcoin";
 import * as Eth from "./ethereum";
 import { TrezorTransport } from "./transport";
 
-export function isTrezor(wallet: core.HDWallet): wallet is TrezorHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isTrezor;
-}
-
 function describeETHPath(path: core.BIP32Path): core.PathDescription {
   let pathStr = core.addressNListToBIP32(path);
   let unknown: core.PathDescription = {
@@ -264,7 +260,6 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   readonly _supportsETH = true;
   readonly _supportsKavaInfo = true;
   readonly _supportsTerraInfo = true;
-  readonly _isTrezor = true;
 
   transport: TrezorTransport;
   featuresCache: any;

@@ -13,10 +13,6 @@ class MetaMaskTransport extends core.Transport {
   }
 }
 
-export function isMetaMask(wallet: core.HDWallet): wallet is MetaMaskHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isMetaMask;
-}
-
 type HasNonTrivialConstructor<T> = T extends { new (): any } ? never : T;
 
 export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
@@ -32,7 +28,6 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsBinance = false;
   readonly _supportsDebugLink = false;
   readonly _isPortis = false;
-  readonly _isMetaMask = true;
   readonly _supportsRippleInfo = false;
   readonly _supportsRipple = false;
   readonly _supportsEosInfo = false;

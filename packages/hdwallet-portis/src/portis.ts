@@ -17,10 +17,6 @@ class PortisTransport extends core.Transport {
   }
 }
 
-export function isPortis(wallet: core.HDWallet): wallet is PortisHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isPortis;
-}
-
 type HasNonTrivialConstructor<T> = T extends { new (): any } ? never : T;
 export type Portis = InstanceType<HasNonTrivialConstructor<typeof Portis>>;
 
@@ -29,7 +25,6 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
   readonly _supportsETHInfo = true;
   readonly _supportsBTCInfo = true;
   readonly _supportsBTC = true;
-  readonly _isPortis = true;
 
   transport: core.Transport = new PortisTransport(new core.Keyring());
 
