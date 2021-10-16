@@ -29,28 +29,7 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
   readonly _supportsETHInfo = true;
   readonly _supportsBTCInfo = true;
   readonly _supportsBTC = true;
-  readonly _supportsCosmosInfo = false;
-  readonly _supportsCosmos = false;
-  readonly _supportsOsmosisInfo = false;
-  readonly _supportsOsmosis = false;
-  readonly _supportsBinanceInfo = false;
-  readonly _supportsBinance = false;
-  readonly _supportsDebugLink = false;
   readonly _isPortis = true;
-  readonly _supportsRippleInfo = false;
-  readonly _supportsRipple = false;
-  readonly _supportsEosInfo = false;
-  readonly _supportsEos = false;
-  readonly _supportsFioInfo = false;
-  readonly _supportsFio = false;
-  readonly _supportsThorchainInfo = false;
-  readonly _supportsThorchain = false;
-  readonly _supportsSecretInfo = false;
-  readonly _supportsSecret = false;
-  readonly _supportsKava = false;
-  readonly _supportsKavaInfo = false;
-  readonly _supportsTerra = false;
-  readonly _supportsTerraInfo = false;
 
   transport: core.Transport = new PortisTransport(new core.Keyring());
 
@@ -319,15 +298,6 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
 export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo, core.BTCWalletInfo {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
-  readonly _supportsCosmosInfo = false;
-  readonly _supportsBinanceInfo = false;
-  readonly _supportsRippleInfo = false;
-  readonly _supportsEosInfo = false;
-  readonly _supportsFioInfo = false;
-  readonly _supportsThorchainInfo = false;
-  readonly _supportsSecretInfo = false;
-  readonly _supportsKavaInfo = false;
-  readonly _supportsTerraInfo = false;
 
   public getVendor(): string {
     return "Portis";
