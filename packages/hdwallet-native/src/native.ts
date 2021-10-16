@@ -146,7 +146,6 @@ export class NativeHDWallet
   readonly _supportsSecret = true;
   readonly _supportsTerra = true;
   readonly _supportsKava = true;
-  readonly _isNative = true;
 
   #deviceId: string;
   #initialized: boolean = false;
@@ -298,10 +297,6 @@ export class NativeHDWallet
   }
 
   async disconnect(): Promise<void> {}
-}
-
-export function isNative(wallet: core.HDWallet): wallet is NativeHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isNative;
 }
 
 export function info() {

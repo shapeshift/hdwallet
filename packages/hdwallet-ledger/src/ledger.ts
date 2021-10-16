@@ -6,10 +6,6 @@ import * as eth from "./ethereum";
 import { LedgerTransport } from "./transport";
 import { coinToLedgerAppName, handleError } from "./utils";
 
-export function isLedger(wallet: core.HDWallet): wallet is LedgerHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isLedger;
-}
-
 // Special non-BIP-44 path descriptions for Ledger.
 function ethDescribeLedgerPath(path: core.BIP32Path): core.PathDescription {
   let pathStr = core.addressNListToBIP32(path);
@@ -186,8 +182,6 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   readonly _supportsBTCInfo = true;
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
-
-  _isLedger: boolean = true;
 
   transport: LedgerTransport;
   info: LedgerHDWalletInfo & core.HDWalletInfo;

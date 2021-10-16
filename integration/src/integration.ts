@@ -43,16 +43,6 @@ export function integration(suite: WalletSuite): void {
       beforeAll(async () => {
         wallet = await suite.createWallet();
       });
-
-      it("has only one vendor", () => {
-        expect(
-          (keepkey.isKeepKey(wallet) ? 1 : 0) +
-            (trezor.isTrezor(wallet) ? 1 : 0) +
-            (ledger.isLedger(wallet) ? 1 : 0) +
-            (portis.isPortis(wallet) ? 1 : 0) +
-            (native.isNative(wallet) ? 1 : 0)
-        ).toEqual(1);
-      });
     });
 
     describe("ETHWallet", () => {

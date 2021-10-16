@@ -246,9 +246,9 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
       "ethSignTx() - long contract data",
       async () => {
         if (!wallet) return;
-        if (ledger.isLedger(wallet)) return; // FIXME: just test kk for now
-        if (trezor.isTrezor(wallet)) return; // FIXME: just test kk for now
-        if (portis.isPortis(wallet)) return; // FIXME: just test kk for now
+        if (wallet instanceof ledger.LedgerHDWallet) return; // FIXME: just test kk for now
+        if (wallet instanceof trezor.TrezorHDWallet) return; // FIXME: just test kk for now
+        if (wallet instanceof portis.PortisHDWallet) return; // FIXME: just test kk for now
         let res = await wallet.ethSignTx({
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
           nonce: "0xab",
@@ -323,7 +323,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
       "ethSignMessage()",
       async () => {
         if (!wallet) return;
-        if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
+        if (wallet instanceof ledger.LedgerHDWallet) return; // FIXME: Expected failure
         let res = await wallet.ethSignMessage({
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
           message: "Hello World",

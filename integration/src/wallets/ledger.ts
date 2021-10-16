@@ -225,7 +225,7 @@ export function selfTest(get: () => core.HDWallet): void {
 
   beforeAll(async () => {
     let w = get();
-    if (ledger.isLedger(w) && core.supportsBTC(w) && core.supportsETH(w)) wallet = w;
+    if (w instanceof ledger.LedgerHDWallet && core.supportsBTC(w) && core.supportsETH(w)) wallet = w;
     else fail("Wallet is not a Ledger");
   });
 

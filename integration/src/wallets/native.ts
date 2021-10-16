@@ -177,9 +177,9 @@ export function selfTest(get: () => core.HDWallet): void {
   let wallet: native.NativeHDWallet;
 
   beforeAll(async () => {
-    let w = get() as native.NativeHDWallet;
+    let w = get();
 
-    if (native.isNative(w) && core.supportsBTC(w) && core.supportsETH(w)) {
+    if (w instanceof native.NativeHDWallet && core.supportsBTC(w) && core.supportsETH(w)) {
       wallet = w;
     } else {
       fail("Wallet is not native");

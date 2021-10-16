@@ -60,7 +60,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test(
       "btcSupportsCoin()",
       async () => {
-        if (!wallet || portis.isPortis(wallet)) return;
+        if (!wallet || wallet instanceof portis.PortisHDWallet) return;
         expect(wallet.btcSupportsCoin("Bitcoin")).toBeTruthy();
         expect(await info.btcSupportsCoin("Bitcoin")).toBeTruthy();
         expect(wallet.btcSupportsCoin("Testnet")).toBeTruthy();
@@ -70,7 +70,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     );
 
     test("getPublicKeys", async () => {
-      if (!wallet || ledger.isLedger(wallet) || trezor.isTrezor(wallet) || portis.isPortis(wallet)) return;
+      if (!wallet || wallet instanceof ledger.LedgerHDWallet || wallet instanceof trezor.TrezorHDWallet || wallet instanceof portis.PortisHDWallet) return;
 
       /* FIXME: Expected failure (trezor does not use scriptType in deriving public keys
           and ledger's dependency bitcoinjs-lib/src/crypto.js throws a mysterious TypeError
@@ -148,7 +148,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test(
       "btcGetAddress()",
       async () => {
-        if (!wallet || portis.isPortis(wallet)) return;
+        if (!wallet || wallet instanceof portis.PortisHDWallet) return;
         await each(
           [
             [
@@ -214,8 +214,8 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test(
       "btcSignTx() - p2pkh",
       async () => {
-        if (!wallet || portis.isPortis(wallet)) return;
-        if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
+        if (!wallet || wallet instanceof portis.PortisHDWallet) return;
+        if (wallet instanceof ledger.LedgerHDWallet) return; // FIXME: Expected failure
         const tx: core.BitcoinTx = {
           version: 1,
           locktime: 0,
@@ -291,9 +291,9 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test(
       "btcSignTx() - thorchain swap",
       async () => {
-        if (!wallet || portis.isPortis(wallet)) return;
-        if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
-        if (trezor.isTrezor(wallet)) return; //TODO: Add trezor support for op return data passed at top level
+        if (!wallet || wallet instanceof portis.PortisHDWallet) return;
+        if (wallet instanceof ledger.LedgerHDWallet) return; // FIXME: Expected failure
+        if (wallet instanceof trezor.TrezorHDWallet) return; // FIXME: Expected failure
         const tx: core.BitcoinTx = {
           version: 1,
           locktime: 0,
@@ -379,11 +379,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       "btcSignMessage()",
       async () => {
         if (!wallet) return;
-
-        // not implemented for native
-        if (native.isNative(wallet)) {
-          return;
-        }
+        if (wallet instanceof native.NativeHDWallet) return; // TODO: not implemented for native
 
         let res = wallet.btcSignMessage({
           addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
@@ -393,7 +389,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         });
 
         // not implemented on portis
-        if (portis.isPortis(wallet)) {
+        if (wallet instanceof portis.PortisHDWallet) {
           await expect(res).rejects.toThrowError("not supported");
           return;
         }
@@ -411,11 +407,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       "btcVerifyMessage() - good",
       async () => {
         if (!wallet) return;
-
-        // not implemented for native
-        if (native.isNative(wallet)) {
-          return;
-        }
+        if (wallet instanceof native.NativeHDWallet) return; // TODO: not implemented for native
 
         let res = await wallet.btcVerifyMessage({
           address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
@@ -434,11 +426,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       "btcVerifyMessage() - bad",
       async () => {
         if (!wallet) return;
-
-        // not implemented for native
-        if (native.isNative(wallet)) {
-          return;
-        }
+        if (wallet instanceof native.NativeHDWallet) return; // TODO: not implemented for native
 
         let res = await wallet.btcVerifyMessage({
           address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
