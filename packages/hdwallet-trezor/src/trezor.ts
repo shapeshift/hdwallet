@@ -260,7 +260,6 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
 export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet {
   readonly _supportsETHInfo = true;
   readonly _supportsBTCInfo = true;
-  readonly _supportsDebugLink = false;
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
   readonly _supportsKavaInfo = true;
@@ -565,6 +564,6 @@ export function info(): TrezorHDWalletInfo {
   return new TrezorHDWalletInfo();
 }
 
-export function create(transport: TrezorTransport, debuglink: boolean): TrezorHDWallet {
+export function create(transport: TrezorTransport): TrezorHDWallet {
   return new TrezorHDWallet(transport);
 }

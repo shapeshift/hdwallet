@@ -175,10 +175,6 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
    * Keep sensitive data out of logs.
    */
   protected censor(method: string, msg: any): any {
-    // TODO:
-    // if (debuglink)
-    //   return msg
-
     if (method === "loadDevice") {
       msg.mnemonic = "<redacted>";
       msg.pin = "<redacted>";

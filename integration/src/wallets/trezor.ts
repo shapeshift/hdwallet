@@ -355,7 +355,7 @@ export function name(): string {
 export async function createWallet(): Promise<core.HDWallet> {
   let keyring = new core.Keyring();
   let transport = new MockTransport(keyring);
-  return trezor.create(transport as trezor.TrezorTransport, true);
+  return trezor.create(transport as trezor.TrezorTransport);
 }
 
 export function createInfo(): core.HDWalletInfo {
