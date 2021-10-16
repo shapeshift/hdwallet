@@ -245,7 +245,7 @@ async function deviceConnected(deviceId) {
     console.error("Could not initialize MetaMaskAdapter", e);
   }
 
-  for (const deviceID of Object.keys(keyring.wallets)) {
+  for (const deviceID of keyring.keys()) {
     await deviceConnected(deviceID);
   }
   $keyring.change(async (e) => {

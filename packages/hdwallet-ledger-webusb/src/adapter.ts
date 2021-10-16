@@ -51,7 +51,7 @@ export class WebUSBLedgerAdapter {
       if (ts !== this.currentEventTimestamp) return;
 
       try {
-        if (e.device.serialNumber) await this.keyring.remove(e.device.serialNumber);
+        if (e.device.serialNumber) await this.keyring.delete(e.device.serialNumber);
       } catch (e) {
         console.error(e);
       } finally {
@@ -69,16 +69,16 @@ export class WebUSBLedgerAdapter {
     const device = usbDevice ?? (await getFirstLedgerDevice());
 
     if (device) {
-      await this.keyring.remove(core.mustBeDefined(device.serialNumber));
+      await this.keyring.delete(core.mustBeDefined(device.serialNumber));
 
       const ledgerTransport = await openTransport(device);
 
       const wallet = ledger.create(new LedgerWebUsbTransport(device, ledgerTransport, this.keyring) as ledger.LedgerTransport);
 
-      this.keyring.add(wallet, device.serialNumber);
+      await this.keyring.add(wallet, device.serialNumber);
     }
 
-    return Object.keys(this.keyring.wallets).length;
+    return this.keyring.size;
   }
 
   public async pairDevice(): Promise<core.HDWallet> {

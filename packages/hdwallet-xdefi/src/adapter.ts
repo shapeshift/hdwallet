@@ -16,7 +16,7 @@ export class XDeFiAdapter {
   }
 
   public async initialize(): Promise<number> {
-    return Object.keys(this.keyring.wallets).length;
+    return this.keyring.size;
   }
 
   public async pairDevice(): Promise<core.HDWallet> {
@@ -33,7 +33,7 @@ export class XDeFiAdapter {
     const wallet = new XDeFiHDWallet();
     await wallet.initialize(provider);
     const deviceID = await wallet.getDeviceID();
-    this.keyring.add(wallet, deviceID);
+    await this.keyring.add(wallet, deviceID);
     this.currentDeviceID = deviceID;
     this.keyring.emit(["XDeFi", deviceID, core.Events.CONNECT], deviceID);
 

@@ -87,7 +87,7 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
   private async handleDisconnect(device: DeviceType<DelegateType>): Promise<void> {
     const { productName, serialNumber } = await this.inspectDevice(device);
     try {
-      await this.keyring.remove(serialNumber);
+      await this.keyring.delete(serialNumber);
     } catch {}
     await this.keyring.emit([productName, serialNumber, core.Events.DISCONNECT], serialNumber);
   }
@@ -100,7 +100,7 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
     devices = devices ?? (await this.getDevices());
     for (const device of devices) {
       const { serialNumber } = await this.inspectDevice(device);
-      if (this.keyring.wallets[serialNumber]) await this.keyring.remove(serialNumber);
+      await this.keyring.delete(serialNumber);
 
       const delegate = await this.getTransportDelegate(device);
       if (delegate === null) continue;
@@ -111,9 +111,9 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
 
       const wallet = await KeepKeyHDWallet.create(transport);
       if (autoConnect) await wallet.initialize();
-      this.keyring.add(wallet, serialNumber);
+      await this.keyring.add(wallet, serialNumber);
     }
-    return Object.keys(this.keyring.wallets).length;
+    return this.keyring.size;
   }
 
   async getDevice(serialNumber?: string): Promise<DeviceType<DelegateType>> {

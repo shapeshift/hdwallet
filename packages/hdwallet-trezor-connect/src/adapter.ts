@@ -88,7 +88,7 @@ export class TrezorAdapter {
     return new TrezorAdapter(keyring, args);
   }
 
-  public get(device: TrezorDevice): core.HDWallet | null {
+  public get(device: TrezorDevice): core.HDWallet | undefined {
     return this.keyring.get(device.deviceID);
   }
 
@@ -115,7 +115,7 @@ export class TrezorAdapter {
       },
     } = event;
     try {
-      await this.keyring.remove(device_id);
+      await this.keyring.delete(device_id);
     } catch (e) {
       console.error(e);
     } finally {
@@ -160,9 +160,9 @@ export class TrezorAdapter {
       }
 
       await wallet.initialize();
-      this.keyring.add(wallet, device.deviceID);
+      await this.keyring.add(wallet, device.deviceID);
     }
-    return Object.keys(this.keyring.wallets).length;
+    return this.keyring.size;
   }
 
   public async pairDevice(): Promise<core.HDWallet> {
@@ -176,7 +176,7 @@ export class TrezorAdapter {
       throw new Error(`Could not pair Trezor: '${payload.error}'`);
     }
 
-    let deviceID = payload.device_id;
+    const deviceID = payload.device_id;
 
     await this.initialize([
       {
@@ -185,7 +185,8 @@ export class TrezorAdapter {
       },
     ]);
 
-    let wallet = this.keyring.get(deviceID) as trezor.TrezorHDWallet;
+    const wallet = this.keyring.get(deviceID);
+    if (!(wallet instanceof trezor.TrezorHDWallet)) throw new Error("expected TrezorHDWallet");
 
     if (wallet) wallet.cacheFeatures(payload);
 

@@ -51,7 +51,7 @@ export class WebHIDLedgerAdapter {
       if (ts !== this.currentEventTimestamp) return;
 
       try {
-        await this.keyring.remove(MOCK_SERIAL_NUMBER);
+        await this.keyring.delete(MOCK_SERIAL_NUMBER);
       } catch (e) {
         console.error(e);
       } finally {
@@ -69,7 +69,7 @@ export class WebHIDLedgerAdapter {
     device = device ?? (await getFirstLedgerDevice()) ?? undefined;
 
     if (device) {
-      await this.keyring.remove(MOCK_SERIAL_NUMBER);
+      await this.keyring.delete(MOCK_SERIAL_NUMBER);
 
       const ledgerTransport = await openTransport(device);
 
@@ -78,7 +78,7 @@ export class WebHIDLedgerAdapter {
       this.keyring.add(wallet, MOCK_SERIAL_NUMBER);
     }
 
-    return Object.keys(this.keyring.wallets).length;
+    return this.keyring.size;
   }
 
   public async pairDevice(): Promise<core.HDWallet> {
