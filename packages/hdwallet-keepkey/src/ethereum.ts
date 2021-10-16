@@ -51,7 +51,6 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
     est.setGasLimit(core.arrayify(msg.gasLimit));
     if (msg.gasPrice) {
       est.setGasPrice(core.arrayify(msg.gasPrice));
-      est.setType(core.ETHTransactionType.ETH_TX_TYPE_LEGACY);
     }
     if (msg.maxFeePerGas) {
       est.setMaxFeePerGas(core.arrayify(msg.maxFeePerGas));
