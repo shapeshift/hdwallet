@@ -3,6 +3,7 @@ import _ from "lodash";
 
 import * as btc from "./bitcoin";
 import * as eth from "./ethereum";
+import * as thorchain from "./thorchain";
 import { LedgerTransport } from "./transport";
 import { coinToLedgerAppName, handleError } from "./utils";
 
@@ -130,6 +131,46 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
   }
 }
 
+// TODO: from hdwallet-keepkey; should probably be factored out to core
+function describeThorchainPath(path: core.BIP32Path): core.PathDescription {
+  let pathStr = core.addressNListToBIP32(path);
+  let unknown: core.PathDescription = {
+    verbose: pathStr,
+    coin: "Rune",
+    isKnown: false,
+  };
+
+  if (path.length != 5) {
+    return unknown;
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown;
+  }
+
+  if (path[1] != 0x80000000 + core.slip44ByCoin("Rune")) {
+    return unknown;
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown;
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown;
+  }
+
+  let index = path[2] & 0x7fffffff;
+  return {
+    verbose: `THORChain Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "Rune",
+    isKnown: true,
+    isPrefork: false,
+  };
+}
+
 export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
@@ -138,7 +179,7 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
   readonly _supportsRippleInfo = false; // TODO ledger supports XRP
   readonly _supportsEosInfo = false;
   readonly _supportsFioInfo = false;
-  readonly _supportsThorchainInfo = false;
+  readonly _supportsThorchainInfo = true;
   readonly _supportsSecret = false;
   readonly _supportsSecretInfo = false;
   readonly _supportsKava = false;
@@ -194,6 +235,10 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     return eth.ethGetAccountPaths(msg);
+  }
+
+  public thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
+    return thorchain.thorchainGetAccountPaths(msg)
   }
 
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
@@ -285,6 +330,22 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
 
     return undefined;
   }
+
+  // TODO: from hdwallet-keepkey; should probably be factored out to core
+  public thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
+    let description = describeThorchainPath(msg.addressNList);
+    if (!description.isKnown) {
+      return undefined;
+    }
+
+    let addressNList = msg.addressNList;
+    addressNList[2] += 1;
+
+    return {
+      ...msg,
+      addressNList,
+    };
+  }
 }
 
 export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet {
@@ -303,8 +364,8 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   readonly _supportsEos = false;
   readonly _supportsFio = false;
   readonly _supportsFioInfo = false;
-  readonly _supportsThorchain = false;
-  readonly _supportsThorchainInfo = false;
+  readonly _supportsThorchain = true;
+  readonly _supportsThorchainInfo = true;
   readonly _supportsSecretInfo = false;
   readonly _supportsSecret = false;
   readonly _supportsKava = false;
@@ -352,7 +413,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
    * Throws WrongApp error if app associated with coin is not open
    * @param coin  Name of coin for app name lookup
    */
-  public async validateCurrentApp(coin?: core.Coin): Promise<void> {
+  public async validateCurrentAppByCoin(coin: core.Coin): Promise<void> {
     if (!coin) {
       throw new Error(`No coin provided`);
     }
@@ -360,6 +421,19 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     const appName = coinToLedgerAppName(coin);
     if (!appName) {
       throw new Error(`Unable to find associated app name for coin: ${coin}`);
+    }
+
+    return await this.validateCurrentApp(appName)
+  }
+
+  /**
+   * Validate if a specific app is open
+   * Throws WrongApp error if app associated with coin is not open
+   * @param coin  Name of coin for app name lookup
+   */
+  public async validateCurrentApp(appName: string): Promise<void> {
+    if (!appName) {
+      throw new Error(`No appName provided`);
     }
 
     const res = await this.transport.call(null, "getAppAndVersion");
@@ -425,6 +499,8 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     switch (name) {
       case "Ethereum":
         return eth.ethGetPublicKeys(this.transport, msg);
+      case "THORChain": // TODO: double-check app name
+        return thorchain.thorchainGetPublicKeys(this.transport, msg);
       default:
         throw new Error(`getPublicKeys is not supported with the ${name} app`);
     }
@@ -500,12 +576,12 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
-    await this.validateCurrentApp(msg.coin);
+    await this.validateCurrentAppByCoin(msg.coin);
     return btc.btcGetAddress(this.transport, msg);
   }
 
   public async btcSignTx(msg: core.BTCSignTxLedger): Promise<core.BTCSignedTx> {
-    await this.validateCurrentApp(msg.coin);
+    await this.validateCurrentAppByCoin(msg.coin);
     return btc.btcSignTx(this, this.transport, msg);
   }
 
@@ -518,7 +594,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
-    await this.validateCurrentApp(msg.coin);
+    await this.validateCurrentAppByCoin(msg.coin);
     return btc.btcSignMessage(this, this.transport, msg);
   }
 
@@ -571,6 +647,24 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     return this.info.ethGetAccountPaths(msg);
+  }
+
+  public thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
+    return this.info.thorchainGetAccountPaths(msg)
+  }
+
+  public thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
+    return this.info.thorchainNextAccountPath(msg)
+  }
+
+  public async thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string | null> {
+    await this.validateCurrentApp("THORChain"); // TODO: check app name
+    return thorchain.thorchainGetAddress(this.transport, msg);
+  }
+
+  public async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {
+    await this.validateCurrentApp("THORChain"); // TODO: check app name
+    return thorchain.thorchainSignTx(this.transport, msg);
   }
 
   public describePath(msg: core.DescribePath): core.PathDescription {

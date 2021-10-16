@@ -7,6 +7,8 @@ import getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
 import openApp from "@ledgerhq/live-common/lib/hw/openApp";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+import THORChain from "@thorchain/ledger-thorchain";
+
 import {
   LedgerResponse,
   LedgerTransportCoinType,
@@ -66,6 +68,11 @@ export function translateCoinAndMethod<T extends LedgerTransportCoinType, U exte
     case "Eth": {
       const eth = new Eth(transport);
       const methodInstance = eth[method as LedgerTransportMethodName<"Eth">].bind(eth)
+      return methodInstance as LedgerTransportMethod<T, U>;
+    }
+    case "THORChain": {
+      const thorchain = new THORChain(transport);
+      const methodInstance = thorchain[method as LedgerTransportMethodName<"THORChain">].bind(thorchain)
       return methodInstance as LedgerTransportMethod<T, U>;
     }
     case null: {
