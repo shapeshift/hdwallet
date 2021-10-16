@@ -284,8 +284,8 @@ describe("NativeBTCWalletInfo", () => {
       ["BIP84", "m/84'/0'/0'/0/0", "p2wpkh"],
     ])("should not work for a %s path with an unrecognized purpose field", (_, path, scriptType: any) => {
       const mock = jest
-        .spyOn(core, "describeUTXOPath")
-        .mockReturnValue(core.describeUTXOPath(core.bip32ToAddressNList(path), "Bitcoin", scriptType));
+        .spyOn(core, "btcDescribePath")
+        .mockReturnValue(core.btcDescribePath(core.bip32ToAddressNList(path), "Bitcoin", scriptType));
       expect(
         info.btcNextAccountPath({
           coin: "Bitcoin",

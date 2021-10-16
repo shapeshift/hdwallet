@@ -136,7 +136,7 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
   ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean | null>;
 }
 
-export function describeETHPath(path: BIP32Path): PathDescription {
+export function ethDescribePath(path: BIP32Path): PathDescription {
   let pathStr = addressNListToBIP32(path);
   let unknown: PathDescription = {
     verbose: pathStr,

@@ -359,8 +359,9 @@ export function unknownUTXOPath(path: BIP32Path, coin: Coin, scriptType?: BTCInp
   };
 }
 
-export function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInputScriptType): PathDescription {
+export function btcDescribePath(path: BIP32Path, coin: Coin, scriptType?: BTCInputScriptType): PathDescription {
   const unknown = unknownUTXOPath(path, coin, scriptType);
+  if (!scriptType) return unknown;
 
   if (path.length !== 3 && path.length !== 5) return unknown;
 
@@ -374,13 +375,15 @@ export function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInp
 
   if (purpose === 49 && scriptType !== BTCInputScriptType.SpendP2SHWitness) return unknown;
 
+  if (purpose === 84 && ![BTCInputScriptType.SpendWitness, BTCInputScriptType.Bech32].includes(scriptType)) return unknown;
+
   let wholeAccount = path.length === 3;
 
   let script = (
     {
       [BTCInputScriptType.SpendAddress]: ["Legacy"],
       [BTCInputScriptType.SpendP2SHWitness]: [],
-      [BTCInputScriptType.SpendWitness]: ["Segwit"],
+      [BTCInputScriptType.SpendWitness]: ["Segwit Native"],
       [BTCInputScriptType.Bech32]: ["Segwit Native"],
     } as Partial<Record<BTCInputScriptType, string[]>>
   )[scriptType];

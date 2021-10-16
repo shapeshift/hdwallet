@@ -1,3 +1,4 @@
+import { addressNListToBIP32, PathDescription, slip44ByCoin } from ".";
 import { BIP32Path, HDWallet, HDWalletInfo } from "./wallet";
 
 export interface RippleGetAddress {
@@ -91,4 +92,43 @@ export interface RippleWallet extends RippleWalletInfo, HDWallet {
 
   rippleGetAddress(msg: RippleGetAddress): Promise<string | null>;
   rippleSignTx(msg: RippleSignTx): Promise<RippleSignedTx | null>;
+}
+
+export function rippleDescribePath(path: BIP32Path): PathDescription {
+  let pathStr = addressNListToBIP32(path);
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin: "Ripple",
+    isKnown: false,
+  };
+
+  if (path.length != 5) {
+    return unknown;
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown;
+  }
+
+  if (path[1] != 0x80000000 + slip44ByCoin("Ripple")) {
+    return unknown;
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown;
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown;
+  }
+
+  let index = path[2] & 0x7fffffff;
+  return {
+    verbose: `Ripple Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "Ripple",
+    isKnown: true,
+    isPrefork: false,
+  };
 }

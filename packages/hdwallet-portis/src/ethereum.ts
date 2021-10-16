@@ -1,35 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-export function describeETHPath(path: core.BIP32Path): core.PathDescription {
-  let pathStr = core.addressNListToBIP32(path);
-  let unknown: core.PathDescription = {
-    verbose: pathStr,
-    coin: "Ethereum",
-    isKnown: false,
-  };
-
-  if (path.length !== 5) return unknown;
-
-  if (path[0] !== 0x80000000 + 44) return unknown;
-
-  if (path[1] !== 0x80000000 + core.slip44ByCoin("Ethereum")) return unknown;
-
-  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
-
-  if (path[3] !== 0) return unknown;
-
-  if (path[4] !== 0) return unknown;
-
-  let index = path[2] & 0x7fffffff;
-  return {
-    verbose: `Ethereum Account #${index}`,
-    accountIdx: index,
-    wholeAccount: true,
-    coin: "Ethereum",
-    isKnown: true,
-  };
-}
-
 export async function ethVerifyMessage(msg: core.ETHVerifyMessage, web3: any): Promise<boolean> {
   const signingAddress = await web3.eth.accounts.recover(msg.message, "0x" + msg.signature, false);
   return signingAddress === msg.address;

@@ -59,7 +59,7 @@ export class NativeHDWalletInfoBase implements core.HDWalletInfo {
   }
 
   describePath(msg: core.DescribePath): core.PathDescription {
-    throw new Error("unreachable");
+    return core.describePath(msg)
   }
 }
 
@@ -117,53 +117,6 @@ class NativeHDWalletInfo
     )
   )
   implements core.HDWalletInfo {
-
-  describePath(msg: core.DescribePath): core.PathDescription {
-    switch (msg.coin.toLowerCase()) {
-      case "bitcoin":
-      case "bitcoincash":
-      case "dash":
-      case "digibyte":
-      case "dogecoin":
-      case "litecoin":
-      case "testnet":
-        const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
-
-        if (!msg.scriptType) return unknown;
-        if (!super.btcSupportsCoinSync(msg.coin)) return unknown;
-        if (!super.btcSupportsScriptTypeSync(msg.coin, msg.scriptType)) return unknown;
-
-        return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
-      case "ethereum":
-        return core.describeETHPath(msg.path);
-      case "atom":
-        return core.cosmosDescribePath(msg.path);
-      case "rune":
-      case "trune":
-      case "thorchain":
-        return core.thorchainDescribePath(msg.path);
-      case "secret":
-      case "scrt":
-      case "tscrt":
-        return core.secretDescribePath(msg.path);
-      case "luna":
-      case "terra":
-      case "tluna":
-        return core.terraDescribePath(msg.path);
-      case "kava":
-      case "tkava":
-        return core.kavaDescribePath(msg.path);
-      case "binance":
-        return core.binanceDescribePath(msg.path);
-      case "osmosis":
-      case "osmo":
-        return core.osmosisDescribePath(msg.path);
-      case "fio":
-        return core.fioDescribePath(msg.path);
-      default:
-        throw new Error("Unsupported path");
-    }
-  }
 }
 
 export class NativeHDWallet

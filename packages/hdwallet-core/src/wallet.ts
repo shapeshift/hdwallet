@@ -14,6 +14,7 @@ import { SecretWallet, SecretWalletInfo } from "./secret";
 import { TerraWallet, TerraWalletInfo } from "./terra";
 import { ThorchainWallet, ThorchainWalletInfo } from "./thorchain";
 import { Transport } from "./transport";
+import { binanceDescribePath, btcDescribePath, cosmosDescribePath, eosDescribePath, ethDescribePath, fioDescribePath, kavaDescribePath, osmosisDescribePath, rippleDescribePath, secretDescribePath, terraDescribePath, thorchainDescribePath, unknownUTXOPath } from ".";
 
 export type BIP32Path = Array<number>;
 
@@ -373,4 +374,41 @@ export interface HDWallet extends HDWalletInfo {
    * Close connection with device
    */
   disconnect(): Promise<void>;
+}
+
+export function describePath(msg: DescribePath): PathDescription {
+  switch (msg.coin.toLowerCase()) {
+    case "ethereum":
+      return ethDescribePath(msg.path);
+    case "atom":
+      return cosmosDescribePath(msg.path);
+    case "rune":
+    case "trune":
+    case "thorchain":
+      return thorchainDescribePath(msg.path);
+    case "secret":
+    case "scrt":
+    case "tscrt":
+      return secretDescribePath(msg.path);
+    case "luna":
+    case "terra":
+    case "tluna":
+      return terraDescribePath(msg.path);
+    case "kava":
+    case "tkava":
+      return kavaDescribePath(msg.path);
+    case "binance":
+      return binanceDescribePath(msg.path);
+    case "osmosis":
+    case "osmo":
+      return osmosisDescribePath(msg.path);
+    case "fio":
+      return fioDescribePath(msg.path);
+    case "ripple":
+      return rippleDescribePath(msg.path);
+    case "eos":
+      return eosDescribePath(msg.path);
+    default:
+      return btcDescribePath(msg.path, msg.coin, msg.scriptType);
+  }
 }

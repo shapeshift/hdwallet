@@ -333,7 +333,7 @@ export function selfTest(get: () => core.HDWallet): void {
         coin: "Litecoin",
         isKnown: true,
         scriptType: "p2wpkh",
-        verbose: "Litecoin Account #4 (Segwit)",
+        verbose: "Litecoin Account #4 (Segwit Native)",
         wholeAccount: true,
         isPrefork: false,
       },

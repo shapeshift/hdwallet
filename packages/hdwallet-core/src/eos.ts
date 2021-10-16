@@ -1,3 +1,4 @@
+import { addressNListToBIP32, PathDescription, slip44ByCoin } from ".";
 import { BIP32Path, HDWallet, HDWalletInfo } from "./wallet";
 
 export interface EosGetPublicKey {
@@ -90,4 +91,43 @@ export interface EosWallet extends EosWalletInfo, HDWallet {
 
   eosGetPublicKey(msg: EosGetPublicKey): Promise<string | null>;
   eosSignTx(msg: EosToSignTx): Promise<EosTxSigned | null>;
+}
+
+export function eosDescribePath(path: BIP32Path): PathDescription {
+  let pathStr = addressNListToBIP32(path);
+  let unknown: PathDescription = {
+    verbose: pathStr,
+    coin: "Eos",
+    isKnown: false,
+  };
+
+  if (path.length != 5) {
+    return unknown;
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown;
+  }
+
+  if (path[1] != 0x80000000 + slip44ByCoin("Eos")) {
+    return unknown;
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown;
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown;
+  }
+
+  let index = path[2] & 0x7fffffff;
+  return {
+    verbose: `Eos Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "Eos",
+    isKnown: true,
+    isPrefork: false,
+  };
 }

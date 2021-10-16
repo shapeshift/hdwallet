@@ -106,7 +106,7 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDW
     }
 
     btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-      const description = core.describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType);
+      const description = core.btcDescribePath(msg.addressNList, msg.coin, msg.scriptType);
 
       if (!description.isKnown) {
         return undefined;

@@ -535,10 +535,15 @@ export function selfTest(get: () => core.HDWallet): void {
         scriptType: core.BTCInputScriptType.SpendAddress,
       })
     ).toEqual({
-      verbose: "m/44'/0'/7'/1/5",
+      accountIdx: 7,
+      addressIdx: 5,
       coin: "BitcoinCash",
+      isChange: true,
+      isKnown: true,
+      isPrefork: true,
       scriptType: core.BTCInputScriptType.SpendAddress,
-      isKnown: false,
+      verbose: "BitcoinCash Account #7, Change Address #5 (Prefork)",
+      wholeAccount: false,
     });
 
     expect(
