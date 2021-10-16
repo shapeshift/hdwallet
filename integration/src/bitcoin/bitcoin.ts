@@ -10,13 +10,13 @@ const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor n
 
 const TIMEOUT = 60 * 1000;
 
-function deepFreeze(object) {
+function deepFreeze<T extends Record<string, unknown>>(object: T): T {
   const propNames = Object.getOwnPropertyNames(object);
   for (const name of propNames) {
     const value = object[name];
 
     if (value && typeof value === "object") {
-      deepFreeze(value);
+      deepFreeze(value as Record<string, unknown>);
     }
   }
   return Object.freeze(object);

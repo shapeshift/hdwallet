@@ -74,8 +74,8 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         };
 
         const res = await wallet.osmosisSignTx(input);
-        console.log("res?.signatures?.[0].signature: ",res?.signatures?.[0].signature)
-        expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
+        console.log("res?.signatures?.[0].signature: ", res?.signatures?.[0].signature)
+        expect(res?.signatures?.[0].signature).toEqual((tx_signed.signatures as core.Osmosis.StdSignature[])[0].signature);
       },
       TIMEOUT
     );

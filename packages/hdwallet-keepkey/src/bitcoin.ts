@@ -574,7 +574,7 @@ export function btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
     [core.BTCInputScriptType.SpendAddress]: 0x80000000 + 44,
     [core.BTCInputScriptType.SpendP2SHWitness]: 0x80000000 + 49,
     [core.BTCInputScriptType.SpendWitness]: 0x80000000 + 84,
-  } as const;
+  } as Partial<Record<core.BTCInputScriptType, number>>;
   if (purposeForScriptType[account0.scriptType] !== purpose) return false;
 
   // Coin must be hardened

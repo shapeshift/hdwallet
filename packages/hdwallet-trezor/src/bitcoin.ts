@@ -13,7 +13,7 @@ type BTCTrezorSignTxOutput = {
 };
 
 function translateCoin(coin: core.Coin): string {
-  return {
+  return core.mustBeDefined({
     Bitcoin: "btc",
     Litecoin: "ltc",
     Zcash: "zec",
@@ -23,7 +23,7 @@ function translateCoin(coin: core.Coin): string {
     DigiByte: "dgb",
     Testnet: "testnet",
     Dogecoin: "doge",
-  }[coin];
+  }[coin]);
 }
 
 const segwitCoins = ["Bitcoin", "Litecoin", "BitcoinGold", "Testnet"];

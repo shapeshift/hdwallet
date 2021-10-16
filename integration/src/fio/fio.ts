@@ -176,20 +176,22 @@ export function fioTests(get: () => { wallet: core.HDWallet; info: core.HDWallet
               data: {
                 payer_fio_address: "highlander@scatter",
                 payee_fio_address: "test@shapeshift",
-                content: await wallet.fioEncryptRequestContent({
-                  addressNList: core.bip32ToAddressNList("m/44'/235'/0'/0/0"),
-                  content: {
-                    payee_public_address: "test@shapeshift",
-                    amount: "1",
-                    chain_code: "FIO",
-                    token_code: "FIO",
-                    memo: "memo",
-                    hash: "hash",
-                    offline_url: "offline_url",
-                  },
-                  publicKey: "FIO6Lxx7BTA8zbgPuqn4QidNNdTCHisXU7RpxJxLwxAka7NV7SoBW",
-                  contentType: core.FioEncryptionContentType.REQUEST,
-                }),
+                content: core.mustBeDefined(
+                  await wallet.fioEncryptRequestContent({
+                    addressNList: core.bip32ToAddressNList("m/44'/235'/0'/0/0"),
+                    content: {
+                      payee_public_address: "test@shapeshift",
+                      amount: "1",
+                      chain_code: "FIO",
+                      token_code: "FIO",
+                      memo: "memo",
+                      hash: "hash",
+                      offline_url: "offline_url",
+                    },
+                    publicKey: "FIO6Lxx7BTA8zbgPuqn4QidNNdTCHisXU7RpxJxLwxAka7NV7SoBW",
+                    contentType: core.FioEncryptionContentType.REQUEST,
+                  })
+                ),
                 max_fee: 800000000000,
                 tpid: "",
               },
@@ -221,23 +223,25 @@ export function fioTests(get: () => { wallet: core.HDWallet; info: core.HDWallet
               data: {
                 payee_fio_address: "test@shapeshift",
                 payer_fio_address: "highlander@scatter",
-                content: await wallet.fioEncryptRequestContent({
-                  addressNList: core.bip32ToAddressNList("m/44'/235'/0'/0/0"),
-                  content: {
-                    payee_public_address: "test@shapeshift",
-                    payer_public_address: "highlander@scatter",
-                    amount: "1",
-                    chain_code: "FIO",
-                    token_code: "FIO",
-                    memo: "memo",
-                    hash: "hash",
-                    status: "",
-                    obt_id: "",
-                    offline_url: "offline_url",
-                  },
-                  publicKey: "FIO6iLE1J4zb2SyDGTH9d6UL9Qm6hhqRce27QvP8AKxVLASGhtm7z",
-                  contentType: core.FioEncryptionContentType.OBT,
-                }),
+                content: core.mustBeDefined(
+                  await wallet.fioEncryptRequestContent({
+                    addressNList: core.bip32ToAddressNList("m/44'/235'/0'/0/0"),
+                    content: {
+                      payee_public_address: "test@shapeshift",
+                      payer_public_address: "highlander@scatter",
+                      amount: "1",
+                      chain_code: "FIO",
+                      token_code: "FIO",
+                      memo: "memo",
+                      hash: "hash",
+                      status: "",
+                      obt_id: "",
+                      offline_url: "offline_url",
+                    },
+                    publicKey: "FIO6iLE1J4zb2SyDGTH9d6UL9Qm6hhqRce27QvP8AKxVLASGhtm7z",
+                    contentType: core.FioEncryptionContentType.OBT,
+                  })
+                ),
                 fio_request_id: "17501",
                 max_fee: 800000000000,
                 tpid: "",

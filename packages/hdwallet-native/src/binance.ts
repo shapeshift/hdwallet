@@ -115,7 +115,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         if (addressFrom !== addressFromVerify) throw Error("Invalid permissions to sign for address");
 
         if (!tx.account_number) {
-          const { result, status }: {result: Record<string, unknown>, status: number} = await client.getAccount(addressFrom);
+          const { result, status }: {result: Record<string, unknown>, status: number} = core.mustBeDefined(await client.getAccount(addressFrom));
           if (!(status === 200 && "account_number" in result && typeof result.account_number === "number")) throw new Error("unable to load account number");
           tx.account_number = result.account_number.toString();
         }

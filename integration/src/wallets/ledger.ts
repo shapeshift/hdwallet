@@ -6,7 +6,7 @@ export class MockTransport extends ledger.LedgerTransport {
   currentApp: string;
 
   constructor(keyring: core.Keyring, type: string) {
-    super(undefined, keyring);
+    super(core.untouchable("actual ledger transport unavailable"), keyring);
     this.currentApp = type;
     this.populate();
   }

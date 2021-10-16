@@ -183,7 +183,7 @@ describe("NativeBinanceWallet", () => {
         ],
       },
     });
-    expect(sig.signatures).toMatchInlineSnapshot(`
+    expect(sig?.signatures).toMatchInlineSnapshot(`
       Object {
         "pub_key": "A/7/niWhEmyNrOL5jDyKiFyN1fMYjCxVPgyucVvj9UNT",
         "signature": "BnbtioXs2KyTQeJFpYQM6JmLgE4XOMLIDCCYw7z7wwpRMVwV0uVoeBoNh5zJrDcJzCQw8qmwzC+I5Cl/pTz+jg==",

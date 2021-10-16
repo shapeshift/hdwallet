@@ -98,12 +98,12 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
         case "newfundsreq": {
           genericAction = "requestFunds";
           const payerPublicKey = (await sdk.getFioPublicAddress(action.data.payer_fio_address)).public_address;
-          const decryptedContent = await this.fioDecryptRequestContent({
+          const decryptedContent = core.mustBeDefined(await this.fioDecryptRequestContent({
             contentType: core.Fio.ContentType.REQUEST,
             content: action.data.content,
             addressNList: msg.addressNList,
             publicKey: payerPublicKey,
-          } as const);
+          } as const));
           genericActionParams = {
             payerFioAddress: action.data.payer_fio_address,
             payeeFioAddress: action.data.payee_fio_address,
@@ -123,12 +123,12 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
         case "recordobt": {
           genericAction = "recordObtData";
           const payeePublicKey = (await sdk.getFioPublicAddress(action.data.payee_fio_address)).public_address;
-          const decryptedContent = await this.fioDecryptRequestContent({
+          const decryptedContent = core.mustBeDefined(await this.fioDecryptRequestContent({
             contentType: core.Fio.ContentType.OBT,
             content: action.data.content,
             addressNList: msg.addressNList,
             publicKey: payeePublicKey,
-          } as const);
+          } as const));
           genericActionParams = {
             fioRequestId: action.data.fio_request_id ? Number(action.data.fio_request_id) : null,
             payerFioAddress: action.data.payer_fio_address,
@@ -230,7 +230,7 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
     async fioEncryptRequestContent<T extends core.Fio.ContentType>(msg: core.FioEncryptRequestContentMsg<T>): Promise<string | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
         const privateKey = getKeyPair(this.#seed!, msg.addressNList);
-        const sdk = await this.getFioSdk(msg.addressNList);
+        const sdk = core.mustBeDefined(await this.getFioSdk(msg.addressNList));
         return await sdk.transactions.getCipherContent(msg.contentType, msg.content, privateKey, msg.publicKey, msg.iv && Buffer.from(msg.iv));
       });
     }
@@ -238,7 +238,7 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
     async fioDecryptRequestContent<T extends core.Fio.ContentType>(msg: core.FioDecryptRequestContentMsg<T>): Promise<core.Fio.Content<T> | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
         const privateKey = getKeyPair(this.#seed!, msg.addressNList);
-        const sdk = await this.getFioSdk(msg.addressNList);
+        const sdk = core.mustBeDefined(await this.getFioSdk(msg.addressNList));
         return await sdk.transactions.getUnCipherContent(msg.contentType, JSON.stringify(msg.content), privateKey, msg.publicKey);
       });
     }
