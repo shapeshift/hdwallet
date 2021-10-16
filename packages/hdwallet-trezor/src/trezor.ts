@@ -63,10 +63,6 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     return Btc.btcSupportsSecureTransfer();
   }
 
-  public btcSupportsNativeShapeShift(): boolean {
-    return Btc.btcSupportsNativeShapeShift();
-  }
-
   public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
     return Btc.btcGetAccountPaths(msg);
   }
@@ -81,10 +77,6 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
     return Eth.ethSupportsSecureTransfer();
-  }
-
-  public ethSupportsNativeShapeShift(): boolean {
-    return Eth.ethSupportsNativeShapeShift();
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {
@@ -110,11 +102,6 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
   public hasOnDeviceRecovery(): boolean {
     // Not really meaningful since TrezorConnect doesn't expose recovery yet
     return true;
-  }
-
-  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
-    // It doesn't... yet?
-    return false;
   }
 
   public describePath(msg: core.DescribePath): core.PathDescription {
@@ -363,11 +350,6 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return this.transport.hasPopup;
   }
 
-  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
-    // It doesn't... yet?
-    return false;
-  }
-
   public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
     return this.info.btcSupportsCoin(coin);
   }
@@ -386,10 +368,6 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   public async btcSupportsSecureTransfer(): Promise<boolean> {
     return this.info.btcSupportsSecureTransfer();
-  }
-
-  public btcSupportsNativeShapeShift(): boolean {
-    return this.info.btcSupportsNativeShapeShift();
   }
 
   public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
@@ -430,10 +408,6 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
     return this.info.ethSupportsSecureTransfer();
-  }
-
-  public ethSupportsNativeShapeShift(): boolean {
-    return this.info.ethSupportsNativeShapeShift();
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {

@@ -54,10 +54,6 @@ export class NativeHDWalletInfoBase implements core.HDWalletInfo {
     return false;
   }
 
-  hasNativeShapeShift(): boolean {
-    return false;
-  }
-
   describePath(msg: core.DescribePath): core.PathDescription {
     return core.describePath(msg)
   }

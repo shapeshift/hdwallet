@@ -74,10 +74,6 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     return btc.btcSupportsSecureTransfer();
   }
 
-  public btcSupportsNativeShapeShift(): boolean {
-    return btc.btcSupportsNativeShapeShift();
-  }
-
   public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
     return btc.btcGetAccountPaths(msg);
   }
@@ -94,20 +90,12 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     return eth.ethSupportsSecureTransfer();
   }
 
-  public ethSupportsNativeShapeShift(): boolean {
-    return eth.ethSupportsNativeShapeShift();
-  }
-
   public async ethSupportsEIP1559(): Promise<boolean> {
     return eth.ethSupportsEIP1559();
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     return eth.ethGetAccountPaths(msg);
-  }
-
-  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
-    return false;
   }
 
   public hasOnDeviceDisplay(): boolean {
@@ -315,10 +303,6 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     }
   }
 
-  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
-    return false;
-  }
-
   public hasOnDeviceDisplay(): boolean {
     return true;
   }
@@ -398,10 +382,6 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return this.info.btcSupportsSecureTransfer();
   }
 
-  public btcSupportsNativeShapeShift(): boolean {
-    return this.info.btcSupportsNativeShapeShift();
-  }
-
   public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
     await this.validateCurrentApp(msg.coin);
     return btc.btcSignMessage(this, this.transport, msg);
@@ -444,10 +424,6 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
     return this.info.ethSupportsSecureTransfer();
-  }
-
-  public ethSupportsNativeShapeShift(): boolean {
-    return this.info.ethSupportsNativeShapeShift();
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {

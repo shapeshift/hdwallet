@@ -17,10 +17,6 @@ export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDW
       return false;
     }
 
-    ethSupportsNativeShapeShift(): boolean {
-      return false;
-    }
-
     async ethSupportsEIP1559(): Promise<boolean> {
       return true;
     }

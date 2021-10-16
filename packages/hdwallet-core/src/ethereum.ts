@@ -1,5 +1,5 @@
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
-import { ExchangeType, BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
+import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
 export enum ETHTransactionType {
   ETH_TX_TYPE_LEGACY = 0,
@@ -54,10 +54,6 @@ export interface ETHSignTx {
   data: string;
   /** mainnet: 1, ropsten: 3, kovan: 42 */
   chainId: number;
-  /**
-   * Device must `ethSupportsNativeShapeShift()`
-   */
-  exchangeType?: ExchangeType;
 }
 
 export interface ETHSignedTx {
@@ -100,11 +96,6 @@ export interface ETHWalletInfo extends HDWalletInfo {
    * confirm the destination address?
    */
   ethSupportsSecureTransfer(): Promise<boolean>;
-
-  /**
-   * Does the device support `/sendamountProto2` style ShapeShift trades?
-   */
-  ethSupportsNativeShapeShift(): boolean;
 
   /**
    *

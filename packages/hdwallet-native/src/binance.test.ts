@@ -84,7 +84,6 @@ describe("NativeBinanceWalletInfo", () => {
   it("should return some static metadata", async () => {
     expect(await untouchable.call(info, "binanceSupportsNetwork")).toBe(true);
     expect(await untouchable.call(info, "binanceSupportsSecureTransfer")).toBe(false);
-    expect(untouchable.call(info, "binanceSupportsNativeShapeShift")).toBe(false);
   });
 
   it("should return the correct account paths", async () => {

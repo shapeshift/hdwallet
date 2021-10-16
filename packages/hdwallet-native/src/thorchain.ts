@@ -20,10 +20,6 @@ export function MixinNativeThorchainWalletInfo<TBase extends core.Constructor<co
       return false;
     }
 
-    thorchainSupportsNativeShapeShift(): boolean {
-      return false;
-    }
-
     thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
       const slip44 = core.slip44ByCoin("Thorchain")
       return [

@@ -123,7 +123,6 @@ describe("NativeFioWalletInfo", () => {
   it("should return some static metadata", async () => {
     expect(await untouchable.call(info, "fioSupportsNetwork")).toBe(true);
     expect(await untouchable.call(info, "fioSupportsSecureTransfer")).toBe(false);
-    expect(untouchable.call(info, "fioSupportsNativeShapeShift")).toBe(false);
   });
 
   it("should return the correct account paths", async () => {

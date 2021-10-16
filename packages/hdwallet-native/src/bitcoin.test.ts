@@ -139,7 +139,6 @@ describe("NativeBTCWalletInfo", () => {
   it("should return some static metadata", async () => {
     expect((info as any)["btcSupportsNetwork"]).not.toBeDefined();
     expect(await untouchable.call(info, "btcSupportsSecureTransfer")).toBe(false);
-    expect(untouchable.call(info, "btcSupportsNativeShapeShift")).toBe(false);
   });
 
   it("should return some dynamic metadata", async () => {

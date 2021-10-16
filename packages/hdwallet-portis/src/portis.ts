@@ -89,10 +89,6 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
     return this.info.hasOnDeviceRecovery();
   }
 
-  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
-    return this.info.hasNativeShapeShift(srcCoin, dstCoin);
-  }
-
   public async clearSession(): Promise<void> {
     await this.portis.logout();
   }
@@ -210,10 +206,6 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
     return this.info.btcSupportsSecureTransfer();
   }
 
-  public btcSupportsNativeShapeShift(): boolean {
-    return this.info.btcSupportsNativeShapeShift();
-  }
-
   public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
     return this.info.btcGetAccountPaths(msg);
   }
@@ -232,10 +224,6 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
     return this.info.ethSupportsSecureTransfer();
-  }
-
-  public ethSupportsNativeShapeShift(): boolean {
-    return this.info.ethSupportsNativeShapeShift();
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {
@@ -311,11 +299,6 @@ export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
     return true;
   }
 
-  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
-    // It doesn't... yet?
-    return false;
-  }
-
   public describePath(msg: core.DescribePath): core.PathDescription {
     return core.describePath(msg)
   }
@@ -330,10 +313,6 @@ export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
 
   public async btcSupportsSecureTransfer(): Promise<boolean> {
     return Promise.resolve(false);
-  }
-
-  public btcSupportsNativeShapeShift(): boolean {
-    return false;
   }
 
   public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
@@ -358,10 +337,6 @@ export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public ethSupportsNativeShapeShift(): boolean {
     return false;
   }
 

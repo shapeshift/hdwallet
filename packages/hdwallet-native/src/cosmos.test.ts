@@ -15,7 +15,6 @@ describe("NativeCosmosWalletInfo", () => {
   it("should return some static metadata", async () => {
     expect(await untouchable.call(info, "cosmosSupportsNetwork")).toBe(true);
     expect(await untouchable.call(info, "cosmosSupportsSecureTransfer")).toBe(false);
-    expect(untouchable.call(info, "cosmosSupportsNativeShapeShift")).toBe(false);
   });
 
   it("should return the correct account paths", async () => {

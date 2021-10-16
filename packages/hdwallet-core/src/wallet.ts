@@ -75,16 +75,6 @@ export interface LoadDevice {
   skipChecksum?: boolean;
 }
 
-export interface ExchangeType {
-  /** `SignedExchangeResponse` from the `/sendamountProto2` ShapeShift endpoint, base64 encoded */
-  signedExchangeResponse: string;
-  withdrawalCoinName: string;
-  withdrawalAddressNList: BIP32Path;
-  withdrawalScriptType?: BTCInputScriptType;
-  returnAddressNList: BIP32Path;
-  returnScriptType?: BTCInputScriptType;
-}
-
 export interface DescribePath {
   path: BIP32Path;
   coin: Coin;
@@ -246,12 +236,6 @@ export interface HDWalletInfo {
    * the device.
    */
   hasOnDeviceRecovery(): boolean;
-
-  /**
-   * Does the device support `/sendamountProto2` style native ShapeShift
-   * integration for the given pair?
-   */
-  hasNativeShapeShift(srcCoin: Coin, dstCoin: Coin): boolean;
 
   /**
    * Describes a BIP32 path in plain English.

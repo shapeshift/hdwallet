@@ -27,10 +27,6 @@ export function MixinNativeFioWalletInfo<TBase extends core.Constructor<core.HDW
       return false;
     }
 
-    fioSupportsNativeShapeShift(): boolean {
-      return false;
-    }
-
     fioGetAccountPaths(msg: core.FioGetAccountPaths): Array<core.FioAccountPath> {
       return [
         {

@@ -68,10 +68,6 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDW
       return false;
     }
 
-    btcSupportsNativeShapeShift(): boolean {
-      return false;
-    }
-
     btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
       const slip44 = core.slip44ByCoin(msg.coin);
       if (slip44 === undefined) return [];
