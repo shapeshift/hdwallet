@@ -4,8 +4,6 @@ import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 export interface FioGetAddress {
   addressNList: BIP32Path;
   showDisplay?: boolean;
-  /** Optional. Required for showDisplay == true. */
-  address?: string;
 }
 
 export interface FioGetAccountPaths {

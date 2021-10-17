@@ -68,24 +68,17 @@ export async function btcSupportsScriptType(coin: core.Coin, scriptType?: core.B
 }
 
 export async function btcGetAddress(transport: TrezorTransport, msg: core.BTCGetAddress): Promise<string> {
-  let args: any = {
+  const res = await transport.call("getAddress", {
     path: core.addressNListToBIP32(msg.addressNList),
     showOnTrezor: !!msg.showDisplay,
     coin: translateCoin(msg.coin),
-  };
-  if (msg.showDisplay) {
-    args.address = await btcGetAddress(transport, {
+    address: msg.showDisplay ? await btcGetAddress(transport, {
       ...msg,
       showDisplay: false,
-    });
-  }
-
-  // TODO: TrezorConnect doesn't support setting scriptType on getAddress
-  let res = await transport.call("getAddress", args);
-
+    }) : undefined
+  });
   handleError(transport, res, "Could not get address from Trezor");
-
-  return res.payload.address;
+  return res.payload.address
 }
 
 export async function btcSignTx(wallet: core.BTCWallet, transport: TrezorTransport, msg: core.BTCSignTxTrezor): Promise<core.BTCSignedTx> {
