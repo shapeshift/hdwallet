@@ -10,18 +10,16 @@ export async function ethSupportsNetwork(chain_id: number): Promise<boolean> {
 }
 
 export async function ethGetAddress(transport: TrezorTransport, msg: core.ETHGetAddress): Promise<string> {
-  console.assert(
-    !msg.showDisplay || !!msg.address,
-    "HDWalletTrezor::ethGetAddress: expected address is required for showDisplay"
-  );
-  let args: any = {
+  const res = await transport.call("ethereumGetAddress", {
     path: core.addressNListToBIP32(msg.addressNList),
-    showOnTrezor: msg.showDisplay !== false,
-  };
-  if (msg.address) args.address = msg.address;
-  let res = await transport.call("ethereumGetAddress", args);
+    showOnTrezor: !!msg.showDisplay,
+    address: msg.showDisplay ? await ethGetAddress(transport, {
+      ...msg,
+      showDisplay: false,
+    }) : undefined
+  });
   handleError(transport, res, "Could not get ETH address from Trezor");
-  return res.payload.address;
+  return res.payload.address
 }
 
 export async function ethSignTx(
