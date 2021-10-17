@@ -39,21 +39,21 @@ export function litecoinTests(get: () => { wallet: core.HDWallet; info: core.HDW
               "Show",
               "Litecoin",
               "m/44'/2'/0'/0/0",
-              core.BTCInputScriptType.SpendAddress,
+              core.BTCScriptType.KeyHash,
               "LYXTv5RdsPYKC4qGmb6x6SuKoFMxUdSjLQ",
             ],
             [
               "Tell",
               "Litecoin",
               "m/49'/2'/0'/0/0",
-              core.BTCInputScriptType.SpendP2SHWitness,
+              core.BTCScriptType.ScriptHashWitness,
               "MFoQRU1KQq365Sy3cXhix3ygycEU4YWB1V",
             ],
             [
               "Tell",
               "Litecoin",
               "m/84'/2'/0'/0/0",
-              core.BTCInputScriptType.SpendWitness,
+              core.BTCScriptType.Witness,
               "ltc1qf6pwfkw4wd0fetq2pfrwzlfknskjg6nyvt6ngv",
             ],
           ],
@@ -61,7 +61,7 @@ export function litecoinTests(get: () => { wallet: core.HDWallet; info: core.HDW
             let mode = args[0] as string;
             let coin = args[1] as core.Coin;
             let path = args[2] as string;
-            let scriptType = args[3] as core.BTCInputScriptType;
+            let scriptType = args[3] as core.BTCScriptType;
             let expected = args[4] as string;
 
             if (!(await wallet.btcSupportsScriptType(coin, scriptType))) return;
@@ -83,14 +83,14 @@ export function litecoinTests(get: () => { wallet: core.HDWallet; info: core.HDW
       async () => {
         await each(
           [
-            ["Litecoin", 1, core.BTCInputScriptType.SpendAddress],
-            ["Litecoin", 1, core.BTCInputScriptType.SpendP2SHWitness],
-            ["Litecoin", 1, core.BTCInputScriptType.SpendWitness],
+            ["Litecoin", 1, core.BTCScriptType.KeyHash],
+            ["Litecoin", 1, core.BTCScriptType.ScriptHashWitness],
+            ["Litecoin", 1, core.BTCScriptType.Witness],
           ],
           async (args) => {
             let coin = args[0] as core.Coin;
             let accountIdx = args[1] as number;
-            let scriptType = args[2] as core.BTCInputScriptType;
+            let scriptType = args[2] as core.BTCScriptType;
             if (!wallet) return;
             if (!(await wallet.btcSupportsCoin(coin))) return;
             if (!(await wallet.btcSupportsScriptType(coin, scriptType))) return;

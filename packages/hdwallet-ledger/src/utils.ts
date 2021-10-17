@@ -54,14 +54,14 @@ export function handleError<T extends LedgerResponse<any, any>>(result: T, trans
   }
 }
 
-export function translateScriptType(scriptType: core.BTCInputScriptType): AddressFormat {
-  const scriptTypeMap: Partial<Record<core.BTCInputScriptType, AddressFormat>> = {
-    [core.BTCInputScriptType.SpendAddress]: "legacy",
-    [core.BTCInputScriptType.CashAddr]: "cashaddr",
-    [core.BTCInputScriptType.SpendWitness]: "bech32",
-    [core.BTCInputScriptType.SpendP2SHWitness]: "p2sh",
+export function translateAddressFormat(addressFormat: core.BTCAddressFormat): AddressFormat {
+  const addressFormatMap: Partial<Record<core.BTCAddressFormat, AddressFormat>> = {
+    [core.BTCAddressFormat.Base58CheckP2PKH]: "legacy",
+    [core.BTCAddressFormat.Base58CheckP2SH]: "p2sh",
+    [core.BTCAddressFormat.CashAddr]: "cashaddr",
+    [core.BTCAddressFormat.Bech32]: "bech32",
   }
-  return core.mustBeDefined(scriptTypeMap[scriptType]);
+  return core.mustBeDefined(addressFormatMap[addressFormat]);
 }
 
 export const compressPublicKey = (publicKey: Uint8Array) => {
@@ -100,7 +100,7 @@ type NetworkMagic = {
     bech32?: string,
     bip32: {
       private?: number,
-      public: Partial<Record<core.BTCInputScriptType, number>>,
+      public: Partial<Record<core.BTCScriptType, number>>,
     },
     messagePrefix: string,
     pubKeyHash?: number,

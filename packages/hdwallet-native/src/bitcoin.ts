@@ -9,10 +9,6 @@ import * as util from "./util";
 
 const supportedCoins = ["bitcoin", "dash", "digibyte", "dogecoin", "litecoin", "bitcoincash", "testnet"];
 
-const segwit = ["p2wpkh", "p2sh-p2wpkh", "bech32"];
-
-export type BTCScriptType = core.BTCInputScriptType | core.BTCOutputScriptType;
-
 type NonWitnessUtxo = Buffer;
 
 type WitnessUtxo = {
@@ -37,31 +33,22 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDW
   return class MixinNativeBTCWalletInfo extends Base implements core.BTCWalletInfo {
     readonly _supportsBTCInfo = true;
 
-    btcSupportsCoinSync(coin: core.Coin): boolean {
+    async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
       return supportedCoins.includes(String(coin).toLowerCase());
     }
 
-    async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
-      return this.btcSupportsCoinSync(coin);
-    }
-
-    btcSupportsScriptTypeSync(coin: core.Coin, scriptType?: core.BTCInputScriptType): boolean {
-      if (!this.btcSupportsCoinSync(coin)) return false;
+    async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCScriptType): Promise<boolean> {
+      if (!(await this.btcSupportsCoin(coin))) return false;
 
       switch (scriptType) {
-        case core.BTCInputScriptType.SpendMultisig:
-        case core.BTCInputScriptType.SpendAddress:
-        case core.BTCInputScriptType.SpendWitness:
-        case core.BTCInputScriptType.Bech32:
-        case core.BTCInputScriptType.SpendP2SHWitness:
+        case core.BTCScriptType.ScriptHash:
+        case core.BTCScriptType.KeyHash:
+        case core.BTCScriptType.Witness:
+        case core.BTCScriptType.ScriptHashWitness:
           return true;
         default:
           return false;
       }
-    }
-
-    async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
-      return this.btcSupportsScriptTypeSync(coin, scriptType);
     }
 
     async btcSupportsSecureTransfer(): Promise<boolean> {
@@ -115,9 +102,9 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDW
       let addressNList = msg.addressNList;
 
       if (
-        (addressNList[0] === 0x80000000 + 44 && msg.scriptType == core.BTCInputScriptType.SpendAddress) ||
-        (addressNList[0] === 0x80000000 + 49 && msg.scriptType == core.BTCInputScriptType.SpendP2SHWitness) ||
-        (addressNList[0] === 0x80000000 + 84 && msg.scriptType == core.BTCInputScriptType.SpendWitness)
+        (addressNList[0] === 0x80000000 + 44 && msg.scriptType == core.BTCScriptType.KeyHash) ||
+        (addressNList[0] === 0x80000000 + 49 && msg.scriptType == core.BTCScriptType.ScriptHashWitness) ||
+        (addressNList[0] === 0x80000000 + 84 && msg.scriptType == core.BTCScriptType.Witness)
       ) {
         addressNList[2] += 1;
         return {
@@ -145,22 +132,17 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
       this.#masterKey = undefined;
     }
 
-    createPayment(pubkey: Buffer, scriptType?: BTCScriptType, network?: bitcoin.Network): bitcoin.Payment {
+    createPayment(pubkey: Buffer, scriptType: core.BTCScriptType, network?: bitcoin.Network): bitcoin.Payment {
       switch (scriptType) {
-        case "p2sh":
+        case core.BTCScriptType.ScriptHash:
           return bitcoin.payments.p2sh({ pubkey, network });
-        case "p2pkh":
+        case core.BTCScriptType.KeyHash:
           return bitcoin.payments.p2pkh({ pubkey, network });
-        case "p2wpkh":
+        case core.BTCScriptType.Witness:
           return bitcoin.payments.p2wpkh({ pubkey, network });
-        case "p2sh-p2wpkh":
+        case core.BTCScriptType.ScriptHashWitness:
           return bitcoin.payments.p2sh({
             redeem: bitcoin.payments.p2wpkh({ pubkey, network }),
-            network,
-          });
-        case "bech32":
-          return bitcoin.payments.p2wsh({
-            redeem: bitcoin.payments.p2wsh({ pubkey, network }),
             network,
           });
         default:
@@ -220,7 +202,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
         const { addressNList, amount, hex, scriptType } = input;
         const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin, scriptType);
 
-        const isSegwit = !!scriptType && segwit.includes(scriptType);
+        const isSegwit = core.isSegwitScript(scriptType);
         const nonWitnessUtxo = hex && Buffer.from(hex, "hex");
         const witnessUtxo = input.tx && {
           script: Buffer.from(input.tx.vout[input.vout].scriptPubKey.hex, "hex"),
@@ -238,13 +220,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
         const payment = this.createPayment(publicKey, scriptType, network);
 
         let scriptData: ScriptData = {};
-        switch (scriptType) {
-          case "p2sh-p2wpkh":
-          case "p2sh":
-          case "bech32":
-            scriptData.redeemScript = payment.redeem?.output;
-            break;
-        }
+        if (isSegwit && payment.redeem?.output) scriptData.redeemScript = payment.redeem?.output;
 
         let bchData: BchInputData = {};
         if (coin.toLowerCase() === "bitcoincash") {

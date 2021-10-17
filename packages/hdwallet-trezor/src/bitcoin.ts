@@ -28,29 +28,29 @@ function translateCoin(coin: core.Coin): string {
 
 const segwitCoins = ["Bitcoin", "Litecoin", "BitcoinGold", "Testnet"];
 
-function translateInputScriptType(scriptType?: core.BTCInputScriptType): string {
+function translateInputScriptType(scriptType?: core.BTCScriptType): string {
   switch (scriptType) {
-    case core.BTCInputScriptType.SpendAddress:
+    case core.BTCScriptType.KeyHash:
       return "SPENDADDRESS";
-    case core.BTCInputScriptType.SpendMultisig:
+    case core.BTCScriptType.ScriptHash:
       return "SPENDMULTISIG";
-    case core.BTCInputScriptType.SpendWitness:
+    case core.BTCScriptType.Witness:
       return "SPENDWITNESS";
-    case core.BTCInputScriptType.SpendP2SHWitness:
+    case core.BTCScriptType.ScriptHashWitness:
       return "SPENDP2SHWITNESS";
   }
   throw new Error(`Un-handled enum entry: '${scriptType}'`);
 }
 
-function translateOutputScriptType(scriptType?: core.BTCOutputScriptType): string {
+function translateOutputScriptType(scriptType?: core.BTCScriptType): string {
   switch (scriptType) {
-    case core.BTCOutputScriptType.PayToAddress:
+    case core.BTCScriptType.KeyHash:
       return "PAYTOADDRESS";
-    case core.BTCOutputScriptType.PayToMultisig:
+    case core.BTCScriptType.ScriptHash:
       return "PAYTOMULTISIG";
-    case core.BTCOutputScriptType.PayToWitness:
+    case core.BTCScriptType.Witness:
       return "PAYTOWITNESS";
-    case core.BTCOutputScriptType.PayToP2SHWitness:
+    case core.BTCScriptType.ScriptHashWitness:
       return "PAYTOP2SHWITNESS";
   }
   throw new Error(`Un-handled enum entry: '${scriptType}'`);
@@ -60,10 +60,9 @@ export async function btcSupportsCoin(coin: core.Coin): Promise<boolean> {
   return translateCoin(coin) !== undefined;
 }
 
-export async function btcSupportsScriptType(coin: core.Coin, scriptType?: core.BTCInputScriptType): Promise<boolean> {
+export async function btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCScriptType): Promise<boolean> {
   if (translateCoin(coin) === undefined) return false;
-  if (!segwitCoins.includes(coin) && scriptType === core.BTCInputScriptType.SpendP2SHWitness) return false;
-  if (!segwitCoins.includes(coin) && scriptType === core.BTCInputScriptType.SpendWitness) return false;
+  if (!segwitCoins.includes(coin) && scriptType && core.isSegwitScript(scriptType)) return false;
   return true;
 }
 
@@ -115,7 +114,7 @@ export async function btcSignTx(wallet: core.BTCWallet, transport: TrezorTranspo
       return {
         address: output.address,
         amount: output.amount,
-        script_type: translateOutputScriptType(core.BTCOutputScriptType.PayToAddress)
+        script_type: translateOutputScriptType(core.BTCScriptType.KeyHash)
       };
     }
 
@@ -191,17 +190,17 @@ export function btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTC
   if (slip44 === undefined) return [];
   const bip44 = {
     coin: msg.coin,
-    scriptType: core.BTCInputScriptType.SpendAddress,
+    scriptType: core.BTCScriptType.KeyHash,
     addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
   };
   const bip49 = {
     coin: msg.coin,
-    scriptType: core.BTCInputScriptType.SpendP2SHWitness,
+    scriptType: core.BTCScriptType.ScriptHashWitness,
     addressNList: [0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
   };
   const bip84 = {
     coin: msg.coin,
-    scriptType: core.BTCInputScriptType.SpendWitness,
+    scriptType: core.BTCScriptType.Witness,
     addressNList: [0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
   };
 

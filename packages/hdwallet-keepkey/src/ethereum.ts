@@ -73,11 +73,11 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
       exchangeType.setWithdrawalCoinName(msg.exchangeType.withdrawalCoinName); // KeepKey firmware will complain if this doesn't match signed exchange response
       exchangeType.setWithdrawalAddressNList(msg.exchangeType.withdrawalAddressNList);
       exchangeType.setWithdrawalScriptType(
-        translateInputScriptType(msg.exchangeType.withdrawalScriptType || core.BTCInputScriptType.SpendAddress)
+        translateInputScriptType(msg.exchangeType.withdrawalScriptType || core.BTCScriptType.KeyHash)
       );
       exchangeType.setReturnAddressNList(msg.exchangeType.returnAddressNList);
       exchangeType.setReturnScriptType(
-        translateInputScriptType(msg.exchangeType.returnScriptType || core.BTCInputScriptType.SpendAddress)
+        translateInputScriptType(msg.exchangeType.returnScriptType || core.BTCScriptType.KeyHash)
       );
       est.setExchangeType(exchangeType);
     } else {

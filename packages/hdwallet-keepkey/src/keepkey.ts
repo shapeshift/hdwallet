@@ -53,7 +53,7 @@ function describeETHPath(path: core.BIP32Path): core.PathDescription {
 function describeUTXOPath(
   path: core.BIP32Path,
   coin: core.Coin,
-  scriptType?: core.BTCInputScriptType
+  scriptType?: core.BTCScriptType
 ): core.PathDescription {
   let pathStr = core.addressNListToBIP32(path);
   let unknown: core.PathDescription = {
@@ -76,21 +76,21 @@ function describeUTXOPath(
 
   if (![44, 49, 84].includes(purpose)) return unknown;
 
-  if (purpose === 44 && scriptType !== core.BTCInputScriptType.SpendAddress) return unknown;
+  if (purpose === 44 && scriptType !== core.BTCScriptType.KeyHash) return unknown;
 
-  if (purpose === 49 && scriptType !== core.BTCInputScriptType.SpendP2SHWitness) return unknown;
+  if (purpose === 49 && scriptType !== core.BTCScriptType.ScriptHashWitness) return unknown;
 
-  if (purpose === 84 && scriptType !== core.BTCInputScriptType.SpendWitness) return unknown;
+  if (purpose === 84 && scriptType !== core.BTCScriptType.Witness) return unknown;
 
   let wholeAccount = path.length === 3;
 
   let script = scriptType
     ? (
         {
-          [core.BTCInputScriptType.SpendAddress]: ["Legacy"],
-          [core.BTCInputScriptType.SpendP2SHWitness]: [],
-          [core.BTCInputScriptType.SpendWitness]: ["Segwit Native"],
-        } as Partial<Record<core.BTCInputScriptType, string[]>>
+          [core.BTCScriptType.KeyHash]: ["Legacy"],
+          [core.BTCScriptType.ScriptHashWitness]: [],
+          [core.BTCScriptType.Witness]: ["Segwit Native"],
+        } as Partial<Record<core.BTCScriptType, string[]>>
       )[scriptType] ?? []
     : [];
 
@@ -388,7 +388,7 @@ export class KeepKeyHDWalletInfo
     return Btc.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
+  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCScriptType): Promise<boolean> {
     return Btc.btcSupportsScriptType(coin, scriptType);
   }
 
@@ -701,7 +701,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
       GPK.setAddressNList(addressNList);
       GPK.setShowDisplay(showDisplay || false);
       GPK.setEcdsaCurveName(curve || "secp256k1");
-      GPK.setScriptType(translateInputScriptType(scriptType || core.BTCInputScriptType.SpendAddress));
+      GPK.setScriptType(translateInputScriptType(scriptType || core.BTCScriptType.KeyHash));
 
       const event = await this.transport.call(
         Messages.MessageType.MESSAGETYPE_GETPUBLICKEY,
@@ -1133,7 +1133,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     return this.info.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
+  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCScriptType): Promise<boolean> {
     return this.info.btcSupportsScriptType(coin, scriptType);
   }
 

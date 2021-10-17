@@ -87,37 +87,37 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
             coin: "Bitcoin",
             addressNList: core.bip32ToAddressNList(`m/49'/0'/0'`),
             curve: "secp256k1",
-            scriptType: core.BTCInputScriptType.SpendAddress,
+            scriptType: core.BTCScriptType.KeyHash,
           },
           {
             coin: "Bitcoin",
             addressNList: core.bip32ToAddressNList(`m/49'/0'/0'`),
             curve: "secp256k1",
-            scriptType: core.BTCInputScriptType.SpendP2SHWitness,
+            scriptType: core.BTCScriptType.ScriptHashWitness,
           },
           {
             coin: "Bitcoin",
             addressNList: core.bip32ToAddressNList(`m/49'/0'/0'`),
             curve: "secp256k1",
-            scriptType: core.BTCInputScriptType.SpendAddress,
+            scriptType: core.BTCScriptType.KeyHash,
           },
           {
             coin: "Bitcoin",
             addressNList: core.bip32ToAddressNList(`m/84'/0'/0'`),
             curve: "secp256k1",
-            scriptType: core.BTCInputScriptType.SpendWitness,
+            scriptType: core.BTCScriptType.Witness,
           },
           {
             coin: "Bitcoin",
             addressNList: core.bip32ToAddressNList(`m/0'/0'/0'`),
             curve: "secp256k1",
-            scriptType: core.BTCInputScriptType.SpendAddress,
+            scriptType: core.BTCScriptType.KeyHash,
           },
           {
             coin: "Litecoin",
             addressNList: core.bip32ToAddressNList(`m/0'/0'/0'`),
             curve: "secp256k1",
-            scriptType: core.BTCInputScriptType.SpendAddress,
+            scriptType: core.BTCScriptType.KeyHash,
           },
         ])
       ).toEqual([
@@ -155,35 +155,35 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
               "Show",
               "Bitcoin",
               "m/44'/0'/0'/0/0",
-              core.BTCInputScriptType.SpendAddress,
+              core.BTCScriptType.KeyHash,
               "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
             ],
             [
               "Show",
               "Bitcoin",
               "m/49'/0'/0'/0/0",
-              core.BTCInputScriptType.SpendP2SHWitness,
+              core.BTCScriptType.ScriptHashWitness,
               "3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX",
             ],
             [
               "Tell",
               "Bitcoin",
               "m/49'/0'/0'/0/0",
-              core.BTCInputScriptType.SpendP2SHWitness,
+              core.BTCScriptType.ScriptHashWitness,
               "3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX",
             ],
             [
               "Tell",
               "Litecoin",
               "m/49'/2'/0'/0/0",
-              core.BTCInputScriptType.SpendP2SHWitness,
+              core.BTCScriptType.ScriptHashWitness,
               "MFoQRU1KQq365Sy3cXhix3ygycEU4YWB1V",
             ],
             [
               "Tell",
               "Dash",
               "m/44'/5'/0'/0/0",
-              core.BTCInputScriptType.SpendAddress,
+              core.BTCScriptType.KeyHash,
               "XxKhGNv6ECbqVswm9KYcLPQnyWgZ86jJ6Q",
             ],
           ],
@@ -191,7 +191,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
             let mode = args[0] as string;
             let coin = args[1] as core.Coin;
             let path = args[2] as string;
-            let scriptType = args[3] as core.BTCInputScriptType;
+            let scriptType = args[3] as core.BTCScriptType;
             let expected = args[4] as string;
 
             if (!(await wallet.btcSupportsCoin(coin))) return;
@@ -249,7 +249,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         const inputs: core.BTCSignTxInputUnguarded[] = [
           {
             addressNList: core.bip32ToAddressNList("m/0"),
-            scriptType: core.BTCInputScriptType.SpendAddress,
+            scriptType: core.BTCScriptType.KeyHash,
             amount: String(390000),
             vout: 0,
             txid: "d5f65ee80147b4bcc70b75e4bbf2d7382021b871bd8867ef8fa525ef50864882",
@@ -261,7 +261,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           {
             address: "1MJ2tj2ThBE62zXbBYA5ZaN3fdve5CPAz1",
             addressType: core.BTCOutputAddressType.Spend,
-            // scriptType: core.BTCOutputScriptType.PayToAddress,
+            // scriptType: core.BTCScriptType.KeyHash,
             amount: String(390000 - 10000),
             isChange: false,
           },
@@ -325,7 +325,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         const inputs: core.BTCSignTxInputUnguarded[] = [
           {
             addressNList: core.bip32ToAddressNList("m/0"),
-            scriptType: core.BTCInputScriptType.SpendAddress,
+            scriptType: core.BTCScriptType.KeyHash,
             amount: String(390000),
             vout: 0,
             txid: "d5f65ee80147b4bcc70b75e4bbf2d7382021b871bd8867ef8fa525ef50864882",
@@ -343,7 +343,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           {
             addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
             addressType: core.BTCOutputAddressType.Change,
-            scriptType: core.BTCOutputScriptType.PayToAddress,
+            scriptType: core.BTCScriptType.KeyHash,
             amount: String(9000),
             isChange: true,
           },
@@ -384,7 +384,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         let res = wallet.btcSignMessage({
           addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
           coin: "Bitcoin",
-          scriptType: core.BTCInputScriptType.SpendAddress,
+          scriptType: core.BTCScriptType.KeyHash,
           message: "Hello World",
         });
 
@@ -481,20 +481,20 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         await each(
           [
             ["Bitcoin", 0, undefined],
-            ["Bitcoin", 1, core.BTCInputScriptType.SpendAddress],
-            ["Bitcoin", 3, core.BTCInputScriptType.SpendP2SHWitness],
-            ["Bitcoin", 2, core.BTCInputScriptType.SpendWitness],
-            ["Litecoin", 1, core.BTCInputScriptType.SpendAddress],
-            ["Litecoin", 1, core.BTCInputScriptType.SpendP2SHWitness],
-            ["Dash", 0, core.BTCInputScriptType.SpendAddress],
-            ["Dogecoin", 0, core.BTCInputScriptType.SpendAddress],
-            ["BitcoinCash", 0, core.BTCInputScriptType.SpendAddress],
-            ["BitcoinGold", 0, core.BTCInputScriptType.SpendAddress],
+            ["Bitcoin", 1, core.BTCScriptType.KeyHash],
+            ["Bitcoin", 3, core.BTCScriptType.ScriptHashWitness],
+            ["Bitcoin", 2, core.BTCScriptType.Witness],
+            ["Litecoin", 1, core.BTCScriptType.KeyHash],
+            ["Litecoin", 1, core.BTCScriptType.ScriptHashWitness],
+            ["Dash", 0, core.BTCScriptType.KeyHash],
+            ["Dogecoin", 0, core.BTCScriptType.KeyHash],
+            ["BitcoinCash", 0, core.BTCScriptType.KeyHash],
+            ["BitcoinGold", 0, core.BTCScriptType.KeyHash],
           ],
           async (args) => {
             let coin = args[0] as core.Coin;
             let accountIdx = args[1] as number;
-            let scriptType = args[2] as core.BTCInputScriptType;
+            let scriptType = args[2] as core.BTCScriptType;
             if (!wallet) return;
             if (!(await wallet.btcSupportsCoin(coin))) return;
             expect(await info.btcSupportsCoin(coin)).toBeTruthy();

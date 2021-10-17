@@ -53,7 +53,7 @@ function describeETHPath(path: core.BIP32Path): core.PathDescription {
   };
 }
 
-function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: core.BTCInputScriptType) {
+function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: core.BTCScriptType) {
   let pathStr = core.addressNListToBIP32(path);
   let unknown: core.PathDescription = {
     verbose: pathStr,
@@ -61,6 +61,8 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
     scriptType,
     isKnown: false,
   };
+
+  if (!scriptType) return unknown;
 
   if (!btc.btcSupportsCoin(coin)) return unknown;
 
@@ -74,11 +76,11 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
 
   if (![44, 49, 84].includes(purpose)) return unknown;
 
-  if (purpose === 44 && scriptType !== core.BTCInputScriptType.SpendAddress) return unknown;
+  if (purpose === 44 && scriptType !== core.BTCScriptType.KeyHash) return unknown;
 
-  if (purpose === 49 && scriptType !== core.BTCInputScriptType.SpendP2SHWitness) return unknown;
+  if (purpose === 49 && scriptType !== core.BTCScriptType.ScriptHashWitness) return unknown;
 
-  if (purpose === 84 && scriptType !== core.BTCInputScriptType.SpendWitness) return unknown;
+  if (purpose === 84 && scriptType !== core.BTCScriptType.Witness) return unknown;
 
   const slip44 = core.slip44ByCoin(coin);
   if (slip44 === undefined || path[1] !== 0x80000000 + slip44) return unknown;
@@ -88,10 +90,10 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
   let script = scriptType
     ? (
       {
-        [core.BTCInputScriptType.SpendAddress]: " (Legacy)",
-        [core.BTCInputScriptType.SpendP2SHWitness]: "",
-        [core.BTCInputScriptType.SpendWitness]: " (Segwit Native)",
-      } as Partial<Record<core.BTCInputScriptType, string>>
+        [core.BTCScriptType.KeyHash]: " (Legacy)",
+        [core.BTCScriptType.ScriptHashWitness]: "",
+        [core.BTCScriptType.Witness]: " (Segwit Native)",
+      } as Partial<Record<core.BTCScriptType, string>>
     )[scriptType]
     : undefined;
 
@@ -146,7 +148,7 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     return btc.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
+  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCScriptType): Promise<boolean> {
     return btc.btcSupportsScriptType(coin, scriptType);
   }
 
@@ -477,7 +479,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return this.info.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
+  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCScriptType): Promise<boolean> {
     return this.info.btcSupportsScriptType(coin, scriptType);
   }
 

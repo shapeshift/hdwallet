@@ -7,7 +7,7 @@ import * as bitcoinMsg from "bitcoinjs-message";
 import _ from "lodash";
 
 import { LedgerTransport } from "./transport";
-import { createXpub, compressPublicKey, translateScriptType, networksUtil, handleError } from "./utils";
+import { createXpub, compressPublicKey, translateAddressFormat, networksUtil, handleError } from "./utils";
 import { CreateTransactionArg } from "@ledgerhq/hw-app-btc/lib/createTransaction";
 
 export const supportedCoins = ["Testnet", "Bitcoin", "BitcoinCash", "Litecoin", "Dash", "DigiByte", "Dogecoin"];
@@ -18,25 +18,28 @@ export async function btcSupportsCoin(coin: core.Coin): Promise<boolean> {
   return supportedCoins.includes(coin);
 }
 
-export async function btcSupportsScriptType(coin: core.Coin, scriptType?: core.BTCInputScriptType): Promise<boolean> {
+export async function btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCScriptType): Promise<boolean> {
   const supported = {
     Bitcoin: [
-      core.BTCInputScriptType.SpendAddress,
-      core.BTCInputScriptType.SpendWitness,
-      core.BTCInputScriptType.SpendP2SHWitness,
+      core.BTCScriptType.KeyHash,
+      core.BTCScriptType.Witness,
+      core.BTCScriptType.ScriptHashWitness,
     ],
-    BitcoinCash: [core.BTCInputScriptType.SpendAddress],
-  } as Partial<Record<core.Coin, Array<core.BTCInputScriptType>>>;
+    BitcoinCash: [core.BTCScriptType.KeyHash],
+  } as Partial<Record<core.Coin, Array<core.BTCScriptType>>>;
 
   const scriptTypes = supported[coin];
   return !!scriptTypes && !!scriptType && scriptTypes.includes(scriptType);
 }
 
 export async function btcGetAddress(transport: LedgerTransport, msg: core.BTCGetAddress): Promise<string> {
+  const scriptType = msg.scriptType ?? core.BTCScriptType.KeyHash
+  const addressFormat = msg.addressFormat ?? core.defaultAddressFormatForScriptType(msg.scriptType)
+
   const bip32path = core.addressNListToBIP32(msg.addressNList);
   const opts = {
     verify: !!msg.showDisplay,
-    format: translateScriptType(msg.scriptType ?? core.BTCInputScriptType.SpendAddress),
+    format: translateAddressFormat(addressFormat),
   };
 
   const res = await transport.call("Btc", "getWalletPublicKey", bip32path, opts);
@@ -84,7 +87,7 @@ export async function btcGetPublicKeys(
     const coinDetails = networksUtil[core.mustBeDefined(core.slip44ByCoin(coin))];
     const childNum: number = addressNList[addressNList.length - 1];
 
-    scriptType = scriptType || core.BTCInputScriptType.SpendAddress;
+    scriptType = scriptType || core.BTCScriptType.KeyHash;
     const networkMagic = coinDetails.bitcoinjs.bip32.public[scriptType];
     if (!networkMagic) throw new Error("unable to get networkMagic");
 
@@ -188,11 +191,7 @@ export async function btcSignTx(
   const outputScriptHex = outputScriptRes.payload.toString("hex");
 
   for (let i = 0; i < msg.inputs.length; i++) {
-    if (
-      msg.inputs[i].scriptType === core.BTCInputScriptType.SpendWitness ||
-      msg.inputs[i].scriptType === core.BTCInputScriptType.SpendP2SHWitness
-    )
-      segwit = true;
+    if (core.isSegwitScript(msg.inputs[i].scriptType)) segwit = true;
 
     const keySet = core.addressNListToBIP32(msg.inputs[i].addressNList).replace(/^m\//, "");
 
@@ -264,7 +263,7 @@ export async function btcSignMessage(
     addressNList: msg.addressNList,
     coin,
     showDisplay: false,
-    scriptType: msg.scriptType ?? core.BTCInputScriptType.SpendAddress,
+    scriptType: msg.scriptType ?? core.BTCScriptType.KeyHash,
   });
 
   return {
@@ -283,17 +282,17 @@ export function btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTC
   if (slip44 === undefined) return [];
   const bip49 = {
     coin: msg.coin,
-    scriptType: core.BTCInputScriptType.SpendP2SHWitness,
+    scriptType: core.BTCScriptType.ScriptHashWitness,
     addressNList: [0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
   };
   const bip44 = {
     coin: msg.coin,
-    scriptType: core.BTCInputScriptType.SpendAddress,
+    scriptType: core.BTCScriptType.KeyHash,
     addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
   };
   const bip84 = {
     coin: msg.coin,
-    scriptType: core.BTCInputScriptType.SpendWitness,
+    scriptType: core.BTCScriptType.Witness,
     addressNList: [0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
   };
 

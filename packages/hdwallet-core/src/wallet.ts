@@ -1,7 +1,7 @@
 import _ from "lodash";
 
 import { BinanceWallet, BinanceWalletInfo } from "./binance";
-import { BTCInputScriptType, BTCWallet, BTCWalletInfo } from "./bitcoin";
+import { BTCScriptType, BTCWallet, BTCWalletInfo } from "./bitcoin";
 import { CosmosWallet, CosmosWalletInfo } from "./cosmos";
 import { OsmosisWallet, OsmosisWalletInfo } from "./osmosis";
 import { DebugLinkWallet } from "./debuglink";
@@ -20,7 +20,7 @@ export type BIP32Path = Array<number>;
 export interface GetPublicKey {
   addressNList: BIP32Path;
   showDisplay?: boolean;
-  scriptType?: BTCInputScriptType; // Defaults to BTCInputScriptType.SpendAddress
+  scriptType?: BTCScriptType; // Defaults to BTCScriptType.KeyHash
   curve: string;
   coin: Coin;
 }
@@ -79,22 +79,22 @@ export interface ExchangeType {
   signedExchangeResponse: string;
   withdrawalCoinName: string;
   withdrawalAddressNList: BIP32Path;
-  withdrawalScriptType?: BTCInputScriptType;
+  withdrawalScriptType?: BTCScriptType;
   returnAddressNList: BIP32Path;
-  returnScriptType?: BTCInputScriptType;
+  returnScriptType?: BTCScriptType;
 }
 
 export interface DescribePath {
   path: BIP32Path;
   coin: Coin;
-  scriptType?: BTCInputScriptType;
+  scriptType?: BTCScriptType;
 }
 
 export interface PathDescription {
   isKnown: boolean;
   verbose: string;
   coin: Coin;
-  scriptType?: BTCInputScriptType;
+  scriptType?: BTCScriptType;
   accountIdx?: number;
   addressIdx?: number;
   isChange?: boolean;

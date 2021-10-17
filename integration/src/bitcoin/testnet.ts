@@ -37,7 +37,7 @@ export function testnetTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         const inputs: core.BTCSignTxInputUnguarded[] = [
           {
             addressNList: core.bip32ToAddressNList("m/49'/1'/0'/1/0"),
-            scriptType: core.BTCInputScriptType.SpendP2SHWitness,
+            scriptType: core.BTCScriptType.ScriptHashWitness,
             amount: String(123456789),
             vout: 0,
             txid: "20912f98ea3ed849042efed0fdac8cb4fc301961c5988cba56902d8ffb61c337",
@@ -54,7 +54,7 @@ export function testnetTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           },
           {
             addressNList: core.bip32ToAddressNList("m/49'/1'/0'/1/0"),
-            scriptType: core.BTCOutputScriptType.PayToP2SHWitness,
+            scriptType: core.BTCScriptType.ScriptHashWitness,
             addressType: core.BTCOutputAddressType.Change,
             amount: String(123456789 - 11000 - 12300000),
             isChange: true,
@@ -94,7 +94,7 @@ export function testnetTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       const inputs: core.BTCSignTxInputUnguarded[] = [
         {
           addressNList: core.bip32ToAddressNList("m/84'/1'/0'/0/0"),
-          scriptType: core.BTCInputScriptType.SpendWitness,
+          scriptType: core.BTCScriptType.Witness,
           amount: String(100000),
           vout: 0,
           txid: "e4b5b24159856ea18ab5819832da3b4a6330f9c3c0a46d96674e632df504b56b",
@@ -111,7 +111,7 @@ export function testnetTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         },
         {
           addressNList: core.bip32ToAddressNList("m/84'/1'/0'/1/0"),
-          scriptType: core.BTCOutputScriptType.PayToWitness,
+          scriptType: core.BTCScriptType.Witness,
           addressType: core.BTCOutputAddressType.Change,
           amount: String(100000 - 1000 - 50000),
           isChange: true,

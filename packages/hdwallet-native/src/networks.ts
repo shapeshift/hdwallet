@@ -1,8 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bitcoin from "bitcoinjs-lib";
 
-import { BTCScriptType } from "./bitcoin"
-
 type BIP32 = {
   bip32: {
     public: number;
@@ -10,28 +8,28 @@ type BIP32 = {
   };
 };
 
-type BIP32ByScriptType = Partial<Record<core.BTCOutputScriptType, BIP32>>;
+type BIP32ByScriptType = Partial<Record<core.BTCScriptType, BIP32>>;
 
 const bip32BTC: BIP32ByScriptType = {
-  p2sh: {
+  [core.BTCScriptType.ScriptHash]: {
     bip32: {
       public: 0x0488b21e,
       private: 0x0488ade4,
     },
   },
-  p2pkh: {
+  [core.BTCScriptType.KeyHash]: {
     bip32: {
       public: 0x0488b21e,
       private: 0x0488ade4,
     },
   },
-  "p2sh-p2wpkh": {
+  [core.BTCScriptType.ScriptHashWitness]: {
     bip32: {
       public: 0x049d7cb2,
       private: 0x049d7878,
     },
   },
-  p2wpkh: {
+  [core.BTCScriptType.Witness]: {
     bip32: {
       public: 0x04b24746,
       private: 0x04b2430c,
@@ -165,14 +163,14 @@ const networks: Networks = {
 for (const coin of ["bitcoincash", "thorchain", "secret", "terra", "kava", "cardano", "cosmos", "osmosis", "binance", "ethereum"])
   networks[coin] = networks.bitcoin;
 
-export function getNetwork(coin: string, scriptType?: BTCScriptType): bitcoin.Network {
+export function getNetwork(coin: string, scriptType?: core.BTCScriptType): bitcoin.Network {
   coin = coin.toLowerCase();
-  scriptType = scriptType || core.BTCOutputScriptType.PayToMultisig;
+  scriptType = scriptType ?? core.BTCScriptType.ScriptHash;
 
   if (!(coin in networks)) throw new Error(`${coin} network not supported`);
   let network = networks[coin];
 
-  const bip32 = network[scriptType as core.BTCOutputScriptType];
+  const bip32 = network[scriptType];
   if (!bip32) {
     throw new Error(`${scriptType} not supported for ${coin} network`);
   }
