@@ -22,13 +22,13 @@ export async function btcGetAddress(msg: core.BTCGetAddress, portis: any): Promi
 
   let result: bitcoin.payments.Payment;
   switch (scriptType) {
-    case core.BTCInputScriptType.SpendAddress:
+    case core.BTCScriptType.KeyHash:
       result = bitcoin.payments.p2pkh(args);
       break;
-    case core.BTCInputScriptType.SpendWitness:
+    case core.BTCScriptType.Witness:
       result = bitcoin.payments.p2wpkh(args);
       break;
-    case core.BTCInputScriptType.SpendP2SHWitness:
+    case core.BTCScriptType.ScriptHashWitness:
       result = bitcoin.payments.p2sh({
         redeem: bitcoin.payments.p2wpkh(args),
       });
@@ -48,18 +48,18 @@ export async function btcGetAddress(msg: core.BTCGetAddress, portis: any): Promi
   return core.mustBeDefined(result.address);
 }
 
-export function verifyScriptTypePurpose(scriptType: core.BTCInputScriptType, purpose: number): boolean {
+export function verifyScriptTypePurpose(scriptType: core.BTCScriptType, purpose: number): boolean {
   return (
-    (purpose === 0x80000000 + 44 && scriptType === core.BTCInputScriptType.SpendAddress) ||
-    (purpose === 0x80000000 + 49 && scriptType === core.BTCInputScriptType.SpendP2SHWitness) ||
-    (purpose === 0x80000000 + 84 && scriptType === core.BTCInputScriptType.SpendWitness)
+    (purpose === 0x80000000 + 44 && scriptType === core.BTCScriptType.KeyHash) ||
+    (purpose === 0x80000000 + 49 && scriptType === core.BTCScriptType.ScriptHashWitness) ||
+    (purpose === 0x80000000 + 84 && scriptType === core.BTCScriptType.Witness)
   );
 }
 
 export function legacyAccount(coin: core.Coin, slip44: number, accountIdx: number): core.BTCAccountPath {
   return {
     coin,
-    scriptType: core.BTCInputScriptType.SpendAddress,
+    scriptType: core.BTCScriptType.KeyHash,
     addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + accountIdx],
   };
 }
@@ -67,7 +67,7 @@ export function legacyAccount(coin: core.Coin, slip44: number, accountIdx: numbe
 export function segwitAccount(coin: core.Coin, slip44: number, accountIdx: number): core.BTCAccountPath {
   return {
     coin,
-    scriptType: core.BTCInputScriptType.SpendP2SHWitness,
+    scriptType: core.BTCScriptType.ScriptHashWitness,
     addressNList: [0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + accountIdx],
   };
 }
@@ -75,7 +75,7 @@ export function segwitAccount(coin: core.Coin, slip44: number, accountIdx: numbe
 export function segwitNativeAccount(coin: core.Coin, slip44: number, accountIdx: number): core.BTCAccountPath {
   return {
     coin,
-    scriptType: core.BTCInputScriptType.SpendWitness,
+    scriptType: core.BTCScriptType.Witness,
     addressNList: [0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + accountIdx],
   };
 }
@@ -104,13 +104,13 @@ export function btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTC
   return paths;
 }
 
-export async function btcSupportsScriptType(coin: core.Coin, scriptType?: core.BTCInputScriptType): Promise<boolean> {
+export async function btcSupportsScriptType(coin: core.Coin, scriptType?: core.BTCScriptType): Promise<boolean> {
   if (coin !== "Bitcoin") return Promise.resolve(false);
 
   switch (scriptType) {
-    case core.BTCInputScriptType.SpendAddress:
-    case core.BTCInputScriptType.SpendWitness:
-    case core.BTCInputScriptType.SpendP2SHWitness:
+    case core.BTCScriptType.KeyHash:
+    case core.BTCScriptType.Witness:
+    case core.BTCScriptType.ScriptHashWitness:
       return true;
     default:
       return false;

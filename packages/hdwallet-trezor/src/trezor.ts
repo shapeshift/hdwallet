@@ -51,7 +51,7 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     return Btc.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
+  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCScriptType): Promise<boolean> {
     return Btc.btcSupportsScriptType(coin, scriptType);
   }
 
@@ -229,25 +229,10 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     });
     handleError(this.transport, res, "Could not load xpubs from Trezor");
     return (res.payload as Array<{xpubSegwit?: string, xpub?: string}>).map((result, i) => {
-      const scriptType = msg[i].scriptType;
-      switch (scriptType) {
-        case core.BTCInputScriptType.SpendP2SHWitness:
-        case core.BTCInputScriptType.SpendWitness: {
-          const xpub = result.xpubSegwit;
-          if (!xpub) throw new Error("unable to get public key");
-          return {
-            xpub,
-          };
-        }
-        case core.BTCInputScriptType.SpendAddress:
-        default: {
-          const xpub = result.xpub;
-          if (!xpub) throw new Error("unable to get public key");
-          return {
-            xpub,
-          };
-        }
-      }
+      const scriptType: core.BTCScriptType = msg[i].scriptType ?? core.BTCScriptType.KeyHash;
+      const xpub = core.isSegwitScript(scriptType) ? result.xpubSegwit : result.xpub;
+      if (!xpub) throw new Error("unable to get public key");
+      return { xpub };
     });
   }
 
@@ -349,7 +334,7 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return this.info.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
+  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCScriptType): Promise<boolean> {
     return this.info.btcSupportsScriptType(coin, scriptType);
   }
 

@@ -236,17 +236,17 @@ export function selfTest(get: () => core.HDWallet): void {
     expect(paths).toEqual([
       {
         addressNList: [2147483692, 2147483650, 2147483651],
-        scriptType: core.BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCScriptType.KeyHash,
         coin: "Litecoin",
       },
       {
         addressNList: [2147483697, 2147483650, 2147483651],
-        scriptType: core.BTCInputScriptType.SpendP2SHWitness,
+        scriptType: core.BTCScriptType.ScriptHashWitness,
         coin: "Litecoin",
       },
       {
         addressNList: [2147483732, 2147483650, 2147483651],
-        scriptType: core.BTCInputScriptType.SpendWitness,
+        scriptType: core.BTCScriptType.Witness,
         coin: "Litecoin",
       },
     ]);
@@ -339,13 +339,13 @@ export function selfTest(get: () => core.HDWallet): void {
       wallet.describePath({
         path: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
         coin: "Bitcoin",
-        scriptType: core.BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCScriptType.KeyHash,
       })
     ).toEqual({
       verbose: "Bitcoin Account #0, Address #0 (Legacy)",
       coin: "Bitcoin",
       isKnown: true,
-      scriptType: core.BTCInputScriptType.SpendAddress,
+      scriptType: core.BTCScriptType.KeyHash,
       accountIdx: 0,
       addressIdx: 0,
       wholeAccount: false,
@@ -359,13 +359,13 @@ export function selfTest(get: () => core.HDWallet): void {
       wallet.describePath({
         path: core.bip32ToAddressNList("m/84'/0'/0'/0/0"),
         coin: "Bitcoin",
-        scriptType: core.BTCInputScriptType.Bech32,
+        scriptType: core.BTCScriptType.Witness,
       })
     ).toEqual({
       verbose: "Bitcoin Account #0, Address #0 (Segwit Native)",
       coin: "Bitcoin",
       isKnown: true,
-      scriptType: core.BTCInputScriptType.Bech32,
+      scriptType: core.BTCScriptType.Witness,
       accountIdx: 0,
       addressIdx: 0,
       wholeAccount: false,
@@ -379,13 +379,13 @@ export function selfTest(get: () => core.HDWallet): void {
       wallet.describePath({
         path: core.bip32ToAddressNList("m/44'/0'/7'/1/5"),
         coin: "Bitcoin",
-        scriptType: core.BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCScriptType.KeyHash,
       })
     ).toEqual({
       verbose: "Bitcoin Account #7, Change Address #5 (Legacy)",
       coin: "Bitcoin",
       isKnown: true,
-      scriptType: core.BTCInputScriptType.SpendAddress,
+      scriptType: core.BTCScriptType.KeyHash,
       accountIdx: 7,
       addressIdx: 5,
       wholeAccount: false,
@@ -399,13 +399,13 @@ export function selfTest(get: () => core.HDWallet): void {
       wallet.describePath({
         path: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
         coin: "BitcoinCash",
-        scriptType: core.BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCScriptType.KeyHash,
       })
     ).toEqual({
       verbose: "BitcoinCash Account #0, Address #0 (Prefork)",
       coin: "BitcoinCash",
       isKnown: true,
-      scriptType: core.BTCInputScriptType.SpendAddress,
+      scriptType: core.BTCScriptType.KeyHash,
       accountIdx: 0,
       addressIdx: 0,
       wholeAccount: false,
@@ -419,13 +419,13 @@ export function selfTest(get: () => core.HDWallet): void {
       wallet.describePath({
         path: core.bip32ToAddressNList("m/84'/0'/0'/0/0"),
         coin: "BitcoinGold",
-        scriptType: core.BTCInputScriptType.SpendWitness,
+        scriptType: core.BTCScriptType.Witness,
       })
     ).toEqual({
       verbose: "BitcoinGold Account #0, Address #0 (Prefork, Segwit Native)",
       coin: "BitcoinGold",
       isKnown: true,
-      scriptType: core.BTCInputScriptType.SpendWitness,
+      scriptType: core.BTCScriptType.Witness,
       accountIdx: 0,
       addressIdx: 0,
       wholeAccount: false,
@@ -439,13 +439,13 @@ export function selfTest(get: () => core.HDWallet): void {
       wallet.describePath({
         path: core.bip32ToAddressNList("m/44'/0'/7'/1/5"),
         coin: "Bitcoin",
-        scriptType: core.BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCScriptType.KeyHash,
       })
     ).toEqual({
       verbose: "Bitcoin Account #7, Change Address #5 (Legacy)",
       coin: "Bitcoin",
       isKnown: true,
-      scriptType: core.BTCInputScriptType.SpendAddress,
+      scriptType: core.BTCScriptType.KeyHash,
       accountIdx: 7,
       addressIdx: 5,
       wholeAccount: false,
@@ -459,7 +459,7 @@ export function selfTest(get: () => core.HDWallet): void {
       wallet.describePath({
         path: core.bip32ToAddressNList("m/44'/0'/7'/1/5"),
         coin: "BitcoinCash",
-        scriptType: core.BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCScriptType.KeyHash,
       })
     ).toEqual({
       accountIdx: 7,

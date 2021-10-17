@@ -30,7 +30,7 @@ describe("NativeHDWalletInfo", () => {
         msg: {
           coin: "bitcoin",
           path: [44 + 0x80000000, 0 + 0x80000000, 0 + 0x80000000, 0, 0],
-          scriptType: core.BTCInputScriptType.SpendAddress,
+          scriptType: core.BTCScriptType.KeyHash,
         },
         out: { coin: "bitcoin", verbose: "m/44'/0'/0'/0/0", isKnown: false },
       },
@@ -38,7 +38,7 @@ describe("NativeHDWalletInfo", () => {
         msg: {
           coin: "Bitcoin",
           path: [44 + 0x80000000, 0 + 0x80000000, 0 + 0x80000000],
-          scriptType: core.BTCInputScriptType.SpendAddress,
+          scriptType: core.BTCScriptType.KeyHash,
         },
         out: { coin: "Bitcoin", verbose: "Bitcoin Account #0 (Legacy)", isKnown: true, wholeAccount: true },
       },
@@ -46,13 +46,13 @@ describe("NativeHDWalletInfo", () => {
         msg: {
           coin: "Bitcoin",
           path: [44 + 0x80000000, 0 + 0x80000000, 0 + 0x80000000, 0, 0],
-          scriptType: core.BTCInputScriptType.SpendAddress,
+          scriptType: core.BTCScriptType.KeyHash,
         },
         out: { coin: "Bitcoin", verbose: "Bitcoin Account #0, Address #0 (Legacy)", isKnown: true },
       },
       {
-        msg: { coin: "dash", path: [1, 2, 3], scriptType: core.BTCInputScriptType.SpendWitness },
-        out: { coin: "dash", verbose: "m/1/2/3", scriptType: core.BTCInputScriptType.SpendWitness, isKnown: false },
+        msg: { coin: "dash", path: [1, 2, 3], scriptType: core.BTCScriptType.Witness },
+        out: { coin: "dash", verbose: "m/1/2/3", scriptType: core.BTCScriptType.Witness, isKnown: false },
       },
       {
         msg: { coin: "bitcoincash", path: [1, 2, 3] },

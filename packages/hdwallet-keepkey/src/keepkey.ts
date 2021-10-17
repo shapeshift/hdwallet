@@ -41,7 +41,7 @@ export class KeepKeyHDWalletInfo
     return Btc.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
+  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCScriptType): Promise<boolean> {
     return Btc.btcSupportsScriptType(coin, scriptType);
   }
 
@@ -313,7 +313,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
       GPK.setAddressNList(addressNList);
       GPK.setShowDisplay(showDisplay || false);
       GPK.setEcdsaCurveName(curve || "secp256k1");
-      GPK.setScriptType(translateInputScriptType(scriptType || core.BTCInputScriptType.SpendAddress));
+      GPK.setScriptType(translateInputScriptType(scriptType || core.BTCScriptType.KeyHash));
 
       const event = await this.transport.call(
         Messages.MessageType.MESSAGETYPE_GETPUBLICKEY,
@@ -727,7 +727,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     return this.info.btcSupportsCoin(coin);
   }
 
-  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
+  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCScriptType): Promise<boolean> {
     return this.info.btcSupportsScriptType(coin, scriptType);
   }
 

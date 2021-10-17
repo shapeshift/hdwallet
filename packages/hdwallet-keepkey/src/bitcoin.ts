@@ -17,7 +17,7 @@ const segwitCoins = ["Bitcoin", "Testnet", "BitcoinGold", "Litecoin"];
 function legacyAccount(coin: core.Coin, slip44: number, accountIdx: number): core.BTCAccountPath {
   return {
     coin,
-    scriptType: core.BTCInputScriptType.SpendAddress,
+    scriptType: core.BTCScriptType.KeyHash,
     addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + accountIdx],
   };
 }
@@ -25,7 +25,7 @@ function legacyAccount(coin: core.Coin, slip44: number, accountIdx: number): cor
 function segwitAccount(coin: core.Coin, slip44: number, accountIdx: number): core.BTCAccountPath {
   return {
     coin,
-    scriptType: core.BTCInputScriptType.SpendP2SHWitness,
+    scriptType: core.BTCScriptType.ScriptHashWitness,
     addressNList: [0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + accountIdx],
   };
 }
@@ -33,7 +33,7 @@ function segwitAccount(coin: core.Coin, slip44: number, accountIdx: number): cor
 function segwitNativeAccount(coin: core.Coin, slip44: number, accountIdx: number): core.BTCAccountPath {
   return {
     coin,
-    scriptType: core.BTCInputScriptType.SpendWitness,
+    scriptType: core.BTCScriptType.Witness,
     addressNList: [0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + accountIdx],
   };
 }
@@ -97,12 +97,7 @@ function prepareSignTx(
   inputs.forEach((inputTx) => {
     if (inputTx.txid in txmap) return;
 
-    if (
-      inputTx.scriptType === core.BTCInputScriptType.SpendP2SHWitness ||
-      inputTx.scriptType === core.BTCInputScriptType.SpendWitness ||
-      inputTx.scriptType === core.BTCInputScriptType.External
-    )
-      return;
+    if ([core.BTCScriptType.Witness, core.BTCScriptType.ScriptHashWitness].includes(inputTx.scriptType)) return;
 
     if (!inputTx.tx) throw new Error("non-segwit inputs must have the associated prev tx");
 
@@ -202,10 +197,9 @@ export async function btcSupportsCoin(coin: core.Coin): Promise<boolean> {
   return supportedCoins.includes(coin);
 }
 
-export async function btcSupportsScriptType(coin: core.Coin, scriptType?: core.BTCInputScriptType): Promise<boolean> {
+export async function btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCScriptType): Promise<boolean> {
   if (!supportedCoins.includes(coin)) return false;
-  if (!segwitCoins.includes(coin) && scriptType === core.BTCInputScriptType.SpendP2SHWitness) return false;
-  if (!segwitCoins.includes(coin) && scriptType === core.BTCInputScriptType.SpendWitness) return false;
+  if (!segwitCoins.includes(coin) && core.isSegwitScript(scriptType)) return false;
   return true;
 }
 
@@ -216,11 +210,17 @@ export async function btcGetAddress(
 ): Promise<string> {
   await ensureCoinSupport(wallet, msg.coin);
 
+  const scriptType = msg.scriptType ?? core.BTCScriptType.KeyHash
+  const addressFormat = msg.addressFormat ?? core.defaultAddressFormatForScriptType(msg.scriptType)
+  if (addressFormat !== core.defaultAddressFormatForScriptType(msg.scriptType)) {
+    throw new Error("unsupported address format");
+  }
+
   const addr = new Messages.GetAddress();
   addr.setAddressNList(msg.addressNList);
   addr.setCoinName(msg.coin);
   addr.setShowDisplay(msg.showDisplay || false);
-  addr.setScriptType(translateInputScriptType(msg.scriptType || core.BTCInputScriptType.SpendAddress));
+  addr.setScriptType(translateInputScriptType(scriptType));
 
   const response = await transport.call(
     Messages.MessageType.MESSAGETYPE_GETADDRESS,
@@ -460,7 +460,7 @@ export async function btcSignMessage(
   sign.setAddressNList(msg.addressNList);
   sign.setMessage(toUTF8Array(msg.message));
   sign.setCoinName(msg.coin || "Bitcoin");
-  sign.setScriptType(translateInputScriptType(msg.scriptType ?? core.BTCInputScriptType.SpendAddress));
+  sign.setScriptType(translateInputScriptType(msg.scriptType ?? core.BTCScriptType.KeyHash));
   const event = await transport.call(
     Messages.MessageType.MESSAGETYPE_SIGNMESSAGE,
     sign,
@@ -550,10 +550,10 @@ export function btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
   // Make sure Purpose and ScriptType match
   const purpose = account0.addressNList[0];
   const purposeForScriptType = {
-    [core.BTCInputScriptType.SpendAddress]: 0x80000000 + 44,
-    [core.BTCInputScriptType.SpendP2SHWitness]: 0x80000000 + 49,
-    [core.BTCInputScriptType.SpendWitness]: 0x80000000 + 84,
-  } as Partial<Record<core.BTCInputScriptType, number>>;
+    [core.BTCScriptType.KeyHash]: 0x80000000 + 44,
+    [core.BTCScriptType.ScriptHashWitness]: 0x80000000 + 49,
+    [core.BTCScriptType.Witness]: 0x80000000 + 84,
+  } as Partial<Record<core.BTCScriptType, number>>;
   if (purposeForScriptType[account0.scriptType] !== purpose) return false;
 
   // Coin must be hardened

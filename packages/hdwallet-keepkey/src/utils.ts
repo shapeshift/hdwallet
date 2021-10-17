@@ -34,30 +34,29 @@ export function toUTF8Array(str: string): Uint8Array {
   return new Uint8Array(utf8);
 }
 
-export function translateInputScriptType(scriptType: core.BTCInputScriptType): any {
+export function translateInputScriptType(scriptType: core.BTCScriptType): any {
   switch (scriptType) {
-    case core.BTCInputScriptType.CashAddr:
-    case core.BTCInputScriptType.SpendAddress:
+    case core.BTCScriptType.KeyHash:
       return Types.InputScriptType.SPENDADDRESS;
-    case core.BTCInputScriptType.SpendMultisig:
+    case core.BTCScriptType.ScriptHash:
       return Types.InputScriptType.SPENDMULTISIG;
-    case core.BTCInputScriptType.SpendP2SHWitness:
+    case core.BTCScriptType.ScriptHashWitness:
       return Types.InputScriptType.SPENDP2SHWITNESS;
-    case core.BTCInputScriptType.SpendWitness:
+    case core.BTCScriptType.Witness:
       return Types.InputScriptType.SPENDWITNESS;
   }
   throw new Error("unhandled InputSriptType enum: " + scriptType);
 }
 
-export function translateOutputScriptType(scriptType: core.BTCOutputScriptType): any {
+export function translateOutputScriptType(scriptType: core.BTCScriptType): any {
   switch (scriptType) {
-    case core.BTCOutputScriptType.PayToAddress:
+    case core.BTCScriptType.KeyHash:
       return Types.OutputScriptType.PAYTOADDRESS;
-    case core.BTCOutputScriptType.PayToMultisig:
+    case core.BTCScriptType.ScriptHash:
       return Types.OutputScriptType.PAYTOMULTISIG;
-    case core.BTCOutputScriptType.PayToP2SHWitness:
+    case core.BTCScriptType.ScriptHashWitness:
       return Types.OutputScriptType.PAYTOP2SHWITNESS;
-    case core.BTCOutputScriptType.PayToWitness:
+    case core.BTCScriptType.Witness:
       return Types.OutputScriptType.PAYTOWITNESS;
   }
   throw new Error("unhandled OutputScriptType enum: " + scriptType);
