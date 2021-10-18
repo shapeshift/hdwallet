@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
+import { EventEmitter2 } from "eventemitter2";
 import TrezorConnect, { DEVICE, DEVICE_EVENT, TRANSPORT_EVENT, UI } from "trezor-connect";
 
 import { TrezorConnectTransport, POPUP, TrezorDevice } from "./transport";
@@ -16,12 +17,13 @@ export type TrezorConnectArgs = {
 
 let _initialization: undefined | Promise<boolean> = undefined;
 
-export class TrezorAdapter {
+export class TrezorAdapter extends EventEmitter2 {
   keyring: core.Keyring;
 
   private _deviceIDToPath = new Map();
 
   private constructor(keyring: core.Keyring, args: TrezorConnectArgs) {
+    super();
     this.keyring = keyring;
 
     if (!_initialization) _initialization = this.connectInit(args);
@@ -64,9 +66,9 @@ export class TrezorAdapter {
 
     TrezorConnect.on(TRANSPORT_EVENT, (event: any) => {
       // Log TrezorConnect's event raw:
+      const device_id = event.payload?.features?.device_id ?? "";
       try {
-        let device_id = event.payload && event.payload.features ? event.payload.features.device_id : "";
-        this.keyring.emit(["Trezor", device_id, event.type], event);
+        this.emit(["Trezor", device_id, event.type], event);
       } catch (e) {
         console.error("Could not emit Trezor transport event", event, e);
       }
@@ -102,7 +104,6 @@ export class TrezorAdapter {
     try {
       await this.addDevice(device_id, path);
       this.connectCacheFeatures(event);
-      this.keyring.emit(["Trezor", device_id, core.Events.CONNECT], device_id);
     } catch (e) {
       console.error(e);
     }
@@ -118,8 +119,6 @@ export class TrezorAdapter {
       await this.keyring.delete(device_id);
     } catch (e) {
       console.error(e);
-    } finally {
-      this.keyring.emit(["Trezor", device_id, core.Events.DISCONNECT], device_id);
     }
   }
 

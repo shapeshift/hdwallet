@@ -39,7 +39,6 @@ export class MetaMaskAdapter {
     const deviceID = await wallet.getDeviceID();
     await this.keyring.add(wallet, deviceID);
     this.currentDeviceID = deviceID;
-    this.keyring.emit(["MetaMask", deviceID, core.Events.CONNECT], deviceID);
 
     return wallet;
   }

@@ -29,19 +29,14 @@ export class NativeAdapter {
   }
 
   async pairDevice(deviceId: string): Promise<core.HDWallet | null> {
-    let wallet: core.HDWallet | undefined = this.keyring.get(deviceId);
-    if (!wallet && deviceId) {
+    const oldWallet: core.HDWallet | undefined = this.keyring.get(deviceId);
+    if (oldWallet && native.isNative(oldWallet)) return oldWallet;
+
+    if (!oldWallet && deviceId) {
       // If a wallet with that ID hasn't been added to the keychain, then create it
-      wallet = await native.create({ deviceId });
-      if (!native.isNative(wallet)) throw new Error("expected native wallet");
-      await this.keyring.add(wallet, deviceId);
-    }
-
-    if (wallet && native.isNative(wallet)) {
-      const id = await wallet.getDeviceID();
-      this.keyring.emit([wallet.getVendor(), id, core.Events.CONNECT], id);
-
-      return wallet;
+      const newWallet = await native.create({ deviceId });
+      await this.keyring.add(newWallet, deviceId);
+      return newWallet;
     }
 
     return null;

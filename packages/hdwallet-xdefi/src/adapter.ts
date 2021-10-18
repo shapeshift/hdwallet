@@ -35,7 +35,6 @@ export class XDeFiAdapter {
     const deviceID = await wallet.getDeviceID();
     await this.keyring.add(wallet, deviceID);
     this.currentDeviceID = deviceID;
-    this.keyring.emit(["XDeFi", deviceID, core.Events.CONNECT], deviceID);
 
     return wallet;
   }
