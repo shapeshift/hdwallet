@@ -89,7 +89,7 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
     } catch {}
   }
 
-  async initialize(
+  private async initialize(
     device: DeviceType<DelegateType>,
     tryDebugLink?: boolean,
     autoConnect?: boolean

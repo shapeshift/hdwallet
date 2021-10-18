@@ -83,7 +83,7 @@ export class TrezorAdapter extends EventEmitter2 {
 
   public async addDevice(deviceID: string, path: string): Promise<void> {
     this._deviceIDToPath.set(deviceID, path);
-    await this.initialize([{ path: path, deviceID: deviceID }]);
+    await this.initialize({ path: path, deviceID: deviceID });
   }
 
   public static useKeyring(keyring: core.Keyring, args: TrezorConnectArgs) {
@@ -142,14 +142,10 @@ export class TrezorAdapter extends EventEmitter2 {
     this.connectCacheFeatures(event);
   }
 
-  public async initialize(devices?: TrezorDevice[]): Promise<void> {
+  private async initialize(device: TrezorDevice): Promise<void> {
     const init = await _initialization;
     if (!init) throw new Error("Could not initialize TrezorAdapter: TrezorConnect not initialized");
 
-    const devicesToInitialize = devices || [];
-
-    for (let i = 0; i < devicesToInitialize.length; i++) {
-      const device = devicesToInitialize[i];
       let wallet = this.keyring.get(device.deviceID);
       if (wallet) {
         if (device.path && !(wallet.transport as TrezorConnectTransport).device.path)
@@ -160,7 +156,6 @@ export class TrezorAdapter extends EventEmitter2 {
 
       await wallet.initialize();
       await this.keyring.add(wallet, device.deviceID);
-    }
   }
 
   public async pairDevice(): Promise<core.HDWallet> {
@@ -176,12 +171,10 @@ export class TrezorAdapter extends EventEmitter2 {
 
     const deviceID = payload.device_id;
 
-    await this.initialize([
-      {
-        path: this._deviceIDToPath.get(deviceID),
-        deviceID: deviceID,
-      },
-    ]);
+    await this.initialize({
+      path: this._deviceIDToPath.get(deviceID),
+      deviceID: deviceID,
+    });
 
     const wallet = this.keyring.get(deviceID);
     if (!(wallet instanceof trezor.TrezorHDWallet)) throw new Error("expected TrezorHDWallet");

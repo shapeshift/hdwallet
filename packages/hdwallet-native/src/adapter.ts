@@ -19,10 +19,6 @@ export class NativeAdapter {
     return new NativeAdapter(keyring);
   }
 
-  async initialize(): Promise<number> {
-    return 0;
-  }
-
   async pairDevice(deviceId: string): Promise<core.HDWallet | null> {
     const oldWallet: core.HDWallet | undefined = this.keyring.get(deviceId);
     if (oldWallet && oldWallet instanceof native.NativeHDWallet) return oldWallet;
