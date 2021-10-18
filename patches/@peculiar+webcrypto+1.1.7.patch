@@ -1,0 +1,39 @@
+diff --git a/node_modules/@peculiar/webcrypto/build/webcrypto.es.js b/node_modules/@peculiar/webcrypto/build/webcrypto.es.js
+index 73b70df..e628601 100644
+--- a/node_modules/@peculiar/webcrypto/build/webcrypto.es.js
++++ b/node_modules/@peculiar/webcrypto/build/webcrypto.es.js
+@@ -2148,7 +2148,7 @@ class Crypto extends core.Crypto {
+         this.subtle = new SubtleCrypto();
+     }
+     getRandomValues(array) {
+-        const buffer = Buffer.from(array.buffer);
++        const buffer = Buffer.from(array.buffer, array.byteOffset, array.byteLength);
+         crypto__default.randomFillSync(buffer);
+         return array;
+     }
+diff --git a/node_modules/@peculiar/webcrypto/build/webcrypto.js b/node_modules/@peculiar/webcrypto/build/webcrypto.js
+index 18edc34..69ba1c3 100644
+--- a/node_modules/@peculiar/webcrypto/build/webcrypto.js
++++ b/node_modules/@peculiar/webcrypto/build/webcrypto.js
+@@ -2176,7 +2176,7 @@ class Crypto extends core__namespace.Crypto {
+         this.subtle = new SubtleCrypto();
+     }
+     getRandomValues(array) {
+-        const buffer = Buffer.from(array.buffer);
++        const buffer = Buffer.from(array.buffer, array.byteOffset, array.byteLength);
+         crypto__default['default'].randomFillSync(buffer);
+         return array;
+     }
+diff --git a/node_modules/@peculiar/webcrypto/index.d.ts b/node_modules/@peculiar/webcrypto/index.d.ts
+index a347040..069892a 100644
+--- a/node_modules/@peculiar/webcrypto/index.d.ts
++++ b/node_modules/@peculiar/webcrypto/index.d.ts
+@@ -2,7 +2,7 @@ import * as core from "webcrypto-core";
+ 
+ export declare class Crypto implements core.NativeCrypto {
+   public subtle: SubtleCrypto;
+-  public getRandomValues<T extends Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | null>(array: T): T;
++  public getRandomValues<T extends ArrayBufferView | null>(array: T): T;
+ }
+ 
+ export declare class CryptoKey implements core.NativeCryptoKey {
