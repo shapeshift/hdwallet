@@ -59,12 +59,12 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
     return "Portis";
   }
 
-  public getModel(): Promise<string> {
-    return Promise.resolve("portis");
+  public async getModel(): Promise<string> {
+    return "portis";
   }
 
-  public getLabel(): Promise<string> {
-    return Promise.resolve("Portis");
+  public async getLabel(): Promise<string> {
+    return "Portis";
   }
 
   public initialize(): Promise<any> {
