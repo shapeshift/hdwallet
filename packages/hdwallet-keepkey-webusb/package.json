@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-webusb",
-  "version": "1.16.11",
+  "version": "1.17.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "1.16.11",
-    "@shapeshiftoss/hdwallet-keepkey": "1.16.11"
+    "@shapeshiftoss/hdwallet-core": "1.17.0",
+    "@shapeshiftoss/hdwallet-keepkey": "1.17.0"
   },
   "devDependencies": {
     "@types/w3c-web-usb": "^1.0.4",
