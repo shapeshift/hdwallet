@@ -153,7 +153,7 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
     const r = "0x" + core.toHexString(response.getSignatureR_asU8());
     const s = "0x" + core.toHexString(response.getSignatureS_asU8());
     if (!response.hasSignatureV()) throw new Error("could not get v");
-    const v = response.getSignatureV();
+    const v = core.mustBeDefined(response.getSignatureV());
     const v2 = "0x" + v.toString(16);
 
     const common = new Common({ chain: "mainnet", hardfork: "london" });

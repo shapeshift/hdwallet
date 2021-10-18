@@ -73,7 +73,7 @@ export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWal
 
     async kavaSignTx(msg: core.KavaSignTx): Promise<core.KavaSignedTx | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        const keyPair = util.getKeyPair(this.#seed, msg.addressNList, "kava");
+        const keyPair = util.getKeyPair(core.mustBeDefined(this.#seed), msg.addressNList, "kava");
         const adapter = new Isolation.Adapters.Cosmos(keyPair);
         const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, msg.chain_id);
         return txBuilder.createSignedTx(msg.tx, result);

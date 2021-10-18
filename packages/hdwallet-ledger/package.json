@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger",
-  "version": "1.16.11",
+  "version": "1.17.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -17,7 +17,7 @@
   "dependencies": {
     "@ethereumjs/common": "^2.4.0",
     "@ethereumjs/tx": "^3.3.0",
-    "@shapeshiftoss/hdwallet-core": "1.16.11",
+    "@shapeshiftoss/hdwallet-core": "1.17.0",
     "base64-js": "^1.5.1",
     "bchaddrjs": "^0.4.4",
     "bitcoinjs-lib": "^5.1.6",
@@ -28,10 +28,13 @@
     "lodash": "^4.17.21"
   },
   "devDependencies": {
+    "@ledgerhq/hw-app-btc": "^6.7.0",
+    "@ledgerhq/hw-app-eth": "^6.9.0",
+    "@ledgerhq/hw-transport": "^6.7.0",
+    "@ledgerhq/live-common": "^21.8.2",
     "@types/bchaddrjs": "^0.4.0",
     "@types/bs58check": "^2.1.0",
     "@types/ethereumjs-tx": "1.0.1",
-    "@types/ledgerhq__hw-transport": "^4.21.3",
     "@types/lodash": "^4.14.168",
     "typedoc": "^0.20.36",
     "typescript": "^4.3.2"

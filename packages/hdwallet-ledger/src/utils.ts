@@ -1,10 +1,13 @@
+import type { AddressFormat } from "@ledgerhq/hw-app-btc";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import bs58check from "bs58check";
+import _ from "lodash";
 
+import { LedgerResponse } from ".";
 import { LedgerTransport } from "./transport";
 
-export function handleError(result: any, transport?: LedgerTransport, message?: string): void | Error {
-  if (result.success) return;
+export function handleError<T extends LedgerResponse<any, any>>(result: T, transport?: LedgerTransport, message?: string): asserts result is T & {success: true}  {
+  if (result.success === true) return;
 
   if (result.payload && result.payload.error) {
     // No app selected
@@ -51,13 +54,14 @@ export function handleError(result: any, transport?: LedgerTransport, message?: 
   }
 }
 
-export function translateScriptType(scriptType: core.BTCInputScriptType): string {
-  return core.mustBeDefined(({
+export function translateScriptType(scriptType: core.BTCInputScriptType): AddressFormat {
+  const scriptTypeMap: Partial<Record<core.BTCInputScriptType, AddressFormat>> = {
     [core.BTCInputScriptType.SpendAddress]: "legacy",
-    [core.BTCInputScriptType.CashAddr]: "legacy",
+    [core.BTCInputScriptType.CashAddr]: "cashaddr",
     [core.BTCInputScriptType.SpendWitness]: "bech32",
     [core.BTCInputScriptType.SpendP2SHWitness]: "p2sh",
-  } as Partial<Record<core.BTCInputScriptType, string>>)[scriptType]);
+  }
+  return core.mustBeDefined(scriptTypeMap[scriptType]);
 }
 
 export const compressPublicKey = (publicKey: Uint8Array) => {
@@ -109,6 +113,10 @@ type NetworkMagic = {
   additionals?: string[],
   areTransactionTimestamped?: boolean,
 };
+
+export function coinToLedgerAppName(coin: core.Coin): string | undefined {
+  return _.get(networksUtil[core.mustBeDefined(core.slip44ByCoin(coin))], "appName")
+}
 
 export const networksUtil: Record<number, NetworkMagic> = {
   0: {
