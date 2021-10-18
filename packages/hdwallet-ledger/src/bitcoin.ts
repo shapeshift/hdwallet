@@ -8,6 +8,7 @@ import _ from "lodash";
 
 import { LedgerTransport } from "./transport";
 import { createXpub, compressPublicKey, translateScriptType, networksUtil, handleError } from "./utils";
+import { CreateTransactionArg } from "@ledgerhq/hw-app-btc/lib/createTransaction";
 
 export const supportedCoins = ["Testnet", "Bitcoin", "BitcoinCash", "Litecoin", "Dash", "DigiByte", "Dogecoin"];
 
@@ -214,14 +215,20 @@ export async function btcSignTx(
   if (txs.length !== indexes.length) throw new Error("tx/index array length mismatch");
   const inputs = _.zip(txs, indexes, [], []) as Array<[Transaction, number, undefined, undefined]>
 
-  let signedTx = await transport.call("Btc", "createPaymentTransactionNew", {
+  const txArgs: CreateTransactionArg = {
     inputs,
     associatedKeysets,
     outputScriptHex,
     additionals: msg.coin === "BitcoinCash" ? ["abc"] : [],
     segwit,
-    sigHashType: networksUtil[slip44].sigHash,
-  });
+  }
+
+  // "invalid data received" error from Ledger if not done this way:
+  if (networksUtil[slip44].sigHash) {
+    txArgs.sigHashType = networksUtil[slip44].sigHash
+  }
+
+  let signedTx = await transport.call("Btc", "createPaymentTransactionNew", txArgs);
   handleError(signedTx, transport, "Could not sign transaction with device");
 
   return {
