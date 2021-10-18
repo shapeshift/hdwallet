@@ -30,11 +30,11 @@ export async function openTransport(device: USBDevice): Promise<TransportWebUSB>
   try {
     return await TransportWebUSB.open(device);
   } catch (err) {
-    if (err.name === "TransportInterfaceNotAvailable") {
+    if (core.isIndexable(err) && err.name === "TransportInterfaceNotAvailable") {
       throw new core.ConflictingApp("Ledger");
     }
 
-    throw new core.WebUSBCouldNotInitialize("Ledger", err.message);
+    throw new core.WebUSBCouldNotInitialize("Ledger", String(core.isIndexable(err) ? err.message : err));
   }
 }
 
@@ -44,11 +44,11 @@ export async function getTransport(): Promise<TransportWebUSB> {
   try {
     return (await TransportWebUSB.request()) as TransportWebUSB;
   } catch (err) {
-    if (err.name === "TransportInterfaceNotAvailable") {
+    if (core.isIndexable(err) && err.name === "TransportInterfaceNotAvailable") {
       throw new core.ConflictingApp("Ledger");
     }
 
-    throw new core.WebUSBCouldNotPair("Ledger", err.message);
+    throw new core.WebUSBCouldNotPair("Ledger", String(core.isIndexable(err) ? err.message : err));
   }
 }
 

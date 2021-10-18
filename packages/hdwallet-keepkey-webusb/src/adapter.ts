@@ -32,7 +32,7 @@ export const AdapterDelegate = {
       if (out.serialNumber === undefined) throw new Error("expected serial number");
       return out as Device;
     } catch (e) {
-      throw new core.WebUSBCouldNotPair("KeepKey", e.message);
+      throw new core.WebUSBCouldNotPair("KeepKey", String(core.isIndexable(e) ? e.message : e));
     }
   },
   async getTransportDelegate(device: Device) {

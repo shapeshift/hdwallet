@@ -24,7 +24,7 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
       await inProgress;
     } catch (e) {
       // Unless it's a cancel, throw away the error, as the other context will handle it.
-      if (e.type === core.HDWalletErrorType.ActionCancelled) {
+      if (core.isIndexable(e) && e.type === core.HDWalletErrorType.ActionCancelled) {
         TrezorConnectTransport.callInProgress = Promise.resolve();
         throw e;
       }
@@ -133,7 +133,7 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
           throw new core.ActionCancelled();
         return result;
       } catch (error) {
-        if (error.type === core.HDWalletErrorType.ActionCancelled) {
+        if (core.isIndexable(error) && error.type === core.HDWalletErrorType.ActionCancelled) {
           throw error;
         }
         console.error("TrezorConnect isn't supposed to throw?", error);

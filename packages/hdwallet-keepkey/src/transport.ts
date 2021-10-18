@@ -133,7 +133,7 @@ export class Transport extends core.Transport {
     } catch (e) {
       // Throw away the error, as the other context will handle it,
       // unless it was a cancel, in which case we cancel everything.
-      if (e.type === core.HDWalletErrorType.ActionCancelled) {
+      if (core.isIndexable(e) && e.type === core.HDWalletErrorType.ActionCancelled) {
         this.callInProgress = { main: undefined, debug: undefined };
         throw e;
       }
