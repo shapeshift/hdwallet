@@ -280,7 +280,7 @@ export interface HDWallet extends HDWalletInfo {
   /**
    * Get device specific features
    */
-  getFeatures(): Promise<Record<string, any>>;
+  getFeatures(): Promise<Record<string, unknown>>;
 
   /**
    * Retrieve the wallet's firmware version
