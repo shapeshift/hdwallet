@@ -28,11 +28,11 @@ export async function cosmosSignTx(transport: Transport, msg: core.CosmosSignTx)
     let resp = await transport.call(
       Messages.MessageType.MESSAGETYPE_COSMOSSIGNTX,
       signTx,
-      core.LONG_TIMEOUT,
-      /*omitLock=*/ true
+      {
+        msgTimeout: core.LONG_TIMEOUT,
+        omitLock: true
+      }
     );
-
-    if (resp.message_type === core.Events.FAILURE) throw resp;
 
     for (let m of msg.tx.msg) {
       if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_COSMOSMSGREQUEST) {
@@ -62,9 +62,10 @@ export async function cosmosSignTx(transport: Transport, msg: core.CosmosSignTx)
         throw new Error(`cosmos: Message ${m.type} is not yet supported`);
       }
 
-      resp = await transport.call(Messages.MessageType.MESSAGETYPE_COSMOSMSGACK, ack, core.LONG_TIMEOUT, /*omitLock=*/ true);
-
-      if (resp.message_type === core.Events.FAILURE) throw resp;
+      resp = await transport.call(Messages.MessageType.MESSAGETYPE_COSMOSMSGACK, ack, {
+        msgTimeout: core.LONG_TIMEOUT,
+        omitLock: true
+      });
     }
 
     if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_COSMOSSIGNEDTX) {
@@ -93,9 +94,9 @@ export async function cosmosGetAddress(transport: Transport, msg: CosmosMessages
   const getAddr = new CosmosMessages.CosmosGetAddress();
   getAddr.setAddressNList(msg.addressNList);
   getAddr.setShowDisplay(msg.showDisplay !== false);
-  const response = await transport.call(Messages.MessageType.MESSAGETYPE_COSMOSGETADDRESS, getAddr, core.LONG_TIMEOUT);
-
-  if (response.message_type === core.Events.FAILURE) throw response;
+  const response = await transport.call(Messages.MessageType.MESSAGETYPE_COSMOSGETADDRESS, getAddr, {
+    msgTimeout: core.LONG_TIMEOUT,
+  });
 
   const cosmosAddress = response.proto as CosmosMessages.CosmosAddress;
   return core.mustBeDefined(cosmosAddress.getAddress());

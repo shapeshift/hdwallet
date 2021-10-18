@@ -30,11 +30,11 @@ export async function rippleSignTx(transport: Transport, msg: core.RippleSignTx)
     let resp = await transport.call(
       Messages.MessageType.MESSAGETYPE_RIPPLESIGNTX,
       signTx,
-      core.LONG_TIMEOUT,
-      /*omitLock=*/ true
+      {
+        msgTimeout: core.LONG_TIMEOUT,
+        omitLock: true,
+      }
     );
-
-    if (resp.message_type === core.Events.FAILURE) throw resp;
 
     for (let m of msg.tx.value.msg) {
       let ack;
@@ -51,8 +51,6 @@ export async function rippleSignTx(transport: Transport, msg: core.RippleSignTx)
       } else {
         throw new Error(`ripple: Message ${m.type} is not yet supported`);
       }
-
-      if (resp.message_type === core.Events.FAILURE) throw resp;
     }
 
     if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_RIPPLESIGNEDTX) {
@@ -77,9 +75,9 @@ export async function rippleGetAddress(transport: Transport, msg: core.RippleGet
   const getAddr = new RippleMessages.RippleGetAddress();
   getAddr.setAddressNList(msg.addressNList);
   getAddr.setShowDisplay(msg.showDisplay !== false);
-  const response = await transport.call(Messages.MessageType.MESSAGETYPE_RIPPLEGETADDRESS, getAddr, core.LONG_TIMEOUT);
-
-  if (response.message_type === core.Events.FAILURE) throw response;
+  const response = await transport.call(Messages.MessageType.MESSAGETYPE_RIPPLEGETADDRESS, getAddr, {
+    msgTimeout: core.LONG_TIMEOUT,
+  });
 
   const rippleAddress = response.proto as RippleMessages.RippleAddress;
   return core.mustBeDefined(rippleAddress.getAddress());

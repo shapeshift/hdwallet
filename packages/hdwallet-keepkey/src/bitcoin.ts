@@ -252,13 +252,14 @@ export async function btcGetAddress(
   addr.setShowDisplay(msg.showDisplay || false);
   addr.setScriptType(translateInputScriptType(msg.scriptType || core.BTCInputScriptType.SpendAddress));
 
-  const response = (await transport.call(
+  const response = await transport.call(
     Messages.MessageType.MESSAGETYPE_GETADDRESS,
     addr,
-    core.LONG_TIMEOUT
-  )) as core.Event;
+    {
+      msgTimeout: core.LONG_TIMEOUT,
+    }
+  );
 
-  if (response.message_type === core.Events.FAILURE) throw response;
   if (response.message_type === core.Events.CANCEL) throw response;
 
   const btcAddress = response.proto as Messages.Address;
@@ -307,12 +308,14 @@ export async function btcSignTx(
 
     let responseType: number | undefined;
     let response: any;
-    const { message_enum, proto } = (await transport.call(
+    const { message_enum, proto } = await transport.call(
       Messages.MessageType.MESSAGETYPE_SIGNTX,
       tx,
-      core.LONG_TIMEOUT,
-      /*omitLock=*/ true
-    )) as core.Event; // 5 Minute timeout
+      {
+        msgTimeout: core.LONG_TIMEOUT,
+        omitLock: true,
+      }
+    ); // 5 Minute timeout
     responseType = message_enum;
     response = proto;
     // Prepare structure for signatures
@@ -322,11 +325,6 @@ export async function btcSignTx(
     try {
       // Begin callback loop
       while (true) {
-        if (responseType === Messages.MessageType.MESSAGETYPE_FAILURE) {
-          const errorResponse = response as Messages.Failure;
-          throw new Error(`Signing failed: ${errorResponse.getMessage()}`);
-        }
-
         if (responseType !== Messages.MessageType.MESSAGETYPE_TXREQUEST) {
           throw new Error(`Unexpected message type: ${responseType}`);
         }
@@ -382,12 +380,14 @@ export async function btcSignTx(
           }
           txAck = new Messages.TxAck();
           txAck.setTx(msg);
-          let message = (await transport.call(
+          const message = await transport.call(
             Messages.MessageType.MESSAGETYPE_TXACK,
             txAck,
-            core.LONG_TIMEOUT,
-            /*omitLock=*/ true
-          )) as core.Event; // 5 Minute timeout
+            {
+              msgTimeout: core.LONG_TIMEOUT,
+              omitLock: true,
+            }
+          ); // 5 Minute timeout
           responseType = message.message_enum;
           response = message.proto;
           continue;
@@ -400,12 +400,14 @@ export async function btcSignTx(
           msg.setInputsList([currentTx.getInputsList()[reqIndex]]);
           txAck = new Messages.TxAck();
           txAck.setTx(msg);
-          let message = (await transport.call(
+          const message = await transport.call(
             Messages.MessageType.MESSAGETYPE_TXACK,
             txAck,
-            core.LONG_TIMEOUT,
-            /*omitLock=*/ true
-          )) as core.Event; // 5 Minute timeout
+            {
+              msgTimeout: core.LONG_TIMEOUT,
+              omitLock: true,
+            }
+          ); // 5 Minute timeout
           responseType = message.message_enum;
           response = message.proto;
           continue;
@@ -423,12 +425,14 @@ export async function btcSignTx(
           }
           txAck = new Messages.TxAck();
           txAck.setTx(msg);
-          let message = (await transport.call(
+          const message = await transport.call(
             Messages.MessageType.MESSAGETYPE_TXACK,
             txAck,
-            core.LONG_TIMEOUT,
-            /*omitLock=*/ true
-          )) as core.Event; // 5 Minute timeout
+            {
+              msgTimeout: core.LONG_TIMEOUT,
+              omitLock: true,
+            }
+          ); // 5 Minute timeout
           responseType = message.message_enum;
           response = message.proto;
           continue;
@@ -443,12 +447,14 @@ export async function btcSignTx(
           msg.setExtraData(currentTx.getExtraData_asU8().slice(offset, offset + length));
           txAck = new Messages.TxAck();
           txAck.setTx(msg);
-          let message = (await transport.call(
+          const message = await transport.call(
             Messages.MessageType.MESSAGETYPE_TXACK,
             txAck,
-            core.LONG_TIMEOUT,
-            /*omitLock=*/ true
-          )) as core.Event; // 5 Minute timeout
+            {
+              msgTimeout: core.LONG_TIMEOUT,
+              omitLock: true,
+            }
+          ); // 5 Minute timeout
           responseType = message.message_enum;
           response = message.proto;
           continue;
@@ -489,11 +495,13 @@ export async function btcSignMessage(
   sign.setMessage(toUTF8Array(msg.message));
   sign.setCoinName(msg.coin || "Bitcoin");
   sign.setScriptType(translateInputScriptType(msg.scriptType ?? core.BTCInputScriptType.SpendAddress));
-  const event = (await transport.call(
+  const event = await transport.call(
     Messages.MessageType.MESSAGETYPE_SIGNMESSAGE,
     sign,
-    core.LONG_TIMEOUT
-  )) as core.Event;
+    {
+      msgTimeout: core.LONG_TIMEOUT,
+    }
+  );
   const messageSignature = event.proto as Messages.MessageSignature;
   const address = messageSignature.getAddress();
   if (!address) throw new Error("btcSignMessage failed");
@@ -514,9 +522,14 @@ export async function btcVerifyMessage(
   verify.setSignature(core.arrayify("0x" + msg.signature));
   verify.setMessage(toUTF8Array(msg.message));
   verify.setCoinName(msg.coin);
-  let event = await transport.call(Messages.MessageType.MESSAGETYPE_VERIFYMESSAGE, verify);
-  if (event.message_enum === Messages.MessageType.MESSAGETYPE_FAILURE) {
-    return false;
+  let event: core.Event;
+  try {
+    event = await transport.call(Messages.MessageType.MESSAGETYPE_VERIFYMESSAGE, verify);
+  } catch (e) {
+    if (core.isIndexable(e) && e.message_enum === Messages.MessageType.MESSAGETYPE_FAILURE) {
+      return false;
+    }
+    throw e;
   }
   const success = event.proto as Messages.Success;
   return success.getMessage() === "Message verified";
