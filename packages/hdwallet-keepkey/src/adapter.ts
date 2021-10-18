@@ -76,7 +76,7 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
 
   private async handleConnect(device: DeviceType<DelegateType>): Promise<void> {
     try {
-      await this.initialize([device]);
+      await this.initialize(device);
     } catch (e) {
       console.error(e);
     }
@@ -90,32 +90,24 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
   }
 
   async initialize(
-    devices?: Array<DeviceType<DelegateType>>,
+    device: DeviceType<DelegateType>,
     tryDebugLink?: boolean,
     autoConnect?: boolean
-  ): Promise<Array<KeepKeyHDWallet | null>> {
-    const out: Array<KeepKeyHDWallet | null> = [];
-    devices = devices ?? (await this.getDevices());
-    for (const device of devices) {
-      const { serialNumber } = await this.inspectDevice(device);
-      await this.keyring.delete(serialNumber);
+  ): Promise<KeepKeyHDWallet | null> {
+    const { serialNumber } = await this.inspectDevice(device);
+    await this.keyring.delete(serialNumber);
 
-      const delegate = await this.getTransportDelegate(device);
-      if (delegate === null) {
-        out.push(null);
-        continue;
-      }
+    const delegate = await this.getTransportDelegate(device);
+    if (delegate === null) return null;
 
-      const transport = await Transport.create(this.keyring, delegate);
-      await transport.connect();
-      if (tryDebugLink) await transport.tryConnectDebugLink();
+    const transport = await Transport.create(this.keyring, delegate);
+    await transport.connect();
+    if (tryDebugLink) await transport.tryConnectDebugLink();
 
-      const wallet = await KeepKeyHDWallet.create(transport);
-      if (autoConnect) await wallet.initialize();
-      await this.keyring.add(wallet, serialNumber);
-      out.push(wallet);
-    }
-    return out
+    const wallet = await KeepKeyHDWallet.create(transport);
+    if (autoConnect) await wallet.initialize();
+    await this.keyring.add(wallet, serialNumber);
+    return wallet;
   }
 
   async getDevice(serialNumber?: string): Promise<DeviceType<DelegateType>> {
