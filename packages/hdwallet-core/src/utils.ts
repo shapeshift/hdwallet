@@ -208,3 +208,7 @@ export function compatibleBufferConcat(list: Uint8Array[]): Buffer {
   if (!checkBufferConcat()) return Buffer.concat(list);
   return Buffer.concat(list.map(x => Buffer.isBuffer(x) ? x : Buffer.from(x)));
 }
+
+export function isIndexable(x: unknown): x is Record<string, unknown> {
+  return x !== null && ["object", "function"].includes(typeof x)
+}
