@@ -67,10 +67,10 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
     return "Portis";
   }
 
-  public initialize(): Promise<any> {
+  public async initialize(): Promise<boolean> {
     // no means to reset the state of the Portis widget
     // while it's in the middle of execution
-    return Promise.resolve();
+    return await this.isInitialized();
   }
 
   public hasOnDevicePinEntry(): boolean {

@@ -262,8 +262,8 @@ export class NativeHDWallet
 
   async clearSession(): Promise<void> {}
 
-  async initialize(): Promise<boolean | null> {
-    return this.needsMnemonic(!!this.#mnemonic, async () => {
+  async initialize(): Promise<boolean> {
+    return await this.needsMnemonic(!!this.#mnemonic, async () => {
       try {
         const seed = this.#mnemonic!.toSeed();
 
@@ -286,9 +286,8 @@ export class NativeHDWallet
         this.#initialized = false;
         await this.wipe();
       }
-
-      return this.#initialized;
-    });
+      return await this.isInitialized();
+    }) ?? false;
   }
 
   async ping(msg: core.Ping): Promise<core.Pong> {
