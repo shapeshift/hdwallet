@@ -320,7 +320,7 @@ export interface HDWallet extends HDWalletInfo {
   /**
    * Initialize a device session.
    */
-  initialize(): Promise<any>;
+  initialize(): Promise<boolean>;
 
   /**
    * Send a ping to the device.

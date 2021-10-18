@@ -301,8 +301,8 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     this.info = new LedgerHDWalletInfo();
   }
 
-  public async initialize(): Promise<any> {
-    return;
+  public async initialize(): Promise<boolean> {
+    return await this.isInitialized();
   }
 
   public async isInitialized(): Promise<boolean> {

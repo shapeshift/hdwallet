@@ -999,7 +999,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   }
 
   // Initialize assigns a hid connection to this KeepKey and send initialize message to device
-  public async initialize(): Promise<Messages.Features.AsObject> {
+  public async initialize(): Promise<boolean> {
     const initialize = new Messages.Initialize();
     const event = await this.transport.call(Messages.MessageType.MESSAGETYPE_INITIALIZE, initialize);
     if (!event.message) throw event;
@@ -1024,7 +1024,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     // this._supportsThorchain = Semver.get(fwVersion, "v7.0.0");
 
     this.cacheFeatures(out);
-    return out;
+    return await this.isInitialized();
   }
 
   // GetFeatures returns the features and other device information such as the version, label, and supported coins

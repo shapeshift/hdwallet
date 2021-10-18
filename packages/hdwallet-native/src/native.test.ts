@@ -238,7 +238,7 @@ describe("NativeHDWallet", () => {
     });
     wallet.events.addListener(native.NativeEvents.READY, readyMock);
     wallet.events.addListener(native.NativeEvents.MNEMONIC_REQUIRED, mnemonicRequiredMock);
-    expect(await wallet.initialize()).toBe(null);
+    expect(await wallet.initialize()).toBe(false);
     expect(mnemonicRequiredMock).toHaveBeenCalled();
     expect(readyMock).not.toHaveBeenCalled();
   });
@@ -267,7 +267,7 @@ describe("NativeHDWallet", () => {
     expect(await wallet.initialize()).toBe(true);
     await wallet.wipe();
     expect(mock).not.toHaveBeenCalled();
-    expect(await wallet.initialize()).toBe(null);
+    expect(await wallet.initialize()).toBe(false);
     expect(mock).toHaveBeenCalled();
   });
 

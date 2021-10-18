@@ -286,7 +286,7 @@ export class NativeHDWallet
 
   async clearSession(): Promise<void> {}
 
-  async initialize(): Promise<boolean | null> {
+  async initialize(): Promise<boolean> {
     return this.needsMnemonic(!!this.#masterKey, async () => {
       const masterKey = await this.#masterKey!;
       try {
@@ -309,9 +309,8 @@ export class NativeHDWallet
         this.#initialized = false;
         await this.wipe();
       }
-
-      return this.#initialized;
-    });
+      return await this.isInitialized();
+    }) ?? false;
   }
 
   async ping(msg: core.Ping): Promise<core.Pong> {

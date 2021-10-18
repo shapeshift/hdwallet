@@ -77,14 +77,14 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
     return Promise.resolve("MetaMask");
   }
 
-  public async initialize(): Promise<any> {
+  public async initialize(): Promise<boolean> {
     try {
       this.provider = await detectEthereumProvider({ mustBeMetaMask: true, silent: false, timeout: 3000 });
+      return true;
     } catch (e) {
       console.error(e);
+      return false;
     }
-
-    return Promise.resolve();
   }
 
   public hasOnDevicePinEntry(): boolean {

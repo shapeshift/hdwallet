@@ -275,8 +275,8 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     this.info = new TrezorHDWalletInfo();
   }
 
-  public async initialize(): Promise<any> {
-    return;
+  public async initialize(): Promise<boolean> {
+    return this.isInitialized();
   }
 
   public async isInitialized(): Promise<boolean> {

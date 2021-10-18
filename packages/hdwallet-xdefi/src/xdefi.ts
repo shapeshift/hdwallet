@@ -49,10 +49,11 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public initialize(): never;
-  public initialize(provider: unknown): Promise<any>;
-  public async initialize(provider?: unknown): Promise<any> {
-    if (!provider) throw new Error("provider is required");
+  public initialize(provider: unknown): Promise<boolean>;
+  public async initialize(provider?: unknown): Promise<boolean> {
+    if (!provider) return false;
     this.provider = provider;
+    return true;
   }
 
   public hasOnDevicePinEntry(): boolean {
