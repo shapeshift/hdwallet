@@ -28,11 +28,11 @@ export async function thorchainSignTx(transport: Transport, msg: core.ThorchainS
     let resp = await transport.call(
       Messages.MessageType.MESSAGETYPE_THORCHAINSIGNTX,
       signTx,
-      core.LONG_TIMEOUT,
-      /*omitLock=*/ true
+      {
+        msgTimeout: core.LONG_TIMEOUT,
+        omitLock: true,
+      }
     );
-
-    if (resp.message_type === core.Events.FAILURE) throw resp;
 
     for (let m of msg.tx.msg) {
       if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_THORCHAINMSGREQUEST) {
@@ -80,9 +80,10 @@ export async function thorchainSignTx(transport: Transport, msg: core.ThorchainS
         throw new Error(`THORChain: Message ${m.type} is not yet supported`);
       }
 
-      resp = await transport.call(Messages.MessageType.MESSAGETYPE_THORCHAINMSGACK, ack, core.LONG_TIMEOUT, /*omitLock=*/ true);
-
-      if (resp.message_type === core.Events.FAILURE) throw resp;
+      resp = await transport.call(Messages.MessageType.MESSAGETYPE_THORCHAINMSGACK, ack, {
+        msgTimeout: core.LONG_TIMEOUT,
+        omitLock: true,
+      });
     }
 
     if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_THORCHAINSIGNEDTX) {
@@ -112,9 +113,9 @@ export async function thorchainGetAddress(transport: Transport, msg: ThorchainMe
   getAddr.setAddressNList(msg.addressNList);
   getAddr.setShowDisplay(msg.showDisplay !== false);
   if (msg.testnet !== undefined) getAddr.setTestnet(msg.testnet)
-  const response = await transport.call(Messages.MessageType.MESSAGETYPE_THORCHAINGETADDRESS, getAddr, core.LONG_TIMEOUT);
-
-  if (response.message_type === core.Events.FAILURE) throw response;
+  const response = await transport.call(Messages.MessageType.MESSAGETYPE_THORCHAINGETADDRESS, getAddr, {
+    msgTimeout: core.LONG_TIMEOUT,
+  });
 
   const thorchainAddress = response.proto as ThorchainMessages.ThorchainAddress;
   return core.mustBeDefined(thorchainAddress.getAddress());

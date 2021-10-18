@@ -703,12 +703,13 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
       GPK.setEcdsaCurveName(curve || "secp256k1");
       GPK.setScriptType(translateInputScriptType(scriptType || core.BTCInputScriptType.SpendAddress));
 
-      const event = (await this.transport.call(
+      const event = await this.transport.call(
         Messages.MessageType.MESSAGETYPE_GETPUBLICKEY,
         GPK,
-        showDisplay ? core.LONG_TIMEOUT : core.DEFAULT_TIMEOUT
-      )) as core.Event;
-      if (event.message_type === core.Events.FAILURE) throw event;
+        {
+          msgTimeout: showDisplay ? core.LONG_TIMEOUT : core.DEFAULT_TIMEOUT,
+        }
+      );
       const publicKey = event.proto as Messages.PublicKey;
 
       publicKeys.push({ xpub: core.mustBeDefined(publicKey.getXpub()) });
@@ -722,12 +723,13 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     ping.setButtonProtection(msg.button || false);
     ping.setPinProtection(msg.pin || false);
     ping.setPassphraseProtection(msg.passphrase || false);
-    const event = (await this.transport.call(
+    const event = await this.transport.call(
       Messages.MessageType.MESSAGETYPE_PING,
       ping,
-      msg.button || msg.pin || msg.passphrase ? core.LONG_TIMEOUT : core.DEFAULT_TIMEOUT
-    )) as core.Event;
-    if (event.message_type === core.Events.FAILURE) throw event;
+      {
+        msgTimeout: msg.button || msg.pin || msg.passphrase  ? core.LONG_TIMEOUT : core.DEFAULT_TIMEOUT,
+      }
+    );
     const message = event.proto as Messages.Success;
     return { msg: core.mustBeDefined(message.getMessage()) };
   }
@@ -745,7 +747,9 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     resetDevice.setU2fCounter(msg.u2fCounter || Math.floor(+new Date() / 1000));
     // resetDevice.setWordsPerGape(wordsPerScreen) // Re-enable when patch gets in
     // Send
-    await this.transport.call(Messages.MessageType.MESSAGETYPE_RESETDEVICE, resetDevice, core.LONG_TIMEOUT);
+    await this.transport.call(Messages.MessageType.MESSAGETYPE_RESETDEVICE, resetDevice, {
+      msgTimeout: core.LONG_TIMEOUT,
+    });
     this.cacheFeatures(undefined);
   }
 
@@ -762,7 +766,9 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
       msg.setAutoLockDelayMs(r.autoLockDelayMs);
     }
     msg.setU2fCounter(r.u2fCounter || Math.floor(+new Date() / 1000));
-    await this.transport.call(Messages.MessageType.MESSAGETYPE_RECOVERYDEVICE, msg, core.LONG_TIMEOUT);
+    await this.transport.call(Messages.MessageType.MESSAGETYPE_RECOVERYDEVICE, msg, {
+      msgTimeout: core.LONG_TIMEOUT,
+    });
     this.cacheFeatures(undefined);
   }
 
@@ -778,13 +784,10 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     let decision = new Messages.DebugLinkDecision();
     decision.setYesNo(isYes);
 
-    await this.transport.callDebugLink(
-      Messages.MessageType.MESSAGETYPE_DEBUGLINKDECISION,
-      decision,
-      core.DEFAULT_TIMEOUT,
-      /*omitLock=*/ false,
-      /*noWait=*/ true
-    );
+    await this.transport.call(Messages.MessageType.MESSAGETYPE_DEBUGLINKDECISION, decision, {
+      noWait: true,
+      debugLink: true,
+    });
   }
 
   public hasOnDevicePinEntry(): boolean {
@@ -823,9 +826,11 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
         (await this.transport.call(
           Messages.MessageType.MESSAGETYPE_PINMATRIXACK,
           matrixAck,
-          core.DEFAULT_TIMEOUT,
-          true,
-          true
+          {
+            msgTimeout: core.DEFAULT_TIMEOUT,
+            omitLock: true,
+            noWait: true,
+          }
         ))
     );
   }
@@ -838,9 +843,11 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
         (await this.transport.call(
           Messages.MessageType.MESSAGETYPE_PASSPHRASEACK,
           passphraseAck,
-          core.DEFAULT_TIMEOUT,
-          true,
-          true
+          {
+            msgTimeout: core.DEFAULT_TIMEOUT,
+            omitLock: true,
+            noWait: true,
+          }
         ))
     );
   }
@@ -875,9 +882,11 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
         (await this.transport.call(
           Messages.MessageType.MESSAGETYPE_CHARACTERACK,
           characterAck,
-          core.DEFAULT_TIMEOUT,
-          true,
-          true
+          {
+            msgTimeout: core.DEFAULT_TIMEOUT,
+            omitLock: true,
+            noWait: true,
+          }
         ))
     );
   }
@@ -889,7 +898,9 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     policy.setEnabled(p.enabled);
     const applyPolicies = new Messages.ApplyPolicies();
     applyPolicies.setPolicyList([policy]);
-    await this.transport.call(Messages.MessageType.MESSAGETYPE_APPLYPOLICIES, applyPolicies, core.LONG_TIMEOUT);
+    await this.transport.call(Messages.MessageType.MESSAGETYPE_APPLYPOLICIES, applyPolicies, {
+      msgTimeout: core.LONG_TIMEOUT,
+    });
     this.cacheFeatures(undefined);
   }
 
@@ -926,7 +937,9 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   public async changePin(): Promise<void> {
     const changePin = new Messages.ChangePin();
     // User may be propmpted for button press up to 2 times
-    await this.transport.call(Messages.MessageType.MESSAGETYPE_CHANGEPIN, changePin, core.LONG_TIMEOUT);
+    await this.transport.call(Messages.MessageType.MESSAGETYPE_CHANGEPIN, changePin, {
+      msgTimeout: core.LONG_TIMEOUT,
+    });
   }
 
   // CipherKeyValue encrypts or decrypts a value with a given key, nodepath, and initializationVector
@@ -945,11 +958,10 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     cipherKeyValue.setAskOnEncrypt(v.askOnEncrypt || false);
     cipherKeyValue.setAskOnDecrypt(v.askOnDecrypt || false);
     cipherKeyValue.setIv(v.iv || "");
-    const response = (await this.transport.call(
+    const response = await this.transport.call(
       Messages.MessageType.MESSAGETYPE_CIPHERKEYVALUE,
-      cipherKeyValue
-    )) as core.Event;
-    if (response.message_type === core.Events.FAILURE) throw event;
+      cipherKeyValue,
+    );
     const ckv = response.message as Messages.CipheredKeyValue;
     return ckv.getValue();
   }
@@ -989,8 +1001,8 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   // Initialize assigns a hid connection to this KeepKey and send initialize message to device
   public async initialize(): Promise<Messages.Features.AsObject> {
     const initialize = new Messages.Initialize();
-    const event = (await this.transport.call(Messages.MessageType.MESSAGETYPE_INITIALIZE, initialize)) as core.Event;
-    if (event.message_type === core.Events.FAILURE || !event.message) throw event;
+    const event = await this.transport.call(Messages.MessageType.MESSAGETYPE_INITIALIZE, initialize);
+    if (!event.message) throw event;
     const out = event.message as Messages.Features.AsObject;
     if (!out.deviceId) throw new Error("no deviceId in features object");
     this.features = out;
@@ -1019,8 +1031,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   public async getFeatures(cached: boolean = false): Promise<Messages.Features.AsObject> {
     if (cached && this.featuresCache) return this.featuresCache;
     const features = new Messages.GetFeatures();
-    const event = (await this.transport.call(Messages.MessageType.MESSAGETYPE_GETFEATURES, features)) as core.Event;
-    if (event.message_type === core.Events.FAILURE) throw event;
+    const event = await this.transport.call(Messages.MessageType.MESSAGETYPE_GETFEATURES, features);
     this.cacheFeatures(event.message);
     return event.message as Messages.Features.AsObject;
   }
@@ -1034,19 +1045,16 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     const getEntropy = new Messages.GetEntropy();
     getEntropy.setSize(size);
     // send
-    const event = await this.transport.call(Messages.MessageType.MESSAGETYPE_GETENTROPY, getEntropy, core.LONG_TIMEOUT);
-    if (event.message_type === core.Events.FAILURE) throw event;
+    const event = await this.transport.call(Messages.MessageType.MESSAGETYPE_GETENTROPY, getEntropy, {
+      msgTimeout: core.LONG_TIMEOUT,
+    });
     return (core.mustBeDefined(event.proto) as Messages.Entropy).getEntropy_asU8();
   }
 
   // GetNumCoins returns the number of coins supported by the device regardless of if the hanve funds.
   public async getNumCoins(): Promise<number> {
     const getCoinTable = new Messages.GetCoinTable();
-    const response = (await this.transport.call(
-      Messages.MessageType.MESSAGETYPE_GETCOINTABLE,
-      getCoinTable
-    )) as core.Event;
-    if (response.message_type === core.Events.FAILURE) throw response;
+    const response = await this.transport.call(Messages.MessageType.MESSAGETYPE_GETCOINTABLE, getCoinTable);
     return core.mustBeDefined((core.mustBeDefined(response.proto) as Messages.CoinTable).getNumCoins());
   }
 
@@ -1056,11 +1064,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     const getCoinTable = new Messages.GetCoinTable();
     getCoinTable.setStart(start);
     getCoinTable.setEnd(end);
-    const response = (await this.transport.call(
-      Messages.MessageType.MESSAGETYPE_GETCOINTABLE,
-      getCoinTable
-    )) as core.Event;
-    if (response.message_type === core.Events.FAILURE) throw event;
+    const response = await this.transport.call(Messages.MessageType.MESSAGETYPE_GETCOINTABLE, getCoinTable);
     const coinTable = response.message as Messages.CoinTable.AsObject;
     return coinTable.tableList;
   }
@@ -1076,7 +1080,9 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     if (msg.pin) loadDevice.setPin(msg.pin);
     if (msg.label) loadDevice.setLabel(msg.label);
     // send
-    await this.transport.call(Messages.MessageType.MESSAGETYPE_LOADDEVICE, loadDevice, core.LONG_TIMEOUT);
+    await this.transport.call(Messages.MessageType.MESSAGETYPE_LOADDEVICE, loadDevice, {
+      msgTimeout: core.LONG_TIMEOUT,
+    });
     this.cacheFeatures(undefined);
   }
 

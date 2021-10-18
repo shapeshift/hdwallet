@@ -126,9 +126,9 @@ export async function eosGetPublicKey(transport: Transport, msg: core.EosGetPubl
   getPubkey.setShowDisplay(msg.showDisplay !== false);
   getPubkey.setKind(msg.kind);
 
-  const response = await transport.call(Messages.MessageType.MESSAGETYPE_EOSGETPUBLICKEY, getPubkey, core.LONG_TIMEOUT);
-
-  if (response.message_type === core.Events.FAILURE) throw response;
+  const response = await transport.call(Messages.MessageType.MESSAGETYPE_EOSGETPUBLICKEY, getPubkey, {
+    msgTimeout: core.LONG_TIMEOUT,
+  });
 
   const eosPubkey = response.proto as EosMessages.EosPublicKey;
   return core.mustBeDefined(eosPubkey.getWifPublicKey());
@@ -164,10 +164,10 @@ export async function eosSignTx(transport: Transport, msg: core.EosToSignTx): Pr
 
     console.log("tx header");
     console.log(txHeader);
-    resp = await transport.call(Messages.MessageType.MESSAGETYPE_EOSSIGNTX, signTx, core.LONG_TIMEOUT, true);
-    if (resp.message_type === core.Events.FAILURE) {
-      throw resp;
-    }
+    resp = await transport.call(Messages.MessageType.MESSAGETYPE_EOSSIGNTX, signTx, {
+      msgTimeout: core.LONG_TIMEOUT,
+      omitLock: true
+    });
 
     if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_EOSTXACTIONREQUEST) {
       throw new Error(`eos: unexpected response ${resp.message_type}`);
@@ -211,7 +211,10 @@ export async function eosSignTx(transport: Transport, msg: core.EosToSignTx): Pr
     console.log("action data");
     console.log(actAck);
 
-    resp = await transport.call(Messages.MessageType.MESSAGETYPE_EOSTXACTIONACK, actAck, core.LONG_TIMEOUT, true);
+    resp = await transport.call(Messages.MessageType.MESSAGETYPE_EOSTXACTIONACK, actAck, {
+      msgTimeout: core.LONG_TIMEOUT,
+      omitLock: true,
+    });
     if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_EOSSIGNEDTX) {
       throw new Error(`eos: unexpected response ${resp.message_type}`);
     }
