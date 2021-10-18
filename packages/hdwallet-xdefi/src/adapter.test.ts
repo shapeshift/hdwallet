@@ -7,7 +7,6 @@ describe("XDeFiAdapter", () => {
   it("throws error if provider is not preset", async () => {
     const keyring = new core.Keyring();
     const adapter = XDeFiAdapter.useKeyring(keyring);
-    expect(await adapter.initialize()).toBe(0);
     try {
       await adapter.pairDevice();
     } catch (e) {
@@ -21,7 +20,6 @@ describe("XDeFiAdapter", () => {
     const keyring = new core.Keyring();
     const adapter = XDeFiAdapter.useKeyring(keyring);
     const add = jest.spyOn(adapter.keyring, "add");
-    expect(await adapter.initialize()).toBe(0);
     const wallet = await adapter.pairDevice();
     expect(wallet).toBeInstanceOf(XDeFiHDWallet);
     expect(add).toBeCalled();

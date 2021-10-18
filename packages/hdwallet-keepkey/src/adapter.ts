@@ -92,7 +92,7 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
     await this.keyring.emit([productName, serialNumber, core.Events.DISCONNECT], serialNumber);
   }
 
-  async initialize(
+  private async initialize(
     device: DeviceType<DelegateType>,
     tryDebugLink?: boolean,
     autoConnect?: boolean

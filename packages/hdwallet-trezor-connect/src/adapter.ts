@@ -81,7 +81,7 @@ export class TrezorAdapter {
 
   public async addDevice(deviceID: string, path: string): Promise<void> {
     this._deviceIDToPath.set(deviceID, path);
-    await this.initialize([{ path: path, deviceID: deviceID }]);
+    await this.initialize({ path: path, deviceID: deviceID });
   }
 
   public static useKeyring(keyring: core.Keyring, args: TrezorConnectArgs) {
@@ -143,26 +143,20 @@ export class TrezorAdapter {
     this.connectCacheFeatures(event);
   }
 
-  public async initialize(devices?: TrezorDevice[]): Promise<number> {
+  private async initialize(device: TrezorDevice): Promise<void> {
     const init = await _initialization;
     if (!init) throw new Error("Could not initialize TrezorAdapter: TrezorConnect not initialized");
 
-    const devicesToInitialize = devices || [];
-
-    for (let i = 0; i < devicesToInitialize.length; i++) {
-      const device = devicesToInitialize[i];
-      let wallet = this.keyring.get(device.deviceID);
-      if (wallet) {
-        if (device.path && !(wallet.transport as TrezorConnectTransport).device.path)
-          (wallet.transport as TrezorConnectTransport).device.path = device.path;
-      } else {
-        wallet = trezor.create(new TrezorConnectTransport(device, this.keyring));
-      }
-
-      await wallet.initialize();
-      this.keyring.add(wallet, device.deviceID);
+    let wallet = this.keyring.get(device.deviceID);
+    if (wallet) {
+      if (device.path && !(wallet.transport as TrezorConnectTransport).device.path)
+        (wallet.transport as TrezorConnectTransport).device.path = device.path;
+    } else {
+      wallet = trezor.create(new TrezorConnectTransport(device, this.keyring));
     }
-    return Object.keys(this.keyring.wallets).length;
+
+    await wallet.initialize();
+    this.keyring.add(wallet, device.deviceID);
   }
 
   public async pairDevice(): Promise<core.HDWallet> {
@@ -178,12 +172,10 @@ export class TrezorAdapter {
 
     let deviceID = payload.device_id;
 
-    await this.initialize([
-      {
-        path: this._deviceIDToPath.get(deviceID),
-        deviceID: deviceID,
-      },
-    ]);
+    await this.initialize({
+      path: this._deviceIDToPath.get(deviceID),
+      deviceID: deviceID,
+    });
 
     let wallet = this.keyring.get(deviceID) as trezor.TrezorHDWallet;
 

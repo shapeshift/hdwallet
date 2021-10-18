@@ -65,29 +65,23 @@ export class WebUSBLedgerAdapter {
   }
 
   // without unique device identifiers, we should only ever have one ledger device on the keyring at a time
-  public async initialize(usbDevice?: USBDevice): Promise<number> {
-    const device = usbDevice ?? (await getFirstLedgerDevice());
+  private async initialize(device: USBDevice): Promise<ledger.LedgerHDWallet> {
+    await this.keyring.remove(core.mustBeDefined(device.serialNumber));
 
-    if (device) {
-      await this.keyring.remove(core.mustBeDefined(device.serialNumber));
+    const ledgerTransport = await openTransport(device);
 
-      const ledgerTransport = await openTransport(device);
+    const wallet = ledger.create(new LedgerWebUsbTransport(device, ledgerTransport, this.keyring) as ledger.LedgerTransport);
 
-      const wallet = ledger.create(new LedgerWebUsbTransport(device, ledgerTransport, this.keyring) as ledger.LedgerTransport);
+    await this.keyring.add(wallet, device.serialNumber);
 
-      this.keyring.add(wallet, device.serialNumber);
-    }
-
-    return Object.keys(this.keyring.wallets).length;
+    return wallet
   }
 
-  public async pairDevice(): Promise<core.HDWallet> {
-    const ledgerTransport = await getTransport();
+  public async pairDevice(usbDevice?: USBDevice): Promise<ledger.LedgerHDWallet> {
+    const device = usbDevice ?? (await getTransport()).device ?? (await getFirstLedgerDevice());
 
-    const device = ledgerTransport.device;
+    const wallet = await this.initialize(device);
 
-    await this.initialize(device);
-
-    return core.mustBeDefined(this.keyring.get(device.serialNumber));
+    return core.mustBeDefined(wallet);
   }
 }

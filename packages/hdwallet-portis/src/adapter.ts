@@ -24,13 +24,9 @@ export class PortisAdapter {
     return new PortisAdapter(keyring, args);
   }
 
-  public async initialize(): Promise<number> {
-    return Object.keys(this.keyring.wallets).length;
-  }
-
-  public async pairDevice(): Promise<core.HDWallet> {
+  public async pairDevice(): Promise<PortisHDWallet> {
     try {
-      const wallet = await this.pairPortisDevice();
+      const wallet = await this.initialize();
       this.portis.onActiveWalletChanged(async (wallAddr: string) => {
         // check if currentDeviceId has changed
         const walletAddress = "portis:" + wallAddr;
@@ -40,7 +36,7 @@ export class PortisAdapter {
             this.keyring.emit(["Portis", currentDeviceId, core.Events.DISCONNECT], currentDeviceId);
             this.keyring.remove(currentDeviceId);
           }
-          this.pairPortisDevice();
+          await this.initialize();
         }
       });
       this.portis.onLogout(() => {
@@ -58,7 +54,7 @@ export class PortisAdapter {
     }
   }
 
-  private async pairPortisDevice(): Promise<core.HDWallet> {
+  private async initialize(): Promise<PortisHDWallet> {
     const Portis = (await import("@portis/web3")).default;
     this.portis = new Portis(this.portisAppId, "mainnet");
     const wallet = new PortisHDWallet(this.portis);

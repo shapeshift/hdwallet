@@ -64,30 +64,24 @@ export class WebHIDLedgerAdapter {
     return core.mustBeDefined(this.keyring.get(MOCK_SERIAL_NUMBER));
   }
 
-  // without unique device identifiers, we should only ever have one HID ledger device on the keyring at a time
-  public async initialize(device?: HIDDevice): Promise<number> {
-    device = device ?? (await getFirstLedgerDevice()) ?? undefined;
+  // without unique device identifiers, we should only ever have one ledger device on the keyring at a time
+  private async initialize(device: HIDDevice): Promise<ledger.LedgerHDWallet> {
+    await this.keyring.remove(core.mustBeDefined(MOCK_SERIAL_NUMBER));
 
-    if (device) {
-      await this.keyring.remove(MOCK_SERIAL_NUMBER);
+    const ledgerTransport = await openTransport(device);
 
-      const ledgerTransport = await openTransport(device);
+    const wallet = ledger.create(new LedgerWebHIDTransport(device, ledgerTransport, this.keyring) as ledger.LedgerTransport);
 
-      const wallet = ledger.create(new LedgerWebHIDTransport(device, ledgerTransport, this.keyring));
+    await this.keyring.add(wallet, MOCK_SERIAL_NUMBER);
 
-      this.keyring.add(wallet, MOCK_SERIAL_NUMBER);
-    }
-
-    return Object.keys(this.keyring.wallets).length;
+    return wallet
   }
 
-  public async pairDevice(): Promise<core.HDWallet> {
-    const ledgerTransport = await getTransport();
+  public async pairDevice(usbDevice?: HIDDevice): Promise<ledger.LedgerHDWallet> {
+    const device = usbDevice ?? (await getTransport()).device ?? (await getFirstLedgerDevice());
 
-    const device = ledgerTransport.device;
+    const wallet = await this.initialize(device);
 
-    await this.initialize(device);
-
-    return core.mustBeDefined(this.keyring.get(MOCK_SERIAL_NUMBER));
+    return core.mustBeDefined(wallet);
   }
 }

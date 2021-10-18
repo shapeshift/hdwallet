@@ -17,10 +17,6 @@ export class MetaMaskAdapter {
     return new MetaMaskAdapter(keyring);
   }
 
-  public async initialize(): Promise<number> {
-    return Object.keys(this.keyring.wallets).length;
-  }
-
   public async pairDevice(): Promise<core.HDWallet> {
     const provider: any = await detectEthereumProvider({ mustBeMetaMask: true, silent: false, timeout: 3000 });
     if (!provider) {
