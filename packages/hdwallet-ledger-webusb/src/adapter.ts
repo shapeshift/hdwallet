@@ -25,18 +25,9 @@ export class WebUSBLedgerAdapter {
 
   private async handleConnectWebUSBLedger(e: USBConnectionEvent): Promise<void> {
     if (e.device.vendorId !== VENDOR_ID) return;
-
     this.currentEventTimestamp = Date.now();
-
-    try {
-      await this.initialize(e.device);
-      this.keyring.emit([e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.CONNECT], e.device.serialNumber);
-    } catch (error) {
-      this.keyring.emit(
-        [e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.FAILURE],
-        [e.device.serialNumber, { message: { code: error.type, ...error } }]
-      );
-    }
+  
+    await this.initialize(e.device);
   }
 
   private async handleDisconnectWebUSBLedger(e: USBConnectionEvent): Promise<void> {
@@ -54,8 +45,6 @@ export class WebUSBLedgerAdapter {
         if (e.device.serialNumber) await this.keyring.delete(e.device.serialNumber);
       } catch (e) {
         console.error(e);
-      } finally {
-        this.keyring.emit([e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.DISCONNECT], e.device.serialNumber);
       }
     }, APP_NAVIGATION_DELAY);
   }

@@ -36,7 +36,6 @@ export class PortisAdapter {
         if (!this.currentDeviceId || walletAddress.toLowerCase() !== this.currentDeviceId.toLowerCase()) {
           const currentDeviceId = this.currentDeviceId;
           if (currentDeviceId) {
-            this.keyring.emit(["Portis", currentDeviceId, core.Events.DISCONNECT], currentDeviceId);
             this.keyring.delete(currentDeviceId);
           }
           this.pairPortisDevice();
@@ -45,7 +44,6 @@ export class PortisAdapter {
       this.portis.onLogout(() => {
         const currentDeviceId = this.currentDeviceId;
         if (!currentDeviceId) return;
-        this.keyring.emit(["Portis", currentDeviceId, core.Events.DISCONNECT], currentDeviceId);
         this.keyring.delete(currentDeviceId);
       });
       return wallet;
@@ -64,7 +62,6 @@ export class PortisAdapter {
     const deviceId = await wallet.getDeviceID();
     await this.keyring.add(wallet, deviceId);
     this.currentDeviceId = deviceId;
-    this.keyring.emit(["Portis", deviceId, core.Events.CONNECT], deviceId);
 
     const watchForInactivity = () => {
       let time: ReturnType<typeof setTimeout>;

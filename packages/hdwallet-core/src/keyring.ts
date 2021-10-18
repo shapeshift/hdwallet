@@ -1,4 +1,5 @@
 import * as eventemitter2 from "eventemitter2";
+import { Events } from ".";
 
 import { HDWallet } from "./wallet";
 
@@ -13,10 +14,12 @@ export class Keyring extends eventemitter2.EventEmitter2 {
 
   public async add(wallet: HDWallet, deviceID?: string): Promise<this> {
     this.wallets.add(wallet);
-    const walletDeviceId = await wallet.getDeviceID()
-    this.setDeviceId(wallet, walletDeviceId);
-    if (deviceID && deviceID !== walletDeviceId) this.setDeviceId(wallet, deviceID);
+    const [vendor, walletDeviceId] = await Promise.all([wallet.getVendor(), wallet.getDeviceID()])
+    
+    await this.setDeviceId(wallet, walletDeviceId);
+    if (deviceID && deviceID !== walletDeviceId) await this.setDeviceId(wallet, deviceID);
     this.decorateEvents(wallet, deviceID ?? walletDeviceId);
+    
     return this
   }
 
@@ -42,9 +45,12 @@ export class Keyring extends eventemitter2.EventEmitter2 {
       console.error(e);
     }
 
+    const vendor = await wallet.getVendor();
+
     const deviceIDs = [...this.deviceIDs.entries()].filter(([k, v])=>v === wallet).map(([k, _])=>k);
     for (const deviceID of deviceIDs) {
       this.deviceIDs.delete(deviceID);
+      this.emit([vendor, deviceID, Events.DISCONNECT], deviceID);
     }
     this.wallets.delete(wallet);
 
@@ -80,13 +86,16 @@ export class Keyring extends eventemitter2.EventEmitter2 {
     await Promise.all([...this.wallets.values()].map(x=>x.disconnect()))
   }
 
-  protected setDeviceId(wallet: HDWallet, deviceID: string): void {
+  protected async setDeviceId(wallet: HDWallet, deviceID: string): Promise<void> {
     if (!this.wallets.has(wallet)) return;
     const oldWallet = this.deviceIDs.get(deviceID);
     if (oldWallet === wallet) return;
     if (oldWallet) throw new Error("Keyring: wallets must have unique device IDs");
     this.deviceIDs.set(deviceID, wallet);
     this.decorateEvents(wallet, deviceID);
+
+    const vendor = await wallet.getVendor();
+    await this.emit([vendor, deviceID, Events.CONNECT], deviceID);
   }
 
   protected decorateEvents(wallet: HDWallet, deviceID?: string): void {

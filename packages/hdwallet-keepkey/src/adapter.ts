@@ -77,19 +77,16 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
   private async handleConnect(device: DeviceType<DelegateType>): Promise<void> {
     try {
       await this.initialize([device]);
-      const { productName, serialNumber } = await this.inspectDevice(device);
-      await this.keyring.emit([productName, serialNumber, core.Events.CONNECT], serialNumber);
     } catch (e) {
       console.error(e);
     }
   }
 
   private async handleDisconnect(device: DeviceType<DelegateType>): Promise<void> {
-    const { productName, serialNumber } = await this.inspectDevice(device);
+    const { serialNumber } = await this.inspectDevice(device);
     try {
       await this.keyring.delete(serialNumber);
     } catch {}
-    await this.keyring.emit([productName, serialNumber, core.Events.DISCONNECT], serialNumber);
   }
 
   async initialize(
