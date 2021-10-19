@@ -69,7 +69,7 @@ export class Transport extends core.Transport {
       const segment = buf.slice(i, i + SEGMENT_SIZE);
       const padding = new Uint8Array(SEGMENT_SIZE - segment.length);
       const fragments: Array<Uint8Array> = [];
-      fragments.push(new Uint8Array([63]));
+      fragments.push(new Uint8Array([SEGMENT_SIZE]));
       fragments.push(segment);
       fragments.push(padding);
       const fragmentBuffer = new Uint8Array(fragments.map((x) => x.length).reduce((a, x) => a + x, 0));
