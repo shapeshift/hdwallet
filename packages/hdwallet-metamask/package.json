@@ -14,13 +14,14 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
+    "@metamask/onboarding": "^1.0.1",
     "@portis/web3": "3.0.10",
     "@shapeshiftoss/hdwallet-core": "1.16.9",
     "base64-js": "^1.5.1",
     "bip32": "^2.0.4",
     "bitcoinjs-lib": "^5.1.6",
     "bitcoinjs-message": "^2.1.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "web3": "^1.5.1"
   },
   "devDependencies": {
