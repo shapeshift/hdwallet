@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bchAddr from "bchaddrjs";
-import * as bitcoin from "@bithighlander/bitcoin-cash-js-lib";
+import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 
 import { getNetwork } from "./networks";
 import { NativeHDWalletBase } from "./native";

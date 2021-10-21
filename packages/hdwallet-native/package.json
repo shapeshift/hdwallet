@@ -14,7 +14,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@bithighlander/bitcoin-cash-js-lib": "5.2.1",
+    "@shapeshiftoss/bitcoinjs-lib": "5.2.0-shapeshift.2",
     "@shapeshiftoss/fiosdk": "1.2.1-shapeshift.6",
     "@shapeshiftoss/hdwallet-core": "1.17.0",
     "@zxing/text-encoding": "^0.9.0",

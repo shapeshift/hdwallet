@@ -1,15 +1,9 @@
 /// <reference types="bip32/types/crypto" />
-/// <reference types="@bithighlander/bitcoin-cash-js-lib" />
 
 declare module 'ethereum-tx-decoder';
 declare module '@shapeshiftoss/fiojs/dist/ecc';
 declare module 'bip32/src/crypto' {
     export * from "bip32/types/crypto";
-}
-
-declare module '@bithighlander/bitcoin-cash-js-lib/src/networks' {
-    import { Network } from '@bithighlander/bitcoin-cash-js-lib'
-    export const bitcoin: Network
 }
 
 // These come from https://github.com/DefinitelyTyped/DefinitelyTyped/blob/7e1a46771ee0841d6c24219e0b138689512b6df6/types/tiny-secp256k1/index.d.ts,
