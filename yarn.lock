@@ -946,28 +946,6 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@bithighlander/bitcoin-cash-js-lib@5.2.1":
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/@bithighlander/bitcoin-cash-js-lib/-/bitcoin-cash-js-lib-5.2.1.tgz#3153dec5774b0574a2347f6ca75cf3d7399af1b2"
-  integrity sha512-FaqmntBmeiLxwwCuc6n7kZCUi3ZT1b75tWxpduV3Rdw3pOx17cuptsBuay30YX4v/gnXvPkjO8AF0XsO4kn6IQ==
-  dependencies:
-    bech32 "^1.1.2"
-    big-integer "^1.6.44"
-    bip174 "^2.0.1"
-    bip32 "^2.0.4"
-    bip66 "^1.1.0"
-    bitcoin-ops "^1.4.0"
-    bs58check "^2.0.0"
-    create-hash "^1.1.0"
-    create-hmac "^1.1.3"
-    merkle-lib "^2.0.10"
-    pushdata-bitcoin "^1.0.1"
-    randombytes "^2.0.1"
-    tiny-secp256k1 "^1.1.1"
-    typeforce "^1.11.3"
-    varuint-bitcoin "^1.0.4"
-    wif "^2.0.1"
-
 "@cnakazawa/watch@^1.0.3":
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/@cnakazawa/watch/-/watch-1.0.4.tgz#f864ae85004d0fcab6f50be9141c4da368d1656a"
@@ -3546,6 +3524,28 @@
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@protobufjs/utf8/-/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570"
   integrity sha1-p3c2C1s5oaLlEG+OhY8v0tBgxXA=
+
+"@shapeshiftoss/bitcoinjs-lib@5.2.0-shapeshift.2":
+  version "5.2.0-shapeshift.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/bitcoinjs-lib/-/bitcoinjs-lib-5.2.0-shapeshift.2.tgz#f000da26302a8a35822201a6c49a4cf7e1379ed4"
+  integrity sha512-8bvuOUY2LXk9j779Nd/Nul6i4BupqGg4wl1VD4irHR329W6mC5rzxATYoIbzRNW3QKbtwTSG/gNZDDlgE3F8IQ==
+  dependencies:
+    bech32 "^1.1.2"
+    big-integer "^1.6.44"
+    bip174 "^2.0.1"
+    bip32 "^2.0.4"
+    bip66 "^1.1.0"
+    bitcoin-ops "^1.4.0"
+    bs58check "^2.0.0"
+    create-hash "^1.1.0"
+    create-hmac "^1.1.3"
+    merkle-lib "^2.0.10"
+    pushdata-bitcoin "^1.0.1"
+    randombytes "^2.0.1"
+    tiny-secp256k1 "^1.1.6"
+    typeforce "^1.11.3"
+    varuint-bitcoin "^1.0.4"
+    wif "^2.0.1"
 
 "@shapeshiftoss/fiojs@1.0.1-shapeshift.2":
   version "1.0.1-shapeshift.2"
