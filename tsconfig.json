@@ -57,6 +57,7 @@
     { "path": "./packages/hdwallet-native" },
     { "path": "./packages/hdwallet-portis" },
     { "path": "./packages/hdwallet-trezor" },
-    { "path": "./packages/hdwallet-trezor-connect" }
+    { "path": "./packages/hdwallet-trezor-connect" },
+    { "path": "./packages/hdwallet-metamask" }
   ]
 }

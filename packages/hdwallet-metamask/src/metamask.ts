@@ -2,6 +2,13 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as eth from "./ethereum";
 import _ from "lodash";
 
+// Extend the global window object so that TS doesn't complain us trying to access the 'ethereum' property
+declare global {
+  interface Window {
+    ethereum: any;
+  }
+}
+
 class MetaMaskTransport extends core.Transport {
   public async getDeviceID() {
     return "metamask:0";
@@ -17,7 +24,6 @@ export function isMetaMask(wallet: core.HDWallet): wallet is MetaMaskHDWallet {
 }
 
 type HasNonTrivialConstructor<T> = T extends { new (): any } ? never : T;
-export type MetaMask = InstanceType<HasNonTrivialConstructor<typeof MetaMask>>;
 
 export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETH = true;
@@ -49,13 +55,12 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsTerraInfo = false;
 
   transport: core.Transport = new MetaMaskTransport(new core.Keyring());
-  metamask: MetaMask;
 
   info: MetaMaskHDWalletInfo & core.HDWalletInfo;
   ethAddress?: string;
+  ethereum = window.ethereum;
 
-  constructor(metamask: MetaMask) {
-    this.metamask = metamask;
+  constructor() {
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -63,7 +68,7 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async isLocked(): Promise<boolean> {
-    return !ethereum._metamask.isUnlocked();
+    return !this.ethereum.metamask.isUnlocked();
   }
 
   public getVendor(): string {
@@ -88,7 +93,7 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public hasOnDevicePassphrase(): boolean {
-    return this.info.hasOnDevicePassPhrase();
+    return this.info.hasOnDevicePassphrase();
   }
 
   public hasOnDeviceDisplay(): boolean {
@@ -160,8 +165,8 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
-    // Ethereum public keys are not exposed by the web3 interface
-    return null
+    // Ethereum public keys are not exposed by the RPC API
+    return null;
   }
 
   public async isInitialized(): Promise<boolean> {
@@ -172,8 +177,113 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
     return Promise.resolve();
   }
 
+  public async ethSupportsNetwork(chainId: number = 1): Promise<boolean> {
+    return chainId === 1;
+  }
+
+  public async ethSupportsSecureTransfer(): Promise<boolean> {
+    return false;
+  }
+
+  public ethSupportsNativeShapeShift(): boolean {
+    return false;
+  }
+
+  public async ethSupportsEIP1559(): Promise<boolean> {
+    return false;
+  }
+
+  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
+    return eth.ethGetAccountPaths(msg);
+  }
+
   public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
-    // Portis only supports one account for eth
+    return this.info.ethNextAccountPath(msg);
+  }
+
+  public async ethGetAddress(msg: core.ETHGetAddress): Promise<string | null> {
+    if (this.ethAddress) {
+      return this.ethAddress;
+    }
+    const address = await eth.ethGetAddress(this.ethereum);
+    this.ethAddress = address;
+    return address;
+  }
+
+  public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
+    return eth.ethSignTx(msg, this.ethereum, await this.ethGetAddress(this.ethereum));
+  }
+
+  public async ethSendTx(msg: core.ETHSendTx): Promise<core.ETHSignedTx> {
+    return eth.ethSendTx(msg, this.ethereum, await this.ethGetAddress(this.ethereum));
+  }
+
+  public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
+    return eth.ethSignMessage(msg, this.ethereum, await this.ethGetAddress(this.ethereum));
+  }
+
+  public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
+    return eth.ethVerifyMessage(msg, this.ethereum);
+  }
+
+  public async getDeviceID(): Promise<string> {
+    return "metaMask:" + (await this.ethGetAddress(this.ethereum));
+  }
+
+  public async getFirmwareVersion(): Promise<string> {
+    return "metaMask";
+  }
+}
+
+export class MetaMaskHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
+  readonly _supportsBTCInfo = false;
+  readonly _supportsETHInfo = true;
+  readonly _supportsCosmosInfo = false;
+  readonly _supportsBinanceInfo = false;
+  readonly _supportsRippleInfo = false;
+  readonly _supportsEosInfo = false;
+  readonly _supportsFioInfo = false;
+  readonly _supportsThorchainInfo = false;
+  readonly _supportsSecretInfo = false;
+  readonly _supportsKavaInfo = false;
+  readonly _supportsTerraInfo = false;
+
+  public getVendor(): string {
+    return "MetaMask";
+  }
+
+  public hasOnDevicePinEntry(): boolean {
+    return false;
+  }
+
+  public hasOnDevicePassphrase(): boolean {
+    return true;
+  }
+
+  public hasOnDeviceDisplay(): boolean {
+    return true;
+  }
+
+  public hasOnDeviceRecovery(): boolean {
+    return true;
+  }
+
+  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
+    // It doesn't... yet?
+    return false;
+  }
+
+  public describePath(msg: core.DescribePath): core.PathDescription {
+    switch (msg.coin) {
+      case "Ethereum":
+        return eth.describeETHPath(msg.path);
+      default:
+        throw new Error("Unsupported path");
+    }
+  }
+
+  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
+    // TODO: What do we do here?
     return undefined;
   }
 
@@ -193,23 +303,15 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
     return false;
   }
 
-  public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean>{
-      return eth.ethVerifyMessage(msg, this.web3);
-  }
-
-  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined{
-      return this.info.ethNextAccountPath(msg);
-  }
-
-  public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
-      return eth.ethSignTx(msg, this.web3, await this._ethGetAddress());
-  }
-
-  public async ethSignMessagE(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage>{
-      return eth.ethSignMessage(msg, this.web3, await this._ethGetAddress());
-  }
-
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     return eth.ethGetAccountPaths(msg);
   }
+}
+
+export function info() {
+  return new MetaMaskHDWalletInfo();
+}
+
+export function create(): MetaMaskHDWallet {
+  return new MetaMaskHDWallet();
 }

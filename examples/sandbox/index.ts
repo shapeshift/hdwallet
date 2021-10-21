@@ -5,6 +5,7 @@ import * as keepkeyWebUSB from "@shapeshiftoss/hdwallet-keepkey-webusb";
 import * as ledgerWebUSB from "@shapeshiftoss/hdwallet-ledger-webusb";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
+import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
 
 import * as debug from "debug";
@@ -38,6 +39,7 @@ const keepkeyAdapter = keepkeyWebUSB.WebUSBKeepKeyAdapter.useKeyring(keyring);
 const kkbridgeAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const kkemuAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const portisAdapter = portis.PortisAdapter.useKeyring(keyring, { portisAppId });
+const metaMaskAdapter = metaMask.MetaMaskAdapter.useKeyring(keyring);
 const nativeAdapter = native.NativeAdapter.useKeyring(keyring, {
   mnemonic,
   deviceId: "native-wallet-test",
@@ -70,6 +72,7 @@ const $trezor = $("#trezor");
 const $ledger = $("#ledger");
 const $portis = $("#portis");
 const $native = $("#native");
+const $metaMask = $("#metaMask");
 const $keyring = $("#keyring");
 
 $keepkey.on("click", async (e) => {
@@ -85,7 +88,6 @@ $keepkeybridge.on("click", async (e) => {
   window["wallet"] = wallet;
   $("#keyring select").val(await wallet.transport.getDeviceID());
 });
-
 
 $kkemu.on("click", async (e) => {
   e.preventDefault();
@@ -127,6 +129,19 @@ $native.on("click", async (e) => {
   wallet = await nativeAdapter.pairDevice("testid");
   window["wallet"] = wallet;
   $("#keyring select").val(await wallet.getDeviceID());
+});
+
+$metaMask.on("click", async (e) => {
+  e.preventDefault();
+  wallet = await metaMaskAdapter.pairDevice("testid");
+  window["wallet"] = wallet;
+  let deviceID = "nothing";
+  try {
+    deviceID = await wallet.getDeviceID();
+    $("#keyring select").val(deviceID);
+  } catch (e) {
+    console.error(e);
+  }
 });
 
 async function deviceConnected(deviceId) {
@@ -196,6 +211,12 @@ async function deviceConnected(deviceId) {
     await nativeAdapter.initialize();
   } catch (e) {
     console.error("Could not initialize NativeAdapter", e);
+  }
+
+  try {
+    await metaMaskAdapter.initialize();
+  } catch (e) {
+    console.error("Could not initialize MetaMaskAdapter", e);
   }
 
   for (const [deviceID, wallet] of Object.entries(keyring.wallets)) {
@@ -1439,6 +1460,7 @@ $osmosisUndelegate.on("click", async (e) => {
 const $ethAddr = $("#ethAddr");
 const $ethTx = $("#ethTx");
 const $ethSign = $("#ethSign");
+const $ethSend = $("#ethSend");
 const $ethVerify = $("#ethVerify");
 const $ethResults = $("#ethResults");
 const $ethEIP1559 = $("#ethEIP1559");
@@ -1526,6 +1548,33 @@ $ethSign.on("click", async (e) => {
       addressNList: hard.concat(rel),
       message: "Hello World",
     });
+    $ethResults.val(result.address + ", " + result.signature);
+  } else {
+    let label = await wallet.getLabel();
+    $ethResults.val(label + " does not support ETH");
+  }
+});
+
+$ethSend.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $ethResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsETH(wallet)) {
+    let { hardenedPath: hard, relPath: rel } = wallet.ethGetAccountPaths({
+      coin: "Ethereum",
+      accountIdx: 0,
+    })[0];
+    let result = await wallet.ethSendTx({
+      from: "0x4E54209A381CD57D19EafdfaD1BAbD1E51De9fdc",
+      to: "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
+      value: "1000000",
+      gas: "300000",
+      gasPrice: "69",
+      data: "",
+      nonce: "69",
+    } as core.ETHSendTx);
     $ethResults.val(result.address + ", " + result.signature);
   } else {
     let label = await wallet.getLabel();

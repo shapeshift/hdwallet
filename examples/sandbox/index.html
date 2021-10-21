@@ -104,6 +104,7 @@
       <button id="ledger">Pair Ledger</button>
       <button id="portis">Pair Portis</button>
       <button id="native">Pair Native</button>
+      <button id="metaMask">Pair MetaMask</button>
 
       <select id="keyring" style="height: 100px" size="4"></select>
     </div>
@@ -227,7 +228,7 @@
       <button class="button button-outline" id="osmosisAddress">Address</button>
       <input type="text" id="osmosisAddressResults" />
       <hr />
-      <h5>Sign Tx</h5>
+      <h5>Send</h5>
       <label for="osmosisSignTxAddress">Address</label>
       <input type="text" id="osmosisSignTxAddress" />
       <label for="osmosisSignTxAmount">Amount (uOSMO)</label>
@@ -236,42 +237,26 @@
       <input type="text" id="osmosisSignTxResults" />
       <hr />
       <h5>Delegate</h5>
-      <div class="row">
-        <div class="column">
-          <label for="osmosisDelegateDelegatorAddress">Delegator Address</label>
-          <input type="text" id="osmosisDelegateDelegatorAddress" />
-        </div>
-        <div class="column">
-          <label for="osmosisDelegateValidatorAddress">Validator Address</label>
-          <input
-            type="text"
-            disabled
-            placeholder="osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n"
-            id="osmosisDelegateValidatorAddress"
-          />
-        </div>
-      </div>
+      <label for="osmosisDelegateValidatorAddress">Validator Address</label>
+      <input
+        type="text"
+        disabled
+        placeholder="osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n"
+        id="osmosisDelegateValidatorAddress"
+      />
       <label for="osmosisDelegateAmount">Amount (uOSMO)</label>
       <input type="text" placeholder="Ex: 10000000 = 1 full asset" id="osmosisDelegateAmount" />
       <button class="button button-outline" id="osmosisDelegate">Delegate</button>
       <input type="text" id="osmosisDelegateResults" />
       <hr />
       <h5>Undelegate</h5>
-      <div class="row">
-        <div class="column">
-          <label for="osmosisUndelegateDelegatorAddress">Delegator Address</label>
-          <input type="text" id="osmosisUndelegateDelegatorAddress" />
-        </div>
-        <div class="column">
-          <label for="osmosisUndelegateValidatorAddress">Validator Address</label>
-          <input
-            type="text"
-            disabled
-            placeholder="osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n"
-            id="osmosisUndelegateValidatorAddress"
-          />
-        </div>
-      </div>
+      <label for="osmosisUndelegateValidatorAddress">Validator Address</label>
+      <input
+        type="text"
+        disabled
+        placeholder="osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n"
+        id="osmosisUndelegateValidatorAddress"
+      />
       <label for="osmosisUndelegateAmount">Amount (uOSMO)</label>
       <input type="text" placeholder="Ex: 10000000 = 1 full asset" id="osmosisUndelegateAmount" />
       <button class="button button-outline" id="osmosisUndelegate">Undelegate</button>
@@ -281,7 +266,7 @@
       <hr />
       <h5>IBC Withdrawal</h5>
       <hr />
-      <h5>LP Add</h5>
+      <h5>Add Liquidity</h5>
       <hr />
       <h5>LP Stake</h5>
     </div>
@@ -291,6 +276,7 @@
       <button class="button button-outline" id="ethAddr">Address</button>
       <button class="button button-outline" id="ethTx">Tx</button>
       <button class="button button-outline" id="ethSign">Sign</button>
+      <button class="button button-outline" id="ethSend">Send</button>
       <button class="button button-outline" id="ethVerify">Verify</button>
       <align ="right"><button class="button button-outline" id="ethEIP1559">EIP-1559?</button></align>
       <input type="text" id="ethResults" />
