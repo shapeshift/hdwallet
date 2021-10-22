@@ -1566,16 +1566,11 @@ $ethSend.on("click", async (e) => {
       coin: "Ethereum",
       accountIdx: 0,
     })[0];
-    let result = await wallet.ethSendTx({
-      from: "0x4E54209A381CD57D19EafdfaD1BAbD1E51De9fdc",
-      to: "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
-      value: "1000000",
-      gas: "300000",
-      gasPrice: "69",
-      data: "",
-      nonce: "69",
-    } as core.ETHSendTx);
-    $ethResults.val(result.address + ", " + result.signature);
+    let result = ethEIP1559Selected
+      ? await wallet.ethSendTx(ethTx1559 as core.ETHSendTx)
+      : await wallet.ethSendTx(ethTx as core.ETHSendTx);
+    console.log("Result: ", result)
+    $ethResults.val(result.hash);
   } else {
     let label = await wallet.getLabel();
     $ethResults.val(label + " does not support ETH");

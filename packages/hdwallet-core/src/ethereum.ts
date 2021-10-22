@@ -91,6 +91,10 @@ export interface ETHSendTx {
   exchangeType?: ExchangeType;
 }
 
+export interface ETHTxHash {
+  hash: string;
+}
+
 export interface ETHSignedTx {
   /** uint32 */
   v: number;
@@ -163,7 +167,7 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
 
   ethGetAddress(msg: ETHGetAddress): Promise<string | null>;
   ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx | null>;
-  ethSendTx?(msg: ETHSendTx): Promise<ETHSignedTx | null>;
+  ethSendTx?(msg: ETHSendTx): Promise<ETHTxHash | null>;
   ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage | null>;
   ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean | null>;
 }

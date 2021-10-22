@@ -214,7 +214,7 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
     return eth.ethSignTx(msg, this.ethereum, await this.ethGetAddress(this.ethereum));
   }
 
-  public async ethSendTx(msg: core.ETHSendTx): Promise<core.ETHSignedTx> {
+  public async ethSendTx(msg: core.ETHSendTx): Promise<core.ETHTxHash> {
     return eth.ethSendTx(msg, this.ethereum, await this.ethGetAddress(this.ethereum));
   }
 
