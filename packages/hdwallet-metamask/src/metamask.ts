@@ -60,8 +60,7 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   ethAddress?: string;
   ethereum = window.ethereum;
 
-  constructor() {
-  }
+  constructor() {}
 
   async getFeatures(): Promise<Record<string, any>> {
     return {};
@@ -106,6 +105,14 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
 
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return this.info.hasNativeShapeShift(srcCoin, dstCoin);
+  }
+
+  public supportsOfflineSigning(): boolean {
+    return false;
+  }
+
+  public supportsBroadcast(): boolean {
+    return true;
   }
 
   public async clearSession(): Promise<void> {
@@ -271,6 +278,14 @@ export class MetaMaskHDWalletInfo implements core.HDWalletInfo, core.ETHWalletIn
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     // It doesn't... yet?
     return false;
+  }
+
+  public supportsOfflineSigning(): boolean {
+    return false;
+  }
+
+  public supportsBroadcast(): boolean {
+    return true;
   }
 
   public describePath(msg: core.DescribePath): core.PathDescription {

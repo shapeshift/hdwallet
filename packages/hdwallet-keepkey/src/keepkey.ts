@@ -50,7 +50,11 @@ function describeETHPath(path: core.BIP32Path): core.PathDescription {
   };
 }
 
-function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: core.BTCInputScriptType): core.PathDescription {
+function describeUTXOPath(
+  path: core.BIP32Path,
+  coin: core.Coin,
+  scriptType?: core.BTCInputScriptType
+): core.PathDescription {
   let pathStr = core.addressNListToBIP32(path);
   let unknown: core.PathDescription = {
     verbose: pathStr,
@@ -80,11 +84,15 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
 
   let wholeAccount = path.length === 3;
 
-  let script = scriptType ? ({
-    [core.BTCInputScriptType.SpendAddress]: ["Legacy"],
-    [core.BTCInputScriptType.SpendP2SHWitness]: [],
-    [core.BTCInputScriptType.SpendWitness]: ["Segwit Native"],
-  } as Partial<Record<core.BTCInputScriptType, string[]>>)[scriptType] ?? [] : [];
+  let script = scriptType
+    ? (
+        {
+          [core.BTCInputScriptType.SpendAddress]: ["Legacy"],
+          [core.BTCInputScriptType.SpendP2SHWitness]: [],
+          [core.BTCInputScriptType.SpendWitness]: ["Segwit Native"],
+        } as Partial<Record<core.BTCInputScriptType, string[]>>
+      )[scriptType] ?? []
+    : [];
 
   let isPrefork = false;
   const slip44 = core.slip44ByCoin(coin);
@@ -100,7 +108,10 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
         return unknown;
       }
       case "BitcoinSV": {
-        if (path[1] === 0x80000000 + core.slip44ByCoin("Bitcoin") || path[1] === 0x80000000 + core.slip44ByCoin("BitcoinCash")) {
+        if (
+          path[1] === 0x80000000 + core.slip44ByCoin("Bitcoin") ||
+          path[1] === 0x80000000 + core.slip44ByCoin("BitcoinCash")
+        ) {
           isPrefork = true;
           break;
         }
@@ -359,7 +370,8 @@ export class KeepKeyHDWalletInfo
     core.BinanceWalletInfo,
     core.RippleWalletInfo,
     core.EosWalletInfo,
-    core.ThorchainWalletInfo {
+    core.ThorchainWalletInfo
+{
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
   readonly _supportsCosmosInfo = true;
@@ -458,6 +470,14 @@ export class KeepKeyHDWalletInfo
 
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return true;
+  }
+
+  public supportsOfflineSigning(): boolean {
+    return true;
+  }
+
+  public supportsBroadcast(): boolean {
+    return false;
   }
 
   public describePath(msg: core.DescribePath): core.PathDescription {
@@ -672,8 +692,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   public async isLocked(): Promise<boolean> {
     const features = await this.getFeatures();
     if (features.pinProtection && !features.pinCached) return true;
-    if (features.passphraseProtection && !features.passphraseCached)
-      return true;
+    if (features.passphraseProtection && !features.passphraseCached) return true;
     return false;
   }
 
@@ -790,6 +809,14 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
 
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return true;
+  }
+
+  public supportsOfflineSigning(): boolean {
+    return true;
+  }
+
+  public supportsBroadcast(): boolean {
+    return false;
   }
 
   public async sendPin(pin: string): Promise<void> {
@@ -910,7 +937,9 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   // This method encrypts if encrypt is true and decrypts if false, the confirm paramater determines wether
   // the user is prompted on the device. See EncryptKeyValue() and DecryptKeyValue() for convenience methods
   // NOTE: If the length of the value in bytes is not divisible by 16 it will be zero padded
-  public async cipherKeyValue(v: Messages.CipherKeyValue.AsObject & Required<Pick<Messages.CipherKeyValue.AsObject, "key">>): Promise<string | Uint8Array> {
+  public async cipherKeyValue(
+    v: Messages.CipherKeyValue.AsObject & Required<Pick<Messages.CipherKeyValue.AsObject, "key">>
+  ): Promise<string | Uint8Array> {
     // if(val.length % 16 !== 0) val = val.concat() TODO THIS
     const cipherKeyValue = new Messages.CipherKeyValue();
     cipherKeyValue.setAddressNList(v.addressNList);
@@ -938,7 +967,9 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
 
   // DecryptKeyValue is a convenience method around decrypting with CipherKeyValue().
   // For more granular control of the process use CipherKeyValue()
-  public async decryptKeyValue(v:  Messages.CipherKeyValue.AsObject & Required<Pick<Messages.CipherKeyValue.AsObject, "key">>): Promise<string | Uint8Array> {
+  public async decryptKeyValue(
+    v: Messages.CipherKeyValue.AsObject & Required<Pick<Messages.CipherKeyValue.AsObject, "key">>
+  ): Promise<string | Uint8Array> {
     return this.cipherKeyValue(v);
   }
 
@@ -1015,7 +1046,10 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   // GetNumCoins returns the number of coins supported by the device regardless of if the hanve funds.
   public async getNumCoins(): Promise<number> {
     const getCoinTable = new Messages.GetCoinTable();
-    const response = (await this.transport.call(Messages.MessageType.MESSAGETYPE_GETCOINTABLE, getCoinTable)) as core.Event;
+    const response = (await this.transport.call(
+      Messages.MessageType.MESSAGETYPE_GETCOINTABLE,
+      getCoinTable
+    )) as core.Event;
     if (response.message_type === core.Events.FAILURE) throw response;
     return core.mustBeDefined((core.mustBeDefined(response.proto) as Messages.CoinTable).getNumCoins());
   }
@@ -1026,7 +1060,10 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     const getCoinTable = new Messages.GetCoinTable();
     getCoinTable.setStart(start);
     getCoinTable.setEnd(end);
-    const response = (await this.transport.call(Messages.MessageType.MESSAGETYPE_GETCOINTABLE, getCoinTable)) as core.Event;
+    const response = (await this.transport.call(
+      Messages.MessageType.MESSAGETYPE_GETCOINTABLE,
+      getCoinTable
+    )) as core.Event;
     if (response.message_type === core.Events.FAILURE) throw event;
     const coinTable = response.message as Messages.CoinTable.AsObject;
     return coinTable.tableList;
@@ -1116,7 +1153,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
 
   public async ethSupportsEIP1559(): Promise<boolean> {
     // EIP1559 support starts in v7.2.1
-    return semver.gte(await this.getFirmwareVersion(), "v7.2.1")
+    return semver.gte(await this.getFirmwareVersion(), "v7.2.1");
   }
 
   public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
