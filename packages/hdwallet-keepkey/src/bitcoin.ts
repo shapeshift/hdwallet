@@ -2,6 +2,7 @@ import * as Exchange from "@keepkey/device-protocol/lib/exchange_pb";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as bitcoinjs from "@shapeshiftoss/bitcoinjs-lib";
 
 import { Transport } from "./transport";
 import { toUTF8Array, translateInputScriptType, translateOutputScriptType } from "./utils";
@@ -134,15 +135,37 @@ function prepareSignTx(
     )
       return;
 
-    if (!inputTx.tx) throw new Error("non-segwit inputs must have the associated prev tx");
+    const prevTx = ((): core.BitcoinTx => {
+      if (inputTx.tx) return inputTx.tx;
+      if (!inputTx.hex) throw new Error("non-segwit inputs must have the associated prev tx");
+      const tx = bitcoinjs.Transaction.fromHex(inputTx.hex);
+      return {
+        version: tx.version,
+        locktime: tx.locktime,
+        vin: tx.ins.map((input) => ({
+          txid: Buffer.from(input.hash).reverse().toString("hex"),
+          vout: input.index,
+          scriptSig: {
+            hex: input.script.toString("hex"),
+          },
+          sequence: input.sequence,
+        })),
+        vout: tx.outs.map((output, i) => ({
+          value: String(output.value),
+          scriptPubKey: {
+            hex: output.script.toString("hex"),
+          },
+        })),
+      };
+    })();
 
     const tx = new Types.TransactionType();
-    tx.setVersion(inputTx.tx.version);
-    tx.setLockTime(inputTx.tx.locktime);
-    tx.setInputsCnt(inputTx.tx.vin.length);
-    tx.setOutputsCnt(inputTx.tx.vout.length);
+    tx.setVersion(prevTx.version);
+    tx.setLockTime(prevTx.locktime);
+    tx.setInputsCnt(prevTx.vin.length);
+    tx.setOutputsCnt(prevTx.vout.length);
 
-    inputTx.tx.vin.forEach((vin, i) => {
+    prevTx.vin.forEach((vin, i) => {
       const txInput = new Types.TxInputType();
       if ("coinbase" in vin) {
         txInput.setPrevHash(core.fromHexString("\0".repeat(64)));
@@ -158,7 +181,7 @@ function prepareSignTx(
       tx.addInputs(txInput, i);
     });
 
-    inputTx.tx.vout.forEach((vout, i) => {
+    prevTx.vout.forEach((vout, i) => {
       const txOutput = new Types.TxOutputBinType();
       txOutput.setAmount(core.satsFromStr(vout.value));
       txOutput.setScriptPubkey(core.fromHexString(vout.scriptPubKey.hex));
@@ -166,17 +189,17 @@ function prepareSignTx(
     });
 
     if (coin === "Dash") {
-      let dip2_type: number = inputTx.tx.type || 0;
+      let dip2_type: number = prevTx.type || 0;
       // DIP2 Special Tx with payload
-      if (inputTx.tx.version === 3 && dip2_type !== 0) {
-        if (!inputTx.tx.extraPayload) throw new Error("Payload missing in DIP2 transaction");
-        tx.setExtraData(core.fromHexString(packVarint(inputTx.tx.extraPayload.length * 2) + inputTx.tx.extraPayload));
+      if (prevTx.version === 3 && dip2_type !== 0) {
+        if (!prevTx.extraPayload) throw new Error("Payload missing in DIP2 transaction");
+        tx.setExtraData(core.fromHexString(packVarint(prevTx.extraPayload.length * 2) + prevTx.extraPayload));
       }
 
       // Trezor (and therefore KeepKey) firmware doesn't understand the
       // split of version and type, so let's mimic the old serialization
       // format
-      tx.setVersion(inputTx.tx.version | (dip2_type << 16));
+      tx.setVersion(prevTx.version | (dip2_type << 16));
     }
 
     txmap[inputTx.txid] = tx;
@@ -281,14 +304,14 @@ export async function btcSignTx(
 
     if (msg.opReturnData) {
       if (msg.opReturnData.length > 80) {
-        throw new Error("OP_RETURN output character count is too damn high.")
+        throw new Error("OP_RETURN output character count is too damn high.");
       }
       msg.outputs.push({
         addressType: core.BTCOutputAddressType.Spend,
-        opReturnData: Buffer.from(msg.opReturnData).toString('base64'),
+        opReturnData: Buffer.from(msg.opReturnData).toString("base64"),
         amount: "0",
         isChange: false,
-      })
+      });
     }
 
     // If this is a THORChain transaction, validate the vout ordering
