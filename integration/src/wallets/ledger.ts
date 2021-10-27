@@ -6,7 +6,7 @@ export class MockTransport extends ledger.LedgerTransport {
   currentApp: string;
 
   constructor(keyring: core.Keyring, type: string) {
-    super(undefined, keyring);
+    super(core.untouchable("actual ledger transport unavailable"), keyring);
     this.currentApp = type;
     this.populate();
   }
@@ -15,7 +15,11 @@ export class MockTransport extends ledger.LedgerTransport {
     return "mock#1";
   }
 
-  public call(coin: string | null, method: string, ...args: any[]): Promise<ledger.LedgerResponse> {
+  public async call<T extends ledger.LedgerTransportCoinType, U extends ledger.LedgerTransportMethodName<T>>(
+    coin: T,
+    method: U,
+    ...args: Parameters<ledger.LedgerTransportMethod<T, U>>
+  ): Promise<ledger.LedgerResponse<T, U>> {
     let key = JSON.stringify({ coin: coin, method: method, args: args });
 
     if (!this.memoized.has(key)) {

@@ -173,5 +173,9 @@ const recoverableSignatureStatic = {
       return checkType(UncompressedPoint, Buffer.from(ethRecovered.slice(2), "hex"));
     },
 };
-const recoverableSignature = Object.assign(recoverableSignatureBase, signatureStatic, recoverableSignatureStatic);
+const recoverableSignature = Object.assign(
+  recoverableSignatureBase,
+  signatureStatic as Omit<typeof signatureStatic, keyof typeof recoverableSignatureStatic>,
+  recoverableSignatureStatic
+);
 export const RecoverableSignature: typeof recoverableSignature = recoverableSignature;

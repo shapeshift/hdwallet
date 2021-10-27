@@ -72,7 +72,7 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
 
     async secretSignTx(msg: core.SecretSignTx): Promise<any | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        const keyPair = util.getKeyPair(this.#seed, msg.addressNList, "secret");
+        const keyPair = util.getKeyPair(core.mustBeDefined(this.#seed), msg.addressNList, "secret");
         const adapter = new Isolation.Adapters.Cosmos(keyPair);
         const result = await txBuilder.sign(msg.tx, adapter, String(msg.sequence), String(msg.account_number), msg.chain_id);
         return txBuilder.createSignedTx(msg.tx, result);

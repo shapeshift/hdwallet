@@ -21,10 +21,6 @@ export function ethSupportsNativeShapeShift(): boolean {
   return true;
 }
 
-export async function ethSupportsEIP1559(): Promise<boolean> {
-  return await this.ethSupportsEIP1559();
-}
-
 export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
   const slip44 = core.slip44ByCoin(msg.coin);
   if (slip44 === undefined) return [];
@@ -51,7 +47,6 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
     est.setGasLimit(core.arrayify(msg.gasLimit));
     if (msg.gasPrice) {
       est.setGasPrice(core.arrayify(msg.gasPrice));
-      est.setType(core.ETHTransactionType.ETH_TX_TYPE_LEGACY);
     }
     if (msg.maxFeePerGas) {
       est.setMaxFeePerGas(core.arrayify(msg.maxFeePerGas));
@@ -158,7 +153,7 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
     const r = "0x" + core.toHexString(response.getSignatureR_asU8());
     const s = "0x" + core.toHexString(response.getSignatureS_asU8());
     if (!response.hasSignatureV()) throw new Error("could not get v");
-    const v = response.getSignatureV();
+    const v = core.mustBeDefined(response.getSignatureV());
     const v2 = "0x" + v.toString(16);
 
     const common = new Common({ chain: "mainnet", hardfork: "london" });

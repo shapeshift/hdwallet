@@ -425,7 +425,7 @@ export class KeepKeyHDWalletInfo
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {
-    return await Eth.ethSupportsEIP1559();
+    return true;
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {

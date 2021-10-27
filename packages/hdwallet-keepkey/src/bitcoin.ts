@@ -274,6 +274,7 @@ export async function btcSignTx(
     // Make a copy of the input parameter so as to not mutate the caller's data.
     // Unfreezing a recursively-frozen object is nontrivial, so we leverage an existing package
     const msg = thaw(msgIn);
+    msg.outputs = thaw(msgIn.outputs);
 
     await ensureCoinSupport(wallet, msg.coin);
 
@@ -573,7 +574,7 @@ export function btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
     [core.BTCInputScriptType.SpendAddress]: 0x80000000 + 44,
     [core.BTCInputScriptType.SpendP2SHWitness]: 0x80000000 + 49,
     [core.BTCInputScriptType.SpendWitness]: 0x80000000 + 84,
-  } as const;
+  } as Partial<Record<core.BTCInputScriptType, number>>;
   if (purposeForScriptType[account0.scriptType] !== purpose) return false;
 
   // Coin must be hardened

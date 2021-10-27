@@ -94,9 +94,9 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
 
         const decoded = ethers.utils.parseTransaction(result);
         return {
-          v: decoded.v,
-          r: decoded.r,
-          s: decoded.s,
+          v: core.mustBeDefined(decoded.v),
+          r: core.mustBeDefined(decoded.r),
+          s: core.mustBeDefined(decoded.s),
           serialized: result,
         };
       });

@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import Common from "@ethereumjs/common";
 import EthereumTx from "ethereumjs-tx";
-import { Transaction} from "@ethereumjs/tx";
+import { Transaction } from "@ethereumjs/tx";
 import * as ethereumUtil from "ethereumjs-util";
 
 import { LedgerTransport } from "./transport";
@@ -47,17 +47,16 @@ export async function ethGetPublicKeys(
     } = res1;
     const parentPublicKey = compressPublicKey(Buffer.from(parentPublicKeyHex, "hex"));
     const parentFingerprint = new DataView(
-      ethereumUtil.ripemd160(ethereumUtil.sha256(parentPublicKey), false)
+      ethereumUtil.ripemd160(ethereumUtil.sha256(parentPublicKey), false).buffer
     ).getUint32(0);
-
     const res2 = await transport.call("Eth", "getAddress", bip32path, /* display */ false, /* chain code */ true);
     handleError(res2, transport, "Unable to obtain public key from device.");
 
     const {
-      payload: { publicKeyHex, chainCodeHex },
+      payload: { publicKey: publicKeyHex, chainCode: chainCodeHex },
     } = res2;
     const publicKey = compressPublicKey(Buffer.from(publicKeyHex, "hex"));
-    const chainCode = Buffer.from(chainCodeHex, "hex");
+    const chainCode = Buffer.from(core.mustBeDefined(chainCodeHex), "hex");
 
     const coinDetails = networksUtil[core.mustBeDefined(core.slip44ByCoin(coin))];
     const childNum: number = addressNList[addressNList.length - 1];
@@ -151,13 +150,13 @@ export async function ethSignMessage(
 
   let { v, r, s } = res.payload;
   v = v - 27;
-  v = v.toString(16).padStart(2, "0");
+  const vStr = v.toString(16).padStart(2, "0");
   const addressRes = await transport.call("Eth", "getAddress", bip32path, false);
   handleError(addressRes, transport, "Unable to obtain ETH address from Ledger.");
 
   return {
     address: addressRes.payload.address,
-    signature: "0x" + r + s + v,
+    signature: "0x" + r + s + vStr,
   };
 }
 

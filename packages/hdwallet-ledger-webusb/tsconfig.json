@@ -8,7 +8,6 @@
     "src/**/*",
     "../../node_modules/@types/w3c-web-usb/index.d.ts"
   ],
-  "files": ["./src/modules.d.ts"],
   "exclude": ["node_modules", "dist"],
   "references": [{ "path": "../hdwallet-core" }, { "path": "../hdwallet-ledger" }]
 }

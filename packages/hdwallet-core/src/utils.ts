@@ -180,7 +180,7 @@ export function mustBeDefined<T>(x: T): NonNullable<T> {
 // in production.)
 export function untouchable(message: string): any {
   const out = new Proxy({}, new Proxy({}, { get(_, p) {
-    return (_, p2) => {
+    return (_: any, p2: any) => {
       if (p === "get" && p2 === "valueOf") return () => out;
       throw new Error(`${String(p)}(${String(p2)}): ${message}`);
     };
