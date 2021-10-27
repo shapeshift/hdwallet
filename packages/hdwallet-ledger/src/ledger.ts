@@ -85,11 +85,15 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
 
   let wholeAccount = path.length === 3;
 
-  let script = (scriptType ? ({
-    [core.BTCInputScriptType.SpendAddress]: " (Legacy)",
-    [core.BTCInputScriptType.SpendP2SHWitness]: "",
-    [core.BTCInputScriptType.SpendWitness]: " (Segwit Native)",
-  } as Partial<Record<core.BTCInputScriptType, string>>)[scriptType] : undefined);
+  let script = scriptType
+    ? (
+        {
+          [core.BTCInputScriptType.SpendAddress]: " (Legacy)",
+          [core.BTCInputScriptType.SpendP2SHWitness]: "",
+          [core.BTCInputScriptType.SpendWitness]: " (Segwit Native)",
+        } as Partial<Record<core.BTCInputScriptType, string>>
+      )[scriptType]
+    : undefined;
 
   switch (coin) {
     case "Bitcoin":
@@ -197,6 +201,14 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
   }
 
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
+    return false;
+  }
+
+  public supportsOfflineSigning(): boolean {
+    return true;
+  }
+
+  public supportsBroadcast(): boolean {
     return false;
   }
 
@@ -431,6 +443,14 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
+    return false;
+  }
+
+  public supportsOfflineSigning(): boolean {
+    return true;
+  }
+
+  public supportsBroadcast(): boolean {
     return false;
   }
 
