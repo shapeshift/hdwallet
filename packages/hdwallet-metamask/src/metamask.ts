@@ -57,10 +57,12 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   transport: core.Transport = new MetaMaskTransport(new core.Keyring());
 
   info: MetaMaskHDWalletInfo & core.HDWalletInfo;
-  ethAddress?: string;
+  ethAddress?: string | null;
   ethereum = window.ethereum;
 
-  constructor() {}
+  constructor() {
+    this.info = new MetaMaskHDWalletInfo();
+  }
 
   async getFeatures(): Promise<Record<string, any>> {
     return {};
@@ -173,7 +175,7 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
 
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
     // Ethereum public keys are not exposed by the RPC API
-    return null;
+    return [];
   }
 
   public async isInitialized(): Promise<boolean> {
@@ -213,23 +215,31 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
       return this.ethAddress;
     }
     const address = await eth.ethGetAddress(this.ethereum);
-    this.ethAddress = address;
-    return address;
+    if (address) {
+      this.ethAddress = address;
+      return address;
+    } else {
+      this.ethAddress = null;
+      return null;
+    }
   }
 
-  public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
-    return eth.ethSignTx(msg, this.ethereum, await this.ethGetAddress(this.ethereum));
+  public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {
+    const address = await this.ethGetAddress(this.ethereum);
+    return address ? eth.ethSignTx(msg, this.ethereum, address) : null;
   }
 
-  public async ethSendTx(msg: core.ETHSendTx): Promise<core.ETHTxHash> {
-    return eth.ethSendTx(msg, this.ethereum, await this.ethGetAddress(this.ethereum));
+  public async ethSendTx(msg: core.ETHSignTx): Promise<core.ETHTxHash | null> {
+    const address = await this.ethGetAddress(this.ethereum);
+    return address ? eth.ethSendTx(msg, this.ethereum, address) : null;
   }
 
-  public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
-    return eth.ethSignMessage(msg, this.ethereum, await this.ethGetAddress(this.ethereum));
+  public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
+    const address = await this.ethGetAddress(this.ethereum);
+    return address ? eth.ethSignMessage(msg, this.ethereum, address) : null;
   }
 
-  public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
+  public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean | null> {
     return eth.ethVerifyMessage(msg, this.ethereum);
   }
 

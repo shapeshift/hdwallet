@@ -1562,8 +1562,8 @@ $ethSend.on("click", async (e) => {
       accountIdx: 0,
     })[0];
     let result = ethEIP1559Selected
-      ? await wallet.ethSendTx(ethTx1559 as core.ETHSendTx)
-      : await wallet.ethSendTx(ethTx as core.ETHSendTx);
+      ? await wallet.ethSendTx(ethTx1559 as core.ETHSignTx)
+      : await wallet.ethSendTx(ethTx as core.ETHSignTx);
     console.log("Result: ", result)
     $ethResults.val(result.hash);
   } else {

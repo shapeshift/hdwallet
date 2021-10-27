@@ -62,35 +62,6 @@ export interface ETHSignTx {
   exchangeType?: ExchangeType;
 }
 
-export interface ETHSendTx {
-  /** bip32 path to sign the transaction from */
-  addressNList: BIP32Path;
-  /** big-endian hex, prefixed with '0x' */
-  nonce: string;
-  /** big-endian hex, prefixed with '0x' */
-  gasPrice?: string;
-  /** big-endian hex, prefixed with '0x' */
-  gasLimit: string;
-  /** EIP-1559 - The maximum total fee per gas the sender is willing to pay. <=256 bit unsigned big endian (in wei) */
-  maxFeePerGas?: string;
-  /** EIP-1559 - Maximum fee per gas the sender is willing to pay to miners. <=256 bit unsigned big endian (in wei) */
-  maxPriorityFeePerGas?: string;
-  /** address, with '0x' prefix */
-  to: string;
-  /** bip32 path for destination (device must `ethSupportsSecureTransfer()`) */
-  toAddressNList?: BIP32Path;
-  /** big-endian hex, prefixed with '0x' */
-  value: string;
-  /** prefixed with '0x' */
-  data: string;
-  /** mainnet: 1, ropsten: 3, kovan: 42 */
-  chainId: number;
-  /**
-   * Device must `ethSupportsNativeShapeShift()`
-   */
-  exchangeType?: ExchangeType;
-}
-
 export interface ETHTxHash {
   hash: string;
 }
@@ -167,7 +138,7 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
 
   ethGetAddress(msg: ETHGetAddress): Promise<string | null>;
   ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx | null>;
-  ethSendTx?(msg: ETHSendTx): Promise<ETHTxHash | null>;
+  ethSendTx?(msg: ETHSignTx): Promise<ETHTxHash | null>;
   ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage | null>;
   ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean | null>;
 }
