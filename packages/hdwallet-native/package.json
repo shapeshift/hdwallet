@@ -30,7 +30,7 @@
     "lodash": "^4.17.21",
     "node-fetch": "^2.6.1",
     "scrypt-js": "^3.0.1",
-    "tendermint-tx-builder": "^1.0.9",
+    "tendermint-tx-builder": "1.0.14",
     "tiny-secp256k1": "^1.1.6",
     "web-encoding": "^1.1.0"
   },
