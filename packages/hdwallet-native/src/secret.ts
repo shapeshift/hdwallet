@@ -4,7 +4,7 @@ import CryptoJS from "crypto-js";
 import * as txBuilder from "tendermint-tx-builder";
 
 import { NativeHDWalletBase } from "./native";
-import util from "./util";
+import * as util from "./util";
 import * as Isolation from "./crypto/isolation";
 
 export function MixinNativeSecretWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
@@ -42,14 +42,14 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
   return class MixinNativeSecretWallet extends Base {
     readonly _supportsSecret = true;
 
-    #seed: Isolation.Core.BIP32.Seed | undefined;
+    #masterKey: Isolation.Core.BIP32.Node | undefined;
 
-    async secretInitializeWallet(seed: Isolation.Core.BIP32.Seed): Promise<void> {
-      this.#seed = seed;
+    async secretInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
+      this.#masterKey = masterKey;
     }
 
     secretWipe(): void {
-      this.#seed = undefined;
+      this.#masterKey = undefined;
     }
 
     secretBech32ify(address: ArrayLike<number>, prefix: string): string {
@@ -65,15 +65,16 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
     }
 
     async secretGetAddress(msg: core.SecretGetAddress): Promise<string | null> {
-      return this.needsMnemonic(!!this.#seed, async () => {
-        return this.createSecretAddress(util.getKeyPair(this.#seed!, msg.addressNList, "secret").publicKey.toString("hex"));
+      return this.needsMnemonic(!!this.#masterKey, async () => {
+        const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "secret");
+        return this.createSecretAddress(keyPair.publicKey.toString("hex"));
       });
     }
 
     async secretSignTx(msg: core.SecretSignTx): Promise<any | null> {
-      return this.needsMnemonic(!!this.#seed, async () => {
-        const keyPair = util.getKeyPair(core.mustBeDefined(this.#seed), msg.addressNList, "secret");
-        const adapter = new Isolation.Adapters.Cosmos(keyPair);
+      return this.needsMnemonic(!!this.#masterKey, async () => {
+        const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "secret");
+        const adapter = await Isolation.Adapters.Cosmos.create(keyPair);
         const result = await txBuilder.sign(msg.tx, adapter, String(msg.sequence), String(msg.account_number), msg.chain_id);
         return txBuilder.createSignedTx(msg.tx, result);
       });

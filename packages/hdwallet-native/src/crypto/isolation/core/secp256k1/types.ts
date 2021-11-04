@@ -155,16 +155,17 @@ const recoverableSignatureStatic = {
     isLowRecoveryParam: (x: RecoverableSignature) => x.recoveryParam === 0 || x.recoveryParam === 1,
     isCanonical: (x: RecoverableSignature): boolean => Signature.isCanonical(x) && RecoverableSignature.isLowRecoveryParam(x),
     signCanonically: async (x: ECDSAKey, message: Message, counter?: Uint32): Promise<RecoverableSignature> => {
+        const publicKey = await x.publicKey;
         counter === undefined || Uint32.assert(counter);
         for (let i = counter; i === undefined || i < (counter ?? 0) + 128; i = (i ?? -1) + 1) {
             const sig = i === undefined ? await x.ecdsaSign(message) : await x.ecdsaSign(message, i);
             if (sig === undefined) break;
-            const recoverableSig = RecoverableSignature.fromSignature(sig, message, x.publicKey);
+            const recoverableSig = RecoverableSignature.fromSignature(sig, message, publicKey);
             //TODO: do integrated lowS correction
             if (RecoverableSignature.isCanonical(recoverableSig)) return recoverableSig;
         }
         // This is cryptographically impossible (2^-128 chance) if the key is implemented correctly.
-        throw new Error(`Unable to generate canonical recoverable signature with public key ${Buffer.from(x.publicKey).toString("hex")} over message ${Buffer.from(message).toString("hex")}; is your key implementation broken?`);
+        throw new Error(`Unable to generate canonical recoverable signature with public key ${Buffer.from(publicKey).toString("hex")} over message ${Buffer.from(message).toString("hex")}; is your key implementation broken?`);
     },
     recoverPublicKey: (x: RecoverableSignature, message: Message): CurvePoint => {
       // TODO: do this better

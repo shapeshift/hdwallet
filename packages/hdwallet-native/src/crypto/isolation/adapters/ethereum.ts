@@ -7,18 +7,26 @@ export class SignerAdapter extends ethers.Signer {
   protected readonly _isolatedKey: SecP256K1.ECDSAKey & SecP256K1.ECDHKey;
   readonly provider?: ethers.providers.Provider
 
-  constructor(isolatedKey: SecP256K1.ECDSAKey & SecP256K1.ECDHKey, provider?: ethers.providers.Provider) {
+  protected constructor(isolatedKey: SecP256K1.ECDSAKey & SecP256K1.ECDHKey, provider?: ethers.providers.Provider) {
     super();
     this._isolatedKey = isolatedKey;
     this.provider = provider;
   }
 
-  connect(provider: ethers.providers.Provider): SignerAdapter {
-    return new SignerAdapter(this._isolatedKey, provider);
+  static async create(isolatedKey: SecP256K1.ECDSAKey & SecP256K1.ECDHKey, provider?: ethers.providers.Provider): Promise<SignerAdapter> {
+    return new SignerAdapter(isolatedKey, provider)
+  }
+
+  // This throws (as allowed by ethers.Signer) to avoid having to return an object which is initialized asynchronously
+  // from a synchronous function. Because all the (other) methods on SignerAdapter are async, one could construct a
+  // wrapper that deferred its initialization and awaited it before calling through to a "real" method, but that's
+  // a lot of complexity just to implement this one method we don't actually use.
+  connect(_provider: ethers.providers.Provider): never {
+    throw new Error("changing providers on a SignerAdapter is unsupported")
   }
 
   async getAddress(): Promise<string> {
-    return ethers.utils.computeAddress(SecP256K1.UncompressedPoint.from(this._isolatedKey.publicKey));
+    return ethers.utils.computeAddress(SecP256K1.UncompressedPoint.from(await this._isolatedKey.publicKey));
   }
 
   async signDigest(digest: ethers.BytesLike): Promise<ethers.Signature> {

@@ -4,7 +4,7 @@ export * from "./interfaces";
 import { Path } from "./types";
 import { Node } from "./interfaces";
 
-export function derivePath<T extends Node>(node: T, path: Path): T {
+export async function derivePath<T extends Node>(node: T, path: Path): Promise<T> {
     // This logic is copied (almost) wholesale from the bip32 package.
     Path.assert(path);
 
@@ -14,15 +14,15 @@ export function derivePath<T extends Node>(node: T, path: Path): T {
     }
     const endIndex = splitPath.lastIndexOf("");
     if (endIndex >= 0) splitPath = splitPath.slice(0, endIndex);
-    return splitPath.reduce((prevHd, indexStr) => {
+    return await splitPath.reduce(async (prevHd, indexStr) => {
         let index;
         if (indexStr.slice(-1) === `'`) {
             index = parseInt(indexStr.slice(0, -1), 10);
-            return prevHd.derive(index + 0x80000000);
+            return (await prevHd).derive(index + 0x80000000);
         }
         else {
             index = parseInt(indexStr, 10);
-            return prevHd.derive(index);
+            return (await prevHd).derive(index);
         }
-    }, node);
+    }, Promise.resolve(node));
 }

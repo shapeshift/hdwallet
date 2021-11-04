@@ -4,7 +4,7 @@ import CryptoJS from "crypto-js";
 import * as txBuilder from "tendermint-tx-builder";
 
 import { NativeHDWalletBase } from "./native";
-import util from "./util";
+import * as util from "./util";
 import * as Isolation from "./crypto/isolation";
 
 const ATOM_CHAIN = "cosmoshub-4";
@@ -44,14 +44,14 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
   return class MixinNativeCosmosWallet extends Base {
     readonly _supportsCosmos = true;
 
-    #seed: Isolation.Core.BIP32.Seed | undefined;
+    #masterKey: Isolation.Core.BIP32.Node | undefined;
 
-    async cosmosInitializeWallet(seed: Isolation.Core.BIP32.Seed): Promise<void> {
-      this.#seed = seed;
+    async cosmosInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
+      this.#masterKey = masterKey;
     }
 
     cosmosWipe(): void {
-      this.#seed = undefined;
+      this.#masterKey = undefined;
     }
 
     cosmosBech32ify(address: ArrayLike<number>, prefix: string): string {
@@ -67,15 +67,16 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
     }
 
     async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string | null> {
-      return this.needsMnemonic(!!this.#seed, async () => {
-        return this.createCosmosAddress(util.getKeyPair(this.#seed!, msg.addressNList, "cosmos").publicKey.toString("hex"));
+      return this.needsMnemonic(!!this.#masterKey, async () => {
+        const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "cosmos");
+        return this.createCosmosAddress(keyPair.publicKey.toString("hex"));
       });
     }
 
     async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
-      return this.needsMnemonic(!!this.#seed, async () => {
-        const keyPair = util.getKeyPair(this.#seed!, msg.addressNList, "cosmos");
-        const adapter = new Isolation.Adapters.Cosmos(keyPair);
+      return this.needsMnemonic(!!this.#masterKey, async () => {
+        const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "cosmos");
+        const adapter = await Isolation.Adapters.Cosmos.create(keyPair);
         const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, ATOM_CHAIN);
 
         return txBuilder.createSignedTx(msg.tx, result);

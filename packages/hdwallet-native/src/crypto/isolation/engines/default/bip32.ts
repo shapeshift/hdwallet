@@ -12,20 +12,24 @@ import { ChainCode } from "../../core/bip32";
 export class Seed implements BIP32.Seed {
     readonly #seed: Buffer;
 
-    constructor(seed: Uint8Array) {
+    protected constructor(seed: Uint8Array) {
       this.#seed = safeBufferFrom(seed);
     }
 
-    toMasterKey(hmacKey?: string | Uint8Array): Node {
+    static async create(seed: Uint8Array): Promise<Seed> {
+        return new Seed(seed);
+    }
+
+    async toMasterKey(hmacKey?: string | Uint8Array): Promise<Node> {
         if (hmacKey !== undefined && typeof hmacKey !== "string" && !(hmacKey instanceof Uint8Array)) throw new Error("bad hmacKey type");
 
-        // AFIAK all BIP32 implementations use the "Bitcoin seed" string for this derivation, even if they aren't otherwise Bitcoin-related
+        // AFAIK all BIP32 implementations use the "Bitcoin seed" string for this derivation, even if they aren't otherwise Bitcoin-related
         hmacKey = hmacKey ?? "Bitcoin seed";
         if (typeof hmacKey === "string") hmacKey = new TextEncoder().encode(hmacKey.normalize("NFKD"));
         const I = safeBufferFrom(bip32crypto.hmacSHA512(safeBufferFrom(hmacKey), this.#seed));
         const IL = I.slice(0, 32);
         const IR = I.slice(32, 64);
-        return new Node(IL, IR);
+        return await Node.create(IL, IR);
     }
 }
 
@@ -34,11 +38,15 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
     readonly chainCode: Buffer & BIP32.ChainCode;
     #publicKey: SecP256K1.CompressedPoint | undefined;
 
-    constructor(privateKey: Uint8Array, chainCode: Uint8Array) {
+    protected constructor(privateKey: Uint8Array, chainCode: Uint8Array) {
         // We avoid handing the private key to any non-platform code -- including our type-checking machinery.
         if (privateKey.length !== 32) throw new Error("bad private key length");
         this.#privateKey = safeBufferFrom(privateKey) as Buffer & ByteArray<32>;
         this.chainCode = safeBufferFrom(checkType(BIP32.ChainCode, chainCode)) as Buffer & ChainCode;
+    }
+
+    static async create(privateKey: Uint8Array, chainCode: Uint8Array): Promise<Node> {
+        return new Node(privateKey, chainCode);
     }
 
     get publicKey() {
@@ -64,7 +72,7 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
         );
     }
 
-    derive(index: Uint32): this {
+    async derive(index: Uint32): Promise<this> {
         Uint32.assert(index);
 
         let serP = Buffer.alloc(37);

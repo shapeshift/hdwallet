@@ -39,15 +39,21 @@ function pbkdf2_sha512_singleblock(
 
 export class Mnemonic implements BIP39.Mnemonic {
     readonly #mnemonic: string;
-    constructor(mnemonic: string) {
+
+    protected constructor(mnemonic: string) {
         this.#mnemonic = mnemonic.normalize("NFKD");
     }
-    toSeed(passphrase?: string): BIP32.Seed {
+
+    static async create(mnemonic: string): Promise<Mnemonic> {
+        return new Mnemonic(mnemonic);
+    }
+
+    async toSeed(passphrase?: string): Promise<BIP32.Seed> {
         if (passphrase !== undefined && typeof passphrase !== "string") throw new Error("bad passphrase type");
 
         const mnemonic = this.#mnemonic;
         const salt = new TextEncoder().encode(`mnemonic${passphrase ?? ""}`.normalize("NFKD"));
 
-        return new BIP32.Seed(pbkdf2_sha512_singleblock(mnemonic, salt, 2048));
+        return await BIP32.Seed.create(pbkdf2_sha512_singleblock(mnemonic, salt, 2048));
     }
 }
