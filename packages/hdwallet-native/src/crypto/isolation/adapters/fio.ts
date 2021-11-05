@@ -33,8 +33,7 @@ export class ExternalSignerAdapter implements FIOExternalPrivateKey {
     }
 
     async sign(signBuf: Uint8Array): Promise<string> {
-        const signBufHash = Digest.Algorithms["sha256"](signBuf);
-        const sig = await SecP256K1.RecoverableSignature.signCanonically(this._isolatedKey, signBufHash);
+        const sig = await SecP256K1.RecoverableSignature.signCanonically(this._isolatedKey, "sha256", signBuf);
         const fioSigBuf = core.compatibleBufferConcat([Buffer.from([sig.recoveryParam + 4 + 27]), SecP256K1.RecoverableSignature.r(sig), SecP256K1.RecoverableSignature.s(sig)]);
         return `SIG_K1_${bs58FioEncode(fioSigBuf, "K1")}`;
     }

@@ -4,8 +4,8 @@ import * as ethers from "ethers"
 import { Literal, Partial, Object as Obj, Static, Union } from "funtypes";
 import * as tinyecc from "tiny-secp256k1";
 
-import { Digest } from "../digest";
-import { BigEndianInteger, ByteArray, Uint32, checkType, safeBufferFrom } from "../../types";
+import * as Digest from "../digest";
+import { BigEndianInteger, ByteArray, Uint32, checkType, safeBufferFrom, assertType } from "../../types";
 import { ECDSAKey } from "./interfaces";
 
 const fieldElementBase = BigEndianInteger(32).withConstraint(
@@ -87,7 +87,7 @@ const recoveryParamStatic = {};
 const recoveryParam = Object.assign(recoveryParamBase, recoveryParamStatic);
 export const RecoveryParam: typeof recoveryParam = recoveryParam;
 
-const messageWithPreimageBase = ByteArray(32).And(Digest());
+const messageWithPreimageBase = ByteArray(32).And(Digest.Digest());
 export type MessageWithPreimage = Static<typeof messageWithPreimageBase>;
 const messageWithPreimageStatic = {};
 const messageWithPreimage = Object.assign(messageWithPreimageBase, ByteArray, messageWithPreimageStatic);
@@ -115,10 +115,18 @@ const signatureStatic = {
     isLowR: (x: Signature): boolean => { return !FieldElement.isHigh(Signature.r(x)); },
     isLowS: (x: Signature): boolean => { return !FieldElement.isHigh(Signature.s(x)); },
     isCanonical: (x: Signature): boolean => { return Signature.isLowR(x) && Signature.isLowS(x); },
-    signCanonically: async (x: ECDSAKey, message: Message, counter?: Uint32): Promise<Signature> => {
+    signCanonically: async (x: ECDSAKey, digestAlgorithm: Digest.AlgorithmName<32> | null, message: Uint8Array, counter?: Uint32): Promise<Signature> => {
+        assertType(ByteArray(), message);
         counter === undefined || Uint32.assert(counter);
         for (let i = counter; i === undefined || i < (counter ?? 0) + 128; i = (i ?? -1) + 1) {
-            const sig = i === undefined ? await x.ecdsaSign(message) : await x.ecdsaSign(message, i);
+            const sig = await (async () => {
+              if (digestAlgorithm === null) {
+                assertType(ByteArray(32), message);
+                return i === undefined ? await x.ecdsaSign(digestAlgorithm, message) : await x.ecdsaSign(digestAlgorithm, message, i);
+              } else {
+                return i === undefined ? await x.ecdsaSign(digestAlgorithm, message) : await x.ecdsaSign(digestAlgorithm, message, i);
+              }
+            })();
             if (sig === undefined) break;
             //TODO: do integrated lowS correction
             if (Signature.isCanonical(sig)) return sig;
@@ -126,8 +134,9 @@ const signatureStatic = {
         // This is cryptographically impossible (2^-128 chance) if the key is implemented correctly.
         throw new Error(`Unable to generate canonical signature with public key ${x} over message ${message}; is your key implementation broken?`);
     },
-    verify: (x: Signature, message: Message, publicKey: CurvePoint): boolean => {
-        return tinyecc.verify(Buffer.from(message), Buffer.from(publicKey), Buffer.from(x));
+    verify: (x: Signature, digestAlgorithm: Digest.AlgorithmName<32> | null, message: Uint8Array, publicKey: CurvePoint): boolean => {
+        const msgOrDigest = digestAlgorithm === null ? checkType(ByteArray(32), message) : Digest.Algorithms[digestAlgorithm](checkType(ByteArray(), message));
+        return tinyecc.verify(Buffer.from(msgOrDigest), Buffer.from(publicKey), Buffer.from(x));
     },
 };
 const signature = Object.assign(signatureBase, ByteArray, signatureStatic);
@@ -143,34 +152,42 @@ const recoverableSignatureStatic = {
         out.recoveryParam = checkType(RecoveryParam, x[64]);
         return checkType(RecoverableSignature, out);
     },
-    fromSignature: (x: Signature, message: Message, publicKey: CurvePoint): RecoverableSignature => {
-        if (RecoverableSignature.test(x)) return x;
+    fromSignature: (x: Signature, digestAlgorithm: Digest.AlgorithmName<32> | null, message: Uint8Array, publicKey: CurvePoint): RecoverableSignature => {
         const out = Buffer.from(x) as Uint8Array as RecoverableSignature;
         for (out.recoveryParam = 0; out.recoveryParam < 4; out.recoveryParam++) {
-            if (!CurvePoint.equal(publicKey, RecoverableSignature.recoverPublicKey(out, message))) continue;
+            if (!CurvePoint.equal(publicKey, RecoverableSignature.recoverPublicKey(out, digestAlgorithm, message))) continue;
             return checkType(RecoverableSignature, out);
         }
-        throw new Error(`couldn't find recovery parameter producing public key ${publicKey} for signature ${x} over message ${message}`);
+        throw new Error(`couldn't find recovery parameter producing public key ${publicKey} for signature ${x} over message ${message}${digestAlgorithm !== null ? `using digest algorithm ${digestAlgorithm}` : ""}`);
     },
     isLowRecoveryParam: (x: RecoverableSignature) => x.recoveryParam === 0 || x.recoveryParam === 1,
     isCanonical: (x: RecoverableSignature): boolean => Signature.isCanonical(x) && RecoverableSignature.isLowRecoveryParam(x),
-    signCanonically: async (x: ECDSAKey, message: Message, counter?: Uint32): Promise<RecoverableSignature> => {
+    signCanonically: async (x: ECDSAKey, digestAlgorithm: Digest.AlgorithmName<32> | null, message: Uint8Array, counter?: Uint32): Promise<RecoverableSignature> => {
         const publicKey = await x.publicKey;
+        assertType(ByteArray(), message);
         counter === undefined || Uint32.assert(counter);
         for (let i = counter; i === undefined || i < (counter ?? 0) + 128; i = (i ?? -1) + 1) {
-            const sig = i === undefined ? await x.ecdsaSign(message) : await x.ecdsaSign(message, i);
+            const sig = await (async () => {
+                if (digestAlgorithm === null) {
+                  assertType(ByteArray(32), message);
+                  return i === undefined ? await x.ecdsaSign(digestAlgorithm, message) : await x.ecdsaSign(digestAlgorithm, message, i);
+                } else {
+                  return i === undefined ? await x.ecdsaSign(digestAlgorithm, message) : await x.ecdsaSign(digestAlgorithm, message, i);
+                }
+              })();
             if (sig === undefined) break;
-            const recoverableSig = RecoverableSignature.fromSignature(sig, message, publicKey);
+            const recoverableSig = RecoverableSignature.fromSignature(sig, digestAlgorithm, message, publicKey);
             //TODO: do integrated lowS correction
             if (RecoverableSignature.isCanonical(recoverableSig)) return recoverableSig;
         }
         // This is cryptographically impossible (2^-128 chance) if the key is implemented correctly.
         throw new Error(`Unable to generate canonical recoverable signature with public key ${Buffer.from(publicKey).toString("hex")} over message ${Buffer.from(message).toString("hex")}; is your key implementation broken?`);
     },
-    recoverPublicKey: (x: RecoverableSignature, message: Message): CurvePoint => {
+    recoverPublicKey: (x: RecoverableSignature, digestAlgorithm: Digest.AlgorithmName<32> | null, message: Uint8Array): CurvePoint => {
       // TODO: do this better
+      const msgOrDigest = digestAlgorithm === null ? checkType(ByteArray(32), message) : Digest.Algorithms[digestAlgorithm](checkType(ByteArray(), message));
       const ethSigBytes = core.compatibleBufferConcat([x, Buffer.from([x.recoveryParam])]);
-      const ethRecovered = ethers.utils.recoverPublicKey(message, ethers.utils.splitSignature(ethSigBytes));
+      const ethRecovered = ethers.utils.recoverPublicKey(msgOrDigest, ethers.utils.splitSignature(ethSigBytes));
       return checkType(UncompressedPoint, Buffer.from(ethRecovered.slice(2), "hex"));
     },
 };

@@ -54,20 +54,24 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
         return this.#publicKey;
     }
 
-    async ecdsaSign(msg: SecP256K1.Message, counter?: Uint32): Promise<SecP256K1.RecoverableSignature> {
-        SecP256K1.Message.assert(msg);
+    async ecdsaSign(digestAlgorithm: null, msg: ByteArray<32>, counter?: Uint32): Promise<SecP256K1.RecoverableSignature>
+    async ecdsaSign(digestAlgorithm: Digest.AlgorithmName<32>, msg: Uint8Array, counter?: Uint32): Promise<SecP256K1.RecoverableSignature>
+    async ecdsaSign(digestAlgorithm: Digest.AlgorithmName<32> | null, msg: Uint8Array, counter?: Uint32): Promise<SecP256K1.RecoverableSignature> {
         counter === undefined || Uint32.assert(counter);
+        digestAlgorithm === null || Digest.AlgorithmName(32).assert(digestAlgorithm);
 
         // When running tests, this will keep us aware of any codepaths that don't pass in the preimage
-        if (typeof expect === "function") expect(SecP256K1.MessageWithPreimage.test(msg)).toBeTruthy();
+        if (typeof expect === "function") expect(digestAlgorithm).not.toBeNull();
 
+        const msgOrDigest = digestAlgorithm === null ? checkType(ByteArray(32), msg) : Digest.Algorithms[digestAlgorithm](checkType(ByteArray(), msg));
         const entropy = (counter === undefined ? undefined : Buffer.alloc(32));
         entropy?.writeUInt32BE(counter ?? 0, 24);
         return SecP256K1.RecoverableSignature.fromSignature(
             checkType(SecP256K1.Signature, (tinyecc as typeof tinyecc & {
                 signWithEntropy: (message: Buffer, privateKey: Buffer, entropy?: Buffer) => Buffer,
-            }).signWithEntropy(Buffer.from(msg), this.#privateKey, entropy)),
-            msg,
+            }).signWithEntropy(Buffer.from(msgOrDigest), this.#privateKey, entropy)),
+            null,
+            msgOrDigest,
             this.publicKey,
         );
     }

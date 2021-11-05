@@ -1,5 +1,5 @@
 import { ByteArray, Uint32 } from "../../types";
-import { CurvePoint, Message, RecoverableSignature, Signature } from "./types";
+import { CurvePoint, RecoverableSignature, Signature } from "./types";
 import * as Digest from "../digest";
 
 export interface ECDSAKey {
@@ -12,13 +12,17 @@ export interface ECDSAKey {
     // This can be used, for example, to find a signature whose r-value does not have the MSB set (i.e. a lowR signature),
     // which can be encoded in DER format with one less byte. If an implementation does not support the use of the counter
     // value, it MUST return undefined rather than perform a signing operation which ignores it.
-    ecdsaSign(message: Message): Promise<NonNullable<Signature>>;
-    ecdsaSign(message: Message, counter: Uint32): Promise<NonNullable<Signature> | undefined>;
+    ecdsaSign(digestAlgorithm: null, message: ByteArray<32>): Promise<NonNullable<Signature>>;
+    ecdsaSign(digestAlgorithm: null, message: ByteArray<32>, counter: Uint32): Promise<NonNullable<Signature> | undefined>;
+    ecdsaSign(digestAlgorithm: Digest.AlgorithmName<32>, message: Uint8Array): Promise<NonNullable<Signature>>;
+    ecdsaSign(digestAlgorithm: Digest.AlgorithmName<32>, message: Uint8Array, counter: Uint32): Promise<NonNullable<Signature> | undefined>;
 }
 
 export interface ECDSARecoverableKey extends ECDSAKey {
-    ecdsaSign(message: Message): Promise<NonNullable<RecoverableSignature>>;
-    ecdsaSign(message: Message, counter: Uint32): Promise<NonNullable<RecoverableSignature> | undefined>;
+    ecdsaSign(digestAlgorithm: null, message: ByteArray<32>): Promise<NonNullable<RecoverableSignature>>;
+    ecdsaSign(digestAlgorithm: null, message: ByteArray<32>, counter: Uint32): Promise<NonNullable<RecoverableSignature> | undefined>;
+    ecdsaSign(digestAlgorithm: Digest.AlgorithmName<32>, message: Uint8Array): Promise<NonNullable<RecoverableSignature>>;
+    ecdsaSign(digestAlgorithm: Digest.AlgorithmName<32>, message: Uint8Array, counter: Uint32): Promise<NonNullable<RecoverableSignature> | undefined>;
 }
 
 export interface ECDHKey {

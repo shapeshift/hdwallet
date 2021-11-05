@@ -7,9 +7,8 @@ export default {
   async create(keyPair: BIP32.Node): Promise<SigningDelegate> {
     return async (tx: Transaction, signMsg?: any): Promise<Transaction> => {
       const signBytes = tx.getSignBytes(signMsg);
-      const signHash = Digest.Algorithms["sha256"](signBytes);
       const pubKey = crypto.getPublicKey(Buffer.from(await keyPair.publicKey).toString("hex"));
-      const sig = Buffer.from(await SecP256K1.Signature.signCanonically(keyPair, signHash));
+      const sig = Buffer.from(await SecP256K1.Signature.signCanonically(keyPair, "sha256", signBytes));
       tx.addSignature(pubKey, sig);
       return tx;
     };

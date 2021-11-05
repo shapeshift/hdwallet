@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core"
 import * as ethers from "ethers";
 
-import { SecP256K1, Digest } from "../core";
+import { SecP256K1 } from "../core";
 
 export class SignerAdapter extends ethers.Signer {
   protected readonly _isolatedKey: SecP256K1.ECDSAKey & SecP256K1.ECDHKey;
@@ -30,7 +30,7 @@ export class SignerAdapter extends ethers.Signer {
   }
 
   async signDigest(digest: ethers.BytesLike): Promise<ethers.Signature> {
-    const rawSig = await SecP256K1.RecoverableSignature.signCanonically(this._isolatedKey, digest instanceof Uint8Array ? digest : ethers.utils.arrayify(digest));
+    const rawSig = await SecP256K1.RecoverableSignature.signCanonically(this._isolatedKey, null, digest instanceof Uint8Array ? digest : ethers.utils.arrayify(digest));
     return ethers.utils.splitSignature(core.compatibleBufferConcat([rawSig, Buffer.from([rawSig.recoveryParam])]));
   }
 
@@ -48,7 +48,8 @@ export class SignerAdapter extends ethers.Signer {
     }
 
     const txBuf = ethers.utils.arrayify(ethers.utils.serializeTransaction(unsignedTx));
-    const signature = await this.signDigest(Digest.Algorithms["keccak256"](txBuf));
+    const rawSig = await SecP256K1.RecoverableSignature.signCanonically(this._isolatedKey, "keccak256", txBuf);
+    const signature = ethers.utils.splitSignature(core.compatibleBufferConcat([rawSig, Buffer.from([rawSig.recoveryParam])]));
     return ethers.utils.serializeTransaction(unsignedTx, signature);
   }
 
@@ -58,7 +59,8 @@ export class SignerAdapter extends ethers.Signer {
         ? Buffer.from(messageData.normalize("NFKD"), "utf8")
         : Buffer.from(ethers.utils.arrayify(messageData));
     const messageBuf = core.compatibleBufferConcat([Buffer.from(`\x19Ethereum Signed Message:\n${messageDataBuf.length}`, "utf8"), messageDataBuf]);
-    const signature = await this.signDigest(Digest.Algorithms["keccak256"](messageBuf));
+    const rawSig = await SecP256K1.RecoverableSignature.signCanonically(this._isolatedKey, "keccak256", messageBuf);
+    const signature = ethers.utils.splitSignature(core.compatibleBufferConcat([rawSig, Buffer.from([rawSig.recoveryParam])]));
     return ethers.utils.joinSignature(signature);
   }
 }

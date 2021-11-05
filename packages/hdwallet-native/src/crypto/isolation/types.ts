@@ -74,9 +74,13 @@ const boundedStringStatic = {};
 const boundedString = Object.assign(boundedStringBase, boundedStringStatic);
 export const BoundedString: typeof boundedString = boundedString;
 
-export function checkType<T extends Runtype<unknown>>(rt: T, value: any): Static<T> {
+export function assertType<T extends Runtype<unknown>>(rt: T, value: unknown): asserts value is Static<T> {
     rt.assert(value);
-    return value as Static<T>;
+}
+
+export function checkType<T extends Runtype<unknown>>(rt: T, value: unknown): Static<T> {
+    assertType(rt, value);
+    return value;
 }
 
 // export function ParseWorkaround<T, U extends Runtype<T>>(rt: U) {
