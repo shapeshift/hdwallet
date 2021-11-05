@@ -38,6 +38,9 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
     readonly chainCode: Buffer & BIP32.ChainCode;
     #publicKey: SecP256K1.CompressedPoint | undefined;
 
+    // When running tests, this will keep us aware of any codepaths that don't pass in the preimage
+    static requirePreimage = typeof expect === "function";
+
     protected constructor(privateKey: Uint8Array, chainCode: Uint8Array) {
         // We avoid handing the private key to any non-platform code -- including our type-checking machinery.
         if (privateKey.length !== 32) throw new Error("bad private key length");
@@ -74,8 +77,7 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
         counter === undefined || Uint32.assert(counter);
         digestAlgorithm === null || Digest.AlgorithmName(32).assert(digestAlgorithm);
 
-        // When running tests, this will keep us aware of any codepaths that don't pass in the preimage
-        if (typeof expect === "function") expect(digestAlgorithm).not.toBeNull();
+        if (Node.requirePreimage && digestAlgorithm === null) throw TypeError("preimage required");
 
         const msgOrDigest = digestAlgorithm === null ? checkType(ByteArray(32), msg) : Digest.Algorithms[digestAlgorithm](checkType(ByteArray(), msg));
         const entropy = (counter === undefined ? undefined : Buffer.alloc(32));
