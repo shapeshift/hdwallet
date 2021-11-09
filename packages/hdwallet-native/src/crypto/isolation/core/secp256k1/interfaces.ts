@@ -19,10 +19,10 @@ export interface ECDSAKey {
 }
 
 export interface ECDSARecoverableKey extends ECDSAKey {
-    ecdsaSign(digestAlgorithm: null, message: ByteArray<32>): Promise<NonNullable<RecoverableSignature>>;
-    ecdsaSign(digestAlgorithm: null, message: ByteArray<32>, counter: Uint32): Promise<NonNullable<RecoverableSignature> | undefined>;
-    ecdsaSign(digestAlgorithm: Digest.AlgorithmName<32>, message: Uint8Array): Promise<NonNullable<RecoverableSignature>>;
-    ecdsaSign(digestAlgorithm: Digest.AlgorithmName<32>, message: Uint8Array, counter: Uint32): Promise<NonNullable<RecoverableSignature> | undefined>;
+    ecdsaSignRecoverable(digestAlgorithm: null, message: ByteArray<32>): Promise<NonNullable<RecoverableSignature>>;
+    ecdsaSignRecoverable(digestAlgorithm: null, message: ByteArray<32>, counter: Uint32): Promise<NonNullable<RecoverableSignature> | undefined>;
+    ecdsaSignRecoverable(digestAlgorithm: Digest.AlgorithmName<32>, message: Uint8Array): Promise<NonNullable<RecoverableSignature>>;
+    ecdsaSignRecoverable(digestAlgorithm: Digest.AlgorithmName<32>, message: Uint8Array, counter: Uint32): Promise<NonNullable<RecoverableSignature> | undefined>;
 }
 
 export interface ECDHKey {

@@ -4,7 +4,7 @@ import bs58 from "bs58"
 
 import { SecP256K1 } from "../core";
 import * as Digest from "../core/digest";
-import { CurvePoint } from "../core/secp256k1";
+import { CurvePoint, RecoverableSignature } from "../core/secp256k1";
 import { checkType } from "../types";
 
 function bs58FioEncode(raw: Uint8Array, keyType: string = ""): string {
@@ -34,7 +34,7 @@ export class ExternalSignerAdapter implements FIOExternalPrivateKey {
 
     async sign(signBuf: Uint8Array): Promise<string> {
         const sig = await SecP256K1.RecoverableSignature.signCanonically(this._isolatedKey, "sha256", signBuf);
-        const fioSigBuf = core.compatibleBufferConcat([Buffer.from([sig.recoveryParam + 4 + 27]), SecP256K1.RecoverableSignature.r(sig), SecP256K1.RecoverableSignature.s(sig)]);
+        const fioSigBuf = core.compatibleBufferConcat([Buffer.from([RecoverableSignature.recoveryParam(sig) + 4 + 27]), SecP256K1.RecoverableSignature.r(sig), SecP256K1.RecoverableSignature.s(sig)]);
         return `SIG_K1_${bs58FioEncode(fioSigBuf, "K1")}`;
     }
 

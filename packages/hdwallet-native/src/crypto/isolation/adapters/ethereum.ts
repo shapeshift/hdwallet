@@ -3,6 +3,12 @@ import * as ethers from "ethers";
 
 import { SecP256K1 } from "../core";
 
+function ethSigFromRecoverableSig(x: SecP256K1.RecoverableSignature): ethers.Signature {
+  const sig = SecP256K1.RecoverableSignature.sig(x);
+  const recoveryParam = SecP256K1.RecoverableSignature.recoveryParam(x);
+  return ethers.utils.splitSignature(core.compatibleBufferConcat([sig, Buffer.from([recoveryParam])]));
+}
+
 export class SignerAdapter extends ethers.Signer {
   protected readonly _isolatedKey: SecP256K1.ECDSAKey & SecP256K1.ECDHKey;
   readonly provider?: ethers.providers.Provider
@@ -30,8 +36,10 @@ export class SignerAdapter extends ethers.Signer {
   }
 
   async signDigest(digest: ethers.BytesLike): Promise<ethers.Signature> {
-    const rawSig = await SecP256K1.RecoverableSignature.signCanonically(this._isolatedKey, null, digest instanceof Uint8Array ? digest : ethers.utils.arrayify(digest));
-    return ethers.utils.splitSignature(core.compatibleBufferConcat([rawSig, Buffer.from([rawSig.recoveryParam])]));
+    const recoverableSig = await SecP256K1.RecoverableSignature.signCanonically(this._isolatedKey, null, digest instanceof Uint8Array ? digest : ethers.utils.arrayify(digest));
+    const sig = SecP256K1.RecoverableSignature.sig(recoverableSig);
+    const recoveryParam = SecP256K1.RecoverableSignature.recoveryParam(recoverableSig);
+    return ethers.utils.splitSignature(core.compatibleBufferConcat([sig, Buffer.from([recoveryParam])]));
   }
 
   async signTransaction(transaction: ethers.utils.Deferrable<ethers.providers.TransactionRequest>): Promise<string> {
@@ -49,8 +57,7 @@ export class SignerAdapter extends ethers.Signer {
 
     const txBuf = ethers.utils.arrayify(ethers.utils.serializeTransaction(unsignedTx));
     const rawSig = await SecP256K1.RecoverableSignature.signCanonically(this._isolatedKey, "keccak256", txBuf);
-    const signature = ethers.utils.splitSignature(core.compatibleBufferConcat([rawSig, Buffer.from([rawSig.recoveryParam])]));
-    return ethers.utils.serializeTransaction(unsignedTx, signature);
+    return ethers.utils.serializeTransaction(unsignedTx, ethSigFromRecoverableSig(rawSig));
   }
 
   async signMessage(messageData: ethers.Bytes | string): Promise<string> {
@@ -60,8 +67,7 @@ export class SignerAdapter extends ethers.Signer {
         : Buffer.from(ethers.utils.arrayify(messageData));
     const messageBuf = core.compatibleBufferConcat([Buffer.from(`\x19Ethereum Signed Message:\n${messageDataBuf.length}`, "utf8"), messageDataBuf]);
     const rawSig = await SecP256K1.RecoverableSignature.signCanonically(this._isolatedKey, "keccak256", messageBuf);
-    const signature = ethers.utils.splitSignature(core.compatibleBufferConcat([rawSig, Buffer.from([rawSig.recoveryParam])]));
-    return ethers.utils.joinSignature(signature);
+    return ethers.utils.joinSignature(ethSigFromRecoverableSig(rawSig));
   }
 }
 

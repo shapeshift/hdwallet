@@ -5,7 +5,7 @@ import * as bip32crypto from "bip32/src/crypto";
 import * as tinyecc from "tiny-secp256k1";
 import { TextEncoder } from "web-encoding";
 
-import { ByteArray, Uint32, checkType, safeBufferFrom } from "../../types";
+import { ByteArray, Uint32, checkType, safeBufferFrom, assertType } from "../../types";
 import { Digest, SecP256K1 } from "../../core";
 import { ChainCode } from "../../core/bip32";
 
@@ -54,9 +54,23 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
         return this.#publicKey;
     }
 
-    async ecdsaSign(digestAlgorithm: null, msg: ByteArray<32>, counter?: Uint32): Promise<SecP256K1.RecoverableSignature>
-    async ecdsaSign(digestAlgorithm: Digest.AlgorithmName<32>, msg: Uint8Array, counter?: Uint32): Promise<SecP256K1.RecoverableSignature>
-    async ecdsaSign(digestAlgorithm: Digest.AlgorithmName<32> | null, msg: Uint8Array, counter?: Uint32): Promise<SecP256K1.RecoverableSignature> {
+    async ecdsaSign(digestAlgorithm: null, msg: ByteArray<32>, counter?: Uint32): Promise<SecP256K1.Signature>
+    async ecdsaSign(digestAlgorithm: Digest.AlgorithmName<32>, msg: Uint8Array, counter?: Uint32): Promise<SecP256K1.Signature>
+    async ecdsaSign(digestAlgorithm: Digest.AlgorithmName<32> | null, msg: Uint8Array, counter?: Uint32): Promise<SecP256K1.Signature> {
+        const recoverableSig = await (async () =>{
+            if (digestAlgorithm === null) {
+                assertType(ByteArray(32), msg);
+                return await this.ecdsaSignRecoverable(digestAlgorithm, msg, counter);
+            } else {
+                return await this.ecdsaSignRecoverable(digestAlgorithm, msg, counter);
+            }
+        })();
+        return SecP256K1.RecoverableSignature.sig(recoverableSig)
+    }
+
+    async ecdsaSignRecoverable(digestAlgorithm: null, msg: ByteArray<32>, counter?: Uint32): Promise<SecP256K1.RecoverableSignature>
+    async ecdsaSignRecoverable(digestAlgorithm: Digest.AlgorithmName<32>, msg: Uint8Array, counter?: Uint32): Promise<SecP256K1.RecoverableSignature>
+    async ecdsaSignRecoverable(digestAlgorithm: Digest.AlgorithmName<32> | null, msg: Uint8Array, counter?: Uint32): Promise<SecP256K1.RecoverableSignature> {
         counter === undefined || Uint32.assert(counter);
         digestAlgorithm === null || Digest.AlgorithmName(32).assert(digestAlgorithm);
 
