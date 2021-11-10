@@ -1,34 +1,38 @@
 {
-  "fee":{
-    "amount":[
+  "type":"cosmos-sdk/StdTx",
+  "value":{
+    "msg":[
       {
-        "amount":"2800",
-        "denom":"uosmo"
-      }
-    ],
-    "gas":"290000"
-  },
-  "memo":"",
-  "msg":[
-    {
-      "type":"cosmos-sdk/MsgDelegate",
-      "value":{
-        "delegator_address":"osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
-        "validator_address":"osmovaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4ep88n0y4",
-        "amount":{
-          "denom":"uosmo",
-          "amount":"3000"
+        "type":"cosmos-sdk/MsgDelegate",
+        "value":{
+          "delegator_address":"osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
+          "validator_address":"osmovaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4ep88n0y4",
+          "amount":{
+            "denom":"uosmo",
+            "amount":"3000"
+          }
         }
       }
-    }
-  ],
-  "signatures":[
-    {
-      "pub_key":{
-        "type":"tendermint/PubKeySecp256k1",
-        "value":"A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
-      },
-      "signature":"S3ZCyY//QsX4kIQxPvKRdD8ksa3yVJrygF5nq4avJa42fBQ5nYR9WY2ms240Qq0nPgmevXBKQ8bWzeQO6cMh2g=="
-    }
-  ]
+    ],
+    "fee":{
+      "amount":[
+        {
+          "denom":"uosmo",
+          "amount":"0"
+        }
+      ],
+      "gas":"250000"
+    },
+    "signatures":[
+      {
+        "pub_key":{
+          "type":"tendermint/PubKeySecp256k1",
+          "value":"A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
+        },
+        "signature":"S3ZCyY//QsX4kIQxPvKRdD8ksa3yVJrygF5nq4avJa42fBQ5nYR9WY2ms240Qq0nPgmevXBKQ8bWzeQO6cMh2g=="
+      }
+    ],
+    "memo":"",
+    "timeout_height":"0"
+  }
 }

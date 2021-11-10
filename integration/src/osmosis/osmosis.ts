@@ -142,8 +142,8 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       TIMEOUT
     );
 
-    //claim reward
-    test(
+    //claim reward TODO
+    test.skip(
       "(claim rewards) osmosisSignTx()",
       async () => {
         if (!wallet) return;
