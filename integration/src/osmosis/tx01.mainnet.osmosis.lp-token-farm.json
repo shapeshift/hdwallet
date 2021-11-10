@@ -3,14 +3,16 @@
   "value":{
     "msg":[
       {
-        "type":"cosmos-sdk/MsgUndelegate",
+        "type":"osmosis/lockup/lock-tokens",
         "value":{
-          "delegator_address":"osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
-          "validator_address":"osmovaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4ep88n0y4",
-          "amount":{
-            "denom":"uosmo",
-            "amount":"3000"
-          }
+          "owner":"osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
+          "duration":"86400000003039",
+          "coins":[
+            {
+              "denom":"gamm/pool/1",
+              "amount":"300000000000000000"
+            }
+          ]
         }
       }
     ],
@@ -21,7 +23,7 @@
           "amount":"0"
         }
       ],
-      "gas":"250000"
+      "gas":"140000"
     },
     "signatures":[
       {
@@ -29,7 +31,7 @@
           "type":"tendermint/PubKeySecp256k1",
           "value":"A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
         },
-        "signature":"4WJB3Z6TWMPa22Ngr4y0d8spQwgSEKsAYmZxREuSvcEmqmQkY/JpsQgDI9kPoIftdP2pmPo/g5bbF08yusSQ/w=="
+        "signature":"NTXakYlhkZG28IOX4WZvXnLLaytSGm6AOJ5ZW3EmPwxiNri+iU4DKigkLwZb2/lzIHAopgjK3qUEE6OT2YR7fw=="
       }
     ],
     "memo":"",

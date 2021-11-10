@@ -3,14 +3,11 @@
   "value":{
     "msg":[
       {
-        "type":"cosmos-sdk/MsgUndelegate",
+        "type":"cosmos-sdk/MsgVote",
         "value":{
-          "delegator_address":"osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
-          "validator_address":"osmovaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4ep88n0y4",
-          "amount":{
-            "denom":"uosmo",
-            "amount":"3000"
-          }
+          "proposal_id":"21",
+          "voter":"osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
+          "option":1
         }
       }
     ],
@@ -29,7 +26,7 @@
           "type":"tendermint/PubKeySecp256k1",
           "value":"A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
         },
-        "signature":"4WJB3Z6TWMPa22Ngr4y0d8spQwgSEKsAYmZxREuSvcEmqmQkY/JpsQgDI9kPoIftdP2pmPo/g5bbF08yusSQ/w=="
+        "signature":"ZIb9GgZ4gejyr72Il7SNh1jPBhNbHz1n0Ox5p8N50kpReHQ7xKpr54Tu8UHbPrgGefoquxNNLDl/4x7CQ+R11g=="
       }
     ],
     "memo":"",
