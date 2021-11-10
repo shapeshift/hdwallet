@@ -58,6 +58,14 @@ export class NativeHDWalletInfoBase implements core.HDWalletInfo {
     return false;
   }
 
+  public supportsOfflineSigning(): boolean {
+    return true;
+  }
+
+  public supportsBroadcast(): boolean {
+    return false;
+  }
+
   describePath(msg: core.DescribePath): core.PathDescription {
     throw new Error("unreachable");
   }
@@ -104,11 +112,7 @@ class NativeHDWalletInfo
           MixinNativeBinanceWalletInfo(
             MixinNativeThorchainWalletInfo(
               MixinNativeSecretWalletInfo(
-                MixinNativeTerraWalletInfo(
-                  MixinNativeKavaWalletInfo(
-                    MixinNativeOsmosisWalletInfo(NativeHDWalletBase)
-                  )
-                )
+                MixinNativeTerraWalletInfo(MixinNativeKavaWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase)))
               )
             )
           )
@@ -116,8 +120,8 @@ class NativeHDWalletInfo
       )
     )
   )
-  implements core.HDWalletInfo {
-
+  implements core.HDWalletInfo
+{
   describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin.toLowerCase()) {
       case "bitcoin":
@@ -174,11 +178,7 @@ export class NativeHDWallet
           MixinNativeBinanceWallet(
             MixinNativeThorchainWallet(
               MixinNativeSecretWallet(
-                MixinNativeTerraWallet(
-                  MixinNativeKavaWallet(
-                    MixinNativeOsmosisWallet(NativeHDWalletInfo)
-                  )
-                )
+                MixinNativeTerraWallet(MixinNativeKavaWallet(MixinNativeOsmosisWallet(NativeHDWalletInfo)))
               )
             )
           )
@@ -186,7 +186,18 @@ export class NativeHDWallet
       )
     )
   )
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet, core.OsmosisWallet, core.FioWallet, core.ThorchainWallet, core.SecretWallet, core.TerraWallet, core.KavaWallet {
+  implements
+    core.HDWallet,
+    core.BTCWallet,
+    core.ETHWallet,
+    core.CosmosWallet,
+    core.OsmosisWallet,
+    core.FioWallet,
+    core.ThorchainWallet,
+    core.SecretWallet,
+    core.TerraWallet,
+    core.KavaWallet
+{
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
   readonly _supportsCosmos = true;
@@ -205,7 +216,7 @@ export class NativeHDWallet
 
   constructor({ mnemonic, deviceId }: NativeAdapterArgs) {
     super();
-    this.#mnemonic = (typeof mnemonic == "string" ? new Isolation.Engines.Dummy.BIP39.Mnemonic(mnemonic) : mnemonic);
+    this.#mnemonic = typeof mnemonic == "string" ? new Isolation.Engines.Dummy.BIP39.Mnemonic(mnemonic) : mnemonic;
     this.#deviceId = deviceId;
   }
 
@@ -326,7 +337,7 @@ export class NativeHDWallet
   async recover(): Promise<void> {}
 
   async loadDevice(msg: LoadDevice): Promise<void> {
-    this.#mnemonic = (x => {
+    this.#mnemonic = ((x) => {
       if (x) {
         if (isMnemonicInterface(x)) return x;
         if (typeof x === "string" && bip39.validateMnemonic(x)) return new Isolation.Engines.Dummy.BIP39.Mnemonic(x);

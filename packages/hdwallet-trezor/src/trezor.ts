@@ -73,11 +73,15 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
 
   let wholeAccount = path.length === 3;
 
-  let script = scriptType ? ({
-    [core.BTCInputScriptType.SpendAddress]: " (Legacy)",
-    [core.BTCInputScriptType.SpendP2SHWitness]: "",
-    [core.BTCInputScriptType.SpendWitness]: " (Segwit Native)",
-  } as Partial<Record<core.BTCInputScriptType, string>>)[scriptType] ?? "" : "";
+  let script = scriptType
+    ? (
+        {
+          [core.BTCInputScriptType.SpendAddress]: " (Legacy)",
+          [core.BTCInputScriptType.SpendP2SHWitness]: "",
+          [core.BTCInputScriptType.SpendWitness]: " (Segwit Native)",
+        } as Partial<Record<core.BTCInputScriptType, string>>
+      )[scriptType] ?? ""
+    : "";
 
   switch (coin) {
     case "Bitcoin":
@@ -130,7 +134,6 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
   readonly _supportsSecretInfo = false;
   readonly _supportsKavaInfo = false;
   readonly _supportsTerraInfo = false;
-
 
   public getVendor(): string {
     return "Trezor";
@@ -199,6 +202,14 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
 
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     // It doesn't... yet?
+    return false;
+  }
+
+  public supportsOfflineSigning(): boolean {
+    return true;
+  }
+
+  public supportsBroadcast(): boolean {
     return false;
   }
 
@@ -352,7 +363,7 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
       }),
     });
     handleError(this.transport, res, "Could not load xpubs from Trezor");
-    return (res.payload as Array<{xpubSegwit?: string, xpub?: string}>).map((result, i) => {
+    return (res.payload as Array<{ xpubSegwit?: string; xpub?: string }>).map((result, i) => {
       const scriptType = msg[i].scriptType;
       switch (scriptType) {
         case core.BTCInputScriptType.SpendP2SHWitness:
@@ -471,6 +482,14 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     // It doesn't... yet?
+    return false;
+  }
+
+  public supportsOfflineSigning(): boolean {
+    return true;
+  }
+
+  public supportsBroadcast(): boolean {
     return false;
   }
 

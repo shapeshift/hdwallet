@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/hdwallet-ledger-webusb",
+  "name": "@shapeshiftoss/hdwallet-metamask",
   "version": "1.17.1",
   "license": "MIT",
   "publishConfig": {
@@ -14,17 +14,17 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@ledgerhq/hw-app-btc": "^6.7.0",
-    "@ledgerhq/hw-app-eth": "^6.9.0",
-    "@ledgerhq/hw-transport": "^6.7.0",
-    "@ledgerhq/hw-transport-webusb": "^6.7.0",
-    "@ledgerhq/live-common": "^21.8.2",
+    "@metamask/onboarding": "^1.0.1",
+    "@portis/web3": "3.0.10",
     "@shapeshiftoss/hdwallet-core": "1.17.1",
-    "@shapeshiftoss/hdwallet-ledger": "1.17.1",
-    "@types/w3c-web-usb": "^1.0.4",
-    "typescript": "^4.3.2"
+    "base64-js": "^1.5.1",
+    "bip32": "^2.0.4",
+    "bitcoinjs-lib": "^5.1.6",
+    "bitcoinjs-message": "^2.1.0",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@types/ledgerhq__hw-transport": "^4.21.3"
+    "@types/lodash": "^4.14.168",
+    "typescript": "^4.3.2"
   }
 }

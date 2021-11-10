@@ -114,6 +114,14 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
     return this.info.hasNativeShapeShift(srcCoin, dstCoin);
   }
 
+  public supportsOfflineSigning(): boolean {
+    return true;
+  }
+
+  public supportsBroadcast(): boolean {
+    return false;
+  }
+
   public async clearSession(): Promise<void> {
     await this.portis.logout();
   }
@@ -343,6 +351,14 @@ export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
 
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     // It doesn't... yet?
+    return false;
+  }
+
+  public supportsOfflineSigning(): boolean {
+    return true;
+  }
+
+  public supportsBroadcast(): boolean {
     return false;
   }
 

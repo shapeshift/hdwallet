@@ -271,6 +271,17 @@ export interface HDWalletInfo {
   hasNativeShapeShift(srcCoin: Coin, dstCoin: Coin): boolean;
 
   /**
+   * Will the device allow for transactions to be signed offline to be
+   * broadcasted separately?
+   */
+  supportsOfflineSigning(): boolean
+
+  /**
+   * Can the device broadcast signed transactions internally?
+   */
+  supportsBroadcast(): boolean
+
+  /**
    * Describes a BIP32 path in plain English.
    */
   describePath(msg: DescribePath): PathDescription;
