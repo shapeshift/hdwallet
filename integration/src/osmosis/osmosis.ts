@@ -76,7 +76,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
 
         const res = await wallet.osmosisSignTx(input);
         console.log("res?.signatures?.[0].signature: ", res?.signatures?.[0].signature)
-        expect(res?.signatures?.[0].signature).toEqual((tx_transfer.signatures as core.Osmosis.StdSignature[])[0].signature);
+        expect(res?.signatures?.[0].signature).toEqual((tx_transfer.value.signatures as core.Osmosis.StdSignature[])[0].signature);
       },
       TIMEOUT
     );
@@ -95,7 +95,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         };
 
         const res = await wallet.osmosisSignTx(input);
-        expect(res?.signatures?.[0].signature).toEqual(tx_delegate.signatures[0].signature);
+        expect(res?.signatures?.[0].signature).toEqual(tx_delegate.value.signatures[0].signature);
       },
       TIMEOUT
     );
@@ -114,7 +114,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         };
 
         const res = await wallet.osmosisSignTx(input);
-        expect(res?.signatures?.[0].signature).toEqual(tx_undelegate.signatures[0].signature);
+        expect(res?.signatures?.[0].signature).toEqual(tx_undelegate.value.signatures[0].signature);
       },
       TIMEOUT
     );
@@ -133,7 +133,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         };
 
         const res = await wallet.osmosisSignTx(input);
-        expect(res?.signatures?.[0].signature).toEqual(tx_rewards.signatures[0].signature);
+        expect(res?.signatures?.[0].signature).toEqual(tx_rewards.value.signatures[0].signature);
       },
       TIMEOUT
     );
