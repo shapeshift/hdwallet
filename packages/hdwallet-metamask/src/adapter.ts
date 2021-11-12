@@ -35,15 +35,6 @@ export class MetaMaskAdapter {
   }
 
   public async pairDevice(): Promise<core.HDWallet> {
-    try {
-      const wallet = await this.pairMetaMaskDevice();
-      return wallet;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  private async pairMetaMaskDevice(): Promise<core.HDWallet> {
     if (!this.isMetaMaskInstalled()) {
       const onboarding = new MetaMaskOnboarding();
       onboarding.startOnboarding();
