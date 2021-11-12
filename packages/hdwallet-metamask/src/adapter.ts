@@ -31,6 +31,10 @@ export class MetaMaskAdapter {
   }
 
   public async initialize(): Promise<number> {
+    return Object.keys(this.keyring.wallets).length;
+  }
+
+  public async pairDevice(): Promise<core.HDWallet> {
     if (!this.isMetaMaskInstalled()) {
       const onboarding = new MetaMaskOnboarding();
       onboarding.startOnboarding();
@@ -42,19 +46,6 @@ export class MetaMaskAdapter {
       console.error("Could not get MetaMask accounts. ");
       throw error;
     }
-    return Object.keys(this.keyring.wallets).length;
-  }
-
-  public async pairDevice(): Promise<core.HDWallet> {
-    try {
-      const wallet = await this.pairMetaMaskDevice();
-      return wallet;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  private async pairMetaMaskDevice(): Promise<core.HDWallet> {
     const wallet = new MetaMaskHDWallet();
     await wallet.initialize();
     const deviceID = await wallet.getDeviceID();
