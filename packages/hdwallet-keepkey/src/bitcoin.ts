@@ -2,6 +2,7 @@ import * as Exchange from "@keepkey/device-protocol/lib/exchange_pb";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as bitcoinjs from "@shapeshiftoss/bitcoinjs-lib";
 
 import { Transport } from "./transport";
 import { toUTF8Array, translateInputScriptType, translateOutputScriptType } from "./utils";
@@ -134,15 +135,37 @@ function prepareSignTx(
     )
       return;
 
-    if (!inputTx.tx) throw new Error("non-segwit inputs must have the associated prev tx");
+    const prevTx = ((): core.BitcoinTx => {
+      if (inputTx.tx) return inputTx.tx;
+      if (!inputTx.hex) throw new Error("non-segwit inputs must have the associated prev tx");
+      const tx = bitcoinjs.Transaction.fromHex(inputTx.hex);
+      return {
+        version: tx.version,
+        locktime: tx.locktime,
+        vin: tx.ins.map((input) => ({
+          txid: Buffer.from(input.hash).reverse().toString("hex"),
+          vout: input.index,
+          scriptSig: {
+            hex: input.script.toString("hex"),
+          },
+          sequence: input.sequence,
+        })),
+        vout: tx.outs.map((output, i) => ({
+          value: String(output.value),
+          scriptPubKey: {
+            hex: output.script.toString("hex"),
+          },
+        })),
+      };
+    })();
 
     const tx = new Types.TransactionType();
-    tx.setVersion(inputTx.tx.version);
-    tx.setLockTime(inputTx.tx.locktime);
-    tx.setInputsCnt(inputTx.tx.vin.length);
-    tx.setOutputsCnt(inputTx.tx.vout.length);
+    tx.setVersion(prevTx.version);
+    tx.setLockTime(prevTx.locktime);
+    tx.setInputsCnt(prevTx.vin.length);
+    tx.setOutputsCnt(prevTx.vout.length);
 
-    inputTx.tx.vin.forEach((vin, i) => {
+    prevTx.vin.forEach((vin, i) => {
       const txInput = new Types.TxInputType();
       if ("coinbase" in vin) {
         txInput.setPrevHash(core.fromHexString("\0".repeat(64)));
@@ -158,7 +181,7 @@ function prepareSignTx(
       tx.addInputs(txInput, i);
     });
 
-    inputTx.tx.vout.forEach((vout, i) => {
+    prevTx.vout.forEach((vout, i) => {
       const txOutput = new Types.TxOutputBinType();
       txOutput.setAmount(core.satsFromStr(vout.value));
       txOutput.setScriptPubkey(core.fromHexString(vout.scriptPubKey.hex));
@@ -166,17 +189,17 @@ function prepareSignTx(
     });
 
     if (coin === "Dash") {
-      let dip2_type: number = inputTx.tx.type || 0;
+      let dip2_type: number = prevTx.type || 0;
       // DIP2 Special Tx with payload
-      if (inputTx.tx.version === 3 && dip2_type !== 0) {
-        if (!inputTx.tx.extraPayload) throw new Error("Payload missing in DIP2 transaction");
-        tx.setExtraData(core.fromHexString(packVarint(inputTx.tx.extraPayload.length * 2) + inputTx.tx.extraPayload));
+      if (prevTx.version === 3 && dip2_type !== 0) {
+        if (!prevTx.extraPayload) throw new Error("Payload missing in DIP2 transaction");
+        tx.setExtraData(core.fromHexString(packVarint(prevTx.extraPayload.length * 2) + prevTx.extraPayload));
       }
 
       // Trezor (and therefore KeepKey) firmware doesn't understand the
       // split of version and type, so let's mimic the old serialization
       // format
-      tx.setVersion(inputTx.tx.version | (dip2_type << 16));
+      tx.setVersion(prevTx.version | (dip2_type << 16));
     }
 
     txmap[inputTx.txid] = tx;
@@ -252,13 +275,14 @@ export async function btcGetAddress(
   addr.setShowDisplay(msg.showDisplay || false);
   addr.setScriptType(translateInputScriptType(msg.scriptType || core.BTCInputScriptType.SpendAddress));
 
-  const response = (await transport.call(
+  const response = await transport.call(
     Messages.MessageType.MESSAGETYPE_GETADDRESS,
     addr,
-    core.LONG_TIMEOUT
-  )) as core.Event;
+    {
+      msgTimeout: core.LONG_TIMEOUT,
+    }
+  );
 
-  if (response.message_type === core.Events.FAILURE) throw response;
   if (response.message_type === core.Events.CANCEL) throw response;
 
   const btcAddress = response.proto as Messages.Address;
@@ -280,14 +304,14 @@ export async function btcSignTx(
 
     if (msg.opReturnData) {
       if (msg.opReturnData.length > 80) {
-        throw new Error("OP_RETURN output character count is too damn high.")
+        throw new Error("OP_RETURN output character count is too damn high.");
       }
       msg.outputs.push({
         addressType: core.BTCOutputAddressType.Spend,
-        opReturnData: Buffer.from(msg.opReturnData).toString('base64'),
+        opReturnData: Buffer.from(msg.opReturnData).toString("base64"),
         amount: "0",
         isChange: false,
-      })
+      });
     }
 
     // If this is a THORChain transaction, validate the vout ordering
@@ -307,12 +331,14 @@ export async function btcSignTx(
 
     let responseType: number | undefined;
     let response: any;
-    const { message_enum, proto } = (await transport.call(
+    const { message_enum, proto } = await transport.call(
       Messages.MessageType.MESSAGETYPE_SIGNTX,
       tx,
-      core.LONG_TIMEOUT,
-      /*omitLock=*/ true
-    )) as core.Event; // 5 Minute timeout
+      {
+        msgTimeout: core.LONG_TIMEOUT,
+        omitLock: true,
+      }
+    ); // 5 Minute timeout
     responseType = message_enum;
     response = proto;
     // Prepare structure for signatures
@@ -322,11 +348,6 @@ export async function btcSignTx(
     try {
       // Begin callback loop
       while (true) {
-        if (responseType === Messages.MessageType.MESSAGETYPE_FAILURE) {
-          const errorResponse = response as Messages.Failure;
-          throw new Error(`Signing failed: ${errorResponse.getMessage()}`);
-        }
-
         if (responseType !== Messages.MessageType.MESSAGETYPE_TXREQUEST) {
           throw new Error(`Unexpected message type: ${responseType}`);
         }
@@ -382,12 +403,14 @@ export async function btcSignTx(
           }
           txAck = new Messages.TxAck();
           txAck.setTx(msg);
-          let message = (await transport.call(
+          const message = await transport.call(
             Messages.MessageType.MESSAGETYPE_TXACK,
             txAck,
-            core.LONG_TIMEOUT,
-            /*omitLock=*/ true
-          )) as core.Event; // 5 Minute timeout
+            {
+              msgTimeout: core.LONG_TIMEOUT,
+              omitLock: true,
+            }
+          ); // 5 Minute timeout
           responseType = message.message_enum;
           response = message.proto;
           continue;
@@ -400,12 +423,14 @@ export async function btcSignTx(
           msg.setInputsList([currentTx.getInputsList()[reqIndex]]);
           txAck = new Messages.TxAck();
           txAck.setTx(msg);
-          let message = (await transport.call(
+          const message = await transport.call(
             Messages.MessageType.MESSAGETYPE_TXACK,
             txAck,
-            core.LONG_TIMEOUT,
-            /*omitLock=*/ true
-          )) as core.Event; // 5 Minute timeout
+            {
+              msgTimeout: core.LONG_TIMEOUT,
+              omitLock: true,
+            }
+          ); // 5 Minute timeout
           responseType = message.message_enum;
           response = message.proto;
           continue;
@@ -423,12 +448,14 @@ export async function btcSignTx(
           }
           txAck = new Messages.TxAck();
           txAck.setTx(msg);
-          let message = (await transport.call(
+          const message = await transport.call(
             Messages.MessageType.MESSAGETYPE_TXACK,
             txAck,
-            core.LONG_TIMEOUT,
-            /*omitLock=*/ true
-          )) as core.Event; // 5 Minute timeout
+            {
+              msgTimeout: core.LONG_TIMEOUT,
+              omitLock: true,
+            }
+          ); // 5 Minute timeout
           responseType = message.message_enum;
           response = message.proto;
           continue;
@@ -443,12 +470,14 @@ export async function btcSignTx(
           msg.setExtraData(currentTx.getExtraData_asU8().slice(offset, offset + length));
           txAck = new Messages.TxAck();
           txAck.setTx(msg);
-          let message = (await transport.call(
+          const message = await transport.call(
             Messages.MessageType.MESSAGETYPE_TXACK,
             txAck,
-            core.LONG_TIMEOUT,
-            /*omitLock=*/ true
-          )) as core.Event; // 5 Minute timeout
+            {
+              msgTimeout: core.LONG_TIMEOUT,
+              omitLock: true,
+            }
+          ); // 5 Minute timeout
           responseType = message.message_enum;
           response = message.proto;
           continue;
@@ -489,11 +518,13 @@ export async function btcSignMessage(
   sign.setMessage(toUTF8Array(msg.message));
   sign.setCoinName(msg.coin || "Bitcoin");
   sign.setScriptType(translateInputScriptType(msg.scriptType ?? core.BTCInputScriptType.SpendAddress));
-  const event = (await transport.call(
+  const event = await transport.call(
     Messages.MessageType.MESSAGETYPE_SIGNMESSAGE,
     sign,
-    core.LONG_TIMEOUT
-  )) as core.Event;
+    {
+      msgTimeout: core.LONG_TIMEOUT,
+    }
+  );
   const messageSignature = event.proto as Messages.MessageSignature;
   const address = messageSignature.getAddress();
   if (!address) throw new Error("btcSignMessage failed");
@@ -514,9 +545,14 @@ export async function btcVerifyMessage(
   verify.setSignature(core.arrayify("0x" + msg.signature));
   verify.setMessage(toUTF8Array(msg.message));
   verify.setCoinName(msg.coin);
-  let event = await transport.call(Messages.MessageType.MESSAGETYPE_VERIFYMESSAGE, verify);
-  if (event.message_enum === Messages.MessageType.MESSAGETYPE_FAILURE) {
-    return false;
+  let event: core.Event;
+  try {
+    event = await transport.call(Messages.MessageType.MESSAGETYPE_VERIFYMESSAGE, verify);
+  } catch (e) {
+    if (core.isIndexable(e) && e.message_enum === Messages.MessageType.MESSAGETYPE_FAILURE) {
+      return false;
+    }
+    throw e;
   }
   const success = event.proto as Messages.Success;
   return success.getMessage() === "Message verified";

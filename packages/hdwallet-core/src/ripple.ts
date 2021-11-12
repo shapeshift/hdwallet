@@ -3,8 +3,6 @@ import { BIP32Path, HDWallet, HDWalletInfo } from "./wallet";
 export interface RippleGetAddress {
   addressNList: BIP32Path;
   showDisplay?: boolean;
-  /** Optional. Required for showDisplay == true. */
-  address?: string;
 }
 declare namespace Ripple {
   namespace sdk {

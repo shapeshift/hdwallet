@@ -24,14 +24,19 @@ export enum NativeEvents {
 }
 
 function isMnemonicInterface(x: any): x is Isolation.Core.BIP39.Mnemonic {
-  return ["object", "function"].includes(typeof x) && "toSeed" in x && typeof x.toSeed === "function";
+  return ["object", "function"].includes(typeof x) && x !== null && "toSeed" in x && typeof x.toSeed === "function";
 }
 
-interface LoadDevice extends Omit<core.LoadDevice, "mnemonic"> {
+type LoadDevice = Omit<core.LoadDevice, "mnemonic"> & {
   // Set this if your deviceId is dependent on the mnemonic
   deviceId?: string;
+} & ({
   mnemonic: string | Isolation.Core.BIP39.Mnemonic;
-}
+  masterKey?: never
+} | {
+  mnemonic?: never;
+  masterKey: Isolation.Core.BIP32.Node;
+})
 
 export class NativeHDWalletInfoBase implements core.HDWalletInfo {
   getVendor(): string {
@@ -212,11 +217,19 @@ export class NativeHDWallet
 
   #deviceId: string;
   #initialized: boolean = false;
-  #mnemonic: Isolation.Core.BIP39.Mnemonic | undefined;
+  #masterKey: Promise<Isolation.Core.BIP32.Node> | undefined = undefined;
 
-  constructor({ mnemonic, deviceId }: NativeAdapterArgs) {
+  constructor({ mnemonic, deviceId, masterKey }: NativeAdapterArgs) {
     super();
-    this.#mnemonic = typeof mnemonic == "string" ? new Isolation.Engines.Dummy.BIP39.Mnemonic(mnemonic) : mnemonic;
+    if (masterKey) {
+      this.#masterKey = Promise.resolve(masterKey);
+    } else if (mnemonic) {
+      this.#masterKey = (async () => {
+        const isolatedMnemonic = typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic
+        const seed = await isolatedMnemonic.toSeed();
+        return await seed.toMasterKey();
+      })()
+    }
     this.#deviceId = deviceId;
   }
 
@@ -245,22 +258,22 @@ export class NativeHDWallet
    * to supports different styles of xpubs as can be defined by passing in a network to `fromSeed`
    */
   async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<core.PublicKey[] | null> {
-    return this.needsMnemonic(!!this.#mnemonic, async () =>
-      Promise.all(
+    return this.needsMnemonic(!!this.#masterKey, async () => {
+      const masterKey = await this.#masterKey!;
+      return await Promise.all(
         msg.map(async (getPublicKey) => {
           let { addressNList } = getPublicKey;
-          const seed = this.#mnemonic!.toSeed();
           const network = getNetwork(getPublicKey.coin, getPublicKey.scriptType);
           // TODO: return the xpub that's actually asked for, not the key of the hardened path
           // It's done this way for hilarious historical reasons and will break ETH if fixed
           const hardenedPath = core.hardenedPath(addressNList);
-          let node = new Isolation.Adapters.BIP32(seed.toMasterKey(), network);
-          if (hardenedPath.length > 0) node = node.derivePath(core.addressNListToBIP32(hardenedPath));
+          let node = await Isolation.Adapters.BIP32.create(masterKey, network);
+          if (hardenedPath.length > 0) node = await node.derivePath(core.addressNListToBIP32(hardenedPath));
           const xpub = node.neutered().toBase58();
           return { xpub };
         })
       )
-    );
+    });
   }
 
   async isInitialized(): Promise<boolean> {
@@ -274,21 +287,20 @@ export class NativeHDWallet
   async clearSession(): Promise<void> {}
 
   async initialize(): Promise<boolean | null> {
-    return this.needsMnemonic(!!this.#mnemonic, async () => {
+    return this.needsMnemonic(!!this.#masterKey, async () => {
+      const masterKey = await this.#masterKey!;
       try {
-        const seed = this.#mnemonic!.toSeed();
-
         await Promise.all([
-          super.btcInitializeWallet(seed),
-          super.ethInitializeWallet(seed),
-          super.cosmosInitializeWallet(seed),
-          super.osmosisInitializeWallet(seed),
-          super.binanceInitializeWallet(seed),
-          super.fioInitializeWallet(seed),
-          super.thorchainInitializeWallet(seed),
-          super.secretInitializeWallet(seed),
-          super.terraInitializeWallet(seed),
-          super.kavaInitializeWallet(seed),
+          super.btcInitializeWallet(masterKey),
+          super.ethInitializeWallet(masterKey),
+          super.cosmosInitializeWallet(masterKey),
+          super.osmosisInitializeWallet(masterKey),
+          super.binanceInitializeWallet(masterKey),
+          super.fioInitializeWallet(masterKey),
+          super.thorchainInitializeWallet(masterKey),
+          super.secretInitializeWallet(masterKey),
+          super.terraInitializeWallet(masterKey),
+          super.kavaInitializeWallet(masterKey),
         ]);
 
         this.#initialized = true;
@@ -318,7 +330,7 @@ export class NativeHDWallet
 
   async wipe(): Promise<void> {
     this.#initialized = false;
-    this.#mnemonic = undefined;
+    this.#masterKey = undefined;
 
     super.btcWipe();
     super.ethWipe();
@@ -336,16 +348,25 @@ export class NativeHDWallet
 
   async recover(): Promise<void> {}
 
-  async loadDevice(msg: LoadDevice): Promise<void> {
-    this.#mnemonic = ((x) => {
-      if (x) {
-        if (isMnemonicInterface(x)) return x;
-        if (typeof x === "string" && bip39.validateMnemonic(x)) return new Isolation.Engines.Dummy.BIP39.Mnemonic(x);
+  async loadDevice(msg?: LoadDevice): Promise<void> {
+    this.#masterKey = Promise.resolve(await (async (mnemonic, masterKey) => {
+      if (masterKey !== undefined) {
+        return masterKey;
+      } else if (mnemonic !== undefined) {
+        const isolatedMnemonic = await (async () => {
+          if (isMnemonicInterface(mnemonic)) return mnemonic;
+          if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
+            return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
+          }
+          throw new Error("Required property [mnemonic] is invalid");
+        })();
+        const seed = await isolatedMnemonic.toSeed();
+        return await seed.toMasterKey();
       }
-      throw new Error("Required property [mnemonic] is missing or invalid");
-    })(msg?.mnemonic);
+      throw new Error("Either [mnemonic] or [masterKey] is required");
+    })(msg?.mnemonic, msg?.masterKey));
 
-    if (typeof msg.deviceId === "string") this.#deviceId = msg.deviceId;
+    if (typeof msg?.deviceId === "string") this.#deviceId = msg?.deviceId;
 
     this.#initialized = false;
     await this.initialize();

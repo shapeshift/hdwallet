@@ -171,15 +171,25 @@ describe("NativeHDWallet", () => {
 
     it("should throw an error when loadDevice is missing its parameters", async () => {
       const wallet = native.create({ deviceId: "native" });
-      await expect(wallet.loadDevice(undefined as any)).rejects.toThrow("Required property [mnemonic] is missing");
+      await expect(wallet.loadDevice(undefined as any)).rejects.toThrow("Either [mnemonic] or [masterKey] is required");
     });
 
-    it.each([[undefined], [null], [0], [[1, 2, 3]], [{}], [""], ["all all all all all all"]])(
+    it.each([[undefined]])(
       "should throw an error if mnemonic is not a string (%o)",
       async (param: any) => {
         const wallet = native.create({ deviceId: "native" });
         await expect(wallet.loadDevice({ mnemonic: param })).rejects.toThrow(
-          "Required property [mnemonic] is missing or invalid"
+          "Either [mnemonic] or [masterKey] is required"
+        );
+      }
+    );
+
+    it.each([[null], [0], [[1, 2, 3]], [{}], [""], ["all all all all all all"]])(
+      "should throw an error if mnemonic is not a string (%o)",
+      async (param: any) => {
+        const wallet = native.create({ deviceId: "native" });
+        await expect(wallet.loadDevice({ mnemonic: param })).rejects.toThrow(
+          "Required property [mnemonic] is invalid"
         );
       }
     );
@@ -188,10 +198,12 @@ describe("NativeHDWallet", () => {
   it("should wipe if an error occurs during initialization", async () => {
     expect.assertions(7);
     const wallet = native.create({ deviceId: "native" });
-    const mockMnemonic = new Isolation.Engines.Dummy.BIP39.Mnemonic(MNEMONIC);
-    await wallet.loadDevice({ mnemonic: mockMnemonic });
+    const mnemonic = await Isolation.Engines.Default.BIP39.Mnemonic.create(MNEMONIC);
+    const seed = await mnemonic.toSeed();
+    const masterKey = await seed.toMasterKey();
+    await wallet.loadDevice({ masterKey });
     const mocks = [
-      jest.spyOn(mockMnemonic, "toSeed").mockImplementationOnce(() => {
+      jest.spyOn(masterKey, "derive").mockImplementationOnce(() => {
         throw "mock error";
       }),
       jest.spyOn(console, "error").mockImplementationOnce((msg, error) => {

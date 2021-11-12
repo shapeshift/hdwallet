@@ -8,20 +8,14 @@ function isSeed(x: any): x is Isolation.Core.BIP32.Seed {
   return "toMasterKey" in x && typeof x.toMasterKey === "function"
 }
 
-function getKeyPair(
-  nodeOrSeed: Isolation.Core.BIP32.Seed | Isolation.Core.BIP32.Node,
+export async function getKeyPair(
+  node: Isolation.Core.BIP32.Node,
   addressNList: number[],
   coin: core.Coin,
   scriptType?: BTCScriptType,
-): Isolation.Adapters.BIP32 {
-  const node = (isSeed(nodeOrSeed) ? nodeOrSeed.toMasterKey() : nodeOrSeed);
+): Promise<Isolation.Adapters.BIP32> {
   const network = getNetwork(coin, scriptType);
-  const wallet = new Isolation.Adapters.BIP32(node, network);
+  const wallet = await Isolation.Adapters.BIP32.create(node, network);
   const path = core.addressNListToBIP32(addressNList);
-  return wallet.derivePath(path);
+  return await wallet.derivePath(path);
 }
-
-// Prevent malicious JavaScript from replacing the method
-export default Object.freeze({
-  getKeyPair,
-});

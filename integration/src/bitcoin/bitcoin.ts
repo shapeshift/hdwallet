@@ -222,7 +222,6 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           vin: [
             {
               vout: 1,
-              valueSat: 200000,
               sequence: 4294967295,
               scriptSig: {
                 hex: "483045022072ba61305fe7cb542d142b8f3299a7b10f9ea61f6ffaab5dca8142601869d53c0221009a8027ed79eb3b9bc13577ac2853269323434558528c6b6a7e542be46e7e9a820141047a2d177c0f3626fc68c53610b0270fa6156181f46586c679ba6a88b34c6f4874686390b4d92e5769fbb89c8050b984f4ec0b257a0e5c4ff8bd3b035a51709503",
@@ -231,7 +230,6 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
             },
             {
               vout: 1,
-              valueSat: 200000,
               sequence: 4294967295,
               scriptSig: {
                 hex: "48304502200fd63adc8f6cb34359dc6cca9e5458d7ea50376cbd0a74514880735e6d1b8a4c0221008b6ead7fe5fbdab7319d6dfede3a0bc8e2a7c5b5a9301636d1de4aa31a3ee9b101410486ad608470d796236b003635718dfc07c0cac0cfc3bfc3079e4f491b0426f0676e6643a39198e8e7bdaffb94f4b49ea21baa107ec2e237368872836073668214",
@@ -300,7 +298,6 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           vin: [
             {
               vout: 1,
-              valueSat: 200000,
               sequence: 4294967295,
               scriptSig: {
                 hex: "483045022072ba61305fe7cb542d142b8f3299a7b10f9ea61f6ffaab5dca8142601869d53c0221009a8027ed79eb3b9bc13577ac2853269323434558528c6b6a7e542be46e7e9a820141047a2d177c0f3626fc68c53610b0270fa6156181f46586c679ba6a88b34c6f4874686390b4d92e5769fbb89c8050b984f4ec0b257a0e5c4ff8bd3b035a51709503",
@@ -309,7 +306,6 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
             },
             {
               vout: 1,
-              valueSat: 200000,
               sequence: 4294967295,
               scriptSig: {
                 hex: "48304502200fd63adc8f6cb34359dc6cca9e5458d7ea50376cbd0a74514880735e6d1b8a4c0221008b6ead7fe5fbdab7319d6dfede3a0bc8e2a7c5b5a9301636d1de4aa31a3ee9b101410486ad608470d796236b003635718dfc07c0cac0cfc3bfc3079e4f491b0426f0676e6643a39198e8e7bdaffb94f4b49ea21baa107ec2e237368872836073668214",

@@ -50,10 +50,11 @@ export async function binanceSignTx(
     let resp = await transport.call(
       Messages.MessageType.MESSAGETYPE_BINANCESIGNTX,
       signTx,
-      core.LONG_TIMEOUT,
-      /*omitLock=*/ true
+      {
+        msgTimeout: core.LONG_TIMEOUT,
+        omitLock: true
+      }
     );
-    if (resp.message_type === core.Events.FAILURE) throw resp;
 
     const outputAmount = new BigNumber(message.outputs[0].coins[0].amount);
     const inputAmount = new BigNumber(message.inputs[0].coins[0].amount);
@@ -84,11 +85,12 @@ export async function binanceSignTx(
     resp = await transport.call(
       Messages.MessageType.MESSAGETYPE_BINANCETRANSFERMSG,
       send,
-      core.LONG_TIMEOUT,
-      /*omitLock=*/ true
+      {
+        msgTimeout: core.LONG_TIMEOUT,
+        omitLock: true
+      }
     );
 
-    if (resp.message_type === core.Events.FAILURE) throw resp;
     if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_BINANCESIGNEDTX) {
       throw new Error(`binance: unexpected response ${resp.message_type}`);
     }
@@ -121,9 +123,9 @@ export async function binanceGetAddress(transport: Transport, msg: core.BinanceG
   const getAddr = new BinanceMessages.BinanceGetAddress();
   getAddr.setAddressNList(msg.addressNList);
   getAddr.setShowDisplay(msg.showDisplay !== false);
-  const response = await transport.call(Messages.MessageType.MESSAGETYPE_BINANCEGETADDRESS, getAddr, core.LONG_TIMEOUT);
-
-  if (response.message_type === core.Events.FAILURE) throw response;
+  const response = await transport.call(Messages.MessageType.MESSAGETYPE_BINANCEGETADDRESS, getAddr, {
+    msgTimeout: core.LONG_TIMEOUT,
+  });
 
   const binanceAddress = response.proto as BinanceMessages.BinanceAddress;
   return core.mustBeDefined(binanceAddress.getAddress());

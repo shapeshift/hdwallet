@@ -7,35 +7,43 @@ import { ECPairAdapter } from "./bitcoin";
 
 export type BIP32InterfaceAsync = Omit<bip32.BIP32Interface, "sign" | "derive" | "deriveHardened" | "derivePath"> &
   Pick<SignerAsync, "sign"> & {
-    derive(index: number): BIP32InterfaceAsync;
-    deriveHardened(index: number): BIP32InterfaceAsync;
-    derivePath(path: string): BIP32InterfaceAsync;
+    derive(index: number): Promise<BIP32InterfaceAsync>;
+    deriveHardened(index: number): Promise<BIP32InterfaceAsync>;
+    derivePath(path: string): Promise<BIP32InterfaceAsync>;
   };
 
 export class BIP32Adapter extends ECPairAdapter implements BIP32.Node, BIP32InterfaceAsync {
   protected readonly _isolatedNode: BIP32.Node;
+  readonly _chainCode: BIP32.ChainCode;
+  readonly _publicKey: SecP256K1.CurvePoint;
   readonly index: number;
   readonly _parent?: BIP32Adapter;
   readonly _children = new Map<number, this>();
   _identifier?: Buffer;
   _base58?: string;
 
-  constructor(isolatedNode: BIP32.Node, networkOrParent?: BIP32Adapter | Network, index?: number) {
-    super(isolatedNode, networkOrParent instanceof BIP32Adapter ? networkOrParent.network : networkOrParent);
+  protected constructor(isolatedNode: BIP32.Node, chainCode: BIP32.ChainCode, publicKey: SecP256K1.CurvePoint, networkOrParent?: BIP32Adapter | Network, index?: number) {
+    super(isolatedNode, publicKey, networkOrParent instanceof BIP32Adapter ? networkOrParent.network : networkOrParent);
     this._isolatedNode = isolatedNode;
+    this._chainCode = chainCode;
+    this._publicKey = publicKey;
     this.index = index ?? 0;
     if (networkOrParent instanceof BIP32Adapter) this._parent = networkOrParent;
+  }
+
+  static async create(isolatedNode: BIP32.Node, networkOrParent?: BIP32Adapter | Network, index?: number): Promise<BIP32Adapter> {
+    return new BIP32Adapter(isolatedNode, await isolatedNode.chainCode, await isolatedNode.publicKey, networkOrParent, index);
   }
 
   get depth(): number {
     return (this._parent?.depth ?? -1) + 1;
   }
   get chainCode() {
-    return Buffer.from(this._isolatedNode.chainCode) as Buffer & BIP32.ChainCode;
+    return Buffer.from(this._chainCode) as Buffer & BIP32.ChainCode;
   }
   get identifier() {
     return (this._identifier =
-      this._identifier ?? btccrypto.hash160(Buffer.from(SecP256K1.CompressedPoint.from(this._isolatedKey.publicKey))));
+      this._identifier ?? btccrypto.hash160(Buffer.from(SecP256K1.CompressedPoint.from(this.publicKey))));
   }
   get fingerprint() {
     return this.identifier.slice(0, 4);
@@ -54,7 +62,7 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32.Node, BIP32Inte
   }
 
   get publicKey() {
-    return Buffer.from(SecP256K1.CompressedPoint.from(this._isolatedNode.publicKey)) as Buffer &
+    return Buffer.from(SecP256K1.CompressedPoint.from(this._publicKey)) as Buffer &
       SecP256K1.CompressedPoint;
   }
 
@@ -79,23 +87,23 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32.Node, BIP32Inte
     throw new IsolationError("xpriv");
   }
 
-  derive(index: number): this {
+  async derive(index: number): Promise<this> {
     let out = this._children.get(index);
     if (!out) {
-      out = new BIP32Adapter(this._isolatedNode.derive(index), this, index) as this;
+      out = (await BIP32Adapter.create(await this._isolatedNode.derive(index), this, index)) as this;
       this._children.set(index, out);
     }
     return out;
   }
-  deriveHardened(index: number): BIP32Adapter {
-    return this.derive(index + 0x80000000);
+  async deriveHardened(index: number): Promise<BIP32Adapter> {
+    return await this.derive(index + 0x80000000);
   }
 
-  derivePath(path: string): BIP32Adapter {
+  async derivePath(path: string): Promise<BIP32Adapter> {
     const ownPath = this.path;
     if (path.startsWith(ownPath)) path = path.slice(ownPath.length);
     if (/^m/.test(path) && this._parent) throw new Error("expected master, got child");
-    return BIP32.derivePath<BIP32Adapter>(this, path);
+    return await BIP32.derivePath<BIP32Adapter>(this, path);
   }
 }
 

@@ -1,3 +1,5 @@
+import * as ta from "type-assertions";
+
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { BIP32Path, Coin, ExchangeType, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
@@ -28,7 +30,6 @@ export interface BitcoinScriptSig {
  * Deserialized representation of an already-signed input of a transaction.
  */
 interface BitcoinInputBase {
-  valueSat: number;
   sequence: number;
 }
 export type BitcoinInput = GuardedUnion<
@@ -106,12 +107,19 @@ type BTCSignTxInputKKBase = BTCSignTxInputBase & {
 
 type BTCSignTxInputKKSegwit = BTCSignTxInputKKBase & {
   scriptType: BTCInputScriptType.SpendWitness | BTCInputScriptType.SpendP2SHWitness | BTCInputScriptType.External;
+  hex?: string;
 };
 
 type BTCSignTxInputKKNonSegwit = BTCSignTxInputKKBase & {
   scriptType: Exclude<BTCInputScriptType, BTCSignTxInputKKSegwit["scriptType"]>;
-  tx: BitcoinTx;
-};
+} & (
+    | {
+        tx: BitcoinTx;
+      }
+    | {
+        hex: string;
+      }
+  );
 
 type BTCSignTxInputKKUnguarded = BTCSignTxInputKKNonSegwit | BTCSignTxInputKKSegwit;
 export type BTCSignTxInputKK = GuardedUnion<BTCSignTxInputKKUnguarded>;
@@ -129,7 +137,21 @@ export type BTCSignTxInputLedger = BTCSignTxInputBase & {
 };
 
 export type BTCSignTxInput = BTCSignTxInputNative & BTCSignTxInputKK & BTCSignTxInputTrezor & BTCSignTxInputLedger;
-export type BTCSignTxInputUnguarded = BTCSignTxInputNativeUnguarded & BTCSignTxInputKKUnguarded & BTCSignTxInputTrezor & BTCSignTxInputLedger;
+export type BTCSignTxInputUnguarded = BTCSignTxInputNativeUnguarded &
+  BTCSignTxInputKKUnguarded &
+  BTCSignTxInputTrezor &
+  BTCSignTxInputLedger;
+
+// Stick to this common subset of input fields to avoid type hell.
+export type BTCSignTxInputSafe = {
+  addressNList: BIP32Path;
+  scriptType: BTCInputScriptType;
+  hex: string;
+  txid: string;
+  amount: string;
+  vout: number;
+};
+ta.assert<ta.Extends<BTCSignTxInputSafe, BTCSignTxInput>>();
 
 /**
  * Output for a transaction we're about to sign.

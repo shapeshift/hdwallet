@@ -156,7 +156,7 @@ export class TrezorAdapter {
         if (device.path && !(wallet.transport as TrezorConnectTransport).device.path)
           (wallet.transport as TrezorConnectTransport).device.path = device.path;
       } else {
-        wallet = trezor.create(new TrezorConnectTransport(device, this.keyring), true);
+        wallet = trezor.create(new TrezorConnectTransport(device, this.keyring));
       }
 
       await wallet.initialize();

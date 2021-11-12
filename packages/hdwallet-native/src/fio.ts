@@ -9,10 +9,10 @@ const fetchJson = async (uri: RequestInfo, opts?: RequestInit) => {
   return fetch(uri, opts);
 };
 
-function getKeyPair(seed: Isolation.Core.BIP32.Seed, addressNList: number[]) {
-  const out = addressNList.reduce((a, x) => a.derive(x), seed.toMasterKey());
+async function getKeyPair(masterKey: Isolation.Core.BIP32.Node, addressNList: number[]) {
+  const out = await addressNList.reduce(async (a, x) => (await a).derive(x), Promise.resolve(masterKey));
   if (!Isolation.Core.BIP32.nodeSupportsECDH(out)) throw new Error("fio requires keys that implement ECDH");
-  return new Isolation.Adapters.FIO(out);
+  return await Isolation.Adapters.FIO.create(out);
 }
 
 export function MixinNativeFioWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
@@ -51,19 +51,19 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
   return class MixinNativeFioWallet extends Base {
     readonly _supportsFio = true;
     baseUrl = "https://fio.eu.eosamsterdam.net/v1/";
-    #seed: Isolation.Core.BIP32.Seed | undefined;
+    #masterKey: Isolation.Core.BIP32.Node | undefined;
 
-    async fioInitializeWallet(seed: Buffer | Isolation.Core.BIP32.Seed): Promise<void> {
-      this.#seed = (seed instanceof Buffer ? new Isolation.Engines.Dummy.BIP32.Seed(seed) : seed);
+    async fioInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
+      this.#masterKey = masterKey;
     }
 
     fioWipe(): void {
-      this.#seed = undefined;
+      this.#masterKey = undefined;
     }
 
     async getFioSdk(addressNList: core.BIP32Path): Promise<fio.FIOSDK | null> {
-      return this.needsMnemonic(!!this.#seed, async () => {
-        const key = getKeyPair(this.#seed!, addressNList);
+      return this.needsMnemonic(!!this.#masterKey, async () => {
+        const key = await getKeyPair(this.#masterKey!, addressNList);
         const sdk = new fio.FIOSDK(key as any, key.publicKey, this.baseUrl, fetchJson);
         sdk.setSignedTrxReturnOption(true);
         return sdk;
@@ -228,16 +228,16 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
     }
 
     async fioEncryptRequestContent<T extends core.Fio.ContentType>(msg: core.FioEncryptRequestContentMsg<T>): Promise<string | null> {
-      return this.needsMnemonic(!!this.#seed, async () => {
-        const privateKey = getKeyPair(this.#seed!, msg.addressNList);
+      return this.needsMnemonic(!!this.#masterKey, async () => {
+        const privateKey = await getKeyPair(this.#masterKey!, msg.addressNList);
         const sdk = core.mustBeDefined(await this.getFioSdk(msg.addressNList));
         return await sdk.transactions.getCipherContent(msg.contentType, msg.content, privateKey, msg.publicKey, msg.iv && Buffer.from(msg.iv));
       });
     }
 
     async fioDecryptRequestContent<T extends core.Fio.ContentType>(msg: core.FioDecryptRequestContentMsg<T>): Promise<core.Fio.Content<T> | null> {
-      return this.needsMnemonic(!!this.#seed, async () => {
-        const privateKey = getKeyPair(this.#seed!, msg.addressNList);
+      return this.needsMnemonic(!!this.#masterKey, async () => {
+        const privateKey = await getKeyPair(this.#masterKey!, msg.addressNList);
         const sdk = core.mustBeDefined(await this.getFioSdk(msg.addressNList));
         return await sdk.transactions.getUnCipherContent(msg.contentType, JSON.stringify(msg.content), privateKey, msg.publicKey);
       });

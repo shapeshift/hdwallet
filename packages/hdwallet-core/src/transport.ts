@@ -15,7 +15,7 @@ export abstract class Transport extends eventemitter2.EventEmitter2 {
   /**
    * Must emit outgoing message events and communicate with underlying interface
    */
-  public abstract call(...args: any[]): Promise<any>;
+  public abstract call(...args: any): Promise<unknown>;
 
   /**
    * Optional method to bootstrap connection to device

@@ -125,15 +125,6 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
 export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
-  readonly _supportsCosmosInfo = false;
-  readonly _supportsBinanceInfo = false; //TODO trezor actually supports bnb
-  readonly _supportsRippleInfo = false;
-  readonly _supportsEosInfo = false;
-  readonly _supportsFioInfo = false;
-  readonly _supportsThorchainInfo = false;
-  readonly _supportsSecretInfo = false;
-  readonly _supportsKavaInfo = false;
-  readonly _supportsTerraInfo = false;
 
   public getVendor(): string {
     return "Trezor";
@@ -269,28 +260,11 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
 export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet {
   readonly _supportsETHInfo = true;
   readonly _supportsBTCInfo = true;
-  readonly _supportsDebugLink = false;
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
-  readonly _supportsCosmosInfo = false;
-  readonly _supportsCosmos = false;
-  readonly _supportsBinanceInfo = false;
-  readonly _supportsBinance = false;
-  readonly _isTrezor = true;
-  readonly _supportsRippleInfo = false;
-  readonly _supportsRipple = false;
-  readonly _supportsEosInfo = false;
-  readonly _supportsEos = false;
-  readonly _supportsFioInfo = false;
-  readonly _supportsFio = false;
-  readonly _supportsThorchainInfo = false;
-  readonly _supportsThorchain = false;
-  readonly _supportsSecretInfo = false;
-  readonly _supportsSecret = false;
-  readonly _supportsKava = false;
   readonly _supportsKavaInfo = true;
-  readonly _supportsTerra = false;
   readonly _supportsTerraInfo = true;
+  readonly _isTrezor = true;
 
   transport: TrezorTransport;
   featuresCache: any;
@@ -590,6 +564,6 @@ export function info(): TrezorHDWalletInfo {
   return new TrezorHDWalletInfo();
 }
 
-export function create(transport: TrezorTransport, debuglink: boolean): TrezorHDWallet {
+export function create(transport: TrezorTransport): TrezorHDWallet {
   return new TrezorHDWallet(transport);
 }

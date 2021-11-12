@@ -208,3 +208,36 @@ export function compatibleBufferConcat(list: Uint8Array[]): Buffer {
   if (!checkBufferConcat()) return Buffer.concat(list);
   return Buffer.concat(list.map(x => Buffer.isBuffer(x) ? x : Buffer.from(x)));
 }
+
+
+/**
+ * Type guard for things that might have (string-keyed) properties. Useful to make
+ * TypeScript happy when you want to check if an object of unknown type has a particular
+ * property set.
+ * @example
+ * try {
+ *   foo();
+ * } catch (e: unknown) {
+ *   // Not allowed because there's no index signature for `unknown`:
+ *   // if (e.bar === "baz") return "foobar";
+ *   if (isIndexable(e) && e.bar === "baz") return "foobar";
+ *   throw e;
+ * }
+ * @example
+ * isIndexable({}) === true
+ * @example
+ * isIndexable(() => {}) === true
+ * @example
+ * isIndexable(Object.create(null)) === true
+ * @example
+ * isIndexable(String("foo")) === true
+ * @example
+ * isIndexable(null) === false
+ * @example
+ * isIndexable(3.14) === false
+ * @example
+ * isIndexable("foo") === false
+ */
+export function isIndexable(x: unknown): x is Record<string | number | symbol, unknown> {
+  return x !== null && ["object", "function"].includes(typeof x)
+}

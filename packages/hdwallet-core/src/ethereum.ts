@@ -29,8 +29,6 @@ export interface ETHAccountSuffix {
 export interface ETHGetAddress {
   addressNList: BIP32Path;
   showDisplay?: boolean;
-  /** Optional. Required for showDisplay == true. */
-  address?: string;
 }
 
 export interface ETHSignTx {

@@ -69,7 +69,7 @@ export class Transport extends core.Transport {
       const segment = buf.slice(i, i + SEGMENT_SIZE);
       const padding = new Uint8Array(SEGMENT_SIZE - segment.length);
       const fragments: Array<Uint8Array> = [];
-      fragments.push(new Uint8Array([63]));
+      fragments.push(new Uint8Array([SEGMENT_SIZE]));
       fragments.push(segment);
       fragments.push(padding);
       const fragmentBuffer = new Uint8Array(fragments.map((x) => x.length).reduce((a, x) => a + x, 0));
@@ -133,7 +133,7 @@ export class Transport extends core.Transport {
     } catch (e) {
       // Throw away the error, as the other context will handle it,
       // unless it was a cancel, in which case we cancel everything.
-      if (e.type === core.HDWalletErrorType.ActionCancelled) {
+      if (core.isIndexable(e) && e.type === core.HDWalletErrorType.ActionCancelled) {
         this.callInProgress = { main: undefined, debug: undefined };
         throw e;
       }
@@ -190,13 +190,19 @@ export class Transport extends core.Transport {
         })
       );
       this.userActionRequired = true;
-      return this.call(Messages.MessageType.MESSAGETYPE_BUTTONACK, new Messages.ButtonAck(), core.LONG_TIMEOUT, true, false);
+      return this.call(Messages.MessageType.MESSAGETYPE_BUTTONACK, new Messages.ButtonAck(), {
+        msgTimeout: core.LONG_TIMEOUT,
+        omitLock: true,
+      });
     }
 
     if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_ENTROPYREQUEST) {
       const ack = new Messages.EntropyAck();
       ack.setEntropy(this.getEntropy(32));
-      return this.call(Messages.MessageType.MESSAGETYPE_ENTROPYACK, ack, core.LONG_TIMEOUT, true, false);
+      return this.call(Messages.MessageType.MESSAGETYPE_ENTROPYACK, ack, {
+        msgTimeout: core.LONG_TIMEOUT,
+        omitLock: true,
+      });
     }
 
     if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_PINMATRIXREQUEST) {
@@ -253,10 +259,36 @@ export class Transport extends core.Transport {
   public async call(
     msgTypeEnum: number,
     msg: jspb.Message,
-    msgTimeout: number = core.DEFAULT_TIMEOUT,
-    omitLock: boolean = false,
-    noWait: boolean = false
-  ): Promise<any> {
+    options?: {
+      msgTimeout?: number,
+      omitLock?: boolean,
+      noWait?: false,
+      debugLink?: boolean,
+    }
+  ): Promise<core.Event>;
+  public async call(
+    msgTypeEnum: number,
+    msg: jspb.Message,
+    options: {
+      msgTimeout?: number,
+      omitLock?: boolean,
+      noWait: true,
+      debugLink?: boolean,
+    }
+  ): Promise<undefined>;
+  public async call(
+    msgTypeEnum: number,
+    msg: jspb.Message,
+    options?: {
+      msgTimeout?: number,
+      omitLock?: boolean,
+      noWait?: boolean,
+      debugLink?: boolean,
+    }
+  ): Promise<core.Event | undefined> {
+    options ??= {};
+    options.msgTimeout ??= core.DEFAULT_TIMEOUT;
+
     this.emit(
       String(msgTypeEnum),
       core.makeEvent({
@@ -268,7 +300,7 @@ export class Transport extends core.Transport {
       })
     );
 
-    let makePromise = async () => {
+    const makePromise = async () => {
       if (
         ([
           Messages.MessageType.MESSAGETYPE_BUTTONACK,
@@ -280,75 +312,40 @@ export class Transport extends core.Transport {
       ) {
         this.userActionRequired = true;
       }
-      await this.write(this.toMessageBuffer(msgTypeEnum, msg), false);
+      await this.write(this.toMessageBuffer(msgTypeEnum, msg), !!options?.debugLink);
 
-      if (!noWait) {
-        const response = await this.readResponse(false);
-        this.userActionRequired = false;
-        if (
-          response.message_enum === Messages.MessageType.MESSAGETYPE_FAILURE &&
-          response.message.code === Types.FailureType.FAILURE_ACTIONCANCELLED
-        ) {
-          this.callInProgress = { main: undefined, debug: undefined };
-          throw new core.ActionCancelled();
-        }
-        return response;
+      if (options?.noWait) return undefined;
+
+      const response = await this.readResponse(!!options?.debugLink);
+      this.userActionRequired = false;
+      if (
+        response.message_enum === Messages.MessageType.MESSAGETYPE_FAILURE &&
+        response.message.code === Types.FailureType.FAILURE_ACTIONCANCELLED
+      ) {
+        this.callInProgress = { main: undefined, debug: undefined };
+        throw new core.ActionCancelled();
       }
+      if (response.message_type === core.Events.FAILURE) throw response;
+      return response;
     };
 
-    if (!omitLock) {
-      // See the comments in hdwallet-trezor-connect's call for why this weird
-      // sequence. We've got a very similar issue here that needs pretty much
-      // the same solution.
-      this.callInProgress.main = (async () => {
-        await this.cancellable(this.callInProgress.main);
+    if (options?.omitLock) return makePromise();
 
-        try {
-          return makePromise();
-        } finally {
-          this.userActionRequired = false;
-        }
-      })();
+    // See the comments in hdwallet-trezor-connect's call for why this weird
+    // sequence. We've got a very similar issue here that needs pretty much
+    // the same solution.
+    const lockKey = options?.debugLink ? "debug" : "main"
+    this.callInProgress[lockKey] = (async () => {
+      await this.cancellable(this.callInProgress[lockKey]);
 
-      return await this.callInProgress.main;
-    } else {
-      return makePromise();
-    }
-  }
-
-  public async callDebugLink(
-    msgTypeEnum: number,
-    msg: jspb.Message,
-    msgTimeout: number = core.DEFAULT_TIMEOUT,
-    omitLock: boolean = false,
-    noWait: boolean = false
-  ): Promise<any> {
-    this.emit(
-      String(msgTypeEnum),
-      core.makeEvent({
-        message_type: messageNameRegistry[msgTypeEnum],
-        message_enum: msgTypeEnum,
-        message: msg.toObject(),
-        proto: msg,
-        from_wallet: false,
-      })
-    );
-
-    let makePromise = async () => {
-      await this.write(this.toMessageBuffer(msgTypeEnum, msg), true);
-      if (!noWait) return this.readResponse(true);
-    };
-
-    if (!omitLock) {
-      this.callInProgress.debug = (async () => {
-        await this.cancellable(this.callInProgress.debug);
+      try {
         return makePromise();
-      })();
+      } finally {
+        this.userActionRequired = false;
+      }
+    })();
 
-      return await this.callInProgress.debug;
-    } else {
-      return makePromise();
-    }
+    return await this.callInProgress[lockKey];
   }
 
   public async cancel() {
@@ -356,7 +353,9 @@ export class Transport extends core.Transport {
     try {
       this.callInProgress = { main: undefined, debug: undefined };
       const cancelMsg = new Messages.Cancel();
-      await this.call(Messages.MessageType.MESSAGETYPE_CANCEL, cancelMsg, core.DEFAULT_TIMEOUT, false, this.userActionRequired);
+      await this.call(Messages.MessageType.MESSAGETYPE_CANCEL, cancelMsg, {
+        noWait: this.userActionRequired
+      });
     } catch (e) {
       console.error("Cancel Pending Error", e);
     } finally {

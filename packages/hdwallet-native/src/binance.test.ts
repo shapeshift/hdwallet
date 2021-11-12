@@ -198,7 +198,7 @@ describe("NativeBinanceWallet", () => {
   });
 
   it("should only handle pubkeys returned from the BNB SDK if they are in amino format", async () => {
-    expect.assertions(6);
+    expect.assertions(5);
     const original = bnbSdk.BncClient.prototype.transfer;
     const mock = jest
       .spyOn(bnbSdk.BncClient.prototype, "transfer")

@@ -137,20 +137,6 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
 export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
-  readonly _supportsCosmosInfo = false; // TODO ledger supports cosmos
-  readonly _supportsBinanceInfo = false; // TODO ledger supports bnb
-  readonly _supportsRippleInfo = false; // TODO ledger supports XRP
-  readonly _supportsEosInfo = false;
-  readonly _supportsFioInfo = false;
-  readonly _supportsThorchainInfo = false;
-  readonly _supportsSecret = false;
-  readonly _supportsSecretInfo = false;
-  readonly _supportsKava = false;
-  readonly _supportsKavaInfo = false;
-  readonly _supportsTerra = false;
-  readonly _supportsTerraInfo = false;
-  readonly _supportsCardano = false;
-  readonly _supportsCardanoInfo = false;
 
   public getVendor(): string {
     return "Ledger";
@@ -302,29 +288,8 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
 export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet {
   readonly _supportsETHInfo = true;
   readonly _supportsBTCInfo = true;
-  readonly _supportsDebugLink = false;
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
-  readonly _supportsBinanceInfo = false;
-  readonly _supportsBinance = false;
-  readonly _supportsRippleInfo = false;
-  readonly _supportsRipple = false;
-  readonly _supportsCosmosInfo = false;
-  readonly _supportsCosmos = false;
-  readonly _supportsEosInfo = false;
-  readonly _supportsEos = false;
-  readonly _supportsFio = false;
-  readonly _supportsFioInfo = false;
-  readonly _supportsThorchain = false;
-  readonly _supportsThorchainInfo = false;
-  readonly _supportsSecretInfo = false;
-  readonly _supportsSecret = false;
-  readonly _supportsKava = false;
-  readonly _supportsKavaInfo = false;
-  readonly _supportsTerra = false;
-  readonly _supportsTerraInfo = false;
-  readonly _supportsCardano = false;
-  readonly _supportsCardanoInfo = false;
 
   _isLedger: boolean = true;
 

@@ -106,15 +106,17 @@ export type Coin = string;
 export type Symbol = string;
 
 /**
- * Type guard for BTCWallet Support
+ * Type guards
  *
  * Example Usage:
  ```typescript
+ const wallet: HDWallet = ...
  if (supportsBTC(wallet)) {
    wallet.btcGetAddress(...)
  }
  ```
  */
+
 export function supportsBTC(wallet: HDWallet): wallet is BTCWallet {
   return _.isObject(wallet) && (wallet as any)._supportsBTC;
 }
@@ -123,16 +125,6 @@ export function infoBTC(info: HDWalletInfo): info is BTCWalletInfo {
   return _.isObject(info) && (info as any)._supportsBTCInfo;
 }
 
-/**
- * Type guard for ETHWallet Support
- *
- * Example Usage:
- ```typescript
- if (supportsETH(wallet)) {
-   wallet.ethGetAddress(...)
- }
- ```
- */
 export function supportsETH(wallet: HDWallet): wallet is ETHWallet {
   return _.isObject(wallet) && (wallet as any)._supportsETH;
 }
@@ -205,16 +197,6 @@ export function infoKava(info: HDWalletInfo): info is KavaWalletInfo {
   return _.isObject(info) && (info as any)._supportsKavaInfo;
 }
 
-/**
- * Type guard for RippleWallet Support
- *
- * Example Usage:
- ```typescript
- if (supportsripple(wallet)) {
-   wallet.xrpGetAddress(...)
- }
- ```
- */
 export function supportsRipple(wallet: HDWallet): wallet is RippleWallet {
   return _.isObject(wallet) && (wallet as any)._supportsRipple;
 }
@@ -298,7 +280,8 @@ export interface HDWallet extends HDWalletInfo {
   /**
    * Get device specific features
    */
-  getFeatures(): Promise<Record<string, any>>;
+  getFeatures(): Promise<Record<string, unknown>>;
+
   /**
    * Retrieve the wallet's firmware version
    */

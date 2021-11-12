@@ -4,7 +4,7 @@ import CryptoJS from "crypto-js";
 import * as txBuilder from "tendermint-tx-builder";
 
 import { NativeHDWalletBase } from "./native";
-import util from "./util";
+import * as util from "./util";
 import * as Isolation from "./crypto/isolation";
 
 const THOR_CHAIN = "thorchain";
@@ -44,14 +44,14 @@ export function MixinNativeThorchainWallet<TBase extends core.Constructor<Native
   return class MixinNativeThorchainWallet extends Base {
     _supportsThorchain = true;
 
-    #seed: Isolation.Core.BIP32.Seed | undefined;
+    #masterKey: Isolation.Core.BIP32.Node | undefined;
 
-    async thorchainInitializeWallet(seed: Isolation.Core.BIP32.Seed): Promise<void> {
-      this.#seed = seed;
+    async thorchainInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
+      this.#masterKey = masterKey;
     }
 
     thorchainWipe(): void {
-      this.#seed = undefined;
+      this.#masterKey = undefined;
     }
 
     thorchainBech32ify(address: ArrayLike<number>, prefix: string): string {
@@ -67,15 +67,16 @@ export function MixinNativeThorchainWallet<TBase extends core.Constructor<Native
     }
 
     async thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string | null> {
-      return this.needsMnemonic(!!this.#seed, async () => {
-        return this.createThorchainAddress(util.getKeyPair(this.#seed!, msg.addressNList, "thorchain").publicKey.toString("hex"));
+      return this.needsMnemonic(!!this.#masterKey, async () => {
+        const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "thorchain");
+        return this.createThorchainAddress(keyPair.publicKey.toString("hex"));
       });
     }
 
     async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {
-      return this.needsMnemonic(!!this.#seed, async () => {
-        const keyPair = util.getKeyPair(this.#seed!, msg.addressNList, "thorchain");
-        const adapter = new Isolation.Adapters.Cosmos(keyPair);
+      return this.needsMnemonic(!!this.#masterKey, async () => {
+        const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "thorchain");
+        const adapter = await Isolation.Adapters.Cosmos.create(keyPair);
         const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, THOR_CHAIN);
         return txBuilder.createSignedTx(msg.tx, result);
       });

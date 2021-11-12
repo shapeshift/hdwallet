@@ -4,7 +4,7 @@ import CryptoJS from "crypto-js";
 import * as txBuilder from "tendermint-tx-builder";
 
 import { NativeHDWalletBase } from "./native";
-import util from "./util";
+import * as util from "./util";
 import * as Isolation from "./crypto/isolation";
 
 const OSMOSIS_CHAIN = "osmosis-1";
@@ -44,14 +44,14 @@ export function MixinNativeOsmosisWallet<TBase extends core.Constructor<NativeHD
   return class MixinNativeOsmosisWallet extends Base {
     readonly _supportsOsmosis = true;
 
-    #seed: Isolation.Core.BIP32.Seed | undefined;
+    #masterKey: Isolation.Core.BIP32.Node | undefined;
 
-    async osmosisInitializeWallet(seed: Isolation.Core.BIP32.Seed): Promise<void> {
-      this.#seed = seed;
+    async osmosisInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
+      this.#masterKey = masterKey;
     }
 
     osmosisWipe(): void {
-      this.#seed = undefined;
+      this.#masterKey = undefined;
     }
 
     osmosisBech32ify(address: ArrayLike<number>, prefix: string): string {
@@ -67,15 +67,16 @@ export function MixinNativeOsmosisWallet<TBase extends core.Constructor<NativeHD
     }
 
     async osmosisGetAddress(msg: core.OsmosisGetAddress): Promise<string | null> {
-      return this.needsMnemonic(!!this.#seed, async () => {
-        return this.createOsmosisAddress(util.getKeyPair(this.#seed!, msg.addressNList, "osmosis").publicKey.toString("hex"));
+      return this.needsMnemonic(!!this.#masterKey, async () => {
+        const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "osmosis");
+        return this.createOsmosisAddress(keyPair.publicKey.toString("hex"));
       });
     }
 
     async osmosisSignTx(msg: core.OsmosisSignTx): Promise<core.OsmosisSignedTx | null> {
-      return this.needsMnemonic(!!this.#seed, async () => {
-        const keyPair = util.getKeyPair(this.#seed!, msg.addressNList, "osmosis");
-        const adapter = new Isolation.Adapters.Cosmos(keyPair);
+      return this.needsMnemonic(!!this.#masterKey, async () => {
+        const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "osmosis");
+        const adapter = await Isolation.Adapters.Cosmos.create(keyPair);
         const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, OSMOSIS_CHAIN);
 
         return txBuilder.createSignedTx(msg.tx, result);

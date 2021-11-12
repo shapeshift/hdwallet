@@ -4,7 +4,7 @@ import CryptoJS from "crypto-js";
 import * as txBuilder from "tendermint-tx-builder";
 
 import { NativeHDWalletBase } from "./native";
-import util from "./util";
+import * as util from "./util";
 import * as Isolation from "./crypto/isolation";
 
 export function MixinNativeTerraWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
@@ -43,14 +43,14 @@ export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWa
   return class MixinNativeTerraWallet extends Base {
     readonly _supportsTerra = true;
 
-    #seed: Isolation.Core.BIP32.Seed | undefined;
+    #masterKey: Isolation.Core.BIP32.Node | undefined;
 
-    async terraInitializeWallet(seed: Isolation.Core.BIP32.Seed): Promise<void> {
-      this.#seed = seed;
+    async terraInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
+      this.#masterKey = masterKey;
     }
 
     terraWipe(): void {
-      this.#seed = undefined;
+      this.#masterKey = undefined;
     }
 
     terraBech32ify(address: ArrayLike<number>, prefix: string): string {
@@ -66,15 +66,16 @@ export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWa
     }
 
     async terraGetAddress(msg: core.TerraGetAddress): Promise<string | null> {
-      return this.needsMnemonic(!!this.#seed, async () => {
-        return this.createTerraAddress(util.getKeyPair(this.#seed!, msg.addressNList, "terra").publicKey.toString("hex"));
+      return this.needsMnemonic(!!this.#masterKey, async () => {
+        const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "terra");
+        return this.createTerraAddress(keyPair.publicKey.toString("hex"));
       });
     }
 
     async terraSignTx(msg: core.TerraSignTx): Promise<any | null> {
-      return this.needsMnemonic(!!this.#seed, async () => {
-        const keyPair = util.getKeyPair(core.mustBeDefined(this.#seed), msg.addressNList, "terra");
-        const adapter = new Isolation.Adapters.Cosmos(keyPair);
+      return this.needsMnemonic(!!this.#masterKey, async () => {
+        const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "terra");
+        const adapter = await Isolation.Adapters.Cosmos.create(keyPair);
         const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, "terra");
         return txBuilder.createSignedTx(msg.tx, result);
       });
