@@ -196,23 +196,22 @@ describe("NativeHDWallet", () => {
   });
 
   it("should wipe if an error occurs during initialization", async () => {
-    expect.assertions(7);
+    expect.assertions(6);
     const wallet = native.create({ deviceId: "native" });
-    const mnemonic = await Isolation.Engines.Default.BIP39.Mnemonic.create(MNEMONIC);
-    const seed = await mnemonic.toSeed();
-    const masterKey = await seed.toMasterKey();
-    await wallet.loadDevice({ masterKey });
-    const mocks = [
-      jest.spyOn(masterKey, "derive").mockImplementationOnce(() => {
+    const masterKey = {
+      getChainCode: () => {
         throw "mock error";
-      }),
+      },
+    } as any;
+    const mocks = [
       jest.spyOn(console, "error").mockImplementationOnce((msg, error) => {
         expect(msg).toMatch("NativeHDWallet:initialize:error");
         expect(error).toEqual("mock error");
       }),
       jest.spyOn(wallet, "wipe"),
     ];
-    expect(await wallet.initialize()).toBe(false);
+    await wallet.loadDevice({ masterKey });
+    expect(await wallet.initialize()).toBeFalsy();
     mocks.forEach((x) => {
       expect(x).toHaveBeenCalled();
       x.mockRestore();

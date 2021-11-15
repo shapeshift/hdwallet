@@ -18,7 +18,7 @@ export class ECPairAdapter implements SecP256K1.ECDSAKey, SignerAsync, ECPairInt
     }
 
     static async create(isolatedKey: SecP256K1.ECDSAKey, network?: Network): Promise<ECPairAdapter> {
-        return new ECPairAdapter(isolatedKey, await isolatedKey.publicKey, network);
+        return new ECPairAdapter(isolatedKey, await isolatedKey.getPublicKey(), network);
     }
 
     get network() {

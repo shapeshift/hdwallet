@@ -52,10 +52,13 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
         return new Node(privateKey, chainCode);
     }
 
-    get publicKey() {
+    readonly getPublicKey = () => {
         this.#publicKey = this.#publicKey ?? checkType(SecP256K1.CompressedPoint, tinyecc.pointFromScalar(this.#privateKey, true));
         return this.#publicKey;
-    }
+    };
+    get publicKey() { return this.getPublicKey(); }
+
+    getChainCode() { return this.chainCode }
 
     async ecdsaSign(digestAlgorithm: null, msg: ByteArray<32>, counter?: Uint32): Promise<SecP256K1.Signature>
     async ecdsaSign(digestAlgorithm: Digest.AlgorithmName<32>, msg: Uint8Array, counter?: Uint32): Promise<SecP256K1.Signature>

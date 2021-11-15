@@ -24,7 +24,7 @@ export class ExternalSignerAdapter implements FIOExternalPrivateKey {
     }
 
     static async create(isolatedKey: IsolatedKey): Promise<ExternalSignerAdapter> {
-        return new ExternalSignerAdapter(isolatedKey, await isolatedKey.publicKey)
+        return new ExternalSignerAdapter(isolatedKey, await isolatedKey.getPublicKey())
     }
 
     get publicKey(): string {

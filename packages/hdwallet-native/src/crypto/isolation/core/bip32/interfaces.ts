@@ -8,8 +8,8 @@ export interface Seed {
 }
 
 export interface Node extends SecP256K1.ECDSAKey, Partial<SecP256K1.ECDHKey> {
-    readonly publicKey: SecP256K1.CompressedPoint | Promise<SecP256K1.CompressedPoint>;
-    readonly chainCode: ChainCode | Promise<ChainCode>;
+    getPublicKey(): SecP256K1.CompressedPoint | Promise<SecP256K1.CompressedPoint>;
+    getChainCode(): ChainCode | Promise<ChainCode>;
     derive(index: number): Promise<this>;
 }
 
