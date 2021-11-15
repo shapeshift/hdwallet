@@ -1,0 +1,22 @@
+diff --git a/node_modules/jest-environment-jsdom/build/index.js b/node_modules/jest-environment-jsdom/build/index.js
+index cb5278c..48cab70 100644
+--- a/node_modules/jest-environment-jsdom/build/index.js
++++ b/node_modules/jest-environment-jsdom/build/index.js
+@@ -116,6 +116,17 @@ class JSDOMEnvironment {
+       return originalRemoveListener.apply(this, args);
+     };
+ 
++    // open issues to get this patch eliminated
++    //  https://github.com/facebook/jest/issues/9983
++    //  https://github.com/jsdom/jsdom/issues/2524
++    if (
++      typeof TextEncoder !== 'undefined' &&
++      typeof TextDecoder !== 'undefined'
++    ) {
++      global.TextEncoder = TextEncoder;
++      global.TextDecoder = TextDecoder;
++    }
++
+     this.moduleMocker = new (_jestMock().ModuleMocker)(global);
+     const timerConfig = {
+       idToRef: id => id,
