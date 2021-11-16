@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bip39 from "bip39";
+import * as bip32 from "bip32";
 import * as eventemitter2 from "eventemitter2";
 import _ from "lodash";
 
@@ -253,28 +254,144 @@ export class NativeHDWallet
     return "Native";
   }
 
+  async getAddress(msg: core.GetAddress): Promise<string> {
+    switch (msg.blockchain.toLowerCase()) {
+      case "bitcoin":
+      case "bitcoincash":
+      case "dash":
+      case "digibyte":
+      case "dogecoin":
+      case "litecoin":
+      case "testnet":
+        let inputClone: core.BTCAccountPath = {
+          addressNList: msg.path,
+          coin: msg.blockchain,
+          scriptType: msg.scriptType,
+        };
+        // @ts-ignore
+        return super.btcGetAddress(inputClone);
+      case "ethereum":
+        let inputETH: core.BTCAccountPath = {
+          addressNList: msg.path,
+          coin: msg.blockchain,
+          scriptType: msg.scriptType,
+        };
+        // @ts-ignore
+        return super.ethGetAddress(inputETH);
+      case "fio":
+        let inputFIO: core.FioAccountPath = {
+          addressNList: msg.path,
+        };
+        // @ts-ignore
+        return super.fioGetAddress(inputFIO);
+      // case "eos":
+      //   let inputEOS: core.EosAccountPath = {
+      //     addressNList: msg.path,
+      //   };
+      //   return super.eosGetAddress(inputEOS);
+      case "osmosis":
+        let inputOSMO: core.OsmosisGetAddress = {
+          addressNList: msg.path,
+        };
+        // @ts-ignore
+        return super.osmosisGetAddress(inputOSMO);
+      case "cosmos":
+        let inputATOM: core.CosmosGetAddress = {
+          addressNList: msg.path,
+        };
+        // @ts-ignore
+        return super.cosmosGetAddress(inputATOM);
+      case "thorchain":
+        let inputRUNE: core.ThorchainGetAddress = {
+          addressNList: msg.path,
+        };
+        // @ts-ignore
+        return super.thorchainGetAddress(inputRUNE);
+      case "binance":
+        let inputBNB: core.BinanceAccountPath = {
+          addressNList: msg.path,
+        };
+        // @ts-ignore
+        return super.binanceGetAddress(inputBNB);
+      default:
+        throw new Error("Unsupported path " + msg.blockchain);
+    }
+  }
+
   /*
    * @see: https://github.com/satoshilabs/slips/blob/master/slip-0132.md
    * to supports different styles of xpubs as can be defined by passing in a network to `fromSeed`
    */
   async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<core.PublicKey[] | null> {
-    return this.needsMnemonic(!!this.#masterKey, async () => {
-      const masterKey = await this.#masterKey!;
-      return await Promise.all(
+    return this.needsMnemonic(!!this.#mnemonic, async () =>
+      Promise.all(
         msg.map(async (getPublicKey) => {
-          let { addressNList } = getPublicKey;
-          const network = getNetwork(getPublicKey.coin, getPublicKey.scriptType);
-          // TODO: return the xpub that's actually asked for, not the key of the hardened path
-          // It's done this way for hilarious historical reasons and will break ETH if fixed
-          const hardenedPath = core.hardenedPath(addressNList);
-          let node = await Isolation.Adapters.BIP32.create(masterKey, network);
-          if (hardenedPath.length > 0) node = await node.derivePath(core.addressNListToBIP32(hardenedPath));
-          const xpub = node.neutered().toBase58();
-          return { xpub };
+          let { addressNList, addressNListMaster } = getPublicKey;
+          if(!this.#mnemonic) throw Error("Not initialized")
+          const seed = await bip39.mnemonicToSeed(String(this.#mnemonic));
+
+          const network = getNetwork("bitcoin", getPublicKey.scriptType);
+          const node = bip32.fromSeed(seed, network);
+          const xpub = node.derivePath(core.addressNListToBIP32(addressNList)).neutered().toBase58();
+
+          let addressInfo: any = {
+            path: addressNListMaster,
+            blockchain: getPublicKey.blockchain.toLowerCase(),
+            scriptType: getPublicKey.script_type,
+          };
+
+          let pubkey: any = {
+            coin: getPublicKey.network,
+            blockchain:getPublicKey.blockchain,
+            network: getPublicKey.network,
+            script_type: getPublicKey.script_type,
+            path: core.addressNListToBIP32(addressNList),
+            pathMaster: core.addressNListToBIP32(addressNListMaster),
+            long: getPublicKey.blockchain,
+            address: await this.getAddress(addressInfo),
+            master: await this.getAddress(addressInfo),
+            type: getPublicKey.type,
+          };
+          //TODO
+          if(this.#isTestnet){
+            //pubkey.tpub = await crypto.xpubConvert(xpub,'tpub')
+          }else{
+            pubkey.xpub = xpub
+          }
+
+          switch(getPublicKey.type) {
+            case "address":
+              pubkey.pubkey = pubkey.address;
+              break;
+            case 'xpub':
+              pubkey.pubkey = pubkey.xpub
+              break;
+            case 'tpub':
+              pubkey.pubkey = pubkey.tpub
+              break;
+            case 'zpub':
+              // let root = new BIP84.fromSeed(this.#mnemonic)
+              // let child0 = root.deriveAccount(0)
+              // let account0 = new BIP84.fromZPrv(child0)
+              // let zpub = account0.getAccountPublicKey()
+              // pubkey.address = account0.getAddress(0)
+              // pubkey.master = account0.getAddress(0)
+              // pubkey.zpub = zpub
+              pubkey.address = "foobar"
+              pubkey.master = "foobar"
+              pubkey.zpub = "foobar"
+              pubkey.pubkey = pubkey.zpub
+              break;
+            default:
+              throw Error("Unhandled pubkey type! :"+getPublicKey.type)
+          }
+
+          return pubkey;
         })
       )
-    });
+    );
   }
+
 
   async isInitialized(): Promise<boolean> {
     return !!this.#initialized;
