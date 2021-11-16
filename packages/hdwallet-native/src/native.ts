@@ -364,7 +364,10 @@ export class NativeHDWallet
           throw new Error("Required property [mnemonic] is invalid");
         })();
         const seed = await isolatedMnemonic.toSeed();
-        return await seed.toMasterKey();
+        seed.addRevoker?.(() => isolatedMnemonic.revoke?.())
+        const masterKey = await seed.toMasterKey()
+        masterKey.addRevoker?.(() => seed.revoke?.())
+        return masterKey
       }
       throw new Error("Either [mnemonic] or [masterKey] is required");
     })(msg?.mnemonic, msg?.masterKey));
