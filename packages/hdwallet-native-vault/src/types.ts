@@ -26,7 +26,7 @@ export interface IVaultBackedBy<T> {
   readonly id: string;
   readonly argonParams: Readonly<ArgonParams>;
   readonly meta: Map<string, unknown>;
-  setPassword(password: string): Promise<void>;
+  setPassword(password: string): Promise<this>;
   load(deserialize: (_: T) => Promise<void>): Promise<this>;
   save(serialize: () => Promise<T>): Promise<this>;
 }
@@ -35,7 +35,7 @@ export interface IVault {
   readonly id: string;
   readonly argonParams: Readonly<ArgonParams>;
   readonly meta: Map<string, unknown>;
-  setPassword(password: string): Promise<void>;
+  setPassword(password: string): Promise<this>;
   load(): Promise<this>;
   save(): Promise<this>;
 }

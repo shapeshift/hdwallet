@@ -52,8 +52,9 @@ export class MapVault
     return this.#rawVault.meta;
   }
 
-  async setPassword(password: string) {
+  async setPassword(password: string): Promise<this> {
     await this.#rawVault.setPassword(password);
+    return this
   }
 
   async load(deserializer: (_: Array<[string, unknown | Promise<unknown>]>) => Promise<void>) {

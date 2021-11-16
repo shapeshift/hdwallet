@@ -205,10 +205,11 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
     this.argonParams = Object.freeze(JSON.parse(JSON.stringify(argonParams)));
   }
 
-  async setPassword(password: string) {
+  async setPassword(password: string): Promise<this> {
     this.#key = await RawVault.#deriveVaultKey(await RawVault.#machineSeed, this.id, this.argonParams, password, (x) =>
       this.addRevoker(x)
     );
+    return this
   }
 
   async load(deserialize: (_: Uint8Array) => Promise<void>): Promise<this> {
