@@ -1,7 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as jose from "jose";
 import * as ta from "type-assertions";
-import * as uuid from "uuid";
 
 import { MapVault } from "./mapVault";
 import { RawVault } from "./rawVault";
@@ -170,6 +169,8 @@ export class Vault extends MapVault implements IVault {
             return () => Array.from(self.keys()).map((k) => self.#getUnwrapped(k));
           case "entries":
             return () => Array.from(self.keys()).map((k) => [k, self.#getUnwrapped(k)]);
+          case "entriesAsync":
+            return () => Promise.all(Array.from(self.keys()).map(async (k) => [k, await self.#getUnwrapped(k)]));
           case "forEach":
             return (callbackFn: (v?: unknown, k?: string, m?: typeof self) => void, thisArg?: object) => {
               for (const key of self.keys()) {

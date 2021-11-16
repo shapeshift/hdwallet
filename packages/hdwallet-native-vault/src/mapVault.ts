@@ -28,20 +28,6 @@ export class MapVault
     this.#rawVault = rawVault;
   }
 
-  // private readonly _id = () => this.#rawVault.id;
-  // private readonly _argonParams = () => this.#rawVault.argonParams;
-  // private readonly _meta = () => this.#rawVault.meta;
-
-  // get id() {
-  //   return this._id();
-  // }
-  // get argonParams() {
-  //   return this._argonParams();
-  // }
-  // get meta() {
-  //   return this._meta();
-  // }
-
   get id() {
     return this.#rawVault.id;
   }
@@ -79,6 +65,10 @@ export class MapVault
       return encoder.encode(JSON.stringify(payloadObj));
     });
     return this;
+  }
+
+  async entriesAsync(): Promise<Array<[string, unknown]>> {
+    return await Promise.all(Array.from(this.entries()).map(async ([k, v]): Promise<[typeof k, unknown]> => [k, await v]))
   }
 }
 
