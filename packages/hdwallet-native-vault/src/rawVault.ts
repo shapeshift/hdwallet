@@ -6,15 +6,17 @@ import * as uuid from "uuid";
 import * as ta from "type-assertions";
 import { argonBenchmark } from "./argonBenchmark";
 
-import { ArgonParams, IVaultBackedBy, IVaultFactory, VaultPrepareParams } from "./types"
-import { Revocable, crypto, revocable, encoder, keyStore, vaultStore } from "./util"
+import { ArgonParams, IVaultBackedBy, IVaultFactory, VaultPrepareParams } from "./types";
+import { Revocable, crypto, revocable, encoder, keyStoreUUID, vaultStoreUUID, setCrypto, setPerformance } from "./util";
 import { Vault } from ".";
 
 // This has to be outside the class so the static initializers for defaultArgonParams and #machineSeed can reference it.
 let resolvers:
   | Partial<{
       machineSeed: (_: CryptoKey) => void;
-      defaultArgonParams: (_: ArgonParams) => void;
+      defaultArgonParams: (_: ArgonParams | Promise<ArgonParams>) => void;
+      keyStore: (_: idb.UseStore) => void;
+      vaultStore: (_: idb.UseStore) => void;
     }>
   | undefined = {};
 
@@ -30,44 +32,53 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
   static readonly #machineSeed: Promise<CryptoKey> = new Promise(
     (resolve) => resolvers && (resolvers.machineSeed = resolve)
   );
+  static readonly #keyStore: Promise<idb.UseStore> = new Promise(
+    (resolve) => resolvers && (resolvers.keyStore = resolve)
+  );
+  static readonly #vaultStore: Promise<idb.UseStore> = new Promise(
+    (resolve) => resolvers && (resolvers.vaultStore = resolve)
+  );
   static async prepare(params?: VaultPrepareParams) {
     const currentResolvers = resolvers;
     resolvers = undefined;
     if (!currentResolvers) {
       if (params) throw new Error("can't call prepare with a parameters object after vault is already prepared");
-      return
+      return;
     }
 
-    const [machineSeed, defaultArgonParams] = await Promise.all([
-      params?.machineSeed ??
-        (await idb.get<CryptoKey>("machineSeed", keyStore)) ??
+    setCrypto(params?.crypto ?? window.crypto);
+    setPerformance(params?.performance ?? window.performance);
+
+    currentResolvers.keyStore?.(params?.keyStore ?? idb.createStore(keyStoreUUID, "keyval"));
+    currentResolvers.vaultStore?.(params?.vaultStore ?? idb.createStore(vaultStoreUUID, "keyval"));
+    currentResolvers.machineSeed?.(
+      (await idb.get<CryptoKey>("machineSeed", await RawVault.#keyStore)) ??
         (await (async () => {
-          const machineSeed = await crypto.subtle.importKey(
-            "raw",
-            await crypto.getRandomValues(new Uint8Array(32)),
-            "HKDF",
-            false,
-            ["deriveBits", "deriveKey"]
-          );
-          await idb.set("machineSeed", machineSeed, keyStore);
+          const machineSeed = await (
+            await crypto
+          ).subtle.importKey("raw", await (await crypto).getRandomValues(new Uint8Array(32)), "HKDF", false, [
+            "deriveBits",
+            "deriveKey",
+          ]);
+          await idb.set("machineSeed", machineSeed, await RawVault.#keyStore);
           return machineSeed;
-        })()),
-      params?.defaultArgonParams ??
-        (await idb.get<ArgonParams>("defaultArgonParams", keyStore)) ??
-        (await (async () => {
+        })())
+    );
+
+    currentResolvers.defaultArgonParams?.(
+      (await idb.get<ArgonParams>("defaultArgonParams", await RawVault.#keyStore)) ??
+        (async () => {
           const out: ArgonParams = {
             parallelism: 1,
             memorySize: 32 * 1024,
             iterations: 26,
           };
           out.iterations = (await argonBenchmark(out.memorySize, 1000)).iterations;
-          await idb.set("defaultArgonParams", out, keyStore);
+          await idb.set("defaultArgonParams", out, await RawVault.#keyStore);
           return out;
-        })()),
-    ]);
-    currentResolvers.machineSeed?.(machineSeed);
-    currentResolvers.defaultArgonParams?.(defaultArgonParams);
-  };
+        })()
+    );
+  }
   //#endregion
 
   static async #deriveVaultKey(
@@ -80,7 +91,9 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
     const idBuf = encoder.encode(id);
 
     const argonSalt = new Uint8Array(
-      await crypto.subtle.deriveBits(
+      await (
+        await crypto
+      ).subtle.deriveBits(
         {
           name: "HKDF",
           hash: "SHA-256",
@@ -104,7 +117,9 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
     // equivalent security, and using idBuf as the seed in both places permits some optimization by sharing
     // the result of HDKF-Extract between both calculations. (This isn't done right now, and can't be done with
     // the WebCrypto API as it is, but maybe we'll use something else some day.)
-    const vaultKey = await crypto.subtle.deriveKey(
+    const vaultKey = await (
+      await crypto
+    ).subtle.deriveKey(
       {
         name: "HKDF",
         hash: "SHA-256",
@@ -136,39 +151,46 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
 
     const out = await (async () => {
       if (id !== undefined) {
-        const jwe = await idb.get<jose.FlattenedJWE>(id, vaultStore);
-        if (!jwe) throw new Error("can't find specified vault")
+        const jwe = await idb.get<jose.FlattenedJWE>(id, await RawVault.#vaultStore);
+        if (!jwe) throw new Error("can't find specified vault");
         const protectedHeader = jose.decodeProtectedHeader(jwe);
         const argonParams = protectedHeader.argon as ArgonParams | undefined;
         if (!argonParams) throw new Error("can't decode vault with missing argon parameters");
 
         return await factory(id, argonParams);
       } else {
-        return await factory(uuid.v4(), await RawVault.defaultArgonParams);
+        return await factory(
+          uuid.v4({
+            random: await (await crypto).getRandomValues(new Uint8Array(16)),
+          }),
+          await RawVault.defaultArgonParams
+        );
       }
     })();
     if (password !== undefined) await out.setPassword(password);
     return out;
-  };
+  }
 
   static async list(): Promise<string[]> {
-    const out = (await idb.keys(vaultStore)).filter((k) => typeof k === "string").map((k) => k as string);
+    const out = (await idb.keys(await RawVault.#vaultStore))
+      .filter((k) => typeof k === "string")
+      .map((k) => k as string);
     return out;
-  };
+  }
 
   static async meta(id: string): Promise<Map<string, unknown> | undefined> {
-    const jwe = await idb.get(id, vaultStore);
+    const jwe = await idb.get(id, await RawVault.#vaultStore);
     if (!jwe) return undefined;
     const meta = jose.decodeProtectedHeader(jwe).meta;
     if (!meta || !core.isIndexable(meta)) return undefined;
     const out = new Map();
     Object.entries(out).forEach(([k, v]) => out.set(k, v));
     return out;
-  };
+  }
 
   static async delete(id: string): Promise<void> {
-    await idb.del(id, vaultStore);
-  };
+    await idb.del(id, await RawVault.#vaultStore);
+  }
   //#endregion
 
   readonly id: string;
@@ -191,7 +213,7 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
 
   async load(deserialize: (_: Uint8Array) => Promise<void>): Promise<this> {
     if (!this.#key) throw new Error("can't load vault until key is set");
-    const jwe = await idb.get(this.id, vaultStore);
+    const jwe = await idb.get(this.id, await RawVault.#vaultStore);
     if (!jwe) throw new Error("can't load missing vault");
 
     const decryptResult = await jose.flattenedDecrypt(jwe, this.#key, {
@@ -211,15 +233,19 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
   async save(serialize: () => Promise<Uint8Array>): Promise<this> {
     if (!this.#key) throw new Error("can't save vault until key is set");
     const payload = await serialize();
+    //TODO: override the rng used by jose to calculate the CEK and IV with the dependency-injected one.
     const jwe = await new jose.FlattenedEncrypt(payload)
       .setProtectedHeader({
         alg: "A256KW",
         enc: "A256GCM",
         argon: this.argonParams,
-        meta: Array.from(this.meta.entries()).reduce((a, [k, v]) => (a[k] = v, a), {} as Record<string, unknown>),
+        meta: Array.from(this.meta.entries()).reduce(
+          (a, [k, v]) => ((a[k] = v), a),
+          {} as Record<string, unknown>
+        ),
       })
       .encrypt(this.#key);
-    await idb.set(this.id, jwe, vaultStore);
+    await idb.set(this.id, jwe, await RawVault.#vaultStore);
     return this;
   }
 }

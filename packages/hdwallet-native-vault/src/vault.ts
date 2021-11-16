@@ -79,7 +79,7 @@ export class Vault extends MapVault implements IVault {
   //#endregion
 
   readonly #shieldingKey: Promise<CryptoKey> = (async () => {
-    const out = crypto.subtle.generateKey(
+    const out = (await crypto).subtle.generateKey(
       {
         name: "AES-KW",
         length: 256,

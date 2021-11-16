@@ -17,7 +17,7 @@ export const GENERATE_MNEMONIC = uuid.v4()
 
 Vault.registerValueTransformer("#mnemonic", async (x: unknown) => {
   if (x !== GENERATE_MNEMONIC) return x
-  const entropy = await crypto.getRandomValues(Buffer.alloc(16))
+  const entropy = await (await crypto).getRandomValues(Buffer.alloc(16))
   return entropyToMnemonic(entropy)
 })
 Vault.registerValueWrapper("#mnemonic", async (x: unknown, addRevoker: (revoke: () => void) => void) => {

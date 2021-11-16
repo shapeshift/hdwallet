@@ -3,8 +3,8 @@ import { argon2id } from "hash-wasm"
 import { crypto, performance } from "./util"
 
 async function argonBenchInner(memorySize: number, iterations: number, now: () => number) {
-  const password = await crypto.getRandomValues(new Uint8Array(32))
-  const salt = await crypto.getRandomValues(new Uint8Array(32))
+  const password = await (await crypto).getRandomValues(new Uint8Array(32))
+  const salt = await (await crypto).getRandomValues(new Uint8Array(32))
   const start = now()
   await argon2id({
     password,
@@ -62,7 +62,7 @@ export async function argonBenchmark(memorySizeKib: number, targetTimeMs: number
   roundMs: number
   jitter: number
 }> = {}) {
-  const preciseNow = options.now ?? performance.now.bind(performance)
+  const preciseNow = options.now ?? (await performance).now.bind(await performance)
   const overallStart = preciseNow();
 
   let fineTuning = options.fineTuning ?? 0

@@ -1,10 +1,17 @@
-import { IArgon2Options } from "hash-wasm";
+import type { IArgon2Options } from "hash-wasm";
+import type * as idb from "idb-keyval";
+
+export type AsyncCrypto = Omit<Crypto, "getRandomValues"> & {
+  getRandomValues<T extends DataView | Float32Array | Float64Array | Uint8ClampedArray | Uint8Array | Int8Array | Int16Array | Int32Array | Uint16Array | Uint32Array | null>(array: T): T | Promise<T>;
+}
 
 export type ArgonParams = Pick<IArgon2Options, "parallelism" | "memorySize" | "iterations">;
 
 export type VaultPrepareParams = Partial<{
-  machineSeed: CryptoKey;
-  defaultArgonParams: ArgonParams;
+  crypto: AsyncCrypto;
+  performance: Performance;
+  keyStore: idb.UseStore;
+  vaultStore: idb.UseStore;
 }>;
 
 export interface IVaultFactory<U extends IVaultBackedBy<any> | IVault> {
