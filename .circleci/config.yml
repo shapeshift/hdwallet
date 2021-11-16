@@ -62,7 +62,7 @@ orbs:
               at: .
           - run: yarn --cache-folder .yarn-cache
           - run: git status
-          - run: ./node_modules/.bin/lerna publish from-package --yes
+          - run: ./node_modules/.bin/lerna publish from-package --yes --no-verify-access
 workflows:
   version: 2
   Build and Release:
