@@ -329,6 +329,7 @@ export class NativeHDWallet
   async cancel(): Promise<void> {}
 
   async wipe(): Promise<void> {
+    const oldMasterKey = this.#masterKey;
     this.#initialized = false;
     this.#masterKey = undefined;
 
@@ -342,6 +343,8 @@ export class NativeHDWallet
     super.secretWipe();
     super.terraWipe();
     super.kavaWipe();
+
+    (await oldMasterKey)?.revoke?.()
   }
 
   async reset(): Promise<void> {}

@@ -8,3 +8,8 @@ export class IsolationError extends Error {
         super(`this key is isolated -- no ${name} for you!`);
     }
 }
+
+export interface Revocable {
+    revoke(): void
+    addRevoker(revoke: () => void): void
+}
