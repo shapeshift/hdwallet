@@ -10,6 +10,7 @@ import { TextEncoder } from "web-encoding";
 
 import { safeBufferFrom } from "../../types";
 import * as BIP32 from "./bip32";
+import { revocable, Revocable } from "./revocable";
 
 // Poor man's single-block PBKDF2 implementation
 //TODO: get something better
@@ -37,15 +38,17 @@ function pbkdf2_sha512_singleblock(
     return out;
 }
 
-export class Mnemonic implements BIP39.Mnemonic {
+export class Mnemonic extends Revocable(class {}) implements BIP39.Mnemonic {
     readonly #mnemonic: string;
 
     protected constructor(mnemonic: string) {
+        super();
         this.#mnemonic = mnemonic.normalize("NFKD");
     }
 
     static async create(mnemonic: string): Promise<Mnemonic> {
-        return new Mnemonic(mnemonic);
+        const obj = new Mnemonic(mnemonic)
+        return revocable(obj, (x) => obj.addRevoker(x));
     }
 
     async toSeed(passphrase?: string): Promise<BIP32.Seed> {
@@ -54,6 +57,8 @@ export class Mnemonic implements BIP39.Mnemonic {
         const mnemonic = this.#mnemonic;
         const salt = new TextEncoder().encode(`mnemonic${passphrase ?? ""}`.normalize("NFKD"));
 
-        return await BIP32.Seed.create(pbkdf2_sha512_singleblock(mnemonic, salt, 2048));
-    }
+        const out = await BIP32.Seed.create(pbkdf2_sha512_singleblock(mnemonic, salt, 2048));
+        this.addRevoker(() => out.revoke())
+        return out
+    };
 }

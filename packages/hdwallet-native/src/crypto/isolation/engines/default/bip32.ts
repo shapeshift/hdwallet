@@ -8,16 +8,20 @@ import { TextEncoder } from "web-encoding";
 import { ByteArray, Uint32, checkType, safeBufferFrom, assertType } from "../../types";
 import { Digest, SecP256K1 } from "../../core";
 import { ChainCode } from "../../core/bip32";
+import { revocable, Revocable } from "./revocable";
 
-export class Seed implements BIP32.Seed {
+export class Seed extends Revocable(class {}) implements BIP32.Seed {
     readonly #seed: Buffer;
 
     protected constructor(seed: Uint8Array) {
+      super()
       this.#seed = safeBufferFrom(seed);
+      this.addRevoker(() => this.#seed.fill(0));
     }
 
     static async create(seed: Uint8Array): Promise<Seed> {
-        return new Seed(seed);
+        const obj = new Seed(seed);
+        return revocable(obj, (x) => obj.addRevoker(x));
     }
 
     async toMasterKey(hmacKey?: string | Uint8Array): Promise<Node> {
@@ -29,11 +33,13 @@ export class Seed implements BIP32.Seed {
         const I = safeBufferFrom(bip32crypto.hmacSHA512(safeBufferFrom(hmacKey), this.#seed));
         const IL = I.slice(0, 32);
         const IR = I.slice(32, 64);
-        return await Node.create(IL, IR);
-    }
+        const out = await Node.create(IL, IR);
+        this.addRevoker(() => out.revoke());
+        return out;
+    };
 }
 
-export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K1.ECDHKey {
+export class Node extends Revocable(class {}) implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K1.ECDHKey {
     readonly #privateKey: Buffer & ByteArray<32>;
     readonly chainCode: Buffer & BIP32.ChainCode;
     #publicKey: SecP256K1.CompressedPoint | undefined;
@@ -42,14 +48,17 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
     static requirePreimage = typeof expect === "function";
 
     protected constructor(privateKey: Uint8Array, chainCode: Uint8Array) {
+        super()
         // We avoid handing the private key to any non-platform code -- including our type-checking machinery.
         if (privateKey.length !== 32) throw new Error("bad private key length");
         this.#privateKey = safeBufferFrom(privateKey) as Buffer & ByteArray<32>;
+        this.addRevoker(() => this.#privateKey.fill(0));
         this.chainCode = safeBufferFrom(checkType(BIP32.ChainCode, chainCode)) as Buffer & ChainCode;
     }
 
     static async create(privateKey: Uint8Array, chainCode: Uint8Array): Promise<Node> {
-        return new Node(privateKey, chainCode);
+        const obj = new Node(privateKey, chainCode);
+        return revocable(obj, (x) => obj.addRevoker(x));
     }
 
     readonly getPublicKey = () => {
@@ -111,9 +120,11 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
         const IR = I.slice(32, 64);
         const ki = tinyecc.privateAdd(this.#privateKey, IL);
         if (ki === null) throw new Error("ki is null; this should be cryptographically impossible");
-        return new Node(ki, IR) as this;
+        const out = await Node.create(ki, IR);
+        this.addRevoker(() => out.revoke())
+        return out as this;
     }
-  
+
     async ecdh(publicKey: SecP256K1.CurvePoint, digestAlgorithm?: Digest.AlgorithmName<32>): Promise<ByteArray<32>> {
         SecP256K1.CurvePoint.assert(publicKey);
         digestAlgorithm === undefined || Digest.AlgorithmName(32).assert(digestAlgorithm);
