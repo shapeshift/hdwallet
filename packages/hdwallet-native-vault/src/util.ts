@@ -1,7 +1,8 @@
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as uuid from "uuid";
+import { TextDecoder, TextEncoder } from "web-encoding";
 
-import { AsyncCrypto } from "./types"
+import { AsyncCrypto } from "./types";
 
 let cryptoResovler: ((x: AsyncCrypto) => void) | undefined
 export function setCrypto(x: AsyncCrypto) {
