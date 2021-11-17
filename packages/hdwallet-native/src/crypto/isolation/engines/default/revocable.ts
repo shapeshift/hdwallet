@@ -90,9 +90,7 @@ export const Revocable = _freeze(<T extends core.Constructor>(x: T) => {
       this.#revokers.forEach(x => {
         try {
           x()
-        } catch (e) {
-          console.error(e)
-        }
+        } catch { }
       });
       this.#revokers.clear();
     };
@@ -101,9 +99,7 @@ export const Revocable = _freeze(<T extends core.Constructor>(x: T) => {
       if (this.#revoked) {
         try {
           x()
-        } catch (e) {
-          console.error(e)
-        }
+        } catch { }
       } else {
         this.#revokers.add(x);
       }
