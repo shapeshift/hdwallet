@@ -329,6 +329,7 @@ export class NativeHDWallet
   async cancel(): Promise<void> {}
 
   async wipe(): Promise<void> {
+    const oldMasterKey = this.#masterKey;
     this.#initialized = false;
     this.#masterKey = undefined;
 
@@ -342,6 +343,8 @@ export class NativeHDWallet
     super.secretWipe();
     super.terraWipe();
     super.kavaWipe();
+
+    (await oldMasterKey)?.revoke?.()
   }
 
   async reset(): Promise<void> {}
@@ -361,7 +364,10 @@ export class NativeHDWallet
           throw new Error("Required property [mnemonic] is invalid");
         })();
         const seed = await isolatedMnemonic.toSeed();
-        return await seed.toMasterKey();
+        seed.addRevoker?.(() => isolatedMnemonic.revoke?.())
+        const masterKey = await seed.toMasterKey()
+        masterKey.addRevoker?.(() => seed.revoke?.())
+        return masterKey
       }
       throw new Error("Either [mnemonic] or [masterKey] is required");
     })(msg?.mnemonic, msg?.masterKey));
@@ -381,7 +387,9 @@ export class NativeHDWallet
     );
   }
 
-  async disconnect(): Promise<void> {}
+  async disconnect(): Promise<void> {
+    await this.wipe();
+  }
 }
 
 export function isNative(wallet: core.HDWallet): wallet is NativeHDWallet {

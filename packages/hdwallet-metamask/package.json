@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-metamask",
-  "version": "1.18.0",
+  "version": "1.18.1-alpha.5",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -16,7 +16,7 @@
   "dependencies": {
     "@metamask/onboarding": "^1.0.1",
     "@portis/web3": "3.0.10",
-    "@shapeshiftoss/hdwallet-core": "1.18.0",
+    "@shapeshiftoss/hdwallet-core": "1.18.1-alpha.5",
     "base64-js": "^1.5.1",
     "bip32": "^2.0.4",
     "bitcoinjs-lib": "^5.1.6",

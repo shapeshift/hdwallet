@@ -4901,6 +4901,11 @@ base32.js@^0.1.0:
   resolved "https://registry.yarnpkg.com/base32.js/-/base32.js-0.1.0.tgz#b582dec693c2f11e893cf064ee6ac5b6131a2202"
   integrity sha1-tYLexpPC8R6JPPBk7mrFthMaIgI=
 
+base64-arraybuffer-es6@^0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/base64-arraybuffer-es6/-/base64-arraybuffer-es6-0.7.0.tgz#dbe1e6c87b1bf1ca2875904461a7de40f21abc86"
+  integrity sha512-ESyU/U1CFZDJUdr+neHRhNozeCv72Y7Vm0m1DCbjX3KBjT6eYocvAJlSk6+8+HkVwXlT1FNxhGW6q3UKAlCvvw==
+
 base64-js@^1.0.2, base64-js@^1.3.0, base64-js@^1.3.1, base64-js@^1.5.1:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-1.5.1.tgz#1b1b440160a5bf7ad40b650f095963481903930a"
@@ -6316,7 +6321,7 @@ core-js-compat@^3.14.0, core-js-compat@^3.15.0:
     browserslist "^4.16.6"
     semver "7.0.0"
 
-core-js@^2.4.0, core-js@^2.6.5:
+core-js@^2.4.0, core-js@^2.5.3, core-js@^2.6.5:
   version "2.6.12"
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.12.tgz#d9333dfa7b065e347cc5682219d6f690859cc2ec"
   integrity sha512-Kb2wC0fvsWfQrgk8HU5lW6U/Lcs8+9aaYcy4ZFc6DDlo4nZ7n70dEgE5rtR0oG6ufKDUnrwfWL1mXR5ljDatrQ==
@@ -8034,6 +8039,13 @@ extsprintf@^1.2.0:
   resolved "https://registry.yarnpkg.com/extsprintf/-/extsprintf-1.4.0.tgz#e2689f8f356fad62cca65a3a91c5df5f9551692f"
   integrity sha1-4mifjzVvrWLMplo6kcXfX5VRaS8=
 
+fake-indexeddb@^3.1.7:
+  version "3.1.7"
+  resolved "https://registry.yarnpkg.com/fake-indexeddb/-/fake-indexeddb-3.1.7.tgz#d9efbeade113c15efbe862e4598a4b0a1797ed9f"
+  integrity sha512-CUGeCzCOVjmeKi2C0pcvSh6NDU6uQIaS+7YyR++tO/atJJujkBYVhDvfePdz/U8bD33BMVWirsr1MKczfAqbjA==
+  dependencies:
+    realistic-structured-clone "^2.0.1"
+
 fake-merkle-patricia-tree@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/fake-merkle-patricia-tree/-/fake-merkle-patricia-tree-1.0.1.tgz#4b8c3acfb520afadf9860b1f14cd8ce3402cddd3"
@@ -8832,6 +8844,11 @@ hash-base@^3.0.0:
     readable-stream "^3.6.0"
     safe-buffer "^5.2.0"
 
+hash-wasm@^4.9.0:
+  version "4.9.0"
+  resolved "https://registry.yarnpkg.com/hash-wasm/-/hash-wasm-4.9.0.tgz#7e9dcc9f7d6bd0cc802f2a58f24edce999744206"
+  integrity sha512-7SW7ejyfnRxuOc7ptQHSf4LDoZaWOivfzqw+5rpcQku0nHfmicPKE51ra9BiRLAmT8+gGLestr1XroUkqdjL6w==
+
 hash.js@1.1.7, hash.js@^1.0.0, hash.js@^1.0.3, hash.js@^1.1.7:
   version "1.1.7"
   resolved "https://registry.yarnpkg.com/hash.js/-/hash.js-1.1.7.tgz#0babca538e8d4ee4a0f8988d68866537a003cf42"
@@ -9070,6 +9087,13 @@ icss-replace-symbols@1.1.0, icss-replace-symbols@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/icss-replace-symbols/-/icss-replace-symbols-1.1.0.tgz#06ea6f83679a7749e386cfe1fe812ae5db223ded"
   integrity sha1-Bupvg2ead0njhs/h/oEq5dsiPe0=
+
+idb-keyval@^6.0.3:
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/idb-keyval/-/idb-keyval-6.0.3.tgz#e47246a15e55d0fff9fa204fd9ca06f90ff30c52"
+  integrity sha512-yh8V7CnE6EQMu9YDwQXhRxwZh4nv+8xm/HV4ZqK4IiYFJBWYGjJuykADJbSP+F/GDXUBwCSSNn/14IpGL81TuA==
+  dependencies:
+    safari-14-idb-fix "^3.0.0"
 
 idna-uts46-hx@^2.3.1:
   version "2.3.1"
@@ -10249,6 +10273,11 @@ jest@^26.6.3:
     "@jest/core" "^26.6.3"
     import-local "^3.0.2"
     jest-cli "^26.6.3"
+
+jose@^4.3.5:
+  version "4.3.5"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-4.3.5.tgz#890ec0b3bf26db0b36946ca54087335200deb6f7"
+  integrity sha512-mdTu3En79OYMGBNHw4828hl6ZUOb+gQtNZVRgM+eVL3Rrs4ZYUv/yHPpfDh65GN2HhKBvJsvA0/6tKEcpkyzeg==
 
 jquery@^3.4.1:
   version "3.6.0"
@@ -13611,6 +13640,16 @@ readonly-date@^1.0.0:
   resolved "https://registry.yarnpkg.com/readonly-date/-/readonly-date-1.0.0.tgz#5af785464d8c7d7c40b9d738cbde8c646f97dcd9"
   integrity sha512-tMKIV7hlk0h4mO3JTmmVuIlJVXjKk3Sep9Bf5OH0O+758ruuVkUy2J9SttDLm91IEX/WHlXPSpxMGjPj4beMIQ==
 
+realistic-structured-clone@^2.0.1:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/realistic-structured-clone/-/realistic-structured-clone-2.0.3.tgz#8a252a87db8278d92267ad7a168c4f43fa485795"
+  integrity sha512-XYTwWZi5+lU4Wf+rnsQ7pukN9hF2cbJJf/yruBr1w23WhGflM6WoTBkdMVAun+oHFW2mV7UquyYo5oOI7YLJrQ==
+  dependencies:
+    core-js "^2.5.3"
+    domexception "^1.0.1"
+    typeson "^6.1.0"
+    typeson-registry "^1.0.0-alpha.20"
+
 rechoir@^0.6.2:
   version "0.6.2"
   resolved "https://registry.yarnpkg.com/rechoir/-/rechoir-0.6.2.tgz#85204b54dba82d5742e28c96756ef43af50e3384"
@@ -14049,6 +14088,11 @@ rxjs@^7.3.0:
   integrity sha512-7SQDi7xeTMCJpqViXh8gL/lebcwlp3d831F05+9B44A4B0WfsEwUQHR64gsH1kvJ+Ep/J9K2+n1hVl1CsGN23w==
   dependencies:
     tslib "~2.1.0"
+
+safari-14-idb-fix@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/safari-14-idb-fix/-/safari-14-idb-fix-3.0.0.tgz#450fc049b996ec7f3fd9ca2f89d32e0761583440"
+  integrity sha512-eBNFLob4PMq8JA1dGyFn6G97q3/WzNtFK4RnzT1fnLq+9RyrGknzYiM/9B12MnKAxuj1IXr7UKYtTNtjyKMBog==
 
 safe-buffer@5.1.2, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.2"
@@ -15607,6 +15651,20 @@ typescript@^4.2.4, typescript@^4.3.2:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.3.5.tgz#4d1c37cc16e893973c45a06886b7113234f119f4"
   integrity sha512-DqQgihaQ9cUrskJo9kIyW/+g0Vxsk8cDtZ52a3NGh0YNTfpUSArXSohyUGnvbPazEPLu398C0UxmKSOrPumUzA==
 
+typeson-registry@^1.0.0-alpha.20:
+  version "1.0.0-alpha.39"
+  resolved "https://registry.yarnpkg.com/typeson-registry/-/typeson-registry-1.0.0-alpha.39.tgz#9e0f5aabd5eebfcffd65a796487541196f4b1211"
+  integrity sha512-NeGDEquhw+yfwNhguLPcZ9Oj0fzbADiX4R0WxvoY8nGhy98IbzQy1sezjoEFWOywOboj/DWehI+/aUlRVrJnnw==
+  dependencies:
+    base64-arraybuffer-es6 "^0.7.0"
+    typeson "^6.0.0"
+    whatwg-url "^8.4.0"
+
+typeson@^6.0.0, typeson@^6.1.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/typeson/-/typeson-6.1.0.tgz#5b2a53705a5f58ff4d6f82f965917cabd0d7448b"
+  integrity sha512-6FTtyGr8ldU0pfbvW/eOZrEtEkczHRUtduBnA90Jh9kMPCiFNnXIon3vF41N0S4tV1HHQt4Hk1j4srpESziCaA==
+
 uglify-js@^3.1.4:
   version "3.13.10"
   resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.13.10.tgz#a6bd0d28d38f592c3adb6b180ea6e07e1e540a8d"
@@ -16418,7 +16476,7 @@ whatwg-url@^7.0.0:
     tr46 "^1.0.1"
     webidl-conversions "^4.0.2"
 
-whatwg-url@^8.0.0, whatwg-url@^8.5.0:
+whatwg-url@^8.0.0, whatwg-url@^8.4.0, whatwg-url@^8.5.0:
   version "8.7.0"
   resolved "https://registry.yarnpkg.com/whatwg-url/-/whatwg-url-8.7.0.tgz#656a78e510ff8f3937bc0bcbe9f5c0ac35941b77"
   integrity sha512-gAojqb/m9Q8a5IV96E3fHJM70AzCkgt4uXYX2O7EmuyOnLrViCQlsEBmF9UQIu3/aeAIp2U17rtbpZWNntQqdg==

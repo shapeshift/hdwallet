@@ -163,7 +163,7 @@ const recoverableSignatureStatic = {
     isLowRecoveryParam: (x: RecoverableSignature) => [0, 1].includes(RecoverableSignature.recoveryParam(x)),
     isCanonical: (x: RecoverableSignature): boolean => Signature.isCanonical(checkType(Signature, RecoverableSignature.sig(x))) && RecoverableSignature.isLowRecoveryParam(x),
     signCanonically: async (x: ECDSAKey, digestAlgorithm: Digest.AlgorithmName<32> | null, message: Uint8Array, counter?: Uint32): Promise<RecoverableSignature> => {
-        const publicKey = await x.publicKey;
+        const publicKey = await x.getPublicKey();
         assertType(ByteArray(), message);
         counter === undefined || Uint32.assert(counter);
 

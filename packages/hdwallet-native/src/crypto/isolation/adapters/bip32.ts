@@ -32,7 +32,7 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32.Node, BIP32Inte
   }
 
   static async create(isolatedNode: BIP32.Node, networkOrParent?: BIP32Adapter | Network, index?: number): Promise<BIP32Adapter> {
-    return new BIP32Adapter(isolatedNode, await isolatedNode.chainCode, await isolatedNode.publicKey, networkOrParent, index);
+    return new BIP32Adapter(isolatedNode, await isolatedNode.getChainCode(), await isolatedNode.getPublicKey(), networkOrParent, index);
   }
 
   get depth(): number {
@@ -40,6 +40,9 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32.Node, BIP32Inte
   }
   get chainCode() {
     return Buffer.from(this._chainCode) as Buffer & BIP32.ChainCode;
+  }
+  getChainCode() {
+    return this.chainCode;
   }
   get identifier() {
     return (this._identifier =
@@ -64,6 +67,9 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32.Node, BIP32Inte
   get publicKey() {
     return Buffer.from(SecP256K1.CompressedPoint.from(this._publicKey)) as Buffer &
       SecP256K1.CompressedPoint;
+  }
+  getPublicKey() {
+    return this.publicKey;
   }
 
   isNeutered() {

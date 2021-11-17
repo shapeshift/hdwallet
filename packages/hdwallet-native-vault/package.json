@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/hdwallet-core",
+  "name": "@shapeshiftoss/hdwallet-native-vault",
   "version": "1.18.1-alpha.5",
   "license": "MIT",
   "publishConfig": {
@@ -14,15 +14,18 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "eventemitter2": "^5.0.1",
-    "lodash": "^4.17.21",
-    "rxjs": "^6.4.0",
-    "type-assertions": "^1.1.0"
+    "@shapeshiftoss/hdwallet-native": "1.18.1-alpha.5",
+    "bip39": "^3.0.4",
+    "hash-wasm": "^4.9.0",
+    "idb-keyval": "^6.0.3",
+    "jose": "^4.3.5",
+    "type-assertions": "^1.1.0",
+    "uuid": "^8.3.2",
+    "web-encoding": "^1.1.0"
   },
   "devDependencies": {
-    "@types/google-protobuf": "^3.15.1",
-    "@types/jest": "^26.0.23",
-    "@types/lodash": "^4.14.168",
+    "@types/tiny-secp256k1": "^1.0.0",
+    "fake-indexeddb": "^3.1.7",
     "jest": "^26.6.3",
     "jest-environment-jsdom": "^25.5.0",
     "ts-jest": "^26.5.5",

@@ -32,7 +32,7 @@ export class SignerAdapter extends ethers.Signer {
   }
 
   async getAddress(): Promise<string> {
-    return ethers.utils.computeAddress(SecP256K1.UncompressedPoint.from(await this._isolatedKey.publicKey));
+    return ethers.utils.computeAddress(SecP256K1.UncompressedPoint.from(await this._isolatedKey.getPublicKey()));
   }
 
   async signDigest(digest: ethers.BytesLike): Promise<ethers.Signature> {

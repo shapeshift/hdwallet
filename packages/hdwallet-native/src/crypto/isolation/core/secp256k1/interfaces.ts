@@ -3,7 +3,7 @@ import { CurvePoint, RecoverableSignature, Signature } from "./types";
 import * as Digest from "../digest";
 
 export interface ECDSAKey {
-    readonly publicKey: CurvePoint | Promise<CurvePoint>;
+    getPublicKey(): CurvePoint | Promise<CurvePoint>;
 
     // Signatures MUST use a determinsitic nonce generation algorithm, which SHOULD be the one specified in RFC6979. The
     // counter parameter is used to generate multiple distinct signatures over the same message, and SHOULD be included as
@@ -26,7 +26,7 @@ export interface ECDSARecoverableKey extends ECDSAKey {
 }
 
 export interface ECDHKey {
-    readonly publicKey: CurvePoint | Promise<CurvePoint>;
+    getPublicKey(): CurvePoint | Promise<CurvePoint>;
 
     // Calculates a shared secret field element according to the ECDH key-agreement scheme specified in SEC 1 section 3.3.2,
     // encoded as a 32-byte big-endian integer. The output of this function is not uniformly distributed, and is not safe to

@@ -10,7 +10,7 @@ export class WalletAdapter {
     }
 
     static async create(isolatedKey: SecP256K1.ECDSAKey): Promise<WalletAdapter> {
-        return new WalletAdapter(isolatedKey, await isolatedKey.publicKey)
+        return new WalletAdapter(isolatedKey, await isolatedKey.getPublicKey())
     }
 
     get publicKey(): string {
