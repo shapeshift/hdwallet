@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-nodehid",
-  "version": "1.18.1-alpha.2",
+  "version": "1.18.1-alpha.3",
   "license": "MIT",
   "private": true,
   "main": "dist/index.js",
@@ -12,7 +12,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-keepkey": "1.18.1-alpha.2"
+    "@shapeshiftoss/hdwallet-keepkey": "1.18.1-alpha.3"
   },
   "peerDependencies": {
     "node-hid": "^0.7.7"
