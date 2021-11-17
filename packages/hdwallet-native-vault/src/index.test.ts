@@ -54,9 +54,6 @@ describe("Vault", () => {
     console.log("entries", vault.entries());
     expect(await vault.get("foo")).toBe("bar");
     expect(uuid.validate(vault.id)).toBe(true);
-    expect(vault.argonParams.parallelism).toBe(1);
-    expect(vault.argonParams.memorySize).toBe(32768);
-    expect(vault.argonParams.iterations).toBeGreaterThanOrEqual(1);
     expect(vault.meta.size).toBe(1);
     expect(vault.meta.get("name")).toBe("default");
   });

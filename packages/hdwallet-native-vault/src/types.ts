@@ -24,7 +24,6 @@ export interface IVaultFactory<U extends IVaultBackedBy<any> | IVault> {
 
 export interface IVaultBackedBy<T> {
   readonly id: string;
-  readonly argonParams: Readonly<ArgonParams>;
   readonly meta: Map<string, unknown>;
   setPassword(password: string): Promise<this>;
   load(deserialize: (_: T) => Promise<void>): Promise<this>;
@@ -33,7 +32,6 @@ export interface IVaultBackedBy<T> {
 
 export interface IVault {
   readonly id: string;
-  readonly argonParams: Readonly<ArgonParams>;
   readonly meta: Map<string, unknown>;
   setPassword(password: string): Promise<this>;
   load(): Promise<this>;

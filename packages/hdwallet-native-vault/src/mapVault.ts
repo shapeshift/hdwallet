@@ -31,9 +31,6 @@ export class MapVault
   get id() {
     return this.#rawVault.id;
   }
-  get argonParams() {
-    return this.#rawVault.argonParams;
-  }
   get meta() {
     return this.#rawVault.meta;
   }
