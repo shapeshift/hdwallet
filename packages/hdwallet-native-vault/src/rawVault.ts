@@ -255,3 +255,4 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
 
 Object.freeze(RawVault);
 Object.freeze(RawVault.prototype);
+Object.freeze(Object.getPrototypeOf(RawVault));

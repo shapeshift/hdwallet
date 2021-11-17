@@ -229,3 +229,4 @@ export class Vault extends MapVault implements IVault {
 
 Object.freeze(Vault);
 Object.freeze(Vault.prototype);
+Object.freeze(Object.getPrototypeOf(Vault));

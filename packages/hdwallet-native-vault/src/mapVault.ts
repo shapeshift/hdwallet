@@ -74,3 +74,4 @@ export class MapVault
 
 Object.freeze(MapVault);
 Object.freeze(MapVault.prototype);
+Object.freeze(Object.getPrototypeOf(MapVault));
