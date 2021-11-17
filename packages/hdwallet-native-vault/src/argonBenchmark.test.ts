@@ -6,6 +6,8 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 const performance = require("perf_hooks").performance
 
+jest.setTimeout(30 * 1000);
+
 describe("argonBenchmark", () => {
   beforeAll(async () => {
     const realCrypto = require("crypto").webcrypto as Crypto;

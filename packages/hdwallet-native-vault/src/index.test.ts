@@ -10,6 +10,8 @@ import { deterministicGetRandomValues } from "./deterministicGetRandomValues.tes
 const keyStore = idb.createStore(keyStoreUUID, "keyval");
 const vaultStore = idb.createStore(vaultStoreUUID, "keyval");
 
+jest.setTimeout(30 * 1000);
+
 describe("Vault", () => {
   beforeAll(async () => {
     const realCrypto = require("crypto").webcrypto as Crypto;
