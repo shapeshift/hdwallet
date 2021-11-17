@@ -135,7 +135,9 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
       ["wrapKey", "unwrapKey"]
     );
 
-    return revocable(vaultKey, addRevoker);
+    //TODO: Returning a revocable doesn't work here; WebCrypto in the browser complains about the proxy. Fix this.
+    return vaultKey;
+    // return revocable(vaultKey, addRevoker);
   }
 
   //#region static: VaultFactory<RawVault>
