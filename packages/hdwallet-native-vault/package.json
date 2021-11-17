@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-native-vault",
-  "version": "1.18.1-alpha.0",
+  "version": "1.18.1-alpha.1",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,7 +14,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-native": "1.18.1-alpha.0",
+    "@shapeshiftoss/hdwallet-native": "1.18.1-alpha.1",
     "bip39": "^3.0.4",
     "hash-wasm": "^4.9.0",
     "idb-keyval": "^6.0.3",
