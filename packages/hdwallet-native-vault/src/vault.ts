@@ -193,6 +193,9 @@ export class Vault extends MapVault implements IVault {
   seal() {
     this.#sealed = true;
   }
+  get sealed() {
+    return this.#sealed
+  }
 
   unwrap(addRevoker?: (revoke: () => void) => void) {
     if (this.#sealed) throw new Error("can't unwrap a sealed vault");

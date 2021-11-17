@@ -85,6 +85,7 @@ describe("Vault", () => {
 
   it("should be unwrappable before being sealed", async () => {
     const vault = await Vault.thereCanBeOnlyOne("foobar", false);
+    expect(vault.sealed).toBe(false);
     const unwrapped = vault.unwrap();
     expect(await unwrapped.get("#mnemonic")).toBe("all all all all all all all all all all all all");
   });
@@ -106,7 +107,9 @@ describe("Vault", () => {
 
   it("should not be unwrappable after being sealed", async () => {
     const vault = await Vault.thereCanBeOnlyOne("foobar", false);
+    expect(vault.sealed).toBe(false);
     vault.seal();
+    expect(vault.sealed).toBe(true);
     expect(() => vault.unwrap()).toThrowErrorMatchingInlineSnapshot(`"can't unwrap a sealed vault"`);
   });
 
