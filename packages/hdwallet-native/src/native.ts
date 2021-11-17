@@ -387,7 +387,9 @@ export class NativeHDWallet
     );
   }
 
-  async disconnect(): Promise<void> {}
+  async disconnect(): Promise<void> {
+    await this.wipe();
+  }
 }
 
 export function isNative(wallet: core.HDWallet): wallet is NativeHDWallet {

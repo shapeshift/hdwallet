@@ -293,7 +293,6 @@ describe("NativeHDWallet", () => {
       ["cancel"],
       ["reset"],
       ["recover"],
-      ["disconnect"],
     ])("when %s is called", async (methodName) => {
       expect(await untouchable.call(wallet, methodName)).toBe(undefined);
     });
