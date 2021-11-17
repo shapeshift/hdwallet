@@ -14,7 +14,7 @@ import { Vault } from ".";
 let resolvers:
   | Partial<{
       machineSeed: (_: CryptoKey) => void;
-      defaultArgonParams: (_: ArgonParams | Promise<ArgonParams>) => void;
+      defaultArgonParams: (_: ArgonParams | PromiseLike<ArgonParams>) => void;
       keyStore: (_: idb.UseStore) => void;
       vaultStore: (_: idb.UseStore) => void;
     }>
@@ -66,17 +66,20 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
     );
 
     currentResolvers.defaultArgonParams?.(
-      (await idb.get<ArgonParams>("defaultArgonParams", await RawVault.#keyStore)) ??
-        (async () => {
-          const out: ArgonParams = {
-            parallelism: 1,
-            memorySize: 32 * 1024,
-            iterations: 26,
-          };
-          out.iterations = (await argonBenchmark(out.memorySize, 1000)).iterations;
-          await idb.set("defaultArgonParams", out, await RawVault.#keyStore);
-          return out;
-        })()
+      (await idb.get<ArgonParams>("defaultArgonParams", await RawVault.#keyStore)) ?? {
+        then: (onfulfilled, onrejected) => {
+          return (async () => {
+            const out: ArgonParams = {
+              parallelism: 1,
+              memorySize: 32 * 1024,
+              iterations: 26,
+            };
+            out.iterations = (await argonBenchmark(out.memorySize, 1000)).iterations;
+            await idb.set("defaultArgonParams", out, await RawVault.#keyStore);
+            return out;
+          })().then(onfulfilled, onrejected);
+        },
+      }
     );
   }
   //#endregion
@@ -174,6 +177,7 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
   }
 
   static async list(): Promise<string[]> {
+    await RawVault.prepare();
     const out = (await idb.keys(await RawVault.#vaultStore))
       .filter((k) => typeof k === "string")
       .map((k) => k as string);
@@ -181,6 +185,7 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
   }
 
   static async meta(id: string): Promise<Map<string, unknown> | undefined> {
+    await RawVault.prepare();
     const jwe = await idb.get(id, await RawVault.#vaultStore);
     if (!jwe) return undefined;
     const meta = jose.decodeProtectedHeader(jwe).meta;
@@ -191,6 +196,7 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
   }
 
   static async delete(id: string): Promise<void> {
+    await RawVault.prepare();
     await idb.del(id, await RawVault.#vaultStore);
   }
   //#endregion
@@ -211,7 +217,7 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
     this.#key = await RawVault.#deriveVaultKey(await RawVault.#machineSeed, this.id, this.argonParams, password, (x) =>
       this.addRevoker(x)
     );
-    return this
+    return this;
   }
 
   async load(deserialize: (_: Uint8Array) => Promise<void>): Promise<this> {
@@ -242,10 +248,7 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
         alg: "A256KW",
         enc: "A256GCM",
         argon: this.argonParams,
-        meta: Array.from(this.meta.entries()).reduce(
-          (a, [k, v]) => ((a[k] = v), a),
-          {} as Record<string, unknown>
-        ),
+        meta: Array.from(this.meta.entries()).reduce((a, [k, v]) => ((a[k] = v), a), {} as Record<string, unknown>),
       })
       .encrypt(this.#key);
     await idb.set(this.id, jwe, await RawVault.#vaultStore);
