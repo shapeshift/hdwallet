@@ -147,7 +147,7 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
   static async open(id?: string, password?: string) {
     await Vault.prepare();
 
-    const factory = async (id: string, argonParams: ArgonParams) => {
+    const factory = async (id: string, argonParams: Promise<ArgonParams>) => {
       const vaultRevoker = new (Revocable(class {}))();
       const vault = revocable(new RawVault(id, argonParams), (x) => vaultRevoker.addRevoker(x));
       vault.addRevoker(() => vaultRevoker.revoke());
@@ -162,13 +162,13 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
         const argonParams = protectedHeader.argon as ArgonParams | undefined;
         if (!argonParams) throw new Error("can't decode vault with missing argon parameters");
 
-        return await factory(id, argonParams);
+        return await factory(id, Promise.resolve(argonParams));
       } else {
         return await factory(
           uuid.v4({
             random: await (await crypto).getRandomValues(new Uint8Array(16)),
           }),
-          await RawVault.defaultArgonParams
+          RawVault.defaultArgonParams
         );
       }
     })();
@@ -202,19 +202,19 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
   //#endregion
 
   readonly id: string;
-  readonly argonParams: Readonly<ArgonParams>;
+  readonly #argonParams: Promise<Readonly<ArgonParams>>;
   readonly meta: Map<string, unknown> = new Map();
 
   #key: CryptoKey | undefined;
 
-  protected constructor(id: string, argonParams: ArgonParams) {
+  protected constructor(id: string, argonParams: Promise<ArgonParams>) {
     super();
     this.id = id;
-    this.argonParams = Object.freeze(JSON.parse(JSON.stringify(argonParams)));
+    this.#argonParams = argonParams.then(x => Object.freeze(JSON.parse(JSON.stringify(x))));
   }
 
   async setPassword(password: string): Promise<this> {
-    this.#key = await RawVault.#deriveVaultKey(await RawVault.#machineSeed, this.id, this.argonParams, password, (x) =>
+    this.#key = await RawVault.#deriveVaultKey(await RawVault.#machineSeed, this.id, await this.#argonParams, password, (x) =>
       this.addRevoker(x)
     );
     return this;
@@ -247,7 +247,7 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
       .setProtectedHeader({
         alg: "A256KW",
         enc: "A256GCM",
-        argon: this.argonParams,
+        argon: await this.#argonParams,
         meta: Array.from(this.meta.entries()).reduce((a, [k, v]) => ((a[k] = v), a), {} as Record<string, unknown>),
       })
       .encrypt(this.#key);
