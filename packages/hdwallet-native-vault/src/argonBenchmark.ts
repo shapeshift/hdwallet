@@ -148,5 +148,13 @@ export async function argonBenchmark(memorySizeKib: number, targetTimeMs: number
       overall: overallDuration,
       msPerIteration,
     },
+    options: {
+      ...{
+        ...options,
+        now: undefined
+      },
+      memorySizeKib,
+      targetTimeMs,
+    }
   };
 }
