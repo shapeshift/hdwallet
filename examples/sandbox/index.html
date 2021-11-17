@@ -227,27 +227,30 @@
       <button class="button button-outline" id="osmosisAddress">Address</button>
       <input type="text" id="osmosisAddressResults" />
       <hr />
+
       <h5>Send</h5>
-      <label for="osmosisSignTxAddress">Address</label>
-      <input type="text" id="osmosisSignTxAddress" />
-      <label for="osmosisSignTxAmount">Amount (uOSMO)</label>
-      <input type="text" placeholder="Ex: 10000000 = 1 full asset" id="osmosisSignTxAmount" />
-      <button class="button button-outline" id="osmosisSignTx">Tx</button>
-      <input type="text" id="osmosisSignTxResults" />
+      <label for="osmosisSendAddress">Address</label>
+      <input type="text" placeholder="osmo1k0kzs2ygjsext3hx7mf00dfrfh8hl3e85s23kn" id="osmosisSendAddress" />
+      <label for="osmosisSendAmount">Amount (uOSMO)</label>
+      <input type="text" placeholder="1000000" id="osmosisSendAmount" />
+      <button class="button button-outline" id="osmosisSend">Send</button>
+      <input type="text" id="osmosisSendResults" />
       <hr />
+
       <h5>Delegate</h5>
       <label for="osmosisDelegateValidatorAddress">Validator Address</label>
       <input
         type="text"
         disabled
-        placeholder="osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n"
+        placeholder="osmovaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4ep88n0y4"
         id="osmosisDelegateValidatorAddress"
       />
       <label for="osmosisDelegateAmount">Amount (uOSMO)</label>
-      <input type="text" placeholder="Ex: 10000000 = 1 full asset" id="osmosisDelegateAmount" />
+      <input type="text" placeholder="3000" id="osmosisDelegateAmount" />
       <button class="button button-outline" id="osmosisDelegate">Delegate</button>
       <input type="text" id="osmosisDelegateResults" />
       <hr />
+
       <h5>Undelegate</h5>
       <label for="osmosisUndelegateValidatorAddress">Validator Address</label>
       <input
@@ -257,17 +260,170 @@
         id="osmosisUndelegateValidatorAddress"
       />
       <label for="osmosisUndelegateAmount">Amount (uOSMO)</label>
-      <input type="text" placeholder="Ex: 10000000 = 1 full asset" id="osmosisUndelegateAmount" />
+      <input type="text" placeholder="1000000" id="osmosisUndelegateAmount" />
       <button class="button button-outline" id="osmosisUndelegate">Undelegate</button>
       <input type="text" id="osmosisUndelegateResults" />
       <hr />
-      <h5>IBC Deposit</h5>
+
+      <h5>Claim</h5>
+      <label for="osmosisClaimDelegatorAddress">Delegator Address</label>
+      <input
+        type="text"
+        disabled
+        placeholder="osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq"
+        id="osmosisClaimDelegatorAddress"
+      />
+      <label for="osmosisClaimValidatorAddress">Validator Address</label>
+      <input
+        type="text"
+        disabled
+        placeholder="osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n"
+        id="osmosisClaimValidatorAddress"
+      />
+      <label for="osmosisClaimAmount">Amount (uOSMO)</label>
+      <input type="text" placeholder="3500" id="osmosisClaimAmount" />
+      <button class="button button-outline" id="osmosisClaim">Claim</button>
+      <input type="text" id="osmosisClaimResults" />
       <hr />
-      <h5>IBC Withdrawal</h5>
-      <hr />
+
       <h5>LP Add</h5>
+      <label for="osmosisLPAddSenderAddress">Sender Address</label>
+      <input
+        type="text"
+        disabled
+        placeholder="osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq"
+        id="osmosisLPAddSenderAddress"
+      />
+      <label for="osmosisLPAddPoolId">Pool ID</label>
+      <input type="text" disabled placeholder="1" id="osmosisLPAddPoolId" />
+      <label for="osmosisLPAddShareOutAmount">Share Out Amount</label>
+      <input type="text" disabled placeholder="614877705159556135" id="osmosisLPAddShareOutAmount" />
+      <label for="osmosisLPAddTokenInMaxAAmount">Token In Max A Amount</label>
+      <input type="text" disabled placeholder="9872" id="osmosisLPAddTokenInMaxAAmount" />
+      <label for="osmosisLPAddTokenInMaxBAmount">Token In Max B Amount</label>
+      <input type="text" disabled placeholder="53812" id="osmosisLPAddTokenInMaxBAmount" />
+      <button class="button button-outline" id="osmosisLpAdd">LP Add</button>
+      <input type="text" id="osmosisLpAddResults" />
       <hr />
-      <h5>LP Stake</h5>
+
+      <h5>LP Remove</h5>
+      <label for="osmosisLPRemoveSenderAddress">Sender Address</label>
+      <input
+        type="text"
+        disabled
+        placeholder="osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq"
+        id="osmosisLPRemoveSenderAddress"
+      />
+      <label for="osmosisLPRemovePoolId">Pool ID</label>
+      <input type="text" disabled placeholder="1" id="osmosisLPRemovePoolId" />
+      <label for="osmosisLPRemoveShareInAmount">Share In Amount</label>
+      <input type="text" disabled placeholder="157438852579778068" id="osmosisLPRemoveShareInAmount" />
+      <label for="osmosisLPRemoveTokenOutMinAAmount">Token Out Min A Amount</label>
+      <input type="text" disabled placeholder="2406" id="osmosisLPRemoveTokenOutMinAAmount" />
+      <label for="osmosisLPRemoveTokenOutMinBAmount">Token Out Min B Amount</label>
+      <input type="text" disabled placeholder="13098" id="osmosisLPRemoveTokenOutMinBAmount" />
+      <button class="button button-outline" id="osmosisLpRemove">LP Remove</button>
+      <input type="text" id="osmosisLpRemoveResults" />
+      <hr />
+
+      <h5>Farm Tokens</h5>
+      <label for="osmosisFarmTokensOwnerAddress">Owner Address</label>
+      <input
+        type="text"
+        disabled
+        placeholder="osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq"
+        id="osmosisFarmTokensOwnerAddress"
+      />
+      <label for="osmosisFarmTokensDuration">Duration</label>
+      <input type="text" disabled placeholder="86400000003039" id="osmosisFarmTokensDuration" />
+      <label for="osmosisFarmTokensAmount">Amount</label>
+      <input type="text" disabled placeholder="300000000000000000" id="osmosisFarmTokensAmount" />
+      <button class="button button-outline" id="osmosisFarmTokens">Farm Tokens</button>
+      <input type="text" id="osmosisFarmTokensResults" />
+      <hr />
+
+      <h5>IBC Deposit</h5>
+      <label for="osmosisIBCDepositSourcePort">Source Port</label>
+      <input type="text" disabled placeholder="transfer" id="osmosisIBCDepositSourcePort" />
+      <label for="osmosisIBCDepositSourceChannel">Source Channel</label>
+      <input type="text" disabled placeholder="channel-141" id="osmosisIBCDepositSourceChannel" />
+      <label for="osmosisIBCDepositTokenAmount">Token</label>
+      <input type="text" disabled placeholder="10000" id="osmosisIBCDepositTokenAmount" />
+      <label for="osmosisIBCDepositSenderAddress">Sender Address</label>
+      <input
+        type="text"
+        disabled
+        placeholder="cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj"
+        id="osmosisIBCDepositSenderAddress"
+      />
+      <label for="osmosisIBCDepositReceiverAddress">Receiver Address</label>
+      <input
+        type="text"
+        disabled
+        placeholder="osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq"
+        id="osmosisIBCDepositReceiverAddress"
+      />
+      <label for="osmosisIBCDepositRevisionNumber">Revision Number</label>
+      <input type="text" disabled placeholder="1" id="osmosisIBCDepositRevisionNumber" />
+      <label for="osmosisIBCDepositRevisionHeight">Revision Height</label>
+      <input type="text" disabled placeholder="2019339" id="osmosisIBCDepositRevisionHeight" />
+      <button class="button button-outline" id="osmosisIBCDeposit">IBC Deposit</button>
+      <input type="text" id="osmosisIBCDepositResults" />
+      <hr />
+
+      <h5>IBC Withdrawal</h5>
+      <label for="osmosisIBCWithdrawalSourcePort">Source Port</label>
+      <input type="text" disabled placeholder="transfer" id="osmosisIBCWithdrawalSourcePort" />
+      <label for="osmosisIBCWithdrawalSourceChannel">Source Channel</label>
+      <input type="text" disabled placeholder="channel-0" id="osmosisIBCWithdrawalSourceChannel" />
+      <label for="osmosisIBCWithdrawalTokenAmount">Token</label>
+      <input type="text" disabled placeholder="18557" id="osmosisIBCWithdrawalTokenAmount" />
+      <label for="osmosisIBCWithdrawalSenderAddress">Sender Address</label>
+      <input
+        type="text"
+        disabled
+        placeholder="osmo1a7xqkxa4wyjfllme9u3yztgsz363dalz3lxtj6"
+        id="osmosisIBCWithdrawalSenderAddress"
+      />
+      <label for="osmosisIBCWithdrawalReceiverAddress">Receiver Address</label>
+      <input
+        type="text"
+        disabled
+        placeholder="cosmos1a7xqkxa4wyjfllme9u3yztgsz363dalzey4myg"
+        id="osmosisIBCWithdrawalReceiverAddress"
+      />
+      <label for="osmosisIBCWithdrawalRevisionNumber">Revision Number</label>
+      <input type="text" disabled placeholder="4" id="osmosisIBCWithdrawalRevisionNumber" />
+      <label for="osmosisIBCWithdrawalRevisionHeight">Revision Height</label>
+      <input type="text" disabled placeholder="8373701" id="osmosisIBCWithdrawalRevisionHeight" />
+      <button class="button button-outline" id="osmosisIBCWithdrawal">IBC Withdrawal</button>
+      <input type="text" id="osmosisIBCWithdrawalResults" />
+      <hr />
+
+      <h5>Swap</h5>
+      <label for="osmosisSwapSenderAddress">Swap</label>
+      <input
+        type="text"
+        disabled
+        placeholder="osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq"
+        id="osmosisSwapSenderAddress"
+      />
+      <label for="osmosisSwapPoolId">Pool ID</label>
+      <input type="text" disabled placeholder="1" id="osmosisSwapPoolId" />
+      <label for="osmosisSwapTokenOutDenom">Token Out Denom</label>
+      <input
+        type="text"
+        disabled
+        placeholder="ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"
+        id="osmosisSwapTokenOutDenom"
+      />
+      <label for="osmosisSwapTokenInAmount">Token In Amount</label>
+      <input type="text" disabled placeholder="65000" id="osmosisSwapTokenInAmount" />
+      <label for="osmosisSwapTokenOutMinAmount">Token Out Min Amount</label>
+      <input type="text" disabled placeholder="8204" id="osmosisSwapTokenOutMinAmount" />
+      <button class="button button-outline" id="osmosisSwap">Swap</button>
+      <input type="text" id="osmosisSwapResults" />
+      <hr />
     </div>
 
     <div class="container">
