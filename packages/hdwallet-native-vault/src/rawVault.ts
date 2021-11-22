@@ -38,6 +38,7 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
   static readonly #vaultStore: Promise<idb.UseStore> = new Promise(
     (resolve) => resolvers && (resolvers.vaultStore = resolve)
   );
+
   static async prepare(params?: VaultPrepareParams) {
     const currentResolvers = resolvers;
     resolvers = undefined;
@@ -194,7 +195,7 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
     const meta = jose.decodeProtectedHeader(jwe).meta;
     if (!meta || !core.isIndexable(meta)) return undefined;
     const out = new Map();
-    Object.entries(out).forEach(([k, v]) => out.set(k, v));
+    Object.entries(meta).forEach(([k, v]) => out.set(k, v));
     return out;
   }
 
