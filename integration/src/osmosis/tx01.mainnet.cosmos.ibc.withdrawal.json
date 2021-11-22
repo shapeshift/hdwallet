@@ -1,44 +1,44 @@
 {
-  "type":"cosmos-sdk/StdTx",
-  "value":{
-    "msg":[
+  "type": "cosmos-sdk/StdTx",
+  "value": {
+    "fee": {
+      "amount": [
+        {
+          "amount": "0",
+          "denom": "uosmo"
+        }
+      ],
+      "gas": "1350000"
+    },
+    "memo": "",
+    "msg": [
       {
-        "type":"cosmos-sdk/MsgTransfer",
-        "value":{
-          "source_port":"transfer",
-          "source_channel":"channel-0",
-          "token":{
-            "denom":"ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
-            "amount":"18557"
+        "type": "cosmos-sdk/MsgTransfer",
+        "value": {
+          "receiver": "cosmos1a7xqkxa4wyjfllme9u3yztgsz363dalzey4myg",
+          "sender": "osmo1a7xqkxa4wyjfllme9u3yztgsz363dalz3lxtj6",
+          "source_channel": "channel-0",
+          "source_port": "transfer",
+          "timeout_height": {
+            "revision_height": "8373701",
+            "revision_number": "4"
           },
-          "sender":"osmo1a7xqkxa4wyjfllme9u3yztgsz363dalz3lxtj6",
-          "receiver":"cosmos1a7xqkxa4wyjfllme9u3yztgsz363dalzey4myg",
-          "timeout_height":{
-            "revision_number":"4",
-            "revision_height":"8373701"
+          "token": {
+            "amount": "18557",
+            "denom": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"
           }
         }
       }
     ],
-    "fee":{
-      "amount":[
-        {
-          "denom":"uosmo",
-          "amount":"0"
-        }
-      ],
-      "gas":"1350000"
-    },
-    "signatures":[
+    "signatures": [
       {
-        "pub_key":{
-          "type":"tendermint/PubKeySecp256k1",
-          "value":"A6enCcw1NHqwuGmQTse6ve3iP6oIfJBeM9oJt/1g1l9B"
+        "pub_key": {
+          "type": "tendermint/PubKeySecp256k1",
+          "value": "A6enCcw1NHqwuGmQTse6ve3iP6oIfJBeM9oJt/1g1l9B"
         },
-        "signature":"8j1r6/8ZpzX3yca7clqqPoQQBCExsYRMiWqgRGMuvfx9MhuFQk+RHVWBgPNYdsvsfDC8fbg+8a+fZ636XKJT+A=="
+        "signature": "8j1r6/8ZpzX3yca7clqqPoQQBCExsYRMiWqgRGMuvfx9MhuFQk+RHVWBgPNYdsvsfDC8fbg+8a+fZ636XKJT+A=="
       }
     ],
-    "memo":"",
-    "timeout_height":"0"
+    "timeout_height": "0"
   }
 }

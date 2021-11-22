@@ -1,44 +1,44 @@
 {
-  "type":"cosmos-sdk/StdTx",
-  "value":{
-    "msg":[
-      {
-        "type":"osmosis/gamm/swap-exact-amount-in",
-        "value":{
-          "sender":"osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
-          "routes":[
-            {
-              "poolId":"1",
-              "tokenOutDenom":"ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"
-            }
-          ],
-          "tokenIn":{
-            "denom":"uosmo",
-            "amount":"65000"
-          },
-          "tokenOutMinAmount":"8204"
-        }
-      }
-    ],
-    "fee":{
-      "amount":[
+  "type": "cosmos-sdk/StdTx",
+  "value": {
+    "fee": {
+      "amount": [
         {
-          "denom":"uosmo",
-          "amount":"15000"
+          "amount": "15000",
+          "denom": "uosmo"
         }
       ],
-      "gas":"600000"
+      "gas": "600000"
     },
-    "signatures":[
+    "memo": "",
+    "msg": [
       {
-        "pub_key":{
-          "type":"tendermint/PubKeySecp256k1",
-          "value":"A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
-        },
-        "signature":"tnbQ3pkKPEZ62IKOceuR3NgK5t9VFiiflI1j3vwEO8wFbnbC99giiYlAMvrchhNyQTMqSdSTKQ7pSl4MC7Sg9A=="
+        "type": "osmosis/gamm/swap-exact-amount-in",
+        "value": {
+          "routes": [
+            {
+              "poolId": "1",
+              "tokenOutDenom": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"
+            }
+          ],
+          "sender": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
+          "tokenIn": {
+            "amount": "65000",
+            "denom": "uosmo"
+          },
+          "tokenOutMinAmount": "8204"
+        }
       }
     ],
-    "memo":"",
-    "timeout_height":"0"
+    "signatures": [
+      {
+        "pub_key": {
+          "type": "tendermint/PubKeySecp256k1",
+          "value": "A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
+        },
+        "signature": "tnbQ3pkKPEZ62IKOceuR3NgK5t9VFiiflI1j3vwEO8wFbnbC99giiYlAMvrchhNyQTMqSdSTKQ7pSl4MC7Sg9A=="
+      }
+    ],
+    "timeout_height": "0"
   }
 }

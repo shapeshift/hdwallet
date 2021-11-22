@@ -1,40 +1,40 @@
 {
-  "type":"cosmos-sdk/StdTx",
-  "value":{
-    "msg":[
-      {
-        "type":"osmosis/lockup/lock-tokens",
-        "value":{
-          "owner":"osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
-          "duration":"86400000003039",
-          "coins":[
-            {
-              "denom":"gamm/pool/1",
-              "amount":"300000000000000000"
-            }
-          ]
-        }
-      }
-    ],
-    "fee":{
-      "amount":[
+  "type": "cosmos-sdk/StdTx",
+  "value": {
+    "fee": {
+      "amount": [
         {
-          "denom":"uosmo",
-          "amount":"0"
+          "amount": "0",
+          "denom": "uosmo"
         }
       ],
-      "gas":"140000"
+      "gas": "140000"
     },
-    "signatures":[
+    "memo": "",
+    "msg": [
       {
-        "pub_key":{
-          "type":"tendermint/PubKeySecp256k1",
-          "value":"A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
-        },
-        "signature":"NTXakYlhkZG28IOX4WZvXnLLaytSGm6AOJ5ZW3EmPwxiNri+iU4DKigkLwZb2/lzIHAopgjK3qUEE6OT2YR7fw=="
+        "type": "osmosis/lockup/lock-tokens",
+        "value": {
+          "coins": [
+            {
+              "amount": "300000000000000000",
+              "denom": "gamm/pool/1"
+            }
+          ],
+          "duration": "86400000003039",
+          "owner": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq"
+        }
       }
     ],
-    "memo":"",
-    "timeout_height":"0"
+    "signatures": [
+      {
+        "pub_key": {
+          "type": "tendermint/PubKeySecp256k1",
+          "value": "A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
+        },
+        "signature": "NTXakYlhkZG28IOX4WZvXnLLaytSGm6AOJ5ZW3EmPwxiNri+iU4DKigkLwZb2/lzIHAopgjK3qUEE6OT2YR7fw=="
+      }
+    ],
+    "timeout_height": "0"
   }
 }
