@@ -1,13 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as eth from "./ethereum";
 import _ from "lodash";
-
-// Extend the global window object so that TS doesn't complain us trying to access the 'ethereum' property
-declare global {
-  interface Window {
-    ethereum: any;
-  }
-}
+import detectEthereumProvider from "@metamask/detect-provider";
 
 class MetaMaskTransport extends core.Transport {
   public async getDeviceID() {
@@ -55,13 +49,13 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsTerraInfo = false;
 
   transport: core.Transport = new MetaMaskTransport(new core.Keyring());
-
   info: MetaMaskHDWalletInfo & core.HDWalletInfo;
   ethAddress?: string | null;
-  ethereum = window.ethereum;
+  provider: any;
 
   constructor() {
     this.info = new MetaMaskHDWalletInfo();
+    this.provider = Promise.resolve(detectEthereumProvider({ mustBeMetaMask: true, silent: false, timeout: 3000 }));
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -69,7 +63,7 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async isLocked(): Promise<boolean> {
-    return !this.ethereum.metamask.isUnlocked();
+    return !this.provider.metamask.isUnlocked();
   }
 
   public getVendor(): string {
@@ -214,7 +208,7 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
     if (this.ethAddress) {
       return this.ethAddress;
     }
-    const address = await eth.ethGetAddress(this.ethereum);
+    const address = await eth.ethGetAddress(this.provider);
     if (address) {
       this.ethAddress = address;
       return address;
@@ -225,26 +219,26 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {
-    const address = await this.ethGetAddress(this.ethereum);
-    return address ? eth.ethSignTx(msg, this.ethereum, address) : null;
+    const address = await this.ethGetAddress(this.provider);
+    return address ? eth.ethSignTx(msg, this.provider, address) : null;
   }
 
   public async ethSendTx(msg: core.ETHSignTx): Promise<core.ETHTxHash | null> {
-    const address = await this.ethGetAddress(this.ethereum);
-    return address ? eth.ethSendTx(msg, this.ethereum, address) : null;
+    const address = await this.ethGetAddress(this.provider);
+    return address ? eth.ethSendTx(msg, this.provider, address) : null;
   }
 
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
-    const address = await this.ethGetAddress(this.ethereum);
-    return address ? eth.ethSignMessage(msg, this.ethereum, address) : null;
+    const address = await this.ethGetAddress(this.provider);
+    return address ? eth.ethSignMessage(msg, this.provider, address) : null;
   }
 
   public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean | null> {
-    return eth.ethVerifyMessage(msg, this.ethereum);
+    return eth.ethVerifyMessage(msg, this.provider);
   }
 
   public async getDeviceID(): Promise<string> {
-    return "metaMask:" + (await this.ethGetAddress(this.ethereum));
+    return "metaMask:" + (await this.ethGetAddress(this.provider));
   }
 
   public async getFirmwareVersion(): Promise<string> {

@@ -15,6 +15,7 @@
     "@shapeshiftoss/hdwallet-keepkey-webusb": "1.18.1",
     "@shapeshiftoss/hdwallet-ledger": "1.18.1",
     "@shapeshiftoss/hdwallet-ledger-webusb": "1.18.1",
+    "@shapeshiftoss/hdwallet-metamask": "^1.18.1",
     "@shapeshiftoss/hdwallet-native": "1.18.1",
     "@shapeshiftoss/hdwallet-portis": "1.18.1",
     "@shapeshiftoss/hdwallet-trezor": "1.18.1",

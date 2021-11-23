@@ -1,16 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { MetaMaskHDWallet } from "./metamask";
 import MetaMaskOnboarding from "@metamask/onboarding";
-
-type MetaMaskWallet = any;
-
-// Extend the global window object so that TS doesn't complain us trying to access the 'ethereum' property
-declare global {
-  interface Window {
-    ethereum: any;
-  }
-}
-const { ethereum } = window;
+import detectEthereumProvider from "@metamask/detect-provider";
 
 export class MetaMaskAdapter {
   keyring: core.Keyring;
@@ -22,10 +13,6 @@ export class MetaMaskAdapter {
     this.keyring = keyring;
   }
 
-  private isMetaMaskInstalled(): Boolean {
-    return Boolean(ethereum && ethereum.isMetaMask);
-  }
-
   public static useKeyring(keyring: core.Keyring) {
     return new MetaMaskAdapter(keyring);
   }
@@ -35,13 +22,14 @@ export class MetaMaskAdapter {
   }
 
   public async pairDevice(): Promise<core.HDWallet> {
-    if (!this.isMetaMaskInstalled()) {
+    const provider: any = await detectEthereumProvider({ mustBeMetaMask: true, silent: false, timeout: 3000 });
+    if (!provider) {
       const onboarding = new MetaMaskOnboarding();
       onboarding.startOnboarding();
       console.error("Please install MetaMask!");
     }
     try {
-      await ethereum.request({ method: "eth_requestAccounts" });
+      await provider.request({ method: "eth_requestAccounts" });
     } catch (error) {
       console.error("Could not get MetaMask accounts. ");
       throw error;
