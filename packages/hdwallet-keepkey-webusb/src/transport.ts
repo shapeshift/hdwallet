@@ -1,13 +1,15 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
+import * as eventemitter2 from "eventemitter2";
 
-import { VENDOR_ID, WEBUSB_PRODUCT_ID } from "./utils"
+import { VENDOR_ID, WEBUSB_PRODUCT_ID } from "./utils";
 
-export type Device = USBDevice & {serialNumber: string};
-export class TransportDelegate implements keepkey.TransportDelegate {
+export type Device = USBDevice & { serialNumber: string };
+export class TransportDelegate extends eventemitter2.EventEmitter2 implements keepkey.TransportDelegate {
   usbDevice: Device;
 
   constructor(usbDevice: Device) {
+    super();
     if (usbDevice.vendorId !== VENDOR_ID) throw new core.WebUSBCouldNotPair("KeepKey", "bad vendor id");
     if (usbDevice.productId !== WEBUSB_PRODUCT_ID) throw new core.FirmwareUpdateRequired("KeepKey", "6.1.0");
     this.usbDevice = usbDevice;
@@ -34,12 +36,24 @@ export class TransportDelegate implements keepkey.TransportDelegate {
       await this.usbDevice.claimInterface(0);
     } catch (e) {
       console.error("Could not claim interface 0", this.usbDevice, { e });
-      if (core.isIndexable(e) && e.code === 18)
+      if (core.isIndexable(e) && e.code === 18) {
         // "The requested interface implements a protected class"
         throw new core.FirmwareUpdateRequired("KeepKey", "6.1.0");
-      if (core.isIndexable(e) && e.code === 19)
+      }
+      if (core.isIndexable(e) && e.code === 19) {
         // "Unable to claim interface"
-        throw new core.ConflictingApp("KeepKey");
+        const msg = new core.ConflictingApp("KeepKey");
+        this.emit(
+          core.Events.CONFLICTING_APP,
+          core.makeEvent({
+            message_type: core.Events.CONFLICTING_APP,
+            message_enum: 999,
+            message: msg,
+            from_wallet: true,
+          })
+        );
+        throw msg;
+      }
       throw e;
     }
   }
@@ -66,7 +80,10 @@ export class TransportDelegate implements keepkey.TransportDelegate {
   }
 
   async writeChunk(buf: Uint8Array, debugLink: boolean): Promise<void> {
-    await this.usbDevice.transferOut(debugLink ? 2 : 1, buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
+    await this.usbDevice.transferOut(
+      debugLink ? 2 : 1,
+      buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength)
+    );
   }
 
   async readChunk(debugLink: boolean): Promise<Uint8Array> {

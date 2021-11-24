@@ -22,6 +22,7 @@ export enum Events {
   PIN_REQUEST = "PIN_REQUEST",
   SUCCESS = "SUCCESS",
   WORD_REQUEST = "WORD_REQUEST",
+  CONFLICTING_APP = "CONFLICTING_APP"
 }
 
 export function makeEvent(e: Event): Event {
