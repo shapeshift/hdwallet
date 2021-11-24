@@ -29,8 +29,6 @@ export interface ETHAccountSuffix {
 export interface ETHGetAddress {
   addressNList: BIP32Path;
   showDisplay?: boolean;
-  /** Optional. Required for showDisplay == true. */
-  address?: string;
 }
 
 export interface ETHSignTx {
@@ -60,6 +58,10 @@ export interface ETHSignTx {
    * Device must `ethSupportsNativeShapeShift()`
    */
   exchangeType?: ExchangeType;
+}
+
+export interface ETHTxHash {
+  hash: string;
 }
 
 export interface ETHSignedTx {
@@ -134,6 +136,7 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
 
   ethGetAddress(msg: ETHGetAddress): Promise<string | null>;
   ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx | null>;
+  ethSendTx?(msg: ETHSignTx): Promise<ETHTxHash | null>;
   ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage | null>;
   ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean | null>;
 }

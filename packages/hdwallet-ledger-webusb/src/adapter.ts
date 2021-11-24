@@ -61,7 +61,7 @@ export class WebUSBLedgerAdapter {
   }
 
   public get(device: USBDevice): core.HDWallet {
-    return this.keyring.get((device as any).serialNumber);
+    return core.mustBeDefined(this.keyring.get(device.serialNumber));
   }
 
   // without unique device identifiers, we should only ever have one ledger device on the keyring at a time
@@ -69,7 +69,7 @@ export class WebUSBLedgerAdapter {
     const device = usbDevice ?? (await getFirstLedgerDevice());
 
     if (device) {
-      await this.keyring.remove(device.serialNumber);
+      await this.keyring.remove(core.mustBeDefined(device.serialNumber));
 
       const ledgerTransport = await openTransport(device);
 

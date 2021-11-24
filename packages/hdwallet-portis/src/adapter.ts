@@ -52,11 +52,10 @@ export class PortisAdapter {
       });
       return wallet;
     } catch (e) {
-      if (e.message && e.message.includes("User denied login.")) {
+      if (core.isIndexable(e) && String(e.message).includes("User denied login.")) {
         throw new core.ActionCancelled();
-      } else {
-        throw e;
       }
+      throw e;
     }
   }
 

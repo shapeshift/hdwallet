@@ -5,8 +5,6 @@ export interface TerraGetAddress {
   addressNList: BIP32Path;
   showDisplay?: boolean;
   testnet?: boolean;
-  /** Optional. Required for showDisplay == true. */
-  address?: string;
 }
 
 export namespace Terra {

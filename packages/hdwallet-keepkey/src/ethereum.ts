@@ -21,10 +21,6 @@ export function ethSupportsNativeShapeShift(): boolean {
   return true;
 }
 
-export async function ethSupportsEIP1559(): Promise<boolean> {
-  return await this.ethSupportsEIP1559();
-}
-
 export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
   const slip44 = core.slip44ByCoin(msg.coin);
   if (slip44 === undefined) return [];
@@ -51,7 +47,6 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
     est.setGasLimit(core.arrayify(msg.gasLimit));
     if (msg.gasPrice) {
       est.setGasPrice(core.arrayify(msg.gasPrice));
-      est.setType(core.ETHTransactionType.ETH_TX_TYPE_LEGACY);
     }
     if (msg.maxFeePerGas) {
       est.setMaxFeePerGas(core.arrayify(msg.maxFeePerGas));
@@ -112,12 +107,11 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
     let nextResponse = await transport.call(
       Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNTX,
       est,
-      core.LONG_TIMEOUT,
-      /*omitLock=*/ true
+      {
+        msgTimeout: core.LONG_TIMEOUT,
+        omitLock: true,
+      }
     );
-    if (nextResponse.message_enum === Messages.MessageType.MESSAGETYPE_FAILURE) {
-      throw nextResponse;
-    }
     response = nextResponse.proto as Messages.EthereumTxRequest;
     try {
       const esa: Messages.EthereumTxAck = new Messages.EthereumTxAck();
@@ -131,12 +125,11 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
         nextResponse = await transport.call(
           Messages.MessageType.MESSAGETYPE_ETHEREUMTXACK,
           esa,
-          core.LONG_TIMEOUT,
-          /*omitLock=*/ true
+          {
+            msgTimeout: core.LONG_TIMEOUT,
+            omitLock: true,
+          }
         );
-        if (nextResponse.message_enum === Messages.MessageType.MESSAGETYPE_FAILURE) {
-          throw nextResponse;
-        }
         response = nextResponse.proto as Messages.EthereumTxRequest;
       }
     } catch (error) {
@@ -158,7 +151,7 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
     const r = "0x" + core.toHexString(response.getSignatureR_asU8());
     const s = "0x" + core.toHexString(response.getSignatureS_asU8());
     if (!response.hasSignatureV()) throw new Error("could not get v");
-    const v = response.getSignatureV();
+    const v = core.mustBeDefined(response.getSignatureV());
     const v2 = "0x" + v.toString(16);
 
     const common = new Common({ chain: "mainnet", hardfork: "london" });
@@ -189,11 +182,11 @@ export async function ethGetAddress(transport: Transport, msg: core.ETHGetAddres
   const response = await transport.call(
     Messages.MessageType.MESSAGETYPE_ETHEREUMGETADDRESS,
     getAddr,
-    core.LONG_TIMEOUT
+    {
+      msgTimeout: core.LONG_TIMEOUT,
+    }
   );
   const ethAddress = response.proto as Messages.EthereumAddress;
-
-  if (response.message_type === core.Events.FAILURE) throw response;
 
   let address: string;
   if (ethAddress.hasAddressStr()) address = ethAddress.getAddressStr()!;
@@ -207,11 +200,13 @@ export async function ethSignMessage(transport: Transport, msg: core.ETHSignMess
   const m = new Messages.EthereumSignMessage();
   m.setAddressNList(msg.addressNList);
   m.setMessage(toUTF8Array(msg.message));
-  const response = (await transport.call(
+  const response = await transport.call(
     Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNMESSAGE,
     m,
-    core.LONG_TIMEOUT
-  )) as core.Event;
+    {
+      msgTimeout: core.LONG_TIMEOUT,
+    }
+  );
   const sig = response.proto as Messages.EthereumMessageSignature;
   return {
     address: eip55.encode("0x" + core.toHexString(sig.getAddress_asU8())), // FIXME: this should be done in the firmware
@@ -224,11 +219,21 @@ export async function ethVerifyMessage(transport: Transport, msg: core.ETHVerify
   m.setAddress(core.arrayify(msg.address));
   m.setSignature(core.arrayify(msg.signature));
   m.setMessage(toUTF8Array(msg.message));
-  const event = (await transport.call(
+  let event: core.Event
+  try {
+    event = await transport.call(
     Messages.MessageType.MESSAGETYPE_ETHEREUMVERIFYMESSAGE,
     m,
-    core.LONG_TIMEOUT
-  )) as core.Event;
+    {
+      msgTimeout: core.LONG_TIMEOUT,
+    }
+  );
+  } catch (e) {
+    if (core.isIndexable(e) && e.message_enum === Messages.MessageType.MESSAGETYPE_FAILURE) {
+      return false;
+    }
+    throw e;
+  }
   const success = event.proto as Messages.Success;
   return success.getMessage() === "Message verified";
 }

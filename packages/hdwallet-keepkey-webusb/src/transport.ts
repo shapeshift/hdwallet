@@ -34,10 +34,10 @@ export class TransportDelegate implements keepkey.TransportDelegate {
       await this.usbDevice.claimInterface(0);
     } catch (e) {
       console.error("Could not claim interface 0", this.usbDevice, { e });
-      if (e.code === 18)
+      if (core.isIndexable(e) && e.code === 18)
         // "The requested interface implements a protected class"
         throw new core.FirmwareUpdateRequired("KeepKey", "6.1.0");
-      if (e.code === 19)
+      if (core.isIndexable(e) && e.code === 19)
         // "Unable to claim interface"
         throw new core.ConflictingApp("KeepKey");
       throw e;

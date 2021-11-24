@@ -99,7 +99,7 @@ export function testnetTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           vout: 0,
           txid: "e4b5b24159856ea18ab5819832da3b4a6330f9c3c0a46d96674e632df504b56b",
           tx,
-          hex: undefined as string,
+          hex: "020000000135cb3d5e2f94a72aa6c5dbab298d3411a5a3c027788ee8e75c7484d2c0d504ad000000006a4730440220536f9c20c42cb50472d76fb20aa55d9f9996da0881e6f12be8ad6f657844f993022076bd3e01ab8d17eba22718d2be1cdd9649e61754651dda5e062d27540e789a4001210234ec664aae13ced11d4676d33c8603e01a2ba7c6acdbbe4097323f0c4744ad56feffffff02a086010000000000160014b31dc2a236505a6cb9201fa0411ca38a254a7bf101ba0d00000000001976a9148071b2af42e167ec58e422e784358ec71f80274b88ac5a241700",
         },
       ];
       const outputs: core.BTCSignTxOutput[] = [

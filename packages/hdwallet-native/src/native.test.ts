@@ -171,36 +171,47 @@ describe("NativeHDWallet", () => {
 
     it("should throw an error when loadDevice is missing its parameters", async () => {
       const wallet = native.create({ deviceId: "native" });
-      await expect(wallet.loadDevice(undefined as any)).rejects.toThrow("Required property [mnemonic] is missing");
+      await expect(wallet.loadDevice(undefined as any)).rejects.toThrow("Either [mnemonic] or [masterKey] is required");
     });
 
-    it.each([[undefined], [null], [0], [[1, 2, 3]], [{}], [""], ["all all all all all all"]])(
+    it.each([[undefined]])(
       "should throw an error if mnemonic is not a string (%o)",
       async (param: any) => {
         const wallet = native.create({ deviceId: "native" });
         await expect(wallet.loadDevice({ mnemonic: param })).rejects.toThrow(
-          "Required property [mnemonic] is missing or invalid"
+          "Either [mnemonic] or [masterKey] is required"
+        );
+      }
+    );
+
+    it.each([[null], [0], [[1, 2, 3]], [{}], [""], ["all all all all all all"]])(
+      "should throw an error if mnemonic is not a string (%o)",
+      async (param: any) => {
+        const wallet = native.create({ deviceId: "native" });
+        await expect(wallet.loadDevice({ mnemonic: param })).rejects.toThrow(
+          "Required property [mnemonic] is invalid"
         );
       }
     );
   });
 
   it("should wipe if an error occurs during initialization", async () => {
-    expect.assertions(7);
+    expect.assertions(6);
     const wallet = native.create({ deviceId: "native" });
-    const mockMnemonic = new Isolation.Engines.Dummy.BIP39.Mnemonic(MNEMONIC);
-    await wallet.loadDevice({ mnemonic: mockMnemonic });
-    const mocks = [
-      jest.spyOn(mockMnemonic, "toSeed").mockImplementationOnce(() => {
+    const masterKey = {
+      getChainCode: () => {
         throw "mock error";
-      }),
+      },
+    } as any;
+    const mocks = [
       jest.spyOn(console, "error").mockImplementationOnce((msg, error) => {
         expect(msg).toMatch("NativeHDWallet:initialize:error");
         expect(error).toEqual("mock error");
       }),
       jest.spyOn(wallet, "wipe"),
     ];
-    expect(await wallet.initialize()).toBe(false);
+    await wallet.loadDevice({ masterKey });
+    expect(await wallet.initialize()).toBeFalsy();
     mocks.forEach((x) => {
       expect(x).toHaveBeenCalled();
       x.mockRestore();
@@ -282,7 +293,6 @@ describe("NativeHDWallet", () => {
       ["cancel"],
       ["reset"],
       ["recover"],
-      ["disconnect"],
     ])("when %s is called", async (methodName) => {
       expect(await untouchable.call(wallet, methodName)).toBe(undefined);
     });

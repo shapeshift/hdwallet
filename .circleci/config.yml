@@ -5,10 +5,10 @@ orbs:
     executors:
       node:
         docker:
-          - image: circleci/node:14
+          - image: circleci/node:16
       kkemu:
         docker:
-          - image: circleci/node:14
+          - image: circleci/node:16
           - image: kktech/kkemu:latest
     jobs:
       build:
@@ -62,7 +62,7 @@ orbs:
               at: .
           - run: yarn --cache-folder .yarn-cache
           - run: git status
-          - run: ./node_modules/.bin/lerna publish from-package --yes
+          - run: ./node_modules/.bin/lerna publish from-package --yes --no-verify-access
 workflows:
   version: 2
   Build and Release:

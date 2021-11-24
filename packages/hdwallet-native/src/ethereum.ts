@@ -52,9 +52,10 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
 
     #ethSigner: ethers.Signer | undefined;
 
-    async ethInitializeWallet(seed: Isolation.Core.BIP32.Seed): Promise<void> {
-      const isolatedSigner = new Isolation.Adapters.BIP32(seed.toMasterKey()).derivePath(ethers.utils.defaultPath);
-      this.#ethSigner = new Isolation.Adapters.Ethereum(isolatedSigner);
+    async ethInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
+      const rootNode = await Isolation.Adapters.BIP32.create(masterKey)
+      const isolatedSigner = await rootNode.derivePath(ethers.utils.defaultPath);
+      this.#ethSigner = await Isolation.Adapters.Ethereum.create(isolatedSigner);
     }
 
     ethWipe() {
@@ -94,9 +95,9 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
 
         const decoded = ethers.utils.parseTransaction(result);
         return {
-          v: decoded.v,
-          r: decoded.r,
-          s: decoded.s,
+          v: core.mustBeDefined(decoded.v),
+          r: core.mustBeDefined(decoded.r),
+          s: core.mustBeDefined(decoded.s),
           serialized: result,
         };
       });

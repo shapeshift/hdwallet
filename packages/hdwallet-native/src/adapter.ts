@@ -4,9 +4,14 @@ import * as native from "./native";
 import * as Isolation from "./crypto/isolation";
 
 export type NativeAdapterArgs = {
-  mnemonic?: string | Isolation.Core.BIP39.Mnemonic;
   deviceId: string;
-};
+} & ({
+  mnemonic?: string | Isolation.Core.BIP39.Mnemonic;
+  masterKey?: never;
+} | {
+  mnemonic?: never;
+  masterKey?: Isolation.Core.BIP32.Node;
+});
 
 export class NativeAdapter {
   keyring: core.Keyring;
