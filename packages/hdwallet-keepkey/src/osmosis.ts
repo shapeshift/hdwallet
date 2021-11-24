@@ -25,12 +25,10 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
     if (msg.tx.memo !== undefined) signTx.setMemo(msg.tx.memo);
     signTx.setMsgCount(1);
 
-    let resp = await transport.call(
-      Messages.MessageType.MESSAGETYPE_OSMOSISSIGNTX,
-      signTx,
-      core.LONG_TIMEOUT,
-      /*omitLock=*/ true
-    );
+    let resp = await transport.call(Messages.MessageType.MESSAGETYPE_OSMOSISSIGNTX, signTx, {
+      msgTimeout: core.LONG_TIMEOUT,
+      omitLock: true,
+    });
 
     if (resp.message_type === core.Events.FAILURE) throw resp;
 
@@ -39,7 +37,7 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
         throw new Error(`THORChain: unexpected response ${resp.message_type}`);
       }
 
-      let ack;
+      let ack = new OsmosisMessages.OsmosisMsgAck();
 
       if (m.type === "cosmos-sdk/MsgSend") {
         const denom = m.value.amount[0].denom;
@@ -211,14 +209,10 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
         throw new Error(`Osmosis: Message ${m.type} is not yet supported`);
       }
 
-      resp = await transport.call(
-        Messages.MessageType.MESSAGETYPE_OSMOSISMSGACK,
-        ack,
-        core.LONG_TIMEOUT,
-        /*omitLock=*/ true
-      );
-
-      if (resp.message_type === core.Events.FAILURE) throw resp;
+      resp = await transport.call(Messages.MessageType.MESSAGETYPE_OSMOSISMSGACK, ack, {
+        msgTimeout: core.LONG_TIMEOUT,
+        omitLock: true,
+      });
     }
 
     if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_OSMOSISSIGNEDTX) {
@@ -251,9 +245,9 @@ export async function osmosisGetAddress(
   getAddr.setAddressNList(msg.addressNList);
   getAddr.setShowDisplay(msg.showDisplay !== false);
   if (msg.testnet !== undefined) getAddr.setTestnet(msg.testnet);
-  const response = await transport.call(Messages.MessageType.MESSAGETYPE_OSMOSISGETADDRESS, getAddr, core.LONG_TIMEOUT);
-
-  if (response.message_type === core.Events.FAILURE) throw response;
+  const response = await transport.call(Messages.MessageType.MESSAGETYPE_OSMOSISGETADDRESS, getAddr, {
+    msgTimeout: core.LONG_TIMEOUT,
+  });
 
   const osmosisAddress = response.proto as OsmosisMessages.OsmosisAddress;
   return core.mustBeDefined(osmosisAddress.getAddress());

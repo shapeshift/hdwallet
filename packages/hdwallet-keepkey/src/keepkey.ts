@@ -419,6 +419,7 @@ export class KeepKeyHDWalletInfo
   readonly _supportsBinanceInfo = true;
   readonly _supportsEosInfo = true;
   readonly _supportsThorchainInfo = true;
+  readonly _supportsOsmosisInfo = true;
 
   public getVendor(): string {
     return "KeepKey";

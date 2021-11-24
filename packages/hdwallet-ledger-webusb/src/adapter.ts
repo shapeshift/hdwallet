@@ -30,12 +30,17 @@ export class WebUSBLedgerAdapter {
 
     try {
       await this.initialize(e.device);
-      this.keyring.emit([e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.CONNECT], e.device.serialNumber);
-    } catch (error) {
       this.keyring.emit(
-        [e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.FAILURE],
-        [e.device.serialNumber, { message: { code: error.type, ...error } }]
+        [e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.CONNECT],
+        e.device.serialNumber
       );
+    } catch (error) {
+      if (core.isIndexable(error) && error.type) {
+        this.keyring.emit(
+          [e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.FAILURE],
+          [e.device.serialNumber, { message: { code: error.type, ...error } }]
+        );
+      }
     }
   }
 
@@ -55,7 +60,10 @@ export class WebUSBLedgerAdapter {
       } catch (e) {
         console.error(e);
       } finally {
-        this.keyring.emit([e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.DISCONNECT], e.device.serialNumber);
+        this.keyring.emit(
+          [e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.DISCONNECT],
+          e.device.serialNumber
+        );
       }
     }, APP_NAVIGATION_DELAY);
   }
