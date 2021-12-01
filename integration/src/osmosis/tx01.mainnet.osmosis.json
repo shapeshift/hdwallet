@@ -1,33 +1,32 @@
 {
-  "chain_id": "osmosis",
   "account_number": "75815",
-  "sequence": "2",
-  "msg":[
+  "chain_id": "osmosis",
+  "fee": {
+    "amount": [
+      {
+        "amount": "2800",
+        "denom": "uosmo"
+      }
+    ],
+    "gas": "80000"
+  },
+  "memo": "hello world",
+  "msg": [
     {
-      "type":"cosmos-sdk/MsgSend",
-      "value":{
-        "from_address":"osmo1a7xqkxa4wyjfllme9u3yztgsz363dalz3lxtj6",
-        "to_address":"osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
-        "amount":[
+      "type": "cosmos-sdk/MsgSend",
+      "value": {
+        "amount": [
           {
-            "denom":"uosmo",
-            "amount":"1000"
+            "amount": "1000",
+            "denom": "uosmo"
           }
-        ]
+        ],
+        "from_address": "osmo1a7xqkxa4wyjfllme9u3yztgsz363dalz3lxtj6",
+        "to_address": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq"
       }
     }
   ],
-  "fee":{
-    "amount":[
-      {
-        "denom":"uosmo",
-        "amount":"2800"
-      }
-    ],
-    "gas":"80000"
-  },
-  "signatures":[
-  ],
-  "memo":"hello world",
-  "timeout_height":"0"
+  "sequence": "2",
+  "signatures": [],
+  "timeout_height": "0"
 }

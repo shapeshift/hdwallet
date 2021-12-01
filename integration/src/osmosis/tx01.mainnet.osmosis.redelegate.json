@@ -1,35 +1,39 @@
 {
-  "fee":{
-    "amount":[
+  "type": "cosmos-sdk/StdTx",
+  "value": {
+    "fee": {
+      "amount": [
+        {
+          "amount": "0",
+          "denom": "uosmo"
+        }
+      ],
+      "gas": "250000"
+    },
+    "memo": "",
+    "msg": [
       {
-        "amount":"2800",
-        "denom":"uosmo"
-      }
-    ],
-    "gas":"290000"
-  },
-  "memo":"",
-  "msg":[
-    {
-      "type":"cosmos-sdk/MsgBeginRedelegate",
-      "value":{
-        "delegator_address":"osmo1a7xqkxa4wyjfllme9u3yztgsz363dalz3lxtj6",
-        "validator_src_address":"osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n",
-        "validator_dst_address":"osmovaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4ep88n0y4",
-        "amount":{
-          "denom":"uosmo",
-          "amount":"100"
+        "type": "cosmos-sdk/MsgBeginRedelegate",
+        "value": {
+          "amount": {
+            "amount": "8000",
+            "denom": "uosmo"
+          },
+          "delegator_address": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
+          "validator_dst_address": "osmovaloper1m73mgwn3cm2e8x9a9axa0kw8nqz8a492vg4hp4",
+          "validator_src_address": "osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n"
         }
       }
-    }
-  ],
-  "signatures":[
-    {
-      "signature":"JdqKfOlTgVNl/2iqiMMa91IuyIEK3d+yhYVE8Bxu9kptUASW8lLo1CerKr7hkCVxeSbwkkarRW7yFfej1E7jTA==",
-      "pub_key":{
-        "type":"tendermint/PubKeySecp256k1",
-        "value":"AmrURAPLuqG8lK8M9F8Scq5JA4oOU5aB3qEXDsFJwU4h"
+    ],
+    "signatures": [
+      {
+        "pub_key": {
+          "type": "tendermint/PubKeySecp256k1",
+          "value": "A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
+        },
+        "signature": "x1ElaSkbu9Q3ddIpKsUC4BSXxICF4vcoC0/kjhrdcS0hnJ19ktB8wfutbLDJMb5F2Jj9aHvUcKg+aAAvyPKLKQ=="
       }
-    }
-  ]
+    ],
+    "timeout_height": "0"
+  }
 }
