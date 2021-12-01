@@ -5,7 +5,6 @@ import tx_delegate from "./tx01.mainnet.osmosis.delegate.json";
 import tx_undelegate from "./tx01.mainnet.osmosis.undelegate.json";
 import tx_redelegate from "./tx01.mainnet.osmosis.redelegate.json";
 import tx_rewards from "./tx01.mainnet.osmosis.rewards.json";
-import tx_ibc_deposit from "./tx01.mainnet.osmosis.ibc.deposit.json";
 import tx_lp_add from "./tx01.mainnet.osmosis.lp-add.json";
 import tx_lp_remove from "./tx01.mainnet.osmosis.lp-remove.json";
 import tx_token_farm from "./tx01.mainnet.osmosis.lp-token-farm.json";
@@ -71,7 +70,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       async () => {
         if (!wallet) return;
         const input: core.OsmosisSignTx = {
-          tx: (tx_transfer as unknown) as any,
+          tx: (tx_transfer.value as unknown) as any,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "osmosis-1",
           account_number: "95421",
@@ -91,7 +90,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       async () => {
         if (!wallet) return;
         const input: core.OsmosisSignTx = {
-          tx: (tx_delegate as unknown) as any,
+          tx: (tx_delegate.value as unknown) as any,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "osmosis-1",
           account_number: "95421",
@@ -110,7 +109,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       async () => {
         if (!wallet) return;
         const input: core.OsmosisSignTx = {
-          tx: (tx_undelegate as unknown) as any,
+          tx: (tx_undelegate.value as unknown) as any,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "osmosis-1",
           account_number: "95421",
@@ -129,7 +128,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       async () => {
         if (!wallet) return;
         const input: core.OsmosisSignTx = {
-          tx: (tx_redelegate as unknown) as any,
+          tx: (tx_redelegate.value as unknown) as any,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "osmosis-1",
           account_number: "95421",
@@ -148,7 +147,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       async () => {
         if (!wallet) return;
         const input: core.OsmosisSignTx = {
-          tx: (tx_rewards as unknown) as any,
+          tx: (tx_rewards.value as unknown) as any,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "osmosis-1",
           account_number: "95421",
@@ -161,32 +160,13 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       TIMEOUT
     );
 
-    //ibc deposit
-    test(
-      "(ibc deposit) osmosisSignTx()",
-      async () => {
-        if (!wallet) return;
-        const input: core.OsmosisSignTx = {
-          tx: (tx_ibc_deposit as unknown) as any,
-          addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
-          chain_id: "osmosis-1",
-          account_number: "95421",
-          sequence: "5",
-        };
-
-        const res = await wallet.osmosisSignTx(input);
-        expect(res?.signatures?.[0].signature).toEqual(tx_ibc_deposit.value.signatures[0].signature);
-      },
-      TIMEOUT
-    );
-
     //lp add
     test(
       "(LP add) osmosisSignTx()",
       async () => {
         if (!wallet) return;
         const input: core.OsmosisSignTx = {
-          tx: (tx_lp_add as unknown) as any,
+          tx: (tx_lp_add.value as unknown) as any,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "osmosis-1",
           account_number: "95421",
@@ -205,7 +185,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       async () => {
         if (!wallet) return;
         const input: core.OsmosisSignTx = {
-          tx: (tx_lp_remove as unknown) as any,
+          tx: (tx_lp_remove.value as unknown) as any,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "osmosis-1",
           account_number: "95421",
@@ -225,7 +205,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       async () => {
         if (!wallet) return;
         const input: core.OsmosisSignTx = {
-          tx: (tx_token_farm as unknown) as any,
+          tx: (tx_token_farm.value as unknown) as any,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "osmosis-1",
           account_number: "95421",
@@ -244,7 +224,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       async () => {
         if (!wallet) return;
         const input: core.OsmosisSignTx = {
-          tx: (tx_swap as unknown) as any,
+          tx: (tx_swap.value as unknown) as any,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "osmosis-1",
           account_number: "95421",
@@ -263,7 +243,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       async () => {
         if (!wallet) return;
         const input: core.OsmosisSignTx = {
-          tx: (tx_vote as unknown) as any,
+          tx: (tx_vote.value as unknown) as any,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "osmosis-1",
           account_number: "95421",
