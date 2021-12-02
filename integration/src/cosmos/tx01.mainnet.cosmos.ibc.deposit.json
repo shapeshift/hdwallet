@@ -1,0 +1,45 @@
+{
+  "mode": "sync",
+  "tx": {
+    "fee": {
+      "amount": [
+        {
+          "amount": "0",
+          "denom": "uosmo"
+        }
+      ],
+      "gas": "1350000"
+    },
+    "memo": "",
+    "msg": [
+      {
+        "type": "cosmos-sdk/MsgTransfer",
+        "value": {
+          "receiver": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
+          "sender": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
+          "source_channel": "channel-141",
+          "source_port": "transfer",
+          "timeout_height": {
+            "revision_height": "2019339",
+            "revision_number": "1"
+          },
+          "token": {
+            "amount": "10000",
+            "denom": "uatom"
+          }
+        }
+      }
+    ],
+    "signatures": [
+      {
+        "pub_key": {
+          "type": "tendermint/PubKeySecp256k1",
+          "value": "A6enCcw1NHqwuGmQTse6ve3iP6oIfJBeM9oJt/1g1l9B"
+        },
+        "signature": "GUX/91RRYVGxudKGln/b/wGnR5ospfNtsdVUXZRmRwUXOxiiJk8cV3n5pPRpPSqFjQGe/N9DykFiAxCXFjdaew=="
+      }
+    ],
+    "timeout_height": "0"
+  },
+  "type": "cosmos-sdk/StdTx"
+}

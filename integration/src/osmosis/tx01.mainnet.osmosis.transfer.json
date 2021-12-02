@@ -1,0 +1,40 @@
+{
+  "type": "cosmos-sdk/StdTx",
+  "value": {
+    "fee": {
+      "amount": [
+        {
+          "amount": "2000",
+          "denom": "uosmo"
+        }
+      ],
+      "gas": "80000"
+    },
+    "memo": "pioneer ref tx01",
+    "msg": [
+      {
+        "type": "cosmos-sdk/MsgSend",
+        "value": {
+          "amount": [
+            {
+              "amount": "10000",
+              "denom": "uosmo"
+            }
+          ],
+          "from_address": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
+          "to_address": "osmo1a7xqkxa4wyjfllme9u3yztgsz363dalz3lxtj6"
+        }
+      }
+    ],
+    "signatures": [
+      {
+        "pub_key": {
+          "type": "tendermint/PubKeySecp256k1",
+          "value": "A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
+        },
+        "signature": "L74WDymxS2XvxgR1JKiM/wAZJafXaELEhAZTn1n06ktjmWwTNs7mbbFgeLbgcMnIYliRzjnk1gqPDeiNhmASGQ=="
+      }
+    ],
+    "timeout_height": "0"
+  }
+}

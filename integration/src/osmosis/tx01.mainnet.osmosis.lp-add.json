@@ -1,0 +1,45 @@
+{
+  "type": "cosmos-sdk/StdTx",
+  "value": {
+    "fee": {
+      "amount": [
+        {
+          "amount": "0",
+          "denom": "uosmo"
+        }
+      ],
+      "gas": "1500000"
+    },
+    "memo": "",
+    "msg": [
+      {
+        "type": "osmosis/gamm/join-pool",
+        "value": {
+          "poolId": "1",
+          "sender": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
+          "shareOutAmount": "614877705159556135",
+          "tokenInMaxs": [
+            {
+              "amount": "9872",
+              "denom": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"
+            },
+            {
+              "amount": "53812",
+              "denom": "uosmo"
+            }
+          ]
+        }
+      }
+    ],
+    "signatures": [
+      {
+        "pub_key": {
+          "type": "tendermint/PubKeySecp256k1",
+          "value": "A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
+        },
+        "signature": "l0s0kE+DI7F75bfnpGjR0zDNAcfWPE1dFK8+GijMsF9vGv2UYkYZIh/nBeB2lKugGleFWOG7YbvtQqSrAECh8A=="
+      }
+    ],
+    "timeout_height": "0"
+  }
+}
