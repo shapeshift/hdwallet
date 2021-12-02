@@ -36,7 +36,7 @@
           "type": "tendermint/PubKeySecp256k1",
           "value": "A6enCcw1NHqwuGmQTse6ve3iP6oIfJBeM9oJt/1g1l9B"
         },
-        "signature": "FGGl2YoTl/fO+EFKuFgH7bi742KPfVbFKcL1/gSb1eBfbRscxz8YLRbfmTUQjObH7tOO3GUoUsnFXn6+WTNy8A=="
+        "signature": "GUX/91RRYVGxudKGln/b/wGnR5ospfNtsdVUXZRmRwUXOxiiJk8cV3n5pPRpPSqFjQGe/N9DykFiAxCXFjdaew=="
       }
     ],
     "timeout_height": "0"

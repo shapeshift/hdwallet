@@ -24,9 +24,9 @@
       {
         "pub_key": {
           "type": "tendermint/PubKeySecp256k1",
-          "value": ""
+          "value": "A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
         },
-        "signature": ""
+        "signature": "og6ufNc3yYxj1TZZnJxbyYVzJNMI15M2lQspVYpYX8B1w1vTw/1aDkLgtw5NCzNCa0E9uy2e6EKF5OuqeE4lyA=="
       }
     ],
     "timeout_height": "0"
