@@ -14,6 +14,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
+    "@metamask/detect-provider": "^1.2.0",
     "@metamask/onboarding": "^1.0.1",
     "@portis/web3": "3.0.10",
     "@shapeshiftoss/hdwallet-core": "1.18.2",
