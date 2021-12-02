@@ -132,7 +132,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       async () => {
         if (!wallet) return;
         const input: core.OsmosisSignTx = {
-          tx: (tx_redelegate.value as unknown) as any,
+          tx: tx_signed_undelegate_osmosis,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "osmosis-1",
           account_number: "95421",
@@ -140,8 +140,9 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         };
 
         const res = await wallet.osmosisSignTx(input);
-        console.log("redelegate res?.signatures?.[0].signature: ", res?.signatures?.[0].signature)
-        expect(res?.signatures?.[0].signature).toEqual(tx_redelegate.value.signatures[0].signature);
+        console.log("hdwallet: ",res)
+        console.log("file: ",tx_signed_undelegate_osmosis)
+        expect(res?.signatures?.[0].signature).toEqual(tx_signed_undelegate_osmosis.signatures[0].signature);
       },
       TIMEOUT
     );
@@ -152,7 +153,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       async () => {
         if (!wallet) return;
         const input: core.OsmosisSignTx = {
-          tx: (tx_rewards.value as unknown) as any,
+          tx: tx_signed_rewards_osmosis,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "osmosis-1",
           account_number: "95421",
@@ -160,8 +161,9 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         };
 
         const res = await wallet.osmosisSignTx(input);
-        console.log("claim rewards res?.signatures?.[0].signature: ", res?.signatures?.[0].signature)
-        expect(res?.signatures?.[0].signature).toEqual(tx_rewards.value.signatures[0].signature);
+        console.log("hdwallet: ",res)
+        console.log("file: ",tx_signed_rewards_osmosis)
+        expect(res?.signatures?.[0].signature).toEqual(tx_signed_rewards_osmosis.signatures[0].signature);
       },
       TIMEOUT
     );
