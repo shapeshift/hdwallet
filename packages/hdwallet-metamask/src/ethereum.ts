@@ -111,7 +111,7 @@ export async function ethSignMessage(
 
 export async function ethGetAddress(ethereum: any): Promise<string | null> {
   if (!(ethereum && ethereum.request)) {
-    return null
+    return null;
   }
   try {
     const ethAccounts = await ethereum.request({
