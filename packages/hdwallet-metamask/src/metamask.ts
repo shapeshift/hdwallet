@@ -55,7 +55,6 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
 
   constructor() {
     this.info = new MetaMaskHDWalletInfo();
-    this.provider = Promise.resolve(detectEthereumProvider({ mustBeMetaMask: true, silent: false, timeout: 3000 }));
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -78,8 +77,13 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
     return Promise.resolve("MetaMask");
   }
 
-  public initialize(): Promise<any> {
-    // TODO: Should we perform setup here or in the constructor?
+  public async initialize(): Promise<any> {
+    try {
+      this.provider = await detectEthereumProvider({ mustBeMetaMask: true, silent: false, timeout: 3000 });
+    } catch (e) {
+      console.error(e);
+    }
+
     return Promise.resolve();
   }
 
