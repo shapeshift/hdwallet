@@ -4,7 +4,7 @@
     "fee": {
       "amount": [
         {
-          "amount": "3500",
+          "amount": "0",
           "denom": "uosmo"
         }
       ],
@@ -16,7 +16,7 @@
         "type": "cosmos-sdk/MsgWithdrawDelegationReward",
         "value": {
           "delegator_address": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
-          "validator_address": "osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n"
+          "validator_address": "osmovaloper1m73mgwn3cm2e8x9a9axa0kw8nqz8a492vg4hp4"
         }
       }
     ],
@@ -26,7 +26,7 @@
           "type": "tendermint/PubKeySecp256k1",
           "value": "A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
         },
-        "signature": "og6ufNc3yYxj1TZZnJxbyYVzJNMI15M2lQspVYpYX8B1w1vTw/1aDkLgtw5NCzNCa0E9uy2e6EKF5OuqeE4lyA=="
+        "signature": "4tq5pwCKcpb3X8OpdRyUQYmk6REmF6Ex0xgjJk5Z9d4IhhjrgP6KTAz5lhjOqfAOZJ8wL9qVCmO2uaIzyhaYzA=="
       }
     ],
     "timeout_height": "0"

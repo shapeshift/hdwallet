@@ -77,7 +77,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "osmosis-1",
           account_number: "95421",
-          sequence: "5",
+          sequence: "28",
         };
 
         const res = await wallet.osmosisSignTx(input);
@@ -156,7 +156,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: "osmosis-1",
           account_number: "95421",
-          sequence: "5",
+          sequence: "30",
         };
 
         const res = await wallet.osmosisSignTx(input);
