@@ -3588,21 +3588,6 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-metamask@1.18.3":
-  version "1.18.3"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-metamask/-/hdwallet-metamask-1.18.3.tgz#76c601822ef5dbbf873005030dce5e77b63a8eac"
-  integrity sha512-CZdVzzMi+9Be6XcMKhwHnXA766F1x5MTH0ht4/IJWQtUfuul1lfifWlVFB7Ec4lnuPGPv671OEmDFh5HNG5tsQ==
-  dependencies:
-    "@metamask/detect-provider" "^1.2.0"
-    "@metamask/onboarding" "^1.0.1"
-    "@portis/web3" "3.0.10"
-    "@shapeshiftoss/hdwallet-core" "1.18.3"
-    base64-js "^1.5.1"
-    bip32 "^2.0.4"
-    bitcoinjs-lib "^5.1.6"
-    bitcoinjs-message "^2.1.0"
-    lodash "^4.17.21"
-
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.14.0.tgz#9fb3a3cf3132328151f353de4632e01e52102bea"
