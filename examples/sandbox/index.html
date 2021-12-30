@@ -8,410 +8,423 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.3.0/milligram.min.css" />
     <style>
-        .container {
-            margin-top: 2em;
-            padding: 1em;
-            border: #ccc solid 1px;
-            border-radius: 6px;
-        }
+      .container {
+        margin-top: 2em;
+        padding: 1em;
+        border: #ccc solid 1px;
+        border-radius: 6px;
+      }
 
-        .erc20DynamicContainer {
-            margin-top: 2em;
-            padding: 1em;
-        }
+      .erc20DynamicContainer {
+        margin-top: 2em;
+        padding: 1em;
+      }
 
-        .modal:before {
-            content: "";
-            display: none;
-            background: rgba(0, 0, 0, 0.6);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: 10;
-        }
-        .opened:before {
-            display: block;
-        }
-        .opened .modal-dialog {
-            -webkit-transform: translate(0, 0);
-            -ms-transform: translate(0, 0);
-            transform: translate(0, 0);
-            top: 20%;
-        }
-        .modal-dialog {
-            background: #fefefe;
-            border: #333333 solid 0px;
-            border-radius: 5px;
-            margin-left: -200px;
-            text-align: center;
-            position: fixed;
-            left: 50%;
-            top: -100%;
-            z-index: 11;
-            width: 360px;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
-            -webkit-transform: translate(0, -500%);
-            -ms-transform: translate(0, -500%);
-            transform: translate(0, -500%);
-            -webkit-transition: -webkit-transform 0.3s ease-out;
-            -moz-transition: -moz-transform 0.3s ease-out;
-            -o-transition: -o-transform 0.3s ease-out;
-            transition: transform 0.3s ease-out;
-        }
-        .modal-body {
-            padding: 20px;
-        }
-        .modal-body input {
-            width: 200px;
-            padding: 8px;
-            border: 1px solid #ddd;
-            color: #888;
-            outline: 0;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .modal-header,
-        .modal-footer {
-            padding: 10px 20px;
-        }
-        .modal-header {
-            border-bottom: #eeeeee solid 1px;
-        }
-        .modal-header h2 {
-            font-size: 20px;
-        }
-        .eventEntry {
-            border: #cccccc solid 1px;
-            border-radius: 8px;
-            padding: 12px;
-        }
-        #eventLog {
-            max-height: 20em;
-            overflow: scroll;
-        }
+      .modal:before {
+        content: "";
+        display: none;
+        background: rgba(0, 0, 0, 0.6);
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 10;
+      }
+
+      .opened:before {
+        display: block;
+      }
+
+      .opened .modal-dialog {
+        -webkit-transform: translate(0, 0);
+        -ms-transform: translate(0, 0);
+        transform: translate(0, 0);
+        top: 20%;
+      }
+
+      .modal-dialog {
+        background: #fefefe;
+        border: #333333 solid 0px;
+        border-radius: 5px;
+        margin-left: -200px;
+        text-align: center;
+        position: fixed;
+        left: 50%;
+        top: -100%;
+        z-index: 11;
+        width: 360px;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        -webkit-transform: translate(0, -500%);
+        -ms-transform: translate(0, -500%);
+        transform: translate(0, -500%);
+        -webkit-transition: -webkit-transform 0.3s ease-out;
+        -moz-transition: -moz-transform 0.3s ease-out;
+        -o-transition: -o-transform 0.3s ease-out;
+        transition: transform 0.3s ease-out;
+      }
+
+      .modal-body {
+        padding: 20px;
+      }
+
+      .modal-body input {
+        width: 200px;
+        padding: 8px;
+        border: 1px solid #ddd;
+        color: #888;
+        outline: 0;
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      .modal-header,
+      .modal-footer {
+        padding: 10px 20px;
+      }
+
+      .modal-header {
+        border-bottom: #eeeeee solid 1px;
+      }
+
+      .modal-header h2 {
+        font-size: 20px;
+      }
+
+      .eventEntry {
+        border: #cccccc solid 1px;
+        border-radius: 8px;
+        padding: 12px;
+      }
+
+      #eventLog {
+        max-height: 20em;
+        overflow: scroll;
+      }
     </style>
   </head>
 
   <body>
-  <div class="container">
-    <h4>Select</h4>
-    <button id="keepkey">Pair KeepKey</button>
-    <button id="keepkeybridge">Pair KKBridge</button>
-    <button id="kkemu">Pair Emulator</button>
-    <button id="trezor">Pair Trezor</button>
-    <button id="ledgerwebusb">Pair Ledger (webUSB)</button>
-    <button id="ledgerwebhid">Pair Ledger (webHID)</button>
-    <button id="portis">Pair Portis</button>
-    <button id="native">Pair Native</button>
-    <button id="metaMask">Pair MetaMask</button>
+    <div class="container">
+      <h4>Select</h4>
+      <button id="keepkey">Pair KeepKey</button>
+      <button id="keepkeybridge">Pair KKBridge</button>
+      <button id="kkemu">Pair Emulator</button>
+      <button id="trezor">Pair Trezor</button>
+      <button id="ledgerwebusb">Pair Ledger (webUSB)</button>
+      <button id="ledgerwebhid">Pair Ledger (webHID)</button>
+      <button id="portis">Pair Portis</button>
+      <button id="native">Pair Native</button>
+      <button id="metaMask">Pair MetaMask</button>
 
-    <select id="keyring" style="height: 100px" size="4"></select>
-  </div>
-  <div class="container">
-    <h4>Event Log</h4>
-    <div id="eventLog"></div>
-  </div>
-  <div class="container">
-    <h4>DebugLink</h4>
-    <button class="button-outline" id="yes">Yes</button>
-    <button class="button-outline" id="no">No</button>
-    <button class="button-outline" id="cancel">Cancel</button>
-  </div>
-  <div class="container">
-    <h4>Manage</h4>
-    <button class="button button-outline" id="getVendor">Vendor</button>
-    <button class="button button-outline" id="getModel">Model</button>
-    <button class="button button-outline" id="getDeviceID">DeviceID</button>
-    <button class="button button-outline" id="getFirmware">Firmware</button>
-    <button class="button button-outline" id="getLabel">Label</button>
-    <button class="button button-outline" id="getXpubs">Xpubs</button>
-    <button class="button button-outline" id="doPing">Ping</button>
-    <button class="button button-outline" id="doWipe">Wipe</button>
-    <button class="button button-outline" id="doLoadDevice">Load</button>
-    <input type="text" id="manageResults" />
-  </div>
-  <div class="container">
-    <h4>Ledger Device</h4>
-    <button class="button button-outline" id="openApp">Open App</button>
-    <input type="text" id="ledgerAppToOpen" />
-    <button class="button button-outline" id="validateApp">Validate Open App</button>
-    <input type="text" id="ledgerAppToValidate" />
-    <button class="button button-outline" id="getAppInfo">App Info</button>
-    <input type="text" id="appInfo" />
-  </div>
-  <div class="container">
-    <h4>Eos</h4>
-    <button class="button button-outline" id="eosAddr">Address</button>
-    <button class="button button-outline" id="eosTx">Tx</button>
-    <input type="text" id="eosResults" />
-  </div>
-  <div class="container">
-    <h4>Binance</h4>
-    <button class="button button-outline" id="binanceAddr">Address</button>
-    <button class="button button-outline" id="binanceTx">Tx</button>
-    <input type="text" id="binanceResults" />
-  </div>
-  <div class="container">
-    <h4>Ripple</h4>
-    <button class="button button-outline" id="rippleAddr">Address</button>
-    <button class="button button-outline" id="rippleTx">Tx</button>
-    <input type="text" id="rippleResults" />
-  </div>
-  <div class="container">
-    <h4>Cosmos</h4>
-    <button class="button button-outline" id="cosmosAddr">Address</button>
-    <button class="button button-outline" id="cosmosTx">Tx</button>
-    <input type="text" id="cosmosResults" />
-  </div>
+      <select id="keyring" style="height: 100px" size="4"></select>
+    </div>
+    <div class="container">
+      <h4>Event Log</h4>
+      <div id="eventLog"></div>
+    </div>
+    <div class="container">
+      <h4>DebugLink</h4>
+      <button class="button-outline" id="yes">Yes</button>
+      <button class="button-outline" id="no">No</button>
+      <button class="button-outline" id="cancel">Cancel</button>
+    </div>
+    <div class="container">
+      <h4>Manage</h4>
+      <button class="button button-outline" id="getVendor">Vendor</button>
+      <button class="button button-outline" id="getModel">Model</button>
+      <button class="button button-outline" id="getDeviceID">DeviceID</button>
+      <button class="button button-outline" id="getFirmware">Firmware</button>
+      <button class="button button-outline" id="getLabel">Label</button>
+      <button class="button button-outline" id="getXpubs">Xpubs</button>
+      <button class="button button-outline" id="doPing">Ping</button>
+      <button class="button button-outline" id="doWipe">Wipe</button>
+      <button class="button button-outline" id="doLoadDevice">Load</button>
+      <input type="text" id="manageResults" />
+    </div>
+    <div class="container">
+      <h4>Ledger Device</h4>
+      <button class="button button-outline" id="openApp">Open App</button>
+      <input type="text" id="ledgerAppToOpen" />
+      <button class="button button-outline" id="validateApp">Validate Open App</button>
+      <input type="text" id="ledgerAppToValidate" />
+      <button class="button button-outline" id="getAppInfo">App Info</button>
+      <input type="text" id="appInfo" />
+    </div>
+    <div class="container">
+      <h4>Eos</h4>
+      <button class="button button-outline" id="eosAddr">Address</button>
+      <button class="button button-outline" id="eosTx">Tx</button>
+      <input type="text" id="eosResults" />
+    </div>
+    <div class="container">
+      <h4>Binance</h4>
+      <button class="button button-outline" id="binanceAddr">Address</button>
+      <button class="button button-outline" id="binanceTx">Tx</button>
+      <input type="text" id="binanceResults" />
+    </div>
+    <div class="container">
+      <h4>Ripple</h4>
+      <button class="button button-outline" id="rippleAddr">Address</button>
+      <button class="button button-outline" id="rippleTx">Tx</button>
+      <input type="text" id="rippleResults" />
+    </div>
+    <div class="container">
+      <h4>Cosmos</h4>
+      <button class="button button-outline" id="cosmosAddr">Address</button>
+      <button class="button button-outline" id="cosmosTx">Tx</button>
+      <input type="text" id="cosmosResults" />
+    </div>
 
-  <div class="container">
-    <h4>THORChain</h4>
-    <h5>Native RUNE</h5>
-    <button class="button button-outline" id="thorchainAddr">Address</button>
-    <button class="button button-outline" id="thorchainTx">Tx</button>
-    <input type="text" id="thorchainNativeResults" />
-    <hr />
-    <h5>Swaps</h5>
-    <div class="row">
-      <div class="column">
-        <label for="thorchainSourceChain">Source Chain</label>
-        <select id="thorchainSourceChain">
-          <option value="BTC.BTC">Bitcoin</option>
-          <option value="ETH.ETH">Ethereum</option>
-          <option value="BNB.BNB">Binance Chain</option>
-          <option value="BNB.RUNE-B1A">RUNE (BEP2)</option>
-          <option value="THOR.RUNE">RUNE (Native)</option>
-          <option value="ETH.USDT-0xdac17f958d2ee523a2206206994597c13d831ec7">USDT</option>
-        </select>
+    <div class="container">
+      <h4>THORChain</h4>
+      <h5>Native RUNE</h5>
+      <button class="button button-outline" id="thorchainAddr">Address</button>
+      <button class="button button-outline" id="thorchainTx">Tx</button>
+      <input type="text" id="thorchainNativeResults" />
+      <hr />
+      <h5>Swaps</h5>
+      <div class="row">
+        <div class="column">
+          <label for="thorchainSourceChain">Source Chain</label>
+          <select id="thorchainSourceChain">
+            <option value="BTC.BTC">Bitcoin</option>
+            <option value="ETH.ETH">Ethereum</option>
+            <option value="BNB.BNB">Binance Chain</option>
+            <option value="BNB.RUNE-B1A">RUNE (BEP2)</option>
+            <option value="THOR.RUNE">RUNE (Native)</option>
+            <option value="ETH.USDT-0xdac17f958d2ee523a2206206994597c13d831ec7">USDT</option>
+          </select>
+        </div>
+        <div class="column">
+          <label for="thorchainDestChain">Destination Chain</label>
+          <select id="thorchainDestChain">
+            <option value="BTC.BTC">Bitcoin</option>
+            <option value="ETH.ETH">Ethereum</option>
+            <option value="BNB.BNB">Binance Chain</option>
+            <option value="BNB.RUNE-B1A">RUNE (BEP2)</option>
+            <option value="THOR.RUNE">RUNE (Native)</option>
+            <option value="ETH.USDT-0xdac17f958d2ee523a2206206994597c13d831ec7">USDT</option>
+          </select>
+        </div>
       </div>
-      <div class="column">
-        <label for="thorchainDestChain">Destination Chain</label>
-        <select id="thorchainDestChain">
-          <option value="BTC.BTC">Bitcoin</option>
-          <option value="ETH.ETH">Ethereum</option>
-          <option value="BNB.BNB">Binance Chain</option>
-          <option value="BNB.RUNE-B1A">RUNE (BEP2)</option>
-          <option value="THOR.RUNE">RUNE (Native)</option>
-          <option value="ETH.USDT-0xdac17f958d2ee523a2206206994597c13d831ec7">USDT</option>
-        </select>
+      <label for="thorchainDestAddress">Destination Address</label>
+      <input type="text" placeholder="Destination Address" id="thorchainDestAddress" />
+      <label for="thorchainAmount">Amount</label>
+      <input type="text" placeholder="Ex: 10000000 = 1 full asset" id="thorchainAmount" />
+      <button class="button button-outline" id="thorchainSignSwap">Sign Swap</button>
+      <input type="text" id="thorchainSwapResults" />
+      <hr />
+      <h5>Add Liquidity</h5>
+      <label for="thorchainLiquidityAsset">Asset</label>
+      <select id="thorchainLiquidityAsset">
+        <option value="BTC.BTC">Bitcoin</option>
+        <option value="ETH.ETH">Ethereum</option>
+        <option value="BNB.BNB">Binance Chain</option>
+        <option value="BNB.RUNE-B1A">RUNE (BEP2)</option>
+        <option value="THOR.RUNE">RUNE (Native)</option>
+        <option value="ETH.USDT-0xdac17f958d2ee523a2206206994597c13d831ec7">USDT</option>
+      </select>
+      <label for="thorchainLiquidityPoolAddress">Pool Address</label>
+      <input type="text" placeholder="Pool Address" id="thorchainLiquidityPoolAddress" />
+      <label for="thorchainLiquidityAmount">Amount</label>
+      <input type="text" placeholder="Ex: 10000000 = 1 full asset" id="thorchainLiquidityAmount" />
+      <button class="button button-outline" id="thorchainSignAddLiquidity">Sign Add Liquidity</button>
+      <input type="text" id="thorchainAddLiquidityResults" />
+    </div>
+
+    <div class="container">
+      <h4>Osmosis</h4>
+      <h5>Get Address</h5>
+      <button class="button button-outline" id="osmosisAddress">Address</button>
+      <input type="text" id="osmosisAddressResults" />
+      <hr />
+      <h5>Send</h5>
+      <label for="osmosisSignTxAddress">Address</label>
+      <input type="text" id="osmosisSignTxAddress" />
+      <label for="osmosisSignTxAmount">Amount (uOSMO)</label>
+      <input type="text" placeholder="Ex: 10000000 = 1 full asset" id="osmosisSignTxAmount" />
+      <button class="button button-outline" id="osmosisSignTx">Tx</button>
+      <input type="text" id="osmosisSignTxResults" />
+      <hr />
+      <h5>Delegate</h5>
+      <label for="osmosisDelegateValidatorAddress">Validator Address</label>
+      <input
+        type="text"
+        disabled
+        placeholder="osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n"
+        id="osmosisDelegateValidatorAddress"
+      />
+      <label for="osmosisDelegateAmount">Amount (uOSMO)</label>
+      <input type="text" placeholder="Ex: 10000000 = 1 full asset" id="osmosisDelegateAmount" />
+      <button class="button button-outline" id="osmosisDelegate">Delegate</button>
+      <input type="text" id="osmosisDelegateResults" />
+      <hr />
+      <h5>Undelegate</h5>
+      <label for="osmosisUndelegateValidatorAddress">Validator Address</label>
+      <input
+        type="text"
+        disabled
+        placeholder="osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n"
+        id="osmosisUndelegateValidatorAddress"
+      />
+      <label for="osmosisUndelegateAmount">Amount (uOSMO)</label>
+      <input type="text" placeholder="Ex: 10000000 = 1 full asset" id="osmosisUndelegateAmount" />
+      <button class="button button-outline" id="osmosisUndelegate">Undelegate</button>
+      <input type="text" id="osmosisUndelegateResults" />
+      <hr />
+      <h5>IBC Deposit</h5>
+      <hr />
+      <h5>IBC Withdrawal</h5>
+      <hr />
+      <h5>Add Liquidity</h5>
+      <hr />
+      <h5>LP Stake</h5>
+    </div>
+
+    <div class="container">
+      <h4>Ethereum</h4>
+      <button class="button button-outline" id="ethAddr">Address</button>
+      <button class="button button-outline" id="ethTx">Tx</button>
+      <button class="button button-outline" id="ethSign">Sign</button>
+      <button class="button button-outline" id="ethSend">Send</button>
+      <button class="button button-outline" id="ethVerify">Verify</button>
+      <button class="button button-outline" id="ethEIP1559">EIP-1559?</button>
+      <input type="text" id="ethResults" />
+    </div>
+    <div class="container">
+      <h4>ERC-20</h4>
+      <button class="button button-outline" name="erc20Button" id="erc20Addr">Address</button>
+      <button class="button button-outline" name="erc20Button" id="erc20Allowance">Allowance</button>
+      <button class="button button-outline" name="erc20Button" id="erc20Approve">Approve</button>
+      <button class="button button-outline" name="erc20Button" id="erc20BalanceOf">Balance Of</button>
+      <button class="button button-outline" name="erc20Button" id="erc20TotalSupply">Total Supply</button>
+      <button class="button button-outline" name="erc20Button" id="erc20Transfer">Transfer</button>
+      <button class="button button-outline" name="erc20Button" id="erc20TransferFrom">Transfer From</button>
+      <center><p id="erc20Tooltip">Select an option from the above row. Click "submit" below to process.</p></center>
+      <div class="erc20DynamicContainer" id="erc20DynamicContainer"></div>
+      <textarea disabled placeholder="Result" id="erc20Results" />
+      <button class="button" name="erc20Button" id="erc20Submit">Submit</button>
+    </div>
+
+    <div class="container">
+      <h4>Bitcoin</h4>
+      <button class="button button-outline" id="btcAddr">Address</button>
+      <button class="button button-outline" id="btcTx">Tx</button>
+      <button class="button button-outline" id="btcSign">Sign</button>
+      <button class="button button-outline" id="btcVerify">Verify</button>
+      <input type="text" id="btcResults" />
+    </div>
+
+    <div class="container">
+      <h4>Bitcoin (segwit)</h4>
+      <button class="button button-outline" id="btcAddrSegWit">Address (p2wsh)</button>
+      <button class="button button-outline" id="btcAddrSegWitNative">Address (bech32)</button>
+      <button class="button button-outline" id="btcTxSegWit">Tx Segwit</button>
+      <button class="button button-outline" id="btcTxSegWitNative">Tx Segwit (Native)</button>
+      <input type="text" id="btcResultsSegWit" />
+    </div>
+
+    <div class="container">
+      <h4>Litecoin</h4>
+      <button class="button button-outline" id="ltcAddr">Address</button>
+      <button class="button button-outline" id="ltcTx">Tx</button>
+      <button class="button button-outline" id="ltcSign">Sign</button>
+      <input type="text" id="ltcResults" />
+    </div>
+    <div class="container">
+      <h4>Dogecoin</h4>
+      <button class="button button-outline" id="dogeAddr">Address</button>
+      <button class="button button-outline" id="dogeTx">Tx</button>
+      <input type="text" id="dogeResults" />
+    </div>
+    <div class="container">
+      <h4>Bitcoin Cash</h4>
+      <button class="button button-outline" id="bchAddr">Address</button>
+      <button class="button button-outline" id="bchTx">Tx</button>
+      <input type="text" id="bchResults" />
+    </div>
+    <div class="container">
+      <h4>Dash</h4>
+      <button class="button button-outline" id="dashAddr">Address</button>
+      <button class="button button-outline" id="dashTx">Tx</button>
+      <input type="text" id="dashResults" />
+    </div>
+    <div class="container">
+      <h4>DigiByte</h4>
+      <button class="button button-outline" id="dgbAddr">Address</button>
+      <button class="button button-outline" id="dgbTx">Tx</button>
+      <input type="text" id="dgbResults" />
+    </div>
+
+    <div id="#pinModal" class="modal" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Enter PIN</h3>
+          <p>Use the PIN layout shown on your device to find the location to press on this PIN pad.</p>
+        </div>
+        <div class="modal-body">
+          <button onclick="handlePinDigit(7)" class="button button-outline">&#x25CF;</button>&nbsp;
+          <button onclick="handlePinDigit(8)" class="button button-outline">&#x25CF;</button>&nbsp;
+          <button onclick="handlePinDigit(9)" class="button button-outline">&#x25CF;</button>
+          <br />
+          <button onclick="handlePinDigit(4)" class="button button-outline">&#x25CF;</button>&nbsp;
+          <button onclick="handlePinDigit(5)" class="button button-outline">&#x25CF;</button>&nbsp;
+          <button onclick="handlePinDigit(6)" class="button button-outline">&#x25CF;</button>
+          <br />
+          <button onclick="handlePinDigit(1)" class="button button-outline">&#x25CF;</button>&nbsp;
+          <button onclick="handlePinDigit(2)" class="button button-outline">&#x25CF;</button>&nbsp;
+          <button onclick="handlePinDigit(3)" class="button button-outline">&#x25CF;</button>
+          <br />
+          <input id="#pinInput" type="text" style="-webkit-text-security: disc" />
+          <button onclick="handlePinDigit('')" class="button button-outline">x</button>
+        </div>
+        <div class="modal-footer">
+          <button class="button button-outline" onclick="pinEntered()">Unlock</button>
+        </div>
       </div>
     </div>
-    <label for="thorchainDestAddress">Destination Address</label>
-    <input type="text" placeholder="Destination Address" id="thorchainDestAddress" />
-    <label for="thorchainAmount">Amount</label>
-    <input type="text" placeholder="Ex: 10000000 = 1 full asset" id="thorchainAmount" />
-    <button class="button button-outline" id="thorchainSignSwap">Sign Swap</button>
-    <input type="text" id="thorchainSwapResults" />
-    <hr />
-    <h5>Add Liquidity</h5>
-    <label for="thorchainLiquidityAsset">Asset</label>
-    <select id="thorchainLiquidityAsset">
-      <option value="BTC.BTC">Bitcoin</option>
-      <option value="ETH.ETH">Ethereum</option>
-      <option value="BNB.BNB">Binance Chain</option>
-      <option value="BNB.RUNE-B1A">RUNE (BEP2)</option>
-      <option value="THOR.RUNE">RUNE (Native)</option>
-      <option value="ETH.USDT-0xdac17f958d2ee523a2206206994597c13d831ec7">USDT</option>
-    </select>
-    <label for="thorchainLiquidityPoolAddress">Pool Address</label>
-    <input type="text" placeholder="Pool Address" id="thorchainLiquidityPoolAddress" />
-    <label for="thorchainLiquidityAmount">Amount</label>
-    <input type="text" placeholder="Ex: 10000000 = 1 full asset" id="thorchainLiquidityAmount" />
-    <button class="button button-outline" id="thorchainSignAddLiquidity">Sign Add Liquidity</button>
-    <input type="text" id="thorchainAddLiquidityResults" />
-  </div>
 
-  <div class="container">
-    <h4>Osmosis</h4>
-    <h5>Get Address</h5>
-    <button class="button button-outline" id="osmosisAddress">Address</button>
-    <input type="text" id="osmosisAddressResults" />
-    <hr />
-    <h5>Send</h5>
-    <label for="osmosisSignTxAddress">Address</label>
-    <input type="text" id="osmosisSignTxAddress" />
-    <label for="osmosisSignTxAmount">Amount (uOSMO)</label>
-    <input type="text" placeholder="Ex: 10000000 = 1 full asset" id="osmosisSignTxAmount" />
-    <button class="button button-outline" id="osmosisSignTx">Tx</button>
-    <input type="text" id="osmosisSignTxResults" />
-    <hr />
-    <h5>Delegate</h5>
-    <label for="osmosisDelegateValidatorAddress">Validator Address</label>
-    <input
-      type="text"
-      disabled
-      placeholder="osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n"
-      id="osmosisDelegateValidatorAddress"
-    />
-    <label for="osmosisDelegateAmount">Amount (uOSMO)</label>
-    <input type="text" placeholder="Ex: 10000000 = 1 full asset" id="osmosisDelegateAmount" />
-    <button class="button button-outline" id="osmosisDelegate">Delegate</button>
-    <input type="text" id="osmosisDelegateResults" />
-    <hr />
-    <h5>Undelegate</h5>
-    <label for="osmosisUndelegateValidatorAddress">Validator Address</label>
-    <input
-      type="text"
-      disabled
-      placeholder="osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n"
-      id="osmosisUndelegateValidatorAddress"
-    />
-    <label for="osmosisUndelegateAmount">Amount (uOSMO)</label>
-    <input type="text" placeholder="Ex: 10000000 = 1 full asset" id="osmosisUndelegateAmount" />
-    <button class="button button-outline" id="osmosisUndelegate">Undelegate</button>
-    <input type="text" id="osmosisUndelegateResults" />
-    <hr />
-    <h5>IBC Deposit</h5>
-    <hr />
-    <h5>IBC Withdrawal</h5>
-    <hr />
-    <h5>Add Liquidity</h5>
-    <hr />
-    <h5>LP Stake</h5>
-  </div>
-
-  <div class="container">
-    <h4>Ethereum</h4>
-    <button class="button button-outline" id="ethAddr">Address</button>
-    <button class="button button-outline" id="ethTx">Tx</button>
-    <button class="button button-outline" id="ethSign">Sign</button>
-    <button class="button button-outline" id="ethSend">Send</button>
-    <button class="button button-outline" id="ethVerify">Verify</button>
-    <button align="right "class="button button-outline" id="ethEIP1559">EIP-1559?</button>
-    <input type="text" id="ethResults" />
-  </div>
-  <div class="container">
-    <h4>ERC-20</h4>
-    <button class="button button-outline" name="erc20Button" id="erc20Addr">Address</button>
-    <button class="button button-outline" name="erc20Button" id="erc20Allowance">Allowance</button>
-    <button class="button button-outline" name="erc20Button" id="erc20Approve">Approve</button>
-    <button class="button button-outline" name="erc20Button" id="erc20BalanceOf">Balance Of</button>
-    <button class="button button-outline" name="erc20Button" id="erc20TotalSupply">Total Supply</button>
-    <button class="button button-outline" name="erc20Button" id="erc20Transfer">Transfer</button>
-    <button class="button button-outline" name="erc20Button" id="erc20TransferFrom">Transfer From</button>
-    <center><p id="erc20Tooltip">Select an option from the above row. Click "submit" below to process.</p></center>
-    <div class="erc20DynamicContainer" id="erc20DynamicContainer"></div>
-    <textarea disabled placeholder="Result" id="erc20Results" />
-    <button class="button" name="erc20Button" id="erc20Submit">Submit</button>
-  </div>
-
-  <div class="container">
-    <h4>Bitcoin</h4>
-    <button class="button button-outline" id="btcAddr">Address</button>
-    <button class="button button-outline" id="btcTx">Tx</button>
-    <button class="button button-outline" id="btcSign">Sign</button>
-    <button class="button button-outline" id="btcVerify">Verify</button>
-    <input type="text" id="btcResults" />
-  </div>
-
-  <div class="container">
-    <h4>Bitcoin (segwit)</h4>
-    <button class="button button-outline" id="btcAddrSegWit">Address (p2wsh)</button>
-    <button class="button button-outline" id="btcAddrSegWitNative">Address (bech32)</button>
-    <button class="button button-outline" id="btcTxSegWit">Tx Segwit</button>
-    <button class="button button-outline" id="btcTxSegWitNative">Tx Segwit (Native)</button>
-    <input type="text" id="btcResultsSegWit" />
-  </div>
-
-  <div class="container">
-    <h4>Litecoin</h4>
-    <button class="button button-outline" id="ltcAddr">Address</button>
-    <button class="button button-outline" id="ltcTx">Tx</button>
-    <button class="button button-outline" id="ltcSign">Sign</button>
-    <input type="text" id="ltcResults" />
-  </div>
-  <div class="container">
-    <h4>Dogecoin</h4>
-    <button class="button button-outline" id="dogeAddr">Address</button>
-    <button class="button button-outline" id="dogeTx">Tx</button>
-    <input type="text" id="dogeResults" />
-  </div>
-  <div class="container">
-    <h4>Bitcoin Cash</h4>
-    <button class="button button-outline" id="bchAddr">Address</button>
-    <button class="button button-outline" id="bchTx">Tx</button>
-    <input type="text" id="bchResults" />
-  </div>
-  <div class="container">
-    <h4>Dash</h4>
-    <button class="button button-outline" id="dashAddr">Address</button>
-    <button class="button button-outline" id="dashTx">Tx</button>
-    <input type="text" id="dashResults" />
-  </div>
-  <div class="container">
-    <h4>DigiByte</h4>
-    <button class="button button-outline" id="dgbAddr">Address</button>
-    <button class="button button-outline" id="dgbTx">Tx</button>
-    <input type="text" id="dgbResults" />
-  </div>
-
-  <div id="#pinModal" class="modal" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-header">
-        <h3>Enter PIN</h3>
-        <p>Use the PIN layout shown on your device to find the location to press on this PIN pad.</p>
-      </div>
-      <div class="modal-body">
-        <button onclick="handlePinDigit(7)" class="button button-outline">&#x25CF;</button>&nbsp;
-        <button onclick="handlePinDigit(8)" class="button button-outline">&#x25CF;</button>&nbsp;
-        <button onclick="handlePinDigit(9)" class="button button-outline">&#x25CF;</button><br />
-        <button onclick="handlePinDigit(4)" class="button button-outline">&#x25CF;</button>&nbsp;
-        <button onclick="handlePinDigit(5)" class="button button-outline">&#x25CF;</button>&nbsp;
-        <button onclick="handlePinDigit(6)" class="button button-outline">&#x25CF;</button><br />
-        <button onclick="handlePinDigit(1)" class="button button-outline">&#x25CF;</button>&nbsp;
-        <button onclick="handlePinDigit(2)" class="button button-outline">&#x25CF;</button>&nbsp;
-        <button onclick="handlePinDigit(3)" class="button button-outline">&#x25CF;</button><br />
-        <input id="#pinInput" type="text" style="-webkit-text-security: disc" />
-        <button onclick="handlePinDigit('')" class="button button-outline">x</button>
-      </div>
-      <div class="modal-footer">
-        <button class="button button-outline" onclick="pinEntered()">Unlock</button>
+    <div id="#passphraseModal" class="modal" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Enter Passphrase</h3>
+          <p>Enter your BIP39 Passphrase.</p>
+        </div>
+        <div class="modal-body">
+          <form>
+            <input id="#passphraseInput" type="password" autocomplete="bip39-passphrase" />
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="button button-outline" onclick="passphraseEntered()">Unlock</button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div id="#passphraseModal" class="modal" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-header">
-        <h3>Enter Passphrase</h3>
-        <p>Enter your BIP39 Passphrase.</p>
-      </div>
-      <div class="modal-body">
-        <form>
-          <input id="#passphraseInput" type="password" autocomplete="bip39-passphrase" />
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button class="button button-outline" onclick="passphraseEntered()">Unlock</button>
+    <div id="#mnemonicModal" class="modal" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Mnemoic Required</h3>
+          <p>Enter your mnemonic phrase</p>
+        </div>
+        <div class="modal-body">
+          <form>
+            <input id="#mnemonicInput" type="text" />
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="button button-outline" onclick="mnemonicEntered()">Load mnemonic</button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div id="#mnemonicModal" class="modal" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-header">
-        <h3>Mnemoic Required</h3>
-        <p>Enter your mnemonic phrase</p>
-      </div>
-      <div class="modal-body">
-        <form>
-          <input id="#mnemonicInput" type="text" />
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button class="button button-outline" onclick="mnemonicEntered()">Load mnemonic</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="https://unpkg.com/debug@4.0.1/dist/debug.js"></script>
-  <script
-    src="https://code.jquery.com/jquery-3.3.1.min.js"
-    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-    crossorigin="anonymous"
-  ></script>
-  <script src="./index.ts"></script>
+    <script src="https://unpkg.com/debug@4.0.1/dist/debug.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.min.js"
+      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+      crossorigin="anonymous"
+    ></script>
+    <script src="./index.ts"></script>
   </body>
 </html>
