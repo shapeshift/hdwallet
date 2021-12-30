@@ -87,12 +87,12 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
 
   let script = scriptType
     ? (
-        {
-          [core.BTCInputScriptType.SpendAddress]: " (Legacy)",
-          [core.BTCInputScriptType.SpendP2SHWitness]: "",
-          [core.BTCInputScriptType.SpendWitness]: " (Segwit Native)",
-        } as Partial<Record<core.BTCInputScriptType, string>>
-      )[scriptType]
+      {
+        [core.BTCInputScriptType.SpendAddress]: " (Legacy)",
+        [core.BTCInputScriptType.SpendP2SHWitness]: "",
+        [core.BTCInputScriptType.SpendWitness]: " (Segwit Native)",
+      } as Partial<Record<core.BTCInputScriptType, string>>
+    )[scriptType]
     : undefined;
 
   switch (coin) {
@@ -312,10 +312,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async getDeviceID(): Promise<string> {
-    const {
-      device: { serialNumber: deviceID },
-    } = this.transport as any;
-    return deviceID;
+    return this.transport.getDeviceID();
   }
 
   public async getFeatures(): Promise<any> {
@@ -327,7 +324,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   /**
    * Validate if a specific app is open
    * Throws WrongApp error if app associated with coin is not open
-   * @param coin  Name of coin for app name lookup
+   * @param coin  Name of coin for app name lookup ie "BitcoinCash"
    */
   public async validateCurrentApp(coin?: core.Coin): Promise<void> {
     if (!coin) {

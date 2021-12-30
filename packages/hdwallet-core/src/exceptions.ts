@@ -8,6 +8,9 @@ export enum HDWalletErrorType {
   SelectApp = "SelectApp",
   WrongApp = "WrongApp",
   FirmwareUpdateRequired = "FirmwareUpdateRequired",
+  WebHIDNotAvailable = "WebHIDNotAvailable",
+  WebHIDCouldNotInitialize = "WebHIDCouldNotInitialize",
+  WebHIDCouldNotPair = "WebHIDCouldNotPair",
   WebUSBNotAvailable = "WebUSBNotAvailable",
   WebUSBCouldNotInitialize = "WebUSBCouldNotInitialize",
   WebUSBCouldNotPair = "WebUSBCouldNotPair",
@@ -93,15 +96,33 @@ export class FirmwareUpdateRequired extends HDWalletError {
   }
 }
 
+export class WebHIDNotAvailable extends HDWalletError {
+  constructor() {
+    super(`WebHID is not available in this browser. We recommend trying Chrome.`, HDWalletErrorType.WebHIDNotAvailable);
+  }
+}
+
 export class WebUSBNotAvailable extends HDWalletError {
   constructor() {
     super(`WebUSB is not available in this browser. We recommend trying Chrome.`, HDWalletErrorType.WebUSBNotAvailable);
   }
 }
 
+export class WebHIDCouldNotInitialize extends HDWalletError {
+  constructor(model: string, message: string) {
+    super(`Could not initialize ${model}: ${message}`, HDWalletErrorType.WebHIDCouldNotInitialize);
+  }
+}
+
 export class WebUSBCouldNotInitialize extends HDWalletError {
   constructor(model: string, message: string) {
     super(`Could not initialize ${model}: ${message}`, HDWalletErrorType.WebUSBCouldNotInitialize);
+  }
+}
+
+export class WebHIDCouldNotPair extends HDWalletError {
+  constructor(model: string, message: string) {
+    super(`Could not pair ${model}: ${message}`, HDWalletErrorType.WebHIDCouldNotPair);
   }
 }
 
