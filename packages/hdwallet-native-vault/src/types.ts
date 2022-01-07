@@ -16,7 +16,8 @@ export type VaultPrepareParams = Partial<{
 
 export interface IVaultFactory<U extends IVaultBackedBy<any> | IVault> {
   readonly prepare: (params?: VaultPrepareParams) => Promise<void>;
-  readonly open: (id?: string) => Promise<U>;
+  readonly create: (password?: string) => Promise<U>;
+  readonly open: (id?: string, password?: string) => Promise<U>;
   readonly list: () => Promise<string[]>;
   readonly meta: (id: string) => Promise<Map<string, unknown> | undefined>;
   readonly delete: (id: string) => Promise<void>;
