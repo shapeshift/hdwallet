@@ -52,6 +52,7 @@ describe("Vault", () => {
     prepareOnce();
     await preparedOnce;
     await Vault.prepare();
+    for (const id of await Vault.list()) await Vault.delete(id)
   });
 
   beforeEach(async () => {
