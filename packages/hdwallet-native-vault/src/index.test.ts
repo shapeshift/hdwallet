@@ -9,8 +9,10 @@ import * as uuid from "uuid";
 
 import { Vault, GENERATE_MNEMONIC } from ".";
 import { deterministicGetRandomValues } from "./deterministicGetRandomValues.test";
+import "./mockMessagePort";
 import { MockVault } from './mockVault';
 import { RawVault } from './rawVault';
+import { RemoteVaultFactory, RemoteVaultFactoryServer } from "./remoteVault";
 import { ISealableVaultFactory, IVault } from "./types";
 import { keyStoreUUID, vaultStoreUUID } from "./util";
 
@@ -200,3 +202,5 @@ function testVaultImpl(name: string, Vault: ISealableVaultFactory<IVault>) {
 
 testVaultImpl("Vault", Vault)
 testVaultImpl("MockVault", MockVault)
+testVaultImpl("RemoteVault:MockVault", new RemoteVaultFactory(RemoteVaultFactoryServer.create(MockVault).messagePort))
+testVaultImpl("RemoteVault:Vault", new RemoteVaultFactory(RemoteVaultFactoryServer.create(Vault).messagePort))

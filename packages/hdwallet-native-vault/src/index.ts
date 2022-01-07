@@ -7,6 +7,7 @@ import { crypto } from "./util";
 
 export { argonBenchmark } from "./argonBenchmark"
 export { Vault } from "./vault"
+export { RemoteVaultFactory, RemoteVaultFactoryServer } from "./remoteVault"
 
 const createMnemonic = native.crypto.Isolation.Engines.Default.BIP39.Mnemonic.create.bind(
   native.crypto.Isolation.Engines.Default.BIP39.Mnemonic
