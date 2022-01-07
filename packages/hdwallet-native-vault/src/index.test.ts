@@ -5,6 +5,7 @@ import * as uuid from "uuid";
 
 import { Vault, GENERATE_MNEMONIC } from ".";
 import { deterministicGetRandomValues } from "./deterministicGetRandomValues.test";
+import { MockVault } from './test/mockVault.skip';
 import { RawVault } from './rawVault';
 import { ISealableVaultFactory, IVault } from "./types";
 import { keyStoreUUID, vaultStoreUUID } from "./util";
@@ -196,3 +197,4 @@ function testVaultImpl(name: string, Vault: ISealableVaultFactory<IVault>) {
 }
 
 testVaultImpl("Vault", Vault)
+testVaultImpl("MockVault", MockVault)
