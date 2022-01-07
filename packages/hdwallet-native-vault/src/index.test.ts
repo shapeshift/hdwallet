@@ -122,12 +122,12 @@ describe("Vault", () => {
     await vault.save()
   })
 
-  it("should retreive metadata from the vault instance", async () => {
+  it("should retrieve metadata from the vault instance", async () => {
     const vault = await thereCanBeOnlyOne(Vault, "foobar");
     expect(vault.meta.get("bar")).toBe("baz")
   })
 
-  it("should retreive metadata with the static method", async () => {
+  it("should retrieve metadata with the static method", async () => {
     const id = (await thereCanBeOnlyOne(Vault)).id
     expect((await Vault.meta(id))?.get("bar")).toBe("baz")
   })
