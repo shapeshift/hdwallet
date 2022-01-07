@@ -148,6 +148,10 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
   }
 
   //#region static: VaultFactory<RawVault>
+  static async create(password?: string) {
+    return await RawVault.open(undefined, password);
+  }
+
   static async open(id?: string, password?: string) {
     await RawVault.prepare();
 
