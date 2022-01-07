@@ -149,7 +149,7 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
 
   //#region static: VaultFactory<RawVault>
   static async open(id?: string, password?: string) {
-    await Vault.prepare();
+    await RawVault.prepare();
 
     const factory = async (id: string, argonParams: Promise<ArgonParams>) => {
       const vaultRevoker = new (Revocable(class {}))();
