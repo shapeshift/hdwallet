@@ -39,6 +39,7 @@ describe("Vault", () => {
       },
       performance: require("perf_hooks").performance,
     });
+    for (const id of await Vault.list()) await Vault.delete(id)
   });
 
   beforeEach(async () => {
