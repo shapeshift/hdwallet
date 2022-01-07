@@ -30,3 +30,34 @@ export const Revocable = native.crypto.Isolation.Engines.Default.Revocable;
 export const revocable = native.crypto.Isolation.Engines.Default.revocable;
 export const decoder = new TextDecoder();
 export const encoder = new TextEncoder();
+
+export function shadowedMap<K, V, T extends Map<K, V>>(map: T, get: (key: K) => undefined | V, addRevoker: (revoke: () => void) => void): T {
+  const self = map;
+  const { proxy, revoke } = Proxy.revocable(self, {
+    get(t, p, r) {
+      switch (p) {
+        case "get":
+          return get.bind(self);
+        case "values":
+          return () => Array.from(self.keys()).map((k) => get(k));
+        case "entries":
+          return () => Array.from(self.keys()).map((k) => [k, get(k)]);
+        case "entriesAsync":
+          return () => Promise.all(Array.from(self.keys()).map(async (k) => [k, await get(k)]));
+        case "forEach":
+          return (callbackFn: (v?: V, k?: K, m?: typeof self) => void, thisArg?: object) => {
+            for (const key of self.keys()) {
+              callbackFn.call(thisArg, get(key), key, self);
+            }
+          };
+        default: {
+          const out = Reflect.get(t, p, r);
+          // if (!String(p).startsWith("_") && typeof out === "function") return out.bind(t);
+          return out;
+        }
+      }
+    },
+  });
+  addRevoker(revoke);
+  return proxy;
+}
