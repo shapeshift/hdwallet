@@ -1,3 +1,7 @@
+import { TextEncoder, TextDecoder } from 'util';
+global.TextEncoder = TextEncoder as any;
+global.TextDecoder = TextDecoder as any;
+
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as idb from "idb-keyval";
 import * as jose from "jose";
