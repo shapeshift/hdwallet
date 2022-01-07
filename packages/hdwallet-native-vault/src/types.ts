@@ -30,10 +30,12 @@ export interface IVaultBackedBy<T> {
   save(serialize: () => Promise<T>): Promise<this>;
 }
 
-export interface IVault {
+export interface IVault extends Map<string, Promise<unknown>> {
   readonly id: string;
   readonly meta: Map<string, unknown>;
   setPassword(password: string): Promise<this>;
+  set(key: string, value: unknown | Promise<unknown>): this;
+  entriesAsync(): Promise<Array<[string, unknown]>>;
   load(): Promise<this>;
   save(): Promise<this>;
 }

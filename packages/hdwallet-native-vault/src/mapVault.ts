@@ -8,7 +8,7 @@ ta.assert<ta.Extends<typeof MapVault, IVaultFactory<MapVault>>>();
 
 export class MapVault
   extends Revocable(Map)
-  implements Map<string, unknown | Promise<unknown>>, IVaultBackedBy<Array<[string, unknown | Promise<unknown>]>>
+  implements Map<string, Promise<unknown>>, IVaultBackedBy<Array<[string, unknown | Promise<unknown>]>>
 {
   static async prepare(params?: VaultPrepareParams) { return RawVault.prepare(params); }
   static async open(id?: string, password?: string) {

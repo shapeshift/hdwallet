@@ -144,7 +144,7 @@ export class Vault extends MapVault implements IVault {
     return super.set(key, wrapper);
   }
 
-  #getUnwrapped(key: string): undefined | unknown | Promise<unknown> {
+  #getUnwrapped(key: string): undefined | Promise<unknown> {
     if (!Vault.#isPrivateKey(key)) return this.get(key);
     const jwe = this.#privateContents.get(key);
     if (!jwe) return undefined;
