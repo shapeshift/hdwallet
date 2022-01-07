@@ -5,6 +5,7 @@ import * as uuid from "uuid";
 
 import { Vault, GENERATE_MNEMONIC } from ".";
 import { deterministicGetRandomValues } from "./deterministicGetRandomValues.test";
+import { RawVault } from './rawVault';
 import { ISealableVaultFactory, IVault } from "./types";
 import { keyStoreUUID, vaultStoreUUID } from "./util";
 
@@ -27,18 +28,26 @@ async function thereCanBeOnlyOne<T extends IVault, U extends ISealableVaultFacto
   return await factory.open(ids[0], ...(args as any));
 }
 
+let prepareOnce: () => void;
+const preparedOnce = new Promise<void>(resolve => prepareOnce = resolve).then(async () => {
+  await resetGetRandomValues();
+  await RawVault.prepare({
+    crypto: {
+      subtle: realCrypto.subtle,
+      async getRandomValues<T extends ArrayBufferView | null>(array: T): Promise<T> {
+        return await mockGetRandomValues(array);
+      },
+    },
+    performance: require("perf_hooks").performance,
+  })
+  await RawVault.defaultArgonParams
+})
+
 describe("Vault", () => {
   beforeAll(async () => {
-    await resetGetRandomValues();
-    await Vault.prepare({
-      crypto: {
-        subtle: realCrypto.subtle,
-        async getRandomValues<T extends ArrayBufferView | null>(array: T): Promise<T> {
-          return await mockGetRandomValues(array);
-        },
-      },
-      performance: require("perf_hooks").performance,
-    });
+    prepareOnce();
+    await preparedOnce;
+    await Vault.prepare();
     for (const id of await Vault.list()) await Vault.delete(id)
   });
 
@@ -46,11 +55,9 @@ describe("Vault", () => {
     await resetGetRandomValues();
   });
 
-  it("should only allow one call to Vault.prepare() with options", async () => {
+  it("should allow repeated calls to prepare() with no options", async () => {
     await expect(Vault.prepare()).resolves.not.toThrow();
-    await expect(Vault.prepare({})).rejects.toThrowErrorMatchingInlineSnapshot(
-      `"can't call prepare with a parameters object after vault is already prepared"`
-    );
+    await expect(Vault.prepare()).resolves.not.toThrow();
   });
 
   it("should create a new vault", async () => {
