@@ -117,19 +117,19 @@ describe("Vault", () => {
 
   it("should store metadata", async () => {
     const vault = await thereCanBeOnlyOne(Vault, "foobar");
-    vault.meta.set("foo", "bar")
-    expect(vault.meta.get("foo")).toBe("bar")
+    vault.meta.set("bar", "baz")
+    expect(vault.meta.get("bar")).toBe("baz")
     await vault.save()
   })
 
   it("should retreive metadata from the vault instance", async () => {
     const vault = await thereCanBeOnlyOne(Vault, "foobar");
-    expect(vault.meta.get("foo")).toBe("bar")
+    expect(vault.meta.get("bar")).toBe("baz")
   })
 
   it("should retreive metadata with the static method", async () => {
     const id = (await thereCanBeOnlyOne(Vault)).id
-    expect((await Vault.meta(id))?.get("foo")).toBe("bar")
+    expect((await Vault.meta(id))?.get("bar")).toBe("baz")
   })
 
   it("should be unwrappable before being sealed", async () => {
