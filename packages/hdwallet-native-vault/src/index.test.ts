@@ -1,6 +1,6 @@
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as idb from "idb-keyval";
-import * as jose from "jose";
+// import * as jose from "jose";
 import * as uuid from "uuid";
 
 import { Vault, GENERATE_MNEMONIC } from ".";
@@ -66,16 +66,16 @@ describe("Vault", () => {
     expect((await Vault.list()).length).toBe(1);
     expect(vault.meta.get("name")).toBe("default");
 
-    console.log(await idb.entries(keyStore));
-    console.log(await idb.entries(vaultStore));
+    console.log("keyStore", await idb.entries(keyStore));
+    console.log("vaultStore", await idb.entries(vaultStore));
   });
 
   it("should open a vault", async () => {
     const vaultIDs = await Vault.list();
     expect(vaultIDs.length).toBe(1);
     const vault = await Vault.open(vaultIDs[0], "foobar");
-    console.log(jose.decodeProtectedHeader((await idb.get(vaultIDs[0], vaultStore))!));
-    console.log("entries", vault.entries());
+    // console.log(jose.decodeProtectedHeader((await idb.get(vaultIDs[0], vaultStore))!));
+    // console.log("entries", vault.entries());
     expect(await vault.get("foo")).toBe("bar");
     expect(uuid.validate(vault.id)).toBe(true);
     expect(vault.meta.size).toBe(1);
