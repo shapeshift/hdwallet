@@ -25,6 +25,8 @@ export const performance = new Promise<Performance>(resolve => performanceResolv
 export const uuidNamespace = uuid.v5("hdwallet-native-vault", uuid.NIL);
 export const keyStoreUUID = uuid.v5("keyStore", uuidNamespace);
 export const vaultStoreUUID = uuid.v5("vaultStore", uuidNamespace);
+// export const GENERATE_MNEMONIC = uuid.v5("GENERATE_MNEMONIC", uuidNamespace);
+export const GENERATE_MNEMONIC = uuid.v4();
 
 export const decoder = new TextDecoder();
 export const encoder = new TextEncoder();
