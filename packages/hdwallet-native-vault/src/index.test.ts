@@ -9,8 +9,8 @@ import * as uuid from "uuid";
 
 import { Vault, GENERATE_MNEMONIC } from ".";
 import { deterministicGetRandomValues } from "./deterministicGetRandomValues.test";
-import "./mockMessagePort";
-import { MockVault } from './mockVault';
+import "./mockMessagePort.skip";
+import { MockVault } from './mockVault.skip';
 import { RawVault } from './rawVault';
 import { RemoteVaultFactory, RemoteVaultFactoryServer } from "./remoteVault";
 import { ISealableVaultFactory, IVault } from "./types";
