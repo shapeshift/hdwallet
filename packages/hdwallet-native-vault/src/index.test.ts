@@ -4,7 +4,7 @@ global.TextDecoder = TextDecoder as any;
 
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as idb from "idb-keyval";
-import * as jose from "jose";
+// import * as jose from "jose";
 import * as uuid from "uuid";
 
 import { Vault, GENERATE_MNEMONIC } from ".";
