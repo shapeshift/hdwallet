@@ -4,13 +4,9 @@ import { ISealableVaultFactory, IVault } from "./types";
 import { shadowedMap } from "./util";
 
 export class RemoteVaultFactoryServer extends core.RemoteServer {
-  static create(factory: ISealableVaultFactory<IVault>): RemoteVaultFactoryServer {
-    return new RemoteVaultFactoryServer(factory)
-  }
-
   readonly factory: ISealableVaultFactory<IVault>
 
-  protected constructor(factory: ISealableVaultFactory<IVault>) {
+  constructor(factory: ISealableVaultFactory<IVault>) {
     super()
     this.factory = factory
   }
@@ -59,7 +55,7 @@ export class RemoteVaultFactory extends core.RemoteClient implements ISealableVa
     return this.constructor.name
   }
 
-  constructor(messagePort: MessagePort) {
+  constructor(messagePort: MessagePort | Promise<MessagePort>) {
     super(messagePort)
   }
 

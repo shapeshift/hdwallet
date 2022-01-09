@@ -202,5 +202,5 @@ function testVaultImpl(name: string, Vault: ISealableVaultFactory<IVault>) {
 
 testVaultImpl("Vault", Vault)
 testVaultImpl("MockVault", MockVault)
-testVaultImpl("RemoteVault:MockVault", new RemoteVaultFactory(RemoteVaultFactoryServer.create(MockVault).messagePort))
-testVaultImpl("RemoteVault:Vault", new RemoteVaultFactory(RemoteVaultFactoryServer.create(Vault).messagePort))
+testVaultImpl("RemoteVault:MockVault", new RemoteVaultFactory(new RemoteVaultFactoryServer(MockVault).messagePort))
+testVaultImpl("RemoteVault:Vault", new RemoteVaultFactory(new RemoteVaultFactoryServer(Vault).messagePort))
