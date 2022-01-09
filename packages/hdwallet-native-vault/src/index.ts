@@ -6,6 +6,7 @@ import { Vault } from "./vault";
 import { crypto } from "./util";
 
 export { argonBenchmark } from "./argonBenchmark"
+export type { IVault, IVaultFactory } from './types'
 export { Vault } from "./vault"
 
 const createMnemonic = native.crypto.Isolation.Engines.Default.BIP39.Mnemonic.create.bind(
