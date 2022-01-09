@@ -26,9 +26,6 @@ export const uuidNamespace = uuid.v5("hdwallet-native-vault", uuid.NIL);
 export const keyStoreUUID = uuid.v5("keyStore", uuidNamespace);
 export const vaultStoreUUID = uuid.v5("vaultStore", uuidNamespace);
 
-export type Revocable = native.crypto.Isolation.Engines.Default.Revocable;
-export const Revocable = native.crypto.Isolation.Engines.Default.Revocable;
-export const revocable = native.crypto.Isolation.Engines.Default.revocable;
 export const decoder = new TextDecoder();
 export const encoder = new TextEncoder();
 

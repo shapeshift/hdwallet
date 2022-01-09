@@ -7,7 +7,7 @@ import * as ta from "type-assertions";
 import { argonBenchmark } from "./argonBenchmark";
 
 import { ArgonParams, IVaultBackedBy, IVaultFactory, VaultPrepareParams } from "./types";
-import { Revocable, crypto, revocable, encoder, keyStoreUUID, vaultStoreUUID, setCrypto, setPerformance } from "./util";
+import { crypto, encoder, keyStoreUUID, vaultStoreUUID, setCrypto, setPerformance } from "./util";
 import { Vault } from ".";
 
 // This has to be outside the class so the static initializers for defaultArgonParams and #machineSeed can reference it.
@@ -22,7 +22,7 @@ let resolvers:
 
 ta.assert<ta.Extends<typeof RawVault, IVaultFactory<RawVault>>>();
 
-export class RawVault extends Revocable(Object.freeze(class {})) implements IVaultBackedBy<Uint8Array> {
+export class RawVault extends core.Revocable(Object.freeze(class {})) implements IVaultBackedBy<Uint8Array> {
   //#region static: prepare()
   static readonly defaultArgonParams: Promise<ArgonParams> = new Promise(
     (resolve) => resolvers && (resolvers.defaultArgonParams = resolve)
@@ -156,8 +156,8 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
     await RawVault.prepare();
 
     const factory = async (id: string, argonParams: Promise<ArgonParams>) => {
-      const vaultRevoker = new (Revocable(class {}))();
-      const vault = revocable(new RawVault(id, argonParams), (x) => vaultRevoker.addRevoker(x));
+      const vaultRevoker = new (core.Revocable(class {}))();
+      const vault = core.revocable(new RawVault(id, argonParams), (x) => vaultRevoker.addRevoker(x));
       vault.addRevoker(() => vaultRevoker.revoke());
       return vault;
     };

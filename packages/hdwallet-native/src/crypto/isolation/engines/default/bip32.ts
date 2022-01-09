@@ -1,16 +1,15 @@
-export * from "../../core/bip32";
-import * as BIP32 from "../../core/bip32";
-
+import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bip32crypto from "bip32/src/crypto";
 import * as tinyecc from "tiny-secp256k1";
 import { TextEncoder } from "web-encoding";
 
-import { ByteArray, Uint32, checkType, safeBufferFrom, assertType } from "../../types";
 import { Digest, SecP256K1 } from "../../core";
-import { ChainCode } from "../../core/bip32";
-import { revocable, Revocable } from "./revocable";
+import * as BIP32 from "../../core/bip32";
+import { ByteArray, Uint32, checkType, safeBufferFrom, assertType } from "../../types";
 
-export class Seed extends Revocable(class {}) implements BIP32.Seed {
+export * from "../../core/bip32";
+
+export class Seed extends core.Revocable(class {}) implements BIP32.Seed {
     readonly #seed: Buffer;
 
     protected constructor(seed: Uint8Array) {
@@ -21,7 +20,7 @@ export class Seed extends Revocable(class {}) implements BIP32.Seed {
 
     static async create(seed: Uint8Array): Promise<Seed> {
         const obj = new Seed(seed);
-        return revocable(obj, (x) => obj.addRevoker(x));
+        return core.revocable(obj, (x) => obj.addRevoker(x));
     }
 
     async toMasterKey(hmacKey?: string | Uint8Array): Promise<Node> {
@@ -39,7 +38,7 @@ export class Seed extends Revocable(class {}) implements BIP32.Seed {
     };
 }
 
-export class Node extends Revocable(class {}) implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K1.ECDHKey {
+export class Node extends core.Revocable(class {}) implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K1.ECDHKey {
     readonly #privateKey: Buffer & ByteArray<32>;
     readonly chainCode: Buffer & BIP32.ChainCode;
     #publicKey: SecP256K1.CompressedPoint | undefined;
@@ -53,12 +52,12 @@ export class Node extends Revocable(class {}) implements BIP32.Node, SecP256K1.E
         if (privateKey.length !== 32) throw new Error("bad private key length");
         this.#privateKey = safeBufferFrom(privateKey) as Buffer & ByteArray<32>;
         this.addRevoker(() => this.#privateKey.fill(0));
-        this.chainCode = safeBufferFrom(checkType(BIP32.ChainCode, chainCode)) as Buffer & ChainCode;
+        this.chainCode = safeBufferFrom(checkType(BIP32.ChainCode, chainCode)) as Buffer & BIP32.ChainCode;
     }
 
     static async create(privateKey: Uint8Array, chainCode: Uint8Array): Promise<Node> {
         const obj = new Node(privateKey, chainCode);
-        return revocable(obj, (x) => obj.addRevoker(x));
+        return core.revocable(obj, (x) => obj.addRevoker(x));
     }
 
     readonly getPublicKey = () => {

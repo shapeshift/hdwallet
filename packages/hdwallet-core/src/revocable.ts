@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import { Constructor } from "./utils"
 
 const _Set = Set
 const _freeze = Object.freeze.bind(Object)
@@ -80,7 +80,7 @@ export interface Revocable {
   addRevoker(x: () => void): void
 }
 
-export const Revocable = _freeze(<T extends core.Constructor>(x: T) => {
+export const Revocable = _freeze(<T extends Constructor>(x: T) => {
   const out = _freeze(class Revocable extends x {
     readonly #revokers: Set<() => void> = new _Set()
     #revoked = false
