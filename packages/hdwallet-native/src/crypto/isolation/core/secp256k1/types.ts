@@ -1,11 +1,12 @@
 import * as core from "@shapeshiftoss/hdwallet-core"
-import * as ethers from "ethers"
 import { Literal, Object as Obj, Static, Union } from "funtypes";
 import * as tinyecc from "tiny-secp256k1";
 
 import * as Digest from "../digest";
 import { BigEndianInteger, ByteArray, Uint32, checkType, safeBufferFrom, assertType } from "../../types";
 import { ECDSAKey, ECDSARecoverableKey } from "./interfaces";
+
+const ethers = import("ethers")
 
 const fieldElementBase = BigEndianInteger(32).withConstraint(
     x => tinyecc.isPrivate(safeBufferFrom(x)) || `expected ${x} to be within the order of the curve`,
@@ -150,10 +151,10 @@ const recoverableSignatureStatic = {
     from: (x: Signature, recoveryParam: RecoveryParam): RecoverableSignature => {
       return checkType(RecoverableSignature, core.compatibleBufferConcat([x, new Uint8Array([recoveryParam])]));
     },
-    fromSignature: (x: Signature, digestAlgorithm: Digest.AlgorithmName<32> | null, message: Uint8Array, publicKey: CurvePoint): RecoverableSignature => {
+    fromSignature: async (x: Signature, digestAlgorithm: Digest.AlgorithmName<32> | null, message: Uint8Array, publicKey: CurvePoint): Promise<RecoverableSignature> => {
       for (let recoveryParam: RecoveryParam = 0; recoveryParam < 4; recoveryParam++) {
         const out = RecoverableSignature.from(x, recoveryParam);
-        if (!CurvePoint.equal(publicKey, RecoverableSignature.recoverPublicKey(out, digestAlgorithm, message))) continue;
+        if (!CurvePoint.equal(publicKey, await RecoverableSignature.recoverPublicKey(out, digestAlgorithm, message))) continue;
         return out;
       }
       throw new Error(`couldn't find recovery parameter producing public key ${publicKey} for signature ${x} over message ${message}`);
@@ -180,7 +181,7 @@ const recoverableSignatureStatic = {
         } : async (digestAlgorithm: Digest.AlgorithmName<32> | null, message: Uint8Array, counter?: Uint32) => {
           const sig = await Signature.signCanonically(x, digestAlgorithm, message, counter);
           if (sig === undefined) return undefined;
-          return RecoverableSignature.fromSignature(sig, digestAlgorithm, message, publicKey);
+          return await RecoverableSignature.fromSignature(sig, digestAlgorithm, message, publicKey);
         };
 
         // Technically, this may waste cycles; if Signature.signCanonically grinds the counter to find a canonical signature which then 
@@ -195,13 +196,13 @@ const recoverableSignatureStatic = {
         // This is cryptographically impossible (2^-128 chance) if the key is implemented correctly.
         throw new Error(`Unable to generate canonical recoverable signature with public key ${Buffer.from(publicKey).toString("hex")} over message ${Buffer.from(message).toString("hex")}; is your key implementation broken?`);
     },
-    recoverPublicKey: (x: RecoverableSignature, digestAlgorithm: Digest.AlgorithmName<32> | null, message: Uint8Array): CurvePoint => {
+    recoverPublicKey: async (x: RecoverableSignature, digestAlgorithm: Digest.AlgorithmName<32> | null, message: Uint8Array): Promise<CurvePoint> => {
       // TODO: do this better
       const msgOrDigest = digestAlgorithm === null ? checkType(ByteArray(32), message) : Digest.Algorithms[digestAlgorithm](checkType(ByteArray(), message));
       const sig = RecoverableSignature.sig(x);
       const recoveryParam = RecoverableSignature.recoveryParam(x);
       const ethSig = core.compatibleBufferConcat([sig, Buffer.from([recoveryParam])]);
-      const ethRecovered = ethers.utils.recoverPublicKey(msgOrDigest, ethers.utils.splitSignature(ethSig));
+      const ethRecovered = (await ethers).utils.recoverPublicKey(msgOrDigest, (await ethers).utils.splitSignature(ethSig));
       return checkType(UncompressedPoint, Buffer.from(ethRecovered.slice(2), "hex"));
     },
     r: (x: RecoverableSignature): FieldElement => Signature.r(RecoverableSignature.sig(x)),
