@@ -1,7 +1,8 @@
 import * as core from "@shapeshiftoss/hdwallet-core"
+import type * as nativeType from "@shapeshiftoss/hdwallet-native"
 
 import { ISealableVaultFactory, IVault } from "./types";
-import { shadowedMap } from "./util";
+import { nativeEngines, shadowedMap } from "./util";
 
 export class RemoteVaultFactoryServer extends core.RemoteServer {
   readonly factory: ISealableVaultFactory<IVault>
@@ -85,6 +86,10 @@ export class RemoteVaultFactory extends core.RemoteClient implements ISealableVa
   }
 }
 
+function isMnemonicInterface(x: any): x is nativeType.crypto.Isolation.Core.BIP39.Mnemonic {
+  return ["object", "function"].includes(typeof x) && x !== null && "toSeed" in x && typeof x.toSeed === "function";
+}
+
 export class RemoteVaultServer extends core.RemoteServer {
   readonly #vault: IVault
 
@@ -121,7 +126,13 @@ export class RemoteVaultServer extends core.RemoteServer {
       }
       case "get": {
         const [ key ] = args as [string]
-        return await this.#vault.get(key)
+        const out = await this.#vault.get(key)
+        if (key === '#mnemonic' && isMnemonicInterface(out)) {
+          const server = await (await nativeEngines).Remote.BIP39.MnemonicServer.create(out)
+          return server.messagePort
+        } else {
+          return out
+        }
       }
       case "set": {
         const [ key, value ] = args as [string, unknown]
@@ -207,9 +218,16 @@ export class RemoteVault extends core.RemoteClient implements IVault {
     return out
   }
 
-  get(key: string): Promise<unknown> | undefined {
+  get<T = unknown>(key: string): Promise<T> | undefined {
     if (!this.#keys.has(key)) return undefined
-    return this.call("get", key).catch(e => console.error(e))
+    return (async () => {
+      const out = await this.call<T>("get", key)
+      if (key === '#mnemonic' && out instanceof MessagePort) {
+        return await (await nativeEngines).Remote.BIP39.Mnemonic.create(out as any) as any
+      } else {
+        return out
+      }
+    })().catch(e => { console.error(e); throw e; })
   }
 
   has(key: string): boolean {

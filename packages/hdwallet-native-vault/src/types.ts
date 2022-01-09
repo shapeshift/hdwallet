@@ -44,10 +44,11 @@ export interface ISealable extends core.Revocable {
   unwrap(addRevoker?: (revoke: () => void) => void): this;
 }
 
-export interface IVault extends Map<string, Promise<unknown>>, ISealable, core.Revocable {
+export interface IVault extends Omit<Map<string, Promise<unknown>>, "get" | "set">, ISealable, core.Revocable {
   readonly id: string;
   readonly meta: Map<string, unknown>;
   setPassword(password: string): Promise<this>;
+  get<T = unknown>(key: string): Promise<T> | undefined;
   set(key: string, value: unknown | Promise<unknown>): this;
   entriesAsync(): Promise<Array<[string, unknown]>>;
   load(): Promise<this>;
