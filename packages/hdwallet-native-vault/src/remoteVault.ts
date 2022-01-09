@@ -1,8 +1,9 @@
-import { RemoteServer, RemoteClient } from "./remote";
+import * as core from "@shapeshiftoss/hdwallet-core"
+
 import { ISealableVaultFactory, IVault } from "./types";
 import { shadowedMap } from "./util";
 
-export class RemoteVaultFactoryServer extends RemoteServer {
+export class RemoteVaultFactoryServer extends core.RemoteServer {
   static create(factory: ISealableVaultFactory<IVault>): RemoteVaultFactoryServer {
     return new RemoteVaultFactoryServer(factory)
   }
@@ -53,7 +54,7 @@ type RemoteVaultParams = {
   port: MessagePort
 }
 
-export class RemoteVaultFactory extends RemoteClient implements ISealableVaultFactory<any> {
+export class RemoteVaultFactory extends core.RemoteClient implements ISealableVaultFactory<any> {
   get name() {
     return this.constructor.name
   }
@@ -88,7 +89,7 @@ export class RemoteVaultFactory extends RemoteClient implements ISealableVaultFa
   }
 }
 
-export class RemoteVaultServer extends RemoteServer {
+export class RemoteVaultServer extends core.RemoteServer {
   readonly #vault: IVault
 
   protected constructor(vault: IVault) {
@@ -169,7 +170,7 @@ export class RemoteVaultServer extends RemoteServer {
   }
 }
 
-export class RemoteVault extends RemoteClient implements IVault {
+export class RemoteVault extends core.RemoteClient implements IVault {
   readonly [Symbol.toStringTag] = RemoteVault.name
 
   readonly id: string
