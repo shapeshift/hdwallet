@@ -1,8 +1,17 @@
 import * as native from "@shapeshiftoss/hdwallet-native";
+import * as bip39 from "bip39";
 import * as uuid from "uuid";
 import { TextDecoder, TextEncoder } from "web-encoding";
 
 import { AsyncCrypto } from "./types";
+
+export async function createMnemonic(mnemonic: string) {
+  return native.crypto.Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic)
+}
+export async function createMnemonicServer(mnemonic: native.crypto.Isolation.Core.BIP39.Mnemonic) {
+  return native.crypto.Isolation.Engines.Remote.BIP39.MnemonicServer.create(mnemonic)
+}
+export const entropyToMnemonic = bip39.entropyToMnemonic.bind(bip39);
 
 let cryptoResolver: ((x: AsyncCrypto) => void) | undefined
 export function setCrypto(x: AsyncCrypto) {
