@@ -8,7 +8,6 @@ import { argonBenchmark } from "./argonBenchmark";
 
 import { ArgonParams, IVaultBackedBy, IVaultFactory, VaultPrepareParams } from "./types";
 import { crypto, encoder, keyStoreUUID, vaultStoreUUID, setCrypto, setPerformance } from "./util";
-import { Vault } from ".";
 
 // This has to be outside the class so the static initializers for defaultArgonParams and #machineSeed can reference it.
 let resolvers:
