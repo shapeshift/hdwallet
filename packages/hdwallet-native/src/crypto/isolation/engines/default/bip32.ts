@@ -60,13 +60,12 @@ export class Node extends core.Revocable(class {}) implements BIP32.Node, SecP25
         return core.revocable(obj, (x) => obj.addRevoker(x));
     }
 
-    readonly getPublicKey = () => {
+    async getPublicKey(): Promise<SecP256K1.CompressedPoint> {
         this.#publicKey = this.#publicKey ?? checkType(SecP256K1.CompressedPoint, tinyecc.pointFromScalar(this.#privateKey, true));
         return this.#publicKey;
-    };
-    get publicKey() { return this.getPublicKey(); }
+    }
 
-    getChainCode() { return this.chainCode }
+    async getChainCode() { return this.chainCode }
 
     async ecdsaSign(digestAlgorithm: null, msg: ByteArray<32>, counter?: Uint32): Promise<SecP256K1.Signature>
     async ecdsaSign(digestAlgorithm: Digest.AlgorithmName<32>, msg: Uint8Array, counter?: Uint32): Promise<SecP256K1.Signature>
@@ -99,7 +98,7 @@ export class Node extends core.Revocable(class {}) implements BIP32.Node, SecP25
             }).signWithEntropy(Buffer.from(msgOrDigest), this.#privateKey, entropy)),
             null,
             msgOrDigest,
-            this.publicKey,
+            await this.getPublicKey(),
         );
     }
 
@@ -108,7 +107,7 @@ export class Node extends core.Revocable(class {}) implements BIP32.Node, SecP25
 
         let serP = Buffer.alloc(37);
         if (index < 0x80000000) {
-            serP.set(SecP256K1.CompressedPoint.from(this.publicKey), 0);
+            serP.set(SecP256K1.CompressedPoint.from(await this.getPublicKey()), 0);
         } else {
             serP.set(this.#privateKey, 1);
         }
