@@ -19,12 +19,12 @@ export class Seed extends Revocable(class {}) implements BIP32.Seed {
       this.addRevoker(() => this.#seed.fill(0));
     }
 
-    static async create(seed: Uint8Array): Promise<Seed> {
+    static async create(seed: Uint8Array): Promise<BIP32.Seed> {
         const obj = new Seed(seed);
         return revocable(obj, (x) => obj.addRevoker(x));
     }
 
-    async toMasterKey(hmacKey?: string | Uint8Array): Promise<Node> {
+    async toMasterKey(hmacKey?: string | Uint8Array): Promise<BIP32.Node> {
         if (hmacKey !== undefined && typeof hmacKey !== "string" && !(hmacKey instanceof Uint8Array)) throw new Error("bad hmacKey type");
 
         // AFAIK all BIP32 implementations use the "Bitcoin seed" string for this derivation, even if they aren't otherwise Bitcoin-related
@@ -34,7 +34,7 @@ export class Seed extends Revocable(class {}) implements BIP32.Seed {
         const IL = I.slice(0, 32);
         const IR = I.slice(32, 64);
         const out = await Node.create(IL, IR);
-        this.addRevoker(() => out.revoke());
+        this.addRevoker(() => out.revoke?.());
         return out;
     };
 }
@@ -56,18 +56,17 @@ export class Node extends Revocable(class {}) implements BIP32.Node, SecP256K1.E
         this.chainCode = safeBufferFrom(checkType(BIP32.ChainCode, chainCode)) as Buffer & ChainCode;
     }
 
-    static async create(privateKey: Uint8Array, chainCode: Uint8Array): Promise<Node> {
+    static async create(privateKey: Uint8Array, chainCode: Uint8Array): Promise<BIP32.Node> {
         const obj = new Node(privateKey, chainCode);
         return revocable(obj, (x) => obj.addRevoker(x));
     }
 
-    readonly getPublicKey = () => {
+    async getPublicKey(): Promise<SecP256K1.CompressedPoint> {
         this.#publicKey = this.#publicKey ?? checkType(SecP256K1.CompressedPoint, tinyecc.pointFromScalar(this.#privateKey, true));
         return this.#publicKey;
-    };
-    get publicKey() { return this.getPublicKey(); }
+    }
 
-    getChainCode() { return this.chainCode }
+    async getChainCode() { return this.chainCode }
 
     async ecdsaSign(digestAlgorithm: null, msg: ByteArray<32>, counter?: Uint32): Promise<SecP256K1.Signature>
     async ecdsaSign(digestAlgorithm: Digest.AlgorithmName<32>, msg: Uint8Array, counter?: Uint32): Promise<SecP256K1.Signature>
@@ -100,7 +99,7 @@ export class Node extends Revocable(class {}) implements BIP32.Node, SecP256K1.E
             }).signWithEntropy(Buffer.from(msgOrDigest), this.#privateKey, entropy)),
             null,
             msgOrDigest,
-            this.publicKey,
+            await this.getPublicKey(),
         );
     }
 
@@ -109,7 +108,7 @@ export class Node extends Revocable(class {}) implements BIP32.Node, SecP256K1.E
 
         let serP = Buffer.alloc(37);
         if (index < 0x80000000) {
-            serP.set(SecP256K1.CompressedPoint.from(this.publicKey), 0);
+            serP.set(SecP256K1.CompressedPoint.from(await this.getPublicKey()), 0);
         } else {
             serP.set(this.#privateKey, 1);
         }
@@ -121,7 +120,7 @@ export class Node extends Revocable(class {}) implements BIP32.Node, SecP256K1.E
         const ki = tinyecc.privateAdd(this.#privateKey, IL);
         if (ki === null) throw new Error("ki is null; this should be cryptographically impossible");
         const out = await Node.create(ki, IR);
-        this.addRevoker(() => out.revoke())
+        this.addRevoker(() => out.revoke?.())
         return out as this;
     }
 
