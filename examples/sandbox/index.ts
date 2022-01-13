@@ -6,6 +6,7 @@ import * as ledgerWebUSB from "@shapeshiftoss/hdwallet-ledger-webusb";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
+import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
 
 import * as debug from "debug";
@@ -40,6 +41,7 @@ const kkbridgeAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const kkemuAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const portisAdapter = portis.PortisAdapter.useKeyring(keyring, { portisAppId });
 const metaMaskAdapter = metaMask.MetaMaskAdapter.useKeyring(keyring);
+const xdefiAdapter = xdefi.XDeFiAdapter.useKeyring(keyring);
 const nativeAdapter = native.NativeAdapter.useKeyring(keyring, {
   mnemonic,
   deviceId: "native-wallet-test",
@@ -68,6 +70,7 @@ const $ledger = $("#ledger");
 const $portis = $("#portis");
 const $native = $("#native");
 const $metaMask = $("#metaMask");
+const $xdefi = $("#xdefi");
 const $keyring = $("#keyring");
 
 $keepkey.on("click", async (e) => {
@@ -129,6 +132,18 @@ $native.on("click", async (e) => {
 $metaMask.on("click", async (e) => {
   e.preventDefault();
   wallet = await metaMaskAdapter.pairDevice("testid");
+  window["wallet"] = wallet;
+  let deviceID = "nothing";
+  try {
+    deviceID = await wallet.getDeviceID();
+    $("#keyring select").val(deviceID);
+  } catch (e) {
+    console.error(e);
+  }
+});
+$xdefi.on("click", async (e) => {
+  e.preventDefault();
+  wallet = await xdefiAdapter.pairDevice("testid");
   window["wallet"] = wallet;
   let deviceID = "nothing";
   try {
@@ -1564,7 +1579,7 @@ $ethSend.on("click", async (e) => {
     let result = ethEIP1559Selected
       ? await wallet.ethSendTx(ethTx1559 as core.ETHSignTx)
       : await wallet.ethSendTx(ethTx as core.ETHSignTx);
-    console.log("Result: ", result)
+    console.log("Result: ", result);
     $ethResults.val(result.hash);
   } else {
     let label = await wallet.getLabel();
