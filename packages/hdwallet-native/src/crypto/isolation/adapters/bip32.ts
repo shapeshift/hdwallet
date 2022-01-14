@@ -17,8 +17,8 @@ export type BIP32InterfaceAsync = Omit<bip32.BIP32Interface, "sign" | "derive" |
     derivePath(path: string): Promise<BIP32InterfaceAsync>;
   };
 
-export class BIP32Adapter extends ECPairAdapter implements BIP32.Node, BIP32InterfaceAsync {
-  protected readonly _isolatedNode: BIP32.Node;
+export class BIP32Adapter extends ECPairAdapter implements BIP32InterfaceAsync {
+  readonly node: BIP32.Node;
   readonly _chainCode: BIP32.ChainCode;
   readonly _publicKey: SecP256K1.CurvePoint;
   readonly index: number;
@@ -27,9 +27,9 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32.Node, BIP32Inte
   _identifier?: Buffer;
   _base58?: string;
 
-  protected constructor(isolatedNode: BIP32.Node, chainCode: BIP32.ChainCode, publicKey: SecP256K1.CurvePoint, networkOrParent?: BIP32Adapter | Network, index?: number) {
-    super(isolatedNode, publicKey, networkOrParent instanceof BIP32Adapter ? networkOrParent.network : networkOrParent);
-    this._isolatedNode = isolatedNode;
+  protected constructor(node: BIP32.Node, chainCode: BIP32.ChainCode, publicKey: SecP256K1.CurvePoint, networkOrParent?: BIP32Adapter | Network, index?: number) {
+    super(node, publicKey, networkOrParent instanceof BIP32Adapter ? networkOrParent.network : networkOrParent);
+    this.node = node;
     this._chainCode = chainCode;
     this._publicKey = publicKey;
     this.index = index ?? 0;
@@ -96,13 +96,13 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32.Node, BIP32Inte
   }
 
   toBase58(): never {
-    throw new IsolationError("xpriv");
+    throw new IsolationError("xprv");
   }
 
   async derive(index: number): Promise<this> {
     let out = this._children.get(index);
     if (!out) {
-      out = (await BIP32Adapter.create(await this._isolatedNode.derive(index), this, index)) as this;
+      out = (await BIP32Adapter.create(await this.node.derive(index), this, index)) as this;
       this._children.set(index, out);
     }
     return out;

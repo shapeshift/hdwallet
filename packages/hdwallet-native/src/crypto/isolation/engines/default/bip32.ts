@@ -18,12 +18,12 @@ export class Seed extends core.Revocable(class {}) implements BIP32.Seed {
       this.addRevoker(() => this.#seed.fill(0));
     }
 
-    static async create(seed: Uint8Array): Promise<Seed> {
+    static async create(seed: Uint8Array): Promise<BIP32.Seed> {
         const obj = new Seed(seed);
         return core.revocable(obj, (x) => obj.addRevoker(x));
     }
 
-    async toMasterKey(hmacKey?: string | Uint8Array): Promise<Node> {
+    async toMasterKey(hmacKey?: string | Uint8Array): Promise<BIP32.Node> {
         if (hmacKey !== undefined && typeof hmacKey !== "string" && !(hmacKey instanceof Uint8Array)) throw new Error("bad hmacKey type");
 
         // AFAIK all BIP32 implementations use the "Bitcoin seed" string for this derivation, even if they aren't otherwise Bitcoin-related
@@ -33,7 +33,7 @@ export class Seed extends core.Revocable(class {}) implements BIP32.Seed {
         const IL = I.slice(0, 32);
         const IR = I.slice(32, 64);
         const out = await Node.create(IL, IR);
-        this.addRevoker(() => out.revoke());
+        this.addRevoker(() => out.revoke?.());
         return out;
     };
 }
@@ -55,7 +55,7 @@ export class Node extends core.Revocable(class {}) implements BIP32.Node, SecP25
         this.chainCode = safeBufferFrom(checkType(BIP32.ChainCode, chainCode)) as Buffer & BIP32.ChainCode;
     }
 
-    static async create(privateKey: Uint8Array, chainCode: Uint8Array): Promise<Node> {
+    static async create(privateKey: Uint8Array, chainCode: Uint8Array): Promise<BIP32.Node> {
         const obj = new Node(privateKey, chainCode);
         return core.revocable(obj, (x) => obj.addRevoker(x));
     }
@@ -119,7 +119,7 @@ export class Node extends core.Revocable(class {}) implements BIP32.Node, SecP25
         const ki = tinyecc.privateAdd(this.#privateKey, IL);
         if (ki === null) throw new Error("ki is null; this should be cryptographically impossible");
         const out = await Node.create(ki, IR);
-        this.addRevoker(() => out.revoke())
+        this.addRevoker(() => out.revoke?.())
         return out as this;
     }
 

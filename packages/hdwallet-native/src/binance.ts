@@ -87,7 +87,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         await client.chooseNetwork(msg.testnet ? "testnet" : "mainnet");
         const haveAccountNumber = !!msg.tx.account_number && Number.isInteger(Number(msg.tx.account_number));
         if (haveAccountNumber) await client.setAccountNumber(Number(msg.tx.account_number));
-        client.setSigningDelegate(await Isolation.Adapters.Binance.create(keyPair));
+        client.setSigningDelegate(await Isolation.Adapters.Binance.create(keyPair.node));
 
         await client.initChain();
 

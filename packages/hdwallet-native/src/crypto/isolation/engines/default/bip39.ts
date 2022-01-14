@@ -5,8 +5,9 @@ import * as bip32crypto from "bip32/src/crypto";
 import { TextEncoder } from "web-encoding";
 
 import * as BIP39 from "../../core/bip39";
+import * as BIP32 from "../../core/bip32";
 import { safeBufferFrom } from "../../types";
-import * as BIP32 from "./bip32";
+import * as BIP32Engine from "./bip32";
 
 export * from "../../core/bip39";
 
@@ -44,7 +45,7 @@ export class Mnemonic extends core.Revocable(class {}) implements BIP39.Mnemonic
         this.#mnemonic = mnemonic.normalize("NFKD");
     }
 
-    static async create(mnemonic: string): Promise<Mnemonic> {
+    static async create(mnemonic: string): Promise<BIP39.Mnemonic> {
         const obj = new Mnemonic(mnemonic)
         return core.revocable(obj, (x) => obj.addRevoker(x));
     }
@@ -55,8 +56,8 @@ export class Mnemonic extends core.Revocable(class {}) implements BIP39.Mnemonic
         const mnemonic = this.#mnemonic;
         const salt = new TextEncoder().encode(`mnemonic${passphrase ?? ""}`.normalize("NFKD"));
 
-        const out = await BIP32.Seed.create(pbkdf2_sha512_singleblock(mnemonic, salt, 2048));
-        this.addRevoker(() => out.revoke())
+        const out = await BIP32Engine.Seed.create(pbkdf2_sha512_singleblock(mnemonic, salt, 2048));
+        this.addRevoker(() => out.revoke?.())
         return out
     };
 }
