@@ -1,18 +1,15 @@
-import { TextEncoder, TextDecoder } from 'util';
-global.TextEncoder = TextEncoder as any;
-global.TextDecoder = TextDecoder as any;
-
 import * as native from "@shapeshiftoss/hdwallet-native";
+import * as comlink from "comlink"
 import * as idb from "idb-keyval";
 // import * as jose from "jose";
 import * as uuid from "uuid";
 
 import { Vault, GENERATE_MNEMONIC } from ".";
+import { fromAsyncIterable } from './asyncMap';
 import { deterministicGetRandomValues } from "./deterministicGetRandomValues.test";
-import "./mockMessagePort.skip";
-import { MockVault } from './mockVault.skip';
+import "./test/mockMessagePort.skip";
+import { MockVault } from './test/mockVault.skip';
 import { RawVault } from './rawVault';
-import { RemoteVaultFactory, RemoteVaultFactoryServer } from "./remoteVault";
 import { ISealableVaultFactory, IVault } from "./types";
 import { keyStoreUUID, vaultStoreUUID } from "./util";
 
@@ -44,7 +41,7 @@ const preparedOnce = new Promise<void>(resolve => prepareOnce = resolve).then(as
 
 type ParametersExceptFirst<F> = F extends (arg0: any, ...rest: infer R) => any ? R : never;
 async function thereCanBeOnlyOne<T extends IVault, U extends ISealableVaultFactory<T>>(factory: U, ...args: ParametersExceptFirst<U["open"]>): Promise<T> {
-  const ids = await factory.list();
+  const ids = await fromAsyncIterable(await factory.list());
   if (ids.length === 0) throw new Error("can't find a vault");
   if (ids.length > 1) throw new Error(`expected a single vault; found ${ids.length}: ${ids}`);
   return await factory.open(ids[0], ...(args as any));
@@ -56,7 +53,7 @@ function testVaultImpl(name: string, Vault: ISealableVaultFactory<IVault>) {
       prepareOnce();
       await preparedOnce;
       await Vault.prepare();
-      for (const id of await Vault.list()) await Vault.delete(id)
+      for await (const id of await Vault.list()) await Vault.delete(id)
     });
 
     beforeEach(async () => {
@@ -69,37 +66,37 @@ function testVaultImpl(name: string, Vault: ISealableVaultFactory<IVault>) {
     });
 
     it("should create a new vault", async () => {
-      expect((await Vault.list()).length).toBe(0);
+      expect((await fromAsyncIterable(await Vault.list())).length).toBe(0);
 
       const vault = await Vault.create();
       await vault.setPassword("foobar");
-      vault.set("foo", "bar");
-      vault.meta.set("name", "default");
-      expect(vault.meta.get("name")).toBe("default");
+      await vault.set("foo", "bar");
+      await (await vault.meta).set("name", "default");
+      expect(await (await vault.meta).get("name")).toBe("default");
       await vault.save();
 
-      expect((await Vault.list()).length).toBe(1);
-      expect(vault.meta.get("name")).toBe("default");
+      expect((await fromAsyncIterable(await Vault.list())).length).toBe(1);
+      expect(await (await vault.meta).get("name")).toBe("default");
 
       console.log("keyStore", await idb.entries(keyStore));
       console.log("vaultStore", await idb.entries(vaultStore));
     });
 
     it("should open a vault", async () => {
-      const vaultIDs = await Vault.list();
+      const vaultIDs = await fromAsyncIterable(await Vault.list());
       expect(vaultIDs.length).toBe(1);
       const vault = await Vault.open(vaultIDs[0], "foobar");
       // console.log(jose.decodeProtectedHeader((await idb.get(vaultIDs[0], vaultStore))!));
       // console.warn("entries", Array.from(vault.entries()));
       expect(await vault.get("foo")).toBe("bar");
-      expect(uuid.validate(vault.id)).toBe(true);
-      expect(vault.meta.size).toBe(1);
-      expect(vault.meta.get("name")).toBe("default");
+      expect(uuid.validate(await vault.id)).toBe(true);
+      expect(await (await vault.meta).size).toBe(1);
+      expect(await (await vault.meta).get("name")).toBe("default");
     });
 
     it("should store a mnemonic", async () => {
       const vault = await thereCanBeOnlyOne(Vault, "foobar");
-      vault.set("#mnemonic", "all all all all all all all all all all all all");
+      await vault.set("#mnemonic", "all all all all all all all all all all all all");
       await vault.save();
       const mnemonic = (await vault.get("#mnemonic")) as native.crypto.Isolation.Engines.Default.BIP39.Mnemonic;
       expect(mnemonic).toBeInstanceOf(native.crypto.Isolation.Engines.Default.BIP39.Mnemonic);
@@ -109,7 +106,7 @@ function testVaultImpl(name: string, Vault: ISealableVaultFactory<IVault>) {
     });
 
     it("should retreive the mnemonic", async () => {
-      const vaultIDs = await Vault.list();
+      const vaultIDs = await fromAsyncIterable(await Vault.list());
       expect(vaultIDs.length).toBe(1);
       const vault = await Vault.open(vaultIDs[0], "foobar");
       const mnemonic = (await vault.get("#mnemonic")) as native.crypto.Isolation.Engines.Default.BIP39.Mnemonic;
@@ -121,55 +118,57 @@ function testVaultImpl(name: string, Vault: ISealableVaultFactory<IVault>) {
 
     it("should store metadata", async () => {
       const vault = await thereCanBeOnlyOne(Vault, "foobar");
-      vault.meta.set("bar", "baz")
-      expect(vault.meta.get("bar")).toBe("baz")
+      await (await vault.meta).set("bar", "baz")
+      expect(await (await vault.meta).get("bar")).toBe("baz")
       await vault.save()
     })
 
     it("should retrieve metadata from the vault instance", async () => {
       const vault = await thereCanBeOnlyOne(Vault, "foobar");
-      expect(vault.meta.get("bar")).toBe("baz")
+      expect(await (await vault.meta).get("bar")).toBe("baz")
     })
 
     it("should retrieve metadata with the static method", async () => {
-      const id = (await thereCanBeOnlyOne(Vault)).id
-      expect((await Vault.meta(id))?.get("bar")).toBe("baz")
+      const id = await (await thereCanBeOnlyOne(Vault)).id
+      expect(await (await Vault.meta(id))?.get("bar")).toBe("baz")
     })
 
-    it("should be unwrappable before being sealed", async () => {
-      const vault = await thereCanBeOnlyOne(Vault, "foobar", false);
-      expect(vault.sealed).toBe(false);
-      const unwrapped = vault.unwrap();
-      expect(await unwrapped.get("#mnemonic")).toBe("all all all all all all all all all all all all");
-    });
-
-    describe("the unwrapped vault", () => {
-      it("should expose the mnemonic via entries()", async () => {
+    describe("ISealable", () => {
+      it("should be unwrappable before being sealed", async () => {
         const vault = await thereCanBeOnlyOne(Vault, "foobar", false);
-        const unwrapped = vault.unwrap();
-        const entries = await Promise.all(Array.from(unwrapped.entries()).map(async ([k, v]) => [k, await v]));
-        expect(entries).toContainEqual(["#mnemonic", "all all all all all all all all all all all all"]);
-      });
-      it("should expose the mnemonic via values()", async () => {
-        const vault = await thereCanBeOnlyOne(Vault, "foobar", false);
-        const unwrapped = vault.unwrap();
-        const values = await Promise.all(Array.from(unwrapped.values()));
-        expect(values).toContain("all all all all all all all all all all all all");
-      });
-    });
+        expect(await vault.sealed).toBe(false);
+        const unwrapped = await vault.unwrap();
+        expect(await unwrapped.get("#mnemonic")).toBe("all all all all all all all all all all all all");
+      })
 
-    it("should not be unwrappable after being sealed", async () => {
-      const vault = await thereCanBeOnlyOne(Vault, "foobar", false);
-      expect(vault.sealed).toBe(false);
-      vault.seal();
-      expect(vault.sealed).toBe(true);
-      expect(() => vault.unwrap()).toThrowErrorMatchingInlineSnapshot(`"can't unwrap a sealed vault"`);
-    });
+      describe("the unwrapped vault", () => {
+        it("should expose the mnemonic via entries()", async () => {
+          const vault = await thereCanBeOnlyOne(Vault, "foobar", false);
+          const unwrapped = await vault.unwrap();
+          const entries = await fromAsyncIterable(await unwrapped.entries());
+          expect(entries).toContainEqual(["#mnemonic", "all all all all all all all all all all all all"]);
+        })
+        it("should expose the mnemonic via values()", async () => {
+          const vault = await thereCanBeOnlyOne(Vault, "foobar", false);
+          const unwrapped = await vault.unwrap();
+          const values = await fromAsyncIterable(await unwrapped.values());
+          expect(values).toContain("all all all all all all all all all all all all");
+        })
+      })
+
+      it("should not be unwrappable after being sealed", async () => {
+        const vault = await thereCanBeOnlyOne(Vault, "foobar", false);
+        expect(await vault.sealed).toBe(false);
+        await vault.seal();
+        expect(await vault.sealed).toBe(true);
+        await expect(() => vault.unwrap()).rejects.toThrowErrorMatchingInlineSnapshot(`"can't unwrap a sealed vault"`);
+      })
+    })
 
     it("should generate a fresh, random mnemonic when provided with the GENERATE_MNEMONIC magic", async () => {
       const vault = await Vault.create("foobar", false);
-      expect(vault.id).toMatchInlineSnapshot(`"8f9c0a54-7157-42f7-87f1-361325aaf80a"`);
-      vault.set("#mnemonic", GENERATE_MNEMONIC);
+      expect(await vault.id).toMatchInlineSnapshot(`"8f9c0a54-7157-42f7-87f1-361325aaf80a"`);
+      await vault.set("#mnemonic", GENERATE_MNEMONIC);
       await vault.save();
 
       const mnemonic = (await vault.get("#mnemonic")) as native.crypto.Isolation.Engines.Default.BIP39.Mnemonic;
@@ -178,7 +177,7 @@ function testVaultImpl(name: string, Vault: ISealableVaultFactory<IVault>) {
         Buffer.from(await (await (await mnemonic.toSeed()).toMasterKey()).getPublicKey()).toString("hex")
       ).toMatchInlineSnapshot(`"02576bde4c55b05886e56eeeeff304006352f935b6dfc1c409f7eae521dbc5558e"`);
 
-      const unwrappedMnemonic = (await vault.unwrap().get("#mnemonic")) as string;
+      const unwrappedMnemonic = await (await vault.unwrap()).get<string>("#mnemonic");
       expect(unwrappedMnemonic).toMatchInlineSnapshot(
         `"hover best act jazz romance ritual six annual pottery coral write paddle"`
       );
@@ -193,14 +192,20 @@ function testVaultImpl(name: string, Vault: ISealableVaultFactory<IVault>) {
         Buffer.from(await (await (await mnemonic.toSeed()).toMasterKey()).getPublicKey()).toString("hex")
       ).toMatchInlineSnapshot(`"02576bde4c55b05886e56eeeeff304006352f935b6dfc1c409f7eae521dbc5558e"`);
 
-      expect(await vault.unwrap().get("#mnemonic")).toMatchInlineSnapshot(
+      expect(await (await vault.unwrap()).get("#mnemonic")).toMatchInlineSnapshot(
         `"hover best act jazz romance ritual six annual pottery coral write paddle"`
       );
     });
   });
 }
 
-testVaultImpl("Vault", Vault)
+function viaComlink<T>(x: T) {
+  const { port1, port2 } = new MessageChannel()
+  comlink.expose(x, port1)
+  return comlink.wrap<T>(port2)
+}
+
 testVaultImpl("MockVault", MockVault)
-testVaultImpl("RemoteVault:MockVault", new RemoteVaultFactory(new RemoteVaultFactoryServer(MockVault).messagePort))
-testVaultImpl("RemoteVault:Vault", new RemoteVaultFactory(new RemoteVaultFactoryServer(Vault).messagePort))
+testVaultImpl("comlink:MockVault", viaComlink(MockVault))
+testVaultImpl("Vault", Vault)
+testVaultImpl("comlink:Vault", viaComlink(Vault))

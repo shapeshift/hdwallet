@@ -3,7 +3,6 @@ import { GENERATE_MNEMONIC, crypto, createMnemonic, entropyToMnemonic } from "./
 
 export { argonBenchmark } from "./argonBenchmark"
 export { Vault } from "./vault"
-export { RemoteVaultFactory, RemoteVaultFactoryServer } from "./remoteVault"
 export type { ISealableVaultFactory, IVault, IVaultFactory } from './types'
 export { GENERATE_MNEMONIC } from './util'
 
