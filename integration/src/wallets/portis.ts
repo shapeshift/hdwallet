@@ -50,7 +50,7 @@ export async function createWallet(): Promise<core.HDWallet> {
         return data.length ? mockSignERC20TxResponse : mockSignEthTxResponse;
       },
     },
-  };
+  } as any;
   // end mock
 
   return wallet;
