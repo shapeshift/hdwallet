@@ -50,7 +50,7 @@ Proxy handler invariants (per MDN):
     If target is not extensible, the prototype parameter must be the same value as Object.getPrototypeOf(target). 
 */
 
-export const revocable = _freeze(<T extends object>(x: T, addRevoker: (revoke: () => void) => void) => {
+export const revocable = _freeze(<T extends object>(x: T, addRevoker: (revoke: () => void) => void): T => {
   const universalProxyHandler = (x: object) => new Proxy({}, { get(_, p) {
     return (_t: any, p2: any, r: any) => {
       switch (p) {
