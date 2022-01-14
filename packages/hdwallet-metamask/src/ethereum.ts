@@ -63,7 +63,7 @@ export async function ethSendTx(msg: core.ETHSignTx, ethereum: any, from: string
       data: msg.data,
       chainId: msg.chainId,
       nonce: msg.nonce,
-      gasLimit: msg.gasLimit,
+      gas: msg.gasLimit,
     };
 
     const utx = msg.maxFeePerGas
