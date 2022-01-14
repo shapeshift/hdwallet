@@ -4,7 +4,7 @@ import { Constructor } from "../utils"
 const _Set = Set
 const _freeze = Object.freeze.bind(Object)
 
-export const revocable = _freeze(<T extends object>(x: T, addRevoker: (revoke: () => void) => void) => {
+export const revocable = _freeze(<T extends object>(x: T, addRevoker: (revoke: () => void) => void): T => {
   return overlay({}, x, {
     addRevoker,
     bind: true,
