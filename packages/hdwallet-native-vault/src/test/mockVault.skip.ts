@@ -3,10 +3,11 @@ import * as native from "@shapeshiftoss/hdwallet-native";
 import * as bip39 from "bip39";
 import * as ta from "type-assertions";
 import * as uuid from "uuid";
-import { GENERATE_MNEMONIC } from ".";
+import { GENERATE_MNEMONIC } from "..";
+import { AsyncMap, fromAsyncIterable, IAsyncMap, toAsyncIterableIterator } from "../asyncMap";
 
-import { ISealableVaultFactory, IVault, VaultPrepareParams } from "./types"
-import { crypto, setCrypto, shadowedMap } from "./util"
+import { ISealableVaultFactory, IVault, VaultPrepareParams } from "../types"
+import { crypto, setCrypto, shadowedAsyncMap } from "../util"
 
 ta.assert<ta.Extends<typeof MockVault, ISealableVaultFactory<MockVault>>>();
 
@@ -17,8 +18,8 @@ type MockVaultData = {
 }
 
 export class MockVault
-  extends core.Revocable(Map)
-  implements IVault, Map<string, Promise<unknown>>
+  extends core.Revocable(AsyncMap as unknown as core.Constructor<AsyncMap<string, unknown>>)
+  implements IVault, IAsyncMap<string, unknown>
 {
   static readonly data = new Map<string, MockVaultData>()
   static prepared = false;
@@ -42,69 +43,59 @@ export class MockVault
     if (id !== undefined && password !== undefined) await out.load();
     return out
   }
-  static async list() { return Array.from(MockVault.data.keys()) }
-  static async meta(id: string) { return MockVault.data.has(id) ? new Map(MockVault.data.get(id)!.meta) : undefined; }
+  static async list() { return toAsyncIterableIterator(MockVault.data.keys()) }
+  static async meta(id: string) { return MockVault.data.has(id) ? await AsyncMap.create(MockVault.data.get(id)!.meta) : undefined; }
   static async delete(id: string) { MockVault.data.delete(id); }
 
-  readonly id: string
-  readonly meta = new Map<string, unknown>()
+  readonly id: Promise<string>
+  readonly meta = AsyncMap.create<string, unknown>()
 
   _password: string | undefined = undefined
   readonly _secrets = new Map<string, unknown>()
 
   protected constructor(id: string, password?: string, sealed: boolean = true) {
     super()
-    this.id = id
+    this.id = Promise.resolve(id)
     this._password = password
     if (sealed) this.seal()
   }
 
-  async setPassword(password: string): Promise<this> {
+  async setPassword(password: string): Promise<void> {
     this._password = password
-    return this
   }
 
   async load() {
-    const data = MockVault.data.get(this.id)
+    const data = MockVault.data.get(await this.id)
     if (!data) throw new Error('no such vault')
     if (this._password !== data.password) throw new Error('bad password')
-    this.clear()
+    await this.clear()
     this._secrets.clear()
-    data.data.forEach(([k, v]) => this.set(k, v))
-    this.meta.clear()
-    data.meta.forEach(([k, v]) => this.meta.set(k, v))
-    return this;
+    await Promise.all(data.data.map(async ([k, v]) => await this.set(k, v)))
+    await (await this.meta).clear()
+    await Promise.all(data.meta.map(async ([k, v]) => await (await this.meta).set(k, v)))
   }
 
   async save() {
     if (!this._password) throw new Error("can't save without password")
     const data = {
       password: this._password,
-      data: await this._unwrap().entriesAsync(),
-      meta: Array.from(this.meta.entries())
+      data: await fromAsyncIterable(await (await this._unwrap()).entries()),
+      meta: await fromAsyncIterable(await (await this.meta).entries())
     }
-    MockVault.data.set(this.id, data)
-    return this;
+    MockVault.data.set(await this.id, data)
   }
 
-  async entriesAsync(): Promise<Array<[string, unknown]>> {
-    return await Promise.all(Array.from(this.entries()).map(async ([k, v]: [string, Promise<unknown>]) => [k, await v] as [string, unknown]))
-  }
-
-  set(key: string, value: unknown | Promise<unknown>): this {
+  async set(key: string, value: unknown): Promise<this> {
     if (!key.startsWith('#')) {
-      super.set(key, Promise.resolve(value))
+      await super.set(key, value)
       return this
     }
-    if (key === '#mnemonic') {
-      value = Promise.resolve(value).then(async (x) => {
-        if (x !== GENERATE_MNEMONIC) return x
-        const entropy = await (await crypto).getRandomValues(Buffer.alloc(16))
-        return bip39.entropyToMnemonic(entropy)
-      })
+    if (key === '#mnemonic' && value === GENERATE_MNEMONIC) {
+      const entropy = await (await crypto).getRandomValues(Buffer.alloc(16))
+      value = bip39.entropyToMnemonic(entropy)
     }
-    this._secrets.set(key, Promise.resolve(value))
-    super.set(key, (async () => {
+    this._secrets.set(key, value)
+    super.set(key, await (async () => {
       switch (key) {
         case '#mnemonic':
           return await native.crypto.Isolation.Engines.Default.BIP39.Mnemonic.create(await value as string)
@@ -114,14 +105,15 @@ export class MockVault
     return this
   }
 
-  sealed = false
-  seal() { this.sealed = true }
-  unwrap() {
-    if (this.sealed) throw new Error("can't unwrap a sealed vault")
+  _sealed = false
+  get sealed() { return Promise.resolve(this._sealed) }
+  async seal() { this._sealed = true }
+  async unwrap() {
+    if (this._sealed) throw new Error("can't unwrap a sealed vault")
     return this._unwrap()
   }
   _unwrap() {
-    return shadowedMap(this, (key: string) => {
+    return shadowedAsyncMap(this, async (key: string) => {
       return key.startsWith('#') ? this._secrets.get(key) : this.get(key)
     }, () => {})
   }
