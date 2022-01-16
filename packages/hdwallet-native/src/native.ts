@@ -23,8 +23,8 @@ export enum NativeEvents {
   READY = "READY",
 }
 
-function isMnemonicInterface(x: any): x is Isolation.Core.BIP39.Mnemonic {
-  return ["object", "function"].includes(typeof x) && x !== null && "toSeed" in x && typeof x.toSeed === "function";
+function isMnemonicInterface(x: unknown): x is Isolation.Core.BIP39.Mnemonic {
+  return core.isIndexable(x) && typeof x.toSeed === "function";
 }
 
 type LoadDevice = Omit<core.LoadDevice, "mnemonic"> & {
