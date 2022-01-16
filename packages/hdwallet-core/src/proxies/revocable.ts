@@ -1,4 +1,4 @@
-import { overlay } from "."
+import { overlay } from "./overlay"
 import { Constructor } from "../utils"
 
 const _Set = Set
@@ -23,6 +23,18 @@ export const Revocable = _freeze(<T extends Constructor>(x: T) => {
     readonly #revokers: Set<() => void> = new _Set()
     #revoked = false
 
+    constructor(...args: any[]) {
+      super(...args)
+      Object.defineProperty(this, "revoke", {
+        ...Object.getOwnPropertyDescriptor(this, "revoke"),
+        enumerable: false
+      })
+      Object.defineProperty(this, "addRevoker", {
+        ...Object.getOwnPropertyDescriptor(this, "addRevoker"),
+        enumerable: false
+      })
+    }
+
     readonly revoke = () => {
       this.#revoked = true;
       this.#revokers.forEach(x => {
@@ -31,7 +43,7 @@ export const Revocable = _freeze(<T extends Constructor>(x: T) => {
         } catch { }
       });
       this.#revokers.clear();
-    };
+    }
 
     readonly addRevoker = (x: () => void) => {
       if (this.#revoked) {
@@ -41,7 +53,7 @@ export const Revocable = _freeze(<T extends Constructor>(x: T) => {
       } else {
         this.#revokers.add(x);
       }
-    };
+    }
   });
   _freeze(out.prototype);
   return out;
