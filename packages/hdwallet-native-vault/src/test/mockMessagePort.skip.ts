@@ -1,5 +1,3 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
-
 export class MockMessagePort extends EventTarget {
   _target: EventTarget | null = null
   onmessage: ((x: MessageEvent) => void) | null = null
