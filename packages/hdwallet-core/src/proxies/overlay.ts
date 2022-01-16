@@ -277,7 +277,7 @@ export function overlay(lower: object, upper: object | undefined, params?: Overl
 }
 
 export const pseudoFreezable = _freeze(
-  <T extends Record<string, undefined>>(x: T, addRevoker?: (x: () => void) => void): T => {
+  <T>(x: T, addRevoker?: (x: () => void) => void): T => {
     return overlay(x, undefined, {
       addRevoker,
       bind: true,
