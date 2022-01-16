@@ -10,20 +10,20 @@ import { crypto, decoder, encoder, shadowedAsyncMap } from "./util";
 export type ValueWrapper = (x: unknown, addRevoker: (revoke: () => void) => void) => Promise<unknown>;
 export type ValueTransformer = (x: unknown, addRevoker: (revoke: () => void) => void) => Promise<unknown>;
 
-ta.assert<ta.Extends<typeof Vault, ISealableVaultFactory<Vault>>>();
+ta.assert<ta.Extends<typeof _Vault, ISealableVaultFactory<_Vault>>>();
 
-export class Vault extends MapVault implements IVault {
+class _Vault extends MapVault implements IVault {
   //#region static
   static async prepare(params?: VaultPrepareParams) {
     return MapVault.prepare(params);
   }
   static async create(password?: string, sealed: boolean = true) {
-    return await Vault.open(undefined, password, sealed);
+    return await _Vault.open(undefined, password, sealed);
   }
   static async open(id?: string, password?: string, sealed: boolean = true) {
-    await Vault.prepare();
+    await _Vault.prepare();
 
-    const out = new Vault(await RawVault.open(id, password));
+    const out = new _Vault(await RawVault.open(id, password));
     if (sealed) out.seal();
     if (id !== undefined && password !== undefined) await out.load();
     return out;
@@ -35,16 +35,16 @@ export class Vault extends MapVault implements IVault {
 
   static #extensionRegistrationComplete = false;
   static extensionRegistrationComplete() {
-    Vault.#extensionRegistrationComplete = true;
+    _Vault.#extensionRegistrationComplete = true;
   }
 
   static readonly #valueWrappers: Map<string, ValueWrapper> = new Map();
   static registerValueWrapper(key: string, valueWrapper: ValueWrapper) {
-    if (Vault.#extensionRegistrationComplete)
+    if (_Vault.#extensionRegistrationComplete)
       throw new Error(`can't register value wrapper after registration is complete`);
-    if (!Vault.#isPrivateKey(key)) throw new TypeError(`can't set value wrapper for non-private key '${key}'`);
-    if (Vault.#valueWrappers.has(key)) throw new Error(`can't overwrite previously-set value wrapper for key '${key}'`);
-    Vault.#valueWrappers.set(key, valueWrapper);
+    if (!_Vault.#isPrivateKey(key)) throw new TypeError(`can't set value wrapper for non-private key '${key}'`);
+    if (_Vault.#valueWrappers.has(key)) throw new Error(`can't overwrite previously-set value wrapper for key '${key}'`);
+    _Vault.#valueWrappers.set(key, valueWrapper);
   }
   static #wrapPrivateValue(key: string, value: unknown | Promise<unknown>, addRevoker: (revoke: () => void) => void) {
     if (!this.#isPrivateKey(key)) throw new TypeError(`can't wrap value with non-private key '${key}'`);
@@ -56,12 +56,12 @@ export class Vault extends MapVault implements IVault {
 
   static readonly #valueTransformers: Map<string, ValueTransformer> = new Map();
   static registerValueTransformer(key: string, valueTransformer: ValueTransformer) {
-    if (Vault.#extensionRegistrationComplete)
+    if (_Vault.#extensionRegistrationComplete)
       throw new Error(`can't register value transformer after registration is complete`);
-    if (!Vault.#isPrivateKey(key)) throw new TypeError(`can't set value transformer for non-private key '${key}'`);
-    if (Vault.#valueTransformers.has(key))
+    if (!_Vault.#isPrivateKey(key)) throw new TypeError(`can't set value transformer for non-private key '${key}'`);
+    if (_Vault.#valueTransformers.has(key))
       throw new Error(`can't overwrite previously-set value transformer for key '${key}'`);
-    Vault.#valueTransformers.set(key, valueTransformer);
+    _Vault.#valueTransformers.set(key, valueTransformer);
   }
   static #transformValue(key: string, value: unknown | Promise<unknown>, addRevoker: (revoke: () => void) => void) {
     const valueTransformer = this.#valueTransformers.get(key);
@@ -114,8 +114,8 @@ export class Vault extends MapVault implements IVault {
   }
 
   async set(key: string, value: unknown): Promise<this> {
-    value = Vault.#transformValue(key, value, this.addRevoker.bind(this));
-    if (!Vault.#isPrivateKey(key)) return super.set(key, value);
+    value = _Vault.#transformValue(key, value, this.addRevoker.bind(this));
+    if (!_Vault.#isPrivateKey(key)) return super.set(key, value);
 
     this.#revokeWrapperForKey(key);
     this.#privateContents.set(
@@ -132,13 +132,13 @@ export class Vault extends MapVault implements IVault {
     );
 
     const wrapperRevoker = new (core.Revocable(class {}))();
-    const wrapper = Vault.#wrapPrivateValue(key, value, (x) => wrapperRevoker.addRevoker(x));
+    const wrapper = _Vault.#wrapPrivateValue(key, value, (x) => wrapperRevoker.addRevoker(x));
     this.#wrapperRevokers.set(key, () => wrapperRevoker.revoke());
     return super.set(key, wrapper);
   }
 
   #getUnwrapped(key: string): undefined | Promise<unknown> {
-    if (!Vault.#isPrivateKey(key)) return this.get(key);
+    if (!_Vault.#isPrivateKey(key)) return this.get(key);
     const jwe = this.#privateContents.get(key);
     if (!jwe) return undefined;
     return (async () => {
@@ -186,6 +186,12 @@ export class Vault extends MapVault implements IVault {
   }
 }
 
-Object.freeze(Vault);
-Object.freeze(Vault.prototype);
-Object.freeze(Object.getPrototypeOf(Vault));
+for (const k of ["registerValueTransformer", "registerValueWrapper", "extensionRegistrationComplete"]) {
+  Object.defineProperty(_Vault, k, {
+    ...Object.getOwnPropertyDescriptor(_Vault, k),
+    enumerable: false
+  })
+}
+Object.freeze(_Vault.prototype);
+Object.freeze(Object.getPrototypeOf(_Vault));
+export const Vault = core.freeze(core.overlay(_Vault, undefined, { bind: false }))
