@@ -1,6 +1,8 @@
-import type * as core from "@shapeshiftoss/hdwallet-core";
+import type * as core from "@shapeshiftoss/hdwallet-core"
 import type { IArgon2Options } from "hash-wasm";
 import type * as idb from "idb-keyval";
+
+import type { IAsyncMap } from "./asyncMap";
 
 export type AsyncCrypto = Omit<Crypto, "getRandomValues"> & {
   getRandomValues<T extends DataView | Float32Array | Float64Array | Uint8ClampedArray | Uint8Array | Int8Array | Int16Array | Int32Array | Uint16Array | Uint32Array | null>(array: T): T | Promise<T>;
@@ -19,8 +21,8 @@ export interface IVaultFactory<U extends IVaultBackedBy<any> | IVault> {
   readonly prepare: (params?: VaultPrepareParams) => Promise<void>;
   readonly create: (password?: string) => Promise<U>;
   readonly open: (id?: string, password?: string) => Promise<U>;
-  readonly list: () => Promise<string[]>;
-  readonly meta: (id: string) => Promise<Map<string, unknown> | undefined>;
+  readonly list: () => Promise<AsyncIterable<string>>;
+  readonly meta: (id: string) => Promise<IAsyncMap<string, unknown> | undefined>;
   readonly delete: (id: string) => Promise<void>;
 }
 
@@ -30,23 +32,23 @@ export interface ISealableVaultFactory<U extends ISealable & (IVaultBackedBy<any
 }
 
 export interface IVaultBackedBy<T> {
-  readonly id: string;
-  readonly meta: Map<string, unknown>;
-  setPassword(password: string): Promise<this>;
-  load(deserialize: (_: T) => Promise<void>): Promise<this>;
-  save(serialize: () => Promise<T>): Promise<this>;
+  readonly id: Promise<string>;
+  readonly meta: Promise<IAsyncMap<string, unknown>>;
+  setPassword(password: string): Promise<void>;
+  load(deserialize: (_: T) => Promise<void>): Promise<void>;
+  save(serialize: () => Promise<T>): Promise<void>;
 }
 
 export interface ISealable extends core.Revocable {
-  readonly sealed: boolean;
-  seal(): void;
-  unwrap(addRevoker?: (revoke: () => void) => void): this;
+  readonly sealed: Promise<boolean>;
+  seal(): Promise<void>;
+  unwrap(addRevoker?: (revoke: () => void) => void): Promise<this>;
 }
 
-export interface IVault extends Map<string, Promise<unknown>>, ISealable, core.Revocable {
-  readonly id: string;
-  readonly meta: Map<string, unknown>;
-  setPassword(password: string): Promise<this>;
-  load(): Promise<this>;
-  save(): Promise<this>;
+export interface IVault extends IAsyncMap<string, unknown>, ISealable, core.Revocable {
+  readonly id: Promise<string>;
+  readonly meta: Promise<IAsyncMap<string, unknown>>;
+  setPassword(password: string): Promise<void>;
+  load(): Promise<void>;
+  save(): Promise<void>;
 }

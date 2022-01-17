@@ -1,6 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core"
 import * as ta from "type-assertions";
 
+import { AsyncMap, fromAsyncIterable, IAsyncMap, toAsyncIterableIterator } from "./asyncMap"
 import { RawVault } from "./rawVault"
 import { IVaultBackedBy, IVaultFactory, VaultPrepareParams } from "./types"
 import { encoder, decoder } from "./util"
@@ -8,8 +9,8 @@ import { encoder, decoder } from "./util"
 ta.assert<ta.Extends<typeof MapVault, IVaultFactory<MapVault>>>();
 
 export class MapVault
-  extends core.Revocable(Map)
-  implements Map<string, unknown | Promise<unknown>>, IVaultBackedBy<Array<[string, unknown | Promise<unknown>]>>
+  extends core.Revocable(AsyncMap as core.Constructor<AsyncMap>)
+  implements IAsyncMap<string, unknown>, IVaultBackedBy<AsyncIterable<[string, unknown]>>
 {
   static async prepare(params?: VaultPrepareParams) { return RawVault.prepare(params); }
   static async create(password?: string) {
@@ -19,9 +20,9 @@ export class MapVault
     await MapVault.prepare();
     return new MapVault(await RawVault.open(id, password));
   }
-  static list() { return RawVault.list(); }
-  static meta(id: string) { return RawVault.meta(id); }
-  static delete(id: string) { return RawVault.delete(id); }
+  static async list() { return await RawVault.list(); }
+  static async meta(id: string) { return await RawVault.meta(id); }
+  static async delete(id: string) { await RawVault.delete(id); }
 
   readonly #rawVault: RawVault;
 
@@ -33,30 +34,30 @@ export class MapVault
   }
 
   get id() {
-    return this.#rawVault.id;
+    return (async () => {
+      return this.#rawVault.id;
+    })()
   }
   get meta() {
-    return this.#rawVault.meta;
+    return (async () => {
+      return this.#rawVault.meta;
+    })()
   }
 
-  async setPassword(password: string): Promise<this> {
+  async setPassword(password: string): Promise<void> {
     await this.#rawVault.setPassword(password);
-    return this
   }
 
-  async load(deserializer: (_: Array<[string, unknown | Promise<unknown>]>) => Promise<void>) {
+  async load(deserializer: (_: AsyncIterable<[string, unknown]>) => Promise<void>) {
     await this.#rawVault.load(async (x: Uint8Array): Promise<void> => {
       const obj = JSON.parse(decoder.decode(x));
-      await deserializer(Object.entries(obj).map(([k, v]) => [k, Promise.resolve(v)]));
+      await deserializer(toAsyncIterableIterator(Object.entries(obj)));
     });
-    return this;
   }
 
-  async save(serializer: () => Promise<Array<[string, unknown | Promise<unknown>]>>) {
+  async save(serializer: () => Promise<AsyncIterable<[string, unknown]>>) {
     await this.#rawVault.save(async (): Promise<Uint8Array> => {
-      const payloadObj = (
-        await Promise.all((await serializer()).map(async ([k, v]): Promise<[typeof k, unknown]> => [k, await v]))
-      )
+      const payloadObj = (await fromAsyncIterable(await serializer()))
         .sort((a, b) => {
           if (a[0] < b[0]) return -1;
           if (a[0] > b[0]) return 1;
@@ -65,11 +66,6 @@ export class MapVault
         .reduce((a, [k, v]) => ((a[k] = v), a), {} as Record<string, unknown>);
       return encoder.encode(JSON.stringify(payloadObj));
     });
-    return this;
-  }
-
-  async entriesAsync(): Promise<Array<[string, unknown]>> {
-    return await Promise.all(Array.from(this.entries()).map(async ([k, v]): Promise<[typeof k, unknown]> => [k, await v]))
   }
 }
 

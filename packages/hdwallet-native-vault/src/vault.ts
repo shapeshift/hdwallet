@@ -5,7 +5,7 @@ import * as ta from "type-assertions";
 import { MapVault } from "./mapVault";
 import { RawVault } from "./rawVault";
 import { IVault, ISealableVaultFactory, VaultPrepareParams } from "./types";
-import { crypto, decoder, encoder, shadowedMap } from "./util";
+import { crypto, decoder, encoder, shadowedAsyncMap } from "./util";
 
 export type ValueWrapper = (x: unknown, addRevoker: (revoke: () => void) => void) => Promise<unknown>;
 export type ValueTransformer = (x: unknown, addRevoker: (revoke: () => void) => void) => Promise<unknown>;
@@ -100,20 +100,20 @@ export class Vault extends MapVault implements IVault {
     this.#revokeWrapperForValue(this.#privateContents.get(key));
   }
 
-  clear() {
+  async clear() {
     this.#privateContents.forEach((x) => this.#revokeWrapperForValue(x));
     this.#privateContents.clear();
     this.#wrapperRevokers.clear();
     super.clear();
   }
 
-  delete(key: string) {
+  async delete(key: string) {
     this.#revokeWrapperForKey(key);
     this.#privateContents.delete(key);
     return super.delete(key);
   }
 
-  set(key: string, value: unknown | Promise<unknown>): this {
+  async set(key: string, value: unknown): Promise<this> {
     value = Vault.#transformValue(key, value, this.addRevoker.bind(this));
     if (!Vault.#isPrivateKey(key)) return super.set(key, value);
 
@@ -137,7 +137,7 @@ export class Vault extends MapVault implements IVault {
     return super.set(key, wrapper);
   }
 
-  #getUnwrapped(key: string): undefined | unknown | Promise<unknown> {
+  #getUnwrapped(key: string): undefined | Promise<unknown> {
     if (!Vault.#isPrivateKey(key)) return this.get(key);
     const jwe = this.#privateContents.get(key);
     if (!jwe) return undefined;
@@ -152,18 +152,18 @@ export class Vault extends MapVault implements IVault {
   }
 
   #unwrap(addRevoker: (revoke: () => void) => void = (x) => this.addRevoker(x)) {
-    return shadowedMap(this, (x: string) => this.#getUnwrapped(x), addRevoker)
+    return shadowedAsyncMap(this, async (x: string) => this.#getUnwrapped(x), addRevoker)
   }
 
   #sealed = false;
-  seal() {
+  async seal() {
     this.#sealed = true;
   }
   get sealed() {
-    return this.#sealed
+    return Promise.resolve(this.#sealed)
   }
 
-  unwrap(addRevoker?: (revoke: () => void) => void) {
+  async unwrap(addRevoker?: (revoke: () => void) => void) {
     if (this.#sealed) throw new Error("can't unwrap a sealed vault");
     return this.#unwrap((x) => {
       this.addRevoker(x);
@@ -174,22 +174,15 @@ export class Vault extends MapVault implements IVault {
   async load() {
     await super.load(async (entries) => {
       this.clear();
-      entries.forEach(([k, v]) => this.set(k, v));
+      for await (const [k, v] of entries) await this.set(k, v)
     });
-    return this;
   }
 
   async save() {
-    const unwrappedRevoker = new (core.Revocable(class {}))();
+    const unwrappedRevoker = new (core.Revocable(class {}))() as core.Revocable;
     const unwrapped = this.#unwrap((x) => unwrappedRevoker.addRevoker(x));
-    await super.save(
-      async () =>
-        await Promise.all(
-          Array.from(unwrapped.entries()).map(async ([k, v]): Promise<[typeof k, typeof v]> => [k, await v])
-        )
-    );
+    await super.save(async () => await unwrapped.entries());
     unwrappedRevoker.revoke();
-    return this;
   }
 }
 

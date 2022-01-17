@@ -6,6 +6,7 @@ import * as uuid from "uuid";
 import * as ta from "type-assertions";
 import { argonBenchmark } from "./argonBenchmark";
 
+import { AsyncMap, fromAsyncIterable, IAsyncMap, toAsyncIterableIterator } from "./asyncMap";
 import { ArgonParams, IVaultBackedBy, IVaultFactory, VaultPrepareParams } from "./types";
 import { crypto, encoder, keyStoreUUID, vaultStoreUUID, setCrypto, setPerformance } from "./util";
 
@@ -183,23 +184,21 @@ export class RawVault extends core.Revocable(Object.freeze(class {})) implements
     return out;
   }
 
-  static async list(): Promise<string[]> {
+  static async list(): Promise<AsyncIterable<string>> {
     await RawVault.prepare();
     const out = (await idb.keys(await RawVault.#vaultStore))
       .filter((k) => typeof k === "string")
       .map((k) => k as string);
-    return out;
+    return toAsyncIterableIterator(out);
   }
 
-  static async meta(id: string): Promise<Map<string, unknown> | undefined> {
+  static async meta(id: string): Promise<IAsyncMap<string, unknown> | undefined> {
     await RawVault.prepare();
     const jwe = await idb.get(id, await RawVault.#vaultStore);
     if (!jwe) return undefined;
     const meta = jose.decodeProtectedHeader(jwe).meta;
     if (!meta || !core.isIndexable(meta)) return undefined;
-    const out = new Map();
-    Object.entries(meta).forEach(([k, v]) => out.set(k, v));
-    return out;
+    return await AsyncMap.create(Object.entries(meta))
   }
 
   static async delete(id: string): Promise<void> {
@@ -208,58 +207,56 @@ export class RawVault extends core.Revocable(Object.freeze(class {})) implements
   }
   //#endregion
 
-  readonly id: string;
+  readonly id: Promise<string>;
   readonly #argonParams: Promise<Readonly<ArgonParams>>;
-  readonly meta: Map<string, unknown> = new Map();
+  readonly meta: Promise<IAsyncMap<string, unknown>> = AsyncMap.create<string, unknown>();
 
   #key: CryptoKey | undefined;
 
   protected constructor(id: string, argonParams: Promise<ArgonParams>) {
     super();
-    this.id = id;
+    this.id = Promise.resolve(id);
     this.#argonParams = argonParams.then(x => Object.freeze(JSON.parse(JSON.stringify(x))));
   }
 
-  async setPassword(password: string): Promise<this> {
-    this.#key = await RawVault.#deriveVaultKey(await RawVault.#machineSeed, this.id, await this.#argonParams, password, (x) =>
+  async setPassword(password: string): Promise<void> {
+    this.#key = await RawVault.#deriveVaultKey(await RawVault.#machineSeed, await this.id, await this.#argonParams, password, (x) =>
       this.addRevoker(x)
     );
-    return this;
   }
 
-  async load(deserialize: (_: Uint8Array) => Promise<void>): Promise<this> {
+  async load(deserialize: (_: Uint8Array) => Promise<void>): Promise<void> {
     if (!this.#key) throw new Error("can't load vault until key is set");
-    const jwe = await idb.get(this.id, await RawVault.#vaultStore);
+    const jwe = await idb.get(await this.id, await RawVault.#vaultStore);
     if (!jwe) throw new Error("can't load missing vault");
 
     const decryptResult = await jose.flattenedDecrypt(jwe, this.#key, {
       keyManagementAlgorithms: ["A256KW"],
       contentEncryptionAlgorithms: ["A256GCM"],
     });
-    this.meta.clear();
+    await (await this.meta).clear();
     const meta = decryptResult.protectedHeader?.meta;
     if (core.isIndexable(meta)) {
-      Object.entries(meta).forEach(([k, v]) => this.meta.set(k, v));
+      await Promise.all(Object.entries(meta).map(async ([k, v]) => await (await this.meta).set(k, v)));
     }
     await deserialize(decryptResult.plaintext);
-
-    return this;
   }
 
-  async save(serialize: () => Promise<Uint8Array>): Promise<this> {
+  async save(serialize: () => Promise<Uint8Array>): Promise<void> {
     if (!this.#key) throw new Error("can't save vault until key is set");
     const payload = await serialize();
+    const meta = await fromAsyncIterable(await (await this.meta).entries())
     //TODO: override the rng used by jose to calculate the CEK and IV with the dependency-injected one.
     const jwe = await new jose.FlattenedEncrypt(payload)
       .setProtectedHeader({
         alg: "A256KW",
         enc: "A256GCM",
         argon: await this.#argonParams,
-        meta: Array.from(this.meta.entries()).reduce((a, [k, v]) => ((a[k] = v), a), {} as Record<string, unknown>),
+        // TODO: switch for Object.fromEntries once it's available
+        meta: meta.reduce((a, [k, v]) => ((a[k] = v), a), {} as Record<string, unknown>),
       })
       .encrypt(this.#key);
-    await idb.set(this.id, jwe, await RawVault.#vaultStore);
-    return this;
+    await idb.set(await this.id, jwe, await RawVault.#vaultStore);
   }
 }
 

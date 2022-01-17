@@ -1,6 +1,8 @@
+import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bip39 from "bip39";
 import * as uuid from "uuid";
 import { TextDecoder, TextEncoder } from "web-encoding";
+import { fromAsyncIterable, IAsyncMap } from "./asyncMap";
 
 import { AsyncCrypto } from "./types";
 
@@ -42,33 +44,14 @@ export const GENERATE_MNEMONIC = uuid.v4();
 export const decoder = new TextDecoder();
 export const encoder = new TextEncoder();
 
-export function shadowedMap<K, V, T extends Map<K, V>>(map: T, get: (key: K) => undefined | V, addRevoker: (revoke: () => void) => void): T {
-  const self = map;
-  const { proxy, revoke } = Proxy.revocable(self, {
-    get(t, p, r) {
-      switch (p) {
-        case "get":
-          return get.bind(self);
-        case "values":
-          return () => Array.from(self.keys()).map((k) => get(k));
-        case "entries":
-          return () => Array.from(self.keys()).map((k) => [k, get(k)]);
-        case "entriesAsync":
-          return () => Promise.all(Array.from(self.keys()).map(async (k) => [k, await get(k)]));
-        case "forEach":
-          return (callbackFn: (v?: V, k?: K, m?: typeof self) => void, thisArg?: object) => {
-            for (const key of self.keys()) {
-              callbackFn.call(thisArg, get(key), key, self);
-            }
-          };
-        default: {
-          const out = Reflect.get(t, p, r);
-          // if (!String(p).startsWith("_") && typeof out === "function") return out.bind(t);
-          return out;
-        }
-      }
+export function shadowedAsyncMap<K, V, T extends IAsyncMap<K, V>>(map: T, get: (this: T, key: K) => Promise<undefined | V>, addRevoker: (x: () => void) => void): T {
+  return core.overlay(map, {
+    get,
+    async values(this: T) {
+      return await Promise.all((await fromAsyncIterable(await this.keys())).map(async k => await get.call(this, k)))
     },
-  });
-  addRevoker(revoke);
-  return proxy;
+    async entries(this: T) {
+      return await Promise.all((await fromAsyncIterable(await this.keys())).map(async k => [k, await get.call(this, k)]))
+    }
+  } as object, { addRevoker, bind: "lower" as const })
 }
