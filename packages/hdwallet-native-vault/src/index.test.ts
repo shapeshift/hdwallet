@@ -1,4 +1,7 @@
+import "./test/mockMessagePort.skip"
+
 import * as native from "@shapeshiftoss/hdwallet-native";
+import * as comlink from "comlink"
 import * as idb from "idb-keyval";
 // import * as jose from "jose";
 import * as uuid from "uuid";
@@ -209,5 +212,13 @@ function testVaultImpl(name: string, Vault: ISealableVaultFactory<IVault>) {
   });
 }
 
-testVaultImpl("Vault", Vault)
+function viaComlink<T>(x: T) {
+  const { port1, port2 } = new MessageChannel()
+  comlink.expose(x, port1)
+  return comlink.wrap<T>(port2)
+}
+
 testVaultImpl("MockVault", MockVault)
+testVaultImpl("comlink:MockVault", viaComlink(MockVault))
+testVaultImpl("Vault", Vault)
+testVaultImpl("comlink:Vault", viaComlink(Vault))
