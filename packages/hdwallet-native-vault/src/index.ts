@@ -1,5 +1,3 @@
-import * as native from "@shapeshiftoss/hdwallet-native";
-
 import { Vault } from "./vault";
 import { GENERATE_MNEMONIC, crypto, createMnemonic, entropyToMnemonic } from "./util";
 
