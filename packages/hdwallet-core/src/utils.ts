@@ -209,11 +209,11 @@ export function compatibleBufferConcat(list: Uint8Array[]): Buffer {
   return Buffer.concat(list.map(x => Buffer.isBuffer(x) ? x : Buffer.from(x)));
 }
 
+export type Indexable = Record<PropertyKey, unknown>
 
 /**
- * Type guard for things that might have (string-keyed) properties. Useful to make
- * TypeScript happy when you want to check if an object of unknown type has a particular
- * property set.
+ * Type guard for things that might have properties. Useful to make TypeScript happy
+ * when you want to check if an object of unknown type has a particular property set.
  * @example
  * try {
  *   foo();
@@ -238,6 +238,8 @@ export function compatibleBufferConcat(list: Uint8Array[]): Buffer {
  * @example
  * isIndexable("foo") === false
  */
-export function isIndexable(x: unknown): x is Record<string | number | symbol, unknown> {
+export function isIndexable(x: unknown): x is Indexable {
   return x !== null && ["object", "function"].includes(typeof x)
 }
+
+export function assume<T>(x: unknown): asserts x is T { }
