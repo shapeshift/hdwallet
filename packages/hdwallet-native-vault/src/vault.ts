@@ -4,13 +4,13 @@ import * as ta from "type-assertions";
 
 import { MapVault } from "./mapVault";
 import { RawVault } from "./rawVault";
-import { IVault, IVaultFactory, VaultPrepareParams } from "./types";
+import { IVault, ISealableVaultFactory, VaultPrepareParams } from "./types";
 import { Revocable, crypto, decoder, encoder, revocable } from "./util";
 
 export type ValueWrapper = (x: unknown, addRevoker: (revoke: () => void) => void) => Promise<unknown>;
 export type ValueTransformer = (x: unknown, addRevoker: (revoke: () => void) => void) => Promise<unknown>;
 
-ta.assert<ta.Extends<typeof Vault, IVaultFactory<Vault>>>();
+ta.assert<ta.Extends<typeof Vault, ISealableVaultFactory<Vault>>>();
 
 export class Vault extends MapVault implements IVault {
   //#region static

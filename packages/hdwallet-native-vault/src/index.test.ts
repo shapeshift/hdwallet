@@ -5,7 +5,7 @@ import * as uuid from "uuid";
 
 import { Vault, GENERATE_MNEMONIC } from ".";
 import { deterministicGetRandomValues } from "./deterministicGetRandomValues.test";
-import { IVault, IVaultFactory } from "./types";
+import { ISealableVaultFactory, IVault } from "./types";
 import { keyStoreUUID, vaultStoreUUID } from "./util";
 
 const keyStore = idb.createStore(keyStoreUUID, "keyval");
@@ -20,7 +20,7 @@ async function resetGetRandomValues() {
 }
 
 type ParametersExceptFirst<F> = F extends (arg0: any, ...rest: infer R) => any ? R : never;
-async function thereCanBeOnlyOne<T extends IVault, U extends IVaultFactory<T>>(factory: U, ...args: ParametersExceptFirst<U["open"]>): Promise<T> {
+async function thereCanBeOnlyOne<T extends IVault, U extends ISealableVaultFactory<T>>(factory: U, ...args: ParametersExceptFirst<U["open"]>): Promise<T> {
   const ids = await factory.list();
   if (ids.length === 0) throw new Error("can't find a vault");
   if (ids.length > 1) throw new Error(`expected a single vault; found ${ids.length}: ${ids}`);
@@ -120,34 +120,36 @@ describe("Vault", () => {
     expect((await Vault.meta(id))?.get("foo")).toBe("bar")
   })
 
-  it("should be unwrappable before being sealed", async () => {
-    const vault = await thereCanBeOnlyOne(Vault, "foobar", false);
-    expect(vault.sealed).toBe(false);
-    const unwrapped = vault.unwrap();
-    expect(await unwrapped.get("#mnemonic")).toBe("all all all all all all all all all all all all");
-  });
-
-  describe("the unwrapped vault", () => {
-    it("should expose the mnemonic via entries()", async () => {
+  describe("ISealable", () => {
+    it("should be unwrappable before being sealed", async () => {
       const vault = await thereCanBeOnlyOne(Vault, "foobar", false);
+      expect(vault.sealed).toBe(false);
       const unwrapped = vault.unwrap();
-      const entries = await Promise.all(Array.from(unwrapped.entries()).map(async ([k, v]) => [k, await v]));
-      expect(entries).toContainEqual(["#mnemonic", "all all all all all all all all all all all all"]);
+      expect(await unwrapped.get("#mnemonic")).toBe("all all all all all all all all all all all all");
     });
-    it("should expose the mnemonic via values()", async () => {
-      const vault = await thereCanBeOnlyOne(Vault, "foobar", false);
-      const unwrapped = vault.unwrap();
-      const values = await Promise.all(Array.from(unwrapped.values()));
-      expect(values).toContain("all all all all all all all all all all all all");
-    });
-  });
 
-  it("should not be unwrappable after being sealed", async () => {
-    const vault = await thereCanBeOnlyOne(Vault, "foobar", false);
-    expect(vault.sealed).toBe(false);
-    vault.seal();
-    expect(vault.sealed).toBe(true);
-    expect(() => vault.unwrap()).toThrowErrorMatchingInlineSnapshot(`"can't unwrap a sealed vault"`);
+    describe("the unwrapped vault", () => {
+      it("should expose the mnemonic via entries()", async () => {
+        const vault = await thereCanBeOnlyOne(Vault, "foobar", false);
+        const unwrapped = vault.unwrap();
+        const entries = await Promise.all(Array.from(unwrapped.entries()).map(async ([k, v]) => [k, await v]));
+        expect(entries).toContainEqual(["#mnemonic", "all all all all all all all all all all all all"]);
+      });
+      it("should expose the mnemonic via values()", async () => {
+        const vault = await thereCanBeOnlyOne(Vault, "foobar", false);
+        const unwrapped = vault.unwrap();
+        const values = await Promise.all(Array.from(unwrapped.values()));
+        expect(values).toContain("all all all all all all all all all all all all");
+      });
+    });
+
+    it("should not be unwrappable after being sealed", async () => {
+      const vault = await thereCanBeOnlyOne(Vault, "foobar", false);
+      expect(vault.sealed).toBe(false);
+      vault.seal();
+      expect(vault.sealed).toBe(true);
+      expect(() => vault.unwrap()).toThrowErrorMatchingInlineSnapshot(`"can't unwrap a sealed vault"`);
+    });
   });
 
   it("should generate a fresh, random mnemonic when provided with the GENERATE_MNEMONIC magic", async () => {
