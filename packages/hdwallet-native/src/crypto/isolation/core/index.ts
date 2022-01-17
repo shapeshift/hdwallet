@@ -9,7 +9,4 @@ export class IsolationError extends Error {
     }
 }
 
-export interface Revocable {
-    revoke(): void
-    addRevoker(revoke: () => void): void
-}
+export type { Revocable } from "@shapeshiftoss/hdwallet-core"

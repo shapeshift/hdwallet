@@ -5,7 +5,7 @@ import * as ta from "type-assertions";
 import { MapVault } from "./mapVault";
 import { RawVault } from "./rawVault";
 import { IVault, ISealableVaultFactory, VaultPrepareParams } from "./types";
-import { Revocable, crypto, decoder, encoder, revocable, shadowedMap } from "./util";
+import { crypto, decoder, encoder, shadowedMap } from "./util";
 
 export type ValueWrapper = (x: unknown, addRevoker: (revoke: () => void) => void) => Promise<unknown>;
 export type ValueTransformer = (x: unknown, addRevoker: (revoke: () => void) => void) => Promise<unknown>;
@@ -79,7 +79,7 @@ export class Vault extends MapVault implements IVault {
       false,
       ["wrapKey", "unwrapKey"]
     );
-    return revocable(out, this.addRevoker.bind(this));
+    return core.revocable(out, this.addRevoker.bind(this));
   })();
 
   readonly #privateContents: Map<string, Promise<jose.FlattenedJWE>>;
@@ -87,7 +87,7 @@ export class Vault extends MapVault implements IVault {
 
   protected constructor(rawVault: RawVault) {
     super(rawVault);
-    this.#privateContents = revocable(new Map(), (x) => this.addRevoker(x));
+    this.#privateContents = core.revocable(new Map(), (x) => this.addRevoker(x));
     this.addRevoker(() => this.clear());
   }
 
@@ -131,7 +131,7 @@ export class Vault extends MapVault implements IVault {
       })()
     );
 
-    const wrapperRevoker = new (Revocable(class {}))();
+    const wrapperRevoker = new (core.Revocable(class {}))();
     const wrapper = Vault.#wrapPrivateValue(key, value, (x) => wrapperRevoker.addRevoker(x));
     this.#wrapperRevokers.set(key, () => wrapperRevoker.revoke());
     return super.set(key, wrapper);
@@ -180,7 +180,7 @@ export class Vault extends MapVault implements IVault {
   }
 
   async save() {
-    const unwrappedRevoker = new (Revocable(class {}))();
+    const unwrappedRevoker = new (core.Revocable(class {}))();
     const unwrapped = this.#unwrap((x) => unwrappedRevoker.addRevoker(x));
     await super.save(
       async () =>

@@ -1,4 +1,3 @@
-import * as native from "@shapeshiftoss/hdwallet-native";
 import * as bip39 from "bip39";
 import * as uuid from "uuid";
 import { TextDecoder, TextEncoder } from "web-encoding";
@@ -40,9 +39,6 @@ export const vaultStoreUUID = uuid.v5("vaultStore", uuidNamespace);
 // export const GENERATE_MNEMONIC = uuid.v5("GENERATE_MNEMONIC", uuidNamespace);
 export const GENERATE_MNEMONIC = uuid.v4();
 
-export type Revocable = native.crypto.Isolation.Engines.Default.Revocable;
-export const Revocable = native.crypto.Isolation.Engines.Default.Revocable;
-export const revocable = native.crypto.Isolation.Engines.Default.revocable;
 export const decoder = new TextDecoder();
 export const encoder = new TextEncoder();
 

@@ -6,7 +6,7 @@ import * as ta from "type-assertions";
 import * as uuid from "uuid";
 
 import { ISealableVaultFactory, IVault, VaultPrepareParams } from "../types"
-import { GENERATE_MNEMONIC, Revocable, crypto, setCrypto, shadowedMap } from "../util"
+import { GENERATE_MNEMONIC, crypto, setCrypto, shadowedMap } from "../util"
 
 ta.assert<ta.Extends<typeof MockVault, ISealableVaultFactory<MockVault>>>();
 
@@ -17,7 +17,7 @@ type MockVaultData = {
 }
 
 export class MockVault
-  extends Revocable(Map)
+  extends core.Revocable(Map)
   implements IVault, Map<string, Promise<unknown>>
 {
   static readonly data = new Map<string, MockVaultData>()

@@ -1,13 +1,14 @@
+import * as core from "@shapeshiftoss/hdwallet-core"
 import * as ta from "type-assertions";
 
 import { RawVault } from "./rawVault"
 import { IVaultBackedBy, IVaultFactory, VaultPrepareParams } from "./types"
-import { Revocable, encoder, decoder } from "./util"
+import { encoder, decoder } from "./util"
 
 ta.assert<ta.Extends<typeof MapVault, IVaultFactory<MapVault>>>();
 
 export class MapVault
-  extends Revocable(Map)
+  extends core.Revocable(Map)
   implements Map<string, unknown | Promise<unknown>>, IVaultBackedBy<Array<[string, unknown | Promise<unknown>]>>
 {
   static async prepare(params?: VaultPrepareParams) { return RawVault.prepare(params); }
