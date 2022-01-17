@@ -1,15 +1,13 @@
 /// <reference types="bip32/types/crypto" />
 
 import * as core from "@shapeshiftoss/hdwallet-core"
-
 import * as bip32crypto from "bip32/src/crypto";
 import { TextEncoder } from "web-encoding";
 
-import * as BIP39 from "../../core/bip39";
 import * as BIP32 from "../../core/bip32";
+import * as BIP39 from "../../core/bip39";
 import { safeBufferFrom } from "../../types";
 import * as BIP32Engine from "./bip32";
-import { revocable, Revocable } from "./revocable";
 
 export * from "../../core/bip39";
 
@@ -39,7 +37,7 @@ function pbkdf2_sha512_singleblock(
     return out;
 }
 
-export class Mnemonic extends Revocable(class {}) implements BIP39.Mnemonic {
+export class Mnemonic extends core.Revocable(class {}) implements BIP39.Mnemonic {
     readonly #mnemonic: string;
 
     protected constructor(mnemonic: string) {
@@ -49,7 +47,7 @@ export class Mnemonic extends Revocable(class {}) implements BIP39.Mnemonic {
 
     static async create(mnemonic: string): Promise<BIP39.Mnemonic> {
         const obj = new Mnemonic(mnemonic)
-        return revocable(obj, (x) => obj.addRevoker(x));
+        return core.revocable(obj, (x) => obj.addRevoker(x));
     }
 
     async toSeed(passphrase?: string): Promise<BIP32.Seed> {
