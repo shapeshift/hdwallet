@@ -25,6 +25,9 @@ export const performance = new Promise<Performance>(resolve => performanceResolv
 export const uuidNamespace = uuid.v5("hdwallet-native-vault", uuid.NIL);
 export const keyStoreUUID = uuid.v5("keyStore", uuidNamespace);
 export const vaultStoreUUID = uuid.v5("vaultStore", uuidNamespace);
+// Using a dynamic v4 UUID for GENERATE_MNEMONIC is slightly more correct and secure, but it could also be a v5 UUID:
+// export const GENERATE_MNEMONIC = uuid.v5("GENERATE_MNEMONIC", uuidNamespace);
+export const GENERATE_MNEMONIC = uuid.v4();
 
 export type Revocable = native.crypto.Isolation.Engines.Default.Revocable;
 export const Revocable = native.crypto.Isolation.Engines.Default.Revocable;
