@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bech32 from "bech32";
 import BigNumber from "bignumber.js";
-import * as bnbSdk from "bnb-javascript-sdk-nobroadcast";
+import type * as bnbSdk from "bnb-javascript-sdk-nobroadcast";
 import CryptoJS from "crypto-js";
 
 import { NativeHDWalletBase } from "./native";
@@ -83,6 +83,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         if (!tx.sequence) tx.sequence = "0"
         if (!tx.source) tx.source = "0"
 
+        const bnbSdk = await import("bnb-javascript-sdk-nobroadcast")
         const client = new bnbSdk.BncClient(msg.testnet ? "https://testnet-dex.binance.org" : "https://dex.binance.org"); // broadcast not used but available
         await client.chooseNetwork(msg.testnet ? "testnet" : "mainnet");
         const haveAccountNumber = !!msg.tx.account_number && Number.isInteger(Number(msg.tx.account_number));
