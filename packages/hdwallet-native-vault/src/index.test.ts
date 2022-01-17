@@ -57,7 +57,7 @@ describe("Vault", () => {
 
     const vault = await Vault.create();
     await vault.setPassword("foobar");
-    vault.set("foo", "bar");
+    vault.set("foo", Promise.resolve("bar"));
     vault.meta.set("name", "default");
     expect(vault.meta.get("name")).toBe("default");
     await vault.save();
@@ -83,7 +83,7 @@ describe("Vault", () => {
 
   it("should store a mnemonic", async () => {
     const vault = await thereCanBeOnlyOne(Vault, "foobar");
-    vault.set("#mnemonic", "all all all all all all all all all all all all");
+    vault.set("#mnemonic", Promise.resolve("all all all all all all all all all all all all"));
     await vault.save();
     const mnemonic = (await vault.get("#mnemonic")) as native.crypto.Isolation.Engines.Default.BIP39.Mnemonic;
     expect(mnemonic).toBeInstanceOf(native.crypto.Isolation.Engines.Default.BIP39.Mnemonic);
@@ -155,7 +155,7 @@ describe("Vault", () => {
   it("should generate a fresh, random mnemonic when provided with the GENERATE_MNEMONIC magic", async () => {
     const vault = await Vault.create("foobar", false);
     expect(vault.id).toMatchInlineSnapshot(`"8f9c0a54-7157-42f7-87f1-361325aaf80a"`);
-    vault.set("#mnemonic", GENERATE_MNEMONIC);
+    vault.set("#mnemonic", Promise.resolve(GENERATE_MNEMONIC));
     await vault.save();
 
     const mnemonic = (await vault.get("#mnemonic")) as native.crypto.Isolation.Engines.Default.BIP39.Mnemonic;

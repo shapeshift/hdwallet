@@ -44,7 +44,7 @@ export interface ISealable extends Revocable {
   unwrap(addRevoker?: (revoke: () => void) => void): this;
 }
 
-export interface IVault extends ISealable, Revocable {
+export interface IVault extends Map<string, Promise<unknown>>, ISealable, Revocable {
   readonly id: string;
   readonly meta: Map<string, unknown>;
   setPassword(password: string): Promise<this>;
