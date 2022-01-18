@@ -63,7 +63,11 @@ export async function ethSendTx(msg: core.ETHSignTx, ethereum: any, from: string
       data: msg.data,
       chainId: msg.chainId,
       nonce: msg.nonce,
-      gasLimit: msg.gasLimit,
+      // MetaMask, like other Web3 libraries, derives its transaction schema from Ethereum's official JSON-RPC API specification
+      // (https://github.com/ethereum/execution-apis/blob/d63d2a02bcd2a8cef54ae2fc5bbff8b4fac944eb/src/schemas/transaction.json).
+      // That schema defines the use of the label `gas` to set the transaction's gas limit and not `gasLimit` as used in other
+      // libraries and as stated in the official yellow paper (https://ethereum.github.io/yellowpaper/paper.pdf).
+      gas: msg.gasLimit,
     };
 
     const utx = msg.maxFeePerGas
