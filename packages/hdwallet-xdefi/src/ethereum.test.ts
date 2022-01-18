@@ -165,12 +165,12 @@ describe("XDeFi - Ethereum Adapter", () => {
 
   it("ethGetAddress returns a valid address ", async () => {
     const ethereumProvider = {
-      request: jest.fn().mockReturnValue(["0x123"]),
+      request: jest.fn().mockReturnValue(["0x73d0385F4d8E00C5e6504C6030F47BF6212736A8"]),
     };
 
     const address = await ethereum.ethGetAddress(ethereumProvider);
 
-    expect(address).toBe("0x123");
+    expect(address).toBe("0x73d0385F4d8E00C5e6504C6030F47BF6212736A8");
   });
   it("ethGetAddress returns null on error ", async () => {
     const ethereumProvider = {
