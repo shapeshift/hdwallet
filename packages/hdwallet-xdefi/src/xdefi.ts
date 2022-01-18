@@ -13,7 +13,7 @@ class XDeFiTransport extends core.Transport {
 }
 
 export function isXDeFi(wallet: core.HDWallet): wallet is XDeFiHDWallet {
-  return _.isObject(wallet) && (wallet as any).__XDEFI;
+  return _.isObject(wallet) && (wallet as any)._isXDeFi;
 }
 
 type HasNonTrivialConstructor<T> = T extends { new (): any } ? never : T;
@@ -21,32 +21,7 @@ type HasNonTrivialConstructor<T> = T extends { new (): any } ? never : T;
 export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
-  readonly _supportsBTCInfo = false;
-  readonly _supportsBTC = false;
-  readonly _supportsCosmosInfo = false;
-  readonly _supportsCosmos = false;
-  readonly _supportsOsmosisInfo = false;
-  readonly _supportsOsmosis = false;
-  readonly _supportsBinanceInfo = false;
-  readonly _supportsBinance = false;
-  readonly _supportsDebugLink = false;
-  readonly _isPortis = false;
-  readonly _isMetaMask = false;
-  readonly __XDEFI = true;
-  readonly _supportsRippleInfo = false;
-  readonly _supportsRipple = false;
-  readonly _supportsEosInfo = false;
-  readonly _supportsEos = false;
-  readonly _supportsFioInfo = false;
-  readonly _supportsFio = false;
-  readonly _supportsThorchainInfo = false;
-  readonly _supportsThorchain = false;
-  readonly _supportsSecretInfo = false;
-  readonly _supportsSecret = false;
-  readonly _supportsKava = false;
-  readonly _supportsKavaInfo = false;
-  readonly _supportsTerra = false;
-  readonly _supportsTerraInfo = false;
+  readonly _isXDeFi = true;
 
   transport: core.Transport = new XDeFiTransport(new core.Keyring());
   info: XDeFiHDWalletInfo & core.HDWalletInfo;
@@ -69,12 +44,12 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
     return "XDeFi";
   }
 
-  public getModel(): Promise<string> {
-    return Promise.resolve("XDeFi");
+  public async getModel(): Promise<string> {
+    return "XDeFi";
   }
 
-  public getLabel(): Promise<string> {
-    return Promise.resolve("XDeFi");
+  public async getLabel(): Promise<string> {
+    return "XDeFi";
   }
 
   public async initialize(): Promise<any> {
@@ -83,8 +58,6 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
     } catch (e) {
       console.error(e);
     }
-
-    return Promise.resolve();
   }
 
   public hasOnDevicePinEntry(): boolean {
@@ -197,7 +170,7 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {
-    return false;
+    return true;
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
@@ -208,7 +181,7 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
     return this.info.ethNextAccountPath(msg);
   }
 
-  public async ethGetAddress(msg: core.ETHGetAddress): Promise<string | null> {
+  public async ethGetAddress(): Promise<string | null> {
     if (this.ethAddress) {
       return this.ethAddress;
     }
@@ -223,17 +196,17 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {
-    const address = await this.ethGetAddress(this.provider);
+    const address = await this.ethGetAddress();
     return address ? eth.ethSignTx(msg, this.provider, address) : null;
   }
 
   public async ethSendTx(msg: core.ETHSignTx): Promise<core.ETHTxHash | null> {
-    const address = await this.ethGetAddress(this.provider);
+    const address = await this.ethGetAddress();
     return address ? eth.ethSendTx(msg, this.provider, address) : null;
   }
 
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
-    const address = await this.ethGetAddress(this.provider);
+    const address = await this.ethGetAddress();
     return address ? eth.ethSignMessage(msg, this.provider, address) : null;
   }
 
@@ -242,7 +215,7 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async getDeviceID(): Promise<string> {
-    return "xDeFi:" + (await this.ethGetAddress(this.provider));
+    return "xDeFi:" + (await this.ethGetAddress());
   }
 
   public async getFirmwareVersion(): Promise<string> {
@@ -251,17 +224,7 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
 }
 
 export class XDeFiHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
-  readonly _supportsBTCInfo = false;
   readonly _supportsETHInfo = true;
-  readonly _supportsCosmosInfo = false;
-  readonly _supportsBinanceInfo = false;
-  readonly _supportsRippleInfo = false;
-  readonly _supportsEosInfo = false;
-  readonly _supportsFioInfo = false;
-  readonly _supportsThorchainInfo = false;
-  readonly _supportsSecretInfo = false;
-  readonly _supportsKavaInfo = false;
-  readonly _supportsTerraInfo = false;
 
   public getVendor(): string {
     return "XDeFi";
@@ -283,7 +246,7 @@ export class XDeFiHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
     return true;
   }
 
-  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
+  public hasNativeShapeShift(): boolean {
     // It doesn't... yet?
     return false;
   }
@@ -299,7 +262,7 @@ export class XDeFiHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
   public describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin) {
       case "Ethereum":
-        return eth.describeETHPath(msg.path);
+        return core.describeETHPath(msg.path);
       default:
         throw new Error("Unsupported path");
     }
@@ -323,7 +286,7 @@ export class XDeFiHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {
-    return false;
+    return true;
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
