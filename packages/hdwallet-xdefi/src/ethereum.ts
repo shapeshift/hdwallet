@@ -20,8 +20,11 @@ export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHA
 }
 
 export async function ethSignTx(msg: core.ETHSignTx, ethereum: any, from: string): Promise<core.ETHSignedTx | null> {
-  console.error("Method ethSignTx unsupported for XDeFi wallet!");
-  return null;
+  const signedTx = await ethereum.request({
+    method: "eth_signTransaction",
+    params: [{ ...msg, from }],
+  });
+  return signedTx;
 }
 
 export async function ethSendTx(msg: core.ETHSignTx, ethereum: any, from: string): Promise<core.ETHTxHash | null> {
