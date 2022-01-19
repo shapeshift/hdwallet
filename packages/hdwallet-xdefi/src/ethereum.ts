@@ -2,8 +2,11 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { ETHSignedMessage } from "@shapeshiftoss/hdwallet-core";
 
 export async function ethVerifyMessage(msg: core.ETHVerifyMessage, ethereum: any): Promise<boolean | null> {
-  console.error("Method ethVerifyMessage unsupported for XDeFi wallet!");
-  return null;
+  const recoveredAddress = await ethereum.request({
+    method: "personal_ecRecover",
+    params: [msg.message, msg.signature],
+  });
+  return recoveredAddress === msg.address;
 }
 
 export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
