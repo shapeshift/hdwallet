@@ -55,7 +55,15 @@ describe("XDeFiWHDWallet", () => {
   it("should test ethSignTx", async () => {
     const wallet = new XDeFiHDWallet();
     wallet.ethAddress = "0x123";
-
+    wallet.provider = {
+      request: jest.fn().mockReturnValue({
+        r: "0x63db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0a",
+        s: "0x28297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
+        v: 38,
+        serialized:
+          "0xf86b018501dcd650008256229412ec06288edd7ae2cc41a843fe089237fc7354f0872c68af0bb140008026a063db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0aa028297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
+      }),
+    };
     expect(
       await wallet.ethSignTx({
         addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
@@ -67,7 +75,13 @@ describe("XDeFiWHDWallet", () => {
         data: "0xDEADBEEFDEADBEEFDEADBEEFDEADBEEF",
         chainId: 1,
       })
-    ).toBe(null);
+    ).toEqual({
+      r: "0x63db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0a",
+      s: "0x28297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
+      v: 38,
+      serialized:
+        "0xf86b018501dcd650008256229412ec06288edd7ae2cc41a843fe089237fc7354f0872c68af0bb140008026a063db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0aa028297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
+    });
   });
 
   it("should test ethSignMessage", async () => {
