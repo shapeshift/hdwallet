@@ -7,9 +7,7 @@ class XDeFiTransport extends core.Transport {
     return "xdefi:0";
   }
 
-  public call(...args: any[]): Promise<any> {
-    return Promise.resolve();
-  }
+  public async call(...args: any[]): Promise<any> {}
 }
 
 export function isXDeFi(wallet: core.HDWallet): wallet is XDeFiHDWallet {
@@ -97,47 +95,36 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
     return Promise.resolve({ msg: msg.msg });
   }
 
-  public sendPin(pin: string): Promise<void> {
+  public async sendPin(pin: string): Promise<void> {
     // no concept of pin in XDeFi
-    return Promise.resolve();
   }
 
-  public sendPassphrase(passphrase: string): Promise<void> {
+  public async sendPassphrase(passphrase: string): Promise<void> {
     // cannot send passphrase to XDeFi. Could show the widget?
-    return Promise.resolve();
   }
 
-  public sendCharacter(charater: string): Promise<void> {
+  public async sendCharacter(charater: string): Promise<void> {
     // no concept of sendCharacter in XDeFi
-    return Promise.resolve();
   }
 
-  public sendWord(word: string): Promise<void> {
+  public async sendWord(word: string): Promise<void> {
     // no concept of sendWord in XDeFi
-    return Promise.resolve();
   }
 
-  public cancel(): Promise<void> {
+  public async cancel(): Promise<void> {
     // no concept of cancel in XDeFi
-    return Promise.resolve();
   }
 
-  public wipe(): Promise<void> {
-    return Promise.resolve();
-  }
+  public async wipe(): Promise<void> {}
 
-  public reset(msg: core.ResetDevice): Promise<void> {
-    return Promise.resolve();
-  }
+  public async reset(msg: core.ResetDevice): Promise<void> {}
 
-  public recover(msg: core.RecoverDevice): Promise<void> {
+  public async recover(msg: core.RecoverDevice): Promise<void> {
     // no concept of recover in XDeFi
-    return Promise.resolve();
   }
 
-  public loadDevice(msg: core.LoadDevice): Promise<void> {
+  public async loadDevice(msg: core.LoadDevice): Promise<void> {
     // TODO: Does XDeFi allow this to be done programatically?
-    return Promise.resolve();
   }
 
   public describePath(msg: core.DescribePath): core.PathDescription {
@@ -153,9 +140,7 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
     return true;
   }
 
-  public disconnect(): Promise<void> {
-    return Promise.resolve();
-  }
+  public async disconnect(): Promise<void> {}
 
   public async ethSupportsNetwork(chainId: number = 1): Promise<boolean> {
     return chainId === 1;
@@ -235,15 +220,15 @@ export class XDeFiHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
   }
 
   public hasOnDevicePassphrase(): boolean {
-    return true;
+    return false;
   }
 
   public hasOnDeviceDisplay(): boolean {
-    return true;
+    return false;
   }
 
   public hasOnDeviceRecovery(): boolean {
-    return true;
+    return false;
   }
 
   public hasNativeShapeShift(): boolean {
