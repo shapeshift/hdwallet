@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { XDeFiHDWallet } from ".";
+import { create, XDeFiHDWallet } from ".";
 
 import * as xdefi from "./xdefi";
 
@@ -8,9 +8,9 @@ describe("XDeFIHDWalletInfo", () => {
     const info = xdefi.info();
     expect(info.getVendor()).toBe("XDeFi");
     expect(info.hasOnDevicePinEntry()).toBe(false);
-    expect(info.hasOnDevicePassphrase()).toBe(true);
-    expect(info.hasOnDeviceDisplay()).toBe(true);
-    expect(info.hasOnDeviceRecovery()).toBe(true);
+    expect(info.hasOnDevicePassphrase()).toBe(false);
+    expect(info.hasOnDeviceDisplay()).toBe(false);
+    expect(info.hasOnDeviceRecovery()).toBe(false);
     expect(await info.ethSupportsNetwork(1)).toBe(true);
     expect(await info.ethSupportsSecureTransfer()).toBe(false);
     expect(info.ethSupportsNativeShapeShift()).toBe(false);
@@ -41,9 +41,9 @@ describe("XDeFiWHDWallet", () => {
   it("should match the metadata", async () => {
     expect(wallet.getVendor()).toBe("XDeFi");
     expect(wallet.hasOnDevicePinEntry()).toBe(false);
-    expect(wallet.hasOnDevicePassphrase()).toBe(true);
-    expect(wallet.hasOnDeviceDisplay()).toBe(true);
-    expect(wallet.hasOnDeviceRecovery()).toBe(true);
+    expect(wallet.hasOnDevicePassphrase()).toBe(false);
+    expect(wallet.hasOnDeviceDisplay()).toBe(false);
+    expect(wallet.hasOnDeviceRecovery()).toBe(false);
     expect(await wallet.ethSupportsNetwork(1)).toBe(true);
     expect(await wallet.ethSupportsSecureTransfer()).toBe(false);
     expect(wallet.ethSupportsNativeShapeShift()).toBe(false);
@@ -196,6 +196,21 @@ describe("XDeFiWHDWallet", () => {
     expect(hash).toBe(null);
   });
   it("ethVerifyMessage returns null as its not implemented", async () => {
-    expect(await wallet.ethVerifyMessage({ address: "0x123", message: "hello world", signature: "0x1234" })).toBe(null);
+    wallet.provider = {
+      request: jest.fn().mockReturnValue("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"),
+    };
+    expect(
+      await wallet.ethVerifyMessage({
+        address: "0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8",
+        message: "hello world",
+        signature:
+          "0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b",
+      })
+    ).toEqual(true);
+  });
+
+  it("should create instance of XDeFiHD wallet", () => {
+    const wallet = create();
+    expect(wallet).toBeInstanceOf(XDeFiHDWallet);
   });
 });

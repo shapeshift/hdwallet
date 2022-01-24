@@ -9,9 +9,20 @@ const untouchable = require("untouchableMock");
 
 describe("XDeFi - Ethereum Adapter", () => {
   it("ethVerifyMessage returns null as its not implemented", async () => {
-    expect(await ethereum.ethVerifyMessage({ address: "0x123", message: "hello world", signature: "0x1234" }, {})).toBe(
-      null
-    );
+    const ethereumProvider = {
+      request: jest.fn().mockReturnValue("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"),
+    };
+    expect(
+      await ethereum.ethVerifyMessage(
+        {
+          address: "0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8",
+          message: "hello world",
+          signature:
+            "0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b",
+        },
+        ethereumProvider
+      )
+    ).toBe(true);
   });
   it("ethGetAccountPaths should return correct paths", () => {
     const paths = ethereum.ethGetAccountPaths({ coin: "Ethereum", accountIdx: 0 });
