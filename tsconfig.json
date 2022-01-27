@@ -46,17 +46,19 @@
     { "path": "./packages/hdwallet-core" },
     { "path": "./packages/hdwallet-keepkey" },
     { "path": "./packages/hdwallet-keepkey-chromeusb" },
+    { "path": "./packages/hdwallet-keepkey-electron" },
     { "path": "./packages/hdwallet-keepkey-nodehid" },
     { "path": "./packages/hdwallet-keepkey-nodewebusb" },
     { "path": "./packages/hdwallet-keepkey-tcp" },
-    { "path": "./packages/hdwallet-keepkey-electron" },
     { "path": "./packages/hdwallet-keepkey-webusb" },
     { "path": "./packages/hdwallet-ledger" },
     { "path": "./packages/hdwallet-ledger-webusb" },
+    { "path": "./packages/hdwallet-metamask" },
     { "path": "./packages/hdwallet-native" },
+    { "path": "./packages/hdwallet-native-vault" },
     { "path": "./packages/hdwallet-portis" },
     { "path": "./packages/hdwallet-trezor" },
     { "path": "./packages/hdwallet-trezor-connect" },
-    { "path": "./packages/hdwallet-metamask" }
+    { "path": "./packages/hdwallet-xdefi" }
   ]
 }
