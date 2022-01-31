@@ -41,7 +41,7 @@ export async function createWallet(): Promise<core.HDWallet> {
   wallet.web3 = Promise.resolve({
     eth: {
       accounts: {
-        recover: () => "0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8",
+        recover: async () => "0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8",
       },
       getAccounts: async () => ["0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"],
       sign: async () =>
