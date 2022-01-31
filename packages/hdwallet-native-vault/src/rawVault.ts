@@ -47,8 +47,8 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
       return;
     }
 
-    setCrypto(params?.crypto ?? window.crypto);
-    setPerformance(params?.performance ?? window.performance);
+    setCrypto(params?.crypto ?? globalThis.crypto);
+    setPerformance(params?.performance ?? globalThis.performance);
 
     currentResolvers.keyStore?.(params?.keyStore ?? idb.createStore(keyStoreUUID, "keyval"));
     currentResolvers.vaultStore?.(params?.vaultStore ?? idb.createStore(vaultStoreUUID, "keyval"));
