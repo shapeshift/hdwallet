@@ -1,3 +1,4 @@
+/* This is intended to be used to test the tests. It should not be shipped or *shudder* actually used. */
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as bip39 from "bip39";
