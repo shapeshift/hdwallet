@@ -40,6 +40,7 @@ export const vaultStoreUUID = uuid.v5("vaultStore", uuidNamespace);
 // export const GENERATE_MNEMONIC = uuid.v5("GENERATE_MNEMONIC", uuidNamespace);
 export const GENERATE_MNEMONIC = uuid.v4();
 
+export type Revocable = native.crypto.Isolation.Engines.Default.Revocable;
 export const Revocable = native.crypto.Isolation.Engines.Default.Revocable;
 export const revocable = native.crypto.Isolation.Engines.Default.revocable;
 export const decoder = new TextDecoder();

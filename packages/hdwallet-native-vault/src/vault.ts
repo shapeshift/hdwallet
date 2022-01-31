@@ -4,13 +4,13 @@ import * as ta from "type-assertions";
 
 import { MapVault } from "./mapVault";
 import { RawVault } from "./rawVault";
-import { IVault, IVaultFactory, VaultPrepareParams } from "./types";
+import { IVault, ISealableVaultFactory, VaultPrepareParams } from "./types";
 import { Revocable, crypto, decoder, encoder, revocable, shadowedMap } from "./util";
 
 export type ValueWrapper = (x: unknown, addRevoker: (revoke: () => void) => void) => Promise<unknown>;
 export type ValueTransformer = (x: unknown, addRevoker: (revoke: () => void) => void) => Promise<unknown>;
 
-ta.assert<ta.Extends<typeof Vault, IVaultFactory<Vault>>>();
+ta.assert<ta.Extends<typeof Vault, ISealableVaultFactory<Vault>>>();
 
 export class Vault extends MapVault implements IVault {
   //#region static
@@ -27,13 +27,6 @@ export class Vault extends MapVault implements IVault {
     if (sealed) out.seal();
     if (id !== undefined && password !== undefined) await out.load();
     return out;
-  }
-
-  static async thereCanBeOnlyOne(password?: string, sealed: boolean = true): Promise<Vault> {
-    const ids = await Vault.list();
-    if (ids.length === 0) throw new Error("can't find a vault");
-    if (ids.length > 1) throw new Error(`expected a single vault; found ${ids.length}: ${ids}`);
-    return await Vault.open(ids[0], password, sealed);
   }
 
   static #isPrivateKey(key: string) {

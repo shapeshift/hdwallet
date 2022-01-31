@@ -4,6 +4,7 @@ import { Vault } from "./vault";
 import { GENERATE_MNEMONIC, crypto, createMnemonic, entropyToMnemonic } from "./util";
 
 export { argonBenchmark } from "./argonBenchmark"
+export type { ISealableVaultFactory, IVault, IVaultFactory } from './types'
 export { GENERATE_MNEMONIC } from './util'
 export { Vault } from "./vault"
 

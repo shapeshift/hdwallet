@@ -11,6 +11,9 @@ export class MapVault
   implements Map<string, unknown | Promise<unknown>>, IVaultBackedBy<Array<[string, unknown | Promise<unknown>]>>
 {
   static async prepare(params?: VaultPrepareParams) { return RawVault.prepare(params); }
+  static async create(password?: string) {
+    return await MapVault.open(undefined, password);
+  }
   static async open(id?: string, password?: string) {
     await MapVault.prepare();
     return new MapVault(await RawVault.open(id, password));

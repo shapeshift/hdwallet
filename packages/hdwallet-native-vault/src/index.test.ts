@@ -4,8 +4,9 @@ import * as jose from "jose";
 import * as uuid from "uuid";
 
 import { Vault, GENERATE_MNEMONIC } from ".";
-import { keyStoreUUID, vaultStoreUUID } from "./util";
 import { deterministicGetRandomValues } from "./deterministicGetRandomValues.test";
+import { ISealableVaultFactory, IVault } from "./types";
+import { keyStoreUUID, vaultStoreUUID } from "./util";
 
 const keyStore = idb.createStore(keyStoreUUID, "keyval");
 const vaultStore = idb.createStore(vaultStoreUUID, "keyval");
@@ -16,6 +17,14 @@ const realCrypto = require("crypto").webcrypto as Crypto;
 let mockGetRandomValues: <T extends ArrayBufferView | null>(array: T) => Promise<T>;
 async function resetGetRandomValues() {
   mockGetRandomValues = await deterministicGetRandomValues(realCrypto);
+}
+
+type ParametersExceptFirst<F> = F extends (arg0: any, ...rest: infer R) => any ? R : never;
+async function thereCanBeOnlyOne<T extends IVault, U extends ISealableVaultFactory<T>>(factory: U, ...args: ParametersExceptFirst<U["open"]>): Promise<T> {
+  const ids = await factory.list();
+  if (ids.length === 0) throw new Error("can't find a vault");
+  if (ids.length > 1) throw new Error(`expected a single vault; found ${ids.length}: ${ids}`);
+  return await factory.open(ids[0], ...(args as any));
 }
 
 describe("Vault", () => {
@@ -48,7 +57,7 @@ describe("Vault", () => {
 
     const vault = await Vault.create();
     await vault.setPassword("foobar");
-    vault.set("foo", "bar");
+    vault.set("foo", Promise.resolve("bar"));
     vault.meta.set("name", "default");
     expect(vault.meta.get("name")).toBe("default");
     await vault.save();
@@ -73,8 +82,8 @@ describe("Vault", () => {
   });
 
   it("should store a mnemonic", async () => {
-    const vault = await Vault.thereCanBeOnlyOne("foobar");
-    vault.set("#mnemonic", "all all all all all all all all all all all all");
+    const vault = await thereCanBeOnlyOne(Vault, "foobar");
+    vault.set("#mnemonic", Promise.resolve("all all all all all all all all all all all all"));
     await vault.save();
     const mnemonic = (await vault.get("#mnemonic")) as native.crypto.Isolation.Engines.Default.BIP39.Mnemonic;
     expect(mnemonic).toBeInstanceOf(native.crypto.Isolation.Engines.Default.BIP39.Mnemonic);
@@ -95,7 +104,7 @@ describe("Vault", () => {
   });
 
   it("should store metadata", async () => {
-    const vault = await Vault.thereCanBeOnlyOne("foobar");
+    const vault = await thereCanBeOnlyOne(Vault, "foobar");
     vault.meta.set("foo", "bar")
     expect(vault.meta.get("foo")).toBe("bar")
     await vault.save()
@@ -111,45 +120,42 @@ describe("Vault", () => {
     expect((await Vault.meta(id))?.get("foo")).toBe("bar")
   })
 
-  it("should be unwrappable before being sealed", async () => {
-    const vault = await Vault.thereCanBeOnlyOne("foobar", false);
-    expect(vault.sealed).toBe(false);
-    const unwrapped = vault.unwrap();
-    expect(await unwrapped.get("#mnemonic")).toBe("all all all all all all all all all all all all");
-  });
-
-  describe("the unwrapped vault", () => {
-    it("should expose the mnemonic via entries()", async () => {
-      const vault = await Vault.thereCanBeOnlyOne("foobar", false);
+  describe("ISealable", () => {
+    it("should be unwrappable before being sealed", async () => {
+      const vault = await thereCanBeOnlyOne(Vault, "foobar", false);
+      expect(vault.sealed).toBe(false);
       const unwrapped = vault.unwrap();
-      const entries = await Promise.all(Array.from(unwrapped.entries()).map(async ([k, v]) => [k, await v]));
-      expect(entries).toContainEqual(["#mnemonic", "all all all all all all all all all all all all"]);
+      expect(await unwrapped.get("#mnemonic")).toBe("all all all all all all all all all all all all");
     });
-    it("should expose the mnemonic via values()", async () => {
-      const vault = await Vault.thereCanBeOnlyOne("foobar", false);
-      const unwrapped = vault.unwrap();
-      const values = await Promise.all(Array.from(unwrapped.values()));
-      expect(values).toContain("all all all all all all all all all all all all");
+
+    describe("the unwrapped vault", () => {
+      it("should expose the mnemonic via entries()", async () => {
+        const vault = await thereCanBeOnlyOne(Vault, "foobar", false);
+        const unwrapped = vault.unwrap();
+        const entries = await Promise.all(Array.from(unwrapped.entries()).map(async ([k, v]) => [k, await v]));
+        expect(entries).toContainEqual(["#mnemonic", "all all all all all all all all all all all all"]);
+      });
+      it("should expose the mnemonic via values()", async () => {
+        const vault = await thereCanBeOnlyOne(Vault, "foobar", false);
+        const unwrapped = vault.unwrap();
+        const values = await Promise.all(Array.from(unwrapped.values()));
+        expect(values).toContain("all all all all all all all all all all all all");
+      });
     });
-  });
 
-  it("should not be unwrappable after being sealed", async () => {
-    const vault = await Vault.thereCanBeOnlyOne("foobar", false);
-    expect(vault.sealed).toBe(false);
-    vault.seal();
-    expect(vault.sealed).toBe(true);
-    expect(() => vault.unwrap()).toThrowErrorMatchingInlineSnapshot(`"can't unwrap a sealed vault"`);
-  });
-
-  it("should not return an unsealed vault from openDefault unless explicitly requested", async () => {
-    const vault = await Vault.thereCanBeOnlyOne("foobar");
-    expect(() => vault.unwrap()).toThrowErrorMatchingInlineSnapshot(`"can't unwrap a sealed vault"`);
+    it("should not be unwrappable after being sealed", async () => {
+      const vault = await thereCanBeOnlyOne(Vault, "foobar", false);
+      expect(vault.sealed).toBe(false);
+      vault.seal();
+      expect(vault.sealed).toBe(true);
+      expect(() => vault.unwrap()).toThrowErrorMatchingInlineSnapshot(`"can't unwrap a sealed vault"`);
+    });
   });
 
   it("should generate a fresh, random mnemonic when provided with the GENERATE_MNEMONIC magic", async () => {
     const vault = await Vault.create("foobar", false);
     expect(vault.id).toMatchInlineSnapshot(`"8f9c0a54-7157-42f7-87f1-361325aaf80a"`);
-    vault.set("#mnemonic", GENERATE_MNEMONIC);
+    vault.set("#mnemonic", Promise.resolve(GENERATE_MNEMONIC));
     await vault.save();
 
     const mnemonic = (await vault.get("#mnemonic")) as native.crypto.Isolation.Engines.Default.BIP39.Mnemonic;
