@@ -14,8 +14,6 @@ export function isXDeFi(wallet: core.HDWallet): wallet is XDeFiHDWallet {
   return _.isObject(wallet) && (wallet as any)._isXDeFi;
 }
 
-type HasNonTrivialConstructor<T> = T extends { new (): any } ? never : T;
-
 export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
@@ -50,12 +48,11 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
     return "XDeFi";
   }
 
-  public async initialize(): Promise<any> {
-    try {
-      this.provider = (window as any).xfi && (window as any).xfi.ethereum;
-    } catch (e) {
-      console.error(e);
-    }
+  public initialize(): never;
+  public initialize(provider: unknown): Promise<any>;
+  public async initialize(provider?: unknown): Promise<any> {
+    if (!provider) throw new Error("provider is required");
+    this.provider = provider;
   }
 
   public hasOnDevicePinEntry(): boolean {
@@ -90,9 +87,9 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
     // TODO: Can we lock XDeFi from here?
   }
 
-  public ping(msg: core.Ping): Promise<core.Pong> {
+  public async ping(msg: core.Ping): Promise<core.Pong> {
     // no ping function for XDeFi, so just returning Core.Pong
-    return Promise.resolve({ msg: msg.msg });
+    return { msg: msg.msg };
   }
 
   public async sendPin(pin: string): Promise<void> {
