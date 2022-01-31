@@ -31,7 +31,7 @@ export class XDeFiAdapter {
       throw error;
     }
     const wallet = new XDeFiHDWallet();
-    await wallet.initialize();
+    await wallet.initialize(provider);
     const deviceID = await wallet.getDeviceID();
     this.keyring.add(wallet, deviceID);
     this.currentDeviceID = deviceID;
