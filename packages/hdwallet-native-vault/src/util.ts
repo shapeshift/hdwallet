@@ -14,14 +14,15 @@ export async function createMnemonic(mnemonic: string) {
 }
 export const entropyToMnemonic = bip39.entropyToMnemonic.bind(bip39);
 
-let cryptoResovler: ((x: AsyncCrypto) => void) | undefined
+let cryptoResolver: ((x: AsyncCrypto) => void) | undefined
+
 export function setCrypto(x: AsyncCrypto) {
   if (!x) throw new Error("crypto module is required");
-  if (!cryptoResovler) throw new Error("can only set crypto module once");
-  cryptoResovler(x)
-  cryptoResovler = undefined
+  if (!cryptoResolver) throw new Error("can only set crypto module once");
+  cryptoResolver(x)
+  cryptoResolver = undefined
 }
-export const crypto = new Promise<AsyncCrypto>(resolve => cryptoResovler = resolve)
+export const crypto = new Promise<AsyncCrypto>(resolve => cryptoResolver = resolve)
 
 let performanceResolver: ((x: Performance) => void) | undefined
 export function setPerformance(x: Performance) {

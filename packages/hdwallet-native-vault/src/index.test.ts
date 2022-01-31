@@ -101,8 +101,8 @@ function testVaultImpl(name: string, Vault: ISealableVaultFactory<IVault>) {
         Buffer.from((await (await mnemonic.toSeed()).toMasterKey()).publicKey).toString("hex")
       ).toMatchInlineSnapshot(`"03e3b30e8c21923752a408242e069941fedbaef7db7161f7e2c5f3fdafe7e25ddc"`);
     });
-
-    it("should retreive the mnemonic", async () => {
+    
+    it("should retrieve the mnemonic", async () => {
       const vaultIDs = await Vault.list();
       expect(vaultIDs.length).toBe(1);
       const vault = await Vault.open(vaultIDs[0], "foobar");
