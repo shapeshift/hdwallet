@@ -83,7 +83,7 @@ describe("Vault", () => {
     ).toMatchInlineSnapshot(`"03e3b30e8c21923752a408242e069941fedbaef7db7161f7e2c5f3fdafe7e25ddc"`);
   });
 
-  it("should retreive the mnemonic", async () => {
+  it("should retrieve the mnemonic", async () => {
     const vaultIDs = await Vault.list();
     expect(vaultIDs.length).toBe(1);
     const vault = await Vault.open(vaultIDs[0], "foobar");
@@ -101,12 +101,12 @@ describe("Vault", () => {
     await vault.save()
   })
 
-  it("should retreive metadata from the vault instance", async () => {
+  it("should retrieve metadata from the vault instance", async () => {
     const vault = await Vault.thereCanBeOnlyOne("foobar");
     expect(vault.meta.get("foo")).toBe("bar")
   })
 
-  it("should retreive metadata with the static method", async () => {
+  it("should retrieve metadata with the static method", async () => {
     const id = (await Vault.thereCanBeOnlyOne()).id;
     expect((await Vault.meta(id))?.get("foo")).toBe("bar")
   })
