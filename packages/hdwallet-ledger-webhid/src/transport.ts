@@ -16,12 +16,14 @@ import {
 
 const RECORD_CONFORMANCE_MOCKS = false;
 
-export async function getFirstLedgerDevice(): Promise< HIDDevice | null> {
+export const MOCK_SERIAL_NUMBER = "ledger-webhid-device" // WebHID devices do not have serialNumbers
+
+export async function getFirstLedgerDevice(): Promise<HIDDevice | null> {
   if (!(window && window.navigator.hid)) throw new core.WebHIDNotAvailable();
 
-  const existingHIDDevices = await TransportWebHID.list();
+  const existingDevices = await TransportWebHID.list();
 
-  return existingHIDDevices.length > 0 ? existingHIDDevices[0] : null;
+  return existingDevices.length > 0 ? existingDevices[0] : null;
 }
 
 export async function openTransport(device: HIDDevice): Promise<TransportWebHID> {
@@ -108,7 +110,7 @@ export class LedgerWebHIDTransport extends ledger.LedgerTransport {
 
   // WebHID has no device.serialNumber. Use "0001" for Ledger WebUSBDevices and "0002" for Ledger WebHIDDevices
   public async getDeviceID(): Promise<string> {
-    return "0002";
+    return MOCK_SERIAL_NUMBER;
   }
 
   public async call<T extends LedgerTransportCoinType, U extends LedgerTransportMethodName<T>>(

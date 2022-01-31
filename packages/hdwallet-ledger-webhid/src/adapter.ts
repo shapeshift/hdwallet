@@ -1,10 +1,9 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
-import { LedgerWebHIDTransport, getFirstLedgerDevice, getTransport, openTransport } from "./transport";
+import { LedgerWebHIDTransport, MOCK_SERIAL_NUMBER, getFirstLedgerDevice, getTransport, openTransport } from "./transport";
 
 const VENDOR_ID = 11415;
-const MOCK_SERIAL_NUMBER = "0002" // WebHID devices do not have serialNumbers
 const APP_NAVIGATION_DELAY = 3000;
 
 export class WebHIDLedgerAdapter {
@@ -66,7 +65,7 @@ export class WebHIDLedgerAdapter {
   }
 
   // without unique device identifiers, we should only ever have one HID ledger device on the keyring at a time
-  public async initialize(device?: HIDDevice | null): Promise<number> {
+  public async initialize(device?: HIDDevice): Promise<number> {
     device = device ?? (await getFirstLedgerDevice());
 
     if (device) {
