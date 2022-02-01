@@ -124,7 +124,7 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
       await TrezorConnectTransport.cancellable(TrezorConnectTransport.callInProgress);
 
       try {
-        let result = await TrezorConnect[method]({ device, ...msg });
+        let result = await (TrezorConnect as any)[method]({ device, ...msg });
         if (
           result.payload.error === "Popup closed" ||
           result.payload.error === "Cancelled" ||

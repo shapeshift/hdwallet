@@ -1,6 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+import * as metamask from "@shapeshiftoss/hdwallet-metamask";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
@@ -19,6 +20,10 @@ import { secretTests } from "./secret";
 import { terraTests } from "./terra";
 import { kavaTests } from "./kava";
 import { WalletSuite } from "./wallets/suite";
+
+import { ethereum } from './wallets/mocks/@metamask/detect-provider';
+
+jest.mock('@metamask/detect-provider', () => async () => Promise.resolve(ethereum));
 
 /**
  * We run all the integration tests against every device, even though some
@@ -52,6 +57,7 @@ export function integration(suite: WalletSuite): void {
             (ledger.isLedger(wallet) ? 1 : 0) +
             (portis.isPortis(wallet) ? 1 : 0) +
             (native.isNative(wallet) ? 1 : 0) +
+            (metamask.isMetaMask(wallet) ? 1 : 0) +
             (xdefi.isXDeFi(wallet) ? 1 : 0)
         ).toEqual(1);
       });

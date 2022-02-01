@@ -38,19 +38,19 @@ export async function createWallet(): Promise<core.HDWallet> {
 
   // mock web3.eth
   // this feels bad man, would be better to test against a debug verision of Portis should it ever exist
-  wallet.web3 = {
+  wallet.web3 = Promise.resolve({
     eth: {
       accounts: {
-        recover: () => Promise.resolve("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"),
+        recover: async () => "0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8",
       },
-      getAccounts: () => ["0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"],
-      sign: () =>
+      getAccounts: async () => ["0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"],
+      sign: async () =>
         "0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b",
-      signTransaction: ({ data }: any) => {
+      signTransaction: async ({ data }: any) => {
         return data.length ? mockSignERC20TxResponse : mockSignEthTxResponse;
       },
     },
-  };
+  } as any);
   // end mock
 
   return wallet;

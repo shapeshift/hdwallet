@@ -1,19 +1,10 @@
-import * as native from "@shapeshiftoss/hdwallet-native";
-import * as uuid from "uuid";
-import * as bip39 from "bip39";
-
 import { Vault } from "./vault";
-import { crypto } from "./util";
+import { GENERATE_MNEMONIC, crypto, createMnemonic, entropyToMnemonic } from "./util";
 
 export { argonBenchmark } from "./argonBenchmark"
+export type { ISealableVaultFactory, IVault, IVaultFactory } from './types'
+export { GENERATE_MNEMONIC } from './util'
 export { Vault } from "./vault"
-
-const createMnemonic = native.crypto.Isolation.Engines.Default.BIP39.Mnemonic.create.bind(
-  native.crypto.Isolation.Engines.Default.BIP39.Mnemonic
-);
-const entropyToMnemonic = bip39.entropyToMnemonic.bind(bip39);
-
-export const GENERATE_MNEMONIC = uuid.v4()
 
 Vault.registerValueTransformer("#mnemonic", async (x: unknown) => {
   if (x !== GENERATE_MNEMONIC) return x
