@@ -31,15 +31,18 @@
         bottom: 0;
         z-index: 10;
       }
+
       .opened:before {
         display: block;
       }
+
       .opened .modal-dialog {
         -webkit-transform: translate(0, 0);
         -ms-transform: translate(0, 0);
         transform: translate(0, 0);
         top: 20%;
       }
+
       .modal-dialog {
         background: #fefefe;
         border: #333333 solid 0px;
@@ -60,9 +63,11 @@
         -o-transition: -o-transform 0.3s ease-out;
         transition: transform 0.3s ease-out;
       }
+
       .modal-body {
         padding: 20px;
       }
+
       .modal-body input {
         width: 200px;
         padding: 8px;
@@ -72,21 +77,26 @@
         font-size: 14px;
         font-weight: bold;
       }
+
       .modal-header,
       .modal-footer {
         padding: 10px 20px;
       }
+
       .modal-header {
         border-bottom: #eeeeee solid 1px;
       }
+
       .modal-header h2 {
         font-size: 20px;
       }
+
       .eventEntry {
         border: #cccccc solid 1px;
         border-radius: 8px;
         padding: 12px;
       }
+
       #eventLog {
         max-height: 20em;
         overflow: scroll;
@@ -101,7 +111,8 @@
       <button id="keepkeybridge">Pair KKBridge</button>
       <button id="kkemu">Pair Emulator</button>
       <button id="trezor">Pair Trezor</button>
-      <button id="ledger">Pair Ledger</button>
+      <button id="ledgerwebusb">Pair Ledger (webUSB)</button>
+      <button id="ledgerwebhid">Pair Ledger (webHID)</button>
       <button id="portis">Pair Portis</button>
       <button id="native">Pair Native</button>
       <button id="metaMask">Pair MetaMask</button>
@@ -134,9 +145,9 @@
     <div class="container">
       <h4>Ledger Device</h4>
       <button class="button button-outline" id="openApp">Open App</button>
-      <input type="text" id="ledgerApp" />
+      <input type="text" id="ledgerAppToOpen" />
       <button class="button button-outline" id="validateApp">Validate Open App</button>
-      <input type="text" id="appSymbol" />
+      <input type="text" id="ledgerAppToValidate" />
       <button class="button button-outline" id="getAppInfo">App Info</button>
       <input type="text" id="appInfo" />
     </div>
@@ -278,7 +289,7 @@
       <button class="button button-outline" id="ethSign">Sign</button>
       <button class="button button-outline" id="ethSend">Send</button>
       <button class="button button-outline" id="ethVerify">Verify</button>
-      <align ="right"><button class="button button-outline" id="ethEIP1559">EIP-1559?</button></align>
+      <button class="button button-outline" id="ethEIP1559">EIP-1559?</button>
       <input type="text" id="ethResults" />
     </div>
     <div class="container">
@@ -355,13 +366,16 @@
         <div class="modal-body">
           <button onclick="handlePinDigit(7)" class="button button-outline">&#x25CF;</button>&nbsp;
           <button onclick="handlePinDigit(8)" class="button button-outline">&#x25CF;</button>&nbsp;
-          <button onclick="handlePinDigit(9)" class="button button-outline">&#x25CF;</button><br />
+          <button onclick="handlePinDigit(9)" class="button button-outline">&#x25CF;</button>
+          <br />
           <button onclick="handlePinDigit(4)" class="button button-outline">&#x25CF;</button>&nbsp;
           <button onclick="handlePinDigit(5)" class="button button-outline">&#x25CF;</button>&nbsp;
-          <button onclick="handlePinDigit(6)" class="button button-outline">&#x25CF;</button><br />
+          <button onclick="handlePinDigit(6)" class="button button-outline">&#x25CF;</button>
+          <br />
           <button onclick="handlePinDigit(1)" class="button button-outline">&#x25CF;</button>&nbsp;
           <button onclick="handlePinDigit(2)" class="button button-outline">&#x25CF;</button>&nbsp;
-          <button onclick="handlePinDigit(3)" class="button button-outline">&#x25CF;</button><br />
+          <button onclick="handlePinDigit(3)" class="button button-outline">&#x25CF;</button>
+          <br />
           <input id="#pinInput" type="text" style="-webkit-text-security: disc" />
           <button onclick="handlePinDigit('')" class="button button-outline">x</button>
         </div>
