@@ -1,9 +1,14 @@
 import * as bip32 from "bip32";
 import bs58check from "bs58check";
-import { crypto as btccrypto, Network, SignerAsync } from "@shapeshiftoss/bitcoinjs-lib";
+import type { crypto as btccrypto, Network, SignerAsync } from "@shapeshiftoss/bitcoinjs-lib";
 
 import { BIP32, SecP256K1, IsolationError } from "../core";
 import { ECPairAdapter } from "./bitcoin";
+
+let btccryptoInstance: typeof btccrypto | undefined
+const btccryptoReady = (async () => {
+  btccryptoInstance = (await import("@shapeshiftoss/bitcoinjs-lib")).crypto
+})()
 
 export type BIP32InterfaceAsync = Omit<bip32.BIP32Interface, "sign" | "derive" | "deriveHardened" | "derivePath"> &
   Pick<SignerAsync, "sign"> & {
@@ -32,6 +37,7 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32.Node, BIP32Inte
   }
 
   static async create(isolatedNode: BIP32.Node, networkOrParent?: BIP32Adapter | Network, index?: number): Promise<BIP32Adapter> {
+    await btccryptoReady
     return new BIP32Adapter(isolatedNode, await isolatedNode.getChainCode(), await isolatedNode.getPublicKey(), networkOrParent, index);
   }
 
@@ -46,7 +52,7 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32.Node, BIP32Inte
   }
   get identifier() {
     return (this._identifier =
-      this._identifier ?? btccrypto.hash160(Buffer.from(SecP256K1.CompressedPoint.from(this.publicKey))));
+      this._identifier ?? btccryptoInstance!.hash160(Buffer.from(SecP256K1.CompressedPoint.from(this.publicKey))));
   }
   get fingerprint() {
     return this.identifier.slice(0, 4);

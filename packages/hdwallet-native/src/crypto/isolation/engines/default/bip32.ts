@@ -94,7 +94,7 @@ export class Node extends Revocable(class {}) implements BIP32.Node, SecP256K1.E
         const msgOrDigest = digestAlgorithm === null ? checkType(ByteArray(32), msg) : Digest.Algorithms[digestAlgorithm](checkType(ByteArray(), msg));
         const entropy = (counter === undefined ? undefined : Buffer.alloc(32));
         entropy?.writeUInt32BE(counter ?? 0, 24);
-        return SecP256K1.RecoverableSignature.fromSignature(
+        return await SecP256K1.RecoverableSignature.fromSignature(
             checkType(SecP256K1.Signature, (tinyecc as typeof tinyecc & {
                 signWithEntropy: (message: Buffer, privateKey: Buffer, entropy?: Buffer) => Buffer,
             }).signWithEntropy(Buffer.from(msgOrDigest), this.#privateKey, entropy)),
