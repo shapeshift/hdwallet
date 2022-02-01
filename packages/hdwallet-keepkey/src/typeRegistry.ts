@@ -37,6 +37,14 @@ export const messageNameRegistry = Object.entries(Messages.MessageType).reduce(
   {} as Record<number, string>
 );
 
+// Array of message types for which a response is not expected from the device
+export const messageTypesWithoutResponse: Array<number> = Object.entries(messageNameRegistry).filter(([, v]) => [
+  "DEBUGLINKDECISION",
+  "DEBUGLINKSTOP",
+  "DEBUGLINKLOG",
+  "DEBUGLINKFILLCONFIG",
+].includes(v)).map(([k]) => Number(k));
+
 // Map of message type enum to their protobuf constructor
 export const messageTypeRegistry = Object.entries(Messages.MessageType).reduce(
   (registry, entry: [string, number]) => {
