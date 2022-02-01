@@ -89,10 +89,10 @@ export class Transport extends core.Transport {
     const msgLength = firstView.getUint32(5);
     if (!valid) throw new Error("message not valid");
 
-    const buffer = new Uint8Array(9 + 2 + msgLength);
-    buffer.set(first.slice(0, Math.min(first.length, buffer.length)));
+    const buffer = new Uint8Array(8 + msgLength);
+    buffer.set(first.slice(1, Math.min(first.length, buffer.length)));
 
-    for (let offset = first.length; offset < buffer.length; ) {
+    for (let offset = first.length - 1; offset < buffer.length; ) {
       // Drop USB "?" reportId in the first byte
       let next = (await this.delegate.readChunk(debugLink)).slice(1);
       buffer.set(next.slice(0, Math.min(next.length, buffer.length - offset)), offset);
@@ -381,7 +381,7 @@ export class Transport extends core.Transport {
   }
 
   protected fromMessageBuffer(buf: Uint8Array): [number, jspb.Message] {
-    const typeID = new DataView(core.toArrayBuffer(buf)).getUint16(3);
+    const typeID = new DataView(core.toArrayBuffer(buf)).getUint16(2);
     const MType = messageTypeRegistry[typeID] as any;
     if (!MType) {
       const msg = new Messages.Failure();
@@ -390,7 +390,7 @@ export class Transport extends core.Transport {
       return [Messages.MessageType.MESSAGETYPE_FAILURE, msg];
     }
     const msg = new MType();
-    const reader = new jspb.BinaryReader(buf, 9, buf.length - (9 + 2));
+    const reader = new jspb.BinaryReader(buf, 8, buf.length - 8);
     return [typeID, MType.deserializeBinaryFromReader(msg, reader)];
   }
 
