@@ -14,15 +14,21 @@ export const AdapterDelegateProxy = {
     return getClient().getDevice(serialNumber);
   },
   async getTransportDelegate(handle: string) {
-    await getClient().getTransportDelegate(handle);
-    return new TransportDelegateProxy(handle);
+    const client = getClient();
+    const [chunked, supportsDebugLink] = await Promise.all([client.getChunked(), client.getSupportsDebugLink(), client.getTransportDelegate(handle)]);
+    return new TransportDelegateProxy(chunked, handle, supportsDebugLink);
   },
 };
 
 export class TransportDelegateProxy implements keepkey.TransportDelegate {
-  handle: string;
-  constructor(handle: string) {
+  readonly chunked: boolean;
+  readonly handle: string;
+  readonly supportsDebugLink: boolean;
+
+  constructor(chunked: boolean, handle: string, supportsDebugLink: boolean) {
+    this.chunked = chunked;
     this.handle = handle;
+    this.supportsDebugLink = supportsDebugLink;
   }
 
   isOpened(): Promise<boolean> {
@@ -42,10 +48,10 @@ export class TransportDelegateProxy implements keepkey.TransportDelegate {
     return getClient().disconnect(this.handle);
   }
 
-  writeChunk(buf: Uint8Array, debugLink?: boolean): Promise<void> {
-    return getClient().writeChunk(this.handle, buf, debugLink);
+  write(buf: Uint8Array, debugLink?: boolean): Promise<void> {
+    return getClient().write(this.handle, buf, debugLink);
   }
-  readChunk(debugLink?: boolean): Promise<Uint8Array> {
-    return getClient().readChunk(this.handle, debugLink);
+  read(debugLink?: boolean): Promise<Uint8Array> {
+    return getClient().read(this.handle, debugLink);
   }
 }

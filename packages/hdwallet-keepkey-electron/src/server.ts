@@ -53,8 +53,8 @@ export class Server<DeviceType extends object, DelegateType extends keepkey.Adap
       "disconnect",
       "tryConnectDebugLink",
       "disconnect",
-      "writeChunk",
-      "readChunk",
+      "write",
+      "read",
     ] as const) {
       electron.ipcMain.handle(`${PREFIX}:${delegateMethod}`, async (_, handle: string, ...args: any[]): Promise<any> => {
         const device = this.devices.get(handle);

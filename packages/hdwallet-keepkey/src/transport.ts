@@ -15,8 +15,10 @@ export interface TransportDelegate {
   tryConnectDebugLink?(): Promise<boolean>;
   disconnect(): Promise<void>;
 
-  writeChunk(buf: Uint8Array, debugLink?: boolean): Promise<void>;
-  readChunk(debugLink?: boolean): Promise<Uint8Array>;
+  readonly chunked: boolean;
+  readonly supportsDebugLink: boolean;
+  write(buf: Uint8Array, debugLink?: boolean): Promise<void>;
+  read(debugLink?: boolean): Promise<Uint8Array>;
 }
 
 export class Transport extends core.Transport {
@@ -63,7 +65,10 @@ export class Transport extends core.Transport {
     return this.delegate.disconnect();
   }
 
-  private async write(buf: Uint8Array, debugLink: boolean): Promise<void> {
+  private async write(buf: Uint8Array, debugLink?: boolean): Promise<void> {
+    if (debugLink && !this.delegate.supportsDebugLink) throw new Error("transport delegate does not support debug link connections");
+    if (!this.delegate.chunked) return await this.delegate.write(buf, debugLink);
+
     // break frame into segments
     for (let i = 0; i < buf.length; i += SEGMENT_SIZE) {
       const segment = buf.slice(i, i + SEGMENT_SIZE);
@@ -74,16 +79,18 @@ export class Transport extends core.Transport {
       fragments.push(padding);
       const fragmentBuffer = new Uint8Array(fragments.map((x) => x.length).reduce((a, x) => a + x, 0));
       fragments.reduce((a, x) => (fragmentBuffer.set(x, a), a + x.length), 0);
-      await this.delegate.writeChunk(fragmentBuffer, debugLink);
+      await this.delegate.write(fragmentBuffer, debugLink);
     }
   }
 
   private async read(debugLink: boolean): Promise<Uint8Array> {
-    const first = await this.delegate.readChunk(debugLink);
+    if (debugLink && !this.delegate.supportsDebugLink) throw new Error("transport delegate does not support debug link connections");
+    if (!this.delegate.chunked) return await this.delegate.read(debugLink);
 
     // Check that buffer starts with: "?##" [ 0x3f, 0x23, 0x23 ]
     // "?" = USB reportId, "##" = KeepKey magic bytes
     // Message ID is bytes 4-5. Message length starts at byte 6.
+    const first = await this.delegate.read(debugLink);
     const firstView = new DataView(core.toArrayBuffer(first));
     const valid = (firstView.getUint32(0) & 0xffffff00) === 0x3f232300;
     const msgLength = firstView.getUint32(5);
@@ -94,7 +101,7 @@ export class Transport extends core.Transport {
 
     for (let offset = first.length - 1; offset < buffer.length; ) {
       // Drop USB "?" reportId in the first byte
-      let next = (await this.delegate.readChunk(debugLink)).slice(1);
+      let next = (await this.delegate.read(debugLink)).slice(1);
       buffer.set(next.slice(0, Math.min(next.length, buffer.length - offset)), offset);
       offset += next.length;
     }

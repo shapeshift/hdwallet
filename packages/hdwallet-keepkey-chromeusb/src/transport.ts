@@ -4,7 +4,9 @@ import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import { VENDOR_ID, WEBUSB_PRODUCT_ID, chromeUSB, assertChromeUSB, makePromise } from "./utils";
 
 export class TransportDelegate implements keepkey.TransportDelegate {
-  usbDevice: USBDevice & {serialNumber: string};
+  readonly chunked = true;
+  readonly supportsDebugLink = false;
+  readonly usbDevice: USBDevice & {serialNumber: string};
   private connectionHandle: any;
 
   constructor(usbDevice: USBDevice & {serialNumber: string}) {
@@ -45,7 +47,7 @@ export class TransportDelegate implements keepkey.TransportDelegate {
     }
   }
 
-  async writeChunk(buffer: Uint8Array): Promise<void> {
+  async write(buffer: Uint8Array): Promise<void> {
     assertChromeUSB(chromeUSB);
     await makePromise(chromeUSB.interruptTransfer, this.connectionHandle, {
       direction: "out",
@@ -55,7 +57,7 @@ export class TransportDelegate implements keepkey.TransportDelegate {
     });
   }
 
-  async readChunk(): Promise<Uint8Array> {
+  async read(): Promise<Uint8Array> {
     assertChromeUSB(chromeUSB);
     const { resultCode, data } = await makePromise(chromeUSB.interruptTransfer, this.connectionHandle, {
       direction: "in",

@@ -5,7 +5,10 @@ import Axios, { AxiosInstance } from "axios";
 import { Config } from "./adapter";
 
 export class TransportDelegate implements keepkey.TransportDelegate {
-  config: Config;
+  readonly chunked = true;
+  readonly config: Config;
+  readonly supportsDebugLink = true;
+
   axiosInstance: AxiosInstance | null = null;
 
   constructor(config: Config) {
@@ -38,12 +41,12 @@ export class TransportDelegate implements keepkey.TransportDelegate {
     this.axiosInstance = null;
   }
 
-  async writeChunk(buf: Uint8Array, debugLink: boolean): Promise<void> {
+  async write(buf: Uint8Array, debugLink: boolean): Promise<void> {
     const data = Buffer.from(buf).toString("hex");
     await core.mustBeDefined(this.axiosInstance).post(debugLink ? "/exchange/debug" : "/exchange/device", { data });
   }
 
-  async readChunk(debugLink: boolean): Promise<Uint8Array> {
+  async read(debugLink: boolean): Promise<Uint8Array> {
     const {
       data: { data },
     } = await core.mustBeDefined(this.axiosInstance).get(debugLink ? "/exchange/debug" : "/exchange/device");

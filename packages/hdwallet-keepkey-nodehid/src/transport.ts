@@ -10,6 +10,9 @@ export function requestPair(): hid.HID {
 export type Device = hid.Device & { path: string; serialNumber: string };
 
 export class TransportDelegate implements keepkey.TransportDelegate {
+  readonly chunked = true;
+  readonly supportsDebugLink = false;
+
   public hidRef: hid.HID;
   public hidDevice: Device;
 
@@ -40,12 +43,12 @@ export class TransportDelegate implements keepkey.TransportDelegate {
     }
   }
 
-  async readChunk(): Promise<Uint8Array> {
+  async read(): Promise<Uint8Array> {
     const result = await this.hidRef.readSync();
     return new Uint8Array(result);
   }
 
-  async writeChunk(buf: Uint8Array): Promise<void> {
+  async write(buf: Uint8Array): Promise<void> {
     const numArray = buf.reduce((a, x, i) => (a[i] = x, a), new Array<number>(buf.length));
     await this.hidRef.write(numArray);
   }

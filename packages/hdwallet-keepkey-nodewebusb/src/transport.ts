@@ -6,7 +6,9 @@ import { VENDOR_ID, WEBUSB_PRODUCT_ID } from "./utils";
 export type Device = USBDevice & {serialNumber: string};
 
 export class TransportDelegate implements keepkey.TransportDelegate {
-  usbDevice: Device;
+  readonly chunked = true;
+  readonly supportsDebugLink = true;
+  readonly usbDevice: Device;
 
   constructor(usbDevice: Device) {
     if (usbDevice.vendorId !== VENDOR_ID) throw new core.WebUSBCouldNotPair("KeepKey", "bad vendor id");
@@ -67,12 +69,12 @@ export class TransportDelegate implements keepkey.TransportDelegate {
     }
   }
 
-  async writeChunk(buf: Uint8Array, debugLink?: boolean): Promise<void> {
+  async write(buf: Uint8Array, debugLink?: boolean): Promise<void> {
     const result = await this.usbDevice.transferOut(debugLink ? 2 : 1, buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
     if (result.status !== "ok" || result.bytesWritten !== buf.length) throw new Error("bad write");
   }
 
-  async readChunk(debugLink?: boolean): Promise<Uint8Array> {
+  async read(debugLink?: boolean): Promise<Uint8Array> {
     const result = await this.usbDevice.transferIn(debugLink ? 2 : 1, keepkey.SEGMENT_SIZE + 1);
 
     if (result.status === "stall" && result.data !== undefined) {

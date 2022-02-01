@@ -1,26 +1,34 @@
 import * as electron from "electron";
 
 import {
+  GET_CHUNKED,
   GET_DEVICE,
   GET_DEVICES,
+  GET_SUPPORTS_DEBUG_LINK,
   GET_TRANSPORT_DELEGATE,
   IS_OPENED,
   GET_DEVICE_ID,
   CONNECT,
   TRY_CONNECT_DEBUG_LINK,
   DISCONNECT,
-  WRITE_CHUNK,
-  READ_CHUNK,
+  WRITE,
+  READ,
 } from "./utils";
 
 export const CLIENT_TAG = "apiHDWalletKeepKeyElectronClient";
 
 export const Client = {
+  getChunked(): Promise<boolean> {
+    return electron.ipcRenderer.invoke(GET_CHUNKED)
+  },
   getDevices(): Promise<string[]> {
     return electron.ipcRenderer.invoke(GET_DEVICES);
   },
   getDevice(serialNumber?: string): Promise<string> {
     return electron.ipcRenderer.invoke(GET_DEVICE, serialNumber);
+  },
+  getSupportsDebugLink(): Promise<boolean> {
+    return electron.ipcRenderer.invoke(GET_SUPPORTS_DEBUG_LINK)
   },
   getTransportDelegate(handle: string): Promise<void> {
     return electron.ipcRenderer.invoke(GET_TRANSPORT_DELEGATE, handle);
@@ -40,11 +48,11 @@ export const Client = {
   disconnect(handle: string): Promise<void> {
     return electron.ipcRenderer.invoke(DISCONNECT, handle);
   },
-  writeChunk(handle: string, buf: Uint8Array, debugLink?: boolean): Promise<void> {
-    return electron.ipcRenderer.invoke(WRITE_CHUNK, handle, buf, debugLink);
+  write(handle: string, buf: Uint8Array, debugLink?: boolean): Promise<void> {
+    return electron.ipcRenderer.invoke(WRITE, handle, buf, debugLink);
   },
-  readChunk(handle: string, debugLink?: boolean): Promise<Uint8Array> {
-    return electron.ipcRenderer.invoke(READ_CHUNK, handle, debugLink);
+  read(handle: string, debugLink?: boolean): Promise<Uint8Array> {
+    return electron.ipcRenderer.invoke(READ, handle, debugLink);
   },
   expose() {
     electron.contextBridge.exposeInMainWorld(CLIENT_TAG, Client);
