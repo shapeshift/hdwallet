@@ -69,7 +69,7 @@ export async function btcGetPublicKeys(
     } = res1;
     const parentPublicKey = compressPublicKey(Buffer.from(parentPublicKeyHex, "hex"));
     const parentFingerprint = new DataView(
-      bitcoin.crypto.ripemd160(bitcoin.crypto.sha256(parentPublicKey)).buffer
+      core.toArrayBuffer(bitcoin.crypto.ripemd160(bitcoin.crypto.sha256(parentPublicKey)))
     ).getUint32(0);
 
     const res2 = await transport.call("Btc", "getWalletPublicKey", bip32path, opts);

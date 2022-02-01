@@ -84,7 +84,7 @@ export class Transport extends core.Transport {
     // Check that buffer starts with: "?##" [ 0x3f, 0x23, 0x23 ]
     // "?" = USB reportId, "##" = KeepKey magic bytes
     // Message ID is bytes 4-5. Message length starts at byte 6.
-    const firstView = new DataView(first.buffer.slice(first.byteOffset, first.byteOffset + first.byteLength));
+    const firstView = new DataView(core.toArrayBuffer(first));
     const valid = (firstView.getUint32(0) & 0xffffff00) === 0x3f232300;
     const msgLength = firstView.getUint32(5);
     if (!valid) throw new Error("message not valid");
@@ -381,7 +381,7 @@ export class Transport extends core.Transport {
   }
 
   protected fromMessageBuffer(buf: Uint8Array): [number, jspb.Message] {
-    const typeID = new DataView(buf.buffer).getUint16(3);
+    const typeID = new DataView(core.toArrayBuffer(buf)).getUint16(3);
     const MType = messageTypeRegistry[typeID] as any;
     if (!MType) {
       const msg = new Messages.Failure();
