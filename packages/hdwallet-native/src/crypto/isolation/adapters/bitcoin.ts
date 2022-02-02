@@ -9,7 +9,7 @@ const networksReady = (async () => {
   networksInstance = (await import("@shapeshiftoss/bitcoinjs-lib")).networks
 })()
 
-export class ECPairAdapter implements SecP256K1.ECDSAKey, SignerAsync, ECPairInterfaceAsync {
+export class ECPairAdapter implements SignerAsync, ECPairInterfaceAsync {
     protected readonly _isolatedKey: SecP256K1.ECDSAKey;
     readonly _publicKey: SecP256K1.CurvePoint;
     readonly _network: Network | undefined;

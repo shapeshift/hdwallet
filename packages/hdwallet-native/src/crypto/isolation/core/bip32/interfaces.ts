@@ -9,8 +9,8 @@ export interface Seed extends Partial<Revocable> {
 }
 
 export interface Node extends Partial<Revocable>, SecP256K1.ECDSAKey, Partial<SecP256K1.ECDHKey> {
-    getPublicKey(): SecP256K1.CompressedPoint | Promise<SecP256K1.CompressedPoint>;
-    getChainCode(): ChainCode | Promise<ChainCode>;
+    getPublicKey(): Promise<SecP256K1.CompressedPoint>;
+    getChainCode(): Promise<ChainCode>;
     derive(index: number): Promise<this>;
 }
 

@@ -4,7 +4,11 @@ export * from "./interfaces";
 import { Path } from "./types";
 import { Node } from "./interfaces";
 
-export async function derivePath<T extends Node>(node: T, path: Path): Promise<T> {
+interface Derivable {
+    derive(index: number): Promise<this>
+}
+
+export async function derivePath<T extends Derivable>(node: T, path: Path): Promise<T> {
     // This logic is copied (almost) wholesale from the bip32 package.
     Path.assert(path);
 

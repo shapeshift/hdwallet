@@ -10,16 +10,16 @@ function ethSigFromRecoverableSig(x: SecP256K1.RecoverableSignature): ethers.Sig
 }
 
 export class SignerAdapter extends ethers.Signer {
-  protected readonly _isolatedKey: SecP256K1.ECDSAKey & SecP256K1.ECDHKey;
+  protected readonly _isolatedKey: SecP256K1.ECDSAKey;
   readonly provider?: ethers.providers.Provider
 
-  protected constructor(isolatedKey: SecP256K1.ECDSAKey & SecP256K1.ECDHKey, provider?: ethers.providers.Provider) {
+  protected constructor(isolatedKey: SecP256K1.ECDSAKey, provider?: ethers.providers.Provider) {
     super();
     this._isolatedKey = isolatedKey;
     this.provider = provider;
   }
 
-  static async create(isolatedKey: SecP256K1.ECDSAKey & SecP256K1.ECDHKey, provider?: ethers.providers.Provider): Promise<SignerAdapter> {
+  static async create(isolatedKey: SecP256K1.ECDSAKey, provider?: ethers.providers.Provider): Promise<SignerAdapter> {
     return new SignerAdapter(isolatedKey, provider)
   }
 

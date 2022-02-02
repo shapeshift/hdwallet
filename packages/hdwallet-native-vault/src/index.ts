@@ -14,7 +14,7 @@ Vault.registerValueTransformer("#mnemonic", async (x: unknown) => {
 Vault.registerValueWrapper("#mnemonic", async (x: unknown, addRevoker: (revoke: () => void) => void) => {
   if (typeof x !== "string") throw new TypeError("#mnemonic must be a string");
   const out = await createMnemonic(x);
-  addRevoker(() => out.revoke());
+  addRevoker(() => out.revoke?.());
   return out;
 });
 Vault.extensionRegistrationComplete();
