@@ -229,7 +229,6 @@ export class XDeFiHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
   }
 
   public hasNativeShapeShift(): boolean {
-    // It doesn't... yet?
     return false;
   }
 
