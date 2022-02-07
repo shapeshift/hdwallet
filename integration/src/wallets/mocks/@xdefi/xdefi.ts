@@ -2,19 +2,19 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 
 const mockSignEthTxResponse = {
-  r: "0x63db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0a",
-  s: "0x28297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
-  v: 38,
-  serialized:
-    "0xf86b018501dcd650008256229412ec06288edd7ae2cc41a843fe089237fc7354f0872c68af0bb140008026a063db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0aa028297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
-};
-
-const mockSignEthTxResponse1559 = {
   r: "0x122269dc9cffc02962cdaa5af54913ac3e7293c3dd2a8ba7e38da2bc638f92df",
   s: "0x36334d475fc12eb62681fb2cb10f177101d5cf4c3a735c94460d92bfa2389cc8",
   v: 1,
   serialized:
     "0x02f872018084540ae4808516854be509825ac394fc0cc6e85dff3d75e3985e0cb83b090cfd498dd1871550f7dca7000080c001a0122269dc9cffc02962cdaa5af54913ac3e7293c3dd2a8ba7e38da2bc638f92dfa036334d475fc12eb62681fb2cb10f177101d5cf4c3a735c94460d92bfa2389cc8",
+};
+
+const mockSignEthTxResponse1559 = {
+  r: "0x63db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0a",
+  s: "0x28297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
+  v: 38,
+  serialized:
+    "0xf86b018501dcd650008256229412ec06288edd7ae2cc41a843fe089237fc7354f0872c68af0bb140008026a063db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0aa028297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
 };
 const mockSignEthTxResponse1559Optional = {
   r: "0x63db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0a",
@@ -62,16 +62,25 @@ export async function createMockWallet(): Promise<core.HDWallet> {
       "0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b",
   });
   wallet.provider = {
-    request: (args: any) => {
-      switch (args.method) {
+    request: jest.fn(({ method, params }: any) => {
+      switch (method) {
         case "eth_accounts":
           return ["0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"];
-        case "eth_signTransaction":
-          return wallet.ethSignTx(args);
+        case "personal_sign":
+          const [message] = params;
+
+          if (message === "48656c6c6f20576f726c64")
+            return "0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b";
+
+          throw new Error("unknown message");
+        case "eth_sendTransaction":
+          const [{ to }] = params;
+
+          return `txHash-${to}`;
         default:
-          return null;
+          throw new Error(`ethereum: Unknown method ${method}`);
       }
-    },
+    }),
   };
 
   return wallet;
