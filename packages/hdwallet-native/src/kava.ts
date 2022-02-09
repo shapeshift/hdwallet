@@ -1,7 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bech32 from "bech32";
 import CryptoJS from "crypto-js";
-import * as txBuilder from "tendermint-tx-builder";
 
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
@@ -9,7 +8,7 @@ import * as Isolation from "./crypto/isolation";
 
 export function MixinNativeKavaWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   return class MixinNativeKavaWalletInfo extends Base implements core.KavaWalletInfo {
-    readonly _supportsKavaInfo = true;
+    readonly _supportsKavaInfo = false;
 
     async kavaSupportsNetwork(): Promise<boolean> {
       return true;
@@ -41,7 +40,7 @@ export function MixinNativeKavaWalletInfo<TBase extends core.Constructor<core.HD
 
 export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeKavaWallet extends Base {
-    readonly _supportsKava = true;
+    readonly _supportsKava = false;
 
     #masterKey: Isolation.Core.BIP32.Node | undefined;
 
@@ -74,10 +73,7 @@ export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWal
 
     async kavaSignTx(msg: core.KavaSignTx): Promise<core.KavaSignedTx | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
-        const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "kava");
-        const adapter = await Isolation.Adapters.Cosmos.create(keyPair.node);
-        const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, msg.chain_id);
-        return txBuilder.createSignedTx(msg.tx, result);
+        throw Error("Not Supported")
       });
     }
   };
