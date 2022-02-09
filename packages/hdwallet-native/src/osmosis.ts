@@ -73,7 +73,7 @@ export function MixinNativeOsmosisWallet<TBase extends core.Constructor<NativeHD
       });
     }
 
-    async osmosisSignTx(msg: core.OsmosisSignTx): Promise<core.OsmosisSignedTx | null> {
+    async osmosisSignTx(msg: core.OsmosisSignTx): Promise<any> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "osmosis");
         const adapter = await Isolation.Adapters.CosmosDirect.create(keyPair.node, "osmosis");
