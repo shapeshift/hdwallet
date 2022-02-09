@@ -1,6 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bech32 from "bech32";
 import CryptoJS from "crypto-js";
+import * as txBuilder from "tendermint-tx-builder";
 
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
@@ -8,7 +9,7 @@ import * as Isolation from "./crypto/isolation";
 
 export function MixinNativeTerraWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   return class MixinNativeTerraWalletInfo extends Base implements core.TerraWalletInfo {
-    readonly _supportsTerraInfo = false;
+    readonly _supportsTerraInfo = true;
 
     async terraSupportsNetwork(): Promise<boolean> {
       return true;
@@ -40,7 +41,7 @@ export function MixinNativeTerraWalletInfo<TBase extends core.Constructor<core.H
 
 export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   return class MixinNativeTerraWallet extends Base {
-    readonly _supportsTerra = false;
+    readonly _supportsTerra = true;
 
     #masterKey: Isolation.Core.BIP32.Node | undefined;
 
@@ -73,7 +74,10 @@ export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWa
 
     async terraSignTx(msg: core.TerraSignTx): Promise<any | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
-        throw Error("Not supported!")
+        const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "terra");
+        const adapter = await Isolation.Adapters.Cosmos.create(keyPair);
+        const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, "terra");
+        return txBuilder.createSignedTx(msg.tx, result);
       });
     }
   };
