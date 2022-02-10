@@ -13594,10 +13594,10 @@ proto-list@~1.2.1:
   resolved "https://registry.yarnpkg.com/proto-list/-/proto-list-1.2.4.tgz#212d5bfe1318306a420f6402b8e26ff39647a849"
   integrity sha1-IS1b/hMYMGpCD2QCuOJv85ZHqEk=
 
-proto-tx-builder@0.1.2:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/proto-tx-builder/-/proto-tx-builder-0.1.2.tgz#5da9b62bdbc6b4731d668f45f804c72c01c1ea0f"
-  integrity sha512-4Q/7dWKrhSDvi7Plhabq3j1SWtSqzX7roPme1W1ZfNwU5c8ug0pRcyWWs1uHA6ptY6a8XJj/KtbWJ8lgTu+K0Q==
+proto-tx-builder@0.1.3:
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/proto-tx-builder/-/proto-tx-builder-0.1.3.tgz#b2acfeead5598e00b22c48118f820b8fbe41cf39"
+  integrity sha512-6/J9biPGFAniw2zcoTDHA7D6hdGuDyj2AsMULKGDiZ0MjrovT1u0+dkeXBl6uWiStVLzAyzpOmLz3H986paC1w==
   dependencies:
     "@cosmjs/proto-signing" "^0.27.1"
     "@cosmjs/stargate" "^0.27.1"
