@@ -3829,17 +3829,6 @@
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
 
-"@shapeshiftoss/proto-tx-builder@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.1.0.tgz#9d006905ef303c12653693d8e93d343d8720c26a"
-  integrity sha512-ELS1LeDrW4Mgbc+vKO2ke2rTo6/34Ywy1mN1YCUwWJrx34uM+j2toTWMjiqZxv9hLDoGbuFGVbAVmpUuLbXB9A==
-  dependencies:
-    "@cosmjs/proto-signing" "^0.27.1"
-    "@cosmjs/stargate" "^0.27.1"
-    cosmjs-types "^0.4.1"
-    google-protobuf "^3.17.0"
-    long "^4.0.0"
-
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.14.0.tgz#9fb3a3cf3132328151f353de4632e01e52102bea"
@@ -13604,6 +13593,17 @@ proto-list@~1.2.1:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/proto-list/-/proto-list-1.2.4.tgz#212d5bfe1318306a420f6402b8e26ff39647a849"
   integrity sha1-IS1b/hMYMGpCD2QCuOJv85ZHqEk=
+
+proto-tx-builder@0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/proto-tx-builder/-/proto-tx-builder-0.1.2.tgz#5da9b62bdbc6b4731d668f45f804c72c01c1ea0f"
+  integrity sha512-4Q/7dWKrhSDvi7Plhabq3j1SWtSqzX7roPme1W1ZfNwU5c8ug0pRcyWWs1uHA6ptY6a8XJj/KtbWJ8lgTu+K0Q==
+  dependencies:
+    "@cosmjs/proto-signing" "^0.27.1"
+    "@cosmjs/stargate" "^0.27.1"
+    cosmjs-types "^0.4.1"
+    google-protobuf "^3.17.0"
+    long "^4.0.0"
 
 protobufjs@6.10.1:
   version "6.10.1"
