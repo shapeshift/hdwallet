@@ -1,38 +1,8 @@
 {
-  "msg":[
-    {
-      "type":"cosmos-sdk/MsgSend",
-      "value":{
-        "from_address":"osmo1a7xqkxa4wyjfllme9u3yztgsz363dalz3lxtj6",
-        "to_address":"osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
-        "amount":[
-          {
-            "denom":"uosmo",
-            "amount":"1000"
-          }
-        ]
-      }
-    }
-  ],
-  "fee":{
-    "amount":[
-      {
-        "denom":"uosmo",
-        "amount":"2800"
-      }
-    ],
-    "gas":"80000"
-  },
+  "serialized":"CpkBCokBChwvY29zbW9zLmJhbmsudjFiZXRhMS5Nc2dTZW5kEmkKK29zbW8xNWNlbnlhMHRyN25tM3R6MnduM2gzendraHQycnhycTdnOXlwbXESK29zbW8xcWp3ZHluNTZlY2FnazhyamY3Y3JyendjeXo2Nzc1Y2owN3F6OXIaDQoFdW9zbW8SBDEwMDASC2hlbGxvIHdvcmxkEmcKUApGCh8vY29zbW9zLmNyeXB0by5zZWNwMjU2azEuUHViS2V5EiMKIQO+468w5Tpz84q8Wi/NrEJtewTrcqjr07AZkuLSBuJK2BIECgIIARgjEhMKDQoFdW9zbW8SBDI4MDAQgPEEGkAK+GLz+zi1n4Oi+4azQxMrpIPHI0Tr7N5xxszk+2DsNkIy0suWL5JpK5o7wb8kvpQN/q2lU/lsWzx5q9H/oqM0",
+  "body":"CokBChwvY29zbW9zLmJhbmsudjFiZXRhMS5Nc2dTZW5kEmkKK29zbW8xNWNlbnlhMHRyN25tM3R6MnduM2gzendraHQycnhycTdnOXlwbXESK29zbW8xcWp3ZHluNTZlY2FnazhyamY3Y3JyendjeXo2Nzc1Y2owN3F6OXIaDQoFdW9zbW8SBDEwMDASC2hlbGxvIHdvcmxk",
+  "authInfoBytes":"ClAKRgofL2Nvc21vcy5jcnlwdG8uc2VjcDI1NmsxLlB1YktleRIjCiEDvuOvMOU6c/OKvFovzaxCbXsE63Ko69OwGZLi0gbiStgSBAoCCAEYIxITCg0KBXVvc21vEgQyODAwEIDxBA==",
   "signatures":[
-    {
-      "pub_key":{
-        "type":"tendermint/PubKeySecp256k1",
-        "value":"A6enCcw1NHqwuGmQTse6ve3iP6oIfJBeM9oJt/1g1l9B"
-      },
-      "signature":"ko3FHToUoVPU54TNvjVWYjFALqWfZQ0QNFLVQRCHx5oySalvbFljfKDi0uEr9Ro6wE0B5CI0bJkcEUnVI2dAvw=="
-    }
-  ],
-  "memo":"hello world",
-  "timeout_height":"0"
+    "Cvhi8/s4tZ+DovuGs0MTK6SDxyNE6+zeccbM5Ptg7DZCMtLLli+SaSuaO8G/JL6UDf6tpVP5bFs8eavR/6KjNA=="
+  ]
 }
-

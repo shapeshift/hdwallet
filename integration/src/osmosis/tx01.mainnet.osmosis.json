@@ -1,13 +1,13 @@
 {
-  "chain_id": "osmosis",
-  "account_number": "75815",
-  "sequence": "2",
+  "chain_id": "osmosis-1",
+  "account_number": "95421",
+  "sequence": "35",
   "msg":[
     {
       "type":"cosmos-sdk/MsgSend",
       "value":{
-        "from_address":"osmo1a7xqkxa4wyjfllme9u3yztgsz363dalz3lxtj6",
-        "to_address":"osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
+        "from_address":"osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
+        "to_address":"osmo1qjwdyn56ecagk8rjf7crrzwcyz6775cj07qz9r",
         "amount":[
           {
             "denom":"uosmo",

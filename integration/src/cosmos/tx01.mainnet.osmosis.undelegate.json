@@ -1,4 +1,7 @@
 {
+  "account_number": "95421",
+  "chain_id": "osmosis-1",
+  "sequence": "39",
   "fee":{
     "amount":[
       {
@@ -20,16 +23,5 @@
         }
       }
     }
-  ],
-  "signatures":[
-    {
-      "pub_key":{
-        "type":"tendermint/PubKeySecp256k1",
-        "value":"A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
-      },
-      "signature":"4WJB3Z6TWMPa22Ngr4y0d8spQwgSEKsAYmZxREuSvcEmqmQkY/JpsQgDI9kPoIftdP2pmPo/g5bbF08yusSQ/w=="
-    }
-  ],
-  "memo":"",
-  "timeout_height":"0"
+  ]
 }

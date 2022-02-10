@@ -4,9 +4,10 @@ import tx_unsigned from "./tx01.mainnet.osmosis.json";
 import tx_signed from "./tx01.mainnet.osmosis.json";
 
 //delgation
-import tx_signed_delegation from "./tx01.mainnet.osmosis.delegate.json";
-import tx_signed_undelegate_osmosis from "./tx01.mainnet.osmosis.undelegate.json";
-import tx_signed_rewards_osmosis from "./tx01.mainnet.osmosis.rewards.json";
+import tx_signed_delegation from "./tx01.mainnet.cosmos.delegate.json";
+import tx_signed_undelegate_osmosis from "./tx01.mainnet.cosmos.undelegate.json";
+import tx_signed_redelegate_osmosis from "./tx01.mainnet.cosmos.undelegate.json";
+import tx_signed_rewards_osmosis from "./tx01.mainnet.cosmos.rewards.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
