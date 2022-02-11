@@ -63,9 +63,7 @@ export async function createWallet(): Promise<core.HDWallet> {
   if (!wallet) throw new Error("No suitable test KeepKey found");
 
   wallet.transport?.on(core.Events.BUTTON_REQUEST, async () => {
-    if (autoButton && core.supportsDebugLink(wallet)) {
-      await wallet.pressYes();
-    }
+    if (autoButton) await wallet.pressYes();
   });
 
   wallet.transport?.onAny((event: string | string[], ...values: any[]) => {

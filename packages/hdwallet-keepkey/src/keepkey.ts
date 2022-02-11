@@ -611,7 +611,7 @@ export class KeepKeyHDWalletInfo
   }
 }
 
-export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.DebugLinkWallet {
+export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet {
   readonly _supportsETHInfo = true;
   readonly _supportsBTCInfo = true;
   readonly _supportsCosmosInfo = true;

@@ -1,7 +1,7 @@
-import { infoBTC, infoETH, supportsBTC, supportsETH, supportsDebugLink, HDWallet } from "./wallet";
+import { infoBTC, infoETH, supportsBTC, supportsETH, HDWallet } from "./wallet";
 
 describe("wallet : guards", () => {
-  it.each([infoBTC, infoETH, supportsBTC, supportsETH, supportsDebugLink])(
+  it.each([infoBTC, infoETH, supportsBTC, supportsETH])(
     "should return falsy for `null`",
     (method) => {
       expect(method(undefined as any)).toBeFalsy();
@@ -14,6 +14,4 @@ describe("wallet : guards", () => {
   it("infoETH should be truthy", () => expect(infoETH({ _supportsETHInfo: true } as unknown as HDWallet)).toBeTruthy());
   it("supportsBTC should be truthy", () => expect(supportsBTC({ _supportsBTC: true } as unknown as HDWallet)).toBeTruthy());
   it("supportsETH should be truthy", () => expect(supportsETH({ _supportsETH: true } as unknown as HDWallet)).toBeTruthy());
-  it("supportsDebugLink should be truthy", () =>
-    expect(supportsDebugLink({ _supportsDebugLink: true } as unknown as HDWallet)).toBeTruthy());
 });
