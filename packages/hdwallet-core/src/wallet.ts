@@ -4,7 +4,6 @@ import { BinanceWallet, BinanceWalletInfo } from "./binance";
 import { BTCInputScriptType, BTCWallet, BTCWalletInfo } from "./bitcoin";
 import { CosmosWallet, CosmosWalletInfo } from "./cosmos";
 import { OsmosisWallet, OsmosisWalletInfo } from "./osmosis";
-import { DebugLinkWallet } from "./debuglink";
 import { EosWallet, EosWalletInfo } from "./eos";
 import { ETHWallet, ETHWalletInfo } from "./ethereum";
 import { FioWallet, FioWalletInfo } from "./fio";
@@ -211,10 +210,6 @@ export function supportsBinance(wallet: HDWallet): wallet is BinanceWallet {
 
 export function infoBinance(info: HDWalletInfo): info is BinanceWalletInfo {
   return _.isObject(info) && (info as any)._supportsBinanceInfo;
-}
-
-export function supportsDebugLink(wallet: HDWallet): wallet is DebugLinkWallet {
-  return _.isObject(wallet) && (wallet as any)._supportsDebugLink;
 }
 
 export interface HDWalletInfo {
