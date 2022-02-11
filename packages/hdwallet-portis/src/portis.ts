@@ -6,18 +6,6 @@ import type Web3 from "web3";
 import * as btc from "./bitcoin";
 import * as eth from "./ethereum";
 
-// We might not need this. Leaving it for now to debug further
-class PortisTransport extends core.Transport {
-  public async getDeviceID() {
-    return "portis:0";
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public call(...args: any[]): Promise<any> {
-    return Promise.resolve();
-  }
-}
-
 export function isPortis(wallet: core.HDWallet): wallet is PortisHDWallet {
   return _.isObject(wallet) && (wallet as any)._isPortis;
 }
@@ -136,8 +124,6 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
   readonly _supportsBTCInfo = true;
   readonly _supportsBTC = true;
   readonly _isPortis = true;
-
-  transport: core.Transport = new PortisTransport(new core.Keyring());
 
   portis: Portis;
   web3: Promise<Web3>;
