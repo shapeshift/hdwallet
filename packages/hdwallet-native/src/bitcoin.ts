@@ -9,7 +9,7 @@ import * as util from "./util";
 
 const supportedCoins = ["bitcoin", "dash", "digibyte", "dogecoin", "litecoin", "bitcoincash", "testnet"];
 
-const segwit = ["p2wpkh", "p2sh-p2wpkh", "bech32"];
+const segwit = ["p2wpkh", "p2sh-p2wpkh"];
 
 export type BTCScriptType = core.BTCInputScriptType | core.BTCOutputScriptType;
 
@@ -52,7 +52,6 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDW
         case core.BTCInputScriptType.SpendMultisig:
         case core.BTCInputScriptType.SpendAddress:
         case core.BTCInputScriptType.SpendWitness:
-        case core.BTCInputScriptType.Bech32:
         case core.BTCInputScriptType.SpendP2SHWitness:
           return true;
         default:
@@ -158,11 +157,6 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
             redeem: bitcoin.payments.p2wpkh({ pubkey, network }),
             network,
           });
-        case "bech32":
-          return bitcoin.payments.p2wsh({
-            redeem: bitcoin.payments.p2wsh({ pubkey, network }),
-            network,
-          });
         default:
           throw new Error(`no implementation for script type: ${scriptType}`);
       }
@@ -241,7 +235,6 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
         switch (scriptType) {
           case "p2sh-p2wpkh":
           case "p2sh":
-          case "bech32":
             scriptData.redeemScript = payment.redeem?.output;
             break;
         }
