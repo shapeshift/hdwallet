@@ -39,7 +39,7 @@ const mockSignLongContractData = {
 };
 
 export async function createMockWallet(): Promise<core.HDWallet> {
-  const wallet = xdefi.create();
+  const wallet = new xdefi.XDeFiHDWallet();
   // mock wallet provider
   wallet.ethSignTx = jest
     .fn()

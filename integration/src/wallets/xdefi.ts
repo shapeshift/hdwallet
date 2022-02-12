@@ -13,7 +13,7 @@ export async function createWallet(): Promise<core.HDWallet> {
 }
 
 export function createInfo(): core.HDWalletInfo {
-  return xdefi.info();
+  return new xdefi.XDeFiHDWalletInfo();
 }
 
 export function selfTest(get: () => core.HDWallet): void {

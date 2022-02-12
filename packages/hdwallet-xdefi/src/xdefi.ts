@@ -274,11 +274,3 @@ export class XDeFiHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
     return eth.ethGetAccountPaths(msg);
   }
 }
-
-export function info() {
-  return new XDeFiHDWalletInfo();
-}
-
-export function create(): XDeFiHDWallet {
-  return new XDeFiHDWallet();
-}
