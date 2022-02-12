@@ -30,7 +30,7 @@ export function selfTest(get: () => core.HDWallet): void {
     expect(await wallet.ethSupportsNetwork(1)).toEqual(true);
   });
 
-  it("prepends xdefi: to the eth address to create the deviceId", async () => {
+  it("prepends xDeFi: to the eth address to create the deviceId", async () => {
     if (!wallet) return;
     expect(await wallet.getDeviceID()).toEqual("xDeFi:0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8");
   });

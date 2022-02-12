@@ -29,7 +29,7 @@ describe("XDeFIHDWalletInfo", () => {
   });
 });
 
-describe("XDeFiWHDWallet", () => {
+describe("XDeFiHDWallet", () => {
   let wallet: XDeFiHDWallet;
   beforeEach(() => {
     wallet = new XDeFiHDWallet();
