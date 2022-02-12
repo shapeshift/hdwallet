@@ -55,7 +55,7 @@ export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
       case "Ethereum":
         return eth.describeETHPath(msg.path);
       case "Bitcoin":
-        return btc.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+        return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
       default:
         throw new Error("Unsupported path");
     }

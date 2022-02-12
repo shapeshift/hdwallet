@@ -381,7 +381,7 @@ export function unknownUTXOPath(path: BIP32Path, coin: Coin, scriptType?: BTCInp
   };
 }
 
-export function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInputScriptType): PathDescription {
+export function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType?: BTCInputScriptType): PathDescription {
   const unknown = unknownUTXOPath(path, coin, scriptType);
 
   if (path.length !== 3 && path.length !== 5) return unknown;
@@ -396,16 +396,22 @@ export function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInp
 
   if (purpose === 49 && scriptType !== BTCInputScriptType.SpendP2SHWitness) return unknown;
 
+  if (purpose === 84 && !(scriptType === BTCInputScriptType.SpendWitness || scriptType === BTCInputScriptType.Bech32)) {
+    return unknown;
+  }
+
   const wholeAccount = path.length === 3;
 
-  const script = (
-    {
-      [BTCInputScriptType.SpendAddress]: ["Legacy"],
-      [BTCInputScriptType.SpendP2SHWitness]: [],
-      [BTCInputScriptType.SpendWitness]: ["Segwit Native"],
-      [BTCInputScriptType.Bech32]: ["Segwit Native"],
-    } as Partial<Record<BTCInputScriptType, string[]>>
-  )[scriptType];
+  const script = scriptType
+    ? (
+        {
+          [BTCInputScriptType.SpendAddress]: ["Legacy"],
+          [BTCInputScriptType.SpendP2SHWitness]: [],
+          [BTCInputScriptType.SpendWitness]: ["Segwit Native"],
+          [BTCInputScriptType.Bech32]: ["Segwit Native"],
+        } as Partial<Record<BTCInputScriptType, string[]>>
+      )[scriptType] ?? []
+    : [];
 
   let isPrefork = false;
   const slip44 = slip44ByCoin(coin);
@@ -438,7 +444,7 @@ export function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInp
     case "Litecoin":
     case "BitcoinGold":
     case "Testnet": {
-      if (script) attributes = attributes.concat(script);
+      attributes = attributes.concat(script);
       break;
     }
     default:

@@ -41,87 +41,6 @@ function describeETHPath(path: core.BIP32Path): core.PathDescription {
   };
 }
 
-function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: core.BTCInputScriptType) {
-  const pathStr = core.addressNListToBIP32(path);
-  const unknown: core.PathDescription = {
-    verbose: pathStr,
-    coin,
-    scriptType,
-    isKnown: false,
-  };
-
-  if (!Btc.btcSupportsCoin(coin)) return unknown;
-
-  if (!Btc.btcSupportsScriptType(coin, scriptType)) return unknown;
-
-  if (path.length !== 3 && path.length !== 5) return unknown;
-
-  if ((path[0] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
-
-  const purpose = path[0] & 0x7fffffff;
-
-  if (![44, 49, 84].includes(purpose)) return unknown;
-
-  if (purpose === 44 && scriptType !== core.BTCInputScriptType.SpendAddress) return unknown;
-
-  if (purpose === 49 && scriptType !== core.BTCInputScriptType.SpendP2SHWitness) return unknown;
-
-  if (purpose === 84 && scriptType !== core.BTCInputScriptType.SpendWitness) return unknown;
-
-  const slip44 = core.slip44ByCoin(coin);
-  if (slip44 == undefined || path[1] !== 0x80000000 + slip44) return unknown;
-
-  const wholeAccount = path.length === 3;
-
-  let script = scriptType
-    ? (
-        {
-          [core.BTCInputScriptType.SpendAddress]: " (Legacy)",
-          [core.BTCInputScriptType.SpendP2SHWitness]: "",
-          [core.BTCInputScriptType.SpendWitness]: " (Segwit Native)",
-        } as Partial<Record<core.BTCInputScriptType, string>>
-      )[scriptType] ?? ""
-    : "";
-
-  switch (coin) {
-    case "Bitcoin":
-    case "Litecoin":
-    case "BitcoinGold":
-    case "Testnet":
-      break;
-    default:
-      script = "";
-  }
-
-  const accountIdx = path[2] & 0x7fffffff;
-
-  if (wholeAccount) {
-    return {
-      verbose: `${coin} Account #${accountIdx}${script}`,
-      scriptType,
-      coin,
-      accountIdx,
-      wholeAccount: true,
-      isKnown: true,
-      isPrefork: false,
-    };
-  } else {
-    const change = path[3] === 1 ? "Change " : "";
-    const addressIdx = path[4];
-    return {
-      verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${script}`,
-      coin,
-      scriptType,
-      accountIdx,
-      addressIdx,
-      isChange: path[3] === 1,
-      wholeAccount: false,
-      isKnown: true,
-      isPrefork: false,
-    };
-  }
-}
-
 export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
@@ -209,12 +128,12 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
       case "Ethereum":
         return describeETHPath(msg.path);
       default:
-        return describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+        return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
     }
   }
 
   public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    const description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType);
+    const description = core.describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType);
     if (!description.isKnown) {
       return undefined;
     }

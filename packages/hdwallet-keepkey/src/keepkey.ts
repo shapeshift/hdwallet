@@ -50,122 +50,6 @@ function describeETHPath(path: core.BIP32Path): core.PathDescription {
   };
 }
 
-function describeUTXOPath(
-  path: core.BIP32Path,
-  coin: core.Coin,
-  scriptType?: core.BTCInputScriptType
-): core.PathDescription {
-  const pathStr = core.addressNListToBIP32(path);
-  const unknown: core.PathDescription = {
-    verbose: pathStr,
-    coin,
-    scriptType,
-    isKnown: false,
-  };
-  if (!scriptType) return unknown;
-
-  if (!Btc.btcSupportsCoin(coin)) return unknown;
-
-  if (!Btc.btcSupportsScriptType(coin, scriptType)) return unknown;
-
-  if (path.length !== 3 && path.length !== 5) return unknown;
-
-  if ((path[0] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
-
-  const purpose = path[0] & 0x7fffffff;
-
-  if (![44, 49, 84].includes(purpose)) return unknown;
-
-  if (purpose === 44 && scriptType !== core.BTCInputScriptType.SpendAddress) return unknown;
-
-  if (purpose === 49 && scriptType !== core.BTCInputScriptType.SpendP2SHWitness) return unknown;
-
-  if (purpose === 84 && scriptType !== core.BTCInputScriptType.SpendWitness) return unknown;
-
-  const wholeAccount = path.length === 3;
-
-  const script = scriptType
-    ? (
-        {
-          [core.BTCInputScriptType.SpendAddress]: ["Legacy"],
-          [core.BTCInputScriptType.SpendP2SHWitness]: [],
-          [core.BTCInputScriptType.SpendWitness]: ["Segwit Native"],
-        } as Partial<Record<core.BTCInputScriptType, string[]>>
-      )[scriptType] ?? []
-    : [];
-
-  let isPrefork = false;
-  const slip44 = core.slip44ByCoin(coin);
-  if (slip44 === undefined) return unknown;
-  if (path[1] !== 0x80000000 + slip44) {
-    switch (coin) {
-      case "BitcoinCash":
-      case "BitcoinGold": {
-        if (path[1] === 0x80000000 + core.slip44ByCoin("Bitcoin")) {
-          isPrefork = true;
-          break;
-        }
-        return unknown;
-      }
-      case "BitcoinSV": {
-        if (
-          path[1] === 0x80000000 + core.slip44ByCoin("Bitcoin") ||
-          path[1] === 0x80000000 + core.slip44ByCoin("BitcoinCash")
-        ) {
-          isPrefork = true;
-          break;
-        }
-        return unknown;
-      }
-      default:
-        return unknown;
-    }
-  }
-
-  let attributes = isPrefork ? ["Prefork"] : [];
-  switch (coin) {
-    case "Bitcoin":
-    case "Litecoin":
-    case "BitcoinGold":
-    case "Testnet": {
-      attributes = attributes.concat(script);
-      break;
-    }
-    default:
-      break;
-  }
-
-  const attr = attributes.length ? ` (${attributes.join(", ")})` : "";
-
-  const accountIdx = path[2] & 0x7fffffff;
-
-  if (wholeAccount) {
-    return {
-      coin,
-      verbose: `${coin} Account #${accountIdx}${attr}`,
-      accountIdx,
-      wholeAccount: true,
-      isKnown: true,
-      scriptType,
-      isPrefork,
-    };
-  } else {
-    const change = path[3] === 1 ? "Change " : "";
-    const addressIdx = path[4];
-    return {
-      coin,
-      verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${attr}`,
-      accountIdx,
-      addressIdx,
-      wholeAccount: false,
-      isKnown: true,
-      isChange: path[3] === 1,
-      scriptType,
-      isPrefork,
-    };
-  }
-}
-
 function describeCosmosPath(path: core.BIP32Path): core.PathDescription {
   const pathStr = core.addressNListToBIP32(path);
   const unknown: core.PathDescription = {
@@ -490,12 +374,12 @@ export class KeepKeyHDWalletInfo
       case "Eos":
         return describeEosPath(msg.path);
       default:
-        return describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+        return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
     }
   }
 
   public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    const description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType);
+    const description = core.describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType);
     if (!description.isKnown) {
       return undefined;
     }
