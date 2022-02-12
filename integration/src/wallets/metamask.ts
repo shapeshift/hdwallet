@@ -76,7 +76,7 @@ export function selfTest(get: () => core.HDWallet): void {
     expect(await wallet.ethSupportsSecureTransfer()).toEqual(false);
   });
 
-  it("uses correct eth bip44 paths", () => {
+  it("uses metamask-style account derivation paths", () => {
     if (!wallet) return;
     [0, 1, 3, 27].forEach((account) => {
       const paths = wallet.ethGetAccountPaths({
@@ -85,9 +85,9 @@ export function selfTest(get: () => core.HDWallet): void {
       });
       expect(paths).toEqual([
         {
-          addressNList: core.bip32ToAddressNList(`m/44'/60'/${account}'/0/0`),
-          hardenedPath: core.bip32ToAddressNList(`m/44'/60'/${account}'`),
-          relPath: [0, 0],
+          addressNList: core.bip32ToAddressNList(`m/44'/60'/0'/0/${account}`),
+          hardenedPath: core.bip32ToAddressNList(`m/44'/60'/0'`),
+          relPath: [0, account],
           description: "MetaMask",
         },
       ]);
@@ -120,7 +120,7 @@ export function selfTest(get: () => core.HDWallet): void {
 
     expect(
       wallet.describePath({
-        path: core.bip32ToAddressNList("m/44'/60'/3'/0/0"),
+        path: core.bip32ToAddressNList("m/44'/60'/0'/0/3"),
         coin: "Ethereum",
       })
     ).toEqual({
@@ -134,11 +134,11 @@ export function selfTest(get: () => core.HDWallet): void {
 
     expect(
       wallet.describePath({
-        path: core.bip32ToAddressNList("m/44'/60'/0'/0/3"),
+        path: core.bip32ToAddressNList("m/44'/60'/3'/0/0"),
         coin: "Ethereum",
       })
     ).toEqual({
-      verbose: "m/44'/60'/0'/0/3",
+      verbose: "m/44'/60'/3'/0/0",
       coin: "Ethereum",
       isKnown: false,
     });

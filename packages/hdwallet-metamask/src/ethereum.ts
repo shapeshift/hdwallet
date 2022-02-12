@@ -12,9 +12,9 @@ export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHA
   if (slip44 === undefined) return [];
   return [
     {
-      addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
-      hardenedPath: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
-      relPath: [0, 0],
+      addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000, 0, msg.accountIdx],
+      hardenedPath: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000],
+      relPath: [0, msg.accountIdx],
       description: "MetaMask",
     },
   ];
