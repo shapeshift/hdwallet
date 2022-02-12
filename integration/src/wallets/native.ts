@@ -365,13 +365,13 @@ export function selfTest(get: () => core.HDWallet): void {
       wallet.describePath({
         path: core.bip32ToAddressNList("m/84'/0'/0'/0/0"),
         coin: "Bitcoin",
-        scriptType: core.BTCInputScriptType.Bech32,
+        scriptType: core.BTCInputScriptType.SpendWitness,
       })
     ).toEqual({
       verbose: "Bitcoin Account #0, Address #0 (Segwit Native)",
       coin: "Bitcoin",
       isKnown: true,
-      scriptType: core.BTCInputScriptType.Bech32,
+      scriptType: core.BTCInputScriptType.SpendWitness,
       accountIdx: 0,
       addressIdx: 0,
       wholeAccount: false,
