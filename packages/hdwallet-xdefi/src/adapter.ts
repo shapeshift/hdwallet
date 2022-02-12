@@ -19,7 +19,7 @@ export class XDeFiAdapter {
     return Object.keys(this.keyring.wallets).length;
   }
 
-  public async pairDevice(): Promise<core.HDWallet> {
+  public async pairDevice(): Promise<XDeFiHDWallet> {
     const provider: any = (globalThis as any).xfi?.ethereum;
     if (!provider) {
       throw new Error("XDeFi provider not found");
