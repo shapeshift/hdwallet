@@ -139,12 +139,12 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
     return "MetaMask";
   }
 
-  public getModel(): Promise<string> {
-    return Promise.resolve("MetaMask");
+  public async getModel(): Promise<string> {
+    return "MetaMask";
   }
 
-  public getLabel(): Promise<string> {
-    return Promise.resolve("MetaMask");
+  public async getLabel(): Promise<string> {
+    return "MetaMask";
   }
 
   public async initialize(): Promise<void> {
@@ -183,59 +183,49 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
     // TODO: Can we lock MetaMask from here?
   }
 
-  public ping(msg: core.Ping): Promise<core.Pong> {
+  public async ping(msg: core.Ping): Promise<core.Pong> {
     // no ping function for MetaMask, so just returning Core.Pong
-    return Promise.resolve({ msg: msg.msg });
+    return { msg: msg.msg };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public sendPin(pin: string): Promise<void> {
+  public async sendPin(pin: string): Promise<void> {
     // no concept of pin in MetaMask
-    return Promise.resolve();
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public sendPassphrase(passphrase: string): Promise<void> {
+  public async sendPassphrase(passphrase: string): Promise<void> {
     // cannot send passphrase to MetaMask. Could show the widget?
-    return Promise.resolve();
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public sendCharacter(charater: string): Promise<void> {
+  public async sendCharacter(charater: string): Promise<void> {
     // no concept of sendCharacter in MetaMask
-    return Promise.resolve();
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public sendWord(word: string): Promise<void> {
+  public async sendWord(word: string): Promise<void> {
     // no concept of sendWord in MetaMask
-    return Promise.resolve();
   }
 
-  public cancel(): Promise<void> {
+  public async cancel(): Promise<void> {
     // no concept of cancel in MetaMask
-    return Promise.resolve();
   }
 
-  public wipe(): Promise<void> {
-    return Promise.resolve();
-  }
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  public async wipe(): Promise<void> {}
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public reset(msg: core.ResetDevice): Promise<void> {
-    return Promise.resolve();
-  }
+  // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
+  public async reset(msg: core.ResetDevice): Promise<void> {}
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public recover(msg: core.RecoverDevice): Promise<void> {
+  public async recover(msg: core.RecoverDevice): Promise<void> {
     // no concept of recover in MetaMask
-    return Promise.resolve();
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public loadDevice(msg: core.LoadDevice): Promise<void> {
+  public async loadDevice(msg: core.LoadDevice): Promise<void> {
     // TODO: Does MetaMask allow this to be done programatically?
-    return Promise.resolve();
   }
 
   public describePath(msg: core.DescribePath): core.PathDescription {
@@ -252,9 +242,8 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
     return true;
   }
 
-  public disconnect(): Promise<void> {
-    return Promise.resolve();
-  }
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  public async disconnect(): Promise<void> {}
 
   public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
     return chainId === 1;
