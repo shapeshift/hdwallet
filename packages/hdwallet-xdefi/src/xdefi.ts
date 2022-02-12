@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as eth from "./ethereum";
-import _ from "lodash";
+import isObject from "lodash/isObject";
 
 class XDeFiTransport extends core.Transport {
   public async getDeviceID() {
@@ -11,7 +11,7 @@ class XDeFiTransport extends core.Transport {
 }
 
 export function isXDeFi(wallet: core.HDWallet): wallet is XDeFiHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isXDeFi;
+  return isObject(wallet) && (wallet as any)._isXDeFi;
 }
 
 export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
