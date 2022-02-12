@@ -149,7 +149,17 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
   ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean | null>;
 }
 
-export function describeETHPath(path: BIP32Path): PathDescription {
+export enum ETHAddressDerivationScheme {
+  BIP44 = "bip44",
+  Metamask = "metamask",
+  OldLedger = "oldledger",
+  Ledger = "ledger",
+}
+
+export function describeETHPath(
+  path: BIP32Path,
+  addressDerivationScheme = ETHAddressDerivationScheme.BIP44
+): PathDescription {
   const pathStr = addressNListToBIP32(path);
   const unknown: PathDescription = {
     verbose: pathStr,
@@ -157,7 +167,7 @@ export function describeETHPath(path: BIP32Path): PathDescription {
     isKnown: false,
   };
 
-  if (path.length !== 5) return unknown;
+  if (path.length !== 5 && path.length !== 4) return unknown;
 
   if (path[0] !== 0x80000000 + 44) return unknown;
 
@@ -165,14 +175,43 @@ export function describeETHPath(path: BIP32Path): PathDescription {
 
   if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
 
-  if (path[3] !== 0) return unknown;
+  const attributes: string[] = [];
+  let accountIdx: number;
+  if (path.length === 5) {
+    if (path[3] !== 0) return unknown;
+    if ((path[4] & 0x80000000) !== 0) return unknown;
+    if (path[4] !== 0 || addressDerivationScheme === ETHAddressDerivationScheme.Metamask) {
+      if (path[2] !== 0x80000000) return unknown;
+      if (addressDerivationScheme !== ETHAddressDerivationScheme.Metamask) return unknown;
+      accountIdx = path[4];
+    } else {
+      if (
+        !(
+          addressDerivationScheme === ETHAddressDerivationScheme.BIP44 ||
+          addressDerivationScheme === ETHAddressDerivationScheme.Ledger
+        )
+      )
+        return unknown;
+      accountIdx = path[2] & 0x7fffffff;
+    }
+  } else {
+    if (path[2] !== 0x80000000) return unknown;
+    if ((path[3] & 0x80000000) >>> 0 === 0x80000000) return unknown;
+    if (
+      !(
+        addressDerivationScheme === ETHAddressDerivationScheme.OldLedger ||
+        addressDerivationScheme === ETHAddressDerivationScheme.Ledger
+      )
+    )
+      return unknown;
+    if (addressDerivationScheme === ETHAddressDerivationScheme.Ledger) attributes.push("Legacy");
+    accountIdx = path[3];
+  }
 
-  if (path[4] !== 0) return unknown;
-
-  const index = path[2] & 0x7fffffff;
+  const attr = attributes.length ? ` (${attributes.join(", ")})` : "";
   return {
-    verbose: `Ethereum Account #${index}`,
-    accountIdx: index,
+    verbose: `Ethereum Account #${accountIdx}${attr}`,
+    accountIdx,
     wholeAccount: true,
     coin: "Ethereum",
     isKnown: true,

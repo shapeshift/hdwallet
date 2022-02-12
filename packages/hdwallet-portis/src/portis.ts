@@ -53,7 +53,7 @@ export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
   public describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin) {
       case "Ethereum":
-        return eth.describeETHPath(msg.path);
+        return core.describeETHPath(msg.path);
       case "Bitcoin":
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
       default:

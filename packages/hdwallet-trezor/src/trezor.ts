@@ -10,37 +10,6 @@ export function isTrezor(wallet: core.HDWallet): wallet is TrezorHDWallet {
   return _.isObject(wallet) && (wallet as any)._isTrezor;
 }
 
-function describeETHPath(path: core.BIP32Path): core.PathDescription {
-  const pathStr = core.addressNListToBIP32(path);
-  const unknown: core.PathDescription = {
-    verbose: pathStr,
-    coin: "Ethereum",
-    isKnown: false,
-  };
-
-  if (path.length != 5) return unknown;
-
-  if (path[0] != 0x80000000 + 44) return unknown;
-
-  if (path[1] != 0x80000000 + core.slip44ByCoin("Ethereum")) return unknown;
-
-  if (path[2] !== 0x80000000) return unknown;
-
-  if (path[3] != 0) return unknown;
-
-  if ((path[4] & 0x80000000) !== 0) return unknown;
-
-  const accountIdx = path[4] & 0x7fffffff;
-  return {
-    verbose: `Ethereum Account #${accountIdx}`,
-    coin: "Ethereum",
-    accountIdx,
-    wholeAccount: true,
-    isKnown: true,
-    isPrefork: false,
-  };
-}
-
 export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
@@ -126,7 +95,7 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
   public describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin) {
       case "Ethereum":
-        return describeETHPath(msg.path);
+        return core.describeETHPath(msg.path, core.ETHAddressDerivationScheme.Metamask);
       default:
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
     }
@@ -157,7 +126,7 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
 
   public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
     const addressNList = msg.hardenedPath.concat(msg.relPath);
-    const description = describeETHPath(addressNList);
+    const description = core.describeETHPath(addressNList, core.ETHAddressDerivationScheme.Metamask);
     if (!description.isKnown) {
       return undefined;
     }

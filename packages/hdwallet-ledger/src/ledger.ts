@@ -10,49 +10,6 @@ export function isLedger(wallet: core.HDWallet): wallet is LedgerHDWallet {
   return _.isObject(wallet) && (wallet as any)._isLedger;
 }
 
-function describeETHPath(path: core.BIP32Path): core.PathDescription {
-  const pathStr = core.addressNListToBIP32(path);
-  const unknown: core.PathDescription = {
-    verbose: pathStr,
-    coin: "Ethereum",
-    isKnown: false,
-  };
-
-  if (path.length !== 5 && path.length !== 4) return unknown;
-
-  if (path[0] !== 0x80000000 + 44) return unknown;
-
-  if (path[1] !== 0x80000000 + core.slip44ByCoin("Ethereum")) return unknown;
-
-  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
-
-  let accountIdx;
-  if (path.length === 5) {
-    if (path[3] !== 0) return unknown;
-
-    if (path[4] !== 0) return unknown;
-
-    accountIdx = (path[2] & 0x7fffffff) >>> 0;
-  } else if (path.length === 4) {
-    if (path[2] !== 0x80000000) return unknown;
-
-    if ((path[3] & 0x80000000) >>> 0 === 0x80000000) return unknown;
-
-    accountIdx = path[3];
-  } else {
-    return unknown;
-  }
-
-  return {
-    verbose: `Ethereum Account #${accountIdx}`,
-    wholeAccount: true,
-    accountIdx,
-    coin: "Ethereum",
-    isKnown: true,
-    isPrefork: false,
-  };
-}
-
 export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
@@ -137,7 +94,7 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
   public describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin) {
       case "Ethereum":
-        return describeETHPath(msg.path);
+        return core.describeETHPath(msg.path, core.ETHAddressDerivationScheme.Ledger);
       default:
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
     }
@@ -168,7 +125,7 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
 
   public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
     const addressNList = msg.hardenedPath.concat(msg.relPath);
-    const description = describeETHPath(addressNList);
+    const description = core.describeETHPath(addressNList, core.ETHAddressDerivationScheme.Ledger);
     if (!description.isKnown) {
       return undefined;
     }
