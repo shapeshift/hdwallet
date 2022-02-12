@@ -21,7 +21,6 @@ describe("NativeHDWalletInfo", () => {
   });
   it("should produce correct path descriptions", () => {
     const info = native.info();
-    expect(info.hasNativeShapeShift()).toBe(false);
     [
       {
         msg: { coin: "bitcoin", path: [1, 2, 3] },

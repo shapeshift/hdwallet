@@ -15,7 +15,6 @@ describe("NativeOsmosisWalletInfo", () => {
   it("should return some static metadata", async () => {
     expect(await untouchable.call(info, "osmosisSupportsNetwork")).toBe(true);
     expect(await untouchable.call(info, "osmosisSupportsSecureTransfer")).toBe(false);
-    expect(untouchable.call(info, "osmosisSupportsNativeShapeShift")).toBe(false);
   });
 
   it("should return the correct account paths", async () => {

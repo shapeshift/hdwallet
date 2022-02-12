@@ -17,7 +17,6 @@ describe("NativeETHWalletInfo", () => {
   it("should return some static metadata", async () => {
     expect(await untouchable.call(info, "ethSupportsNetwork")).toBe(true);
     expect(await untouchable.call(info, "ethSupportsSecureTransfer")).toBe(false);
-    expect(untouchable.call(info, "ethSupportsNativeShapeShift")).toBe(false);
   });
 
   it("should return the correct account paths", async () => {

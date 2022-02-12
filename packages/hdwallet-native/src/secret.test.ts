@@ -15,7 +15,6 @@ describe("NativeSecretWalletInfo", () => {
   it("should return some static metadata", async () => {
     await expect(untouchable.call(info, "secretSupportsNetwork")).resolves.toBe(true);
     await expect(untouchable.call(info, "secretSupportsSecureTransfer")).resolves.toBe(false);
-    expect(untouchable.call(info, "secretSupportsNativeShapeShift")).toBe(false);
   });
 
   it("should return the correct account paths", async () => {

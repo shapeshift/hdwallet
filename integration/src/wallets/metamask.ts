@@ -38,11 +38,6 @@ export function selfTest(get: () => core.HDWallet): void {
     expect(core.supportsBTC(wallet)).toBe(false);
   });
 
-  it("does not support Native ShapeShift", async () => {
-    if (!wallet) return;
-    expect(wallet.ethSupportsNativeShapeShift()).toEqual(false);
-  });
-
   it("does not support EIP1559", async () => {
     if (!wallet) return;
     expect(await wallet.ethSupportsEIP1559()).toEqual(false);

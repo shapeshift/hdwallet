@@ -20,10 +20,6 @@ export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor<core.
       return false;
     }
 
-    cosmosSupportsNativeShapeShift(): boolean {
-      return false;
-    }
-
     cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
       const slip44 = core.slip44ByCoin("Atom")
       return [

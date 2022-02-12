@@ -18,10 +18,6 @@ export function MixinNativeSecretWalletInfo<TBase extends core.Constructor<core.
       return false;
     }
 
-    secretSupportsNativeShapeShift(): boolean {
-      return false;
-    }
-
     secretGetAccountPaths(msg: core.SecretGetAccountPaths): Array<core.SecretAccountPath> {
       const slip44 = core.slip44ByCoin("Secret")
       return [

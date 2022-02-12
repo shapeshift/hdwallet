@@ -20,10 +20,6 @@ export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor<core
       return false;
     }
 
-    binanceSupportsNativeShapeShift(): boolean {
-      return false;
-    }
-
     binanceGetAccountPaths(msg: core.BinanceGetAccountPaths): Array<core.BinanceAccountPath> {
       const slip44 = core.slip44ByCoin("Binance");
       return [

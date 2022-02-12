@@ -15,7 +15,6 @@ describe("NativeThorchainWalletInfo", () => {
   it("should return some static metadata", async () => {
     await expect(untouchable.call(info, "thorchainSupportsNetwork")).resolves.toBe(true);
     await expect(untouchable.call(info, "thorchainSupportsSecureTransfer")).resolves.toBe(false);
-    expect(untouchable.call(info, "thorchainSupportsNativeShapeShift")).toBe(false);
   });
 
   it("should return the correct account paths", async () => {

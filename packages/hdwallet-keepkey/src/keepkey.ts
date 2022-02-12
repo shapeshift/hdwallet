@@ -396,10 +396,6 @@ export class KeepKeyHDWalletInfo
     return Btc.btcSupportsSecureTransfer();
   }
 
-  public btcSupportsNativeShapeShift(): boolean {
-    return Btc.btcSupportsNativeShapeShift();
-  }
-
   public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
     return Btc.btcGetAccountPaths(msg);
   }
@@ -414,10 +410,6 @@ export class KeepKeyHDWalletInfo
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
     return Eth.ethSupportsSecureTransfer();
-  }
-
-  public ethSupportsNativeShapeShift(): boolean {
-    return Eth.ethSupportsNativeShapeShift();
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {
@@ -462,10 +454,6 @@ export class KeepKeyHDWalletInfo
 
   public hasOnDeviceRecovery(): boolean {
     return false;
-  }
-
-  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
-    return true;
   }
 
   public supportsOfflineSigning(): boolean {
@@ -804,10 +792,6 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
 
   public hasOnDeviceRecovery(): boolean {
     return false;
-  }
-
-  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
-    return true;
   }
 
   public supportsOfflineSigning(): boolean {
@@ -1149,10 +1133,6 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     return this.info.btcSupportsSecureTransfer();
   }
 
-  public btcSupportsNativeShapeShift(): boolean {
-    return this.info.btcSupportsNativeShapeShift();
-  }
-
   public async ethSupportsEIP1559(): Promise<boolean> {
     // EIP1559 support starts in v7.2.1
     return semver.gte(await this.getFirmwareVersion(), "v7.2.1");
@@ -1201,10 +1181,6 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
     return this.info.ethSupportsSecureTransfer();
-  }
-
-  public ethSupportsNativeShapeShift(): boolean {
-    return this.info.ethSupportsNativeShapeShift();
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {

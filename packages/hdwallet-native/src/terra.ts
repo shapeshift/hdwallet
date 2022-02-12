@@ -19,10 +19,6 @@ export function MixinNativeTerraWalletInfo<TBase extends core.Constructor<core.H
       return false;
     }
 
-    terraSupportsNativeShapeShift(): boolean {
-      return false;
-    }
-
     terraGetAccountPaths(msg: core.TerraGetAccountPaths): Array<core.TerraAccountPath> {
       const slip44 = core.slip44ByCoin("Terra")
       return [

@@ -15,7 +15,6 @@ describe("NativeTerraWalletInfo", () => {
   it("should return some static metadata", async () => {
     await expect(untouchable.call(info, "terraSupportsNetwork")).resolves.toBe(true);
     await expect(untouchable.call(info, "terraSupportsSecureTransfer")).resolves.toBe(false);
-    expect(untouchable.call(info, "terraSupportsNativeShapeShift")).toBe(false);
   });
 
   it("should return the correct account paths", async () => {

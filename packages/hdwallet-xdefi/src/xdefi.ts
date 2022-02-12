@@ -71,10 +71,6 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
     return this.info.hasOnDeviceRecovery();
   }
 
-  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
-    return this.info.hasNativeShapeShift(srcCoin, dstCoin);
-  }
-
   public supportsOfflineSigning(): boolean {
     return false;
   }
@@ -144,10 +140,6 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public ethSupportsNativeShapeShift(): boolean {
     return false;
   }
 
@@ -228,10 +220,6 @@ export class XDeFiHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
     return false;
   }
 
-  public hasNativeShapeShift(): boolean {
-    return false;
-  }
-
   public supportsOfflineSigning(): boolean {
     return false;
   }
@@ -259,10 +247,6 @@ export class XDeFiHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public ethSupportsNativeShapeShift(): boolean {
     return false;
   }
 

@@ -13,14 +13,12 @@ describe("XDeFIHDWalletInfo", () => {
     expect(info.hasOnDeviceRecovery()).toBe(false);
     expect(await info.ethSupportsNetwork(1)).toBe(true);
     expect(await info.ethSupportsSecureTransfer()).toBe(false);
-    expect(info.ethSupportsNativeShapeShift()).toBe(false);
     expect(await info.ethSupportsEIP1559()).toBe(true);
     expect(await info.supportsOfflineSigning()).toBe(false);
     expect(await info.supportsBroadcast()).toBe(true);
   });
   it("should produce correct path descriptions", () => {
     const info = xdefi.info();
-    expect(info.hasNativeShapeShift()).toBe(false);
     [
       {
         msg: { coin: "Ethereum", path: [44 + 0x80000000, 60 + 0x80000000, 0 + 0x80000000, 0, 0] },
@@ -46,7 +44,6 @@ describe("XDeFiWHDWallet", () => {
     expect(wallet.hasOnDeviceRecovery()).toBe(false);
     expect(await wallet.ethSupportsNetwork(1)).toBe(true);
     expect(await wallet.ethSupportsSecureTransfer()).toBe(false);
-    expect(wallet.ethSupportsNativeShapeShift()).toBe(false);
     expect(await wallet.ethSupportsEIP1559()).toBe(true);
     expect(await wallet.supportsOfflineSigning()).toBe(false);
     expect(await wallet.supportsBroadcast()).toBe(true);

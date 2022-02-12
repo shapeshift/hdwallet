@@ -19,10 +19,6 @@ export function MixinNativeKavaWalletInfo<TBase extends core.Constructor<core.HD
       return false;
     }
 
-    kavaSupportsNativeShapeShift(): boolean {
-      return false;
-    }
-
     kavaGetAccountPaths(msg: core.KavaGetAccountPaths): Array<core.KavaAccountPath> {
       const slip44 = core.slip44ByCoin("Kava")
       return [

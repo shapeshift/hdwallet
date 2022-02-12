@@ -113,10 +113,6 @@ export async function ethSupportsSecureTransfer(): Promise<boolean> {
   return false;
 }
 
-export function ethSupportsNativeShapeShift(): boolean {
-  return false;
-}
-
 export function ethSupportsEIP1559(): boolean {
   return false;
 }

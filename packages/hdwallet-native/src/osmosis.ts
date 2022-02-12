@@ -20,10 +20,6 @@ export function MixinNativeOsmosisWalletInfo<TBase extends core.Constructor<core
       return false;
     }
 
-    osmosisSupportsNativeShapeShift(): boolean {
-      return false;
-    }
-
     osmosisGetAccountPaths(msg: core.OsmosisGetAccountPaths): Array<core.OsmosisAccountPath> {
       const slip44 = core.slip44ByCoin("Osmo")
       return [

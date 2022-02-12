@@ -103,10 +103,6 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
     return this.info.hasOnDeviceRecovery();
   }
 
-  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
-    return this.info.hasNativeShapeShift(srcCoin, dstCoin);
-  }
-
   public supportsOfflineSigning(): boolean {
     return false;
   }
@@ -189,10 +185,6 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public ethSupportsNativeShapeShift(): boolean {
     return false;
   }
 
@@ -283,11 +275,6 @@ export class MetaMaskHDWalletInfo implements core.HDWalletInfo, core.ETHWalletIn
     return true;
   }
 
-  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
-    // It doesn't... yet?
-    return false;
-  }
-
   public supportsOfflineSigning(): boolean {
     return false;
   }
@@ -315,10 +302,6 @@ export class MetaMaskHDWalletInfo implements core.HDWalletInfo, core.ETHWalletIn
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public ethSupportsNativeShapeShift(): boolean {
     return false;
   }
 

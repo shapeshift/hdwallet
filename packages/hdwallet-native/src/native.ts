@@ -59,10 +59,6 @@ export class NativeHDWalletInfoBase implements core.HDWalletInfo {
     return false;
   }
 
-  hasNativeShapeShift(): boolean {
-    return false;
-  }
-
   public supportsOfflineSigning(): boolean {
     return true;
   }

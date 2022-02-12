@@ -15,7 +15,6 @@ describe("NativeKavaWalletInfo", () => {
   it("should return some static metadata", async () => {
     await expect(untouchable.call(info, "kavaSupportsNetwork")).resolves.toBe(true);
     await expect(untouchable.call(info, "kavaSupportsSecureTransfer")).resolves.toBe(false);
-    expect(untouchable.call(info, "kavaSupportsNativeShapeShift")).toBe(false);
   });
 
   it("should return the correct account paths", async () => {
