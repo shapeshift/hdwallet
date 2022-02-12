@@ -93,16 +93,11 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
   }
 
   public describePath(msg: core.DescribePath): core.PathDescription {
-    switch (msg.coin) {
-      case "Ethereum":
-        return core.describeETHPath(msg.path, core.ETHAddressDerivationScheme.Metamask);
-      default:
-        return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
-    }
+    return core.describePath(msg, core.ETHAddressDerivationScheme.Metamask);
   }
 
   public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    const description = core.describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType);
+    const description = core.btcDescribePath(msg.addressNList, msg.coin, msg.scriptType);
     if (!description.isKnown) {
       return undefined;
     }
@@ -126,7 +121,7 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
 
   public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
     const addressNList = msg.hardenedPath.concat(msg.relPath);
-    const description = core.describeETHPath(addressNList, core.ETHAddressDerivationScheme.Metamask);
+    const description = core.ethDescribePath(addressNList, core.ETHAddressDerivationScheme.Metamask);
     if (!description.isKnown) {
       return undefined;
     }

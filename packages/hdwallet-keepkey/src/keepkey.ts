@@ -19,201 +19,6 @@ export function isKeepKey(wallet: core.HDWallet): wallet is KeepKeyHDWallet {
   return _.isObject(wallet) && (wallet as any)._isKeepKey;
 }
 
-function describeCosmosPath(path: core.BIP32Path): core.PathDescription {
-  const pathStr = core.addressNListToBIP32(path);
-  const unknown: core.PathDescription = {
-    verbose: pathStr,
-    coin: "Atom",
-    isKnown: false,
-  };
-
-  if (path.length != 5) {
-    return unknown;
-  }
-
-  if (path[0] != 0x80000000 + 44) {
-    return unknown;
-  }
-
-  if (path[1] != 0x80000000 + core.slip44ByCoin("Atom")) {
-    return unknown;
-  }
-
-  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
-    return unknown;
-  }
-
-  if (path[3] !== 0 || path[4] !== 0) {
-    return unknown;
-  }
-
-  const index = path[2] & 0x7fffffff;
-  return {
-    verbose: `Cosmos Account #${index}`,
-    accountIdx: index,
-    wholeAccount: true,
-    coin: "Atom",
-    isKnown: true,
-    isPrefork: false,
-  };
-}
-
-function describeThorchainPath(path: core.BIP32Path): core.PathDescription {
-  const pathStr = core.addressNListToBIP32(path);
-  const unknown: core.PathDescription = {
-    verbose: pathStr,
-    coin: "Rune",
-    isKnown: false,
-  };
-
-  if (path.length != 5) {
-    return unknown;
-  }
-
-  if (path[0] != 0x80000000 + 44) {
-    return unknown;
-  }
-
-  if (path[1] != 0x80000000 + core.slip44ByCoin("Rune")) {
-    return unknown;
-  }
-
-  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
-    return unknown;
-  }
-
-  if (path[3] !== 0 || path[4] !== 0) {
-    return unknown;
-  }
-
-  const index = path[2] & 0x7fffffff;
-  return {
-    verbose: `THORChain Account #${index}`,
-    accountIdx: index,
-    wholeAccount: true,
-    coin: "Rune",
-    isKnown: true,
-    isPrefork: false,
-  };
-}
-
-function describeEosPath(path: core.BIP32Path): core.PathDescription {
-  const pathStr = core.addressNListToBIP32(path);
-  const unknown: core.PathDescription = {
-    verbose: pathStr,
-    coin: "Eos",
-    isKnown: false,
-  };
-
-  if (path.length != 5) {
-    return unknown;
-  }
-
-  if (path[0] != 0x80000000 + 44) {
-    return unknown;
-  }
-
-  if (path[1] != 0x80000000 + core.slip44ByCoin("Eos")) {
-    return unknown;
-  }
-
-  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
-    return unknown;
-  }
-
-  if (path[3] !== 0 || path[4] !== 0) {
-    return unknown;
-  }
-
-  const index = path[2] & 0x7fffffff;
-  return {
-    verbose: `Eos Account #${index}`,
-    accountIdx: index,
-    wholeAccount: true,
-    coin: "Eos",
-    isKnown: true,
-    isPrefork: false,
-  };
-}
-
-function describeRipplePath(path: core.BIP32Path): core.PathDescription {
-  const pathStr = core.addressNListToBIP32(path);
-  const unknown: core.PathDescription = {
-    verbose: pathStr,
-    coin: "Ripple",
-    isKnown: false,
-  };
-
-  if (path.length != 5) {
-    return unknown;
-  }
-
-  if (path[0] != 0x80000000 + 44) {
-    return unknown;
-  }
-
-  if (path[1] != 0x80000000 + core.slip44ByCoin("Ripple")) {
-    return unknown;
-  }
-
-  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
-    return unknown;
-  }
-
-  if (path[3] !== 0 || path[4] !== 0) {
-    return unknown;
-  }
-
-  const index = path[2] & 0x7fffffff;
-  return {
-    verbose: `Ripple Account #${index}`,
-    accountIdx: index,
-    wholeAccount: true,
-    coin: "Ripple",
-    isKnown: true,
-    isPrefork: false,
-  };
-}
-
-function describeBinancePath(path: core.BIP32Path): core.PathDescription {
-  const pathStr = core.addressNListToBIP32(path);
-  const unknown: core.PathDescription = {
-    verbose: pathStr,
-    coin: "Binance",
-    isKnown: false,
-  };
-
-  if (path.length != 5) {
-    return unknown;
-  }
-
-  if (path[0] != 0x80000000 + 44) {
-    return unknown;
-  }
-
-  if (path[1] != 0x80000000 + core.slip44ByCoin("Binance")) {
-    return unknown;
-  }
-
-  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
-    return unknown;
-  }
-
-  if (path[3] !== 0 || path[4] !== 0) {
-    return unknown;
-  }
-
-  const index = path[2] & 0x7fffffff;
-  return {
-    verbose: `Binance Account #${index}`,
-    accountIdx: index,
-    wholeAccount: true,
-    coin: "Binance",
-    isKnown: true,
-    isPrefork: false,
-  };
-}
-
 export class KeepKeyHDWalletInfo
   implements
     core.HDWalletInfo,
@@ -331,24 +136,11 @@ export class KeepKeyHDWalletInfo
   }
 
   public describePath(msg: core.DescribePath): core.PathDescription {
-    switch (msg.coin) {
-      case "Ethereum":
-        return core.describeETHPath(msg.path);
-      case "Atom":
-        return describeCosmosPath(msg.path);
-      case "Binance":
-        return describeBinancePath(msg.path);
-      case "Ripple":
-        return describeRipplePath(msg.path);
-      case "Eos":
-        return describeEosPath(msg.path);
-      default:
-        return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
-    }
+    return core.describePath(msg);
   }
 
   public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    const description = core.describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType);
+    const description = core.btcDescribePath(msg.addressNList, msg.coin, msg.scriptType);
     if (!description.isKnown) {
       return undefined;
     }
@@ -372,7 +164,7 @@ export class KeepKeyHDWalletInfo
 
   public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
     const addressNList = msg.hardenedPath.concat(msg.relPath);
-    const description = core.describeETHPath(addressNList);
+    const description = core.ethDescribePath(addressNList);
     if (!description.isKnown) {
       return undefined;
     }
@@ -391,7 +183,7 @@ export class KeepKeyHDWalletInfo
   }
 
   public cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
-    const description = describeCosmosPath(msg.addressNList);
+    const description = core.cosmosDescribePath(msg.addressNList);
     if (!description.isKnown) {
       return undefined;
     }
@@ -406,7 +198,7 @@ export class KeepKeyHDWalletInfo
   }
 
   public thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
-    const description = describeThorchainPath(msg.addressNList);
+    const description = core.thorchainDescribePath(msg.addressNList);
     if (!description.isKnown) {
       return undefined;
     }
@@ -421,7 +213,7 @@ export class KeepKeyHDWalletInfo
   }
 
   public rippleNextAccountPath(msg: core.RippleAccountPath): core.RippleAccountPath | undefined {
-    const description = describeRipplePath(msg.addressNList);
+    const description = core.rippleDescribePath(msg.addressNList);
     if (!description.isKnown) {
       return undefined;
     }
@@ -435,7 +227,7 @@ export class KeepKeyHDWalletInfo
   }
 
   public binanceNextAccountPath(msg: core.BinanceAccountPath): core.BinanceAccountPath | undefined {
-    const description = describeBinancePath(msg.addressNList);
+    const description = core.binanceDescribePath(msg.addressNList);
     if (!description.isKnown) {
       return undefined;
     }
@@ -450,7 +242,7 @@ export class KeepKeyHDWalletInfo
   }
 
   public eosNextAccountPath(msg: core.EosAccountPath): core.EosAccountPath | undefined {
-    const description = describeEosPath(msg.addressNList);
+    const description = core.eosDescribePath(msg.addressNList);
     if (!description.isKnown) {
       return undefined;
     }

@@ -52,30 +52,17 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
           coin: "Thorchain",
         });
 
-        // This is strange, and probably wrong, behavior... but it's what happens.
-        if (wallet.getVendor() === "KeepKey") {
-          // eslint-disable-next-line jest/no-conditional-expect
-          expect(out).toMatchInlineSnapshot(`
+        // eslint-disable-next-line jest/no-conditional-expect
+        expect(out).toMatchInlineSnapshot(`
           Object {
-            "coin": "Thorchain",
-            "isKnown": false,
-            "scriptType": undefined,
-            "verbose": "m/44'/931'/0'/0/0",
+            "accountIdx": 0,
+            "coin": "Rune",
+            "isKnown": true,
+            "isPrefork": false,
+            "verbose": "THORChain Account #0",
+            "wholeAccount": true,
           }
-          `);
-        } else {
-          // eslint-disable-next-line jest/no-conditional-expect
-          expect(out).toMatchInlineSnapshot(`
-            Object {
-              "accountIdx": 0,
-              "coin": "Thorchain",
-              "isKnown": true,
-              "isPrefork": false,
-              "verbose": "Thorchain Account #0",
-              "wholeAccount": true,
-            }
-          `);
-        }
+        `);
       },
       TIMEOUT
     );

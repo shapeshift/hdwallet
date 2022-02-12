@@ -381,7 +381,7 @@ export function unknownUTXOPath(path: BIP32Path, coin: Coin, scriptType?: BTCInp
   };
 }
 
-export function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType?: BTCInputScriptType): PathDescription {
+export function btcDescribePath(path: BIP32Path, coin: Coin, scriptType?: BTCInputScriptType): PathDescription {
   const unknown = unknownUTXOPath(path, coin, scriptType);
 
   if (path.length !== 3 && path.length !== 5) return unknown;

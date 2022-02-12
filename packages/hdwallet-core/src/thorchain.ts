@@ -126,10 +126,10 @@ export function thorchainDescribePath(path: BIP32Path): PathDescription {
 
   const index = path[2] & 0x7fffffff;
   return {
-    verbose: `Thorchain Account #${index}`,
+    verbose: `THORChain Account #${index}`,
     accountIdx: index,
     wholeAccount: true,
-    coin: "Thorchain",
+    coin: "Rune",
     isKnown: true,
     isPrefork: false,
   };
