@@ -1,0 +1,50 @@
+name: Bounty
+description: Create a bounty
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bounty. Please give your bounty a short and succinct title.
+  - type: textarea
+    id: overview
+    attributes:
+      label: Overview
+      description: General background needed for bounty hunter to complete task
+      placeholder: We need to change the foo service to be able to bar better.
+    validations:
+      required: true
+  - type: textarea
+    id: reference
+    attributes:
+      label: Reference
+      description: An explanation as to where the bounty hunter should look or code that is affected
+      placeholder: It may be useful to start by looking at `some-service.ts`
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: The criteria that needs to be completed in order for the bounty to be considered complete
+      placeholder: The foo service can bar correctly.
+    validations:
+      required: true
+  - type: checkboxes
+    id: ownership
+    attributes:
+      label: Ownership
+      description: I'm a good team member, and
+      options:
+        - label: As the sponsor of this bounty I will review the changes in a preview environment (ops/product) or review the PR (engineering)
+          required: true
+  - type: textarea
+    id: bounty-hunters
+    attributes:
+      label: Bounty Hunters
+      description: Information for bounty hunters (please don't edit)
+      value: |
+        - [Join our Discord](https://discord.gg/shapeshift)
+        - Include an expected timeline for you to complete work in the work plan when you apply for this bounty!
+        - Please refer to [this link](https://shapeshiftdao.gitbook.io/getting-started/how-to-contribute/bounties#resources-for-new-contributors-and-bounty-hunters) for some basic info
+    validations:
+      required: true
