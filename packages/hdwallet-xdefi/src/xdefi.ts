@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as eth from "./ethereum";
+import * as bitcoin from "./bitcoin";
 import _ from "lodash";
 
 class XDeFiTransport extends core.Transport {
@@ -14,15 +15,18 @@ export function isXDeFi(wallet: core.HDWallet): wallet is XDeFiHDWallet {
   return _.isObject(wallet) && (wallet as any)._isXDeFi;
 }
 
-export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
+export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWallet {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
-  readonly _isXDeFi = true;
+  readonly _isXDEFI = true;
+  readonly _supportsBTCInfo = true;
+  readonly _supportsBTC = true;
 
   transport: core.Transport = new XDeFiTransport(new core.Keyring());
   info: XDeFiHDWalletInfo & core.HDWalletInfo;
   ethAddress?: string | null;
-  provider: any;
+  bitcoinAddress?: string | null;
+  provider: { [key: string]: any } | undefined;
 
   constructor() {
     this.info = new XDeFiHDWalletInfo();
@@ -33,7 +37,7 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async isLocked(): Promise<boolean> {
-    return !this.provider.xdefi.isUnlocked();
+    return !this.provider?.xdefi.isUnlocked();
   }
 
   public getVendor(): string {
@@ -49,8 +53,8 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public initialize(): never;
-  public initialize(provider: unknown): Promise<any>;
-  public async initialize(provider?: unknown): Promise<any> {
+  public initialize(provider: { [key: string]: any }): Promise<any>;
+  public async initialize(provider?: { [key: string]: any }): Promise<any> {
     if (!provider) throw new Error("provider is required");
     this.provider = provider;
   }
@@ -139,6 +143,52 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
 
   public async disconnect(): Promise<void> {}
 
+  public async btcGetAddress(): Promise<string | null> {
+    if (this.bitcoinAddress) {
+      return this.bitcoinAddress;
+    }
+    const address = await bitcoin.btcGetAddress(this.provider?.["bitcoin"]);
+    if (address) {
+      this.bitcoinAddress = address;
+      return address;
+    } else {
+      this.bitcoinAddress = null;
+      return null;
+    }
+  }
+  public async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
+    const address = await this.btcGetAddress();
+    return address ? bitcoin.btcSignTx(msg, address, this.provider?.["bitcoin"]) : null;
+  }
+  public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage | null> {
+    const address = await this.btcGetAddress();
+    return address ? bitcoin.btcSignMessage(msg, address, this.provider?.["bitcoin"]) : null;
+  }
+  public async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean | null> {
+    return bitcoin.btcVerifyMessage(msg);
+  }
+  btcSupportsCoin(coin: string): Promise<boolean> {
+    throw new Error("Method not implemented.");
+  }
+  btcSupportsScriptType(coin: string, scriptType?: core.BTCInputScriptType): Promise<boolean> {
+    throw new Error("Method not implemented.");
+  }
+  btcSupportsSecureTransfer(): Promise<boolean> {
+    throw new Error("Method not implemented.");
+  }
+  btcSupportsNativeShapeShift(): boolean {
+    throw new Error("Method not implemented.");
+  }
+  btcGetAccountPaths(msg: core.BTCGetAccountPaths): core.BTCAccountPath[] {
+    throw new Error("Method not implemented.");
+  }
+  btcIsSameAccount(msg: core.BTCAccountPath[]): boolean {
+    throw new Error("Method not implemented.");
+  }
+  btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
+    throw new Error("Method not implemented.");
+  }
+
   public async ethSupportsNetwork(chainId: number = 1): Promise<boolean> {
     return chainId === 1;
   }
@@ -167,7 +217,7 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
     if (this.ethAddress) {
       return this.ethAddress;
     }
-    const address = await eth.ethGetAddress(this.provider);
+    const address = await eth.ethGetAddress(this.provider?.["ethereum"]);
     if (address) {
       this.ethAddress = address;
       return address;
@@ -179,21 +229,21 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
 
   public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {
     const address = await this.ethGetAddress();
-    return address ? eth.ethSignTx(msg, this.provider, address) : null;
+    return address ? eth.ethSignTx(msg, this.provider?.["ethereum"], address) : null;
   }
 
   public async ethSendTx(msg: core.ETHSignTx): Promise<core.ETHTxHash | null> {
     const address = await this.ethGetAddress();
-    return address ? eth.ethSendTx(msg, this.provider, address) : null;
+    return address ? eth.ethSendTx(msg, this.provider?.["ethereum"], address) : null;
   }
 
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
     const address = await this.ethGetAddress();
-    return address ? eth.ethSignMessage(msg, this.provider, address) : null;
+    return address ? eth.ethSignMessage(msg, this.provider?.["ethereum"], address) : null;
   }
 
   public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean | null> {
-    return eth.ethVerifyMessage(msg, this.provider);
+    return eth.ethVerifyMessage(msg, this.provider?.["ethereum"]);
   }
 
   public async getDeviceID(): Promise<string> {
@@ -205,8 +255,9 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
   }
 }
 
-export class XDeFiHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
+export class XDeFiHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo, core.BTCWalletInfo {
   readonly _supportsETHInfo = true;
+  readonly _supportsBTCInfo = true;
 
   public getVendor(): string {
     return "XDeFi";
@@ -247,6 +298,28 @@ export class XDeFiHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
       default:
         throw new Error("Unsupported path");
     }
+  }
+
+  btcSupportsCoin(coin: string): Promise<boolean> {
+    throw new Error("Method not implemented.");
+  }
+  btcSupportsScriptType(coin: string, scriptType?: core.BTCInputScriptType): Promise<boolean> {
+    throw new Error("Method not implemented.");
+  }
+  btcSupportsSecureTransfer(): Promise<boolean> {
+    throw new Error("Method not implemented.");
+  }
+  btcSupportsNativeShapeShift(): boolean {
+    throw new Error("Method not implemented.");
+  }
+  btcGetAccountPaths(msg: core.BTCGetAccountPaths): core.BTCAccountPath[] {
+    throw new Error("Method not implemented.");
+  }
+  btcIsSameAccount(msg: core.BTCAccountPath[]): boolean {
+    throw new Error("Method not implemented.");
+  }
+  btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
+    throw new Error("Method not implemented.");
   }
 
   public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {

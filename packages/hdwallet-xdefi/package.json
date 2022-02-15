@@ -14,7 +14,9 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "1.18.4",
+    "@shapeshiftoss/bitcoinjs-lib": "^5.2.0-shapeshift.2",
+    "base64-js": "^1.5.1",
+    "bitcoinjs-message": "^2.2.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {

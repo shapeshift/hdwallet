@@ -20,16 +20,14 @@ export class XDeFiAdapter {
   }
 
   public async pairDevice(): Promise<core.HDWallet> {
-    const provider: any = (globalThis as any).xfi?.ethereum;
+    const provider: { [key: string]: any } = {
+      ethereum: (globalThis as any).xfi?.ethereum,
+      bitcoin: (globalThis as any).xfi?.bitcoin,
+    };
     if (!provider) {
       throw new Error("XDeFi provider not found");
     }
-    try {
-      await provider.request({ method: "eth_requestAccounts" });
-    } catch (error) {
-      console.error("Could not get XDeFi accounts. ");
-      throw error;
-    }
+
     const wallet = new XDeFiHDWallet();
     await wallet.initialize(provider);
     const deviceID = await wallet.getDeviceID();
