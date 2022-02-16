@@ -1,0 +1,28 @@
+{
+  "account_number": "95421",
+  "chain_id": "osmosis-1",
+  "sequence": "36",
+  "fee": {
+    "amount": [
+      {
+        "amount": "2800",
+        "denom": "uosmo"
+      }
+    ],
+    "gas": "290000"
+  },
+  "memo": "",
+  "msg": [
+    {
+      "type": "cosmos-sdk/MsgDelegate",
+      "value": {
+        "delegator_address": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
+        "validator_address": "osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n",
+        "amount": {
+          "denom": "uosmo",
+          "amount": "1000"
+        }
+      }
+    }
+  ]
+}

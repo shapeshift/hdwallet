@@ -69,23 +69,23 @@ export function cosmosTests(get: () => { wallet: core.HDWallet; info: core.HDWal
     );
 
     //deposit
-    test(
-      "cosmosSignTx()",
-      async () => {
-        if (!wallet) return;
-        const input: core.CosmosSignTx = {
-          tx: (tx_unsigned as unknown) as core.CosmosTx,
-          addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
-          chain_id: "cosmoshub-4",
-          account_number: "16354",
-          sequence: "5",
-        };
-
-        const res = await wallet.cosmosSignTx(input);
-        expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
-      },
-      TIMEOUT
-    );
+    // test(
+    //   "cosmosSignTx()",
+    //   async () => {
+    //     if (!wallet) return;
+    //     const input: core.CosmosSignTx = {
+    //       tx: (tx_unsigned as unknown) as core.CosmosTx,
+    //       addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
+    //       chain_id: "cosmoshub-4",
+    //       account_number: "16354",
+    //       sequence: "5",
+    //     };
+    //
+    //     const res = await wallet.cosmosSignTx(input);
+    //     expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
+    //   },
+    //   TIMEOUT
+    // );
 
 
   });

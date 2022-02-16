@@ -29,7 +29,7 @@
     "funtypes": "^3.0.1",
     "lodash": "^4.17.21",
     "node-fetch": "^2.6.1",
-    "proto-tx-builder": "0.1.3",
+    "proto-tx-builder": "0.1.5",
     "scrypt-js": "^3.0.1",
     "tendermint-tx-builder": "^1.0.9",
     "tiny-secp256k1": "^1.1.6",
