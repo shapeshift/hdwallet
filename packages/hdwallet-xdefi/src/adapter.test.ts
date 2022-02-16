@@ -16,7 +16,10 @@ describe("XDeFiAdapter", () => {
   });
   it("creates a unique wallet per deviceId", async () => {
     Object.defineProperty(globalThis, "xfi", {
-      value: { ethereum: { request: jest.fn().mockReturnValue(["0x123"]) } },
+      value: {
+        ethereum: { request: jest.fn().mockReturnValue(["0x123"]) },
+        bitcoin: { request: jest.fn().mockReturnValue(["bc1blablabla"]) },
+      },
     });
     const keyring = new core.Keyring();
     const adapter = XDeFiAdapter.useKeyring(keyring);

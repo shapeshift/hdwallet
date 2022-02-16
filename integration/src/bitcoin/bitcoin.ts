@@ -3,6 +3,7 @@ import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
+import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 
 import { each } from "../utils";
 
@@ -70,7 +71,14 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     );
 
     test("getPublicKeys", async () => {
-      if (!wallet || ledger.isLedger(wallet) || trezor.isTrezor(wallet) || portis.isPortis(wallet)) return;
+      if (
+        !wallet ||
+        ledger.isLedger(wallet) ||
+        trezor.isTrezor(wallet) ||
+        portis.isPortis(wallet) ||
+        xdefi.isXDeFi(wallet)
+      )
+        return;
 
       /* FIXME: Expected failure (trezor does not use scriptType in deriving public keys
           and ledger's dependency bitcoinjs-lib/src/crypto.js throws a mysterious TypeError
@@ -529,7 +537,8 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           });
           expect(typeof wallet.btcIsSameAccount(paths) === typeof true).toBeTruthy();
           paths.forEach((path) => {
-            if (wallet.getVendor() === "Portis") expect(wallet.btcNextAccountPath(path)).toBeUndefined();
+            if (["Portis", "XDeFi"].includes(wallet.getVendor()))
+              expect(wallet.btcNextAccountPath(path)).toBeUndefined();
             else expect(wallet.btcNextAccountPath(path)).not.toBeUndefined();
           });
         });

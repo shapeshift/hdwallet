@@ -1,14 +1,8 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { ETHSignedMessage } from "@shapeshiftoss/hdwallet-core";
-
 import * as ethereum from "./ethereum";
 
-const MNEMONIC = "all all all all all all all all all all all all";
-
-const untouchable = require("untouchableMock");
-
 describe("XDeFi - Ethereum Adapter", () => {
-  it("ethVerifyMessage returns null as its not implemented", async () => {
+  it("ethVerifyMessage returns true", async () => {
     const ethereumProvider = {
       request: jest.fn().mockReturnValue("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"),
     };
@@ -39,7 +33,7 @@ describe("XDeFi - Ethereum Adapter", () => {
     const paths = ethereum.ethGetAccountPaths({ coin: "RandomCoin", accountIdx: 0 });
     expect(paths).toMatchObject([]);
   });
-  it("ethSignTx returns null as its not implemented", async () => {
+  it("ethSignTx returns a valid signature", async () => {
     const ethereumProvider = {
       request: jest.fn().mockReturnValue({
         r: "0x63db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0a",

@@ -61,26 +61,88 @@ export async function createMockWallet(): Promise<core.HDWallet> {
     signature:
       "0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b",
   });
+
+  wallet.btcGetAddress = jest
+    .fn()
+    .mockReturnValueOnce("1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM")
+    .mockReturnValueOnce("3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX")
+    .mockReturnValueOnce("3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX")
+    .mockReturnValueOnce("MFoQRU1KQq365Sy3cXhix3ygycEU4YWB1V")
+    .mockReturnValueOnce("XxKhGNv6ECbqVswm9KYcLPQnyWgZ86jJ6Q");
+
+  wallet.btcSignMessage = jest.fn().mockReturnValueOnce({
+    address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
+    signature:
+      "20a037c911044cd6c851b6508317d8892067b0b62074b2cf1c0df9abd4aa053a3c243ffdc37f64d7af2c857128eafc81947c380995596615e5dcc313a15f512cdd",
+  });
+
+  wallet.btcSignTx = jest
+    .fn()
+    .mockReturnValueOnce({
+      serializedTx:
+        "010000000182488650ef25a58fef6788bd71b8212038d7f2bbe4750bc7bcb44701e85ef6d5000000006b4830450221009a0b7be0d4ed3146ee262b42202841834698bb3ee39c24e7437df208b8b7077102202b79ab1e7736219387dffe8d615bbdba87e11477104b867ef47afed1a5ede7810121023230848585885f63803a0a8aecdd6538792d5c539215c91698e315bf0253b43dffffffff0160cc0500000000001976a914de9b2a8da088824e8fe51debea566617d851537888ac00000000",
+      signatures: [
+        "30450221009a0b7be0d4ed3146ee262b42202841834698bb3ee39c24e7437df208b8b7077102202b79ab1e7736219387dffe8d615bbdba87e11477104b867ef47afed1a5ede781",
+      ],
+    })
+    .mockReturnValueOnce({
+      serializedTx:
+        "010000000182488650ef25a58fef6788bd71b8212038d7f2bbe4750bc7bcb44701e85ef6d5000000006a47304402207eee02e732e17618c90f8fdcaf3da24e2cfe2fdd6e37094b73f225360029515002205c29f80efc0bc077fa63633ff9ce2c44e0f109f70221a91afb7c531cdbb6305c0121023230848585885f63803a0a8aecdd6538792d5c539215c91698e315bf0253b43dffffffff0360cc050000000000160014b40c03706cccad36e67c63fbf075c11c73562c1628230000000000001976a9149c9d21f47382762df3ad81391ee0964b28dd951788ac00000000000000003d6a3b535741503a4554482e4554483a3078393331443338373733316242624339383842333132323036633734463737443030344436423834623a34323000000000",
+      signatures: [
+        "304402207eee02e732e17618c90f8fdcaf3da24e2cfe2fdd6e37094b73f225360029515002205c29f80efc0bc077fa63633ff9ce2c44e0f109f70221a91afb7c531cdbb6305c",
+      ],
+    })
+    .mockReturnValueOnce({
+      serializedTx:
+        "0100000000010137c361fb8f2d9056ba8c98c5611930fcb48cacfdd0fe2e0449d83eea982f91200000000017160014d16b8c0680c61fc6ed2e407455715055e41052f5ffffffff02e0aebb00000000001976a91414fdede0ddc3be652a0ce1afbc1b509a55b6b94888ac3df39f060000000017a91458b53ea7f832e8f096e896b8713a8c6df0e892ca8702483045022100ccd253bfdf8a5593cd7b6701370c531199f0f05a418cd547dfc7da3f21515f0f02203fa08a0753688871c220648f9edadbdb98af42e5d8269364a326572cf703895b012103e7bfe10708f715e8538c92d46ca50db6f657bbc455b7494e6a0303ccdb868b7900000000",
+    })
+    .mockReturnValueOnce({
+      serializedTx:
+        "010000000001016bb504f52d634e67966da4c0c3f930634a3bda329881b58aa16e855941b2b5e40000000000ffffffff0250c300000000000017a9147a55d61848e77ca266e79a39bfc85c580a6426c98768bf000000000000160014cc8067093f6f843d6d3e22004a4290cd0c0f336b0247304402200f62d997b9dafe79a7a680626f4510a0b1be7a6e6b67607985e611f771c8acaf022009b3fb8ea7d8a80daa3e4cb44d51ba40289b049c59741e906424c55e90df9900012103adc58245cf28406af0ef5cc24b8afba7f1be6c72f279b642d85c48798685f86200000000",
+    });
+
+  wallet.btcSignMessage = jest.fn().mockReturnValueOnce(
+    new Promise((res, _rej) =>
+      res({
+        address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
+        signature:
+          "20a037c911044cd6c851b6508317d8892067b0b62074b2cf1c0df9abd4aa053a3c243ffdc37f64d7af2c857128eafc81947c380995596615e5dcc313a15f512cdd",
+      })
+    )
+  );
+
+  wallet.btcIsSameAccount = jest.fn().mockReturnValue(false);
   wallet.provider = {
-    request: jest.fn(({ method, params }: any) => {
-      switch (method) {
-        case "eth_accounts":
-          return ["0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"];
-        case "personal_sign":
-          const [message] = params;
+    ethereum: {
+      request: jest.fn(({ method, params }: any) => {
+        switch (method) {
+          case "eth_accounts":
+            return ["0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"];
+          case "personal_sign":
+            const [message] = params;
 
-          if (message === "48656c6c6f20576f726c64")
-            return "0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b";
+            if (message === "48656c6c6f20576f726c64")
+              return "0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b";
 
-          throw new Error("unknown message");
-        case "eth_sendTransaction":
-          const [{ to }] = params;
-
-          return `txHash-${to}`;
-        default:
-          throw new Error(`ethereum: Unknown method ${method}`);
-      }
-    }),
+            throw new Error("unknown message");
+          case "eth_sendTransaction":
+            const [{ to }] = params;
+            return `txHash-${to}`;
+          default:
+            throw new Error(`ethereum: Unknown method ${method}`);
+        }
+      }),
+    },
+    bitcoin: {
+      request: jest.fn(({ method, params }: any) => {
+        switch (method) {
+          case "request_accounts":
+            return ["0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"];
+          default:
+            throw new Error(`bitcoin: Unknown method ${method}`);
+        }
+      }),
+    },
   };
 
   return wallet;

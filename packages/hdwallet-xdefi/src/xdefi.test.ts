@@ -34,8 +34,10 @@ describe("XDeFIHDWalletInfo", () => {
 describe("XDeFiWHDWallet", () => {
   let wallet: XDeFiHDWallet;
   beforeEach(() => {
+    const provider: { [key: string]: any } = {};
     wallet = new XDeFiHDWallet();
     wallet.ethAddress = "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8";
+    wallet.initialize(provider);
   });
 
   it("should match the metadata", async () => {
@@ -53,9 +55,9 @@ describe("XDeFiWHDWallet", () => {
   });
 
   it("should test ethSignTx", async () => {
-    const wallet = new XDeFiHDWallet();
     wallet.ethAddress = "0x123";
-    wallet.provider = {
+    wallet.bitcoinAddress = "bc1qannfxke2tfd4l7vhepehpvt05y83v3qsf6nfkk";
+    wallet.provider["ethereum"] = {
       request: jest.fn().mockReturnValue({
         r: "0x63db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0a",
         s: "0x28297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
@@ -85,7 +87,7 @@ describe("XDeFiWHDWallet", () => {
   });
 
   it("should test ethSignMessage", async () => {
-    wallet.provider = {
+    wallet.provider["ethereum"] = {
       request: jest.fn().mockReturnValue(
         `Object {
           "address": "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
@@ -125,23 +127,16 @@ describe("XDeFiWHDWallet", () => {
   });
 
   it("ethGetAddress returns a valid address ", async () => {
-    wallet.provider = {
+    wallet.provider["ethereum"] = {
       request: jest.fn().mockReturnValue(["0x73d0385F4d8E00C5e6504C6030F47BF6212736A8"]),
     };
 
-    const msg = "super secret message";
-    const sig = await wallet.ethSignMessage({
-      addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-      message: msg,
-    });
+    const sig = await wallet.ethGetAddress();
 
-    expect(sig).toMatchObject({
-      address: "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
-      signature: ["0x73d0385F4d8E00C5e6504C6030F47BF6212736A8"],
-    });
+    expect(sig).toBe("0x73d0385F4d8E00C5e6504C6030F47BF6212736A8");
   });
   it("ethSendTx returns a valid hash", async () => {
-    wallet.provider = {
+    wallet.provider["ethereum"] = {
       request: jest.fn().mockReturnValue("0x123"),
     };
 
@@ -155,11 +150,11 @@ describe("XDeFiWHDWallet", () => {
       data: "0xDEADBEEFDEADBEEFDEADBEEFDEADBEEF",
       chainId: 1,
     });
-    expect(wallet.provider.request).toHaveBeenCalled();
+    expect(wallet.provider["ethereum"].request).toHaveBeenCalled();
     expect(hash).toMatchObject({ hash: "0x123" });
   });
   it("ethSendTx returns a valid hash if maxFeePerGas is present in msg", async () => {
-    wallet.provider = {
+    wallet.provider["ethereum"] = {
       request: jest.fn().mockReturnValue("0x123"),
     };
 
@@ -174,11 +169,11 @@ describe("XDeFiWHDWallet", () => {
       data: "0xDEADBEEFDEADBEEFDEADBEEFDEADBEEF",
       chainId: 1,
     });
-    expect(wallet.provider.request).toHaveBeenCalled();
+    expect(wallet.provider["ethereum"].request).toHaveBeenCalled();
     expect(hash).toMatchObject({ hash: "0x123" });
   });
   it("ethSendTx returns null on error", async () => {
-    wallet.provider = {
+    wallet.provider["ethereum"] = {
       request: jest.fn().mockRejectedValue(new Error("An Error has occurred")),
     };
 
@@ -192,11 +187,11 @@ describe("XDeFiWHDWallet", () => {
       data: "0xDEADBEEFDEADBEEFDEADBEEFDEADBEEF",
       chainId: 1,
     });
-    expect(wallet.provider.request).toHaveBeenCalled();
+    expect(wallet.provider["ethereum"].request).toHaveBeenCalled();
     expect(hash).toBe(null);
   });
   it("ethVerifyMessage returns null as its not implemented", async () => {
-    wallet.provider = {
+    wallet.provider["ethereum"] = {
       request: jest.fn().mockReturnValue("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"),
     };
     expect(
@@ -207,6 +202,95 @@ describe("XDeFiWHDWallet", () => {
           "0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b",
       })
     ).toEqual(true);
+  });
+
+  it("btcGetAddress returns a valid address ", async () => {
+    wallet.provider["bitcoin"] = {
+      request: jest
+        .fn()
+        .mockImplementationOnce((_method, cb) => cb(null, ["bc1qannfxke2tfd4l7vhepehpvt05y83v3qsf6nfkk"])),
+    };
+
+    const address = await wallet.btcGetAddress();
+
+    expect(address).toBe("bc1qannfxke2tfd4l7vhepehpvt05y83v3qsf6nfkk");
+  });
+  it("btcSignTx returns a valid signature ", async () => {
+    wallet.provider["bitcoin"] = {
+      request: jest
+        .fn()
+        .mockImplementationOnce((_method, cb) => cb(null, ["bc1qannfxke2tfd4l7vhepehpvt05y83v3qsf6nfkk"]))
+        .mockImplementationOnce((_method, cb) => cb(null, { signatures: [], serializedTx: "randomSerializedTx" })),
+    };
+
+    const result = await wallet.btcSignTx({ coin: "Bitcoin", inputs: [], outputs: [], version: 1, locktime: 0 });
+
+    expect(result).toMatchObject({ signatures: [], serializedTx: "randomSerializedTx" });
+  });
+  it("btcSignMessage returns a valid signature ", async () => {
+    wallet.provider["bitcoin"] = {
+      request: jest
+        .fn()
+        .mockImplementationOnce((_method, cb) => cb(null, ["bc1qannfxke2tfd4l7vhepehpvt05y83v3qsf6nfkk"]))
+        .mockImplementationOnce((_method, cb) => cb(null, "randomSig")),
+    };
+
+    const result = await wallet.btcSignMessage({
+      addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
+      coin: "Bitcoin",
+      scriptType: core.BTCInputScriptType.SpendAddress,
+      message: "Hello World",
+    });
+
+    expect(result).toMatchObject({ address: "bc1qannfxke2tfd4l7vhepehpvt05y83v3qsf6nfkk", signature: "randomSig" });
+  });
+  it("btcVerifyMessage returns true for correct signature ", async () => {
+    wallet.btcVerifyMessage = jest.fn().mockReturnValue(true);
+    const result = await wallet.btcVerifyMessage({
+      address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
+      coin: "Bitcoin",
+      signature: "correctSign",
+      message: "Hello World",
+    });
+
+    expect(result).toBe(true);
+  });
+  it("btcVerifyMessage returns false for incorrect signature ", async () => {
+    wallet.btcVerifyMessage = jest.fn().mockReturnValue(false);
+    const result = await wallet.btcVerifyMessage({
+      address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
+      coin: "Bitcoin",
+      signature: "incorrectSig",
+      message: "Hello World",
+    });
+
+    expect(result).toBe(false);
+  });
+  it("btcSupportsCoin returns true for supported coin ", async () => {
+    wallet.btcSupportsCoin = jest.fn().mockReturnValue(true);
+    const result = await wallet.btcSupportsCoin("supportedCoin");
+
+    expect(result).toBe(true);
+  });
+  it("btcSupportsCoin returns false for unsupported coin ", async () => {
+    wallet.btcSupportsCoin = jest.fn().mockReturnValue(false);
+    const result = await wallet.btcSupportsCoin("unsupportedCoin");
+
+    expect(result).toBe(false);
+  });
+
+  it("btcSupportsScriptType returns true for supported scriptType ", async () => {
+    wallet.btcSupportsScriptType = jest.fn().mockReturnValue(true);
+    const result = await wallet.btcSupportsScriptType("Bitcoin", core.BTCInputScriptType.SpendAddress);
+
+    expect(result).toBe(true);
+  });
+
+  it("btcSupportsScriptType returns false for unsupported scriptType ", async () => {
+    wallet.btcSupportsScriptType = jest.fn().mockReturnValue(false);
+    const result = await wallet.btcSupportsScriptType("Bitcoin", core.BTCInputScriptType.SpendAddress);
+
+    expect(result).toBe(false);
   });
 
   it("should create instance of XDeFiHD wallet", () => {

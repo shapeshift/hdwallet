@@ -12,7 +12,7 @@ class XDeFiTransport extends core.Transport {
 }
 
 export function isXDeFi(wallet: core.HDWallet): wallet is XDeFiHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isXDeFi;
+  return _.isObject(wallet) && (wallet as any)._isXDEFI;
 }
 
 export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWallet {
@@ -26,7 +26,7 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWal
   info: XDeFiHDWalletInfo & core.HDWalletInfo;
   ethAddress?: string | null;
   bitcoinAddress?: string | null;
-  provider: { [key: string]: any } | undefined;
+  provider!: { [key: string]: any };
 
   constructor() {
     this.info = new XDeFiHDWalletInfo();
@@ -53,10 +53,10 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWal
   }
 
   public initialize(): never;
-  public initialize(provider: { [key: string]: any }): Promise<any>;
-  public async initialize(provider?: { [key: string]: any }): Promise<any> {
+  public initialize(provider: { [key: string]: any }): Promise<void>;
+  public async initialize(provider?: { [key: string]: any }): Promise<void> {
     if (!provider) throw new Error("provider is required");
-    this.provider = provider;
+    this.provider! = provider;
   }
 
   public hasOnDevicePinEntry(): boolean {
@@ -167,26 +167,26 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWal
   public async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean | null> {
     return bitcoin.btcVerifyMessage(msg);
   }
-  btcSupportsCoin(coin: string): Promise<boolean> {
-    throw new Error("Method not implemented.");
+  public async btcSupportsCoin(coin: string): Promise<boolean> {
+    return bitcoin.btcSupportsCoin(coin);
   }
-  btcSupportsScriptType(coin: string, scriptType?: core.BTCInputScriptType): Promise<boolean> {
-    throw new Error("Method not implemented.");
+  public btcSupportsScriptType(coin: string, scriptType?: core.BTCInputScriptType): Promise<boolean> {
+    return bitcoin.btcSupportsScriptType(coin, scriptType);
   }
-  btcSupportsSecureTransfer(): Promise<boolean> {
-    throw new Error("Method not implemented.");
+  public async btcSupportsSecureTransfer(): Promise<boolean> {
+    return false;
   }
-  btcSupportsNativeShapeShift(): boolean {
-    throw new Error("Method not implemented.");
+  public btcSupportsNativeShapeShift(): boolean {
+    return false;
   }
-  btcGetAccountPaths(msg: core.BTCGetAccountPaths): core.BTCAccountPath[] {
-    throw new Error("Method not implemented.");
+  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): core.BTCAccountPath[] {
+    return bitcoin.btcGetAccountPaths(msg);
   }
-  btcIsSameAccount(msg: core.BTCAccountPath[]): boolean {
-    throw new Error("Method not implemented.");
+  public btcIsSameAccount(msg: core.BTCAccountPath[]): boolean {
+    return false;
   }
-  btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    throw new Error("Method not implemented.");
+  public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
+    return undefined;
   }
 
   public async ethSupportsNetwork(chainId: number = 1): Promise<boolean> {
@@ -301,25 +301,25 @@ export class XDeFiHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo,
   }
 
   btcSupportsCoin(coin: string): Promise<boolean> {
-    throw new Error("Method not implemented.");
+    return bitcoin.btcSupportsCoin(coin);
   }
   btcSupportsScriptType(coin: string, scriptType?: core.BTCInputScriptType): Promise<boolean> {
-    throw new Error("Method not implemented.");
+    return bitcoin.btcSupportsScriptType(coin, scriptType);
   }
-  btcSupportsSecureTransfer(): Promise<boolean> {
-    throw new Error("Method not implemented.");
+  async btcSupportsSecureTransfer(): Promise<boolean> {
+    return false;
   }
   btcSupportsNativeShapeShift(): boolean {
-    throw new Error("Method not implemented.");
+    return false;
   }
   btcGetAccountPaths(msg: core.BTCGetAccountPaths): core.BTCAccountPath[] {
-    throw new Error("Method not implemented.");
+    return bitcoin.btcGetAccountPaths(msg);
   }
   btcIsSameAccount(msg: core.BTCAccountPath[]): boolean {
-    throw new Error("Method not implemented.");
+    return false;
   }
   btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    throw new Error("Method not implemented.");
+    return undefined;
   }
 
   public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {

@@ -21,7 +21,7 @@ export function selfTest(get: () => core.HDWallet): void {
 
   beforeAll(() => {
     let w = get();
-    if (xdefi.isXDeFi(w) && core.supportsETH(w)) wallet = w;
+    if (xdefi.isXDeFi(w) && core.supportsETH(w) && core.supportsBTC(w)) wallet = w;
     else fail("Wallet is not XDeFi");
   });
 
