@@ -1,8 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bech32 from "bech32";
 import CryptoJS from "crypto-js";
-import * as protoTxBuilder from "proto-tx-builder";
-import { DirectSecp256k1HdWallet, OfflineDirectSigner } from '@cosmjs/proto-signing'
+import * as protoTxBuilder from "@shapeshiftoss/proto-tx-builder";
 
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
