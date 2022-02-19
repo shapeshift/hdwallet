@@ -2,6 +2,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bech32 from "bech32";
 import CryptoJS from "crypto-js";
 import * as protoTxBuilder from "proto-tx-builder";
+import { DirectSecp256k1HdWallet, OfflineDirectSigner } from '@cosmjs/proto-signing'
 
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
@@ -76,7 +77,7 @@ export function MixinNativeOsmosisWallet<TBase extends core.Constructor<NativeHD
     async osmosisSignTx(msg: core.OsmosisSignTx): Promise<any> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "osmosis");
-        const adapter = await Isolation.Adapters.CosmosDirect.create(keyPair.node, "osmosis");
+        const adapter = await Isolation.Adapters.CosmosDirect.create(keyPair.node, "osmo");
         return await protoTxBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, OSMOSIS_CHAIN);
       });
     }
