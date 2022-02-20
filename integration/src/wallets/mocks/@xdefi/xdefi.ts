@@ -1,6 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 
+/** Ethereum mocks */
 const mockSignEthTxResponse = {
   r: "0x122269dc9cffc02962cdaa5af54913ac3e7293c3dd2a8ba7e38da2bc638f92df",
   s: "0x36334d475fc12eb62681fb2cb10f177101d5cf4c3a735c94460d92bfa2389cc8",
@@ -62,6 +63,7 @@ export async function createMockWallet(): Promise<core.HDWallet> {
       "0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b",
   });
 
+  /** Bitcoin mocks */
   wallet.btcGetAddress = jest
     .fn()
     .mockReturnValueOnce("1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM")

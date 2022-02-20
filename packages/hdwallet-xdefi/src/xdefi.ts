@@ -26,6 +26,8 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWal
   info: XDeFiHDWalletInfo & core.HDWalletInfo;
   ethAddress?: string | null;
   bitcoinAddress?: string | null;
+  litecoinAddress?: string | null;
+  bchAddress?: string | null;
   provider!: { [key: string]: any };
 
   constructor() {
@@ -55,8 +57,15 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWal
   public initialize(): never;
   public initialize(provider: { [key: string]: any }): Promise<void>;
   public async initialize(provider?: { [key: string]: any }): Promise<void> {
-    if (!provider) throw new Error("provider is required");
+    if ((provider && Object.keys(provider).length === 0) || !provider) throw new Error("provider is required");
     this.provider! = provider;
+  }
+
+  public async resetWallet() {
+    this.ethAddress = null;
+    this.bitcoinAddress = null;
+    this.litecoinAddress = null;
+    this.bchAddress = null;
   }
 
   public hasOnDevicePinEntry(): boolean {
@@ -143,26 +152,85 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWal
 
   public async disconnect(): Promise<void> {}
 
-  public async btcGetAddress(): Promise<string | null> {
-    if (this.bitcoinAddress) {
-      return this.bitcoinAddress;
+  public async btcGetAddress(msg?: core.BTCGetAddress): Promise<string | null> {
+    if (!msg) {
+      return this.getBitcoinAddress();
     }
+    const { coin } = msg;
+
+    switch (coin.toLowerCase()) {
+      case "bitcoin":
+        return this.getBitcoinAddress();
+      case "litecoin":
+        return this.getLitecoinAddress();
+      case "bitcoincash":
+        return this.getbchAddress();
+      default:
+        throw new Error(`${coin} not supported`);
+    }
+  }
+
+  private getBitcoinAddress = async (): Promise<string | null> => {
+    if (this.bitcoinAddress) return this.bitcoinAddress;
     const address = await bitcoin.btcGetAddress(this.provider?.["bitcoin"]);
     if (address) {
       this.bitcoinAddress = address;
       return address;
-    } else {
-      this.bitcoinAddress = null;
-      return null;
     }
-  }
+    return null;
+  };
+  private getLitecoinAddress = async (): Promise<string | null> => {
+    if (this.litecoinAddress) return this.litecoinAddress;
+    const address = await bitcoin.btcGetAddress(this.provider?.["litecoin"]);
+    if (address) {
+      this.litecoinAddress = address;
+      return address;
+    }
+    return null;
+  };
+  private getbchAddress = async (): Promise<string | null> => {
+    if (this.bchAddress) return this.bchAddress;
+    const address = await bitcoin.btcGetAddress(this.provider?.["bitcoincash"]);
+    if (address) {
+      this.bchAddress = address;
+      return address;
+    }
+    return null;
+  };
   public async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
-    const address = await this.btcGetAddress();
-    return address ? bitcoin.btcSignTx(msg, address, this.provider?.["bitcoin"]) : null;
+    let address;
+    switch (msg.coin.toLowerCase()) {
+      case "bitcoin":
+        address = await this.getBitcoinAddress();
+        break;
+      case "litecoin":
+        address = await this.getLitecoinAddress();
+        break;
+      case "bitcoincash":
+        address = await this.getbchAddress();
+        break;
+      default:
+        throw new Error(`Unable to get address for ${msg.coin}`);
+    }
+    return address ? bitcoin.btcSignTx(msg, address, this.provider?.[msg.coin.toLowerCase()]) : null;
   }
   public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage | null> {
-    const address = await this.btcGetAddress();
-    return address ? bitcoin.btcSignMessage(msg, address, this.provider?.["bitcoin"]) : null;
+    let address;
+    switch (msg.coin.toLowerCase()) {
+      case "bitcoin":
+        address = await this.getBitcoinAddress();
+        break;
+      case "litecoin":
+        address = await this.getLitecoinAddress();
+        break;
+      case "bitcoincash":
+        address = await this.getbchAddress();
+        break;
+      default:
+        throw new Error(`Unable to get address for ${msg.coin}`);
+    }
+
+    return address ? bitcoin.btcSignMessage(msg, address, this.provider?.[msg.coin.toLowerCase()]) : null;
   }
   public async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean | null> {
     return bitcoin.btcVerifyMessage(msg);

@@ -38,6 +38,7 @@ describe("XDeFiWHDWallet", () => {
     wallet = new XDeFiHDWallet();
     wallet.ethAddress = "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8";
     wallet.initialize(provider);
+    wallet.provider = provider;
   });
 
   it("should match the metadata", async () => {
@@ -204,7 +205,7 @@ describe("XDeFiWHDWallet", () => {
     ).toEqual(true);
   });
 
-  it("btcGetAddress returns a valid address ", async () => {
+  it("btcGetAddress returns a valid bitcoin address ", async () => {
     wallet.provider["bitcoin"] = {
       request: jest
         .fn()
@@ -212,10 +213,41 @@ describe("XDeFiWHDWallet", () => {
     };
 
     const address = await wallet.btcGetAddress();
-
     expect(address).toBe("bc1qannfxke2tfd4l7vhepehpvt05y83v3qsf6nfkk");
   });
-  it("btcSignTx returns a valid signature ", async () => {
+  it("btcGetAddress returns a litecoin address ", async () => {
+    wallet.provider["litecoin"] = {
+      request: jest
+        .fn()
+        .mockImplementationOnce((_method, cb) => cb(null, ["ltc1qf6pwfkw4wd0fetq2pfrwzlfknskjg6nyvt6ngv"])),
+    };
+
+    const address = await wallet.btcGetAddress({
+      addressNList: [0x80000000 + 44, 0x80000000 + 2, 0x80000000 + 0, 0, 0],
+      coin: "Litecoin",
+      scriptType: core.BTCInputScriptType.SpendAddress,
+      showDisplay: true,
+    });
+
+    expect(address).toBe("ltc1qf6pwfkw4wd0fetq2pfrwzlfknskjg6nyvt6ngv");
+  });
+  it("btcGetAddress returns a bch address ", async () => {
+    wallet.provider["bitcoincash"] = {
+      request: jest
+        .fn()
+        .mockImplementationOnce((_method, cb) => cb(null, ["qzqxk2q6rhy3j9fnnc00m08g4n5dm827xv2dmtjzzp"])),
+    };
+
+    const address = await wallet.btcGetAddress({
+      addressNList: [0x80000000 + 44, 0x80000000 + 2, 0x80000000 + 0, 0, 0],
+      coin: "Bitcoincash",
+      scriptType: core.BTCInputScriptType.SpendAddress,
+      showDisplay: true,
+    });
+
+    expect(address).toBe("qzqxk2q6rhy3j9fnnc00m08g4n5dm827xv2dmtjzzp");
+  });
+  it("btcSignTx returns a valid signature - BTC ", async () => {
     wallet.provider["bitcoin"] = {
       request: jest
         .fn()
@@ -227,7 +259,31 @@ describe("XDeFiWHDWallet", () => {
 
     expect(result).toMatchObject({ signatures: [], serializedTx: "randomSerializedTx" });
   });
-  it("btcSignMessage returns a valid signature ", async () => {
+  it("btcSignTx returns a valid signature - LTC ", async () => {
+    wallet.provider["litecoin"] = {
+      request: jest
+        .fn()
+        .mockImplementationOnce((_method, cb) => cb(null, ["bc1qannfxke2tfd4l7vhepehpvt05y83v3qsf6nfkk"]))
+        .mockImplementationOnce((_method, cb) => cb(null, { signatures: [], serializedTx: "randomSerializedTx" })),
+    };
+
+    const result = await wallet.btcSignTx({ coin: "Litecoin", inputs: [], outputs: [], version: 1, locktime: 0 });
+
+    expect(result).toMatchObject({ signatures: [], serializedTx: "randomSerializedTx" });
+  });
+  it("btcSignTx returns a valid signature - BCH ", async () => {
+    wallet.provider["bitcoincash"] = {
+      request: jest
+        .fn()
+        .mockImplementationOnce((_method, cb) => cb(null, ["bc1qannfxke2tfd4l7vhepehpvt05y83v3qsf6nfkk"]))
+        .mockImplementationOnce((_method, cb) => cb(null, { signatures: [], serializedTx: "randomSerializedTx" })),
+    };
+
+    const result = await wallet.btcSignTx({ coin: "Bitcoincash", inputs: [], outputs: [], version: 1, locktime: 0 });
+
+    expect(result).toMatchObject({ signatures: [], serializedTx: "randomSerializedTx" });
+  });
+  it("btcSignMessage returns a valid signature - BTC", async () => {
     wallet.provider["bitcoin"] = {
       request: jest
         .fn()
@@ -238,6 +294,40 @@ describe("XDeFiWHDWallet", () => {
     const result = await wallet.btcSignMessage({
       addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
       coin: "Bitcoin",
+      scriptType: core.BTCInputScriptType.SpendAddress,
+      message: "Hello World",
+    });
+
+    expect(result).toMatchObject({ address: "bc1qannfxke2tfd4l7vhepehpvt05y83v3qsf6nfkk", signature: "randomSig" });
+  });
+  it("btcSignMessage returns a valid signature - LTC", async () => {
+    wallet.provider["litecoin"] = {
+      request: jest
+        .fn()
+        .mockImplementationOnce((_method, cb) => cb(null, ["bc1qannfxke2tfd4l7vhepehpvt05y83v3qsf6nfkk"]))
+        .mockImplementationOnce((_method, cb) => cb(null, "randomSig")),
+    };
+
+    const result = await wallet.btcSignMessage({
+      addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
+      coin: "Litecoin",
+      scriptType: core.BTCInputScriptType.SpendAddress,
+      message: "Hello World",
+    });
+
+    expect(result).toMatchObject({ address: "bc1qannfxke2tfd4l7vhepehpvt05y83v3qsf6nfkk", signature: "randomSig" });
+  });
+  it("btcSignMessage returns a valid signature - BCH", async () => {
+    wallet.provider["bitcoincash"] = {
+      request: jest
+        .fn()
+        .mockImplementationOnce((_method, cb) => cb(null, ["bc1qannfxke2tfd4l7vhepehpvt05y83v3qsf6nfkk"]))
+        .mockImplementationOnce((_method, cb) => cb(null, "randomSig")),
+    };
+
+    const result = await wallet.btcSignMessage({
+      addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
+      coin: "Bitcoincash",
       scriptType: core.BTCInputScriptType.SpendAddress,
       message: "Hello World",
     });

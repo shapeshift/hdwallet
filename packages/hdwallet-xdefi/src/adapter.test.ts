@@ -4,6 +4,16 @@ import { XDeFiAdapter } from "./adapter";
 import { XDeFiHDWallet } from "./xdefi";
 
 describe("XDeFiAdapter", () => {
+  beforeAll(() => {
+    Object.defineProperty(globalThis, "xfi", {
+      value: {
+        ethereum: { request: jest.fn().mockReturnValue(["0x123"]), on: jest.fn() },
+        bitcoin: { request: jest.fn().mockReturnValue(["bc1blablabla"]) },
+        litecoin: { request: jest.fn().mockReturnValue(["llblablabla"]) },
+        bitcoincash: { request: jest.fn().mockReturnValue(["qqblablabla"]) },
+      },
+    });
+  });
   it("throws error if provider is not preset", async () => {
     const keyring = new core.Keyring();
     const adapter = XDeFiAdapter.useKeyring(keyring);
@@ -15,12 +25,6 @@ describe("XDeFiAdapter", () => {
     }
   });
   it("creates a unique wallet per deviceId", async () => {
-    Object.defineProperty(globalThis, "xfi", {
-      value: {
-        ethereum: { request: jest.fn().mockReturnValue(["0x123"]) },
-        bitcoin: { request: jest.fn().mockReturnValue(["bc1blablabla"]) },
-      },
-    });
     const keyring = new core.Keyring();
     const adapter = XDeFiAdapter.useKeyring(keyring);
     const add = jest.spyOn(adapter.keyring, "add");

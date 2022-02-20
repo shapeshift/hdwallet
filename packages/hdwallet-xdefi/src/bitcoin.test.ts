@@ -17,7 +17,7 @@ describe("XDEFI - BitcoinAdapter", () => {
     try {
       await bitcoin.btcGetAddress(undefined);
     } catch (e) {
-      expect(e.message).toBe("XDEFI Bitcoin Provider not found");
+      expect(e.message).toBe("XDEFI Provider not found");
     }
   });
   it("btcSignTx returns a valid signature ", async () => {
@@ -44,7 +44,7 @@ describe("XDEFI - BitcoinAdapter", () => {
         undefined
       );
     } catch (e) {
-      expect(e.message).toBe("XDEFI Bitcoin Provider not found");
+      expect(e.message).toBe("XDEFI Provider not found");
     }
   });
   it("btcSignMessage returns a valid signature ", async () => {
@@ -79,7 +79,7 @@ describe("XDEFI - BitcoinAdapter", () => {
         undefined
       );
     } catch (e) {
-      expect(e.message).toBe("XDEFI Bitcoin Provider not found");
+      expect(e.message).toBe("XDEFI Provider not found");
     }
   });
   it("btcVerifyMessage returns true for correct signature ", async () => {

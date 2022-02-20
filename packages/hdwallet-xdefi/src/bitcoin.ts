@@ -2,30 +2,29 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bitcoinMsg from "bitcoinjs-message";
 import Base64 from "base64-js";
 
-export const supportedCoins = ["testnet", "bitcoin", "bitcoinCash", "litecoin", "dash", "digiByte", "dogecoin"];
-
-const segwitCoins = ["bitcoin", "digiByte", "litecoin", "bitcoinGold", "testnet"];
+export const supportedCoins = ["testnet", "bitcoin", "bitcoinCash", "litecoin"];
 
 export async function btcSupportsCoin(coin: core.Coin): Promise<boolean> {
   return supportedCoins.includes(String(coin).toLowerCase());
 }
 
-export async function btcGetAddress(bitcoin: any): Promise<string | null> {
-  if (!bitcoin) throw new Error("XDEFI Bitcoin Provider not found");
+export async function btcGetAddress(provider: any): Promise<string | null> {
+  if (!provider) throw new Error("XDEFI Provider not found");
 
-  if (!(bitcoin && bitcoin.request)) {
+  if (!(provider && provider.request)) {
     return null;
   }
 
   return new Promise((res, rej) => {
     try {
-      bitcoin.request(
+      provider.request(
         {
           method: "request_accounts",
+          params: [],
         },
-        (err: any, bitcoinAccounts: string[]) => {
+        (err: any, accounts: string[]) => {
           if (err) rej(err);
-          res(bitcoinAccounts[0]);
+          res(accounts[0]);
         }
       );
     } catch (error) {
@@ -35,16 +34,16 @@ export async function btcGetAddress(bitcoin: any): Promise<string | null> {
   });
 }
 
-export async function btcSignTx(msg: core.BTCSignTx, address: string, bitcoin: any): Promise<core.BTCSignedTx | null> {
-  if (!bitcoin) throw new Error("XDEFI Bitcoin Provider not found");
+export async function btcSignTx(msg: core.BTCSignTx, address: string, provider: any): Promise<core.BTCSignedTx | null> {
+  if (!provider) throw new Error("XDEFI Provider not found");
 
-  if (!(bitcoin && bitcoin.request)) {
+  if (!(provider && provider.request)) {
     return null;
   }
 
   return new Promise((res, rej) => {
     try {
-      bitcoin.request(
+      provider.request(
         {
           method: "sign_transaction",
           params: [{ msg, from: address }],
@@ -63,17 +62,17 @@ export async function btcSignTx(msg: core.BTCSignTx, address: string, bitcoin: a
 export async function btcSignMessage(
   msg: core.BTCSignMessage,
   address: string,
-  bitcoin: any
+  provider: any
 ): Promise<core.BTCSignedMessage | null> {
-  if (!bitcoin) throw new Error("XDEFI Bitcoin Provider not found");
+  if (!provider) throw new Error("XDEFI Provider not found");
 
-  if (!(bitcoin && bitcoin.request)) {
+  if (!(provider && provider.request)) {
     return null;
   }
 
   return new Promise((res, rej) => {
     try {
-      bitcoin.request(
+      provider.request(
         {
           method: "sign_transaction",
           params: [{ msg, from: address }],
