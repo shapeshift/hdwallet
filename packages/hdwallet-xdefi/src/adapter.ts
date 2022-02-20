@@ -23,6 +23,8 @@ export class XDeFiAdapter {
     const provider: { [key: string]: any } = {
       ethereum: (globalThis as any).xfi?.ethereum,
       bitcoin: (globalThis as any).xfi?.bitcoin,
+      litecoin: (globalThis as any).xfi?.litecoin,
+      bitcoincash: (globalThis as any).xfi?.bitcoincash,
     };
     if (!provider) {
       throw new Error("XDeFi provider not found");
@@ -34,6 +36,11 @@ export class XDeFiAdapter {
     this.keyring.add(wallet, deviceID);
     this.currentDeviceID = deviceID;
     this.keyring.emit(["XDeFi", deviceID, core.Events.CONNECT], deviceID);
+
+    // Reset accounts when accounts are changed
+    provider["ethereum"].on("accountsChanged", () => {
+      wallet.resetWallet();
+    });
 
     return wallet;
   }
