@@ -9,7 +9,7 @@ afterEach(() => expect(mswMock).not.toHaveBeenCalled());
 
 const untouchable = require("untouchableMock");
 
-describe.only("NativeCosmosWalletInfo", () => {
+describe("NativeCosmosWalletInfo", () => {
   const info = native.info();
 
   it("should return some static metadata", async () => {
@@ -49,7 +49,7 @@ describe("NativeCosmosWallet", () => {
     ).toBe("cosmos14k4dnrrmxdch6nkvvuugsywrgmvlwrqszjfxjt");
   });
 
-  it("should sign a transaction correctly", async () => {
+  it.skip("should sign a transaction correctly", async () => {
     const signed = await wallet.cosmosSignTx({
       addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
       tx: {
