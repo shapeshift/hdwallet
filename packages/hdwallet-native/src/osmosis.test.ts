@@ -49,14 +49,14 @@ describe("NativeOsmosisWallet", () => {
     ).toBe("osmo14k4dnrrmxdch6nkvvuugsywrgmvlwrqs2f6kye");
   });
 
-  it.skip("should sign a transaction correctly", async () => {
+  it("should sign a transaction correctly", async () => {
     const signed = await wallet.osmosisSignTx({
       addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
       tx: {
         msg: [{
           "type": "cosmos-sdk/MsgSend",
           "value": {
-            "from_address": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
+            "from_address": "osmo1knuunh0lmwyrkjmrj7sky49uxk3peyzh2tlskm",
             "to_address": "osmo1qjwdyn56ecagk8rjf7crrzwcyz6775cj07qz9r",
             "amount": [
               {
@@ -78,11 +78,8 @@ describe("NativeOsmosisWallet", () => {
       sequence: "35",
     });
     await expect(signed?.signatures?.length).toBe(1);
-    await expect(signed?.signatures?.[0].pub_key?.value).toMatchInlineSnapshot(
-      `"AuGwbxSqxtP4HsVyUqrWiAZfb7Ur+gKYcAQ+Ru8mIBxQ"`
-    );
     await expect(signed?.signatures?.[0]).toMatchInlineSnapshot(
-      `"dK12yPvgiRwtXzfss9F4BWMBHbNazdp0KgdKlMOVBLpbcBEagczPLHQnqXhB+t+bP8osVA3OdwUldGodmTYgBg=="`
+      `"PnKcDd/k1ZR5faISj2XOkfw5EF1FTPMsiZB7PObcG7F4WeK4HiMurJWhhneyFMQdG4IMJIiXehn/Ejz5YDj1xA=="`
     );
   });
 });

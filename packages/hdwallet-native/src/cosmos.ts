@@ -77,7 +77,6 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "cosmos");
         const adapter = await Isolation.Adapters.CosmosDirect.create(keyPair.node,"cosmos");
-        // @ts-ignore
         const result = await protoTxBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, ATOM_CHAIN);
         return result
       });
