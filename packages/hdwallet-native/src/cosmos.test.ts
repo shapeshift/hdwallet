@@ -60,7 +60,7 @@ describe("NativeCosmosWallet", () => {
             "to_address": "cosmos1knuunh0lmwyrkjmrj7sky49uxk3peyzhzsvqqf",
             "amount": [
               {
-                "denom": "uosmo",
+                "denom": "uatom",
                 "amount": "1000"
               }
             ]

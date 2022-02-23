@@ -57,7 +57,7 @@ describe("NativeOsmosisWallet", () => {
           "type": "cosmos-sdk/MsgSend",
           "value": {
             "from_address": "osmo1knuunh0lmwyrkjmrj7sky49uxk3peyzh2tlskm",
-            "to_address": "osmo1qjwdyn56ecagk8rjf7crrzwcyz6775cj07qz9r",
+            "to_address": "osmo1knuunh0lmwyrkjmrj7sky49uxk3peyzh2tlskm",
             "amount": [
               {
                 "denom": "uosmo",
@@ -67,8 +67,13 @@ describe("NativeOsmosisWallet", () => {
           }
         }],
         fee: {
-          amount: [{ denom: "uosmo", amount: "2800" }],
-          gas: "baz",
+          "amount": [
+            {
+              "amount": "100",
+              "denom": "uosmo"
+            }
+          ],
+          "gas": "100000"
         },
         signatures: null,
         memo: "foobar",
