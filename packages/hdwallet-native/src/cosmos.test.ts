@@ -49,11 +49,23 @@ describe("NativeCosmosWallet", () => {
     ).toBe("cosmos14k4dnrrmxdch6nkvvuugsywrgmvlwrqszjfxjt");
   });
 
-  it.skip("should sign a transaction correctly", async () => {
+  it("should sign a transaction correctly", async () => {
     const signed = await wallet.cosmosSignTx({
       addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
       tx: {
-        msg: [{ type: "foo", value: "bar" }],
+        msg: [{
+          "type": "cosmos-sdk/MsgSend",
+          "value": {
+            "from_address": "cosmos1knuunh0lmwyrkjmrj7sky49uxk3peyzhzsvqqf",
+            "to_address": "cosmos1knuunh0lmwyrkjmrj7sky49uxk3peyzhzsvqqf",
+            "amount": [
+              {
+                "denom": "uosmo",
+                "amount": "1000"
+              }
+            ]
+          }
+        }],
         fee: {
           "amount": [
             {
@@ -71,11 +83,8 @@ describe("NativeCosmosWallet", () => {
       sequence: "17",
     });
     await expect(signed?.signatures?.length).toBe(1);
-    await expect(signed?.signatures?.[0].pub_key?.value).toMatchInlineSnapshot(
-      `"AuGwbxSqxtP4HsVyUqrWiAZfb7Ur+gKYcAQ+Ru8mIBxQ"`
-    );
     await expect(signed?.signatures?.[0]).toMatchInlineSnapshot(
-      `"n8E8bEJmm9LZ/oZ3Zp1C4dP29IdZ8bzP67frNlzkR+58UKT0Qj8N485PtN62TiKPmYFuHBn9EeKHWoWV2U8Xxg=="`
+      `"PnKcDd/k1ZR5faISj2XOkfw5EF1FTPMsiZB7PObcG7F4WeK4HiMurJWhhneyFMQdG4IMJIiXehn/Ejz5YDj1xA=="`
     );
   });
 });
