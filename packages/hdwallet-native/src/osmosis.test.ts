@@ -84,7 +84,7 @@ describe("NativeOsmosisWallet", () => {
     });
     await expect(signed?.signatures?.length).toBe(1);
     await expect(signed?.signatures?.[0]).toMatchInlineSnapshot(
-      `"PnKcDd/k1ZR5faISj2XOkfw5EF1FTPMsiZB7PObcG7F4WeK4HiMurJWhhneyFMQdG4IMJIiXehn/Ejz5YDj1xA=="`
+      `"m5wzNYyoP1UBsl4QI7cHDHCOcQ5AHBDbx4im19ip3icMJ+S/Ne2To34gNeUOaudlGP1Q7UGk5NNcXa7r1Us47A=="`
     );
   });
 });
