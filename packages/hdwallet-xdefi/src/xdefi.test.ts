@@ -34,7 +34,7 @@ describe("XDeFIHDWalletInfo", () => {
 describe("XDeFiWHDWallet", () => {
   let wallet: XDeFiHDWallet;
   beforeEach(() => {
-    const provider: { [key: string]: any } = {};
+    const provider: { [key: string]: any } = { eth: {} };
     wallet = new XDeFiHDWallet();
     wallet.ethAddress = "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8";
     wallet.initialize(provider);
