@@ -75,7 +75,8 @@ export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWa
     async terraSignTx(msg: core.TerraSignTx): Promise<any | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "terra");
-        const adapter = await Isolation.Adapters.Cosmos.create(keyPair.node);
+        // @ts-ignore
+        const adapter = await Isolation.Adapters.Cosmos.create(keyPair);
         const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, "terra");
         return txBuilder.createSignedTx(msg.tx, result);
       });
