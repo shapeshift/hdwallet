@@ -73,7 +73,7 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
       });
     }
 
-    async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignTx> {
+    async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "cosmos");
         const adapter = await Isolation.Adapters.CosmosDirect.create(keyPair.node,"cosmos");

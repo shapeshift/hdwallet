@@ -52,13 +52,20 @@ export interface OsmosisTx {
 }
 
 export interface OsmosisSignTx {
-  serialized: string;
-  body: string;
-  authInfoBytes: string;
-  signatures: string[];
+  addressNList: BIP32Path;
+  tx: Osmosis.StdTx;
+  chain_id: string;
+  account_number: string;
+  sequence: string;
+  fee?: number;
 }
 
-export type OsmosisSignedTx = OsmosisTx;
+export interface OsmosisSignedTx {
+  serialized: string
+  body: string
+  authInfoBytes: string
+  signatures: string[]
+}
 
 export interface OsmosisGetAccountPaths {
   accountIdx: number;

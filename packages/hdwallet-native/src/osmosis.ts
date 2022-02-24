@@ -6,6 +6,7 @@ import * as protoTxBuilder from "@shapeshiftoss/proto-tx-builder";
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
 import * as Isolation from "./crypto/isolation";
+import {CosmosSignedTx} from "@shapeshiftoss/hdwallet-core";
 
 const OSMOSIS_CHAIN = "osmosis-1";
 
@@ -73,7 +74,7 @@ export function MixinNativeOsmosisWallet<TBase extends core.Constructor<NativeHD
       });
     }
 
-    async osmosisSignTx(msg: core.OsmosisSignTx): Promise<core.OsmosisSignTx> {
+    async osmosisSignTx(msg: core.OsmosisSignTx): Promise<core.CosmosSignedTx | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "osmosis");
         const adapter = await Isolation.Adapters.CosmosDirect.create(keyPair.node, "osmo");
