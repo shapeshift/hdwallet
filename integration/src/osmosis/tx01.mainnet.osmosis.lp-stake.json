@@ -1,0 +1,30 @@
+{
+  "chain_id": "osmosis-1",
+  "account_number": "95421",
+  "sequence": "46",
+  "fee": {
+    "amount": [
+      {
+        "amount": "0",
+        "denom": "uosmo"
+      }
+    ],
+    "gas": "290000"
+  },
+  "memo": "",
+  "msg": [
+    {
+      "type": "osmosis/lockup/lock-tokens",
+      "value": {
+        "owner": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
+        "duration": "86400000000000",
+        "coins": [
+          {
+            "denom": "gamm/pool/1",
+            "amount": "10000000000000000"
+          }
+        ]
+      }
+    }
+  ]
+}

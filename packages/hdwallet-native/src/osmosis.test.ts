@@ -53,24 +53,38 @@ describe("NativeOsmosisWallet", () => {
     const signed = await wallet.osmosisSignTx({
       addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
       tx: {
-        msg: [{ type: "foo", value: "bar" }],
+        msg: [{
+          "type": "cosmos-sdk/MsgSend",
+          "value": {
+            "from_address": "osmo1knuunh0lmwyrkjmrj7sky49uxk3peyzh2tlskm",
+            "to_address": "osmo1knuunh0lmwyrkjmrj7sky49uxk3peyzh2tlskm",
+            "amount": [
+              {
+                "denom": "uosmo",
+                "amount": "1000"
+              }
+            ]
+          }
+        }],
         fee: {
-          amount: [{ denom: "foo", amount: "bar" }],
-          gas: "baz",
+          "amount": [
+            {
+              "amount": "100",
+              "denom": "uosmo"
+            }
+          ],
+          "gas": "100000"
         },
         signatures: null,
         memo: "foobar",
       },
       chain_id: "osmosishub-4",
-      account_number: "foo",
-      sequence: "bar",
+      account_number: "95421",
+      sequence: "35",
     });
     await expect(signed?.signatures?.length).toBe(1);
-    await expect(signed?.signatures?.[0].pub_key?.value).toMatchInlineSnapshot(
-      `"AuGwbxSqxtP4HsVyUqrWiAZfb7Ur+gKYcAQ+Ru8mIBxQ"`
-    );
-    await expect(signed?.signatures?.[0].signature).toMatchInlineSnapshot(
-      `"dK12yPvgiRwtXzfss9F4BWMBHbNazdp0KgdKlMOVBLpbcBEagczPLHQnqXhB+t+bP8osVA3OdwUldGodmTYgBg=="`
+    await expect(signed?.signatures?.[0]).toMatchInlineSnapshot(
+      `"m5wzNYyoP1UBsl4QI7cHDHCOcQ5AHBDbx4im19ip3icMJ+S/Ne2To34gNeUOaudlGP1Q7UGk5NNcXa7r1Us47A=="`
     );
   });
 });
