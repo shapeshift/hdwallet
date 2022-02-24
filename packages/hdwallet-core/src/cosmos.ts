@@ -52,12 +52,9 @@ export interface CosmosTx {
 }
 
 export interface CosmosSignTx {
-  addressNList: BIP32Path;
-  tx: Cosmos.StdTx;
-  chain_id: string;
-  account_number: string;
-  sequence: string;
-  fee?: number;
+  serialized: string
+  body: string
+  signatures: string[]
 }
 
 export type CosmosSignedTx = CosmosTx;
