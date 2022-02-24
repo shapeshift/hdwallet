@@ -60,7 +60,7 @@ describe("NativeCosmosWallet", () => {
             "to_address": "cosmos1knuunh0lmwyrkjmrj7sky49uxk3peyzhzsvqqf",
             "amount": [
               {
-                "denom": "uosmo",
+                "denom": "uatom",
                 "amount": "1000"
               }
             ]
@@ -84,7 +84,7 @@ describe("NativeCosmosWallet", () => {
     });
     await expect(signed?.signatures?.length).toBe(1);
     await expect(signed?.signatures?.[0]).toMatchInlineSnapshot(
-      `"PnKcDd/k1ZR5faISj2XOkfw5EF1FTPMsiZB7PObcG7F4WeK4HiMurJWhhneyFMQdG4IMJIiXehn/Ejz5YDj1xA=="`
+      `"B3KXc4pbANu4orFqVB9sWHXSqKXfU3oaH4rN7P3By9tmNEIw7+i8IBXMqaT1VDReehtK+krK02tDRhpFZIW7Iw=="`
     );
   });
 });
