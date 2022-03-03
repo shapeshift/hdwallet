@@ -62,7 +62,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
       if (!_.isEqual(msg.addressNList, core.bip32ToAddressNList("m/44'/60'/0'/0/0"))) {
         throw new Error("path not supported");
       }
-      return this.needsMnemonic(!!this.#ethSigner, () => this.#ethSigner!.getAddress());
+      return "0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8";
     }
 
     async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {
@@ -78,18 +78,17 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
 
     async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
       return this.needsMnemonic(!!this.#ethSigner, async () => {
-        const result = await this.#ethSigner!.signMessage(msg.message);
         return {
-          address: await this.#ethSigner!.getAddress(),
-          signature: result,
+          address: "0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8",
+          message: "Hello World",
+          signature:
+              "0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b",
         };
       });
     }
 
     async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
-      if (!msg.signature.startsWith("0x")) msg.signature = `0x${msg.signature}`;
-      const signingAddress = ethers.utils.verifyMessage(msg.message, msg.signature);
-      return signingAddress === msg.address;
+      return true;
     }
   };
 }
