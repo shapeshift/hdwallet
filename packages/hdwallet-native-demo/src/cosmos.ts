@@ -4,8 +4,6 @@ import CryptoJS from "crypto-js";
 import * as protoTxBuilder from "@shapeshiftoss/proto-tx-builder";
 
 import { NativeHDWalletBase } from "./native";
-import * as util from "./util";
-import * as Isolation from "./crypto/isolation";
 
 const ATOM_CHAIN = "cosmoshub-4";
 
@@ -44,9 +42,9 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
   return class MixinNativeCosmosWallet extends Base {
     readonly _supportsCosmos = true;
 
-    #masterKey: Isolation.Core.BIP32.Node | undefined;
+    #masterKey: any | undefined;
 
-    async cosmosInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
+    async cosmosInitializeWallet(masterKey:any): Promise<void> {
       this.#masterKey = masterKey;
     }
 
@@ -68,17 +66,50 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
 
     async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
-        const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "cosmos");
-        return this.createCosmosAddress(keyPair.publicKey.toString("hex"));
+        return "cosmos1knuunh0lmwyrkjmrj7sky49uxk3peyzhzsvqqf"
       });
     }
 
-    async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
+    async cosmosSignTx(msg: core.CosmosSignTx): Promise<any | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
-        const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "cosmos");
-        const adapter = await Isolation.Adapters.CosmosDirect.create(keyPair.node,"cosmos");
-        const result = await protoTxBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, ATOM_CHAIN);
-        return result
+        return {
+          "msg": [
+            {
+              "type": "cosmos-sdk/MsgSend",
+              "value": {
+                "from_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
+                "to_address": "cosmos1qjwdyn56ecagk8rjf7crrzwcyz6775cj89njn3",
+                "amount": [
+                  {
+                    "denom": "uatom",
+                    "amount": "1000"
+                  }
+                ]
+              }
+            }
+          ],
+          "fee": {
+            "amount": [
+              {
+                "denom": "uatom",
+                "amount": "100"
+              }
+            ],
+            "gas": "100000"
+          },
+          "signatures": [
+            {
+              "signature": "rHB38uopPype0mom6WiIEOi60qZcXvYuJNz3RAXH6hthgU4FgQtp8PK9R+L/8pn92RdrhPZ3VYY5w3Y7HNbOmA==",
+              "account_number": "16354",
+              "sequence": "5",
+              "pub_key": {
+                "type": "tendermint/PubKeySecp256k1",
+                "value": "A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
+              }
+            }
+          ],
+          "memo": "Sent from the citadel! "
+        }
       });
     }
   };

@@ -1,29 +1,16 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as bip39 from "bip39";
 import * as eventemitter2 from "eventemitter2";
 import _ from "lodash";
 
-import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binance";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
-import { MixinNativeOsmosisWallet, MixinNativeOsmosisWalletInfo } from "./osmosis";
 import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
-import { MixinNativeFioWalletInfo, MixinNativeFioWallet } from "./fio";
-import { MixinNativeKavaWalletInfo, MixinNativeKavaWallet } from "./kava";
-import { getNetwork } from "./networks";
-import { MixinNativeSecretWalletInfo, MixinNativeSecretWallet } from "./secret";
-import { MixinNativeTerraWalletInfo, MixinNativeTerraWallet } from "./terra";
-import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./thorchain";
 
 import type { NativeAdapterArgs } from "./adapter";
 
 export enum NativeEvents {
   MNEMONIC_REQUIRED = "MNEMONIC_REQUIRED",
   READY = "READY",
-}
-
-function isMnemonicInterface(x: unknown): x is any {
-  return core.isIndexable(x) && typeof x.toSeed === "function";
 }
 
 type LoadDevice = Omit<core.LoadDevice, "mnemonic"> & {
@@ -110,19 +97,11 @@ export class NativeHDWalletBase extends NativeHDWalletInfoBase {
 
 class NativeHDWalletInfo
   extends MixinNativeBTCWalletInfo(
-    MixinNativeFioWalletInfo(
       MixinNativeETHWalletInfo(
         MixinNativeCosmosWalletInfo(
-          MixinNativeBinanceWalletInfo(
-            MixinNativeThorchainWalletInfo(
-              MixinNativeSecretWalletInfo(
-                MixinNativeTerraWalletInfo(MixinNativeKavaWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase)))
-              )
-            )
-          )
+            NativeHDWalletBase
         )
       )
-    )
   )
   implements core.HDWalletInfo
 {
@@ -176,42 +155,28 @@ class NativeHDWalletInfo
 
 export class NativeHDWallet
   extends MixinNativeBTCWallet(
-    MixinNativeFioWallet(
       MixinNativeETHWallet(
         MixinNativeCosmosWallet(
-          MixinNativeBinanceWallet(
-            MixinNativeThorchainWallet(
-              MixinNativeSecretWallet(
-                MixinNativeTerraWallet(MixinNativeKavaWallet(MixinNativeOsmosisWallet(NativeHDWalletInfo)))
-              )
-            )
-          )
+            NativeHDWalletInfo
         )
-      )
     )
   )
   implements
     core.HDWallet,
     core.BTCWallet,
     core.ETHWallet,
-    core.CosmosWallet,
-    core.OsmosisWallet,
-    core.FioWallet,
-    core.ThorchainWallet,
-    core.SecretWallet,
-    core.TerraWallet,
-    core.KavaWallet
+    core.CosmosWallet
 {
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
   readonly _supportsCosmos = true;
-  readonly _supportsOsmosis = true;
-  readonly _supportsBinance = true;
-  readonly _supportsFio = true;
-  readonly _supportsThorchain = true;
-  readonly _supportsSecret = true;
-  readonly _supportsTerra = true;
-  readonly _supportsKava = true;
+  readonly _supportsOsmosis = false;
+  readonly _supportsBinance = false;
+  readonly _supportsFio = false;
+  readonly _supportsThorchain = false;
+  readonly _supportsSecret = false;
+  readonly _supportsTerra = false;
+  readonly _supportsKava = false;
   readonly _isNative = true;
 
   #deviceId: string;
@@ -256,7 +221,6 @@ export class NativeHDWallet
    */
   async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<core.PublicKey[] | null> {
     return this.needsMnemonic(!!this.#masterKey, async () => {
-      const masterKey = await this.#masterKey!;
       return await Promise.all(
         msg.map(async (getPublicKey) => {
           return { xpub:"xpub6D1weXBcFAo8CqBbpP4TbH5sxQH8ZkqC5pDEvJ95rNNBZC9zrKmZP2fXMuve7ZRBe18pWQQsGg68jkq24mZchHwYENd8cCiSb71u3KD4AFH" };
@@ -283,13 +247,6 @@ export class NativeHDWallet
           super.btcInitializeWallet(masterKey),
           super.ethInitializeWallet(masterKey),
           super.cosmosInitializeWallet(masterKey),
-          super.osmosisInitializeWallet(masterKey),
-          super.binanceInitializeWallet(masterKey),
-          super.fioInitializeWallet(masterKey),
-          super.thorchainInitializeWallet(masterKey),
-          super.secretInitializeWallet(masterKey),
-          super.terraInitializeWallet(masterKey),
-          super.kavaInitializeWallet(masterKey),
         ]);
 
         this.#initialized = true;
@@ -321,17 +278,9 @@ export class NativeHDWallet
     const oldMasterKey = this.#masterKey;
     this.#initialized = false;
     this.#masterKey = undefined;
-
     super.btcWipe();
     super.ethWipe();
     super.cosmosWipe();
-    super.osmosisWipe();
-    super.binanceWipe();
-    super.fioWipe();
-    super.thorchainWipe();
-    super.secretWipe();
-    super.terraWipe();
-    super.kavaWipe();
 
     (await oldMasterKey)?.revoke?.()
   }

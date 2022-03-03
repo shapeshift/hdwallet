@@ -4,7 +4,7 @@ import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 
 import { getNetwork } from "./networks";
 import { NativeHDWalletBase } from "./native";
-import * as util from "./util";
+
 
 const supportedCoins = ["bitcoin", "dash", "digibyte", "dogecoin", "litecoin", "bitcoincash", "testnet"];
 
@@ -134,9 +134,9 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
   return class MixinNativeBTCWallet extends Base {
     readonly _supportsBTC = true;
 
-    #masterKey: Isolation.Core.BIP32.Node | undefined;
+    #masterKey: any | undefined;
 
-    async btcInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
+    async btcInitializeWallet(masterKey: any): Promise<void> {
       this.#masterKey = masterKey;
     }
 
@@ -214,63 +214,14 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
       return true;
     }
 
-    async buildInput(coin: core.Coin, input: core.BTCSignTxInputNative): Promise<InputData | null> {
-      return this.needsMnemonic(!!this.#masterKey, async () => {
-        const { addressNList, amount, hex, scriptType } = input;
-        const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin, scriptType);
-
-        const isSegwit = !!scriptType && segwit.includes(scriptType);
-        const nonWitnessUtxo = hex && Buffer.from(hex, "hex");
-        const witnessUtxo = input.tx && {
-          script: Buffer.from(input.tx.vout[input.vout].scriptPubKey.hex, "hex"),
-          value: Number(amount),
-        };
-        const utxoData = isSegwit && witnessUtxo ? { witnessUtxo } : { nonWitnessUtxo };
-
-        if (!(utxoData.witnessUtxo || utxoData.nonWitnessUtxo)) {
-          throw new Error(
-            "failed to build input - must provide prev rawTx (segwit input can provide scriptPubKey hex and value instead)"
-          );
-        }
-
-        const { publicKey, network } = keyPair;
-        const payment = this.createPayment(publicKey, scriptType, network);
-
-        let scriptData: ScriptData = {};
-        switch (scriptType) {
-          case "p2sh-p2wpkh":
-          case "p2sh":
-          case "bech32":
-            scriptData.redeemScript = payment.redeem?.output;
-            break;
-        }
-
-        let bchData: BchInputData = {};
-        if (coin.toLowerCase() === "bitcoincash") {
-          bchData.sighashType = bitcoin.Transaction.SIGHASH_ALL | bitcoin.Transaction.SIGHASH_BITCOINCASHBIP143
-        }
-
-        return {
-          ...utxoData,
-          ...bchData,
-          ...scriptData,
-        };
-      });
-    }
-
     async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
-        const { addressNList, coin, scriptType } = msg;
-        const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin, scriptType);
-        const { address } = this.createPayment(keyPair.publicKey, scriptType, keyPair.network);
-        if (!address) return null;
-        return coin.toLowerCase() === "bitcoincash" ? bchAddr.toCashAddress(address) : address;
+        return "1EC9SktW9Y4kS4iW48idshNg9eNeBdY5Xi"
       });
     }
 
     async btcSignTx(msg: core.BTCSignTxNative): Promise<core.BTCSignedTx | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
-        const { coin, inputs, outputs, version, locktime } = msg;
         return {
           serializedTx:
               "010000000182488650ef25a58fef6788bd71b8212038d7f2bbe4750bc7bcb44701e85ef6d5000000006b4830450221009a0b7be0d4ed3146ee262b42202841834698bb3ee39c24e7437df208b8b7077102202b79ab1e7736219387dffe8d615bbdba87e11477104b867ef47afed1a5ede7810121023230848585885f63803a0a8aecdd6538792d5c539215c91698e315bf0253b43dffffffff0160cc0500000000001976a914de9b2a8da088824e8fe51debea566617d851537888ac00000000",

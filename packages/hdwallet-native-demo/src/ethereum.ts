@@ -3,7 +3,6 @@ import * as ethers from "ethers";
 import _ from "lodash";
 
 import { NativeHDWalletBase } from "./native";
-import * as Isolation from "./crypto/isolation";
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   return class MixinNativeETHWalletInfo extends Base implements core.ETHWalletInfo {
@@ -52,10 +51,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
 
     #ethSigner: ethers.Signer | undefined;
 
-    async ethInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
-      const rootNode = await Isolation.Adapters.BIP32.create(masterKey)
-      const isolatedSigner = await rootNode.derivePath(ethers.utils.defaultPath);
-      this.#ethSigner = await Isolation.Adapters.Ethereum.create(isolatedSigner.node);
+    async ethInitializeWallet(masterKey: any): Promise<void> {
     }
 
     ethWipe() {
@@ -71,34 +67,11 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
 
     async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {
       return this.needsMnemonic(!!this.#ethSigner, async () => {
-        const utx = {
-          to: msg.to,
-          from: await this.#ethSigner!.getAddress(),
-          nonce: msg.nonce,
-          gasLimit: msg.gasLimit,
-          data: msg.data,
-          value: msg.value,
-          chainId: msg.chainId,
-        };
-        let result: string = msg.maxFeePerGas
-          ? await this.#ethSigner!.signTransaction({
-              ...utx,
-              maxFeePerGas: msg.maxFeePerGas,
-              maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
-              type: core.ETHTransactionType.ETH_TX_TYPE_EIP_1559,
-            })
-          : await this.#ethSigner!.signTransaction({
-              ...utx,
-              gasPrice: msg.gasPrice,
-              type: core.ETHTransactionType.ETH_TX_TYPE_LEGACY,
-            });
-
-        const decoded = ethers.utils.parseTransaction(result);
         return {
-          v: core.mustBeDefined(decoded.v),
-          r: core.mustBeDefined(decoded.r),
-          s: core.mustBeDefined(decoded.s),
-          serialized: result,
+          "r": "0x7f21bb5a857db55c888355b2e48325062268ad62686fba56a4e57118f5783dda",
+          "s": "0x3e9893ed500842506a19288eb022b5f5b3cee6d1bbf6330f4304f60f8166f82a",
+          "serialized": "0xf88984deadbeef84deadbeef84deadbeef94deadbeefdeadbeefdeadbeefdeadbeefdeadbeef90deadbeefdeadbeefdeadbeefdeadbeef90deadbeefdeadbeefdeadbeefdeadbeef26a07f21bb5a857db55c888355b2e48325062268ad62686fba56a4e57118f5783ddaa03e9893ed500842506a19288eb022b5f5b3cee6d1bbf6330f4304f60f8166f82a",
+          "v": 38,
         };
       });
     }
