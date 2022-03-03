@@ -73,42 +73,12 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
     async cosmosSignTx(msg: core.CosmosSignTx): Promise<any | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
         return {
-          "msg": [
-            {
-              "type": "cosmos-sdk/MsgSend",
-              "value": {
-                "from_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
-                "to_address": "cosmos1qjwdyn56ecagk8rjf7crrzwcyz6775cj89njn3",
-                "amount": [
-                  {
-                    "denom": "uatom",
-                    "amount": "1000"
-                  }
-                ]
-              }
-            }
-          ],
-          "fee": {
-            "amount": [
-              {
-                "denom": "uatom",
-                "amount": "100"
-              }
-            ],
-            "gas": "100000"
-          },
+          "serialized": "CrsBCrgBCikvaWJjLmFwcGxpY2F0aW9ucy50cmFuc2Zlci52MS5Nc2dUcmFuc2ZlchKKAQoIdHJhbnNmZXISC2NoYW5uZWwtMTQxGgwKBXVhdG9tEgMxMDAiLWNvc21vczE1Y2VueWEwdHI3bm0zdHoyd24zaDN6d2todDJyeHJxN3E3aDNkaiorb3NtbzE1Y2VueWEwdHI3bm0zdHoyd24zaDN6d2todDJyeHJxN2c5eXBtcTIHCAEQy4e6BBJnClAKRgofL2Nvc21vcy5jcnlwdG8uc2VjcDI1NmsxLlB1YktleRIjCiEDvuOvMOU6c/OKvFovzaxCbXsE63Ko69OwGZLi0gbiStgSBAoCCAEYGxITCg0KBXVhdG9tEgQyODAwENDZERpARca0xhdMkItu+qnyzj58LkGyMKCBS+HwJRO+samk7RxJxo3rtoftuk/4JNNEjTKIsIurzoR8lXQgu1yS2IDh8A==",
+          "body": "CrgBCikvaWJjLmFwcGxpY2F0aW9ucy50cmFuc2Zlci52MS5Nc2dUcmFuc2ZlchKKAQoIdHJhbnNmZXISC2NoYW5uZWwtMTQxGgwKBXVhdG9tEgMxMDAiLWNvc21vczE1Y2VueWEwdHI3bm0zdHoyd24zaDN6d2todDJyeHJxN3E3aDNkaiorb3NtbzE1Y2VueWEwdHI3bm0zdHoyd24zaDN6d2todDJyeHJxN2c5eXBtcTIHCAEQy4e6BA==",
+          "authInfoBytes": "ClAKRgofL2Nvc21vcy5jcnlwdG8uc2VjcDI1NmsxLlB1YktleRIjCiEDvuOvMOU6c/OKvFovzaxCbXsE63Ko69OwGZLi0gbiStgSBAoCCAEYGxITCg0KBXVhdG9tEgQyODAwENDZEQ==",
           "signatures": [
-            {
-              "signature": "rHB38uopPype0mom6WiIEOi60qZcXvYuJNz3RAXH6hthgU4FgQtp8PK9R+L/8pn92RdrhPZ3VYY5w3Y7HNbOmA==",
-              "account_number": "16354",
-              "sequence": "5",
-              "pub_key": {
-                "type": "tendermint/PubKeySecp256k1",
-                "value": "A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
-              }
-            }
-          ],
-          "memo": "Sent from the citadel! "
+            "Rca0xhdMkItu+qnyzj58LkGyMKCBS+HwJRO+samk7RxJxo3rtoftuk/4JNNEjTKIsIurzoR8lXQgu1yS2IDh8A=="
+          ]
         }
       });
     }
