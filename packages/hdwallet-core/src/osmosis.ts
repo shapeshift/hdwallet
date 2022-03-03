@@ -60,7 +60,12 @@ export interface OsmosisSignTx {
   fee?: number;
 }
 
-export type OsmosisSignedTx = OsmosisTx;
+export interface OsmosisSignedTx {
+  serialized: string
+  body: string
+  authInfoBytes: string
+  signatures: string[]
+}
 
 export interface OsmosisGetAccountPaths {
   accountIdx: number;

@@ -76,7 +76,7 @@ export function MixinNativeThorchainWallet<TBase extends core.Constructor<Native
     async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "thorchain");
-        const adapter = await Isolation.Adapters.Cosmos.create(keyPair);
+        const adapter = await Isolation.Adapters.Cosmos.create(keyPair.node);
         const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, THOR_CHAIN);
         return txBuilder.createSignedTx(msg.tx, result);
       });

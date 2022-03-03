@@ -60,7 +60,12 @@ export interface CosmosSignTx {
   fee?: number;
 }
 
-export type CosmosSignedTx = CosmosTx;
+export interface CosmosSignedTx {
+  serialized: string
+  body: string
+  authInfoBytes: string
+  signatures: string[]
+}
 
 export interface CosmosGetAccountPaths {
   accountIdx: number;

@@ -1,4 +1,3 @@
-import Portis from "@portis/web3";
 import * as core from "@shapeshiftoss/hdwallet-core";
 
 import { PortisHDWallet } from "./portis";
@@ -60,6 +59,7 @@ export class PortisAdapter {
   }
 
   private async pairPortisDevice(): Promise<core.HDWallet> {
+    const Portis = (await import("@portis/web3")).default;
     this.portis = new Portis(this.portisAppId, "mainnet");
     const wallet = new PortisHDWallet(this.portis);
     await wallet.initialize();

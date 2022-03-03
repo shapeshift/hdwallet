@@ -8,7 +8,6 @@ import { argonBenchmark } from "./argonBenchmark";
 
 import { ArgonParams, IVaultBackedBy, IVaultFactory, VaultPrepareParams } from "./types";
 import { Revocable, crypto, revocable, encoder, keyStoreUUID, vaultStoreUUID, setCrypto, setPerformance } from "./util";
-import { Vault } from ".";
 
 // This has to be outside the class so the static initializers for defaultArgonParams and #machineSeed can reference it.
 let resolvers:
@@ -38,6 +37,7 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
   static readonly #vaultStore: Promise<idb.UseStore> = new Promise(
     (resolve) => resolvers && (resolvers.vaultStore = resolve)
   );
+
   static async prepare(params?: VaultPrepareParams) {
     const currentResolvers = resolvers;
     resolvers = undefined;
@@ -46,8 +46,8 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
       return;
     }
 
-    setCrypto(params?.crypto ?? window.crypto);
-    setPerformance(params?.performance ?? window.performance);
+    setCrypto(params?.crypto ?? globalThis.crypto);
+    setPerformance(params?.performance ?? globalThis.performance);
 
     currentResolvers.keyStore?.(params?.keyStore ?? idb.createStore(keyStoreUUID, "keyval"));
     currentResolvers.vaultStore?.(params?.vaultStore ?? idb.createStore(vaultStoreUUID, "keyval"));
@@ -147,8 +147,12 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
   }
 
   //#region static: VaultFactory<RawVault>
+  static async create(password?: string) {
+    return await RawVault.open(undefined, password);
+  }
+
   static async open(id?: string, password?: string) {
-    await Vault.prepare();
+    await RawVault.prepare();
 
     const factory = async (id: string, argonParams: Promise<ArgonParams>) => {
       const vaultRevoker = new (Revocable(class {}))();
@@ -194,7 +198,7 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
     const meta = jose.decodeProtectedHeader(jwe).meta;
     if (!meta || !core.isIndexable(meta)) return undefined;
     const out = new Map();
-    Object.entries(out).forEach(([k, v]) => out.set(k, v));
+    Object.entries(meta).forEach(([k, v]) => out.set(k, v));
     return out;
   }
 

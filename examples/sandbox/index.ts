@@ -3,9 +3,11 @@ import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as keepkeyTcp from "@shapeshiftoss/hdwallet-keepkey-tcp";
 import * as keepkeyWebUSB from "@shapeshiftoss/hdwallet-keepkey-webusb";
 import * as ledgerWebUSB from "@shapeshiftoss/hdwallet-ledger-webusb";
+import * as ledgerWebHID from "@shapeshiftoss/hdwallet-ledger-webhid";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
+import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
 
 import * as debug from "debug";
@@ -40,6 +42,7 @@ const kkbridgeAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const kkemuAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const portisAdapter = portis.PortisAdapter.useKeyring(keyring, { portisAppId });
 const metaMaskAdapter = metaMask.MetaMaskAdapter.useKeyring(keyring);
+const xdefiAdapter = xdefi.XDeFiAdapter.useKeyring(keyring);
 const nativeAdapter = native.NativeAdapter.useKeyring(keyring, {
   mnemonic,
   deviceId: "native-wallet-test",
@@ -51,7 +54,8 @@ const trezorAdapter = trezorConnect.TrezorAdapter.useKeyring(keyring, {
     appUrl: "https://shapeshift.com",
   },
 });
-const ledgerAdapter = ledgerWebUSB.WebUSBLedgerAdapter.useKeyring(keyring);
+const ledgerWebUSBAdapter = ledgerWebUSB.WebUSBLedgerAdapter.useKeyring(keyring);
+const ledgerWebHIDAdapter = ledgerWebHID.WebHIDLedgerAdapter.useKeyring(keyring);
 
 window["keyring"] = keyring;
 
@@ -64,10 +68,12 @@ const $keepkey = $("#keepkey");
 const $keepkeybridge = $("#keepkeybridge");
 const $kkemu = $("#kkemu");
 const $trezor = $("#trezor");
-const $ledger = $("#ledger");
+const $ledgerwebusb = $("#ledgerwebusb");
+const $ledgerwebhid = $("#ledgerwebhid");
 const $portis = $("#portis");
 const $native = $("#native");
 const $metaMask = $("#metaMask");
+const $xdefi = $("#xdefi");
 const $keyring = $("#keyring");
 
 $keepkey.on("click", async (e) => {
@@ -98,9 +104,16 @@ $trezor.on("click", async (e) => {
   $("#keyring select").val(await wallet.getDeviceID());
 });
 
-$ledger.on("click", async (e) => {
+$ledgerwebusb.on("click", async (e) => {
   e.preventDefault();
-  wallet = await ledgerAdapter.pairDevice();
+  wallet = await ledgerWebUSBAdapter.pairDevice();
+  window["wallet"] = wallet;
+  $("#keyring select").val(await wallet.getDeviceID());
+});
+
+$ledgerwebhid.on("click", async (e) => {
+  e.preventDefault();
+  wallet = await ledgerWebHIDAdapter.pairDevice();
   window["wallet"] = wallet;
   $("#keyring select").val(await wallet.getDeviceID());
 });
@@ -129,6 +142,18 @@ $native.on("click", async (e) => {
 $metaMask.on("click", async (e) => {
   e.preventDefault();
   wallet = await metaMaskAdapter.pairDevice("testid");
+  window["wallet"] = wallet;
+  let deviceID = "nothing";
+  try {
+    deviceID = await wallet.getDeviceID();
+    $("#keyring select").val(deviceID);
+  } catch (e) {
+    console.error(e);
+  }
+});
+$xdefi.on("click", async (e) => {
+  e.preventDefault();
+  wallet = await xdefiAdapter.pairDevice("testid");
   window["wallet"] = wallet;
   let deviceID = "nothing";
   try {
@@ -191,9 +216,15 @@ async function deviceConnected(deviceId) {
   }
 
   try {
-    await ledgerAdapter.initialize();
+    await ledgerWebUSBAdapter.initialize();
   } catch (e) {
-    console.error("Could not initialize LedgerAdapter", e);
+    console.error("Could not initialize LedgerWebUSBAdapter", e);
+  }
+
+  try {
+    await ledgerWebHIDAdapter.initialize();
+  } catch (e) {
+    console.error("Could not initialize LedgerWebHIDAdapter", e);
   }
 
   try {
@@ -214,7 +245,7 @@ async function deviceConnected(deviceId) {
     console.error("Could not initialize MetaMaskAdapter", e);
   }
 
-  for (const [deviceID, wallet] of Object.entries(keyring.wallets)) {
+  for (const deviceID of Object.keys(keyring.wallets)) {
     await deviceConnected(deviceID);
   }
   $keyring.change(async (e) => {
@@ -458,57 +489,58 @@ $doLoadDevice.on("click", (e) => {
 });
 
 const $openApp = $("#openApp");
-const $ledgerApp = $("#ledgerApp");
+const $ledgerAppToOpen = $("#ledgerAppToOpen");
 const $validateApp = $("#validateApp");
-const $appSymbol = $("#appSymbol");
+const $ledgerAppToValidate = $("#ledgerAppToValidate");
 const $getAppInfo = $("#getAppInfo");
 const $appInfo = $("#appInfo");
 
-$ledgerApp.attr("placeholder", "App name i.e. Bitcoin Cash");
-$appSymbol.attr("placeholder", "App symbol i.e. BCH");
+$ledgerAppToOpen.attr("placeholder", "App name i.e. Bitcoin Cash");
+$ledgerAppToValidate.attr("placeholder", "PascalCase coin name i.e. BitcoinCash");
 
 $openApp.on("click", async (e) => {
   e.preventDefault();
   if (!wallet) {
-    $ledgerApp.val("No wallet?");
+    $ledgerAppToOpen.val("No wallet?");
     return;
   }
-  const appName = $("#ledgerApp").val();
+  const appName = $("#ledgerAppToOpen").val();
   if (!appName) {
-    $ledgerApp.val("Please enter app name here");
+    $ledgerAppToOpen.val("Please enter app name here");
     return;
   }
-  let result;
+  let result = "Check device for prompt";
+  $ledgerAppToOpen.val(result);
   try {
     await wallet.openApp(appName);
-    result = "Check device for prompt";
+    result = `${appName} app opened`;
   } catch (err) {
     console.error(err);
     result = err.message;
   }
-  $ledgerApp.val(result);
+  $ledgerAppToOpen.val(result);
 });
 
 $validateApp.on("click", async (e) => {
   e.preventDefault();
   if (!wallet) {
-    $appSymbol.val("No wallet?");
+    $ledgerAppToValidate.val("No wallet?");
     return;
   }
-  const appSymbol = $("#appSymbol").val();
-  if (!appSymbol) {
-    $appSymbol.val("Please enter app symbol here");
+  const appName = $("#ledgerAppToValidate").val();
+  if (!appName) {
+    $ledgerAppToValidate.val("Please enter app name here");
     return;
   }
   let result;
   try {
-    await wallet.validateCurrentApp(appSymbol);
+    await wallet.validateCurrentApp(appName);
     result = "Correct app open";
   } catch (err) {
     console.error(err);
     result = err.message;
   }
-  $appSymbol.val(result);
+  $ledgerAppToValidate.val(result);
 });
 
 $getAppInfo.on("click", async (e) => {
@@ -1564,7 +1596,7 @@ $ethSend.on("click", async (e) => {
     let result = ethEIP1559Selected
       ? await wallet.ethSendTx(ethTx1559 as core.ETHSignTx)
       : await wallet.ethSendTx(ethTx as core.ETHSignTx);
-    console.log("Result: ", result)
+    console.log("Result: ", result);
     $ethResults.val(result.hash);
   } else {
     let label = await wallet.getLabel();

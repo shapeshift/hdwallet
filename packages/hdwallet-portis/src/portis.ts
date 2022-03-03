@@ -1,7 +1,7 @@
 import Portis from "@portis/web3";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import _ from "lodash";
-import Web3 from "web3";
+import type Web3 from "web3";
 
 import * as btc from "./bitcoin";
 import * as eth from "./ethereum";
@@ -34,7 +34,7 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
   transport: core.Transport = new PortisTransport(new core.Keyring());
 
   portis: Portis;
-  web3: any;
+  web3: Promise<Web3>;
   info: PortisHDWalletInfo & core.HDWalletInfo;
   ethAddress?: string;
 
@@ -43,7 +43,10 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
 
   constructor(portis: Portis) {
     this.portis = portis;
-    this.web3 = new Web3(portis.provider);
+    this.web3 = (async () => {
+      const web3 = (await import("web3")).default;
+      return new web3(portis.provider)
+    })();
     this.info = new PortisHDWalletInfo();
   }
 
@@ -251,7 +254,7 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
   }
 
   public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
-    return eth.ethVerifyMessage(msg, this.web3);
+    return eth.ethVerifyMessage(msg, await this.web3);
   }
 
   public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
@@ -260,11 +263,11 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
   }
 
   public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
-    return eth.ethSignTx(msg, this.web3, await this._ethGetAddress());
+    return eth.ethSignTx(msg, await this.web3, await this._ethGetAddress());
   }
 
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
-    return eth.ethSignMessage(msg, this.web3, await this._ethGetAddress());
+    return eth.ethSignMessage(msg, await this.web3, await this._ethGetAddress());
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
@@ -289,7 +292,7 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
   public async _ethGetAddress(): Promise<string> {
     if (this.ethAddress) return this.ethAddress;
 
-    const out: string = (await this.web3.eth.getAccounts())[0];
+    const out: string = (await (await this.web3).eth.getAccounts())[0];
     this.ethAddress = out;
     return out;
   }

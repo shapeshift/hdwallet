@@ -1,10 +1,15 @@
-import { ECPairInterface, Network, SignerAsync, crypto as bcrypto, networks } from "@shapeshiftoss/bitcoinjs-lib";
+import type { ECPairInterface, Network, SignerAsync, crypto as bcrypto, networks } from "@shapeshiftoss/bitcoinjs-lib";
 import { SecP256K1, IsolationError } from "../core"
 import { assertType, ByteArray } from "../types";
 
 export type ECPairInterfaceAsync = Omit<ECPairInterface, "sign"> & Pick<SignerAsync, "sign">;
 
-export class ECPairAdapter implements SecP256K1.ECDSAKey, SignerAsync, ECPairInterfaceAsync {
+let networksInstance: typeof networks | undefined
+const networksReady = (async () => {
+  networksInstance = (await import("@shapeshiftoss/bitcoinjs-lib")).networks
+})()
+
+export class ECPairAdapter implements SignerAsync, ECPairInterfaceAsync {
     protected readonly _isolatedKey: SecP256K1.ECDSAKey;
     readonly _publicKey: SecP256K1.CurvePoint;
     readonly _network: Network | undefined;
@@ -18,11 +23,12 @@ export class ECPairAdapter implements SecP256K1.ECDSAKey, SignerAsync, ECPairInt
     }
 
     static async create(isolatedKey: SecP256K1.ECDSAKey, network?: Network): Promise<ECPairAdapter> {
+        await networksReady
         return new ECPairAdapter(isolatedKey, await isolatedKey.getPublicKey(), network);
     }
 
     get network() {
-        return this._network ?? networks.bitcoin;
+        return this._network ?? networksInstance!.bitcoin;
     }
 
     get ecdsaSign() {

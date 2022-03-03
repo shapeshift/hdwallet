@@ -4,13 +4,13 @@ import * as ta from "type-assertions";
 
 import { MapVault } from "./mapVault";
 import { RawVault } from "./rawVault";
-import { IVault, IVaultFactory, VaultPrepareParams } from "./types";
-import { Revocable, crypto, decoder, encoder, revocable } from "./util";
+import { IVault, ISealableVaultFactory, VaultPrepareParams } from "./types";
+import { Revocable, crypto, decoder, encoder, revocable, shadowedMap } from "./util";
 
 export type ValueWrapper = (x: unknown, addRevoker: (revoke: () => void) => void) => Promise<unknown>;
 export type ValueTransformer = (x: unknown, addRevoker: (revoke: () => void) => void) => Promise<unknown>;
 
-ta.assert<ta.Extends<typeof Vault, IVaultFactory<Vault>>>();
+ta.assert<ta.Extends<typeof Vault, ISealableVaultFactory<Vault>>>();
 
 export class Vault extends MapVault implements IVault {
   //#region static
@@ -27,13 +27,6 @@ export class Vault extends MapVault implements IVault {
     if (sealed) out.seal();
     if (id !== undefined && password !== undefined) await out.load();
     return out;
-  }
-
-  static async thereCanBeOnlyOne(password?: string, sealed: boolean = true): Promise<Vault> {
-    const ids = await Vault.list();
-    if (ids.length === 0) throw new Error("can't find a vault");
-    if (ids.length > 1) throw new Error(`expected a single vault; found ${ids.length}: ${ids}`);
-    return await Vault.open(ids[0], password, sealed);
   }
 
   static #isPrivateKey(key: string) {
@@ -159,34 +152,7 @@ export class Vault extends MapVault implements IVault {
   }
 
   #unwrap(addRevoker: (revoke: () => void) => void = (x) => this.addRevoker(x)) {
-    const self = this;
-    const { proxy, revoke } = Proxy.revocable(self, {
-      get(t, p, r) {
-        switch (p) {
-          case "get":
-            return self.#getUnwrapped.bind(self);
-          case "values":
-            return () => Array.from(self.keys()).map((k) => self.#getUnwrapped(k));
-          case "entries":
-            return () => Array.from(self.keys()).map((k) => [k, self.#getUnwrapped(k)]);
-          case "entriesAsync":
-            return () => Promise.all(Array.from(self.keys()).map(async (k) => [k, await self.#getUnwrapped(k)]));
-          case "forEach":
-            return (callbackFn: (v?: unknown, k?: string, m?: typeof self) => void, thisArg?: object) => {
-              for (const key of self.keys()) {
-                callbackFn.call(thisArg, self.#getUnwrapped(key), key, self);
-              }
-            };
-          default: {
-            const out = Reflect.get(t, p, r);
-            // if (!String(p).startsWith("_") && typeof out === "function") return out.bind(t);
-            return out;
-          }
-        }
-      },
-    });
-    addRevoker(revoke);
-    return proxy;
+    return shadowedMap(this, (x: string) => this.#getUnwrapped(x), addRevoker)
   }
 
   #sealed = false;

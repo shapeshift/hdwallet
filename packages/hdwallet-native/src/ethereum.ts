@@ -55,7 +55,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     async ethInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
       const rootNode = await Isolation.Adapters.BIP32.create(masterKey)
       const isolatedSigner = await rootNode.derivePath(ethers.utils.defaultPath);
-      this.#ethSigner = await Isolation.Adapters.Ethereum.create(isolatedSigner);
+      this.#ethSigner = await Isolation.Adapters.Ethereum.create(isolatedSigner.node);
     }
 
     ethWipe() {
