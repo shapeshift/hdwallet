@@ -12,6 +12,7 @@ export class TransportDelegate implements keepkey.TransportDelegate {
     this.config = {
       ...config,
       headers: {
+        'Authorization': config.apiKey,
         "content-type": "application/json",
         "Access-Control-Allow-Origin": config.baseURL,
       },
