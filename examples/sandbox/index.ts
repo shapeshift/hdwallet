@@ -5,7 +5,7 @@ import * as keepkeyWebUSB from "@shapeshiftoss/hdwallet-keepkey-webusb";
 import * as ledgerWebUSB from "@shapeshiftoss/hdwallet-ledger-webusb";
 import * as ledgerWebHID from "@shapeshiftoss/hdwallet-ledger-webhid";
 import * as native from "@shapeshiftoss/hdwallet-native";
-import * as demo from "@shapeshiftoss/hdwallet-native";
+import * as demo from "@shapeshiftoss/hdwallet-native-demo";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
@@ -48,7 +48,7 @@ const nativeAdapter = native.NativeAdapter.useKeyring(keyring, {
   mnemonic,
   deviceId: "native-wallet-test",
 });
-const demoAdapter = demo.NativeAdapter.useKeyring(keyring, {
+const demoAdapter = demo.DemoAdapter.useKeyring(keyring, {
   mnemonic,
   deviceId: "native-wallet-test",
 });
