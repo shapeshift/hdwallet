@@ -5,6 +5,7 @@ import * as keepkeyWebUSB from "@shapeshiftoss/hdwallet-keepkey-webusb";
 import * as ledgerWebUSB from "@shapeshiftoss/hdwallet-ledger-webusb";
 import * as ledgerWebHID from "@shapeshiftoss/hdwallet-ledger-webhid";
 import * as native from "@shapeshiftoss/hdwallet-native";
+import * as demo from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
@@ -47,6 +48,10 @@ const nativeAdapter = native.NativeAdapter.useKeyring(keyring, {
   mnemonic,
   deviceId: "native-wallet-test",
 });
+const demoAdapter = demo.NativeAdapter.useKeyring(keyring, {
+  mnemonic,
+  deviceId: "native-wallet-test",
+});
 const trezorAdapter = trezorConnect.TrezorAdapter.useKeyring(keyring, {
   debug: false,
   manifest: {
@@ -72,6 +77,7 @@ const $ledgerwebusb = $("#ledgerwebusb");
 const $ledgerwebhid = $("#ledgerwebhid");
 const $portis = $("#portis");
 const $native = $("#native");
+const $demo = $("#demo");
 const $metaMask = $("#metaMask");
 const $xdefi = $("#xdefi");
 const $keyring = $("#keyring");
@@ -138,6 +144,14 @@ $native.on("click", async (e) => {
   window["wallet"] = wallet;
   $("#keyring select").val(await wallet.getDeviceID());
 });
+
+$demo.on("click", async (e) => {
+  e.preventDefault();
+  wallet = await demoAdapter.pairDevice("testid");
+  window["wallet"] = wallet;
+  $("#keyring select").val(await wallet.getDeviceID());
+});
+
 
 $metaMask.on("click", async (e) => {
   e.preventDefault();
@@ -235,6 +249,12 @@ async function deviceConnected(deviceId) {
 
   try {
     await nativeAdapter.initialize();
+  } catch (e) {
+    console.error("Could not initialize NativeAdapter", e);
+  }
+
+  try {
+    await demoAdapter.initialize();
   } catch (e) {
     console.error("Could not initialize NativeAdapter", e);
   }
