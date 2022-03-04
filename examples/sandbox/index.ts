@@ -5,6 +5,7 @@ import * as keepkeyWebUSB from "@shapeshiftoss/hdwallet-keepkey-webusb";
 import * as ledgerWebUSB from "@shapeshiftoss/hdwallet-ledger-webusb";
 import * as ledgerWebHID from "@shapeshiftoss/hdwallet-ledger-webhid";
 import * as native from "@shapeshiftoss/hdwallet-native";
+// import * as native-demo from "@shapeshiftoss/hdwallet-native-demo";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
