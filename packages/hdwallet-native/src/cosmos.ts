@@ -1,8 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bech32 from "bech32";
 import CryptoJS from "crypto-js";
-import * as txBuilder from "tendermint-tx-builder";
-
+import * as protoTxBuilder from "@shapeshiftoss/proto-tx-builder";
 import { NativeHDWalletBase } from "./native";
 import util from "./util";
 import * as Isolation from "./crypto/isolation";
@@ -73,12 +72,11 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
     }
 
     async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
-      return this.needsMnemonic(!!this.#seed, async () => {
-        const keyPair = util.getKeyPair(this.#seed!, msg.addressNList, "cosmos");
-        const adapter = new Isolation.Adapters.Cosmos(keyPair);
-        const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, ATOM_CHAIN);
-
-        return txBuilder.createSignedTx(msg.tx, result);
+      return this.needsMnemonic(!!this.#masterKey, async () => {
+        const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "cosmos");
+        const adapter = await Isolation.Adapters.CosmosDirect.create(keyPair.node,"cosmos");
+        const result = await protoTxBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, ATOM_CHAIN);
+        return result
       });
     }
   };
