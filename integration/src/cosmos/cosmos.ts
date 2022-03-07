@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import tx_unsigned from "./tx03.cosmoshub4.json";
-import tx_signed from "./tx03.cosmoshub4.signed.json";
+import tx_unsigned from "./tx01.mainnet.cosmos.json";
+import tx_signed from "./tx01.mainnet.cosmos.signed.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
@@ -68,11 +68,9 @@ export function cosmosTests(get: () => { wallet: core.HDWallet; info: core.HDWal
         };
 
         const res = await wallet.cosmosSignTx(input);
-        expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
+        expect(res?.signatures?.[0]).toEqual(tx_signed.signatures[0]);
       },
       TIMEOUT
     );
-
-
   });
 }
