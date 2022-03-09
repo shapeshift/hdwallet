@@ -6,14 +6,12 @@
     "plugin:@typescript-eslint/recommended",
     "prettier",
     "plugin:prettier/recommended",
-    "plugin:jsx-a11y/recommended",
     "plugin:jest/recommended"
   ],
   "plugins": [
     "@typescript-eslint",
     "prettier",
-    "jest",
-    "simple-import-sort"
+    "jest"
   ],
   "env": {
     "node": true,
@@ -24,8 +22,6 @@
     "process": "readonly"
   },
   "rules": {
-    "jsx-a11y/alt-text": "error",
-    "jsx-a11y/no-autofocus": "error",
     "prettier/prettier": "error",
     "default-case": "off",
     "no-console": [
@@ -47,9 +43,6 @@
     "@typescript-eslint/no-shadow": [
       "error"
     ],
-    "simple-import-sort/imports": [
-      "error"
-    ]
   },
   "overrides": [
     {
