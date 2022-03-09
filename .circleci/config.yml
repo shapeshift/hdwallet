@@ -32,6 +32,9 @@ orbs:
               name: Build packages
               command: yarn build
           - run:
+              name: Lint
+              command: yarn lint
+          - run:
               name: Run unit tests
               command: yarn test --runInBand --coverage=false
           - run:

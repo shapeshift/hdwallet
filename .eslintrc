@@ -1,0 +1,65 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier",
+    "plugin:prettier/recommended",
+    "plugin:jsx-a11y/recommended",
+    "plugin:jest/recommended"
+  ],
+  "plugins": [
+    "@typescript-eslint",
+    "prettier",
+    "jest",
+    "simple-import-sort"
+  ],
+  "env": {
+    "node": true,
+    "browser": true,
+    "jest/globals": true
+  },
+  "globals": {
+    "process": "readonly"
+  },
+  "rules": {
+    "jsx-a11y/alt-text": "error",
+    "jsx-a11y/no-autofocus": "error",
+    "prettier/prettier": "error",
+    "default-case": "off",
+    "no-console": [
+      "error",
+      {
+        "allow": [
+          "warn",
+          "error",
+          "info",
+          "group",
+          "groupEnd"
+        ]
+      }
+    ],
+    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/no-use-before-define": "error",
+    "@typescript-eslint/member-delimiter-style": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-shadow": [
+      "error"
+    ],
+    "simple-import-sort/imports": [
+      "error"
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/*.test.{j,t}s"
+      ],
+      "rules": {
+        "no-console": "off",
+        "@typescript-eslint/no-non-null-assertion": "off"
+      }
+    }
+  ]
+}
