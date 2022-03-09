@@ -96,8 +96,8 @@ export interface SecretWallet extends SecretWalletInfo, HDWallet {
 }
 
 export function secretDescribePath(path: BIP32Path): PathDescription {
-  const pathStr = addressNListToBIP32(path);
-  const unknown: PathDescription = {
+  let pathStr = addressNListToBIP32(path);
+  let unknown: PathDescription = {
     verbose: pathStr,
     coin: "Secret",
     isKnown: false,
@@ -123,7 +123,7 @@ export function secretDescribePath(path: BIP32Path): PathDescription {
     return unknown;
   }
 
-  const index = path[2] & 0x7fffffff;
+  let index = path[2] & 0x7fffffff;
   return {
     verbose: `Secret Account #${index}`,
     accountIdx: index,

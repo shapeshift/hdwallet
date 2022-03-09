@@ -7,20 +7,21 @@ import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 
-import { binanceTests } from "./binance";
 import { btcTests } from "./bitcoin";
-import { cosmosTests } from "./cosmos";
-import { eosTests } from "./eos";
 import { ethTests } from "./ethereum";
-import { fioTests } from "./fio";
-import { kavaTests } from "./kava";
+import { cosmosTests } from "./cosmos";
 import { osmosisTests } from "./osmosis";
+import { binanceTests } from "./binance";
 import { rippleTests } from "./ripple";
+import { eosTests } from "./eos";
+import { fioTests } from "./fio";
+import { thorchainTests } from "./thorchain";
 import { secretTests } from "./secret";
 import { terraTests } from "./terra";
-import { thorchainTests } from "./thorchain";
-import { ethereum } from "./wallets/mocks/@metamask/detect-provider";
+import { kavaTests } from "./kava";
 import { WalletSuite } from "./wallets/suite";
+
+import { ethereum } from "./wallets/mocks/@metamask/detect-provider";
 
 jest.mock("@metamask/detect-provider", () => async () => Promise.resolve(ethereum));
 

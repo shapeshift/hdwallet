@@ -1,18 +1,18 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import _ from "lodash";
 
+import { handleError } from "./utils";
 import * as Btc from "./bitcoin";
 import * as Eth from "./ethereum";
 import { TrezorTransport } from "./transport";
-import { handleError } from "./utils";
 
 export function isTrezor(wallet: core.HDWallet): wallet is TrezorHDWallet {
   return _.isObject(wallet) && (wallet as any)._isTrezor;
 }
 
 function describeETHPath(path: core.BIP32Path): core.PathDescription {
-  const pathStr = core.addressNListToBIP32(path);
-  const unknown: core.PathDescription = {
+  let pathStr = core.addressNListToBIP32(path);
+  let unknown: core.PathDescription = {
     verbose: pathStr,
     coin: "Ethereum",
     isKnown: false,
@@ -30,7 +30,7 @@ function describeETHPath(path: core.BIP32Path): core.PathDescription {
 
   if ((path[4] & 0x80000000) !== 0) return unknown;
 
-  const accountIdx = path[4] & 0x7fffffff;
+  let accountIdx = path[4] & 0x7fffffff;
   return {
     verbose: `Ethereum Account #${accountIdx}`,
     coin: "Ethereum",
@@ -42,8 +42,8 @@ function describeETHPath(path: core.BIP32Path): core.PathDescription {
 }
 
 function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: core.BTCInputScriptType) {
-  const pathStr = core.addressNListToBIP32(path);
-  const unknown: core.PathDescription = {
+  let pathStr = core.addressNListToBIP32(path);
+  let unknown: core.PathDescription = {
     verbose: pathStr,
     coin,
     scriptType,
@@ -58,7 +58,7 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
 
   if ((path[0] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
 
-  const purpose = path[0] & 0x7fffffff;
+  let purpose = path[0] & 0x7fffffff;
 
   if (![44, 49, 84].includes(purpose)) return unknown;
 
@@ -71,7 +71,7 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
   const slip44 = core.slip44ByCoin(coin);
   if (slip44 == undefined || path[1] !== 0x80000000 + slip44) return unknown;
 
-  const wholeAccount = path.length === 3;
+  let wholeAccount = path.length === 3;
 
   let script = scriptType
     ? (
@@ -93,7 +93,7 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
       script = "";
   }
 
-  const accountIdx = path[2] & 0x7fffffff;
+  let accountIdx = path[2] & 0x7fffffff;
 
   if (wholeAccount) {
     return {
@@ -106,8 +106,8 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
       isPrefork: false,
     };
   } else {
-    const change = path[3] === 1 ? "Change " : "";
-    const addressIdx = path[4];
+    let change = path[3] === 1 ? "Change " : "";
+    let addressIdx = path[4];
     return {
       verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${script}`,
       coin,
@@ -214,12 +214,12 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
   }
 
   public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    const description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType);
+    let description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType);
     if (!description.isKnown) {
       return undefined;
     }
 
-    const addressNList = msg.addressNList;
+    let addressNList = msg.addressNList;
 
     if (
       addressNList[0] === 0x80000000 + 44 ||
@@ -237,8 +237,8 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
   }
 
   public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
-    const addressNList = msg.hardenedPath.concat(msg.relPath);
-    const description = describeETHPath(addressNList);
+    let addressNList = msg.hardenedPath.concat(msg.relPath);
+    let description = describeETHPath(addressNList);
     if (!description.isKnown) {
       return undefined;
     }
@@ -280,7 +280,7 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async isInitialized(): Promise<boolean> {
-    const features = await this.getFeatures(/*cached*/ true);
+    let features = await this.getFeatures(/*cached*/ true);
     return features.initialized;
   }
 
@@ -290,12 +290,12 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     } = this.transport as any;
     if (transportId) return transportId;
 
-    const features = await this.getFeatures(/*cached*/ true);
+    let features = await this.getFeatures(/*cached*/ true);
     return features.device_id;
   }
 
   public async getFirmwareVersion(): Promise<string> {
-    const features = await this.getFeatures(/*cached*/ true);
+    let features = await this.getFeatures(/*cached*/ true);
     return `v${features.major_version}.${features.minor_version}.${features.patch_version}`;
   }
 
@@ -304,18 +304,18 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async getModel(): Promise<string> {
-    const features = await this.getFeatures(/*cached*/ true);
+    let features = await this.getFeatures(/*cached*/ true);
     return "Trezor " + features.model;
   }
 
   public async getLabel(): Promise<string> {
-    const features = await this.getFeatures(/*cached*/ true);
+    let features = await this.getFeatures(/*cached*/ true);
     return typeof features.label === "string" ? features.label : "";
   }
 
-  public async getFeatures(cached = false): Promise<any> {
+  public async getFeatures(cached: boolean = false): Promise<any> {
     if (cached && this.featuresCache) return this.featuresCache;
-    const res = await this.transport.call("getFeatures", {});
+    let res = await this.transport.call("getFeatures", {});
     handleError(this.transport, res, "Could not get Trezor features");
     this.cacheFeatures(res.payload);
     return res.payload;
@@ -327,7 +327,7 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
     if (!msg.length) return [];
-    const res = await this.transport.call("getPublicKey", {
+    let res = await this.transport.call("getPublicKey", {
       bundle: msg.map((request) => {
         return {
           path: request.addressNList,
@@ -403,12 +403,12 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async wipe(): Promise<void> {
-    const res = await this.transport.call("wipeDevice", {});
+    let res = await this.transport.call("wipeDevice", {});
     handleError(this.transport, res, "Could not wipe Trezor");
   }
 
   public async reset(msg: core.ResetDevice): Promise<void> {
-    const res = await this.transport.call("resetDevice", {
+    let res = await this.transport.call("resetDevice", {
       strength: msg.entropy,
       label: msg.label,
       pinProtection: msg.pin,
@@ -428,7 +428,7 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   public async loadDevice(msg: core.LoadDevice): Promise<void> {
     // https://github.com/trezor/connect/issues/363
-    const res = await this.transport.call("loadDevice", {
+    let res = await this.transport.call("loadDevice", {
       mnemonic: msg.mnemonic,
       pin: msg.pin,
       passphraseProtection: msg.passphrase,

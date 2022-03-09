@@ -61,10 +61,10 @@ export interface CosmosSignTx {
 }
 
 export interface CosmosSignedTx {
-  serialized: string;
-  body: string;
-  authInfoBytes: string;
-  signatures: string[];
+  serialized: string
+  body: string
+  authInfoBytes: string
+  signatures: string[]
 }
 
 export interface CosmosGetAccountPaths {
@@ -98,8 +98,8 @@ export interface CosmosWallet extends CosmosWalletInfo, HDWallet {
 }
 
 export function cosmosDescribePath(path: BIP32Path): PathDescription {
-  const pathStr = addressNListToBIP32(path);
-  const unknown: PathDescription = {
+  let pathStr = addressNListToBIP32(path);
+  let unknown: PathDescription = {
     verbose: pathStr,
     coin: "Atom",
     isKnown: false,
@@ -125,7 +125,7 @@ export function cosmosDescribePath(path: BIP32Path): PathDescription {
     return unknown;
   }
 
-  const index = path[2] & 0x7fffffff;
+  let index = path[2] & 0x7fffffff;
   return {
     verbose: `Cosmos Account #${index}`,
     accountIdx: index,

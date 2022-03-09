@@ -4,13 +4,9 @@ import * as bip32 from "bip32";
 import * as bitcoin from "bitcoinjs-lib";
 import * as bitcoinMsg from "bitcoinjs-message";
 
-export function describeUTXOPath(
-  path: core.BIP32Path,
-  coin: core.Coin,
-  scriptType?: core.BTCInputScriptType
-): core.PathDescription {
-  const pathStr = core.addressNListToBIP32(path);
-  const unknown: core.PathDescription = {
+export function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: core.BTCInputScriptType): core.PathDescription {
+  let pathStr = core.addressNListToBIP32(path);
+  let unknown: core.PathDescription = {
     verbose: pathStr,
     coin,
     scriptType,
@@ -21,7 +17,7 @@ export function describeUTXOPath(
 
   if ((path[0] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
 
-  const purpose = path[0] & 0x7fffffff;
+  let purpose = path[0] & 0x7fffffff;
 
   if (![44, 49, 84].includes(purpose)) return unknown;
 
@@ -31,17 +27,13 @@ export function describeUTXOPath(
 
   if (purpose === 84 && scriptType !== core.BTCInputScriptType.SpendWitness) return unknown;
 
-  const wholeAccount = path.length === 3;
+  let wholeAccount = path.length === 3;
 
-  const script = scriptType
-    ? (
-        {
-          [core.BTCInputScriptType.SpendAddress]: ["Legacy"],
-          [core.BTCInputScriptType.SpendP2SHWitness]: [],
-          [core.BTCInputScriptType.SpendWitness]: ["Segwit Native"],
-        } as Partial<Record<core.BTCInputScriptType, string[]>>
-      )[scriptType] ?? ([] as string[])
-    : ([] as string[]);
+  let script = scriptType ? ({
+    [core.BTCInputScriptType.SpendAddress]: ["Legacy"],
+    [core.BTCInputScriptType.SpendP2SHWitness]: [],
+    [core.BTCInputScriptType.SpendWitness]: ["Segwit Native"],
+  } as Partial<Record<core.BTCInputScriptType, string[]>>)[scriptType] ?? [] as string[] : [] as string[];
 
   let isPrefork = false;
   const slip44 = core.slip44ByCoin(coin);
@@ -57,10 +49,7 @@ export function describeUTXOPath(
         return unknown;
       }
       case "BitcoinSV": {
-        if (
-          path[1] === 0x80000000 + core.slip44ByCoin("Bitcoin") ||
-          path[1] === 0x80000000 + core.slip44ByCoin("BitcoinCash")
-        ) {
+        if (path[1] === 0x80000000 + core.slip44ByCoin("Bitcoin") || path[1] === 0x80000000 + core.slip44ByCoin("BitcoinCash")) {
           isPrefork = true;
           break;
         }
@@ -84,9 +73,9 @@ export function describeUTXOPath(
       break;
   }
 
-  const attr = attributes.length ? ` (${attributes.join(", ")})` : "";
+  let attr = attributes.length ? ` (${attributes.join(", ")})` : "";
 
-  const accountIdx = path[2] & 0x7fffffff;
+  let accountIdx = path[2] & 0x7fffffff;
 
   if (wholeAccount) {
     return {
@@ -99,8 +88,8 @@ export function describeUTXOPath(
       isPrefork,
     };
   } else {
-    const change = path[3] === 1 ? "Change " : "";
-    const addressIdx = path[4];
+    let change = path[3] === 1 ? "Change " : "";
+    let addressIdx = path[4];
     return {
       coin,
       verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${attr}`,
@@ -203,11 +192,9 @@ export function btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTC
   const bip84 = segwitNativeAccount(msg.coin, slip44, msg.accountIdx);
 
   let paths: Array<core.BTCAccountPath> =
-    (
-      {
-        Bitcoin: [bip44, bip49, bip84],
-      } as Partial<Record<core.Coin, core.BTCAccountPath[]>>
-    )[msg.coin] || [];
+    ({
+      Bitcoin: [bip44, bip49, bip84],
+    } as Partial<Record<core.Coin, core.BTCAccountPath[]>>)[msg.coin] || [];
 
   if (msg.scriptType !== undefined)
     paths = paths.filter((path) => {

@@ -10,17 +10,7 @@ export class EncryptedObject {
   data: ArrayBuffer;
   mac: ArrayBuffer;
 
-  constructor({
-    key,
-    iv,
-    data,
-    mac,
-  }: {
-    key: SymmetricCryptoKey;
-    iv: ArrayBuffer;
-    data: ArrayBuffer;
-    mac: ArrayBuffer;
-  }) {
+  constructor({key, iv, data, mac}: {key: SymmetricCryptoKey, iv: ArrayBuffer, data: ArrayBuffer, mac: ArrayBuffer}) {
     this.key = key;
     this.iv = iv;
     this.data = data;

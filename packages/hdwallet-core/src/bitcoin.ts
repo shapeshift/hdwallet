@@ -388,7 +388,7 @@ export function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInp
 
   if ((path[0] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
 
-  const purpose = path[0] & 0x7fffffff;
+  let purpose = path[0] & 0x7fffffff;
 
   if (![44, 49, 84].includes(purpose)) return unknown;
 
@@ -396,9 +396,9 @@ export function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInp
 
   if (purpose === 49 && scriptType !== BTCInputScriptType.SpendP2SHWitness) return unknown;
 
-  const wholeAccount = path.length === 3;
+  let wholeAccount = path.length === 3;
 
-  const script = (
+  let script = (
     {
       [BTCInputScriptType.SpendAddress]: ["Legacy"],
       [BTCInputScriptType.SpendP2SHWitness]: [],
@@ -445,9 +445,9 @@ export function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInp
       break;
   }
 
-  const attr = attributes.length ? ` (${attributes.join(", ")})` : "";
+  let attr = attributes.length ? ` (${attributes.join(", ")})` : "";
 
-  const accountIdx = path[2] & 0x7fffffff;
+  let accountIdx = path[2] & 0x7fffffff;
 
   if (wholeAccount) {
     return {
@@ -460,8 +460,8 @@ export function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInp
       isPrefork,
     };
   } else {
-    const change = path[3] === 1 ? "Change " : "";
-    const addressIdx = path[4];
+    let change = path[3] === 1 ? "Change " : "";
+    let addressIdx = path[4];
     return {
       coin,
       verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${attr}`,

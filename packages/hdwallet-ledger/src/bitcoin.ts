@@ -1,4 +1,3 @@
-import { CreateTransactionArg } from "@ledgerhq/hw-app-btc/lib/createTransaction";
 import { Transaction } from "@ledgerhq/hw-app-btc/lib/types";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import Base64 from "base64-js";
@@ -8,7 +7,8 @@ import * as bitcoinMsg from "bitcoinjs-message";
 import _ from "lodash";
 
 import { LedgerTransport } from "./transport";
-import { compressPublicKey, createXpub, handleError, networksUtil, translateScriptType } from "./utils";
+import { createXpub, compressPublicKey, translateScriptType, networksUtil, handleError } from "./utils";
+import { CreateTransactionArg } from "@ledgerhq/hw-app-btc/lib/createTransaction";
 
 export const supportedCoins = ["Testnet", "Bitcoin", "BitcoinCash", "Litecoin", "Dash", "DigiByte", "Dogecoin"];
 
@@ -142,13 +142,13 @@ export async function btcSignTx(
   transport: LedgerTransport,
   msg: core.BTCSignTxLedger
 ): Promise<core.BTCSignedTx> {
-  const supportsShapeShift = wallet.btcSupportsNativeShapeShift();
-  const supportsSecureTransfer = await wallet.btcSupportsSecureTransfer();
-  const slip44 = core.mustBeDefined(core.slip44ByCoin(msg.coin));
-  const txBuilder = new bitcoin.TransactionBuilder(networksUtil[slip44].bitcoinjs as any);
-  const indexes: number[] = [];
-  const txs: Transaction[] = [];
-  const associatedKeysets: string[] = [];
+  let supportsShapeShift = wallet.btcSupportsNativeShapeShift();
+  let supportsSecureTransfer = await wallet.btcSupportsSecureTransfer();
+  let slip44 = core.mustBeDefined(core.slip44ByCoin(msg.coin));
+  let txBuilder = new bitcoin.TransactionBuilder(networksUtil[slip44].bitcoinjs as any);
+  let indexes: number[] = [];
+  let txs: Transaction[] = [];
+  let associatedKeysets: string[] = [];
   let segwit = false;
 
   //bitcoinjs-lib
@@ -180,10 +180,10 @@ export async function btcSignTx(
     txBuilder.addOutput(ret, 0);
   }
 
-  const unsignedHex = txBuilder.buildIncomplete().toHex();
-  const splitTxRes = await transport.call("Btc", "splitTransaction", unsignedHex);
+  let unsignedHex = txBuilder.buildIncomplete().toHex();
+  let splitTxRes = await transport.call("Btc", "splitTransaction", unsignedHex);
   handleError(splitTxRes, transport, "splitTransaction failed");
-  const outputScriptRes = await transport.call("Btc", "serializeTransactionOutputs", splitTxRes.payload);
+  let outputScriptRes = await transport.call("Btc", "serializeTransactionOutputs", splitTxRes.payload);
   handleError(outputScriptRes, transport, "serializeTransactionOutputs failed");
   const outputScriptHex = outputScriptRes.payload.toString("hex");
 
@@ -196,7 +196,7 @@ export async function btcSignTx(
 
     const keySet = core.addressNListToBIP32(msg.inputs[i].addressNList).replace(/^m\//, "");
 
-    const vout = msg.inputs[i].vout;
+    let vout = msg.inputs[i].vout;
 
     const tx = await transport.call(
       "Btc",
@@ -213,7 +213,7 @@ export async function btcSignTx(
   }
 
   if (txs.length !== indexes.length) throw new Error("tx/index array length mismatch");
-  const inputs = _.zip(txs, indexes, [], []) as Array<[Transaction, number, undefined, undefined]>;
+  const inputs = _.zip(txs, indexes, [], []) as Array<[Transaction, number, undefined, undefined]>
 
   const txArgs: CreateTransactionArg = {
     inputs,
@@ -221,14 +221,14 @@ export async function btcSignTx(
     outputScriptHex,
     additionals: msg.coin === "BitcoinCash" ? ["abc"] : [],
     segwit,
-  };
+  }
 
   // "invalid data received" error from Ledger if not done this way:
   if (networksUtil[slip44].sigHash) {
-    txArgs.sigHashType = networksUtil[slip44].sigHash;
+    txArgs.sigHashType = networksUtil[slip44].sigHash
   }
 
-  const signedTx = await transport.call("Btc", "createPaymentTransactionNew", txArgs);
+  let signedTx = await transport.call("Btc", "createPaymentTransactionNew", txArgs);
   handleError(signedTx, transport, "Could not sign transaction with device");
 
   return {

@@ -1,9 +1,9 @@
+import * as core from "@shapeshiftoss/hdwallet-core";
 import Common from "@ethereumjs/common";
 import { Transaction } from "@ethereumjs/tx";
-import * as core from "@shapeshiftoss/hdwallet-core";
 
-import { TrezorTransport } from "./transport";
 import { handleError } from "./utils";
+import { TrezorTransport } from "./transport";
 
 export async function ethSupportsNetwork(chain_id: number): Promise<boolean> {
   return true;
@@ -13,15 +13,13 @@ export async function ethGetAddress(transport: TrezorTransport, msg: core.ETHGet
   const res = await transport.call("ethereumGetAddress", {
     path: core.addressNListToBIP32(msg.addressNList),
     showOnTrezor: !!msg.showDisplay,
-    address: msg.showDisplay
-      ? await ethGetAddress(transport, {
-          ...msg,
-          showDisplay: false,
-        })
-      : undefined,
+    address: msg.showDisplay ? await ethGetAddress(transport, {
+      ...msg,
+      showDisplay: false,
+    }) : undefined
   });
   handleError(transport, res, "Could not get ETH address from Trezor");
-  return res.payload.address;
+  return res.payload.address
 }
 
 export async function ethSignTx(
@@ -45,7 +43,7 @@ export async function ethSignTx(
     gasPrice: msg.gasPrice,
   };
 
-  const res = await transport.call("ethereumSignTransaction", {
+  let res = await transport.call("ethereumSignTransaction", {
     path: msg.addressNList,
     transaction: utx,
   });
@@ -67,7 +65,7 @@ export async function ethSignMessage(
   transport: TrezorTransport,
   msg: core.ETHSignMessage
 ): Promise<core.ETHSignedMessage> {
-  const res = await transport.call("ethereumSignMessage", {
+  let res = await transport.call("ethereumSignMessage", {
     path: msg.addressNList,
     message: msg.message,
   });
@@ -79,7 +77,7 @@ export async function ethSignMessage(
 }
 
 export async function ethVerifyMessage(transport: TrezorTransport, msg: core.ETHVerifyMessage): Promise<boolean> {
-  const res = await transport.call("ethereumVerifyMessage", {
+  let res = await transport.call("ethereumVerifyMessage", {
     address: msg.address,
     message: msg.message,
     signature: core.stripHexPrefix(msg.signature),

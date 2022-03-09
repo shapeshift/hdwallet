@@ -3,19 +3,20 @@ import * as bip39 from "bip39";
 import * as eventemitter2 from "eventemitter2";
 import _ from "lodash";
 
-import type { NativeAdapterArgs } from "./adapter";
-import { MixinNativeBinanceWallet, MixinNativeBinanceWalletInfo } from "./binance";
+import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binance";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
-import { MixinNativeCosmosWallet, MixinNativeCosmosWalletInfo } from "./cosmos";
-import * as Isolation from "./crypto/isolation";
-import { MixinNativeETHWallet, MixinNativeETHWalletInfo } from "./ethereum";
-import { MixinNativeFioWallet, MixinNativeFioWalletInfo } from "./fio";
-import { MixinNativeKavaWallet, MixinNativeKavaWalletInfo } from "./kava";
-import { getNetwork } from "./networks";
+import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
 import { MixinNativeOsmosisWallet, MixinNativeOsmosisWalletInfo } from "./osmosis";
-import { MixinNativeSecretWallet, MixinNativeSecretWalletInfo } from "./secret";
-import { MixinNativeTerraWallet, MixinNativeTerraWalletInfo } from "./terra";
-import { MixinNativeThorchainWallet, MixinNativeThorchainWalletInfo } from "./thorchain";
+import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
+import { MixinNativeFioWalletInfo, MixinNativeFioWallet } from "./fio";
+import { MixinNativeKavaWalletInfo, MixinNativeKavaWallet } from "./kava";
+import { getNetwork } from "./networks";
+import { MixinNativeSecretWalletInfo, MixinNativeSecretWallet } from "./secret";
+import { MixinNativeTerraWalletInfo, MixinNativeTerraWallet } from "./terra";
+import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./thorchain";
+
+import type { NativeAdapterArgs } from "./adapter";
+import * as Isolation from "./crypto/isolation";
 
 export enum NativeEvents {
   MNEMONIC_REQUIRED = "MNEMONIC_REQUIRED",
@@ -29,16 +30,13 @@ function isMnemonicInterface(x: unknown): x is Isolation.Core.BIP39.Mnemonic {
 type LoadDevice = Omit<core.LoadDevice, "mnemonic"> & {
   // Set this if your deviceId is dependent on the mnemonic
   deviceId?: string;
-} & (
-    | {
-        mnemonic: string | Isolation.Core.BIP39.Mnemonic;
-        masterKey?: never;
-      }
-    | {
-        mnemonic?: never;
-        masterKey: Isolation.Core.BIP32.Node;
-      }
-  );
+} & ({
+  mnemonic: string | Isolation.Core.BIP39.Mnemonic;
+  masterKey?: never
+} | {
+  mnemonic?: never;
+  masterKey: Isolation.Core.BIP32.Node;
+})
 
 export class NativeHDWalletInfoBase implements core.HDWalletInfo {
   getVendor(): string {
@@ -218,7 +216,7 @@ export class NativeHDWallet
   readonly _isNative = true;
 
   #deviceId: string;
-  #initialized = false;
+  #initialized: boolean = false;
   #masterKey: Promise<Isolation.Core.BIP32.Node> | undefined = undefined;
 
   constructor({ mnemonic, deviceId, masterKey }: NativeAdapterArgs) {
@@ -227,11 +225,10 @@ export class NativeHDWallet
       this.#masterKey = Promise.resolve(masterKey);
     } else if (mnemonic) {
       this.#masterKey = (async () => {
-        const isolatedMnemonic =
-          typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
+        const isolatedMnemonic = typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic
         const seed = await isolatedMnemonic.toSeed();
         return await seed.toMasterKey();
-      })();
+      })()
     }
     this.#deviceId = deviceId;
   }
@@ -265,7 +262,7 @@ export class NativeHDWallet
       const masterKey = await this.#masterKey!;
       return await Promise.all(
         msg.map(async (getPublicKey) => {
-          const { addressNList } = getPublicKey;
+          let { addressNList } = getPublicKey;
           const network = getNetwork(getPublicKey.coin, getPublicKey.scriptType);
           // TODO: return the xpub that's actually asked for, not the key of the hardened path
           // It's done this way for hilarious historical reasons and will break ETH if fixed
@@ -275,7 +272,7 @@ export class NativeHDWallet
           const xpub = node.neutered().toBase58();
           return { xpub };
         })
-      );
+      )
     });
   }
 
@@ -347,7 +344,7 @@ export class NativeHDWallet
     super.terraWipe();
     super.kavaWipe();
 
-    (await oldMasterKey)?.revoke?.();
+    (await oldMasterKey)?.revoke?.()
   }
 
   async reset(): Promise<void> {}
@@ -355,27 +352,25 @@ export class NativeHDWallet
   async recover(): Promise<void> {}
 
   async loadDevice(msg?: LoadDevice): Promise<void> {
-    this.#masterKey = Promise.resolve(
-      await (async (mnemonic, masterKey) => {
-        if (masterKey !== undefined) {
-          return masterKey;
-        } else if (mnemonic !== undefined) {
-          const isolatedMnemonic = await (async () => {
-            if (isMnemonicInterface(mnemonic)) return mnemonic;
-            if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
-              return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
-            }
-            throw new Error("Required property [mnemonic] is invalid");
-          })();
-          const seed = await isolatedMnemonic.toSeed();
-          seed.addRevoker?.(() => isolatedMnemonic.revoke?.());
-          const masterKey = await seed.toMasterKey();
-          masterKey.addRevoker?.(() => seed.revoke?.());
-          return masterKey;
-        }
-        throw new Error("Either [mnemonic] or [masterKey] is required");
-      })(msg?.mnemonic, msg?.masterKey)
-    );
+    this.#masterKey = Promise.resolve(await (async (mnemonic, masterKey) => {
+      if (masterKey !== undefined) {
+        return masterKey;
+      } else if (mnemonic !== undefined) {
+        const isolatedMnemonic = await (async () => {
+          if (isMnemonicInterface(mnemonic)) return mnemonic;
+          if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
+            return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
+          }
+          throw new Error("Required property [mnemonic] is invalid");
+        })();
+        const seed = await isolatedMnemonic.toSeed();
+        seed.addRevoker?.(() => isolatedMnemonic.revoke?.())
+        const masterKey = await seed.toMasterKey()
+        masterKey.addRevoker?.(() => seed.revoke?.())
+        return masterKey
+      }
+      throw new Error("Either [mnemonic] or [masterKey] is required");
+    })(msg?.mnemonic, msg?.masterKey));
 
     if (typeof msg?.deviceId === "string") this.#deviceId = msg?.deviceId;
 

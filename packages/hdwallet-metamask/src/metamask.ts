@@ -1,8 +1,7 @@
-import detectEthereumProvider from "@metamask/detect-provider";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import _ from "lodash";
-
 import * as eth from "./ethereum";
+import _ from "lodash";
+import detectEthereumProvider from "@metamask/detect-provider";
 
 class MetaMaskTransport extends core.Transport {
   public async getDeviceID() {
@@ -185,7 +184,7 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
     return Promise.resolve();
   }
 
-  public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
+  public async ethSupportsNetwork(chainId: number = 1): Promise<boolean> {
     return chainId === 1;
   }
 
@@ -311,7 +310,7 @@ export class MetaMaskHDWalletInfo implements core.HDWalletInfo, core.ETHWalletIn
     return undefined;
   }
 
-  public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
+  public async ethSupportsNetwork(chainId: number = 1): Promise<boolean> {
     return chainId === 1;
   }
 

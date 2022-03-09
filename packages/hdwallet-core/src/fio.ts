@@ -229,8 +229,8 @@ export interface FioWallet extends FioWalletInfo, HDWallet {
 }
 
 export function fioDescribePath(path: BIP32Path): PathDescription {
-  const pathStr = addressNListToBIP32(path);
-  const unknown: PathDescription = {
+  let pathStr = addressNListToBIP32(path);
+  let unknown: PathDescription = {
     verbose: pathStr,
     coin: "Fio",
     isKnown: false,
@@ -256,7 +256,7 @@ export function fioDescribePath(path: BIP32Path): PathDescription {
     return unknown;
   }
 
-  const index = path[2] & 0x7fffffff;
+  let index = path[2] & 0x7fffffff;
   return {
     verbose: `Fio Account #${index}`,
     accountIdx: index,

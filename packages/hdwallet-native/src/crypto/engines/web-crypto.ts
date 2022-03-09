@@ -29,11 +29,7 @@ export class WebCryptoEngine implements CryptoEngine {
     return globalThis.crypto.subtle.sign(signingAlgorithm, impKey, value);
   }
 
-  public async pbkdf2(
-    password: ArrayBuffer,
-    salt: ArrayBuffer,
-    options: Partial<Pbkdf2Params> & Pick<Pbkdf2Params, "iterations">
-  ) {
+  public async pbkdf2(password: ArrayBuffer, salt: ArrayBuffer, options: Partial<Pbkdf2Params> & Pick<Pbkdf2Params, "iterations">) {
     const pbkdf2Params: Pbkdf2Params = {
       name: "PBKDF2",
       salt: new Uint8Array(salt),

@@ -1,5 +1,5 @@
-import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as BinanceMessages from "@keepkey/device-protocol/lib/messages-binance_pb";
+import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import BigNumber from "bignumber.js";
 import CryptoJS from "crypto-js";
@@ -15,7 +15,10 @@ export function binanceGetAccountPaths(msg: core.BinanceGetAccountPaths): Array<
   ];
 }
 
-export async function binanceSignTx(transport: Transport, msg: core.BinanceSignTx): Promise<core.BinanceSignedTx> {
+export async function binanceSignTx(
+  transport: Transport,
+  msg: core.BinanceSignTx
+): Promise<core.BinanceSignedTx> {
   return transport.lockDuring(async () => {
     if (msg.testnet) throw new Error("testnet not supported");
 
@@ -40,33 +43,37 @@ export async function binanceSignTx(transport: Transport, msg: core.BinanceSignT
 
     //verify not a batch tx
     if (msg.tx.msgs.length > 1) throw new Error("Binance batch sending not supported!");
-    const message = msg.tx.msgs[0];
+    let message = msg.tx.msgs[0];
     //tell device not a batch tx
     signTx.setMsgCount(1);
     //tell device im about to send a tx to sign
-    let resp = await transport.call(Messages.MessageType.MESSAGETYPE_BINANCESIGNTX, signTx, {
-      msgTimeout: core.LONG_TIMEOUT,
-      omitLock: true,
-    });
+    let resp = await transport.call(
+      Messages.MessageType.MESSAGETYPE_BINANCESIGNTX,
+      signTx,
+      {
+        msgTimeout: core.LONG_TIMEOUT,
+        omitLock: true
+      }
+    );
 
     const outputAmount = new BigNumber(message.outputs[0].coins[0].amount);
     const inputAmount = new BigNumber(message.inputs[0].coins[0].amount);
     if (!outputAmount.isInteger()) throw new Error("Output amount must be an integer");
     if (!inputAmount.isInteger()) throw new Error("Input amount must be an integer");
 
-    const coinOut = new BinanceMessages.BinanceTransferMsg.BinanceCoin();
+    let coinOut = new BinanceMessages.BinanceTransferMsg.BinanceCoin();
     coinOut.setAmount(outputAmount.toString());
     coinOut.setDenom(message.outputs[0].coins[0].denom);
 
-    const outputs = new BinanceMessages.BinanceTransferMsg.BinanceInputOutput();
+    let outputs = new BinanceMessages.BinanceTransferMsg.BinanceInputOutput();
     outputs.setAddress(message.outputs[0].address);
     outputs.setCoinsList([coinOut]);
 
-    const coinIn = new BinanceMessages.BinanceTransferMsg.BinanceCoin();
+    let coinIn = new BinanceMessages.BinanceTransferMsg.BinanceCoin();
     coinIn.setAmount(inputAmount.toString());
     coinIn.setDenom(message.inputs[0].coins[0].denom);
 
-    const inputs = new BinanceMessages.BinanceTransferMsg.BinanceInputOutput();
+    let inputs = new BinanceMessages.BinanceTransferMsg.BinanceInputOutput();
     inputs.setAddress(message.inputs[0].address);
     inputs.setCoinsList([coinIn]);
 
@@ -75,16 +82,20 @@ export async function binanceSignTx(transport: Transport, msg: core.BinanceSignT
     send.addOutputs(outputs);
 
     //sent tx to device
-    resp = await transport.call(Messages.MessageType.MESSAGETYPE_BINANCETRANSFERMSG, send, {
-      msgTimeout: core.LONG_TIMEOUT,
-      omitLock: true,
-    });
+    resp = await transport.call(
+      Messages.MessageType.MESSAGETYPE_BINANCETRANSFERMSG,
+      send,
+      {
+        msgTimeout: core.LONG_TIMEOUT,
+        omitLock: true
+      }
+    );
 
     if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_BINANCESIGNEDTX) {
       throw new Error(`binance: unexpected response ${resp.message_type}`);
     }
 
-    const signedTx = new BinanceMessages.BinanceSignedTx();
+    let signedTx = new BinanceMessages.BinanceSignedTx();
     signedTx.setSignature(resp.message.signature);
     signedTx.setPublicKey(resp.message.publicKey);
 

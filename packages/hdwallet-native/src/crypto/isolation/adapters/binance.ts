@@ -1,10 +1,9 @@
-import type { BncClient, Transaction } from "bnb-javascript-sdk-nobroadcast";
-
-import { BIP32, SecP256K1 } from "../core";
+import type { Transaction, BncClient } from "bnb-javascript-sdk-nobroadcast";
+import { BIP32, SecP256K1 } from "../core"
 
 type SigningDelegate = Parameters<BncClient["setSigningDelegate"]>[0];
 
-const crypto = (async () => (await import("bnb-javascript-sdk-nobroadcast")).crypto)();
+const crypto = (async () => (await import("bnb-javascript-sdk-nobroadcast")).crypto)()
 
 export default {
   async create(keyPair: BIP32.Node): Promise<SigningDelegate> {
@@ -15,5 +14,5 @@ export default {
       tx.addSignature(pubKey, sig);
       return tx;
     };
-  },
+  }
 };

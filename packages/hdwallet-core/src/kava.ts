@@ -95,8 +95,8 @@ export interface KavaWallet extends KavaWalletInfo, HDWallet {
 }
 
 export function kavaDescribePath(path: BIP32Path): PathDescription {
-  const pathStr = addressNListToBIP32(path);
-  const unknown: PathDescription = {
+  let pathStr = addressNListToBIP32(path);
+  let unknown: PathDescription = {
     verbose: pathStr,
     coin: "Kava",
     isKnown: false,
@@ -122,7 +122,7 @@ export function kavaDescribePath(path: BIP32Path): PathDescription {
     return unknown;
   }
 
-  const index = path[2] & 0x7fffffff;
+  let index = path[2] & 0x7fffffff;
   return {
     verbose: `Kava Account #${index}`,
     accountIdx: index,

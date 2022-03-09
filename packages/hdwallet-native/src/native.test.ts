@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import * as Isolation from "./crypto/isolation";
 import * as native from "./native";
+import * as Isolation from "./crypto/isolation";
 
 const MNEMONIC = "all all all all all all all all all all all all";
 
@@ -123,7 +123,8 @@ describe("NativeHDWallet", () => {
           in: [{ coin: "bitcoin", addressNList: [] }],
           out: [
             {
-              xpub: "xpub661MyMwAqRbcFLgDU7wpcEVubSF7NkswwmXBUkDiGUW6uopeUMys4AqKXNgpfZKRTLnpKQgffd6a2c3J8JxLkF1AQN17Pm9QYHEqEfo1Rsx",
+              xpub:
+                "xpub661MyMwAqRbcFLgDU7wpcEVubSF7NkswwmXBUkDiGUW6uopeUMys4AqKXNgpfZKRTLnpKQgffd6a2c3J8JxLkF1AQN17Pm9QYHEqEfo1Rsx",
             },
           ],
         },
@@ -131,7 +132,8 @@ describe("NativeHDWallet", () => {
           in: [{ coin: "bitcoin", addressNList: [1 + 0x80000000, 2 + 0x80000000] }],
           out: [
             {
-              xpub: "xpub6A4ydEAik39rFLs1hcm6XiwpFN5XKEf9tdAZWK23tkXmSr8bHmfYyfVt2nTskZQj3yYydcST2DLUFq2iJAELtTVfW9UNnnK8zBi8bzFcQVB",
+              xpub:
+                "xpub6A4ydEAik39rFLs1hcm6XiwpFN5XKEf9tdAZWK23tkXmSr8bHmfYyfVt2nTskZQj3yYydcST2DLUFq2iJAELtTVfW9UNnnK8zBi8bzFcQVB",
             },
           ],
         },
@@ -140,14 +142,15 @@ describe("NativeHDWallet", () => {
           in: [{ coin: "bitcoin", addressNList: [1 + 0x80000000, 2 + 0x80000000, 3] }],
           out: [
             {
-              xpub: "xpub6A4ydEAik39rFLs1hcm6XiwpFN5XKEf9tdAZWK23tkXmSr8bHmfYyfVt2nTskZQj3yYydcST2DLUFq2iJAELtTVfW9UNnnK8zBi8bzFcQVB",
+              xpub:
+                "xpub6A4ydEAik39rFLs1hcm6XiwpFN5XKEf9tdAZWK23tkXmSr8bHmfYyfVt2nTskZQj3yYydcST2DLUFq2iJAELtTVfW9UNnnK8zBi8bzFcQVB",
             },
           ],
         },
       ];
       for (const params of testCases) {
         expect(await wallet.getPublicKeys(params.in)).toStrictEqual(params.out);
-      }
+      };
     });
 
     it("should load wallet with a mnemonic and deviceId", async () => {
@@ -171,18 +174,23 @@ describe("NativeHDWallet", () => {
       await expect(wallet.loadDevice(undefined as any)).rejects.toThrow("Either [mnemonic] or [masterKey] is required");
     });
 
-    it.each([[undefined]])("should throw an error if mnemonic is not a string (%o)", async (param: any) => {
-      const wallet = native.create({ deviceId: "native" });
-      await expect(wallet.loadDevice({ mnemonic: param })).rejects.toThrow(
-        "Either [mnemonic] or [masterKey] is required"
-      );
-    });
+    it.each([[undefined]])(
+      "should throw an error if mnemonic is not a string (%o)",
+      async (param: any) => {
+        const wallet = native.create({ deviceId: "native" });
+        await expect(wallet.loadDevice({ mnemonic: param })).rejects.toThrow(
+          "Either [mnemonic] or [masterKey] is required"
+        );
+      }
+    );
 
     it.each([[null], [0], [[1, 2, 3]], [{}], [""], ["all all all all all all"]])(
       "should throw an error if mnemonic is not a string (%o)",
       async (param: any) => {
         const wallet = native.create({ deviceId: "native" });
-        await expect(wallet.loadDevice({ mnemonic: param })).rejects.toThrow("Required property [mnemonic] is invalid");
+        await expect(wallet.loadDevice({ mnemonic: param })).rejects.toThrow(
+          "Required property [mnemonic] is invalid"
+        );
       }
     );
   });

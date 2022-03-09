@@ -1,20 +1,14 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
-import {
-  getFirstLedgerDevice,
-  getTransport,
-  LedgerWebHIDTransport,
-  MOCK_SERIAL_NUMBER,
-  openTransport,
-} from "./transport";
+import { LedgerWebHIDTransport, MOCK_SERIAL_NUMBER, getFirstLedgerDevice, getTransport, openTransport } from "./transport";
 
 const VENDOR_ID = 11415;
 const APP_NAVIGATION_DELAY = 3000;
 
 export class WebHIDLedgerAdapter {
   keyring: core.Keyring;
-  currentEventTimestamp = 0;
+  currentEventTimestamp: number = 0;
 
   constructor(keyring: core.Keyring) {
     this.keyring = keyring;

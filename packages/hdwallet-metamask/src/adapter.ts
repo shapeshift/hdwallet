@@ -1,8 +1,7 @@
-import detectEthereumProvider from "@metamask/detect-provider";
-import MetaMaskOnboarding from "@metamask/onboarding";
 import * as core from "@shapeshiftoss/hdwallet-core";
-
 import { MetaMaskHDWallet } from "./metamask";
+import MetaMaskOnboarding from "@metamask/onboarding";
+import detectEthereumProvider from "@metamask/detect-provider";
 
 export class MetaMaskAdapter {
   keyring: core.Keyring;

@@ -95,8 +95,8 @@ export interface TerraWallet extends TerraWalletInfo, HDWallet {
 }
 
 export function terraDescribePath(path: BIP32Path): PathDescription {
-  const pathStr = addressNListToBIP32(path);
-  const unknown: PathDescription = {
+  let pathStr = addressNListToBIP32(path);
+  let unknown: PathDescription = {
     verbose: pathStr,
     coin: "Terra",
     isKnown: false,
@@ -122,7 +122,7 @@ export function terraDescribePath(path: BIP32Path): PathDescription {
     return unknown;
   }
 
-  const index = path[2] & 0x7fffffff;
+  let index = path[2] & 0x7fffffff;
   return {
     verbose: `Terra Account #${index}`,
     accountIdx: index,
