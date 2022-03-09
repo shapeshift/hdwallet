@@ -5,13 +5,16 @@ import * as Isolation from "./crypto/isolation";
 
 export type NativeAdapterArgs = {
   deviceId: string;
-} & ({
-  mnemonic?: string | Isolation.Core.BIP39.Mnemonic;
-  masterKey?: never;
-} | {
-  mnemonic?: never;
-  masterKey?: Isolation.Core.BIP32.Node;
-});
+} & (
+  | {
+      mnemonic?: string | Isolation.Core.BIP39.Mnemonic;
+      masterKey?: never;
+    }
+  | {
+      mnemonic?: never;
+      masterKey?: Isolation.Core.BIP32.Node;
+    }
+);
 
 export class NativeAdapter {
   keyring: core.Keyring;

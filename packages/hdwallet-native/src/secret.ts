@@ -23,7 +23,7 @@ export function MixinNativeSecretWalletInfo<TBase extends core.Constructor<core.
     }
 
     secretGetAccountPaths(msg: core.SecretGetAccountPaths): Array<core.SecretAccountPath> {
-      const slip44 = core.slip44ByCoin("Secret")
+      const slip44 = core.slip44ByCoin("Secret");
       return [
         {
           addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
@@ -76,7 +76,13 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "secret");
         // @ts-ignore
         const adapter = await Isolation.Adapters.Cosmos.create(keyPair);
-        const result = await txBuilder.sign(msg.tx, adapter, String(msg.sequence), String(msg.account_number), msg.chain_id);
+        const result = await txBuilder.sign(
+          msg.tx,
+          adapter,
+          String(msg.sequence),
+          String(msg.account_number),
+          msg.chain_id
+        );
         return txBuilder.createSignedTx(msg.tx, result);
       });
     }

@@ -17,10 +17,10 @@ export class Vault extends MapVault implements IVault {
   static async prepare(params?: VaultPrepareParams) {
     return MapVault.prepare(params);
   }
-  static async create(password?: string, sealed: boolean = true) {
+  static async create(password?: string, sealed = true) {
     return await Vault.open(undefined, password, sealed);
   }
-  static async open(id?: string, password?: string, sealed: boolean = true) {
+  static async open(id?: string, password?: string, sealed = true) {
     await Vault.prepare();
 
     const out = new Vault(await RawVault.open(id, password));
@@ -152,7 +152,7 @@ export class Vault extends MapVault implements IVault {
   }
 
   #unwrap(addRevoker: (revoke: () => void) => void = (x) => this.addRevoker(x)) {
-    return shadowedMap(this, (x: string) => this.#getUnwrapped(x), addRevoker)
+    return shadowedMap(this, (x: string) => this.#getUnwrapped(x), addRevoker);
   }
 
   #sealed = false;
@@ -160,7 +160,7 @@ export class Vault extends MapVault implements IVault {
     this.#sealed = true;
   }
   get sealed() {
-    return this.#sealed
+    return this.#sealed;
   }
 
   unwrap(addRevoker?: (revoke: () => void) => void) {

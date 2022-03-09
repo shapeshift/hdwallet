@@ -217,12 +217,16 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
   protected constructor(id: string, argonParams: Promise<ArgonParams>) {
     super();
     this.id = id;
-    this.#argonParams = argonParams.then(x => Object.freeze(JSON.parse(JSON.stringify(x))));
+    this.#argonParams = argonParams.then((x) => Object.freeze(JSON.parse(JSON.stringify(x))));
   }
 
   async setPassword(password: string): Promise<this> {
-    this.#key = await RawVault.#deriveVaultKey(await RawVault.#machineSeed, this.id, await this.#argonParams, password, (x) =>
-      this.addRevoker(x)
+    this.#key = await RawVault.#deriveVaultKey(
+      await RawVault.#machineSeed,
+      this.id,
+      await this.#argonParams,
+      password,
+      (x) => this.addRevoker(x)
     );
     return this;
   }

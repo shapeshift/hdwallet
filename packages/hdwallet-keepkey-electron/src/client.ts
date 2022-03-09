@@ -48,6 +48,6 @@ export const Client = {
   },
   expose() {
     electron.contextBridge.exposeInMainWorld(CLIENT_TAG, Client);
-  }
-}
+  },
+};
 export type Client = typeof Client;

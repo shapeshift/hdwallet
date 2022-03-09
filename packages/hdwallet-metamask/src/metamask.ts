@@ -184,7 +184,7 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
     return Promise.resolve();
   }
 
-  public async ethSupportsNetwork(chainId: number = 1): Promise<boolean> {
+  public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
     return chainId === 1;
   }
 
@@ -310,7 +310,7 @@ export class MetaMaskHDWalletInfo implements core.HDWalletInfo, core.ETHWalletIn
     return undefined;
   }
 
-  public async ethSupportsNetwork(chainId: number = 1): Promise<boolean> {
+  public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
     return chainId === 1;
   }
 

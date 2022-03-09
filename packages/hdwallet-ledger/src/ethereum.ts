@@ -73,7 +73,7 @@ export async function ethGetPublicKeys(
 
 export async function ethSignTx(transport: LedgerTransport, msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
   const bip32path = core.addressNListToBIP32(msg.addressNList);
-  const common = new Common({chain: "mainnet", hardfork: "london"});
+  const common = new Common({ chain: "mainnet", hardfork: "london" });
   const txParams = {
     to: msg.to,
     value: msg.value,
@@ -87,19 +87,22 @@ export async function ethSignTx(transport: LedgerTransport, msg: core.ETHSignTx)
     s: "0x00",
   };
 
-  let utx = new EthereumTx(txParams);
+  const utx = new EthereumTx(txParams);
 
   const res = await transport.call("Eth", "signTransaction", bip32path, utx.serialize().toString("hex"));
   handleError(res, transport, "Could not sign ETH tx with Ledger");
 
   const { v, r, s } = res.payload;
 
-  const tx = Transaction.fromTxData({
-    ...txParams,
-    v: "0x" + v,
-    r: "0x" + r,
-    s: "0x" + s,
-  }, { common });
+  const tx = Transaction.fromTxData(
+    {
+      ...txParams,
+      v: "0x" + v,
+      r: "0x" + r,
+      s: "0x" + s,
+    },
+    { common }
+  );
 
   return {
     v: parseInt(v, 16),

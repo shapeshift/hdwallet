@@ -97,14 +97,16 @@ export class EncryptedWallet {
    */
   async createWallet(mnemonic?: string) {
     if (!this.isInitialized) throw new Error("Wallet is not initialized");
-    mnemonic = mnemonic ?? await this.#helper.generateMnemonic();
+    mnemonic = mnemonic ?? (await this.#helper.generateMnemonic());
 
     if (!bip39.validateMnemonic(mnemonic)) {
       throw new Error("Invalid mnemonic");
     }
 
     if (!this.#key) throw new Error("Wallet does not contain a key");
-    this.#encryptedWallet = (await this.#helper.aesEncrypt(core.toArrayBuffer(utils.fromUtf8ToArray(mnemonic)), this.#key)).toString();
+    this.#encryptedWallet = (
+      await this.#helper.aesEncrypt(core.toArrayBuffer(utils.fromUtf8ToArray(mnemonic)), this.#key)
+    ).toString();
 
     return this;
   }

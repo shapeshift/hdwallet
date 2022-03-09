@@ -4,7 +4,10 @@ import { setupServer } from "msw/node";
 export = function newMswMock(handlers: Record<string, Record<string, unknown>> = {}) {
   Object.values(handlers).forEach((x) => {
     Object.entries(x).forEach(([k, v]) => {
-      x[k] = Object.assign(jest.fn((...args: any[]) => (typeof v === "function" ? v(...args) : v)), v);
+      x[k] = Object.assign(
+        jest.fn((...args: any[]) => (typeof v === "function" ? v(...args) : v)),
+        v
+      );
     });
   });
 
@@ -35,7 +38,7 @@ export = function newMswMock(handlers: Record<string, Record<string, unknown>> =
                   out = {};
                 }
                 return res(ctx.status(status), ctx.json(out));
-              })
+              });
             })
           )
           .reduce((a, x) => a.concat(x), [])

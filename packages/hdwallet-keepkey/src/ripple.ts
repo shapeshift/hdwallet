@@ -27,16 +27,12 @@ export async function rippleSignTx(transport: Transport, msg: core.RippleSignTx)
     if (msg.payment.destinationTag !== undefined) payment.setDestinationTag(parseInt(msg.payment.destinationTag));
     signTx.setPayment(payment);
 
-    let resp = await transport.call(
-      Messages.MessageType.MESSAGETYPE_RIPPLESIGNTX,
-      signTx,
-      {
-        msgTimeout: core.LONG_TIMEOUT,
-        omitLock: true,
-      }
-    );
+    const resp = await transport.call(Messages.MessageType.MESSAGETYPE_RIPPLESIGNTX, signTx, {
+      msgTimeout: core.LONG_TIMEOUT,
+      omitLock: true,
+    });
 
-    for (let m of msg.tx.value.msg) {
+    for (const m of msg.tx.value.msg) {
       let ack;
 
       if (m.type === "ripple-sdk/MsgSend") {

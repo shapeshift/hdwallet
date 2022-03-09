@@ -46,9 +46,9 @@ export class OfflineDirectSignerAdapter implements OfflineDirectSigner {
       signature: {
         pub_key: {
           type: "tendermint/PubKeySecp256k1",
-          value: Buffer.from(this._pubkey).toString("base64")
+          value: Buffer.from(this._pubkey).toString("base64"),
         },
-        signature: Buffer.from(signatureBytes).toString("base64")
+        signature: Buffer.from(signatureBytes).toString("base64"),
       },
     };
   }

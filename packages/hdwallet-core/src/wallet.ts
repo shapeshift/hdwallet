@@ -256,12 +256,12 @@ export interface HDWalletInfo {
    * Will the device allow for transactions to be signed offline to be
    * broadcasted separately?
    */
-  supportsOfflineSigning(): boolean
+  supportsOfflineSigning(): boolean;
 
   /**
    * Can the device broadcast signed transactions internally?
    */
-  supportsBroadcast(): boolean
+  supportsBroadcast(): boolean;
 
   /**
    * Describes a BIP32 path in plain English.

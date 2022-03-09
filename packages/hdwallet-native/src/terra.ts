@@ -24,7 +24,7 @@ export function MixinNativeTerraWalletInfo<TBase extends core.Constructor<core.H
     }
 
     terraGetAccountPaths(msg: core.TerraGetAccountPaths): Array<core.TerraAccountPath> {
-      const slip44 = core.slip44ByCoin("Terra")
+      const slip44 = core.slip44ByCoin("Terra");
       return [
         {
           addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],

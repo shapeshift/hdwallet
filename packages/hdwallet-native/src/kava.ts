@@ -24,7 +24,7 @@ export function MixinNativeKavaWalletInfo<TBase extends core.Constructor<core.HD
     }
 
     kavaGetAccountPaths(msg: core.KavaGetAccountPaths): Array<core.KavaAccountPath> {
-      const slip44 = core.slip44ByCoin("Kava")
+      const slip44 = core.slip44ByCoin("Kava");
       return [
         {
           addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],

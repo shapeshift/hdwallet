@@ -77,7 +77,7 @@ export function cosmosTests(get: () => { wallet: core.HDWallet; info: core.HDWal
       async () => {
         if (!wallet) return;
         const input: core.CosmosSignTx = {
-          tx: (tx_unsigned_transfer as unknown) as core.CosmosTx,
+          tx: tx_unsigned_transfer as unknown as core.CosmosTx,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
           chain_id: tx_unsigned_transfer.chain_id,
           account_number: tx_unsigned_transfer.account_number,
@@ -90,101 +90,99 @@ export function cosmosTests(get: () => { wallet: core.HDWallet; info: core.HDWal
       TIMEOUT
     );
 
-      //delegate tx
-      test(
-          "(delegate) cosmosSignTx()",
-          async () => {
-              if (!wallet) return;
-              const input: core.CosmosSignTx = {
-                  tx: (tx_unsigned_delegation as unknown) as any,
-                  addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
-                  chain_id: tx_unsigned_delegation.chain_id,
-                  account_number: tx_unsigned_delegation.account_number,
-                  sequence: tx_unsigned_delegation.sequence,
-              };
+    //delegate tx
+    test(
+      "(delegate) cosmosSignTx()",
+      async () => {
+        if (!wallet) return;
+        const input: core.CosmosSignTx = {
+          tx: tx_unsigned_delegation as unknown as any,
+          addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
+          chain_id: tx_unsigned_delegation.chain_id,
+          account_number: tx_unsigned_delegation.account_number,
+          sequence: tx_unsigned_delegation.sequence,
+        };
 
-              const res = await wallet.cosmosSignTx(input);
-              expect(res?.signatures?.[0]).toEqual(tx_signed_delegation.signatures[0]);
-          },
-          TIMEOUT
-      );
+        const res = await wallet.cosmosSignTx(input);
+        expect(res?.signatures?.[0]).toEqual(tx_signed_delegation.signatures[0]);
+      },
+      TIMEOUT
+    );
 
-      //undelegate
-      test(
-          "(undelegate) cosmosSignTx()",
-          async () => {
-              if (!wallet) return;
-              const input: core.CosmosSignTx = {
-                  tx: (tx_unigned_undelegate_cosmos as unknown) as any,
-                  addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
-                  chain_id: tx_unigned_undelegate_cosmos.chain_id,
-                  account_number: tx_unigned_undelegate_cosmos.account_number,
-                  sequence: tx_unigned_undelegate_cosmos.sequence,
-              };
+    //undelegate
+    test(
+      "(undelegate) cosmosSignTx()",
+      async () => {
+        if (!wallet) return;
+        const input: core.CosmosSignTx = {
+          tx: tx_unigned_undelegate_cosmos as unknown as any,
+          addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
+          chain_id: tx_unigned_undelegate_cosmos.chain_id,
+          account_number: tx_unigned_undelegate_cosmos.account_number,
+          sequence: tx_unigned_undelegate_cosmos.sequence,
+        };
 
-              const res = await wallet.cosmosSignTx(input);
-              expect(res?.signatures?.[0]).toEqual(tx_signed_undelegate_cosmos.signatures[0]);
-          },
-          TIMEOUT
-      );
+        const res = await wallet.cosmosSignTx(input);
+        expect(res?.signatures?.[0]).toEqual(tx_signed_undelegate_cosmos.signatures[0]);
+      },
+      TIMEOUT
+    );
 
-      //redelegate
-      test(
-          "(redelegate) cosmosSignTx()",
-          async () => {
-              if (!wallet) return;
-              const input: core.CosmosSignTx = {
-                  tx: (tx_unsigned_redelegate_cosmos as unknown) as any,
-                  addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
-                  chain_id: tx_unsigned_redelegate_cosmos.chain_id,
-                  account_number: tx_unsigned_redelegate_cosmos.account_number,
-                  sequence: tx_unsigned_redelegate_cosmos.sequence,
-              };
+    //redelegate
+    test(
+      "(redelegate) cosmosSignTx()",
+      async () => {
+        if (!wallet) return;
+        const input: core.CosmosSignTx = {
+          tx: tx_unsigned_redelegate_cosmos as unknown as any,
+          addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
+          chain_id: tx_unsigned_redelegate_cosmos.chain_id,
+          account_number: tx_unsigned_redelegate_cosmos.account_number,
+          sequence: tx_unsigned_redelegate_cosmos.sequence,
+        };
 
-              const res = await wallet.cosmosSignTx(input);
-              expect(res?.signatures?.[0]).toEqual(tx_signed_redelegate_cosmos.signatures[0]);
-          },
-          TIMEOUT
-      );
+        const res = await wallet.cosmosSignTx(input);
+        expect(res?.signatures?.[0]).toEqual(tx_signed_redelegate_cosmos.signatures[0]);
+      },
+      TIMEOUT
+    );
 
-      //claim reward
-      test(
-          "(claim) cosmosSignTx()",
-          async () => {
-              if (!wallet) return;
-              const input: core.CosmosSignTx = {
-                  tx: (tx_unsigned_rewards_cosmos as unknown) as any,
-                  addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
-                  chain_id: tx_unsigned_rewards_cosmos.chain_id,
-                  account_number: tx_unsigned_rewards_cosmos.account_number,
-                  sequence: tx_unsigned_rewards_cosmos.sequence,
-              };
+    //claim reward
+    test(
+      "(claim) cosmosSignTx()",
+      async () => {
+        if (!wallet) return;
+        const input: core.CosmosSignTx = {
+          tx: tx_unsigned_rewards_cosmos as unknown as any,
+          addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
+          chain_id: tx_unsigned_rewards_cosmos.chain_id,
+          account_number: tx_unsigned_rewards_cosmos.account_number,
+          sequence: tx_unsigned_rewards_cosmos.sequence,
+        };
 
-              const res = await wallet.cosmosSignTx(input);
-              expect(res?.signatures?.[0]).toEqual(tx_signed_rewards_cosmos.signatures[0]);
-          },
-          TIMEOUT
-      );
-
+        const res = await wallet.cosmosSignTx(input);
+        expect(res?.signatures?.[0]).toEqual(tx_signed_rewards_cosmos.signatures[0]);
+      },
+      TIMEOUT
+    );
 
     //IBC
-      test(
-          "(ibc transfer) cosmosSignTx()",
-          async () => {
-              if (!wallet) return;
-              const input: core.CosmosSignTx = {
-                  tx: (tx_unsigned_ibc_cosmos as unknown) as any,
-                  addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
-                  chain_id: tx_unsigned_ibc_cosmos.chain_id,
-                  account_number: tx_unsigned_ibc_cosmos.account_number,
-                  sequence: tx_unsigned_ibc_cosmos.sequence,
-              };
+    test(
+      "(ibc transfer) cosmosSignTx()",
+      async () => {
+        if (!wallet) return;
+        const input: core.CosmosSignTx = {
+          tx: tx_unsigned_ibc_cosmos as unknown as any,
+          addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
+          chain_id: tx_unsigned_ibc_cosmos.chain_id,
+          account_number: tx_unsigned_ibc_cosmos.account_number,
+          sequence: tx_unsigned_ibc_cosmos.sequence,
+        };
 
-              const res = await wallet.cosmosSignTx(input);
-              expect(res?.signatures?.[0]).toEqual(tx_signed_ibc_cosmos.signatures[0]);
-          },
-          TIMEOUT
-      );
-
+        const res = await wallet.cosmosSignTx(input);
+        expect(res?.signatures?.[0]).toEqual(tx_signed_ibc_cosmos.signatures[0]);
+      },
+      TIMEOUT
+    );
   });
 }

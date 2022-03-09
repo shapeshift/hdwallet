@@ -88,7 +88,7 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
           this.emit("NEEDS_BACKUP");
         }
       } else if (event.type === "ui-button") {
-        let kind = event.payload.code;
+        const kind = event.payload.code;
         this.emit(
           core.Events.BUTTON_REQUEST,
           core.makeEvent({
@@ -124,7 +124,7 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
       await TrezorConnectTransport.cancellable(TrezorConnectTransport.callInProgress);
 
       try {
-        let result = await (TrezorConnect as any)[method]({ device, ...msg });
+        const result = await (TrezorConnect as any)[method]({ device, ...msg });
         if (
           result.payload.error === "Popup closed" ||
           result.payload.error === "Cancelled" ||
@@ -157,7 +157,7 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
       })
     );
 
-    let response = await TrezorConnectTransport.callQuiet(this.device, method, msg, msTimeout);
+    const response = await TrezorConnectTransport.callQuiet(this.device, method, msg, msTimeout);
 
     this.emit(
       method,

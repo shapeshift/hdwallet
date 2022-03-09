@@ -7,9 +7,7 @@ import { VENDOR_ID, WEBUSB_PRODUCT_ID, HID_PRODUCT_ID } from "./utils";
 export const NodeWebUSBAdapterDelegate = {
   async getDevices(): Promise<Device[]> {
     const devices = (await webusb.usb.getDevices()).filter((d) => d.serialNumber !== undefined) as Device[];
-    return devices.filter(
-      (x) => x.vendorId === VENDOR_ID && [WEBUSB_PRODUCT_ID, HID_PRODUCT_ID].includes(x.productId)
-    );
+    return devices.filter((x) => x.vendorId === VENDOR_ID && [WEBUSB_PRODUCT_ID, HID_PRODUCT_ID].includes(x.productId));
   },
   async getDevice(serialNumber?: string): Promise<Device> {
     const out = await webusb.usb.requestDevice({

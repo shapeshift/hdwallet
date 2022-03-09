@@ -47,12 +47,12 @@ type LedgerTransportMethodUnion<T, U> = unknown extends T
 
 // Converts LedgerTransportMethodUnionInner<T, unknown> to LedgerTransportMethod<T, LedgerTransportMethodName<T>>
 type LedgerTransportMethodUnionInner<T, U> = T extends LedgerTransportCoinType
-? unknown extends U
-  ? LedgerTransportMethod<T, LedgerTransportMethodName<T>>
-  : U extends LedgerTransportMethodName<T>
-  ? LedgerTransportMethod<T, U>
-  : never
-: never;
+  ? unknown extends U
+    ? LedgerTransportMethod<T, LedgerTransportMethodName<T>>
+    : U extends LedgerTransportMethodName<T>
+    ? LedgerTransportMethod<T, U>
+    : never
+  : never;
 
 export type LedgerTransportMethod<T, U> = T extends LedgerTransportCoinType
   ? U extends LedgerTransportMethodName<T>

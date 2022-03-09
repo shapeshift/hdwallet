@@ -6,7 +6,7 @@ import * as protoTxBuilder from "@shapeshiftoss/proto-tx-builder";
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
 import * as Isolation from "./crypto/isolation";
-import {CosmosSignedTx} from "@shapeshiftoss/hdwallet-core";
+import { CosmosSignedTx } from "@shapeshiftoss/hdwallet-core";
 
 const OSMOSIS_CHAIN = "osmosis-1";
 
@@ -26,7 +26,7 @@ export function MixinNativeOsmosisWalletInfo<TBase extends core.Constructor<core
     }
 
     osmosisGetAccountPaths(msg: core.OsmosisGetAccountPaths): Array<core.OsmosisAccountPath> {
-      const slip44 = core.slip44ByCoin("Osmo")
+      const slip44 = core.slip44ByCoin("Osmo");
       return [
         {
           addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],

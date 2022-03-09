@@ -56,6 +56,6 @@ export class CipherString {
       iv: fromB64ToArray(this.iv),
       mac: fromB64ToArray(this.mac),
       key,
-    })
+    });
   }
 }
