@@ -3,8 +3,8 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bs58 from "bs58";
 import * as tinyecc from "tiny-secp256k1";
 
-import * as native from "./native";
 import * as Isolation from "./crypto/isolation";
+import * as native from "./native";
 
 const MNEMONIC = "all all all all all all all all all all all all";
 

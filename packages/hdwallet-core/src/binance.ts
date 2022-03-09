@@ -100,8 +100,8 @@ export interface BinanceWallet extends BinanceWalletInfo, HDWallet {
 }
 
 export function binanceDescribePath(path: BIP32Path): PathDescription {
-  let pathStr = addressNListToBIP32(path);
-  let unknown: PathDescription = {
+  const pathStr = addressNListToBIP32(path);
+  const unknown: PathDescription = {
     verbose: pathStr,
     coin: "Binance",
     isKnown: false,
@@ -127,7 +127,7 @@ export function binanceDescribePath(path: BIP32Path): PathDescription {
     return unknown;
   }
 
-  let index = path[2] & 0x7fffffff;
+  const index = path[2] & 0x7fffffff;
   return {
     verbose: `Binance Account #${index}`,
     accountIdx: index,

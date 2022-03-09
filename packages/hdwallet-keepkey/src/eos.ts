@@ -1,5 +1,5 @@
-import * as EosMessages from "@keepkey/device-protocol/lib/messages-eos_pb";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
+import * as EosMessages from "@keepkey/device-protocol/lib/messages-eos_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
 
 import { Transport } from "./transport";
@@ -9,21 +9,21 @@ const createHash = require("create-hash");
 function eosSigFormatter(r: Uint8Array, s: Uint8Array, v: number): string {
   const base58 = require("bs58");
 
-  var recoverId = 0x1f;
+  const recoverId = 0x1f;
 
-  var signature: string = "SIG_K1_";
+  let signature = "SIG_K1_";
 
   console.log("formatter logs");
-  var keyBuffer = Buffer.alloc(65);
-  var rbuf = Buffer.from(r);
-  var sbuf = Buffer.from(s);
+  const keyBuffer = Buffer.alloc(65);
+  const rbuf = Buffer.from(r);
+  const sbuf = Buffer.from(s);
   keyBuffer.writeUInt8(recoverId, 0);
   rbuf.copy(keyBuffer, 1);
   sbuf.copy(keyBuffer, 33);
 
   console.log(keyBuffer);
   const check = [keyBuffer];
-  var keyType = "K1"; // we only sign using K1 curve
+  const keyType = "K1"; // we only sign using K1 curve
   check.push(Buffer.from(keyType));
 
   console.log(check);
@@ -51,7 +51,7 @@ function charToSymbol(c: string): number {
 }
 
 function nameToNumber(name: string): string {
-  var Long = require("long");
+  const Long = require("long");
   let value = new Long(0, 0, true);
   let c = new Long(0, 0, true);
 
@@ -73,8 +73,8 @@ function nameToNumber(name: string): string {
 }
 
 function assetToNumber(asset: string): [number, number] {
-  let assetSplit = asset.split(" "); // amount, symbol
-  let dot_pos = assetSplit[0].indexOf(".");
+  const assetSplit = asset.split(" "); // amount, symbol
+  const dot_pos = assetSplit[0].indexOf(".");
   let fract_part = 0;
   let int_part = 0;
   let precision_digit = 0;
@@ -86,7 +86,7 @@ function assetToNumber(asset: string): [number, number] {
     precision_digit = 0;
   }
 
-  let sym = symbolFromString(precision_digit, assetSplit[1]);
+  const sym = symbolFromString(precision_digit, assetSplit[1]);
   //parse amount
   if (dot_pos != -1) {
     int_part = parseInt(assetSplit[0].slice(0, dot_pos));
@@ -105,7 +105,7 @@ function assetToNumber(asset: string): [number, number] {
 
 function symbolFromString(p: number, name: string): number {
   let result = 0;
-  for (var i = 0; i < name.length; i++) {
+  for (let i = 0; i < name.length; i++) {
     result |= name.charCodeAt(i) << (8 * (i + 1));
   }
   result |= p;
@@ -166,36 +166,36 @@ export async function eosSignTx(transport: Transport, msg: core.EosToSignTx): Pr
     console.log(txHeader);
     resp = await transport.call(Messages.MessageType.MESSAGETYPE_EOSSIGNTX, signTx, {
       msgTimeout: core.LONG_TIMEOUT,
-      omitLock: true
+      omitLock: true,
     });
 
     if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_EOSTXACTIONREQUEST) {
       throw new Error(`eos: unexpected response ${resp.message_type}`);
     }
     // parse the common block of the action
-    let actCommon = new EosMessages.EosActionCommon();
+    const actCommon = new EosMessages.EosActionCommon();
     actCommon.setAccount(nameToNumber(msg.tx.actions[0].account).toString());
     actCommon.setName(nameToNumber(msg.tx.actions[0].name).toString());
     // interate through authorizations and add them
     for (let n = 0; n < msg.tx.actions[0].authorization.length; n++) {
-      let actPerm = new EosMessages.EosPermissionLevel();
+      const actPerm = new EosMessages.EosPermissionLevel();
       actPerm.setActor(nameToNumber(msg.tx.actions[0].authorization[n].actor).toString());
       actPerm.setPermission(nameToNumber(msg.tx.actions[0].authorization[n].permission).toString());
       actCommon.addAuthorization(actPerm);
     }
 
-    let actAck = new EosMessages.EosTxActionAck();
+    const actAck = new EosMessages.EosTxActionAck();
     actAck.setCommon(actCommon);
     // parse the various action types here.
     switch (msg.tx.actions[0].name) {
       case "transfer": {
         // build the transfer action
-        let actType = new EosMessages.EosActionTransfer();
+        const actType = new EosMessages.EosActionTransfer();
         actType.setSender(nameToNumber(msg.tx.actions[0].data.from).toString());
         actType.setReceiver(nameToNumber(msg.tx.actions[0].data.to).toString());
 
-        let actAsset = new EosMessages.EosAsset();
-        let assetParse = assetToNumber(msg.tx.actions[0].data.quantity);
+        const actAsset = new EosMessages.EosAsset();
+        const assetParse = assetToNumber(msg.tx.actions[0].data.quantity);
         actAsset.setAmount(assetParse[0].toString());
         actAsset.setSymbol(assetParse[1].toString());
 
@@ -229,7 +229,7 @@ export async function eosSignTx(transport: Transport, msg: core.EosToSignTx): Pr
     const signatureS = signedTx.getSignatureS_asU8();
     const signatureV = signedTx.getSignatureV();
     if (signatureV === undefined) throw new Error("missing signatureV");
-    var sig = {
+    const sig = {
       signatureV,
       signatureR,
       signatureS,

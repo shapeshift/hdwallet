@@ -6,32 +6,32 @@ import { TextDecoder, TextEncoder } from "web-encoding";
 import { AsyncCrypto } from "./types";
 
 const nativeEngines = (async () => {
-  return (await import("@shapeshiftoss/hdwallet-native")).crypto.Isolation.Engines
-})()
+  return (await import("@shapeshiftoss/hdwallet-native")).crypto.Isolation.Engines;
+})();
 
 export async function createMnemonic(mnemonic: string) {
-  return (await nativeEngines).Default.BIP39.Mnemonic.create(mnemonic)
+  return (await nativeEngines).Default.BIP39.Mnemonic.create(mnemonic);
 }
 export const entropyToMnemonic = bip39.entropyToMnemonic.bind(bip39);
 
-let cryptoResolver: ((x: AsyncCrypto) => void) | undefined
+let cryptoResolver: ((x: AsyncCrypto) => void) | undefined;
 
 export function setCrypto(x: AsyncCrypto) {
   if (!x) throw new Error("crypto module is required");
   if (!cryptoResolver) throw new Error("can only set crypto module once");
-  cryptoResolver(x)
-  cryptoResolver = undefined
+  cryptoResolver(x);
+  cryptoResolver = undefined;
 }
-export const crypto = new Promise<AsyncCrypto>(resolve => cryptoResolver = resolve)
+export const crypto = new Promise<AsyncCrypto>((resolve) => (cryptoResolver = resolve));
 
-let performanceResolver: ((x: Performance) => void) | undefined
+let performanceResolver: ((x: Performance) => void) | undefined;
 export function setPerformance(x: Performance) {
   if (!x) throw new Error("performance module is required");
   if (!performanceResolver) throw new Error("can only set performance module once");
-  performanceResolver(x)
-  performanceResolver = undefined
+  performanceResolver(x);
+  performanceResolver = undefined;
 }
-export const performance = new Promise<Performance>(resolve => performanceResolver = resolve)
+export const performance = new Promise<Performance>((resolve) => (performanceResolver = resolve));
 
 export const uuidNamespace = uuid.v5("hdwallet-native-vault", uuid.NIL);
 export const keyStoreUUID = uuid.v5("keyStore", uuidNamespace);
@@ -46,7 +46,11 @@ export const revocable = native.crypto.Isolation.Engines.Default.revocable;
 export const decoder = new TextDecoder();
 export const encoder = new TextEncoder();
 
-export function shadowedMap<K, V, T extends Map<K, V>>(map: T, get: (key: K) => undefined | V, addRevoker: (revoke: () => void) => void): T {
+export function shadowedMap<K, V, T extends Map<K, V>>(
+  map: T,
+  get: (key: K) => undefined | V,
+  addRevoker: (revoke: () => void) => void
+): T {
   const self = map;
   const { proxy, revoke } = Proxy.revocable(self, {
     get(t, p, r) {

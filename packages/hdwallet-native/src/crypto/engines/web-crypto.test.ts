@@ -71,7 +71,9 @@ describe("WebCryptoEngine JavaScript", () => {
     const iv = utils.fromB64ToArray("rnvfQhmCO27xxEk33ayinw==");
     const encrypted = await engine.encrypt(mnemonic, key.encKey, iv);
 
-    expect(utils.fromBufferToB64(encrypted)).toEqual("FC2M6J3aqlavEne0Sl72Xyh3XB2RzxmNpy/zKNqu1ys+3Xe7pxyRQd+GRsLcf/Rf");
+    expect(utils.fromBufferToB64(encrypted)).toEqual(
+      "FC2M6J3aqlavEne0Sl72Xyh3XB2RzxmNpy/zKNqu1ys+3Xe7pxyRQd+GRsLcf/Rf"
+    );
   });
 
   it("should decrypt a wallet with a password and email", async () => {

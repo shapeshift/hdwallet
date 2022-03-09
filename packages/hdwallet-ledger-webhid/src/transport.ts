@@ -16,7 +16,7 @@ import {
 
 const RECORD_CONFORMANCE_MOCKS = false;
 
-export const MOCK_SERIAL_NUMBER = "ledger-webhid-device" // WebHID devices do not have serialNumbers
+export const MOCK_SERIAL_NUMBER = "ledger-webhid-device"; // WebHID devices do not have serialNumbers
 
 export async function getFirstLedgerDevice(): Promise<HIDDevice | null> {
   if (!(window && window.navigator.hid)) throw new core.WebHIDNotAvailable();
@@ -62,12 +62,12 @@ export function translateCoinAndMethod<T extends LedgerTransportCoinType, U exte
   switch (coin) {
     case "Btc": {
       const btc = new Btc(transport);
-      const methodInstance = btc[method as LedgerTransportMethodName<"Btc">].bind(btc)
+      const methodInstance = btc[method as LedgerTransportMethodName<"Btc">].bind(btc);
       return methodInstance as LedgerTransportMethod<T, U>;
     }
     case "Eth": {
       const eth = new Eth(transport);
-      const methodInstance = eth[method as LedgerTransportMethodName<"Eth">].bind(eth)
+      const methodInstance = eth[method as LedgerTransportMethodName<"Eth">].bind(eth);
       return methodInstance as LedgerTransportMethod<T, U>;
     }
     case null: {

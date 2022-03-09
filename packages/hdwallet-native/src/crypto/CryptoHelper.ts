@@ -55,7 +55,10 @@ export default class CryptoHelper {
     const macData = new Uint8Array(iv.byteLength + encData.byteLength);
     macData.set(new Uint8Array(iv), 0);
     macData.set(new Uint8Array(encData), iv.byteLength);
-    const mac = await this.#engine.hmac(macData.buffer.slice(macData.byteOffset, macData.byteOffset + macData.byteLength), key.macKey);
+    const mac = await this.#engine.hmac(
+      macData.buffer.slice(macData.byteOffset, macData.byteOffset + macData.byteLength),
+      key.macKey
+    );
 
     return new EncryptedObject({ key, iv, data: encData, mac });
   }
@@ -74,17 +77,14 @@ export default class CryptoHelper {
     if (iv instanceof Uint8Array) iv = core.toArrayBuffer(iv);
     if (mac == null || !(mac instanceof ArrayBuffer || mac instanceof Uint8Array))
       throw new Error("Required parameter [mac] is not of type ArrayBuffer or Uint8Array");
-    if (mac instanceof Uint8Array) mac = core.toArrayBuffer(mac)
+    if (mac instanceof Uint8Array) mac = core.toArrayBuffer(mac);
     if (key == null || key.encKey == null || key.macKey == null)
       throw new Error("Required parameter [key] is not of type SymmetricCryptoKey");
 
     const macData = new Uint8Array(iv.byteLength + data.byteLength);
     macData.set(new Uint8Array(iv), 0);
     macData.set(new Uint8Array(data), iv.byteLength);
-    const computedMac = await this.#engine.hmac(
-      core.toArrayBuffer(macData),
-      key.macKey
-    );
+    const computedMac = await this.#engine.hmac(core.toArrayBuffer(macData), key.macKey);
     const macsMatch = await this.compare(mac, computedMac);
 
     if (!macsMatch) throw new Error("HMAC signature is not valid or data has been tampered with");
@@ -107,9 +107,7 @@ export default class CryptoHelper {
       t.set(info, previousT.length);
       t.set([i + 1], t.length - 1);
 
-      previousT = new Uint8Array(
-        await this.#engine.hmac(core.toArrayBuffer(t), prk)
-      );
+      previousT = new Uint8Array(await this.#engine.hmac(core.toArrayBuffer(t), prk));
 
       okm.set(previousT, i * hashLen);
     }
@@ -155,7 +153,7 @@ export default class CryptoHelper {
   }
 
   // use entropyToMnemonic to generate mnemonic so we can utilize provided randomBytes function
-  async generateMnemonic(strength: number = 128): Promise<string> {
+  async generateMnemonic(strength = 128): Promise<string> {
     const entropy = await this.#engine.randomBytes(strength / 8);
     return bip39.entropyToMnemonic(Buffer.from(entropy));
   }

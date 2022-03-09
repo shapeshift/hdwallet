@@ -95,8 +95,8 @@ export interface ThorchainWallet extends ThorchainWalletInfo, HDWallet {
 }
 
 export function thorchainDescribePath(path: BIP32Path): PathDescription {
-  let pathStr = addressNListToBIP32(path);
-  let unknown: PathDescription = {
+  const pathStr = addressNListToBIP32(path);
+  const unknown: PathDescription = {
     verbose: pathStr,
     coin: "Rune",
     isKnown: false,
@@ -122,7 +122,7 @@ export function thorchainDescribePath(path: BIP32Path): PathDescription {
     return unknown;
   }
 
-  let index = path[2] & 0x7fffffff;
+  const index = path[2] & 0x7fffffff;
   return {
     verbose: `Thorchain Account #${index}`,
     accountIdx: index,

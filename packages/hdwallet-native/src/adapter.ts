@@ -1,17 +1,20 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import * as native from "./native";
 import * as Isolation from "./crypto/isolation";
+import * as native from "./native";
 
 export type NativeAdapterArgs = {
   deviceId: string;
-} & ({
-  mnemonic?: string | Isolation.Core.BIP39.Mnemonic;
-  masterKey?: never;
-} | {
-  mnemonic?: never;
-  masterKey?: Isolation.Core.BIP32.Node;
-});
+} & (
+  | {
+      mnemonic?: string | Isolation.Core.BIP39.Mnemonic;
+      masterKey?: never;
+    }
+  | {
+      mnemonic?: never;
+      masterKey?: Isolation.Core.BIP32.Node;
+    }
+);
 
 export class NativeAdapter {
   keyring: core.Keyring;

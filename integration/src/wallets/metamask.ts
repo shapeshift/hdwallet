@@ -19,7 +19,7 @@ export function selfTest(get: () => core.HDWallet): void {
   let wallet: metamask.MetaMaskHDWallet;
 
   beforeAll(async () => {
-    let w = get() as metamask.MetaMaskHDWallet;
+    const w = get() as metamask.MetaMaskHDWallet;
 
     if (metamask.isMetaMask(w) && !core.supportsBTC(w) && core.supportsETH(w)) {
       wallet = w;
@@ -56,7 +56,7 @@ export function selfTest(get: () => core.HDWallet): void {
   it("uses correct eth bip44 paths", () => {
     if (!wallet) return;
     [0, 1, 3, 27].forEach((account) => {
-      let paths = wallet.ethGetAccountPaths({
+      const paths = wallet.ethGetAccountPaths({
         coin: "Ethereum",
         accountIdx: account,
       });
@@ -119,7 +119,7 @@ export function selfTest(get: () => core.HDWallet): void {
     });
   });
 
-  it('should return a valid ETH address', async () => {
+  it("should return a valid ETH address", async () => {
     if (!wallet) return;
     expect(
       await wallet.ethGetAddress({
@@ -127,11 +127,11 @@ export function selfTest(get: () => core.HDWallet): void {
         showDisplay: false,
       })
     ).toEqual("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8");
-  })
+  });
 
-  it('should sign a message', async () => {
+  it("should sign a message", async () => {
     if (!wallet) return;
-    let res = await wallet.ethSignMessage({
+    const res = await wallet.ethSignMessage({
       addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
       message: "Hello World",
     });

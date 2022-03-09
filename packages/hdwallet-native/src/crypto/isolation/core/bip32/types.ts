@@ -1,4 +1,5 @@
 import { Static } from "funtypes";
+
 import { BoundedString, ByteArray } from "../../types";
 
 const chainCodeBase = ByteArray(32);

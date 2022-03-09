@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
-import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
+import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 const MNEMONIC_TEST = "smooth antenna immense oppose august casual fresh meadow happy ugly wave control";
@@ -54,13 +54,13 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
       async () => {
         if (!wallet) return;
         if (await wallet.ethSupportsSecureTransfer()) {
-          let account0 = core.bip32ToAddressNList("m/44'/60'/0'/0/0");
-          let account1 = core.bip32ToAddressNList("m/44'/60'/1'/0/0");
-          let account1Addr = await wallet.ethGetAddress({
+          const account0 = core.bip32ToAddressNList("m/44'/60'/0'/0/0");
+          const account1 = core.bip32ToAddressNList("m/44'/60'/1'/0/0");
+          const account1Addr = await wallet.ethGetAddress({
             addressNList: account1,
             showDisplay: false,
           });
-          let res = await wallet.ethSignTx({
+          const res = await wallet.ethSignTx({
             addressNList: account0,
             nonce: "0x01",
             gasPrice: "0x14",
@@ -87,7 +87,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
       "ethGetAccountPaths()",
       () => {
         if (!wallet) return;
-        let paths = wallet.ethGetAccountPaths({
+        const paths = wallet.ethGetAccountPaths({
           coin: "Ethereum",
           accountIdx: 0,
         });
@@ -119,7 +119,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
       "ethSignTx() - ETH",
       async () => {
         if (!wallet) return;
-        let addr = await wallet.ethGetAddress({
+        const addr = await wallet.ethGetAddress({
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
           showDisplay: false,
         });
@@ -136,7 +136,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
         };
 
         if (wallet.supportsOfflineSigning()) {
-          let res = await wallet.ethSignTx(txToSign);
+          const res = await wallet.ethSignTx(txToSign);
           expect(res).toEqual({
             r: "0x63db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0a",
             s: "0x28297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
@@ -164,7 +164,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
           return;
         }
 
-        if (!await wallet.ethSupportsEIP1559()) {
+        if (!(await wallet.ethSupportsEIP1559())) {
           return;
         }
 
@@ -176,18 +176,18 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
           skipChecksum: true,
         });
 
-        let addr = await wallet.ethGetAddress({
+        const addr = await wallet.ethGetAddress({
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
           showDisplay: false,
         });
 
-        let res = await wallet.ethSignTx({
+        const res = await wallet.ethSignTx({
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
           nonce: "0x0",
           gasLimit: "0x5ac3",
           maxFeePerGas: "0x16854be509",
           maxPriorityFeePerGas: "0x540ae480",
-          value: "0x1550f7dca70000",   // 0.006 eth
+          value: "0x1550f7dca70000", // 0.006 eth
           to: "0xfc0cc6e85dff3d75e3985e0cb83b090cfd498dd1",
           chainId: 1,
           data: "",
@@ -207,12 +207,12 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
       "ethSignTx() - ETH EIP-1559 (optional)",
       async () => {
         if (!wallet) return;
-  
-         if (!await wallet.ethSupportsEIP1559()) {
-           return;
-         }
-  
-        let res = await wallet.ethSignTx({
+
+        if (!(await wallet.ethSupportsEIP1559())) {
+          return;
+        }
+
+        const res = await wallet.ethSignTx({
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
           nonce: "0x01",
           gasPrice: "0x1dcd65000",
@@ -256,7 +256,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
         };
 
         if (wallet.supportsOfflineSigning()) {
-          let res = await wallet.ethSignTx(txToSign);
+          const res = await wallet.ethSignTx(txToSign);
           expect(res).toEqual({
             r: "0x1238fd332545415f09a01470350a5a20abc784dbf875cf58f7460560e66c597f",
             s: "0x10efa4dd6fdb381c317db8f815252c2ac0d2a883bd364901dee3dec5b7d3660a",
@@ -346,7 +346,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
         };
 
         if (wallet.supportsOfflineSigning()) {
-          let res = await wallet.ethSignTx(txToSign);
+          const res = await wallet.ethSignTx(txToSign);
           expect(res).toEqual({
             r: "0x5ea245ddd00fdf3958d6223255e37dcb0c61fa62cfa9cfb25e507da16ec8d96a",
             s: "0x6c428730776958b80fd2b2201600420bb49059f9b34ee3b960cdcce45d4a1e09",
@@ -372,7 +372,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
       async () => {
         if (!wallet) return;
         if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
-        let res = await wallet.ethSignMessage({
+        const res = await wallet.ethSignMessage({
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
           message: "Hello World",
         });
@@ -390,7 +390,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
         if (!wallet) return;
 
         if (wallet.supportsOfflineSigning()) {
-          let res = await wallet.ethVerifyMessage({
+          const res = await wallet.ethVerifyMessage({
             address: "0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8",
             message: "Hello World",
             signature:
@@ -401,5 +401,5 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
       },
       TIMEOUT
     );
-   });
+  });
 }

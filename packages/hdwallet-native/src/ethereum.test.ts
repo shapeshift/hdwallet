@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as ethers from "ethers"
+import * as ethers from "ethers";
 import { TextEncoder } from "web-encoding";
 
 import * as native from "./native";
@@ -109,7 +109,7 @@ describe("NativeETHWallet", () => {
       data: "0xCAFEDEADCAFEDEADCAFEDEADCAFEDEAD",
       chainId: 1,
     });
-    console.log("SIG: ", sig)
+    console.log("SIG: ", sig);
     // This is the output from tiny-secp256k1.
     expect(sig).toMatchInlineSnapshot(`
       Object {

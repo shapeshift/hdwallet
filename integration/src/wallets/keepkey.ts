@@ -2,8 +2,8 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as keepkeyNodeWebUSB from "@shapeshiftoss/hdwallet-keepkey-nodewebusb";
 import * as keepkeyTcp from "@shapeshiftoss/hdwallet-keepkey-tcp";
-import * as debug from "debug";
 import AxiosHTTPAdapter from "axios/lib/adapters/http";
+import * as debug from "debug";
 
 const log = debug.default("keepkey");
 
@@ -16,10 +16,13 @@ export function name(): string {
 async function getBridge(keyring: core.Keyring) {
   try {
     const tcpAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
-    const wallet = await tcpAdapter.pairRawDevice({
-      baseURL: "http://localhost:1646",
-      adapter: AxiosHTTPAdapter,
-    }, true);
+    const wallet = await tcpAdapter.pairRawDevice(
+      {
+        baseURL: "http://localhost:1646",
+        adapter: AxiosHTTPAdapter,
+      },
+      true
+    );
     if (wallet) console.log("Using KeepKey Bridge for tests");
     return wallet;
   } catch (e) {}
@@ -29,7 +32,7 @@ async function getBridge(keyring: core.Keyring) {
 async function getDevice(keyring: core.Keyring) {
   try {
     const keepkeyAdapter = keepkeyNodeWebUSB.NodeWebUSBKeepKeyAdapter.useKeyring(keyring);
-    let wallet = await keepkeyAdapter.pairDevice(undefined, true);
+    const wallet = await keepkeyAdapter.pairDevice(undefined, true);
     if (wallet) console.log("Using attached WebUSB KeepKey for tests");
     return wallet;
   } catch (e) {}
@@ -39,10 +42,13 @@ async function getDevice(keyring: core.Keyring) {
 async function getEmulator(keyring: core.Keyring) {
   try {
     const tcpAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
-    const wallet = await tcpAdapter.pairRawDevice({
-      baseURL: "http://localhost:5000",
-      adapter: AxiosHTTPAdapter,
-    }, true);
+    const wallet = await tcpAdapter.pairRawDevice(
+      {
+        baseURL: "http://localhost:5000",
+        adapter: AxiosHTTPAdapter,
+      },
+      true
+    );
     if (wallet) console.log("Using KeepKey Emulator for tests");
     return wallet;
   } catch (e) {}
@@ -58,7 +64,7 @@ export function createInfo(): core.HDWalletInfo {
 export async function createWallet(): Promise<core.HDWallet> {
   const keyring = new core.Keyring();
 
-  const wallet = ((await getBridge(keyring) || await getDevice(keyring))) || (await getEmulator(keyring));
+  const wallet = (await getBridge(keyring)) || (await getDevice(keyring)) || (await getEmulator(keyring));
 
   if (!wallet) throw new Error("No suitable test KeepKey found");
 
@@ -79,7 +85,7 @@ export function selfTest(get: () => core.HDWallet): void {
   let wallet: keepkey.KeepKeyHDWallet & core.BTCWallet & core.ETHWallet & core.HDWallet;
 
   beforeAll(async () => {
-    let w = get();
+    const w = get();
     if (keepkey.isKeepKey(w) && core.supportsBTC(w) && core.supportsETH(w)) wallet = w;
     else fail("Wallet is not a KeepKey");
 
@@ -107,7 +113,7 @@ export function selfTest(get: () => core.HDWallet): void {
   it("uses the same BIP32 paths for ETH as the KeepKey Client", () => {
     if (!wallet) return;
     [0, 1, 3, 27].forEach((account) => {
-      let paths = wallet.ethGetAccountPaths({
+      const paths = wallet.ethGetAccountPaths({
         coin: "Ethereum",
         accountIdx: account,
       });
@@ -135,7 +141,7 @@ export function selfTest(get: () => core.HDWallet): void {
     async () => {
       if (!wallet) return;
 
-      let addrs = [] as string[];
+      const addrs = [] as string[];
       await new Promise<void>(async (resolve) => {
         wallet
           .btcGetAddress({
@@ -223,7 +229,7 @@ export function selfTest(get: () => core.HDWallet): void {
   it("uses correct bip44 paths", () => {
     if (!wallet) return;
 
-    let paths = wallet.btcGetAccountPaths({
+    const paths = wallet.btcGetAccountPaths({
       coin: "Litecoin",
       accountIdx: 3,
     });
@@ -250,7 +256,7 @@ export function selfTest(get: () => core.HDWallet): void {
   it("supports ethNextAccountPath", () => {
     if (!wallet) return;
 
-    let paths = wallet.ethGetAccountPaths({
+    const paths = wallet.ethGetAccountPaths({
       coin: "Ethereum",
       accountIdx: 5,
     });
@@ -280,7 +286,7 @@ export function selfTest(get: () => core.HDWallet): void {
   it("supports btcNextAccountPath", () => {
     if (!wallet) return;
 
-    let paths = wallet.btcGetAccountPaths({
+    const paths = wallet.btcGetAccountPaths({
       coin: "Litecoin",
       accountIdx: 3,
     });

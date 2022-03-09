@@ -3,9 +3,9 @@ import * as bech32 from "bech32";
 import CryptoJS from "crypto-js";
 import * as txBuilder from "tendermint-tx-builder";
 
+import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
-import * as Isolation from "./crypto/isolation";
 
 export function MixinNativeKavaWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   return class MixinNativeKavaWalletInfo extends Base implements core.KavaWalletInfo {
@@ -24,7 +24,7 @@ export function MixinNativeKavaWalletInfo<TBase extends core.Constructor<core.HD
     }
 
     kavaGetAccountPaths(msg: core.KavaGetAccountPaths): Array<core.KavaAccountPath> {
-      const slip44 = core.slip44ByCoin("Kava")
+      const slip44 = core.slip44ByCoin("Kava");
       return [
         {
           addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],

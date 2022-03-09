@@ -1,12 +1,12 @@
 import {
-  isArray,
-  fromHexString,
-  toHexString,
-  bip32ToAddressNList,
-  slip44ByCoin,
-  satsFromStr,
-  stripHexPrefix,
   bip32Like,
+  bip32ToAddressNList,
+  fromHexString,
+  isArray,
+  satsFromStr,
+  slip44ByCoin,
+  stripHexPrefix,
+  toHexString,
 } from "./utils";
 
 describe("isArray", () => {

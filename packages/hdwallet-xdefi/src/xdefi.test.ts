@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { create, XDeFiHDWallet } from ".";
 
+import { create, XDeFiHDWallet } from ".";
 import * as xdefi from "./xdefi";
 
 describe("XDeFIHDWalletInfo", () => {
@@ -124,7 +124,7 @@ describe("XDeFiWHDWallet", () => {
     expect(sig).toBe(null);
   });
 
-  it("ethGetAddress returns a valid address ", async () => {
+  it("ethGetAddress returns a valid address", async () => {
     wallet.provider = {
       request: jest.fn().mockReturnValue(["0x73d0385F4d8E00C5e6504C6030F47BF6212736A8"]),
     };

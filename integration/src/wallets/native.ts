@@ -177,7 +177,7 @@ export function selfTest(get: () => core.HDWallet): void {
   let wallet: native.NativeHDWallet;
 
   beforeAll(async () => {
-    let w = get() as native.NativeHDWallet;
+    const w = get() as native.NativeHDWallet;
 
     if (native.isNative(w) && core.supportsBTC(w) && core.supportsETH(w)) {
       wallet = w;
@@ -206,7 +206,7 @@ export function selfTest(get: () => core.HDWallet): void {
   it("uses correct eth bip44 paths", () => {
     if (!wallet) return;
     [0, 1, 3, 27].forEach((account) => {
-      let paths = core.mustBeDefined(
+      const paths = core.mustBeDefined(
         wallet.ethGetAccountPaths({
           coin: "Ethereum",
           accountIdx: account,
@@ -234,7 +234,7 @@ export function selfTest(get: () => core.HDWallet): void {
   it("uses correct btc bip44 paths", () => {
     if (!wallet) return;
 
-    let paths = wallet.btcGetAccountPaths({
+    const paths = wallet.btcGetAccountPaths({
       coin: "Litecoin",
       accountIdx: 3,
     });
@@ -261,7 +261,7 @@ export function selfTest(get: () => core.HDWallet): void {
   it.skip("supports ethNextAccountPath", () => {
     if (!wallet) return;
 
-    let paths = core.mustBeDefined(
+    const paths = core.mustBeDefined(
       wallet.ethGetAccountPaths({
         coin: "Ethereum",
         accountIdx: 5,
@@ -293,7 +293,7 @@ export function selfTest(get: () => core.HDWallet): void {
   it("supports btcNextAccountPath", () => {
     if (!wallet) return;
 
-    let paths = core.mustBeDefined(
+    const paths = core.mustBeDefined(
       wallet.btcGetAccountPaths({
         coin: "Litecoin",
         accountIdx: 3,

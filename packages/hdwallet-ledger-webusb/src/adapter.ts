@@ -1,14 +1,14 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
-import { LedgerWebUsbTransport, getFirstLedgerDevice, getTransport, openTransport } from "./transport";
+import { getFirstLedgerDevice, getTransport, LedgerWebUsbTransport, openTransport } from "./transport";
 
 const VENDOR_ID = 11415;
 const APP_NAVIGATION_DELAY = 3000;
 
 export class WebUSBLedgerAdapter {
   keyring: core.Keyring;
-  currentEventTimestamp: number = 0;
+  currentEventTimestamp = 0;
 
   constructor(keyring: core.Keyring) {
     this.keyring = keyring;
@@ -30,7 +30,10 @@ export class WebUSBLedgerAdapter {
 
     try {
       await this.initialize(e.device);
-      this.keyring.emit([e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.CONNECT], e.device.serialNumber);
+      this.keyring.emit(
+        [e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.CONNECT],
+        e.device.serialNumber
+      );
     } catch (error) {
       this.keyring.emit(
         [e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.FAILURE],
@@ -55,7 +58,10 @@ export class WebUSBLedgerAdapter {
       } catch (e) {
         console.error(e);
       } finally {
-        this.keyring.emit([e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.DISCONNECT], e.device.serialNumber);
+        this.keyring.emit(
+          [e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.DISCONNECT],
+          e.device.serialNumber
+        );
       }
     }, APP_NAVIGATION_DELAY);
   }
@@ -73,7 +79,9 @@ export class WebUSBLedgerAdapter {
 
       const ledgerTransport = await openTransport(device);
 
-      const wallet = ledger.create(new LedgerWebUsbTransport(device, ledgerTransport, this.keyring) as ledger.LedgerTransport);
+      const wallet = ledger.create(
+        new LedgerWebUsbTransport(device, ledgerTransport, this.keyring) as ledger.LedgerTransport
+      );
 
       this.keyring.add(wallet, device.serialNumber);
     }
