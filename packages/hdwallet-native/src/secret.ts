@@ -8,6 +8,7 @@ import * as util from "./util";
 import * as Isolation from "./crypto/isolation";
 
 export function MixinNativeSecretWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
+  // eslint-disable-next-line
   return class MixinNativeSecretWalletInfo extends Base implements core.SecretWalletInfo {
     readonly _supportsSecretInfo = true;
     async secretSupportsNetwork(): Promise<boolean> {
@@ -39,6 +40,7 @@ export function MixinNativeSecretWalletInfo<TBase extends core.Constructor<core.
 }
 
 export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
+  // eslint-disable-next-line
   return class MixinNativeSecretWallet extends Base {
     readonly _supportsSecret = true;
 
@@ -66,6 +68,7 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
 
     async secretGetAddress(msg: core.SecretGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "secret");
         return this.createSecretAddress(keyPair.publicKey.toString("hex"));
       });
@@ -73,6 +76,7 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
 
     async secretSignTx(msg: core.SecretSignTx): Promise<any | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "secret");
         // @ts-ignore
         const adapter = await Isolation.Adapters.Cosmos.create(keyPair);

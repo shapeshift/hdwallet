@@ -115,6 +115,14 @@ export function describeUTXOPath(
   }
 }
 
+export function verifyScriptTypePurpose(scriptType: core.BTCInputScriptType, purpose: number): boolean {
+  return (
+    (purpose === 0x80000000 + 44 && scriptType === core.BTCInputScriptType.SpendAddress) ||
+    (purpose === 0x80000000 + 49 && scriptType === core.BTCInputScriptType.SpendP2SHWitness) ||
+    (purpose === 0x80000000 + 84 && scriptType === core.BTCInputScriptType.SpendWitness)
+  );
+}
+
 export async function btcGetAddress(msg: core.BTCGetAddress, portis: any): Promise<string> {
   if (!msg.addressNList.length) throw new Error("Empty addressNList");
 
@@ -157,14 +165,6 @@ export async function btcGetAddress(msg: core.BTCGetAddress, portis: any): Promi
   }
 
   return core.mustBeDefined(result.address);
-}
-
-export function verifyScriptTypePurpose(scriptType: core.BTCInputScriptType, purpose: number): boolean {
-  return (
-    (purpose === 0x80000000 + 44 && scriptType === core.BTCInputScriptType.SpendAddress) ||
-    (purpose === 0x80000000 + 49 && scriptType === core.BTCInputScriptType.SpendP2SHWitness) ||
-    (purpose === 0x80000000 + 84 && scriptType === core.BTCInputScriptType.SpendWitness)
-  );
 }
 
 export function legacyAccount(coin: core.Coin, slip44: number, accountIdx: number): core.BTCAccountPath {

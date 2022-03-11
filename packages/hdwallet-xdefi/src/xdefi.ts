@@ -14,6 +14,76 @@ export function isXDeFi(wallet: core.HDWallet): wallet is XDeFiHDWallet {
   return _.isObject(wallet) && (wallet as any)._isXDeFi;
 }
 
+export class XDeFiHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
+  readonly _supportsETHInfo = true;
+
+  public getVendor(): string {
+    return "XDeFi";
+  }
+
+  public hasOnDevicePinEntry(): boolean {
+    return false;
+  }
+
+  public hasOnDevicePassphrase(): boolean {
+    return false;
+  }
+
+  public hasOnDeviceDisplay(): boolean {
+    return false;
+  }
+
+  public hasOnDeviceRecovery(): boolean {
+    return false;
+  }
+
+  public hasNativeShapeShift(): boolean {
+    return false;
+  }
+
+  public supportsOfflineSigning(): boolean {
+    return false;
+  }
+
+  public supportsBroadcast(): boolean {
+    return true;
+  }
+
+  public describePath(msg: core.DescribePath): core.PathDescription {
+    switch (msg.coin) {
+      case "Ethereum":
+        return core.describeETHPath(msg.path);
+      default:
+        throw new Error("Unsupported path");
+    }
+  }
+
+  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
+    // TODO: What do we do here?
+    return undefined;
+  }
+
+  public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
+    return chainId === 1;
+  }
+
+  public async ethSupportsSecureTransfer(): Promise<boolean> {
+    return false;
+  }
+
+  public ethSupportsNativeShapeShift(): boolean {
+    return false;
+  }
+
+  public async ethSupportsEIP1559(): Promise<boolean> {
+    return true;
+  }
+
+  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
+    return eth.ethGetAccountPaths(msg);
+  }
+}
+
 export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
@@ -202,76 +272,6 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
 
   public async getFirmwareVersion(): Promise<string> {
     return "xDeFi";
-  }
-}
-
-export class XDeFiHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
-  readonly _supportsETHInfo = true;
-
-  public getVendor(): string {
-    return "XDeFi";
-  }
-
-  public hasOnDevicePinEntry(): boolean {
-    return false;
-  }
-
-  public hasOnDevicePassphrase(): boolean {
-    return false;
-  }
-
-  public hasOnDeviceDisplay(): boolean {
-    return false;
-  }
-
-  public hasOnDeviceRecovery(): boolean {
-    return false;
-  }
-
-  public hasNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public supportsOfflineSigning(): boolean {
-    return false;
-  }
-
-  public supportsBroadcast(): boolean {
-    return true;
-  }
-
-  public describePath(msg: core.DescribePath): core.PathDescription {
-    switch (msg.coin) {
-      case "Ethereum":
-        return core.describeETHPath(msg.path);
-      default:
-        throw new Error("Unsupported path");
-    }
-  }
-
-  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
-    // TODO: What do we do here?
-    return undefined;
-  }
-
-  public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
-    return chainId === 1;
-  }
-
-  public async ethSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public ethSupportsNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public async ethSupportsEIP1559(): Promise<boolean> {
-    return true;
-  }
-
-  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
-    return eth.ethGetAccountPaths(msg);
   }
 }
 

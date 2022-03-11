@@ -6,6 +6,7 @@ import { NativeHDWalletBase } from "./native";
 import * as Isolation from "./crypto/isolation";
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
+  // eslint-disable-next-line
   return class MixinNativeETHWalletInfo extends Base implements core.ETHWalletInfo {
     readonly _supportsETHInfo = true;
 
@@ -47,6 +48,7 @@ export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDW
 }
 
 export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
+  // eslint-disable-next-line
   return class MixinNativeETHWallet extends Base {
     readonly _supportsETH = true;
 
@@ -66,6 +68,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
       if (!_.isEqual(msg.addressNList, core.bip32ToAddressNList("m/44'/60'/0'/0/0"))) {
         throw new Error("path not supported");
       }
+      // eslint-disable-next-line
       return this.needsMnemonic(!!this.#ethSigner, () => this.#ethSigner!.getAddress());
     }
 
@@ -73,6 +76,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
       return this.needsMnemonic(!!this.#ethSigner, async () => {
         const utx = {
           to: msg.to,
+          // eslint-disable-next-line
           from: await this.#ethSigner!.getAddress(),
           nonce: msg.nonce,
           gasLimit: msg.gasLimit,
@@ -80,6 +84,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
           value: msg.value,
           chainId: msg.chainId,
         };
+        /* eslint-disable @typescript-eslint/no-non-null-assertion */
         const result: string = msg.maxFeePerGas
           ? await this.#ethSigner!.signTransaction({
               ...utx,
@@ -92,6 +97,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
               gasPrice: msg.gasPrice,
               type: core.ETHTransactionType.ETH_TX_TYPE_LEGACY,
             });
+        /* eslint-enable */
 
         const decoded = ethers.utils.parseTransaction(result);
         return {
@@ -105,8 +111,10 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
 
     async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
       return this.needsMnemonic(!!this.#ethSigner, async () => {
+        // eslint-disable-next-line
         const result = await this.#ethSigner!.signMessage(msg.message);
         return {
+          // eslint-disable-next-line
           address: await this.#ethSigner!.getAddress(),
           signature: result,
         };

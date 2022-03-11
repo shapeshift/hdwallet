@@ -11,6 +11,7 @@ import { CosmosSignedTx } from "@shapeshiftoss/hdwallet-core";
 const OSMOSIS_CHAIN = "osmosis-1";
 
 export function MixinNativeOsmosisWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
+  // eslint-disable-next-line
   return class MixinNativeOsmosisWalletInfo extends Base implements core.OsmosisWalletInfo {
     readonly _supportsOsmosisInfo = true;
     async osmosisSupportsNetwork(): Promise<boolean> {
@@ -42,6 +43,7 @@ export function MixinNativeOsmosisWalletInfo<TBase extends core.Constructor<core
 }
 
 export function MixinNativeOsmosisWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
+  // eslint-disable-next-line
   return class MixinNativeOsmosisWallet extends Base {
     readonly _supportsOsmosis = true;
 
@@ -69,6 +71,7 @@ export function MixinNativeOsmosisWallet<TBase extends core.Constructor<NativeHD
 
     async osmosisGetAddress(msg: core.OsmosisGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "osmosis");
         return this.createOsmosisAddress(keyPair.publicKey.toString("hex"));
       });
@@ -76,6 +79,7 @@ export function MixinNativeOsmosisWallet<TBase extends core.Constructor<NativeHD
 
     async osmosisSignTx(msg: core.OsmosisSignTx): Promise<core.CosmosSignedTx | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "osmosis");
         const adapter = await Isolation.Adapters.CosmosDirect.create(keyPair.node, "osmo");
         return await protoTxBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, OSMOSIS_CHAIN);

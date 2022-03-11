@@ -53,7 +53,7 @@ describe("XDeFiWHDWallet", () => {
   });
 
   it("should test ethSignTx", async () => {
-    const wallet = new XDeFiHDWallet();
+    wallet = new XDeFiHDWallet();
     wallet.ethAddress = "0x123";
     wallet.provider = {
       request: jest.fn().mockReturnValue({
@@ -210,7 +210,7 @@ describe("XDeFiWHDWallet", () => {
   });
 
   it("should create instance of XDeFiHD wallet", () => {
-    const wallet = create();
+    wallet = create();
     expect(wallet).toBeInstanceOf(XDeFiHDWallet);
   });
 });

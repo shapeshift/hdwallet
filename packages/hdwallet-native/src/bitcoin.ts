@@ -132,6 +132,7 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDW
 }
 
 export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
+  // eslint-disable-next-line
   return class MixinNativeBTCWallet extends Base {
     readonly _supportsBTC = true;
 
@@ -218,6 +219,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
     async buildInput(coin: core.Coin, input: core.BTCSignTxInputNative): Promise<InputData | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const { addressNList, amount, hex, scriptType } = input;
+        // eslint-disable-next-line
         const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin, scriptType);
 
         const isSegwit = !!scriptType && segwit.includes(scriptType);
@@ -262,6 +264,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
     async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const { addressNList, coin, scriptType } = msg;
+        // eslint-disable-next-line
         const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin, scriptType);
         const { address } = this.createPayment(keyPair.publicKey, scriptType, keyPair.network);
         if (!address) return null;
@@ -303,6 +306,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
               if (output.address !== undefined) {
                 address = output.address;
               } else if (output.addressNList !== undefined) {
+                // eslint-disable-next-line
                 const keyPair = await util.getKeyPair(this.#masterKey!, output.addressNList, coin, output.scriptType);
                 const { publicKey, network } = keyPair;
                 const payment = this.createPayment(publicKey, output.scriptType, network);

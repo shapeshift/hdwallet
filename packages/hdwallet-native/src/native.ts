@@ -138,7 +138,7 @@ class NativeHDWalletInfo
       case "digibyte":
       case "dogecoin":
       case "litecoin":
-      case "testnet":
+      case "testnet": {
         const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
 
         if (!msg.scriptType) return unknown;
@@ -146,6 +146,7 @@ class NativeHDWalletInfo
         if (!super.btcSupportsScriptTypeSync(msg.coin, msg.scriptType)) return unknown;
 
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+      }
       case "ethereum":
         return core.describeETHPath(msg.path);
       case "atom":
@@ -263,6 +264,7 @@ export class NativeHDWallet
    */
   async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<core.PublicKey[] | null> {
     return this.needsMnemonic(!!this.#masterKey, async () => {
+      // eslint-disable-next-line
       const masterKey = await this.#masterKey!;
       return await Promise.all(
         msg.map(async (getPublicKey) => {
@@ -292,6 +294,7 @@ export class NativeHDWallet
 
   async initialize(): Promise<boolean | null> {
     return this.needsMnemonic(!!this.#masterKey, async () => {
+      // eslint-disable-next-line
       const masterKey = await this.#masterKey!;
       try {
         await Promise.all([
@@ -370,9 +373,9 @@ export class NativeHDWallet
           })();
           const seed = await isolatedMnemonic.toSeed();
           seed.addRevoker?.(() => isolatedMnemonic.revoke?.());
-          const masterKey = await seed.toMasterKey();
-          masterKey.addRevoker?.(() => seed.revoke?.());
-          return masterKey;
+          const masterKeyResult = await seed.toMasterKey();
+          masterKeyResult.addRevoker?.(() => seed.revoke?.());
+          return masterKeyResult;
         }
         throw new Error("Either [mnemonic] or [masterKey] is required");
       })(msg?.mnemonic, msg?.masterKey)
