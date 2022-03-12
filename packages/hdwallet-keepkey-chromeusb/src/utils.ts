@@ -12,8 +12,10 @@ declare const chrome: any;
 export const chromeUSB = chrome?.["usb"] as unknown;
 export type ChromeUSB = {
   openDevice: any;
-  onDeviceAdded: { addListener: () => unknown };
-  onDeviceRemoved: { addListener: () => unknown };
+  // eslint-disable-next-line
+  onDeviceAdded: { addListener: Function };
+  // eslint-disable-next-line
+  onDeviceRemoved: { addListener: Function };
   getDevices: any;
   closeDevice: any;
   setConfiguration: any;
