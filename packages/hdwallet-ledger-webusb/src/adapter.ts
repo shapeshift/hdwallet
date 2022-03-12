@@ -55,8 +55,8 @@ export class WebUSBLedgerAdapter {
 
       try {
         if (e.device.serialNumber) await this.keyring.remove(e.device.serialNumber);
-      } catch (e) {
-        console.error(e);
+      } catch (error) {
+        console.error(error);
       } finally {
         this.keyring.emit(
           [e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.DISCONNECT],

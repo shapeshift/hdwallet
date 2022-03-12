@@ -8,8 +8,8 @@ import { VENDOR_ID, WEBUSB_PRODUCT_ID, HID_PRODUCT_ID } from "./utils";
 const webUSB = typeof window === "object" && (window?.navigator?.usb as unknown);
 type WebUSB = typeof window.navigator.usb;
 
-function assertWebUSB(webUSB: any): asserts webUSB is WebUSB {
-  if (!webUSB) throw new core.WebUSBNotAvailable();
+function assertWebUSB(webUsb: any): asserts webUsb is WebUSB {
+  if (!webUsb) throw new core.WebUSBNotAvailable();
 }
 
 export const AdapterDelegate = {

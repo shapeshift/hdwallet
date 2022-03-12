@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-shadow */
+// @TODO: Talk about variable naming in this file, having too much shadows is hard to maintain
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Literal, Object as Obj, Static, Union } from "funtypes";
 import * as tinyecc from "tiny-secp256k1";
@@ -16,6 +18,27 @@ export type FieldElement = Static<typeof fieldElementBase>;
 const fieldElementStatic = {};
 const fieldElement = Object.assign(fieldElementBase, BigEndianInteger, fieldElementStatic);
 export const FieldElement: typeof fieldElement = fieldElement;
+
+const uncompressedPointBase = ByteArray(65)
+  .And(
+    Obj({
+      0: Literal(0x04),
+    })
+  )
+  .withConstraint((p) => FieldElement.test(p.slice(1, 33)) || `expected ${p}.x to be within the order of the curve`, {
+    name: "UncompressedPoint.x",
+  })
+  .withConstraint(
+    (p) => {
+      if (!FieldElement.test(p.slice(33, 65))) return `expected ${p}.y to be within the order of the curve`;
+      const pBuf = Buffer.from(p);
+      if (!ByteArray.equal(tinyecc.pointCompress(tinyecc.pointCompress(pBuf, true), false), pBuf))
+        return `expected ${p} to be on the curve`;
+      return true;
+    },
+    { name: "UncompressedPoint.y" }
+  );
+export type UncompressedPoint = Static<typeof uncompressedPointBase>;
 
 const compressedPointBase = ByteArray(33)
   .And(
@@ -48,26 +71,6 @@ const compressedPointStatic = {
 const compressedPoint = Object.assign(compressedPointBase, ByteArray, compressedPointStatic);
 export const CompressedPoint: typeof compressedPoint = compressedPoint;
 
-const uncompressedPointBase = ByteArray(65)
-  .And(
-    Obj({
-      0: Literal(0x04),
-    })
-  )
-  .withConstraint((p) => FieldElement.test(p.slice(1, 33)) || `expected ${p}.x to be within the order of the curve`, {
-    name: "UncompressedPoint.x",
-  })
-  .withConstraint(
-    (p) => {
-      if (!FieldElement.test(p.slice(33, 65))) return `expected ${p}.y to be within the order of the curve`;
-      const pBuf = Buffer.from(p);
-      if (!ByteArray.equal(tinyecc.pointCompress(tinyecc.pointCompress(pBuf, true), false), pBuf))
-        return `expected ${p} to be on the curve`;
-      return true;
-    },
-    { name: "UncompressedPoint.y" }
-  );
-export type UncompressedPoint = Static<typeof uncompressedPointBase>;
 const uncompressedPointStatic = {
   from: (p: CurvePoint): UncompressedPoint => {
     return p.length === 65 ? p : UncompressedPoint.fromCompressed(checkType(CompressedPoint, p));

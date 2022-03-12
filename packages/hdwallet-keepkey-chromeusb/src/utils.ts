@@ -2,7 +2,7 @@ export const VENDOR_ID = 0x2b24;
 export const WEBUSB_PRODUCT_ID = 0x0002;
 export const HID_PRODUCT_ID = 0x0001;
 
-export function makePromise(func: Function, ...args: any[]): Promise<any> {
+export function makePromise(func: (...params: any) => unknown, ...args: any[]): Promise<any> {
   return new Promise((resolve) => {
     func(...args, resolve);
   });
@@ -12,8 +12,8 @@ declare const chrome: any;
 export const chromeUSB = chrome?.["usb"] as unknown;
 export type ChromeUSB = {
   openDevice: any;
-  onDeviceAdded: { addListener: Function };
-  onDeviceRemoved: { addListener: Function };
+  onDeviceAdded: { addListener: () => unknown };
+  onDeviceRemoved: { addListener: () => unknown };
   getDevices: any;
   closeDevice: any;
   setConfiguration: any;

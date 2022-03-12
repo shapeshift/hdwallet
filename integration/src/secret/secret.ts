@@ -41,6 +41,7 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
       TIMEOUT
     );
 
+    /* eslint-disable */
     test.skip(
       "describePath() secret",
       async () => {
@@ -54,6 +55,7 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
       },
       TIMEOUT
     );
+    /* eslint-enable */
 
     test(
       "secretGetAddress()",
@@ -90,6 +92,7 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
             //expect(res?.signatures?.[0].signature).toEqual(tx_signed.tx.signatures[0].signature_keepkey);
             break;
           default:
+            // eslint-disable-next-line
             expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
             break;
         }

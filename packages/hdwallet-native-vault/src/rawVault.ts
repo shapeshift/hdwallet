@@ -154,9 +154,9 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
   static async open(id?: string, password?: string) {
     await RawVault.prepare();
 
-    const factory = async (id: string, argonParams: Promise<ArgonParams>) => {
+    const factory = async (vaultId: string, argonParams: Promise<ArgonParams>) => {
       const vaultRevoker = new (Revocable(class {}))();
-      const vault = revocable(new RawVault(id, argonParams), (x) => vaultRevoker.addRevoker(x));
+      const vault = revocable(new RawVault(vaultId, argonParams), (x) => vaultRevoker.addRevoker(x));
       vault.addRevoker(() => vaultRevoker.revoke());
       return vault;
     };

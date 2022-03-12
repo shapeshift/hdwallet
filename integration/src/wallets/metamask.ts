@@ -24,7 +24,7 @@ export function selfTest(get: () => core.HDWallet): void {
     if (metamask.isMetaMask(w) && !core.supportsBTC(w) && core.supportsETH(w)) {
       wallet = w;
     } else {
-      fail("Wallet is not a MetaMask");
+      throw new Error("Wallet is not a MetaMask");
     }
   });
 

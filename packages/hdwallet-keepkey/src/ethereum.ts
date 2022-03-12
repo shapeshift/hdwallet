@@ -177,6 +177,7 @@ export async function ethGetAddress(transport: Transport, msg: core.ETHGetAddres
   const ethAddress = response.proto as Messages.EthereumAddress;
 
   let address: string;
+  // eslint-disable-next-line
   if (ethAddress.hasAddressStr()) address = ethAddress.getAddressStr()!;
   else if (ethAddress.hasAddress()) address = "0x" + core.toHexString(ethAddress.getAddress_asU8());
   else throw new Error("Unable to obtain ETH address from device.");

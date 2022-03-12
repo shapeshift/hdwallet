@@ -10,36 +10,6 @@ import { Digest, SecP256K1 } from "../../core";
 import { ChainCode } from "../../core/bip32";
 import { revocable, Revocable } from "./revocable";
 
-export class Seed extends Revocable(class {}) implements BIP32.Seed {
-  readonly #seed: Buffer;
-
-  protected constructor(seed: Uint8Array) {
-    super();
-    this.#seed = safeBufferFrom(seed);
-    this.addRevoker(() => this.#seed.fill(0));
-  }
-
-  static async create(seed: Uint8Array): Promise<BIP32.Seed> {
-    const obj = new Seed(seed);
-    return revocable(obj, (x) => obj.addRevoker(x));
-  }
-
-  async toMasterKey(hmacKey?: string | Uint8Array): Promise<BIP32.Node> {
-    if (hmacKey !== undefined && typeof hmacKey !== "string" && !(hmacKey instanceof Uint8Array))
-      throw new Error("bad hmacKey type");
-
-    // AFAIK all BIP32 implementations use the "Bitcoin seed" string for this derivation, even if they aren't otherwise Bitcoin-related
-    hmacKey = hmacKey ?? "Bitcoin seed";
-    if (typeof hmacKey === "string") hmacKey = new TextEncoder().encode(hmacKey.normalize("NFKD"));
-    const I = safeBufferFrom(bip32crypto.hmacSHA512(safeBufferFrom(hmacKey), this.#seed));
-    const IL = I.slice(0, 32);
-    const IR = I.slice(32, 64);
-    const out = await Node.create(IL, IR);
-    this.addRevoker(() => out.revoke?.());
-    return out;
-  }
-}
-
 export class Node extends Revocable(class {}) implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K1.ECDHKey {
   readonly #privateKey: Buffer & ByteArray<32>;
   readonly chainCode: Buffer & BIP32.ChainCode;
@@ -182,6 +152,36 @@ export class Node extends Revocable(class {}) implements BIP32.Node, SecP256K1.E
 
     let out = SecP256K1.CurvePoint.x(sharedFieldElement);
     if (digestAlgorithm !== undefined) out = Digest.Algorithms[digestAlgorithm](out);
+    return out;
+  }
+}
+
+export class Seed extends Revocable(class {}) implements BIP32.Seed {
+  readonly #seed: Buffer;
+
+  protected constructor(seed: Uint8Array) {
+    super();
+    this.#seed = safeBufferFrom(seed);
+    this.addRevoker(() => this.#seed.fill(0));
+  }
+
+  static async create(seed: Uint8Array): Promise<BIP32.Seed> {
+    const obj = new Seed(seed);
+    return revocable(obj, (x) => obj.addRevoker(x));
+  }
+
+  async toMasterKey(hmacKey?: string | Uint8Array): Promise<BIP32.Node> {
+    if (hmacKey !== undefined && typeof hmacKey !== "string" && !(hmacKey instanceof Uint8Array))
+      throw new Error("bad hmacKey type");
+
+    // AFAIK all BIP32 implementations use the "Bitcoin seed" string for this derivation, even if they aren't otherwise Bitcoin-related
+    hmacKey = hmacKey ?? "Bitcoin seed";
+    if (typeof hmacKey === "string") hmacKey = new TextEncoder().encode(hmacKey.normalize("NFKD"));
+    const I = safeBufferFrom(bip32crypto.hmacSHA512(safeBufferFrom(hmacKey), this.#seed));
+    const IL = I.slice(0, 32);
+    const IR = I.slice(32, 64);
+    const out = await Node.create(IL, IR);
+    this.addRevoker(() => out.revoke?.());
     return out;
   }
 }

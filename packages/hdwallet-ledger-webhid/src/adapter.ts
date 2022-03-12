@@ -58,8 +58,8 @@ export class WebHIDLedgerAdapter {
 
       try {
         await this.keyring.remove(MOCK_SERIAL_NUMBER);
-      } catch (e) {
-        console.error(e);
+      } catch (error) {
+        console.error(error);
       } finally {
         this.keyring.emit(["Ledger", e.device.productName ?? "", core.Events.DISCONNECT], MOCK_SERIAL_NUMBER);
       }

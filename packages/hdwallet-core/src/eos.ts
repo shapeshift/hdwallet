@@ -50,6 +50,7 @@ export interface EosToSignTx {
 }
 
 /* device response asking for next action */
+// eslint-disable-next-line
 export interface EosTxActionRequest {}
 
 /*

@@ -226,7 +226,7 @@ export function selfTest(get: () => core.HDWallet): void {
   beforeAll(async () => {
     const w = get();
     if (ledger.isLedger(w) && core.supportsBTC(w) && core.supportsETH(w)) wallet = w;
-    else fail("Wallet is not a Ledger");
+    else throw new Error("Wallet is not a Ledger");
   });
 
   it("supports Ethereum mainnet", async () => {
@@ -248,6 +248,8 @@ export function selfTest(get: () => core.HDWallet): void {
 
   it("validates current app", async () => {
     if (!wallet) return;
+    // @TODO: This rule looks important to resolve
+    // eslint-disable-next-line
     expect(await wallet.validateCurrentApp("Bitcoin")).resolves;
     await expect(wallet.validateCurrentApp(undefined)).rejects.toThrow(); // no coin
     await expect(wallet.validateCurrentApp("FakeCoin")).rejects.toThrow(); // invalid coin

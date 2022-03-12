@@ -16,13 +16,6 @@ export function createInfo(): core.HDWalletInfo {
   return native.info();
 }
 
-export async function createWallet(): Promise<core.HDWallet> {
-  const mswMock = await setupMswMocks();
-  const wallet = new native.NativeHDWallet({ mnemonic, deviceId });
-  await wallet.initialize();
-  return wallet;
-}
-
 export async function setupMswMocks() {
   const binanceMocks = {
     get: {
@@ -172,6 +165,12 @@ export async function setupMswMocks() {
 
   return mswMock(_.merge({}, binanceMocks, fioMocks)).startServer();
 }
+export async function createWallet(): Promise<core.HDWallet> {
+  await setupMswMocks();
+  const wallet = new native.NativeHDWallet({ mnemonic, deviceId });
+  await wallet.initialize();
+  return wallet;
+}
 
 export function selfTest(get: () => core.HDWallet): void {
   let wallet: native.NativeHDWallet;
@@ -182,7 +181,7 @@ export function selfTest(get: () => core.HDWallet): void {
     if (native.isNative(w) && core.supportsBTC(w) && core.supportsETH(w)) {
       wallet = w;
     } else {
-      fail("Wallet is not native");
+      throw new Error("Wallet is not native");
     }
   });
 
@@ -258,6 +257,7 @@ export function selfTest(get: () => core.HDWallet): void {
     ]);
   });
 
+  /* eslint-disable jest/no-disabled-tests, jest/no-identical-title */
   it.skip("supports ethNextAccountPath", () => {
     if (!wallet) return;
 
@@ -289,6 +289,7 @@ export function selfTest(get: () => core.HDWallet): void {
       },
     ]);
   });
+  /* eslint-enable */
 
   it("supports btcNextAccountPath", () => {
     if (!wallet) return;
@@ -400,6 +401,7 @@ export function selfTest(get: () => core.HDWallet): void {
     });
   });
 
+  /* eslint-disable jest/no-disabled-tests, jest/no-identical-title */
   it.skip("can describe prefork BitcoinCash", () => {
     expect(
       wallet.describePath({
@@ -479,6 +481,7 @@ export function selfTest(get: () => core.HDWallet): void {
       wholeAccount: false,
     });
   });
+  /* eslint-enable */
 
   it("can describe ETH paths", () => {
     expect(

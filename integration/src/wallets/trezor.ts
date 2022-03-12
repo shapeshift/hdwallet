@@ -349,7 +349,7 @@ export function selfTest(get: () => core.HDWallet): void {
   beforeAll(async () => {
     const w = get();
     if (trezor.isTrezor(w) && core.supportsBTC(w) && core.supportsETH(w)) wallet = w;
-    else fail("Wallet is not a Trezor");
+    else throw new Error("Wallet is not a Trezor");
   });
 
   it("supports Ethereum mainnet", async () => {

@@ -63,18 +63,8 @@ const unverifiedDigest = Object.assign(unverifiedDigestBase, ByteArray, unverifi
 // actual algorithm functions we're wrapping should be able to use it.
 const UnverifiedDigest: typeof unverifiedDigest = unverifiedDigest;
 
-function digestBase(name?: AlgorithmName) {
-  return UnverifiedDigest(name).withConstraint(
-    (x) =>
-      ByteArray.equal(x, Algorithms[x.algorithm](x.preimage)) ||
-      `expected ${x} to equal the ${x.algorithm} digest of ${x.preimage}`,
-    { name: `Digest(${name})` }
-  );
-}
 export type Digest<N extends AlgorithmName> = UnverifiedDigest<N>;
 const digestStatic = {};
-const digest = Object.assign(digestBase, UnverifiedDigest, digestStatic);
-export const Digest: typeof digest = digest;
 
 // We use UnverifiedDigest instead of Digest in the contract because the result is implicitly trusted.
 function algorithmBase<N extends AlgorithmName>(name: N) {
@@ -109,3 +99,15 @@ export const Algorithms = (() => {
 
   return algorithms;
 })();
+
+function digestBase(name?: AlgorithmName) {
+  return UnverifiedDigest(name).withConstraint(
+    (x) =>
+      ByteArray.equal(x, Algorithms[x.algorithm](x.preimage)) ||
+      `expected ${x} to equal the ${x.algorithm} digest of ${x.preimage}`,
+    { name: `Digest(${name})` }
+  );
+}
+
+const digest = Object.assign(digestBase, UnverifiedDigest, digestStatic);
+export const Digest: typeof digest = digest;

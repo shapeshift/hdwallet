@@ -390,6 +390,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
 
         // not implemented on portis
         if (portis.isPortis(wallet)) {
+          // eslint-disable-next-line
           await expect(res).rejects.toThrowError("not supported");
           return;
         }
@@ -455,6 +456,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         if (!wallet) return;
         expect(typeof (await wallet.btcSupportsSecureTransfer()) === typeof true).toBeTruthy();
         if (await wallet.btcSupportsSecureTransfer()) {
+          // eslint-disable-next-line
           expect(await info.btcSupportsSecureTransfer()).toBeTruthy();
         }
         // TODO: write a testcase that exercise secure transfer, if the wallet claims to support it.
@@ -466,8 +468,10 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       "btcSupportsNativeShapeShift()",
       async () => {
         if (!wallet) return;
+        // eslint-disable-next-line
         expect(typeof wallet.btcSupportsNativeShapeShift() === typeof true);
         if (wallet.btcSupportsNativeShapeShift()) {
+          // eslint-disable-next-line
           expect(info.btcSupportsNativeShapeShift()).toBeTruthy();
         }
         // TODO: write a testcase that exercises native shapeshift, if the wallet claims to support it.
@@ -507,6 +511,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
             });
             expect(paths.length > 0).toBeTruthy();
             if (scriptType !== undefined)
+              // eslint-disable-next-line
               expect(
                 paths.filter((path) => {
                   return path.scriptType !== scriptType;
@@ -529,7 +534,9 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           });
           expect(typeof wallet.btcIsSameAccount(paths) === typeof true).toBeTruthy();
           paths.forEach((path) => {
+            // eslint-disable-next-line
             if (wallet.getVendor() === "Portis") expect(wallet.btcNextAccountPath(path)).toBeUndefined();
+            // eslint-disable-next-line
             else expect(wallet.btcNextAccountPath(path)).not.toBeUndefined();
           });
         });

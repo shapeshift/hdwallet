@@ -44,6 +44,7 @@ export function kavaTests(get: () => { wallet: core.HDWallet; info: core.HDWalle
       "describePath() kava",
       async () => {
         if (!wallet) return;
+        // eslint-disable-next-line
         expect(
           wallet.describePath({
             path: core.bip32ToAddressNList("m/44'/459'/0'/0/0"),
@@ -88,6 +89,7 @@ export function kavaTests(get: () => { wallet: core.HDWallet; info: core.HDWalle
             //expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature_keepkey);
             break;
           default:
+            // eslint-disable-next-line
             expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
             break;
         }

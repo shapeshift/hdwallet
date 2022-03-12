@@ -69,7 +69,7 @@ export class Server<DeviceType extends object, DelegateType extends keepkey.Adap
               if (delegate.tryConnectDebugLink === undefined) return false;
               return await delegate.tryConnectDebugLink();
             default:
-              return await (delegate[delegateMethod] as (...args: any[]) => Promise<any>)(...args);
+              return await (delegate[delegateMethod] as (...params: any[]) => Promise<any>)(...args);
           }
         }
       );

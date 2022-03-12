@@ -34,6 +34,7 @@ type BchInputData = {
 type InputData = UtxoData | ScriptData | BchInputData;
 
 export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
+  // eslint-disable-next-line
   return class MixinNativeBTCWalletInfo extends Base implements core.BTCWalletInfo {
     readonly _supportsBTCInfo = true;
 
@@ -339,6 +340,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
           inputs.map(async (input, idx) => {
             try {
               const { addressNList, scriptType } = input;
+              // eslint-disable-next-line
               const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin, scriptType);
               await psbt.signInputAsync(idx, keyPair);
             } catch (e) {

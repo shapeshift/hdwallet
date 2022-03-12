@@ -25,6 +25,7 @@ async function getBridge(keyring: core.Keyring) {
     );
     if (wallet) console.log("Using KeepKey Bridge for tests");
     return wallet;
+    // eslint-disable-next-line
   } catch (e) {}
   return undefined;
 }
@@ -35,6 +36,7 @@ async function getDevice(keyring: core.Keyring) {
     const wallet = await keepkeyAdapter.pairDevice(undefined, true);
     if (wallet) console.log("Using attached WebUSB KeepKey for tests");
     return wallet;
+    // eslint-disable-next-line
   } catch (e) {}
   return undefined;
 }
@@ -51,6 +53,7 @@ async function getEmulator(keyring: core.Keyring) {
     );
     if (wallet) console.log("Using KeepKey Emulator for tests");
     return wallet;
+    // eslint-disable-next-line
   } catch (e) {}
   return undefined;
 }
@@ -87,7 +90,7 @@ export function selfTest(get: () => core.HDWallet): void {
   beforeAll(async () => {
     const w = get();
     if (keepkey.isKeepKey(w) && core.supportsBTC(w) && core.supportsETH(w)) wallet = w;
-    else fail("Wallet is not a KeepKey");
+    else throw new Error("Wallet is not a KeepKey");
 
     await wallet.wipe();
     await wallet.loadDevice({
@@ -142,7 +145,7 @@ export function selfTest(get: () => core.HDWallet): void {
       if (!wallet) return;
 
       const addrs = [] as string[];
-      await new Promise<void>(async (resolve) => {
+      await new Promise<void>((resolve) => {
         wallet
           .btcGetAddress({
             coin: "Bitcoin",
@@ -184,6 +187,7 @@ export function selfTest(get: () => core.HDWallet): void {
     TIMEOUT
   );
 
+  /* eslint-disable jest/no-disabled-tests */
   // TODO: it would appear cancel is not working as expected and resulting in a hanging test.
   // revisit and look into how cancel is implemented to fix and make test pass
   test.skip(
@@ -206,6 +210,7 @@ export function selfTest(get: () => core.HDWallet): void {
     },
     TIMEOUT
   );
+  /* eslint-enable */
 
   it(
     "cancel is idempotent",

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import * as Exchange from "@keepkey/device-protocol/lib/exchange_pb";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
@@ -339,6 +340,7 @@ export async function btcSignTx(
 
     try {
       // Begin callback loop
+      // eslint-disable-next-line
       while (true) {
         if (responseType !== Messages.MessageType.MESSAGETYPE_TXREQUEST) {
           throw new Error(`Unexpected message type: ${responseType}`);
@@ -365,7 +367,7 @@ export async function btcSignTx(
         }
 
         let currentTx: Types.TransactionType;
-        let msg: Types.TransactionType;
+        let currentMsg: Types.TransactionType;
         let txAck: Messages.TxAck;
 
         // Device asked for one more information, let's process it.
@@ -379,22 +381,22 @@ export async function btcSignTx(
         }
 
         if (txRequest.getRequestType() === Types.RequestType.TXMETA) {
-          msg = new Types.TransactionType();
-          if (currentTx.hasVersion()) msg.setVersion(currentTx.getVersion()!);
-          if (currentTx.hasLockTime()) msg.setLockTime(currentTx.getLockTime()!);
-          if (currentTx.hasInputsCnt()) msg.setInputsCnt(currentTx.getInputsCnt()!);
+          currentMsg = new Types.TransactionType();
+          if (currentTx.hasVersion()) currentMsg.setVersion(currentTx.getVersion()!);
+          if (currentTx.hasLockTime()) currentMsg.setLockTime(currentTx.getLockTime()!);
+          if (currentTx.hasInputsCnt()) currentMsg.setInputsCnt(currentTx.getInputsCnt()!);
           if (reqDetails.hasTxHash()) {
-            msg.setOutputsCnt(currentTx.getBinOutputsList().length);
+            currentMsg.setOutputsCnt(currentTx.getBinOutputsList().length);
           } else {
-            msg.setOutputsCnt(currentTx.getOutputsList().length);
+            currentMsg.setOutputsCnt(currentTx.getOutputsList().length);
           }
           if (currentTx.hasExtraData()) {
-            msg.setExtraDataLen(currentTx.getExtraData_asU8().length);
+            currentMsg.setExtraDataLen(currentTx.getExtraData_asU8().length);
           } else {
-            msg.setExtraDataLen(0);
+            currentMsg.setExtraDataLen(0);
           }
           txAck = new Messages.TxAck();
-          txAck.setTx(msg);
+          txAck.setTx(currentMsg);
           const message = await transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, {
             msgTimeout: core.LONG_TIMEOUT,
             omitLock: true,
@@ -407,10 +409,10 @@ export async function btcSignTx(
         if (txRequest.getRequestType() === Types.RequestType.TXINPUT) {
           if (!reqDetails.hasRequestIndex()) throw new Error("expected request index");
           const reqIndex = reqDetails.getRequestIndex()!;
-          msg = new Types.TransactionType();
-          msg.setInputsList([currentTx.getInputsList()[reqIndex]]);
+          currentMsg = new Types.TransactionType();
+          currentMsg.setInputsList([currentTx.getInputsList()[reqIndex]]);
           txAck = new Messages.TxAck();
-          txAck.setTx(msg);
+          txAck.setTx(currentMsg);
           const message = await transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, {
             msgTimeout: core.LONG_TIMEOUT,
             omitLock: true,
@@ -423,15 +425,15 @@ export async function btcSignTx(
         if (txRequest.getRequestType() === Types.RequestType.TXOUTPUT) {
           if (!reqDetails.hasRequestIndex()) throw new Error("expected request index");
           const reqIndex = reqDetails.getRequestIndex()!;
-          msg = new Types.TransactionType();
+          currentMsg = new Types.TransactionType();
           if (reqDetails.hasTxHash()) {
-            msg.setBinOutputsList([currentTx.getBinOutputsList()[reqIndex]]);
+            currentMsg.setBinOutputsList([currentTx.getBinOutputsList()[reqIndex]]);
           } else {
-            msg.setOutputsList([currentTx.getOutputsList()[reqIndex]]);
-            msg.setOutputsCnt(1);
+            currentMsg.setOutputsList([currentTx.getOutputsList()[reqIndex]]);
+            currentMsg.setOutputsCnt(1);
           }
           txAck = new Messages.TxAck();
-          txAck.setTx(msg);
+          txAck.setTx(currentMsg);
           const message = await transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, {
             msgTimeout: core.LONG_TIMEOUT,
             omitLock: true,
@@ -446,10 +448,10 @@ export async function btcSignTx(
             throw new Error("missing extra data offset and length");
           const offset = reqDetails.getExtraDataOffset()!;
           const length = reqDetails.getExtraDataLen()!;
-          msg = new Types.TransactionType();
-          msg.setExtraData(currentTx.getExtraData_asU8().slice(offset, offset + length));
+          currentMsg = new Types.TransactionType();
+          currentMsg.setExtraData(currentTx.getExtraData_asU8().slice(offset, offset + length));
           txAck = new Messages.TxAck();
-          txAck.setTx(msg);
+          txAck.setTx(currentMsg);
           const message = await transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, {
             msgTimeout: core.LONG_TIMEOUT,
             omitLock: true,

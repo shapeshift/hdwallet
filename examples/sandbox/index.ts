@@ -76,6 +76,14 @@ const $metaMask = $("#metaMask");
 const $xdefi = $("#xdefi");
 const $keyring = $("#keyring");
 
+const $ethAddr = $("#ethAddr");
+const $ethTx = $("#ethTx");
+const $ethSign = $("#ethSign");
+const $ethSend = $("#ethSend");
+const $ethVerify = $("#ethVerify");
+const $ethResults = $("#ethResults");
+const $ethEIP1559 = $("#ethEIP1559");
+
 $keepkey.on("click", async (e) => {
   e.preventDefault();
   wallet = await keepkeyAdapter.pairDevice(undefined, /*tryDebugLink=*/ true);
@@ -126,8 +134,8 @@ $portis.on("click", async (e) => {
   let deviceId = "nothing";
   try {
     deviceId = await wallet.getDeviceID();
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error(error);
   }
   $("#keyring select").val(deviceId);
 });
@@ -147,8 +155,8 @@ $metaMask.on("click", async (e) => {
   try {
     deviceID = await wallet.getDeviceID();
     $("#keyring select").val(deviceID);
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error(error);
   }
 });
 $xdefi.on("click", async (e) => {
@@ -159,7 +167,7 @@ $xdefi.on("click", async (e) => {
   try {
     deviceID = await wallet.getDeviceID();
     $("#keyring select").val(deviceID);
-  } catch (e) {
+  } catch (error) {
     console.error(e);
   }
 });
@@ -1012,7 +1020,7 @@ $thorchainSignSwap.on("click", async (e) => {
           },
         ];
 
-        const res = await wallet.btcSignTx({
+        const response = await wallet.btcSignTx({
           coin: "Bitcoin",
           inputs: inputs,
           outputs: outputs,
@@ -1021,7 +1029,7 @@ $thorchainSignSwap.on("click", async (e) => {
           opReturnData: memo,
         });
 
-        $thorchainSwapResults.val(res.serializedTx);
+        $thorchainSwapResults.val(response.serializedTx);
       } else {
         const label = await wallet.getLabel();
         $thorchainSwapResults.val(label + " does not support BTC");
@@ -1049,14 +1057,14 @@ $thorchainSignSwap.on("click", async (e) => {
         tx = thorchainBinanceBaseTx;
         tx["memo"] = memo;
         console.log(tx);
-        const res = await wallet.binanceSignTx({
+        const response = await wallet.binanceSignTx({
           addressNList: core.bip32ToAddressNList(`m/44'/714'/0'/0/0`),
           chain_id: "Binance-Chain-Nile",
           account_number: "24250",
           sequence: 31,
           tx: tx as any,
         });
-        $thorchainSwapResults.val(JSON.stringify(res));
+        $thorchainSwapResults.val(JSON.stringify(response));
       } else {
         const label = await wallet.getLabel();
         $thorchainSwapResults.val(label + " does not support Cosmos");
@@ -1067,14 +1075,14 @@ $thorchainSignSwap.on("click", async (e) => {
         tx = thorchainNativeRuneBaseTx;
         tx["memo"] = memo;
         console.log(tx);
-        const res = await wallet.binanceSignTx({
+        const response = await wallet.binanceSignTx({
           addressNList: core.bip32ToAddressNList(`m/44'/714'/0'/0/0`),
           chain_id: "Binance-Chain-Nile",
           account_number: "24250",
           sequence: 31,
           tx: tx as any,
         });
-        $thorchainSwapResults.val(JSON.stringify(res));
+        $thorchainSwapResults.val(JSON.stringify(response));
       } else {
         const label = await wallet.getLabel();
         $thorchainSwapResults.val(label + " does not support Cosmos");
@@ -1085,14 +1093,14 @@ $thorchainSignSwap.on("click", async (e) => {
         tx = thorchainUnsignedTx;
         tx["memo"] = memo;
         console.log(tx);
-        const res = await wallet.thorchainSignTx({
+        const response = await wallet.thorchainSignTx({
           addressNList: core.bip32ToAddressNList(`m/44'/931'/0'/0/0`),
           chain_id: "thorchain",
           account_number: "24250",
           sequence: "3",
           tx: tx as any,
         });
-        $thorchainSwapResults.val(JSON.stringify(res));
+        $thorchainSwapResults.val(JSON.stringify(response));
       } else {
         const label = await wallet.getLabel();
         $thorchainSwapResults.val(label + " does not support Cosmos");
@@ -1170,7 +1178,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
           },
         ];
 
-        const res = await wallet.btcSignTx({
+        const response = await wallet.btcSignTx({
           coin: "Bitcoin",
           inputs: inputs,
           outputs: outputs,
@@ -1178,7 +1186,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
           locktime: 0,
         });
 
-        $thorchainAddLiquidityResults.val(res.serializedTx);
+        $thorchainAddLiquidityResults.val(response.serializedTx);
       } else {
         const label = await wallet.getLabel();
         $thorchainAddLiquidityResults.val(label + " does not support BTC");
@@ -1211,14 +1219,14 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
           address: $thorchainLiquidityPoolAddress.val(),
           coins: [{ amount: $thorchainLiquidityAmount.val(), denom: "BNB" }],
         };
-        const res = await wallet.binanceSignTx({
+        const response = await wallet.binanceSignTx({
           addressNList: core.bip32ToAddressNList(`m/44'/714'/0'/0/0`),
           chain_id: "Binance-Chain-Nile",
           account_number: "24250",
           sequence: 31,
           tx: tx as any,
         });
-        $thorchainAddLiquidityResults.val(JSON.stringify(res));
+        $thorchainAddLiquidityResults.val(JSON.stringify(response));
       } else {
         const label = await wallet.getLabel();
         $thorchainAddLiquidityResults.val(label + " does not support Cosmos");
@@ -1232,14 +1240,14 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
           address: $thorchainLiquidityPoolAddress.val(),
           coins: [{ amount: $thorchainLiquidityAmount.val(), denom: "BNB" }],
         };
-        const res = await wallet.binanceSignTx({
+        const response = await wallet.binanceSignTx({
           addressNList: core.bip32ToAddressNList(`m/44'/714'/0'/0/0`),
           chain_id: "Binance-Chain-Nile",
           account_number: "24250",
           sequence: 31,
           tx: tx as any,
         });
-        $thorchainAddLiquidityResults.val(JSON.stringify(res));
+        $thorchainAddLiquidityResults.val(JSON.stringify(response));
       } else {
         const label = await wallet.getLabel();
         $thorchainAddLiquidityResults.val(label + " does not support Cosmos");
@@ -1254,14 +1262,14 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
           coins: [{ amount: $thorchainLiquidityAmount.val(), denom: "RUNE" }],
         };
         console.log(tx);
-        const res = await wallet.thorchainSignTx({
+        const response = await wallet.thorchainSignTx({
           addressNList: core.bip32ToAddressNList(`m/44'/931'/0'/0/0`),
           chain_id: "thorchain",
           account_number: "24250",
           sequence: "3",
           tx: tx as any,
         });
-        $thorchainAddLiquidityResults.val(JSON.stringify(res));
+        $thorchainAddLiquidityResults.val(JSON.stringify(response));
       } else {
         const label = await wallet.getLabel();
         $thorchainAddLiquidityResults.val(label + " does not support Cosmos");
@@ -1484,14 +1492,6 @@ $osmosisUndelegate.on("click", async (e) => {
         * Bech32: false
 
 */
-const $ethAddr = $("#ethAddr");
-const $ethTx = $("#ethTx");
-const $ethSign = $("#ethSign");
-const $ethSend = $("#ethSend");
-const $ethVerify = $("#ethVerify");
-const $ethResults = $("#ethResults");
-const $ethEIP1559 = $("#ethEIP1559");
-
 let ethEIP1559Selected = false;
 
 const ethTx = {

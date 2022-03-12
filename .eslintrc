@@ -51,7 +51,10 @@
     // Looks like we can't activate this rule because of mocks
     "@typescript-eslint/no-var-requires": "off",
     // As it is a lib, there are a lof of console log sending informations
-    "no-console": "off"
+    "no-console": "off",
+    // What's the value, should we take care of it and add utils files?
+    "jest/no-export": "off",
+    "jest/no-mocks-import": "off",
   },
   "overrides": [
     {

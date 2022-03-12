@@ -53,6 +53,7 @@ describe("NativeETHWallet", () => {
   });
 
   // Reflection. Surprise. Terror. For the future.
+  // eslint-disable-next-line
   /*it("should generate another correct ethereum address", async () => {
     expect(
       await wallet.ethGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/60'/1337'/123/4") })

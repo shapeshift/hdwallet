@@ -52,20 +52,20 @@ export class EncryptedWallet {
   }
 
   /**
-   * Get an ID based on the mnemonic
-   * Calling `decrypt` will set this value after decryption is successful
-   */
-  get deviceId() {
-    return this.#deviceId;
-  }
-
-  /**
    * Set the encrypted wallet by providing a string representation
    * @throws {Error} throws if `wallet` is not a valid encrypted wallet string
    */
   set encryptedWallet(wallet: string | undefined) {
     if (wallet === undefined) throw new Error("Invalid cipher string");
     this.#encryptedWallet = new CipherString(wallet).encryptedString;
+  }
+
+  /**
+   * Get an ID based on the mnemonic
+   * Calling `decrypt` will set this value after decryption is successful
+   */
+  get deviceId() {
+    return this.#deviceId;
   }
 
   /**

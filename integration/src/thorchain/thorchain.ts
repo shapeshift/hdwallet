@@ -47,6 +47,7 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
       "describePath() thorchain",
       async () => {
         if (!wallet) return;
+        // eslint-disable-next-line
         expect(
           wallet.describePath({
             path: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),

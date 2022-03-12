@@ -61,6 +61,7 @@ export function eosTests(get: () => { wallet: core.HDWallet; info: core.HDWallet
       TIMEOUT
     );
 
+    /* eslint-disable jest/no-disabled-tests */
     test.skip(
       "kk integration eosSignTx()",
       async () => {
@@ -108,5 +109,6 @@ export function eosTests(get: () => { wallet: core.HDWallet; info: core.HDWallet
       },
       TIMEOUT
     );
+    /* eslint-enable */
   });
 }

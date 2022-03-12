@@ -28,6 +28,8 @@ export class ECPairAdapter implements SignerAsync, ECPairInterfaceAsync {
   }
 
   get network() {
+    // @TODO: Need to talk about it, it may cause issue if you use it directly after importing
+    // eslint-disable-next-line
     return this._network ?? networksInstance!.bitcoin;
   }
 

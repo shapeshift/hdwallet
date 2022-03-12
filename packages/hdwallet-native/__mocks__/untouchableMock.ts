@@ -1,4 +1,4 @@
-function mockTraps(mock: Function) {
+function mockTraps(mock: () => unknown) {
   return new Proxy(
     {},
     {
@@ -16,9 +16,8 @@ function doMock<T extends object>(target: T) {
     mock,
   ] as const;
 }
-export const mock = doMock;
 
-export function bind(obj: Record<string, Function>, prop: string, ...args: any[]) {
+export function bind(obj: Record<string, () => unknown>, prop: string, ...args: any[]) {
   const mock = jest.fn();
   const [objProxy, objMock] = doMock(obj);
   objMock.mockImplementation(() => mock());
@@ -30,7 +29,7 @@ export function bind(obj: Record<string, Function>, prop: string, ...args: any[]
   return [Function.prototype.bind.call(obj[prop], objProxy, ...argProxies), mock];
 }
 
-export function call(obj: Record<string, Function>, prop: string, ...args: any[]) {
+export function call(obj: Record<string, () => unknown>, prop: string, ...args: any[]) {
   expect(obj[prop]).toBeInstanceOf(Function);
   const [fn, mock] = bind(obj, prop, ...args);
   const out = fn();
@@ -44,3 +43,5 @@ export function call(obj: Record<string, Function>, prop: string, ...args: any[]
   expect(mock).not.toHaveBeenCalled();
   return out;
 }
+
+export const mock = doMock;

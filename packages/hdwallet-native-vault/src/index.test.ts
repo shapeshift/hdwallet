@@ -47,7 +47,9 @@ const preparedOnce = new Promise<void>((resolve) => (prepareOnce = resolve)).the
   await RawVault.defaultArgonParams;
 });
 
+// eslint-disable-next-line
 function testVaultImpl(name: string, Vault: ISealableVaultFactory<IVault>) {
+  // eslint-disable-next-line
   describe(name, () => {
     beforeAll(async () => {
       prepareOnce();

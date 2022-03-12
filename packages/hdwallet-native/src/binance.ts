@@ -9,6 +9,7 @@ import * as util from "./util";
 import * as Isolation from "./crypto/isolation";
 
 export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
+  // eslint-disable-next-line
   return class MixinNativeBinanceWalletInfo extends Base implements core.BinanceWalletInfo {
     readonly _supportsBinanceInfo = true;
 
@@ -41,6 +42,7 @@ export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor<core
 }
 
 export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
+  // eslint-disable-next-line
   return class MixinNativeBinanceWallet extends Base {
     readonly _supportsBinance = true;
 
@@ -68,6 +70,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
 
     async binanceGetAddress(msg: core.BinanceGetAddress & { testnet?: boolean }): Promise<string | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "binance");
         return this.createBinanceAddress(keyPair.publicKey.toString("hex"), msg.testnet ?? false);
       });
@@ -75,6 +78,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
 
     async binanceSignTx(msg: core.BinanceSignTx & { testnet?: boolean }): Promise<core.BinanceSignedTx | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "binance");
 
         const tx = Object.assign({}, msg.tx);

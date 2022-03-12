@@ -4,7 +4,7 @@ import * as RxOp from "rxjs/operators";
 
 import { BIP32Path, Coin } from "./wallet";
 
-export type Constructor<T = {}> = new (...args: any[]) => T;
+export type Constructor<T = Record<string, unknown>> = new (...args: any[]) => T;
 
 export const DEFAULT_TIMEOUT = 5000; // 5 seconds
 export const LONG_TIMEOUT = 5 * 60 * 1000; // 5 minutes
@@ -59,6 +59,12 @@ export function arrayify(value: string): Uint8Array {
 }
 
 const HARDENED = 0x80000000;
+
+export function bip32Like(path: string): boolean {
+  if (path == "m/") return true;
+  return /^m(((\/[0-9]+h)+|(\/[0-9]+H)+|(\/[0-9]+')*)((\/[0-9]+)*))$/.test(path);
+}
+
 export function bip32ToAddressNList(path: string): number[] {
   if (!bip32Like(path)) {
     throw new Error(`Not a bip32 path: '${path}'`);
@@ -70,7 +76,7 @@ export function bip32ToAddressNList(path: string): number[] {
   if (segments.length === 1 && segments[0] === "") return [];
   const ret = new Array(segments.length);
   for (let i = 0; i < segments.length; i++) {
-    const tmp = /(\d+)([hH\']?)/.exec(segments[i]);
+    const tmp = /(\d+)([hH']?)/.exec(segments[i]);
     if (tmp === null) {
       throw new Error("Invalid input");
     }
@@ -91,12 +97,10 @@ export function addressNListToBIP32(address: number[]): string {
   return `m/${address.map((num) => (num >= HARDENED ? `${num - HARDENED}'` : num)).join("/")}`;
 }
 
-export function bip32Like(path: string): boolean {
-  if (path == "m/") return true;
-  return /^m(((\/[0-9]+h)+|(\/[0-9]+H)+|(\/[0-9]+')*)((\/[0-9]+)*))$/.test(path);
-}
-
-export function takeFirstOfManyEvents(eventEmitter: eventemitter2.EventEmitter2, events: string[]): Rx.Observable<{}> {
+export function takeFirstOfManyEvents(
+  eventEmitter: eventemitter2.EventEmitter2,
+  events: string[]
+): Rx.Observable<Record<string, unknown> | Event> {
   return Rx.merge(...events.map((event) => Rx.fromEvent<Event>(eventEmitter, event))).pipe(RxOp.first());
 }
 
@@ -185,6 +189,7 @@ export function untouchable(message: string): any {
       {},
       {
         get(_, p) {
+          // eslint-disable-next-line
           return (_: any, p2: any) => {
             if (p === "get" && p2 === "valueOf") return () => out;
             throw new Error(`${String(p)}(${String(p2)}): ${message}`);

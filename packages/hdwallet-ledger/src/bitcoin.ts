@@ -53,7 +53,9 @@ export async function btcGetPublicKeys(
   const xpubs: Array<core.PublicKey | null> = [];
 
   for (const getPublicKey of msg) {
-    let { addressNList, coin, scriptType } = getPublicKey;
+    let { scriptType } = getPublicKey;
+    const { addressNList, coin } = getPublicKey;
+
     if (!coin) throw new Error("coin is required");
 
     const parentBip32path: string = core.addressNListToBIP32(addressNList.slice(0, -1)).substring(2); // i.e. "44'/0'"

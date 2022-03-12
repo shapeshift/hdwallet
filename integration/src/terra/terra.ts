@@ -44,6 +44,7 @@ export function terraTests(get: () => { wallet: core.HDWallet; info: core.HDWall
       "describePath() terra",
       async () => {
         if (!wallet) return;
+        // eslint-disable-next-line
         expect(
           wallet.describePath({
             path: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),

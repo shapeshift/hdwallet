@@ -22,7 +22,7 @@ export function selfTest(get: () => core.HDWallet): void {
   beforeAll(() => {
     const w = get();
     if (xdefi.isXDeFi(w) && core.supportsETH(w)) wallet = w;
-    else fail("Wallet is not XDeFi");
+    else throw new Error("Wallet is not XDeFi");
   });
 
   it("supports Ethereum mainnet", async () => {

@@ -10,10 +10,6 @@ export const EXIT_TYPES = [
   String(MessageType.MESSAGETYPE_FAILURE),
 ];
 
-export function getAnticipatedResponseTypes(msgTypeEnum: number) {
-  return responseTypeRegistry[msgTypeEnum] || EXIT_TYPES;
-}
-
 export const responseTypeRegistry = {
   [MessageType.MESSAGETYPE_INITIALIZE]: [String(MessageType.MESSAGETYPE_FEATURES), ...EXIT_TYPES],
   [MessageType.MESSAGETYPE_GETFEATURES]: [String(MessageType.MESSAGETYPE_FEATURES), ...EXIT_TYPES],
@@ -80,3 +76,7 @@ export const responseTypeRegistry = {
     ...EXIT_TYPES,
   ],
 };
+
+export function getAnticipatedResponseTypes(msgTypeEnum: number) {
+  return responseTypeRegistry[msgTypeEnum] || EXIT_TYPES;
+}
