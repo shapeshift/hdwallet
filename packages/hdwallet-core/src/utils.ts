@@ -4,8 +4,7 @@ import * as RxOp from "rxjs/operators";
 
 import { BIP32Path, Coin } from "./wallet";
 
-// eslint-disable-next-line
-export type Constructor<T = {}> = new (...args: any[]) => T;
+export type Constructor<T = object> = new (...args: any[]) => T;
 
 export const DEFAULT_TIMEOUT = 5000; // 5 seconds
 export const LONG_TIMEOUT = 5 * 60 * 1000; // 5 minutes
@@ -101,8 +100,7 @@ export function addressNListToBIP32(address: number[]): string {
 export function takeFirstOfManyEvents(
   eventEmitter: eventemitter2.EventEmitter2,
   events: string[]
-  // eslint-disable-next-line
-): Rx.Observable<{}> {
+): Rx.Observable<object> {
   return Rx.merge(...events.map((event) => Rx.fromEvent<Event>(eventEmitter, event))).pipe(RxOp.first());
 }
 
