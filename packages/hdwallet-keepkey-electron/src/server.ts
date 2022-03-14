@@ -45,7 +45,7 @@ export class Server<DeviceType extends object, DelegateType extends keepkey.Adap
   listen() {
     if (this.delegate.getDevice !== undefined)
       electron.ipcMain.handle(GET_DEVICE, (_, serialNumber?: string) => this.getDevice(serialNumber));
-    if (this.delegate.getDevices !== undefined) electron.ipcMain.handle(GET_DEVICES, (_) => this.getDevices());
+    if (this.delegate.getDevices !== undefined) electron.ipcMain.handle(GET_DEVICES, () => this.getDevices());
     electron.ipcMain.handle(GET_TRANSPORT_DELEGATE, (_, handle: string) => this.getTransportDelegate(handle));
     for (const delegateMethod of [
       "isOpened",

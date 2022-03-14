@@ -1,11 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { ETHSignedMessage } from "@shapeshiftoss/hdwallet-core";
 
 import * as ethereum from "./ethereum";
-
-const MNEMONIC = "all all all all all all all all all all all all";
-
-const untouchable = require("untouchableMock");
 
 describe("XDeFi - Ethereum Adapter", () => {
   it("ethVerifyMessage returns null as its not implemented", async () => {

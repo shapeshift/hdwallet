@@ -33,8 +33,6 @@ export async function rippleSignTx(transport: Transport, msg: core.RippleSignTx)
     });
 
     for (const m of msg.tx.value.msg) {
-      let ack;
-
       if (m.type === "ripple-sdk/MsgSend") {
         if (m.value.amount.length !== 1) {
           throw new Error("ripple: Multiple amounts per msg not supported");

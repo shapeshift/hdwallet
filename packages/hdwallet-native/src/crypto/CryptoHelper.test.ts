@@ -25,7 +25,6 @@ describe("CryptoHelpers", () => {
 
   describe("constructor", () => {
     it("should require a CryptoEngine instances", () => {
-      // @ts-ignore
       expect(() => new CryptoHelper()).toThrow("Missing cryptography engine");
     });
 

@@ -10,7 +10,6 @@ import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
 
-import * as debug from "debug";
 import $ from "jquery";
 import "regenerator-runtime/runtime";
 import Web3 from "web3";
@@ -192,7 +191,7 @@ async function deviceConnected(deviceId) {
     const [[deviceId, event]] = values;
     const { from_wallet = false, message_type } = event;
     const direction = from_wallet ? "🔑" : "💻";
-    debug.default(deviceId)(`${direction} ${message_type}`, event);
+    console.debug(`${deviceId} ${direction} ${message_type}`, event);
 
     const log = document.getElementById("eventLog");
     log.innerHTML += `<div class="eventEntry">Event: ${name}<br />Values: ${JSON.stringify(values)}</div>`;
@@ -256,7 +255,7 @@ async function deviceConnected(deviceId) {
   for (const deviceID of Object.keys(keyring.wallets)) {
     await deviceConnected(deviceID);
   }
-  $keyring.change(async (e) => {
+  $keyring.change(async () => {
     if (wallet) {
       await wallet.disconnect();
     }
@@ -1589,10 +1588,6 @@ $ethSend.on("click", async (e) => {
     return;
   }
   if (core.supportsETH(wallet)) {
-    const { hardenedPath: hard, relPath: rel } = wallet.ethGetAccountPaths({
-      coin: "Ethereum",
-      accountIdx: 0,
-    })[0];
     const result = ethEIP1559Selected
       ? await wallet.ethSendTx(ethTx1559 as core.ETHSignTx)
       : await wallet.ethSendTx(ethTx as core.ETHSignTx);
@@ -1624,7 +1619,7 @@ $ethVerify.on("click", async (e) => {
   }
 });
 
-$ethEIP1559.on("click", async (e) => {
+$ethEIP1559.on("click", async () => {
   if (!ethEIP1559Selected) {
     $ethEIP1559.attr("class", "button");
   } else {
@@ -1763,7 +1758,7 @@ $erc20TransferFrom.on("click", async (e) => {
   erc20SetSetSelected($erc20TransferFrom);
 });
 
-$erc20Submit.on("click", async (e) => {
+$erc20Submit.on("click", async () => {
   if (!wallet) {
     $erc20Results.val("No wallet?");
     return;
@@ -1988,7 +1983,6 @@ $btcVerify.on("click", async (e) => {
 const $ltcAddr = $("#ltcAddr");
 const $ltcTx = $("#ltcTx");
 const $ltcSign = $("#ltcSign");
-const $ltcVerify = $("#ltcVerify");
 const $ltcResults = $("#ltcResults");
 
 const ltcBip44 = {

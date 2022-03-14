@@ -29,7 +29,6 @@ describe("EncryptedWallet", () => {
     });
 
     it("should require a crypto engine", () => {
-      // @ts-ignore
       expect(() => new EncryptedWallet()).toThrow("Missing");
     });
   });
@@ -48,7 +47,6 @@ describe("EncryptedWallet", () => {
       "should not generate a password hash and encrypted mnemonic if no password is provided (%p)",
       async (pw) => {
         const wallet = new EncryptedWallet(engine);
-        // @ts-ignore
         await expect(wallet.init("email", pw)).rejects.toThrow("Invalid password");
       }
     );
@@ -57,7 +55,6 @@ describe("EncryptedWallet", () => {
       "should not generate a password hash and encrypted mnemonic if no email is provided (%p)",
       async (email) => {
         const wallet = new EncryptedWallet(engine);
-        // @ts-ignore
         await expect(wallet.init(email, "password")).rejects.toThrow("Invalid email");
       }
     );

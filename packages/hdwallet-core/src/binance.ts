@@ -6,7 +6,9 @@ export interface BinanceGetAddress {
   showDisplay?: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 namespace Binance {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace sdk {
     export type Coins = Coin[];
 

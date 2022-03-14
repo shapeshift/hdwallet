@@ -186,6 +186,7 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     return eth.ethGetAccountPaths(msg);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return false;
   }
@@ -404,6 +405,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return false;
   }
@@ -432,6 +434,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return true;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async loadDevice(msg: core.LoadDevice): Promise<void> {
     return;
   }
@@ -445,26 +448,32 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async recover(msg: core.RecoverDevice): Promise<void> {
     return;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async reset(msg: core.ResetDevice): Promise<void> {
     return;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendCharacter(character: string): Promise<void> {
     return;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendPassphrase(passphrase: string): Promise<void> {
     return;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendPin(pin: string): Promise<void> {
     return;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendWord(word: string): Promise<void> {
     return;
   }

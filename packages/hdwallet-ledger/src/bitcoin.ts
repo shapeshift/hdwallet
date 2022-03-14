@@ -312,6 +312,8 @@ export function btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTC
   return paths;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
+  // TODO: There's no way this is correct.
   return true;
 }

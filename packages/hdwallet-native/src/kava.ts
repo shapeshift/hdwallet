@@ -80,7 +80,6 @@ export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWal
         // eslint-disable-next-line
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "kava");
         // @TODO: This needs to be fixed after the change to tendermint serialization
-        // @ts-ignore
         const adapter = await Isolation.Adapters.Cosmos.create(keyPair);
         const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, msg.chain_id);
         return txBuilder.createSignedTx(msg.tx, result);

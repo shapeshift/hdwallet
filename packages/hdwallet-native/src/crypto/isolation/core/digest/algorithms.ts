@@ -29,6 +29,8 @@ export function _initializeAlgorithms(register: <N extends AlgorithmName>(name: 
   // is OK because there's no ambiguity as to what it should be and it will be checked at runtime.
 
   try {
+    // (Can't use a dynamic import here, because the returns is needed synchronously)
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const crypto = require("crypto");
     register("sha1", (x): any => crypto.createHash("sha1").update(x).digest());
     register("ripemd160", (x): any => crypto.createHash("ripemd160").update(x).digest());

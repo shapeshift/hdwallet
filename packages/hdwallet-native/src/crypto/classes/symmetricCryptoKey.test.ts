@@ -14,7 +14,6 @@ describe("symmetricCryptoKey", () => {
     ["encKey", [encKey]],
     ["macKey", [encKey, encKey]],
   ])("should require a parameter %s", (name: string, params: ArrayBuffer[]) => {
-    // @ts-ignore
     expect(() => new SymmetricCryptoKey(...params)).toThrow("Required parameter");
   });
 
@@ -23,7 +22,6 @@ describe("symmetricCryptoKey", () => {
     ["encKey", [key, key64, macKey]],
     ["macKey", [key, encKey, key64]],
   ])("should throw an error if %s is not 32 bytes", (name, params) => {
-    // @ts-ignore
     expect(() => new SymmetricCryptoKey(...params)).toThrow("Keys must be 32 bytes");
   });
 

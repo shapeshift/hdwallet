@@ -78,7 +78,6 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
       return this.needsMnemonic(!!this.#masterKey, async () => {
         // eslint-disable-next-line
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "secret");
-        // @ts-ignore
         const adapter = await Isolation.Adapters.Cosmos.create(keyPair);
         const result = await txBuilder.sign(
           msg.tx,

@@ -23,11 +23,7 @@
   },
   "rules": {
     "prettier/prettier": "error",
-    "default-case": "off",
-    "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/no-use-before-define": "error",
-    "@typescript-eslint/member-delimiter-style": "off",
-    "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-shadow": [
       "error"
     ],
@@ -44,17 +40,6 @@
     ],
     // TODO: We need to fix these rules later
     "@typescript-eslint/no-explicit-any": "off",
-    // Worthless
-    "@typescript-eslint/no-namespace": "off",
-    "@typescript-eslint/no-unused-vars": "off",
-    "@typescript-eslint/no-empty-function": "off",
-    // Looks like we can't activate this rule because of mocks
-    "@typescript-eslint/no-var-requires": "off",
-    // As it is a lib, there are a lof of console log sending informations
-    "no-console": "off",
-    // What's the value, should we take care of it and add utils files?
-    "jest/no-export": "off",
-    "jest/no-mocks-import": "off",
   },
   "overrides": [
     {
@@ -63,7 +48,16 @@
       ],
       "rules": {
         "no-console": "off",
-        "@typescript-eslint/no-non-null-assertion": "off"
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-var-requires": "off"
+      }
+    },
+    {
+      "files": [
+        "integration/**"
+      ],
+      "rules": {
+        "jest/no-export": "off"
       }
     }
   ]

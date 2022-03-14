@@ -2,10 +2,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as keepkeyNodeWebUSB from "@shapeshiftoss/hdwallet-keepkey-nodewebusb";
 import * as keepkeyTcp from "@shapeshiftoss/hdwallet-keepkey-tcp";
-import * as debug from "debug";
 import AxiosHTTPAdapter from "axios/lib/adapters/http";
-
-const log = debug.default("keepkey");
 
 const TIMEOUT = 60 * 1000;
 
@@ -75,10 +72,6 @@ export async function createWallet(): Promise<core.HDWallet> {
     if (autoButton && core.supportsDebugLink(wallet)) {
       await wallet.pressYes();
     }
-  });
-
-  wallet.transport?.onAny((event: string | string[], ...values: any[]) => {
-    //console.info(event, ...values)
   });
 
   return wallet;

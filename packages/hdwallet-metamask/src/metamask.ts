@@ -8,6 +8,7 @@ class MetaMaskTransport extends core.Transport {
     return "metamask:0";
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public call(...args: any[]): Promise<any> {
     return Promise.resolve();
   }
@@ -50,8 +51,8 @@ export class MetaMaskHDWalletInfo implements core.HDWalletInfo, core.ETHWalletIn
     return true;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
-    // It doesn't... yet?
     return false;
   }
 
@@ -72,6 +73,7 @@ export class MetaMaskHDWalletInfo implements core.HDWalletInfo, core.ETHWalletIn
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
     // TODO: What do we do here?
     return undefined;
@@ -97,8 +99,6 @@ export class MetaMaskHDWalletInfo implements core.HDWalletInfo, core.ETHWalletIn
     return eth.ethGetAccountPaths(msg);
   }
 }
-
-type HasNonTrivialConstructor<T> = T extends { new (): any } ? never : T;
 
 export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETH = true;
@@ -205,21 +205,25 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
     return Promise.resolve({ msg: msg.msg });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public sendPin(pin: string): Promise<void> {
     // no concept of pin in MetaMask
     return Promise.resolve();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public sendPassphrase(passphrase: string): Promise<void> {
     // cannot send passphrase to MetaMask. Could show the widget?
     return Promise.resolve();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public sendCharacter(charater: string): Promise<void> {
     // no concept of sendCharacter in MetaMask
     return Promise.resolve();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public sendWord(word: string): Promise<void> {
     // no concept of sendWord in MetaMask
     return Promise.resolve();
@@ -234,15 +238,18 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
     return Promise.resolve();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public reset(msg: core.ResetDevice): Promise<void> {
     return Promise.resolve();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public recover(msg: core.RecoverDevice): Promise<void> {
     // no concept of recover in MetaMask
     return Promise.resolve();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public loadDevice(msg: core.LoadDevice): Promise<void> {
     // TODO: Does MetaMask allow this to be done programatically?
     return Promise.resolve();
@@ -252,6 +259,7 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
     return this.info.describePath(msg);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
     // Ethereum public keys are not exposed by the RPC API
     return [];
@@ -289,6 +297,8 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
     return this.info.ethNextAccountPath(msg);
   }
 
+  // TODO: Respect msg.addressNList!
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async ethGetAddress(msg: core.ETHGetAddress): Promise<string | null> {
     if (this.ethAddress) {
       return this.ethAddress;

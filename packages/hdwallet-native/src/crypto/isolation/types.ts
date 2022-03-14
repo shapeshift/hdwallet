@@ -8,7 +8,6 @@ import {
   String as Str,
   Never,
   Runtype,
-  Result,
 } from "funtypes";
 
 const positive = Num.withConstraint((x) => x > 0 || `expected ${x} to be positive`, { name: "Positive" });
