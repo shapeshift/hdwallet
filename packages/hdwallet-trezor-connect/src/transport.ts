@@ -146,7 +146,7 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
     return TrezorConnectTransport.callInProgress;
   }
 
-  public async call(method: string, msg: any, msTimeout?: number): Promise<trezor.TrezorConnectResponse> {
+  public async call(method: string, msg: any): Promise<trezor.TrezorConnectResponse> {
     this.emit(
       method,
       core.makeEvent({
@@ -156,7 +156,7 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
       })
     );
 
-    const response = await TrezorConnectTransport.callQuiet(this.device, method, msg, msTimeout);
+    const response = await TrezorConnectTransport.callQuiet(this.device, method, msg);
 
     this.emit(
       method,

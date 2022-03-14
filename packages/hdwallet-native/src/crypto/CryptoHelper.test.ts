@@ -25,6 +25,8 @@ describe("CryptoHelpers", () => {
 
   describe("constructor", () => {
     it("should require a CryptoEngine instances", () => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       expect(() => new CryptoHelper()).toThrow("Missing cryptography engine");
     });
 
