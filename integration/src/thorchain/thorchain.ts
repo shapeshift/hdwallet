@@ -53,7 +53,16 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
             path: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
             coin: "Thorchain",
           })
-        ).toMatchInlineSnapshot();
+        ).toMatchInlineSnapshot(`
+          Object {
+            "accountIdx": 0,
+            "coin": "Thorchain",
+            "isKnown": true,
+            "isPrefork": false,
+            "verbose": "Thorchain Account #0",
+            "wholeAccount": true,
+          }
+        `);
       },
       TIMEOUT
     );
