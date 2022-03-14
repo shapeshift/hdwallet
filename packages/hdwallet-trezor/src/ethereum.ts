@@ -5,6 +5,7 @@ import { Transaction } from "@ethereumjs/tx";
 import { handleError } from "./utils";
 import { TrezorTransport } from "./transport";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function ethSupportsNetwork(chain_id: number): Promise<boolean> {
   return true;
 }

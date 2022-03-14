@@ -2,7 +2,6 @@ export * from "./types";
 export * from "./interfaces";
 
 import { Path } from "./types";
-import { Node } from "./interfaces";
 
 interface Derivable {
   derive(index: number): Promise<this>;

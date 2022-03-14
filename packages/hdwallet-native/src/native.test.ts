@@ -1,7 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
 import * as native from "./native";
-import * as Isolation from "./crypto/isolation";
 
 const MNEMONIC = "all all all all all all all all all all all all";
 

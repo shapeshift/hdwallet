@@ -8,7 +8,7 @@ import * as util from "./util";
 import * as Isolation from "./crypto/isolation";
 
 export function MixinNativeKavaWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
-  // eslint-disable-next-line
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeKavaWalletInfo extends Base implements core.KavaWalletInfo {
     readonly _supportsKavaInfo = true;
 
@@ -33,6 +33,7 @@ export function MixinNativeKavaWalletInfo<TBase extends core.Constructor<core.HD
       ];
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     kavaNextAccountPath(msg: core.KavaAccountPath): core.KavaAccountPath | undefined {
       // Only support one account for now (like portis).
       return undefined;
@@ -41,7 +42,7 @@ export function MixinNativeKavaWalletInfo<TBase extends core.Constructor<core.HD
 }
 
 export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
-  // eslint-disable-next-line
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeKavaWallet extends Base {
     readonly _supportsKava = true;
 
@@ -69,7 +70,7 @@ export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWal
 
     async kavaGetAddress(msg: core.KavaGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
-        // eslint-disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "kava");
         return this.createKavaAddress(keyPair.publicKey.toString("hex"));
       });
@@ -77,7 +78,7 @@ export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWal
 
     async kavaSignTx(msg: core.KavaSignTx): Promise<core.KavaSignedTx | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
-        // eslint-disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "kava");
         // @TODO: This needs to be fixed after the change to tendermint serialization
         const adapter = await Isolation.Adapters.Cosmos.create(keyPair);

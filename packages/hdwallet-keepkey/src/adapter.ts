@@ -85,7 +85,7 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
     const { productName, serialNumber } = await this.inspectDevice(device);
     try {
       await this.keyring.remove(serialNumber);
-      // eslint-disable-next-line
+      // eslint-disable-next-line no-empty
     } catch {}
     await this.keyring.emit([productName, serialNumber, core.Events.DISCONNECT], serialNumber);
   }
@@ -134,7 +134,7 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
     let defaultDevice: DeviceType<DelegateType> | undefined = undefined;
     try {
       defaultDevice = await this.getDevice();
-      // eslint-disable-next-line
+      // eslint-disable-next-line no-empty
     } catch {}
     return defaultDevice ? [defaultDevice] : [];
   }

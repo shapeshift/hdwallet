@@ -74,6 +74,7 @@ export class NativeHDWalletInfoBase implements core.HDWalletInfo {
     return false;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   describePath(msg: core.DescribePath): core.PathDescription {
     throw new Error("unreachable");
   }
@@ -264,7 +265,7 @@ export class NativeHDWallet
    */
   async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<core.PublicKey[] | null> {
     return this.needsMnemonic(!!this.#masterKey, async () => {
-      // eslint-disable-next-line
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const masterKey = await this.#masterKey!;
       return await Promise.all(
         msg.map(async (getPublicKey) => {
@@ -290,11 +291,12 @@ export class NativeHDWallet
     return false;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async clearSession(): Promise<void> {}
 
   async initialize(): Promise<boolean | null> {
     return this.needsMnemonic(!!this.#masterKey, async () => {
-      // eslint-disable-next-line
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const masterKey = await this.#masterKey!;
       try {
         await Promise.all([
@@ -325,14 +327,19 @@ export class NativeHDWallet
     return { msg: msg.msg };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async sendPin(): Promise<void> {}
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async sendPassphrase(): Promise<void> {}
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async sendCharacter(): Promise<void> {}
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async sendWord(): Promise<void> {}
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async cancel(): Promise<void> {}
 
   async wipe(): Promise<void> {
@@ -354,8 +361,10 @@ export class NativeHDWallet
     (await oldMasterKey)?.revoke?.();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async reset(): Promise<void> {}
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async recover(): Promise<void> {}
 
   async loadDevice(msg?: LoadDevice): Promise<void> {

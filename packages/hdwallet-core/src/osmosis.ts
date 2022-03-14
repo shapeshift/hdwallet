@@ -6,6 +6,7 @@ export interface OsmosisGetAddress {
   showDisplay?: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Osmosis {
   export interface Msg {
     type: string;
@@ -24,6 +25,7 @@ export namespace Osmosis {
     gas: string;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace crypto {
     export interface PubKey {
       type: string;

@@ -10,7 +10,7 @@ import * as Isolation from "./crypto/isolation";
 const THOR_CHAIN = "thorchain";
 
 export function MixinNativeThorchainWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
-  // eslint-disable-next-line
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeThorchainWalletInfo extends Base implements core.ThorchainWalletInfo {
     _supportsThorchainInfo = true;
     async thorchainSupportsNetwork(): Promise<boolean> {
@@ -34,6 +34,7 @@ export function MixinNativeThorchainWalletInfo<TBase extends core.Constructor<co
       ];
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
       // Only support one account for now (like portis).
       return undefined;
@@ -42,7 +43,7 @@ export function MixinNativeThorchainWalletInfo<TBase extends core.Constructor<co
 }
 
 export function MixinNativeThorchainWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
-  // eslint-disable-next-line
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeThorchainWallet extends Base {
     _supportsThorchain = true;
 
@@ -70,7 +71,7 @@ export function MixinNativeThorchainWallet<TBase extends core.Constructor<Native
 
     async thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
-        // eslint-disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "thorchain");
         return this.createThorchainAddress(keyPair.publicKey.toString("hex"));
       });
@@ -78,7 +79,7 @@ export function MixinNativeThorchainWallet<TBase extends core.Constructor<Native
 
     async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
-        // eslint-disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "thorchain");
         const adapter = await Isolation.Adapters.Cosmos.create(keyPair.node);
         const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, THOR_CHAIN);

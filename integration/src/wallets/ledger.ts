@@ -248,8 +248,8 @@ export function selfTest(get: () => core.HDWallet): void {
 
   it("validates current app", async () => {
     if (!wallet) return;
-    // @TODO: This rule looks important to resolve
-    // eslint-disable-next-line
+
+    // eslint-disable-next-line jest/valid-expect
     expect(await wallet.validateCurrentApp("Bitcoin")).resolves;
     await expect(wallet.validateCurrentApp(undefined)).rejects.toThrow(); // no coin
     await expect(wallet.validateCurrentApp("FakeCoin")).rejects.toThrow(); // invalid coin

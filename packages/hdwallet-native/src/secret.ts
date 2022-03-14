@@ -8,7 +8,7 @@ import * as util from "./util";
 import * as Isolation from "./crypto/isolation";
 
 export function MixinNativeSecretWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
-  // eslint-disable-next-line
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeSecretWalletInfo extends Base implements core.SecretWalletInfo {
     readonly _supportsSecretInfo = true;
     async secretSupportsNetwork(): Promise<boolean> {
@@ -32,6 +32,7 @@ export function MixinNativeSecretWalletInfo<TBase extends core.Constructor<core.
       ];
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     secretNextAccountPath(msg: core.SecretAccountPath): core.SecretAccountPath | undefined {
       // Only support one account for now (like portis).
       return undefined;
@@ -40,7 +41,7 @@ export function MixinNativeSecretWalletInfo<TBase extends core.Constructor<core.
 }
 
 export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
-  // eslint-disable-next-line
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeSecretWallet extends Base {
     readonly _supportsSecret = true;
 
@@ -68,7 +69,7 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
 
     async secretGetAddress(msg: core.SecretGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
-        // eslint-disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "secret");
         return this.createSecretAddress(keyPair.publicKey.toString("hex"));
       });
@@ -76,7 +77,7 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
 
     async secretSignTx(msg: core.SecretSignTx): Promise<any | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
-        // eslint-disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "secret");
         const adapter = await Isolation.Adapters.Cosmos.create(keyPair);
         const result = await txBuilder.sign(

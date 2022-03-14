@@ -22,7 +22,7 @@ async function getBridge(keyring: core.Keyring) {
     );
     if (wallet) console.log("Using KeepKey Bridge for tests");
     return wallet;
-    // eslint-disable-next-line
+    // eslint-disable-next-line no-empty
   } catch (e) {}
   return undefined;
 }
@@ -33,7 +33,7 @@ async function getDevice(keyring: core.Keyring) {
     const wallet = await keepkeyAdapter.pairDevice(undefined, true);
     if (wallet) console.log("Using attached WebUSB KeepKey for tests");
     return wallet;
-    // eslint-disable-next-line
+    // eslint-disable-next-line no-empty
   } catch (e) {}
   return undefined;
 }
@@ -50,7 +50,7 @@ async function getEmulator(keyring: core.Keyring) {
     );
     if (wallet) console.log("Using KeepKey Emulator for tests");
     return wallet;
-    // eslint-disable-next-line
+    // eslint-disable-next-line no-empty
   } catch (e) {}
   return undefined;
 }

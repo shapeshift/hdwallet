@@ -34,7 +34,7 @@ type BchInputData = {
 type InputData = UtxoData | ScriptData | BchInputData;
 
 export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
-  // eslint-disable-next-line
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeBTCWalletInfo extends Base implements core.BTCWalletInfo {
     readonly _supportsBTCInfo = true;
 
@@ -101,6 +101,7 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDW
       return paths;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
       // TODO: support at some point
       return false;
@@ -133,7 +134,7 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDW
 }
 
 export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
-  // eslint-disable-next-line
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeBTCWallet extends Base {
     readonly _supportsBTC = true;
 
@@ -220,7 +221,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
     async buildInput(coin: core.Coin, input: core.BTCSignTxInputNative): Promise<InputData | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const { addressNList, amount, hex, scriptType } = input;
-        // eslint-disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin, scriptType);
 
         const isSegwit = !!scriptType && segwit.includes(scriptType);
@@ -265,7 +266,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
     async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const { addressNList, coin, scriptType } = msg;
-        // eslint-disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin, scriptType);
         const { address } = this.createPayment(keyPair.publicKey, scriptType, keyPair.network);
         if (!address) return null;
@@ -307,7 +308,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
               if (output.address !== undefined) {
                 address = output.address;
               } else if (output.addressNList !== undefined) {
-                // eslint-disable-next-line
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 const keyPair = await util.getKeyPair(this.#masterKey!, output.addressNList, coin, output.scriptType);
                 const { publicKey, network } = keyPair;
                 const payment = this.createPayment(publicKey, output.scriptType, network);
@@ -340,7 +341,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
           inputs.map(async (input, idx) => {
             try {
               const { addressNList, scriptType } = input;
-              // eslint-disable-next-line
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin, scriptType);
               await psbt.signInputAsync(idx, keyPair);
             } catch (e) {

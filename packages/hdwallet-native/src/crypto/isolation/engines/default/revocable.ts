@@ -91,7 +91,7 @@ export interface Revocable {
 
 export const Revocable = _freeze(<T extends core.Constructor>(x: T) => {
   const out = _freeze(
-    // eslint-disable-next-line
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     class Revocable extends x {
       readonly #revokers: Set<() => void> = new _Set();
       #revoked = false;
@@ -101,7 +101,7 @@ export const Revocable = _freeze(<T extends core.Constructor>(x: T) => {
         this.#revokers.forEach((revoker) => {
           try {
             revoker();
-            // eslint-disable-next-line
+            // eslint-disable-next-line no-empty
           } catch {}
         });
         this.#revokers.clear();
@@ -111,7 +111,7 @@ export const Revocable = _freeze(<T extends core.Constructor>(x: T) => {
         if (this.#revoked) {
           try {
             revoker();
-            // eslint-disable-next-line
+            // eslint-disable-next-line no-empty
           } catch {}
         } else {
           this.#revokers.add(revoker);
