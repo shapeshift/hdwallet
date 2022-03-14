@@ -14,15 +14,15 @@ describe("symmetricCryptoKey", () => {
     ["encKey", [encKey]],
     ["macKey", [encKey, encKey]],
   ])("should require a parameter %s", (name: string, params: ArrayBuffer[]) => {
-    expect(() => new SymmetricCryptoKey(...params)).toThrow("Required parameter");
+    expect(() => new (SymmetricCryptoKey as any)(...params)).toThrow("Required parameter");
   });
 
   it.each([
     ["key", [key64, encKey, macKey]],
     ["encKey", [key, key64, macKey]],
     ["macKey", [key, encKey, key64]],
-  ])("should throw an error if %s is not 32 bytes", (name, params) => {
-    expect(() => new SymmetricCryptoKey(...params)).toThrow("Keys must be 32 bytes");
+  ])("should throw an error if %s is not 32 bytes", (name: string, params: ArrayBuffer[]) => {
+    expect(() => new (SymmetricCryptoKey as any)(...params)).toThrow("Keys must be 32 bytes");
   });
 
   it("should return an instance", () => {
