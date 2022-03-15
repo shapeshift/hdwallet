@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
+
 import { createMockWallet } from "./mocks/@xdefi/xdefi";
 
 export function name(): string {

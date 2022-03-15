@@ -1,7 +1,7 @@
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as hid from "node-hid";
 
-import { VENDOR_ID, PRODUCT_ID } from "./utils";
+import { PRODUCT_ID, VENDOR_ID } from "./utils";
 
 export function requestPair(): hid.HID {
   return new hid.HID(VENDOR_ID, PRODUCT_ID);

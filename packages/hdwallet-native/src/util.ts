@@ -1,8 +1,8 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
 import { BTCScriptType } from "./bitcoin";
-import { getNetwork } from "./networks";
 import * as Isolation from "./crypto/isolation";
+import { getNetwork } from "./networks";
 
 export async function getKeyPair(
   node: Isolation.Core.BIP32.Node,

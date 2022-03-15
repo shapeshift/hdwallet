@@ -3,10 +3,10 @@ import * as idb from "idb-keyval";
 // import * as jose from "jose";
 import * as uuid from "uuid";
 
-import { Vault, GENERATE_MNEMONIC } from ".";
+import { GENERATE_MNEMONIC, Vault } from ".";
 import { deterministicGetRandomValues } from "./deterministicGetRandomValues.test";
-import { MockVault } from "./test/mockVault.skip";
 import { RawVault } from "./rawVault";
+import { MockVault } from "./test/mockVault.skip";
 import { ISealableVaultFactory, IVault } from "./types";
 import { keyStoreUUID, vaultStoreUUID } from "./util";
 

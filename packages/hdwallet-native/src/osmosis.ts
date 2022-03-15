@@ -1,11 +1,11 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as protoTxBuilder from "@shapeshiftoss/proto-tx-builder";
 import * as bech32 from "bech32";
 import CryptoJS from "crypto-js";
-import * as protoTxBuilder from "@shapeshiftoss/proto-tx-builder";
 
+import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
-import * as Isolation from "./crypto/isolation";
 
 const OSMOSIS_CHAIN = "osmosis-1";
 

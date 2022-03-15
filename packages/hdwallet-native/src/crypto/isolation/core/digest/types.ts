@@ -1,8 +1,8 @@
-import { Literal, Object as Obj, Never, Enum, Contract, Runtype } from "funtypes";
-import { ByteArray, NonNegativeInteger } from "../../types";
-import { AlgorithmLength, _initializeAlgorithms } from "./algorithms";
+import { Contract, Enum, Literal, Never, Object as Obj, Runtype } from "funtypes";
 
+import { ByteArray, NonNegativeInteger } from "../../types";
 import { checkType } from "../../types";
+import { _initializeAlgorithms, AlgorithmLength } from "./algorithms";
 
 // These names come from the keys on the AlgorithmLength object. We'd prefer not
 // to repeat them here, which means we have to build the Enum object in a way that

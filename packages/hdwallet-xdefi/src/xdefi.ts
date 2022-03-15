@@ -1,6 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as eth from "./ethereum";
 import _ from "lodash";
+
+import * as eth from "./ethereum";
 
 class XDeFiTransport extends core.Transport {
   public async getDeviceID() {

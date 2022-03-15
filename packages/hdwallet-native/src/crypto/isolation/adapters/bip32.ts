@@ -1,8 +1,8 @@
+import type { crypto as btccrypto, Network, SignerAsync } from "@shapeshiftoss/bitcoinjs-lib";
 import * as bip32 from "bip32";
 import bs58check from "bs58check";
-import type { crypto as btccrypto, Network, SignerAsync } from "@shapeshiftoss/bitcoinjs-lib";
 
-import { BIP32, SecP256K1, IsolationError } from "../core";
+import { BIP32, IsolationError, SecP256K1 } from "../core";
 import { ECPairAdapter } from "./bitcoin";
 
 let btccryptoInstance: typeof btccrypto | undefined;

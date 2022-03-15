@@ -2,7 +2,7 @@ import * as ta from "type-assertions";
 
 import { RawVault } from "./rawVault";
 import { IVaultBackedBy, IVaultFactory, VaultPrepareParams } from "./types";
-import { Revocable, encoder, decoder } from "./util";
+import { decoder, encoder, Revocable } from "./util";
 
 ta.assert<ta.Extends<typeof MapVault, IVaultFactory<MapVault>>>();
 

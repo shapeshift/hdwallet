@@ -1,6 +1,6 @@
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 
-import { CLIENT_TAG, Client } from "./client";
+import { Client, CLIENT_TAG } from "./client";
 
 function getClient(): Client {
   return ((window as any)?.[CLIENT_TAG] as Client) ?? Client;

@@ -1,5 +1,5 @@
-import * as util from "./util";
 import * as Isolation from "./crypto/isolation";
+import * as util from "./util";
 
 describe("getKeyPair", () => {
   let masterKey: Isolation.Core.BIP32.Node;

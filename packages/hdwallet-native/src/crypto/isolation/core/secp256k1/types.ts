@@ -4,8 +4,8 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { Literal, Object as Obj, Static, Union } from "funtypes";
 import * as tinyecc from "tiny-secp256k1";
 
+import { assertType, BigEndianInteger, ByteArray, checkType, safeBufferFrom, Uint32 } from "../../types";
 import * as Digest from "../digest";
-import { BigEndianInteger, ByteArray, Uint32, checkType, safeBufferFrom, assertType } from "../../types";
 import { ECDSAKey, ECDSARecoverableKey } from "./interfaces";
 
 const ethers = import("ethers");

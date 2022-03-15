@@ -1,3 +1,4 @@
+import { CreateTransactionArg } from "@ledgerhq/hw-app-btc/lib/createTransaction";
 import { Transaction } from "@ledgerhq/hw-app-btc/lib/types";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import Base64 from "base64-js";
@@ -7,8 +8,7 @@ import * as bitcoinMsg from "bitcoinjs-message";
 import _ from "lodash";
 
 import { LedgerTransport } from "./transport";
-import { createXpub, compressPublicKey, translateScriptType, networksUtil, handleError } from "./utils";
-import { CreateTransactionArg } from "@ledgerhq/hw-app-btc/lib/createTransaction";
+import { compressPublicKey, createXpub, handleError, networksUtil, translateScriptType } from "./utils";
 
 export const supportedCoins = ["Testnet", "Bitcoin", "BitcoinCash", "Litecoin", "Dash", "DigiByte", "Dogecoin"];
 

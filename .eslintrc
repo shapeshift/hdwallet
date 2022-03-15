@@ -11,7 +11,8 @@
   "plugins": [
     "@typescript-eslint",
     "prettier",
-    "jest"
+    "jest",
+    "simple-import-sort"
   ],
   "env": {
     "node": true,
@@ -55,6 +56,9 @@
     ],
     // TODO: We need to fix these rules later
     "@typescript-eslint/no-explicit-any": "off",
+    "simple-import-sort/imports": [
+      "error"
+    ]
   },
   "overrides": [
     {

@@ -1,6 +1,6 @@
 import CryptoJS from "crypto-js";
 
-import { AlgorithmName, Algorithm } from "./types";
+import { Algorithm, AlgorithmName } from "./types";
 
 export const AlgorithmLength = {
   sha1: 20,

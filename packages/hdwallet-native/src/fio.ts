@@ -2,8 +2,8 @@ import * as fio from "@shapeshiftoss/fiosdk";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import fetch, { RequestInfo, RequestInit } from "node-fetch";
 
-import { NativeHDWalletBase } from "./native";
 import * as Isolation from "./crypto/isolation";
+import { NativeHDWalletBase } from "./native";
 
 const fetchJson = async (uri: RequestInfo, opts?: RequestInit) => {
   return fetch(uri, opts);

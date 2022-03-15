@@ -1,4 +1,4 @@
-import type { AccountData, OfflineDirectSigner, DirectSignResponse } from "@cosmjs/proto-signing";
+import type { AccountData, DirectSignResponse, OfflineDirectSigner } from "@cosmjs/proto-signing";
 import * as bech32 from "bech32";
 import type { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 

@@ -1,7 +1,7 @@
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 
 import { TransportDelegate } from "./transport";
-import { VENDOR_ID, WEBUSB_PRODUCT_ID, HID_PRODUCT_ID, assertChromeUSB, chromeUSB, makePromise } from "./utils";
+import { assertChromeUSB, chromeUSB, HID_PRODUCT_ID, makePromise, VENDOR_ID, WEBUSB_PRODUCT_ID } from "./utils";
 
 type Device = USBDevice & { serialNumber: string };
 

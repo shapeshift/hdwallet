@@ -2,13 +2,12 @@
 import * as Exchange from "@keepkey/device-protocol/lib/exchange_pb";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
-import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bitcoinjs from "@shapeshiftoss/bitcoinjs-lib";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import { thaw } from "icepick";
 
 import { Transport } from "./transport";
 import { toUTF8Array, translateInputScriptType, translateOutputScriptType } from "./utils";
-
-import { thaw } from "icepick";
 
 // FIXME: load this from the device's coin table, or from some static features
 // table... instead of, you know, adding another God-forsaken coin table.

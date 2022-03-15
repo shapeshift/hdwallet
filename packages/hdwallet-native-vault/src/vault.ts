@@ -4,8 +4,8 @@ import * as ta from "type-assertions";
 
 import { MapVault } from "./mapVault";
 import { RawVault } from "./rawVault";
-import { IVault, ISealableVaultFactory, VaultPrepareParams } from "./types";
-import { Revocable, crypto, decoder, encoder, revocable, shadowedMap } from "./util";
+import { ISealableVaultFactory, IVault, VaultPrepareParams } from "./types";
+import { crypto, decoder, encoder, Revocable, revocable, shadowedMap } from "./util";
 
 export type ValueWrapper = (x: unknown, addRevoker: (revoke: () => void) => void) => Promise<unknown>;
 export type ValueTransformer = (x: unknown, addRevoker: (revoke: () => void) => void) => Promise<unknown>;

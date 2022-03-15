@@ -1,33 +1,23 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import tx_unsigned_transfer from "./tx01.mainnet.osmosis.transfer.json";
-import tx_signed_transfer from "./tx01.mainnet.osmosis.transfer.signed.json";
-
-//delgation
 import tx_unsigned_delegation from "./tx01.mainnet.osmosis.delegate.json";
 import tx_signed_delegation from "./tx01.mainnet.osmosis.delegate.signed.json";
-
-import tx_unigned_undelegate_osmosis from "./tx01.mainnet.osmosis.undelegate.json";
-import tx_signed_undelegate_osmosis from "./tx01.mainnet.osmosis.undelegate.signed.json";
-
-import tx_unsigned_redelegate_osmosis from "./tx01.mainnet.osmosis.redelegate.json";
-import tx_signed_redelegate_osmosis from "./tx01.mainnet.osmosis.redelegate.signed.json";
-
-import tx_unsigned_rewards_osmosis from "./tx01.mainnet.osmosis.rewards.json";
-import tx_signed_rewards_osmosis from "./tx01.mainnet.osmosis.rewards.signed.json";
-
-//LP
 import tx_unsigned_lp_add_osmosis from "./tx01.mainnet.osmosis.lp-add.json";
 import tx_signed_lp_add_osmosis from "./tx01.mainnet.osmosis.lp-add.signed.json";
-
 import tx_unsigned_lp_remove_osmosis from "./tx01.mainnet.osmosis.lp-remove.json";
 import tx_signed_lp_remove_osmosis from "./tx01.mainnet.osmosis.lp-remove.signed.json";
-
 import tx_unsigned_lp_stake_osmosis from "./tx01.mainnet.osmosis.lp-stake.json";
 import tx_signed_lp_stake_osmosis from "./tx01.mainnet.osmosis.lp-stake.signed.json";
-
 import tx_unsigned_lp_unstake_osmosis from "./tx01.mainnet.osmosis.lp-unstake.json";
 import tx_signed_lp_unstake_osmosis from "./tx01.mainnet.osmosis.lp-unstake.signed.json";
+import tx_unsigned_redelegate_osmosis from "./tx01.mainnet.osmosis.redelegate.json";
+import tx_signed_redelegate_osmosis from "./tx01.mainnet.osmosis.redelegate.signed.json";
+import tx_unsigned_rewards_osmosis from "./tx01.mainnet.osmosis.rewards.json";
+import tx_signed_rewards_osmosis from "./tx01.mainnet.osmosis.rewards.signed.json";
+import tx_unsigned_transfer from "./tx01.mainnet.osmosis.transfer.json";
+import tx_signed_transfer from "./tx01.mainnet.osmosis.transfer.signed.json";
+import tx_unigned_undelegate_osmosis from "./tx01.mainnet.osmosis.undelegate.json";
+import tx_signed_undelegate_osmosis from "./tx01.mainnet.osmosis.undelegate.signed.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 

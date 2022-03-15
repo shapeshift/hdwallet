@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
-import { LedgerWebUsbTransport, getFirstLedgerDevice, getTransport, openTransport } from "./transport";
+import { getFirstLedgerDevice, getTransport, LedgerWebUsbTransport, openTransport } from "./transport";
 
 const VENDOR_ID = 11415;
 const APP_NAVIGATION_DELAY = 3000;

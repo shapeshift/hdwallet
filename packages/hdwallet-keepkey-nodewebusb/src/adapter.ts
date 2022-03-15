@@ -2,7 +2,7 @@ import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as webusb from "webusb";
 
 import { Device, TransportDelegate } from "./transport";
-import { VENDOR_ID, WEBUSB_PRODUCT_ID, HID_PRODUCT_ID } from "./utils";
+import { HID_PRODUCT_ID, VENDOR_ID, WEBUSB_PRODUCT_ID } from "./utils";
 
 export const NodeWebUSBAdapterDelegate = {
   async getDevices(): Promise<Device[]> {

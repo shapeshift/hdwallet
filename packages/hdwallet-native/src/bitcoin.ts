@@ -1,10 +1,10 @@
+import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bchAddr from "bchaddrjs";
-import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 
 import * as Isolation from "./crypto/isolation";
-import { getNetwork } from "./networks";
 import { NativeHDWalletBase } from "./native";
+import { getNetwork } from "./networks";
 import * as util from "./util";
 
 const supportedCoins = ["bitcoin", "dash", "digibyte", "dogecoin", "litecoin", "bitcoincash", "testnet"];

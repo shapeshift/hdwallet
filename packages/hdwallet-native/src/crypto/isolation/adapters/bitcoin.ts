@@ -1,5 +1,6 @@
-import type { ECPairInterface, Network, SignerAsync, crypto as bcrypto, networks } from "@shapeshiftoss/bitcoinjs-lib";
-import { SecP256K1, IsolationError } from "../core";
+import type { crypto as bcrypto, ECPairInterface, Network, networks, SignerAsync } from "@shapeshiftoss/bitcoinjs-lib";
+
+import { IsolationError, SecP256K1 } from "../core";
 import { assertType, ByteArray } from "../types";
 
 export type ECPairInterfaceAsync = Omit<ECPairInterface, "sign"> & Pick<SignerAsync, "sign">;

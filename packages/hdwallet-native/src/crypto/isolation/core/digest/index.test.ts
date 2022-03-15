@@ -1,5 +1,5 @@
 import { Algorithms } from ".";
-import { toWordArray, fromWordArray } from "./algorithms";
+import { fromWordArray, toWordArray } from "./algorithms";
 
 describe("Digests", () => {
   it("converts to/from WordArrays correctly", () => {

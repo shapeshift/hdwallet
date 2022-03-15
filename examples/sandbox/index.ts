@@ -1,34 +1,34 @@
+import "regenerator-runtime/runtime";
+
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as keepkeyTcp from "@shapeshiftoss/hdwallet-keepkey-tcp";
 import * as keepkeyWebUSB from "@shapeshiftoss/hdwallet-keepkey-webusb";
-import * as ledgerWebUSB from "@shapeshiftoss/hdwallet-ledger-webusb";
 import * as ledgerWebHID from "@shapeshiftoss/hdwallet-ledger-webhid";
+import * as ledgerWebUSB from "@shapeshiftoss/hdwallet-ledger-webusb";
+import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
-import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
-import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
-
+import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 import $ from "jquery";
-import "regenerator-runtime/runtime";
 import Web3 from "web3";
 
+import * as bnbTxJson from "./json/bnbTx.json";
 import * as btcBech32TxJson from "./json/btcBech32Tx.json";
-import * as btcTxJson from "./json/btcTx.json";
 import * as btcSegWitTxJson from "./json/btcSegWitTx.json";
+import * as btcTxJson from "./json/btcTx.json";
 import * as dashTxJson from "./json/dashTx.json";
 import * as dogeTxJson from "./json/dogeTx.json";
 import * as ltcTxJson from "./json/ltcTx.json";
 import * as rippleTxJson from "./json/rippleTx.json";
-import * as bnbTxJson from "./json/bnbTx.json";
 import {
-  thorchainUnsignedTx,
+  thorchainBinanceBaseTx,
   thorchainBitcoinBaseTx,
   thorchainEthereumBaseTx,
-  thorchainBinanceBaseTx,
   thorchainNativeRuneBaseTx,
   thorchainRouterAbi,
+  thorchainUnsignedTx,
 } from "./json/thorchainTx.json";
 
 const keyring = new core.Keyring();

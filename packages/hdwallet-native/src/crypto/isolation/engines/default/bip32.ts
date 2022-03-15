@@ -1,14 +1,13 @@
 export * from "../../core/bip32";
-import * as BIP32 from "../../core/bip32";
-
 import * as bip32crypto from "bip32/src/crypto";
 import * as tinyecc from "tiny-secp256k1";
 import { TextEncoder } from "web-encoding";
 
-import { ByteArray, Uint32, checkType, safeBufferFrom, assertType } from "../../types";
 import { Digest, SecP256K1 } from "../../core";
+import * as BIP32 from "../../core/bip32";
 import { ChainCode } from "../../core/bip32";
-import { revocable, Revocable } from "./revocable";
+import { assertType, ByteArray, checkType, safeBufferFrom, Uint32 } from "../../types";
+import { Revocable, revocable } from "./revocable";
 
 export class Node extends Revocable(class {}) implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K1.ECDHKey {
   readonly #privateKey: Buffer & ByteArray<32>;

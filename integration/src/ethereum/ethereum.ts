@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
-import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
+import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 const MNEMONIC_TEST = "smooth antenna immense oppose august casual fresh meadow happy ugly wave control";

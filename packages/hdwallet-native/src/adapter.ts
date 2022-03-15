@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import * as native from "./native";
 import * as Isolation from "./crypto/isolation";
+import * as native from "./native";
 
 export type NativeAdapterArgs = {
   deviceId: string;

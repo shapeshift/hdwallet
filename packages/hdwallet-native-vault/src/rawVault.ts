@@ -2,12 +2,12 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { argon2id } from "hash-wasm";
 import * as idb from "idb-keyval";
 import * as jose from "jose";
-import * as uuid from "uuid";
 import * as ta from "type-assertions";
-import { argonBenchmark } from "./argonBenchmark";
+import * as uuid from "uuid";
 
+import { argonBenchmark } from "./argonBenchmark";
 import { ArgonParams, IVaultBackedBy, IVaultFactory, VaultPrepareParams } from "./types";
-import { Revocable, crypto, revocable, encoder, keyStoreUUID, vaultStoreUUID, setCrypto, setPerformance } from "./util";
+import { crypto, encoder, keyStoreUUID, Revocable, revocable, setCrypto, setPerformance, vaultStoreUUID } from "./util";
 
 // This has to be outside the class so the static initializers for defaultArgonParams and #machineSeed can reference it.
 let resolvers:

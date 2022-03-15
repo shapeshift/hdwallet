@@ -2,8 +2,8 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ethers from "ethers";
 import _ from "lodash";
 
-import { NativeHDWalletBase } from "./native";
 import * as Isolation from "./crypto/isolation";
+import { NativeHDWalletBase } from "./native";
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   // eslint-disable-next-line @typescript-eslint/no-shadow

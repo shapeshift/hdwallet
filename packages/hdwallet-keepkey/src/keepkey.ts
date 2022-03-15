@@ -1,6 +1,6 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
+import * as core from "@shapeshiftoss/hdwallet-core";
 import _ from "lodash";
 import semver from "semver";
 
@@ -815,27 +815,21 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   public async sendPin(pin: string): Promise<void> {
     const matrixAck = new Messages.PinMatrixAck();
     matrixAck.setPin(pin);
-    console.assert(
-      undefined ===
-        (await this.transport.call(Messages.MessageType.MESSAGETYPE_PINMATRIXACK, matrixAck, {
-          msgTimeout: core.DEFAULT_TIMEOUT,
-          omitLock: true,
-          noWait: true,
-        }))
-    );
+    await this.transport.call(Messages.MessageType.MESSAGETYPE_PINMATRIXACK, matrixAck, {
+      msgTimeout: core.DEFAULT_TIMEOUT,
+      omitLock: true,
+      noWait: true,
+    });
   }
 
   public async sendPassphrase(passphrase: string): Promise<void> {
     const passphraseAck = new Messages.PassphraseAck();
     passphraseAck.setPassphrase(passphrase);
-    console.assert(
-      undefined ===
-        (await this.transport.call(Messages.MessageType.MESSAGETYPE_PASSPHRASEACK, passphraseAck, {
-          msgTimeout: core.DEFAULT_TIMEOUT,
-          omitLock: true,
-          noWait: true,
-        }))
-    );
+    await this.transport.call(Messages.MessageType.MESSAGETYPE_PASSPHRASEACK, passphraseAck, {
+      msgTimeout: core.DEFAULT_TIMEOUT,
+      omitLock: true,
+      noWait: true,
+    });
   }
 
   public async sendCharacter(character: string): Promise<void> {
@@ -864,14 +858,11 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     } else if (_done) {
       characterAck.setDone(_done);
     }
-    console.assert(
-      undefined ===
-        (await this.transport.call(Messages.MessageType.MESSAGETYPE_CHARACTERACK, characterAck, {
-          msgTimeout: core.DEFAULT_TIMEOUT,
-          omitLock: true,
-          noWait: true,
-        }))
-    );
+    await this.transport.call(Messages.MessageType.MESSAGETYPE_CHARACTERACK, characterAck, {
+      msgTimeout: core.DEFAULT_TIMEOUT,
+      omitLock: true,
+      noWait: true,
+    });
   }
 
   // ApplyPolicy enables or disables a named policy such as "ShapeShift" on the device

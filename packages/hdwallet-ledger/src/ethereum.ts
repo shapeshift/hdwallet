@@ -1,11 +1,11 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
 import Common from "@ethereumjs/common";
-import EthereumTx from "ethereumjs-tx";
 import { Transaction } from "@ethereumjs/tx";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import EthereumTx from "ethereumjs-tx";
 import * as ethereumUtil from "ethereumjs-util";
 
 import { LedgerTransport } from "./transport";
-import { createXpub, compressPublicKey, networksUtil, handleError } from "./utils";
+import { compressPublicKey, createXpub, handleError, networksUtil } from "./utils";
 
 export async function ethSupportsNetwork(chain_id: number): Promise<boolean> {
   return chain_id === 1;

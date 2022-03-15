@@ -3,20 +3,19 @@ import * as bip39 from "bip39";
 import * as eventemitter2 from "eventemitter2";
 import _ from "lodash";
 
-import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binance";
-import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
-import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
-import { MixinNativeOsmosisWallet, MixinNativeOsmosisWalletInfo } from "./osmosis";
-import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
-import { MixinNativeFioWalletInfo, MixinNativeFioWallet } from "./fio";
-import { MixinNativeKavaWalletInfo, MixinNativeKavaWallet } from "./kava";
-import { getNetwork } from "./networks";
-import { MixinNativeSecretWalletInfo, MixinNativeSecretWallet } from "./secret";
-import { MixinNativeTerraWalletInfo, MixinNativeTerraWallet } from "./terra";
-import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./thorchain";
-
 import type { NativeAdapterArgs } from "./adapter";
+import { MixinNativeBinanceWallet, MixinNativeBinanceWalletInfo } from "./binance";
+import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
+import { MixinNativeCosmosWallet, MixinNativeCosmosWalletInfo } from "./cosmos";
 import * as Isolation from "./crypto/isolation";
+import { MixinNativeETHWallet, MixinNativeETHWalletInfo } from "./ethereum";
+import { MixinNativeFioWallet, MixinNativeFioWalletInfo } from "./fio";
+import { MixinNativeKavaWallet, MixinNativeKavaWalletInfo } from "./kava";
+import { getNetwork } from "./networks";
+import { MixinNativeOsmosisWallet, MixinNativeOsmosisWalletInfo } from "./osmosis";
+import { MixinNativeSecretWallet, MixinNativeSecretWalletInfo } from "./secret";
+import { MixinNativeTerraWallet, MixinNativeTerraWalletInfo } from "./terra";
+import { MixinNativeThorchainWallet, MixinNativeThorchainWalletInfo } from "./thorchain";
 
 export enum NativeEvents {
   MNEMONIC_REQUIRED = "MNEMONIC_REQUIRED",

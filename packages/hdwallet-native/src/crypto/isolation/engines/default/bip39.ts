@@ -1,15 +1,14 @@
 /// <reference types="bip32/types/crypto" />
 
 import * as core from "@shapeshiftoss/hdwallet-core";
-
 import * as bip32crypto from "bip32/src/crypto";
 import { TextEncoder } from "web-encoding";
 
-import * as BIP39 from "../../core/bip39";
 import * as BIP32 from "../../core/bip32";
+import * as BIP39 from "../../core/bip39";
 import { safeBufferFrom } from "../../types";
 import * as BIP32Engine from "./bip32";
-import { revocable, Revocable } from "./revocable";
+import { Revocable, revocable } from "./revocable";
 
 export * from "../../core/bip39";
 

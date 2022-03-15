@@ -3,9 +3,9 @@ import * as bech32 from "bech32";
 import CryptoJS from "crypto-js";
 import * as txBuilder from "tendermint-tx-builder";
 
+import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
-import * as Isolation from "./crypto/isolation";
 
 export function MixinNativeKavaWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   // eslint-disable-next-line @typescript-eslint/no-shadow

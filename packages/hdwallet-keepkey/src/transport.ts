@@ -4,7 +4,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as crypto from "crypto";
 import * as jspb from "google-protobuf";
 
-import { messageTypeRegistry, messageNameRegistry } from "./typeRegistry";
+import { messageNameRegistry, messageTypeRegistry } from "./typeRegistry";
 import { SEGMENT_SIZE } from "./utils";
 
 export interface TransportDelegate {

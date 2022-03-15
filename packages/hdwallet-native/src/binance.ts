@@ -4,9 +4,9 @@ import BigNumber from "bignumber.js";
 import type * as bnbSdk from "bnb-javascript-sdk-nobroadcast";
 import CryptoJS from "crypto-js";
 
+import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
-import * as Isolation from "./crypto/isolation";
 
 export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   // eslint-disable-next-line @typescript-eslint/no-shadow

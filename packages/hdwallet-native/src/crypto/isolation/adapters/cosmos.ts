@@ -1,5 +1,5 @@
-import { SecP256K1 } from "../core";
 import * as Isolation from "../";
+import { SecP256K1 } from "../core";
 
 export class WalletAdapter {
   protected readonly _isolatedKey: SecP256K1.ECDSAKey | Isolation.Adapters.BIP32;

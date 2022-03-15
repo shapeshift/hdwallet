@@ -1,7 +1,8 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
-import * as eth from "./ethereum";
-import _ from "lodash";
 import detectEthereumProvider from "@metamask/detect-provider";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import _ from "lodash";
+
+import * as eth from "./ethereum";
 
 class MetaMaskTransport extends core.Transport {
   public async getDeviceID() {

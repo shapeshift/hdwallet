@@ -1,4 +1,5 @@
-import type { Transaction, BncClient } from "bnb-javascript-sdk-nobroadcast";
+import type { BncClient, Transaction } from "bnb-javascript-sdk-nobroadcast";
+
 import { BIP32, SecP256K1 } from "../core";
 
 type SigningDelegate = Parameters<BncClient["setSigningDelegate"]>[0];

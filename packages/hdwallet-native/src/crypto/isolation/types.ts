@@ -1,13 +1,13 @@
 import {
-  Number as Num,
   InstanceOf,
-  Object as Obj,
   Literal,
-  Static,
-  Unknown,
-  String as Str,
   Never,
+  Number as Num,
+  Object as Obj,
   Runtype,
+  Static,
+  String as Str,
+  Unknown,
 } from "funtypes";
 
 const positive = Num.withConstraint((x) => x > 0 || `expected ${x} to be positive`, { name: "Positive" });

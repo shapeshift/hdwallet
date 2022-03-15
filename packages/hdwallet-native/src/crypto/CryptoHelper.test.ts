@@ -4,8 +4,8 @@
 import * as webcrypto from "@peculiar/webcrypto";
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import CryptoHelper from "./CryptoHelper";
 import { CipherString } from "./classes";
+import CryptoHelper from "./CryptoHelper";
 import { WebCryptoEngine } from "./engines";
 import * as utils from "./utils";
 

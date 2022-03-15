@@ -1,9 +1,9 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bip39 from "bip39";
 
+import { CipherString, SymmetricCryptoKey } from "./classes";
 import CryptoHelper from "./CryptoHelper";
 import { CryptoEngine } from "./engines";
-import { CipherString, SymmetricCryptoKey } from "./classes";
 import * as utils from "./utils";
 
 export class EncryptedWallet {

@@ -6,7 +6,7 @@ import * as ta from "type-assertions";
 import * as uuid from "uuid";
 
 import { ISealableVaultFactory, IVault, VaultPrepareParams } from "../types";
-import { GENERATE_MNEMONIC, Revocable, crypto, setCrypto, shadowedMap } from "../util";
+import { crypto, GENERATE_MNEMONIC, Revocable, setCrypto, shadowedMap } from "../util";
 
 ta.assert<ta.Extends<typeof MockVault, ISealableVaultFactory<MockVault>>>();
 

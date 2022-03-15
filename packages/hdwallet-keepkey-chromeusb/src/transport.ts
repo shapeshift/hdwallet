@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 
-import { VENDOR_ID, WEBUSB_PRODUCT_ID, chromeUSB, assertChromeUSB, makePromise } from "./utils";
+import { assertChromeUSB, chromeUSB, makePromise, VENDOR_ID, WEBUSB_PRODUCT_ID } from "./utils";
 
 export class TransportDelegate implements keepkey.TransportDelegate {
   usbDevice: USBDevice & { serialNumber: string };

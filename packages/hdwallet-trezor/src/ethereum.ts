@@ -1,9 +1,9 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
 import Common from "@ethereumjs/common";
 import { Transaction } from "@ethereumjs/tx";
+import * as core from "@shapeshiftoss/hdwallet-core";
 
-import { handleError } from "./utils";
 import { TrezorTransport } from "./transport";
+import { handleError } from "./utils";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function ethSupportsNetwork(chain_id: number): Promise<boolean> {

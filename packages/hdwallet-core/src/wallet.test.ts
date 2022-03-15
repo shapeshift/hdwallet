@@ -1,4 +1,4 @@
-import { infoBTC, infoETH, supportsBTC, supportsETH, supportsDebugLink, HDWallet } from "./wallet";
+import { HDWallet, infoBTC, infoETH, supportsBTC, supportsDebugLink, supportsETH } from "./wallet";
 
 describe("wallet : guards", () => {
   it.each([infoBTC, infoETH, supportsBTC, supportsETH, supportsDebugLink])(

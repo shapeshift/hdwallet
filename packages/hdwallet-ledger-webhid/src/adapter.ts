@@ -2,10 +2,10 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
 import {
-  LedgerWebHIDTransport,
-  MOCK_SERIAL_NUMBER,
   getFirstLedgerDevice,
   getTransport,
+  LedgerWebHIDTransport,
+  MOCK_SERIAL_NUMBER,
   openTransport,
 } from "./transport";
 

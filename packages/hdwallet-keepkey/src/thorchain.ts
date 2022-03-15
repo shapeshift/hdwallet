@@ -1,5 +1,5 @@
-import * as ThorchainMessages from "@keepkey/device-protocol/lib/messages-thorchain_pb";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
+import * as ThorchainMessages from "@keepkey/device-protocol/lib/messages-thorchain_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import _ from "lodash";
 

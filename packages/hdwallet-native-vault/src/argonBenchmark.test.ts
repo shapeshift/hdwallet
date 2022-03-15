@@ -1,6 +1,6 @@
 import { argonBenchmark, customNow } from "./argonBenchmark";
 import { deterministicGetRandomValues } from "./deterministicGetRandomValues.test";
-import { setPerformance, setCrypto } from "./util";
+import { setCrypto, setPerformance } from "./util";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 

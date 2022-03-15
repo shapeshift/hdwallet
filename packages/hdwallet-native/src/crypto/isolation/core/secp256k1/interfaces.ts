@@ -1,6 +1,6 @@
 import { ByteArray, Uint32 } from "../../types";
-import { CurvePoint, RecoverableSignature, Signature } from "./types";
 import * as Digest from "../digest";
+import { CurvePoint, RecoverableSignature, Signature } from "./types";
 
 export interface ECDSAKey {
   getPublicKey(): Promise<CurvePoint>;

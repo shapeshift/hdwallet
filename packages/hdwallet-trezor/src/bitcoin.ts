@@ -1,8 +1,8 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import Base64 from "base64-js";
 
-import { handleError } from "./utils";
 import { TrezorTransport } from "./transport";
+import { handleError } from "./utils";
 
 type BTCTrezorSignTxOutput = {
   amount?: string;

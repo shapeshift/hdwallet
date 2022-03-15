@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { create, XDeFiHDWallet } from ".";
 
+import { create, XDeFiHDWallet } from ".";
 import * as xdefi from "./xdefi";
 
 describe("XDeFIHDWalletInfo", () => {

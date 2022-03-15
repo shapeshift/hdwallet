@@ -1,8 +1,8 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
+import { Revocable } from "..";
 import * as SecP256K1 from "../secp256k1";
 import { ChainCode } from ".";
-import { Revocable } from "..";
 
 export interface Seed extends Partial<Revocable> {
   toMasterKey(hmacKey?: string | Uint8Array): Promise<Node>;
