@@ -12,7 +12,7 @@ compiled
 example/js/vendor
 dist
 .rpt2_*
-.cache
+.parcel-cache
 .npmrc
 junit.xml
 public
