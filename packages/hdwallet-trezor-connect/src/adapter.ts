@@ -73,7 +73,7 @@ export class TrezorAdapter {
     });
 
     TrezorConnect.on(UI.ADDRESS_VALIDATION, (event: any) => {
-      console.log("Confirm on Trezor", event);
+      console.info("Confirm on Trezor", event);
     });
 
     return true;

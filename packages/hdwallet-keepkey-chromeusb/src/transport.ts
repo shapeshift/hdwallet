@@ -42,7 +42,7 @@ export class TransportDelegate implements keepkey.TransportDelegate {
       // If the device is disconnected, this will fail and throw, which is fine.
       chromeUSB.closeDevice(this.connectionHandle);
     } catch (e) {
-      console.log("Disconnect Error (Ignored):", e);
+      console.warn("Disconnect Error (Ignored):", e);
     }
   }
 
@@ -64,7 +64,7 @@ export class TransportDelegate implements keepkey.TransportDelegate {
       length: keepkey.SEGMENT_SIZE + 1,
       timeout: 0,
     });
-    console.log(resultCode, data);
+    console.debug(resultCode, data);
     if (resultCode > 0) throw new Error("Error occured reading chunk");
     return data;
   }

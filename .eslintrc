@@ -23,6 +23,21 @@
   },
   "rules": {
     "prettier/prettier": "error",
+    "no-console": [
+      "error",
+      {
+        "allow": [
+          "warn",
+          "error",
+          "info",
+          "debug",
+          "group",
+          "groupEnd",
+          "time",
+          "timeEnd"
+        ]
+      }
+    ],
     "@typescript-eslint/no-use-before-define": "error",
     "@typescript-eslint/no-shadow": [
       "error"
@@ -47,7 +62,6 @@
         "**/*.test.{j,t}s"
       ],
       "rules": {
-        "no-console": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-var-requires": "off"
       }

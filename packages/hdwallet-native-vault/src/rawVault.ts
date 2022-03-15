@@ -75,7 +75,7 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
               iterations: 26,
             };
             const argonBenchmarkResults = await argonBenchmark(out.memorySize, 1000, { measureError: true });
-            console.log("argonBenchmarkResults:", argonBenchmarkResults);
+            console.debug("argonBenchmarkResults:", argonBenchmarkResults);
             await idb.set("argonBenchmarkResults", argonBenchmarkResults, await RawVault.#keyStore);
             out.iterations = argonBenchmarkResults.iterations;
             await idb.set("defaultArgonParams", out, await RawVault.#keyStore);

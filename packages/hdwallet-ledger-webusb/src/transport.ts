@@ -136,7 +136,7 @@ export class LedgerWebUsbTransport extends ledger.LedgerTransport {
 
       if (RECORD_CONFORMANCE_MOCKS) {
         // May need a slight amount of cleanup on escaping `'`s.
-        console.log(
+        console.info(
           `this.memoize('${coin}', '${method}',\n  JSON.parse('${JSON.stringify(
             args
           )}'),\n  JSON.parse('${JSON.stringify(result)}'))`

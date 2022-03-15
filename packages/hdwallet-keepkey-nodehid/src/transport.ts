@@ -36,7 +36,7 @@ export class TransportDelegate implements keepkey.TransportDelegate {
       // If the device is disconnected, this will fail and throw, which is fine.
       await this.hidRef.close();
     } catch (e) {
-      console.log("Disconnect Error (Ignored):", e);
+      console.warn("Disconnect Error (Ignored):", e);
     }
   }
 
