@@ -33,7 +33,7 @@ export interface ETHGetAddress {
 
 export interface ETHSignTx {
   /** bip32 path to sign the transaction from */
-  addressNList: BIP32Path;
+  addressNList?: BIP32Path;
   /** big-endian hex, prefixed with '0x' */
   nonce: string;
   /** big-endian hex, prefixed with '0x' */
@@ -58,6 +58,8 @@ export interface ETHSignTx {
    * Device must `ethSupportsNativeShapeShift()`
    */
   exchangeType?: ExchangeType;
+  type: string,
+  accessList?:[]
 }
 
 export interface ETHTxHash {
