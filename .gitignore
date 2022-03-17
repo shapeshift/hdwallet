@@ -21,12 +21,12 @@
 
 !/packages/
 !/packages/*
-!/packages/**/src/
-!/packages/**/src/**
-!/packages/**/.npmignore
-!/packages/**/jest.config.js
-!/packages/**/package.json
-!/packages/**/tsconfig.json
+!/packages/*/src/
+!/packages/*/src/**
+!/packages/*/.npmignore
+!/packages/*/jest.config.js
+!/packages/*/package.json
+!/packages/*/tsconfig.json
 
 !/patches/
 !/patches/**
