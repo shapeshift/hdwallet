@@ -27,6 +27,8 @@
 !/packages/*/jest.config.js
 !/packages/*/package.json
 !/packages/*/tsconfig.json
+!/packages/*/__mocks__
+!/packages/*/__mocks__/**
 
 !/patches/
 !/patches/**
