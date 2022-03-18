@@ -5,10 +5,10 @@ orbs:
     executors:
       node:
         docker:
-          - image: cimg/node:16
+          - image: cimg/node:16.0
       kkemu:
         docker:
-          - image: cimg/node:16
+          - image: cimg/node:16.0
           - image: kktech/kkemu:latest
     jobs:
       build:
