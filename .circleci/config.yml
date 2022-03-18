@@ -17,7 +17,7 @@ orbs:
         environment:
           JEST_JUNIT_OUTPUT: "test-results/js-test-results.xml"
         steps:
-          - run: sudo apt-get install libudev-dev libusb-dev libusb-1.0
+          - run: sudo apt-get update && sudo apt-get install libudev-dev libusb-dev libusb-1.0 libtool
           - checkout
           - run:
               name: Authenticate with registry
