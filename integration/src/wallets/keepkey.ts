@@ -22,9 +22,9 @@ async function getBridge(keyring: core.Keyring) {
     );
     if (wallet) console.info("Using KeepKey Bridge for tests");
     return wallet;
-    // eslint-disable-next-line no-empty
-  } catch (e) {}
-  return undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 async function getDevice(keyring: core.Keyring) {
@@ -33,9 +33,9 @@ async function getDevice(keyring: core.Keyring) {
     const wallet = await keepkeyAdapter.pairDevice(undefined, true);
     if (wallet) console.info("Using attached WebUSB KeepKey for tests");
     return wallet;
-    // eslint-disable-next-line no-empty
-  } catch (e) {}
-  return undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 async function getEmulator(keyring: core.Keyring) {
@@ -50,9 +50,9 @@ async function getEmulator(keyring: core.Keyring) {
     );
     if (wallet) console.info("Using KeepKey Emulator for tests");
     return wallet;
-    // eslint-disable-next-line no-empty
-  } catch (e) {}
-  return undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 let autoButton = true;
@@ -82,8 +82,11 @@ export function selfTest(get: () => core.HDWallet): void {
 
   beforeAll(async () => {
     const w = get();
-    if (keepkey.isKeepKey(w) && core.supportsBTC(w) && core.supportsETH(w)) wallet = w;
-    else throw new Error("Wallet is not a KeepKey");
+    if (keepkey.isKeepKey(w) && core.supportsBTC(w) && core.supportsETH(w)) {
+      wallet = w;
+    } else {
+      throw new Error("Wallet is not a KeepKey");
+    }
 
     await wallet.wipe();
     await wallet.loadDevice({
@@ -180,9 +183,9 @@ export function selfTest(get: () => core.HDWallet): void {
     TIMEOUT
   );
 
-  /* eslint-disable jest/no-disabled-tests */
   // TODO: it would appear cancel is not working as expected and resulting in a hanging test.
   // revisit and look into how cancel is implemented to fix and make test pass
+  // eslint-disable-next-line jest/no-disabled-tests
   test.skip(
     "cancel works",
     async () => {
@@ -203,7 +206,6 @@ export function selfTest(get: () => core.HDWallet): void {
     },
     TIMEOUT
   );
-  /* eslint-enable */
 
   it(
     "cancel is idempotent",

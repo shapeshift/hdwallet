@@ -41,7 +41,7 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
       TIMEOUT
     );
 
-    /* eslint-disable */
+    // eslint-disable-next-line jest/no-disabled-tests
     test.skip(
       "describePath() secret",
       async () => {
@@ -55,7 +55,6 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
       },
       TIMEOUT
     );
-    /* eslint-enable */
 
     test(
       "secretGetAddress()",

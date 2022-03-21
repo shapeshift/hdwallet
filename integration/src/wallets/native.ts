@@ -166,6 +166,7 @@ export async function setupMswMocks() {
 
   return mswMock(_.merge({}, binanceMocks, fioMocks)).startServer();
 }
+
 export async function createWallet(): Promise<core.HDWallet> {
   await setupMswMocks();
   const wallet = new native.NativeHDWallet({ mnemonic, deviceId });
@@ -258,7 +259,7 @@ export function selfTest(get: () => core.HDWallet): void {
     ]);
   });
 
-  /* eslint-disable jest/no-disabled-tests, jest/no-identical-title */
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip("supports ethNextAccountPath", () => {
     if (!wallet) return;
 
@@ -290,7 +291,6 @@ export function selfTest(get: () => core.HDWallet): void {
       },
     ]);
   });
-  /* eslint-enable */
 
   it("supports btcNextAccountPath", () => {
     if (!wallet) return;
@@ -402,7 +402,7 @@ export function selfTest(get: () => core.HDWallet): void {
     });
   });
 
-  /* eslint-disable jest/no-disabled-tests, jest/no-identical-title */
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip("can describe prefork BitcoinCash", () => {
     expect(
       wallet.describePath({
@@ -423,6 +423,7 @@ export function selfTest(get: () => core.HDWallet): void {
     });
   });
 
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip("can describe prefork Segwit Native BTG", () => {
     expect(
       wallet.describePath({
@@ -443,26 +444,7 @@ export function selfTest(get: () => core.HDWallet): void {
     });
   });
 
-  it.skip("can describe Bitcoin Change Addresses", () => {
-    expect(
-      wallet.describePath({
-        path: core.bip32ToAddressNList("m/44'/0'/7'/1/5"),
-        coin: "Bitcoin",
-        scriptType: core.BTCInputScriptType.SpendAddress,
-      })
-    ).toEqual({
-      verbose: "Bitcoin Account #7, Change Address #5 (Legacy)",
-      coin: "Bitcoin",
-      isKnown: true,
-      scriptType: core.BTCInputScriptType.SpendAddress,
-      accountIdx: 7,
-      addressIdx: 5,
-      wholeAccount: false,
-      isChange: true,
-      isPrefork: false,
-    });
-  });
-
+  // eslint-disable-next-line jest/no-disabled-test
   it.skip("can describe prefork paths", () => {
     expect(
       wallet.describePath({
@@ -482,7 +464,6 @@ export function selfTest(get: () => core.HDWallet): void {
       wholeAccount: false,
     });
   });
-  /* eslint-enable */
 
   it("can describe ETH paths", () => {
     expect(

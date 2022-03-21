@@ -85,20 +85,20 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
           value: msg.value,
           chainId: msg.chainId,
         };
-        /* eslint-disable @typescript-eslint/no-non-null-assertion */
         const result: string = msg.maxFeePerGas
-          ? await this.#ethSigner!.signTransaction({
+          ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            await this.#ethSigner!.signTransaction({
               ...utx,
               maxFeePerGas: msg.maxFeePerGas,
               maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
               type: core.ETHTransactionType.ETH_TX_TYPE_EIP_1559,
             })
-          : await this.#ethSigner!.signTransaction({
+          : // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            await this.#ethSigner!.signTransaction({
               ...utx,
               gasPrice: msg.gasPrice,
               type: core.ETHTransactionType.ETH_TX_TYPE_LEGACY,
             });
-        /* eslint-enable */
 
         const decoded = ethers.utils.parseTransaction(result);
         return {

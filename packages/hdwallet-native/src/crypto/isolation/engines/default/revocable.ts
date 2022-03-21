@@ -51,7 +51,7 @@ Proxy handler invariants (per MDN):
 */
 
 export const revocable = _freeze(<T extends object>(x: T, addRevoker: (revoke: () => void) => void) => {
-  const universalProxyHandler = (target: object) =>
+  const universalProxyHandler = (pseudoTarget: object) =>
     new Proxy(
       {},
       {
@@ -59,12 +59,12 @@ export const revocable = _freeze(<T extends object>(x: T, addRevoker: (revoke: (
           return (_t: any, p2: any, r: any) => {
             switch (p) {
               case "get": {
-                const out = Reflect.get(target, p2, r);
+                const out = Reflect.get(pseudoTarget, p2, r);
                 if (typeof out === "function") return out.bind(x);
                 return out;
               }
               case "getOwnPropertyDescriptor": {
-                const out = Reflect.getOwnPropertyDescriptor(target, p2);
+                const out = Reflect.getOwnPropertyDescriptor(pseudoTarget, p2);
                 if (out) out.configurable = true;
                 return out;
               }
@@ -73,7 +73,7 @@ export const revocable = _freeze(<T extends object>(x: T, addRevoker: (revoke: (
               case "preventExtensions":
                 return false;
               default:
-                return (Reflect as any)[p](target, p2, r);
+                return (Reflect as any)[p](pseudoTarget, p2, r);
             }
           };
         },
@@ -101,8 +101,9 @@ export const Revocable = _freeze(<T extends core.Constructor>(x: T) => {
         this.#revokers.forEach((revoker) => {
           try {
             revoker();
-            // eslint-disable-next-line no-empty
-          } catch {}
+          } catch {
+            // revoker errors get swallowed.
+          }
         });
         this.#revokers.clear();
       };
@@ -111,8 +112,9 @@ export const Revocable = _freeze(<T extends core.Constructor>(x: T) => {
         if (this.#revoked) {
           try {
             revoker();
-            // eslint-disable-next-line no-empty
-          } catch {}
+          } catch {
+            // revoker errors get swallowed.
+          }
         } else {
           this.#revokers.add(revoker);
         }

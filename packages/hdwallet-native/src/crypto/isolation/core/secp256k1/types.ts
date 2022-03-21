@@ -39,6 +39,25 @@ const uncompressedPointBase = ByteArray(65)
     { name: "UncompressedPoint.y" }
   );
 export type UncompressedPoint = Static<typeof uncompressedPointBase>;
+const uncompressedPointStatic = {
+  from: (p: CurvePoint): UncompressedPoint => {
+    return p.length === 65 ? p : UncompressedPoint.fromCompressed(checkType(CompressedPoint, p));
+  },
+  fromCompressed: (p: CompressedPoint): UncompressedPoint => {
+    return checkType(UncompressedPoint, tinyecc.pointCompress(Buffer.from(p), false));
+  },
+  x: (p: UncompressedPoint): FieldElement => {
+    return checkType(FieldElement, p.slice(1, 33));
+  },
+  y: (p: UncompressedPoint): FieldElement => {
+    return checkType(FieldElement, p.slice(33, 65));
+  },
+  yIsOdd: (p: UncompressedPoint): boolean => {
+    return FieldElement.isOdd(UncompressedPoint.y(p));
+  },
+};
+const uncompressedPoint = Object.assign(uncompressedPointBase, ByteArray, uncompressedPointStatic);
+export const UncompressedPoint: typeof uncompressedPoint = uncompressedPoint;
 
 const compressedPointBase = ByteArray(33)
   .And(
@@ -70,26 +89,6 @@ const compressedPointStatic = {
 };
 const compressedPoint = Object.assign(compressedPointBase, ByteArray, compressedPointStatic);
 export const CompressedPoint: typeof compressedPoint = compressedPoint;
-
-const uncompressedPointStatic = {
-  from: (p: CurvePoint): UncompressedPoint => {
-    return p.length === 65 ? p : UncompressedPoint.fromCompressed(checkType(CompressedPoint, p));
-  },
-  fromCompressed: (p: CompressedPoint): UncompressedPoint => {
-    return checkType(UncompressedPoint, tinyecc.pointCompress(Buffer.from(p), false));
-  },
-  x: (p: UncompressedPoint): FieldElement => {
-    return checkType(FieldElement, p.slice(1, 33));
-  },
-  y: (p: UncompressedPoint): FieldElement => {
-    return checkType(FieldElement, p.slice(33, 65));
-  },
-  yIsOdd: (p: UncompressedPoint): boolean => {
-    return FieldElement.isOdd(UncompressedPoint.y(p));
-  },
-};
-const uncompressedPoint = Object.assign(uncompressedPointBase, ByteArray, uncompressedPointStatic);
-export const UncompressedPoint: typeof uncompressedPoint = uncompressedPoint;
 
 const curvePointBase = CompressedPoint.Or(UncompressedPoint);
 export type CurvePoint = CompressedPoint | UncompressedPoint;

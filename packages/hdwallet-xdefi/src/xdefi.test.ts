@@ -53,7 +53,6 @@ describe("XDeFiWHDWallet", () => {
   });
 
   it("should test ethSignTx", async () => {
-    wallet = new XDeFiHDWallet();
     wallet.ethAddress = "0x123";
     wallet.provider = {
       request: jest.fn().mockReturnValue({
