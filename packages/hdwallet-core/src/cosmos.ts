@@ -6,6 +6,7 @@ export interface CosmosGetAddress {
   showDisplay?: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Cosmos {
   export interface Msg {
     type: string;
@@ -24,6 +25,7 @@ export namespace Cosmos {
     gas: string;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace crypto {
     export interface PubKey {
       type: string;

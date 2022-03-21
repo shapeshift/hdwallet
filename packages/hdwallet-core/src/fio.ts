@@ -18,6 +18,7 @@ export interface FioNextAccountPath {
   accountIdx: number;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Fio {
   export interface PermissionLevel {
     actor?: string;

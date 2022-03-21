@@ -7,6 +7,7 @@ export interface SecretGetAddress {
   testnet?: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Secret {
   export interface Msg {
     type: string;
@@ -25,6 +26,7 @@ export namespace Secret {
     gas: string;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace crypto {
     export interface PubKey {
       type: string;
