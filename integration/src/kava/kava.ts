@@ -88,6 +88,7 @@ export function kavaTests(get: () => { wallet: core.HDWallet; info: core.HDWalle
             //expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature_keepkey);
             break;
           default:
+            // eslint-disable-next-line jest/no-conditional-expect
             expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
             break;
         }
