@@ -182,7 +182,7 @@ export function selfTest(get: () => core.HDWallet): void {
     if (native.isNative(w) && core.supportsBTC(w) && core.supportsETH(w)) {
       wallet = w;
     } else {
-      fail("Wallet is not native");
+      throw new Error("Wallet is not native");
     }
   });
 

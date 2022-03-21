@@ -82,8 +82,11 @@ export function selfTest(get: () => core.HDWallet): void {
 
   beforeAll(async () => {
     const w = get();
-    if (keepkey.isKeepKey(w) && core.supportsBTC(w) && core.supportsETH(w)) wallet = w;
-    else fail("Wallet is not a KeepKey");
+    if (keepkey.isKeepKey(w) && core.supportsBTC(w) && core.supportsETH(w)) {
+      wallet = w;
+    } else {
+      throw new Error("Wallet is not a KeepKey");
+    }
 
     await wallet.wipe();
     await wallet.loadDevice({

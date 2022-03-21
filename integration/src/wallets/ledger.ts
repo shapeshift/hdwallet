@@ -225,8 +225,11 @@ export function selfTest(get: () => core.HDWallet): void {
 
   beforeAll(async () => {
     const w = get();
-    if (ledger.isLedger(w) && core.supportsBTC(w) && core.supportsETH(w)) wallet = w;
-    else fail("Wallet is not a Ledger");
+    if (ledger.isLedger(w) && core.supportsBTC(w) && core.supportsETH(w)) {
+      wallet = w;
+    } else {
+      throw new Error("Wallet is not a Ledger");
+    }
   });
 
   it("supports Ethereum mainnet", async () => {
