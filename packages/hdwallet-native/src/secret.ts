@@ -74,7 +74,7 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
     async secretSignTx(msg: core.SecretSignTx): Promise<any | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "secret");
-        // @ts-ignore
+        // @TODO: This needs to be fixed after the change to tendermint serialization
         const adapter = await Isolation.Adapters.Cosmos.create(keyPair);
         const result = await txBuilder.sign(
           msg.tx,

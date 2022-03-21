@@ -79,9 +79,7 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
           tx: tx_unsigned as any,
           addressNList: core.bip32ToAddressNList("m/44'/529'/0'/0/0"),
           chain_id: tx_verbose.accountInfo.chainId,
-          // @ts-ignore
           account_number: tx_verbose.accountInfo.accountNumber,
-          // @ts-ignore
           sequence: tx_verbose.accountInfo.sequence,
         };
 
