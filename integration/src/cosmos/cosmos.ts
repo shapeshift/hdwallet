@@ -1,9 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-//delgation
 import tx_unsigned_delegation from "./tx01.mainnet.cosmos.delegate.json";
 import tx_signed_delegation from "./tx01.mainnet.cosmos.delegate.signed.json";
-//IBC
 import tx_unsigned_ibc_cosmos from "./tx01.mainnet.cosmos.ibc.transfer.json";
 import tx_signed_ibc_cosmos from "./tx01.mainnet.cosmos.ibc.transfer.signed.json";
 import tx_unsigned_transfer from "./tx01.mainnet.cosmos.json";

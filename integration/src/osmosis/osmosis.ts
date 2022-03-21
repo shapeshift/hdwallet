@@ -1,9 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-//delgation
 import tx_unsigned_delegation from "./tx01.mainnet.osmosis.delegate.json";
 import tx_signed_delegation from "./tx01.mainnet.osmosis.delegate.signed.json";
-//LP
 import tx_unsigned_lp_add_osmosis from "./tx01.mainnet.osmosis.lp-add.json";
 import tx_signed_lp_add_osmosis from "./tx01.mainnet.osmosis.lp-add.signed.json";
 import tx_unsigned_lp_remove_osmosis from "./tx01.mainnet.osmosis.lp-remove.json";
