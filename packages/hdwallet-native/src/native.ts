@@ -73,6 +73,7 @@ export class NativeHDWalletInfoBase implements core.HDWalletInfo {
     return false;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   describePath(msg: core.DescribePath): core.PathDescription {
     throw new Error("unreachable");
   }

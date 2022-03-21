@@ -33,6 +33,7 @@ export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor<core
       ];
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     binanceNextAccountPath(msg: core.BinanceAccountPath): core.BinanceAccountPath | undefined {
       // Only support one account for now (like portis).
       return undefined;

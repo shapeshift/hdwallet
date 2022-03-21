@@ -33,6 +33,7 @@ export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor<core.
       ];
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
       // Only support one account for now (like portis).
       return undefined;

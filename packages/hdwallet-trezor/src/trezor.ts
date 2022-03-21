@@ -191,8 +191,8 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     return true;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
-    // It doesn't... yet?
     return false;
   }
 
@@ -388,10 +388,12 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendCharacter(charater: string): Promise<void> {
     throw new Error("Trezor does not suport chiphered recovery");
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendWord(word: string): Promise<void> {
     throw new Error("Trezor does not yet support recoverDevice");
   }
@@ -421,6 +423,7 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     await this.transport.cancel();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async recover(msg: core.RecoverDevice): Promise<void> {
     // https://github.com/trezor/connect/pull/320
     throw new Error("TrezorConnect does not expose Core.RecoverDevice... yet?");
@@ -454,8 +457,8 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return this.transport.hasPopup;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
-    // It doesn't... yet?
     return false;
   }
 

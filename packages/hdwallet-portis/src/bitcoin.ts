@@ -191,6 +191,7 @@ export function segwitNativeAccount(coin: core.Coin, slip44: number, accountIdx:
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
   return undefined;
 }

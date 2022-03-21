@@ -33,6 +33,7 @@ export function MixinNativeOsmosisWalletInfo<TBase extends core.Constructor<core
       ];
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     osmosisNextAccountPath(msg: core.OsmosisAccountPath): core.OsmosisAccountPath | undefined {
       // Only support one account for now (like portis).
       return undefined;

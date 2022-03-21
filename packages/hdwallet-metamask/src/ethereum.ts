@@ -31,6 +31,7 @@ export function describeETHPath(path: core.BIP32Path): core.PathDescription {
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function ethVerifyMessage(msg: core.ETHVerifyMessage, ethereum: any): Promise<boolean | null> {
   console.error("Method ethVerifyMessage unsupported for MetaMask wallet!");
   return null;
@@ -49,6 +50,7 @@ export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHA
   ];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function ethSignTx(msg: core.ETHSignTx, ethereum: any, from: string): Promise<core.ETHSignedTx | null> {
   console.error("Method ethSignTx unsupported for MetaMask wallet!");
   return null;

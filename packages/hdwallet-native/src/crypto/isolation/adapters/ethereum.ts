@@ -27,6 +27,7 @@ export class SignerAdapter extends ethers.Signer {
   // from a synchronous function. Because all the (other) methods on SignerAdapter are async, one could construct a
   // wrapper that deferred its initialization and awaited it before calling through to a "real" method, but that's
   // a lot of complexity just to implement this one method we don't actually use.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   connect(_provider: ethers.providers.Provider): never {
     throw new Error("changing providers on a SignerAdapter is unsupported");
   }

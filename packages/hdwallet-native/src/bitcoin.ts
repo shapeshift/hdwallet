@@ -100,6 +100,7 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDW
       return paths;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
       // TODO: support at some point
       return false;
@@ -368,10 +369,12 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
       });
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
       throw new Error("function not implemented");
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
       throw new Error("function not implemented");
     }

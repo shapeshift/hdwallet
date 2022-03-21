@@ -6,6 +6,7 @@ import { Transport } from "./transport";
 
 const createHash = require("create-hash");
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function eosSigFormatter(r: Uint8Array, s: Uint8Array, v: number): string {
   const base58 = require("bs58");
 

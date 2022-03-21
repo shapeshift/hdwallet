@@ -32,6 +32,7 @@ export function MixinNativeKavaWalletInfo<TBase extends core.Constructor<core.HD
       ];
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     kavaNextAccountPath(msg: core.KavaAccountPath): core.KavaAccountPath | undefined {
       // Only support one account for now (like portis).
       return undefined;

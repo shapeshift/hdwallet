@@ -12,6 +12,7 @@ class PortisTransport extends core.Transport {
     return "portis:0";
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public call(...args: any[]): Promise<any> {
     return Promise.resolve();
   }
@@ -48,8 +49,8 @@ export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
     return true;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
-    // It doesn't... yet?
     return false;
   }
 
@@ -92,7 +93,9 @@ export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
     return btc.btcGetAccountPaths(msg);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
+    // TODO: Probably not correct
     return false;
   }
 
@@ -100,6 +103,7 @@ export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
     return btc.btcNextAccountPath(msg);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
     // Portis only supports one account for eth
     return undefined;
@@ -215,21 +219,25 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
     return Promise.resolve({ msg: msg.msg });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public sendPin(pin: string): Promise<void> {
     // no concept of pin in Portis
     return Promise.resolve();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public sendPassphrase(passphrase: string): Promise<void> {
     // cannot send passphrase to Portis. Could show the widget?
     return Promise.resolve();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public sendCharacter(charater: string): Promise<void> {
     // no concept of sendCharacter in Portis
     return Promise.resolve();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public sendWord(word: string): Promise<void> {
     // no concept of sendWord in Portis
     return Promise.resolve();
@@ -244,10 +252,12 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
     return Promise.resolve();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public reset(msg: core.ResetDevice): Promise<void> {
     return Promise.resolve();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public recover(msg: core.RecoverDevice): Promise<void> {
     // no concept of recover in Portis
     return Promise.resolve();
@@ -302,6 +312,7 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
     return btc.btcSignTx(msg, this.portis);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
     // portis doesnt support this for btc
     throw new Error("not supported");

@@ -9,7 +9,8 @@ import * as eip55 from "eip55";
 import { Transport } from "./transport";
 import { toUTF8Array, translateInputScriptType } from "./utils";
 
-export async function ethSupportsNetwork(chain_id: number): Promise<boolean> {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function ethSupportsNetwork(chainId: number): Promise<boolean> {
   return true;
 }
 

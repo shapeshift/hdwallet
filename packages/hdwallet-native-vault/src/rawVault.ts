@@ -92,6 +92,7 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
     id: string,
     argonParams: ArgonParams,
     password: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     addRevoker: (revoke: () => void) => void
   ) {
     const idBuf = encoder.encode(id);

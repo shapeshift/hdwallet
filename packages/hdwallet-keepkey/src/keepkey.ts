@@ -464,6 +464,7 @@ export class KeepKeyHDWalletInfo
     return false;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return true;
   }
@@ -798,6 +799,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     return false;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return true;
   }
@@ -842,6 +844,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     await this.sendCharacterProto("", false, true);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendWord(word: string): Promise<void> {
     throw new Error("Not Yet Implemented :(");
   }

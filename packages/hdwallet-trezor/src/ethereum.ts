@@ -5,6 +5,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { TrezorTransport } from "./transport";
 import { handleError } from "./utils";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function ethSupportsNetwork(chain_id: number): Promise<boolean> {
   return true;
 }
