@@ -90,6 +90,14 @@ const $metaMask = $("#metaMask");
 const $xdefi = $("#xdefi");
 const $keyring = $("#keyring");
 
+const $ethAddr = $("#ethAddr");
+const $ethTx = $("#ethTx");
+const $ethSign = $("#ethSign");
+const $ethSend = $("#ethSend");
+const $ethVerify = $("#ethVerify");
+const $ethResults = $("#ethResults");
+const $ethEIP1559 = $("#ethEIP1559");
+
 $keepkey.on("click", async (e) => {
   e.preventDefault();
   wallet = await keepkeyAdapter.pairDevice(undefined, /*tryDebugLink=*/ true);
@@ -1505,13 +1513,6 @@ $osmosisUndelegate.on("click", async (e) => {
         * Bech32: false
 
 */
-const $ethAddr = $("#ethAddr");
-const $ethTx = $("#ethTx");
-const $ethSign = $("#ethSign");
-const $ethSend = $("#ethSend");
-const $ethVerify = $("#ethVerify");
-const $ethResults = $("#ethResults");
-const $ethEIP1559 = $("#ethEIP1559");
 
 let ethEIP1559Selected = false;
 

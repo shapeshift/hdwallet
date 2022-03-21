@@ -24,6 +24,14 @@ export async function ethGetAddress(transport: TrezorTransport, msg: core.ETHGet
   return res.payload.address;
 }
 
+export async function ethSupportsSecureTransfer(): Promise<boolean> {
+  return false;
+}
+
+export function ethSupportsNativeShapeShift(): boolean {
+  return false;
+}
+
 export async function ethSignTx(
   wallet: core.ETHWallet,
   transport: TrezorTransport,
@@ -86,14 +94,6 @@ export async function ethVerifyMessage(transport: TrezorTransport, msg: core.ETH
   });
   handleError(transport, res, "Could not verify ETH message with Trezor");
   return res.payload.message === "Message verified";
-}
-
-export async function ethSupportsSecureTransfer(): Promise<boolean> {
-  return false;
-}
-
-export function ethSupportsNativeShapeShift(): boolean {
-  return false;
 }
 
 export function ethSupportsEIP1559(): boolean {

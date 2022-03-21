@@ -72,6 +72,15 @@ function nameToNumber(name: string): string {
   return value.toString();
 }
 
+function symbolFromString(p: number, name: string): number {
+  let result = 0;
+  for (let i = 0; i < name.length; i++) {
+    result |= name.charCodeAt(i) << (8 * (i + 1));
+  }
+  result |= p;
+  return result;
+}
+
 function assetToNumber(asset: string): [number, number] {
   const assetSplit = asset.split(" "); // amount, symbol
   const dot_pos = assetSplit[0].indexOf(".");
@@ -101,15 +110,6 @@ function assetToNumber(asset: string): [number, number] {
   amount *= Math.pow(10, sym & 0xff);
   amount += fract_part;
   return [amount, sym];
-}
-
-function symbolFromString(p: number, name: string): number {
-  let result = 0;
-  for (let i = 0; i < name.length; i++) {
-    result |= name.charCodeAt(i) << (8 * (i + 1));
-  }
-  result |= p;
-  return result;
 }
 
 export function eosGetAccountPaths(msg: core.EosGetAccountPaths): Array<core.EosAccountPath> {

@@ -3,44 +3,6 @@ import * as bnbSdk from "bnb-javascript-sdk-nobroadcast";
 import CryptoJS from "crypto-js";
 import TinySecP256K1 from "tiny-secp256k1";
 
-export function encodeBnbTx(unsignedTx: core.BinanceTx, publicKey: Buffer, signature: Buffer) {
-  const { account_number, chain_id, sequence, source } = unsignedTx;
-  const msg = unsignedTx.msgs[0];
-
-  const amountToInt = (x: any) => Number(x);
-  const msgNormalizer = (x: any) => ({
-    address: bnbSdk.crypto.decodeAddress(x.address),
-    coins: x.coins.map((y: any) => ({
-      // In particular, these keys are backwards because we can't have nice things.
-      denom: y.denom,
-      amount: amountToInt(y.amount),
-    })),
-  });
-  const baseMsg = {
-    inputs: msg.inputs.map(msgNormalizer),
-    outputs: msg.outputs.map(msgNormalizer),
-    aminoPrefix: "2A2C87FA",
-  };
-
-  const tx = new bnbSdk.Transaction(
-    Object.assign({}, unsignedTx, {
-      chainId: chain_id,
-      accountNumber: Number(account_number),
-      source: Number(source ?? 0),
-      sequence: Number(sequence),
-      // A bug in the binance SDK makes this field required, even though it shouldn't be.
-      baseMsg: { getMsg: () => baseMsg, getBaseMsg: () => baseMsg, getSignMsg: () => baseMsg },
-    })
-  );
-
-  const ecPubKey = bnbSdk.crypto.getPublicKey(Buffer.from(publicKey).toString("hex"));
-  tx.addSignature(ecPubKey, signature);
-
-  const serializedTx = Buffer.from(tx.serialize(), "hex");
-  if (!validateBnbTx(serializedTx, chain_id)) throw new Error("serialized tx did not validate");
-  return serializedTx;
-}
-
 export function decodeBnbTx(txBytes: Buffer, chainId: string) {
   const txDecoded = bnbSdk.amino.decoder.unMarshalBinaryLengthPrefixed(txBytes, {
     aminoPrefix: "f0625dee",
@@ -109,4 +71,42 @@ export function decodeBnbTx(txBytes: Buffer, chainId: string) {
 export function validateBnbTx(txBytes: Buffer, chainId: string) {
   const { signBytesHash, pubKey, signature } = decodeBnbTx(txBytes, chainId);
   return TinySecP256K1.verify(Buffer.from(signBytesHash, "hex"), pubKey, signature);
+}
+
+export function encodeBnbTx(unsignedTx: core.BinanceTx, publicKey: Buffer, signature: Buffer) {
+  const { account_number, chain_id, sequence, source } = unsignedTx;
+  const msg = unsignedTx.msgs[0];
+
+  const amountToInt = (x: any) => Number(x);
+  const msgNormalizer = (x: any) => ({
+    address: bnbSdk.crypto.decodeAddress(x.address),
+    coins: x.coins.map((y: any) => ({
+      // In particular, these keys are backwards because we can't have nice things.
+      denom: y.denom,
+      amount: amountToInt(y.amount),
+    })),
+  });
+  const baseMsg = {
+    inputs: msg.inputs.map(msgNormalizer),
+    outputs: msg.outputs.map(msgNormalizer),
+    aminoPrefix: "2A2C87FA",
+  };
+
+  const tx = new bnbSdk.Transaction(
+    Object.assign({}, unsignedTx, {
+      chainId: chain_id,
+      accountNumber: Number(account_number),
+      source: Number(source ?? 0),
+      sequence: Number(sequence),
+      // A bug in the binance SDK makes this field required, even though it shouldn't be.
+      baseMsg: { getMsg: () => baseMsg, getBaseMsg: () => baseMsg, getSignMsg: () => baseMsg },
+    })
+  );
+
+  const ecPubKey = bnbSdk.crypto.getPublicKey(Buffer.from(publicKey).toString("hex"));
+  tx.addSignature(ecPubKey, signature);
+
+  const serializedTx = Buffer.from(tx.serialize(), "hex");
+  if (!validateBnbTx(serializedTx, chain_id)) throw new Error("serialized tx did not validate");
+  return serializedTx;
 }

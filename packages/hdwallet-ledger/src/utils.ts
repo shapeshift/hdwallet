@@ -119,10 +119,6 @@ type NetworkMagic = {
   areTransactionTimestamped?: boolean;
 };
 
-export function coinToLedgerAppName(coin: core.Coin): string | undefined {
-  return _.get(networksUtil[core.mustBeDefined(core.slip44ByCoin(coin))], "appName");
-}
-
 export const networksUtil: Record<number, NetworkMagic> = {
   0: {
     apiName: "btc",
@@ -594,3 +590,7 @@ export const networksUtil: Record<number, NetworkMagic> = {
     },
   },
 };
+
+export function coinToLedgerAppName(coin: core.Coin): string | undefined {
+  return _.get(networksUtil[core.mustBeDefined(core.slip44ByCoin(coin))], "appName");
+}

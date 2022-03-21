@@ -59,6 +59,12 @@ export function arrayify(value: string): Uint8Array {
 }
 
 const HARDENED = 0x80000000;
+
+export function bip32Like(path: string): boolean {
+  if (path == "m/") return true;
+  return /^m(((\/[0-9]+h)+|(\/[0-9]+H)+|(\/[0-9]+')*)((\/[0-9]+)*))$/.test(path);
+}
+
 export function bip32ToAddressNList(path: string): number[] {
   if (!bip32Like(path)) {
     throw new Error(`Not a bip32 path: '${path}'`);
@@ -89,11 +95,6 @@ export function bip32ToAddressNList(path: string): number[] {
 
 export function addressNListToBIP32(address: number[]): string {
   return `m/${address.map((num) => (num >= HARDENED ? `${num - HARDENED}'` : num)).join("/")}`;
-}
-
-export function bip32Like(path: string): boolean {
-  if (path == "m/") return true;
-  return /^m(((\/[0-9]+h)+|(\/[0-9]+H)+|(\/[0-9]+')*)((\/[0-9]+)*))$/.test(path);
 }
 
 export function takeFirstOfManyEvents(eventEmitter: eventemitter2.EventEmitter2, events: string[]): Rx.Observable<{}> {

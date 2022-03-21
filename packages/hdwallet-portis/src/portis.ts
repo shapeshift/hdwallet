@@ -24,6 +24,108 @@ export function isPortis(wallet: core.HDWallet): wallet is PortisHDWallet {
 type HasNonTrivialConstructor<T> = T extends { new (): any } ? never : T;
 export type Portis = InstanceType<HasNonTrivialConstructor<typeof Portis>>;
 
+export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo, core.BTCWalletInfo {
+  readonly _supportsBTCInfo = true;
+  readonly _supportsETHInfo = true;
+
+  public getVendor(): string {
+    return "Portis";
+  }
+
+  public hasOnDevicePinEntry(): boolean {
+    return true;
+  }
+
+  public hasOnDevicePassphrase(): boolean {
+    return true;
+  }
+
+  public hasOnDeviceDisplay(): boolean {
+    return true;
+  }
+
+  public hasOnDeviceRecovery(): boolean {
+    return true;
+  }
+
+  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
+    // It doesn't... yet?
+    return false;
+  }
+
+  public supportsOfflineSigning(): boolean {
+    return true;
+  }
+
+  public supportsBroadcast(): boolean {
+    return false;
+  }
+
+  public describePath(msg: core.DescribePath): core.PathDescription {
+    switch (msg.coin) {
+      case "Ethereum":
+        return eth.describeETHPath(msg.path);
+      case "Bitcoin":
+        return btc.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+      default:
+        throw new Error("Unsupported path");
+    }
+  }
+
+  public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
+    return btc.btcSupportsCoin(coin);
+  }
+
+  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
+    return btc.btcSupportsScriptType(coin, scriptType);
+  }
+
+  public async btcSupportsSecureTransfer(): Promise<boolean> {
+    return Promise.resolve(false);
+  }
+
+  public btcSupportsNativeShapeShift(): boolean {
+    return false;
+  }
+
+  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
+    return btc.btcGetAccountPaths(msg);
+  }
+
+  public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
+    return false;
+  }
+
+  public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
+    return btc.btcNextAccountPath(msg);
+  }
+
+  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
+    // Portis only supports one account for eth
+    return undefined;
+  }
+
+  public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
+    return chainId === 1;
+  }
+
+  public async ethSupportsSecureTransfer(): Promise<boolean> {
+    return false;
+  }
+
+  public ethSupportsNativeShapeShift(): boolean {
+    return false;
+  }
+
+  public async ethSupportsEIP1559(): Promise<boolean> {
+    return false;
+  }
+
+  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
+    return eth.ethGetAccountPaths(msg);
+  }
+}
+
 export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWallet {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
@@ -295,108 +397,6 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
     const out: string = (await (await this.web3).eth.getAccounts())[0];
     this.ethAddress = out;
     return out;
-  }
-}
-
-export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo, core.BTCWalletInfo {
-  readonly _supportsBTCInfo = true;
-  readonly _supportsETHInfo = true;
-
-  public getVendor(): string {
-    return "Portis";
-  }
-
-  public hasOnDevicePinEntry(): boolean {
-    return true;
-  }
-
-  public hasOnDevicePassphrase(): boolean {
-    return true;
-  }
-
-  public hasOnDeviceDisplay(): boolean {
-    return true;
-  }
-
-  public hasOnDeviceRecovery(): boolean {
-    return true;
-  }
-
-  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
-    // It doesn't... yet?
-    return false;
-  }
-
-  public supportsOfflineSigning(): boolean {
-    return true;
-  }
-
-  public supportsBroadcast(): boolean {
-    return false;
-  }
-
-  public describePath(msg: core.DescribePath): core.PathDescription {
-    switch (msg.coin) {
-      case "Ethereum":
-        return eth.describeETHPath(msg.path);
-      case "Bitcoin":
-        return btc.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
-      default:
-        throw new Error("Unsupported path");
-    }
-  }
-
-  public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
-    return btc.btcSupportsCoin(coin);
-  }
-
-  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
-    return btc.btcSupportsScriptType(coin, scriptType);
-  }
-
-  public async btcSupportsSecureTransfer(): Promise<boolean> {
-    return Promise.resolve(false);
-  }
-
-  public btcSupportsNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
-    return btc.btcGetAccountPaths(msg);
-  }
-
-  public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
-    return false;
-  }
-
-  public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    return btc.btcNextAccountPath(msg);
-  }
-
-  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
-    // Portis only supports one account for eth
-    return undefined;
-  }
-
-  public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
-    return chainId === 1;
-  }
-
-  public async ethSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public ethSupportsNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public async ethSupportsEIP1559(): Promise<boolean> {
-    return false;
-  }
-
-  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
-    return eth.ethGetAccountPaths(msg);
   }
 }
 

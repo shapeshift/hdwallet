@@ -18,7 +18,86 @@ export function isMetaMask(wallet: core.HDWallet): wallet is MetaMaskHDWallet {
   return _.isObject(wallet) && (wallet as any)._isMetaMask;
 }
 
-type HasNonTrivialConstructor<T> = T extends { new (): any } ? never : T;
+export class MetaMaskHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
+  readonly _supportsBTCInfo = false;
+  readonly _supportsETHInfo = true;
+  readonly _supportsCosmosInfo = false;
+  readonly _supportsBinanceInfo = false;
+  readonly _supportsRippleInfo = false;
+  readonly _supportsEosInfo = false;
+  readonly _supportsFioInfo = false;
+  readonly _supportsThorchainInfo = false;
+  readonly _supportsSecretInfo = false;
+  readonly _supportsKavaInfo = false;
+  readonly _supportsTerraInfo = false;
+
+  public getVendor(): string {
+    return "MetaMask";
+  }
+
+  public hasOnDevicePinEntry(): boolean {
+    return false;
+  }
+
+  public hasOnDevicePassphrase(): boolean {
+    return true;
+  }
+
+  public hasOnDeviceDisplay(): boolean {
+    return true;
+  }
+
+  public hasOnDeviceRecovery(): boolean {
+    return true;
+  }
+
+  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
+    // It doesn't... yet?
+    return false;
+  }
+
+  public supportsOfflineSigning(): boolean {
+    return false;
+  }
+
+  public supportsBroadcast(): boolean {
+    return true;
+  }
+
+  public describePath(msg: core.DescribePath): core.PathDescription {
+    switch (msg.coin) {
+      case "Ethereum":
+        return eth.describeETHPath(msg.path);
+      default:
+        throw new Error("Unsupported path");
+    }
+  }
+
+  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
+    // TODO: What do we do here?
+    return undefined;
+  }
+
+  public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
+    return chainId === 1;
+  }
+
+  public async ethSupportsSecureTransfer(): Promise<boolean> {
+    return false;
+  }
+
+  public ethSupportsNativeShapeShift(): boolean {
+    return false;
+  }
+
+  public async ethSupportsEIP1559(): Promise<boolean> {
+    return false;
+  }
+
+  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
+    return eth.ethGetAccountPaths(msg);
+  }
+}
 
 export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETH = true;
@@ -248,87 +327,6 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
 
   public async getFirmwareVersion(): Promise<string> {
     return "metaMask";
-  }
-}
-
-export class MetaMaskHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
-  readonly _supportsBTCInfo = false;
-  readonly _supportsETHInfo = true;
-  readonly _supportsCosmosInfo = false;
-  readonly _supportsBinanceInfo = false;
-  readonly _supportsRippleInfo = false;
-  readonly _supportsEosInfo = false;
-  readonly _supportsFioInfo = false;
-  readonly _supportsThorchainInfo = false;
-  readonly _supportsSecretInfo = false;
-  readonly _supportsKavaInfo = false;
-  readonly _supportsTerraInfo = false;
-
-  public getVendor(): string {
-    return "MetaMask";
-  }
-
-  public hasOnDevicePinEntry(): boolean {
-    return false;
-  }
-
-  public hasOnDevicePassphrase(): boolean {
-    return true;
-  }
-
-  public hasOnDeviceDisplay(): boolean {
-    return true;
-  }
-
-  public hasOnDeviceRecovery(): boolean {
-    return true;
-  }
-
-  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
-    // It doesn't... yet?
-    return false;
-  }
-
-  public supportsOfflineSigning(): boolean {
-    return false;
-  }
-
-  public supportsBroadcast(): boolean {
-    return true;
-  }
-
-  public describePath(msg: core.DescribePath): core.PathDescription {
-    switch (msg.coin) {
-      case "Ethereum":
-        return eth.describeETHPath(msg.path);
-      default:
-        throw new Error("Unsupported path");
-    }
-  }
-
-  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
-    // TODO: What do we do here?
-    return undefined;
-  }
-
-  public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
-    return chainId === 1;
-  }
-
-  public async ethSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public ethSupportsNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public async ethSupportsEIP1559(): Promise<boolean> {
-    return false;
-  }
-
-  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
-    return eth.ethGetAccountPaths(msg);
   }
 }
 

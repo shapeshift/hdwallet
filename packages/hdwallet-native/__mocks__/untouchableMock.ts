@@ -16,7 +16,6 @@ function doMock<T extends object>(target: T) {
     mock,
   ] as const;
 }
-export const mock = doMock;
 
 export function bind(obj: Record<string, Function>, prop: string, ...args: any[]) {
   const mock = jest.fn();
@@ -44,3 +43,5 @@ export function call(obj: Record<string, Function>, prop: string, ...args: any[]
   expect(mock).not.toHaveBeenCalled();
   return out;
 }
+
+export const mock = doMock;

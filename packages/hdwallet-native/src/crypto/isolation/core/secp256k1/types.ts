@@ -17,37 +17,6 @@ const fieldElementStatic = {};
 const fieldElement = Object.assign(fieldElementBase, BigEndianInteger, fieldElementStatic);
 export const FieldElement: typeof fieldElement = fieldElement;
 
-const compressedPointBase = ByteArray(33)
-  .And(
-    Obj({
-      0: Literal(0x02).Or(Literal(0x03)),
-    })
-  )
-  .withConstraint((p) => FieldElement.test(p.slice(1)) || `expected ${p}.x to be within the order of the curve`, {
-    name: "CompressedPoint.x",
-  });
-export type CompressedPoint = Static<typeof compressedPointBase>;
-const compressedPointStatic = {
-  from: (p: CurvePoint): CompressedPoint => {
-    return p.length === 33 ? p : CompressedPoint.fromUncompressed(checkType(UncompressedPoint, p));
-  },
-  fromUncompressed: (p: UncompressedPoint): CompressedPoint => {
-    const out = new Uint8Array(33);
-    out[0] = UncompressedPoint.yIsOdd(p) ? 0x03 : 0x02;
-    out.set(UncompressedPoint.x(p), 1);
-    CompressedPoint.assert(out);
-    return out;
-  },
-  x: (p: CompressedPoint): FieldElement => {
-    return checkType(FieldElement, p.slice(1));
-  },
-  yIsOdd: (p: CompressedPoint): boolean => {
-    return p[0] === 0x03;
-  },
-};
-const compressedPoint = Object.assign(compressedPointBase, ByteArray, compressedPointStatic);
-export const CompressedPoint: typeof compressedPoint = compressedPoint;
-
 const uncompressedPointBase = ByteArray(65)
   .And(
     Obj({
@@ -68,6 +37,18 @@ const uncompressedPointBase = ByteArray(65)
     { name: "UncompressedPoint.y" }
   );
 export type UncompressedPoint = Static<typeof uncompressedPointBase>;
+
+const compressedPointBase = ByteArray(33)
+  .And(
+    Obj({
+      0: Literal(0x02).Or(Literal(0x03)),
+    })
+  )
+  .withConstraint((p) => FieldElement.test(p.slice(1)) || `expected ${p}.x to be within the order of the curve`, {
+    name: "CompressedPoint.x",
+  });
+export type CompressedPoint = Static<typeof compressedPointBase>;
+
 const uncompressedPointStatic = {
   from: (p: CurvePoint): UncompressedPoint => {
     return p.length === 65 ? p : UncompressedPoint.fromCompressed(checkType(CompressedPoint, p));
@@ -87,6 +68,27 @@ const uncompressedPointStatic = {
 };
 const uncompressedPoint = Object.assign(uncompressedPointBase, ByteArray, uncompressedPointStatic);
 export const UncompressedPoint: typeof uncompressedPoint = uncompressedPoint;
+
+const compressedPointStatic = {
+  from: (p: CurvePoint): CompressedPoint => {
+    return p.length === 33 ? p : CompressedPoint.fromUncompressed(checkType(UncompressedPoint, p));
+  },
+  fromUncompressed: (p: UncompressedPoint): CompressedPoint => {
+    const out = new Uint8Array(33);
+    out[0] = UncompressedPoint.yIsOdd(p) ? 0x03 : 0x02;
+    out.set(UncompressedPoint.x(p), 1);
+    CompressedPoint.assert(out);
+    return out;
+  },
+  x: (p: CompressedPoint): FieldElement => {
+    return checkType(FieldElement, p.slice(1));
+  },
+  yIsOdd: (p: CompressedPoint): boolean => {
+    return p[0] === 0x03;
+  },
+};
+const compressedPoint = Object.assign(compressedPointBase, ByteArray, compressedPointStatic);
+export const CompressedPoint: typeof compressedPoint = compressedPoint;
 
 const curvePointBase = CompressedPoint.Or(UncompressedPoint);
 export type CurvePoint = CompressedPoint | UncompressedPoint;

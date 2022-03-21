@@ -8,26 +8,6 @@ import { DummyEngineError, ParsedXpubTree } from "./types";
 
 export * from "../../core/bip32";
 
-export class Seed implements BIP32.Seed {
-  readonly xpubTree: ParsedXpubTree;
-
-  protected constructor(xpubTree: ParsedXpubTree) {
-    this.xpubTree = xpubTree;
-  }
-
-  static async create(xpubTree: ParsedXpubTree): Promise<BIP32.Seed> {
-    return new Seed(xpubTree);
-  }
-
-  toMasterKey(): Promise<BIP32.Node>;
-  toMasterKey(hmacKey: string | Uint8Array): never;
-  async toMasterKey(hmacKey?: string | Uint8Array): Promise<BIP32.Node> {
-    if (hmacKey !== undefined) throw new Error("bad hmacKey type");
-
-    return await Node.create(this.xpubTree);
-  }
-}
-
 export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K1.ECDHKey {
   readonly xpubTree: ParsedXpubTree;
 
@@ -114,5 +94,25 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
   async ecdhRaw(publicKey: SecP256K1.CurvePoint): Promise<SecP256K1.UncompressedPoint>;
   async ecdhRaw(): Promise<never> {
     throw new DummyEngineError();
+  }
+}
+
+export class Seed implements BIP32.Seed {
+  readonly xpubTree: ParsedXpubTree;
+
+  protected constructor(xpubTree: ParsedXpubTree) {
+    this.xpubTree = xpubTree;
+  }
+
+  static async create(xpubTree: ParsedXpubTree): Promise<BIP32.Seed> {
+    return new Seed(xpubTree);
+  }
+
+  toMasterKey(): Promise<BIP32.Node>;
+  toMasterKey(hmacKey: string | Uint8Array): never;
+  async toMasterKey(hmacKey?: string | Uint8Array): Promise<BIP32.Node> {
+    if (hmacKey !== undefined) throw new Error("bad hmacKey type");
+
+    return await Node.create(this.xpubTree);
   }
 }

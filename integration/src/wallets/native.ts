@@ -16,13 +16,6 @@ export function createInfo(): core.HDWalletInfo {
   return native.info();
 }
 
-export async function createWallet(): Promise<core.HDWallet> {
-  await setupMswMocks();
-  const wallet = new native.NativeHDWallet({ mnemonic, deviceId });
-  await wallet.initialize();
-  return wallet;
-}
-
 export async function setupMswMocks() {
   const binanceMocks = {
     get: {
@@ -171,6 +164,13 @@ export async function setupMswMocks() {
   };
 
   return mswMock(_.merge({}, binanceMocks, fioMocks)).startServer();
+}
+
+export async function createWallet(): Promise<core.HDWallet> {
+  await setupMswMocks();
+  const wallet = new native.NativeHDWallet({ mnemonic, deviceId });
+  await wallet.initialize();
+  return wallet;
 }
 
 export function selfTest(get: () => core.HDWallet): void {
