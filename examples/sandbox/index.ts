@@ -272,7 +272,7 @@ async function deviceConnected(deviceId) {
       if (wallet.transport) {
         await wallet.transport.connect();
         if (keepkey.isKeepKey(wallet)) {
-          console.log("try connect debuglink");
+          console.info("try connect debuglink");
           await wallet.transport.tryConnectDebugLink();
         }
       }
@@ -758,13 +758,13 @@ $eosTx.on("click", async (e) => {
       tx: unsigned_main,
     });
 
-    console.log(res);
-    console.log("sigV = %d", res.signatureV);
-    console.log("sigR = %s", core.toHexString(res.signatureR));
-    console.log("sigS = %s", core.toHexString(res.signatureS));
-    console.log("hash = %s", core.toHexString(res.hash));
-    console.log("EosFormatSig = %s", res.eosFormSig);
-    console.log(
+    console.info(res);
+    console.info("sigV = %d", res.signatureV);
+    console.info("sigR = %s", core.toHexString(res.signatureR));
+    console.info("sigS = %s", core.toHexString(res.signatureS));
+    console.info("hash = %s", core.toHexString(res.hash));
+    console.info("EosFormatSig = %s", res.eosFormSig);
+    console.info(
       "EosFormReSig = SIG_K1_Jxa7NRL1hj4Q9wqufaSZa7oAXQQnRxSuAeFSwx6EzHnzPVeB5y6qQge16WCYa3Xod1mDWZv3MnEEPFeK3bEf3iN6es1iVy"
     );
 
@@ -833,9 +833,9 @@ $fioTx.on("click", async (e) => {
       tx: unsigned_main,
     });
 
-    console.log(res);
-    console.log("signature = %d", res.signature);
-    console.log("serialized = %s", core.toHexString(res.serialized));
+    console.info(res);
+    console.info("signature = %d", res.signature);
+    console.info("serialized = %s", core.toHexString(res.serialized));
 
     $eosResults.val(res.fioFormSig);
   } else {
@@ -989,7 +989,7 @@ $thorchainSignSwap.on("click", async (e) => {
     return;
   }
   if (!$thorchainDestAddress.val().match(/^[a-z0-9]+$/i) && $thorchainDestAddress.val() != "") {
-    console.log($thorchainDestAddress.val());
+    console.info($thorchainDestAddress.val());
     $thorchainSwapResults.val("Invalid destination address");
     return;
   }
@@ -1051,7 +1051,7 @@ $thorchainSignSwap.on("click", async (e) => {
     case "ETH.ETH":
       if (core.supportsETH(wallet)) {
         const web3 = new Web3();
-        console.log(thorchainRouterAbi[0]);
+        console.info(thorchainRouterAbi[0]);
         const routerContract = new web3.eth.Contract(thorchainRouterAbi, routerContractAddress);
         tx = thorchainEthereumBaseTx;
         tx["addressNList"] = core.bip32ToAddressNList("m/44'/60'/0'/0/0");
@@ -1069,7 +1069,7 @@ $thorchainSignSwap.on("click", async (e) => {
       if (core.supportsBinance(wallet)) {
         tx = thorchainBinanceBaseTx;
         tx["memo"] = memo;
-        console.log(tx);
+        console.info(tx);
         const res = await wallet.binanceSignTx({
           addressNList: core.bip32ToAddressNList(`m/44'/714'/0'/0/0`),
           chain_id: "Binance-Chain-Nile",
@@ -1087,7 +1087,7 @@ $thorchainSignSwap.on("click", async (e) => {
       if (core.supportsBinance(wallet)) {
         tx = thorchainNativeRuneBaseTx;
         tx["memo"] = memo;
-        console.log(tx);
+        console.info(tx);
         const res = await wallet.binanceSignTx({
           addressNList: core.bip32ToAddressNList(`m/44'/714'/0'/0/0`),
           chain_id: "Binance-Chain-Nile",
@@ -1105,7 +1105,7 @@ $thorchainSignSwap.on("click", async (e) => {
       if (core.supportsThorchain(wallet)) {
         tx = thorchainUnsignedTx;
         tx["memo"] = memo;
-        console.log(tx);
+        console.info(tx);
         const res = await wallet.thorchainSignTx({
           addressNList: core.bip32ToAddressNList(`m/44'/931'/0'/0/0`),
           chain_id: "thorchain",
@@ -1132,8 +1132,8 @@ $thorchainSignSwap.on("click", async (e) => {
       }
       break;
     default:
-      console.log("Base coin is Unknown.");
-      console.log("val:", $thorchainSourceChain.val());
+      console.info("Base coin is Unknown.");
+      console.info("val:", $thorchainSourceChain.val());
       $thorchainSwapResults.val("Invalid source chain");
       return;
   }
@@ -1148,7 +1148,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
     return;
   }
   if (!$thorchainDestAddress.val().match(/^[a-z0-9]+$/i) && $thorchainDestAddress.val() != "") {
-    console.log($thorchainDestAddress.val());
+    console.info($thorchainDestAddress.val());
     $thorchainAddLiquidityResults.val("Invalid destination address");
     return;
   }
@@ -1208,7 +1208,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
     case "ETH.ETH":
       if (core.supportsETH(wallet)) {
         const web3 = new Web3();
-        console.log(thorchainRouterAbi[0]);
+        console.info(thorchainRouterAbi[0]);
         const routerContract = new web3.eth.Contract(thorchainRouterAbi, routerContractAddress);
         tx = thorchainEthereumBaseTx;
         tx["value"] = "0x" + $thorchainLiquidityAmount.val().toString(16);
@@ -1216,7 +1216,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
         tx["data"] = routerContract.methods
           .deposit(vaultAddress, "0x0000000000000000000000000000000000000000", 0, memo)
           .encodeABI();
-        console.log(tx);
+        console.info(tx);
         res = await wallet.ethSignTx(tx as any);
         $thorchainAddLiquidityResults.val(JSON.stringify(res));
       } else {
@@ -1274,7 +1274,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
           address: $thorchainLiquidityPoolAddress.val(),
           coins: [{ amount: $thorchainLiquidityAmount.val(), denom: "RUNE" }],
         };
-        console.log(tx);
+        console.info(tx);
         const res = await wallet.thorchainSignTx({
           addressNList: core.bip32ToAddressNList(`m/44'/931'/0'/0/0`),
           chain_id: "thorchain",
@@ -1303,8 +1303,8 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
       }
       break;
     default:
-      console.log("Base coin is Unknown.");
-      console.log("val:", $thorchainSourceChain.val());
+      console.info("Base coin is Unknown.");
+      console.info("val:", $thorchainSourceChain.val());
       $thorchainAddLiquidityResults.val("Invalid source chain");
       return;
   }
@@ -1613,7 +1613,7 @@ $ethSend.on("click", async (e) => {
     const result = ethEIP1559Selected
       ? await wallet.ethSendTx(ethTx1559 as core.ETHSignTx)
       : await wallet.ethSendTx(ethTx as core.ETHSignTx);
-    console.log("Result: ", result);
+    console.info("Result: ", result);
     $ethResults.val(result.hash);
   } else {
     const label = await wallet.getLabel();
@@ -1848,7 +1848,7 @@ $erc20Submit.on("click", async () => {
           parseInt($("#erc20Amount").val(), 10).toString(16).padStart(64, "0");
         break;
       default:
-        console.log("oops", erc20Selected);
+        console.info("oops", erc20Selected);
         return;
     }
     if (erc20Selected != $erc20Addr) {
@@ -1868,7 +1868,7 @@ $erc20Submit.on("click", async () => {
     $erc20Results.val(label + " does not support ETH");
   }
 
-  console.log(result);
+  console.info(result);
   $erc20Results.val(JSON.stringify(result, null, 4));
 });
 

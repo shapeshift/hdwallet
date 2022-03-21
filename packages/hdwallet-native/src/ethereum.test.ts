@@ -109,7 +109,7 @@ describe("NativeETHWallet", () => {
       data: "0xCAFEDEADCAFEDEADCAFEDEADCAFEDEAD",
       chainId: 1,
     });
-    console.log("SIG: ", sig);
+    console.debug("SIG: ", sig);
     // This is the output from tiny-secp256k1.
     expect(sig).toMatchInlineSnapshot(`
       Object {

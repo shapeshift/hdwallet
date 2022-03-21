@@ -78,16 +78,16 @@ function testVaultImpl(name: string, Vault: ISealableVaultFactory<IVault>) {
       expect((await Vault.list()).length).toBe(1);
       expect(vault.meta.get("name")).toBe("default");
 
-      console.log("keyStore", await idb.entries(keyStore));
-      console.log("vaultStore", await idb.entries(vaultStore));
+      console.debug("keyStore", await idb.entries(keyStore));
+      console.debug("vaultStore", await idb.entries(vaultStore));
     });
 
     it("should open a vault", async () => {
       const vaultIDs = await Vault.list();
       expect(vaultIDs.length).toBe(1);
       const vault = await Vault.open(vaultIDs[0], "foobar");
-      // console.log(jose.decodeProtectedHeader((await idb.get(vaultIDs[0], vaultStore))!));
-      // console.log("entries", vault.entries());
+      // console.debug(jose.decodeProtectedHeader((await idb.get(vaultIDs[0], vaultStore))!));
+      // console.debug("entries", vault.entries());
       expect(await vault.get("foo")).toBe("bar");
       expect(uuid.validate(vault.id)).toBe(true);
       expect(vault.meta.size).toBe(1);

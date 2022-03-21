@@ -38,7 +38,7 @@ describe("argonBenchmark", () => {
         // roundMs: 100,
         now: performance.now.bind(performance),
       });
-      console.log(results);
+      console.info(results);
       expect(results).toBeTruthy();
       expect(Number.isSafeInteger(results.iterations)).toBeTruthy();
       expect(results.iterations).toBeGreaterThanOrEqual(1);

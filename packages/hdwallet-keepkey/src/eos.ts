@@ -13,7 +13,7 @@ function eosSigFormatter(r: Uint8Array, s: Uint8Array, v: number): string {
 
   let signature = "SIG_K1_";
 
-  console.log("formatter logs");
+  console.debug("formatter logs");
   const keyBuffer = Buffer.alloc(65);
   const rbuf = Buffer.from(r);
   const sbuf = Buffer.from(s);
@@ -21,21 +21,21 @@ function eosSigFormatter(r: Uint8Array, s: Uint8Array, v: number): string {
   rbuf.copy(keyBuffer, 1);
   sbuf.copy(keyBuffer, 33);
 
-  console.log(keyBuffer);
+  console.debug(keyBuffer);
   const check = [keyBuffer];
   const keyType = "K1"; // we only sign using K1 curve
   check.push(Buffer.from(keyType));
 
-  console.log(check);
+  console.debug(check);
 
-  console.log("hash");
-  console.log(createHash("ripemd160").update(core.compatibleBufferConcat(check)).digest());
+  console.debug("hash");
+  console.debug(createHash("ripemd160").update(core.compatibleBufferConcat(check)).digest());
   const chksum = createHash("ripemd160").update(core.compatibleBufferConcat(check)).digest().slice(0, 4);
 
-  console.log(chksum);
-  signature = signature.concat(base58.encode(core.compatibleBufferConcat([keyBuffer, chksum])));
+  console.debug(chksum);
+  signature = signature.concat(bs58.encode(core.compatibleBufferConcat([keyBuffer, chksum])));
 
-  console.log(signature);
+  console.debug(signature);
 
   return signature;
 }
@@ -162,8 +162,8 @@ export async function eosSignTx(transport: Transport, msg: core.EosToSignTx): Pr
     signTx.setHeader(txHeader);
     signTx.setNumActions(msg.tx.actions.length);
 
-    console.log("tx header");
-    console.log(txHeader);
+    console.debug("tx header");
+    console.debug(txHeader);
     resp = await transport.call(Messages.MessageType.MESSAGETYPE_EOSSIGNTX, signTx, {
       msgTimeout: core.LONG_TIMEOUT,
       omitLock: true,
@@ -206,8 +206,8 @@ export async function eosSignTx(transport: Transport, msg: core.EosToSignTx): Pr
       }
     }
 
-    console.log("action data");
-    console.log(actAck);
+    console.debug("action data");
+    console.debug(actAck);
 
     resp = await transport.call(Messages.MessageType.MESSAGETYPE_EOSTXACTIONACK, actAck, {
       msgTimeout: core.LONG_TIMEOUT,

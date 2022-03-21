@@ -61,7 +61,7 @@ export class TransportDelegate implements keepkey.TransportDelegate {
       // If the device is disconnected, this will fail and throw, which is fine.
       await this.usbDevice.close();
     } catch (e) {
-      console.log("Error closing connection with usbDevice");
+      console.warn("Error closing connection with usbDevice");
     }
   }
 
