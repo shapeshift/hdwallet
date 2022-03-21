@@ -109,8 +109,7 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
   public static async callQuiet(
     device: TrezorDevice | undefined,
     method: string,
-    msg: any,
-    msTimeout?: number
+    msg: any
   ): Promise<trezor.TrezorConnectResponse> {
     // TrezorConnect only lets us make one call at a time. If this library is
     // used in a concurrent environment like say, React, then we need to guard
@@ -147,7 +146,7 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
     return TrezorConnectTransport.callInProgress;
   }
 
-  public async call(method: string, msg: any, msTimeout?: number): Promise<trezor.TrezorConnectResponse> {
+  public async call(method: string, msg: any): Promise<trezor.TrezorConnectResponse> {
     this.emit(
       method,
       core.makeEvent({
@@ -157,7 +156,7 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
       })
     );
 
-    let response = await TrezorConnectTransport.callQuiet(this.device, method, msg, msTimeout);
+    let response = await TrezorConnectTransport.callQuiet(this.device, method, msg);
 
     this.emit(
       method,

@@ -13,7 +13,7 @@ export class MockTransport extends trezor.TrezorTransport {
     return "mock#1";
   }
 
-  public call(method: string, msg: any, msTimeout?: number): Promise<trezor.TrezorConnectResponse> {
+  public call(method: string, msg: any): Promise<trezor.TrezorConnectResponse> {
     let key = JSON.stringify({ method: method, msg: msg });
     if (!this.memoized.has(key)) {
       console.error(method, `JSON.parse('${JSON.stringify(msg)}')`);
