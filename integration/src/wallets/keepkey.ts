@@ -185,6 +185,7 @@ export function selfTest(get: () => core.HDWallet): void {
 
   // TODO: it would appear cancel is not working as expected and resulting in a hanging test.
   // revisit and look into how cancel is implemented to fix and make test pass
+  // eslint-disable-next-line jest/no-disabled-tests
   test.skip(
     "cancel works",
     async () => {

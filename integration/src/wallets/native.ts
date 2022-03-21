@@ -258,6 +258,7 @@ export function selfTest(get: () => core.HDWallet): void {
     ]);
   });
 
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip("supports ethNextAccountPath", () => {
     if (!wallet) return;
 
@@ -400,6 +401,7 @@ export function selfTest(get: () => core.HDWallet): void {
     });
   });
 
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip("can describe prefork BitcoinCash", () => {
     expect(
       wallet.describePath({
@@ -420,6 +422,7 @@ export function selfTest(get: () => core.HDWallet): void {
     });
   });
 
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip("can describe prefork Segwit Native BTG", () => {
     expect(
       wallet.describePath({
