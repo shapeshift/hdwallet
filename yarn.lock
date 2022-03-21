@@ -4014,11 +4014,6 @@
   resolved "https://registry.yarnpkg.com/@types/crypto-js/-/crypto-js-4.0.2.tgz#4524325a175bf819fec6e42560c389ce1fb92c97"
   integrity sha512-sCVniU+h3GcGqxOmng11BRvf9TfN9yIs8KKjB8C8d75W69cpTfZG80gau9yTx5SxF3gvHGbJhdESzzvnjtf3Og==
 
-"@types/debug@^4.1.2", "@types/debug@^4.1.5":
-  version "4.1.6"
-  resolved "https://registry.yarnpkg.com/@types/debug/-/debug-4.1.6.tgz#0b7018723084918a865eff99249c490505df2163"
-  integrity sha512-7fDOJFA/x8B+sO1901BmHlf5dE1cxBU8mRXj8QOEDnn16hhGJv/IHxJtZhvsabZsIMn0eLIyeOKAeqSNJJYTpA==
-
 "@types/elliptic@^6.4.12":
   version "6.4.13"
   resolved "https://registry.yarnpkg.com/@types/elliptic/-/elliptic-6.4.13.tgz#7e8ac814f748deb01a712e5147b128caf9dffa2d"
@@ -6940,7 +6935,7 @@ debug@3.1.0, debug@=3.1.0:
   dependencies:
     ms "2.0.0"
 
-debug@4, debug@^4.1.0, debug@^4.1.1, debug@^4.2.0, debug@^4.3.0:
+debug@4, debug@^4.1.0, debug@^4.1.1, debug@^4.3.0:
   version "4.3.2"
   resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.2.tgz#f0a49c18ac8779e31d4a0c6029dfb76873c7428b"
   integrity sha512-mOp8wKcvj7XxC78zLgw/ZA+6TSgkoE2C/ienthhRD298T7UNwAg9diBpLRxC0mOezLl4B0xV7M0cCO6P/O0Xhw==

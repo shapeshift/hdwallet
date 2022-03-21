@@ -11,7 +11,6 @@ import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
-import * as debug from "debug";
 import $ from "jquery";
 import Web3 from "web3";
 
@@ -199,7 +198,7 @@ async function deviceConnected(deviceId) {
     const [[deviceId, event]] = values;
     const { from_wallet = false, message_type } = event;
     const direction = from_wallet ? "🔑" : "💻";
-    debug.default(deviceId)(`${direction} ${message_type}`, event);
+    console.debug(`${deviceId} ${direction} ${message_type}`, event);
 
     const log = document.getElementById("eventLog");
     log.innerHTML += `<div class="eventEntry">Event: ${name}<br />Values: ${JSON.stringify(values)}</div>`;

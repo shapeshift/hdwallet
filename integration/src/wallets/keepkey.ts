@@ -3,9 +3,6 @@ import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as keepkeyNodeWebUSB from "@shapeshiftoss/hdwallet-keepkey-nodewebusb";
 import * as keepkeyTcp from "@shapeshiftoss/hdwallet-keepkey-tcp";
 import AxiosHTTPAdapter from "axios/lib/adapters/http";
-import * as debug from "debug";
-
-const log = debug.default("keepkey");
 
 const TIMEOUT = 60 * 1000;
 

@@ -23,14 +23,12 @@
     "@shapeshiftoss/hdwallet-trezor-connect": "1.19.1",
     "@shapeshiftoss/hdwallet-xdefi": "1.19.1",
     "bip32": "^2.0.4",
-    "debug": "^4.1.1",
     "jquery": "^3.4.1",
     "json": "^9.0.6",
     "parcel": "^2.3.2",
     "web3": "^1.5.1"
   },
   "devDependencies": {
-    "@types/debug": "^4.1.2",
     "https-browserify": "^1.0.0",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
