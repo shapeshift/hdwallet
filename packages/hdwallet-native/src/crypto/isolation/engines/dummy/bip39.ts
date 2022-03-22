@@ -22,7 +22,7 @@ export class Mnemonic implements BIP39.Mnemonic {
     static async create(xpubList: string): Promise<BIP39.Mnemonic> {
         const parsedXpubs: ParsedXpubTree[] = xpubList.split(" ").map(xpub => {
             const xpubBuf = bs58check.decode(xpub);
-            if (xpubBuf.length !== 78) throw new Error("bad xpub: ")
+            if (xpubBuf.length !== 78) throw new Error("Isolation.Engine.Dummy.BIP39.create - Invalid xpub")
             const xpubView = new DataView(toArrayBuffer(xpubBuf));
             const pk = checkType(SecP256K1.CompressedPoint, xpubBuf.slice(45));
             return {
