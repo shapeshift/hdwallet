@@ -141,7 +141,7 @@ export function selfTest(get: () => core.HDWallet): void {
       if (!wallet) return;
 
       const addrs = [] as string[];
-      await new Promise<void>(async (resolve) => {
+      await new Promise<void>((resolve) => {
         wallet
           .btcGetAddress({
             coin: "Bitcoin",

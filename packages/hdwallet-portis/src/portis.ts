@@ -273,14 +273,14 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
 
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
     const publicKeys: { xpub: string }[] = [];
-    this.portisCallInProgress = new Promise(async (resolve, reject) => {
+    this.portisCallInProgress = (async () => {
       try {
         await this.portisCallInProgress;
       } catch (e) {
         console.error(e);
       }
       for (let i = 0; i < msg.length; i++) {
-        const { addressNList, coin } = msg[i];
+        const { addressNList } = msg[i];
         const bitcoinSlip44 = 0x80000000 + core.slip44ByCoin("Bitcoin");
         // TODO we really shouldnt be every using the "bitcoin" string parameter but is here for now to make it work with their btc address on their portis wallet.
         const portisResult: { error: string; result: string } = await this.portis.getExtendedPublicKey(
@@ -288,11 +288,11 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
           addressNList[1] === bitcoinSlip44 ? "Bitcoin" : ""
         );
         const { result, error } = portisResult;
-        if (error) reject(error);
+        if (error) throw error;
         publicKeys.push({ xpub: result });
       }
-      resolve(publicKeys);
-    });
+      return publicKeys;
+    })();
     return this.portisCallInProgress;
   }
 
