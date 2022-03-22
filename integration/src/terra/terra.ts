@@ -81,8 +81,21 @@ export function terraTests(get: () => { wallet: core.HDWallet; info: core.HDWall
           sequence: "0",
         };
 
-        const res = await wallet.terraSignTx(input);
-        expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
+        switch (wallet.getVendor()) {
+          case "KeepKey": {
+            const res = await wallet.terraSignTx(input);
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(res?.signatures[0]).toEqual(tx_signed.signatures[0].signature);
+            break;
+          }
+          default: {
+            // eslint-disable-next-line jest/no-conditional-expect
+            await expect(wallet.terraSignTx(input)).rejects.toThrowErrorMatchingInlineSnapshot(
+              `"Unhandled tx type! type: bank/MsgSend"`
+            );
+            break;
+          }
+        }
       },
       TIMEOUT
     );

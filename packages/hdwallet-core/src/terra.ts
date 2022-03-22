@@ -44,7 +44,6 @@ export namespace Terra {
     memo: string;
   }
 }
-
 export interface TerraTx {
   msg: Terra.Msg[];
   fee: Terra.StdFee;
@@ -59,10 +58,14 @@ export interface TerraSignTx {
   account_number: string;
   sequence: string;
   fee?: number;
-  testnet?: boolean;
 }
 
-export type TerraSignedTx = TerraTx;
+export interface TerraSignedTx {
+  serialized: string
+  body: string
+  authInfoBytes: string
+  signatures: string[]
+}
 
 export interface TerraGetAccountPaths {
   accountIdx: number;

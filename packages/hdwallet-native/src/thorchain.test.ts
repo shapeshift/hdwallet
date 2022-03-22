@@ -49,28 +49,45 @@ describe("NativeThorchainWallet", () => {
     ).resolves.toBe("thor14hqwsy4qpwzsdk2l3h3q82eghg4ctaa38rx63g");
   });
 
-  it("should sign a transaction correctly", async () => {
+  it("should (probably) sign a transaction correctly", async () => {
+    // TODO: Replace with actual test data!
     const signed = await wallet.thorchainSignTx({
       addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
       tx: {
-        msg: [{ type: "foo", value: "bar" }],
+        msg: [
+          {
+            type: "cosmos-sdk/MsgSend",
+            value: {
+              from_address: "thor1ujumx36gj3jv33gcw49dfafdddza3kdcd38paq",
+              to_address: "thor14hqwsy4qpwzsdk2l3h3q82eghg4ctaa38rx63g",
+              amount: [
+                {
+                  denom: "rune",
+                  amount: "10000",
+                },
+              ],
+            },
+          },
+        ],
         fee: {
-          amount: [{ denom: "foo", amount: "bar" }],
-          gas: "baz",
+          amount: [
+            {
+              amount: "3000",
+              denom: "rune",
+            },
+          ],
+          gas: "200000",
         },
         signatures: null,
         memo: "foobar",
       },
       chain_id: "foobar",
-      account_number: "foo",
-      sequence: "bar",
+      account_number: "123",
+      sequence: "456",
     });
-    expect(signed?.signatures?.length).toBe(1);
-    expect(signed?.signatures?.[0].pub_key?.value).toMatchInlineSnapshot(
-      `"A1DSQ2pqr8D5di36Uj6M/sbvkSi7nMf/07yMwcBXyJHL"`
-    );
-    expect(signed?.signatures?.[0].signature).toMatchInlineSnapshot(
-      `"3fYykzgna7MWg9VLhsYwHMEF55ZHQEmefq5KOH0jRtNDOYc2K0J9ss3sts54i5I52sg5dA4aGC/yJuSDGUlUJQ=="`
+    await expect(signed?.signatures.length).toBe(1);
+    await expect(signed?.signatures[0]).toMatchInlineSnapshot(
+      `"ohaYKf+5qk5aFHu9SjbiGhKUZgqe4W1ZCJnr9IBpC194I+iDLYVkylYGTZKPJYJZNuu8nr6uVgyJkk9MoWn8Yw=="`
     );
   });
 });

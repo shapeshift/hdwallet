@@ -55,14 +55,18 @@ export interface ThorchainTx {
 export interface ThorchainSignTx {
   addressNList: BIP32Path;
   tx: Thorchain.StdTx;
-  sequence: string;
-  account_number: string;
   chain_id: string;
+  account_number: string;
+  sequence: string;
   fee?: number;
-  testnet?: boolean;
 }
 
-export type ThorchainSignedTx = ThorchainTx;
+export interface ThorchainSignedTx {
+  serialized: string
+  body: string
+  authInfoBytes: string
+  signatures: string[]
+}
 
 export interface ThorchainGetAccountPaths {
   accountIdx: number;

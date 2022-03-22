@@ -56,14 +56,17 @@ export interface SecretSignTx {
   addressNList: BIP32Path;
   tx: Secret.StdTx;
   chain_id: string;
-  account_number: number;
-  sequence: number;
+  account_number: string;
+  sequence: string;
   fee?: number;
-  gas?: number;
-  testnet?: boolean;
 }
 
-export type SecretSignedTx = SecretTx;
+export interface SecretSignedTx {
+  serialized: string
+  body: string
+  authInfoBytes: string
+  signatures: string[]
+}
 
 export interface SecretGetAccountPaths {
   accountIdx: number;

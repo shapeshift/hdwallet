@@ -87,8 +87,15 @@ export function kavaTests(get: () => { wallet: core.HDWallet; info: core.HDWalle
             //not supported yet
             //expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature_keepkey);
             break;
+          case "Native":
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(res?.signatures[0]).toMatchInlineSnapshot(
+              `"O57vU8gOY03l/YD5LzMf0QZ3k8LXmpNtit8Iof1IR9Q9qWvvFPx74HNQnKekq31ePoYgXKmx/NwShGikOEgMZQ=="`
+            );
+            break;
           default:
-            expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(res?.signatures[0]).toEqual(tx_signed.signatures[0].signature);
             break;
         }
       },

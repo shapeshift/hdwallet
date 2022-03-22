@@ -59,10 +59,14 @@ export interface KavaSignTx {
   account_number: string;
   sequence: string;
   fee?: number;
-  testnet?: boolean;
 }
 
-export type KavaSignedTx = KavaTx;
+export interface KavaSignedTx {
+  serialized: string
+  body: string
+  authInfoBytes: string
+  signatures: string[]
+}
 
 export interface KavaGetAccountPaths {
   accountIdx: number;

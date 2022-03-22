@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bech32 from "bech32";
 import CryptoJS from "crypto-js";
-import * as txBuilder from "tendermint-tx-builder";
+import * as protoTxBuilder from "@shapeshiftoss/proto-tx-builder";
 
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
@@ -75,11 +75,9 @@ export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWal
     async kavaSignTx(msg: core.KavaSignTx): Promise<core.KavaSignedTx | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "kava");
-        // @TODO: This needs to be fixed after the change to tendermint serialization
-        // @ts-ignore
-        const adapter = await Isolation.Adapters.Cosmos.create(keyPair);
-        const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, msg.chain_id);
-        return txBuilder.createSignedTx(msg.tx, result);
+        const adapter = await Isolation.Adapters.CosmosDirect.create(keyPair.node, "kava");
+        const result = await protoTxBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, msg.chain_id);
+        return result;
       });
     }
   };

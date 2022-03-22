@@ -38,9 +38,9 @@ describe("NativeTerraWallet", () => {
   });
 
   it("should generate a correct terra address", async () => {
-    await expect(
-      wallet.terraGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/330'/0'/0/0") })
-    ).resolves.toBe("terra1f95csal3u6cyyj23ept3x7ap3u247npf8u2yhz");
+    await expect(wallet.terraGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/330'/0'/0/0") })).resolves.toBe(
+      "terra1f95csal3u6cyyj23ept3x7ap3u247npf8u2yhz"
+    );
   });
 
   it("should generate another correct terra address", async () => {
@@ -49,28 +49,45 @@ describe("NativeTerraWallet", () => {
     ).resolves.toBe("terra153l3gzmg5xlr8aldndpcg7achjejre04azdf9q");
   });
 
-  it("does not support signing transactions", async () => {
+  it("should (probably) support signing transactions", async () => {
+    // TODO: Replace with actual test data!
     const signed = await wallet.terraSignTx({
       addressNList: core.bip32ToAddressNList("m/44'/330'/0'/0/0"),
       tx: {
-        msg: [{ type: "foo", value: "bar" }],
+        msg: [
+          {
+            type: "cosmos-sdk/MsgSend",
+            value: {
+              from_address: "terra1f95csal3u6cyyj23ept3x7ap3u247npf8u2yhz",
+              to_address: "terra153l3gzmg5xlr8aldndpcg7achjejre04azdf9q",
+              amount: [
+                {
+                  denom: "uluna",
+                  amount: "100000",
+                },
+              ],
+            },
+          },
+        ],
         fee: {
-          amount: [{ denom: "foo", amount: "bar" }],
-          gas: "baz",
+          amount: [
+            {
+              amount: "1404",
+              denom: "uluna",
+            },
+          ],
+          gas: "79695",
         },
         signatures: null,
-        memo: "foobar",
+        memo: "testmemo",
       },
       chain_id: "foobar",
-      account_number: "foo",
-      sequence: "bar",
-    })
-    expect(signed.signatures.length).toBe(1);
-    expect(signed.signatures[0].pub_key.value).toMatchInlineSnapshot(
-      `"A6cAUgKWL3/P3nQY+j2fMUBaAW/QC/FGmQzTJ4nqXo0E"`
-    );
-    expect(signed.signatures[0].signature).toMatchInlineSnapshot(
-      `"zUPR10sr2QwRa10fcb3z/KC6/mWuLq0iff5ImhylIJpqU1RSg49Jxbmvp07D3sWuY0fE5mcSdMWQXWJFw2zsWQ=="`
+      account_number: "123",
+      sequence: "456",
+    });
+    await expect(signed?.signatures.length).toBe(1);
+    await expect(signed?.signatures[0]).toMatchInlineSnapshot(
+      `"bco4/Uk+YDZVuMagS6TBB9hLggrcm6eM9NUSkq95++4v+jJF3CPO+SEOMXKf1ZnI6uZqGy5rFjZbcPnIPbxiFA=="`
     );
   });
 });

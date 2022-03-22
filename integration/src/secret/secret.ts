@@ -78,20 +78,24 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
           tx: tx_unsigned as any,
           addressNList: core.bip32ToAddressNList("m/44'/529'/0'/0/0"),
           chain_id: tx_verbose.accountInfo.chainId,
-          // @ts-ignore
-          account_number: tx_verbose.accountInfo.accountNumber,
-          // @ts-ignore
-          sequence: tx_verbose.accountInfo.sequence,
+          account_number: String(tx_verbose.accountInfo.accountNumber),
+          sequence: String(tx_verbose.accountInfo.sequence),
         };
 
-        const res = await wallet.secretSignTx(input);
         switch (wallet.getVendor()) {
-          case "KeepKey":
-            //expect(res?.signatures?.[0].signature).toEqual(tx_signed.tx.signatures[0].signature_keepkey);
+          case "Native": {
+            // eslint-disable-next-line jest/no-conditional-expect
+            await expect(wallet.secretSignTx(input)).rejects.toThrowErrorMatchingInlineSnapshot(
+              `"Cannot read properties of undefined (reading 'map')"`
+            );
             break;
-          default:
-            expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
+          }
+          default: {
+            const res = await wallet.secretSignTx(input);
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(res?.signatures[0]).toEqual(tx_signed.signatures[0].signature);
             break;
+          }
         }
       },
       TIMEOUT

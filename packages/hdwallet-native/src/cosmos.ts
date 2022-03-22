@@ -7,8 +7,6 @@ import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
 import * as Isolation from "./crypto/isolation";
 
-const ATOM_CHAIN = "cosmoshub-4";
-
 export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   return class MixinNativeCosmosWalletInfo extends Base implements core.CosmosWalletInfo {
     readonly _supportsCosmosInfo = true;
@@ -77,7 +75,7 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "cosmos");
         const adapter = await Isolation.Adapters.CosmosDirect.create(keyPair.node,"cosmos");
-        const result = await protoTxBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, ATOM_CHAIN);
+        const result = await protoTxBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, msg.chain_id);
         return result
       });
     }

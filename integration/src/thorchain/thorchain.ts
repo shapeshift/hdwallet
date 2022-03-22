@@ -84,9 +84,21 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
           sequence: "2",
         };
 
-        const res = await wallet.thorchainSignTx(input);
-        expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
-
+        switch (wallet.getVendor()) {
+          case "KeepKey": {
+            const res = await wallet.thorchainSignTx(input);
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect((res?.signatures[0] as any).signature).toEqual(tx_signed.signatures[0].signature);
+            break;
+          }
+          default: {
+            // eslint-disable-next-line jest/no-conditional-expect
+            await expect(wallet.thorchainSignTx(input)).rejects.toThrowErrorMatchingInlineSnapshot(
+              `"Unhandled tx type! type: thorchain/MsgSend"`
+            );
+            break;
+          }
+        }
       },
       TIMEOUT
     );
@@ -103,9 +115,23 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
           sequence: "4",
         };
 
-        const res = await wallet.thorchainSignTx(input);
-        expect(res?.signatures?.[0].signature).toEqual(tx_signed_swap.signatures[0].signature)
-
+        switch (wallet.getVendor()) {
+          case "KeepKey": {
+            const res = await wallet.thorchainSignTx(input);
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect((res?.signatures[0] as any).signature).toMatchInlineSnapshot(
+              `"ZRRXwAGESNaon0pYE1GZjU1qGsCXZkpKZJpdkAicNyN7J7ywDoGjsVD/lNhrKyrmCj51wmH3unOW7NFi+jcJXw=="`
+            );
+            break;
+          }
+          default: {
+            // eslint-disable-next-line jest/no-conditional-expect
+            await expect(wallet.thorchainSignTx(input)).rejects.toThrowErrorMatchingInlineSnapshot(
+              `"Unhandled tx type! type: thorchain/MsgDeposit"`
+            );
+            break;
+          }
+        }
       },
       TIMEOUT
     );
