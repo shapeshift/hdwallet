@@ -1,7 +1,6 @@
 export * from "./types";
 export * from "./interfaces";
 
-import { Node } from "./interfaces";
 import { Path } from "./types";
 
 interface Derivable {

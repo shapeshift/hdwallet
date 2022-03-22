@@ -1,5 +1,4 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { CosmosSignedTx } from "@shapeshiftoss/hdwallet-core";
 import * as protoTxBuilder from "@shapeshiftoss/proto-tx-builder";
 import * as bech32 from "bech32";
 import CryptoJS from "crypto-js";

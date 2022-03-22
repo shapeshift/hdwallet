@@ -147,7 +147,7 @@ export class Transport extends core.Transport {
     return this.callInProgress.main;
   }
 
-  public async handleCancellableResponse(messageType: any) {
+  public async handleCancellableResponse() {
     return this.readResponse(false);
   }
 
@@ -212,7 +212,7 @@ export class Transport extends core.Transport {
         })
       );
       this.userActionRequired = true;
-      return this.handleCancellableResponse(Messages.MessageType.MESSAGETYPE_PINMATRIXACK);
+      return this.handleCancellableResponse();
     }
 
     if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_PASSPHRASEREQUEST) {
@@ -224,7 +224,7 @@ export class Transport extends core.Transport {
         })
       );
       this.userActionRequired = true;
-      return this.handleCancellableResponse(Messages.MessageType.MESSAGETYPE_PASSPHRASEACK);
+      return this.handleCancellableResponse();
     }
 
     if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_CHARACTERREQUEST) {
@@ -236,7 +236,7 @@ export class Transport extends core.Transport {
         })
       );
       this.userActionRequired = true;
-      return this.handleCancellableResponse(Messages.MessageType.MESSAGETYPE_CHARACTERACK);
+      return this.handleCancellableResponse();
     }
 
     if (msgTypeEnum === Messages.MessageType.MESSAGETYPE_WORDREQUEST) {
@@ -248,7 +248,7 @@ export class Transport extends core.Transport {
         })
       );
       this.userActionRequired = true;
-      return this.handleCancellableResponse(Messages.MessageType.MESSAGETYPE_WORDACK);
+      return this.handleCancellableResponse();
     }
 
     return event;

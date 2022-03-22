@@ -204,8 +204,6 @@ export async function eosSignTx(transport: Transport, msg: core.EosToSignTx): Pr
         actAck.setTransfer(actType);
         break;
       }
-      default: {
-      }
     }
 
     console.log("action data");

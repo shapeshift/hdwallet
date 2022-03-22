@@ -21,7 +21,6 @@ async function argonBenchInner(memorySize: number, iterations: number, now: () =
 export function customNow(now: () => number, roundMs: number, jitter: number): () => number {
   if (jitter) {
     let lastRealNow = 0;
-    let lastNow = 0;
     now = ((thisNow) => () => {
       const realNow = thisNow();
       const nextNow =
@@ -32,7 +31,6 @@ export function customNow(now: () => number, roundMs: number, jitter: number): (
               return lastRealNow + elapsed;
             })();
       lastRealNow = realNow;
-      lastNow = nextNow;
       return nextNow;
     })(now);
   }

@@ -22,8 +22,9 @@ async function getBridge(keyring: core.Keyring) {
     );
     if (wallet) console.log("Using KeepKey Bridge for tests");
     return wallet;
-  } catch (e) {}
-  return undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 async function getDevice(keyring: core.Keyring) {
@@ -32,8 +33,9 @@ async function getDevice(keyring: core.Keyring) {
     const wallet = await keepkeyAdapter.pairDevice(undefined, true);
     if (wallet) console.log("Using attached WebUSB KeepKey for tests");
     return wallet;
-  } catch (e) {}
-  return undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 async function getEmulator(keyring: core.Keyring) {
@@ -48,8 +50,9 @@ async function getEmulator(keyring: core.Keyring) {
     );
     if (wallet) console.log("Using KeepKey Emulator for tests");
     return wallet;
-  } catch (e) {}
-  return undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 let autoButton = true;
@@ -69,10 +72,6 @@ export async function createWallet(): Promise<core.HDWallet> {
     if (autoButton && core.supportsDebugLink(wallet)) {
       await wallet.pressYes();
     }
-  });
-
-  wallet.transport?.onAny((event: string | string[], ...values: any[]) => {
-    //console.info(event, ...values)
   });
 
   return wallet;

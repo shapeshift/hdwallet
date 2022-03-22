@@ -147,7 +147,6 @@ describe("CryptoHelpers", () => {
       ["key", 3],
     ])("should throw an error if %s is not the correct type", async (name, position) => {
       const dummyArg = new Uint8Array(32).fill(0);
-      const i = 0;
       for (const value of BAD_ARGS) {
         const args = new Array(position).fill(dummyArg);
         args.push(value);
@@ -163,7 +162,7 @@ describe("CryptoHelpers", () => {
 
     it("should return false if the hmac results are different sizes", async () => {
       let i = 0;
-      const mock = jest.spyOn(engine, "hmac").mockImplementation(async (value, key) => {
+      const mock = jest.spyOn(engine, "hmac").mockImplementation(async () => {
         return core.toArrayBuffer(new Uint8Array(++i * 16));
       });
       const result = await helper.compare(new Uint8Array(32), new Uint8Array(32));

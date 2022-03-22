@@ -53,11 +53,7 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
     msg: Uint8Array,
     counter?: Uint32
   ): Promise<SecP256K1.Signature>;
-  async ecdsaSign(
-    digestAlgorithm: Digest.AlgorithmName<32> | null,
-    msg: Uint8Array,
-    counter?: Uint32
-  ): Promise<SecP256K1.Signature> {
+  async ecdsaSign(): Promise<never> {
     throw new DummyEngineError();
   }
 
@@ -71,11 +67,7 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
     msg: Uint8Array,
     counter?: Uint32
   ): Promise<SecP256K1.RecoverableSignature>;
-  async ecdsaSignRecoverable(
-    digestAlgorithm: Digest.AlgorithmName<32> | null,
-    msg: Uint8Array,
-    counter?: Uint32
-  ): Promise<SecP256K1.RecoverableSignature> {
+  async ecdsaSignRecoverable(): Promise<never> {
     throw new DummyEngineError();
   }
 
@@ -114,11 +106,13 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
     return out as this;
   }
 
-  async ecdh(publicKey: SecP256K1.CurvePoint, digestAlgorithm?: Digest.AlgorithmName<32>): Promise<ByteArray<32>> {
+  async ecdh(publicKey: SecP256K1.CurvePoint, digestAlgorithm?: Digest.AlgorithmName<32>): Promise<ByteArray<32>>;
+  async ecdh(): Promise<never> {
     throw new DummyEngineError();
   }
 
-  async ecdhRaw(publicKey: SecP256K1.CurvePoint): Promise<SecP256K1.UncompressedPoint> {
+  async ecdhRaw(publicKey: SecP256K1.CurvePoint): Promise<SecP256K1.UncompressedPoint>;
+  async ecdhRaw(): Promise<never> {
     throw new DummyEngineError();
   }
 }

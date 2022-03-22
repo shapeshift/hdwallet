@@ -4,7 +4,6 @@ import {
   Never,
   Number as Num,
   Object as Obj,
-  Result,
   Runtype,
   Static,
   String as Str,

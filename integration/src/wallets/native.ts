@@ -17,7 +17,7 @@ export function createInfo(): core.HDWalletInfo {
 }
 
 export async function createWallet(): Promise<core.HDWallet> {
-  const mswMock = await setupMswMocks();
+  await setupMswMocks();
   const wallet = new native.NativeHDWallet({ mnemonic, deviceId });
   await wallet.initialize();
   return wallet;
@@ -440,26 +440,7 @@ export function selfTest(get: () => core.HDWallet): void {
     });
   });
 
-  it.skip("can describe Bitcoin Change Addresses", () => {
-    expect(
-      wallet.describePath({
-        path: core.bip32ToAddressNList("m/44'/0'/7'/1/5"),
-        coin: "Bitcoin",
-        scriptType: core.BTCInputScriptType.SpendAddress,
-      })
-    ).toEqual({
-      verbose: "Bitcoin Account #7, Change Address #5 (Legacy)",
-      coin: "Bitcoin",
-      isKnown: true,
-      scriptType: core.BTCInputScriptType.SpendAddress,
-      accountIdx: 7,
-      addressIdx: 5,
-      wholeAccount: false,
-      isChange: true,
-      isPrefork: false,
-    });
-  });
-
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip("can describe prefork paths", () => {
     expect(
       wallet.describePath({

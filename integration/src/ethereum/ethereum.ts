@@ -119,10 +119,6 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
       "ethSignTx() - ETH",
       async () => {
         if (!wallet) return;
-        const addr = await wallet.ethGetAddress({
-          addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-          showDisplay: false,
-        });
 
         const txToSign = {
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
@@ -174,11 +170,6 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
           mnemonic: MNEMONIC_TEST,
           label: "test",
           skipChecksum: true,
-        });
-
-        const addr = await wallet.ethGetAddress({
-          addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-          showDisplay: false,
         });
 
         const res = await wallet.ethSignTx({

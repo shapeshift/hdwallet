@@ -149,7 +149,7 @@ function prepareSignTx(
           },
           sequence: input.sequence,
         })),
-        vout: tx.outs.map((output, i) => ({
+        vout: tx.outs.map((output) => ({
           value: String(output.value),
           scriptPubKey: {
             hex: output.script.toString("hex"),

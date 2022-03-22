@@ -27,7 +27,7 @@ describe("Digests", () => {
     const input = Buffer.from(inHex, "hex");
     console.time(algName);
     const output = (() => {
-      for (let i = 0; true; i++) {
+      for (let i = 0; ; i++) {
         const foo = Algorithms[algName](input);
         if (i === 1000) return foo;
       }
