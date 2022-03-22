@@ -155,6 +155,6 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
 
   async pairRawDevice(device: DeviceType<DelegateType>, tryDebugLink?: boolean): Promise<KeepKeyHDWallet> {
     await this.initialize([device], tryDebugLink, true);
-    return core.mustBeDefined(this.keyring.get((await this.inspectDevice(device)).serialNumber) as KeepKeyHDWallet);
+    return core.mustBeDefined(this.keyring.get<KeepKeyHDWallet>((await this.inspectDevice(device)).serialNumber));
   }
 }
