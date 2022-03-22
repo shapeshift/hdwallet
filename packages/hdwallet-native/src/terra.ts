@@ -70,6 +70,7 @@ export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWa
 
     async terraGetAddress(msg: core.TerraGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "terra");
         return this.createTerraAddress(keyPair.publicKey.toString("hex"));
       });
@@ -77,6 +78,7 @@ export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWa
 
     async terraSignTx(msg: core.TerraSignTx): Promise<any | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "terra");
         // @TODO: This needs to be fixed after the change to tendermint serialization
         const adapter = await Isolation.Adapters.Cosmos.create(keyPair);

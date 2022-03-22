@@ -68,6 +68,7 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32InterfaceAsync {
   }
   get identifier() {
     return (this._identifier =
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       this._identifier ?? btccryptoInstance!.hash160(Buffer.from(SecP256K1.CompressedPoint.from(this.publicKey))));
   }
   get fingerprint() {

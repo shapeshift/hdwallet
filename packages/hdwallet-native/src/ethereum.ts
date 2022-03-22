@@ -69,6 +69,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
       if (!_.isEqual(msg.addressNList, core.bip32ToAddressNList("m/44'/60'/0'/0/0"))) {
         throw new Error("path not supported");
       }
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return this.needsMnemonic(!!this.#ethSigner, () => this.#ethSigner!.getAddress());
     }
 
@@ -76,6 +77,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
       return this.needsMnemonic(!!this.#ethSigner, async () => {
         const utx = {
           to: msg.to,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           from: await this.#ethSigner!.getAddress(),
           nonce: msg.nonce,
           gasLimit: msg.gasLimit,
@@ -84,13 +86,15 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
           chainId: msg.chainId,
         };
         const result: string = msg.maxFeePerGas
-          ? await this.#ethSigner!.signTransaction({
+          ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            await this.#ethSigner!.signTransaction({
               ...utx,
               maxFeePerGas: msg.maxFeePerGas,
               maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
               type: core.ETHTransactionType.ETH_TX_TYPE_EIP_1559,
             })
-          : await this.#ethSigner!.signTransaction({
+          : // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            await this.#ethSigner!.signTransaction({
               ...utx,
               gasPrice: msg.gasPrice,
               type: core.ETHTransactionType.ETH_TX_TYPE_LEGACY,
@@ -108,8 +112,10 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
 
     async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
       return this.needsMnemonic(!!this.#ethSigner, async () => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const result = await this.#ethSigner!.signMessage(msg.message);
         return {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           address: await this.#ethSigner!.getAddress(),
           signature: result,
         };

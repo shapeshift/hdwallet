@@ -71,6 +71,7 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
 
     async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "cosmos");
         return this.createCosmosAddress(keyPair.publicKey.toString("hex"));
       });
@@ -78,6 +79,7 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
 
     async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "cosmos");
         const adapter = await Isolation.Adapters.CosmosDirect.create(keyPair.node, "cosmos");
         const result = await protoTxBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, ATOM_CHAIN);

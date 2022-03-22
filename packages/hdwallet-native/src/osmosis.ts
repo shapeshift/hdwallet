@@ -71,6 +71,7 @@ export function MixinNativeOsmosisWallet<TBase extends core.Constructor<NativeHD
 
     async osmosisGetAddress(msg: core.OsmosisGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "osmosis");
         return this.createOsmosisAddress(keyPair.publicKey.toString("hex"));
       });
@@ -78,6 +79,7 @@ export function MixinNativeOsmosisWallet<TBase extends core.Constructor<NativeHD
 
     async osmosisSignTx(msg: core.OsmosisSignTx): Promise<core.CosmosSignedTx | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "osmosis");
         const adapter = await Isolation.Adapters.CosmosDirect.create(keyPair.node, "osmo");
         return await protoTxBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, OSMOSIS_CHAIN);

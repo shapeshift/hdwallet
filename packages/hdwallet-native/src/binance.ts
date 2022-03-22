@@ -71,6 +71,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
 
     async binanceGetAddress(msg: core.BinanceGetAddress & { testnet?: boolean }): Promise<string | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "binance");
         return this.createBinanceAddress(keyPair.publicKey.toString("hex"), msg.testnet ?? false);
       });
@@ -78,6 +79,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
 
     async binanceSignTx(msg: core.BinanceSignTx & { testnet?: boolean }): Promise<core.BinanceSignedTx | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "binance");
 
         const tx = Object.assign({}, msg.tx);

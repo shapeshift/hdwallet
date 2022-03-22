@@ -66,6 +66,7 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
 
     async getFioSdk(addressNList: core.BIP32Path): Promise<fio.FIOSDK | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const key = await getKeyPair(this.#masterKey!, addressNList);
         const sdk = new fio.FIOSDK(key as any, key.publicKey, this.baseUrl, fetchJson);
         sdk.setSignedTrxReturnOption(true);
@@ -239,6 +240,7 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
       msg: core.FioEncryptRequestContentMsg<T>
     ): Promise<string | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const privateKey = await getKeyPair(this.#masterKey!, msg.addressNList);
         const sdk = core.mustBeDefined(await this.getFioSdk(msg.addressNList));
         return await sdk.transactions.getCipherContent(
@@ -255,6 +257,7 @@ export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWall
       msg: core.FioDecryptRequestContentMsg<T>
     ): Promise<core.Fio.Content<T> | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const privateKey = await getKeyPair(this.#masterKey!, msg.addressNList);
         const sdk = core.mustBeDefined(await this.getFioSdk(msg.addressNList));
         return await sdk.transactions.getUnCipherContent(

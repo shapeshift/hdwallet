@@ -29,6 +29,7 @@ export class ECPairAdapter implements SignerAsync, ECPairInterfaceAsync {
   }
 
   get network() {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return this._network ?? networksInstance!.bitcoin;
   }
 

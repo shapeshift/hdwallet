@@ -43,6 +43,7 @@ export class MockVault extends Revocable(Map) implements IVault, Map<string, Pro
     return Array.from(MockVault.data.keys());
   }
   static async meta(id: string) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return MockVault.data.has(id) ? new Map(MockVault.data.get(id)!.meta) : undefined;
   }
   static async delete(id: string) {

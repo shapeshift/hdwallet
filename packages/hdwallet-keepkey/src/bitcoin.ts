@@ -346,15 +346,20 @@ export async function btcSignTx(
         const txRequest = response as Messages.TxRequest;
 
         // If there's some part of signed transaction, add it
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         if (txRequest.hasSerialized() && txRequest.getSerialized()!.hasSerializedTx()) {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           serializedTx += core.toHexString(txRequest.getSerialized()!.getSerializedTx_asU8());
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         if (txRequest.hasSerialized() && txRequest.getSerialized()!.hasSignatureIndex()) {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const sigIdx = txRequest.getSerialized()!.getSignatureIndex()!;
           if (signatures[sigIdx] !== null) {
             throw new Error(`Signature for index ${sigIdx} already filled`);
           }
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           signatures[sigIdx] = core.toHexString(txRequest.getSerialized()!.getSignature_asU8());
         }
 
@@ -369,8 +374,10 @@ export async function btcSignTx(
 
         // Device asked for one more information, let's process it.
         if (!txRequest.hasDetails()) throw new Error("expected details");
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const reqDetails = txRequest.getDetails()!;
 
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         if (!reqDetails!.hasTxHash()) {
           currentTx = txmap["unsigned"];
         } else {
@@ -379,8 +386,11 @@ export async function btcSignTx(
 
         if (txRequest.getRequestType() === Types.RequestType.TXMETA) {
           currentMsg = new Types.TransactionType();
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           if (currentTx.hasVersion()) currentMsg.setVersion(currentTx.getVersion()!);
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           if (currentTx.hasLockTime()) currentMsg.setLockTime(currentTx.getLockTime()!);
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           if (currentTx.hasInputsCnt()) currentMsg.setInputsCnt(currentTx.getInputsCnt()!);
           if (reqDetails.hasTxHash()) {
             currentMsg.setOutputsCnt(currentTx.getBinOutputsList().length);
@@ -405,6 +415,7 @@ export async function btcSignTx(
 
         if (txRequest.getRequestType() === Types.RequestType.TXINPUT) {
           if (!reqDetails.hasRequestIndex()) throw new Error("expected request index");
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const reqIndex = reqDetails.getRequestIndex()!;
           currentMsg = new Types.TransactionType();
           currentMsg.setInputsList([currentTx.getInputsList()[reqIndex]]);
@@ -421,6 +432,7 @@ export async function btcSignTx(
 
         if (txRequest.getRequestType() === Types.RequestType.TXOUTPUT) {
           if (!reqDetails.hasRequestIndex()) throw new Error("expected request index");
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const reqIndex = reqDetails.getRequestIndex()!;
           currentMsg = new Types.TransactionType();
           if (reqDetails.hasTxHash()) {
@@ -443,7 +455,9 @@ export async function btcSignTx(
         if (txRequest.getRequestType() === Types.RequestType.TXEXTRADATA) {
           if (!reqDetails.hasExtraDataOffset() || !reqDetails.hasExtraDataLen())
             throw new Error("missing extra data offset and length");
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const offset = reqDetails.getExtraDataOffset()!;
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const length = reqDetails.getExtraDataLen()!;
           currentMsg = new Types.TransactionType();
           currentMsg.setExtraData(currentTx.getExtraData_asU8().slice(offset, offset + length));

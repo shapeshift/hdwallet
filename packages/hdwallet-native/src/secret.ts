@@ -69,6 +69,7 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
 
     async secretGetAddress(msg: core.SecretGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "secret");
         return this.createSecretAddress(keyPair.publicKey.toString("hex"));
       });
@@ -76,6 +77,7 @@ export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDW
 
     async secretSignTx(msg: core.SecretSignTx): Promise<any | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "secret");
         // @TODO: This needs to be fixed after the change to tendermint serialization
         const adapter = await Isolation.Adapters.Cosmos.create(keyPair);

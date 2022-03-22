@@ -264,6 +264,7 @@ export class NativeHDWallet
    */
   async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<core.PublicKey[] | null> {
     return this.needsMnemonic(!!this.#masterKey, async () => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const masterKey = await this.#masterKey!;
       return await Promise.all(
         msg.map(async (getPublicKey) => {
@@ -294,6 +295,7 @@ export class NativeHDWallet
 
   async initialize(): Promise<boolean | null> {
     return this.needsMnemonic(!!this.#masterKey, async () => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const masterKey = await this.#masterKey!;
       try {
         await Promise.all([
