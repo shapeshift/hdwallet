@@ -53,11 +53,12 @@ describe("NativeETHWallet", () => {
   });
 
   // Reflection. Surprise. Terror. For the future.
-  /*it("should generate another correct ethereum address", async () => {
-    expect(
-      await wallet.ethGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/60'/1337'/123/4") })
-    ).toBe("0x387F3031b30E2c8eB997E87a69FEA02756983b77");
-  });*/
+  // eslint-disable-next-line jest/no-disabled-tests
+  it.skip("should generate another correct ethereum address", async () => {
+    expect(await wallet.ethGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/60'/1337'/123/4") })).toBe(
+      "0x387F3031b30E2c8eB997E87a69FEA02756983b77"
+    );
+  });
 
   it("fails when generating another ethereum address", async () => {
     await expect(
