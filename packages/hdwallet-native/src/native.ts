@@ -138,7 +138,7 @@ class NativeHDWalletInfo
       case "digibyte":
       case "dogecoin":
       case "litecoin":
-      case "testnet":
+      case "testnet": {
         const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
 
         if (!msg.scriptType) return unknown;
@@ -146,6 +146,7 @@ class NativeHDWalletInfo
         if (!super.btcSupportsScriptTypeSync(msg.coin, msg.scriptType)) return unknown;
 
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+      }
       case "ethereum":
         return core.describeETHPath(msg.path);
       case "atom":
