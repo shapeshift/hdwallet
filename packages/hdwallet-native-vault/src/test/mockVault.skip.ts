@@ -137,6 +137,7 @@ export class MockVault extends Revocable(Map) implements IVault, Map<string, Pro
       (key: string) => {
         return key.startsWith("#") ? this._secrets.get(key) : this.get(key);
       },
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       () => {}
     );
   }

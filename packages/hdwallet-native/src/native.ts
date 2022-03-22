@@ -289,6 +289,7 @@ export class NativeHDWallet
     return false;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async clearSession(): Promise<void> {}
 
   async initialize(): Promise<boolean | null> {
@@ -323,14 +324,19 @@ export class NativeHDWallet
     return { msg: msg.msg };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async sendPin(): Promise<void> {}
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async sendPassphrase(): Promise<void> {}
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async sendCharacter(): Promise<void> {}
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async sendWord(): Promise<void> {}
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async cancel(): Promise<void> {}
 
   async wipe(): Promise<void> {
@@ -352,8 +358,10 @@ export class NativeHDWallet
     (await oldMasterKey)?.revoke?.();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async reset(): Promise<void> {}
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async recover(): Promise<void> {}
 
   async loadDevice(msg?: LoadDevice): Promise<void> {
