@@ -51,7 +51,7 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
             path: core.bip32ToAddressNList("m/44'/529'/0'/0/0"),
             coin: "Secret",
           })
-        );
+        ).toMatchInlineSnapshot();
       },
       TIMEOUT
     );

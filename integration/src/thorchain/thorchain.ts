@@ -46,12 +46,36 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
       "describePath() thorchain",
       async () => {
         if (!wallet) return;
-        expect(
-          wallet.describePath({
-            path: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
-            coin: "Thorchain",
-          })
-        );
+
+        const out = wallet.describePath({
+          path: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
+          coin: "Thorchain",
+        });
+
+        // This is strange, and probably wrong, behavior... but it's what happens.
+        if (wallet.getVendor() === "KeepKey") {
+          // eslint-disable-next-line jest/no-conditional-expect
+          expect(out).toMatchInlineSnapshot(`
+          Object {
+            "coin": "Thorchain",
+            "isKnown": false,
+            "scriptType": undefined,
+            "verbose": "m/44'/931'/0'/0/0",
+          }
+          `);
+        } else {
+          // eslint-disable-next-line jest/no-conditional-expect
+          expect(out).toMatchInlineSnapshot(`
+            Object {
+              "accountIdx": 0,
+              "coin": "Thorchain",
+              "isKnown": true,
+              "isPrefork": false,
+              "verbose": "Thorchain Account #0",
+              "wholeAccount": true,
+            }
+          `);
+        }
       },
       TIMEOUT
     );

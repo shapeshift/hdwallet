@@ -251,7 +251,7 @@ export function selfTest(get: () => core.HDWallet): void {
 
   it("validates current app", async () => {
     if (!wallet) return;
-    expect(await wallet.validateCurrentApp("Bitcoin")).resolves;
+    await expect(wallet.validateCurrentApp("Bitcoin")).resolves.not.toThrow();
     await expect(wallet.validateCurrentApp(undefined)).rejects.toThrow(); // no coin
     await expect(wallet.validateCurrentApp("FakeCoin")).rejects.toThrow(); // invalid coin
     await expect(wallet.validateCurrentApp("Ethereum")).rejects.toThrow(); // wrong coin

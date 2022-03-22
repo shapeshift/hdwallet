@@ -99,7 +99,7 @@ export function litecoinTests(get: () => { wallet: core.HDWallet; info: core.HDW
               accountIdx: accountIdx,
               scriptType: scriptType,
             });
-            expect(paths.length > 0);
+            expect(paths.length).toBeGreaterThan(0);
           }
         );
       },

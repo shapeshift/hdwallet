@@ -468,7 +468,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       "btcSupportsNativeShapeShift()",
       async () => {
         if (!wallet) return;
-        expect(typeof wallet.btcSupportsNativeShapeShift() === typeof true);
+        expect(typeof wallet.btcSupportsNativeShapeShift()).toBe("boolean");
         if (wallet.btcSupportsNativeShapeShift()) {
           // eslint-disable-next-line jest/no-conditional-expect
           expect(info.btcSupportsNativeShapeShift()).toBeTruthy();
