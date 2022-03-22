@@ -10,6 +10,7 @@ import * as util from "./util";
 const ATOM_CHAIN = "cosmoshub-4";
 
 export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeCosmosWalletInfo extends Base implements core.CosmosWalletInfo {
     readonly _supportsCosmosInfo = true;
     async cosmosSupportsNetwork(): Promise<boolean> {
@@ -42,6 +43,7 @@ export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor<core.
 }
 
 export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeCosmosWallet extends Base {
     readonly _supportsCosmos = true;
 

@@ -8,6 +8,7 @@ import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
 
 export function MixinNativeSecretWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeSecretWalletInfo extends Base implements core.SecretWalletInfo {
     readonly _supportsSecretInfo = true;
     async secretSupportsNetwork(): Promise<boolean> {
@@ -40,6 +41,7 @@ export function MixinNativeSecretWalletInfo<TBase extends core.Constructor<core.
 }
 
 export function MixinNativeSecretWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeSecretWallet extends Base {
     readonly _supportsSecret = true;
 

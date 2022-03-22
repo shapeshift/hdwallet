@@ -10,6 +10,7 @@ import * as util from "./util";
 const THOR_CHAIN = "thorchain";
 
 export function MixinNativeThorchainWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeThorchainWalletInfo extends Base implements core.ThorchainWalletInfo {
     _supportsThorchainInfo = true;
     async thorchainSupportsNetwork(): Promise<boolean> {
@@ -42,6 +43,7 @@ export function MixinNativeThorchainWalletInfo<TBase extends core.Constructor<co
 }
 
 export function MixinNativeThorchainWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeThorchainWallet extends Base {
     _supportsThorchain = true;
 

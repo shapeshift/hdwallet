@@ -85,12 +85,12 @@ export async function argonBenchmark(
   // of added security. The low memory use ensures that the setup time is negligible.
   const minMsPerIter = await (async () => {
     let minDuration = 0;
-    let minMsPerIter = 0;
+    let out = 0;
     for (let i = 1; minDuration === 0; i *= 2) {
       minDuration = await argonBenchInner(8, 1, roundedNow);
-      minMsPerIter = minDuration / i;
+      out = minDuration / i;
     }
-    return minMsPerIter;
+    return out;
   })();
 
   let firstDuration = 0;

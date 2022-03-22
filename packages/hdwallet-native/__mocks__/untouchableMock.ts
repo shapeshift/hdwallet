@@ -35,7 +35,7 @@ export function call(obj: Record<string, Function>, prop: string, ...args: any[]
   const out = fn();
   if ((typeof out === "object" || typeof out === "function") && "then" in out && out.then instanceof Function) {
     return (async () => {
-      const outResolved = await out;
+      await out; // make sure the method under test has time to hit the tripwire
       expect(mock).not.toHaveBeenCalled();
       return out;
     })();

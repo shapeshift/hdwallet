@@ -8,6 +8,7 @@ import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
 
 export function MixinNativeKavaWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeKavaWalletInfo extends Base implements core.KavaWalletInfo {
     readonly _supportsKavaInfo = true;
 
@@ -41,6 +42,7 @@ export function MixinNativeKavaWalletInfo<TBase extends core.Constructor<core.HD
 }
 
 export function MixinNativeKavaWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeKavaWallet extends Base {
     readonly _supportsKava = true;
 

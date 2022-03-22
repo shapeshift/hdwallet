@@ -6,6 +6,7 @@ import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeETHWalletInfo extends Base implements core.ETHWalletInfo {
     readonly _supportsETHInfo = true;
 
@@ -48,6 +49,7 @@ export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDW
 }
 
 export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeETHWallet extends Base {
     readonly _supportsETH = true;
 

@@ -8,6 +8,7 @@ import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
 
 export function MixinNativeTerraWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeTerraWalletInfo extends Base implements core.TerraWalletInfo {
     readonly _supportsTerraInfo = true;
 
@@ -41,6 +42,7 @@ export function MixinNativeTerraWalletInfo<TBase extends core.Constructor<core.H
 }
 
 export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeTerraWallet extends Base {
     readonly _supportsTerra = true;
 

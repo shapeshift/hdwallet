@@ -34,6 +34,7 @@ type BchInputData = {
 type InputData = UtxoData | ScriptData | BchInputData;
 
 export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeBTCWalletInfo extends Base implements core.BTCWalletInfo {
     readonly _supportsBTCInfo = true;
 
@@ -133,6 +134,7 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDW
 }
 
 export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeBTCWallet extends Base {
     readonly _supportsBTC = true;
 

@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import _ from "lodash";
+import cloneDeep from "lodash/cloneDeep";
 
 import * as native from "./native";
 import * as Networks from "./networks";
@@ -406,7 +406,7 @@ describe("NativeBTCWallet", () => {
   });
 
   it("should not sign a transaction without having the raw input transaction", async () => {
-    const input = _.cloneDeep(BIP44_BENCHMARK_TX);
+    const input = cloneDeep(BIP44_BENCHMARK_TX);
     delete (input.inputs[0] as any).hex;
     await expect(wallet.btcSignTx(input)).rejects.toThrowError("must provide prev rawTx");
   });
@@ -470,7 +470,7 @@ describe("NativeBTCWallet", () => {
   });
 
   it("should not sign a transaction with the wrong key", async () => {
-    const input = _.cloneDeep(BIP44_BENCHMARK_TX);
+    const input = cloneDeep(BIP44_BENCHMARK_TX);
     input.inputs[0].addressNList = core.bip32ToAddressNList("m/44'/0'/1337'/123/4");
 
     await expect(wallet.btcSignTx(input as any)).rejects.toThrowError("Can not sign for this input");

@@ -51,7 +51,7 @@ Proxy handler invariants (per MDN):
 */
 
 export const revocable = _freeze(<T extends object>(x: T, addRevoker: (revoke: () => void) => void) => {
-  const universalProxyHandler = (x: object) =>
+  const universalProxyHandler = (pseudoTarget: object) =>
     new Proxy(
       {},
       {
@@ -59,12 +59,12 @@ export const revocable = _freeze(<T extends object>(x: T, addRevoker: (revoke: (
           return (_t: any, p2: any, r: any) => {
             switch (p) {
               case "get": {
-                const out = Reflect.get(x, p2, r);
+                const out = Reflect.get(pseudoTarget, p2, r);
                 if (typeof out === "function") return out.bind(x);
                 return out;
               }
               case "getOwnPropertyDescriptor": {
-                const out = Reflect.getOwnPropertyDescriptor(x, p2);
+                const out = Reflect.getOwnPropertyDescriptor(pseudoTarget, p2);
                 if (out) out.configurable = true;
                 return out;
               }
@@ -73,7 +73,7 @@ export const revocable = _freeze(<T extends object>(x: T, addRevoker: (revoke: (
               case "preventExtensions":
                 return false;
               default:
-                return (Reflect as any)[p](x, p2, r);
+                return (Reflect as any)[p](pseudoTarget, p2, r);
             }
           };
         },
@@ -91,27 +91,32 @@ export interface Revocable {
 
 export const Revocable = _freeze(<T extends core.Constructor>(x: T) => {
   const out = _freeze(
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     class Revocable extends x {
       readonly #revokers: Set<() => void> = new _Set();
       #revoked = false;
 
       readonly revoke = () => {
         this.#revoked = true;
-        this.#revokers.forEach((x) => {
+        this.#revokers.forEach((revoker) => {
           try {
-            x();
-          } catch {}
+            revoker();
+          } catch {
+            // revoker errors get swallowed.
+          }
         });
         this.#revokers.clear();
       };
 
-      readonly addRevoker = (x: () => void) => {
+      readonly addRevoker = (revoker: () => void) => {
         if (this.#revoked) {
           try {
-            x();
-          } catch {}
+            revoker();
+          } catch {
+            // revoker errors get swallowed.
+          }
         } else {
-          this.#revokers.add(x);
+          this.#revokers.add(revoker);
         }
       };
     }

@@ -16,6 +16,7 @@ async function getKeyPair(masterKey: Isolation.Core.BIP32.Node, addressNList: nu
 }
 
 export function MixinNativeFioWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeFioWalletInfo extends Base implements core.FioWalletInfo {
     readonly _supportsFioInfo = true;
 
@@ -49,6 +50,7 @@ export function MixinNativeFioWalletInfo<TBase extends core.Constructor<core.HDW
 }
 
 export function MixinNativeFioWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeFioWallet extends Base {
     readonly _supportsFio = true;
     baseUrl = "https://fio.eu.eosamsterdam.net/v1/";

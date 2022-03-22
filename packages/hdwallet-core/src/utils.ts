@@ -186,6 +186,7 @@ export function untouchable(message: string): any {
       {},
       {
         get(_, p) {
+          // eslint-disable-next-line @typescript-eslint/no-shadow
           return (_: any, p2: any) => {
             if (p === "get" && p2 === "valueOf") return () => out;
             throw new Error(`${String(p)}(${String(p2)}): ${message}`);

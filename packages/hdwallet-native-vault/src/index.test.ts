@@ -47,6 +47,7 @@ const preparedOnce = new Promise<void>((resolve) => (prepareOnce = resolve)).the
   await RawVault.defaultArgonParams;
 });
 
+// eslint-disable-next-line @typescript-eslint/no-shadow
 function testVaultImpl(name: string, Vault: ISealableVaultFactory<IVault>) {
   describe(name, () => {
     beforeAll(async () => {

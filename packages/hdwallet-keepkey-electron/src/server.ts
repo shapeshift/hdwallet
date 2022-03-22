@@ -69,6 +69,7 @@ export class Server<DeviceType extends object, DelegateType extends keepkey.Adap
               if (delegate.tryConnectDebugLink === undefined) return false;
               return await delegate.tryConnectDebugLink();
             default:
+              // eslint-disable-next-line @typescript-eslint/no-shadow
               return await (delegate[delegateMethod] as (...args: any[]) => Promise<any>)(...args);
           }
         }

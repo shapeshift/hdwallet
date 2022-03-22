@@ -8,16 +8,16 @@ import { ECDSAKey, ECDSARecoverableKey } from "./interfaces";
 
 const ethers = import("ethers");
 
-const fieldElementBase = BigEndianInteger(32).withConstraint(
+const _fieldElementBase = BigEndianInteger(32).withConstraint(
   (x) => tinyecc.isPrivate(safeBufferFrom(x)) || `expected ${x} to be within the order of the curve`,
   { name: "FieldElement" }
 );
-export type FieldElement = Static<typeof fieldElementBase>;
-const fieldElementStatic = {};
-const fieldElement = Object.assign(fieldElementBase, BigEndianInteger, fieldElementStatic);
-export const FieldElement: typeof fieldElement = fieldElement;
+export type FieldElement = Static<typeof _fieldElementBase>;
+const _fieldElementStatic = {};
+const _fieldElement = Object.assign(_fieldElementBase, BigEndianInteger, _fieldElementStatic);
+export const FieldElement: typeof _fieldElement = _fieldElement;
 
-const uncompressedPointBase = ByteArray(65)
+const _uncompressedPointBase = ByteArray(65)
   .And(
     Obj({
       0: Literal(0x04),
@@ -36,9 +36,9 @@ const uncompressedPointBase = ByteArray(65)
     },
     { name: "UncompressedPoint.y" }
   );
-export type UncompressedPoint = Static<typeof uncompressedPointBase>;
+export type UncompressedPoint = Static<typeof _uncompressedPointBase>;
 
-const compressedPointBase = ByteArray(33)
+const _compressedPointBase = ByteArray(33)
   .And(
     Obj({
       0: Literal(0x02).Or(Literal(0x03)),
@@ -47,9 +47,9 @@ const compressedPointBase = ByteArray(33)
   .withConstraint((p) => FieldElement.test(p.slice(1)) || `expected ${p}.x to be within the order of the curve`, {
     name: "CompressedPoint.x",
   });
-export type CompressedPoint = Static<typeof compressedPointBase>;
+export type CompressedPoint = Static<typeof _compressedPointBase>;
 
-const uncompressedPointStatic = {
+const _uncompressedPointStatic = {
   from: (p: CurvePoint): UncompressedPoint => {
     return p.length === 65 ? p : UncompressedPoint.fromCompressed(checkType(CompressedPoint, p));
   },
@@ -66,10 +66,10 @@ const uncompressedPointStatic = {
     return FieldElement.isOdd(UncompressedPoint.y(p));
   },
 };
-const uncompressedPoint = Object.assign(uncompressedPointBase, ByteArray, uncompressedPointStatic);
-export const UncompressedPoint: typeof uncompressedPoint = uncompressedPoint;
+const _uncompressedPoint = Object.assign(_uncompressedPointBase, ByteArray, _uncompressedPointStatic);
+export const UncompressedPoint: typeof _uncompressedPoint = _uncompressedPoint;
 
-const compressedPointStatic = {
+const _compressedPointStatic = {
   from: (p: CurvePoint): CompressedPoint => {
     return p.length === 33 ? p : CompressedPoint.fromUncompressed(checkType(UncompressedPoint, p));
   },
@@ -87,48 +87,48 @@ const compressedPointStatic = {
     return p[0] === 0x03;
   },
 };
-const compressedPoint = Object.assign(compressedPointBase, ByteArray, compressedPointStatic);
-export const CompressedPoint: typeof compressedPoint = compressedPoint;
+const _compressedPoint = Object.assign(_compressedPointBase, ByteArray, _compressedPointStatic);
+export const CompressedPoint: typeof _compressedPoint = _compressedPoint;
 
-const curvePointBase = CompressedPoint.Or(UncompressedPoint);
+const _curvePointBase = CompressedPoint.Or(UncompressedPoint);
 export type CurvePoint = CompressedPoint | UncompressedPoint;
-const curvePointStatic = {
+const _curvePointStatic = {
   x: (p: CurvePoint): FieldElement => (p[0] === 0x04 ? UncompressedPoint.x(p) : CompressedPoint.x(p)),
   yIsOdd: (p: CurvePoint): boolean => (p[0] === 0x04 ? UncompressedPoint.yIsOdd(p) : CompressedPoint.yIsOdd(p)),
   // Equivalent to CompressedPoint.equal(CompressedPoint.from(lhs), CompressedPoint.from(rhs)), but avoids allocations
   equal: (lhs: CurvePoint, rhs: CurvePoint) =>
     CurvePoint.yIsOdd(lhs) === CurvePoint.yIsOdd(rhs) && FieldElement.equal(CurvePoint.x(lhs), CurvePoint.x(rhs)),
 };
-const curvePoint = Object.assign(curvePointBase, curvePointStatic);
-export const CurvePoint: typeof curvePoint = curvePoint;
+const _curvePoint = Object.assign(_curvePointBase, _curvePointStatic);
+export const CurvePoint: typeof _curvePoint = _curvePoint;
 
-const recoveryParamBase = Union(Literal(0), Literal(1), Literal(2), Literal(3));
-export type RecoveryParam = Static<typeof recoveryParamBase>;
-const recoveryParamStatic = {};
-const recoveryParam = Object.assign(recoveryParamBase, recoveryParamStatic);
-export const RecoveryParam: typeof recoveryParam = recoveryParam;
+const _recoveryParamBase = Union(Literal(0), Literal(1), Literal(2), Literal(3));
+export type RecoveryParam = Static<typeof _recoveryParamBase>;
+const _recoveryParamStatic = {};
+const _recoveryParam = Object.assign(_recoveryParamBase, _recoveryParamStatic);
+export const RecoveryParam: typeof _recoveryParam = _recoveryParam;
 
-const messageWithPreimageBase = ByteArray(32).And(Digest.Digest());
-export type MessageWithPreimage = Static<typeof messageWithPreimageBase>;
-const messageWithPreimageStatic = {};
-const messageWithPreimage = Object.assign(messageWithPreimageBase, ByteArray, messageWithPreimageStatic);
-export const MessageWithPreimage: typeof messageWithPreimage = messageWithPreimage;
+const _messageWithPreimageBase = ByteArray(32).And(Digest.Digest());
+export type MessageWithPreimage = Static<typeof _messageWithPreimageBase>;
+const _messageWithPreimageStatic = {};
+const _messageWithPreimage = Object.assign(_messageWithPreimageBase, ByteArray, _messageWithPreimageStatic);
+export const MessageWithPreimage: typeof _messageWithPreimage = _messageWithPreimage;
 
-const messageBase = MessageWithPreimage.Or(ByteArray());
-export type Message = Static<typeof messageBase>;
-const messageStatic = {};
-const message = Object.assign(messageBase, ByteArray, messageWithPreimageStatic, messageStatic);
-export const Message: typeof message = message;
+const _messageBase = MessageWithPreimage.Or(ByteArray());
+export type Message = Static<typeof _messageBase>;
+const _messageStatic = {};
+const _message = Object.assign(_messageBase, ByteArray, _messageWithPreimageStatic, _messageStatic);
+export const Message: typeof _message = _message;
 
-const signatureBase = ByteArray(64)
+const _signatureBase = ByteArray(64)
   .withConstraint((x) => FieldElement.test(x.slice(0, 32)) || `expected ${x}.r to be within the order of the curve`, {
     name: "Signature.r",
   })
   .withConstraint((x) => FieldElement.test(x.slice(32, 64)) || `expected ${x}.s to be within the order of the curve`, {
     name: "Signature.s",
   });
-export type Signature = Static<typeof signatureBase>;
-const signatureStatic = {
+export type Signature = Static<typeof _signatureBase>;
+const _signatureStatic = {
   r: (x: Signature): FieldElement => {
     return checkType(FieldElement, x.slice(0, 32));
   },
@@ -187,10 +187,10 @@ const signatureStatic = {
     return tinyecc.verify(Buffer.from(msgOrDigest), Buffer.from(publicKey), Buffer.from(x));
   },
 };
-const signature = Object.assign(signatureBase, ByteArray, signatureStatic);
-export const Signature: typeof signature = signature;
+const _signature = Object.assign(_signatureBase, ByteArray, _signatureStatic);
+export const Signature: typeof _signature = _signature;
 
-const recoverableSignatureBase = ByteArray(65)
+const _recoverableSignatureBase = ByteArray(65)
   .And(
     Obj({
       64: RecoveryParam,
@@ -199,8 +199,8 @@ const recoverableSignatureBase = ByteArray(65)
   .withConstraint((x) => Signature.test(x.slice(0, 64)) || `expected ${x}.sig to be a valid signature`, {
     name: "Signature",
   });
-export type RecoverableSignature = Static<typeof recoverableSignatureBase>;
-const recoverableSignatureStatic = {
+export type RecoverableSignature = Static<typeof _recoverableSignatureBase>;
+const _recoverableSignatureStatic = {
   from: (x: Signature, recoveryParam: RecoveryParam): RecoverableSignature => {
     return checkType(RecoverableSignature, core.compatibleBufferConcat([x, new Uint8Array([recoveryParam])]));
   },
@@ -236,13 +236,16 @@ const recoverableSignatureStatic = {
     assertType(ByteArray(), message);
     counter === undefined || Uint32.assert(counter);
 
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     const isIndexable = (x: unknown): x is Record<string, unknown> =>
       x !== null && ["object", "function"].includes(typeof x);
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     const isECDSARecoverableKey = (x: ECDSAKey): x is ECDSARecoverableKey =>
       isIndexable(x) && "ecdsaSignRecoverable" in x && typeof x.ecdsaSignRecoverable === "function";
 
     const ecdsaSignRecoverable = isECDSARecoverableKey(x)
-      ? async (digestAlgorithm: Digest.AlgorithmName<32> | null, message: Uint8Array, counter?: Uint32) => {
+      ? // eslint-disable-next-line @typescript-eslint/no-shadow
+        async (digestAlgorithm: Digest.AlgorithmName<32> | null, message: Uint8Array, counter?: Uint32) => {
           if (digestAlgorithm === null) {
             assertType(ByteArray(32), message);
             return counter === undefined
@@ -254,7 +257,8 @@ const recoverableSignatureStatic = {
               : await x.ecdsaSignRecoverable(digestAlgorithm, message, counter);
           }
         }
-      : async (digestAlgorithm: Digest.AlgorithmName<32> | null, message: Uint8Array, counter?: Uint32) => {
+      : // eslint-disable-next-line @typescript-eslint/no-shadow
+        async (digestAlgorithm: Digest.AlgorithmName<32> | null, message: Uint8Array, counter?: Uint32) => {
           const sig = await Signature.signCanonically(x, digestAlgorithm, message, counter);
           if (sig === undefined) return undefined;
           return await RecoverableSignature.fromSignature(sig, digestAlgorithm, message, publicKey);
@@ -308,5 +312,5 @@ const recoverableSignatureStatic = {
     return Signature.verify(RecoverableSignature.sig(x), digestAlgorithm, message, publicKey);
   },
 };
-const recoverableSignature = Object.assign(recoverableSignatureBase, recoverableSignatureStatic);
-export const RecoverableSignature: typeof recoverableSignature = recoverableSignature;
+const _recoverableSignature = Object.assign(_recoverableSignatureBase, _recoverableSignatureStatic);
+export const RecoverableSignature: typeof _recoverableSignature = _recoverableSignature;

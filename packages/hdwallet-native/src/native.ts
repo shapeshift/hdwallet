@@ -370,9 +370,9 @@ export class NativeHDWallet
           })();
           const seed = await isolatedMnemonic.toSeed();
           seed.addRevoker?.(() => isolatedMnemonic.revoke?.());
-          const masterKey = await seed.toMasterKey();
-          masterKey.addRevoker?.(() => seed.revoke?.());
-          return masterKey;
+          const out = await seed.toMasterKey();
+          out.addRevoker?.(() => seed.revoke?.());
+          return out;
         }
         throw new Error("Either [mnemonic] or [masterKey] is required");
       })(msg?.mnemonic, msg?.masterKey)

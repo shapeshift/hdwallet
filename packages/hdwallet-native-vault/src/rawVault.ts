@@ -155,6 +155,7 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
   static async open(id?: string, password?: string) {
     await RawVault.prepare();
 
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     const factory = async (id: string, argonParams: Promise<ArgonParams>) => {
       const vaultRevoker = new (Revocable(class {}))();
       const vault = revocable(new RawVault(id, argonParams), (x) => vaultRevoker.addRevoker(x));

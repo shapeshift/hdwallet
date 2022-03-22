@@ -9,6 +9,7 @@ import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
 
 export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeBinanceWalletInfo extends Base implements core.BinanceWalletInfo {
     readonly _supportsBinanceInfo = true;
 
@@ -42,6 +43,7 @@ export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor<core
 }
 
 export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeBinanceWallet extends Base {
     readonly _supportsBinance = true;
 

@@ -10,6 +10,7 @@ import * as util from "./util";
 const OSMOSIS_CHAIN = "osmosis-1";
 
 export function MixinNativeOsmosisWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeOsmosisWalletInfo extends Base implements core.OsmosisWalletInfo {
     readonly _supportsOsmosisInfo = true;
     async osmosisSupportsNetwork(): Promise<boolean> {
@@ -42,6 +43,7 @@ export function MixinNativeOsmosisWalletInfo<TBase extends core.Constructor<core
 }
 
 export function MixinNativeOsmosisWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeOsmosisWallet extends Base {
     readonly _supportsOsmosis = true;
 
