@@ -31,7 +31,7 @@ export class WebHIDLedgerAdapter {
     try {
       await this.initialize(e.device);
       this.keyring.emit(["Ledger", e.device.productName ?? "", core.Events.CONNECT], MOCK_SERIAL_NUMBER);
-    } catch (error) {
+    } catch (error: any) {
       this.keyring.emit(
         ["Ledger", e.device.productName ?? "", core.Events.FAILURE],
         [MOCK_SERIAL_NUMBER, { message: { code: error.type, ...error } }]
@@ -60,8 +60,8 @@ export class WebHIDLedgerAdapter {
     }, APP_NAVIGATION_DELAY);
   }
 
-  public get(): core.HDWallet {
-    return core.mustBeDefined(this.keyring.get(MOCK_SERIAL_NUMBER));
+  public get(): ledger.LedgerHDWallet {
+    return core.mustBeDefined(this.keyring.get<ledger.LedgerHDWallet>(MOCK_SERIAL_NUMBER));
   }
 
   // without unique device identifiers, we should only ever have one HID ledger device on the keyring at a time
@@ -81,13 +81,13 @@ export class WebHIDLedgerAdapter {
     return Object.keys(this.keyring.wallets).length;
   }
 
-  public async pairDevice(): Promise<core.HDWallet> {
+  public async pairDevice(): Promise<ledger.LedgerHDWallet> {
     const ledgerTransport = await getTransport();
 
     const device = ledgerTransport.device;
 
     await this.initialize(device);
 
-    return core.mustBeDefined(this.keyring.get(MOCK_SERIAL_NUMBER));
+    return core.mustBeDefined(this.keyring.get<ledger.LedgerHDWallet>(MOCK_SERIAL_NUMBER));
   }
 }
