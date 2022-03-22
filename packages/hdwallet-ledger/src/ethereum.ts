@@ -27,7 +27,9 @@ export async function ethGetPublicKeys(
   const xpubs = [];
 
   for (const getPublicKey of msg) {
-    let { addressNList, coin, scriptType } = getPublicKey;
+    const { addressNList, coin } = getPublicKey;
+    let { scriptType } = getPublicKey;
+
     if (!scriptType) scriptType = core.BTCInputScriptType.SpendAddress;
 
     // Only get public keys for ETH account paths
@@ -151,7 +153,9 @@ export async function ethSignMessage(
   const res = await transport.call("Eth", "signPersonalMessage", bip32path, Buffer.from(msg.message).toString("hex"));
   handleError(res, transport, "Could not sign ETH message with Ledger");
 
-  let { v, r, s } = res.payload;
+  let { v } = res.payload;
+  const { r, s } = res.payload;
+
   v = v - 27;
   const vStr = v.toString(16).padStart(2, "0");
   const addressRes = await transport.call("Eth", "getAddress", bip32path, false);
