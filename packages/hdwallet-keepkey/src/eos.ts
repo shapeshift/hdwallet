@@ -1,15 +1,14 @@
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as EosMessages from "@keepkey/device-protocol/lib/messages-eos_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as bs58 from "bs58";
+import createHash from "create-hash";
+import Long from "long";
 
 import { Transport } from "./transport";
 
-const createHash = require("create-hash");
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function eosSigFormatter(r: Uint8Array, s: Uint8Array, v: number): string {
-  const base58 = require("bs58");
-
   const recoverId = 0x1f;
 
   let signature = "SIG_K1_";
@@ -52,7 +51,6 @@ function charToSymbol(c: string): number {
 }
 
 function nameToNumber(name: string): string {
-  const Long = require("long");
   let value = new Long(0, 0, true);
   let c = new Long(0, 0, true);
 
