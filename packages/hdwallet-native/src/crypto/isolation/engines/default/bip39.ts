@@ -31,9 +31,9 @@ function pbkdf2_sha512_singleblock(
     let out = bip32crypto.hmacSHA512(pwBuffer, core.compatibleBufferConcat([salt, be32Buf(1)])) as Buffer & { length: 64 };
     let lastU = out;
     for (let i = 2; i <= iterations; i++) {
-    let newU = bip32crypto.hmacSHA512(pwBuffer, lastU) as Buffer & { length: 64 };
-    for (let j = 0; j < out.length; j++) out[j] ^= newU[j];
-    lastU = newU;
+        let newU = bip32crypto.hmacSHA512(pwBuffer, lastU) as Buffer & { length: 64 };
+        for (let j = 0; j < out.length; j++) out[j] ^= newU[j];
+        lastU = newU;
     }
 
     return out;

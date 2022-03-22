@@ -165,7 +165,7 @@ export class TrezorAdapter {
     return Object.keys(this.keyring.wallets).length;
   }
 
-  public async pairDevice(): Promise<core.HDWallet> {
+  public async pairDevice(): Promise<trezor.TrezorHDWallet> {
     const init = await _initialization;
     if (!init) throw new Error("Could not pair Trezor: TrezorConnect not initialized");
 

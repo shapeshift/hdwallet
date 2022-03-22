@@ -28,7 +28,7 @@ export class PortisAdapter {
     return Object.keys(this.keyring.wallets).length;
   }
 
-  public async pairDevice(): Promise<core.HDWallet> {
+  public async pairDevice(): Promise<PortisHDWallet> {
     try {
       const wallet = await this.pairPortisDevice();
       this.portis.onActiveWalletChanged(async (wallAddr: string) => {
@@ -58,7 +58,7 @@ export class PortisAdapter {
     }
   }
 
-  private async pairPortisDevice(): Promise<core.HDWallet> {
+  private async pairPortisDevice(): Promise<PortisHDWallet> {
     const Portis = (await import("@portis/web3")).default;
     this.portis = new Portis(this.portisAppId, "mainnet");
     const wallet = new PortisHDWallet(this.portis);

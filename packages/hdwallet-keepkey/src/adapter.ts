@@ -142,7 +142,7 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
     return await this.delegate.getTransportDelegate(device);
   }
 
-  async pairDevice(serialNumber?: string, tryDebugLink?: boolean): Promise<core.HDWallet> {
+  async pairDevice(serialNumber?: string, tryDebugLink?: boolean): Promise<KeepKeyHDWallet> {
     const device = await this.getDevice(serialNumber);
     if (!device)
       throw new Error(
@@ -153,8 +153,8 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
     return this.pairRawDevice(device, tryDebugLink);
   }
 
-  async pairRawDevice(device: DeviceType<DelegateType>, tryDebugLink?: boolean): Promise<core.HDWallet> {
+  async pairRawDevice(device: DeviceType<DelegateType>, tryDebugLink?: boolean): Promise<KeepKeyHDWallet> {
     await this.initialize([device], tryDebugLink, true);
-    return core.mustBeDefined(this.keyring.get((await this.inspectDevice(device)).serialNumber));
+    return core.mustBeDefined(this.keyring.get<KeepKeyHDWallet>((await this.inspectDevice(device)).serialNumber));
   }
 }

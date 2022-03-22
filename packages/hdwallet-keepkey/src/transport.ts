@@ -3,7 +3,6 @@ import * as Types from "@keepkey/device-protocol/lib/types_pb"
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as jspb from "google-protobuf";
 
-import { EXIT_TYPES } from "./responseTypeRegistry";
 import { messageTypeRegistry, messageNameRegistry } from "./typeRegistry";
 import { SEGMENT_SIZE } from "./utils";
 
@@ -149,7 +148,6 @@ export class Transport extends core.Transport {
   }
 
   public async handleCancellableResponse(messageType: any) {
-    const event = (await core.takeFirstOfManyEvents(this, [String(messageType), ...EXIT_TYPES]).toPromise()) as core.Event;
     return this.readResponse(false);
   }
 
