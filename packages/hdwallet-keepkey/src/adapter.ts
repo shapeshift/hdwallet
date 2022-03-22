@@ -85,7 +85,9 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
     const { productName, serialNumber } = await this.inspectDevice(device);
     try {
       await this.keyring.remove(serialNumber);
-    } catch {}
+    } catch {
+      // swallow keyring removal errors
+    }
     await this.keyring.emit([productName, serialNumber, core.Events.DISCONNECT], serialNumber);
   }
 
@@ -133,7 +135,9 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
     let defaultDevice: DeviceType<DelegateType> | undefined = undefined;
     try {
       defaultDevice = await this.getDevice();
-    } catch {}
+    } catch {
+      // swallow default device fetch errors
+    }
     return defaultDevice ? [defaultDevice] : [];
   }
 

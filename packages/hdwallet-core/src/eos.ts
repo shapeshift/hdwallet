@@ -51,6 +51,7 @@ export interface EosToSignTx {
 }
 
 /* device response asking for next action */
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface EosTxActionRequest {}
 
 /*

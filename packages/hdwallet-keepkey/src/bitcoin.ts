@@ -338,6 +338,7 @@ export async function btcSignTx(
 
     try {
       // Begin callback loop
+      // eslint-disable-next-line no-constant-condition
       while (true) {
         if (responseType !== Messages.MessageType.MESSAGETYPE_TXREQUEST) {
           throw new Error(`Unexpected message type: ${responseType}`);

@@ -3,6 +3,7 @@ import * as native from "@shapeshiftoss/hdwallet-native";
 import * as _ from "lodash";
 
 // TODO: clean this up
+// eslint-disable-next-line jest/no-mocks-import
 import mswMock from "../../../packages/hdwallet-native/__mocks__/mswMock";
 
 const mnemonic = "all all all all all all all all all all all all";

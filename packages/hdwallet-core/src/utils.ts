@@ -76,7 +76,7 @@ export function bip32ToAddressNList(path: string): number[] {
   if (segments.length === 1 && segments[0] === "") return [];
   const ret = new Array(segments.length);
   for (let i = 0; i < segments.length; i++) {
-    const tmp = /(\d+)([hH\']?)/.exec(segments[i]);
+    const tmp = /(\d+)([hH']?)/.exec(segments[i]);
     if (tmp === null) {
       throw new Error("Invalid input");
     }
