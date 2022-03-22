@@ -3,7 +3,7 @@ import { CompressedPoint } from "../../core/secp256k1";
 
 export class DummyEngineError extends Error {
   constructor() {
-    super("the dummy isolation engine can't do this because it doesn't have any actual private keys");
+    super("Isolation.Engines.Dummy - Invalid operation: private key not available");
   }
 }
 
