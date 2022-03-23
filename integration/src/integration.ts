@@ -19,10 +19,7 @@ import { rippleTests } from "./ripple";
 import { secretTests } from "./secret";
 import { terraTests } from "./terra";
 import { thorchainTests } from "./thorchain";
-import { ethereum } from "./wallets/mocks/@metamask/detect-provider";
 import { WalletSuite } from "./wallets/suite";
-
-jest.mock("@metamask/detect-provider", () => async () => Promise.resolve(ethereum));
 
 /**
  * We run all the integration tests against every device, even though some
