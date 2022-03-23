@@ -24,8 +24,9 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
   ethAddress?: string | null;
   provider: any;
 
-  constructor() {
+  constructor(provider: unknown) {
     this.info = new XDeFiHDWalletInfo();
+    this.provider = provider
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -48,11 +49,8 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
     return "XDeFi";
   }
 
-  public initialize(): never;
-  public initialize(provider: unknown): Promise<any>;
-  public async initialize(provider?: unknown): Promise<any> {
-    if (!provider) throw new Error("provider is required");
-    this.provider = provider;
+  public async initialize(): Promise<void> {
+    // nothing to initialize
   }
 
   public hasOnDevicePinEntry(): boolean {

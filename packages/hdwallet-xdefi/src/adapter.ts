@@ -30,8 +30,8 @@ export class XDeFiAdapter {
       console.error("Could not get XDeFi accounts. ");
       throw error;
     }
-    const wallet = new XDeFiHDWallet();
-    await wallet.initialize(provider);
+    const wallet = new XDeFiHDWallet(provider);
+    await wallet.initialize();
     const deviceID = await wallet.getDeviceID();
     this.keyring.add(wallet, deviceID);
     this.currentDeviceID = deviceID;
