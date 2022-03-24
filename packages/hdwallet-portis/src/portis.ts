@@ -292,7 +292,11 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
   public async _ethGetAddress(): Promise<string> {
     if (this.ethAddress) return this.ethAddress;
 
-    const out: string = (await (await this.web3).eth.getAccounts())[0];
+    // https://web3js.readthedocs.io/en/v1.2.11/web3-eth.html#note-on-checksum-addresses
+    // web3.eth.getAccounts() returns us checksum addresses, with mixed upper/lowercase
+    // We need to lowercase the addresses for consistency with other wallets
+    const outCheksum: string = (await (await this.web3).eth.getAccounts())[0];
+    const out = outCheksum ? outCheksum.toLowerCase() : ''
     this.ethAddress = out;
     return out;
   }
