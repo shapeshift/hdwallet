@@ -66,7 +66,12 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
       if (!_.isEqual(msg.addressNList, core.bip32ToAddressNList("m/44'/60'/0'/0/0"))) {
         throw new Error("path not supported");
       }
-      return this.needsMnemonic(!!this.#ethSigner, () => this.#ethSigner!.getAddress());
+      return this.needsMnemonic(!!this.#ethSigner, async () => {
+        const address = await this.#ethSigner!.getAddress()
+        if (!address) return address
+
+        return address.toLowerCase()
+      });
     }
 
     async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {

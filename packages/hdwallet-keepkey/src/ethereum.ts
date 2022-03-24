@@ -193,7 +193,7 @@ export async function ethGetAddress(transport: Transport, msg: core.ETHGetAddres
   else if (ethAddress.hasAddress()) address = "0x" + core.toHexString(ethAddress.getAddress_asU8());
   else throw new Error("Unable to obtain ETH address from device.");
 
-  return address;
+  return address.toLowerCase();
 }
 
 export async function ethSignMessage(transport: Transport, msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {

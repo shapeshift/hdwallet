@@ -48,7 +48,7 @@ describe("NativeETHWallet", () => {
 
   it("should generate a correct ethereum address", async () => {
     expect(await wallet.ethGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0") })).toBe(
-      "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8"
+      "0x73d0385f4d8e00c5e6504c6030f47bf6212736a8"
     );
   });
 
