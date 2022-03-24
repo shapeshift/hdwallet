@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as eth from "./ethereum";
-import _ from "lodash";
+import isObject from "lodash/isObject";
 
 class XDeFiTransport extends core.Transport {
   public async getDeviceID() {
@@ -11,7 +11,7 @@ class XDeFiTransport extends core.Transport {
 }
 
 export function isXDeFi(wallet: core.HDWallet): wallet is XDeFiHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isXDeFi;
+  return isObject(wallet) && (wallet as any)._isXDeFi;
 }
 
 export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
@@ -24,8 +24,9 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
   ethAddress?: string | null;
   provider: any;
 
-  constructor() {
+  constructor(provider: unknown) {
     this.info = new XDeFiHDWalletInfo();
+    this.provider = provider
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -48,11 +49,8 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
     return "XDeFi";
   }
 
-  public initialize(): never;
-  public initialize(provider: unknown): Promise<any>;
-  public async initialize(provider?: unknown): Promise<any> {
-    if (!provider) throw new Error("provider is required");
-    this.provider = provider;
+  public async initialize(): Promise<void> {
+    // nothing to initialize
   }
 
   public hasOnDevicePinEntry(): boolean {
@@ -273,12 +271,4 @@ export class XDeFiHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     return eth.ethGetAccountPaths(msg);
   }
-}
-
-export function info() {
-  return new XDeFiHDWalletInfo();
-}
-
-export function create(): XDeFiHDWallet {
-  return new XDeFiHDWallet();
 }

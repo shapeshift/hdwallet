@@ -1,11 +1,10 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { create, XDeFiHDWallet } from ".";
-
-import * as xdefi from "./xdefi";
+import { XDeFiHDWallet, XDeFiHDWalletInfo } from ".";
 
 describe("XDeFIHDWalletInfo", () => {
+  const info = new XDeFiHDWalletInfo();
+
   it("should have correct metadata", async () => {
-    const info = xdefi.info();
     expect(info.getVendor()).toBe("XDeFi");
     expect(info.hasOnDevicePinEntry()).toBe(false);
     expect(info.hasOnDevicePassphrase()).toBe(false);
@@ -19,7 +18,6 @@ describe("XDeFIHDWalletInfo", () => {
     expect(await info.supportsBroadcast()).toBe(true);
   });
   it("should produce correct path descriptions", () => {
-    const info = xdefi.info();
     expect(info.hasNativeShapeShift()).toBe(false);
     [
       {
@@ -31,10 +29,10 @@ describe("XDeFIHDWalletInfo", () => {
   });
 });
 
-describe("XDeFiWHDWallet", () => {
+describe("XDeFiHDWallet", () => {
   let wallet: XDeFiHDWallet;
   beforeEach(() => {
-    wallet = new XDeFiHDWallet();
+    wallet = new XDeFiHDWallet(core.untouchable("XDeFiHDWallet:provider"));
     wallet.ethAddress = "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8";
   });
 
@@ -53,7 +51,6 @@ describe("XDeFiWHDWallet", () => {
   });
 
   it("should test ethSignTx", async () => {
-    const wallet = new XDeFiHDWallet();
     wallet.ethAddress = "0x123";
     wallet.provider = {
       request: jest.fn().mockReturnValue({
@@ -207,10 +204,5 @@ describe("XDeFiWHDWallet", () => {
           "0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b",
       })
     ).toEqual(true);
-  });
-
-  it("should create instance of XDeFiHD wallet", () => {
-    const wallet = create();
-    expect(wallet).toBeInstanceOf(XDeFiHDWallet);
   });
 });
