@@ -3,9 +3,19 @@ import * as Types from "@keepkey/device-protocol/lib/types_pb"
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as jspb from "google-protobuf";
 
-import { EXIT_TYPES } from "./responseTypeRegistry";
+// import { EXIT_TYPES } from "./responseTypeRegistry";
 import { messageTypeRegistry, messageNameRegistry } from "./typeRegistry";
 import { SEGMENT_SIZE } from "./utils";
+
+const {
+  default: { MessageType },
+} = Messages as any; // Conflict between typedef and actual js export
+
+const EXIT_TYPES = [
+  String(MessageType.MESSAGETYPE_SUCCESS),
+  String(MessageType.MESSAGETYPE_CANCEL),
+  String(MessageType.MESSAGETYPE_FAILURE),
+]
 
 export interface TransportDelegate {
   isOpened(): Promise<boolean>;

@@ -1,13 +1,13 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bech32 from "bech32";
 import CryptoJS from "crypto-js";
-import * as txBuilder from "tendermint-tx-builder";
+import * as protoTxBuilder from "@shapeshiftoss/proto-tx-builder";
 
 import { NativeHDWalletBase } from "./native";
 import util from "./util";
 import * as Isolation from "./crypto/isolation";
 
-const THOR_CHAIN = "thorchain";
+const THOR_CHAIN = "thorchain-mainnet-v1";
 
 export function MixinNativeThorchainWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   return class MixinNativeThorchainWalletInfo extends Base implements core.ThorchainWalletInfo {
@@ -74,10 +74,10 @@ export function MixinNativeThorchainWallet<TBase extends core.Constructor<Native
 
     async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {
       return this.needsMnemonic(!!this.#seed, async () => {
-        const keyPair = util.getKeyPair(this.#seed!, msg.addressNList, "thorchain");
-        const adapter = new Isolation.Adapters.Cosmos(keyPair);
-        const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, THOR_CHAIN);
-        return txBuilder.createSignedTx(msg.tx, result);
+        const keyPair = await util.getKeyPair(this.#seed!, msg.addressNList, "thorchain");
+        const adapter = await Isolation.Adapters.CosmosDirect.create(keyPair, "thor");
+
+        return protoTxBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, THOR_CHAIN);
       });
     }
   };

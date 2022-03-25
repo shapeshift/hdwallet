@@ -50,27 +50,39 @@ describe("NativeThorchainWallet", () => {
   });
 
   it("should sign a transaction correctly", async () => {
+    console.info('1')
     const signed = await wallet.thorchainSignTx({
       addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
       tx: {
-        msg: [{ type: "foo", value: "bar" }],
+        msg: [
+          { 
+            type: "thorchain/MsgSend",
+            value: {
+              from_address: "thor1ujumx36gj3jv33gcw49dfafdddza3kdcd38paq",
+              to_address: "thor14hqwsy4qpwzsdk2l3h3q82eghg4ctaa38rx63g",
+              amount: [
+                {
+                  denom: "rune",
+                  amount: "123456"
+                }
+              ]
+            }
+          }
+        ],
         fee: {
-          amount: [{ denom: "foo", amount: "bar" }],
-          gas: "baz",
+          amount: [
+          ],
+          gas: "1000000"
         },
-        signatures: null,
-        memo: "foobar",
+        memo: "hdwallet thorchain test",
+        signatures: [],
       },
-      chain_id: "foobar",
-      account_number: "foo",
-      sequence: "bar",
+      chain_id: "thorchain-mainnet-v1",
+      account_number: "2722",
+      sequence: "11",
     });
+
     expect(signed?.signatures?.length).toBe(1);
-    expect(signed?.signatures?.[0].pub_key?.value).toMatchInlineSnapshot(
-      `"A1DSQ2pqr8D5di36Uj6M/sbvkSi7nMf/07yMwcBXyJHL"`
-    );
-    expect(signed?.signatures?.[0].signature).toMatchInlineSnapshot(
-      `"3fYykzgna7MWg9VLhsYwHMEF55ZHQEmefq5KOH0jRtNDOYc2K0J9ss3sts54i5I52sg5dA4aGC/yJuSDGUlUJQ=="`
-    );
+    expect(signed?.signatures?.[0]).toBe("hKgBg+lB6poFDTMIKPA/hBMkgrKb0BJ5aP1vy5KMze8/joV30TPZrayrLBK42/MDSCmVauNJbfwvRhrCQwRCmg==")
   });
 });

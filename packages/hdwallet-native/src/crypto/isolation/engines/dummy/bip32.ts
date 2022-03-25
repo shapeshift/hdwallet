@@ -55,10 +55,13 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
 
         const entropy = (counter === undefined ? undefined : Buffer.alloc(32));
         entropy?.writeUInt32BE(counter ?? 0, 24);
+
+        const sig = checkType(SecP256K1.Signature, (tinyecc as typeof tinyecc & {
+            signWithEntropy: (message: Buffer, privateKey: Buffer, entropy?: Buffer) => Buffer,
+        }).signWithEntropy(Buffer.from(msg), this.#privateKey, entropy))
+
         return SecP256K1.RecoverableSignature.fromSignature(
-            checkType(SecP256K1.Signature, (tinyecc as typeof tinyecc & {
-                signWithEntropy: (message: Buffer, privateKey: Buffer, entropy?: Buffer) => Buffer,
-            }).signWithEntropy(Buffer.from(msg), this.#privateKey, entropy)),
+            sig,
             msg,
             this.publicKey,
         );
