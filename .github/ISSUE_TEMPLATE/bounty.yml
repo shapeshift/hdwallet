@@ -10,15 +10,15 @@ body:
     attributes:
       label: Overview
       description: General background needed for bounty hunter to complete task
-      placeholder: We need to change the foo service to be able to bar better.
+      placeholder: We want a new widget on the dashboard that displays fancy things.
     validations:
       required: true
   - type: textarea
     id: reference
     attributes:
-      label: Reference
-      description: An explanation as to where the bounty hunter should look or code that is affected
-      placeholder: It may be useful to start by looking at `some-service.ts`
+      label: References and additional details
+      description: An explanation as to where the bounty hunter should look or code that is affected. Include any relevent transaction IDs and replication steps.
+      placeholder: E.g. code wise, it may be useful to start by looking at `Dashboard.tsx`. For bug reports, please include reproduction steps and transaction IDs here if applicable.
     validations:
       required: true
   - type: textarea
@@ -26,9 +26,25 @@ body:
     attributes:
       label: Acceptance Criteria
       description: The criteria that needs to be completed in order for the bounty to be considered complete
-      placeholder: The foo service can bar correctly.
+      placeholder: The widget displays correctly on the dashboard as per the mockups.
     validations:
       required: true
+  - type: textarea
+    id: need-by-date
+    attributes:
+      label: Need By Date
+      description: Does this bounty have a hard due date for completion?
+      placeholder: Enter a date if applicable.
+    validations:
+      required: false
+  - type: textarea
+    id: screenshots-or-mockups
+    attributes:
+      label: Screenshots/Mockups
+      description: Screenshots related to UI changes for simple changes, links to clickable mockups for larger features
+      placeholder: Only include screenshots or mockups for features that require UI changes.
+    validations:
+      required: false
   - type: checkboxes
     id: ownership
     attributes:
@@ -54,11 +70,15 @@ body:
   - type: textarea
     id: need-by-date
     attributes:
-      label: Need By Date
-      description: Does this bounty have a hard due date for completion?
-      placeholder: NA
-    validations:
-      required: false
+      label: Estimated effort
+      description: "Estimated effort to complete the bounty, in hours or days"
+      placeholder: "Half a day"
+  - type: input
+    id: stakeholder
+    attributes:
+      label: Sponsor / Stakeholder
+      description: "To whom can the bounty hunter go to for questions and support?"
+      placeholder: "github_handle or discord_handle"
   - type: textarea
     id: bounty-hunters
     attributes:
