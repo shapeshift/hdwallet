@@ -1,14 +1,12 @@
-export * from "../../core/bip32";
-import * as BIP32 from "../../core/bip32";
-
 import * as bip32crypto from "bip32/src/crypto";
 import * as tinyecc from "tiny-secp256k1";
 import { TextEncoder } from "web-encoding";
 
 import { ByteArray, Uint32, checkType, safeBufferFrom, assertType } from "../../types";
-import { Digest, SecP256K1 } from "../../core";
-import { ChainCode } from "../../core/bip32";
+import { BIP32, Digest, SecP256K1 } from "../../core";
 import { revocable, Revocable } from "./revocable";
+
+export * from "../../core/bip32";
 
 export class Seed extends Revocable(class {}) implements BIP32.Seed {
     readonly #seed: Buffer;
@@ -53,7 +51,7 @@ export class Node extends Revocable(class {}) implements BIP32.Node, SecP256K1.E
         if (privateKey.length !== 32) throw new Error("bad private key length");
         this.#privateKey = safeBufferFrom(privateKey) as Buffer & ByteArray<32>;
         this.addRevoker(() => this.#privateKey.fill(0));
-        this.chainCode = safeBufferFrom(checkType(BIP32.ChainCode, chainCode)) as Buffer & ChainCode;
+        this.chainCode = safeBufferFrom(checkType(BIP32.ChainCode, chainCode)) as Buffer & BIP32.ChainCode;
     }
 
     static async create(privateKey: Uint8Array, chainCode: Uint8Array): Promise<BIP32.Node> {
