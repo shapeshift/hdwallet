@@ -49,6 +49,7 @@ export namespace Thorchain {
 
 export interface ThorchainSignedTx {
   serialized: string
+  hex: string
   body: string
   authInfoBytes: string
   signatures: string[]

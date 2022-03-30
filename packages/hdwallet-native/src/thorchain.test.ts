@@ -50,7 +50,6 @@ describe("NativeThorchainWallet", () => {
   });
 
   it("should sign a transaction correctly", async () => {
-    console.info('1')
     const signed = await wallet.thorchainSignTx({
       addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
       tx: {

@@ -46,6 +46,7 @@ export namespace Cosmos {
 
 export interface CosmosTx {
   serialized: string
+  hex: string
   body: string
   authInfoBytes: string
   signatures: string[]
