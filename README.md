@@ -1,4 +1,4 @@
-# HDWallet
+# HDWallet LEGACY
 
 [![CircleCI](https://circleci.com/gh/shapeshift/hdwallet.svg?style=svg)](https://circleci.com/gh/shapeshift/hdwallet)
 
