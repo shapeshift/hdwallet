@@ -45,10 +45,11 @@ export namespace Cosmos {
 }
 
 export interface CosmosTx {
-  msg: Cosmos.Msg[];
-  fee: Cosmos.StdFee;
-  signatures: null | Cosmos.StdSignature[];
-  memo: string;
+  serialized: string
+  hex: string
+  body: string
+  authInfoBytes: string
+  signatures: string[]
 }
 
 export interface CosmosSignTx {

@@ -47,11 +47,12 @@ export namespace Thorchain {
   }
 }
 
-export interface ThorchainTx {
-  msg: Thorchain.Msg[];
-  fee: Thorchain.StdFee;
-  signatures: null | Thorchain.StdSignature[];
-  memo: string;
+export interface ThorchainSignedTx {
+  serialized: string
+  hex: string
+  body: string
+  authInfoBytes: string
+  signatures: string[]
 }
 
 export interface ThorchainSignTx {
@@ -63,8 +64,6 @@ export interface ThorchainSignTx {
   fee?: number;
   testnet?: boolean;
 }
-
-export type ThorchainSignedTx = ThorchainTx;
 
 export interface ThorchainGetAccountPaths {
   accountIdx: number;
