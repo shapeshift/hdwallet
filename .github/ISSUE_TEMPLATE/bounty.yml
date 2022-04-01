@@ -68,6 +68,18 @@ body:
       description: "To whom can the bounty hunter go to for questions and support?"
       placeholder: "github_handle or discord_handle"
   - type: textarea
+    id: need-by-date
+    attributes:
+      label: Estimated effort
+      description: "Estimated effort to complete the bounty, in hours or days"
+      placeholder: "Half a day"
+  - type: input
+    id: stakeholder
+    attributes:
+      label: Sponsor / Stakeholder
+      description: "To whom can the bounty hunter go to for questions and support?"
+      placeholder: "github_handle or discord_handle"
+  - type: textarea
     id: bounty-hunters
     attributes:
       label: Bounty Hunters
