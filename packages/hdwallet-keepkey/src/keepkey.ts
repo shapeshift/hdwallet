@@ -1,6 +1,6 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
+import * as core from "@shapeshiftoss/hdwallet-core";
 import _ from "lodash";
 import semver from "semver";
 
@@ -20,8 +20,8 @@ export function isKeepKey(wallet: core.HDWallet): wallet is KeepKeyHDWallet {
 }
 
 function describeETHPath(path: core.BIP32Path): core.PathDescription {
-  let pathStr = core.addressNListToBIP32(path);
-  let unknown: core.PathDescription = {
+  const pathStr = core.addressNListToBIP32(path);
+  const unknown: core.PathDescription = {
     verbose: pathStr,
     coin: "Ethereum",
     isKnown: false,
@@ -39,7 +39,7 @@ function describeETHPath(path: core.BIP32Path): core.PathDescription {
 
   if (path[4] != 0) return unknown;
 
-  let index = path[2] & 0x7fffffff;
+  const index = path[2] & 0x7fffffff;
   return {
     verbose: `Ethereum Account #${index}`,
     accountIdx: index,
@@ -55,8 +55,8 @@ function describeUTXOPath(
   coin: core.Coin,
   scriptType?: core.BTCInputScriptType
 ): core.PathDescription {
-  let pathStr = core.addressNListToBIP32(path);
-  let unknown: core.PathDescription = {
+  const pathStr = core.addressNListToBIP32(path);
+  const unknown: core.PathDescription = {
     verbose: pathStr,
     coin,
     scriptType,
@@ -72,7 +72,7 @@ function describeUTXOPath(
 
   if ((path[0] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
 
-  let purpose = path[0] & 0x7fffffff;
+  const purpose = path[0] & 0x7fffffff;
 
   if (![44, 49, 84].includes(purpose)) return unknown;
 
@@ -82,9 +82,9 @@ function describeUTXOPath(
 
   if (purpose === 84 && scriptType !== core.BTCInputScriptType.SpendWitness) return unknown;
 
-  let wholeAccount = path.length === 3;
+  const wholeAccount = path.length === 3;
 
-  let script = scriptType
+  const script = scriptType
     ? (
         {
           [core.BTCInputScriptType.SpendAddress]: ["Legacy"],
@@ -135,9 +135,9 @@ function describeUTXOPath(
       break;
   }
 
-  let attr = attributes.length ? ` (${attributes.join(", ")})` : "";
+  const attr = attributes.length ? ` (${attributes.join(", ")})` : "";
 
-  let accountIdx = path[2] & 0x7fffffff;
+  const accountIdx = path[2] & 0x7fffffff;
 
   if (wholeAccount) {
     return {
@@ -150,8 +150,8 @@ function describeUTXOPath(
       isPrefork,
     };
   } else {
-    let change = path[3] === 1 ? "Change " : "";
-    let addressIdx = path[4];
+    const change = path[3] === 1 ? "Change " : "";
+    const addressIdx = path[4];
     return {
       coin,
       verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${attr}`,
@@ -167,8 +167,8 @@ function describeUTXOPath(
 }
 
 function describeCosmosPath(path: core.BIP32Path): core.PathDescription {
-  let pathStr = core.addressNListToBIP32(path);
-  let unknown: core.PathDescription = {
+  const pathStr = core.addressNListToBIP32(path);
+  const unknown: core.PathDescription = {
     verbose: pathStr,
     coin: "Atom",
     isKnown: false,
@@ -194,7 +194,7 @@ function describeCosmosPath(path: core.BIP32Path): core.PathDescription {
     return unknown;
   }
 
-  let index = path[2] & 0x7fffffff;
+  const index = path[2] & 0x7fffffff;
   return {
     verbose: `Cosmos Account #${index}`,
     accountIdx: index,
@@ -206,8 +206,8 @@ function describeCosmosPath(path: core.BIP32Path): core.PathDescription {
 }
 
 function describeThorchainPath(path: core.BIP32Path): core.PathDescription {
-  let pathStr = core.addressNListToBIP32(path);
-  let unknown: core.PathDescription = {
+  const pathStr = core.addressNListToBIP32(path);
+  const unknown: core.PathDescription = {
     verbose: pathStr,
     coin: "Rune",
     isKnown: false,
@@ -233,7 +233,7 @@ function describeThorchainPath(path: core.BIP32Path): core.PathDescription {
     return unknown;
   }
 
-  let index = path[2] & 0x7fffffff;
+  const index = path[2] & 0x7fffffff;
   return {
     verbose: `THORChain Account #${index}`,
     accountIdx: index,
@@ -245,8 +245,8 @@ function describeThorchainPath(path: core.BIP32Path): core.PathDescription {
 }
 
 function describeEosPath(path: core.BIP32Path): core.PathDescription {
-  let pathStr = core.addressNListToBIP32(path);
-  let unknown: core.PathDescription = {
+  const pathStr = core.addressNListToBIP32(path);
+  const unknown: core.PathDescription = {
     verbose: pathStr,
     coin: "Eos",
     isKnown: false,
@@ -272,7 +272,7 @@ function describeEosPath(path: core.BIP32Path): core.PathDescription {
     return unknown;
   }
 
-  let index = path[2] & 0x7fffffff;
+  const index = path[2] & 0x7fffffff;
   return {
     verbose: `Eos Account #${index}`,
     accountIdx: index,
@@ -284,8 +284,8 @@ function describeEosPath(path: core.BIP32Path): core.PathDescription {
 }
 
 function describeRipplePath(path: core.BIP32Path): core.PathDescription {
-  let pathStr = core.addressNListToBIP32(path);
-  let unknown: core.PathDescription = {
+  const pathStr = core.addressNListToBIP32(path);
+  const unknown: core.PathDescription = {
     verbose: pathStr,
     coin: "Ripple",
     isKnown: false,
@@ -311,7 +311,7 @@ function describeRipplePath(path: core.BIP32Path): core.PathDescription {
     return unknown;
   }
 
-  let index = path[2] & 0x7fffffff;
+  const index = path[2] & 0x7fffffff;
   return {
     verbose: `Ripple Account #${index}`,
     accountIdx: index,
@@ -323,8 +323,8 @@ function describeRipplePath(path: core.BIP32Path): core.PathDescription {
 }
 
 function describeBinancePath(path: core.BIP32Path): core.PathDescription {
-  let pathStr = core.addressNListToBIP32(path);
-  let unknown: core.PathDescription = {
+  const pathStr = core.addressNListToBIP32(path);
+  const unknown: core.PathDescription = {
     verbose: pathStr,
     coin: "Binance",
     isKnown: false,
@@ -350,7 +350,7 @@ function describeBinancePath(path: core.BIP32Path): core.PathDescription {
     return unknown;
   }
 
-  let index = path[2] & 0x7fffffff;
+  const index = path[2] & 0x7fffffff;
   return {
     verbose: `Binance Account #${index}`,
     accountIdx: index,
@@ -494,12 +494,12 @@ export class KeepKeyHDWalletInfo
   }
 
   public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    let description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType);
+    const description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType);
     if (!description.isKnown) {
       return undefined;
     }
 
-    let addressNList = msg.addressNList;
+    const addressNList = msg.addressNList;
 
     if (
       addressNList[0] === 0x80000000 + 44 ||
@@ -517,8 +517,8 @@ export class KeepKeyHDWalletInfo
   }
 
   public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
-    let addressNList = msg.hardenedPath.concat(msg.relPath);
-    let description = describeETHPath(addressNList);
+    const addressNList = msg.hardenedPath.concat(msg.relPath);
+    const description = describeETHPath(addressNList);
     if (!description.isKnown) {
       return undefined;
     }
@@ -537,12 +537,12 @@ export class KeepKeyHDWalletInfo
   }
 
   public cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
-    let description = describeCosmosPath(msg.addressNList);
+    const description = describeCosmosPath(msg.addressNList);
     if (!description.isKnown) {
       return undefined;
     }
 
-    let addressNList = msg.addressNList;
+    const addressNList = msg.addressNList;
     addressNList[2] += 1;
 
     return {
@@ -552,12 +552,12 @@ export class KeepKeyHDWalletInfo
   }
 
   public thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
-    let description = describeThorchainPath(msg.addressNList);
+    const description = describeThorchainPath(msg.addressNList);
     if (!description.isKnown) {
       return undefined;
     }
 
-    let addressNList = msg.addressNList;
+    const addressNList = msg.addressNList;
     addressNList[2] += 1;
 
     return {
@@ -567,11 +567,11 @@ export class KeepKeyHDWalletInfo
   }
 
   public rippleNextAccountPath(msg: core.RippleAccountPath): core.RippleAccountPath | undefined {
-    let description = describeRipplePath(msg.addressNList);
+    const description = describeRipplePath(msg.addressNList);
     if (!description.isKnown) {
       return undefined;
     }
-    let addressNList = msg.addressNList;
+    const addressNList = msg.addressNList;
     addressNList[2] += 1;
 
     return {
@@ -581,12 +581,12 @@ export class KeepKeyHDWalletInfo
   }
 
   public binanceNextAccountPath(msg: core.BinanceAccountPath): core.BinanceAccountPath | undefined {
-    let description = describeBinancePath(msg.addressNList);
+    const description = describeBinancePath(msg.addressNList);
     if (!description.isKnown) {
       return undefined;
     }
 
-    let addressNList = msg.addressNList;
+    const addressNList = msg.addressNList;
     addressNList[2] += 1;
 
     return {
@@ -596,12 +596,12 @@ export class KeepKeyHDWalletInfo
   }
 
   public eosNextAccountPath(msg: core.EosAccountPath): core.EosAccountPath | undefined {
-    let description = describeEosPath(msg.addressNList);
+    const description = describeEosPath(msg.addressNList);
     if (!description.isKnown) {
       return undefined;
     }
 
-    let addressNList = msg.addressNList;
+    const addressNList = msg.addressNList;
     addressNList[2] += 1;
 
     return {
@@ -703,13 +703,9 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
       GPK.setEcdsaCurveName(curve || "secp256k1");
       GPK.setScriptType(translateInputScriptType(scriptType || core.BTCInputScriptType.SpendAddress));
 
-      const event = await this.transport.call(
-        Messages.MessageType.MESSAGETYPE_GETPUBLICKEY,
-        GPK,
-        {
-          msgTimeout: showDisplay ? core.LONG_TIMEOUT : core.DEFAULT_TIMEOUT,
-        }
-      );
+      const event = await this.transport.call(Messages.MessageType.MESSAGETYPE_GETPUBLICKEY, GPK, {
+        msgTimeout: showDisplay ? core.LONG_TIMEOUT : core.DEFAULT_TIMEOUT,
+      });
       const publicKey = event.proto as Messages.PublicKey;
 
       publicKeys.push({ xpub: core.mustBeDefined(publicKey.getXpub()) });
@@ -723,13 +719,9 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     ping.setButtonProtection(msg.button || false);
     ping.setPinProtection(msg.pin || false);
     ping.setPassphraseProtection(msg.passphrase || false);
-    const event = await this.transport.call(
-      Messages.MessageType.MESSAGETYPE_PING,
-      ping,
-      {
-        msgTimeout: msg.button || msg.pin || msg.passphrase  ? core.LONG_TIMEOUT : core.DEFAULT_TIMEOUT,
-      }
-    );
+    const event = await this.transport.call(Messages.MessageType.MESSAGETYPE_PING, ping, {
+      msgTimeout: msg.button || msg.pin || msg.passphrase ? core.LONG_TIMEOUT : core.DEFAULT_TIMEOUT,
+    });
     const message = event.proto as Messages.Success;
     return { msg: core.mustBeDefined(message.getMessage()) };
   }
@@ -781,7 +773,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   }
 
   public async press(isYes: boolean): Promise<void> {
-    let decision = new Messages.DebugLinkDecision();
+    const decision = new Messages.DebugLinkDecision();
     decision.setYesNo(isYes);
 
     await this.transport.call(Messages.MessageType.MESSAGETYPE_DEBUGLINKDECISION, decision, {
@@ -937,10 +929,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     cipherKeyValue.setAskOnEncrypt(v.askOnEncrypt || false);
     cipherKeyValue.setAskOnDecrypt(v.askOnDecrypt || false);
     cipherKeyValue.setIv(v.iv || "");
-    const response = await this.transport.call(
-      Messages.MessageType.MESSAGETYPE_CIPHERKEYVALUE,
-      cipherKeyValue,
-    );
+    const response = await this.transport.call(Messages.MessageType.MESSAGETYPE_CIPHERKEYVALUE, cipherKeyValue);
     const ckv = response.message as Messages.CipheredKeyValue;
     return ckv.getValue();
   }
@@ -1008,7 +997,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   }
 
   // GetFeatures returns the features and other device information such as the version, label, and supported coins
-  public async getFeatures(cached: boolean = false): Promise<Messages.Features.AsObject> {
+  public async getFeatures(cached = false): Promise<Messages.Features.AsObject> {
     if (cached && this.featuresCache) return this.featuresCache;
     const features = new Messages.GetFeatures();
     const event = await this.transport.call(Messages.MessageType.MESSAGETYPE_GETFEATURES, features);
@@ -1040,7 +1029,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
 
   // GetCoinTable returns an array of Types.CoinTypes, with start and end arguments for paging.
   // You cannot request more than 10 at a time.
-  public async getCoinTable(start: number = 0, end: number = start + 10): Promise<Types.CoinType.AsObject[]> {
+  public async getCoinTable(start = 0, end: number = start + 10): Promise<Types.CoinType.AsObject[]> {
     const getCoinTable = new Messages.GetCoinTable();
     getCoinTable.setStart(start);
     getCoinTable.setEnd(end);

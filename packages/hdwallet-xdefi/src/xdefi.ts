@@ -1,6 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as eth from "./ethereum";
 import isObject from "lodash/isObject";
+
+import * as eth from "./ethereum";
 
 class XDeFiTransport extends core.Transport {
   public async getDeviceID() {
@@ -26,7 +27,7 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
 
   constructor(provider: unknown) {
     this.info = new XDeFiHDWalletInfo();
-    this.provider = provider
+    this.provider = provider;
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -137,7 +138,7 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
 
   public async disconnect(): Promise<void> {}
 
-  public async ethSupportsNetwork(chainId: number = 1): Promise<boolean> {
+  public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
     return chainId === 1;
   }
 
@@ -252,7 +253,7 @@ export class XDeFiHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
     return undefined;
   }
 
-  public async ethSupportsNetwork(chainId: number = 1): Promise<boolean> {
+  public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
     return chainId === 1;
   }
 

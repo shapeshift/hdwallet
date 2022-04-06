@@ -45,7 +45,7 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
     this.portis = portis;
     this.web3 = (async () => {
       const web3 = (await import("web3")).default;
-      return new web3(portis.provider)
+      return new web3(portis.provider);
     })();
     this.info = new PortisHDWalletInfo();
   }
@@ -237,7 +237,7 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
     return this.info.btcNextAccountPath(msg);
   }
 
-  public async ethSupportsNetwork(chainId: number = 1): Promise<boolean> {
+  public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
     return this.info.ethSupportsNetwork(chainId);
   }
 
@@ -379,7 +379,7 @@ export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
     return undefined;
   }
 
-  public async ethSupportsNetwork(chainId: number = 1): Promise<boolean> {
+  public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
     return chainId === 1;
   }
 

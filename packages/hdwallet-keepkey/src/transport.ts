@@ -1,9 +1,9 @@
-import * as Messages from "@keepkey/device-protocol/lib/messages_pb"
-import * as Types from "@keepkey/device-protocol/lib/types_pb"
+import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
+import * as Types from "@keepkey/device-protocol/lib/types_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as jspb from "google-protobuf";
 
-import { messageTypeRegistry, messageNameRegistry } from "./typeRegistry";
+import { messageNameRegistry, messageTypeRegistry } from "./typeRegistry";
 import { SEGMENT_SIZE } from "./utils";
 
 export interface TransportDelegate {
@@ -19,8 +19,8 @@ export interface TransportDelegate {
 }
 
 export class Transport extends core.Transport {
-  debugLink: boolean = false;
-  userActionRequired: boolean = false;
+  debugLink = false;
+  userActionRequired = false;
   delegate: TransportDelegate;
 
   /// One per transport, unlike on Trezor, since the contention is
@@ -53,8 +53,8 @@ export class Transport extends core.Transport {
     return this.delegate.connect();
   }
   public async tryConnectDebugLink(): Promise<boolean> {
-    let out = false
-    if (this.delegate.tryConnectDebugLink && await this.delegate.tryConnectDebugLink()) out = true;
+    let out = false;
+    if (this.delegate.tryConnectDebugLink && (await this.delegate.tryConnectDebugLink())) out = true;
     this.debugLink = out;
     return out;
   }
@@ -93,7 +93,7 @@ export class Transport extends core.Transport {
 
     for (let offset = first.length; offset < buffer.length; ) {
       // Drop USB "?" reportId in the first byte
-      let next = (await this.delegate.readChunk(debugLink)).slice(1);
+      const next = (await this.delegate.readChunk(debugLink)).slice(1);
       buffer.set(next.slice(0, Math.min(next.length, buffer.length - offset)), offset);
       offset += next.length;
     }
@@ -157,7 +157,7 @@ export class Transport extends core.Transport {
       buf = await this.read(debugLink);
     } while (!buf);
     const [msgTypeEnum, msg] = this.fromMessageBuffer(buf);
-    let event = core.makeEvent({
+    const event = core.makeEvent({
       message_type: messageNameRegistry[msgTypeEnum],
       message_enum: msgTypeEnum,
       message: msg.toObject(),
@@ -258,30 +258,30 @@ export class Transport extends core.Transport {
     msgTypeEnum: number,
     msg: jspb.Message,
     options?: {
-      msgTimeout?: number,
-      omitLock?: boolean,
-      noWait?: false,
-      debugLink?: boolean,
+      msgTimeout?: number;
+      omitLock?: boolean;
+      noWait?: false;
+      debugLink?: boolean;
     }
   ): Promise<core.Event>;
   public async call(
     msgTypeEnum: number,
     msg: jspb.Message,
     options: {
-      msgTimeout?: number,
-      omitLock?: boolean,
-      noWait: true,
-      debugLink?: boolean,
+      msgTimeout?: number;
+      omitLock?: boolean;
+      noWait: true;
+      debugLink?: boolean;
     }
   ): Promise<undefined>;
   public async call(
     msgTypeEnum: number,
     msg: jspb.Message,
     options?: {
-      msgTimeout?: number,
-      omitLock?: boolean,
-      noWait?: boolean,
-      debugLink?: boolean,
+      msgTimeout?: number;
+      omitLock?: boolean;
+      noWait?: boolean;
+      debugLink?: boolean;
     }
   ): Promise<core.Event | undefined> {
     options ??= {};
@@ -300,13 +300,15 @@ export class Transport extends core.Transport {
 
     const makePromise = async () => {
       if (
-        ([
-          Messages.MessageType.MESSAGETYPE_BUTTONACK,
-          Messages.MessageType.MESSAGETYPE_PASSPHRASEACK,
-          Messages.MessageType.MESSAGETYPE_CHARACTERACK,
-          Messages.MessageType.MESSAGETYPE_PINMATRIXACK,
-          Messages.MessageType.MESSAGETYPE_WORDACK,
-        ] as Array<number>).includes(msgTypeEnum)
+        (
+          [
+            Messages.MessageType.MESSAGETYPE_BUTTONACK,
+            Messages.MessageType.MESSAGETYPE_PASSPHRASEACK,
+            Messages.MessageType.MESSAGETYPE_CHARACTERACK,
+            Messages.MessageType.MESSAGETYPE_PINMATRIXACK,
+            Messages.MessageType.MESSAGETYPE_WORDACK,
+          ] as Array<number>
+        ).includes(msgTypeEnum)
       ) {
         this.userActionRequired = true;
       }
@@ -332,7 +334,7 @@ export class Transport extends core.Transport {
     // See the comments in hdwallet-trezor-connect's call for why this weird
     // sequence. We've got a very similar issue here that needs pretty much
     // the same solution.
-    const lockKey = options?.debugLink ? "debug" : "main"
+    const lockKey = options?.debugLink ? "debug" : "main";
     this.callInProgress[lockKey] = (async () => {
       await this.cancellable(this.callInProgress[lockKey]);
 
@@ -352,7 +354,7 @@ export class Transport extends core.Transport {
       this.callInProgress = { main: undefined, debug: undefined };
       const cancelMsg = new Messages.Cancel();
       await this.call(Messages.MessageType.MESSAGETYPE_CANCEL, cancelMsg, {
-        noWait: this.userActionRequired
+        noWait: this.userActionRequired,
       });
     } catch (e) {
       console.error("Cancel Pending Error", e);

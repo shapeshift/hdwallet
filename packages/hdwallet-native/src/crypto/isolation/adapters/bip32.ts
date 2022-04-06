@@ -1,14 +1,14 @@
+import type { crypto as btccrypto, Network, SignerAsync } from "@shapeshiftoss/bitcoinjs-lib";
 import * as bip32 from "bip32";
 import bs58check from "bs58check";
-import type { crypto as btccrypto, Network, SignerAsync } from "@shapeshiftoss/bitcoinjs-lib";
 
-import { BIP32, SecP256K1, IsolationError } from "../core";
+import { BIP32, IsolationError, SecP256K1 } from "../core";
 import { ECPairAdapter } from "./bitcoin";
 
-let btccryptoInstance: typeof btccrypto | undefined
+let btccryptoInstance: typeof btccrypto | undefined;
 const btccryptoReady = (async () => {
-  btccryptoInstance = (await import("@shapeshiftoss/bitcoinjs-lib")).crypto
-})()
+  btccryptoInstance = (await import("@shapeshiftoss/bitcoinjs-lib")).crypto;
+})();
 
 export type BIP32InterfaceAsync = Omit<bip32.BIP32Interface, "sign" | "derive" | "deriveHardened" | "derivePath"> &
   Pick<SignerAsync, "sign"> & {
@@ -27,7 +27,13 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32InterfaceAsync {
   _identifier?: Buffer;
   _base58?: string;
 
-  protected constructor(node: BIP32.Node, chainCode: BIP32.ChainCode, publicKey: SecP256K1.CurvePoint, networkOrParent?: BIP32Adapter | Network, index?: number) {
+  protected constructor(
+    node: BIP32.Node,
+    chainCode: BIP32.ChainCode,
+    publicKey: SecP256K1.CurvePoint,
+    networkOrParent?: BIP32Adapter | Network,
+    index?: number
+  ) {
     super(node, publicKey, networkOrParent instanceof BIP32Adapter ? networkOrParent.network : networkOrParent);
     this.node = node;
     this._chainCode = chainCode;
@@ -36,9 +42,19 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32InterfaceAsync {
     if (networkOrParent instanceof BIP32Adapter) this._parent = networkOrParent;
   }
 
-  static async create(isolatedNode: BIP32.Node, networkOrParent?: BIP32Adapter | Network, index?: number): Promise<BIP32Adapter> {
-    await btccryptoReady
-    return new BIP32Adapter(isolatedNode, await isolatedNode.getChainCode(), await isolatedNode.getPublicKey(), networkOrParent, index);
+  static async create(
+    isolatedNode: BIP32.Node,
+    networkOrParent?: BIP32Adapter | Network,
+    index?: number
+  ): Promise<BIP32Adapter> {
+    await btccryptoReady;
+    return new BIP32Adapter(
+      isolatedNode,
+      await isolatedNode.getChainCode(),
+      await isolatedNode.getPublicKey(),
+      networkOrParent,
+      index
+    );
   }
 
   get depth(): number {
@@ -71,8 +87,7 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32InterfaceAsync {
   }
 
   get publicKey() {
-    return Buffer.from(SecP256K1.CompressedPoint.from(this._publicKey)) as Buffer &
-      SecP256K1.CompressedPoint;
+    return Buffer.from(SecP256K1.CompressedPoint.from(this._publicKey)) as Buffer & SecP256K1.CompressedPoint;
   }
   getPublicKey() {
     return this.publicKey;

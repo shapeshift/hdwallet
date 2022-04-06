@@ -1,8 +1,8 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import Base64 from "base64-js";
 
-import { handleError } from "./utils";
 import { TrezorTransport } from "./transport";
+import { handleError } from "./utils";
 
 type BTCTrezorSignTxOutput = {
   amount?: string;
@@ -13,17 +13,19 @@ type BTCTrezorSignTxOutput = {
 };
 
 function translateCoin(coin: core.Coin): string {
-  return core.mustBeDefined({
-    Bitcoin: "btc",
-    Litecoin: "ltc",
-    Zcash: "zec",
-    BitcoinCash: "bch",
-    BitcoinGold: "btg",
-    Dash: "dash",
-    DigiByte: "dgb",
-    Testnet: "testnet",
-    Dogecoin: "doge",
-  }[coin]);
+  return core.mustBeDefined(
+    {
+      Bitcoin: "btc",
+      Litecoin: "ltc",
+      Zcash: "zec",
+      BitcoinCash: "bch",
+      BitcoinGold: "btg",
+      Dash: "dash",
+      DigiByte: "dgb",
+      Testnet: "testnet",
+      Dogecoin: "doge",
+    }[coin]
+  );
 }
 
 const segwitCoins = ["Bitcoin", "Litecoin", "BitcoinGold", "Testnet"];
@@ -72,20 +74,26 @@ export async function btcGetAddress(transport: TrezorTransport, msg: core.BTCGet
     path: core.addressNListToBIP32(msg.addressNList),
     showOnTrezor: !!msg.showDisplay,
     coin: translateCoin(msg.coin),
-    address: msg.showDisplay ? await btcGetAddress(transport, {
-      ...msg,
-      showDisplay: false,
-    }) : undefined
+    address: msg.showDisplay
+      ? await btcGetAddress(transport, {
+          ...msg,
+          showDisplay: false,
+        })
+      : undefined,
   });
   handleError(transport, res, "Could not get address from Trezor");
-  return res.payload.address
+  return res.payload.address;
 }
 
-export async function btcSignTx(wallet: core.BTCWallet, transport: TrezorTransport, msg: core.BTCSignTxTrezor): Promise<core.BTCSignedTx> {
-  let supportsShapeShift = wallet.btcSupportsNativeShapeShift();
-  let supportsSecureTransfer = await wallet.btcSupportsSecureTransfer();
+export async function btcSignTx(
+  wallet: core.BTCWallet,
+  transport: TrezorTransport,
+  msg: core.BTCSignTxTrezor
+): Promise<core.BTCSignedTx> {
+  const supportsShapeShift = wallet.btcSupportsNativeShapeShift();
+  const supportsSecureTransfer = await wallet.btcSupportsSecureTransfer();
 
-  let inputs = msg.inputs.map((input) => {
+  const inputs = msg.inputs.map((input) => {
     return {
       address_n: input.addressNList,
       prev_hash: input.txid,
@@ -95,7 +103,7 @@ export async function btcSignTx(wallet: core.BTCWallet, transport: TrezorTranspo
     };
   });
 
-  let outputs: BTCTrezorSignTxOutput[] = msg.outputs.map((output) => {
+  const outputs: BTCTrezorSignTxOutput[] = msg.outputs.map((output) => {
     if (output.exchangeType && !supportsShapeShift) throw new Error("Trezor does not support Native ShapeShift");
 
     if (output.addressNList) {
@@ -107,7 +115,7 @@ export async function btcSignTx(wallet: core.BTCWallet, transport: TrezorTranspo
         amount: output.amount,
         script_type: translateOutputScriptType(output.scriptType),
       };
-    } else if (output.addressType as core.BTCOutputAddressType == core.BTCOutputAddressType.Transfer) {
+    } else if ((output.addressType as core.BTCOutputAddressType) == core.BTCOutputAddressType.Transfer) {
       throw new Error("invalid arguments");
     }
 
@@ -115,7 +123,7 @@ export async function btcSignTx(wallet: core.BTCWallet, transport: TrezorTranspo
       return {
         address: output.address,
         amount: output.amount,
-        script_type: translateOutputScriptType(core.BTCOutputScriptType.PayToAddress)
+        script_type: translateOutputScriptType(core.BTCOutputScriptType.PayToAddress),
       };
     }
 
@@ -133,7 +141,7 @@ export async function btcSignTx(wallet: core.BTCWallet, transport: TrezorTranspo
     });
   }
 
-  let res = await transport.call("signTransaction", {
+  const res = await transport.call("signTransaction", {
     coin: translateCoin(msg.coin),
     inputs: inputs,
     outputs: outputs,
@@ -156,8 +164,11 @@ export function btcSupportsNativeShapeShift(): boolean {
   return false;
 }
 
-export async function btcSignMessage(transport: TrezorTransport, msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
-  let res = await transport.call("signMessage", {
+export async function btcSignMessage(
+  transport: TrezorTransport,
+  msg: core.BTCSignMessage
+): Promise<core.BTCSignedMessage> {
+  const res = await transport.call("signMessage", {
     path: msg.addressNList,
     message: msg.message,
     coin: msg.coin ? translateCoin(msg.coin) : undefined,
@@ -172,7 +183,7 @@ export async function btcSignMessage(transport: TrezorTransport, msg: core.BTCSi
 }
 
 export async function btcVerifyMessage(transport: TrezorTransport, msg: core.BTCVerifyMessage): Promise<boolean> {
-  let res = await transport.call("verifyMessage", {
+  const res = await transport.call("verifyMessage", {
     address: msg.address,
     message: msg.message,
     signature: Base64.fromByteArray(core.fromHexString(msg.signature)),

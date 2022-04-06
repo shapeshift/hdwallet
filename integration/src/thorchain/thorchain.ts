@@ -2,7 +2,6 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 
 import tx_unsigned from "./tx02.mainnet.thorchain.json";
 import tx_signed from "./tx02.mainnet.thorchain.signed.json";
-
 import tx_unsigned_swap from "./tx03.mainnet.thorchain.swap.json";
 import tx_signed_swap from "./tx03.mainnet.thorchain.swap.signed.json";
 
@@ -86,7 +85,6 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
 
         const res = await wallet.thorchainSignTx(input);
         expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
-
       },
       TIMEOUT
     );
@@ -104,8 +102,7 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
         };
 
         const res = await wallet.thorchainSignTx(input);
-        expect(res?.signatures?.[0].signature).toEqual(tx_signed_swap.signatures[0].signature)
-
+        expect(res?.signatures?.[0].signature).toEqual(tx_signed_swap.signatures[0].signature);
       },
       TIMEOUT
     );

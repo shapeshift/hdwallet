@@ -181,7 +181,7 @@ describe("NativeBTCWalletInfo", () => {
           coin: "Bitcoin",
           scriptType: "p2wpkh",
           addressNList: core.bip32ToAddressNList("m/84'/0'/0'"),
-        }
+        },
       ],
     ],
     [

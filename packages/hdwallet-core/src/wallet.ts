@@ -3,12 +3,12 @@ import _ from "lodash";
 import { BinanceWallet, BinanceWalletInfo } from "./binance";
 import { BTCInputScriptType, BTCWallet, BTCWalletInfo } from "./bitcoin";
 import { CosmosWallet, CosmosWalletInfo } from "./cosmos";
-import { OsmosisWallet, OsmosisWalletInfo } from "./osmosis";
 import { DebugLinkWallet } from "./debuglink";
 import { EosWallet, EosWalletInfo } from "./eos";
 import { ETHWallet, ETHWalletInfo } from "./ethereum";
 import { FioWallet, FioWalletInfo } from "./fio";
 import { KavaWallet, KavaWalletInfo } from "./kava";
+import { OsmosisWallet, OsmosisWalletInfo } from "./osmosis";
 import { RippleWallet, RippleWalletInfo } from "./ripple";
 import { SecretWallet, SecretWalletInfo } from "./secret";
 import { TerraWallet, TerraWalletInfo } from "./terra";
@@ -256,12 +256,12 @@ export interface HDWalletInfo {
    * Will the device allow for transactions to be signed offline to be
    * broadcasted separately?
    */
-  supportsOfflineSigning(): boolean
+  supportsOfflineSigning(): boolean;
 
   /**
    * Can the device broadcast signed transactions internally?
    */
-  supportsBroadcast(): boolean
+  supportsBroadcast(): boolean;
 
   /**
    * Describes a BIP32 path in plain English.

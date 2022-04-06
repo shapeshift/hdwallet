@@ -1,5 +1,5 @@
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
-import { ExchangeType, BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
+import { BIP32Path, ExchangeType, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
 export enum ETHTransactionType {
   ETH_TX_TYPE_LEGACY = 0,
@@ -142,8 +142,8 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
 }
 
 export function describeETHPath(path: BIP32Path): PathDescription {
-  let pathStr = addressNListToBIP32(path);
-  let unknown: PathDescription = {
+  const pathStr = addressNListToBIP32(path);
+  const unknown: PathDescription = {
     verbose: pathStr,
     coin: "Ethereum",
     isKnown: false,
@@ -161,7 +161,7 @@ export function describeETHPath(path: BIP32Path): PathDescription {
 
   if (path[4] !== 0) return unknown;
 
-  let index = path[2] & 0x7fffffff;
+  const index = path[2] & 0x7fffffff;
   return {
     verbose: `Ethereum Account #${index}`,
     accountIdx: index,

@@ -68,12 +68,12 @@ export async function createWallet(): Promise<core.HDWallet> {
           default:
             throw new Error(`ethereum: Unknown method ${method}`);
         }
-      })
-    }
+      }),
+    },
   };
 
-  const adapter = xdefi.XDeFiAdapter.useKeyring(new core.Keyring())
-  const wallet = await adapter.pairDevice()
+  const adapter = xdefi.XDeFiAdapter.useKeyring(new core.Keyring());
+  const wallet = await adapter.pairDevice();
 
   wallet.ethSignTx = jest
     .fn()
@@ -107,7 +107,7 @@ export function selfTest(get: () => core.HDWallet): void {
   let wallet: xdefi.XDeFiHDWallet & core.ETHWallet & core.HDWallet;
 
   beforeAll(() => {
-    let w = get();
+    const w = get();
     if (xdefi.isXDeFi(w) && core.supportsETH(w)) wallet = w;
     else fail("Wallet is not XDeFi");
   });

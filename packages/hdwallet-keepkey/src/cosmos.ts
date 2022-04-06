@@ -1,5 +1,5 @@
-import * as CosmosMessages from "@keepkey/device-protocol/lib/messages-cosmos_pb";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
+import * as CosmosMessages from "@keepkey/device-protocol/lib/messages-cosmos_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import _ from "lodash";
 
@@ -25,16 +25,12 @@ export async function cosmosSignTx(transport: Transport, msg: core.CosmosSignTx)
     if (msg.tx.memo !== undefined) signTx.setMemo(msg.tx.memo);
     signTx.setMsgCount(1);
 
-    let resp = await transport.call(
-      Messages.MessageType.MESSAGETYPE_COSMOSSIGNTX,
-      signTx,
-      {
-        msgTimeout: core.LONG_TIMEOUT,
-        omitLock: true
-      }
-    );
+    let resp = await transport.call(Messages.MessageType.MESSAGETYPE_COSMOSSIGNTX, signTx, {
+      msgTimeout: core.LONG_TIMEOUT,
+      omitLock: true,
+    });
 
-    for (let m of msg.tx.msg) {
+    for (const m of msg.tx.msg) {
       if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_COSMOSMSGREQUEST) {
         throw new Error(`cosmos: unexpected response ${resp.message_type}`);
       }
@@ -64,7 +60,7 @@ export async function cosmosSignTx(transport: Transport, msg: core.CosmosSignTx)
 
       resp = await transport.call(Messages.MessageType.MESSAGETYPE_COSMOSMSGACK, ack, {
         msgTimeout: core.LONG_TIMEOUT,
-        omitLock: true
+        omitLock: true,
       });
     }
 
@@ -90,7 +86,10 @@ export async function cosmosSignTx(transport: Transport, msg: core.CosmosSignTx)
   });
 }
 
-export async function cosmosGetAddress(transport: Transport, msg: CosmosMessages.CosmosGetAddress.AsObject): Promise<string> {
+export async function cosmosGetAddress(
+  transport: Transport,
+  msg: CosmosMessages.CosmosGetAddress.AsObject
+): Promise<string> {
   const getAddr = new CosmosMessages.CosmosGetAddress();
   getAddr.setAddressNList(msg.addressNList);
   getAddr.setShowDisplay(msg.showDisplay !== false);

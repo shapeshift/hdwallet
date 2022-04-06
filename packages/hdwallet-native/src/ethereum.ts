@@ -2,8 +2,8 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ethers from "ethers";
 import _ from "lodash";
 
-import { NativeHDWalletBase } from "./native";
 import * as Isolation from "./crypto/isolation";
+import { NativeHDWalletBase } from "./native";
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   return class MixinNativeETHWalletInfo extends Base implements core.ETHWalletInfo {
@@ -53,7 +53,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     #ethSigner: ethers.Signer | undefined;
 
     async ethInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
-      const rootNode = await Isolation.Adapters.BIP32.create(masterKey)
+      const rootNode = await Isolation.Adapters.BIP32.create(masterKey);
       const isolatedSigner = await rootNode.derivePath(ethers.utils.defaultPath);
       this.#ethSigner = await Isolation.Adapters.Ethereum.create(isolatedSigner.node);
     }
@@ -80,7 +80,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
           value: msg.value,
           chainId: msg.chainId,
         };
-        let result: string = msg.maxFeePerGas
+        const result: string = msg.maxFeePerGas
           ? await this.#ethSigner!.signTransaction({
               ...utx,
               maxFeePerGas: msg.maxFeePerGas,

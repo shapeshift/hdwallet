@@ -1,4 +1,4 @@
-import type { AccountData, OfflineDirectSigner, DirectSignResponse } from "@cosmjs/proto-signing";
+import type { AccountData, DirectSignResponse, OfflineDirectSigner } from "@cosmjs/proto-signing";
 import * as bech32 from "bech32";
 import type { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 
@@ -46,9 +46,9 @@ export class OfflineDirectSignerAdapter implements OfflineDirectSigner {
       signature: {
         pub_key: {
           type: "tendermint/PubKeySecp256k1",
-          value: Buffer.from(this._pubkey).toString("base64")
+          value: Buffer.from(this._pubkey).toString("base64"),
         },
-        signature: Buffer.from(signatureBytes).toString("base64")
+        signature: Buffer.from(signatureBytes).toString("base64"),
       },
     };
   }

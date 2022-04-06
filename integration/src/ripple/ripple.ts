@@ -33,12 +33,12 @@ export function rippleTests(get: () => { wallet: core.HDWallet; info: core.HDWal
       "rippleGetAccountPaths()",
       () => {
         if (!wallet) return;
-        let paths = wallet.rippleGetAccountPaths({ accountIdx: 0 });
+        const paths = wallet.rippleGetAccountPaths({ accountIdx: 0 });
         expect(paths.length > 0).toBe(true);
         expect(paths[0].addressNList[0] > 0x80000000).toBe(true);
         paths.forEach((path) => {
-          let curAddr = path.addressNList.join();
-          let nextAddr = core.mustBeDefined(wallet.rippleNextAccountPath(path)).addressNList.join();
+          const curAddr = path.addressNList.join();
+          const nextAddr = core.mustBeDefined(wallet.rippleNextAccountPath(path)).addressNList.join();
           expect(nextAddr === undefined || nextAddr !== curAddr).toBeTruthy();
         });
       },
@@ -64,9 +64,9 @@ export function rippleTests(get: () => { wallet: core.HDWallet; info: core.HDWal
       async () => {
         if (!wallet) return;
 
-        let res = await wallet.rippleSignTx({
+        const res = await wallet.rippleSignTx({
           addressNList: core.bip32ToAddressNList(`m/44'/144'/0'/0/0`),
-          tx: (tx01_unsigned as unknown) as core.RippleTx,
+          tx: tx01_unsigned as unknown as core.RippleTx,
           flags: undefined,
           sequence: "3",
           lastLedgerSequence: "0",
@@ -76,7 +76,7 @@ export function rippleTests(get: () => { wallet: core.HDWallet; info: core.HDWal
             destinationTag: "1234567890",
           },
         });
-        expect(res).toEqual((tx01_signed as unknown) as core.RippleTx);
+        expect(res).toEqual(tx01_signed as unknown as core.RippleTx);
       },
       TIMEOUT
     );

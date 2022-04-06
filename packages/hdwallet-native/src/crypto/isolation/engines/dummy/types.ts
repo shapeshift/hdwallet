@@ -8,15 +8,15 @@ export class DummyEngineError extends Error {
 }
 
 export interface ParsedXpub {
-  version: number
-  depth: number
-  parentFp: number
-  childNum: number
-  chainCode: ChainCode
-  publicKey: CompressedPoint
+  version: number;
+  depth: number;
+  parentFp: number;
+  childNum: number;
+  chainCode: ChainCode;
+  publicKey: CompressedPoint;
 }
 
 export type ParsedXpubTree = ParsedXpub & {
-  fingerprint: number,
-  children: Map<number, ParsedXpubTree>
-}
+  fingerprint: number;
+  children: Map<number, ParsedXpubTree>;
+};

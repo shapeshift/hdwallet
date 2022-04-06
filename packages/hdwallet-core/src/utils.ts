@@ -35,7 +35,7 @@ export function arrayify(value: string): Uint8Array {
     throw new Error("can only convert hex strings");
   }
 
-  let match = value.match(/^(0x)?[0-9a-fA-F]*$/);
+  const match = value.match(/^(0x)?[0-9a-fA-F]*$/);
 
   if (!match) {
     throw new Error("invalid hexadecimal string");
@@ -109,11 +109,11 @@ export function stripHexPrefixAndLower(value: string): string {
 }
 
 export function base64toHEX(base64: string): string {
-  var raw = atob(base64);
-  var HEX = "";
+  const raw = atob(base64);
+  let HEX = "";
 
   for (let i = 0; i < raw.length; i++) {
-    var _hex = raw.charCodeAt(i).toString(16);
+    const _hex = raw.charCodeAt(i).toString(16);
 
     HEX += _hex.length == 2 ? _hex : "0" + _hex;
   }
@@ -146,14 +146,14 @@ const slip44Table = Object.freeze({
   Terra: 330,
   Kava: 459,
 } as const);
-type Slip44ByCoin<T> = (T extends keyof typeof slip44Table ? typeof slip44Table[T] : number | undefined);
+type Slip44ByCoin<T> = T extends keyof typeof slip44Table ? typeof slip44Table[T] : number | undefined;
 export function slip44ByCoin<T extends Coin>(coin: T): Slip44ByCoin<T> {
   return (slip44Table as any)[coin];
 }
 
 export function satsFromStr(coins: string): number {
-  let index = coins.indexOf(".");
-  let exponent = index > 0 ? 8 - (coins.length - index - 1) : 8;
+  const index = coins.indexOf(".");
+  const exponent = index > 0 ? 8 - (coins.length - index - 1) : 8;
   return Number(coins.replace(/\./g, "")) * 10 ** exponent;
 }
 
@@ -179,12 +179,20 @@ export function mustBeDefined<T>(x: T): NonNullable<T> {
 // accessed in any other way. Useful as dummy data for required parameters. (Probably a bad idea
 // in production.)
 export function untouchable(message: string): any {
-  const out = new Proxy({}, new Proxy({}, { get(_, p) {
-    return (_: any, p2: any) => {
-      if (p === "get" && p2 === "valueOf") return () => out;
-      throw new Error(`${String(p)}(${String(p2)}): ${message}`);
-    };
-  }})) as any;
+  const out = new Proxy(
+    {},
+    new Proxy(
+      {},
+      {
+        get(_, p) {
+          return (_: any, p2: any) => {
+            if (p === "get" && p2 === "valueOf") return () => out;
+            throw new Error(`${String(p)}(${String(p2)}): ${message}`);
+          };
+        },
+      }
+    )
+  ) as any;
   return out;
 }
 
@@ -206,9 +214,8 @@ export function checkBufferConcat(): boolean {
 
 export function compatibleBufferConcat(list: Uint8Array[]): Buffer {
   if (!checkBufferConcat()) return Buffer.concat(list);
-  return Buffer.concat(list.map(x => Buffer.isBuffer(x) ? x : Buffer.from(x)));
+  return Buffer.concat(list.map((x) => (Buffer.isBuffer(x) ? x : Buffer.from(x))));
 }
-
 
 /**
  * Type guard for things that might have (string-keyed) properties. Useful to make
@@ -239,5 +246,5 @@ export function compatibleBufferConcat(list: Uint8Array[]): Buffer {
  * isIndexable("foo") === false
  */
 export function isIndexable(x: unknown): x is Record<string | number | symbol, unknown> {
-  return x !== null && ["object", "function"].includes(typeof x)
+  return x !== null && ["object", "function"].includes(typeof x);
 }
