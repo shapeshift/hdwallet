@@ -17,8 +17,6 @@ export function isMetaMask(wallet: core.HDWallet): wallet is MetaMaskHDWallet {
   return _.isObject(wallet) && (wallet as any)._isMetaMask;
 }
 
-type HasNonTrivialConstructor<T> = T extends { new (): any } ? never : T;
-
 export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
