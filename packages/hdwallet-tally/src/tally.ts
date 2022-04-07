@@ -79,7 +79,7 @@ export class TallyHDWallet implements core.HDWallet, core.ETHWallet {
 
   public async initialize(): Promise<any> {
     try {
-      this.provider = await detectEthereumProvider({ mustBeTally: true, silent: false, timeout: 3000 });
+      this.provider = await detectEthereumProvider({ mustBeMetaMask: false, silent: false, timeout: 3000 });
     } catch (e) {
       console.error(e);
     }
