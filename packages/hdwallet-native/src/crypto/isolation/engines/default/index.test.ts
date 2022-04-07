@@ -7,11 +7,21 @@ describe("Isolation.Engines.Default", () => {
   let masterKey: Core.BIP32.Node;
 
   it("can be loaded with a list of xpubs", async () => {
-    mnemonic = await Default.BIP39.Mnemonic.create("all all all all all all all all all all all all");
+    await expect(
+      (async () => {
+        mnemonic = await Default.BIP39.Mnemonic.create("all all all all all all all all all all all all");
+      })()
+    ).resolves.not.toThrow();
+    expect(mnemonic).toBeDefined();
   });
 
   it("produces a seed", async () => {
-    seed = await mnemonic.toSeed();
+    await expect(
+      (async () => {
+        seed = await mnemonic.toSeed();
+      })()
+    ).resolves.not.toThrow();
+    expect(seed).toBeDefined();
   });
 
   it("produces a master key", async () => {
