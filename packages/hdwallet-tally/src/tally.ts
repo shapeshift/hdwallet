@@ -17,7 +17,6 @@ export function isTally(wallet: core.HDWallet): wallet is TallyHDWallet {
   return _.isObject(wallet) && (wallet as any)._isTally;
 }
 
-type HasNonTrivialConstructor<T> = T extends { new (): any } ? never : T;
 
 export class TallyHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETH = true;
