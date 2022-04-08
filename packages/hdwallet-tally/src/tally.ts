@@ -21,31 +21,8 @@ export function isTally(wallet: core.HDWallet): wallet is TallyHDWallet {
 export class TallyHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
-  readonly _supportsBTCInfo = false;
-  readonly _supportsBTC = false;
-  readonly _supportsCosmosInfo = false;
-  readonly _supportsCosmos = false;
-  readonly _supportsOsmosisInfo = false;
-  readonly _supportsOsmosis = false;
-  readonly _supportsBinanceInfo = false;
-  readonly _supportsBinance = false;
-  readonly _supportsDebugLink = false;
-  readonly _isPortis = false;
   readonly _isTally = true;
-  readonly _supportsRippleInfo = false;
-  readonly _supportsRipple = false;
-  readonly _supportsEosInfo = false;
-  readonly _supportsEos = false;
-  readonly _supportsFioInfo = false;
-  readonly _supportsFio = false;
-  readonly _supportsThorchainInfo = false;
-  readonly _supportsThorchain = false;
-  readonly _supportsSecretInfo = false;
-  readonly _supportsSecret = false;
-  readonly _supportsKava = false;
-  readonly _supportsKavaInfo = false;
-  readonly _supportsTerra = false;
-  readonly _supportsTerraInfo = false;
+
 
   transport: core.Transport = new TallyTransport(new core.Keyring());
   info: TallyHDWalletInfo & core.HDWalletInfo;
