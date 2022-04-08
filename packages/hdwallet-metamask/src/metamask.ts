@@ -3,17 +3,6 @@ import _ from "lodash";
 
 import * as eth from "./ethereum";
 
-class MetaMaskTransport extends core.Transport {
-  public async getDeviceID() {
-    return "metamask:0";
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public call(...args: any[]): Promise<any> {
-    return Promise.resolve();
-  }
-}
-
 export function isMetaMask(wallet: core.HDWallet): wallet is MetaMaskHDWallet {
   return _.isObject(wallet) && (wallet as any)._isMetaMask;
 }
@@ -129,7 +118,6 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsTerra = false;
   readonly _supportsTerraInfo = false;
 
-  transport: core.Transport = new MetaMaskTransport(new core.Keyring());
   info: MetaMaskHDWalletInfo & core.HDWalletInfo;
   ethAddress?: string | null;
   provider: any;
