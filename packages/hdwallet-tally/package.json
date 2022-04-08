@@ -17,7 +17,7 @@
     "@metamask/detect-provider": "^1.2.0",
     "@shapeshiftoss/hdwallet-core": "1.19.0",
     "lodash": "^4.17.21",
-    "@tallyho-onboarding": "^1.0.2"
+    "tallyho-onboarding": "^1.0.2"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.168",
