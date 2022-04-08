@@ -3,16 +3,6 @@ import * as eth from "./ethereum";
 import _ from "lodash";
 import detectEthereumProvider from "@metamask/detect-provider";
 
-class TallyTransport extends core.Transport {
-  public async getDeviceID() {
-    return "tally:0";
-  }
-
-  public call(...args: any[]): Promise<any> {
-    return Promise.resolve();
-  }
-}
-
 export function isTally(wallet: core.HDWallet): wallet is TallyHDWallet {
   return _.isObject(wallet) && (wallet as any)._isTally;
 }
@@ -24,7 +14,6 @@ export class TallyHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _isTally = true;
 
 
-  transport: core.Transport = new TallyTransport(new core.Keyring());
   info: TallyHDWalletInfo & core.HDWalletInfo;
   ethAddress?: string | null;
   provider: any;
