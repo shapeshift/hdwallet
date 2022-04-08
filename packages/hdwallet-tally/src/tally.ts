@@ -76,7 +76,7 @@ export class TallyHDWallet implements core.HDWallet, core.ETHWallet {
     return "Tally";
   }
 
-  public async initialize(): Promise<boolean> {
+  public async initialize(): Promise<boolean> { 
     try {
       this.provider = await detectEthereumProvider({ mustBeMetaMask: false, silent: false, timeout: 3000 });
       return true;
@@ -240,17 +240,8 @@ export class TallyHDWallet implements core.HDWallet, core.ETHWallet {
 }
 
 export class TallyHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
-  readonly _supportsBTCInfo = false;
   readonly _supportsETHInfo = true;
-  readonly _supportsCosmosInfo = false;
-  readonly _supportsBinanceInfo = false;
-  readonly _supportsRippleInfo = false;
-  readonly _supportsEosInfo = false;
-  readonly _supportsFioInfo = false;
-  readonly _supportsThorchainInfo = false;
-  readonly _supportsSecretInfo = false;
-  readonly _supportsKavaInfo = false;
-  readonly _supportsTerraInfo = false;
+
 
   public getVendor(): string {
     return "Tally";
@@ -320,10 +311,3 @@ export class TallyHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
   }
 }
 
-export function info() {
-  return new TallyHDWalletInfo();
-}
-
-export function create(): TallyHDWallet {
-  return new TallyHDWallet();
-}
