@@ -7,6 +7,7 @@ import * as ledgerWebHID from "@shapeshiftoss/hdwallet-ledger-webhid";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
+import * as tally from "@shapeshiftoss/hdwallet-tally";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
 
@@ -57,6 +58,7 @@ const kkbridgeAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const kkemuAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const portisAdapter = portis.PortisAdapter.useKeyring(keyring, { portisAppId });
 const metaMaskAdapter = metaMask.MetaMaskAdapter.useKeyring(keyring);
+const tallyAdapter = tally.TallyAdapter.useKeyring(keyring);
 const xdefiAdapter = xdefi.XDeFiAdapter.useKeyring(keyring);
 const nativeAdapter = native.NativeAdapter.useKeyring(keyring, {
   mnemonic,
@@ -88,6 +90,7 @@ const $ledgerwebhid = $("#ledgerwebhid");
 const $portis = $("#portis");
 const $native = $("#native");
 const $metaMask = $("#metaMask");
+const $tally = $("#tally");
 const $xdefi = $("#xdefi");
 const $keyring = $("#keyring");
 
@@ -166,6 +169,20 @@ $metaMask.on("click", async (e) => {
     console.error(e);
   }
 });
+
+$tally.on("click", async (e) => {
+  e.preventDefault();
+  wallet = await tallyAdapter.pairDevice("testid");
+  window["wallet"] = wallet;
+  let deviceID = "nothing";
+  try {
+    deviceID = await wallet.getDeviceID();
+    $("#keyring select").val(deviceID);
+  } catch (e) {
+    console.error(e);
+  }
+});
+
 $xdefi.on("click", async (e) => {
   e.preventDefault();
   wallet = await xdefiAdapter.pairDevice("testid");
@@ -258,6 +275,12 @@ async function deviceConnected(deviceId) {
     await metaMaskAdapter.initialize();
   } catch (e) {
     console.error("Could not initialize MetaMaskAdapter", e);
+  }
+
+  try {
+    await tallyAdapter.initialize();
+  } catch (e) {
+    console.error("Could not initialize TallyAdapter", e);
   }
 
   for (const deviceID of Object.keys(keyring.wallets)) {

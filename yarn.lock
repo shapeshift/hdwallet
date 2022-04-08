@@ -14714,6 +14714,20 @@ symbol-tree@^3.2.2, symbol-tree@^3.2.4:
   resolved "https://registry.yarnpkg.com/symbol-tree/-/symbol-tree-3.2.4.tgz#430637d248ba77e078883951fb9aa0eed7c63fa2"
   integrity sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==
 
+tallyho-onboarding@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/tallyho-onboarding/-/tallyho-onboarding-1.0.1.tgz#dbd9b8b59bca5b69aefb4ac19d3f419b75c6fa1d"
+  integrity sha512-rHYy1Wrzyr3jWtDBYCRMDVqFq9keDQ70y1c15pB4d2U9BC3h3t8v07FHCFahJwifC5C8g27OTLIyTfrmFw/KZw==
+  dependencies:
+    bowser "^2.9.0"
+
+tallyho-onboarding@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/tallyho-onboarding/-/tallyho-onboarding-1.0.2.tgz#afc7dc4eb05b3a7861ead215e798585e1cbe2e91"
+  integrity sha512-bdFT/fNrFrq1BYVgjl/JKtwDmeS+z2u0415PoxmGmmYYRfdcKqXtEPImMoEbVwGtOeN0iFVohuS8ESrrAe+w7w==
+  dependencies:
+    bowser "^2.9.0"
+
 tar-fs@^2.0.0:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/tar-fs/-/tar-fs-2.1.1.tgz#489a15ab85f1f0befabb370b7de4f9eb5cbe8784"

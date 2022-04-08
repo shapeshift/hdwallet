@@ -55,6 +55,7 @@
     { "path": "./packages/hdwallet-ledger-webhid" },
     { "path": "./packages/hdwallet-ledger-webusb" },
     { "path": "./packages/hdwallet-metamask" },
+    { "path": "./packages/hdwallet-tally" },
     { "path": "./packages/hdwallet-native" },
     { "path": "./packages/hdwallet-native-vault" },
     { "path": "./packages/hdwallet-portis" },
