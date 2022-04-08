@@ -76,13 +76,14 @@ export class TallyHDWallet implements core.HDWallet, core.ETHWallet {
     return "Tally";
   }
 
-  public async initialize(): Promise<void> {
+  public async initialize(): Promise<boolean> {
     try {
       this.provider = await detectEthereumProvider({ mustBeMetaMask: false, silent: false, timeout: 3000 });
+      return true;
     } catch (e) {
       console.error(e);
+      return false;
     }
-
   }
 
   public hasOnDevicePinEntry(): boolean {
