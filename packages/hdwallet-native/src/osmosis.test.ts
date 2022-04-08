@@ -38,42 +38,44 @@ describe("NativeOsmosisWallet", () => {
   });
 
   it("should generate a correct osmosis address", async () => {
-    expect(
-      await wallet.osmosisGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0") })
-    ).toBe("osmo1knuunh0lmwyrkjmrj7sky49uxk3peyzh2tlskm");
+    expect(await wallet.osmosisGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0") })).toBe(
+      "osmo1knuunh0lmwyrkjmrj7sky49uxk3peyzh2tlskm"
+    );
   });
 
   it("should generate another correct osmosis address", async () => {
-    expect(
-      await wallet.osmosisGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/118'/1337'/123/4") })
-    ).toBe("osmo14k4dnrrmxdch6nkvvuugsywrgmvlwrqs2f6kye");
+    expect(await wallet.osmosisGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/118'/1337'/123/4") })).toBe(
+      "osmo14k4dnrrmxdch6nkvvuugsywrgmvlwrqs2f6kye"
+    );
   });
 
   it("should sign a transaction correctly", async () => {
     const signed = await wallet.osmosisSignTx({
       addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
       tx: {
-        msg: [{
-          "type": "cosmos-sdk/MsgSend",
-          "value": {
-            "from_address": "osmo1knuunh0lmwyrkjmrj7sky49uxk3peyzh2tlskm",
-            "to_address": "osmo1knuunh0lmwyrkjmrj7sky49uxk3peyzh2tlskm",
-            "amount": [
-              {
-                "denom": "uosmo",
-                "amount": "1000"
-              }
-            ]
-          }
-        }],
+        msg: [
+          {
+            type: "cosmos-sdk/MsgSend",
+            value: {
+              from_address: "osmo1knuunh0lmwyrkjmrj7sky49uxk3peyzh2tlskm",
+              to_address: "osmo1knuunh0lmwyrkjmrj7sky49uxk3peyzh2tlskm",
+              amount: [
+                {
+                  denom: "uosmo",
+                  amount: "1000",
+                },
+              ],
+            },
+          },
+        ],
         fee: {
-          "amount": [
+          amount: [
             {
-              "amount": "100",
-              "denom": "uosmo"
-            }
+              amount: "100",
+              denom: "uosmo",
+            },
           ],
-          "gas": "100000"
+          gas: "100000",
         },
         signatures: null,
         memo: "foobar",

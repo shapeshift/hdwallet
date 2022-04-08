@@ -1,5 +1,5 @@
-import * as RippleMessages from "@keepkey/device-protocol/lib/messages-ripple_pb";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
+import * as RippleMessages from "@keepkey/device-protocol/lib/messages-ripple_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import _ from "lodash";
 
@@ -27,18 +27,12 @@ export async function rippleSignTx(transport: Transport, msg: core.RippleSignTx)
     if (msg.payment.destinationTag !== undefined) payment.setDestinationTag(parseInt(msg.payment.destinationTag));
     signTx.setPayment(payment);
 
-    let resp = await transport.call(
-      Messages.MessageType.MESSAGETYPE_RIPPLESIGNTX,
-      signTx,
-      {
-        msgTimeout: core.LONG_TIMEOUT,
-        omitLock: true,
-      }
-    );
+    const resp = await transport.call(Messages.MessageType.MESSAGETYPE_RIPPLESIGNTX, signTx, {
+      msgTimeout: core.LONG_TIMEOUT,
+      omitLock: true,
+    });
 
-    for (let m of msg.tx.value.msg) {
-      let ack;
-
+    for (const m of msg.tx.value.msg) {
       if (m.type === "ripple-sdk/MsgSend") {
         if (m.value.amount.length !== 1) {
           throw new Error("ripple: Multiple amounts per msg not supported");

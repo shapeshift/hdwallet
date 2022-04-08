@@ -7,6 +7,7 @@ export interface KavaGetAddress {
   testnet?: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Kava {
   export interface Msg {
     type: string;
@@ -25,6 +26,7 @@ export namespace Kava {
     gas: string;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace crypto {
     export interface PubKey {
       type: string;
@@ -95,8 +97,8 @@ export interface KavaWallet extends KavaWalletInfo, HDWallet {
 }
 
 export function kavaDescribePath(path: BIP32Path): PathDescription {
-  let pathStr = addressNListToBIP32(path);
-  let unknown: PathDescription = {
+  const pathStr = addressNListToBIP32(path);
+  const unknown: PathDescription = {
     verbose: pathStr,
     coin: "Kava",
     isKnown: false,
@@ -122,7 +124,7 @@ export function kavaDescribePath(path: BIP32Path): PathDescription {
     return unknown;
   }
 
-  let index = path[2] & 0x7fffffff;
+  const index = path[2] & 0x7fffffff;
   return {
     verbose: `Kava Account #${index}`,
     accountIdx: index,

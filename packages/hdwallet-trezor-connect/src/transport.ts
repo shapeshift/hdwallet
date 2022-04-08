@@ -88,7 +88,7 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
           this.emit("NEEDS_BACKUP");
         }
       } else if (event.type === "ui-button") {
-        let kind = event.payload.code;
+        const kind = event.payload.code;
         this.emit(
           core.Events.BUTTON_REQUEST,
           core.makeEvent({
@@ -109,8 +109,7 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
   public static async callQuiet(
     device: TrezorDevice | undefined,
     method: string,
-    msg: any,
-    msTimeout?: number
+    msg: any
   ): Promise<trezor.TrezorConnectResponse> {
     // TrezorConnect only lets us make one call at a time. If this library is
     // used in a concurrent environment like say, React, then we need to guard
@@ -124,7 +123,7 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
       await TrezorConnectTransport.cancellable(TrezorConnectTransport.callInProgress);
 
       try {
-        let result = await (TrezorConnect as any)[method]({ device, ...msg });
+        const result = await (TrezorConnect as any)[method]({ device, ...msg });
         if (
           result.payload.error === "Popup closed" ||
           result.payload.error === "Cancelled" ||
@@ -147,7 +146,7 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
     return TrezorConnectTransport.callInProgress;
   }
 
-  public async call(method: string, msg: any, msTimeout?: number): Promise<trezor.TrezorConnectResponse> {
+  public async call(method: string, msg: any): Promise<trezor.TrezorConnectResponse> {
     this.emit(
       method,
       core.makeEvent({
@@ -157,7 +156,7 @@ export class TrezorConnectTransport extends trezor.TrezorTransport {
       })
     );
 
-    let response = await TrezorConnectTransport.callQuiet(this.device, method, msg, msTimeout);
+    const response = await TrezorConnectTransport.callQuiet(this.device, method, msg);
 
     this.emit(
       method,

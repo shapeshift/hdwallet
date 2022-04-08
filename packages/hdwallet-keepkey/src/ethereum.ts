@@ -1,15 +1,16 @@
+import Common from "@ethereumjs/common";
+import { FeeMarketEIP1559Transaction, Transaction } from "@ethereumjs/tx";
 import * as Exchange from "@keepkey/device-protocol/lib/exchange_pb";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import Common from "@ethereumjs/common";
-import { FeeMarketEIP1559Transaction, Transaction } from "@ethereumjs/tx";
 import * as eip55 from "eip55";
 
-import { toUTF8Array, translateInputScriptType } from "./utils";
 import { Transport } from "./transport";
+import { toUTF8Array, translateInputScriptType } from "./utils";
 
-export async function ethSupportsNetwork(chain_id: number): Promise<boolean> {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function ethSupportsNetwork(chainId: number): Promise<boolean> {
   return true;
 }
 
@@ -104,14 +105,10 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
     }
 
     let response: Messages.EthereumTxRequest;
-    let nextResponse = await transport.call(
-      Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNTX,
-      est,
-      {
-        msgTimeout: core.LONG_TIMEOUT,
-        omitLock: true,
-      }
-    );
+    let nextResponse = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNTX, est, {
+      msgTimeout: core.LONG_TIMEOUT,
+      omitLock: true,
+    });
     response = nextResponse.proto as Messages.EthereumTxRequest;
     try {
       const esa: Messages.EthereumTxAck = new Messages.EthereumTxAck();
@@ -122,14 +119,10 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
         dataRemaining = dataRemaining.slice(dataLength, dataRemaining.length);
 
         esa.setDataChunk(dataChunk);
-        nextResponse = await transport.call(
-          Messages.MessageType.MESSAGETYPE_ETHEREUMTXACK,
-          esa,
-          {
-            msgTimeout: core.LONG_TIMEOUT,
-            omitLock: true,
-          }
-        );
+        nextResponse = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMTXACK, esa, {
+          msgTimeout: core.LONG_TIMEOUT,
+          omitLock: true,
+        });
         response = nextResponse.proto as Messages.EthereumTxRequest;
       }
     } catch (error) {
@@ -179,16 +172,13 @@ export async function ethGetAddress(transport: Transport, msg: core.ETHGetAddres
   const getAddr = new Messages.EthereumGetAddress();
   getAddr.setAddressNList(msg.addressNList);
   getAddr.setShowDisplay(msg.showDisplay !== false);
-  const response = await transport.call(
-    Messages.MessageType.MESSAGETYPE_ETHEREUMGETADDRESS,
-    getAddr,
-    {
-      msgTimeout: core.LONG_TIMEOUT,
-    }
-  );
+  const response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMGETADDRESS, getAddr, {
+    msgTimeout: core.LONG_TIMEOUT,
+  });
   const ethAddress = response.proto as Messages.EthereumAddress;
 
   let address: string;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   if (ethAddress.hasAddressStr()) address = ethAddress.getAddressStr()!;
   else if (ethAddress.hasAddress()) address = "0x" + core.toHexString(ethAddress.getAddress_asU8());
   else throw new Error("Unable to obtain ETH address from device.");
@@ -200,13 +190,9 @@ export async function ethSignMessage(transport: Transport, msg: core.ETHSignMess
   const m = new Messages.EthereumSignMessage();
   m.setAddressNList(msg.addressNList);
   m.setMessage(toUTF8Array(msg.message));
-  const response = await transport.call(
-    Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNMESSAGE,
-    m,
-    {
-      msgTimeout: core.LONG_TIMEOUT,
-    }
-  );
+  const response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNMESSAGE, m, {
+    msgTimeout: core.LONG_TIMEOUT,
+  });
   const sig = response.proto as Messages.EthereumMessageSignature;
   return {
     address: eip55.encode("0x" + core.toHexString(sig.getAddress_asU8())), // FIXME: this should be done in the firmware
@@ -219,15 +205,11 @@ export async function ethVerifyMessage(transport: Transport, msg: core.ETHVerify
   m.setAddress(core.arrayify(msg.address));
   m.setSignature(core.arrayify(msg.signature));
   m.setMessage(toUTF8Array(msg.message));
-  let event: core.Event
+  let event: core.Event;
   try {
-    event = await transport.call(
-    Messages.MessageType.MESSAGETYPE_ETHEREUMVERIFYMESSAGE,
-    m,
-    {
+    event = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMVERIFYMESSAGE, m, {
       msgTimeout: core.LONG_TIMEOUT,
-    }
-  );
+    });
   } catch (e) {
     if (core.isIndexable(e) && e.message_enum === Messages.MessageType.MESSAGETYPE_FAILURE) {
       return false;

@@ -20,7 +20,6 @@ describe("WebCryptoEngine JavaScript", () => {
     const data = core.toArrayBuffer(utils.fromUtf8ToArray("test all seed phrase words for to see this to work maybe"));
     const key = core.toArrayBuffer(utils.fromUtf8ToArray("12345678901234561234567890123456"));
     const iv = core.toArrayBuffer(utils.fromUtf8ToArray("1234567890123456"));
-    const engine = new WebCryptoEngine();
 
     const encrypted = await engine.encrypt(data, key, iv);
 
@@ -71,7 +70,9 @@ describe("WebCryptoEngine JavaScript", () => {
     const iv = utils.fromB64ToArray("rnvfQhmCO27xxEk33ayinw==");
     const encrypted = await engine.encrypt(mnemonic, key.encKey, iv);
 
-    expect(utils.fromBufferToB64(encrypted)).toEqual("FC2M6J3aqlavEne0Sl72Xyh3XB2RzxmNpy/zKNqu1ys+3Xe7pxyRQd+GRsLcf/Rf");
+    expect(utils.fromBufferToB64(encrypted)).toEqual(
+      "FC2M6J3aqlavEne0Sl72Xyh3XB2RzxmNpy/zKNqu1ys+3Xe7pxyRQd+GRsLcf/Rf"
+    );
   });
 
   it("should decrypt a wallet with a password and email", async () => {
@@ -90,7 +91,7 @@ describe("WebCryptoEngine JavaScript", () => {
     // Make sure we're not just returning an empty array of 0s
     // It's very unlikely that a random set of 32 bytes will result in all 0s
     const typedArray = new Uint8Array(bytes);
-    const sum = typedArray.reduce((sum, value) => sum + value, 0);
+    const sum = typedArray.reduce((acc, value) => acc + value, 0);
     expect(sum).toBeGreaterThan(0);
   });
 

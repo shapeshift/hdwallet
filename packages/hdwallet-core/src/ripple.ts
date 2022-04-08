@@ -4,7 +4,10 @@ export interface RippleGetAddress {
   addressNList: BIP32Path;
   showDisplay?: boolean;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-namespace
 declare namespace Ripple {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace sdk {
     interface Msg {
       type: string;
@@ -21,6 +24,8 @@ declare namespace Ripple {
     amount: sdk.Coins;
     gas: string;
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace crypto {
     interface PubKey {
       type: string;

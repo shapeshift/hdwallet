@@ -54,26 +54,28 @@ export async function createWallet(): Promise<core.HDWallet> {
           case "eth_accounts":
           case "eth_requestAccounts":
             return ["0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"];
-          case "personal_sign":
+          case "personal_sign": {
             const [message] = params;
 
             if (message === "48656c6c6f20576f726c64")
               return "0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b";
 
             throw new Error("unknown message");
-          case "eth_sendTransaction":
+          }
+          case "eth_sendTransaction": {
             const [{ to }] = params;
 
             return `txHash-${to}`;
+          }
           default:
             throw new Error(`ethereum: Unknown method ${method}`);
         }
-      })
-    }
+      }),
+    },
   };
 
-  const adapter = xdefi.XDeFiAdapter.useKeyring(new core.Keyring())
-  const wallet = await adapter.pairDevice()
+  const adapter = xdefi.XDeFiAdapter.useKeyring(new core.Keyring());
+  const wallet = await adapter.pairDevice();
 
   wallet.ethSignTx = jest
     .fn()
@@ -107,9 +109,12 @@ export function selfTest(get: () => core.HDWallet): void {
   let wallet: xdefi.XDeFiHDWallet & core.ETHWallet & core.HDWallet;
 
   beforeAll(() => {
-    let w = get();
-    if (xdefi.isXDeFi(w) && core.supportsETH(w)) wallet = w;
-    else fail("Wallet is not XDeFi");
+    const w = get();
+    if (xdefi.isXDeFi(w) && core.supportsETH(w)) {
+      wallet = w;
+    } else {
+      throw new Error("Wallet is not XDeFi");
+    }
   });
 
   it("supports Ethereum mainnet", async () => {

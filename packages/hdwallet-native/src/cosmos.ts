@@ -1,15 +1,16 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as protoTxBuilder from "@shapeshiftoss/proto-tx-builder";
 import * as bech32 from "bech32";
 import CryptoJS from "crypto-js";
-import * as protoTxBuilder from "@shapeshiftoss/proto-tx-builder";
 
+import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
-import * as Isolation from "./crypto/isolation";
 
 const ATOM_CHAIN = "cosmoshub-4";
 
 export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeCosmosWalletInfo extends Base implements core.CosmosWalletInfo {
     readonly _supportsCosmosInfo = true;
     async cosmosSupportsNetwork(): Promise<boolean> {
@@ -25,7 +26,7 @@ export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor<core.
     }
 
     cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
-      const slip44 = core.slip44ByCoin("Atom")
+      const slip44 = core.slip44ByCoin("Atom");
       return [
         {
           addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
@@ -33,6 +34,7 @@ export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor<core.
       ];
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
       // Only support one account for now (like portis).
       return undefined;
@@ -41,6 +43,7 @@ export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor<core.
 }
 
 export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeCosmosWallet extends Base {
     readonly _supportsCosmos = true;
 
@@ -68,6 +71,7 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
 
     async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "cosmos");
         return this.createCosmosAddress(keyPair.publicKey.toString("hex"));
       });
@@ -75,10 +79,11 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
 
     async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "cosmos");
-        const adapter = await Isolation.Adapters.CosmosDirect.create(keyPair.node,"cosmos");
+        const adapter = await Isolation.Adapters.CosmosDirect.create(keyPair.node, "cosmos");
         const result = await protoTxBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, ATOM_CHAIN);
-        return result
+        return result;
       });
     }
   };

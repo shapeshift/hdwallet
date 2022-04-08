@@ -15,7 +15,7 @@ export class TransportDelegate implements keepkey.TransportDelegate {
         "content-type": "application/json",
         "Access-Control-Allow-Origin": config.baseURL,
       },
-    }
+    };
   }
 
   async getDeviceID(): Promise<string> {

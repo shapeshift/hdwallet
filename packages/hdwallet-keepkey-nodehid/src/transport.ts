@@ -1,7 +1,7 @@
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as hid from "node-hid";
 
-import { VENDOR_ID, PRODUCT_ID } from "./utils";
+import { PRODUCT_ID, VENDOR_ID } from "./utils";
 
 export function requestPair(): hid.HID {
   return new hid.HID(VENDOR_ID, PRODUCT_ID);
@@ -36,7 +36,7 @@ export class TransportDelegate implements keepkey.TransportDelegate {
       // If the device is disconnected, this will fail and throw, which is fine.
       await this.hidRef.close();
     } catch (e) {
-      console.log("Disconnect Error (Ignored):", e);
+      console.warn("Disconnect Error (Ignored):", e);
     }
   }
 
@@ -46,7 +46,7 @@ export class TransportDelegate implements keepkey.TransportDelegate {
   }
 
   async writeChunk(buf: Uint8Array): Promise<void> {
-    const numArray = buf.reduce((a, x, i) => (a[i] = x, a), new Array<number>(buf.length));
+    const numArray = buf.reduce((a, x, i) => ((a[i] = x), a), new Array<number>(buf.length));
     await this.hidRef.write(numArray);
   }
 }

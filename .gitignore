@@ -2,6 +2,8 @@
 !/.circleci
 !/.circleci/**
 !/.codeclimate.yml
+!/.eslintignore
+!/.eslintrc
 !/.gitbook.yaml
 !/.github/
 !/.github/**

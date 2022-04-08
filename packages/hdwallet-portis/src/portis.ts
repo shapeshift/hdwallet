@@ -12,6 +12,7 @@ class PortisTransport extends core.Transport {
     return "portis:0";
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public call(...args: any[]): Promise<any> {
     return Promise.resolve();
   }
@@ -23,6 +24,111 @@ export function isPortis(wallet: core.HDWallet): wallet is PortisHDWallet {
 
 type HasNonTrivialConstructor<T> = T extends { new (): any } ? never : T;
 export type Portis = InstanceType<HasNonTrivialConstructor<typeof Portis>>;
+
+export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo, core.BTCWalletInfo {
+  readonly _supportsBTCInfo = true;
+  readonly _supportsETHInfo = true;
+
+  public getVendor(): string {
+    return "Portis";
+  }
+
+  public hasOnDevicePinEntry(): boolean {
+    return true;
+  }
+
+  public hasOnDevicePassphrase(): boolean {
+    return true;
+  }
+
+  public hasOnDeviceDisplay(): boolean {
+    return true;
+  }
+
+  public hasOnDeviceRecovery(): boolean {
+    return true;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
+    return false;
+  }
+
+  public supportsOfflineSigning(): boolean {
+    return true;
+  }
+
+  public supportsBroadcast(): boolean {
+    return false;
+  }
+
+  public describePath(msg: core.DescribePath): core.PathDescription {
+    switch (msg.coin) {
+      case "Ethereum":
+        return eth.describeETHPath(msg.path);
+      case "Bitcoin":
+        return btc.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+      default:
+        throw new Error("Unsupported path");
+    }
+  }
+
+  public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
+    return btc.btcSupportsCoin(coin);
+  }
+
+  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
+    return btc.btcSupportsScriptType(coin, scriptType);
+  }
+
+  public async btcSupportsSecureTransfer(): Promise<boolean> {
+    return Promise.resolve(false);
+  }
+
+  public btcSupportsNativeShapeShift(): boolean {
+    return false;
+  }
+
+  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
+    return btc.btcGetAccountPaths(msg);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
+    // TODO: Probably not correct
+    return false;
+  }
+
+  public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
+    return btc.btcNextAccountPath(msg);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
+    // Portis only supports one account for eth
+    return undefined;
+  }
+
+  public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
+    return chainId === 1;
+  }
+
+  public async ethSupportsSecureTransfer(): Promise<boolean> {
+    return false;
+  }
+
+  public ethSupportsNativeShapeShift(): boolean {
+    return false;
+  }
+
+  public async ethSupportsEIP1559(): Promise<boolean> {
+    return false;
+  }
+
+  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
+    return eth.ethGetAccountPaths(msg);
+  }
+}
 
 export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWallet {
   readonly _supportsETH = true;
@@ -45,7 +151,7 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
     this.portis = portis;
     this.web3 = (async () => {
       const web3 = (await import("web3")).default;
-      return new web3(portis.provider)
+      return new web3(portis.provider);
     })();
     this.info = new PortisHDWalletInfo();
   }
@@ -113,21 +219,25 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
     return Promise.resolve({ msg: msg.msg });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public sendPin(pin: string): Promise<void> {
     // no concept of pin in Portis
     return Promise.resolve();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public sendPassphrase(passphrase: string): Promise<void> {
     // cannot send passphrase to Portis. Could show the widget?
     return Promise.resolve();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public sendCharacter(charater: string): Promise<void> {
     // no concept of sendCharacter in Portis
     return Promise.resolve();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public sendWord(word: string): Promise<void> {
     // no concept of sendWord in Portis
     return Promise.resolve();
@@ -142,10 +252,12 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
     return Promise.resolve();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public reset(msg: core.ResetDevice): Promise<void> {
     return Promise.resolve();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public recover(msg: core.RecoverDevice): Promise<void> {
     // no concept of recover in Portis
     return Promise.resolve();
@@ -161,14 +273,14 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
 
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
     const publicKeys: { xpub: string }[] = [];
-    this.portisCallInProgress = new Promise(async (resolve, reject) => {
+    this.portisCallInProgress = (async () => {
       try {
         await this.portisCallInProgress;
       } catch (e) {
         console.error(e);
       }
       for (let i = 0; i < msg.length; i++) {
-        const { addressNList, coin } = msg[i];
+        const { addressNList } = msg[i];
         const bitcoinSlip44 = 0x80000000 + core.slip44ByCoin("Bitcoin");
         // TODO we really shouldnt be every using the "bitcoin" string parameter but is here for now to make it work with their btc address on their portis wallet.
         const portisResult: { error: string; result: string } = await this.portis.getExtendedPublicKey(
@@ -176,11 +288,11 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
           addressNList[1] === bitcoinSlip44 ? "Bitcoin" : ""
         );
         const { result, error } = portisResult;
-        if (error) reject(error);
+        if (error) throw error;
         publicKeys.push({ xpub: result });
       }
-      resolve(publicKeys);
-    });
+      return publicKeys;
+    })();
     return this.portisCallInProgress;
   }
 
@@ -200,6 +312,7 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
     return btc.btcSignTx(msg, this.portis);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
     // portis doesnt support this for btc
     throw new Error("not supported");
@@ -237,7 +350,7 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
     return this.info.btcNextAccountPath(msg);
   }
 
-  public async ethSupportsNetwork(chainId: number = 1): Promise<boolean> {
+  public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
     return this.info.ethSupportsNetwork(chainId);
   }
 
@@ -295,108 +408,6 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
     const out: string = (await (await this.web3).eth.getAccounts())[0];
     this.ethAddress = out;
     return out;
-  }
-}
-
-export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo, core.BTCWalletInfo {
-  readonly _supportsBTCInfo = true;
-  readonly _supportsETHInfo = true;
-
-  public getVendor(): string {
-    return "Portis";
-  }
-
-  public hasOnDevicePinEntry(): boolean {
-    return true;
-  }
-
-  public hasOnDevicePassphrase(): boolean {
-    return true;
-  }
-
-  public hasOnDeviceDisplay(): boolean {
-    return true;
-  }
-
-  public hasOnDeviceRecovery(): boolean {
-    return true;
-  }
-
-  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
-    // It doesn't... yet?
-    return false;
-  }
-
-  public supportsOfflineSigning(): boolean {
-    return true;
-  }
-
-  public supportsBroadcast(): boolean {
-    return false;
-  }
-
-  public describePath(msg: core.DescribePath): core.PathDescription {
-    switch (msg.coin) {
-      case "Ethereum":
-        return eth.describeETHPath(msg.path);
-      case "Bitcoin":
-        return btc.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
-      default:
-        throw new Error("Unsupported path");
-    }
-  }
-
-  public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
-    return btc.btcSupportsCoin(coin);
-  }
-
-  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
-    return btc.btcSupportsScriptType(coin, scriptType);
-  }
-
-  public async btcSupportsSecureTransfer(): Promise<boolean> {
-    return Promise.resolve(false);
-  }
-
-  public btcSupportsNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
-    return btc.btcGetAccountPaths(msg);
-  }
-
-  public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
-    return false;
-  }
-
-  public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    return btc.btcNextAccountPath(msg);
-  }
-
-  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
-    // Portis only supports one account for eth
-    return undefined;
-  }
-
-  public async ethSupportsNetwork(chainId: number = 1): Promise<boolean> {
-    return chainId === 1;
-  }
-
-  public async ethSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public ethSupportsNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public async ethSupportsEIP1559(): Promise<boolean> {
-    return false;
-  }
-
-  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
-    return eth.ethGetAccountPaths(msg);
   }
 }
 

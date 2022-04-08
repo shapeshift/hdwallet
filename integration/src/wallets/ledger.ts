@@ -20,7 +20,7 @@ export class MockTransport extends ledger.LedgerTransport {
     method: U,
     ...args: Parameters<ledger.LedgerTransportMethod<T, U>>
   ): Promise<ledger.LedgerResponse<T, U>> {
-    let key = JSON.stringify({ coin: coin, method: method, args: args });
+    const key = JSON.stringify({ coin: coin, method: method, args: args });
 
     if (!this.memoized.has(key)) {
       console.error(coin, method, `JSON.parse('${JSON.stringify(args)}')`);
@@ -31,7 +31,7 @@ export class MockTransport extends ledger.LedgerTransport {
   }
 
   public memoize(coin: string | null, method: string, args: any, response: any) {
-    let key = JSON.stringify({ coin: coin, method: method, args: args });
+    const key = JSON.stringify({ coin: coin, method: method, args: args });
     this.memoized.set(key, response);
   }
 
@@ -215,8 +215,8 @@ export function createInfo(): core.HDWalletInfo {
 }
 
 export async function createWallet(type: any = "Bitcoin"): Promise<core.HDWallet> {
-  let keyring = new core.Keyring();
-  let transport = new MockTransport(keyring, type);
+  const keyring = new core.Keyring();
+  const transport = new MockTransport(keyring, type);
   return ledger.create(transport as any);
 }
 
@@ -224,9 +224,12 @@ export function selfTest(get: () => core.HDWallet): void {
   let wallet: ledger.LedgerHDWallet & core.ETHWallet & core.BTCWallet & core.HDWallet;
 
   beforeAll(async () => {
-    let w = get();
-    if (ledger.isLedger(w) && core.supportsBTC(w) && core.supportsETH(w)) wallet = w;
-    else fail("Wallet is not a Ledger");
+    const w = get();
+    if (ledger.isLedger(w) && core.supportsBTC(w) && core.supportsETH(w)) {
+      wallet = w;
+    } else {
+      throw new Error("Wallet is not a Ledger");
+    }
   });
 
   it("supports Ethereum mainnet", async () => {
@@ -248,7 +251,7 @@ export function selfTest(get: () => core.HDWallet): void {
 
   it("validates current app", async () => {
     if (!wallet) return;
-    expect(await wallet.validateCurrentApp("Bitcoin")).resolves;
+    await expect(wallet.validateCurrentApp("Bitcoin")).resolves.not.toThrow();
     await expect(wallet.validateCurrentApp(undefined)).rejects.toThrow(); // no coin
     await expect(wallet.validateCurrentApp("FakeCoin")).rejects.toThrow(); // invalid coin
     await expect(wallet.validateCurrentApp("Ethereum")).rejects.toThrow(); // wrong coin
@@ -257,7 +260,7 @@ export function selfTest(get: () => core.HDWallet): void {
   it("has a non-BIP 44 derivation path for Ethereum", () => {
     if (!wallet) return;
     [0, 1, 3, 27].forEach((account) => {
-      let paths = wallet.ethGetAccountPaths({
+      const paths = wallet.ethGetAccountPaths({
         coin: "Ethereum",
         accountIdx: account,
       });
@@ -289,7 +292,7 @@ export function selfTest(get: () => core.HDWallet): void {
   it("uses correct bip44 paths", () => {
     if (!wallet) return;
 
-    let paths = wallet.btcGetAccountPaths({
+    const paths = wallet.btcGetAccountPaths({
       coin: "Litecoin",
       accountIdx: 3,
     });
@@ -316,10 +319,12 @@ export function selfTest(get: () => core.HDWallet): void {
   it("supports btcNextAccountPath", () => {
     if (!wallet) return;
 
-    let paths = core.mustBeDefined(wallet.btcGetAccountPaths({
-      coin: "Litecoin",
-      accountIdx: 3,
-    }));
+    const paths = core.mustBeDefined(
+      wallet.btcGetAccountPaths({
+        coin: "Litecoin",
+        accountIdx: 3,
+      })
+    );
 
     expect(
       paths

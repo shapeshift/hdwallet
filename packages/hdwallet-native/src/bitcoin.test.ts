@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import _ from "lodash";
+import cloneDeep from "lodash/cloneDeep";
 
 import * as native from "./native";
 import * as Networks from "./networks";
@@ -69,6 +69,8 @@ const BIP44_BENCHMARK_TX = benchmarkTx(
 // Funding Tx: https://api.blockcypher.com/v1/btc/main/txs/918f59f7144fa389f66b6776e3417e1ec356214e18684050237acc056d5efbc1?includeHex=true
 // Spending Tx: https://api.blockcypher.com/v1/btc/main/txs/6e6ad85c99bfb6ed7c0fa3ec99af02dfcdb805aeda36674bbeb3960bfc6418ba?includeHex=true
 const BIP49_BENCHMARK_TX_INPUT_TXID = "918f59f7144fa389f66b6776e3417e1ec356214e18684050237acc056d5efbc1";
+// (We're not using it but this is real on-chain data we don't want to lose track of)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const BIP49_BENCHMARK_TX_INPUT_HEX =
   "01000000015c4813fb3e0203e3bfa21420d62f88d2f89d39a63fde0f6ef2b08c406bda5f7f000000006a47304402205c9c26e213470dcb1c6b9399cb6cfda2c2dfece806ef10d6e5a889e39bc2e201022027d07373261478c4c43fa7044d6128f48a496cb8c97b93e4460887c664e0ef960121022a6e02f34ea72544c24f96cde286916d162de1f448396c62943b72ea16e6fb47ffffffff028f8011f8000000001976a914d32f4064914d28c30f5b309a73435588e0161f7b88ac2a5d00000000000017a914c9e193b1af9e4349d2ee53b4190e2bd36e59719e8700000000";
 const BIP49_BENCHMARK_TX_OUTPUT_ADDR = "1EC9SktW9Y4kS4iW48idshNg9eNeBdY5Xi";
@@ -181,7 +183,7 @@ describe("NativeBTCWalletInfo", () => {
           coin: "Bitcoin",
           scriptType: "p2wpkh",
           addressNList: core.bip32ToAddressNList("m/84'/0'/0'"),
-        }
+        },
       ],
     ],
     [
@@ -404,7 +406,7 @@ describe("NativeBTCWallet", () => {
   });
 
   it("should not sign a transaction without having the raw input transaction", async () => {
-    const input = _.cloneDeep(BIP44_BENCHMARK_TX);
+    const input = cloneDeep(BIP44_BENCHMARK_TX);
     delete (input.inputs[0] as any).hex;
     await expect(wallet.btcSignTx(input)).rejects.toThrowError("must provide prev rawTx");
   });
@@ -468,7 +470,7 @@ describe("NativeBTCWallet", () => {
   });
 
   it("should not sign a transaction with the wrong key", async () => {
-    const input = _.cloneDeep(BIP44_BENCHMARK_TX);
+    const input = cloneDeep(BIP44_BENCHMARK_TX);
     input.inputs[0].addressNList = core.bip32ToAddressNList("m/44'/0'/1337'/123/4");
 
     await expect(wallet.btcSignTx(input as any)).rejects.toThrowError("Can not sign for this input");

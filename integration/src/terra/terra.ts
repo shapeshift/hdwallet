@@ -49,7 +49,13 @@ export function terraTests(get: () => { wallet: core.HDWallet; info: core.HDWall
             path: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
             coin: "Terra",
           })
-        );
+        ).toMatchInlineSnapshot(`
+          Object {
+            "coin": "Terra",
+            "isKnown": false,
+            "verbose": "m/44'/931'/0'/0/0",
+          }
+        `);
       },
       TIMEOUT
     );

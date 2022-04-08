@@ -1,8 +1,8 @@
 import * as ta from "type-assertions";
 
-import { RawVault } from "./rawVault"
-import { IVaultBackedBy, IVaultFactory, VaultPrepareParams } from "./types"
-import { Revocable, encoder, decoder } from "./util"
+import { RawVault } from "./rawVault";
+import { IVaultBackedBy, IVaultFactory, VaultPrepareParams } from "./types";
+import { decoder, encoder, Revocable } from "./util";
 
 ta.assert<ta.Extends<typeof MapVault, IVaultFactory<MapVault>>>();
 
@@ -10,7 +10,9 @@ export class MapVault
   extends Revocable(Map)
   implements Map<string, unknown | Promise<unknown>>, IVaultBackedBy<Array<[string, unknown | Promise<unknown>]>>
 {
-  static async prepare(params?: VaultPrepareParams) { return RawVault.prepare(params); }
+  static async prepare(params?: VaultPrepareParams) {
+    return RawVault.prepare(params);
+  }
   static async create(password?: string) {
     return await MapVault.open(undefined, password);
   }
@@ -18,9 +20,15 @@ export class MapVault
     await MapVault.prepare();
     return new MapVault(await RawVault.open(id, password));
   }
-  static list() { return RawVault.list(); }
-  static meta(id: string) { return RawVault.meta(id); }
-  static delete(id: string) { return RawVault.delete(id); }
+  static list() {
+    return RawVault.list();
+  }
+  static meta(id: string) {
+    return RawVault.meta(id);
+  }
+  static delete(id: string) {
+    return RawVault.delete(id);
+  }
 
   readonly #rawVault: RawVault;
 
@@ -40,7 +48,7 @@ export class MapVault
 
   async setPassword(password: string): Promise<this> {
     await this.#rawVault.setPassword(password);
-    return this
+    return this;
   }
 
   async load(deserializer: (_: Array<[string, unknown | Promise<unknown>]>) => Promise<void>) {
@@ -68,7 +76,9 @@ export class MapVault
   }
 
   async entriesAsync(): Promise<Array<[string, unknown]>> {
-    return await Promise.all(Array.from(this.entries()).map(async ([k, v]): Promise<[typeof k, unknown]> => [k, await v]))
+    return await Promise.all(
+      Array.from(this.entries()).map(async ([k, v]): Promise<[typeof k, unknown]> => [k, await v])
+    );
   }
 }
 

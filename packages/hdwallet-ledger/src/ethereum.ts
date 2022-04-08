@@ -1,11 +1,11 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
 import Common from "@ethereumjs/common";
-import EthereumTx from "ethereumjs-tx";
 import { Transaction } from "@ethereumjs/tx";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import EthereumTx from "ethereumjs-tx";
 import * as ethereumUtil from "ethereumjs-util";
 
 import { LedgerTransport } from "./transport";
-import { createXpub, compressPublicKey, networksUtil, handleError } from "./utils";
+import { compressPublicKey, createXpub, handleError, networksUtil } from "./utils";
 
 export async function ethSupportsNetwork(chain_id: number): Promise<boolean> {
   return chain_id === 1;
@@ -27,7 +27,9 @@ export async function ethGetPublicKeys(
   const xpubs = [];
 
   for (const getPublicKey of msg) {
-    let { addressNList, coin, scriptType } = getPublicKey;
+    const { addressNList, coin } = getPublicKey;
+    let { scriptType } = getPublicKey;
+
     if (!scriptType) scriptType = core.BTCInputScriptType.SpendAddress;
 
     // Only get public keys for ETH account paths
@@ -73,7 +75,7 @@ export async function ethGetPublicKeys(
 
 export async function ethSignTx(transport: LedgerTransport, msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
   const bip32path = core.addressNListToBIP32(msg.addressNList);
-  const common = new Common({chain: "mainnet", hardfork: "london"});
+  const common = new Common({ chain: "mainnet", hardfork: "london" });
   const txParams = {
     to: msg.to,
     value: msg.value,
@@ -87,19 +89,22 @@ export async function ethSignTx(transport: LedgerTransport, msg: core.ETHSignTx)
     s: "0x00",
   };
 
-  let utx = new EthereumTx(txParams);
+  const utx = new EthereumTx(txParams);
 
   const res = await transport.call("Eth", "signTransaction", bip32path, utx.serialize().toString("hex"));
   handleError(res, transport, "Could not sign ETH tx with Ledger");
 
   const { v, r, s } = res.payload;
 
-  const tx = Transaction.fromTxData({
-    ...txParams,
-    v: "0x" + v,
-    r: "0x" + r,
-    s: "0x" + s,
-  }, { common });
+  const tx = Transaction.fromTxData(
+    {
+      ...txParams,
+      v: "0x" + v,
+      r: "0x" + r,
+      s: "0x" + s,
+    },
+    { common }
+  );
 
   return {
     v: parseInt(v, 16),
@@ -148,7 +153,9 @@ export async function ethSignMessage(
   const res = await transport.call("Eth", "signPersonalMessage", bip32path, Buffer.from(msg.message).toString("hex"));
   handleError(res, transport, "Could not sign ETH message with Ledger");
 
-  let { v, r, s } = res.payload;
+  let { v } = res.payload;
+  const { r, s } = res.payload;
+
   v = v - 27;
   const vStr = v.toString(16).padStart(2, "0");
   const addressRes = await transport.call("Eth", "getAddress", bip32path, false);

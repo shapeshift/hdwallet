@@ -64,11 +64,9 @@ describe("NativeSecretWallet", () => {
       chain_id: "foobar",
       account_number: 123,
       sequence: 456,
-    })
+    });
     expect(signed.signatures.length).toBe(1);
-    expect(signed.signatures[0].pub_key.value).toMatchInlineSnapshot(
-      `"A2UVKphVsesrnAQEtX4K+qk8Z84wa5xD5mxzdPykAiyR"`
-    );
+    expect(signed.signatures[0].pub_key.value).toMatchInlineSnapshot(`"A2UVKphVsesrnAQEtX4K+qk8Z84wa5xD5mxzdPykAiyR"`);
     expect(signed.signatures[0].signature).toMatchInlineSnapshot(
       `"f4HKv09XvsGQn74y4MHL+M+wP/uBjHsIn5PwPfq7xMI7CJkS22Pxx7KlXpeUzCjiaSZvEEIuxbkd9J+Q4g86jg=="`
     );

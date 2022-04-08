@@ -6,7 +6,7 @@ export interface TrezorConnectResponse {
 }
 
 export abstract class TrezorTransport extends core.Transport {
-  hasPopup: boolean = false;
+  hasPopup = false;
 
   constructor(keyring: core.Keyring) {
     super(keyring);

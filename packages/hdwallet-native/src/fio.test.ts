@@ -3,8 +3,8 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bs58 from "bs58";
 import * as tinyecc from "tiny-secp256k1";
 
-import * as native from "./native";
 import * as Isolation from "./crypto/isolation";
+import * as native from "./native";
 
 const MNEMONIC = "all all all all all all all all all all all all";
 
@@ -172,7 +172,7 @@ describe("NativeFioWallet", () => {
       expect(address).toBe("FIO8Pok1EBMsZWphhfUj2m3MXrxBZJq7erqyi7E1teAfZE18HyjK5");
     });
 
-    it("should generate another correct FIO address", async () => {
+    it("should generate a third correct FIO address", async () => {
       const address = await wallet.fioGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/235'/1'/0/0") });
       expect(address).toMatchInlineSnapshot(`"FIO8HiUzsRDYo69AEmUk39f7h7nawTjn9msbX6oUY5wrX6ERCh3rA"`);
     });

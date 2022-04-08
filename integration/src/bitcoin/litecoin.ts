@@ -58,14 +58,14 @@ export function litecoinTests(get: () => { wallet: core.HDWallet; info: core.HDW
             ],
           ],
           async (args) => {
-            let mode = args[0] as string;
-            let coin = args[1] as core.Coin;
-            let path = args[2] as string;
-            let scriptType = args[3] as core.BTCInputScriptType;
-            let expected = args[4] as string;
+            const mode = args[0] as string;
+            const coin = args[1] as core.Coin;
+            const path = args[2] as string;
+            const scriptType = args[3] as core.BTCInputScriptType;
+            const expected = args[4] as string;
 
             if (!(await wallet.btcSupportsScriptType(coin, scriptType))) return;
-            let res = await wallet.btcGetAddress({
+            const res = await wallet.btcGetAddress({
               addressNList: core.bip32ToAddressNList(path),
               coin: coin,
               showDisplay: mode === "Show",
@@ -88,18 +88,18 @@ export function litecoinTests(get: () => { wallet: core.HDWallet; info: core.HDW
             ["Litecoin", 1, core.BTCInputScriptType.SpendWitness],
           ],
           async (args) => {
-            let coin = args[0] as core.Coin;
-            let accountIdx = args[1] as number;
-            let scriptType = args[2] as core.BTCInputScriptType;
+            const coin = args[0] as core.Coin;
+            const accountIdx = args[1] as number;
+            const scriptType = args[2] as core.BTCInputScriptType;
             if (!wallet) return;
             if (!(await wallet.btcSupportsCoin(coin))) return;
             if (!(await wallet.btcSupportsScriptType(coin, scriptType))) return;
-            let paths = wallet.btcGetAccountPaths({
+            const paths = wallet.btcGetAccountPaths({
               coin: coin,
               accountIdx: accountIdx,
               scriptType: scriptType,
             });
-            expect(paths.length > 0);
+            expect(paths.length).toBeGreaterThan(0);
           }
         );
       },
@@ -111,7 +111,7 @@ export function litecoinTests(get: () => { wallet: core.HDWallet; info: core.HDW
       async () => {
         if (!wallet) return;
         [0, 1, 9].forEach((idx) => {
-          let paths = wallet.btcGetAccountPaths({
+          const paths = wallet.btcGetAccountPaths({
             coin: "Litecoin",
             accountIdx: idx,
           });
