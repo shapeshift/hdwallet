@@ -27,9 +27,8 @@ export class NativeAdapter {
     return new NativeAdapter(keyring);
   }
 
-  async initialize(): Promise<number> {
-    return 0;
-  }
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  async initialize(): Promise<void> {}
 
   async pairDevice(deviceId: string): Promise<native.NativeHDWallet | null> {
     let wallet: core.HDWallet | null = this.keyring.get(deviceId);

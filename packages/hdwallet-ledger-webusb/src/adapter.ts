@@ -71,7 +71,7 @@ export class WebUSBLedgerAdapter {
   }
 
   // without unique device identifiers, we should only ever have one ledger device on the keyring at a time
-  public async initialize(usbDevice?: USBDevice): Promise<number> {
+  public async initialize(usbDevice?: USBDevice): Promise<void> {
     const device = usbDevice ?? (await getFirstLedgerDevice());
 
     if (device) {
@@ -85,8 +85,6 @@ export class WebUSBLedgerAdapter {
 
       this.keyring.add(wallet, device.serialNumber);
     }
-
-    return Object.keys(this.keyring.wallets).length;
   }
 
   public async pairDevice(): Promise<ledger.LedgerHDWallet> {

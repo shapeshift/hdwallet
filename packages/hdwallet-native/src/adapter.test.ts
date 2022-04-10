@@ -7,7 +7,7 @@ describe("NativeAdapter", () => {
   it("creates a unique wallet per deviceId", async () => {
     const keyring = new core.Keyring();
     const adapter = NativeAdapter.useKeyring(keyring);
-    expect(await adapter.initialize()).toBe(0);
+    await adapter.initialize();
     const wallet = await adapter.pairDevice("foobar");
     expect(wallet).toBeInstanceOf(NativeHDWallet);
     expect(await adapter.pairDevice("foobar")).toBe(wallet);

@@ -71,7 +71,7 @@ export class WebHIDLedgerAdapter {
   }
 
   // without unique device identifiers, we should only ever have one HID ledger device on the keyring at a time
-  public async initialize(device?: HIDDevice): Promise<number> {
+  public async initialize(device?: HIDDevice): Promise<void> {
     device = device ?? (await getFirstLedgerDevice()) ?? undefined;
 
     if (device) {
@@ -83,8 +83,6 @@ export class WebHIDLedgerAdapter {
 
       this.keyring.add(wallet, MOCK_SERIAL_NUMBER);
     }
-
-    return Object.keys(this.keyring.wallets).length;
   }
 
   public async pairDevice(): Promise<ledger.LedgerHDWallet> {

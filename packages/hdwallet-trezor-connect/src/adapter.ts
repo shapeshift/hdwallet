@@ -143,7 +143,7 @@ export class TrezorAdapter {
     this.connectCacheFeatures(event);
   }
 
-  public async initialize(devices?: TrezorDevice[]): Promise<number> {
+  public async initialize(devices?: TrezorDevice[]): Promise<void> {
     const init = await _initialization;
     if (!init) throw new Error("Could not initialize TrezorAdapter: TrezorConnect not initialized");
 
@@ -162,7 +162,6 @@ export class TrezorAdapter {
       await wallet.initialize();
       this.keyring.add(wallet, device.deviceID);
     }
-    return Object.keys(this.keyring.wallets).length;
   }
 
   public async pairDevice(): Promise<trezor.TrezorHDWallet> {

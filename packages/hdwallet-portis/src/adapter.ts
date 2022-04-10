@@ -24,9 +24,8 @@ export class PortisAdapter {
     return new PortisAdapter(keyring, args);
   }
 
-  public async initialize(): Promise<number> {
-    return Object.keys(this.keyring.wallets).length;
-  }
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  public async initialize(): Promise<void> {}
 
   public async pairDevice(): Promise<PortisHDWallet> {
     try {

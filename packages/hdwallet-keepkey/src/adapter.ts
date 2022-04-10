@@ -95,7 +95,7 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
     devices?: Array<DeviceType<DelegateType>>,
     tryDebugLink?: boolean,
     autoConnect?: boolean
-  ): Promise<number> {
+  ): Promise<void> {
     devices = devices ?? (await this.getDevices());
     for (const device of devices) {
       const { serialNumber } = await this.inspectDevice(device);
@@ -112,7 +112,6 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
       if (autoConnect) await wallet.initialize();
       this.keyring.add(wallet, serialNumber);
     }
-    return Object.keys(this.keyring.wallets).length;
   }
 
   async getDevice(serialNumber?: string): Promise<DeviceType<DelegateType>> {

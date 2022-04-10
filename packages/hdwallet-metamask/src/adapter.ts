@@ -18,9 +18,8 @@ export class MetaMaskAdapter {
     return new MetaMaskAdapter(keyring);
   }
 
-  public async initialize(): Promise<number> {
-    return Object.keys(this.keyring.wallets).length;
-  }
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  public async initialize(): Promise<void> {}
 
   public async pairDevice(): Promise<MetaMaskHDWallet> {
     const provider: any = await detectEthereumProvider({ mustBeMetaMask: true, silent: false, timeout: 3000 });

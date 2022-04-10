@@ -16,9 +16,8 @@ export class XDeFiAdapter {
     return new XDeFiAdapter(keyring);
   }
 
-  public async initialize(): Promise<number> {
-    return Object.keys(this.keyring.wallets).length;
-  }
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  public async initialize(): Promise<void> {}
 
   public async pairDevice(): Promise<XDeFiHDWallet> {
     const provider: any = (globalThis as any).xfi?.ethereum;
