@@ -31,6 +31,15 @@ import {
   thorchainUnsignedTx,
 } from "./json/thorchainTx.json";
 
+import {
+  cosmosDelegateTx,
+  cosmosIBCTransferTx,
+  cosmosRedelegateTx,
+  cosmosRewardsTx,
+  cosmosTransferTx,
+  cosmosUndelegateTx,
+} from "./json/cosmosAminoTx.json";
+
 const keyring = new core.Keyring();
 
 const portisAppId = "ff763d3d-9e34-45a1-81d1-caa39b9c64f9";
@@ -857,6 +866,12 @@ $fioTx.on("click", async (e) => {
  */
 const $cosmosAddr = $("#cosmosAddr");
 const $cosmosTx = $("#cosmosTx");
+const $cosmosDelegate = $("#cosmosDelegate");
+const $cosmosUndelegate = $("#cosmosUndelegate");
+const $cosmosRedelegate = $("#cosmosRedelegate");
+const $cosmosRewards = $("#cosmosRewards");
+const $cosmosIBCTransfer = $("#cosmosIBCTransfer");
+
 const $cosmosResults = $("#cosmosResults");
 
 $cosmosAddr.on("click", async (e) => {
@@ -889,29 +904,150 @@ $cosmosTx.on("click", async (e) => {
     return;
   }
   if (core.supportsCosmos(wallet)) {
-    const unsigned: core.Cosmos.StdTx = {
-      memo: "KeepKey",
-      fee: {
-        amount: [{ amount: "100", denom: "ATOM" }],
-        gas: "1000",
-      },
-      msg: [
-        {
-          type: "cosmos-sdk/MsgSend",
-          value: {
-            amount: [
-              {
-                amount: "47000",
-                denom: "uatom",
-              },
-            ],
-            from_address: "cosmos1934nqs0ke73lm5ej8hs9uuawkl3ztesg9jp5c5",
-            to_address: "cosmos14um3sf75lc0kpvgrpj9hspqtv0375epn05cpfa",
-          },
-        },
-      ],
-      signatures: null,
-    };
+    // let unsigned: core.Cosmos.StdTx = {
+    //   memo: "KeepKey",
+    //   fee: {
+    //     amount: [{ amount: "100", denom: "ATOM" }],
+    //     gas: "1000",
+    //   },
+    //   msg: [
+    //     {
+    //       type: "cosmos-sdk/MsgSend",
+    //       value: {
+    //         amount: [
+    //           {
+    //             amount: "47000",
+    //             denom: "uatom",
+    //           },
+    //         ],
+    //         from_address: "cosmos1934nqs0ke73lm5ej8hs9uuawkl3ztesg9jp5c5",
+    //         to_address: "cosmos14um3sf75lc0kpvgrpj9hspqtv0375epn05cpfa",
+    //       },
+    //     },
+    //   ],
+    //   signatures: null,
+    // };
+
+    let unsigned: core.Cosmos.StdTx = cosmosTransferTx;
+
+    console.log(unsigned)
+
+    let res = await wallet.cosmosSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: "cosmoshub-2",
+      account_number: "24250",
+      sequence: "3",
+      tx: unsigned,
+    });
+    $cosmosResults.val(JSON.stringify(res));
+  } else {
+    let label = await wallet.getLabel();
+    $cosmosResults.val(label + " does not support Cosmos");
+  }
+});
+
+$cosmosDelegate.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $cosmosResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsCosmos(wallet)) {
+    let unsigned: core.Cosmos.StdTx = cosmosDelegateTx;
+
+    console.log(unsigned)
+
+    let res = await wallet.cosmosSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: "cosmoshub-2",
+      account_number: "24250",
+      sequence: "3",
+      tx: unsigned,
+    });
+    $cosmosResults.val(JSON.stringify(res));
+  } else {
+    let label = await wallet.getLabel();
+    $cosmosResults.val(label + " does not support Cosmos");
+  }
+});
+
+$cosmosUndelegate.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $cosmosResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsCosmos(wallet)) {
+    let unsigned: core.Cosmos.StdTx = cosmosUndelegateTx;
+
+    let res = await wallet.cosmosSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: "cosmoshub-2",
+      account_number: "24250",
+      sequence: "3",
+      tx: unsigned,
+    });
+    $cosmosResults.val(JSON.stringify(res));
+  } else {
+    let label = await wallet.getLabel();
+    $cosmosResults.val(label + " does not support Cosmos");
+  }
+});
+
+$cosmosRedelegate.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $cosmosResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsCosmos(wallet)) {
+    let unsigned: core.Cosmos.StdTx = cosmosRedelegateTx;
+
+    let res = await wallet.cosmosSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: "cosmoshub-2",
+      account_number: "24250",
+      sequence: "3",
+      tx: unsigned,
+    });
+    $cosmosResults.val(JSON.stringify(res));
+  } else {
+    let label = await wallet.getLabel();
+    $cosmosResults.val(label + " does not support Cosmos");
+  }
+});
+
+$cosmosRewards.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $cosmosResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsCosmos(wallet)) {
+    let unsigned: core.Cosmos.StdTx = cosmosRewardsTx;
+
+    let res = await wallet.cosmosSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: "cosmoshub-2",
+      account_number: "24250",
+      sequence: "3",
+      tx: unsigned,
+    });
+    $cosmosResults.val(JSON.stringify(res));
+  } else {
+    let label = await wallet.getLabel();
+    $cosmosResults.val(label + " does not support Cosmos");
+  }
+});
+
+$cosmosIBCTransfer.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $cosmosResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsCosmos(wallet)) {
+    let unsigned: core.Cosmos.StdTx = cosmosIBCTransferTx;
 
     const res = await wallet.cosmosSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
