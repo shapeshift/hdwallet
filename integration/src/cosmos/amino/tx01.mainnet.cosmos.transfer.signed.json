@@ -1,0 +1,7 @@
+{
+  "signature": "jmJEfvnWOO2SiYtTPsB7DB45ONgCA7TK5wK4phlCGV1cSyoAmQn2VNBC16Wi0mtRV65VgOCcc+T0sGDdDZ/sFw==",
+  "pub_key": {
+    "type": "tendermint/PubKeySecp256k1",
+    "value": "A/ZF7GVEqS+VHzvKFqK8HFaEbQZVlNsiJyXVm5kCUoOF"
+  }
+}

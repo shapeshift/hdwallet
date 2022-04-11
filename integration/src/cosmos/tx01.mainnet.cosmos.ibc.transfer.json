@@ -1,7 +1,6 @@
 {
   "account_number": "16359",
   "chain_id": "cosmoshub-4",
-  "sequence": "27",
   "fee": {
     "amount": [
       {
@@ -30,5 +29,6 @@
         }
       }
     }
-  ]
+  ],
+  "sequence": "27"
 }
