@@ -1705,10 +1705,10 @@
     "@types/yargs" "^16.0.0"
     chalk "^4.0.0"
 
-"@keepkey/device-protocol@^7.7.1":
-  version "7.7.1"
-  resolved "https://registry.yarnpkg.com/@keepkey/device-protocol/-/device-protocol-7.7.1.tgz#bf2b945e86ce4f3dceb681fdd3cff558cf3b652c"
-  integrity sha512-WBPRsPC+pD6vcuZRgczt7Q8UXllcBghEGvzxfpLQ4Qx9tgrVeLRF93032Nu57G8zWvTJvKrcV4OrbKovIcRFpg==
+"@keepkey/device-protocol@^7.8.1":
+  version "7.8.1"
+  resolved "https://registry.yarnpkg.com/@keepkey/device-protocol/-/device-protocol-7.8.1.tgz#e7b1f90390d8314247f5af4f7975c2824f758d9b"
+  integrity sha512-+QY+ivAIxkfN/U50w979WpdHruU9tPVIRddaAItIcfZVKZxs5aNs8/ciUyso0/47p/rRxJpaEJSKz2K0lEes1w==
   dependencies:
     google-protobuf "^3.7.0-rc.2"
     pbjs "^0.0.5"

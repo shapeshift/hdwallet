@@ -17,7 +17,7 @@
   "dependencies": {
     "@ethereumjs/common": "^2.4.0",
     "@ethereumjs/tx": "^3.3.0",
-    "@keepkey/device-protocol": "^7.7.1",
+    "@keepkey/device-protocol": "^7.8.1",
     "@shapeshiftoss/bitcoinjs-lib": "5.2.0-shapeshift.2",
     "@shapeshiftoss/hdwallet-core": "1.19.1",
     "bignumber.js": "^9.0.1",
