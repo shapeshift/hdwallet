@@ -1,7 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as eth from "./ethereum";
 import _ from "lodash";
-import detectEthereumProvider from "@metamask/detect-provider";
 
 export function isTally(wallet: core.HDWallet): wallet is TallyHDWallet {
   return _.isObject(wallet) && (wallet as any)._isTally;
@@ -18,8 +17,9 @@ export class TallyHDWallet implements core.HDWallet, core.ETHWallet {
   ethAddress?: string | null;
   provider: any;
 
-  constructor() {
+  constructor(provider: unknown) {
     this.info = new TallyHDWalletInfo();
+    this.provider = provider
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -42,14 +42,8 @@ export class TallyHDWallet implements core.HDWallet, core.ETHWallet {
     return "Tally";
   }
 
-  public async initialize(): Promise<boolean> { 
-    try {
-      this.provider = await detectEthereumProvider({ mustBeMetaMask: false, silent: false, timeout: 3000 });
-      return true;
-    } catch (e) {
-      console.error(e);
-      return false;
-    }
+  public async initialize(): Promise<void> { 
+    // nothing to initialize
   }
 
   public hasOnDevicePinEntry(): boolean {

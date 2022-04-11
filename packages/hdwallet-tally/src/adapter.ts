@@ -34,7 +34,7 @@ export class TallyAdapter {
       console.error("Could not get Tally accounts. ");
       throw error;
     }
-    const wallet = new TallyHDWallet();
+    const wallet = new TallyHDWallet(provider);
     await wallet.initialize();
     const deviceID = await wallet.getDeviceID();
     this.keyring.add(wallet, deviceID);
