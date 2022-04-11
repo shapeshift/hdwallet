@@ -374,7 +374,7 @@ export class KeepKeyHDWalletInfo
 {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
-  readonly _supportsCosmosInfo = false;
+  readonly _supportsCosmosInfo = true;
   readonly _supportsRippleInfo = true;
   readonly _supportsBinanceInfo = true;
   readonly _supportsEosInfo = true;
@@ -615,7 +615,7 @@ export class KeepKeyHDWalletInfo
 export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.DebugLinkWallet {
   readonly _supportsETHInfo = true;
   readonly _supportsBTCInfo = true;
-  readonly _supportsCosmosInfo = false;
+  readonly _supportsCosmosInfo = true;
   readonly _supportsRippleInfo = true;
   readonly _supportsBinanceInfo = true;
   readonly _supportsEosInfo = true;
@@ -624,7 +624,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   readonly _isKeepKey = true;
   readonly _supportsETH = true;
   readonly _supportsBTC = true;
-  _supportsCosmos = false;
+  _supportsCosmos = true;
   _supportsRipple = true;
   _supportsBinance = true;
   _supportsEos = true;

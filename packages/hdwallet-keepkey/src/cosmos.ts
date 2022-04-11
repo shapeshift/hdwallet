@@ -54,6 +54,77 @@ export async function cosmosSignTx(transport: Transport, msg: core.CosmosSignTx)
 
         ack = new CosmosMessages.CosmosMsgAck();
         ack.setSend(send);
+      } else if (m.type === "cosmos-sdk/MsgDelegate") {
+        const denom = m.value.amount.denom;
+        if (denom !== "uatom") {
+          throw new Error("cosmos: Unsupported denomination: " + denom);
+        }
+
+        const delegate = new CosmosMessages.CosmosMsgDelegate();
+        delegate.setDelegatorAddress(m.value.delegator_address);
+        delegate.setValidatorAddress(m.value.validator_address);
+        delegate.setAmount(m.value.amount.amount);
+
+        ack = new CosmosMessages.CosmosMsgAck();
+
+        ack.setDelegate(delegate);
+      } else if (m.type === "cosmos-sdk/MsgUndelegate") {
+        const denom = m.value.amount.denom;
+        if (denom !== "uatom") {
+          throw new Error("cosmos: Unsupported denomination: " + denom);
+        }
+
+        const undelegate = new CosmosMessages.CosmosMsgUndelegate();
+        undelegate.setDelegatorAddress(m.value.delegator_address);
+        undelegate.setValidatorAddress(m.value.validator_address);
+        undelegate.setAmount(m.value.amount.amount);
+
+        ack = new CosmosMessages.CosmosMsgAck();
+        ack.setUndelegate(undelegate);
+      } else if (m.type === "cosmos-sdk/MsgBeginRedelegate") {
+        const denom = m.value.amount.denom;
+        if (denom !== "uatom") {
+          throw new Error("cosmos: Unsupported denomination: " + denom);
+        }
+
+        const redelegate = new CosmosMessages.CosmosMsgRedelegate();
+        redelegate.setDelegatorAddress(m.value.delegator_address);
+        redelegate.setValidatorSrcAddress(m.value.validator_src_address);
+        redelegate.setValidatorDstAddress(m.value.validator_dst_address);
+        redelegate.setAmount(m.value.amount.amount);
+
+        ack = new CosmosMessages.CosmosMsgAck();
+        ack.setRedelegate(redelegate);
+      } else if (m.type === "cosmos-sdk/MsgWithdrawDelegatorReward") {
+        const denom = m.value.amount.denom;
+        if (denom !== "uatom") {
+          throw new Error("cosmos: Unsupported denomination: " + denom);
+        }
+
+        const rewards = new CosmosMessages.CosmosMsgRewards();
+        rewards.setDelegatorAddress(m.value.delegator_address);
+        rewards.setValidatorAddress(m.value.validator_address);
+        rewards.setAmount(m.value.amount.amount);
+
+        ack = new CosmosMessages.CosmosMsgAck();
+        ack.setRewards(rewards);
+      } else if (m.type === "cosmos-sdk/MsgTransfer") {
+        const denom = m.value.amount.denom;
+        if (denom !== "uatom") {
+          throw new Error("cosmos: Unsupported denomination: " + denom);
+        }
+
+        const ibcTransfer = new CosmosMessages.CosmosMsgIBCTransfer();
+        ibcTransfer.setReceiver(m.value.receiver);
+        ibcTransfer.setSender(m.value.sender);
+        ibcTransfer.setSourceChannel(m.value.source_channel);
+        ibcTransfer.setSourcePort(m.value.source_port);
+        ibcTransfer.setRevisionHeight(m.value.timeout_height.revision_height);
+        ibcTransfer.setRevisionNumber(m.value.timeout_height.revision_number);
+        ibcTransfer.setAmount(m.value.amount.amount);
+
+        ack = new CosmosMessages.CosmosMsgAck();
+        ack.setIbcTransfer(ibcTransfer);
       } else {
         throw new Error(`cosmos: Message ${m.type} is not yet supported`);
       }
