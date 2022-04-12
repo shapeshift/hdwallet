@@ -1,11 +1,11 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { TallyHDWallet, TallyHDWalletInfo } from ".";
 
-describe("TallyHDWalletInfo", () => {
+describe("HDWalletInfo", () => {
   const info = new TallyHDWalletInfo();
 
   it("should have correct metadata", async () => {
-    expect(info.getVendor()).toBe("XDeFi");
+    expect(info.getVendor()).toBe("Tally");
     expect(info.hasOnDevicePinEntry()).toBe(false);
     expect(info.hasOnDevicePassphrase()).toBe(false);
     expect(info.hasOnDeviceDisplay()).toBe(false);
@@ -29,15 +29,15 @@ describe("TallyHDWalletInfo", () => {
   });
 });
 
-describe("XDeFiHDWallet", () => {
-  let wallet: XDeFiHDWallet;
+describe("TallyHDWallet", () => {
+  let wallet: TallyHDWallet;
   beforeEach(() => {
-    wallet = new XDeFiHDWallet(core.untouchable("XDeFiHDWallet:provider"));
+    wallet = new TallyHDWallet(core.untouchable("TallyHDWallet:provider"));
     wallet.ethAddress = "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8";
   });
 
   it("should match the metadata", async () => {
-    expect(wallet.getVendor()).toBe("XDeFi");
+    expect(wallet.getVendor()).toBe("Tally");
     expect(wallet.hasOnDevicePinEntry()).toBe(false);
     expect(wallet.hasOnDevicePassphrase()).toBe(false);
     expect(wallet.hasOnDeviceDisplay()).toBe(false);
