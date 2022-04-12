@@ -959,9 +959,9 @@ $cosmosDelegate.on("click", async (e) => {
 
     let res = await wallet.cosmosSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
-      chain_id: "cosmoshub-2",
-      account_number: "24250",
-      sequence: "3",
+      chain_id: "cosmoshub-4",
+      account_number: "16359",
+      sequence: "18",
       tx: unsigned,
     });
     $cosmosResults.val(JSON.stringify(res));
@@ -982,9 +982,9 @@ $cosmosUndelegate.on("click", async (e) => {
 
     let res = await wallet.cosmosSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
-      chain_id: "cosmoshub-2",
-      account_number: "24250",
-      sequence: "3",
+      chain_id: "cosmoshub-4",
+      account_number: "16359",
+      sequence: "18",
       tx: unsigned,
     });
     $cosmosResults.val(JSON.stringify(res));
@@ -1005,9 +1005,9 @@ $cosmosRedelegate.on("click", async (e) => {
 
     let res = await wallet.cosmosSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
-      chain_id: "cosmoshub-2",
-      account_number: "24250",
-      sequence: "3",
+      chain_id: "cosmoshub-4",
+      account_number: "16359",
+      sequence: "18",
       tx: unsigned,
     });
     $cosmosResults.val(JSON.stringify(res));
@@ -1028,9 +1028,9 @@ $cosmosRewards.on("click", async (e) => {
 
     let res = await wallet.cosmosSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
-      chain_id: "cosmoshub-2",
-      account_number: "24250",
-      sequence: "3",
+      chain_id: "cosmoshub-4",
+      account_number: "16359",
+      sequence: "18",
       tx: unsigned,
     });
     $cosmosResults.val(JSON.stringify(res));
@@ -1051,9 +1051,9 @@ $cosmosIBCTransfer.on("click", async (e) => {
 
     const res = await wallet.cosmosSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
-      chain_id: "cosmoshub-2",
-      account_number: "24250",
-      sequence: "3",
+      chain_id: "cosmoshub-4",
+      account_number: "16359",
+      sequence: "18",
       tx: unsigned,
     });
     $cosmosResults.val(JSON.stringify(res));
