@@ -22,7 +22,9 @@ export async function cosmosSignTx(transport: Transport, msg: core.CosmosSignTx)
     signTx.setFeeAmount(parseInt(msg.tx.fee.amount[0].amount));
     signTx.setGas(parseInt(msg.tx.fee.gas));
     signTx.setSequence(msg.sequence);
-    if (msg.tx.memo !== undefined) signTx.setMemo(msg.tx.memo);
+    if (msg.tx.memo !== undefined) {
+      signTx.setMemo(msg.tx.memo);
+    }
     signTx.setMsgCount(1);
 
     let resp = await transport.call(Messages.MessageType.MESSAGETYPE_COSMOSSIGNTX, signTx, {
@@ -109,7 +111,7 @@ export async function cosmosSignTx(transport: Transport, msg: core.CosmosSignTx)
         ack = new CosmosMessages.CosmosMsgAck();
         ack.setRewards(rewards);
       } else if (m.type === "cosmos-sdk/MsgTransfer") {
-        const denom = m.value.amount.denom;
+        const denom = m.value.token.denom;
         if (denom !== "uatom") {
           throw new Error("cosmos: Unsupported denomination: " + denom);
         }
@@ -121,7 +123,8 @@ export async function cosmosSignTx(transport: Transport, msg: core.CosmosSignTx)
         ibcTransfer.setSourcePort(m.value.source_port);
         ibcTransfer.setRevisionHeight(m.value.timeout_height.revision_height);
         ibcTransfer.setRevisionNumber(m.value.timeout_height.revision_number);
-        ibcTransfer.setAmount(m.value.amount.amount);
+        ibcTransfer.setAmount(m.value.token.amount);
+        ibcTransfer.setDenom(m.value.token.denom);
 
         ack = new CosmosMessages.CosmosMsgAck();
         ack.setIbcTransfer(ibcTransfer);
