@@ -223,7 +223,7 @@ export class TallyHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
     return true;
   }
 
-  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
+  public hasNativeShapeShift(): boolean {
     // It doesn't... yet?
     return false;
   }
