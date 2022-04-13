@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.17.0-legacy",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.17.0-legacy",
+    "@shapeshiftoss/hdwallet-core": "1.17.0-legacy",
+    "@shapeshiftoss/hdwallet-keepkey": "1.17.0-legacy",
     "axios": "^0.21.1"
   },
   "devDependencies": {
