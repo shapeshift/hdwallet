@@ -22,18 +22,15 @@ export class TallyAdapter {
   }
 
   public async pairDevice(): Promise<TallyHDWallet> {
+    try {
     const provider: any = await detectEthereumProvider({ mustBeMetaMask: false, silent: false, timeout: 3000 });
     if (!provider) {
       const onboarding = new TallyOnboarding();
       onboarding.startOnboarding();
       console.error("Please install Tally!");
     }
-    try {
-      await provider.request({ method: "eth_requestAccounts" });
-    } catch (error) {
-      console.error("Could not get Tally accounts. ");
-      throw error;
-    }
+    await provider.request({ method: "eth_requestAccounts" });
+
     const wallet = new TallyHDWallet(provider);
     await wallet.initialize();
     const deviceID = await wallet.getDeviceID();
@@ -42,5 +39,10 @@ export class TallyAdapter {
     this.keyring.emit(["Tally", deviceID, core.Events.CONNECT], deviceID);
 
     return wallet;
+
+  } catch (error) {
+    console.error("Could not get Tally accounts. ");
+    throw error;
+  }
   }
 }
