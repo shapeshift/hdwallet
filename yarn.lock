@@ -3066,10 +3066,10 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/proto-tx-builder@^0.2.0-canary":
-  version "0.2.0-canary"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.2.0-canary.tgz#b66d4e5183ace490addab5f4e6b3033aea180291"
-  integrity sha512-lexDF4FDyxDd42+U2UbhRjB5eJmsAXm6BeJvnWVxE/BdndCfT2LJiYncg5hMQwp2wMZUlTZKA5tQZFgxtcQstw==
+"@shapeshiftoss/proto-tx-builder@0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.2.0.tgz#bae88ade0f344b6ad615fbf33b89eb9d50451a58"
+  integrity sha512-O54PWOS9rnwOqVRXDMvTIo0qgz/yfu5QAFe4ZVJr2+0NIQAVaDOILCPaMKfLMEoY7jSNRXha+vb0hPu4al61bg==
   dependencies:
     "@cosmjs/proto-signing" "^0.28.0"
     "@cosmjs/stargate" "^0.28.0"
