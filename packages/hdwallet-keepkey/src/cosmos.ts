@@ -1,7 +1,10 @@
+import type { AminoSignResponse, OfflineAminoSigner, StdSignDoc } from "@cosmjs/amino";
+import type { AccountData } from "@cosmjs/proto-signing";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as CosmosMessages from "@keepkey/device-protocol/lib/messages-cosmos_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import _ from "lodash";
+import * as protoTxBuilder from "@shapeshiftoss/proto-tx-builder";
+import * as bs58check from "bs58check";
 
 import { Transport } from "./transport";
 
@@ -13,7 +16,35 @@ export function cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<co
   ];
 }
 
+export async function cosmosGetAddress(
+  transport: Transport,
+  msg: CosmosMessages.CosmosGetAddress.AsObject
+): Promise<string> {
+  const getAddr = new CosmosMessages.CosmosGetAddress();
+  getAddr.setAddressNList(msg.addressNList);
+  getAddr.setShowDisplay(msg.showDisplay !== false);
+  const response = await transport.call(Messages.MessageType.MESSAGETYPE_COSMOSGETADDRESS, getAddr, {
+    msgTimeout: core.LONG_TIMEOUT,
+  });
+
+  const cosmosAddress = response.proto as CosmosMessages.CosmosAddress;
+  return core.mustBeDefined(cosmosAddress.getAddress());
+}
+
 export async function cosmosSignTx(transport: Transport, msg: core.CosmosSignTx): Promise<any> {
+  const address = await cosmosGetAddress(transport, { addressNList: msg.addressNList });
+
+  const getPublicKeyMsg = new Messages.GetPublicKey();
+  getPublicKeyMsg.setAddressNList(msg.addressNList);
+  getPublicKeyMsg.setEcdsaCurveName("secp256k1");
+
+  const pubkeyMsg = (
+    await transport.call(Messages.MessageType.MESSAGETYPE_GETPUBLICKEY, getPublicKeyMsg, {
+      msgTimeout: core.DEFAULT_TIMEOUT,
+    })
+  ).proto as Messages.PublicKey;
+  const pubkey = bs58check.decode(core.mustBeDefined(pubkeyMsg.getXpub())).slice(45);
+
   return transport.lockDuring(async () => {
     const signTx = new CosmosMessages.CosmosSignTx();
     signTx.setAddressNList(msg.addressNList);
@@ -97,16 +128,17 @@ export async function cosmosSignTx(transport: Transport, msg: core.CosmosSignTx)
 
         ack = new CosmosMessages.CosmosMsgAck();
         ack.setRedelegate(redelegate);
-      } else if (m.type === "cosmos-sdk/MsgWithdrawDelegatorReward") {
-        const denom = m.value.amount.denom;
-        if (denom !== "uatom") {
-          throw new Error("cosmos: Unsupported denomination: " + denom);
-        }
-
+      } else if (m.type === "cosmos-sdk/MsgWithdrawDelegationReward") {
         const rewards = new CosmosMessages.CosmosMsgRewards();
         rewards.setDelegatorAddress(m.value.delegator_address);
         rewards.setValidatorAddress(m.value.validator_address);
-        rewards.setAmount(m.value.amount.amount);
+        if (m.value.amount) {
+          const denom = m.value.amount.denom;
+          if (denom !== "uatom") {
+            throw new Error("cosmos: Unsupported denomination: " + denom);
+          }
+          rewards.setAmount(m.value.amount.amount);
+        }
 
         ack = new CosmosMessages.CosmosMsgAck();
         ack.setRewards(rewards);
@@ -144,33 +176,30 @@ export async function cosmosSignTx(transport: Transport, msg: core.CosmosSignTx)
 
     const signedTx = resp.proto as CosmosMessages.CosmosSignedTx;
 
-    const signed = _.cloneDeep(msg.tx);
-
-    signed.signatures = [
-      {
-        pub_key: {
-          type: "tendermint/PubKeySecp256k1",
-          value: signedTx.getPublicKey_asB64(),
-        },
-        signature: signedTx.getSignature_asB64(),
+    const offlineSigner: OfflineAminoSigner = {
+      async getAccounts(): Promise<readonly AccountData[]> {
+        return [
+          {
+            address,
+            algo: "secp256k1",
+            pubkey,
+          },
+        ];
       },
-    ];
-
-    return signed;
+      async signAmino(signerAddress: string, signDoc: StdSignDoc): Promise<AminoSignResponse> {
+        if (signerAddress !== address) throw new Error("expected signerAddress to match address");
+        return {
+          signed: signDoc,
+          signature: {
+            pub_key: {
+              type: "tendermint/PubKeySecp256k1",
+              value: signedTx.getPublicKey_asB64(),
+            },
+            signature: signedTx.getSignature_asB64(),
+          },
+        };
+      },
+    };
+    return protoTxBuilder.sign(msg.tx, offlineSigner, msg.sequence, msg.account_number, msg.chain_id);
   });
-}
-
-export async function cosmosGetAddress(
-  transport: Transport,
-  msg: CosmosMessages.CosmosGetAddress.AsObject
-): Promise<string> {
-  const getAddr = new CosmosMessages.CosmosGetAddress();
-  getAddr.setAddressNList(msg.addressNList);
-  getAddr.setShowDisplay(msg.showDisplay !== false);
-  const response = await transport.call(Messages.MessageType.MESSAGETYPE_COSMOSGETADDRESS, getAddr, {
-    msgTimeout: core.LONG_TIMEOUT,
-  });
-
-  const cosmosAddress = response.proto as CosmosMessages.CosmosAddress;
-  return core.mustBeDefined(cosmosAddress.getAddress());
 }

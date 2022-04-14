@@ -41,16 +41,16 @@ export namespace Cosmos {
   export interface StdTx {
     msg: Msg[];
     fee: StdFee;
-    signatures: null | StdSignature[];
-    memo: string;
+    signatures?: null | StdSignature[];
+    memo?: string;
   }
 }
 
 export interface CosmosTx {
   msg: Cosmos.Msg[];
   fee: Cosmos.StdFee;
-  signatures: null | Cosmos.StdSignature[];
-  memo: string;
+  signatures?: null | Cosmos.StdSignature[];
+  memo?: string;
 }
 
 export interface CosmosSignTx {

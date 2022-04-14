@@ -13,7 +13,7 @@
   "memo": "",
   "msg": [
     {
-      "type": "cosmos-sdk/MsgWithdrawDelegatorReward",
+      "type": "cosmos-sdk/MsgWithdrawDelegationReward",
       "value": {
         "amount": {
           "amount": "100",
