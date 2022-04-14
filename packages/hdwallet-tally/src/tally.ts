@@ -146,7 +146,7 @@ export class TallyHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {
-    return false;
+    return true;
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
@@ -263,7 +263,7 @@ export class TallyHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {
-    return false;
+    return true;
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {

@@ -7,7 +7,7 @@ const MNEMONIC = "all all all all all all all all all all all all";
 
 const untouchable = require("untouchableMock");
 
-describe("XDeFi - Ethereum Adapter", () => {
+describe("Tally - Ethereum Adapter", () => {
   it("ethVerifyMessage returns null as its not implemented", async () => {
     const ethereumProvider = {
       request: jest.fn().mockReturnValue("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"),
@@ -22,7 +22,7 @@ describe("XDeFi - Ethereum Adapter", () => {
         },
         ethereumProvider
       )
-    ).toBe(true);
+    ).toBe(null);
   });
   it("ethGetAccountPaths should return correct paths", () => {
     const paths = ethereum.ethGetAccountPaths({ coin: "Ethereum", accountIdx: 0 });
@@ -31,7 +31,7 @@ describe("XDeFi - Ethereum Adapter", () => {
         addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
         hardenedPath: core.bip32ToAddressNList("m/44'/60'/0'"),
         relPath: [0, 0],
-        description: "XDeFi",
+        description: "Tally",
       },
     ]);
   });
@@ -64,13 +64,7 @@ describe("XDeFi - Ethereum Adapter", () => {
         ethereumProvider,
         "0x123"
       )
-    ).toEqual({
-      r: "0x63db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0a",
-      s: "0x28297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
-      v: 38,
-      serialized:
-        "0xf86b018501dcd650008256229412ec06288edd7ae2cc41a843fe089237fc7354f0872c68af0bb140008026a063db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0aa028297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
-    });
+    ).toEqual(null);
   });
   it("ethSendTx returns a valid hash", async () => {
     const ethereumProvider = {
