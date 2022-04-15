@@ -172,7 +172,7 @@ $metaMask.on("click", async (e) => {
 
 $tally.on("click", async (e) => {
   e.preventDefault();
-  wallet = await tallyAdapter.pairDevice("testid");
+  wallet = await tallyAdapter.pairDevice();
   window["wallet"] = wallet;
   let deviceID = "nothing";
   try {
