@@ -989,11 +989,11 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     // Cosmos isn't supported until v6.3.0
     const fwVersion = `v${out.majorVersion}.${out.minorVersion}.${out.patchVersion}`;
     //Lost Support per proto 44.3
-    //this._supportsCosmos = semver.gte(fwVersion, "v6.3.0");
+    this._supportsCosmos = semver.gte(fwVersion, "v7.3.0");
     this._supportsRipple = semver.gte(fwVersion, "v6.4.0");
     this._supportsBinance = semver.gte(fwVersion, "v6.4.0");
     this._supportsEos = semver.gte(fwVersion, "v6.4.0");
-    // this._supportsThorchain = Semver.get(fwVersion, "v7.0.0");
+    // this._supportsThorchain = semver.get(fwVersion, "v7.3.0");
 
     this.cacheFeatures(out);
     return out;
