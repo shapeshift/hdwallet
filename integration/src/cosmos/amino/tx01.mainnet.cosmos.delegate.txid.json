@@ -1,0 +1,130 @@
+{
+  "height": "10122485",
+  "txhash": "AA361C037275A1970DC3649873FA583CDD8F04CFB00C6890E47F526A9A1324F9",
+  "codespace": "",
+  "code": 0,
+  "data": "0A250A232F636F736D6F732E7374616B696E672E763162657461312E4D736744656C6567617465",
+  "raw_log": "[{\"events\":[{\"type\":\"coin_received\",\"attributes\":[{\"key\":\"receiver\",\"value\":\"cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh\"},{\"key\":\"amount\",\"value\":\"10000uatom\"}]},{\"type\":\"coin_spent\",\"attributes\":[{\"key\":\"spender\",\"value\":\"cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj\"},{\"key\":\"amount\",\"value\":\"10000uatom\"}]},{\"type\":\"delegate\",\"attributes\":[{\"key\":\"validator\",\"value\":\"cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf\"},{\"key\":\"amount\",\"value\":\"10000uatom\"},{\"key\":\"new_shares\",\"value\":\"10000.000000000000000000\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/cosmos.staking.v1beta1.MsgDelegate\"},{\"key\":\"module\",\"value\":\"staking\"},{\"key\":\"sender\",\"value\":\"cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj\"}]}]}]",
+  "logs": [
+    {
+      "msg_index": 0,
+      "log": "",
+      "events": [
+        {
+          "type": "coin_received",
+          "attributes": [
+            {
+              "key": "receiver",
+              "value": "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh"
+            },
+            {
+              "key": "amount",
+              "value": "10000uatom"
+            }
+          ]
+        },
+        {
+          "type": "coin_spent",
+          "attributes": [
+            {
+              "key": "spender",
+              "value": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj"
+            },
+            {
+              "key": "amount",
+              "value": "10000uatom"
+            }
+          ]
+        },
+        {
+          "type": "delegate",
+          "attributes": [
+            {
+              "key": "validator",
+              "value": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf"
+            },
+            {
+              "key": "amount",
+              "value": "10000uatom"
+            },
+            {
+              "key": "new_shares",
+              "value": "10000.000000000000000000"
+            }
+          ]
+        },
+        {
+          "type": "message",
+          "attributes": [
+            {
+              "key": "action",
+              "value": "/cosmos.staking.v1beta1.MsgDelegate"
+            },
+            {
+              "key": "module",
+              "value": "staking"
+            },
+            {
+              "key": "sender",
+              "value": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "info": "",
+  "gas_wanted": "250000",
+  "gas_used": "147476",
+  "tx": {
+    "@type": "/cosmos.tx.v1beta1.Tx",
+    "body": {
+      "messages": [
+        {
+          "@type": "/cosmos.staking.v1beta1.MsgDelegate",
+          "delegator_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
+          "validator_address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+          "amount": {
+            "denom": "uatom",
+            "amount": "10000"
+          }
+        }
+      ],
+      "memo": "",
+      "timeout_height": "0",
+      "extension_options": [],
+      "non_critical_extension_options": []
+    },
+    "auth_info": {
+      "signer_infos": [
+        {
+          "public_key": {
+            "@type": "/cosmos.crypto.secp256k1.PubKey",
+            "key": "A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
+          },
+          "mode_info": {
+            "single": {
+              "mode": "SIGN_MODE_LEGACY_AMINO_JSON"
+            }
+          },
+          "sequence": "35"
+        }
+      ],
+      "fee": {
+        "amount": [
+          {
+            "denom": "uatom",
+            "amount": "2500"
+          }
+        ],
+        "gas_limit": "250000",
+        "payer": "",
+        "granter": ""
+      }
+    },
+    "signatures": [
+      "lM+NkHlL5lx1Kt8/3TQXZo3TENWb+qWBsJ5XQFq7WekHw4O+YF6Iv0aCqoH7YD40vYubGZpZXcjMZy/mAbe0cA=="
+    ]
+  },
+  "timestamp": "2022-04-15T04:05:54Z"
+}

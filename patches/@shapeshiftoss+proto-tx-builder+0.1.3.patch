@@ -1,0 +1,44 @@
+diff --git a/node_modules/@shapeshiftoss/proto-tx-builder/dist/index.d.ts b/node_modules/@shapeshiftoss/proto-tx-builder/dist/index.d.ts
+index 7fa616d..a25ac1a 100644
+--- a/node_modules/@shapeshiftoss/proto-tx-builder/dist/index.d.ts
++++ b/node_modules/@shapeshiftoss/proto-tx-builder/dist/index.d.ts
+@@ -1,5 +1,5 @@
+-import { OfflineDirectSigner } from '@cosmjs/proto-signing';
+-export declare function sign(jsonTx: any, signer: OfflineDirectSigner, sequence: string, accountNumber: string, chainId: string): Promise<{
++import { OfflineSigner } from '@cosmjs/proto-signing';
++export declare function sign(jsonTx: any, signer: OfflineSigner, sequence: string, accountNumber: string, chainId: string): Promise<{
+     serialized: string;
+     body: string;
+     authInfoBytes: string;
+diff --git a/node_modules/@shapeshiftoss/proto-tx-builder/dist/index.js b/node_modules/@shapeshiftoss/proto-tx-builder/dist/index.js
+index 168c6fa..e5dcf9f 100644
+--- a/node_modules/@shapeshiftoss/proto-tx-builder/dist/index.js
++++ b/node_modules/@shapeshiftoss/proto-tx-builder/dist/index.js
+@@ -216,7 +216,7 @@ function convertLegacyMsg(msg) {
+                     }
+                 }
+             };
+-        case 'cosmos-sdk/MsgWithdrawDelegatorReward':
++        case 'cosmos-sdk/MsgWithdrawDelegationReward':
+             if (!msg.value.delegator_address)
+                 throw new Error('Missing delegator_address in msg');
+             if (!msg.value.validator_address)
+@@ -228,7 +228,7 @@ function convertLegacyMsg(msg) {
+                     value: {
+                         delegatorAddress: msg.value.delegator_address,
+                         validatorAddress: msg.value.validator_address,
+-                        amount: scrubCoin(msg.value.amount)
++                        amount: msg.value.amount ? scrubCoin(msg.value.amount) : undefined
+                     }
+                 }
+             };
+@@ -256,7 +256,8 @@ function convertLegacyMsg(msg) {
+                         timeoutHeight: {
+                             revisionHeight: msg.value.timeout_height.revision_height,
+                             revisionNumber: msg.value.timeout_height.revision_number
+-                        }
++                        },
++                        timeoutTimestamp: "0",
+                     }
+                 }
+             };

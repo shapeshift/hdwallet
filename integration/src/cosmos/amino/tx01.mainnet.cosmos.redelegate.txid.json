@@ -1,0 +1,109 @@
+{
+  "height": "10122437",
+  "txhash": "963E10552A1F0DB6560E939A10383D23D759F1D74286FDA72943E4328B71EAF5",
+  "codespace": "",
+  "code": 0,
+  "data": "0A3C0A2A2F636F736D6F732E7374616B696E672E763162657461312E4D7367426567696E526564656C6567617465120E0A0C08D1BAD2930610B1E2EE8601",
+  "raw_log": "[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/cosmos.staking.v1beta1.MsgBeginRedelegate\"},{\"key\":\"module\",\"value\":\"staking\"},{\"key\":\"sender\",\"value\":\"cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj\"}]},{\"type\":\"redelegate\",\"attributes\":[{\"key\":\"source_validator\",\"value\":\"cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys\"},{\"key\":\"destination_validator\",\"value\":\"cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf\"},{\"key\":\"amount\",\"value\":\"1000uatom\"},{\"key\":\"completion_time\",\"value\":\"2022-05-06T04:00:17Z\"}]}]}]",
+  "logs": [
+    {
+      "msg_index": 0,
+      "log": "",
+      "events": [
+        {
+          "type": "message",
+          "attributes": [
+            {
+              "key": "action",
+              "value": "/cosmos.staking.v1beta1.MsgBeginRedelegate"
+            },
+            {
+              "key": "module",
+              "value": "staking"
+            },
+            {
+              "key": "sender",
+              "value": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj"
+            }
+          ]
+        },
+        {
+          "type": "redelegate",
+          "attributes": [
+            {
+              "key": "source_validator",
+              "value": "cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys"
+            },
+            {
+              "key": "destination_validator",
+              "value": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf"
+            },
+            {
+              "key": "amount",
+              "value": "1000uatom"
+            },
+            {
+              "key": "completion_time",
+              "value": "2022-05-06T04:00:17Z"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "info": "",
+  "gas_wanted": "250000",
+  "gas_used": "219936",
+  "tx": {
+    "@type": "/cosmos.tx.v1beta1.Tx",
+    "body": {
+      "messages": [
+        {
+          "@type": "/cosmos.staking.v1beta1.MsgBeginRedelegate",
+          "delegator_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
+          "validator_src_address": "cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys",
+          "validator_dst_address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+          "amount": {
+            "denom": "uatom",
+            "amount": "1000"
+          }
+        }
+      ],
+      "memo": "",
+      "timeout_height": "0",
+      "extension_options": [],
+      "non_critical_extension_options": []
+    },
+    "auth_info": {
+      "signer_infos": [
+        {
+          "public_key": {
+            "@type": "/cosmos.crypto.secp256k1.PubKey",
+            "key": "A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
+          },
+          "mode_info": {
+            "single": {
+              "mode": "SIGN_MODE_LEGACY_AMINO_JSON"
+            }
+          },
+          "sequence": "33"
+        }
+      ],
+      "fee": {
+        "amount": [
+          {
+            "denom": "uatom",
+            "amount": "2500"
+          }
+        ],
+        "gas_limit": "250000",
+        "payer": "",
+        "granter": ""
+      }
+    },
+    "signatures": [
+      "kskHVIe2AyWzRpHszO/9ePI4yVgcAWB10lWbolEOBCpDSIeD0JWTX4x1TO3lnKNMawcm2NfGyTh3GseC7s+BRg=="
+    ]
+  },
+  "timestamp": "2022-04-15T04:00:17Z"
+}
