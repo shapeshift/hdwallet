@@ -2,34 +2,36 @@
   "cosmosDelegateTx": {
     "account_number": "16359",
     "chain_id": "cosmoshub-4",
+    "sequence": "18",
     "fee": {
-      "amount": [
-        {
-          "amount": "2800",
-          "denom": "uatom"
-        }
-      ],
-      "gas": "290000"
+        "amount": [
+            {
+                "amount": "2800",
+                "denom": "uatom"
+            }
+        ],
+        "gas": "290000"
     },
     "memo": "",
     "msg": [
-      {
-        "type": "cosmos-sdk/MsgDelegate",
-        "value": {
-          "amount": {
-            "amount": "1000",
-            "denom": "uatom"
-          },
-          "delegator_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
-          "validator_address": "cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys"
+        {
+            "type": "cosmos-sdk/MsgDelegate",
+            "value": {
+                "delegator_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
+                "validator_address": "cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys",
+                "amount": {
+                    "denom": "uatom",
+                    "amount": "1000"
+                }
+            }
         }
-      }
-    ],
-    "sequence": "18"
-  },
+    ]
+}
+,
   "cosmosIBCTransferTx": {
     "account_number": "16359",
     "chain_id": "cosmoshub-4",
+    "sequence": "27",
     "fee": {
       "amount": [
         {
@@ -58,17 +60,17 @@
           }
         }
       }
-    ],
-    "sequence": "27"
+    ]
   },
-  "cosmosRedelegateTx": {
+  "cosmosRedelegateTx":{
     "account_number": "16359",
     "chain_id": "cosmoshub-4",
+    "sequence": "19",
     "fee": {
       "amount": [
         {
           "amount": "2800",
-          "denom": "uatom"
+          "denom": "uosmo"
         }
       ],
       "gas": "290000"
@@ -78,21 +80,21 @@
       {
         "type": "cosmos-sdk/MsgBeginRedelegate",
         "value": {
-          "amount": {
-            "amount": "100",
-            "denom": "uatom"
-          },
           "delegator_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
+          "validator_src_address": "cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys",
           "validator_dst_address": "cosmosvaloper1qs8tnw2t8l6amtzvdemnnsq9dzk0ag0z52uzay",
-          "validator_src_address": "cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys"
+          "amount": {
+            "denom": "uosmo",
+            "amount": "100"
+          }
         }
       }
-    ],
-    "sequence": "19"
+    ]
   },
   "cosmosRewardsTx": {
     "account_number": "16359",
     "chain_id": "cosmoshub-4",
+    "sequence": "19",
     "fee": {
       "amount": [
         {
@@ -107,18 +109,17 @@
       {
         "type": "cosmos-sdk/MsgWithdrawDelegatorReward",
         "value": {
-          "amount": {
-            "amount": "100",
-            "denom": "uatom"
-          },
           "delegator_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
-          "validator_address": "cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys"
+          "validator_address": "cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys",
+          "amount": {
+            "denom": "uatom",
+            "amount": "100"
+          }
         }
       }
-    ],
-    "sequence": "19"
+    ]
   },
-  "cosmosTransferTx": {
+  "cosmosTransferTx":{
     "account_number": "16359",
     "chain_id": "cosmoshub-4",
     "fee": {
@@ -151,28 +152,29 @@
   "cosmosUndelegateTx": {
     "account_number": "16359",
     "chain_id": "cosmoshub-4",
+    "sequence": "20",
     "fee": {
       "amount": [
         {
-          "amount": "0",
-          "denom": "uatom"
+          "denom": "uatom",
+          "amount": "0"
         }
       ],
       "gas": "250000"
     },
+    "memo": "",
     "msg": [
       {
         "type": "cosmos-sdk/MsgUndelegate",
         "value": {
-          "amount": {
-            "amount": "3000",
-            "denom": "uatom"
-          },
           "delegator_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
-          "validator_address": "cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys"
+          "validator_address": "cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys",
+          "amount": {
+            "denom": "uatom",
+            "amount": "3000"
+          }
         }
       }
-    ],
-    "sequence": "20"
+    ]
   }
 }

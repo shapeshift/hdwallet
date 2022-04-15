@@ -1,27 +1,28 @@
 {
-  "account_number": "16359",
-  "chain_id": "cosmoshub-4",
-  "fee": {
-    "amount": [
+    "account_number": "16359",
+    "chain_id": "cosmoshub-4",
+    "sequence": "20",
+    "fee": {
+      "amount": [
+        {
+          "denom": "uatom",
+          "amount": "0"
+        }
+      ],
+      "gas": "250000"
+    },
+    
+    "msg": [
       {
-        "amount": "0",
-        "denom": "uatom"
+        "type": "cosmos-sdk/MsgUndelegate",
+        "value": {
+          "delegator_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
+          "validator_address": "cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys",
+          "amount": {
+            "denom": "uatom",
+            "amount": "3000"
+          }
+        }
       }
-    ],
-    "gas": "250000"
-  },
-  "msg": [
-    {
-      "type": "cosmos-sdk/MsgUndelegate",
-      "value": {
-        "amount": {
-          "amount": "3000",
-          "denom": "uatom"
-        },
-        "delegator_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
-        "validator_address": "cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys"
-      }
-    }
-  ],
-  "sequence": "20"
-}
+    ]
+  }
