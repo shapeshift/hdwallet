@@ -67,6 +67,7 @@ export class TallyHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public supportsOfflineSigning(): boolean {
+    // Keep an eye on the status of the refactor PR here: https://github.com/tallycash/extension/pull/1165/files. This will add offline signing support to Tally, at which point this should return true.
     return false;
   }
 
