@@ -11,7 +11,7 @@ describe("TallyAdapter", () => {
       try {
         await adapter.pairDevice();
       } catch (e) {
-        expect(e.message).toBe("Cannot read property 'request' of null"); //need a better solution dealing with @metamask/detect-provider package
+        expect(e.message).toBe("Cannot read properties of null (reading 'request')"); //need a better solution dealing with @metamask/detect-provider package
       }
     });
     it("creates a unique wallet per deviceId", async () => {
@@ -28,7 +28,7 @@ describe("TallyAdapter", () => {
       expect(add).toBeCalled();
       expect(await wallet.getDeviceID()).toBe("tally:0x123");
     } catch (e) {
-      expect(e.message).toBe("Cannot read property 'request' of null"); //need a better solution dealing with @metamask/detect-provider package
+      expect(e.message).toBe("Cannot read properties of null (reading 'request')"); //need a better solution dealing with @metamask/detect-provider package
     }
     });
   });
