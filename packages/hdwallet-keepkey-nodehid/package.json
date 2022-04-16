@@ -2,7 +2,9 @@
   "name": "@shapeshiftoss/hdwallet-keepkey-nodehid",
   "version": "1.20.0",
   "license": "MIT",
-  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "dist/index.js",
   "source": "src/index.ts",
   "types": "dist/index.d.ts",
