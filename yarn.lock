@@ -4206,10 +4206,10 @@
     "@types/node" "*"
     form-data "^3.0.0"
 
-"@types/node-hid@^0.7.0":
-  version "0.7.3"
-  resolved "https://registry.yarnpkg.com/@types/node-hid/-/node-hid-0.7.3.tgz#993762b795473dc2ad8ee041f870838735087532"
-  integrity sha512-ip+Un3Ps0Qok3W3fMgYxaYxVYcbjDYM7yXNm8Uf1sggvSeXL/Q+vZG0AdSDWDQO9apQSE7Yieb4SjfymF1OqPA==
+"@types/node-hid@^1.3.1":
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/@types/node-hid/-/node-hid-1.3.1.tgz#e84507a35a6f3ece3f6324c21ba9252405758b65"
+  integrity sha512-VPxuGDCoDxOUKrTZPSok7IEmiK4cVLfj8Csu09FtG5uF+eqf1HETERHXQkO02Rk6j6YiiHxp0/DA9R4llvhEzQ==
   dependencies:
     "@types/node" "*"
 
