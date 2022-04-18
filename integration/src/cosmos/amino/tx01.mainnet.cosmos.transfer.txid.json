@@ -1,0 +1,132 @@
+{
+  "height": "10121873",
+  "txhash": "517133B12A2CA0CF90F45F182351754E67FE3FCDEFC69934D01673CAA6B33D68",
+  "codespace": "",
+  "code": 0,
+  "data": "0A1E0A1C2F636F736D6F732E62616E6B2E763162657461312E4D736753656E64",
+  "raw_log": "[{\"events\":[{\"type\":\"coin_received\",\"attributes\":[{\"key\":\"receiver\",\"value\":\"cosmos19xq52fdl5x2pp8gu4ph0ytzjz8msrdxwtjlm95\"},{\"key\":\"amount\",\"value\":\"9000uatom\"}]},{\"type\":\"coin_spent\",\"attributes\":[{\"key\":\"spender\",\"value\":\"cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj\"},{\"key\":\"amount\",\"value\":\"9000uatom\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/cosmos.bank.v1beta1.MsgSend\"},{\"key\":\"sender\",\"value\":\"cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj\"},{\"key\":\"module\",\"value\":\"bank\"}]},{\"type\":\"transfer\",\"attributes\":[{\"key\":\"recipient\",\"value\":\"cosmos19xq52fdl5x2pp8gu4ph0ytzjz8msrdxwtjlm95\"},{\"key\":\"sender\",\"value\":\"cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj\"},{\"key\":\"amount\",\"value\":\"9000uatom\"}]}]}]",
+  "logs": [
+    {
+      "msg_index": 0,
+      "log": "",
+      "events": [
+        {
+          "type": "coin_received",
+          "attributes": [
+            {
+              "key": "receiver",
+              "value": "cosmos19xq52fdl5x2pp8gu4ph0ytzjz8msrdxwtjlm95"
+            },
+            {
+              "key": "amount",
+              "value": "9000uatom"
+            }
+          ]
+        },
+        {
+          "type": "coin_spent",
+          "attributes": [
+            {
+              "key": "spender",
+              "value": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj"
+            },
+            {
+              "key": "amount",
+              "value": "9000uatom"
+            }
+          ]
+        },
+        {
+          "type": "message",
+          "attributes": [
+            {
+              "key": "action",
+              "value": "/cosmos.bank.v1beta1.MsgSend"
+            },
+            {
+              "key": "sender",
+              "value": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj"
+            },
+            {
+              "key": "module",
+              "value": "bank"
+            }
+          ]
+        },
+        {
+          "type": "transfer",
+          "attributes": [
+            {
+              "key": "recipient",
+              "value": "cosmos19xq52fdl5x2pp8gu4ph0ytzjz8msrdxwtjlm95"
+            },
+            {
+              "key": "sender",
+              "value": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj"
+            },
+            {
+              "key": "amount",
+              "value": "9000uatom"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "info": "",
+  "gas_wanted": "90000",
+  "gas_used": "66964",
+  "tx": {
+    "@type": "/cosmos.tx.v1beta1.Tx",
+    "body": {
+      "messages": [
+        {
+          "@type": "/cosmos.bank.v1beta1.MsgSend",
+          "from_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
+          "to_address": "cosmos19xq52fdl5x2pp8gu4ph0ytzjz8msrdxwtjlm95",
+          "amount": [
+            {
+              "denom": "uatom",
+              "amount": "9000"
+            }
+          ]
+        }
+      ],
+      "memo": "",
+      "timeout_height": "0",
+      "extension_options": [],
+      "non_critical_extension_options": []
+    },
+    "auth_info": {
+      "signer_infos": [
+        {
+          "public_key": {
+            "@type": "/cosmos.crypto.secp256k1.PubKey",
+            "key": "A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
+          },
+          "mode_info": {
+            "single": {
+              "mode": "SIGN_MODE_LEGACY_AMINO_JSON"
+            }
+          },
+          "sequence": "29"
+        }
+      ],
+      "fee": {
+        "amount": [
+          {
+            "denom": "uatom",
+            "amount": "900"
+          }
+        ],
+        "gas_limit": "90000",
+        "payer": "",
+        "granter": ""
+      }
+    },
+    "signatures": [
+      "5R1jQIAu45Ded6nIuzusHIKOuR2sAsFFGvMbCumCbhE3k86gYOKUlJ3829dwe6n2clMueEbLeESMBG/dhAMeDA=="
+    ]
+  },
+  "timestamp": "2022-04-15T02:53:16Z"
+}

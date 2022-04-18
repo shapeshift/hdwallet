@@ -7,18 +7,30 @@ describe("Isolation.Engines.Default", () => {
   let masterKey: Core.BIP32.Node;
 
   it("can be loaded with a list of xpubs", async () => {
-    mnemonic = await Default.BIP39.Mnemonic.create("all all all all all all all all all all all all");
+    await expect(
+      (async () => {
+        mnemonic = await Default.BIP39.Mnemonic.create("all all all all all all all all all all all all");
+      })()
+    ).resolves.not.toThrow();
+    expect(mnemonic).toBeDefined();
   });
 
   it("produces a seed", async () => {
-    seed = await mnemonic.toSeed();
-  })
+    await expect(
+      (async () => {
+        seed = await mnemonic.toSeed();
+      })()
+    ).resolves.not.toThrow();
+    expect(seed).toBeDefined();
+  });
 
   it("produces a master key", async () => {
     masterKey = await seed.toMasterKey();
-    const pk = await masterKey.getPublicKey()
-    expect(Buffer.from(pk).toString("hex")).toEqual("03e3b30e8c21923752a408242e069941fedbaef7db7161f7e2c5f3fdafe7e25ddc");
-  })
+    const pk = await masterKey.getPublicKey();
+    expect(Buffer.from(pk).toString("hex")).toEqual(
+      "03e3b30e8c21923752a408242e069941fedbaef7db7161f7e2c5f3fdafe7e25ddc"
+    );
+  });
 
   it.each([
     ["m/44'", "034d600165882b6faf32a3f1f2c4755eeb0f0486954718d46fd9621e8ca40ca6b6"],
@@ -63,4 +75,4 @@ describe("Isolation.Engines.Default", () => {
     const pk = Buffer.from(await node.getPublicKey()).toString("hex");
     expect(pk).toEqual(expectedPk);
   });
-})
+});

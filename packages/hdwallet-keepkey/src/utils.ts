@@ -10,9 +10,9 @@ export function protoFieldToSetMethod(fieldName: string): string {
 
 // https://gist.github.com/joni/3760795/8f0c1a608b7f0c8b3978db68105c5b1d741d0446
 export function toUTF8Array(str: string): Uint8Array {
-  var utf8: Array<number> = [];
-  for (var i = 0; i < str.length; i++) {
-    var charcode = str.charCodeAt(i);
+  const utf8: Array<number> = [];
+  for (let i = 0; i < str.length; i++) {
+    let charcode = str.charCodeAt(i);
     if (charcode < 0x80) utf8.push(charcode);
     else if (charcode < 0x800) {
       utf8.push(0xc0 | (charcode >> 6), 0x80 | (charcode & 0x3f));

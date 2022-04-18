@@ -1,5 +1,5 @@
-import * as ThorchainMessages from "@keepkey/device-protocol/lib/messages-thorchain_pb";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
+import * as ThorchainMessages from "@keepkey/device-protocol/lib/messages-thorchain_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import _ from "lodash";
 
@@ -25,16 +25,12 @@ export async function thorchainSignTx(transport: Transport, msg: core.ThorchainS
     if (msg.tx.memo !== undefined) signTx.setMemo(msg.tx.memo);
     signTx.setMsgCount(1);
 
-    let resp = await transport.call(
-      Messages.MessageType.MESSAGETYPE_THORCHAINSIGNTX,
-      signTx,
-      {
-        msgTimeout: core.LONG_TIMEOUT,
-        omitLock: true,
-      }
-    );
+    let resp = await transport.call(Messages.MessageType.MESSAGETYPE_THORCHAINSIGNTX, signTx, {
+      msgTimeout: core.LONG_TIMEOUT,
+      omitLock: true,
+    });
 
-    for (let m of msg.tx.msg) {
+    for (const m of msg.tx.msg) {
       if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_THORCHAINMSGREQUEST) {
         throw new Error(`THORChain: unexpected response ${resp.message_type}`);
       }
@@ -72,7 +68,7 @@ export async function thorchainSignTx(transport: Transport, msg: core.ThorchainS
         deposit.setAsset(m.value.coins[0].asset);
         deposit.setAmount(m.value.coins[0].amount);
         deposit.setMemo(m.value.memo);
-        deposit.setSigner(m.value.signer)
+        deposit.setSigner(m.value.signer);
 
         ack = new ThorchainMessages.ThorchainMsgAck();
         ack.setDeposit(deposit);
@@ -108,11 +104,14 @@ export async function thorchainSignTx(transport: Transport, msg: core.ThorchainS
   });
 }
 
-export async function thorchainGetAddress(transport: Transport, msg: ThorchainMessages.ThorchainGetAddress.AsObject): Promise<string> {
+export async function thorchainGetAddress(
+  transport: Transport,
+  msg: ThorchainMessages.ThorchainGetAddress.AsObject
+): Promise<string> {
   const getAddr = new ThorchainMessages.ThorchainGetAddress();
   getAddr.setAddressNList(msg.addressNList);
   getAddr.setShowDisplay(msg.showDisplay !== false);
-  if (msg.testnet !== undefined) getAddr.setTestnet(msg.testnet)
+  if (msg.testnet !== undefined) getAddr.setTestnet(msg.testnet);
   const response = await transport.call(Messages.MessageType.MESSAGETYPE_THORCHAINGETADDRESS, getAddr, {
     msgTimeout: core.LONG_TIMEOUT,
   });

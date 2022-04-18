@@ -1,9 +1,9 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bip39 from "bip39";
 
+import { CipherString, SymmetricCryptoKey } from "./classes";
 import CryptoHelper from "./CryptoHelper";
 import { CryptoEngine } from "./engines";
-import { CipherString, SymmetricCryptoKey } from "./classes";
 import * as utils from "./utils";
 
 export class EncryptedWallet {
@@ -52,20 +52,20 @@ export class EncryptedWallet {
   }
 
   /**
-   * Get an ID based on the mnemonic
-   * Calling `decrypt` will set this value after decryption is successful
-   */
-  get deviceId() {
-    return this.#deviceId;
-  }
-
-  /**
    * Set the encrypted wallet by providing a string representation
    * @throws {Error} throws if `wallet` is not a valid encrypted wallet string
    */
   set encryptedWallet(wallet: string | undefined) {
     if (wallet === undefined) throw new Error("Invalid cipher string");
     this.#encryptedWallet = new CipherString(wallet).encryptedString;
+  }
+
+  /**
+   * Get an ID based on the mnemonic
+   * Calling `decrypt` will set this value after decryption is successful
+   */
+  get deviceId() {
+    return this.#deviceId;
   }
 
   /**
@@ -97,14 +97,16 @@ export class EncryptedWallet {
    */
   async createWallet(mnemonic?: string) {
     if (!this.isInitialized) throw new Error("Wallet is not initialized");
-    mnemonic = mnemonic ?? await this.#helper.generateMnemonic();
+    mnemonic = mnemonic ?? (await this.#helper.generateMnemonic());
 
     if (!bip39.validateMnemonic(mnemonic)) {
       throw new Error("Invalid mnemonic");
     }
 
     if (!this.#key) throw new Error("Wallet does not contain a key");
-    this.#encryptedWallet = (await this.#helper.aesEncrypt(core.toArrayBuffer(utils.fromUtf8ToArray(mnemonic)), this.#key)).toString();
+    this.#encryptedWallet = (
+      await this.#helper.aesEncrypt(core.toArrayBuffer(utils.fromUtf8ToArray(mnemonic)), this.#key)
+    ).toString();
 
     return this;
   }

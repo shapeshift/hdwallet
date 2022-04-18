@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bitcoin from "bitcoinjs-lib";
 
-import { BTCScriptType } from "./bitcoin"
+import { BTCScriptType } from "./bitcoin";
 
 type BIP32 = {
   bip32: {
@@ -162,7 +162,18 @@ const networks: Networks = {
 };
 
 //TODO: all below are missing network data
-for (const coin of ["bitcoincash", "thorchain", "secret", "terra", "kava", "cardano", "cosmos", "osmosis", "binance", "ethereum"])
+for (const coin of [
+  "bitcoincash",
+  "thorchain",
+  "secret",
+  "terra",
+  "kava",
+  "cardano",
+  "cosmos",
+  "osmosis",
+  "binance",
+  "ethereum",
+])
   networks[coin] = networks.bitcoin;
 
 export function getNetwork(coin: string, scriptType?: BTCScriptType): bitcoin.Network {
@@ -170,7 +181,7 @@ export function getNetwork(coin: string, scriptType?: BTCScriptType): bitcoin.Ne
   scriptType = scriptType || core.BTCOutputScriptType.PayToMultisig;
 
   if (!(coin in networks)) throw new Error(`${coin} network not supported`);
-  let network = networks[coin];
+  const network = networks[coin];
 
   const bip32 = network[scriptType as core.BTCOutputScriptType];
   if (!bip32) {

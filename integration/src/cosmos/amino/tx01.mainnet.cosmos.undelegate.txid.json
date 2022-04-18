@@ -1,0 +1,151 @@
+{
+  "height": "10122528",
+  "txhash": "A31AD2280B916D5402DA550F4F47CBFAC8BB80178933437A71DBB12EA8DA525D",
+  "codespace": "",
+  "code": 0,
+  "data": "0A360A252F636F736D6F732E7374616B696E672E763162657461312E4D7367556E64656C6567617465120D0A0B08D6BFD2930610B5C2ED7E",
+  "raw_log": "[{\"events\":[{\"type\":\"coin_received\",\"attributes\":[{\"key\":\"receiver\",\"value\":\"cosmos1tygms3xhhs3yv487phx3dw4a95jn7t7lpm470r\"},{\"key\":\"amount\",\"value\":\"10000uatom\"}]},{\"type\":\"coin_spent\",\"attributes\":[{\"key\":\"spender\",\"value\":\"cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh\"},{\"key\":\"amount\",\"value\":\"10000uatom\"}]},{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"/cosmos.staking.v1beta1.MsgUndelegate\"},{\"key\":\"sender\",\"value\":\"cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh\"},{\"key\":\"module\",\"value\":\"staking\"},{\"key\":\"sender\",\"value\":\"cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj\"}]},{\"type\":\"transfer\",\"attributes\":[{\"key\":\"recipient\",\"value\":\"cosmos1tygms3xhhs3yv487phx3dw4a95jn7t7lpm470r\"},{\"key\":\"sender\",\"value\":\"cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh\"},{\"key\":\"amount\",\"value\":\"10000uatom\"}]},{\"type\":\"unbond\",\"attributes\":[{\"key\":\"validator\",\"value\":\"cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf\"},{\"key\":\"amount\",\"value\":\"10000uatom\"},{\"key\":\"completion_time\",\"value\":\"2022-05-06T04:11:02Z\"}]}]}]",
+  "logs": [
+    {
+      "msg_index": 0,
+      "log": "",
+      "events": [
+        {
+          "type": "coin_received",
+          "attributes": [
+            {
+              "key": "receiver",
+              "value": "cosmos1tygms3xhhs3yv487phx3dw4a95jn7t7lpm470r"
+            },
+            {
+              "key": "amount",
+              "value": "10000uatom"
+            }
+          ]
+        },
+        {
+          "type": "coin_spent",
+          "attributes": [
+            {
+              "key": "spender",
+              "value": "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh"
+            },
+            {
+              "key": "amount",
+              "value": "10000uatom"
+            }
+          ]
+        },
+        {
+          "type": "message",
+          "attributes": [
+            {
+              "key": "action",
+              "value": "/cosmos.staking.v1beta1.MsgUndelegate"
+            },
+            {
+              "key": "sender",
+              "value": "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh"
+            },
+            {
+              "key": "module",
+              "value": "staking"
+            },
+            {
+              "key": "sender",
+              "value": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj"
+            }
+          ]
+        },
+        {
+          "type": "transfer",
+          "attributes": [
+            {
+              "key": "recipient",
+              "value": "cosmos1tygms3xhhs3yv487phx3dw4a95jn7t7lpm470r"
+            },
+            {
+              "key": "sender",
+              "value": "cosmos1fl48vsnmsdzcv85q5d2q4z5ajdha8yu34mf0eh"
+            },
+            {
+              "key": "amount",
+              "value": "10000uatom"
+            }
+          ]
+        },
+        {
+          "type": "unbond",
+          "attributes": [
+            {
+              "key": "validator",
+              "value": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf"
+            },
+            {
+              "key": "amount",
+              "value": "10000uatom"
+            },
+            {
+              "key": "completion_time",
+              "value": "2022-05-06T04:11:02Z"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "info": "",
+  "gas_wanted": "250000",
+  "gas_used": "173987",
+  "tx": {
+    "@type": "/cosmos.tx.v1beta1.Tx",
+    "body": {
+      "messages": [
+        {
+          "@type": "/cosmos.staking.v1beta1.MsgUndelegate",
+          "delegator_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
+          "validator_address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+          "amount": {
+            "denom": "uatom",
+            "amount": "10000"
+          }
+        }
+      ],
+      "memo": "",
+      "timeout_height": "0",
+      "extension_options": [],
+      "non_critical_extension_options": []
+    },
+    "auth_info": {
+      "signer_infos": [
+        {
+          "public_key": {
+            "@type": "/cosmos.crypto.secp256k1.PubKey",
+            "key": "A77jrzDlOnPzirxaL82sQm17BOtyqOvTsBmS4tIG4krY"
+          },
+          "mode_info": {
+            "single": {
+              "mode": "SIGN_MODE_LEGACY_AMINO_JSON"
+            }
+          },
+          "sequence": "37"
+        }
+      ],
+      "fee": {
+        "amount": [
+          {
+            "denom": "uatom",
+            "amount": "2500"
+          }
+        ],
+        "gas_limit": "250000",
+        "payer": "",
+        "granter": ""
+      }
+    },
+    "signatures": [
+      "mfJjZ2w5iNDFJ1bTsw/Ln3LPbOZ0r33jqrIz0LB3LNYFNq7X+uFV/UErZiehSDAwv09PgF24+zi8Ip7yZ1ISkQ=="
+    ]
+  },
+  "timestamp": "2022-04-15T04:11:02Z"
+}

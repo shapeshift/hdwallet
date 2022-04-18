@@ -1,17 +1,81 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as eth from "./ethereum";
 import isObject from "lodash/isObject";
 
-class XDeFiTransport extends core.Transport {
-  public async getDeviceID() {
-    return "xdefi:0";
-  }
-
-  public async call(...args: any[]): Promise<any> {}
-}
+import * as eth from "./ethereum";
 
 export function isXDeFi(wallet: core.HDWallet): wallet is XDeFiHDWallet {
   return isObject(wallet) && (wallet as any)._isXDeFi;
+}
+
+export class XDeFiHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
+  readonly _supportsETHInfo = true;
+
+  public getVendor(): string {
+    return "XDeFi";
+  }
+
+  public hasOnDevicePinEntry(): boolean {
+    return false;
+  }
+
+  public hasOnDevicePassphrase(): boolean {
+    return false;
+  }
+
+  public hasOnDeviceDisplay(): boolean {
+    return false;
+  }
+
+  public hasOnDeviceRecovery(): boolean {
+    return false;
+  }
+
+  public hasNativeShapeShift(): boolean {
+    return false;
+  }
+
+  public supportsOfflineSigning(): boolean {
+    return false;
+  }
+
+  public supportsBroadcast(): boolean {
+    return true;
+  }
+
+  public describePath(msg: core.DescribePath): core.PathDescription {
+    switch (msg.coin) {
+      case "Ethereum":
+        return core.describeETHPath(msg.path);
+      default:
+        throw new Error("Unsupported path");
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
+    // TODO: What do we do here?
+    return undefined;
+  }
+
+  public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
+    return chainId === 1;
+  }
+
+  public async ethSupportsSecureTransfer(): Promise<boolean> {
+    return false;
+  }
+
+  public ethSupportsNativeShapeShift(): boolean {
+    return false;
+  }
+
+  public async ethSupportsEIP1559(): Promise<boolean> {
+    return true;
+  }
+
+  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
+    return eth.ethGetAccountPaths(msg);
+  }
 }
 
 export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
@@ -19,14 +83,13 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETHInfo = true;
   readonly _isXDeFi = true;
 
-  transport: core.Transport = new XDeFiTransport(new core.Keyring());
   info: XDeFiHDWalletInfo & core.HDWalletInfo;
   ethAddress?: string | null;
   provider: any;
 
   constructor(provider: unknown) {
     this.info = new XDeFiHDWalletInfo();
-    this.provider = provider
+    this.provider = provider;
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -90,18 +153,22 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
     return { msg: msg.msg };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendPin(pin: string): Promise<void> {
     // no concept of pin in XDeFi
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendPassphrase(passphrase: string): Promise<void> {
     // cannot send passphrase to XDeFi. Could show the widget?
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendCharacter(charater: string): Promise<void> {
     // no concept of sendCharacter in XDeFi
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendWord(word: string): Promise<void> {
     // no concept of sendWord in XDeFi
   }
@@ -110,14 +177,18 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
     // no concept of cancel in XDeFi
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   public async wipe(): Promise<void> {}
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
   public async reset(msg: core.ResetDevice): Promise<void> {}
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async recover(msg: core.RecoverDevice): Promise<void> {
     // no concept of recover in XDeFi
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async loadDevice(msg: core.LoadDevice): Promise<void> {
     // TODO: Does XDeFi allow this to be done programatically?
   }
@@ -126,6 +197,7 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
     return this.info.describePath(msg);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
     // Ethereum public keys are not exposed by the RPC API
     return [];
@@ -135,9 +207,10 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
     return true;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   public async disconnect(): Promise<void> {}
 
-  public async ethSupportsNetwork(chainId: number = 1): Promise<boolean> {
+  public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
     return chainId === 1;
   }
 
@@ -200,75 +273,5 @@ export class XDeFiHDWallet implements core.HDWallet, core.ETHWallet {
 
   public async getFirmwareVersion(): Promise<string> {
     return "xDeFi";
-  }
-}
-
-export class XDeFiHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
-  readonly _supportsETHInfo = true;
-
-  public getVendor(): string {
-    return "XDeFi";
-  }
-
-  public hasOnDevicePinEntry(): boolean {
-    return false;
-  }
-
-  public hasOnDevicePassphrase(): boolean {
-    return false;
-  }
-
-  public hasOnDeviceDisplay(): boolean {
-    return false;
-  }
-
-  public hasOnDeviceRecovery(): boolean {
-    return false;
-  }
-
-  public hasNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public supportsOfflineSigning(): boolean {
-    return false;
-  }
-
-  public supportsBroadcast(): boolean {
-    return true;
-  }
-
-  public describePath(msg: core.DescribePath): core.PathDescription {
-    switch (msg.coin) {
-      case "Ethereum":
-        return core.describeETHPath(msg.path);
-      default:
-        throw new Error("Unsupported path");
-    }
-  }
-
-  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
-    // TODO: What do we do here?
-    return undefined;
-  }
-
-  public async ethSupportsNetwork(chainId: number = 1): Promise<boolean> {
-    return chainId === 1;
-  }
-
-  public async ethSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public ethSupportsNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public async ethSupportsEIP1559(): Promise<boolean> {
-    return true;
-  }
-
-  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
-    return eth.ethGetAccountPaths(msg);
   }
 }

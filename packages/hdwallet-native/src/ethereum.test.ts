@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as ethers from "ethers"
+import * as ethers from "ethers";
 import { TextEncoder } from "web-encoding";
 
 import * as native from "./native";
@@ -53,11 +53,12 @@ describe("NativeETHWallet", () => {
   });
 
   // Reflection. Surprise. Terror. For the future.
-  /*it("should generate another correct ethereum address", async () => {
-    expect(
-      await wallet.ethGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/60'/1337'/123/4") })
-    ).toBe("0x387F3031b30E2c8eB997E87a69FEA02756983b77");
-  });*/
+  // eslint-disable-next-line jest/no-disabled-tests
+  it.skip("should generate another correct ethereum address", async () => {
+    expect(await wallet.ethGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/60'/1337'/123/4") })).toBe(
+      "0x387F3031b30E2c8eB997E87a69FEA02756983b77"
+    );
+  });
 
   it("fails when generating another ethereum address", async () => {
     await expect(
@@ -109,7 +110,7 @@ describe("NativeETHWallet", () => {
       data: "0xCAFEDEADCAFEDEADCAFEDEADCAFEDEAD",
       chainId: 1,
     });
-    console.log("SIG: ", sig)
+    console.debug("SIG: ", sig);
     // This is the output from tiny-secp256k1.
     expect(sig).toMatchInlineSnapshot(`
       Object {

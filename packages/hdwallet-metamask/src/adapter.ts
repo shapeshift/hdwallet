@@ -1,13 +1,11 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
-import { MetaMaskHDWallet } from "./metamask";
-import MetaMaskOnboarding from "@metamask/onboarding";
 import detectEthereumProvider from "@metamask/detect-provider";
+import MetaMaskOnboarding from "@metamask/onboarding";
+import * as core from "@shapeshiftoss/hdwallet-core";
+
+import { MetaMaskHDWallet } from "./metamask";
 
 export class MetaMaskAdapter {
   keyring: core.Keyring;
-
-  // wallet id to remove from the keyring when the active wallet changes
-  currentDeviceID?: string;
 
   private constructor(keyring: core.Keyring) {
     this.keyring = keyring;
@@ -34,11 +32,10 @@ export class MetaMaskAdapter {
       console.error("Could not get MetaMask accounts. ");
       throw error;
     }
-    const wallet = new MetaMaskHDWallet();
+    const wallet = new MetaMaskHDWallet(provider);
     await wallet.initialize();
     const deviceID = await wallet.getDeviceID();
     this.keyring.add(wallet, deviceID);
-    this.currentDeviceID = deviceID;
     this.keyring.emit(["MetaMask", deviceID, core.Events.CONNECT], deviceID);
 
     return wallet;

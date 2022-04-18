@@ -8,11 +8,7 @@ describe("XDeFiAdapter", () => {
     const keyring = new core.Keyring();
     const adapter = XDeFiAdapter.useKeyring(keyring);
     expect(await adapter.initialize()).toBe(0);
-    try {
-      await adapter.pairDevice();
-    } catch (e) {
-      expect(e.message).toBe("XDeFi provider not found");
-    }
+    await expect(async () => await adapter.pairDevice()).rejects.toThrowError("XDeFi provider not found");
   });
   it("creates a unique wallet per deviceId", async () => {
     Object.defineProperty(globalThis, "xfi", {

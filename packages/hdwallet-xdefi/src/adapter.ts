@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+
 import { XDeFiHDWallet } from "./xdefi";
 
 export class XDeFiAdapter {

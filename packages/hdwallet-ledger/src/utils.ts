@@ -6,7 +6,11 @@ import _ from "lodash";
 import { LedgerResponse } from ".";
 import { LedgerTransport } from "./transport";
 
-export function handleError<T extends LedgerResponse<any, any>>(result: T, transport?: LedgerTransport, message?: string): asserts result is T & {success: true}  {
+export function handleError<T extends LedgerResponse<any, any>>(
+  result: T,
+  transport?: LedgerTransport,
+  message?: string
+): asserts result is T & { success: true } {
   if (result.success === true) return;
 
   if (result.payload && result.payload.error) {
@@ -60,7 +64,7 @@ export function translateScriptType(scriptType: core.BTCInputScriptType): Addres
     [core.BTCInputScriptType.CashAddr]: "cashaddr",
     [core.BTCInputScriptType.SpendWitness]: "bech32",
     [core.BTCInputScriptType.SpendP2SHWitness]: "p2sh",
-  }
+  };
   return core.mustBeDefined(scriptTypeMap[scriptType]);
 }
 
@@ -69,54 +73,51 @@ export const compressPublicKey = (publicKey: Uint8Array) => {
   if (!(publicKey[0] === 0x04 && publicKey.length === 65)) throw new Error("Invalid public key format");
 
   return core.compatibleBufferConcat([
-    Buffer.from([((publicKey[64] & 0x01) === 0x00 ? 0x02 : 0x03)]),
-    publicKey.slice(1,33),
+    Buffer.from([(publicKey[64] & 0x01) === 0x00 ? 0x02 : 0x03]),
+    publicKey.slice(1, 33),
   ]);
 };
 
-export const createXpub = (depth: number, parentFp: number, childNum: number, chainCode: Uint8Array, publicKey: Uint8Array, network: number) => {
+export const createXpub = (
+  depth: number,
+  parentFp: number,
+  childNum: number,
+  chainCode: Uint8Array,
+  publicKey: Uint8Array,
+  network: number
+) => {
   const header = new Uint8Array(4 + 1 + 4 + 4).buffer;
   const headerView = new DataView(header);
   headerView.setUint32(0, network);
   headerView.setUint8(4, depth);
   headerView.setUint32(5, parentFp);
   headerView.setUint32(9, childNum);
-  return bs58check.encode(
-    core.compatibleBufferConcat([
-      new Uint8Array(header),
-      chainCode,
-      publicKey,
-    ])
-  );
+  return bs58check.encode(core.compatibleBufferConcat([new Uint8Array(header), chainCode, publicKey]));
 };
 
 type NetworkMagic = {
-  apiName: string,
-  unit: string,
-  name: string,
-  appName?: string,
-  satoshi?: number,
+  apiName: string;
+  unit: string;
+  name: string;
+  appName?: string;
+  satoshi?: number;
   bitcoinjs: {
-    bech32?: string,
+    bech32?: string;
     bip32: {
-      private?: number,
-      public: Partial<Record<core.BTCInputScriptType, number>>,
-    },
-    messagePrefix: string,
-    pubKeyHash?: number,
-    scriptHash?: number,
-    wif?: number,
-  },
-  sigHash?: number,
-  isSegwitSupported?: boolean,
-  handleFeePerByte?: boolean,
-  additionals?: string[],
-  areTransactionTimestamped?: boolean,
+      private?: number;
+      public: Partial<Record<core.BTCInputScriptType, number>>;
+    };
+    messagePrefix: string;
+    pubKeyHash?: number;
+    scriptHash?: number;
+    wif?: number;
+  };
+  sigHash?: number;
+  isSegwitSupported?: boolean;
+  handleFeePerByte?: boolean;
+  additionals?: string[];
+  areTransactionTimestamped?: boolean;
 };
-
-export function coinToLedgerAppName(coin: core.Coin): string | undefined {
-  return _.get(networksUtil[core.mustBeDefined(core.slip44ByCoin(coin))], "appName")
-}
 
 export const networksUtil: Record<number, NetworkMagic> = {
   0: {
@@ -589,3 +590,7 @@ export const networksUtil: Record<number, NetworkMagic> = {
     },
   },
 };
+
+export function coinToLedgerAppName(coin: core.Coin): string | undefined {
+  return _.get(networksUtil[core.mustBeDefined(core.slip44ByCoin(coin))], "appName");
+}

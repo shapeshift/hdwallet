@@ -1,10 +1,11 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
 import Common from "@ethereumjs/common";
 import { Transaction } from "@ethereumjs/tx";
+import * as core from "@shapeshiftoss/hdwallet-core";
 
-import { handleError } from "./utils";
 import { TrezorTransport } from "./transport";
+import { handleError } from "./utils";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function ethSupportsNetwork(chain_id: number): Promise<boolean> {
   return true;
 }
@@ -13,13 +14,23 @@ export async function ethGetAddress(transport: TrezorTransport, msg: core.ETHGet
   const res = await transport.call("ethereumGetAddress", {
     path: core.addressNListToBIP32(msg.addressNList),
     showOnTrezor: !!msg.showDisplay,
-    address: msg.showDisplay ? await ethGetAddress(transport, {
-      ...msg,
-      showDisplay: false,
-    }) : undefined
+    address: msg.showDisplay
+      ? await ethGetAddress(transport, {
+          ...msg,
+          showDisplay: false,
+        })
+      : undefined,
   });
   handleError(transport, res, "Could not get ETH address from Trezor");
-  return res.payload.address
+  return res.payload.address;
+}
+
+export async function ethSupportsSecureTransfer(): Promise<boolean> {
+  return false;
+}
+
+export function ethSupportsNativeShapeShift(): boolean {
+  return false;
 }
 
 export async function ethSignTx(
@@ -43,7 +54,7 @@ export async function ethSignTx(
     gasPrice: msg.gasPrice,
   };
 
-  let res = await transport.call("ethereumSignTransaction", {
+  const res = await transport.call("ethereumSignTransaction", {
     path: msg.addressNList,
     transaction: utx,
   });
@@ -65,7 +76,7 @@ export async function ethSignMessage(
   transport: TrezorTransport,
   msg: core.ETHSignMessage
 ): Promise<core.ETHSignedMessage> {
-  let res = await transport.call("ethereumSignMessage", {
+  const res = await transport.call("ethereumSignMessage", {
     path: msg.addressNList,
     message: msg.message,
   });
@@ -77,21 +88,13 @@ export async function ethSignMessage(
 }
 
 export async function ethVerifyMessage(transport: TrezorTransport, msg: core.ETHVerifyMessage): Promise<boolean> {
-  let res = await transport.call("ethereumVerifyMessage", {
+  const res = await transport.call("ethereumVerifyMessage", {
     address: msg.address,
     message: msg.message,
     signature: core.stripHexPrefix(msg.signature),
   });
   handleError(transport, res, "Could not verify ETH message with Trezor");
   return res.payload.message === "Message verified";
-}
-
-export async function ethSupportsSecureTransfer(): Promise<boolean> {
-  return false;
-}
-
-export function ethSupportsNativeShapeShift(): boolean {
-  return false;
 }
 
 export function ethSupportsEIP1559(): boolean {

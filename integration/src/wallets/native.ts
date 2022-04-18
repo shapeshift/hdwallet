@@ -3,6 +3,7 @@ import * as native from "@shapeshiftoss/hdwallet-native";
 import * as _ from "lodash";
 
 // TODO: clean this up
+// eslint-disable-next-line jest/no-mocks-import
 import mswMock from "../../../packages/hdwallet-native/__mocks__/mswMock";
 
 const mnemonic = "all all all all all all all all all all all all";
@@ -14,13 +15,6 @@ export function name(): string {
 
 export function createInfo(): core.HDWalletInfo {
   return native.info();
-}
-
-export async function createWallet(): Promise<core.HDWallet> {
-  const mswMock = await setupMswMocks();
-  const wallet = new native.NativeHDWallet({ mnemonic, deviceId });
-  await wallet.initialize();
-  return wallet;
 }
 
 export async function setupMswMocks() {
@@ -173,16 +167,23 @@ export async function setupMswMocks() {
   return mswMock(_.merge({}, binanceMocks, fioMocks)).startServer();
 }
 
+export async function createWallet(): Promise<core.HDWallet> {
+  await setupMswMocks();
+  const wallet = new native.NativeHDWallet({ mnemonic, deviceId });
+  await wallet.initialize();
+  return wallet;
+}
+
 export function selfTest(get: () => core.HDWallet): void {
   let wallet: native.NativeHDWallet;
 
   beforeAll(async () => {
-    let w = get() as native.NativeHDWallet;
+    const w = get() as native.NativeHDWallet;
 
     if (native.isNative(w) && core.supportsBTC(w) && core.supportsETH(w)) {
       wallet = w;
     } else {
-      fail("Wallet is not native");
+      throw new Error("Wallet is not native");
     }
   });
 
@@ -206,7 +207,7 @@ export function selfTest(get: () => core.HDWallet): void {
   it("uses correct eth bip44 paths", () => {
     if (!wallet) return;
     [0, 1, 3, 27].forEach((account) => {
-      let paths = core.mustBeDefined(
+      const paths = core.mustBeDefined(
         wallet.ethGetAccountPaths({
           coin: "Ethereum",
           accountIdx: account,
@@ -234,7 +235,7 @@ export function selfTest(get: () => core.HDWallet): void {
   it("uses correct btc bip44 paths", () => {
     if (!wallet) return;
 
-    let paths = wallet.btcGetAccountPaths({
+    const paths = wallet.btcGetAccountPaths({
       coin: "Litecoin",
       accountIdx: 3,
     });
@@ -258,10 +259,11 @@ export function selfTest(get: () => core.HDWallet): void {
     ]);
   });
 
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip("supports ethNextAccountPath", () => {
     if (!wallet) return;
 
-    let paths = core.mustBeDefined(
+    const paths = core.mustBeDefined(
       wallet.ethGetAccountPaths({
         coin: "Ethereum",
         accountIdx: 5,
@@ -293,7 +295,7 @@ export function selfTest(get: () => core.HDWallet): void {
   it("supports btcNextAccountPath", () => {
     if (!wallet) return;
 
-    let paths = core.mustBeDefined(
+    const paths = core.mustBeDefined(
       wallet.btcGetAccountPaths({
         coin: "Litecoin",
         accountIdx: 3,
@@ -400,6 +402,7 @@ export function selfTest(get: () => core.HDWallet): void {
     });
   });
 
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip("can describe prefork BitcoinCash", () => {
     expect(
       wallet.describePath({
@@ -420,6 +423,7 @@ export function selfTest(get: () => core.HDWallet): void {
     });
   });
 
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip("can describe prefork Segwit Native BTG", () => {
     expect(
       wallet.describePath({
@@ -440,26 +444,7 @@ export function selfTest(get: () => core.HDWallet): void {
     });
   });
 
-  it.skip("can describe Bitcoin Change Addresses", () => {
-    expect(
-      wallet.describePath({
-        path: core.bip32ToAddressNList("m/44'/0'/7'/1/5"),
-        coin: "Bitcoin",
-        scriptType: core.BTCInputScriptType.SpendAddress,
-      })
-    ).toEqual({
-      verbose: "Bitcoin Account #7, Change Address #5 (Legacy)",
-      coin: "Bitcoin",
-      isKnown: true,
-      scriptType: core.BTCInputScriptType.SpendAddress,
-      accountIdx: 7,
-      addressIdx: 5,
-      wholeAccount: false,
-      isChange: true,
-      isPrefork: false,
-    });
-  });
-
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip("can describe prefork paths", () => {
     expect(
       wallet.describePath({

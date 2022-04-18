@@ -41,6 +41,7 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
       TIMEOUT
     );
 
+    // eslint-disable-next-line jest/no-disabled-tests
     test.skip(
       "describePath() secret",
       async () => {
@@ -50,7 +51,7 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
             path: core.bip32ToAddressNList("m/44'/529'/0'/0/0"),
             coin: "Secret",
           })
-        );
+        ).toMatchInlineSnapshot();
       },
       TIMEOUT
     );
@@ -78,9 +79,7 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
           tx: tx_unsigned as any,
           addressNList: core.bip32ToAddressNList("m/44'/529'/0'/0/0"),
           chain_id: tx_verbose.accountInfo.chainId,
-          // @ts-ignore
           account_number: tx_verbose.accountInfo.accountNumber,
-          // @ts-ignore
           sequence: tx_verbose.accountInfo.sequence,
         };
 
@@ -90,6 +89,7 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
             //expect(res?.signatures?.[0].signature).toEqual(tx_signed.tx.signatures[0].signature_keepkey);
             break;
           default:
+            // eslint-disable-next-line jest/no-conditional-expect
             expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
             break;
         }
