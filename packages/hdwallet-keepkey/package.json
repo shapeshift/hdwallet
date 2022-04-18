@@ -27,7 +27,7 @@
     "google-protobuf": "^3.15.8",
     "icepick": "^2.4.0",
     "lodash": "^4.17.21",
-    "p-lazy": "^4.0.0",
+    "p-lazy": "^3.1.0",
     "semver": "^6.3.0",
     "tiny-secp256k1": "^1.1.6"
   },

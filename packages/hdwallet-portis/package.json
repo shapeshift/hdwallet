@@ -20,6 +20,7 @@
     "bip32": "^2.0.4",
     "bitcoinjs-lib": "^5.1.6",
     "bitcoinjs-message": "^2.1.0",
+    "p-lazy": "^3.1.0",
     "lodash": "^4.17.15",
     "web3": "^1.5.1"
   },

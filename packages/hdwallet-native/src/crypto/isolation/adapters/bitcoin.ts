@@ -1,4 +1,5 @@
 import type { crypto as bcrypto, ECPairInterface, Network, networks, SignerAsync } from "@shapeshiftoss/bitcoinjs-lib";
+import PLazy from "p-lazy";
 
 import { IsolationError, SecP256K1 } from "../core";
 import { assertType, ByteArray } from "../types";
@@ -6,9 +7,9 @@ import { assertType, ByteArray } from "../types";
 export type ECPairInterfaceAsync = Omit<ECPairInterface, "sign"> & Pick<SignerAsync, "sign">;
 
 let networksInstance: typeof networks | undefined;
-const networksReady = (async () => {
+const networksReady = PLazy.from(async () => {
   networksInstance = (await import("@shapeshiftoss/bitcoinjs-lib")).networks;
-})();
+});
 
 export class ECPairAdapter implements SignerAsync, ECPairInterfaceAsync {
   protected readonly _isolatedKey: SecP256K1.ECDSAKey;

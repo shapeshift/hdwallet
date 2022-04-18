@@ -1,12 +1,13 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Literal, Object as Obj, Static, Union } from "funtypes";
+import PLazy from "p-lazy";
 import * as tinyecc from "tiny-secp256k1";
 
 import { assertType, BigEndianInteger, ByteArray, checkType, safeBufferFrom, Uint32 } from "../../types";
 import * as Digest from "../digest";
 import { ECDSAKey, ECDSARecoverableKey } from "./interfaces";
 
-const ethers = import("ethers");
+const ethers = PLazy.from(() => import("ethers"));
 
 const _fieldElementBase = BigEndianInteger(32).withConstraint(
   (x) => tinyecc.isPrivate(safeBufferFrom(x)) || `expected ${x} to be within the order of the curve`,

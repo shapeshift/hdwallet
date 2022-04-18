@@ -1,14 +1,15 @@
 import type { crypto as btccrypto, Network, SignerAsync } from "@shapeshiftoss/bitcoinjs-lib";
 import * as bip32 from "bip32";
 import bs58check from "bs58check";
+import PLazy from "p-lazy";
 
 import { BIP32, IsolationError, SecP256K1 } from "../core";
 import { ECPairAdapter } from "./bitcoin";
 
 let btccryptoInstance: typeof btccrypto | undefined;
-const btccryptoReady = (async () => {
+const btccryptoReady = PLazy.from(async () => {
   btccryptoInstance = (await import("@shapeshiftoss/bitcoinjs-lib")).crypto;
-})();
+});
 
 export type BIP32InterfaceAsync = Omit<bip32.BIP32Interface, "sign" | "derive" | "deriveHardened" | "derivePath"> &
   Pick<SignerAsync, "sign"> & {
