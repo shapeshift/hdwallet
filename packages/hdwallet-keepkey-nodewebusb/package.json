@@ -18,10 +18,10 @@
     "@shapeshiftoss/hdwallet-keepkey": "1.20.0"
   },
   "peerDependencies": {
-    "webusb": "^2.2.0"
+    "usb": "^2.3.1"
   },
   "devDependencies": {
     "typescript": "^4.3.2",
-    "webusb": "^2.2.0"
+    "usb": "^2.3.1"
   }
 }

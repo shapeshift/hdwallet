@@ -657,8 +657,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   public async getDeviceID(): Promise<string> {
     const featuresId = (await this.getFeatures(/*cached=*/ true)).deviceId;
 
-    // Some devices are showing up with empty string deviceId's in their
-    // features object. Not sure how that's happening.
+    // Devices in bootloader mode show up with empty string deviceId's in their features object.
     if (featuresId) return featuresId;
 
     // Grabbing the one from the transport seems to be a reasonable fallback.
@@ -975,14 +974,13 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     const event = await this.transport.call(Messages.MessageType.MESSAGETYPE_INITIALIZE, initialize);
     if (!event.message) throw event;
     const out = event.message as Messages.Features.AsObject;
-    if (!out.deviceId) throw new Error("no deviceId in features object");
     this.features = out;
 
     // v6.1.0 firmware changed usb serial numbers to match STM32 desig_device_id
     // If the deviceId in the features table doesn't match, then we need to
     // add another k-v pair to the keyring so it can be looked up either way.
     const transportDeviceID = await this.transport.getDeviceID();
-    if (transportDeviceID !== out.deviceId) {
+    if (out.deviceId && transportDeviceID !== out.deviceId) {
       this.transport.keyring.addAlias(transportDeviceID, out.deviceId);
     }
 
