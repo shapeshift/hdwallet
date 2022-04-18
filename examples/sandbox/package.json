@@ -10,21 +10,6 @@
     "clean": "rm -rf public .parcel-cache"
   },
   "dependencies": {
-<<<<<<< HEAD
-    "@shapeshiftoss/hdwallet-core": "1.19.0",
-    "@shapeshiftoss/hdwallet-keepkey-tcp": "1.19.0",
-    "@shapeshiftoss/hdwallet-keepkey-webusb": "1.19.0",
-    "@shapeshiftoss/hdwallet-ledger": "1.19.0",
-    "@shapeshiftoss/hdwallet-ledger-webhid": "1.19.0",
-    "@shapeshiftoss/hdwallet-ledger-webusb": "1.19.0",
-    "@shapeshiftoss/hdwallet-metamask": "1.19.0",
-    "@shapeshiftoss/hdwallet-tally": "1.19.0",
-    "@shapeshiftoss/hdwallet-native": "1.19.0",
-    "@shapeshiftoss/hdwallet-portis": "1.19.0",
-    "@shapeshiftoss/hdwallet-trezor": "1.19.0",
-    "@shapeshiftoss/hdwallet-trezor-connect": "1.19.0",
-    "@shapeshiftoss/hdwallet-xdefi": "1.19.0",
-=======
     "@shapeshiftoss/hdwallet-core": "1.20.0",
     "@shapeshiftoss/hdwallet-keepkey-tcp": "1.20.0",
     "@shapeshiftoss/hdwallet-keepkey-webusb": "1.20.0",
@@ -37,7 +22,6 @@
     "@shapeshiftoss/hdwallet-trezor": "1.20.0",
     "@shapeshiftoss/hdwallet-trezor-connect": "1.20.0",
     "@shapeshiftoss/hdwallet-xdefi": "1.20.0",
->>>>>>> cae1a34e2d28a5044bf59803eb8b6f8958bdcac1
     "bip32": "^2.0.4",
     "jquery": "^3.4.1",
     "json": "^9.0.6",

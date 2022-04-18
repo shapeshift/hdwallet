@@ -9,12 +9,8 @@ import * as ledgerWebUSB from "@shapeshiftoss/hdwallet-ledger-webusb";
 import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
-<<<<<<< HEAD
 import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
 import * as tally from "@shapeshiftoss/hdwallet-tally";
-import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
-=======
->>>>>>> cae1a34e2d28a5044bf59803eb8b6f8958bdcac1
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 import $ from "jquery";
