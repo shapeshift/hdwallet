@@ -1,12 +1,6 @@
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as hid from "node-hid";
 
-import { PRODUCT_ID, VENDOR_ID } from "./utils";
-
-export function requestPair(): hid.HID {
-  return new hid.HID(VENDOR_ID, PRODUCT_ID);
-}
-
 export type Device = hid.Device & { path: string; serialNumber: string };
 
 export class TransportDelegate implements keepkey.TransportDelegate {
