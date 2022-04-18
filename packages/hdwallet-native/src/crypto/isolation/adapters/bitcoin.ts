@@ -23,8 +23,15 @@ export class ECPairAdapter implements SignerAsync, ECPairInterfaceAsync {
     this._network = network;
   }
 
-  static async create(isolatedKey: SecP256K1.ECDSAKey, network?: Network): Promise<ECPairAdapter> {
+  /**
+   * If you're inheriting from this class, be sure to call `await ECPairAdapter.prepare()` in your `create()` overload.
+   */
+  protected static async prepare() {
     await networksReady;
+  }
+
+  static async create(isolatedKey: SecP256K1.ECDSAKey, network?: Network): Promise<ECPairAdapter> {
+    await this.prepare();
     return new ECPairAdapter(isolatedKey, await isolatedKey.getPublicKey(), network);
   }
 

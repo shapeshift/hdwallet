@@ -27,6 +27,9 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32InterfaceAsync {
   _identifier?: Buffer;
   _base58?: string;
 
+  /**
+   * If you're inheriting from this class, be sure to call `await BIP32Adapter.prepare()` in your `create()` overload.
+   */
   protected constructor(
     node: BIP32.Node,
     chainCode: BIP32.ChainCode,
@@ -42,12 +45,17 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32InterfaceAsync {
     if (networkOrParent instanceof BIP32Adapter) this._parent = networkOrParent;
   }
 
+  protected static async prepare(): Promise<void> {
+    // Must await superclass's prepare() so it can do its lazy-loading.
+    await Promise.all([await btccryptoReady, ECPairAdapter.prepare()]);
+  }
+
   static async create(
     isolatedNode: BIP32.Node,
     networkOrParent?: BIP32Adapter | Network,
     index?: number
   ): Promise<BIP32Adapter> {
-    await btccryptoReady;
+    await this.prepare();
     return new BIP32Adapter(
       isolatedNode,
       await isolatedNode.getChainCode(),
