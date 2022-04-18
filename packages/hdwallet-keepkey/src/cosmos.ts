@@ -3,10 +3,12 @@ import type { AccountData } from "@cosmjs/proto-signing";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as CosmosMessages from "@keepkey/device-protocol/lib/messages-cosmos_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as protoTxBuilder from "@shapeshiftoss/proto-tx-builder";
 import * as bs58check from "bs58check";
+import PLazy from "p-lazy";
 
 import { Transport } from "./transport";
+
+const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
 
 export function cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
   return [
@@ -200,6 +202,6 @@ export async function cosmosSignTx(transport: Transport, msg: core.CosmosSignTx)
         };
       },
     };
-    return protoTxBuilder.sign(msg.tx, offlineSigner, msg.sequence, msg.account_number, msg.chain_id);
+    return await (await protoTxBuilder).sign(msg.tx, offlineSigner, msg.sequence, msg.account_number, msg.chain_id);
   });
 }

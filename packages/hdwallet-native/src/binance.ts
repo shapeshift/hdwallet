@@ -1,12 +1,15 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bech32 from "bech32";
 import BigNumber from "bignumber.js";
-import type * as bnbSdk from "bnb-javascript-sdk-nobroadcast";
+import type * as bnbSdkTypes from "bnb-javascript-sdk-nobroadcast";
 import CryptoJS from "crypto-js";
+import PLazy from "p-lazy";
 
 import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
+
+const bnbSdk = PLazy.from(() => import("bnb-javascript-sdk-nobroadcast"));
 
 export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -88,8 +91,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         if (!tx.sequence) tx.sequence = "0";
         if (!tx.source) tx.source = "0";
 
-        const bnbSdk = await import("bnb-javascript-sdk-nobroadcast");
-        const client = new bnbSdk.BncClient(
+        const client = new (await bnbSdk).BncClient(
           msg.testnet ? "https://testnet-dex.binance.org" : "https://dex.binance.org"
         ); // broadcast not used but available
         await client.chooseNetwork(msg.testnet ? "testnet" : "mainnet");
@@ -148,7 +150,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
           asset,
           tx.memo,
           Number(tx.sequence) ?? null
-        )) as unknown as Omit<bnbSdk.Transaction, "accountNumber" | "msgs" | "signatures"> & {
+        )) as unknown as Omit<bnbSdkTypes.Transaction, "accountNumber" | "msgs" | "signatures"> & {
           accountNumber: number;
           // msgs: core.BinanceTx["msgs"],
           signatures: Array<{
