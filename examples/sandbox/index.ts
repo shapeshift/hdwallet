@@ -4,6 +4,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as keepkeyTcp from "@shapeshiftoss/hdwallet-keepkey-tcp";
 import * as keepkeyWebUSB from "@shapeshiftoss/hdwallet-keepkey-webusb";
+import * as keplr from "@shapeshiftoss/hdwallet-keplr";
 import * as ledgerWebHID from "@shapeshiftoss/hdwallet-ledger-webhid";
 import * as ledgerWebUSB from "@shapeshiftoss/hdwallet-ledger-webusb";
 import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
@@ -54,6 +55,7 @@ const testPublicWalletXpubs = [
 const keepkeyAdapter = keepkeyWebUSB.WebUSBKeepKeyAdapter.useKeyring(keyring);
 const kkbridgeAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const kkemuAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
+const keplrAdapter = keplr.KeplrAdapter.useKeyring(keyring);
 const portisAdapter = portis.PortisAdapter.useKeyring(keyring, { portisAppId });
 const metaMaskAdapter = metaMask.MetaMaskAdapter.useKeyring(keyring);
 const xdefiAdapter = xdefi.XDeFiAdapter.useKeyring(keyring);
@@ -81,6 +83,7 @@ window["wallet"] = wallet;
 const $keepkey = $("#keepkey");
 const $keepkeybridge = $("#keepkeybridge");
 const $kkemu = $("#kkemu");
+const $keplr = $("#keplr");
 const $trezor = $("#trezor");
 const $ledgerwebusb = $("#ledgerwebusb");
 const $ledgerwebhid = $("#ledgerwebhid");
@@ -110,6 +113,19 @@ $keepkeybridge.on("click", async (e) => {
   wallet = await kkbridgeAdapter.pairDevice("http://localhost:1646");
   window["wallet"] = wallet;
   $("#keyring select").val(await wallet.transport.getDeviceID());
+});
+
+$keplr.on("click", async (e) => {
+  e.preventDefault();
+  wallet = await keplrAdapter.pairDevice("testid");
+  window["wallet"] = wallet;
+  let deviceID = "nothing";
+  try {
+    deviceID = await wallet.getDeviceID();
+    $("#keyring select").val(deviceID);
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 $kkemu.on("click", async (e) => {
@@ -224,6 +240,12 @@ async function deviceConnected(deviceId) {
   keyring.on(["*", "*", core.Events.PIN_REQUEST], () => window["pinOpen"]());
   keyring.on(["*", "*", core.Events.PASSPHRASE_REQUEST], () => window["passphraseOpen"]());
   keyring.on(["*", "*", native.NativeEvents.MNEMONIC_REQUIRED], () => window["mnemonicOpen"]());
+
+  try {
+    await keplrAdapter.initialize();
+  } catch (e) {
+    console.error("Could not initialize KeplrAdapter", e);
+  }
 
   try {
     await kkbridgeAdapter.pairDevice("http://localhost:1646");
