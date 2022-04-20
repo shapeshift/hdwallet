@@ -9,7 +9,6 @@ import * as ledgerWebUSB from "@shapeshiftoss/hdwallet-ledger-webusb";
 import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
-import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
 import * as tally from "@shapeshiftoss/hdwallet-tally";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
@@ -194,8 +193,8 @@ $tally.on("click", async (e) => {
   try {
     deviceID = await wallet.getDeviceID();
     $("#keyring select").val(deviceID);
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error(error);
   }
 });
 

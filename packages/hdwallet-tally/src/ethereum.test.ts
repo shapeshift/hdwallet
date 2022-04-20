@@ -1,11 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { ETHSignedMessage } from "@shapeshiftoss/hdwallet-core";
 
 import * as ethereum from "./ethereum";
-
-const MNEMONIC = "all all all all all all all all all all all all";
-
-const untouchable = require("untouchableMock");
 
 describe("Tally - Ethereum Adapter", () => {
   it("ethVerifyMessage returns null as its not implemented", async () => {
@@ -134,7 +129,7 @@ describe("Tally - Ethereum Adapter", () => {
     expect(hash).toBe(null);
   });
 
-  it("ethSignMessage returns a valid signature object ", async () => {
+  it("ethSignMessage returns a valid signature object", async () => {
     const ethereumProvider = {
       request: jest.fn().mockReturnValue(
         `Object {
@@ -183,7 +178,7 @@ describe("Tally - Ethereum Adapter", () => {
     expect(sig).toBe(null);
   });
 
-  it("ethGetAddress returns a valid address ", async () => {
+  it("ethGetAddress returns a valid address", async () => {
     const ethereumProvider = {
       request: jest.fn().mockReturnValue(["0x73d0385F4d8E00C5e6504C6030F47BF6212736A8"]),
     };
@@ -192,7 +187,7 @@ describe("Tally - Ethereum Adapter", () => {
 
     expect(address).toBe("0x73d0385F4d8E00C5e6504C6030F47BF6212736A8");
   });
-  it("ethGetAddress returns null on error ", async () => {
+  it("ethGetAddress returns null on error", async () => {
     const ethereumProvider = {
       request: jest.fn().mockRejectedValue(new Error("An error has occurred")),
     };
@@ -201,7 +196,7 @@ describe("Tally - Ethereum Adapter", () => {
 
     expect(address).toBe(null);
   });
-  it("ethGetAddress returns null if no provider ", async () => {
+  it("ethGetAddress returns null if no provider", async () => {
     const ethereumProvider = {};
 
     const address = await ethereum.ethGetAddress(ethereumProvider);

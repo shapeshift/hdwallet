@@ -1,7 +1,8 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
-import { TallyHDWallet } from "./tally";
-import TallyOnboarding from "tallyho-onboarding";
 import detectEthereumProvider from "@metamask/detect-provider";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import TallyOnboarding from "tallyho-onboarding";
+
+import { TallyHDWallet } from "./tally";
 
 export class TallyAdapter {
   keyring: core.Keyring;
@@ -22,16 +23,20 @@ export class TallyAdapter {
   }
 
   public async pairDevice(): Promise<TallyHDWallet> {
-    const provider: any = await detectEthereumProvider({ mustBeMetaMask: false, silent: false, timeout: 3000 });
+    const provider: any = await detectEthereumProvider({ mustBeMetaMask: false, silent: true, timeout: 3000 });
     if (!provider) {
       const onboarding = new TallyOnboarding();
       onboarding.startOnboarding();
       console.error("Please install Tally!");
     }
+    if (provider == null) {
+      throw new Error("Could not get Tally accounts.");
+    }
+
     try {
       await provider.request({ method: "eth_requestAccounts" });
     } catch (error) {
-      console.error("Could not get Tally accounts. ");
+      console.error("Could not get Tally accounts.");
       throw error;
     }
     const wallet = new TallyHDWallet(provider);
