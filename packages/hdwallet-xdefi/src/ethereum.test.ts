@@ -2,7 +2,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 
 import * as ethereum from "./ethereum";
 
-describe("XDeFi - Ethereum Adapter", () => {
+describe("XDEFI - Ethereum Adapter", () => {
   it("ethVerifyMessage returns null as its not implemented", async () => {
     const ethereumProvider = {
       request: jest.fn().mockReturnValue("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"),
@@ -26,7 +26,7 @@ describe("XDeFi - Ethereum Adapter", () => {
         addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
         hardenedPath: core.bip32ToAddressNList("m/44'/60'/0'"),
         relPath: [0, 0],
-        description: "XDeFi",
+        description: "XDEFI",
       },
     ]);
   });

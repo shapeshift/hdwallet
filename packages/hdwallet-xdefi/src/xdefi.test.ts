@@ -1,12 +1,12 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import { XDeFiHDWallet, XDeFiHDWalletInfo } from ".";
+import { XDEFIHDWallet, XDEFIHDWalletInfo } from ".";
 
 describe("XDeFIHDWalletInfo", () => {
-  const info = new XDeFiHDWalletInfo();
+  const info = new XDEFIHDWalletInfo();
 
   it("should have correct metadata", async () => {
-    expect(info.getVendor()).toBe("XDeFi");
+    expect(info.getVendor()).toBe("XDEFI");
     expect(info.hasOnDevicePinEntry()).toBe(false);
     expect(info.hasOnDevicePassphrase()).toBe(false);
     expect(info.hasOnDeviceDisplay()).toBe(false);
@@ -30,15 +30,15 @@ describe("XDeFIHDWalletInfo", () => {
   });
 });
 
-describe("XDeFiHDWallet", () => {
-  let wallet: XDeFiHDWallet;
+describe("XDEFIHDWallet", () => {
+  let wallet: XDEFIHDWallet;
   beforeEach(() => {
-    wallet = new XDeFiHDWallet(core.untouchable("XDeFiHDWallet:provider"));
+    wallet = new XDEFIHDWallet(core.untouchable("XDEFIHDWallet:provider"));
     wallet.ethAddress = "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8";
   });
 
   it("should match the metadata", async () => {
-    expect(wallet.getVendor()).toBe("XDeFi");
+    expect(wallet.getVendor()).toBe("XDEFI");
     expect(wallet.hasOnDevicePinEntry()).toBe(false);
     expect(wallet.hasOnDevicePassphrase()).toBe(false);
     expect(wallet.hasOnDeviceDisplay()).toBe(false);
