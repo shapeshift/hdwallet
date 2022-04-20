@@ -1,14 +1,15 @@
 import type { crypto as btccrypto, Network, SignerAsync } from "@shapeshiftoss/bitcoinjs-lib";
 import * as bip32 from "bip32";
 import bs58check from "bs58check";
+import PLazy from "p-lazy";
 
 import { BIP32, IsolationError, SecP256K1 } from "../core";
 import { ECPairAdapter } from "./bitcoin";
 
 let btccryptoInstance: typeof btccrypto | undefined;
-const btccryptoReady = (async () => {
+const btccryptoReady = PLazy.from(async () => {
   btccryptoInstance = (await import("@shapeshiftoss/bitcoinjs-lib")).crypto;
-})();
+});
 
 export type BIP32InterfaceAsync = Omit<bip32.BIP32Interface, "sign" | "derive" | "deriveHardened" | "derivePath"> &
   Pick<SignerAsync, "sign"> & {
@@ -27,6 +28,9 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32InterfaceAsync {
   _identifier?: Buffer;
   _base58?: string;
 
+  /**
+   * If you're inheriting from this class, be sure to call `await BIP32Adapter.prepare()` in your `create()` overload.
+   */
   protected constructor(
     node: BIP32.Node,
     chainCode: BIP32.ChainCode,
@@ -42,12 +46,17 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32InterfaceAsync {
     if (networkOrParent instanceof BIP32Adapter) this._parent = networkOrParent;
   }
 
+  protected static async prepare(): Promise<void> {
+    // Must await superclass's prepare() so it can do its lazy-loading.
+    await Promise.all([await btccryptoReady, ECPairAdapter.prepare()]);
+  }
+
   static async create(
     isolatedNode: BIP32.Node,
     networkOrParent?: BIP32Adapter | Network,
     index?: number
   ): Promise<BIP32Adapter> {
-    await btccryptoReady;
+    await this.prepare();
     return new BIP32Adapter(
       isolatedNode,
       await isolatedNode.getChainCode(),

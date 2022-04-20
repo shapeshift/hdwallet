@@ -17,7 +17,7 @@ export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHA
       addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
       hardenedPath: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
       relPath: [0, 0],
-      description: "XDeFi",
+      description: "XDEFI",
     },
   ];
 }
@@ -39,7 +39,8 @@ export async function ethSendTx(msg: core.ETHSignTx, ethereum: any, from: string
       data: msg.data,
       chainId: msg.chainId,
       nonce: msg.nonce,
-      gasLimit: msg.gasLimit,
+      gas: msg.gasLimit,
+      gasPrice: msg.gasPrice,
     };
 
     const utx = msg.maxFeePerGas

@@ -1,10 +1,13 @@
 import Portis from "@portis/web3";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import _ from "lodash";
+import PLazy from "p-lazy";
 import type Web3 from "web3";
 
 import * as btc from "./bitcoin";
 import * as eth from "./ethereum";
+
+const web3 = PLazy.from(async () => (await import("web3")).default);
 
 export function isPortis(wallet: core.HDWallet): wallet is PortisHDWallet {
   return _.isObject(wallet) && (wallet as any)._isPortis;
@@ -136,8 +139,7 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
   constructor(portis: Portis) {
     this.portis = portis;
     this.web3 = (async () => {
-      const web3 = (await import("web3")).default;
-      return new web3(portis.provider);
+      return new (await web3)(portis.provider);
     })();
     this.info = new PortisHDWalletInfo();
   }

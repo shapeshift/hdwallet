@@ -20,6 +20,13 @@ export const HIDKeepKeyAdapterDelegate = {
       (d) => d.vendorId === VENDOR_ID && d.productId === PRODUCT_ID
     );
   },
+  async getDevice(serialNumber?: string): Promise<Device> {
+    const out = (await this.getDevices()).find(
+      serialNumber !== undefined ? (x) => x.serialNumber === serialNumber : () => true
+    );
+    if (!out) throw new Error("device not found");
+    return out;
+  },
   async getTransportDelegate(device: Device) {
     return new TransportDelegate(device);
   },
