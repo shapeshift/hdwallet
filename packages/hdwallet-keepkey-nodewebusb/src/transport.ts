@@ -11,7 +11,6 @@ export class TransportDelegate implements keepkey.TransportDelegate {
 
   constructor(usbDevice: Device) {
     if (usbDevice.vendorId !== VENDOR_ID) throw new core.WebUSBCouldNotPair("KeepKey", "bad vendor id");
-    if (usbDevice.productId !== WEBUSB_PRODUCT_ID) throw new core.FirmwareUpdateRequired("KeepKey", "6.1.0");
     this.usbDevice = usbDevice;
   }
 
