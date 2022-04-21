@@ -64,18 +64,18 @@ export default class CryptoHelper {
   }
 
   async aesDecrypt(
-    data: ArrayBuffer | Uint8Array,
-    iv: ArrayBuffer | Uint8Array,
-    mac: ArrayBuffer | Uint8Array,
+    data: Buffer | ArrayBuffer | Uint8Array,
+    iv: Buffer | ArrayBuffer | Uint8Array,
+    mac: Buffer | ArrayBuffer | Uint8Array,
     key: SymmetricCryptoKey
   ): Promise<ArrayBuffer> {
-    if (data == null || !(data instanceof ArrayBuffer || data instanceof Uint8Array))
+    if (data == null || !(data instanceof Buffer || data instanceof ArrayBuffer || data instanceof Uint8Array))
       throw new Error("Required parameter [data] is not of type ArrayBuffer or Uint8Array");
     if (data instanceof Uint8Array) data = core.toArrayBuffer(data);
-    if (iv == null || !(iv instanceof ArrayBuffer || iv instanceof Uint8Array))
+    if (iv == null || !(iv instanceof Buffer || iv instanceof ArrayBuffer || iv instanceof Uint8Array))
       throw new Error("Required parameter [iv] is not of type ArrayBuffer or Uint8Array");
     if (iv instanceof Uint8Array) iv = core.toArrayBuffer(iv);
-    if (mac == null || !(mac instanceof ArrayBuffer || mac instanceof Uint8Array))
+    if (mac == null || !(mac instanceof Buffer || mac instanceof ArrayBuffer || mac instanceof Uint8Array))
       throw new Error("Required parameter [mac] is not of type ArrayBuffer or Uint8Array");
     if (mac instanceof Uint8Array) mac = core.toArrayBuffer(mac);
     if (key == null || key.encKey == null || key.macKey == null)

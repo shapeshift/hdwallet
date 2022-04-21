@@ -12,6 +12,6 @@ export function fromBufferToUtf8(buffer: ArrayBuffer): string {
   return new TextDecoder().decode(buffer);
 }
 
-export function fromB64ToArray(str: string): Uint8Array {
+export function fromB64ToArray(str: string): Uint8Array | Buffer {
   return Buffer.from(str, "base64");
 }
