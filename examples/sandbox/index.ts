@@ -66,7 +66,7 @@ const kkemuAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const portisAdapter = portis.PortisAdapter.useKeyring(keyring, { portisAppId });
 const metaMaskAdapter = metaMask.MetaMaskAdapter.useKeyring(keyring);
 const tallyAdapter = tally.TallyAdapter.useKeyring(keyring);
-const xdefiAdapter = xdefi.XDeFiAdapter.useKeyring(keyring);
+const xdefiAdapter = xdefi.XDEFiAdapter.useKeyring(keyring);
 const nativeAdapter = native.NativeAdapter.useKeyring(keyring, {
   mnemonic,
   deviceId: "native-wallet-test",
