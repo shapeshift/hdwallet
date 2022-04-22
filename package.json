@@ -56,6 +56,6 @@
   "dependencies": {
     "patch-package": "^6.2.2",
     "postinstall-postinstall": "^2.1.0",
-    "tallyho-onboarding": "^1.0.1"
+    "tallyho-onboarding": "^1.0.2"
   }
 }
