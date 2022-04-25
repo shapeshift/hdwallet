@@ -56,7 +56,7 @@ export function integration(suite: WalletSuite): void {
             (native.isNative(wallet) ? 1 : 0) +
             (metamask.isMetaMask(wallet) ? 1 : 0) +
             (tally.isTally(wallet) ? 1 : 0) +
-            (xdefi.isXDeFi(wallet) ? 1 : 0)
+            (xdefi.isXDEFI(wallet) ? 1 : 0)
         ).toEqual(1);
       });
     });
