@@ -85,7 +85,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         };
 
         const res = await wallet.osmosisSignTx(input);
-        expect(res?.signatures?.[0]).toEqual(tx_signed_transfer.signatures[0]);
+        expect(res).toEqual(tx_signed_transfer);
       },
       TIMEOUT
     );
@@ -104,7 +104,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         };
 
         const res = await wallet.osmosisSignTx(input);
-        expect(res?.signatures?.[0]).toEqual(tx_signed_delegation.signatures[0]);
+        expect(res).toEqual(tx_signed_delegation);
       },
       TIMEOUT
     );
@@ -123,7 +123,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         };
 
         const res = await wallet.osmosisSignTx(input);
-        expect(res?.signatures?.[0]).toEqual(tx_signed_undelegate_osmosis.signatures[0]);
+        expect(res).toEqual(tx_signed_undelegate_osmosis);
       },
       TIMEOUT
     );
@@ -142,7 +142,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         };
 
         const res = await wallet.osmosisSignTx(input);
-        expect(res?.signatures?.[0]).toEqual(tx_signed_redelegate_osmosis.signatures[0]);
+        expect(res).toEqual(tx_signed_redelegate_osmosis);
       },
       TIMEOUT
     );
@@ -161,7 +161,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         };
 
         const res = await wallet.osmosisSignTx(input);
-        expect(res?.signatures?.[0]).toEqual(tx_signed_rewards_osmosis.signatures[0]);
+        expect(res).toEqual(tx_signed_rewards_osmosis);
       },
       TIMEOUT
     );
@@ -180,7 +180,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         };
 
         const res = await wallet.osmosisSignTx(input);
-        expect(res?.signatures?.[0]).toEqual(tx_signed_lp_add_osmosis.signatures[0]);
+        expect(res).toEqual(tx_signed_lp_add_osmosis);
       },
       TIMEOUT
     );
@@ -198,7 +198,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         };
 
         const res = await wallet.osmosisSignTx(input);
-        expect(res?.signatures?.[0]).toEqual(tx_signed_lp_remove_osmosis.signatures[0]);
+        expect(res).toEqual(tx_signed_lp_remove_osmosis);
       },
       TIMEOUT
     );
@@ -217,7 +217,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         };
 
         const res = await wallet.osmosisSignTx(input);
-        expect(res?.signatures?.[0]).toEqual(tx_signed_lp_stake_osmosis.signatures[0]);
+        expect(res).toEqual(tx_signed_lp_stake_osmosis);
       },
       TIMEOUT
     );
@@ -236,7 +236,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         };
 
         const res = await wallet.osmosisSignTx(input);
-        expect(res?.signatures?.[0]).toEqual(tx_signed_lp_unstake_osmosis.signatures[0]);
+        expect(res).toEqual(tx_signed_lp_unstake_osmosis);
       },
       TIMEOUT
     );
