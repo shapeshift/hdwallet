@@ -25,8 +25,8 @@ import tx_unsigned_rewards_cosmos from "./tx01.mainnet.cosmos.rewards.json";
 import tx_signed_rewards_cosmos from "./tx01.mainnet.cosmos.rewards.signed.json";
 import tx_unsigned_transfer_cosmos from "./tx01.mainnet.cosmos.transfer.json";
 import tx_signed_transfer_cosmos from "./tx01.mainnet.cosmos.transfer.signed.json";
-import tx_unsigned_undelegate_cosmos from "./tx01.mainnet.cosmos.undelegate.json";
-import tx_signed_undelegate_cosmos from "./tx01.mainnet.cosmos.undelegate.signed.json";
+// import tx_unsigned_undelegate_cosmos from "./tx01.mainnet.cosmos.undelegate.json";
+// import tx_signed_undelegate_cosmos from "./tx01.mainnet.cosmos.undelegate.signed.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
@@ -100,9 +100,11 @@ export function cosmosTests(get: () => { wallet: core.HDWallet; info: core.HDWal
         [
           "should correctly sign a undelegate tx",
           tx_unsigned_undelegate_cosmos_amino,
-          tx_unsigned_undelegate_cosmos,
+          // tx_unsigned_undelegate_cosmos,
+          undefined,
           tx_signed_undelegate_cosmos_amino,
-          tx_signed_undelegate_cosmos,
+          // tx_signed_undelegate_cosmos,
+          undefined,
         ],
         [
           "should correctly sign a redelegate tx",
