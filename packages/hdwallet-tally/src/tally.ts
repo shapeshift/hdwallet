@@ -9,6 +9,7 @@ export function isTally(wallet: core.HDWallet): wallet is TallyHDWallet {
 
 export class TallyHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
   readonly _supportsETHInfo = true;
+  private _ethAddress: string | null = null;
 
   public getVendor(): string {
     return "Tally";
