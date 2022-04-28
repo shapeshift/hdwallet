@@ -236,17 +236,8 @@ export class TallyHDWallet implements core.HDWallet, core.ETHWallet {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async ethGetAddress(msg: core.ETHGetAddress): Promise<string | null> {
-    if (this.ethAddress) {
-      return this.ethAddress;
-    }
-    const address = await eth.ethGetAddress(this.provider);
-    if (address) {
-      this.ethAddress = address;
-      return address;
-    } else {
-      this.ethAddress = null;
-      return null;
-    }
+    this._ethAddress ??= await eth.ethGetAddress(this.provider);
+    return this._ethAddress;
   }
 
   public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {
