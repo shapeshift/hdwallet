@@ -39,7 +39,6 @@ export class TallyAdapter {
     await wallet.initialize();
     const deviceID = await wallet.getDeviceID();
     this.keyring.add(wallet, deviceID);
-    this.currentDeviceID = deviceID;
     this.keyring.emit(["Tally", deviceID, core.Events.CONNECT], deviceID);
 
     return wallet;
