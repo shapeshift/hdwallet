@@ -33,7 +33,6 @@ export class TallyAdapter {
     try {
       await provider.request({ method: "eth_requestAccounts" });
     } catch (error) {
-      console.error("Could not get Tally accounts.");
       throw error;
     }
     const wallet = new TallyHDWallet(provider);
