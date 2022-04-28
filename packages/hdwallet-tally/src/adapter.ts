@@ -7,9 +7,6 @@ import { TallyHDWallet } from "./tally";
 export class TallyAdapter {
   keyring: core.Keyring;
 
-  // wallet id to remove from the keyring when the active wallet changes
-  currentDeviceID?: string;
-
   private constructor(keyring: core.Keyring) {
     this.keyring = keyring;
   }
