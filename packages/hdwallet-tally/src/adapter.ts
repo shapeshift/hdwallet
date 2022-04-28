@@ -26,7 +26,7 @@ export class TallyAdapter {
       onboarding.startOnboarding();
       console.error("Please install Tally!");
     }
-    if (provider == null) {
+    if (provider === null) {
       throw new Error("Could not get Tally accounts.");
     }
 
