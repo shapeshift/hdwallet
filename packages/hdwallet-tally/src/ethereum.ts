@@ -107,7 +107,7 @@ export async function ethSignMessage(
     return {
       address: address,
       signature: signedMsg,
-    } as ETHSignedMessage;
+    } as core.ETHSignedMessage;
   } catch (error) {
     console.error(error);
     return null;
