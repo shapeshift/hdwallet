@@ -30,6 +30,7 @@ export class TallyAdapter {
       throw new Error("Could not get Tally accounts.");
     }
 
+    // eslint-disable-next-line no-useless-catch
     try {
       await provider.request({ method: "eth_requestAccounts" });
     } catch (error) {
