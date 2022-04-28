@@ -15,8 +15,8 @@ export class TallyAdapter {
     return new TallyAdapter(keyring);
   }
 
-  public async initialize(): Promise<number> {
-    return Object.keys(this.keyring.wallets).length;
+  public async initialize(): Promise<void> {
+    // no initialization needed
   }
 
   public async pairDevice(): Promise<TallyHDWallet> {
