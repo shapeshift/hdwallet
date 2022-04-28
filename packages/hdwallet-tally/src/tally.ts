@@ -53,8 +53,8 @@ export class TallyHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
     }
   }
 
-  //eslint-disable-line no-unused-vars
-  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public ethNextAccountPath(_msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
     return undefined;
   }
 
