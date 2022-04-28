@@ -29,7 +29,7 @@ export async function createWallet(): Promise<core.HDWallet> {
           return `txHash-${to}`;
         }
         default:
-          throw new Error(`ethereum: Unkown method ${method}`);
+          throw new Error(`ethereum: Unknown method ${method}`);
       }
     }),
   };
