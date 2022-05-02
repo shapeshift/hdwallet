@@ -6,6 +6,7 @@ import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
+import * as walletConnect from "@shapeshiftoss/hdwallet-wallet-connect";
 
 import { binanceTests } from "./binance";
 import { btcTests } from "./bitcoin";
@@ -49,12 +50,13 @@ export function integration(suite: WalletSuite): void {
       it("has only one vendor", () => {
         expect(
           (keepkey.isKeepKey(wallet) ? 1 : 0) +
-            (trezor.isTrezor(wallet) ? 1 : 0) +
-            (ledger.isLedger(wallet) ? 1 : 0) +
-            (portis.isPortis(wallet) ? 1 : 0) +
-            (native.isNative(wallet) ? 1 : 0) +
-            (metamask.isMetaMask(wallet) ? 1 : 0) +
-            (xdefi.isXDEFI(wallet) ? 1 : 0)
+          (trezor.isTrezor(wallet) ? 1 : 0) +
+          (ledger.isLedger(wallet) ? 1 : 0) +
+          (portis.isPortis(wallet) ? 1 : 0) +
+          (native.isNative(wallet) ? 1 : 0) +
+          (metamask.isMetaMask(wallet) ? 1 : 0) +
+          (xdefi.isXDEFI(wallet) ? 1 : 0) +
+          (walletConnect.isWalletConnect(wallet) ? 1 : 0)
         ).toEqual(1);
       });
     });

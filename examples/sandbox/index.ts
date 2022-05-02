@@ -11,6 +11,7 @@ import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
+import * as walletConnect from "@shapeshiftoss/hdwallet-wallet-connect";
 import $ from "jquery";
 import Web3 from "web3";
 
@@ -78,6 +79,7 @@ const trezorAdapter = trezorConnect.TrezorAdapter.useKeyring(keyring, {
 });
 const ledgerWebUSBAdapter = ledgerWebUSB.WebUSBLedgerAdapter.useKeyring(keyring);
 const ledgerWebHIDAdapter = ledgerWebHID.WebHIDLedgerAdapter.useKeyring(keyring);
+const walletConnectAdapter = walletConnect.WalletConnectAdapter.useKeyring(keyring);
 
 window["keyring"] = keyring;
 
@@ -97,6 +99,7 @@ const $native = $("#native");
 const $metaMask = $("#metaMask");
 const $xdefi = $("#xdefi");
 const $keyring = $("#keyring");
+const $walletConnect = $("#walletConnect");
 
 const $ethAddr = $("#ethAddr");
 const $ethTx = $("#ethTx");
@@ -193,6 +196,18 @@ $xdefi.on("click", async (e) => {
     console.error(error);
   }
 });
+$walletConnect.on("click", async (e) => {
+  e.preventDefault();
+  wallet = await walletConnectAdapter.pairDevice("testid");
+  window["wallet"] = wallet;
+  let deviceID = "nothing";
+  try {
+    deviceID = await wallet.getDeviceID();
+    $("#keyring select").val(deviceID);
+  } catch (error) {
+    console.error(error);
+  }
+});
 
 async function deviceConnected(deviceId) {
   wallet = keyring.get(deviceId);
@@ -273,6 +288,12 @@ async function deviceConnected(deviceId) {
     await metaMaskAdapter.initialize();
   } catch (e) {
     console.error("Could not initialize MetaMaskAdapter", e);
+  }
+
+  try {
+    await walletConnectAdapter.initialize();
+  } catch (e) {
+    console.error("Could not initialize WalletConnectAdapter", e);
   }
 
   for (const deviceID of Object.keys(keyring.wallets)) {

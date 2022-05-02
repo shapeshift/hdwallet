@@ -22,6 +22,7 @@
     "@shapeshiftoss/hdwallet-trezor": "1.21.0",
     "@shapeshiftoss/hdwallet-trezor-connect": "1.21.0",
     "@shapeshiftoss/hdwallet-xdefi": "1.21.0",
+    "@shapeshiftoss/hdwallet-wallet-connect": "1.21.0",
     "bip32": "^2.0.4",
     "jquery": "^3.4.1",
     "json": "^9.0.6",
