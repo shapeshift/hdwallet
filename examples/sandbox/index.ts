@@ -26,7 +26,20 @@ import {
   cosmosRewardsTx,
   cosmosTransferTx,
   cosmosUndelegateTx,
-} from "./json/cosmosAminoTx.json";
+} from "./json/cosmos/cosmosAminoTx.json";
+import {
+  osmosisSendTx,
+  osmosisDelegateTx,
+  osmosisUndelegateTx,
+  osmosisRedelegateTx,
+  osmosisRewardsTx,
+  osmosisLPAddTx,
+  osmosisLPRemoveTx,
+  osmosisLPStakeTx,
+  osmosisLPUnstakeTx,
+  osmosisIBCTransferTx,
+  osmosisSwapTx,
+} from "./json/osmosis/osmosisAminoTx.json";
 import * as dashTxJson from "./json/dashTx.json";
 import * as dogeTxJson from "./json/dogeTx.json";
 import * as ltcTxJson from "./json/ltcTx.json";
@@ -1450,26 +1463,24 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
  * Osmosis
  */
 const $osmosisAddress = $("#osmosisAddress");
-const $osmosisAddressResults = $("#osmosisAddressResults");
-const $osmosisSignTxAddress = $("#osmosisSignTxAddress");
-const $osmosisSignTxAmount = $("#osmosisSignTxAmount");
-const $osmosisSignTxResults = $("#osmosisSignTxResults");
-const $osmosisSignTx = $("#osmosisSignTx");
-const $osmosisDelegateDelegatorAddress = $("#osmosisDelegateDelegatorAddress");
-const $osmosisDelegateValidatorAddress = $("#osmosisDelegateValidatorAddress");
-const $osmosisDelegateAmount = $("#osmosisDelegateAmount");
+const $osmosisSend = $("#osmosisSend");
 const $osmosisDelegate = $("#osmosisDelegate");
-const $osmosisDelegateResults = $("#osmosisDelegateResults");
-const $osmosisUndelegateDelegatorAddress = $("#osmosisDelegateDelegatorAddress");
-const $osmosisUndelegateValidatorAddress = $("#osmosisDelegateValidatorAddress");
-const $osmosisUndelegateAmount = $("#osmosisDelegateAmount");
-const $osmosisUndelegate = $("#osmosisDelegate");
-const $osmosisUndelegateResults = $("#osmosisUndelegateResults");
+const $osmosisUndelegate = $("#osmosisUndelegate");
+const $osmosisRedelegate = $("#osmosisRedelegate");
+const $osmosisRewards = $("#osmosisRewards");
+const $osmosisLPAdd = $("#osmosisLPAdd");
+const $osmosisLPRemove = $("#osmosisLPRemove");
+const $osmosisLPStake = $("#osmosisRedelegate");
+const $osmosisLPUnstake = $("#osmosisLPUnstake");
+const $osmosisIBCTransfer = $("#osmosisIBCTransfer");
+const $osmosisSwap = $("#osmosisSwap");
+
+const $osmosisResults = $("#osmosisResults");
 
 $osmosisAddress.on("click", async (e) => {
   e.preventDefault();
   if (!wallet) {
-    $osmosisAddressResults.val("No wallet?");
+    $osmosisResults.val("No wallet?");
     return;
   }
   if (core.supportsOsmosis(wallet)) {
@@ -1482,155 +1493,263 @@ $osmosisAddress.on("click", async (e) => {
       addressNList,
       showDisplay: true,
     });
-    $osmosisAddressResults.val(result);
+    $osmosisResults.val(result);
   } else {
     const label = await wallet.getLabel();
-    $osmosisAddressResults.val(label + " does not support Osmosis");
+    $osmosisResults.val(label + " does not support Osmosis");
   }
 });
 
-$osmosisSignTx.on("click", async (e) => {
+$osmosisSend.on("click", async (e) => {
   e.preventDefault();
   if (!wallet) {
-    $osmosisSignTxResults.val("No wallet?");
+    $osmosisResults.val("No wallet?");
     return;
   }
   if (core.supportsOsmosis(wallet)) {
+    const unsigned: core.Osmosis.StdTx = osmosisSendTx;
+
     const res = await wallet.osmosisSignTx({
-      tx: {
-        chain_id: "osmosis",
-        account_number: "75815",
-        sequence: "2",
-        msg: [
-          {
-            type: "cosmos-sdk/MsgSend",
-            value: {
-              from_address: "osmo1a7xqkxa4wyjfllme9u3yztgsz363dalz3lxtj6",
-              to_address: $osmosisSignTxAddress.val(),
-              amount: [
-                {
-                  denom: "uosmo",
-                  amount: $osmosisSignTxAmount.val(),
-                },
-              ],
-            },
-          },
-        ],
-        fee: {
-          amount: [
-            {
-              denom: "uosmo",
-              amount: "2800",
-            },
-          ],
-          gas: "80000",
-        },
-        signatures: [],
-        memo: "hello world",
-        timeout_height: "0",
-      },
-      addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
       chain_id: "osmosis-1",
-      account_number: "16354",
-      sequence: "5",
+      account_number: "95421",
+      sequence: "35",
+      tx: unsigned,
     });
-    $osmosisSignTxResults.val(JSON.stringify(res));
+    $osmosisResults.val(JSON.stringify(res));
   } else {
     const label = await wallet.getLabel();
-    $osmosisSignTxResults.val(label + " does not support Osmosis");
+    $osmosisResults.val(label + " does not support Osmosis");
   }
 });
 
 $osmosisDelegate.on("click", async (e) => {
   e.preventDefault();
   if (!wallet) {
-    $osmosisDelegateResults.val("No wallet?");
+    $osmosisResults.val("No wallet?");
     return;
   }
   if (core.supportsOsmosis(wallet)) {
+    const unsigned: core.Osmosis.StdTx = osmosisDelegateTx;
+
     const res = await wallet.osmosisSignTx({
-      tx: {
-        fee: {
-          amount: [
-            {
-              amount: "2800",
-              denom: "uosmo",
-            },
-          ],
-          gas: "290000",
-        },
-        memo: "",
-        msg: [
-          {
-            type: "cosmos-sdk/MsgDelegate",
-            value: {
-              delegator_address: $osmosisDelegateDelegatorAddress.val(),
-              validator_address: $osmosisDelegateValidatorAddress.val(),
-              amount: {
-                denom: "uosmo",
-                amount: $osmosisDelegateAmount.val(),
-              },
-            },
-          },
-        ],
-        signatures: [],
-      },
-      addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
       chain_id: "osmosis-1",
-      account_number: "16354",
-      sequence: "5",
+      account_number: "95421",
+      sequence: "36",
+      tx: unsigned,
     });
-    $osmosisDelegateResults.val(JSON.stringify(res));
+    $osmosisResults.val(JSON.stringify(res));
   } else {
     const label = await wallet.getLabel();
-    $osmosisDelegateResults.val(label + " does not support Osmosis");
+    $osmosisResults.val(label + " does not support Osmosis");
   }
 });
 
 $osmosisUndelegate.on("click", async (e) => {
   e.preventDefault();
   if (!wallet) {
-    $osmosisUndelegateResults.val("No wallet?");
+    $osmosisResults.val("No wallet?");
     return;
   }
   if (core.supportsOsmosis(wallet)) {
+    const unsigned: core.Osmosis.StdTx = osmosisUndelegateTx;
+
     const res = await wallet.osmosisSignTx({
-      tx: {
-        fee: {
-          amount: [
-            {
-              denom: "uosmo",
-              amount: "0",
-            },
-          ],
-          gas: "250000",
-        },
-        msg: [
-          {
-            type: "cosmos-sdk/MsgUndelegate",
-            value: {
-              delegator_address: $osmosisUndelegateDelegatorAddress.val(),
-              validator_address: $osmosisUndelegateValidatorAddress.val(),
-              amount: {
-                denom: "uosmo",
-                amount: $osmosisUndelegateAmount.val(),
-              },
-            },
-          },
-        ],
-        signatures: [],
-        memo: "",
-        timeout_height: "0",
-      },
-      addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
       chain_id: "osmosis-1",
-      account_number: "16354",
-      sequence: "5",
+      account_number: "95421",
+      sequence: "39",
+      tx: unsigned,
     });
-    $osmosisUndelegateResults.val(JSON.stringify(res));
+    $osmosisResults.val(JSON.stringify(res));
   } else {
     const label = await wallet.getLabel();
-    $osmosisUndelegateResults.val(label + " does not support Osmosis");
+    $osmosisResults.val(label + " does not support Osmosis");
+  }
+});
+
+$osmosisRedelegate.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $osmosisResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsOsmosis(wallet)) {
+    const unsigned: core.Osmosis.StdTx = osmosisRedelegateTx;
+
+    const res = await wallet.osmosisSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: "osmosis-1",
+      account_number: "95421",
+      sequence: "37",
+      tx: unsigned,
+    });
+    $osmosisResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $osmosisResults.val(label + " does not support Osmosis");
+  }
+});
+
+$osmosisRewards.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $osmosisResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsOsmosis(wallet)) {
+    const unsigned: core.Osmosis.StdTx = osmosisRewardsTx;
+
+    const res = await wallet.osmosisSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: "osmosis-1",
+      account_number: "95421",
+      sequence: "38",
+      tx: unsigned,
+    });
+    $osmosisResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $osmosisResults.val(label + " does not support Osmosis");
+  }
+});
+
+$osmosisLPAdd.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $osmosisResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsOsmosis(wallet)) {
+    const unsigned: core.Osmosis.StdTx = osmosisLPAddTx;
+
+    const res = await wallet.osmosisSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: "osmosis-1",
+      account_number: "95421",
+      sequence: "45",
+      tx: unsigned,
+    });
+    $osmosisResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $osmosisResults.val(label + " does not support Osmosis");
+  }
+});
+
+$osmosisLPRemove.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $osmosisResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsOsmosis(wallet)) {
+    const unsigned: core.Osmosis.StdTx = osmosisLPRemoveTx;
+
+    const res = await wallet.osmosisSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: "osmosis-1",
+      account_number: "95421",
+      sequence: "46",
+      tx: unsigned,
+    });
+    $osmosisResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $osmosisResults.val(label + " does not support Osmosis");
+  }
+});
+
+$osmosisLPStake.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $osmosisResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsOsmosis(wallet)) {
+    const unsigned: core.Osmosis.StdTx = osmosisLPStakeTx;
+
+    const res = await wallet.osmosisSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: "osmosis-1",
+      account_number: "95421",
+      sequence: "46",
+      tx: unsigned,
+    });
+    $osmosisResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $osmosisResults.val(label + " does not support Osmosis");
+  }
+});
+
+$osmosisLPUnstake.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $osmosisResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsOsmosis(wallet)) {
+    const unsigned: core.Osmosis.StdTx = osmosisLPUnstakeTx;
+
+    const res = await wallet.osmosisSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: "osmosis-1",
+      account_number: "95421",
+      sequence: "47",
+      tx: unsigned,
+    });
+    $osmosisResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $osmosisResults.val(label + " does not support Osmosis");
+  }
+});
+
+$osmosisIBCTransfer.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $osmosisResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsOsmosis(wallet)) {
+    const unsigned: core.Osmosis.StdTx = osmosisIBCTransferTx;
+
+    const res = await wallet.osmosisSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: "osmosis-1",
+      account_number: "95421",
+      sequence: "35",
+      tx: unsigned,
+    });
+    $osmosisResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $osmosisResults.val(label + " does not support Osmosis");
+  }
+});
+
+$osmosisSwap.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $osmosisResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsOsmosis(wallet)) {
+    const unsigned: core.Osmosis.StdTx = osmosisSwapTx;
+
+    const res = await wallet.osmosisSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: "osmosis-1",
+      account_number: "95421",
+      sequence: "40",
+      tx: unsigned,
+    });
+    $osmosisResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $osmosisResults.val(label + " does not support Osmosis");
   }
 });
 
