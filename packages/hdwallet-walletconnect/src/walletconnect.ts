@@ -1,8 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import WalletConnect from '@walletconnect/client'
+import WalletConnectProvider from "@walletconnect/web3-provider";
 import { utils } from "ethers";
-
-import isObject from "lodash/isObject";
 import * as eth from "./ethereum";
 
 interface WCState { 
@@ -12,9 +10,19 @@ interface WCState {
   address: string;
 }
 
-export function isWalletConnect(wallet: core.HDWallet): wallet is WalletConnectHDWallet {
-  return isObject(wallet) && (wallet as any)._isWalletConnect;
+/**
+ * @see https://eips.ethereum.org/EIPS/eip-1193
+ */
+
+interface ProviderConnectInfo {
+  readonly chainId: string;
 }
+
+interface ProviderRpcError extends Error {
+  code: number;
+  data?: unknown;
+}
+
 
 /**
  * WalletConnect Wallet Info
@@ -110,16 +118,16 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _isWalletConnect = true;
 
   info: WalletConnectWalletInfo & core.HDWalletInfo;
-  connector: WalletConnect;
+  provider: WalletConnectProvider;
   connected = false;
   chainId: number = -1;
   accounts: string[] = [];
   // TODO: confirm empty string doesn't break
   ethAddress: string = "";
 
-  constructor(connector: WalletConnect) {
+  constructor(provider: WalletConnectProvider) {
+    this.provider = provider;
     this.info = new WalletConnectWalletInfo();
-    this.connector = connector;
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -142,45 +150,12 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
     return "WalletConnect";
   }
 
-  public async initialize(): Promise<void> {
-    this.connector.on("session_update", async (error, payload) => {
-      console.log(`connector.on("session_update")`);
-
-      if (error) {
-        throw error;
-      }
-
-      const { chainId, accounts } = payload.params[0];
-      this.onSessionUpdate(accounts, chainId);
-    });
-
-    this.connector.on("connect", (error, payload) => {
-      console.log(`connector.on("connect")`);
-
-      if (error) {
-        throw error;
-      }
-
-      this.onConnect(payload);
-    });
-
-    this.connector.on("disconnect", (error) => {
-      console.log(`connector.on("disconnect")`);
-
-      if (error) {
-        throw error;
-      }
-
-      this.onDisconnect();
-    });
-
-    if (this.connector.connected) {
-      const { chainId, accounts } = this.connector;
-      const [address] = accounts;
-      this.setState({ connected: true, chainId, accounts, address });
-      this.onSessionUpdate(accounts, chainId);
-    }
-  }
+  /**
+   * Initialize
+   * 
+   * Subscribes to EIP-1193 events
+   */
+  public async initialize(): Promise<void> {}
 
   public hasOnDevicePinEntry(): boolean {
     return this.info.hasOnDevicePinEntry();
@@ -211,7 +186,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async clearSession(): Promise<void> {
-    // TODO: clear wallet connection
+    this.disconnect();
   }
 
   public async ping(msg: core.Ping): Promise<core.Pong> {
@@ -250,7 +225,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async loadDevice(_msg: core.LoadDevice): Promise<void> {
-    // TODO: Does WC allow this to be done programatically?
+    return;
   }
 
   public describePath(msg: core.DescribePath): core.PathDescription {
@@ -268,7 +243,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   public async disconnect(): Promise<void> {
-    return this.connector.killSession()
+    return;
   }
 
   public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
@@ -304,12 +279,11 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
    * 
    * @see https://docs.walletconnect.com/client-api#sign-transaction-eth_signtransaction
    */
-  public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {
+  public async ethSignTx(msg: core.ETHSignTx & { from: string }): Promise<core.ETHSignedTx | null> {
     // const address = await this.ethGetAddress();
     // return address ? eth.ethSignTx(msg, this.provider, address) : null;
-    msg.gas = msg.gasLimit;
     msg.from = this.ethAddress;
-    return this.connector.signTransaction(msg);
+    return this.provider.wc.signTransaction(msg);
   }
 
   /**
@@ -317,11 +291,11 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
    * 
    * @see https://docs.walletconnect.com/client-api#send-transaction-eth_sendtransaction
    */
-  public async ethSendTx(msg: core.ETHSignTx): Promise<core.ETHTxHash | null> {
+  public async ethSendTx(msg: core.ETHSignTx & { from: string }): Promise<core.ETHTxHash | null> {
     // const address = await this.ethGetAddress();
     // return address ? eth.ethSendTx(msg, this.provider, address) : null;
     msg.from = this.ethAddress;
-    return this.connector.sendTransaction(msg);
+    return this.provider.wc.sendTransaction(msg);
   }
 
   /**
@@ -332,12 +306,12 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
     // const address = await this.ethGetAddress();
     // return address ? eth.ethSignMessage(msg, this.provider, address) : null;
-    return this.connector.signMessage([Buffer.from(msg.message).toString("hex"), this.ethAddress])
+    return this.provider.wc.signMessage([Buffer.from(msg.message).toString("hex"), this.ethAddress])
   }
 
   public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean | null> {
-    // return eth.ethVerifyMessage(msg, this.provider);
-    const hash = utils.hashMessage(msg)
+    console.error("Method ethVerifyMessage unsupported for WalletConnect wallet!");
+    return null;
   }
 
   public async getDeviceID(): Promise<string> {
@@ -346,35 +320,5 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
 
   public async getFirmwareVersion(): Promise<string> {
     return "WalletConnect";
-  }
-
-  private onSessionUpdate(accounts: string[], chainId: number) {
-    const [address] = accounts
-    this.setState({ accounts, address, chainId })
-  }
-
-  private onConnect(payload: any) {
-    const { accounts, chainId } = payload.params[0];
-    const [address] = accounts;
-    this.setState({ connected: true, chainId, accounts, address });
-  }
-
-  /**
-   * onDisconnect
-   * 
-   * Resets state
-   */
-  private onDisconnect() {
-    this.setState({ connected: false, chainId: 1, accounts: [], address: "" });
-  }
-
-  private setState(config: WCState) {
-    const { connected, chainId, accounts, address } = config
-    if(connected !== undefined) {
-      this.connected = connected
-    }
-    this.chainId = chainId
-    this.accounts = accounts
-    this.ethAddress = address
   }
 }

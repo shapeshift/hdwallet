@@ -63,8 +63,6 @@ export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHA
 
 // TODO: implement sign tx
 export async function ethSignTx(msg: core.ETHSignTx, ethereum: any, from: string): Promise<core.ETHSignedTx | null> {
-  msg.gas = msg.gasLimit
-  msg.from = from
   // const signedTx: JsonRpcResponse = 
   return ethereum.request({
     method: "eth_sendTransaction",
