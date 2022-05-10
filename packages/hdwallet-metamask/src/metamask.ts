@@ -132,7 +132,7 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async isLocked(): Promise<boolean> {
-    return !this.provider.metamask.isUnlocked();
+    return !this.provider._metamask.isUnlocked();
   }
 
   public getVendor(): string {
