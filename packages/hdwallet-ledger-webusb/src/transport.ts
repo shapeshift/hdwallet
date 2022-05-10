@@ -60,12 +60,12 @@ export function translateCoinAndMethod<T extends LedgerTransportCoinType, U exte
   switch (coin) {
     case "Btc": {
       const btc = new Btc(transport);
-      const methodInstance = btc[method as LedgerTransportMethodName<"Btc">].bind(btc)
+      const methodInstance = btc[method as LedgerTransportMethodName<"Btc">].bind(btc);
       return methodInstance as LedgerTransportMethod<T, U>;
     }
     case "Eth": {
       const eth = new Eth(transport);
-      const methodInstance = eth[method as LedgerTransportMethodName<"Eth">].bind(eth)
+      const methodInstance = eth[method as LedgerTransportMethodName<"Eth">].bind(eth);
       return methodInstance as LedgerTransportMethod<T, U>;
     }
     case null: {
@@ -136,7 +136,7 @@ export class LedgerWebUsbTransport extends ledger.LedgerTransport {
 
       if (RECORD_CONFORMANCE_MOCKS) {
         // May need a slight amount of cleanup on escaping `'`s.
-        console.log(
+        console.info(
           `this.memoize('${coin}', '${method}',\n  JSON.parse('${JSON.stringify(
             args
           )}'),\n  JSON.parse('${JSON.stringify(result)}'))`

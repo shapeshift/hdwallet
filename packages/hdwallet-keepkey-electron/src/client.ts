@@ -1,16 +1,16 @@
 import * as electron from "electron";
 
 import {
+  CONNECT,
+  DISCONNECT,
   GET_DEVICE,
+  GET_DEVICE_ID,
   GET_DEVICES,
   GET_TRANSPORT_DELEGATE,
   IS_OPENED,
-  GET_DEVICE_ID,
-  CONNECT,
-  TRY_CONNECT_DEBUG_LINK,
-  DISCONNECT,
-  WRITE_CHUNK,
   READ_CHUNK,
+  TRY_CONNECT_DEBUG_LINK,
+  WRITE_CHUNK,
 } from "./utils";
 
 export const CLIENT_TAG = "apiHDWalletKeepKeyElectronClient";
@@ -48,6 +48,6 @@ export const Client = {
   },
   expose() {
     electron.contextBridge.exposeInMainWorld(CLIENT_TAG, Client);
-  }
-}
+  },
+};
 export type Client = typeof Client;

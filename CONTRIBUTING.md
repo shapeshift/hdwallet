@@ -25,6 +25,10 @@
 - Where possible, please provide unit tests / integration tests that
   demonstrate new functionality is working.
 
+- The .gitignore file has been configured to act as a whitelist, meaning
+  newly added root-level files / subdirectories will not be tracked by
+  default and will need to be added manually to the .gitignore file.
+
 #### Getting Your PR Accepted
 
 Our maintainers are committed to reviewing patches in a timely manner. That

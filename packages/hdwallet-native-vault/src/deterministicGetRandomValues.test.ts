@@ -1,5 +1,7 @@
 import { AsyncCrypto } from "./types";
 
+// (This is also used in index.test.ts)
+// eslint-disable-next-line jest/no-export
 export async function deterministicGetRandomValues(crypto: AsyncCrypto, seed: Uint8Array = new Uint8Array(32)) {
   const rngSeed = await crypto.subtle.importKey(
     "raw",

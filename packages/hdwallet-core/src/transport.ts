@@ -20,10 +20,12 @@ export abstract class Transport extends eventemitter2.EventEmitter2 {
   /**
    * Optional method to bootstrap connection to device
    */
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   public async connect(): Promise<void> {}
 
   /**
    * Optional function that gets called to clean up connection to device
    */
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   public async disconnect(): Promise<void> {}
 }

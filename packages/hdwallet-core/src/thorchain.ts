@@ -7,6 +7,7 @@ export interface ThorchainGetAddress {
   testnet?: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Thorchain {
   export interface Msg {
     type: string;
@@ -25,6 +26,7 @@ export namespace Thorchain {
     gas: string;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace crypto {
     export interface PubKey {
       type: string;
@@ -95,8 +97,8 @@ export interface ThorchainWallet extends ThorchainWalletInfo, HDWallet {
 }
 
 export function thorchainDescribePath(path: BIP32Path): PathDescription {
-  let pathStr = addressNListToBIP32(path);
-  let unknown: PathDescription = {
+  const pathStr = addressNListToBIP32(path);
+  const unknown: PathDescription = {
     verbose: pathStr,
     coin: "Rune",
     isKnown: false,
@@ -122,7 +124,7 @@ export function thorchainDescribePath(path: BIP32Path): PathDescription {
     return unknown;
   }
 
-  let index = path[2] & 0x7fffffff;
+  const index = path[2] & 0x7fffffff;
   return {
     verbose: `Thorchain Account #${index}`,
     accountIdx: index,

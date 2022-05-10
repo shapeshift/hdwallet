@@ -28,38 +28,8 @@ const mswMock = require("mswMock")({
       validator_info: {
         address: "B7707D9F593C62E85BB9E1A2366D12A97CD5DFF2",
         pub_key: [
-          113,
-          242,
-          215,
-          184,
-          236,
-          28,
-          139,
-          153,
-          166,
-          83,
-          66,
-          155,
-          1,
-          24,
-          205,
-          32,
-          31,
-          121,
-          79,
-          64,
-          157,
-          15,
-          234,
-          77,
-          101,
-          177,
-          182,
-          98,
-          242,
-          176,
-          0,
-          99,
+          113, 242, 215, 184, 236, 28, 139, 153, 166, 83, 66, 155, 1, 24, 205, 32, 31, 121, 79, 64, 157, 15, 234, 77,
+          101, 177, 182, 98, 242, 176, 0, 99,
         ],
         voting_power: 1000000000000,
       },
@@ -111,15 +81,15 @@ describe("NativeBinanceWallet", () => {
   });
 
   it("should generate a correct binance address", async () => {
-    expect(await 
-      wallet.binanceGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/714'/0'/0/0") })
-    ).toBe("bnb1qzc0v2q7u6484czzal6ncuvqmg9fae8n2xe2c6");
+    expect(await wallet.binanceGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/714'/0'/0/0") })).toBe(
+      "bnb1qzc0v2q7u6484czzal6ncuvqmg9fae8n2xe2c6"
+    );
   });
 
   it("should generate another correct binance address", async () => {
-    expect(await 
-      wallet.binanceGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/714'/1337'/123/4") })
-    ).toBe("bnb14awl92k30hyhu36wjy6pg0trx3zlqrpfgsf3xk");
+    expect(await wallet.binanceGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/714'/1337'/123/4") })).toBe(
+      "bnb14awl92k30hyhu36wjy6pg0trx3zlqrpfgsf3xk"
+    );
   });
 
   it("should sign a transaction correctly", async () => {
@@ -255,10 +225,7 @@ describe("NativeBinanceWallet", () => {
         },
       })
     ).rejects.toThrowError();
-    expect(mswMock).toHaveBeenCalledWith(
-      "GET",
-      "https://dex.binance.org/api/v1/node-info"
-    );
+    expect(mswMock).toHaveBeenCalledWith("GET", "https://dex.binance.org/api/v1/node-info");
     mswMock.clear();
   });
 

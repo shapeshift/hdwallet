@@ -2,7 +2,7 @@ import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as hid from "node-hid";
 
 import { Device, TransportDelegate } from "./transport";
-import { VENDOR_ID, PRODUCT_ID } from "./utils";
+import { PRODUCT_ID, VENDOR_ID } from "./utils";
 
 export const HIDKeepKeyAdapterDelegate = {
   async inspectDevice(device: Device) {
@@ -19,6 +19,13 @@ export const HIDKeepKeyAdapterDelegate = {
     return (hid.devices().filter((d) => d.path !== undefined && d.serialNumber !== undefined) as Device[]).filter(
       (d) => d.vendorId === VENDOR_ID && d.productId === PRODUCT_ID
     );
+  },
+  async getDevice(serialNumber?: string): Promise<Device> {
+    const out = (await this.getDevices()).find(
+      serialNumber !== undefined ? (x) => x.serialNumber === serialNumber : () => true
+    );
+    if (!out) throw new Error("device not found");
+    return out;
   },
   async getTransportDelegate(device: Device) {
     return new TransportDelegate(device);

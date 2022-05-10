@@ -1,7 +1,7 @@
 /*
  Copied from portis: packages/portis-crypto/src/models/cipherString.ts
  */
-import { fromBufferToB64, fromB64ToArray } from "../utils";
+import { fromB64ToArray, fromBufferToB64 } from "../utils";
 import { EncryptedObject } from "./encryptedObject";
 import { EncryptionType } from "./encryptionType";
 import { SymmetricCryptoKey } from "./symmetricCryptoKey";
@@ -56,6 +56,6 @@ export class CipherString {
       iv: fromB64ToArray(this.iv),
       mac: fromB64ToArray(this.mac),
       key,
-    })
+    });
   }
 }

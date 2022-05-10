@@ -1,12 +1,24 @@
+/* eslint-disable jest/no-disabled-tests */
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import tx_unsigned from "./tx01.mainnet.osmosis.json";
-import tx_signed from "./tx01.mainnet.osmosis.json";
-
-//delgation
-import tx_signed_delegation from "./tx01.mainnet.osmosis.delegate.json";
-import tx_signed_undelegate_osmosis from "./tx01.mainnet.osmosis.undelegate.json";
-import tx_signed_rewards_osmosis from "./tx01.mainnet.osmosis.rewards.json";
+import tx_unsigned_delegation from "./tx01.mainnet.osmosis.delegate.json";
+import tx_signed_delegation from "./tx01.mainnet.osmosis.delegate.signed.json";
+import tx_unsigned_lp_add_osmosis from "./tx01.mainnet.osmosis.lp-add.json";
+import tx_signed_lp_add_osmosis from "./tx01.mainnet.osmosis.lp-add.signed.json";
+import tx_unsigned_lp_remove_osmosis from "./tx01.mainnet.osmosis.lp-remove.json";
+import tx_signed_lp_remove_osmosis from "./tx01.mainnet.osmosis.lp-remove.signed.json";
+import tx_unsigned_lp_stake_osmosis from "./tx01.mainnet.osmosis.lp-stake.json";
+import tx_signed_lp_stake_osmosis from "./tx01.mainnet.osmosis.lp-stake.signed.json";
+import tx_unsigned_lp_unstake_osmosis from "./tx01.mainnet.osmosis.lp-unstake.json";
+import tx_signed_lp_unstake_osmosis from "./tx01.mainnet.osmosis.lp-unstake.signed.json";
+import tx_unsigned_redelegate_osmosis from "./tx01.mainnet.osmosis.redelegate.json";
+import tx_signed_redelegate_osmosis from "./tx01.mainnet.osmosis.redelegate.signed.json";
+import tx_unsigned_rewards_osmosis from "./tx01.mainnet.osmosis.rewards.json";
+import tx_signed_rewards_osmosis from "./tx01.mainnet.osmosis.rewards.signed.json";
+import tx_unsigned_transfer from "./tx01.mainnet.osmosis.transfer.json";
+import tx_signed_transfer from "./tx01.mainnet.osmosis.transfer.signed.json";
+import tx_unigned_undelegate_osmosis from "./tx01.mainnet.osmosis.undelegate.json";
+import tx_signed_undelegate_osmosis from "./tx01.mainnet.osmosis.undelegate.signed.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
@@ -21,7 +33,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
   describe("Osmosis", () => {
     beforeAll(async () => {
       const { wallet: w } = get();
-      if (core.supportsOsmosis(w)){
+      if (core.supportsOsmosis(w)) {
         wallet = w;
       }
     });
@@ -66,16 +78,15 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       async () => {
         if (!wallet) return;
         const input: core.OsmosisSignTx = {
-          tx: (tx_unsigned as unknown) as any,
+          tx: tx_unsigned_transfer as unknown as any,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
-          chain_id: "osmosis-1",
-          account_number: "16354",
-          sequence: "5",
+          chain_id: tx_unsigned_transfer.chain_id,
+          account_number: tx_unsigned_transfer.account_number,
+          sequence: tx_unsigned_transfer.sequence,
         };
 
         const res = await wallet.osmosisSignTx(input);
-        console.log("res?.signatures?.[0].signature: ", res?.signatures?.[0].signature)
-        expect(res?.signatures?.[0].signature).toEqual((tx_signed.signatures as core.Osmosis.StdSignature[])[0].signature);
+        expect(res).toEqual(tx_signed_transfer);
       },
       TIMEOUT
     );
@@ -86,37 +97,53 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       async () => {
         if (!wallet) return;
         const input: core.OsmosisSignTx = {
-          tx: (tx_signed_delegation as unknown) as any,
+          tx: tx_unsigned_delegation as unknown as any,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
-          chain_id: "osmosis-1",
-          account_number: "16354",
-          sequence: "5",
+          chain_id: tx_unsigned_delegation.chain_id,
+          account_number: tx_unsigned_delegation.account_number,
+          sequence: tx_unsigned_delegation.sequence,
         };
 
         const res = await wallet.osmosisSignTx(input);
-        // @ts-ignore
-        expect(res?.signatures?.[0].signature).toEqual(tx_signed_delegation.signatures[0].signature);
+        expect(res).toEqual(tx_signed_delegation);
       },
       TIMEOUT
     );
 
     //undelegate
-    test(
-      "(undelegate) osmosisSignTx() dfgdfghdfghdfghfgdhfg",
+    test.skip(
+      "(undelegate) osmosisSignTx()",
       async () => {
         if (!wallet) return;
         const input: core.OsmosisSignTx = {
-          tx: tx_signed_undelegate_osmosis,
+          tx: tx_unigned_undelegate_osmosis as unknown as any,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
-          chain_id: "osmosis-1",
-          account_number: "16354",
-          sequence: "5",
+          chain_id: tx_unigned_undelegate_osmosis.chain_id,
+          account_number: tx_unigned_undelegate_osmosis.account_number,
+          sequence: tx_unigned_undelegate_osmosis.sequence,
         };
 
         const res = await wallet.osmosisSignTx(input);
-        console.log("hdwallet: ",res)
-        console.log("file: ",tx_signed_undelegate_osmosis)
-        expect(res?.signatures?.[0].signature).toEqual(tx_signed_undelegate_osmosis.signatures[0].signature);
+        expect(res).toEqual(tx_signed_undelegate_osmosis);
+      },
+      TIMEOUT
+    );
+
+    //redelegate
+    test(
+      "(redelegate) osmosisSignTx()",
+      async () => {
+        if (!wallet) return;
+        const input: core.OsmosisSignTx = {
+          tx: tx_unsigned_redelegate_osmosis as unknown as any,
+          addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
+          chain_id: tx_unsigned_redelegate_osmosis.chain_id,
+          account_number: tx_unsigned_redelegate_osmosis.account_number,
+          sequence: tx_unsigned_redelegate_osmosis.sequence,
+        };
+
+        const res = await wallet.osmosisSignTx(input);
+        expect(res).toEqual(tx_signed_redelegate_osmosis);
       },
       TIMEOUT
     );
@@ -127,29 +154,92 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       async () => {
         if (!wallet) return;
         const input: core.OsmosisSignTx = {
-          tx: tx_signed_rewards_osmosis,
+          tx: tx_unsigned_rewards_osmosis as unknown as any,
           addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
-          chain_id: "osmosis-1",
-          account_number: "16354",
-          sequence: "5",
+          chain_id: tx_unsigned_rewards_osmosis.chain_id,
+          account_number: tx_unsigned_rewards_osmosis.account_number,
+          sequence: tx_unsigned_rewards_osmosis.sequence,
         };
 
         const res = await wallet.osmosisSignTx(input);
-        console.log("hdwallet: ",res)
-        console.log("file: ",tx_signed_rewards_osmosis)
-        expect(res?.signatures?.[0].signature).toEqual(tx_signed_rewards_osmosis.signatures[0].signature);
+        expect(res).toEqual(tx_signed_rewards_osmosis);
       },
       TIMEOUT
     );
-    //ibc deposit
-
-    //ibc withdrawal
 
     //lp add
+    test.skip(
+      "(lp add) osmosisSignTx()",
+      async () => {
+        if (!wallet) return;
+        const input: core.OsmosisSignTx = {
+          tx: tx_unsigned_lp_add_osmosis as unknown as any,
+          addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
+          chain_id: tx_unsigned_lp_add_osmosis.chain_id,
+          account_number: tx_unsigned_lp_add_osmosis.account_number,
+          sequence: tx_unsigned_lp_add_osmosis.sequence,
+        };
+
+        const res = await wallet.osmosisSignTx(input);
+        expect(res).toEqual(tx_signed_lp_add_osmosis);
+      },
+      TIMEOUT
+    );
+
+    test(
+      "(lp remove) osmosisSignTx()",
+      async () => {
+        if (!wallet) return;
+        const input: core.OsmosisSignTx = {
+          tx: tx_unsigned_lp_remove_osmosis as unknown as any,
+          addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
+          chain_id: tx_unsigned_lp_remove_osmosis.chain_id,
+          account_number: tx_unsigned_lp_remove_osmosis.account_number,
+          sequence: tx_unsigned_lp_remove_osmosis.sequence,
+        };
+
+        const res = await wallet.osmosisSignTx(input);
+        expect(res).toEqual(tx_signed_lp_remove_osmosis);
+      },
+      TIMEOUT
+    );
 
     //lp stake
+    test.skip(
+      "(lp stake) osmosisSignTx()",
+      async () => {
+        if (!wallet) return;
+        const input: core.OsmosisSignTx = {
+          tx: tx_unsigned_lp_stake_osmosis as unknown as any,
+          addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
+          chain_id: tx_unsigned_lp_stake_osmosis.chain_id,
+          account_number: tx_unsigned_lp_stake_osmosis.account_number,
+          sequence: tx_unsigned_lp_stake_osmosis.sequence,
+        };
 
+        const res = await wallet.osmosisSignTx(input);
+        expect(res).toEqual(tx_signed_lp_stake_osmosis);
+      },
+      TIMEOUT
+    );
 
+    //lp unstake
+    test.skip(
+      "(lp unstake) osmosisSignTx()",
+      async () => {
+        if (!wallet) return;
+        const input: core.OsmosisSignTx = {
+          tx: tx_unsigned_lp_unstake_osmosis as unknown as any,
+          addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
+          chain_id: tx_unsigned_lp_unstake_osmosis.chain_id,
+          account_number: tx_unsigned_lp_unstake_osmosis.account_number,
+          sequence: tx_unsigned_lp_unstake_osmosis.sequence,
+        };
 
+        const res = await wallet.osmosisSignTx(input);
+        expect(res).toEqual(tx_signed_lp_unstake_osmosis);
+      },
+      TIMEOUT
+    );
   });
 }

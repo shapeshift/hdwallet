@@ -5,4 +5,4 @@ for (const key of Object.keys(Object.getOwnPropertyDescriptors(actual))) {
   mock[key] = actual[key];
 }
 module.exports = mock as typeof actual;
-export {}
+export {};

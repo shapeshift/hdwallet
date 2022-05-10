@@ -1,7 +1,9 @@
-import Portis from "@portis/web3";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import PLazy from "p-lazy";
 
 import { PortisHDWallet } from "./portis";
+
+const Portis = PLazy.from(async () => (await import("@portis/web3")).default);
 
 type PortisWallet = any;
 
@@ -29,7 +31,7 @@ export class PortisAdapter {
     return Object.keys(this.keyring.wallets).length;
   }
 
-  public async pairDevice(): Promise<core.HDWallet> {
+  public async pairDevice(): Promise<PortisHDWallet> {
     try {
       const wallet = await this.pairPortisDevice();
       this.portis.onActiveWalletChanged(async (wallAddr: string) => {
@@ -59,8 +61,8 @@ export class PortisAdapter {
     }
   }
 
-  private async pairPortisDevice(): Promise<core.HDWallet> {
-    this.portis = new Portis(this.portisAppId, "mainnet");
+  private async pairPortisDevice(): Promise<PortisHDWallet> {
+    this.portis = new (await Portis)(this.portisAppId, "mainnet");
     const wallet = new PortisHDWallet(this.portis);
     await wallet.initialize();
     const deviceId = await wallet.getDeviceID();

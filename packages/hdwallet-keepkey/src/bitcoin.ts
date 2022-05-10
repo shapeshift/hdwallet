@@ -1,13 +1,12 @@
 import * as Exchange from "@keepkey/device-protocol/lib/exchange_pb";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
-import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bitcoinjs from "@shapeshiftoss/bitcoinjs-lib";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import { thaw } from "icepick";
 
 import { Transport } from "./transport";
 import { toUTF8Array, translateInputScriptType, translateOutputScriptType } from "./utils";
-
-import { thaw } from "icepick";
 
 // FIXME: load this from the device's coin table, or from some static features
 // table... instead of, you know, adding another God-forsaken coin table.
@@ -78,7 +77,7 @@ function prepareSignTx(
       const signedExchange = Exchange.SignedExchangeResponse.deserializeBinary(core.arrayify(signedHex));
 
       // decode the deposit amount from a little-endian Uint8Array into an unsigned uint64
-      let depAmt = core.mustBeDefined(signedExchange.getResponsev2()).getDepositAmount_asU8();
+      const depAmt = core.mustBeDefined(signedExchange.getResponsev2()).getDepositAmount_asU8();
       let val = 0;
       for (let jj = depAmt.length - 1; jj >= 0; jj--) {
         val += depAmt[jj] * Math.pow(2, 8 * (depAmt.length - jj - 1));
@@ -150,7 +149,7 @@ function prepareSignTx(
           },
           sequence: input.sequence,
         })),
-        vout: tx.outs.map((output, i) => ({
+        vout: tx.outs.map((output) => ({
           value: String(output.value),
           scriptPubKey: {
             hex: output.script.toString("hex"),
@@ -189,7 +188,7 @@ function prepareSignTx(
     });
 
     if (coin === "Dash") {
-      let dip2_type: number = prevTx.type || 0;
+      const dip2_type: number = prevTx.type || 0;
       // DIP2 Special Tx with payload
       if (prevTx.version === 3 && dip2_type !== 0) {
         if (!prevTx.extraPayload) throw new Error("Payload missing in DIP2 transaction");
@@ -275,13 +274,9 @@ export async function btcGetAddress(
   addr.setShowDisplay(msg.showDisplay || false);
   addr.setScriptType(translateInputScriptType(msg.scriptType || core.BTCInputScriptType.SpendAddress));
 
-  const response = await transport.call(
-    Messages.MessageType.MESSAGETYPE_GETADDRESS,
-    addr,
-    {
-      msgTimeout: core.LONG_TIMEOUT,
-    }
-  );
+  const response = await transport.call(Messages.MessageType.MESSAGETYPE_GETADDRESS, addr, {
+    msgTimeout: core.LONG_TIMEOUT,
+  });
 
   if (response.message_type === core.Events.CANCEL) throw response;
 
@@ -331,39 +326,41 @@ export async function btcSignTx(
 
     let responseType: number | undefined;
     let response: any;
-    const { message_enum, proto } = await transport.call(
-      Messages.MessageType.MESSAGETYPE_SIGNTX,
-      tx,
-      {
-        msgTimeout: core.LONG_TIMEOUT,
-        omitLock: true,
-      }
-    ); // 5 Minute timeout
+    const { message_enum, proto } = await transport.call(Messages.MessageType.MESSAGETYPE_SIGNTX, tx, {
+      msgTimeout: core.LONG_TIMEOUT,
+      omitLock: true,
+    }); // 5 Minute timeout
     responseType = message_enum;
     response = proto;
     // Prepare structure for signatures
     const signatures: (string | null)[] = new Array(msg.inputs.length).fill(null);
-    let serializedTx: string = "";
+    let serializedTx = "";
 
     try {
       // Begin callback loop
+      // eslint-disable-next-line no-constant-condition
       while (true) {
         if (responseType !== Messages.MessageType.MESSAGETYPE_TXREQUEST) {
           throw new Error(`Unexpected message type: ${responseType}`);
         }
 
-        let txRequest = response as Messages.TxRequest;
+        const txRequest = response as Messages.TxRequest;
 
         // If there's some part of signed transaction, add it
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         if (txRequest.hasSerialized() && txRequest.getSerialized()!.hasSerializedTx()) {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           serializedTx += core.toHexString(txRequest.getSerialized()!.getSerializedTx_asU8());
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         if (txRequest.hasSerialized() && txRequest.getSerialized()!.hasSignatureIndex()) {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const sigIdx = txRequest.getSerialized()!.getSignatureIndex()!;
           if (signatures[sigIdx] !== null) {
             throw new Error(`Signature for index ${sigIdx} already filled`);
           }
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           signatures[sigIdx] = core.toHexString(txRequest.getSerialized()!.getSignature_asU8());
         }
 
@@ -373,13 +370,15 @@ export async function btcSignTx(
         }
 
         let currentTx: Types.TransactionType;
-        let msg: Types.TransactionType;
+        let currentMsg: Types.TransactionType;
         let txAck: Messages.TxAck;
 
         // Device asked for one more information, let's process it.
         if (!txRequest.hasDetails()) throw new Error("expected details");
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const reqDetails = txRequest.getDetails()!;
 
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         if (!reqDetails!.hasTxHash()) {
           currentTx = txmap["unsigned"];
         } else {
@@ -387,30 +386,29 @@ export async function btcSignTx(
         }
 
         if (txRequest.getRequestType() === Types.RequestType.TXMETA) {
-          msg = new Types.TransactionType();
-          if (currentTx.hasVersion()) msg.setVersion(currentTx.getVersion()!);
-          if (currentTx.hasLockTime()) msg.setLockTime(currentTx.getLockTime()!);
-          if (currentTx.hasInputsCnt()) msg.setInputsCnt(currentTx.getInputsCnt()!);
+          currentMsg = new Types.TransactionType();
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          if (currentTx.hasVersion()) currentMsg.setVersion(currentTx.getVersion()!);
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          if (currentTx.hasLockTime()) currentMsg.setLockTime(currentTx.getLockTime()!);
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          if (currentTx.hasInputsCnt()) currentMsg.setInputsCnt(currentTx.getInputsCnt()!);
           if (reqDetails.hasTxHash()) {
-            msg.setOutputsCnt(currentTx.getBinOutputsList().length);
+            currentMsg.setOutputsCnt(currentTx.getBinOutputsList().length);
           } else {
-            msg.setOutputsCnt(currentTx.getOutputsList().length);
+            currentMsg.setOutputsCnt(currentTx.getOutputsList().length);
           }
           if (currentTx.hasExtraData()) {
-            msg.setExtraDataLen(currentTx.getExtraData_asU8().length);
+            currentMsg.setExtraDataLen(currentTx.getExtraData_asU8().length);
           } else {
-            msg.setExtraDataLen(0);
+            currentMsg.setExtraDataLen(0);
           }
           txAck = new Messages.TxAck();
-          txAck.setTx(msg);
-          const message = await transport.call(
-            Messages.MessageType.MESSAGETYPE_TXACK,
-            txAck,
-            {
-              msgTimeout: core.LONG_TIMEOUT,
-              omitLock: true,
-            }
-          ); // 5 Minute timeout
+          txAck.setTx(currentMsg);
+          const message = await transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, {
+            msgTimeout: core.LONG_TIMEOUT,
+            omitLock: true,
+          }); // 5 Minute timeout
           responseType = message.message_enum;
           response = message.proto;
           continue;
@@ -418,19 +416,16 @@ export async function btcSignTx(
 
         if (txRequest.getRequestType() === Types.RequestType.TXINPUT) {
           if (!reqDetails.hasRequestIndex()) throw new Error("expected request index");
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const reqIndex = reqDetails.getRequestIndex()!;
-          msg = new Types.TransactionType();
-          msg.setInputsList([currentTx.getInputsList()[reqIndex]]);
+          currentMsg = new Types.TransactionType();
+          currentMsg.setInputsList([currentTx.getInputsList()[reqIndex]]);
           txAck = new Messages.TxAck();
-          txAck.setTx(msg);
-          const message = await transport.call(
-            Messages.MessageType.MESSAGETYPE_TXACK,
-            txAck,
-            {
-              msgTimeout: core.LONG_TIMEOUT,
-              omitLock: true,
-            }
-          ); // 5 Minute timeout
+          txAck.setTx(currentMsg);
+          const message = await transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, {
+            msgTimeout: core.LONG_TIMEOUT,
+            omitLock: true,
+          }); // 5 Minute timeout
           responseType = message.message_enum;
           response = message.proto;
           continue;
@@ -438,24 +433,21 @@ export async function btcSignTx(
 
         if (txRequest.getRequestType() === Types.RequestType.TXOUTPUT) {
           if (!reqDetails.hasRequestIndex()) throw new Error("expected request index");
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const reqIndex = reqDetails.getRequestIndex()!;
-          msg = new Types.TransactionType();
+          currentMsg = new Types.TransactionType();
           if (reqDetails.hasTxHash()) {
-            msg.setBinOutputsList([currentTx.getBinOutputsList()[reqIndex]]);
+            currentMsg.setBinOutputsList([currentTx.getBinOutputsList()[reqIndex]]);
           } else {
-            msg.setOutputsList([currentTx.getOutputsList()[reqIndex]]);
-            msg.setOutputsCnt(1);
+            currentMsg.setOutputsList([currentTx.getOutputsList()[reqIndex]]);
+            currentMsg.setOutputsCnt(1);
           }
           txAck = new Messages.TxAck();
-          txAck.setTx(msg);
-          const message = await transport.call(
-            Messages.MessageType.MESSAGETYPE_TXACK,
-            txAck,
-            {
-              msgTimeout: core.LONG_TIMEOUT,
-              omitLock: true,
-            }
-          ); // 5 Minute timeout
+          txAck.setTx(currentMsg);
+          const message = await transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, {
+            msgTimeout: core.LONG_TIMEOUT,
+            omitLock: true,
+          }); // 5 Minute timeout
           responseType = message.message_enum;
           response = message.proto;
           continue;
@@ -464,20 +456,18 @@ export async function btcSignTx(
         if (txRequest.getRequestType() === Types.RequestType.TXEXTRADATA) {
           if (!reqDetails.hasExtraDataOffset() || !reqDetails.hasExtraDataLen())
             throw new Error("missing extra data offset and length");
-          let offset = reqDetails.getExtraDataOffset()!;
-          let length = reqDetails.getExtraDataLen()!;
-          msg = new Types.TransactionType();
-          msg.setExtraData(currentTx.getExtraData_asU8().slice(offset, offset + length));
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const offset = reqDetails.getExtraDataOffset()!;
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const length = reqDetails.getExtraDataLen()!;
+          currentMsg = new Types.TransactionType();
+          currentMsg.setExtraData(currentTx.getExtraData_asU8().slice(offset, offset + length));
           txAck = new Messages.TxAck();
-          txAck.setTx(msg);
-          const message = await transport.call(
-            Messages.MessageType.MESSAGETYPE_TXACK,
-            txAck,
-            {
-              msgTimeout: core.LONG_TIMEOUT,
-              omitLock: true,
-            }
-          ); // 5 Minute timeout
+          txAck.setTx(currentMsg);
+          const message = await transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, {
+            msgTimeout: core.LONG_TIMEOUT,
+            omitLock: true,
+          }); // 5 Minute timeout
           responseType = message.message_enum;
           response = message.proto;
           continue;
@@ -518,13 +508,9 @@ export async function btcSignMessage(
   sign.setMessage(toUTF8Array(msg.message));
   sign.setCoinName(msg.coin || "Bitcoin");
   sign.setScriptType(translateInputScriptType(msg.scriptType ?? core.BTCInputScriptType.SpendAddress));
-  const event = await transport.call(
-    Messages.MessageType.MESSAGETYPE_SIGNMESSAGE,
-    sign,
-    {
-      msgTimeout: core.LONG_TIMEOUT,
-    }
-  );
+  const event = await transport.call(Messages.MessageType.MESSAGETYPE_SIGNMESSAGE, sign, {
+    msgTimeout: core.LONG_TIMEOUT,
+  });
   const messageSignature = event.proto as Messages.MessageSignature;
   const address = messageSignature.getAddress();
   if (!address) throw new Error("btcSignMessage failed");

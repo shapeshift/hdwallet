@@ -11,8 +11,8 @@ export function isLedger(wallet: core.HDWallet): wallet is LedgerHDWallet {
 }
 
 function describeETHPath(path: core.BIP32Path): core.PathDescription {
-  let pathStr = core.addressNListToBIP32(path);
-  let unknown: core.PathDescription = {
+  const pathStr = core.addressNListToBIP32(path);
+  const unknown: core.PathDescription = {
     verbose: pathStr,
     coin: "Ethereum",
     isKnown: false,
@@ -54,8 +54,8 @@ function describeETHPath(path: core.BIP32Path): core.PathDescription {
 }
 
 function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: core.BTCInputScriptType) {
-  let pathStr = core.addressNListToBIP32(path);
-  let unknown: core.PathDescription = {
+  const pathStr = core.addressNListToBIP32(path);
+  const unknown: core.PathDescription = {
     verbose: pathStr,
     coin,
     scriptType,
@@ -70,7 +70,7 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
 
   if ((path[0] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
 
-  let purpose = path[0] & 0x7fffffff;
+  const purpose = path[0] & 0x7fffffff;
 
   if (![44, 49, 84].includes(purpose)) return unknown;
 
@@ -83,7 +83,7 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
   const slip44 = core.slip44ByCoin(coin);
   if (slip44 === undefined || path[1] !== 0x80000000 + slip44) return unknown;
 
-  let wholeAccount = path.length === 3;
+  const wholeAccount = path.length === 3;
 
   let script = scriptType
     ? (
@@ -105,7 +105,7 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
       script = "";
   }
 
-  let accountIdx = path[2] & 0x7fffffff;
+  const accountIdx = path[2] & 0x7fffffff;
 
   if (wholeAccount) {
     return {
@@ -118,8 +118,8 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
       isPrefork: false,
     };
   } else {
-    let change = path[3] == 1 ? "Change " : "";
-    let addressIdx = path[4];
+    const change = path[3] == 1 ? "Change " : "";
+    const addressIdx = path[4];
     return {
       verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${script}`,
       coin,
@@ -186,6 +186,7 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     return eth.ethGetAccountPaths(msg);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return false;
   }
@@ -224,12 +225,12 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
   }
 
   public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    let description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType);
+    const description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType);
     if (!description.isKnown) {
       return undefined;
     }
 
-    let addressNList = msg.addressNList;
+    const addressNList = msg.addressNList;
 
     if (
       addressNList[0] === 0x80000000 + 44 ||
@@ -247,8 +248,8 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
   }
 
   public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
-    let addressNList = msg.hardenedPath.concat(msg.relPath);
-    let description = describeETHPath(addressNList);
+    const addressNList = msg.hardenedPath.concat(msg.relPath);
+    const description = describeETHPath(addressNList);
     if (!description.isKnown) {
       return undefined;
     }
@@ -291,7 +292,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
 
-  _isLedger: boolean = true;
+  _isLedger = true;
 
   transport: LedgerTransport;
   info: LedgerHDWalletInfo & core.HDWalletInfo;
@@ -312,10 +313,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async getDeviceID(): Promise<string> {
-    const {
-      device: { serialNumber: deviceID },
-    } = this.transport as any;
-    return deviceID;
+    return this.transport.getDeviceID();
   }
 
   public async getFeatures(): Promise<any> {
@@ -327,7 +325,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   /**
    * Validate if a specific app is open
    * Throws WrongApp error if app associated with coin is not open
-   * @param coin  Name of coin for app name lookup
+   * @param coin  Name of coin for app name lookup ie "BitcoinCash"
    */
   public async validateCurrentApp(coin?: core.Coin): Promise<void> {
     if (!coin) {
@@ -396,7 +394,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
       payload: { name },
     } = res;
 
-    const btcApps = new Set(btc.supportedCoins.map(x => coinToLedgerAppName(x)).filter(x => x !== undefined))
+    const btcApps = new Set(btc.supportedCoins.map((x) => coinToLedgerAppName(x)).filter((x) => x !== undefined));
     if (btcApps.has(name)) return btc.btcGetPublicKeys(this.transport, msg);
 
     switch (name) {
@@ -407,6 +405,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return false;
   }
@@ -435,6 +434,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return true;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async loadDevice(msg: core.LoadDevice): Promise<void> {
     return;
   }
@@ -448,26 +448,32 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async recover(msg: core.RecoverDevice): Promise<void> {
     return;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async reset(msg: core.ResetDevice): Promise<void> {
     return;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendCharacter(character: string): Promise<void> {
     return;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendPassphrase(passphrase: string): Promise<void> {
     return;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendPin(pin: string): Promise<void> {
     return;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendWord(word: string): Promise<void> {
     return;
   }

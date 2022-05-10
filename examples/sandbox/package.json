@@ -1,33 +1,38 @@
 {
   "name": "hdwallet-sandbox",
-  "version": "1.18.4",
-  "main": "index.js",
+  "version": "1.21.1",
   "license": "MIT",
   "private": true,
+  "browserslist": "> 0.5%, last 2 versions, not dead",
   "scripts": {
-    "build": "yarn parcel build index.html --out-dir public",
+    "build": "rm -rf public; yarn parcel build index.html --dist-dir public",
     "dev": "yarn parcel index.html",
-    "clean": "rm -rf dist .cache"
+    "clean": "rm -rf public .parcel-cache"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "1.18.4",
-    "@shapeshiftoss/hdwallet-keepkey-tcp": "1.18.4",
-    "@shapeshiftoss/hdwallet-keepkey-webusb": "1.18.4",
-    "@shapeshiftoss/hdwallet-ledger": "1.18.4",
-    "@shapeshiftoss/hdwallet-ledger-webusb": "1.18.4",
-    "@shapeshiftoss/hdwallet-metamask": "1.18.4",
-    "@shapeshiftoss/hdwallet-native": "1.18.4",
-    "@shapeshiftoss/hdwallet-portis": "1.18.4",
-    "@shapeshiftoss/hdwallet-trezor": "1.18.4",
-    "@shapeshiftoss/hdwallet-trezor-connect": "1.18.4",
+    "@shapeshiftoss/hdwallet-core": "1.21.1",
+    "@shapeshiftoss/hdwallet-keepkey-tcp": "1.21.1",
+    "@shapeshiftoss/hdwallet-keepkey-webusb": "1.21.1",
+    "@shapeshiftoss/hdwallet-ledger": "1.21.1",
+    "@shapeshiftoss/hdwallet-ledger-webhid": "1.21.1",
+    "@shapeshiftoss/hdwallet-ledger-webusb": "1.21.1",
+    "@shapeshiftoss/hdwallet-metamask": "1.21.1",
+    "@shapeshiftoss/hdwallet-native": "1.21.1",
+    "@shapeshiftoss/hdwallet-portis": "1.21.1",
+    "@shapeshiftoss/hdwallet-trezor": "1.21.1",
+    "@shapeshiftoss/hdwallet-trezor-connect": "1.21.1",
+    "@shapeshiftoss/hdwallet-xdefi": "1.21.1",
     "bip32": "^2.0.4",
-    "debug": "^4.1.1",
     "jquery": "^3.4.1",
     "json": "^9.0.6",
-    "parcel-bundler": "^1.12.4",
+    "parcel": "^2.3.2",
     "web3": "^1.5.1"
   },
   "devDependencies": {
-    "@types/debug": "^4.1.2"
+    "https-browserify": "^1.0.0",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
+    "querystring-es3": "^0.2.1",
+    "stream-http": "^3.2.0"
   }
 }

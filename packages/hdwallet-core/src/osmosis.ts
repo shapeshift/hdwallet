@@ -6,6 +6,7 @@ export interface OsmosisGetAddress {
   showDisplay?: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Osmosis {
   export interface Msg {
     type: string;
@@ -24,6 +25,7 @@ export namespace Osmosis {
     gas: string;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace crypto {
     export interface PubKey {
       type: string;
@@ -60,7 +62,12 @@ export interface OsmosisSignTx {
   fee?: number;
 }
 
-export type OsmosisSignedTx = OsmosisTx;
+export interface OsmosisSignedTx {
+  serialized: string;
+  body: string;
+  authInfoBytes: string;
+  signatures: string[];
+}
 
 export interface OsmosisGetAccountPaths {
   accountIdx: number;
@@ -93,8 +100,8 @@ export interface OsmosisWallet extends OsmosisWalletInfo, HDWallet {
 }
 
 export function osmosisDescribePath(path: BIP32Path): PathDescription {
-  let pathStr = addressNListToBIP32(path);
-  let unknown: PathDescription = {
+  const pathStr = addressNListToBIP32(path);
+  const unknown: PathDescription = {
     verbose: pathStr,
     coin: "Atom",
     isKnown: false,
@@ -120,7 +127,7 @@ export function osmosisDescribePath(path: BIP32Path): PathDescription {
     return unknown;
   }
 
-  let index = path[2] & 0x7fffffff;
+  const index = path[2] & 0x7fffffff;
   return {
     verbose: `Osmosis Account #${index}`,
     accountIdx: index,

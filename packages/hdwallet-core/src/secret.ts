@@ -7,6 +7,7 @@ export interface SecretGetAddress {
   testnet?: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Secret {
   export interface Msg {
     type: string;
@@ -25,6 +26,7 @@ export namespace Secret {
     gas: string;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace crypto {
     export interface PubKey {
       type: string;
@@ -96,8 +98,8 @@ export interface SecretWallet extends SecretWalletInfo, HDWallet {
 }
 
 export function secretDescribePath(path: BIP32Path): PathDescription {
-  let pathStr = addressNListToBIP32(path);
-  let unknown: PathDescription = {
+  const pathStr = addressNListToBIP32(path);
+  const unknown: PathDescription = {
     verbose: pathStr,
     coin: "Secret",
     isKnown: false,
@@ -123,7 +125,7 @@ export function secretDescribePath(path: BIP32Path): PathDescription {
     return unknown;
   }
 
-  let index = path[2] & 0x7fffffff;
+  const index = path[2] & 0x7fffffff;
   return {
     verbose: `Secret Account #${index}`,
     accountIdx: index,

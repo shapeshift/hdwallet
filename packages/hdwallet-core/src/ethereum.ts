@@ -1,5 +1,5 @@
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
-import { ExchangeType, BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
+import { BIP32Path, ExchangeType, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
 export enum ETHTransactionType {
   ETH_TX_TYPE_LEGACY = 0,
@@ -31,19 +31,13 @@ export interface ETHGetAddress {
   showDisplay?: boolean;
 }
 
-export interface ETHSignTx {
+export type ETHSignTx = {
   /** bip32 path to sign the transaction from */
   addressNList: BIP32Path;
   /** big-endian hex, prefixed with '0x' */
   nonce: string;
   /** big-endian hex, prefixed with '0x' */
-  gasPrice?: string;
-  /** big-endian hex, prefixed with '0x' */
   gasLimit: string;
-  /** EIP-1559 - The maximum total fee per gas the sender is willing to pay. <=256 bit unsigned big endian (in wei) */
-  maxFeePerGas?: string;
-  /** EIP-1559 - Maximum fee per gas the sender is willing to pay to miners. <=256 bit unsigned big endian (in wei) */
-  maxPriorityFeePerGas?: string;
   /** address, with '0x' prefix */
   to: string;
   /** bip32 path for destination (device must `ethSupportsSecureTransfer()`) */
@@ -58,7 +52,21 @@ export interface ETHSignTx {
    * Device must `ethSupportsNativeShapeShift()`
    */
   exchangeType?: ExchangeType;
-}
+} & (
+  | {
+      /** big-endian hex, prefixed with '0x' */
+      gasPrice: string;
+      maxFeePerGas?: never;
+      maxPriorityFeePerGas?: never;
+    }
+  | {
+      gasPrice?: never;
+      /** EIP-1559 - The maximum total fee per gas the sender is willing to pay. <=256 bit unsigned big endian (in wei) */
+      maxFeePerGas?: string;
+      /** EIP-1559 - Maximum fee per gas the sender is willing to pay to miners. <=256 bit unsigned big endian (in wei) */
+      maxPriorityFeePerGas?: string;
+    }
+);
 
 export interface ETHTxHash {
   hash: string;
@@ -142,8 +150,8 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
 }
 
 export function describeETHPath(path: BIP32Path): PathDescription {
-  let pathStr = addressNListToBIP32(path);
-  let unknown: PathDescription = {
+  const pathStr = addressNListToBIP32(path);
+  const unknown: PathDescription = {
     verbose: pathStr,
     coin: "Ethereum",
     isKnown: false,
@@ -161,7 +169,7 @@ export function describeETHPath(path: BIP32Path): PathDescription {
 
   if (path[4] !== 0) return unknown;
 
-  let index = path[2] & 0x7fffffff;
+  const index = path[2] & 0x7fffffff;
   return {
     verbose: `Ethereum Account #${index}`,
     accountIdx: index,

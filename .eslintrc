@@ -1,0 +1,82 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier",
+    "plugin:prettier/recommended",
+    "plugin:jest/recommended"
+  ],
+  "plugins": [
+    "@typescript-eslint",
+    "prettier",
+    "jest",
+    "simple-import-sort"
+  ],
+  "env": {
+    "node": true,
+    "browser": true,
+    "jest/globals": true
+  },
+  "globals": {
+    "process": "readonly"
+  },
+  "rules": {
+    "prettier/prettier": "error",
+    "no-console": [
+      "error",
+      {
+        "allow": [
+          "warn",
+          "error",
+          "info",
+          "debug",
+          "group",
+          "groupEnd",
+          "time",
+          "timeEnd"
+        ]
+      }
+    ],
+    "@typescript-eslint/no-use-before-define": "error",
+    "@typescript-eslint/no-shadow": [
+      "error"
+    ],
+    "jest/no-standalone-expect": [
+      "error",
+      {
+        "additionalTestBlockFunctions": [
+          "beforeAll",
+          "beforeEach",
+          "afterEach",
+          "afterAll"
+        ]
+      }
+    ],
+    // TODO: We need to fix these rules later
+    "@typescript-eslint/no-explicit-any": "off",
+    "simple-import-sort/imports": [
+      "error"
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/*.test.{j,t}s"
+      ],
+      "rules": {
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-var-requires": "off"
+      }
+    },
+    {
+      "files": [
+        "integration/**"
+      ],
+      "rules": {
+        "jest/no-export": "off"
+      }
+    }
+  ]
+}

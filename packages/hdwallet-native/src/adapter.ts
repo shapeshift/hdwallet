@@ -1,17 +1,20 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import * as native from "./native";
 import * as Isolation from "./crypto/isolation";
+import * as native from "./native";
 
 export type NativeAdapterArgs = {
   deviceId: string;
-} & ({
-  mnemonic?: string | Isolation.Core.BIP39.Mnemonic;
-  masterKey?: never;
-} | {
-  mnemonic?: never;
-  masterKey?: Isolation.Core.BIP32.Node;
-});
+} & (
+  | {
+      mnemonic?: string | Isolation.Core.BIP39.Mnemonic;
+      masterKey?: never;
+    }
+  | {
+      mnemonic?: never;
+      masterKey?: Isolation.Core.BIP32.Node;
+    }
+);
 
 export class NativeAdapter {
   keyring: core.Keyring;
@@ -28,7 +31,7 @@ export class NativeAdapter {
     return 0;
   }
 
-  async pairDevice(deviceId: string): Promise<core.HDWallet | null> {
+  async pairDevice(deviceId: string): Promise<native.NativeHDWallet | null> {
     let wallet: core.HDWallet | null = this.keyring.get(deviceId);
     if (!wallet && deviceId) {
       // If a wallet with that ID hasn't been added to the keychain, then create it
