@@ -1,8 +1,15 @@
-import detectEthereumProvider from "@metamask/detect-provider";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import TallyHoOnboarding from "tallyho-onboarding";
 
 import { TallyHoHDWallet } from "./tallyho";
+
+interface TallyHoEthereumProvider {
+  isTally?: boolean;
+}
+
+interface Window {
+  ethereum?: TallyHoEthereumProvider;
+}
 
 export class TallyHoAdapter {
   keyring: core.Keyring;
@@ -20,7 +27,7 @@ export class TallyHoAdapter {
   }
 
   public async pairDevice(): Promise<TallyHoHDWallet> {
-    const provider: any = await detectEthereumProvider({ mustBeMetaMask: false, silent: true, timeout: 3000 });
+    const provider: any = await this.detectTallyProvider();
     if (!provider) {
       const onboarding = new TallyHoOnboarding();
       onboarding.startOnboarding();
@@ -43,5 +50,44 @@ export class TallyHoAdapter {
     this.keyring.emit(["Tally Ho", deviceID, core.Events.CONNECT], deviceID);
 
     return wallet;
+  }
+
+  public async detectTallyProvider(): Promise<TallyHoEthereumProvider | null> {
+    let handled = false;
+
+    return new Promise((resolve) => {
+      if ((window as Window).ethereum) {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        handleEthereum();
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        window.addEventListener("ethereum#initialized", handleEthereum, { once: true });
+
+        setTimeout(() => {
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          handleEthereum();
+        }, 3000);
+      }
+
+      function handleEthereum() {
+        if (handled) {
+          return;
+        }
+        handled = true;
+
+        window.removeEventListener("ethereum#initialized", handleEthereum);
+
+        const { ethereum } = window as Window;
+
+        if (ethereum && ethereum.isTally) {
+          resolve(ethereum as unknown as TallyHoEthereumProvider);
+        } else {
+          const message = ethereum ? "Non-TallyHo window.ethereum detected." : "Unable to detect window.ethereum.";
+
+          console.error("hdwallet-tallyho: ", message);
+          resolve(null);
+        }
+      }
+    });
   }
 }

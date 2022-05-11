@@ -66,9 +66,9 @@ export function selfTest(get: () => core.HDWallet): void {
     expect(wallet.ethSupportsNativeShapeShift()).toEqual(false);
   });
 
-  it("does not support EIP1559", async () => {
+  it("does support EIP1559", async () => {
     if (!wallet) return;
-    expect(await wallet.ethSupportsEIP1559()).toEqual(false);
+    expect(await wallet.ethSupportsEIP1559()).toEqual(true);
   });
 
   it("does not support Secure Transfer", async () => {
@@ -88,7 +88,7 @@ export function selfTest(get: () => core.HDWallet): void {
           addressNList: core.bip32ToAddressNList(`m/44'/60'/${account}'/0/0`),
           hardenedPath: core.bip32ToAddressNList(`m/44'/60'/${account}'`),
           relPath: [0, 0],
-          description: "MetaMask",
+          description: "TallyHo",
         },
       ]);
       paths.forEach((path) => {
