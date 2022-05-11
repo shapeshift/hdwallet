@@ -60,6 +60,8 @@
     { "path": "./packages/hdwallet-portis" },
     { "path": "./packages/hdwallet-trezor" },
     { "path": "./packages/hdwallet-trezor-connect" },
-    { "path": "./packages/hdwallet-xdefi" }
+    { "path": "./packages/hdwallet-xdefi" },
+    { "path": "./packages/hdwallet-metamask" },
+    { "path": "./packages/hdwallet-keplr" }
   ]
 }

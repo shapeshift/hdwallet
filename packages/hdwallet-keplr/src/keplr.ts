@@ -1,19 +1,43 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as cosmos from "./cosmos";
+// import * as osmosis from "./osmosis";
+import { caip2, ChainId, ChainReference } from "@shapeshiftoss/caip";
+import { NetworkTypes } from "@shapeshiftoss/types";
 import _ from "lodash";
-import detectEthereumProvider from "@metamask/detect-provider";
-import { Window as KeplrWindow } from '@keplr-wallet/types'
+import { Window as KeplrWindow } from "@keplr-wallet/types";
+import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
+
+import { SigningCosmosClient } from "@cosmjs/launchpad";
+import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
+
+import { assertIsBroadcastTxSuccess, SigningStargateClient } from "@cosmjs/stargate";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
   interface Window extends KeplrWindow {}
 }
 
+/**
+ * @description
+ * @class KeplrTransport
+ * @extends {core.Transport}
+ */
 class KeplrTransport extends core.Transport {
+  /**
+   * @description
+   * @returns {*}
+   * @memberof KeplrTransport
+   */
   public async getDeviceID() {
-    return "metamask:0";
+    return "keplr:0";
   }
 
+  /**
+   * @description
+   * @param {...any[]} args
+   * @returns {*}  {Promise<any>}
+   * @memberof KeplrTransport
+   */
   public call(...args: any[]): Promise<any> {
     return Promise.resolve();
   }
@@ -25,75 +49,138 @@ export function isKeplr(wallet: core.HDWallet): wallet is KeplrHDWallet {
 
 type HasNonTrivialConstructor<T> = T extends { new (): any } ? never : T;
 
+/**
+ * @description
+ * @interface KeplrAddresses
+ */
+interface KeplrAddresses {
+  [index: string]: string | null;
+}
+
+interface KeplrWalletState {
+  addresses?: KeplrAddresses;
+    address?: string;
+    provider?: any;
+    offlineSigner?: any;
+    chainId?: string;
+
+}
+
+/**
+ * @description
+ * @export
+ * @class KeplrHDWallet
+ * @implements {core.HDWallet}
+ * @implements {core.CosmosWallet}
+ * @implements {core.OsmosisWallet}
+ */
 export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet {
-  readonly _supportsETH = true;
-  readonly _supportsETHInfo = true;
-  readonly _supportsBTCInfo = false;
-  readonly _supportsBTC = false;
-  readonly _supportsCosmosInfo = false;
-  readonly _supportsCosmos = false;
-  readonly _supportsOsmosisInfo = false;
-  readonly _supportsOsmosis = false;
-  readonly _supportsBinanceInfo = false;
-  readonly _supportsBinance = false;
-  readonly _supportsDebugLink = false;
-  readonly _isPortis = false;
   readonly _isKeplr = true;
-  readonly _supportsRippleInfo = false;
-  readonly _supportsRipple = false;
-  readonly _supportsEosInfo = false;
-  readonly _supportsEos = false;
-  readonly _supportsFioInfo = false;
-  readonly _supportsFio = false;
-  readonly _supportsThorchainInfo = false;
-  readonly _supportsThorchain = false;
-  readonly _supportsSecretInfo = false;
-  readonly _supportsSecret = false;
-  readonly _supportsKava = false;
-  readonly _supportsKavaInfo = false;
-  readonly _supportsTerra = false;
-  readonly _supportsTerraInfo = false;
+  readonly _supportsCosmos = true;
+  readonly _supportsCosmosInfo = true;
+  // readonly _supportsOsmosis = true;
+  // readonly _supportsOsmosisInfo = true;
 
   transport: core.Transport = new KeplrTransport(new core.Keyring());
   info: KeplrHDWalletInfo & core.HDWalletInfo;
-  cosmosAddress?: string | null;
-  provider: any;
+
+  state: KeplrWalletState = {};
 
   constructor() {
     this.info = new KeplrHDWalletInfo();
   }
 
+  /**
+   * @description
+   * @returns {*}  {Promise<Record<string, any>>}
+   * @memberof KeplrHDWallet
+   */
   async getFeatures(): Promise<Record<string, any>> {
     return {};
   }
 
+  /**
+   * @description
+   * @returns {*}  {Promise<boolean>}
+   * @memberof KeplrHDWallet
+   */
   public async isLocked(): Promise<boolean> {
-    return !this.provider.metamask.isUnlocked();
+    return this.state.provider.keplr.isLocked();
   }
 
+  /**
+   * @description
+   * @returns {*}  {string}
+   * @memberof KeplrHDWallet
+   */
   public getVendor(): string {
     return "Keplr";
   }
 
+  /**
+   * @description
+   * @returns {*}  {Promise<string>}
+   * @memberof KeplrHDWallet
+   */
   public getModel(): Promise<string> {
     return Promise.resolve("Keplr");
   }
 
+  /**
+   * @description
+   * @returns {*}  {Promise<string>}
+   * @memberof KeplrHDWallet
+   */
   public getLabel(): Promise<string> {
     return Promise.resolve("Keplr");
   }
 
-  public async initialize(): Promise<any> {
-      if(!window.keplr){
-        throw new Error("Keplr extension not installed.")
+  /**
+   * @description
+   * @param {ChainId} [chainId="cosmos:cosmoshub-4"]
+   * @returns {*}  {Promise<any>}
+   * @memberof KeplrHDWallet
+   */
+  public async initialize(chainId: ChainId = "cosmos:cosmoshub-4"): Promise<any> {
+    try {
+      if (!window.keplr) {
+        throw new Error("Keplr extension not installed.");
       }
-      const chainId = "cosmoshub-4";
-      await window.keplr.enable(chainId);
-      const offlineSigner = window.keplr.getOfflineSigner(chainId);
-      this.cosmosAddress = (await offlineSigner.getAccounts())[0].address;
-      this.provider = window.keplr
+      const assetData = caip2.fromCAIP2(chainId);
 
-    return Promise.resolve();
+      /**
+       * @todo: https://github.com/shapeshift/web/issues/1570 will break this code.
+       * Replace NetworkTypes in switch/case with CAIP equivalent.
+       */
+      switch (assetData.network) {
+        case NetworkTypes.COSMOSHUB_MAINNET || "" || undefined:
+          this.state.chainId = NetworkTypes.COSMOSHUB_MAINNET;
+          break;
+        case NetworkTypes.COSMOSHUB_VEGA:
+          this.state.chainId = NetworkTypes.COSMOSHUB_VEGA;
+          break;
+        // case NetworkTypes.OSMOSIS_MAINNET:
+        //   this.chainId = NetworkTypes.OSMOSIS_MAINNET;
+        //   break;
+        // case NetworkTypes.OSMOSIS_TESTNET:
+        //   this.chainId = NetworkTypes.OSMOSIS_TESTNET;
+        //   break;
+        default:
+          throw new Error(`Unsupported chainId: ${chainId}`);
+      }
+      await window.keplr.enable(this.state.chainId);
+      const offlineSigner = window.keplr.getOfflineSigner(this.state.chainId);
+      this.state.address = (await offlineSigner.getAccounts())[0].address;
+      // this.state.addresses.[this.state.chainId] = (await offlineSigner.getAccounts())[0].address;
+      this.state.provider = window.keplr;
+
+      return Promise.resolve();
+    } catch (error) {
+      /**
+       * @todo Use logger instead of console.error()
+       */
+      console.error("Error initializing Keplr", error);
+    }
   }
 
   public hasOnDevicePinEntry(): boolean {
@@ -117,7 +204,7 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet {
   }
 
   public supportsOfflineSigning(): boolean {
-    return false;
+    return true;
   }
 
   public supportsBroadcast(): boolean {
@@ -181,12 +268,15 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet {
   }
 
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
-    // Ethereum public keys are not exposed by the RPC API
-    return [];
+    const keys: Array<core.PublicKey | null> = [];
+    await this.state.provider.keplr.enable(this.state.chainId);
+    const offlineSigner = this.state.provider.keplr.getOfflineSigner(this.state.chainId);
+    keys.push({ xpub: Buffer.from((await offlineSigner.getAccounts())[0].pubkey).toString() });
+    return keys;
   }
 
   public async isInitialized(): Promise<boolean> {
-    if(!window.keplr){
+    if (!this.state.provider.keplr) {
       return false;
     }
     return true;
@@ -196,8 +286,8 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet {
     return Promise.resolve();
   }
 
-  public async cosmosSupportsNetwork(chainId: number = 1): Promise<boolean> {
-    return chainId === 1;
+  public async cosmosSupportsNetwork(chainId: number = 118): Promise<boolean> {
+    return chainId === 118;
   }
 
   public async cosmosSupportsSecureTransfer(): Promise<boolean> {
@@ -208,7 +298,6 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet {
     return false;
   }
 
-
   public cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
     return cosmos.cosmosGetAccountPaths(msg);
   }
@@ -217,37 +306,90 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet {
     return this.info.cosmosNextAccountPath(msg);
   }
 
+  /**
+   * @description
+   * @param {core.CosmosGetAddress} msg
+   * @returns {*}  {(Promise<string | null>)}
+   * @memberof KeplrHDWallet
+   */
   public async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string | null> {
-    if (this.cosmosAddress) {
-      return this.cosmosAddress;
+    const address = await cosmos.cosmosGetAddress(this.state.provider);
+    if(address){
+      this.state.address = address;
+    return address;
+
     }
-    const address = await cosmos.cosmosGetAddress(this.provider);
-    if (address) {
-      this.cosmosAddress = address;
-      return address;
-    } else {
-      this.cosmosAddress = null;
-      return null;
-    }
+    return null;
+
   }
 
   public async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
-    const address = await this.cosmosGetAddress(this.provider);
-    return address ? cosmos.cosmosSignTx(msg, this.provider, address) : null;
+    return cosmos.cosmosSignTx(msg, this.state);
+    // const address = await this.cosmosGetAddress(this.provider);
+    // return address ? cosmos.cosmosSignTx(msg, this.provider, address) : null;
   }
 
-  public async cosmosSendTx(msg: core.CosmosSignTx): Promise<core.CosmosTxHash | null> {
-    const address = await this.cosmosGetAddress(this.provider);
-    return address ? cosmos.cosmosSendTx(msg, this.provider, address) : null;
+  public async cosmosSendTx(msg: core.CosmosSignTx): Promise<string | null> {
+    const address = await this.cosmosGetAddress(this.state.provider);
+    return address ? cosmos.cosmosSendTx(msg, this.state) : null;
   }
 
-  public async cosmosSignMessage(msg: core.CosmosSignMessage): Promise<core.CosmosSignedMessage | null> {
-    const address = await this.cosmosGetAddress(this.provider);
-    return address ? cosmos.cosmosSignMessage(msg, this.provider, address) : null;
-  }
+  // public async cosmosSignMessage(msg: core.CosmosSignMessage): Promise<core.CosmosSignedMessage | null> {
+  //   const address = await this.cosmosGetAddress(this.provider);
+  //   return address ? cosmos.cosmosSignMessage(msg, this.provider, address) : null;
+  // }
+
+  // public async osmosisSupportsNetwork(chainId: number = 118): Promise<boolean> {
+  //   return chainId === 118;
+  // }
+
+  // public async osmosisSupportsSecureTransfer(): Promise<boolean> {
+  //   return false;
+  // }
+
+  // public osmosisSupportsNativeShapeShift(): boolean {
+  //   return false;
+  // }
+
+  // public osmosisGetAccountPaths(msg: core.OsmosisGetAccountPaths): Array<core.OsmosisAccountPath> {
+  //   return osmosis.osmosisGetAccountPaths(msg);
+  // }
+
+  // public osmosisNextAccountPath(msg: core.OsmosisAccountPath): core.OsmosisAccountPath | undefined {
+  //   return this.info.osmosisNextAccountPath(msg);
+  // }
+
+  // public async osmosisGetAddress(msg: core.OsmosisAddress): Promise<string | null> {
+  //   if (this.addresses[ChainReference.OsmosisMainnet]) {
+  //     return this.addresses[ChainReference.OsmosisMainnet];
+  //   }
+  //   const address = await osmosis.osmosisGetAddress(this.provider);
+  //   if (address) {
+  //     this.addresses[ChainReference.OsmosisMainnet] = address;
+  //     return address;
+  //   } else {
+  //     this.addresses[ChainReference.OsmosisMainnet] = null;
+  //     return null;
+  //   }
+  // }
+
+  // public async osmosisSignTx(msg: core.OsmosisSignTx): Promise<core.OsmosisSignedTx | null> {
+  //   const address = await this.osmosisGetAddress(this.provider);
+  //   return address ? osmosis.osmosisSignTx(msg, this.provider, address) : null;
+  // }
+
+  // public async osmosisSendTx(msg: core.OsmosisSignTx): Promise<core.OsmosisTxHash | null> {
+  //   const address = await this.osmosisGetAddress(this.provider);
+  //   return address ? osmosis.osmosisSendTx(msg, this.provider, address) : null;
+  // }
+
+  // public async osmosisSignMessage(msg: core.OsmosisSignMessage): Promise<core.OsmosisSignedMessage | null> {
+  //   const address = await this.osmosisGetAddress(this.provider);
+  //   return address ? osmosis.osmosisSignMessage(msg, this.provider, address) : null;
+  // }
 
   public async getDeviceID(): Promise<string> {
-    return "metaMask:" + (await this.cosmosGetAddress(this.provider));
+    return "metaMask:" + (await this.cosmosGetAddress(this.state.provider));
   }
 
   public async getFirmwareVersion(): Promise<string> {
@@ -255,18 +397,17 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet {
   }
 }
 
+/**
+ * @description
+ * @export
+ * @class KeplrHDWalletInfo
+ * @implements {core.HDWalletInfo}
+ * @implements {core.CosmosWalletInfo}
+ * @implements {core.OsmosisWalletInfo}
+ */
 export class KeplrHDWalletInfo implements core.HDWalletInfo, core.CosmosWalletInfo {
-  readonly _supportsBTCInfo = false;
-  readonly _supportsETHInfo = false;
   readonly _supportsCosmosInfo = true;
-  readonly _supportsBinanceInfo = false;
-  readonly _supportsRippleInfo = false;
-  readonly _supportsEosInfo = false;
-  readonly _supportsFioInfo = false;
-  readonly _supportsThorchainInfo = false;
-  readonly _supportsSecretInfo = false;
-  readonly _supportsKavaInfo = false;
-  readonly _supportsTerraInfo = false;
+  readonly _supportsOsmosisInfo = true;
 
   public getVendor(): string {
     return "Keplr";
@@ -289,7 +430,6 @@ export class KeplrHDWalletInfo implements core.HDWalletInfo, core.CosmosWalletIn
   }
 
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
-    // It doesn't... yet?
     return false;
   }
 
@@ -301,9 +441,13 @@ export class KeplrHDWalletInfo implements core.HDWalletInfo, core.CosmosWalletIn
     return true;
   }
 
-  public cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
-    // TODO: What do we do here?
-    return undefined;
+  public describePath(msg: core.DescribePath): core.PathDescription {
+    switch (msg.coin) {
+      case "Atom":
+        return cosmos.cosmosDescribePath(msg.path);
+      default:
+        throw new Error("Unsupported path");
+    }
   }
 
   public async cosmosSupportsNetwork(chainId: number = 1): Promise<boolean> {
@@ -321,6 +465,19 @@ export class KeplrHDWalletInfo implements core.HDWalletInfo, core.CosmosWalletIn
   public cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
     return cosmos.cosmosGetAccountPaths(msg);
   }
+
+  public cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
+    // TODO: What do we do here?
+    return undefined;
+  }
+
+  // public osmosisGetAccountPaths(msg: core.OsmosisGetAccountPaths): Array<core.OsmosisAccountPath> {
+  //   return osmosis.osmosisGetAccountPaths(msg);
+  // }
+
+  // public osmosisNextAccountPath(msg: core.OsmosisAccountPath): core.OsmosisAccountPath | undefined {
+  //   return undefined;
+  // }
 }
 
 export function info() {

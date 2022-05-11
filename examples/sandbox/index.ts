@@ -9,6 +9,8 @@ import * as ledgerWebUSB from "@shapeshiftoss/hdwallet-ledger-webusb";
 import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
+import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
+import * as keplr from "@shapeshiftoss/hdwallet-keplr";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 import $ from "jquery";
@@ -65,6 +67,7 @@ const kkemuAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const portisAdapter = portis.PortisAdapter.useKeyring(keyring, { portisAppId });
 const metaMaskAdapter = metaMask.MetaMaskAdapter.useKeyring(keyring);
 const xdefiAdapter = xdefi.XDEFIAdapter.useKeyring(keyring);
+const keplrAdapter = keplr.KeplrAdapter.useKeyring(keyring);
 const nativeAdapter = native.NativeAdapter.useKeyring(keyring, {
   mnemonic,
   deviceId: "native-wallet-test",
@@ -96,6 +99,7 @@ const $portis = $("#portis");
 const $native = $("#native");
 const $metaMask = $("#metaMask");
 const $xdefi = $("#xdefi");
+const $keplr = $("#keplr");
 const $keyring = $("#keyring");
 
 const $ethAddr = $("#ethAddr");
@@ -171,7 +175,20 @@ $native.on("click", async (e) => {
 
 $metaMask.on("click", async (e) => {
   e.preventDefault();
-  wallet = await metaMaskAdapter.pairDevice("testid");
+  wallet = await metaMaskAdapter.pairDevice();
+  window["wallet"] = wallet;
+  let deviceID = "nothing";
+  try {
+    deviceID = await wallet.getDeviceID();
+    $("#keyring select").val(deviceID);
+  } catch (e) {
+    console.error(e);
+  }
+});
+
+$keplr.on("click", async (e) => {
+  e.preventDefault();
+  wallet = await keplrAdapter.pairDevice();
   window["wallet"] = wallet;
   let deviceID = "nothing";
   try {

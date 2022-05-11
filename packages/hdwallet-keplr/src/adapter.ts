@@ -1,9 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { KeplrHDWallet } from "./keplr";
-import MetaMaskOnboarding from "@metamask/onboarding";
-import detectEthereumProvider from "@metamask/detect-provider";
 
-export class MetaMaskAdapter {
+export class KeplrAdapter {
   keyring: core.Keyring;
 
   // wallet id to remove from the keyring when the active wallet changes
@@ -14,7 +12,7 @@ export class MetaMaskAdapter {
   }
 
   public static useKeyring(keyring: core.Keyring) {
-    return new MetaMaskAdapter(keyring);
+    return new KeplrAdapter(keyring);
   }
 
   public async initialize(): Promise<number> {
@@ -22,17 +20,8 @@ export class MetaMaskAdapter {
   }
 
   public async pairDevice(): Promise<core.HDWallet> {
-    const provider: any = await detectEthereumProvider({ mustBeMetaMask: true, silent: false, timeout: 3000 });
-    if (!provider) {
-      const onboarding = new MetaMaskOnboarding();
-      onboarding.startOnboarding();
-      console.error("Please install MetaMask!");
-    }
-    try {
-      await provider.request({ method: "eth_requestAccounts" });
-    } catch (error) {
-      console.error("Could not get Keplr accounts. ");
-      throw error;
+    if (!window.getOfflineSigner || !window.keplr) {
+      console.error("Please install Keplr Extension!");
     }
     const wallet = new KeplrHDWallet();
     await wallet.initialize();
