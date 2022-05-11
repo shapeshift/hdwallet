@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as tallyHo from "@shapeshiftoss/hdwallet-tally";
+import * as tallyHo from "@shapeshiftoss/hdwallet-tallyho";
 
 export function name(): string {
   return "Tally Ho";
