@@ -22,10 +22,6 @@ export class TallyHoAdapter {
     return new TallyHoAdapter(keyring);
   }
 
-  public async initialize(): Promise<void> {
-    // no initialization needed
-  }
-
   public async pairDevice(): Promise<TallyHoHDWallet> {
     const provider: any = await this.detectTallyProvider();
     if (!provider) {
@@ -44,7 +40,6 @@ export class TallyHoAdapter {
       throw error;
     }
     const wallet = new TallyHoHDWallet(provider);
-    await wallet.initialize();
     const deviceID = await wallet.getDeviceID();
     this.keyring.add(wallet, deviceID);
     this.keyring.emit(["Tally Ho", deviceID, core.Events.CONNECT], deviceID);
