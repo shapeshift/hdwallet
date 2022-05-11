@@ -10,7 +10,7 @@ import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { SigningCosmosClient } from "@cosmjs/launchpad";
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 
-import { assertIsBroadcastTxSuccess, SigningStargateClient } from "@cosmjs/stargate";
+import { SigningStargateClient } from "@cosmjs/stargate";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface

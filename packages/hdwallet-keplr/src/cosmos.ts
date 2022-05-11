@@ -7,7 +7,7 @@ import {
   CosmosSignTx,
   slip44ByCoin,
 } from "@shapeshiftoss/hdwallet-core";
-import { assertIsBroadcastTxSuccess, SigningStargateClient } from "@cosmjs/stargate";
+import { SigningStargateClient } from "@cosmjs/stargate";
 import { EncodeObject } from "@cosmjs/proto-signing";
 import { Window as KeplrWindow } from "@keplr-wallet/types";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
