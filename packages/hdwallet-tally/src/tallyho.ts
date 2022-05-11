@@ -157,7 +157,7 @@ export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendPin(pin: string): Promise<void> {
-    // no concept of pin in Tally Ho 
+    // no concept of pin in Tally Ho
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -171,11 +171,11 @@ export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendWord(word: string): Promise<void> {
-    // no concept of sendWord in Tally Ho 
+    // no concept of sendWord in Tally Ho
   }
 
   public async cancel(): Promise<void> {
-    // no concept of cancel in Tally Ho 
+    // no concept of cancel in Tally Ho
   }
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   public async wipe(): Promise<void> {}
