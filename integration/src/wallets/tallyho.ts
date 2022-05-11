@@ -1,12 +1,12 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as tally from "@shapeshiftoss/hdwallet-tally";
+import * as tallyHo from "@shapeshiftoss/hdwallet-tally";
 
 export function name(): string {
-  return "Tally";
+  return "Tally Ho";
 }
 
 export function createInfo(): core.HDWalletInfo {
-  return new tally.TallyHDWalletInfo();
+  return new tallyHo.TallyHoHDWalletInfo();
 }
 
 export async function createWallet(): Promise<core.HDWallet> {
@@ -33,18 +33,18 @@ export async function createWallet(): Promise<core.HDWallet> {
       }
     }),
   };
-  const wallet = new tally.TallyHDWallet(provider);
+  const wallet = new tallyHo.TallyHoHDWallet(provider);
   await wallet.initialize();
   return wallet;
 }
 
 export function selfTest(get: () => core.HDWallet): void {
-  let wallet: tally.TallyHDWallet;
+  let wallet: tallyHo.TallyHoHDWallet;
 
   beforeAll(async () => {
-    const w = get() as tally.TallyHDWallet;
+    const w = get() as tallyHo.TallyHoHDWallet;
 
-    if (tally.isTally(w) && !core.supportsBTC(w) && core.supportsETH(w)) {
+    if (tallyHo.isTallyHo(w) && !core.supportsBTC(w) && core.supportsETH(w)) {
       wallet = w;
     } else {
       throw "Wallet is not a Tally";

@@ -1,10 +1,10 @@
 import detectEthereumProvider from "@metamask/detect-provider";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import TallyOnboarding from "tallyho-onboarding";
+import TallyHoOnboarding from "tallyho-onboarding";
 
-import { TallyHDWallet } from "./tally";
+import { TallyHoHDWallet } from "./tallyho";
 
-export class TallyAdapter {
+export class TallyHoAdapter {
   keyring: core.Keyring;
 
   private constructor(keyring: core.Keyring) {
@@ -12,22 +12,22 @@ export class TallyAdapter {
   }
 
   public static useKeyring(keyring: core.Keyring) {
-    return new TallyAdapter(keyring);
+    return new TallyHoAdapter(keyring);
   }
 
   public async initialize(): Promise<void> {
     // no initialization needed
   }
 
-  public async pairDevice(): Promise<TallyHDWallet> {
+  public async pairDevice(): Promise<TallyHoHDWallet> {
     const provider: any = await detectEthereumProvider({ mustBeMetaMask: false, silent: true, timeout: 3000 });
     if (!provider) {
-      const onboarding = new TallyOnboarding();
+      const onboarding = new TallyHoOnboarding();
       onboarding.startOnboarding();
-      console.error("Please install Tally!");
+      console.error("Please install Tally Ho!");
     }
     if (provider === null) {
-      throw new Error("Could not get Tally accounts.");
+      throw new Error("Could not get Tally Ho accounts.");
     }
 
     // eslint-disable-next-line no-useless-catch
@@ -36,11 +36,11 @@ export class TallyAdapter {
     } catch (error) {
       throw error;
     }
-    const wallet = new TallyHDWallet(provider);
+    const wallet = new TallyHoHDWallet(provider);
     await wallet.initialize();
     const deviceID = await wallet.getDeviceID();
     this.keyring.add(wallet, deviceID);
-    this.keyring.emit(["Tally", deviceID, core.Events.CONNECT], deviceID);
+    this.keyring.emit(["Tally Ho", deviceID, core.Events.CONNECT], deviceID);
 
     return wallet;
   }

@@ -32,7 +32,7 @@ export function describeETHPath(path: core.BIP32Path): core.PathDescription {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function ethVerifyMessage(msg: core.ETHVerifyMessage, ethereum: any): Promise<boolean | null> {
-  console.error("Method ethVerifyMessage unsupported for Tally wallet!");
+  console.error("Method ethVerifyMessage unsupported for Tally Ho wallet!");
   return null;
 }
 
@@ -44,14 +44,14 @@ export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHA
       addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
       hardenedPath: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
       relPath: [0, 0],
-      description: "Tally",
+      description: "Tally Ho",
     },
   ];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function ethSignTx(msg: core.ETHSignTx, ethereum: any, from: string): Promise<core.ETHSignedTx | null> {
-  console.error("Method ethSignTx unsupported for Tally wallet!");
+  console.error("Method ethSignTx unsupported for Tally Ho wallet!");
   return null;
 }
 
@@ -64,7 +64,7 @@ export async function ethSendTx(msg: core.ETHSignTx, ethereum: any, from: string
       data: msg.data,
       chainId: msg.chainId,
       nonce: msg.nonce,
-      // Tally, like other Web3 libraries, derives its transaction schema from Ethereum's official JSON-RPC API specification
+      // Tally Ho, like other Web3 libraries, derives its transaction schema from Ethereum's official JSON-RPC API specification
       // (https://github.com/ethereum/execution-apis/blob/d63d2a02bcd2a8cef54ae2fc5bbff8b4fac944eb/src/schemas/transaction.json).
       // That schema defines the use of the label `gas` to set the transaction's gas limit and not `gasLimit` as used in other
       // libraries and as stated in the official yellow paper (https://ethereum.github.io/yellowpaper/paper.pdf).

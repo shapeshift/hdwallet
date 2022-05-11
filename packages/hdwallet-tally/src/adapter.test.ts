@@ -1,11 +1,11 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import { TallyAdapter } from "./adapter";
+import { TallyHoAdapter } from "./adapter";
 
-describe("TallyAdapter", () => {
+describe("TallyHoAdapter", () => {
   it("throws error if provider is not preset", async () => {
     const keyring = new core.Keyring();
-    const adapter = TallyAdapter.useKeyring(keyring);
-    await expect(async () => await adapter.pairDevice()).rejects.toThrowError("Could not get Tally accounts.");
+    const adapter = TallyHoAdapter.useKeyring(keyring);
+    await expect(async () => await adapter.pairDevice()).rejects.toThrowError("Could not get Tally Ho accounts.");
   });
 });

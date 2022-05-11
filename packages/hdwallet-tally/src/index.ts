@@ -1,2 +1,2 @@
 export * from "./adapter";
-export * from "./tally";
+export * from "./tallyho";

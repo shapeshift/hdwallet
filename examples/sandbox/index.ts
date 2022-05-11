@@ -9,7 +9,7 @@ import * as ledgerWebUSB from "@shapeshiftoss/hdwallet-ledger-webusb";
 import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
-import * as tally from "@shapeshiftoss/hdwallet-tally";
+import * as tallyHo from "@shapeshiftoss/hdwallet-tally";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 import $ from "jquery";
@@ -65,7 +65,7 @@ const kkbridgeAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const kkemuAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const portisAdapter = portis.PortisAdapter.useKeyring(keyring, { portisAppId });
 const metaMaskAdapter = metaMask.MetaMaskAdapter.useKeyring(keyring);
-const tallyAdapter = tally.TallyAdapter.useKeyring(keyring);
+const tallyHoAdapter = tallyHo.TallyHoAdapter.useKeyring(keyring);
 const xdefiAdapter = xdefi.XDEFIAdapter.useKeyring(keyring);
 const nativeAdapter = native.NativeAdapter.useKeyring(keyring, {
   mnemonic,
@@ -97,7 +97,7 @@ const $ledgerwebhid = $("#ledgerwebhid");
 const $portis = $("#portis");
 const $native = $("#native");
 const $metaMask = $("#metaMask");
-const $tally = $("#tally");
+const $tallyHo = $("#tallyHo");
 const $xdefi = $("#xdefi");
 const $keyring = $("#keyring");
 
@@ -185,9 +185,9 @@ $metaMask.on("click", async (e) => {
   }
 });
 
-$tally.on("click", async (e) => {
+$tallyHo.on("click", async (e) => {
   e.preventDefault();
-  wallet = await tallyAdapter.pairDevice();
+  wallet = await tallyHoAdapter.pairDevice();
   window["wallet"] = wallet;
   let deviceID = "nothing";
   try {
@@ -293,9 +293,9 @@ async function deviceConnected(deviceId) {
   }
 
   try {
-    await tallyAdapter.initialize();
+    await tallyHoAdapter.initialize();
   } catch (e) {
-    console.error("Could not initialize TallyAdapter", e);
+    console.error("Could not initialize TallyHoAdapter", e);
   }
 
   for (const deviceID of Object.keys(keyring.wallets)) {

@@ -3,16 +3,16 @@ import _ from "lodash";
 
 import * as eth from "./ethereum";
 
-export function isTally(wallet: core.HDWallet): wallet is TallyHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isTally;
+export function isTallyHo(wallet: core.HDWallet): wallet is TallyHoHDWallet {
+  return _.isObject(wallet) && (wallet as any)._isTallyHo;
 }
 
-export class TallyHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
+export class TallyHoHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
   readonly _supportsETHInfo = true;
   private _ethAddress: string | null = null;
 
   public getVendor(): string {
-    return "Tally";
+    return "Tally Ho";
   }
 
   public hasOnDevicePinEntry(): boolean {
@@ -79,17 +79,17 @@ export class TallyHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
   }
 }
 
-export class TallyHDWallet implements core.HDWallet, core.ETHWallet {
+export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
-  readonly _isTally = true;
+  readonly _isTallyHo = true;
 
-  info: TallyHDWalletInfo & core.HDWalletInfo;
+  info: TallyHoHDWalletInfo & core.HDWalletInfo;
   ethAddress?: string | null;
   provider: any;
 
   constructor(provider: unknown) {
-    this.info = new TallyHDWalletInfo();
+    this.info = new TallyHoHDWalletInfo();
     this.provider = provider;
   }
 
@@ -98,19 +98,19 @@ export class TallyHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async isLocked(): Promise<boolean> {
-    return !this.provider.tally.isUnlocked();
+    return !this.provider.tallyHo.isUnlocked();
   }
 
   public getVendor(): string {
-    return "Tally";
+    return "Tally Ho";
   }
 
   public async getModel(): Promise<string> {
-    return "Tally";
+    return "Tally Ho";
   }
 
   public async getLabel(): Promise<string> {
-    return "Tally";
+    return "Tally Ho";
   }
 
   public async initialize(): Promise<void> {
@@ -138,7 +138,7 @@ export class TallyHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public supportsOfflineSigning(): boolean {
-    // Keep an eye on the status of the refactor PR here: https://github.com/tallycash/extension/pull/1165/files. This will add offline signing support to Tally, at which point this should return true.
+    // Keep an eye on the status of the refactor PR here: https://github.com/tallycash/extension/pull/1165/files. This will add offline signing support to Tally Ho, at which point this should return true.
     return false;
   }
 
@@ -147,35 +147,35 @@ export class TallyHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async clearSession(): Promise<void> {
-    // TODO: Can we lock Tally from here?
+    // TODO: Can we lock Tally Ho from here?
   }
 
   public async ping(msg: core.Ping): Promise<core.Pong> {
-    // no ping function for Tally, so just returning Core.Pong
+    // no ping function for Tally Ho, so just returning Core.Pong
     return { msg: msg.msg };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendPin(pin: string): Promise<void> {
-    // no concept of pin in Tally
+    // no concept of pin in Tally Ho 
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendPassphrase(passphrase: string): Promise<void> {
-    // cannot send passphrase to Tally. Could show the widget?
+    // cannot send passphrase to Tally Ho. Could show the widget?
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendCharacter(charater: string): Promise<void> {
-    // no concept of sendCharacter in Tally
+    // no concept of sendCharacter in Tally Ho
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendWord(word: string): Promise<void> {
-    // no concept of sendWord in Tally
+    // no concept of sendWord in Tally Ho 
   }
 
   public async cancel(): Promise<void> {
-    // no concept of cancel in Tally
+    // no concept of cancel in Tally Ho 
   }
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   public async wipe(): Promise<void> {}
@@ -185,12 +185,12 @@ export class TallyHDWallet implements core.HDWallet, core.ETHWallet {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async recover(msg: core.RecoverDevice): Promise<void> {
-    // no concept of recover in Tally
+    // no concept of recover in Tally Ho
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async loadDevice(msg: core.LoadDevice): Promise<void> {
-    // TODO: Does Tally allow this to be done programatically?
+    // TODO: Does Tally Ho allow this to be done programatically?
   }
 
   public describePath(msg: core.DescribePath): core.PathDescription {
@@ -260,10 +260,10 @@ export class TallyHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async getDeviceID(): Promise<string> {
-    return "tally:" + (await this.ethGetAddress(this.provider));
+    return "tallyho:" + (await this.ethGetAddress(this.provider));
   }
 
   public async getFirmwareVersion(): Promise<string> {
-    return "tally";
+    return "tallyho";
   }
 }

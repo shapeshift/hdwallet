@@ -1,12 +1,12 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import { TallyHDWallet, TallyHDWalletInfo } from ".";
+import { TallyHoHDWallet, TallyHoHDWalletInfo } from ".";
 
 describe("HDWalletInfo", () => {
-  const info = new TallyHDWalletInfo();
+  const info = new TallyHoHDWalletInfo();
 
   it("should have correct metadata", async () => {
-    expect(info.getVendor()).toBe("Tally");
+    expect(info.getVendor()).toBe("Tally Ho");
     expect(info.hasOnDevicePinEntry()).toBe(false);
     expect(info.hasOnDevicePassphrase()).toBe(true);
     expect(info.hasOnDeviceDisplay()).toBe(true);
@@ -30,15 +30,15 @@ describe("HDWalletInfo", () => {
   });
 });
 
-describe("TallyHDWallet", () => {
-  let wallet: TallyHDWallet;
+describe("TallyHoHDWallet", () => {
+  let wallet: TallyHoHDWallet;
   beforeEach(() => {
-    wallet = new TallyHDWallet(core.untouchable("TallyHDWallet:provider"));
+    wallet = new TallyHoHDWallet(core.untouchable("TallyHoHDWallet:provider"));
     wallet.ethAddress = "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8";
   });
 
   it("should match the metadata", async () => {
-    expect(wallet.getVendor()).toBe("Tally");
+    expect(wallet.getVendor()).toBe("Tally Ho");
     expect(wallet.hasOnDevicePinEntry()).toBe(false);
     expect(wallet.hasOnDevicePassphrase()).toBe(true);
     expect(wallet.hasOnDeviceDisplay()).toBe(true);
