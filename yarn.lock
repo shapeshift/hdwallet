@@ -10677,9 +10677,9 @@ jest@^26.6.3:
     jest-cli "^26.6.3"
 
 jose@^4.3.5:
-  version "4.8.1"
-  resolved "https://registry.yarnpkg.com/jose/-/jose-4.8.1.tgz#dc7c2660b115ba29b44880e588c5ac313c158247"
-  integrity sha512-+/hpTbRcCw9YC0TOfN1W47pej4a9lRmltdOVdRLz5FP5UvUq3CenhXjQK7u/8NdMIIShMXYAh9VLPhc7TjhvFw==
+  version "4.3.5"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-4.3.5.tgz#890ec0b3bf26db0b36946ca54087335200deb6f7"
+  integrity sha512-mdTu3En79OYMGBNHw4828hl6ZUOb+gQtNZVRgM+eVL3Rrs4ZYUv/yHPpfDh65GN2HhKBvJsvA0/6tKEcpkyzeg==
 
 jquery@^3.4.1:
   version "3.6.0"
