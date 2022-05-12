@@ -53,7 +53,7 @@ export class TallyHoAdapter {
     return wallet;
   }
 
-  public async detectTallyProvider(): Promise<TallyHoEthereumProvider | null> {
+  private async detectTallyProvider(): Promise<TallyHoEthereumProvider | null> {
     let handled = false;
 
     return new Promise((resolve) => {
