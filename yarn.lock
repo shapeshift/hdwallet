@@ -3887,16 +3887,6 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-core@1.19.0":
-  version "1.19.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.19.0.tgz#7eeae9be9f90fff53887611c6ac02c334781baa3"
-  integrity sha512-Dht99dolYQLDuunKsyQXuNcZH20MrgNrIcb4qG2XLrwuwMUsUOXguQ0MBxi6fFl81hz3G8481v83gOYA5L5tGw==
-  dependencies:
-    eventemitter2 "^5.0.1"
-    lodash "^4.17.21"
-    rxjs "^6.4.0"
-    type-assertions "^1.1.0"
-
 "@shapeshiftoss/hdwallet-core@latest":
   version "1.18.4"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.18.4.tgz#7272baa4b43de0fbb5e651d47cdeb9554f4ddd33"
@@ -10686,10 +10676,10 @@ jest@^26.6.3:
     import-local "^3.0.2"
     jest-cli "^26.6.3"
 
-jose@^4.3.2:
-  version "4.7.0"
-  resolved "https://registry.yarnpkg.com/jose/-/jose-4.7.0.tgz#f0a88709285e1a6c1ba7df0d19e33f64aca03cad"
-  integrity sha512-DJNm2vlcVW+0Fhl5LVxdhXK5Nw5VYZvL79uiq3ZCRm6vqzTuEVT9T5lIRfzmkGbaaiV+edefGog25TWVyJ4mRQ==
+jose@^4.3.5:
+  version "4.3.5"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-4.3.5.tgz#890ec0b3bf26db0b36946ca54087335200deb6f7"
+  integrity sha512-mdTu3En79OYMGBNHw4828hl6ZUOb+gQtNZVRgM+eVL3Rrs4ZYUv/yHPpfDh65GN2HhKBvJsvA0/6tKEcpkyzeg==
 
 jquery@^3.4.1:
   version "3.6.0"
