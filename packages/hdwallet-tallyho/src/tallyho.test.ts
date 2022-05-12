@@ -158,7 +158,6 @@ describe("TallyHoHDWallet", () => {
     const hash = await wallet.ethSendTx({
       addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
       nonce: "0xDEADBEEF",
-      gasPrice: "0xDEADBEEF",
       gasLimit: "0xDEADBEEF",
       maxFeePerGas: "0xDEADBEEF",
       to: "0xDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF",
