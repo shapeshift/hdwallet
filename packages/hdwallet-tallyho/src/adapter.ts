@@ -23,7 +23,13 @@ export class TallyHoAdapter {
   }
 
   public async pairDevice(): Promise<TallyHoHDWallet> {
-    const provider: any = await this.detectTallyProvider();
+    let provider: any;
+    // eslint-disable-next-line no-useless-catch
+    try {
+      provider = await this.detectTallyProvider();
+    } catch (error) {
+      throw error;
+    }
     if (!provider) {
       const onboarding = new TallyHoOnboarding();
       onboarding.startOnboarding();
