@@ -53,6 +53,11 @@ export class TallyHoAdapter {
     return wallet;
   }
 
+  /*
+   * Tally works the same way as metamask.
+   * This code is copied from the @metamask/detect-provider package
+   * @see https://www.npmjs.com/package/@metamask/detect-provider
+   */
   private async detectTallyProvider(): Promise<TallyHoEthereumProvider | null> {
     let handled = false;
 
