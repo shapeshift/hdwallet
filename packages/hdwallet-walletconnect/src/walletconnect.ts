@@ -1,28 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import { utils } from "ethers";
 import * as eth from "./ethereum";
-
-interface WCState { 
-  connected?: boolean;
-  chainId: number;
-  accounts: string[];
-  address: string;
-}
-
-/**
- * @see https://eips.ethereum.org/EIPS/eip-1193
- */
-
-interface ProviderConnectInfo {
-  readonly chainId: string;
-}
-
-interface ProviderRpcError extends Error {
-  code: number;
-  data?: unknown;
-}
-
 
 /**
  * WalletConnect Wallet Info
@@ -111,10 +89,6 @@ export class WalletConnectWalletInfo implements core.HDWalletInfo, core.ETHWalle
 export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
-  readonly _supportsBTCInfo = false;
-  readonly _supportsBTC = false;
-  readonly _supportsCosmosInfo = false;
-  readonly _supportsCosmos = false;
   readonly _isWalletConnect = true;
 
   info: WalletConnectWalletInfo & core.HDWalletInfo;
@@ -122,7 +96,6 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
   connected = false;
   chainId: number = -1;
   accounts: string[] = [];
-  // TODO: confirm empty string doesn't break
   ethAddress: string = "";
 
   constructor(provider: WalletConnectProvider) {
@@ -155,7 +128,18 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
    * 
    * Subscribes to EIP-1193 events
    */
-  public async initialize(): Promise<void> {}
+  public async initialize(): Promise<void> {
+    await this.provider.enable()
+
+    if (this.provider.connector.connected) {
+      const { chainId, accounts } = this.provider.connector;
+      const [address] = accounts;
+      this.connected = true;
+      this.chainId = chainId;
+      this.accounts = accounts;
+      this.ethAddress = address;
+    }
+  }
 
   public hasOnDevicePinEntry(): boolean {
     return this.info.hasOnDevicePinEntry();
@@ -214,11 +198,14 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
     // no concept of cancel
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  public async wipe(): Promise<void> { }
+  public async wipe(): Promise<void> {
+    return;
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  public async reset(_msg: core.ResetDevice): Promise<void> { }
+  public async reset(_msg: core.ResetDevice): Promise<void> {
+    return;
+  }
 
   public async recover(_msg: core.RecoverDevice): Promise<void> {
     // no concept of recover
@@ -280,8 +267,6 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
    * @see https://docs.walletconnect.com/client-api#sign-transaction-eth_signtransaction
    */
   public async ethSignTx(msg: core.ETHSignTx & { from: string }): Promise<core.ETHSignedTx | null> {
-    // const address = await this.ethGetAddress();
-    // return address ? eth.ethSignTx(msg, this.provider, address) : null;
     msg.from = this.ethAddress;
     return this.provider.wc.signTransaction(msg);
   }
@@ -292,8 +277,6 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
    * @see https://docs.walletconnect.com/client-api#send-transaction-eth_sendtransaction
    */
   public async ethSendTx(msg: core.ETHSignTx & { from: string }): Promise<core.ETHTxHash | null> {
-    // const address = await this.ethGetAddress();
-    // return address ? eth.ethSendTx(msg, this.provider, address) : null;
     msg.from = this.ethAddress;
     return this.provider.wc.sendTransaction(msg);
   }
@@ -304,8 +287,6 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
    * @see https://docs.walletconnect.com/client-api#sign-message-eth_sign
    */
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
-    // const address = await this.ethGetAddress();
-    // return address ? eth.ethSignMessage(msg, this.provider, address) : null;
     return this.provider.wc.signMessage([Buffer.from(msg.message).toString("hex"), this.ethAddress])
   }
 
