@@ -7,10 +7,7 @@ import {
   CosmosSignTx,
   slip44ByCoin,
 } from "@shapeshiftoss/hdwallet-core";
-import { SigningStargateClient } from "@cosmjs/stargate";
-import { EncodeObject } from "@cosmjs/proto-signing";
-import { Window as KeplrWindow } from "@keplr-wallet/types";
-import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
+import { sign } from "@shapeshiftoss/proto-tx-builder";
 
 export function cosmosDescribePath(path: core.BIP32Path): core.PathDescription {
   let pathStr = core.addressNListToBIP32(path);
@@ -51,11 +48,6 @@ export function cosmosDescribePath(path: core.BIP32Path): core.PathDescription {
   };
 }
 
-export enum cosmosSigningModes {
-  AMINO = 1,
-  PROTOBUF = 2,
-}
-
 export function cosmosGetAccountPaths(msg: CosmosGetAccountPaths): Array<CosmosAccountPath> {
   return [
     {
@@ -64,45 +56,26 @@ export function cosmosGetAccountPaths(msg: CosmosGetAccountPaths): Array<CosmosA
   ];
 }
 
-export async function cosmosSignTx(msg: CosmosSignTx, state: any): Promise<CosmosSignedTx> {
-  const chainId = "cosmoshub-4";
-  await state.enable(chainId);
-  const offlineSigner = state.provider.getOfflineSigner(chainId);
-  const accounts = await offlineSigner.getAccounts();
-  const address = accounts[0].address;
-
-  const messages: EncodeObject[] = msg.tx.msg.map((msg) => ({ typeUrl: msg.type, value: msg.value }));
-
-  /**
-   * todo: Replace RPC endpoint with a production-ready one.
-   */
-  const client = await SigningStargateClient.connectWithSigner("https://rpc-cosmos.blockapsis.com", offlineSigner);
-  const txRaw = await client.sign(address, messages, msg.tx.fee, msg.tx.memo || "");
-  const encoded = TxRaw.encode(txRaw).finish();
-  const output: CosmosSignedTx = {
-    serialized: Buffer.from(encoded).toString("base64"),
-    body: Buffer.from(txRaw.bodyBytes).toString("base64"),
-    authInfoBytes: Buffer.from(txRaw.authInfoBytes).toString("base64"),
-    signatures: txRaw.signatures.map((x) => Buffer.from(x).toString("base64")),
-  };
-  return output;
-}
-
-export async function cosmosGetAddress(msg: CosmosGetAddress): Promise<string | undefined> {
-  const chainId = "cosmoshub-4";
-  await window?.keplr?.enable(chainId);
-  const offlineSigner = window?.keplr?.getOfflineSigner(chainId);
+export async function cosmosGetAddress(state: any): Promise<string | undefined> {
+  await window?.keplr?.enable(state.chainId);
+  const offlineSigner = window?.keplr?.getOfflineSigner(state.chainId);
   const cosmosAddress = (await offlineSigner?.getAccounts())?.[0].address;
   return cosmosAddress;
 }
 
-export async function cosmosSendTx(msg: CosmosSignTx, state: any): Promise<string | null> {
-  const chainId = "cosmoshub-4";
-  await window?.keplr?.enable(chainId);
-  const offlineSigner = state.provider.getOfflineSigner(chainId);
-  const client = await SigningStargateClient.connectWithSigner("https://rpc-cosmos.blockapsis.com", offlineSigner);
+export async function cosmosSignTx(msg: CosmosSignTx, state: any): Promise<CosmosSignedTx> {
+  await state.provider.enable(state.chainId);
+  const offlineSigner = state.provider.getOfflineSigner(state.chainId);
+  const output = await sign(msg.tx, offlineSigner, msg.sequence, msg.account_number, msg.chain_id);
+  return output;
+}
 
-  // const resp: DeliverTxResponse = client.broadcastTx(msg.tx);
-  const ret: string = "";
-  return ret;
+/**
+ * @todo: Add support for sign/verify message see documentation at:
+ * https://github.com/chainapsis/keplr-wallet/blob/fbbc0b6d8eb4859a1663988d1bd90f07c9b74708/docs/api/README.md
+ */
+
+export async function cosmosSendTx(msg: CosmosSignTx, state: any): Promise<string | null> {
+  /** Broadcast from Keplr is currently unimplemented */
+  return null;
 }
