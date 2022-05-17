@@ -230,7 +230,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   public async disconnect(): Promise<void> {
-    return;
+    this.provider.disconnect();
   }
 
   public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
