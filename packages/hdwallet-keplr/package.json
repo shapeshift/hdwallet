@@ -14,9 +14,12 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/caip": "2.2.5",
+    "@cosmjs/launchpad": "^0.27.1",
+    "@cosmjs/stargate": "0.28.1",
+    "@shapeshiftoss/caip": "3.0.0",
     "@shapeshiftoss/hdwallet-core": "1.21.1",
     "@shapeshiftoss/types": "3.1.3",
+    "@shapeshiftoss/proto-tx-builder": "0.2.1",
     "base64-js": "^1.5.1",
     "bip32": "^2.0.4",
     "bitcoinjs-lib": "^5.1.6",
