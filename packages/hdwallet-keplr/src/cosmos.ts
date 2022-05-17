@@ -74,8 +74,3 @@ export async function cosmosSignTx(msg: CosmosSignTx, state: any): Promise<Cosmo
  * @todo: Add support for sign/verify message see documentation at:
  * https://github.com/chainapsis/keplr-wallet/blob/fbbc0b6d8eb4859a1663988d1bd90f07c9b74708/docs/api/README.md
  */
-
-export async function cosmosSendTx(msg: CosmosSignTx, state: any): Promise<string | null> {
-  /** Broadcast from Keplr is currently unimplemented */
-  return null;
-}
