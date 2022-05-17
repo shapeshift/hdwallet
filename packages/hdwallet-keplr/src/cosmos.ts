@@ -2,7 +2,6 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import {
   CosmosAccountPath,
   CosmosGetAccountPaths,
-  CosmosGetAddress,
   CosmosSignedTx,
   CosmosSignTx,
   slip44ByCoin,

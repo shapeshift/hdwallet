@@ -16,6 +16,7 @@ class KeplrTransport extends core.Transport {
     return "keplr:0";
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public call(...args: any[]): Promise<any> {
     return Promise.resolve();
   }
@@ -61,6 +62,7 @@ export class KeplrHDWalletInfo implements core.HDWalletInfo, core.CosmosWalletIn
     return true;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return false;
   }
@@ -100,6 +102,7 @@ export class KeplrHDWalletInfo implements core.HDWalletInfo, core.CosmosWalletIn
     return cosmos.cosmosGetAccountPaths(msg);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
     // TODO: What do we do here?
     return undefined;
@@ -121,6 +124,7 @@ export class KeplrHDWalletInfo implements core.HDWalletInfo, core.CosmosWalletIn
     return osmosis.osmosisGetAccountPaths(msg);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public osmosisNextAccountPath(msg: core.OsmosisAccountPath): core.OsmosisAccountPath | undefined {
     return undefined;
   }
@@ -234,21 +238,25 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
     return Promise.resolve({ msg: msg.msg });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public sendPin(pin: string): Promise<void> {
     // no concept of pin in Keplr
     return Promise.resolve();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public sendPassphrase(passphrase: string): Promise<void> {
     // cannot send passphrase to Keplr. Could show the widget?
     return Promise.resolve();
   }
 
-  public sendCharacter(charater: string): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public sendCharacter(character: string): Promise<void> {
     // no concept of sendCharacter in Keplr
     return Promise.resolve();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public sendWord(word: string): Promise<void> {
     // no concept of sendWord in Keplr
     return Promise.resolve();
@@ -263,15 +271,18 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
     return Promise.resolve();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public reset(msg: core.ResetDevice): Promise<void> {
     return Promise.resolve();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public recover(msg: core.RecoverDevice): Promise<void> {
     // no concept of recover in Keplr
     return Promise.resolve();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public loadDevice(msg: core.LoadDevice): Promise<void> {
     /**
      * @todo: Does Keplr allow this to be done programatically?
@@ -283,6 +294,7 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
     return this.info.describePath(msg);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
     const keys: Array<core.PublicKey | null> = [];
     await this.state.provider.enable(this.state.chainId);
@@ -322,6 +334,7 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
     return this.info.cosmosNextAccountPath(msg);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string | null> {
     if (this.state.chainId != (ChainReference.CosmosHubMainnet || ChainReference.CosmosHubVega)) {
       throw new Error("Please change network to 'Cosmos.'");
@@ -341,6 +354,7 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
     return cosmos.cosmosSignTx(msg, this.state);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async cosmosSendTx(msg: core.CosmosSignTx): Promise<string | null> {
     /** Broadcast from Keplr is currently unimplemented */
     return null;
@@ -366,6 +380,7 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
     return this.info.osmosisNextAccountPath(msg);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async osmosisGetAddress(msg: core.OsmosisGetAddress): Promise<string | null> {
     if (this.state.chainId != (ChainReference.OsmosisMainnet || ChainReference.OsmosisTestnet)) {
       throw new Error("Please change network to 'Osmosis.'");
@@ -385,6 +400,7 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
     return osmosis.osmosisSignTx(msg, this.state);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async osmosisSendTx(msg: core.OsmosisSignTx): Promise<string | null> {
     /** Broadcast from Keplr is currently unimplemented */
     return null;
