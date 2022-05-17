@@ -183,8 +183,8 @@ $metaMask.on("click", async (e) => {
   try {
     deviceID = await wallet.getDeviceID();
     $("#keyring select").val(deviceID);
-  } catch (e) {
-    console.error(e);
+  } catch (err) {
+    console.error(err);
   }
 });
 

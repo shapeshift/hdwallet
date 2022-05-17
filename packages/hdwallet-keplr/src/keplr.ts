@@ -37,6 +37,95 @@ interface KeplrWalletState {
   chainId?: string;
 }
 
+export class KeplrHDWalletInfo implements core.HDWalletInfo, core.CosmosWalletInfo, core.OsmosisWalletInfo {
+  readonly _supportsCosmosInfo = true;
+  readonly _supportsOsmosisInfo = true;
+
+  public getVendor(): string {
+    return "Keplr";
+  }
+
+  public hasOnDevicePinEntry(): boolean {
+    return false;
+  }
+
+  public hasOnDevicePassphrase(): boolean {
+    return true;
+  }
+
+  public hasOnDeviceDisplay(): boolean {
+    return true;
+  }
+
+  public hasOnDeviceRecovery(): boolean {
+    return true;
+  }
+
+  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
+    return false;
+  }
+
+  public supportsOfflineSigning(): boolean {
+    return true;
+  }
+
+  public supportsBroadcast(): boolean {
+    return true;
+  }
+
+  public describePath(msg: core.DescribePath): core.PathDescription {
+    switch (msg.coin) {
+      case "Atom":
+        return cosmos.cosmosDescribePath(msg.path);
+      case "Osmo":
+        return osmosis.osmosisDescribePath(msg.path);
+      default:
+        throw new Error("Unsupported path");
+    }
+  }
+
+  public async cosmosSupportsNetwork(chainId = 1): Promise<boolean> {
+    return chainId === 1;
+  }
+
+  public async cosmosSupportsSecureTransfer(): Promise<boolean> {
+    return false;
+  }
+
+  public cosmosSupportsNativeShapeShift(): boolean {
+    return false;
+  }
+
+  public cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
+    return cosmos.cosmosGetAccountPaths(msg);
+  }
+
+  public cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
+    // TODO: What do we do here?
+    return undefined;
+  }
+
+  public async osmosisSupportsNetwork(chainId = 1): Promise<boolean> {
+    return chainId === 1;
+  }
+
+  public async osmosisSupportsSecureTransfer(): Promise<boolean> {
+    return false;
+  }
+
+  public osmosisSupportsNativeShapeShift(): boolean {
+    return false;
+  }
+
+  public osmosisGetAccountPaths(msg: core.OsmosisGetAccountPaths): Array<core.OsmosisAccountPath> {
+    return osmosis.osmosisGetAccountPaths(msg);
+  }
+
+  public osmosisNextAccountPath(msg: core.OsmosisAccountPath): core.OsmosisAccountPath | undefined {
+    return undefined;
+  }
+}
+
 export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.OsmosisWallet {
   readonly _isKeplr = true;
   readonly _supportsCosmos = true;
@@ -308,101 +397,4 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
   public async getFirmwareVersion(): Promise<string> {
     return "keplr";
   }
-}
-
-export class KeplrHDWalletInfo implements core.HDWalletInfo, core.CosmosWalletInfo, core.OsmosisWalletInfo {
-  readonly _supportsCosmosInfo = true;
-  readonly _supportsOsmosisInfo = true;
-
-  public getVendor(): string {
-    return "Keplr";
-  }
-
-  public hasOnDevicePinEntry(): boolean {
-    return false;
-  }
-
-  public hasOnDevicePassphrase(): boolean {
-    return true;
-  }
-
-  public hasOnDeviceDisplay(): boolean {
-    return true;
-  }
-
-  public hasOnDeviceRecovery(): boolean {
-    return true;
-  }
-
-  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
-    return false;
-  }
-
-  public supportsOfflineSigning(): boolean {
-    return true;
-  }
-
-  public supportsBroadcast(): boolean {
-    return true;
-  }
-
-  public describePath(msg: core.DescribePath): core.PathDescription {
-    switch (msg.coin) {
-      case "Atom":
-        return cosmos.cosmosDescribePath(msg.path);
-      case "Osmo":
-        return osmosis.osmosisDescribePath(msg.path);
-      default:
-        throw new Error("Unsupported path");
-    }
-  }
-
-  public async cosmosSupportsNetwork(chainId = 1): Promise<boolean> {
-    return chainId === 1;
-  }
-
-  public async cosmosSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public cosmosSupportsNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
-    return cosmos.cosmosGetAccountPaths(msg);
-  }
-
-  public cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
-    // TODO: What do we do here?
-    return undefined;
-  }
-
-  public async osmosisSupportsNetwork(chainId = 1): Promise<boolean> {
-    return chainId === 1;
-  }
-
-  public async osmosisSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public osmosisSupportsNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public osmosisGetAccountPaths(msg: core.OsmosisGetAccountPaths): Array<core.OsmosisAccountPath> {
-    return osmosis.osmosisGetAccountPaths(msg);
-  }
-
-  public osmosisNextAccountPath(msg: core.OsmosisAccountPath): core.OsmosisAccountPath | undefined {
-    return undefined;
-  }
-}
-
-export function info() {
-  return new KeplrHDWalletInfo();
-}
-
-export function create(): KeplrHDWallet {
-  return new KeplrHDWallet();
 }
