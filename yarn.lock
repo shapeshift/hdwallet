@@ -4402,6 +4402,16 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
+"@shapeshiftoss/hdwallet-core@1.21.1":
+  version "1.21.1"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.21.1.tgz#a382f305a9cb502ea1677c34bcd4d603024128dc"
+  integrity sha512-paDSgf5AhJkC7N6nsQLzyrQVxFZxyJoGwEwiVAwMPJg8ublLorJTiHZAKG23FM89GqGWEyYiXrIgdY8fL1BoIQ==
+  dependencies:
+    eventemitter2 "^5.0.1"
+    lodash "^4.17.21"
+    rxjs "^6.4.0"
+    type-assertions "^1.1.0"
+
 "@shapeshiftoss/hdwallet-core@latest":
   version "1.18.4"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.18.4.tgz#7272baa4b43de0fbb5e651d47cdeb9554f4ddd33"
@@ -4928,7 +4938,7 @@
   resolved "https://registry.yarnpkg.com/@types/w3c-web-hid/-/w3c-web-hid-1.0.2.tgz#bdf2f813ffa7ccd1ca63aa218d680edddd839417"
   integrity sha512-tNLnl6+/AkmASEnviwdLLE6kaXlY28cDVyQ3e+WwnEAm5DHyO7c71a5TtYX6ofrnzzdQSnNsjNMoggsbrtOYfQ==
 
-"@types/w3c-web-usb@1.0.6", "@types/w3c-web-usb@^1.0.6":
+"@types/w3c-web-usb@1.0.6":
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/@types/w3c-web-usb/-/w3c-web-usb-1.0.6.tgz#5d8560d0d9f585ffc80865bc773db7bc975b680c"
   integrity sha512-cSjhgrr8g4KbPnnijAr/KJDNKa/bBa+ixYkywFRvrhvi9n1WEl7yYbtRyzE6jqNQiSxxJxoAW3STaOQwJHndaw==
