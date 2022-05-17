@@ -1,5 +1,6 @@
 import { ChainId } from "@shapeshiftoss/caip";
 import * as core from "@shapeshiftoss/hdwallet-core";
+
 import { KeplrHDWallet } from "./keplr";
 
 export class KeplrAdapter {

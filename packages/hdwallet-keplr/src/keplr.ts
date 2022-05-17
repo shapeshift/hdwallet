@@ -1,9 +1,10 @@
+import { Window as KeplrWindow } from "@keplr-wallet/types";
+import { ChainId, ChainReference, fromChainId, networkTypeToChainReference } from "@shapeshiftoss/caip";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import _ from "lodash";
+
 import * as cosmos from "./cosmos";
 import * as osmosis from "./osmosis";
-import { ChainId, ChainReference, fromChainId, networkTypeToChainReference } from "@shapeshiftoss/caip";
-import _ from "lodash";
-import { Window as KeplrWindow } from "@keplr-wallet/types";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -212,7 +213,7 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
     return Promise.resolve();
   }
 
-  public async cosmosSupportsNetwork(chainId: number = 118): Promise<boolean> {
+  public async cosmosSupportsNetwork(chainId = 118): Promise<boolean> {
     return chainId === 118;
   }
 
@@ -256,7 +257,7 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
     return null;
   }
 
-  public async osmosisSupportsNetwork(chainId: number = 118): Promise<boolean> {
+  public async osmosisSupportsNetwork(chainId = 118): Promise<boolean> {
     return chainId === 118;
   }
 
@@ -356,7 +357,7 @@ export class KeplrHDWalletInfo implements core.HDWalletInfo, core.CosmosWalletIn
     }
   }
 
-  public async cosmosSupportsNetwork(chainId: number = 1): Promise<boolean> {
+  public async cosmosSupportsNetwork(chainId = 1): Promise<boolean> {
     return chainId === 1;
   }
 
@@ -377,7 +378,7 @@ export class KeplrHDWalletInfo implements core.HDWalletInfo, core.CosmosWalletIn
     return undefined;
   }
 
-  public async osmosisSupportsNetwork(chainId: number = 1): Promise<boolean> {
+  public async osmosisSupportsNetwork(chainId = 1): Promise<boolean> {
     return chainId === 1;
   }
 

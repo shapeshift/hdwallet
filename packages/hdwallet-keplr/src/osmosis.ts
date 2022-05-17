@@ -2,7 +2,6 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import {
   OsmosisAccountPath,
   OsmosisGetAccountPaths,
-  OsmosisGetAddress,
   OsmosisSignedTx,
   OsmosisSignTx,
   slip44ByCoin,
@@ -10,8 +9,8 @@ import {
 import { sign } from "@shapeshiftoss/proto-tx-builder";
 
 export function osmosisDescribePath(path: core.BIP32Path): core.PathDescription {
-  let pathStr = core.addressNListToBIP32(path);
-  let unknown: core.PathDescription = {
+  const pathStr = core.addressNListToBIP32(path);
+  const unknown: core.PathDescription = {
     verbose: pathStr,
     coin: "Osmo",
     isKnown: false,
@@ -37,7 +36,7 @@ export function osmosisDescribePath(path: core.BIP32Path): core.PathDescription 
     return unknown;
   }
 
-  let index = path[2] & 0x7fffffff;
+  const index = path[2] & 0x7fffffff;
   return {
     verbose: `Osmosis Account #${index}`,
     accountIdx: index,
