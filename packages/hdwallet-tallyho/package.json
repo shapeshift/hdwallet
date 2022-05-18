@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/hdwallet-keepkey-electron",
+  "name": "@shapeshiftoss/hdwallet-tallyho",
   "version": "1.22.0",
   "license": "MIT",
   "publishConfig": {
@@ -14,15 +14,12 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-keepkey": "1.22.0",
-    "uuid": "^8.3.2"
-  },
-  "peerDependencies": {
-    "electron": "^12.0.9"
+    "@shapeshiftoss/hdwallet-core": "1.22.0",
+    "lodash": "^4.17.21",
+    "tallyho-onboarding": "^1.0.2"
   },
   "devDependencies": {
-    "@types/uuid": "^8.3.0",
-    "electron": "^12.0.9",
+    "@types/lodash": "^4.14.168",
     "typescript": "^4.3.2"
   }
 }
