@@ -29,17 +29,3 @@ export function describeETHPath(path: core.BIP32Path): core.PathDescription {
     isKnown: true,
   };
 }
-
-
-export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
-  const slip44 = core.slip44ByCoin(msg.coin);
-  if (slip44 === undefined) return [];
-  return [
-    {
-      addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
-      hardenedPath: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
-      relPath: [0, 0],
-      description: "WalletConnect",
-    },
-  ];
-}

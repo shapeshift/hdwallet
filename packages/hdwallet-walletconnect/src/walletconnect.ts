@@ -61,7 +61,6 @@ export class WalletConnectWalletInfo implements core.HDWalletInfo, core.ETHWalle
   }
 
   public ethNextAccountPath(_msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
-    // TODO: What do we do here?
     return undefined;
   }
 
@@ -82,7 +81,16 @@ export class WalletConnectWalletInfo implements core.HDWalletInfo, core.ETHWalle
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
-    return eth.ethGetAccountPaths(msg);
+    const slip44 = core.slip44ByCoin(msg.coin);
+    if (slip44 === undefined) return [];
+    return [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
+        hardenedPath: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
+        relPath: [0, 0],
+        description: "WalletConnect",
+      },
+    ];
   }
 }
 
@@ -250,7 +258,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
-    return eth.ethGetAccountPaths(msg);
+    return this.info.ethGetAccountPaths(msg);
   }
 
   public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
