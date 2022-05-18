@@ -56,8 +56,8 @@ describe("WalletConnectWalletInfo", () => {
   it("ethSupportsNativeShapeShift returns false", () => {
     expect(info.ethSupportsNativeShapeShift()).toBe(false);
   })
-  it("ethSupportsEIP1559 returns true", async () => {
-    expect(await info.ethSupportsEIP1559()).toBe(true);
+  it("ethSupportsEIP1559 returns false", async () => {
+    expect(await info.ethSupportsEIP1559()).toBe(false);
   })
   it("ethGetAccountPaths returns account:asset path", () => {
     const msg = {

@@ -1,6 +1,10 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import * as eth from "./ethereum";
+import isObject from "lodash/isObject";
+
+export function isWalletConnect(wallet: core.HDWallet): wallet is WalletConnectHDWallet {
+  return isObject(wallet) && (wallet as any)._isWalletConnect;
+}
 
 /**
  * WalletConnect Wallet Info
@@ -16,8 +20,6 @@ import * as eth from "./ethereum";
  */
 export class WalletConnectWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
   readonly _supportsETHInfo = true;
-  readonly _supportsBTCInfo = false;
-  readonly _supportsCosmosInfo = false;
 
   public getVendor(): string {
     return "WalletConnect";
@@ -77,7 +79,7 @@ export class WalletConnectWalletInfo implements core.HDWalletInfo, core.ETHWalle
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {
-    return true;
+    return false;
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
@@ -254,7 +256,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {
-    return true;
+    return false;
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
