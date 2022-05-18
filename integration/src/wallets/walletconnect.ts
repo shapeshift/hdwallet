@@ -42,9 +42,9 @@ export async function createWallet(): Promise<core.HDWallet> {
     infuraId: "",
     http: null,
     wc: {
-      sendTransaction: jest.fn(({ _method, params }: any) => {
-        const [{ to }] = params;
-        return `txHash-${to}`;
+      sendTransaction: jest.fn((msg) => {
+        const { to } = msg;
+        return {hash: `txHash-${to}`};
       }),
       signMessage: jest.fn().mockReturnValue({
         address: "0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8",

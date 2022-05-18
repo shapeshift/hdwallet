@@ -20,7 +20,7 @@ export function isWalletConnect(wallet: core.HDWallet): wallet is WalletConnectH
  */
 export class WalletConnectWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
   readonly _supportsETHInfo = true;
-
+  readonly _supportsBTCInfo = false;
   public getVendor(): string {
     return "WalletConnect";
   }
@@ -99,6 +99,8 @@ export class WalletConnectWalletInfo implements core.HDWalletInfo, core.ETHWalle
 export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
+  readonly _supportsBTCInfo = false;
+  readonly _supportsBTC = false;
   readonly _isWalletConnect = true;
 
   info: WalletConnectWalletInfo & core.HDWalletInfo;
