@@ -173,6 +173,14 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
     return this.info.hasNativeShapeShift(srcCoin, dstCoin);
   }
 
+  /**
+   * Supports Offline Signing
+   * 
+   * Offline signing is supported when `signTransaction` does not broadcast
+   * the tx message. WalletConnect's core Connector implementation always 
+   * makes a request, so offline signing is not supported.
+   * @see https://github.com/WalletConnect/walletconnect-monorepo/blob/7573fa9e1d91588d4af3409159b4fd2f9448a0e2/packages/clients/core/src/index.ts#L630
+   */
   public supportsOfflineSigning(): boolean {
     return false;
   }
@@ -214,7 +222,6 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
     return;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   public async reset(_msg: core.ResetDevice): Promise<void> {
     return;
   }
@@ -240,7 +247,6 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
     return true;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   public async disconnect(): Promise<void> {
     this.provider.disconnect();
   }

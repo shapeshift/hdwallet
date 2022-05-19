@@ -1,6 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as walletconnect from "@shapeshiftoss/hdwallet-walletconnect";
-import WalletConnectProvider from "@walletconnect/web3-provider";
 
 export function name(): string {
   return "WalletConnect";
