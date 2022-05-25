@@ -150,6 +150,26 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
 
   constructor() {
     this.info = new KeplrHDWalletInfo();
+
+    /** Reinitialize adapter when user selects new chain from Keplr extension */
+    window.addEventListener("keplr_chainchange", (e) => {
+      const chainId = (e as CustomEvent).detail;
+      if (!this.supportedNetworks.includes(chainId)) {
+        throw new Error(`Unsupported chainId: ${chainId}`);
+      }
+      this.initializeKeplrWithChainId(chainId);
+    });
+  }
+
+  private async initializeKeplrWithChainId(chainId: string) {
+    if (!window.keplr) {
+      throw new Error("Keplr extension not installed.");
+    }
+    await window.keplr.enable(chainId);
+    this.state.chainId = chainId;
+    const offlineSigner = window.keplr.getOfflineSigner(chainId);
+    this.state.address = (await offlineSigner.getAccounts())[0].address;
+    this.state.provider = window.keplr;
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -183,15 +203,10 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
       const network = networkTypeToChainReference[fromChainId(chainId).network];
       if (this.supportedNetworks.includes(network)) {
         this.state.chainId = network;
+        this.initializeKeplrWithChainId(this.state.chainId);
       } else {
         throw new Error(`Unsupported chainId: ${chainId}`);
       }
-
-      await window.keplr.enable(this.state.chainId);
-      const offlineSigner = window.keplr.getOfflineSigner(this.state.chainId);
-      this.state.address = (await offlineSigner.getAccounts())[0].address;
-      this.state.provider = window.keplr;
-
       return Promise.resolve();
     } catch (error) {
       /**
