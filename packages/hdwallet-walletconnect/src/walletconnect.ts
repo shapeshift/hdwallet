@@ -2,6 +2,13 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import isObject from "lodash/isObject";
 
+interface WCState { 
+  connected?: boolean;
+  chainId: number;
+  accounts: string[];
+  address: string;
+}
+
 export function isWalletConnect(wallet: core.HDWallet): wallet is WalletConnectHDWallet {
   return isObject(wallet) && (wallet as any)._isWalletConnect;
 }
@@ -141,15 +148,39 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
    * Subscribes to EIP-1193 events
    */
   public async initialize(): Promise<void> {
+    this.provider.connector.on("session_update", async (error, payload) => {
+      if (error) {
+        throw error;
+      }
+
+      const { chainId, accounts } = payload.params[0];
+      this.onSessionUpdate(accounts, chainId);
+    });
+
+    this.provider.connector.on("connect", (error, payload) => {
+      if (error) {
+        throw error;
+      }
+
+      this.onConnect(payload);
+    });
+
+    this.provider.connector.on("disconnect", (error) => {
+      if (error) {
+        throw error;
+      }
+
+      this.onDisconnect();
+    });
+
+    // Display QR modal to connect
     await this.provider.enable()
 
     if (this.provider.connector.connected) {
       const { chainId, accounts } = this.provider.connector;
       const [address] = accounts;
-      this.connected = true;
-      this.chainId = chainId;
-      this.accounts = accounts;
-      this.ethAddress = address;
+      this.setState({ connected: true, chainId, accounts, address });
+      this.onSessionUpdate(accounts, chainId);
     }
   }
 
@@ -319,5 +350,36 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
 
   public async getFirmwareVersion(): Promise<string> {
     return "WalletConnect";
+  }
+
+  private onConnect(payload: any) {
+    console.info('onConnect(payload)', payload)
+    const { accounts, chainId } = payload.params[0];
+    const [address] = accounts;
+    this.setState({ connected: true, chainId, accounts, address });
+  }
+
+  private onSessionUpdate(accounts: string[], chainId: number) {
+    const [address] = accounts
+    this.setState({ accounts, address, chainId })
+  }
+
+  /**
+   * onDisconnect
+   * 
+   * Resets state
+   */
+  private onDisconnect() {
+    this.setState({ connected: false, chainId: 1, accounts: [], address: "" });
+  }
+
+  private setState(config: WCState) {
+    const { connected, chainId, accounts, address } = config
+    if(connected !== undefined) {
+      this.connected = connected
+    }
+    this.chainId = chainId
+    this.accounts = accounts
+    this.ethAddress = address
   }
 }
