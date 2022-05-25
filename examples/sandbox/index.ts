@@ -11,6 +11,7 @@ import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as tallyHo from "@shapeshiftoss/hdwallet-tallyho";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
+import * as walletConnect from "@shapeshiftoss/hdwallet-walletconnect";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 import $ from "jquery";
 import Web3 from "web3";
@@ -66,6 +67,7 @@ const kkemuAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const portisAdapter = portis.PortisAdapter.useKeyring(keyring, { portisAppId });
 const metaMaskAdapter = metaMask.MetaMaskAdapter.useKeyring(keyring);
 const tallyHoAdapter = tallyHo.TallyHoAdapter.useKeyring(keyring);
+const walletConnectAdapter = walletConnect.WalletConnectAdapter.useKeyring(keyring);
 const xdefiAdapter = xdefi.XDEFIAdapter.useKeyring(keyring);
 const nativeAdapter = native.NativeAdapter.useKeyring(keyring, {
   mnemonic,
@@ -98,6 +100,7 @@ const $portis = $("#portis");
 const $native = $("#native");
 const $metaMask = $("#metaMask");
 const $tallyHo = $("#tallyHo");
+const $walletConnect = $("#walletConnect");
 const $xdefi = $("#xdefi");
 const $keyring = $("#keyring");
 
@@ -198,6 +201,24 @@ $tallyHo.on("click", async (e) => {
   }
 });
 
+$walletConnect.on("click", async (e) => {
+  e.preventDefault();
+  try {
+    const config = {
+      rpc: {
+        1: "https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57"
+      }
+    };
+    wallet = await walletConnectAdapter.pairDevice(config);
+    window["wallet"] = wallet;
+    let deviceID = "nothing";
+    deviceID = await wallet.getDeviceID();
+    $("#keyring select").val(deviceID);
+  } catch (error) {
+    console.error(error);
+  }
+})
+
 $xdefi.on("click", async (e) => {
   e.preventDefault();
   wallet = await xdefiAdapter.pairDevice("testid");
@@ -296,6 +317,12 @@ async function deviceConnected(deviceId) {
     await tallyHoAdapter.initialize();
   } catch (e) {
     console.error("Could not initialize TallyHoAdapter", e);
+  }
+
+  try {
+    await walletConnectAdapter.initialize();
+  } catch (e) {
+    console.error("Could not initialize WalletConnectAdapter", e);
   }
 
   for (const deviceID of Object.keys(keyring.wallets)) {
