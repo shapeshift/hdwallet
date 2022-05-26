@@ -1,5 +1,5 @@
 import { Window as KeplrWindow } from "@keplr-wallet/types";
-import { ChainId, ChainReference, fromChainId, networkTypeToChainReference } from "@shapeshiftoss/caip";
+import { ChainReference } from "@shapeshiftoss/caip";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import _ from "lodash";
 
@@ -24,18 +24,6 @@ class KeplrTransport extends core.Transport {
 
 export function isKeplr(wallet: core.HDWallet): wallet is KeplrHDWallet {
   return _.isObject(wallet) && (wallet as any)._isKeplr;
-}
-
-interface KeplrAddresses {
-  [index: string]: string | null;
-}
-
-interface KeplrWalletState {
-  addresses?: KeplrAddresses;
-  address?: string;
-  provider?: any;
-  offlineSigner?: any;
-  chainId?: string;
 }
 
 export class KeplrHDWalletInfo implements core.HDWalletInfo, core.CosmosWalletInfo, core.OsmosisWalletInfo {
@@ -140,36 +128,15 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
   transport: core.Transport = new KeplrTransport(new core.Keyring());
   info: KeplrHDWalletInfo & core.HDWalletInfo;
 
-  state: KeplrWalletState = {};
+  initialized = false;
+  provider: any = {};
   supportedNetworks: ChainReference[] = [
     ChainReference.CosmosHubMainnet,
-    ChainReference.CosmosHubVega,
-    ChainReference.OsmosisMainnet,
-    ChainReference.OsmosisTestnet,
+    ChainReference.OsmosisMainnet
   ];
 
   constructor() {
     this.info = new KeplrHDWalletInfo();
-
-    /** Reinitialize adapter when user selects new chain from Keplr extension */
-    window.addEventListener("keplr_chainchange", (e) => {
-      const chainId = (e as CustomEvent).detail;
-      if (!this.supportedNetworks.includes(chainId)) {
-        throw new Error(`Unsupported chainId: ${chainId}`);
-      }
-      this.initializeKeplrWithChainId(chainId);
-    });
-  }
-
-  private async initializeKeplrWithChainId(chainId: string) {
-    if (!window.keplr) {
-      throw new Error("Keplr extension not installed.");
-    }
-    await window.keplr.enable(chainId);
-    this.state.chainId = chainId;
-    const offlineSigner = window.keplr.getOfflineSigner(chainId);
-    this.state.address = (await offlineSigner.getAccounts())[0].address;
-    this.state.provider = window.keplr;
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -177,7 +144,7 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
   }
 
   public async isLocked(): Promise<boolean> {
-    return this.state.provider.isLocked();
+    return this.provider.isLocked();
   }
 
   public getVendor(): string {
@@ -192,21 +159,17 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
     return Promise.resolve("Keplr");
   }
 
-  public async initialize(chainId: ChainId = ""): Promise<any> {
+  public async initialize(): Promise<any> {
     try {
       if (!window.keplr) {
         throw new Error("Keplr extension not installed.");
       }
-      if (!chainId) {
-        throw new Error("Please specify CAIP2-compliant chainId in call to initialize()");
-      }
-      const network = networkTypeToChainReference[fromChainId(chainId).network];
-      if (this.supportedNetworks.includes(network)) {
-        this.state.chainId = network;
-        this.initializeKeplrWithChainId(this.state.chainId);
-      } else {
-        throw new Error(`Unsupported chainId: ${chainId}`);
-      }
+      this.provider = window.keplr;
+
+      /** Initialize Keplr Wallet with all supported chains */
+      const chains = this.supportedNetworks
+      console.log(chains)
+      await this.provider.enable(this.supportedNetworks);
       return Promise.resolve();
     } catch (error) {
       /**
@@ -310,19 +273,22 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
+  public async getPublicKeys(
+    msg: Array<core.GetPublicKey>,
+    chainId: ChainReference = ChainReference.CosmosHubMainnet
+  ): Promise<Array<core.PublicKey | null>> {
+    if (!this.supportedNetworks.includes(chainId)) {
+      throw new Error(`Unsupported chainId: ${chainId}`);
+    }
     const keys: Array<core.PublicKey | null> = [];
-    await this.state.provider.enable(this.state.chainId);
-    const offlineSigner = this.state.provider.getOfflineSigner(this.state.chainId);
+    await this.provider.enable(chainId);
+    const offlineSigner = this.provider.getOfflineSigner(chainId);
     keys.push({ xpub: Buffer.from((await offlineSigner.getAccounts())[0].pubkey).toString() });
     return keys;
   }
 
   public async isInitialized(): Promise<boolean> {
-    if (!this.state.provider) {
-      return false;
-    }
-    return true;
+    return this.initialized;
   }
 
   public disconnect(): Promise<void> {
@@ -350,23 +316,12 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string | null> {
-    if (this.state.chainId != (ChainReference.CosmosHubMainnet || ChainReference.CosmosHubVega)) {
-      throw new Error("Please change network to 'Cosmos.'");
-    }
-    const address = await cosmos.cosmosGetAddress(this.state);
-    if (address) {
-      this.state.address = address;
-      return address;
-    }
-    return null;
+  public async cosmosGetAddress(): Promise<string | null> {
+    return (await cosmos.cosmosGetAddress(this.provider)) || null;
   }
 
   public async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
-    if (this.state.chainId != (ChainReference.CosmosHubMainnet || ChainReference.CosmosHubVega)) {
-      throw new Error("Please change network to 'Cosmos.'");
-    }
-    return cosmos.cosmosSignTx(msg, this.state);
+    return cosmos.cosmosSignTx(this.provider, msg);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -396,23 +351,12 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async osmosisGetAddress(msg: core.OsmosisGetAddress): Promise<string | null> {
-    if (this.state.chainId != (ChainReference.OsmosisMainnet || ChainReference.OsmosisTestnet)) {
-      throw new Error("Please change network to 'Osmosis.'");
-    }
-    const address = await osmosis.osmosisGetAddress(this.state);
-    if (address) {
-      this.state.address = address;
-      return address;
-    }
-    return null;
+  public async osmosisGetAddress(): Promise<string | null> {
+    return (await osmosis.osmosisGetAddress(this.provider)) || null;
   }
 
   public async osmosisSignTx(msg: core.OsmosisSignTx): Promise<core.OsmosisSignedTx | null> {
-    if (this.state.chainId != (ChainReference.OsmosisMainnet || ChainReference.OsmosisTestnet)) {
-      throw new Error("Please change network to 'Osmosis.'");
-    }
-    return osmosis.osmosisSignTx(msg, this.state);
+    return osmosis.osmosisSignTx(this.provider, msg);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -422,7 +366,7 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
   }
 
   public async getDeviceID(): Promise<string> {
-    return "keplr:" + (await this.cosmosGetAddress(this.state.provider));
+    return "keplr:" + (await this.cosmosGetAddress());
   }
 
   public async getFirmwareVersion(): Promise<string> {

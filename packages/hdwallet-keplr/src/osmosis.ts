@@ -1,3 +1,4 @@
+import { ChainReference } from "@shapeshiftoss/caip";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import {
   OsmosisAccountPath,
@@ -55,16 +56,14 @@ export function osmosisGetAccountPaths(msg: OsmosisGetAccountPaths): Array<Osmos
   ];
 }
 
-export async function osmosisGetAddress(state: any): Promise<string | undefined> {
-  await window?.keplr?.enable(state.chainId);
-  const offlineSigner = window?.keplr?.getOfflineSigner(state.chainId);
+export async function osmosisGetAddress(provider: any): Promise<string | undefined> {
+  const offlineSigner = provider.getOfflineSigner(ChainReference.OsmosisMainnet);
   const osmosisAddress = (await offlineSigner?.getAccounts())?.[0].address;
   return osmosisAddress;
 }
 
-export async function osmosisSignTx(msg: OsmosisSignTx, state: any): Promise<OsmosisSignedTx> {
-  await state.provider.enable(state.chainId);
-  const offlineSigner = state.provider.getOfflineSigner(state.chainId);
+export async function osmosisSignTx(provider: any, msg: OsmosisSignTx): Promise<OsmosisSignedTx> {
+  const offlineSigner = provider.getOfflineSigner(ChainReference.OsmosisMainnet);
   const output = await sign(msg.tx, offlineSigner, msg.sequence, msg.account_number, msg.chain_id);
   return output;
 }

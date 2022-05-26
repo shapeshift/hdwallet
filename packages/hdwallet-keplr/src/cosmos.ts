@@ -1,3 +1,4 @@
+import { ChainReference } from "@shapeshiftoss/caip";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import {
   CosmosAccountPath,
@@ -55,16 +56,14 @@ export function cosmosGetAccountPaths(msg: CosmosGetAccountPaths): Array<CosmosA
   ];
 }
 
-export async function cosmosGetAddress(state: any): Promise<string | undefined> {
-  await window?.keplr?.enable(state.chainId);
-  const offlineSigner = window?.keplr?.getOfflineSigner(state.chainId);
+export async function cosmosGetAddress(provider: any): Promise<string | undefined> {
+  const offlineSigner = provider.getOfflineSigner(ChainReference.CosmosHubMainnet);
   const cosmosAddress = (await offlineSigner?.getAccounts())?.[0].address;
   return cosmosAddress;
 }
 
-export async function cosmosSignTx(msg: CosmosSignTx, state: any): Promise<CosmosSignedTx> {
-  await state.provider.enable(state.chainId);
-  const offlineSigner = state.provider.getOfflineSigner(state.chainId);
+export async function cosmosSignTx(provider: any, msg: CosmosSignTx): Promise<CosmosSignedTx> {
+  const offlineSigner = provider.getOfflineSigner(ChainReference.CosmosHubMainnet);
   const output = await sign(msg.tx, offlineSigner, msg.sequence, msg.account_number, msg.chain_id);
   return output;
 }

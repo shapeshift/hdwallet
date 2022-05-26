@@ -1,4 +1,3 @@
-import { ChainId } from "@shapeshiftoss/caip";
 import * as core from "@shapeshiftoss/hdwallet-core";
 
 import { KeplrHDWallet } from "./keplr";
@@ -21,15 +20,12 @@ export class KeplrAdapter {
     return Object.keys(this.keyring.wallets).length;
   }
 
-  public async pairDevice(chainId: ChainId = ""): Promise<core.HDWallet> {
+  public async pairDevice(): Promise<core.HDWallet> {
     if (!window.getOfflineSigner || !window.keplr) {
       console.error("Please install Keplr Extension!");
     }
-    if (!chainId) {
-      throw new Error("Please specify CAIP2-compliant chainId in call to pairDevice()");
-    }
     const wallet = new KeplrHDWallet();
-    await wallet.initialize(chainId);
+    await wallet.initialize();
     const deviceID = await wallet.getDeviceID();
     this.keyring.add(wallet, deviceID);
     this.currentDeviceID = deviceID;
