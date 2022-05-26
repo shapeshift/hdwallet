@@ -130,10 +130,7 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
 
   initialized = false;
   provider: any = {};
-  supportedNetworks: ChainReference[] = [
-    ChainReference.CosmosHubMainnet,
-    ChainReference.OsmosisMainnet
-  ];
+  supportedNetworks: ChainReference[] = [ChainReference.CosmosHubMainnet, ChainReference.OsmosisMainnet];
 
   constructor() {
     this.info = new KeplrHDWalletInfo();
@@ -167,15 +164,13 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
       this.provider = window.keplr;
 
       /** Initialize Keplr Wallet with all supported chains */
-      const chains = this.supportedNetworks
-      console.log(chains)
       await this.provider.enable(this.supportedNetworks);
       return Promise.resolve();
     } catch (error) {
       /**
        * @todo Use logger instead of console.error()
        */
-      console.error("Error initializing Keplr", error);
+      throw new Error("Error initializing Keplr");
     }
   }
 
