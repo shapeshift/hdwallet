@@ -29,3 +29,24 @@ export function describeETHPath(path: core.BIP32Path): core.PathDescription {
     isKnown: true,
   };
 }
+
+export async function ethSignTx(
+  args: core.ETHSignTx & { from: string },
+  provider: any
+): Promise<core.ETHSignedTx | null> {
+  return await provider.wc.signTransaction(args);
+}
+
+export async function ethSendTx(
+  args: core.ETHSignTx & { from: string },
+  provider: any
+): Promise<core.ETHTxHash | null> {
+  return await provider.wc.sendTransaction(args);
+}
+
+export async function ethSignMessage(
+  args: { data: string; fromAddress: string },
+  provider: any
+): Promise<core.ETHSignedMessage | null> {
+  return  await provider.wc.signMessage([Buffer.from(args.data).toString("hex"), args.fromAddress]);
+}

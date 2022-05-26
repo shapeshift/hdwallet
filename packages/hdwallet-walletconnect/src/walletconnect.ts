@@ -2,7 +2,9 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import isObject from "lodash/isObject";
 
-interface WCState { 
+import * as eth from "./ethereum";
+
+interface WCState {
   connected?: boolean;
   chainId: number;
   accounts: string[];
@@ -15,7 +17,7 @@ export function isWalletConnect(wallet: core.HDWallet): wallet is WalletConnectH
 
 /**
  * WalletConnect Wallet Info
- * 
+ *
  * Supported JSON-RPC API Methods:
  * - personal_sign
  * - eth_sign
@@ -63,7 +65,7 @@ export class WalletConnectWalletInfo implements core.HDWalletInfo, core.ETHWalle
   public describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin) {
       case "Ethereum":
-        return core.describeETHPath(msg.path);
+        return eth.describeETHPath(msg.path);
       default:
         throw new Error("Unsupported path");
     }
@@ -113,9 +115,9 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
   info: WalletConnectWalletInfo & core.HDWalletInfo;
   provider: WalletConnectProvider;
   connected = false;
-  chainId: number = -1;
+  chainId = -1;
   accounts: string[] = [];
-  ethAddress: string = "";
+  ethAddress = "";
 
   constructor(provider: WalletConnectProvider) {
     this.provider = provider;
@@ -144,7 +146,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
 
   /**
    * Initialize
-   * 
+   *
    * Subscribes to EIP-1193 events
    */
   public async initialize(): Promise<void> {
@@ -174,7 +176,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
     });
 
     // Display QR modal to connect
-    await this.provider.enable()
+    await this.provider.enable();
 
     if (this.provider.connector.connected) {
       const { chainId, accounts } = this.provider.connector;
@@ -206,9 +208,9 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
 
   /**
    * Supports Offline Signing
-   * 
+   *
    * Offline signing is supported when `signTransaction` does not broadcast
-   * the tx message. WalletConnect's core Connector implementation always 
+   * the tx message. WalletConnect's core Connector implementation always
    * makes a request, so offline signing is not supported.
    * @see https://github.com/WalletConnect/walletconnect-monorepo/blob/7573fa9e1d91588d4af3409159b4fd2f9448a0e2/packages/clients/core/src/index.ts#L630
    */
@@ -225,7 +227,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async ping(msg: core.Ping): Promise<core.Pong> {
-    // ping function for Wallet Connect? 
+    // ping function for Wallet Connect?
     return { msg: msg.msg };
   }
 
@@ -312,31 +314,29 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
 
   /**
    * Ethereum Signed Transaction
-   * 
+   *
    * @see https://docs.walletconnect.com/client-api#sign-transaction-eth_signtransaction
    */
-  public async ethSignTx(msg: core.ETHSignTx & { from: string }): Promise<core.ETHSignedTx | null> {
-    msg.from = this.ethAddress;
-    return this.provider.wc.signTransaction(msg);
+  public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {
+    return eth.ethSignTx({ ...msg, from: this.ethAddress }, this.provider);
   }
 
   /**
    * Ethereum Send Transaction
-   * 
+   *
    * @see https://docs.walletconnect.com/client-api#send-transaction-eth_sendtransaction
    */
-  public async ethSendTx(msg: core.ETHSignTx & { from: string }): Promise<core.ETHTxHash | null> {
-    msg.from = this.ethAddress;
-    return this.provider.wc.sendTransaction(msg);
+  public async ethSendTx(msg: core.ETHSignTx): Promise<core.ETHTxHash | null> {
+    return eth.ethSendTx({ ...msg, from: this.ethAddress }, this.provider);
   }
 
   /**
    * Ethereum Sign Message
-   * 
+   *
    * @see https://docs.walletconnect.com/client-api#sign-message-eth_sign
    */
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
-    return this.provider.wc.signMessage([Buffer.from(msg.message).toString("hex"), this.ethAddress])
+    return eth.ethSignMessage({ data: msg.message, fromAddress: this.ethAddress }, this.provider);
   }
 
   public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean | null> {
@@ -353,20 +353,19 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   private onConnect(payload: any) {
-    console.info('onConnect(payload)', payload)
     const { accounts, chainId } = payload.params[0];
     const [address] = accounts;
     this.setState({ connected: true, chainId, accounts, address });
   }
 
   private onSessionUpdate(accounts: string[], chainId: number) {
-    const [address] = accounts
-    this.setState({ accounts, address, chainId })
+    const [address] = accounts;
+    this.setState({ accounts, address, chainId });
   }
 
   /**
    * onDisconnect
-   * 
+   *
    * Resets state
    */
   private onDisconnect() {
@@ -374,12 +373,12 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   private setState(config: WCState) {
-    const { connected, chainId, accounts, address } = config
-    if(connected !== undefined) {
-      this.connected = connected
+    const { connected, chainId, accounts, address } = config;
+    if (connected !== undefined) {
+      this.connected = connected;
     }
-    this.chainId = chainId
-    this.accounts = accounts
-    this.ethAddress = address
+    this.chainId = chainId;
+    this.accounts = accounts;
+    this.ethAddress = address;
   }
 }
