@@ -375,6 +375,7 @@ export class KeepKeyHDWalletInfo
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
   readonly _supportsCosmosInfo = true;
+  readonly _supportsOsmosisInfo = true;
   readonly _supportsRippleInfo = true;
   readonly _supportsBinanceInfo = true;
   readonly _supportsEosInfo = true;
@@ -616,6 +617,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   readonly _supportsETHInfo = true;
   readonly _supportsBTCInfo = true;
   readonly _supportsCosmosInfo = true;
+  readonly _supportsOsmosisInfo = true;
   readonly _supportsRippleInfo = true;
   readonly _supportsBinanceInfo = true;
   readonly _supportsEosInfo = true;
@@ -625,6 +627,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   readonly _supportsETH = true;
   readonly _supportsBTC = true;
   _supportsCosmos = true;
+  _supportsOsmosis = true;
   _supportsRipple = true;
   _supportsBinance = true;
   _supportsEos = true;
@@ -984,9 +987,9 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
       this.transport.keyring.addAlias(transportDeviceID, out.deviceId);
     }
 
-    // Cosmos isn't supported until v6.3.0
     const fwVersion = `v${out.majorVersion}.${out.minorVersion}.${out.patchVersion}`;
     //Lost Support per proto 44.3
+    this._supportsOsmosis = semver.gte(fwVersion, "v7.4.0");
     this._supportsCosmos = semver.gte(fwVersion, "v7.3.0");
     this._supportsRipple = semver.gte(fwVersion, "v6.4.0");
     this._supportsBinance = semver.gte(fwVersion, "v6.4.0");
