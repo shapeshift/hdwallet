@@ -30,22 +30,22 @@ import {
   cosmosTransferTx,
   cosmosUndelegateTx,
 } from "./json/cosmos/cosmosAminoTx.json";
+import * as dashTxJson from "./json/dashTx.json";
+import * as dogeTxJson from "./json/dogeTx.json";
+import * as ltcTxJson from "./json/ltcTx.json";
 import {
-  osmosisSendTx,
   osmosisDelegateTx,
-  osmosisUndelegateTx,
-  osmosisRedelegateTx,
-  osmosisRewardsTx,
+  osmosisIBCTransferTx,
   osmosisLPAddTx,
   osmosisLPRemoveTx,
   osmosisLPStakeTx,
   osmosisLPUnstakeTx,
-  osmosisIBCTransferTx,
+  osmosisRedelegateTx,
+  osmosisRewardsTx,
+  osmosisSendTx,
   osmosisSwapTx,
+  osmosisUndelegateTx,
 } from "./json/osmosis/osmosisAminoTx.json";
-import * as dashTxJson from "./json/dashTx.json";
-import * as dogeTxJson from "./json/dogeTx.json";
-import * as ltcTxJson from "./json/ltcTx.json";
 import * as rippleTxJson from "./json/rippleTx.json";
 import {
   thorchainBinanceBaseTx,
