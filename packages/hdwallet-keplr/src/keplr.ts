@@ -156,20 +156,22 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
     return Promise.resolve("Keplr");
   }
 
-  public async initialize(): Promise<any> {
+  public async initialize(networks: Array<ChainReference> = []): Promise<any> {
     try {
       if (!window.keplr) {
         throw new Error("Keplr extension not installed.");
       }
       this.provider = window.keplr;
 
-      /** Initialize Keplr Wallet with all supported chains */
-      await this.provider.enable(this.supportedNetworks);
+      /** Initialize Keplr Wallet with all supported chains by default 
+       * or the subset of supported chains passed in the call to initialize() */
+      await this.provider.enable(networks.length ? networks : this.supportedNetworks);
       return Promise.resolve();
     } catch (error) {
       /**
        * @todo Use logger instead of console.error()
        */
+      console.error(error);
       throw new Error("Error initializing Keplr");
     }
   }
