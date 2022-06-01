@@ -190,7 +190,7 @@ $metaMask.on("click", async (e) => {
 
 $keplr.on("click", async (e) => {
   e.preventDefault();
-  wallet = await keplrAdapter.pairDevice("cosmos:cosmoshub-4");
+  wallet = await keplrAdapter.pairDevice();
   window["wallet"] = wallet;
   let deviceID = "nothing";
   try {

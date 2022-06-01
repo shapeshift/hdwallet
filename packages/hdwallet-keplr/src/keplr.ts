@@ -1,7 +1,7 @@
 import { Window as KeplrWindow } from "@keplr-wallet/types";
 import { ChainReference } from "@shapeshiftoss/caip";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import _ from "lodash";
+import isObject from "lodash/isObject";
 
 import * as cosmos from "./cosmos";
 import * as osmosis from "./osmosis";
@@ -17,13 +17,13 @@ class KeplrTransport extends core.Transport {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public call(...args: any[]): Promise<any> {
+  public call(...args: any[]): Promise<void> {
     return Promise.resolve();
   }
 }
 
 export function isKeplr(wallet: core.HDWallet): wallet is KeplrHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isKeplr;
+  return isObject(wallet) && (wallet as any)._isKeplr;
 }
 
 export class KeplrHDWalletInfo implements core.HDWalletInfo, core.CosmosWalletInfo, core.OsmosisWalletInfo {
@@ -156,7 +156,7 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
     return Promise.resolve("Keplr");
   }
 
-  public async initialize(networks: Array<ChainReference> = []): Promise<any> {
+  public async initialize(networks: Array<ChainReference> = []): Promise<void> {
     try {
       if (!window.keplr) {
         throw new Error("Keplr extension not installed.");
