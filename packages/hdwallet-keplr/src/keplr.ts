@@ -163,7 +163,7 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
       }
       this.provider = window.keplr;
 
-      /** Initialize Keplr Wallet with all supported chains by default 
+      /** Initialize Keplr Wallet with all supported chains by default
        * or the subset of supported chains passed in the call to initialize() */
       await this.provider.enable(networks.length ? networks : this.supportedNetworks);
       return Promise.resolve();
