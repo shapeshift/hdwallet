@@ -126,13 +126,6 @@ function prepareSignTx(
 
   inputs.forEach((inputTx) => {
     if (inputTx.txid in txmap) return;
-
-    if (
-      inputTx.scriptType === core.BTCInputScriptType.SpendP2SHWitness ||
-      inputTx.scriptType === core.BTCInputScriptType.SpendWitness ||
-      inputTx.scriptType === core.BTCInputScriptType.External ||
-      true
-    )
       return;
   });
 
