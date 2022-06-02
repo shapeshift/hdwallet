@@ -250,6 +250,7 @@ export async function btcSignTx(
 
     try {
       // Begin callback loop
+      // eslint-disable-next-line no-constant-condition
       while (true) {
         if (responseType !== Messages.MessageType.MESSAGETYPE_TXREQUEST) {
           throw new Error(`Unexpected message type: ${responseType}`);
@@ -271,6 +272,7 @@ export async function btcSignTx(
           if (signatures[sigIdx] !== null) {
             throw new Error(`Signature for index ${sigIdx} already filled`);
           }
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           signatures[sigIdx] = core.toHexString(txRequest.getSerialized()!.getSignature_asU8());
         }
 
@@ -285,8 +287,10 @@ export async function btcSignTx(
 
         // Device asked for one more information, let's process it.
         if (!txRequest.hasDetails()) throw new Error("expected details");
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const reqDetails = txRequest.getDetails()!;
 
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         if (!reqDetails!.hasTxHash()) {
           currentTx = txmap["unsigned"];
         } else {
