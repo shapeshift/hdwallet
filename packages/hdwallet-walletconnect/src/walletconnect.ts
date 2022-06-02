@@ -71,6 +71,7 @@ export class WalletConnectWalletInfo implements core.HDWalletInfo, core.ETHWalle
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public ethNextAccountPath(_msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
     return undefined;
   }
@@ -231,18 +232,22 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
     return { msg: msg.msg };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendPin(_pin: string): Promise<void> {
     // no concept of pin in WalletConnect
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendPassphrase(_passphrase: string): Promise<void> {
     // cannot send passphrase. Could show the widget?
   }
 
-  public async sendCharacter(_charater: string): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async sendCharacter(_character: string): Promise<void> {
     // no concept of sendCharacter
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendWord(_word: string): Promise<void> {
     // no concept of sendWord
   }
@@ -255,14 +260,17 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
     return;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async reset(_msg: core.ResetDevice): Promise<void> {
     return;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async recover(_msg: core.RecoverDevice): Promise<void> {
     // no concept of recover
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async loadDevice(_msg: core.LoadDevice): Promise<void> {
     return;
   }
@@ -271,6 +279,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
     return this.info.describePath(msg);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async getPublicKeys(_msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
     // Ethereum public keys are not exposed by the RPC API
     return [];
@@ -339,6 +348,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
     return eth.ethSignMessage({ data: msg.message, fromAddress: this.ethAddress }, this.provider);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean | null> {
     console.error("Method ethVerifyMessage unsupported for WalletConnect wallet!");
     return null;
