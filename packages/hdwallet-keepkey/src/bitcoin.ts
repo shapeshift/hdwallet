@@ -1,6 +1,7 @@
 import * as Exchange from "@keepkey/device-protocol/lib/exchange_pb";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
+import * as bitcoinjs from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { thaw } from "icepick";
 
@@ -36,6 +37,13 @@ function segwitNativeAccount(coin: core.Coin, slip44: number, accountIdx: number
     scriptType: core.BTCInputScriptType.SpendWitness,
     addressNList: [0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + accountIdx],
   };
+}
+
+function packVarint(n: number): string {
+  if (n < 253) return n.toString(16).padStart(2, "0");
+  else if (n < 0xffff) return "FD" + n.toString(16).padStart(4, "0");
+  else if (n < 0xffffffff) return "FE" + n.toString(16).padStart(8, "0");
+  else return "FF" + n.toString(16).padStart(16, "0");
 }
 
 function prepareSignTx(
@@ -115,6 +123,87 @@ function prepareSignTx(
 
   const forceBip143Coins = ["BitcoinGold", "BitcoinCash", "BitcoinSV"];
   if (forceBip143Coins.includes(coin)) return txmap;
+
+  inputs.forEach((inputTx) => {
+    if (inputTx.txid in txmap) return;
+
+    if (
+      inputTx.scriptType === core.BTCInputScriptType.SpendP2SHWitness ||
+      inputTx.scriptType === core.BTCInputScriptType.SpendWitness ||
+      inputTx.scriptType === core.BTCInputScriptType.External ||
+      true
+    )
+      return;
+
+    const prevTx = ((): core.BitcoinTx => {
+      if (inputTx.tx) return inputTx.tx;
+      if (!inputTx.hex) throw new Error("non-segwit inputs must have the associated prev tx");
+      const tx = bitcoinjs.Transaction.fromHex(inputTx.hex);
+      return {
+        version: tx.version,
+        locktime: tx.locktime,
+        vin: tx.ins.map((input) => ({
+          txid: Buffer.from(input.hash).reverse().toString("hex"),
+          vout: input.index,
+          scriptSig: {
+            hex: input.script.toString("hex"),
+          },
+          sequence: input.sequence,
+        })),
+        vout: tx.outs.map((output) => ({
+          value: String(output.value),
+          scriptPubKey: {
+            hex: output.script.toString("hex"),
+          },
+        })),
+      };
+    })();
+
+    const tx = new Types.TransactionType();
+    tx.setVersion(prevTx.version);
+    tx.setLockTime(prevTx.locktime);
+    tx.setInputsCnt(prevTx.vin.length);
+    tx.setOutputsCnt(prevTx.vout.length);
+
+    prevTx.vin.forEach((vin, i) => {
+      const txInput = new Types.TxInputType();
+      if ("coinbase" in vin) {
+        txInput.setPrevHash(core.fromHexString("\0".repeat(64)));
+        txInput.setPrevIndex(0xffffffff);
+        txInput.setScriptSig(core.fromHexString(core.mustBeDefined(vin.coinbase)));
+        txInput.setSequence(vin.sequence);
+      } else {
+        txInput.setPrevHash(core.fromHexString(vin.txid));
+        txInput.setPrevIndex(vin.vout);
+        txInput.setScriptSig(core.fromHexString(vin.scriptSig.hex));
+        txInput.setSequence(vin.sequence);
+      }
+      tx.addInputs(txInput, i);
+    });
+
+    prevTx.vout.forEach((vout, i) => {
+      const txOutput = new Types.TxOutputBinType();
+      txOutput.setAmount(core.satsFromStr(vout.value));
+      txOutput.setScriptPubkey(core.fromHexString(vout.scriptPubKey.hex));
+      tx.addBinOutputs(txOutput, i);
+    });
+
+    if (coin === "Dash") {
+      const dip2_type: number = prevTx.type || 0;
+      // DIP2 Special Tx with payload
+      if (prevTx.version === 3 && dip2_type !== 0) {
+        if (!prevTx.extraPayload) throw new Error("Payload missing in DIP2 transaction");
+        tx.setExtraData(core.fromHexString(packVarint(prevTx.extraPayload.length * 2) + prevTx.extraPayload));
+      }
+
+      // Trezor (and therefore KeepKey) firmware doesn't understand the
+      // split of version and type, so let's mimic the old serialization
+      // format
+      tx.setVersion(prevTx.version | (dip2_type << 16));
+    }
+
+    txmap[inputTx.txid] = tx;
+  });
 
   return txmap;
 }
