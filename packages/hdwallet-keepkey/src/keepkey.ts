@@ -7,6 +7,7 @@ import semver from "semver";
 import * as Binance from "./binance";
 import * as Btc from "./bitcoin";
 import * as Cosmos from "./cosmos";
+import * as Osmosis from "./osmosis";
 import * as Eos from "./eos";
 import * as Eth from "./ethereum";
 import * as Ripple from "./ripple";
@@ -200,6 +201,45 @@ function describeCosmosPath(path: core.BIP32Path): core.PathDescription {
     accountIdx: index,
     wholeAccount: true,
     coin: "Atom",
+    isKnown: true,
+    isPrefork: false,
+  };
+}
+
+function describeOsmosisPath(path: core.BIP32Path): core.PathDescription {
+  const pathStr = core.addressNListToBIP32(path);
+  const unknown: core.PathDescription = {
+    verbose: pathStr,
+    coin: "Osmo",
+    isKnown: false,
+  };
+
+  if (path.length != 5) {
+    return unknown;
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown;
+  }
+
+  if (path[1] != 0x80000000 + core.slip44ByCoin("Osmo")) {
+    return unknown;
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown;
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown;
+  }
+
+  const index = path[2] & 0x7fffffff;
+  return {
+    verbose: `Osmosis Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "Osmo",
     isKnown: true,
     isPrefork: false,
   };
@@ -433,6 +473,10 @@ export class KeepKeyHDWalletInfo
     return Cosmos.cosmosGetAccountPaths(msg);
   }
 
+  public osmosisGetAccountPaths(msg: core.OsmosisGetAccountPaths): Array<core.OsmosisAccountPath> {
+    return Osmosis.osmosisGetAccountPaths(msg);
+  }
+
   public thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
     return Thorchain.thorchainGetAccountPaths(msg);
   }
@@ -484,6 +528,8 @@ export class KeepKeyHDWalletInfo
         return describeETHPath(msg.path);
       case "Atom":
         return describeCosmosPath(msg.path);
+      case "Osmo":
+        return describeOsmosisPath(msg.path);
       case "Binance":
         return describeBinancePath(msg.path);
       case "Ripple":
@@ -540,6 +586,21 @@ export class KeepKeyHDWalletInfo
 
   public cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
     const description = describeCosmosPath(msg.addressNList);
+    if (!description.isKnown) {
+      return undefined;
+    }
+
+    const addressNList = msg.addressNList;
+    addressNList[2] += 1;
+
+    return {
+      ...msg,
+      addressNList,
+    };
+  }
+
+  public osmosisNextAccountPath(msg: core.OsmosisAccountPath): core.OsmosisAccountPath | undefined {
+    const description = describeOsmosisPath(msg.addressNList);
     if (!description.isKnown) {
       return undefined;
     }
@@ -1208,6 +1269,18 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     return Cosmos.cosmosSignTx(this.transport, msg);
   }
 
+  public osmosisGetAccountPaths(msg: core.OsmosisGetAccountPaths): Array<core.OsmosisAccountPath> {
+    return this.info.osmosisGetAccountPaths(msg);
+  }
+
+  public osmosisGetAddress(msg: core.OsmosisGetAddress): Promise<string> {
+    return Osmosis.osmosisGetAddress(this.transport, msg);
+  }
+
+  public osmosisSignTx(msg: core.OsmosisSignTx): Promise<core.OsmosisSignedTx> {
+    return Osmosis.osmosisSignTx(this.transport, msg);
+  }
+
   public thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
     return this.info.thorchainGetAccountPaths(msg);
   }
@@ -1266,6 +1339,10 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
 
   public cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
     return this.info.cosmosNextAccountPath(msg);
+  }
+
+  public osmosisNextAccountPath(msg: core.OsmosisAccountPath): core.OsmosisAccountPath | undefined {
+    return this.info.osmosisNextAccountPath(msg);
   }
 
   public rippleNextAccountPath(msg: core.RippleAccountPath): core.RippleAccountPath | undefined {
