@@ -71,159 +71,182 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
       }
 
       let ack;
-      if (m.type === "osmosis-sdk/MsgSend") {
-        // Transfer
-        if (m.value.amount.length !== 1) {
-          throw new Error("osmosis: Multiple amounts per msg not supported");
+      switch (m.type) {
+        case "osmosis-sdk/MsgSend": {
+          // Transfer
+          if (m.value.amount.length !== 1) {
+            throw new Error("osmosis: Multiple amounts per msg not supported");
+          }
+
+          const denom = m.value.amount[0].denom;
+          if (denom !== "uatom") {
+            throw new Error("osmosis: Unsupported denomination: " + denom);
+          }
+
+          const send = new OsmosisMessages.OsmosisMsgSend();
+          send.setFromAddress(m.value.from_address);
+          send.setToAddress(m.value.to_address);
+          send.setDenom(m.value.amount[0].denom);
+          send.setAmount(m.value.amount[0].amount);
+
+          ack = new OsmosisMessages.OsmosisMsgAck();
+          ack.setSend(send);
+          break;
         }
+        case "cosmos-sdk/MsgDelegate": {
+          // Delegate
+          const denom = m.value.amount.denom;
+          if (denom !== "uatom") {
+            throw new Error("osmosis: Unsupported denomination: " + denom);
+          }
 
-        const denom = m.value.amount[0].denom;
-        if (denom !== "uatom") {
-          throw new Error("osmosis: Unsupported denomination: " + denom);
+          const delegate = new OsmosisMessages.OsmosisMsgDelegate();
+          delegate.setDelegatorAddress(m.value.delegator_address);
+          delegate.setValidatorAddress(m.value.validator_address);
+          delegate.setDenom(m.value.amount[0].denom);
+          delegate.setAmount(m.value.amount[0].amount);
+
+          ack = new OsmosisMessages.OsmosisMsgAck();
+          ack.setDelegate(delegate);
+          break;
         }
+        case "cosmos-sdk/MsgUndelegate": {
+          // Undelegate
+          const denom = m.value.amount.denom;
+          if (denom !== "uatom") {
+            throw new Error("osmosis: Unsupported denomination: " + denom);
+          }
 
-        const send = new OsmosisMessages.OsmosisMsgSend();
-        send.setFromAddress(m.value.from_address);
-        send.setToAddress(m.value.to_address);
-        send.setDenom(m.value.amount[0].denom);
-        send.setAmount(m.value.amount[0].amount);
+          const undelegate = new OsmosisMessages.OsmosisMsgUndelegate();
+          undelegate.setDelegatorAddress(m.value.delegator_address);
+          undelegate.setValidatorAddress(m.value.validator_address);
+          undelegate.setDenom(m.value.amount[0].denom);
+          undelegate.setAmount(m.value.amount[0].amount);
 
-        ack = new OsmosisMessages.OsmosisMsgAck();
-        ack.setSend(send);
-      } else if (m.type === "cosmos-sdk/MsgDelegate") {
-        // Delegate
-        const denom = m.value.amount.denom;
-        if (denom !== "uatom") {
-          throw new Error("osmosis: Unsupported denomination: " + denom);
+          ack = new OsmosisMessages.OsmosisMsgAck();
+          ack.setUndelegate(undelegate);
+          break;
         }
+        case "cosmos-sdk/MsgBeginRedelegate": {
+          // Redelegate
+          const denom = m.value.amount.denom;
+          if (denom !== "uatom") {
+            throw new Error("osmosis: Unsupported denomination: " + denom);
+          }
 
-        const delegate = new OsmosisMessages.OsmosisMsgDelegate();
-        delegate.setDelegatorAddress(m.value.delegator_address);
-        delegate.setValidatorAddress(m.value.validator_address);
-        delegate.setDenom(m.value.amount[0].denom);
-        delegate.setAmount(m.value.amount[0].amount);
+          const redelegate = new OsmosisMessages.OsmosisMsgRedelegate();
+          redelegate.setDelegatorAddress(m.value.delegator_address);
+          redelegate.setValidatorSrcAddress(m.value.validator_src_address);
+          redelegate.setValidatorDstAddress(m.value.validator_dst_address);
+          redelegate.setAmount(m.value.amount.amount);
 
-        ack = new OsmosisMessages.OsmosisMsgAck();
-        ack.setDelegate(delegate);
-      } else if (m.type === "cosmos-sdk/MsgUndelegate") {
-        // Undelegate
-        const denom = m.value.amount.denom;
-        if (denom !== "uatom") {
-          throw new Error("osmosis: Unsupported denomination: " + denom);
+          ack = new OsmosisMessages.OsmosisMsgAck();
+          ack.setRedelegate(redelegate);
+          break;
         }
+        case "cosmos-sdk/MsgWithdrawDelegationReward": {
+          // Rewards
+          const denom = m.value.amount.denom;
+          if (denom !== "uatom") {
+            throw new Error("osmosis: Unsupported denomination: " + denom);
+          }
 
-        const undelegate = new OsmosisMessages.OsmosisMsgUndelegate();
-        undelegate.setDelegatorAddress(m.value.delegator_address);
-        undelegate.setValidatorAddress(m.value.validator_address);
-        undelegate.setDenom(m.value.amount[0].denom);
-        undelegate.setAmount(m.value.amount[0].amount);
+          const rewards = new OsmosisMessages.OsmosisMsgRewards();
+          rewards.setDelegatorAddress(m.value.delegator_address);
+          rewards.setValidatorAddress(m.value.validator_address);
+          rewards.setAmount(m.value.amount.amount);
 
-        ack = new OsmosisMessages.OsmosisMsgAck();
-        ack.setUndelegate(undelegate);
-      } else if (m.type === "cosmos-sdk/MsgBeginRedelegate") {
-        // Redelegate
-        const denom = m.value.amount.denom;
-        if (denom !== "uatom") {
-          throw new Error("osmosis: Unsupported denomination: " + denom);
+          ack = new OsmosisMessages.OsmosisMsgAck();
+          ack.setRewards(rewards);
+          break;
         }
+        case "osmosis/gamm/join-pool": {
+          // LP add
+          const lpAdd = new OsmosisMessages.OsmosisMsgLPAdd();
+          lpAdd.setSender(m.value.sender);
+          lpAdd.setShareOutAmount(m.value.shareOutAmount);
+          lpAdd.setDenomInMaxA(m.value.tokenInMaxs[0].denom);
+          lpAdd.setAmountInMaxA(m.value.tokenInMaxs[0].amount);
+          lpAdd.setDenomInMaxB(m.value.tokenInMaxs[1].denom);
+          lpAdd.setAmountInMaxB(m.value.tokenInMaxs[1].amount);
 
-        const redelegate = new OsmosisMessages.OsmosisMsgRedelegate();
-        redelegate.setDelegatorAddress(m.value.delegator_address);
-        redelegate.setValidatorSrcAddress(m.value.validator_src_address);
-        redelegate.setValidatorDstAddress(m.value.validator_dst_address);
-        redelegate.setAmount(m.value.amount.amount);
-
-        ack = new OsmosisMessages.OsmosisMsgAck();
-        ack.setRedelegate(redelegate);
-      } else if (m.type === "cosmos-sdk/MsgWithdrawDelegationReward") {
-        // Rewards
-        const denom = m.value.amount.denom;
-        if (denom !== "uatom") {
-          throw new Error("osmosis: Unsupported denomination: " + denom);
+          ack = new OsmosisMessages.OsmosisMsgAck();
+          ack.setLpAdd(lpAdd);
+          break;
         }
+        case "osmosis/gamm/exit-pool": {
+          // LP remove
+          const lpRemove = new OsmosisMessages.OsmosisMsgLPRemove();
+          lpRemove.setSender(m.value.sender);
+          lpRemove.setShareOutAmount(m.value.shareOutAmount);
+          lpRemove.setDenomOutMinA(m.value.tokenInMaxs[0].denom);
+          lpRemove.setAmountOutMinA(m.value.tokenInMaxs[0].amount);
+          lpRemove.setDenomOutMinB(m.value.tokenInMaxs[1].denom);
+          lpRemove.setAmountOutMinB(m.value.tokenInMaxs[1].amount);
 
-        const rewards = new OsmosisMessages.OsmosisMsgRewards();
-        rewards.setDelegatorAddress(m.value.delegator_address);
-        rewards.setValidatorAddress(m.value.validator_address);
-        rewards.setAmount(m.value.amount.amount);
-
-        ack = new OsmosisMessages.OsmosisMsgAck();
-        ack.setRewards(rewards);
-      } else if (m.type == "osmosis/gamm/join-pool") {
-        // LP add
-        const lpAdd = new OsmosisMessages.OsmosisMsgLPAdd();
-        lpAdd.setSender(m.value.sender);
-        lpAdd.setShareOutAmount(m.value.shareOutAmount);
-        lpAdd.setDenomInMaxA(m.value.tokenInMaxs[0].denom);
-        lpAdd.setAmountInMaxA(m.value.tokenInMaxs[0].amount);
-        lpAdd.setDenomInMaxB(m.value.tokenInMaxs[1].denom);
-        lpAdd.setAmountInMaxB(m.value.tokenInMaxs[1].amount);
-
-        ack = new OsmosisMessages.OsmosisMsgAck();
-        ack.setLpAdd(lpAdd);
-      } else if (m.type === "osmosis/gamm/exit-pool") {
-        // LP remove
-        const lpRemove = new OsmosisMessages.OsmosisMsgLPRemove();
-        lpRemove.setSender(m.value.sender);
-        lpRemove.setShareOutAmount(m.value.shareOutAmount);
-        lpRemove.setDenomOutMinA(m.value.tokenInMaxs[0].denom);
-        lpRemove.setAmountOutMinA(m.value.tokenInMaxs[0].amount);
-        lpRemove.setDenomOutMinB(m.value.tokenInMaxs[1].denom);
-        lpRemove.setAmountOutMinB(m.value.tokenInMaxs[1].amount);
-
-        ack = new OsmosisMessages.OsmosisMsgAck();
-        ack.setLpRemove(lpRemove);
-      } else if (m.type === "osmosis/lockup/lock-tokens") {
-        // LP stake
-        const lpStake = new OsmosisMessages.OsmosisMsgLPStake();
-        lpStake.setOwner(m.value.owner);
-        lpStake.setDuration(m.value.duration);
-        lpStake.setDenom(m.value.coins[0].denom);
-        lpStake.setAmount(m.value.coins[0].amount);
-
-        ack = new OsmosisMessages.OsmosisMsgAck();
-        ack.setLpStake(lpStake);
-      } else if (m.type === "osmosis/lockup/begin-unlock-period-lock") {
-        // LP unstake
-        const lpUnstake = new OsmosisMessages.OsmosisMsgLPUnstake();
-        lpUnstake.setOwner(m.value.owner);
-        lpUnstake.setId(m.value.id);
-
-        ack = new OsmosisMessages.OsmosisMsgAck();
-        ack.setLpUnstake(lpUnstake);
-      } else if (m.type === "osmosis-sdk/MsgTransfer") {
-        // IBC Transfer
-        const denom = m.value.token.denom;
-        if (denom !== "uatom") {
-          throw new Error("osmosis: Unsupported denomination: " + denom);
+          ack = new OsmosisMessages.OsmosisMsgAck();
+          ack.setLpRemove(lpRemove);
+          break;
         }
+        case "osmosis/lockup/lock-tokens": {
+          // LP stake
+          const lpStake = new OsmosisMessages.OsmosisMsgLPStake();
+          lpStake.setOwner(m.value.owner);
+          lpStake.setDuration(m.value.duration);
+          lpStake.setDenom(m.value.coins[0].denom);
+          lpStake.setAmount(m.value.coins[0].amount);
 
-        const ibcTransfer = new OsmosisMessages.OsmosisMsgIBCTransfer();
-        ibcTransfer.setReceiver(m.value.receiver);
-        ibcTransfer.setSender(m.value.sender);
-        ibcTransfer.setSourceChannel(m.value.source_channel);
-        ibcTransfer.setSourcePort(m.value.source_port);
-        ibcTransfer.setRevisionHeight(m.value.timeout_height.revision_height);
-        ibcTransfer.setRevisionNumber(m.value.timeout_height.revision_number);
-        ibcTransfer.setAmount(m.value.token.amount);
-        ibcTransfer.setDenom(m.value.token.denom);
+          ack = new OsmosisMessages.OsmosisMsgAck();
+          ack.setLpStake(lpStake);
+          break;
+        }
+        case "osmosis/lockup/begin-unlock-period-lock": {
+          // LP unstake
+          const lpUnstake = new OsmosisMessages.OsmosisMsgLPUnstake();
+          lpUnstake.setOwner(m.value.owner);
+          lpUnstake.setId(m.value.id);
 
-        ack = new OsmosisMessages.OsmosisMsgAck();
-        ack.setIbcTransfer(ibcTransfer);
-      } else if (m.type === "osmosis/gamm/swap-exact-amount-in") {
-        // Swap
-        const swap = new OsmosisMessages.OsmosisMsgSwap();
-        swap.setSender(m.value.sender);
-        swap.setPoolId(m.value.routes[0].poolId);
-        swap.setTokenOutDenom(m.value.routes[0].tokenOutDenom);
-        swap.setTokenInDenom(m.value.tokenIn.denom);
-        swap.setTokenInAmount(m.value.tokenIn.amount);
-        swap.setTokenOutMinAmount(m.value.tokenOutMinAmount);
+          ack = new OsmosisMessages.OsmosisMsgAck();
+          ack.setLpUnstake(lpUnstake);
+          break;
+        }
+        case "osmosis-sdk/MsgTransfer": {
+          // IBC Transfer
+          const denom = m.value.token.denom;
+          if (denom !== "uatom") {
+            throw new Error("osmosis: Unsupported denomination: " + denom);
+          }
 
-        ack = new OsmosisMessages.OsmosisMsgAck();
-        ack.setSwap(swap);
-      } else {
-        throw new Error(`osmosis: Message ${m.type} is not yet supported`);
+          const ibcTransfer = new OsmosisMessages.OsmosisMsgIBCTransfer();
+          ibcTransfer.setReceiver(m.value.receiver);
+          ibcTransfer.setSender(m.value.sender);
+          ibcTransfer.setSourceChannel(m.value.source_channel);
+          ibcTransfer.setSourcePort(m.value.source_port);
+          ibcTransfer.setRevisionHeight(m.value.timeout_height.revision_height);
+          ibcTransfer.setRevisionNumber(m.value.timeout_height.revision_number);
+          ibcTransfer.setAmount(m.value.token.amount);
+          ibcTransfer.setDenom(m.value.token.denom);
+
+          ack = new OsmosisMessages.OsmosisMsgAck();
+          ack.setIbcTransfer(ibcTransfer);
+          break;
+        }
+        case "osmosis/gamm/swap-exact-amount-in": {
+          // Swap
+          const swap = new OsmosisMessages.OsmosisMsgSwap();
+          swap.setSender(m.value.sender);
+          swap.setPoolId(m.value.routes[0].poolId);
+          swap.setTokenOutDenom(m.value.routes[0].tokenOutDenom);
+          swap.setTokenInDenom(m.value.tokenIn.denom);
+          swap.setTokenInAmount(m.value.tokenIn.amount);
+          swap.setTokenOutMinAmount(m.value.tokenOutMinAmount);
+
+          ack = new OsmosisMessages.OsmosisMsgAck();
+          ack.setSwap(swap);
+          break;
+        }
+        default:
+          throw new Error(`osmosis: Message ${m.type} is not yet supported`);
       }
 
       resp = await transport.call(Messages.MessageType.MESSAGETYPE_COSMOSMSGACK, ack, {
