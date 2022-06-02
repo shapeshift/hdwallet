@@ -10,14 +10,6 @@ import { Transport } from "./transport";
 
 const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
 
-export async function osmosisSupportsLegacyAminoSigning(): Promise<boolean> {
-  return true;
-}
-
-export async function osmosisSupportsProtobufSigning(): Promise<boolean> {
-  return false;
-}
-
 export function osmosisGetAccountPaths(msg: core.OsmosisGetAccountPaths): Array<core.OsmosisAccountPath> {
   return [
     {
@@ -143,7 +135,7 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
 
         ack = new OsmosisMessages.OsmosisMsgAck();
         ack.setRedelegate(redelegate);
-      } else if (m.type === "cosmos-sdk/MsgWithdrawDelegatorReward") {
+      } else if (m.type === "cosmos-sdk/MsgWithdrawDelegationReward") {
         // Rewards
         const denom = m.value.amount.denom;
         if (denom !== "uatom") {
