@@ -58,7 +58,7 @@ export function cosmosGetAccountPaths(msg: CosmosGetAccountPaths): Array<CosmosA
 
 export async function cosmosGetAddress(provider: any): Promise<string | undefined> {
   const offlineSigner = provider.getOfflineSigner(ChainReference.CosmosHubMainnet);
-  const cosmosAddress = (await offlineSigner?.getAccounts())?.[0].address;
+  const cosmosAddress = (await offlineSigner?.getAccounts())?.[0]?.address;
   return cosmosAddress;
 }
 

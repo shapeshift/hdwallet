@@ -39,7 +39,7 @@ export class KeplrHDWalletInfo implements core.HDWalletInfo, core.CosmosWalletIn
   }
 
   public hasOnDevicePassphrase(): boolean {
-    return true;
+    return false;
   }
 
   public hasOnDeviceDisplay(): boolean {
@@ -47,7 +47,7 @@ export class KeplrHDWalletInfo implements core.HDWalletInfo, core.CosmosWalletIn
   }
 
   public hasOnDeviceRecovery(): boolean {
-    return true;
+    return false;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -74,8 +74,8 @@ export class KeplrHDWalletInfo implements core.HDWalletInfo, core.CosmosWalletIn
     }
   }
 
-  public async cosmosSupportsNetwork(chainId = 1): Promise<boolean> {
-    return chainId === 1;
+  public async cosmosSupportsNetwork(chainId = 118): Promise<boolean> {
+    return chainId === 118;
   }
 
   public async cosmosSupportsSecureTransfer(): Promise<boolean> {
