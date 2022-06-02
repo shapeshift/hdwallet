@@ -7,6 +7,7 @@ import semver from "semver";
 import * as Binance from "./binance";
 import * as Btc from "./bitcoin";
 import * as Cosmos from "./cosmos";
+import * as Osmosis from "./osmosis";
 import * as Eos from "./eos";
 import * as Eth from "./ethereum";
 import * as Osmosis from "./osmosis";
