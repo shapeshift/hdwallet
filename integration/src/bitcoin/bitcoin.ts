@@ -188,17 +188,17 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
             ],
           ],
           async (args) => {
-            let mode = args[0] as string;
-            let coin = args[1] as core.Coin;
-            let path = args[2] as string;
-            let scriptType = args[3] as core.BTCInputScriptType;
-            let expected = args[4] as string;
+            const mode = args[0] as string;
+            const coin = args[1] as core.Coin;
+            const path = args[2] as string;
+            const scriptType = args[3] as core.BTCInputScriptType;
+            const expected = args[4] as string;
 
             if (!(await wallet.btcSupportsCoin(coin))) return;
             expect(await info.btcSupportsCoin(coin)).toBeTruthy();
             if (!(await wallet.btcSupportsScriptType(coin, scriptType))) return;
             expect(await info.btcSupportsScriptType(coin, scriptType)).toBeTruthy();
-            let res = await wallet.btcGetAddress({
+            const res = await wallet.btcGetAddress({
               addressNList: core.bip32ToAddressNList(path),
               coin: coin,
               showDisplay: mode === "Show",
@@ -266,7 +266,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
             isChange: false,
           },
         ];
-        let res = await wallet.btcSignTx(
+        const res = await wallet.btcSignTx(
           deepFreeze({
             coin: "Bitcoin",
             inputs: inputs as core.BTCSignTxInput[],
@@ -333,7 +333,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
             hex: "0100000002cfdd9ee3b0ed9d9045f29a252d4c78ecac6c5814b67a29b5f6998fcff1036ac1010000008b483045022072ba61305fe7cb542d142b8f3299a7b10f9ea61f6ffaab5dca8142601869d53c0221009a8027ed79eb3b9bc13577ac2853269323434558528c6b6a7e542be46e7e9a820141047a2d177c0f3626fc68c53610b0270fa6156181f46586c679ba6a88b34c6f4874686390b4d92e5769fbb89c8050b984f4ec0b257a0e5c4ff8bd3b035a51709503ffffffffaf3e45194a9bb60c6108abe8d9d039e0618e8a147911c68f0c67598d2f9ae31a010000008b48304502200fd63adc8f6cb34359dc6cca9e5458d7ea50376cbd0a74514880735e6d1b8a4c0221008b6ead7fe5fbdab7319d6dfede3a0bc8e2a7c5b5a9301636d1de4aa31a3ee9b101410486ad608470d796236b003635718dfc07c0cac0cfc3bfc3079e4f491b0426f0676e6643a39198e8e7bdaffb94f4b49ea21baa107ec2e237368872836073668214ffffffff0170f30500000000001976a91424a56db43cf6f2b02e838ea493f95d8d6047423188ac00000000",
           },
         ];
-        let outputs: core.BTCSignTxOutput[] = [
+        const outputs: core.BTCSignTxOutput[] = [
           {
             address: "bc1qksxqxurvejkndenuv0alqawpr3e4vtqkn246cu",
             addressType: core.BTCOutputAddressType.Spend,
@@ -349,7 +349,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           },
         ];
 
-        let res = await wallet.btcSignTx(
+        const res = await wallet.btcSignTx(
           deepFreeze({
             coin: "Bitcoin",
             inputs: inputs as core.BTCSignTxInput[],
@@ -381,7 +381,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           return;
         }
 
-        let res = wallet.btcSignMessage({
+        const res = wallet.btcSignMessage({
           addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
           coin: "Bitcoin",
           scriptType: core.BTCInputScriptType.SpendAddress,
@@ -390,6 +390,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
 
         // not implemented on portis
         if (portis.isPortis(wallet)) {
+          // eslint-disable-next-line jest/no-conditional-expect
           await expect(res).rejects.toThrowError("not supported");
           return;
         }
@@ -413,7 +414,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           return;
         }
 
-        let res = await wallet.btcVerifyMessage({
+        const res = await wallet.btcVerifyMessage({
           address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
           coin: "Bitcoin",
           signature:
@@ -436,7 +437,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           return;
         }
 
-        let res = await wallet.btcVerifyMessage({
+        const res = await wallet.btcVerifyMessage({
           address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
           coin: "Bitcoin",
           signature:
@@ -455,6 +456,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         if (!wallet) return;
         expect(typeof (await wallet.btcSupportsSecureTransfer()) === typeof true).toBeTruthy();
         if (await wallet.btcSupportsSecureTransfer()) {
+          // eslint-disable-next-line jest/no-conditional-expect
           expect(await info.btcSupportsSecureTransfer()).toBeTruthy();
         }
         // TODO: write a testcase that exercise secure transfer, if the wallet claims to support it.
@@ -466,8 +468,9 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       "btcSupportsNativeShapeShift()",
       async () => {
         if (!wallet) return;
-        expect(typeof wallet.btcSupportsNativeShapeShift() === typeof true);
+        expect(typeof wallet.btcSupportsNativeShapeShift()).toBe("boolean");
         if (wallet.btcSupportsNativeShapeShift()) {
+          // eslint-disable-next-line jest/no-conditional-expect
           expect(info.btcSupportsNativeShapeShift()).toBeTruthy();
         }
         // TODO: write a testcase that exercises native shapeshift, if the wallet claims to support it.
@@ -492,21 +495,22 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
             ["BitcoinGold", 0, core.BTCInputScriptType.SpendAddress],
           ],
           async (args) => {
-            let coin = args[0] as core.Coin;
-            let accountIdx = args[1] as number;
-            let scriptType = args[2] as core.BTCInputScriptType;
+            const coin = args[0] as core.Coin;
+            const accountIdx = args[1] as number;
+            const scriptType = args[2] as core.BTCInputScriptType;
             if (!wallet) return;
             if (!(await wallet.btcSupportsCoin(coin))) return;
             expect(await info.btcSupportsCoin(coin)).toBeTruthy();
             if (!(await wallet.btcSupportsScriptType(coin, scriptType))) return;
             expect(await info.btcSupportsScriptType(coin, scriptType)).toBeTruthy();
-            let paths = wallet.btcGetAccountPaths({
+            const paths = wallet.btcGetAccountPaths({
               coin: coin,
               accountIdx: accountIdx,
               scriptType: scriptType,
             });
             expect(paths.length > 0).toBeTruthy();
             if (scriptType !== undefined)
+              // eslint-disable-next-line jest/no-conditional-expect
               expect(
                 paths.filter((path) => {
                   return path.scriptType !== scriptType;
@@ -523,14 +527,19 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       async () => {
         if (!wallet) return;
         [0, 1, 9].forEach((idx) => {
-          let paths = wallet.btcGetAccountPaths({
+          const paths = wallet.btcGetAccountPaths({
             coin: "Bitcoin",
             accountIdx: idx,
           });
           expect(typeof wallet.btcIsSameAccount(paths) === typeof true).toBeTruthy();
           paths.forEach((path) => {
-            if (wallet.getVendor() === "Portis") expect(wallet.btcNextAccountPath(path)).toBeUndefined();
-            else expect(wallet.btcNextAccountPath(path)).not.toBeUndefined();
+            if (wallet.getVendor() === "Portis") {
+              // eslint-disable-next-line jest/no-conditional-expect
+              expect(wallet.btcNextAccountPath(path)).toBeUndefined();
+            } else {
+              // eslint-disable-next-line jest/no-conditional-expect
+              expect(wallet.btcNextAccountPath(path)).not.toBeUndefined();
+            }
           });
         });
       },

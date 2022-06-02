@@ -10,15 +10,15 @@ body:
     attributes:
       label: Overview
       description: General background needed for bounty hunter to complete task
-      placeholder: We need to change the foo service to be able to bar better.
+      placeholder: We want a new widget on the dashboard that displays fancy things.
     validations:
       required: true
   - type: textarea
     id: reference
     attributes:
-      label: Reference
-      description: An explanation as to where the bounty hunter should look or code that is affected
-      placeholder: It may be useful to start by looking at `some-service.ts`
+      label: References and additional details
+      description: An explanation as to where the bounty hunter should look or code that is affected. Include any relevent transaction IDs and replication steps.
+      placeholder: E.g. code wise, it may be useful to start by looking at `Dashboard.tsx`. For bug reports, please include reproduction steps and transaction IDs here if applicable.
     validations:
       required: true
   - type: textarea
@@ -26,25 +26,67 @@ body:
     attributes:
       label: Acceptance Criteria
       description: The criteria that needs to be completed in order for the bounty to be considered complete
-      placeholder: The foo service can bar correctly.
+      placeholder: The widget displays correctly on the dashboard as per the mockups.
     validations:
       required: true
+  - type: textarea
+    id: need-by-date
+    attributes:
+      label: Need By Date
+      description: Does this bounty have a hard due date for completion?
+      placeholder: Enter a date if applicable.
+    validations:
+      required: false
+  - type: textarea
+    id: screenshots-or-mockups
+    attributes:
+      label: Screenshots/Mockups
+      description: Screenshots related to UI changes for simple changes, links to clickable mockups for larger features
+      placeholder: Only include screenshots or mockups for features that require UI changes.
+    validations:
+      required: false
   - type: checkboxes
     id: ownership
     attributes:
       label: Ownership
       description: I'm a good team member, and
       options:
+        - label: If my bounty needs engineering or needs product I have added the respective labels on the right
+          required: true
         - label: As the sponsor of this bounty I will review the changes in a preview environment (ops/product) or review the PR (engineering)
           required: true
+  - type: input
+    id: estimate
+    attributes:
+      label: Estimated effort
+      description: "Estimated effort to complete the bounty, in hours or days"
+      placeholder: "Half a day"
+  - type: input
+    id: stakeholder
+    attributes:
+      label: Sponsor / Stakeholder
+      description: "To whom can the bounty hunter go to for questions and support?"
+      placeholder: "github_handle or discord_handle"
+  - type: textarea
+    id: need-by-date
+    attributes:
+      label: Estimated effort
+      description: "Estimated effort to complete the bounty, in hours or days"
+      placeholder: "Half a day"
+  - type: input
+    id: stakeholder
+    attributes:
+      label: Sponsor / Stakeholder
+      description: "To whom can the bounty hunter go to for questions and support?"
+      placeholder: "github_handle or discord_handle"
   - type: textarea
     id: bounty-hunters
     attributes:
       label: Bounty Hunters
-      description: Information for bounty hunters (please don't edit)
-      value: |
-        - [Join our Discord](https://discord.gg/shapeshift)
+      description: Please do not edit - additional information for all bounty hunters.
+      value: 
+        |
+        - [Join our discord](https://discord.gg/shapeshift)
         - Include an expected timeline for you to complete work in the work plan when you apply for this bounty!
         - Please refer to [this link](https://shapeshiftdao.gitbook.io/getting-started/how-to-contribute/bounties#resources-for-new-contributors-and-bounty-hunters) for some basic info
-    validations:
-      required: true
+        - Please ***do not*** start work on this issue until you are approved in Gitcoin.

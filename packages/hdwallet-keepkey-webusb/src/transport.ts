@@ -1,9 +1,9 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 
-import { VENDOR_ID, WEBUSB_PRODUCT_ID } from "./utils"
+import { VENDOR_ID, WEBUSB_PRODUCT_ID } from "./utils";
 
-export type Device = USBDevice & {serialNumber: string};
+export type Device = USBDevice & { serialNumber: string };
 export class TransportDelegate implements keepkey.TransportDelegate {
   usbDevice: Device;
 
@@ -61,12 +61,15 @@ export class TransportDelegate implements keepkey.TransportDelegate {
       // If the device is disconnected, this will fail and throw, which is fine.
       await this.usbDevice.close();
     } catch (e) {
-      console.log("Error closing connection with usbDevice");
+      console.warn("Error closing connection with usbDevice");
     }
   }
 
   async writeChunk(buf: Uint8Array, debugLink: boolean): Promise<void> {
-    await this.usbDevice.transferOut(debugLink ? 2 : 1, buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
+    await this.usbDevice.transferOut(
+      debugLink ? 2 : 1,
+      buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength)
+    );
   }
 
   async readChunk(debugLink: boolean): Promise<Uint8Array> {

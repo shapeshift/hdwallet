@@ -13,8 +13,8 @@ export class MockTransport extends trezor.TrezorTransport {
     return "mock#1";
   }
 
-  public call(method: string, msg: any, msTimeout?: number): Promise<trezor.TrezorConnectResponse> {
-    let key = JSON.stringify({ method: method, msg: msg });
+  public call(method: string, msg: any): Promise<trezor.TrezorConnectResponse> {
+    const key = JSON.stringify({ method: method, msg: msg });
     if (!this.memoized.has(key)) {
       console.error(method, `JSON.parse('${JSON.stringify(msg)}')`);
       throw new Error("mock not yet recorded for arguments");
@@ -27,7 +27,7 @@ export class MockTransport extends trezor.TrezorTransport {
   }
 
   public memoize(method: string, msg: any, response: any) {
-    let key = JSON.stringify({ method: method, msg: msg });
+    const key = JSON.stringify({ method: method, msg: msg });
     this.memoized.set(key, response);
   }
 
@@ -66,8 +66,7 @@ export class MockTransport extends trezor.TrezorTransport {
         transaction: {
           to: "0x41e5560054824ea6b0732e656e3ad64e20e94e45",
           value: "0x00",
-          data:
-            "0xa9059cbb0000000000000000000000001d8ce9022f6284c3a5c317f8f34620107214e54500000000000000000000000000000000000000000000000000000002540be400",
+          data: "0xa9059cbb0000000000000000000000001d8ce9022f6284c3a5c317f8f34620107214e54500000000000000000000000000000000000000000000000000000002540be400",
           chainId: 1,
           nonce: "0x01",
           gasLimit: "0x14",
@@ -120,9 +119,7 @@ export class MockTransport extends trezor.TrezorTransport {
     try {
       this.memoize(
         "getAddress",
-        JSON.parse(
-          '{"path":"m/49\'/0\'/0\'/0/0","showOnTrezor":true,"coin":"btc"}'
-        ),
+        JSON.parse('{"path":"m/49\'/0\'/0\'/0/0","showOnTrezor":true,"coin":"btc"}'),
         JSON.parse(
           '{"payload":{"address":"3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX","path":[2147483697,2147483648,2147483648,0,0],"serializedPath":"m/49\'/0\'/0\'/0/0"},"id":2,"success":true}'
         )
@@ -185,9 +182,7 @@ export class MockTransport extends trezor.TrezorTransport {
       this.memoize("wipeDevice", {}, { success: true });
       this.memoize(
         "getAddress",
-        JSON.parse(
-          '{"path":"m/44\'/0\'/0\'/0/0","showOnTrezor":false,"coin":"btc"}'
-        ),
+        JSON.parse('{"path":"m/44\'/0\'/0\'/0/0","showOnTrezor":false,"coin":"btc"}'),
         JSON.parse(
           '{"payload":{"address":"1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM","path":[2147483692,2147483648,2147483648,0,0],"serializedPath":"m/44\'/0\'/0\'/0/0"},"id":2,"success":true}'
         )
@@ -203,27 +198,21 @@ export class MockTransport extends trezor.TrezorTransport {
       );
       this.memoize(
         "getAddress",
-        JSON.parse(
-          '{"path":"m/49\'/2\'/0\'/0/0","showOnTrezor":false,"coin":"ltc"}'
-        ),
+        JSON.parse('{"path":"m/49\'/2\'/0\'/0/0","showOnTrezor":false,"coin":"ltc"}'),
         JSON.parse(
           '{"payload":{"address":"MFoQRU1KQq365Sy3cXhix3ygycEU4YWB1V","path":[2147483697,2147483650,2147483648,0,0],"serializedPath":"m/49\'/2\'/0\'/0/0"},"id":2,"success":true}'
         )
       );
       this.memoize(
         "getAddress",
-        JSON.parse(
-          '{"path":"m/44\'/5\'/0\'/0/0","showOnTrezor":false,"coin":"dash"}'
-        ),
+        JSON.parse('{"path":"m/44\'/5\'/0\'/0/0","showOnTrezor":false,"coin":"dash"}'),
         JSON.parse(
           '{"payload":{"address":"XxKhGNv6ECbqVswm9KYcLPQnyWgZ86jJ6Q","path":[2147483692,2147483653,2147483648,0,0],"serializedPath":"m/44\'/5\'/0\'/0/0"},"id":2,"success":true}'
         )
       );
       this.memoize(
         "getAddress",
-        JSON.parse(
-          '{"path":"m/44\'/2\'/0\'/0/0","showOnTrezor":false,"coin":"ltc"}'
-        ),
+        JSON.parse('{"path":"m/44\'/2\'/0\'/0/0","showOnTrezor":false,"coin":"ltc"}'),
         JSON.parse(
           '{"payload":{"address":"LYXTv5RdsPYKC4qGmb6x6SuKoFMxUdSjLQ","path":[2147483692,2147483650,2147483648,0,0],"serializedPath":"m/44\'/2\'/0\'/0/0"},"id":2,"success":true}'
         )
@@ -239,18 +228,14 @@ export class MockTransport extends trezor.TrezorTransport {
       );
       this.memoize(
         "getAddress",
-        JSON.parse(
-          '{"path":"m/84\'/2\'/0\'/0/0","showOnTrezor":false,"coin":"ltc"}'
-        ),
+        JSON.parse('{"path":"m/84\'/2\'/0\'/0/0","showOnTrezor":false,"coin":"ltc"}'),
         JSON.parse(
           '{"payload":{"address":"ltc1qf6pwfkw4wd0fetq2pfrwzlfknskjg6nyvt6ngv","path":[2147483732,2147483650,2147483648,0,0],"serializedPath":"m/84\'/2\'/0\'/0/0"},"id":2,"success":true}'
         )
       );
       this.memoize(
         "getAddress",
-        JSON.parse(
-          '{"path":"m/84\'/2\'/0\'/0/0","showOnTrezor":false,"coin":"ltc"}'
-        ),
+        JSON.parse('{"path":"m/84\'/2\'/0\'/0/0","showOnTrezor":false,"coin":"ltc"}'),
         JSON.parse(
           '{"payload":{"address":"ltc1qf6pwfkw4wd0fetq2pfrwzlfknskjg6nyvt6ngv","path":[2147483732,2147483650,2147483648,0,0],"serializedPath":"m/84\'/2\'/0\'/0/0"},"id":2,"success":true}'
         )
@@ -271,18 +256,14 @@ export class MockTransport extends trezor.TrezorTransport {
       );
       this.memoize(
         "getAddress",
-        JSON.parse(
-          '{"path":"m/49\'/0\'/0\'/0/0","showOnTrezor":false,"coin":"btc"}'
-        ),
+        JSON.parse('{"path":"m/49\'/0\'/0\'/0/0","showOnTrezor":false,"coin":"btc"}'),
         JSON.parse(
           '{"payload":{"address":"3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX","path":[2147483697,2147483648,2147483648,0,0],"serializedPath":"m/49\'/0\'/0\'/0/0"},"id":2,"success":true}'
         )
       );
       this.memoize(
         "getAddress",
-        JSON.parse(
-          '{"path":"m/49\'/0\'/0\'/0/0","showOnTrezor":false,"coin":"btc"}'
-        ),
+        JSON.parse('{"path":"m/49\'/0\'/0\'/0/0","showOnTrezor":false,"coin":"btc"}'),
         JSON.parse(
           '{"payload":{"address":"3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX","path":[2147483697,2147483648,2147483648,0,0],"serializedPath":"m/49\'/0\'/0\'/0/0"},"id":2,"success":true}'
         )
@@ -353,8 +334,8 @@ export function name(): string {
 }
 
 export async function createWallet(): Promise<core.HDWallet> {
-  let keyring = new core.Keyring();
-  let transport = new MockTransport(keyring);
+  const keyring = new core.Keyring();
+  const transport = new MockTransport(keyring);
   return trezor.create(transport as trezor.TrezorTransport);
 }
 
@@ -366,9 +347,12 @@ export function selfTest(get: () => core.HDWallet): void {
   let wallet: trezor.TrezorHDWallet & core.ETHWallet & core.BTCWallet & core.HDWallet;
 
   beforeAll(async () => {
-    let w = get();
-    if (trezor.isTrezor(w) && core.supportsBTC(w) && core.supportsETH(w)) wallet = w;
-    else fail("Wallet is not a Trezor");
+    const w = get();
+    if (trezor.isTrezor(w) && core.supportsBTC(w) && core.supportsETH(w)) {
+      wallet = w;
+    } else {
+      throw new Error("Wallet is not a Trezor");
+    }
   });
 
   it("supports Ethereum mainnet", async () => {
@@ -391,7 +375,7 @@ export function selfTest(get: () => core.HDWallet): void {
   it("uses the same BIP32 paths for ETH as wallet.trezor.io", () => {
     if (!wallet) return;
     [0, 1, 3, 27].forEach((account) => {
-      let paths = wallet.ethGetAccountPaths({
+      const paths = wallet.ethGetAccountPaths({
         coin: "Ethereum",
         accountIdx: account,
       });
@@ -417,7 +401,7 @@ export function selfTest(get: () => core.HDWallet): void {
   it("uses correct bip44 paths", () => {
     if (!wallet) return;
 
-    let paths = wallet.btcGetAccountPaths({
+    const paths = wallet.btcGetAccountPaths({
       coin: "Litecoin",
       accountIdx: 3,
     });
@@ -444,7 +428,7 @@ export function selfTest(get: () => core.HDWallet): void {
   it("supports btcNextAccountPath", () => {
     if (!wallet) return;
 
-    let paths = core.mustBeDefined(
+    const paths = core.mustBeDefined(
       wallet.btcGetAccountPaths({
         coin: "Litecoin",
         accountIdx: 3,

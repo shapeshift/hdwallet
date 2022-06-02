@@ -4,14 +4,16 @@
 import * as webcrypto from "@peculiar/webcrypto";
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import CryptoHelper from "./CryptoHelper";
 import { CipherString } from "./classes";
+import CryptoHelper from "./CryptoHelper";
 import { WebCryptoEngine } from "./engines";
 import * as utils from "./utils";
 
-const PLAINTEXT_STRING = "totally random secret data"
-const ENCRYPTED_STRING = "2.A/tC/OC0U/KN3XuAuz2L36lydOyr5x367tPSGSrPkvQ=|AAAAAAAAAAAAAAAAAAAAAA==|ZqR8HTeOg4+8mzcty10jVFZ5MqFFbn5bwEaqlL0c/Mg="
-const ENCRYPTED_EMPTY_STRING = "2.7wpUO5ISHHdT1voBnjzyXQ==|AAAAAAAAAAAAAAAAAAAAAA==|02KQ8aQWWXUX7foOmf4T2W0XCFAk4OTKFQO+hRhlRcY=";
+const PLAINTEXT_STRING = "totally random secret data";
+const ENCRYPTED_STRING =
+  "2.A/tC/OC0U/KN3XuAuz2L36lydOyr5x367tPSGSrPkvQ=|AAAAAAAAAAAAAAAAAAAAAA==|ZqR8HTeOg4+8mzcty10jVFZ5MqFFbn5bwEaqlL0c/Mg=";
+const ENCRYPTED_EMPTY_STRING =
+  "2.7wpUO5ISHHdT1voBnjzyXQ==|AAAAAAAAAAAAAAAAAAAAAA==|02KQ8aQWWXUX7foOmf4T2W0XCFAk4OTKFQO+hRhlRcY=";
 
 const BAD_ARGS = [undefined, null, "encrypteddatastring", [1, 2, 3, 4, 5, 6], {}];
 
@@ -23,8 +25,7 @@ describe("CryptoHelpers", () => {
 
   describe("constructor", () => {
     it("should require a CryptoEngine instances", () => {
-      // @ts-ignore
-      expect(() => new CryptoHelper()).toThrow("Missing cryptography engine");
+      expect(() => new CryptoHelper(undefined as any)).toThrow("Missing cryptography engine");
     });
 
     it("should return a new instance", () => {
@@ -85,7 +86,12 @@ describe("CryptoHelpers", () => {
     it("should work with Uint8Arrays", async () => {
       const key = await helper.makeKey("password", "email");
       const encrypted = await helper.aesEncrypt(utils.fromUtf8ToArray(PLAINTEXT_STRING), key);
-      const decrypted = await helper.aesDecrypt(new Uint8Array(encrypted.data), new Uint8Array(encrypted.iv), new Uint8Array(encrypted.mac), key);
+      const decrypted = await helper.aesDecrypt(
+        new Uint8Array(encrypted.data),
+        new Uint8Array(encrypted.iv),
+        new Uint8Array(encrypted.mac),
+        key
+      );
       expect(utils.fromBufferToUtf8(decrypted)).toEqual(PLAINTEXT_STRING);
     });
   });
@@ -93,14 +99,14 @@ describe("CryptoHelpers", () => {
   describe("aesDecrypt", () => {
     it("should decrypt data with an hmac signature", async () => {
       const key = await helper.makeKey("password", "email");
-      const encrypted = (new CipherString(ENCRYPTED_STRING)).toEncryptedObject(key);
+      const encrypted = new CipherString(ENCRYPTED_STRING).toEncryptedObject(key);
       const decrypted = await helper.aesDecrypt(encrypted.data, encrypted.iv, encrypted.mac, encrypted.key);
       expect(utils.fromBufferToUtf8(decrypted)).toEqual(PLAINTEXT_STRING);
     });
 
     it("should fail if the data is incorrect", async () => {
       const key = await helper.makeKey("password", "email");
-      const encrypted = (new CipherString(ENCRYPTED_STRING)).toEncryptedObject(key);
+      const encrypted = new CipherString(ENCRYPTED_STRING).toEncryptedObject(key);
       const data = new Uint8Array(encrypted.data.byteLength).fill(0x80);
       await expect(helper.aesDecrypt(data, encrypted.iv, encrypted.mac, encrypted.key)).rejects.toThrow(
         "HMAC signature is not valid"
@@ -109,7 +115,7 @@ describe("CryptoHelpers", () => {
 
     it("should fail if the iv is incorrect", async () => {
       const key = await helper.makeKey("password", "email");
-      const encrypted = (new CipherString(ENCRYPTED_STRING)).toEncryptedObject(key);
+      const encrypted = new CipherString(ENCRYPTED_STRING).toEncryptedObject(key);
       const iv = new Uint8Array(encrypted.iv.byteLength).fill(0x80);
       await expect(helper.aesDecrypt(encrypted.data, iv, encrypted.mac, encrypted.key)).rejects.toThrow(
         "HMAC signature is not valid"
@@ -118,7 +124,7 @@ describe("CryptoHelpers", () => {
 
     it("should fail if the mac is incorrect", async () => {
       const key = await helper.makeKey("password", "email");
-      const encrypted = (new CipherString(ENCRYPTED_STRING)).toEncryptedObject(key);
+      const encrypted = new CipherString(ENCRYPTED_STRING).toEncryptedObject(key);
       const mac = new Uint8Array(encrypted.mac.byteLength).fill(0x80);
       await expect(helper.aesDecrypt(encrypted.data, encrypted.iv, mac, encrypted.key)).rejects.toThrow(
         "HMAC signature is not valid"
@@ -126,8 +132,8 @@ describe("CryptoHelpers", () => {
     });
 
     it("should fail if the key is incorrect", async () => {
-      let key = await helper.makeKey("password2", "email");
-      const encrypted = (new CipherString(ENCRYPTED_STRING)).toEncryptedObject(key);
+      const key = await helper.makeKey("password2", "email");
+      const encrypted = new CipherString(ENCRYPTED_STRING).toEncryptedObject(key);
       await expect(helper.aesDecrypt(encrypted.data, encrypted.iv, encrypted.mac, encrypted.key)).rejects.toThrow(
         "HMAC signature is not valid"
       );
@@ -140,7 +146,6 @@ describe("CryptoHelpers", () => {
       ["key", 3],
     ])("should throw an error if %s is not the correct type", async (name, position) => {
       const dummyArg = new Uint8Array(32).fill(0);
-      let i = 0;
       for (const value of BAD_ARGS) {
         const args = new Array(position).fill(dummyArg);
         args.push(value);
@@ -156,9 +161,9 @@ describe("CryptoHelpers", () => {
 
     it("should return false if the hmac results are different sizes", async () => {
       let i = 0;
-      const mock = jest.spyOn(engine, "hmac").mockImplementation(async (value, key) => {
+      const mock = jest.spyOn(engine, "hmac").mockImplementation(async () => {
         return core.toArrayBuffer(new Uint8Array(++i * 16));
-      })
+      });
       const result = await helper.compare(new Uint8Array(32), new Uint8Array(32));
       mock.mockRestore();
       await expect(result).toBe(false);
@@ -180,9 +185,12 @@ describe("CryptoHelpers", () => {
       }
     );
 
-    it.each([[undefined], [null], [""], [[1, 2, 3, 4, 5, 6]], [{}]])("should require an email (%o)", async (param: any) => {
-      await expect(helper.makeKey("mypassword", param)).rejects.toThrow("email");
-    });
+    it.each([[undefined], [null], [""], [[1, 2, 3, 4, 5, 6]], [{}]])(
+      "should require an email (%o)",
+      async (param: any) => {
+        await expect(helper.makeKey("mypassword", param)).rejects.toThrow("email");
+      }
+    );
   });
 
   describe("deviceId", () => {

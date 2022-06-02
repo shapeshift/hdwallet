@@ -1,7 +1,6 @@
 {
   "account_number": "16359",
   "chain_id": "cosmoshub-4",
-  "sequence": "18",
   "fee": {
     "amount": [
       {
@@ -16,13 +15,14 @@
     {
       "type": "cosmos-sdk/MsgDelegate",
       "value": {
-        "delegator_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
-        "validator_address": "cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys",
         "amount": {
-          "denom": "uatom",
-          "amount": "1000"
-        }
+          "amount": "1000",
+          "denom": "uatom"
+        },
+        "delegator_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
+        "validator_address": "cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys"
       }
     }
-  ]
+  ],
+  "sequence": "18"
 }

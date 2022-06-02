@@ -18,10 +18,7 @@ export interface AdapterDelegate<DeviceType> {
   getDevice?(serialNumber?: string): Promise<DeviceType>;
   getDevices?(): Promise<Array<DeviceType>>;
   getTransportDelegate(device: DeviceType): Promise<TransportDelegate | null>;
-  registerCallbacks?(
-    handleConnect: (device: DeviceType) => void,
-    handleDisconnect: (device: DeviceType) => void
-  ): void;
+  registerCallbacks?(handleConnect: (device: DeviceType) => void, handleDisconnect: (device: DeviceType) => void): void;
 }
 
 export type DeviceType<T extends AdapterDelegate<any>> = T extends AdapterDelegate<infer R> ? R : never;
@@ -44,7 +41,7 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
     delegate: DelegateType
   ): AdapterConstructor<DelegateType> {
     const fn = (keyring: core.Keyring) => new Adapter(keyring, delegate);
-    const out = fn as unknown as AdapterConstructor<DelegateType>
+    const out = fn as unknown as AdapterConstructor<DelegateType>;
     out.useKeyring = fn;
     return out;
   }
@@ -55,7 +52,7 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
   ): Promise<DeviceProperties> {
     const props =
       (await Promise.resolve(delegate.inspectDevice?.(device))) ??
-      (["object", "function"].includes(typeof device) ? device as Partial<DeviceProperties> : {});
+      (["object", "function"].includes(typeof device) ? (device as Partial<DeviceProperties>) : {});
     if (!props.serialNumber && typeof device === "string") props.serialNumber = device;
     return {
       get productName() {
@@ -88,7 +85,9 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
     const { productName, serialNumber } = await this.inspectDevice(device);
     try {
       await this.keyring.remove(serialNumber);
-    } catch {}
+    } catch {
+      // swallow keyring removal errors
+    }
     await this.keyring.emit([productName, serialNumber, core.Events.DISCONNECT], serialNumber);
   }
 
@@ -122,9 +121,11 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
     if (!serialNumber) throw new Error("no default device specified");
     const devices = await this.getDevices();
     return (
-      (await Promise.all(
-        devices.map(async (x) => ((await this.inspectDevice(x)).serialNumber === serialNumber ? x : null))
-      )).filter((x) => x !== null) as DeviceType<DelegateType>[]
+      (
+        await Promise.all(
+          devices.map(async (x) => ((await this.inspectDevice(x)).serialNumber === serialNumber ? x : null))
+        )
+      ).filter((x) => x !== null) as DeviceType<DelegateType>[]
     )[0];
   }
 
@@ -134,7 +135,9 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
     let defaultDevice: DeviceType<DelegateType> | undefined = undefined;
     try {
       defaultDevice = await this.getDevice();
-    } catch {}
+    } catch {
+      // swallow default device fetch errors
+    }
     return defaultDevice ? [defaultDevice] : [];
   }
 
@@ -142,7 +145,7 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
     return await this.delegate.getTransportDelegate(device);
   }
 
-  async pairDevice(serialNumber?: string, tryDebugLink?: boolean): Promise<core.HDWallet> {
+  async pairDevice(serialNumber?: string, tryDebugLink?: boolean): Promise<KeepKeyHDWallet> {
     const device = await this.getDevice(serialNumber);
     if (!device)
       throw new Error(
@@ -153,8 +156,8 @@ export class Adapter<DelegateType extends AdapterDelegate<any>> {
     return this.pairRawDevice(device, tryDebugLink);
   }
 
-  async pairRawDevice(device: DeviceType<DelegateType>, tryDebugLink?: boolean): Promise<core.HDWallet> {
+  async pairRawDevice(device: DeviceType<DelegateType>, tryDebugLink?: boolean): Promise<KeepKeyHDWallet> {
     await this.initialize([device], tryDebugLink, true);
-    return core.mustBeDefined(this.keyring.get((await this.inspectDevice(device)).serialNumber));
+    return core.mustBeDefined(this.keyring.get<KeepKeyHDWallet>((await this.inspectDevice(device)).serialNumber));
   }
 }

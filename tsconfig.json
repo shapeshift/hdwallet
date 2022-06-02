@@ -58,6 +58,7 @@
     { "path": "./packages/hdwallet-native" },
     { "path": "./packages/hdwallet-native-vault" },
     { "path": "./packages/hdwallet-portis" },
+    { "path": "./packages/hdwallet-tallyho" },
     { "path": "./packages/hdwallet-trezor" },
     { "path": "./packages/hdwallet-trezor-connect" },
     { "path": "./packages/hdwallet-xdefi" }

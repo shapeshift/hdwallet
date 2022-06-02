@@ -2,7 +2,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 import TrezorConnect, { DEVICE, DEVICE_EVENT, TRANSPORT_EVENT, UI } from "trezor-connect";
 
-import { TrezorConnectTransport, POPUP, TrezorDevice } from "./transport";
+import { POPUP, TrezorConnectTransport, TrezorDevice } from "./transport";
 
 export type DeviceID = string;
 
@@ -32,8 +32,8 @@ export class TrezorAdapter {
     // until after init has resolved. This awkward sequence is needed because we
     // need TrezorConnect to be fully operational before we're able to process
     // the events.
-    let connectEvents: any[] = [];
-    let connectHandler = (event: any) => {
+    const connectEvents: any[] = [];
+    const connectHandler = (event: any) => {
       if (event.type === DEVICE.CONNECT) {
         connectEvents.push(event);
       }
@@ -65,7 +65,7 @@ export class TrezorAdapter {
     TrezorConnect.on(TRANSPORT_EVENT, (event: any) => {
       // Log TrezorConnect's event raw:
       try {
-        let device_id = event.payload && event.payload.features ? event.payload.features.device_id : "";
+        const device_id = event.payload && event.payload.features ? event.payload.features.device_id : "";
         this.keyring.emit(["Trezor", device_id, event.type], event);
       } catch (e) {
         console.error("Could not emit Trezor transport event", event, e);
@@ -73,7 +73,7 @@ export class TrezorAdapter {
     });
 
     TrezorConnect.on(UI.ADDRESS_VALIDATION, (event: any) => {
-      console.log("Confirm on Trezor", event);
+      console.info("Confirm on Trezor", event);
     });
 
     return true;
@@ -133,7 +133,7 @@ export class TrezorAdapter {
       payload: { features },
     } = event;
     if (!features) return;
-    let wallet = this.keyring.get(features.device_id) as trezor.TrezorHDWallet;
+    const wallet = this.keyring.get(features.device_id) as trezor.TrezorHDWallet;
     if (!wallet) return;
 
     wallet.cacheFeatures(features);
@@ -165,7 +165,7 @@ export class TrezorAdapter {
     return Object.keys(this.keyring.wallets).length;
   }
 
-  public async pairDevice(): Promise<core.HDWallet> {
+  public async pairDevice(): Promise<trezor.TrezorHDWallet> {
     const init = await _initialization;
     if (!init) throw new Error("Could not pair Trezor: TrezorConnect not initialized");
 
@@ -176,7 +176,7 @@ export class TrezorAdapter {
       throw new Error(`Could not pair Trezor: '${payload.error}'`);
     }
 
-    let deviceID = payload.device_id;
+    const deviceID = payload.device_id;
 
     await this.initialize([
       {
@@ -185,7 +185,7 @@ export class TrezorAdapter {
       },
     ]);
 
-    let wallet = this.keyring.get(deviceID) as trezor.TrezorHDWallet;
+    const wallet = this.keyring.get(deviceID) as trezor.TrezorHDWallet;
 
     if (wallet) wallet.cacheFeatures(payload);
 

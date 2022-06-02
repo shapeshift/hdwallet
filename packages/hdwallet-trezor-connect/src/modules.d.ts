@@ -1,1 +1,1 @@
-declare module 'trezor-connect';
+declare module "trezor-connect";

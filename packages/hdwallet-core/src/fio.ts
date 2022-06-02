@@ -18,6 +18,7 @@ export interface FioNextAccountPath {
   accountIdx: number;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Fio {
   export interface PermissionLevel {
     actor?: string;
@@ -229,8 +230,8 @@ export interface FioWallet extends FioWalletInfo, HDWallet {
 }
 
 export function fioDescribePath(path: BIP32Path): PathDescription {
-  let pathStr = addressNListToBIP32(path);
-  let unknown: PathDescription = {
+  const pathStr = addressNListToBIP32(path);
+  const unknown: PathDescription = {
     verbose: pathStr,
     coin: "Fio",
     isKnown: false,
@@ -256,7 +257,7 @@ export function fioDescribePath(path: BIP32Path): PathDescription {
     return unknown;
   }
 
-  let index = path[2] & 0x7fffffff;
+  const index = path[2] & 0x7fffffff;
   return {
     verbose: `Fio Account #${index}`,
     accountIdx: index,

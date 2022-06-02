@@ -3,11 +3,12 @@ import * as bech32 from "bech32";
 import CryptoJS from "crypto-js";
 import * as txBuilder from "tendermint-tx-builder";
 
+import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
-import * as Isolation from "./crypto/isolation";
 
 export function MixinNativeTerraWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeTerraWalletInfo extends Base implements core.TerraWalletInfo {
     readonly _supportsTerraInfo = true;
 
@@ -24,7 +25,7 @@ export function MixinNativeTerraWalletInfo<TBase extends core.Constructor<core.H
     }
 
     terraGetAccountPaths(msg: core.TerraGetAccountPaths): Array<core.TerraAccountPath> {
-      const slip44 = core.slip44ByCoin("Terra")
+      const slip44 = core.slip44ByCoin("Terra");
       return [
         {
           addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
@@ -32,6 +33,7 @@ export function MixinNativeTerraWalletInfo<TBase extends core.Constructor<core.H
       ];
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     terraNextAccountPath(msg: core.TerraAccountPath): core.TerraAccountPath | undefined {
       // Only support one account for now (like portis).
       return undefined;
@@ -40,6 +42,7 @@ export function MixinNativeTerraWalletInfo<TBase extends core.Constructor<core.H
 }
 
 export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeTerraWallet extends Base {
     readonly _supportsTerra = true;
 
@@ -67,6 +70,7 @@ export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWa
 
     async terraGetAddress(msg: core.TerraGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "terra");
         return this.createTerraAddress(keyPair.publicKey.toString("hex"));
       });
@@ -74,9 +78,9 @@ export function MixinNativeTerraWallet<TBase extends core.Constructor<NativeHDWa
 
     async terraSignTx(msg: core.TerraSignTx): Promise<any | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "terra");
         // @TODO: This needs to be fixed after the change to tendermint serialization
-        // @ts-ignore
         const adapter = await Isolation.Adapters.Cosmos.create(keyPair);
         const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, "terra");
         return txBuilder.createSignedTx(msg.tx, result);

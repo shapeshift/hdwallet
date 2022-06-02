@@ -1,34 +1,38 @@
 {
   "name": "hdwallet-sandbox",
-  "version": "1.19.0",
-  "main": "index.js",
+  "version": "1.22.0",
   "license": "MIT",
   "private": true,
+  "browserslist": "> 0.5%, last 2 versions, not dead",
   "scripts": {
-    "build": "yarn parcel build index.html --out-dir public",
+    "build": "rm -rf public; yarn parcel build index.html --dist-dir public",
     "dev": "yarn parcel index.html",
-    "clean": "rm -rf dist .cache"
+    "clean": "rm -rf public .parcel-cache"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "1.19.0",
-    "@shapeshiftoss/hdwallet-keepkey-tcp": "1.19.0",
-    "@shapeshiftoss/hdwallet-keepkey-webusb": "1.19.0",
-    "@shapeshiftoss/hdwallet-ledger": "1.19.0",
-    "@shapeshiftoss/hdwallet-ledger-webhid": "1.19.0",
-    "@shapeshiftoss/hdwallet-ledger-webusb": "1.19.0",
-    "@shapeshiftoss/hdwallet-metamask": "1.19.0",
-    "@shapeshiftoss/hdwallet-native": "1.19.0",
-    "@shapeshiftoss/hdwallet-portis": "1.19.0",
-    "@shapeshiftoss/hdwallet-trezor": "1.19.0",
-    "@shapeshiftoss/hdwallet-trezor-connect": "1.19.0",
+    "@shapeshiftoss/hdwallet-core": "1.22.0",
+    "@shapeshiftoss/hdwallet-keepkey-tcp": "1.22.0",
+    "@shapeshiftoss/hdwallet-keepkey-webusb": "1.22.0",
+    "@shapeshiftoss/hdwallet-ledger": "1.22.0",
+    "@shapeshiftoss/hdwallet-ledger-webhid": "1.22.0",
+    "@shapeshiftoss/hdwallet-ledger-webusb": "1.22.0",
+    "@shapeshiftoss/hdwallet-metamask": "1.22.0",
+    "@shapeshiftoss/hdwallet-native": "1.22.0",
+    "@shapeshiftoss/hdwallet-portis": "1.22.0",
+    "@shapeshiftoss/hdwallet-trezor": "1.22.0",
+    "@shapeshiftoss/hdwallet-trezor-connect": "1.22.0",
+    "@shapeshiftoss/hdwallet-xdefi": "1.22.0",
     "bip32": "^2.0.4",
-    "debug": "^4.1.1",
     "jquery": "^3.4.1",
     "json": "^9.0.6",
-    "parcel-bundler": "^1.12.4",
+    "parcel": "^2.3.2",
     "web3": "^1.5.1"
   },
   "devDependencies": {
-    "@types/debug": "^4.1.2"
+    "https-browserify": "^1.0.0",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
+    "querystring-es3": "^0.2.1",
+    "stream-http": "^3.2.0"
   }
 }

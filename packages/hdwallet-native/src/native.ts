@@ -3,20 +3,19 @@ import * as bip39 from "bip39";
 import * as eventemitter2 from "eventemitter2";
 import _ from "lodash";
 
-import { MixinNativeBinanceWalletInfo, MixinNativeBinanceWallet } from "./binance";
-import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
-import { MixinNativeCosmosWalletInfo, MixinNativeCosmosWallet } from "./cosmos";
-import { MixinNativeOsmosisWallet, MixinNativeOsmosisWalletInfo } from "./osmosis";
-import { MixinNativeETHWalletInfo, MixinNativeETHWallet } from "./ethereum";
-import { MixinNativeFioWalletInfo, MixinNativeFioWallet } from "./fio";
-import { MixinNativeKavaWalletInfo, MixinNativeKavaWallet } from "./kava";
-import { getNetwork } from "./networks";
-import { MixinNativeSecretWalletInfo, MixinNativeSecretWallet } from "./secret";
-import { MixinNativeTerraWalletInfo, MixinNativeTerraWallet } from "./terra";
-import { MixinNativeThorchainWalletInfo, MixinNativeThorchainWallet } from "./thorchain";
-
 import type { NativeAdapterArgs } from "./adapter";
+import { MixinNativeBinanceWallet, MixinNativeBinanceWalletInfo } from "./binance";
+import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
+import { MixinNativeCosmosWallet, MixinNativeCosmosWalletInfo } from "./cosmos";
 import * as Isolation from "./crypto/isolation";
+import { MixinNativeETHWallet, MixinNativeETHWalletInfo } from "./ethereum";
+import { MixinNativeFioWallet, MixinNativeFioWalletInfo } from "./fio";
+import { MixinNativeKavaWallet, MixinNativeKavaWalletInfo } from "./kava";
+import { getNetwork } from "./networks";
+import { MixinNativeOsmosisWallet, MixinNativeOsmosisWalletInfo } from "./osmosis";
+import { MixinNativeSecretWallet, MixinNativeSecretWalletInfo } from "./secret";
+import { MixinNativeTerraWallet, MixinNativeTerraWalletInfo } from "./terra";
+import { MixinNativeThorchainWallet, MixinNativeThorchainWalletInfo } from "./thorchain";
 
 export enum NativeEvents {
   MNEMONIC_REQUIRED = "MNEMONIC_REQUIRED",
@@ -30,13 +29,16 @@ function isMnemonicInterface(x: unknown): x is Isolation.Core.BIP39.Mnemonic {
 type LoadDevice = Omit<core.LoadDevice, "mnemonic"> & {
   // Set this if your deviceId is dependent on the mnemonic
   deviceId?: string;
-} & ({
-  mnemonic: string | Isolation.Core.BIP39.Mnemonic;
-  masterKey?: never
-} | {
-  mnemonic?: never;
-  masterKey: Isolation.Core.BIP32.Node;
-})
+} & (
+    | {
+        mnemonic: string | Isolation.Core.BIP39.Mnemonic;
+        masterKey?: never;
+      }
+    | {
+        mnemonic?: never;
+        masterKey: Isolation.Core.BIP32.Node;
+      }
+  );
 
 export class NativeHDWalletInfoBase implements core.HDWalletInfo {
   getVendor(): string {
@@ -71,6 +73,7 @@ export class NativeHDWalletInfoBase implements core.HDWalletInfo {
     return false;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   describePath(msg: core.DescribePath): core.PathDescription {
     throw new Error("unreachable");
   }
@@ -135,7 +138,7 @@ class NativeHDWalletInfo
       case "digibyte":
       case "dogecoin":
       case "litecoin":
-      case "testnet":
+      case "testnet": {
         const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
 
         if (!msg.scriptType) return unknown;
@@ -143,6 +146,7 @@ class NativeHDWalletInfo
         if (!super.btcSupportsScriptTypeSync(msg.coin, msg.scriptType)) return unknown;
 
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+      }
       case "ethereum":
         return core.describeETHPath(msg.path);
       case "atom":
@@ -216,7 +220,7 @@ export class NativeHDWallet
   readonly _isNative = true;
 
   #deviceId: string;
-  #initialized: boolean = false;
+  #initialized = false;
   #masterKey: Promise<Isolation.Core.BIP32.Node> | undefined = undefined;
 
   constructor({ mnemonic, deviceId, masterKey }: NativeAdapterArgs) {
@@ -225,10 +229,11 @@ export class NativeHDWallet
       this.#masterKey = Promise.resolve(masterKey);
     } else if (mnemonic) {
       this.#masterKey = (async () => {
-        const isolatedMnemonic = typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic
+        const isolatedMnemonic =
+          typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
         const seed = await isolatedMnemonic.toSeed();
         return await seed.toMasterKey();
-      })()
+      })();
     }
     this.#deviceId = deviceId;
   }
@@ -259,10 +264,11 @@ export class NativeHDWallet
    */
   async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<core.PublicKey[] | null> {
     return this.needsMnemonic(!!this.#masterKey, async () => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const masterKey = await this.#masterKey!;
       return await Promise.all(
         msg.map(async (getPublicKey) => {
-          let { addressNList } = getPublicKey;
+          const { addressNList } = getPublicKey;
           const network = getNetwork(getPublicKey.coin, getPublicKey.scriptType);
           // TODO: return the xpub that's actually asked for, not the key of the hardened path
           // It's done this way for hilarious historical reasons and will break ETH if fixed
@@ -272,7 +278,7 @@ export class NativeHDWallet
           const xpub = node.neutered().toBase58();
           return { xpub };
         })
-      )
+      );
     });
   }
 
@@ -284,10 +290,12 @@ export class NativeHDWallet
     return false;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async clearSession(): Promise<void> {}
 
   async initialize(): Promise<boolean | null> {
     return this.needsMnemonic(!!this.#masterKey, async () => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const masterKey = await this.#masterKey!;
       try {
         await Promise.all([
@@ -318,14 +326,19 @@ export class NativeHDWallet
     return { msg: msg.msg };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async sendPin(): Promise<void> {}
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async sendPassphrase(): Promise<void> {}
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async sendCharacter(): Promise<void> {}
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async sendWord(): Promise<void> {}
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async cancel(): Promise<void> {}
 
   async wipe(): Promise<void> {
@@ -344,33 +357,37 @@ export class NativeHDWallet
     super.terraWipe();
     super.kavaWipe();
 
-    (await oldMasterKey)?.revoke?.()
+    (await oldMasterKey)?.revoke?.();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async reset(): Promise<void> {}
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   async recover(): Promise<void> {}
 
   async loadDevice(msg?: LoadDevice): Promise<void> {
-    this.#masterKey = Promise.resolve(await (async (mnemonic, masterKey) => {
-      if (masterKey !== undefined) {
-        return masterKey;
-      } else if (mnemonic !== undefined) {
-        const isolatedMnemonic = await (async () => {
-          if (isMnemonicInterface(mnemonic)) return mnemonic;
-          if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
-            return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
-          }
-          throw new Error("Required property [mnemonic] is invalid");
-        })();
-        const seed = await isolatedMnemonic.toSeed();
-        seed.addRevoker?.(() => isolatedMnemonic.revoke?.())
-        const masterKey = await seed.toMasterKey()
-        masterKey.addRevoker?.(() => seed.revoke?.())
-        return masterKey
-      }
-      throw new Error("Either [mnemonic] or [masterKey] is required");
-    })(msg?.mnemonic, msg?.masterKey));
+    this.#masterKey = Promise.resolve(
+      await (async (mnemonic, masterKey) => {
+        if (masterKey !== undefined) {
+          return masterKey;
+        } else if (mnemonic !== undefined) {
+          const isolatedMnemonic = await (async () => {
+            if (isMnemonicInterface(mnemonic)) return mnemonic;
+            if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
+              return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
+            }
+            throw new Error("Required property [mnemonic] is invalid");
+          })();
+          const seed = await isolatedMnemonic.toSeed();
+          seed.addRevoker?.(() => isolatedMnemonic.revoke?.());
+          const out = await seed.toMasterKey();
+          out.addRevoker?.(() => seed.revoke?.());
+          return out;
+        }
+        throw new Error("Either [mnemonic] or [masterKey] is required");
+      })(msg?.mnemonic, msg?.masterKey)
+    );
 
     if (typeof msg?.deviceId === "string") this.#deviceId = msg?.deviceId;
 

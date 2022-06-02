@@ -33,11 +33,13 @@ export class Keyring extends eventemitter2.EventEmitter2 {
   }
 
   public async exec(method: string, ...args: any[]): Promise<{ [deviceID: string]: any }> {
-    return Promise.all(Object.values(this.wallets).map((w) => {
-      const fn: unknown = (w as any)[method];
-      if (typeof fn !== "function") throw new Error(`can't exec non-existent method ${method}`);
-      return fn.call(w, ...args);
-    })).then((values) =>
+    return Promise.all(
+      Object.values(this.wallets).map((w) => {
+        const fn: unknown = (w as any)[method];
+        if (typeof fn !== "function") throw new Error(`can't exec non-existent method ${method}`);
+        return fn.call(w, ...args);
+      })
+    ).then((values) =>
       values.reduce((final, response, i) => {
         final[Object.keys(this.wallets)[i]] = response;
         return final;
@@ -62,7 +64,7 @@ export class Keyring extends eventemitter2.EventEmitter2 {
     } catch (e) {
       console.error(e);
     } finally {
-      let aliasee = this.aliases[deviceID];
+      const aliasee = this.aliases[deviceID];
       if (aliasee) {
         delete this.aliases[deviceID];
         delete this.wallets[aliasee];
@@ -88,6 +90,8 @@ export class Keyring extends eventemitter2.EventEmitter2 {
     const wallet: HDWallet | null = this.get(deviceID);
     if (!wallet) return;
     const vendor: string = wallet.getVendor();
-    events.onAny((e: string | string[], ...values: any[]) => this.emit([vendor, deviceID, (typeof e === "string" ? e : e.join(";"))], [deviceID, ...values]));
+    events.onAny((e: string | string[], ...values: any[]) =>
+      this.emit([vendor, deviceID, typeof e === "string" ? e : e.join(";")], [deviceID, ...values])
+    );
   }
 }

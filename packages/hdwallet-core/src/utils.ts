@@ -4,7 +4,7 @@ import * as RxOp from "rxjs/operators";
 
 import { BIP32Path, Coin } from "./wallet";
 
-export type Constructor<T = {}> = new (...args: any[]) => T;
+export type Constructor<T = object> = new (...args: any[]) => T;
 
 export const DEFAULT_TIMEOUT = 5000; // 5 seconds
 export const LONG_TIMEOUT = 5 * 60 * 1000; // 5 minutes
@@ -35,7 +35,7 @@ export function arrayify(value: string): Uint8Array {
     throw new Error("can only convert hex strings");
   }
 
-  let match = value.match(/^(0x)?[0-9a-fA-F]*$/);
+  const match = value.match(/^(0x)?[0-9a-fA-F]*$/);
 
   if (!match) {
     throw new Error("invalid hexadecimal string");
@@ -59,6 +59,12 @@ export function arrayify(value: string): Uint8Array {
 }
 
 const HARDENED = 0x80000000;
+
+export function bip32Like(path: string): boolean {
+  if (path == "m/") return true;
+  return /^m(((\/[0-9]+h)+|(\/[0-9]+H)+|(\/[0-9]+')*)((\/[0-9]+)*))$/.test(path);
+}
+
 export function bip32ToAddressNList(path: string): number[] {
   if (!bip32Like(path)) {
     throw new Error(`Not a bip32 path: '${path}'`);
@@ -70,7 +76,7 @@ export function bip32ToAddressNList(path: string): number[] {
   if (segments.length === 1 && segments[0] === "") return [];
   const ret = new Array(segments.length);
   for (let i = 0; i < segments.length; i++) {
-    const tmp = /(\d+)([hH\']?)/.exec(segments[i]);
+    const tmp = /(\d+)([hH']?)/.exec(segments[i]);
     if (tmp === null) {
       throw new Error("Invalid input");
     }
@@ -91,12 +97,10 @@ export function addressNListToBIP32(address: number[]): string {
   return `m/${address.map((num) => (num >= HARDENED ? `${num - HARDENED}'` : num)).join("/")}`;
 }
 
-export function bip32Like(path: string): boolean {
-  if (path == "m/") return true;
-  return /^m(((\/[0-9]+h)+|(\/[0-9]+H)+|(\/[0-9]+')*)((\/[0-9]+)*))$/.test(path);
-}
-
-export function takeFirstOfManyEvents(eventEmitter: eventemitter2.EventEmitter2, events: string[]): Rx.Observable<{}> {
+export function takeFirstOfManyEvents(
+  eventEmitter: eventemitter2.EventEmitter2,
+  events: string[]
+): Rx.Observable<object> {
   return Rx.merge(...events.map((event) => Rx.fromEvent<Event>(eventEmitter, event))).pipe(RxOp.first());
 }
 
@@ -109,11 +113,11 @@ export function stripHexPrefixAndLower(value: string): string {
 }
 
 export function base64toHEX(base64: string): string {
-  var raw = atob(base64);
-  var HEX = "";
+  const raw = atob(base64);
+  let HEX = "";
 
   for (let i = 0; i < raw.length; i++) {
-    var _hex = raw.charCodeAt(i).toString(16);
+    const _hex = raw.charCodeAt(i).toString(16);
 
     HEX += _hex.length == 2 ? _hex : "0" + _hex;
   }
@@ -146,14 +150,14 @@ const slip44Table = Object.freeze({
   Terra: 330,
   Kava: 459,
 } as const);
-type Slip44ByCoin<T> = (T extends keyof typeof slip44Table ? typeof slip44Table[T] : number | undefined);
+type Slip44ByCoin<T> = T extends keyof typeof slip44Table ? typeof slip44Table[T] : number | undefined;
 export function slip44ByCoin<T extends Coin>(coin: T): Slip44ByCoin<T> {
   return (slip44Table as any)[coin];
 }
 
 export function satsFromStr(coins: string): number {
-  let index = coins.indexOf(".");
-  let exponent = index > 0 ? 8 - (coins.length - index - 1) : 8;
+  const index = coins.indexOf(".");
+  const exponent = index > 0 ? 8 - (coins.length - index - 1) : 8;
   return Number(coins.replace(/\./g, "")) * 10 ** exponent;
 }
 
@@ -179,12 +183,21 @@ export function mustBeDefined<T>(x: T): NonNullable<T> {
 // accessed in any other way. Useful as dummy data for required parameters. (Probably a bad idea
 // in production.)
 export function untouchable(message: string): any {
-  const out = new Proxy({}, new Proxy({}, { get(_, p) {
-    return (_: any, p2: any) => {
-      if (p === "get" && p2 === "valueOf") return () => out;
-      throw new Error(`${String(p)}(${String(p2)}): ${message}`);
-    };
-  }})) as any;
+  const out = new Proxy(
+    {},
+    new Proxy(
+      {},
+      {
+        get(_, p) {
+          // eslint-disable-next-line @typescript-eslint/no-shadow
+          return (_: any, p2: any) => {
+            if (p === "get" && p2 === "valueOf") return () => out;
+            throw new Error(`${String(p)}(${String(p2)}): ${message}`);
+          };
+        },
+      }
+    )
+  ) as any;
   return out;
 }
 
@@ -206,9 +219,8 @@ export function checkBufferConcat(): boolean {
 
 export function compatibleBufferConcat(list: Uint8Array[]): Buffer {
   if (!checkBufferConcat()) return Buffer.concat(list);
-  return Buffer.concat(list.map(x => Buffer.isBuffer(x) ? x : Buffer.from(x)));
+  return Buffer.concat(list.map((x) => (Buffer.isBuffer(x) ? x : Buffer.from(x))));
 }
-
 
 /**
  * Type guard for things that might have (string-keyed) properties. Useful to make
@@ -239,5 +251,5 @@ export function compatibleBufferConcat(list: Uint8Array[]): Buffer {
  * isIndexable("foo") === false
  */
 export function isIndexable(x: unknown): x is Record<string | number | symbol, unknown> {
-  return x !== null && ["object", "function"].includes(typeof x)
+  return x !== null && ["object", "function"].includes(typeof x);
 }
