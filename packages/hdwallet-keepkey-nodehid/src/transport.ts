@@ -1,16 +1,10 @@
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as hid from "node-hid";
 
-import { VENDOR_ID, PRODUCT_ID } from "./utils";
-
-export function requestPair(): hid.HID {
-  return new hid.HID(VENDOR_ID, PRODUCT_ID);
-}
-
 export type Device = hid.Device & { path: string; serialNumber: string };
 
 export class TransportDelegate implements keepkey.TransportDelegate {
-  public hidRef: hid.HID;
+  public hidRef: hid.HID | undefined;
   public hidDevice: Device;
 
   constructor(hidDevice: Device, hidRef?: hid.HID) {
@@ -23,30 +17,35 @@ export class TransportDelegate implements keepkey.TransportDelegate {
   }
 
   async isOpened(): Promise<boolean> {
-    return this.hidDevice.interface > -1;
+    return !!this.hidRef;
   }
 
   async connect(): Promise<void> {
-    if (await this.isOpened()) throw new Error("cannot connect an already-connected connection");
-    this.hidRef.readSync();
+    if (!(await this.isOpened())) throw new Error("cannot reconnect a disconnected connection");
   }
 
   async disconnect(): Promise<void> {
     try {
+      const oldHidRef = this.hidRef;
+      this.hidRef = undefined;
       // If the device is disconnected, this will fail and throw, which is fine.
-      await this.hidRef.close();
+      await oldHidRef?.close();
     } catch (e) {
-      console.log("Disconnect Error (Ignored):", e);
+      console.warn("Disconnect Error (Ignored):", e);
     }
   }
 
   async readChunk(): Promise<Uint8Array> {
-    const result = await this.hidRef.readSync();
+    if (!(await this.isOpened())) throw new Error("cannot read from a closed connection");
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const result = await this.hidRef!.readSync();
     return new Uint8Array(result);
   }
 
   async writeChunk(buf: Uint8Array): Promise<void> {
-    const numArray = buf.reduce((a, x, i) => (a[i] = x, a), new Array<number>(buf.length));
-    await this.hidRef.write(numArray);
+    if (!(await this.isOpened())) throw new Error("cannot write to a closed connection");
+    const numArray = buf.reduce((a, x, i) => ((a[i] = x), a), new Array<number>(buf.length));
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    await this.hidRef!.write(numArray);
   }
 }

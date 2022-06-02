@@ -11,10 +11,10 @@ module.exports = {
     "^@shapeshiftoss/hdwallet-(.*)": "<rootDir>/hdwallet-$1/src",
   },
   globals: {
-    'ts-jest': {
+    "ts-jest": {
       diagnostics: {
         ignoreCodes: [7016],
-      }
+      },
     },
   },
   setupFiles: ["fake-indexeddb/auto"],

@@ -43,8 +43,9 @@ export class Server<DeviceType extends object, DelegateType extends keepkey.Adap
   }
 
   listen() {
-    if (this.delegate.getDevice !== undefined) electron.ipcMain.handle(GET_DEVICE, (_, serialNumber?: string) => this.getDevice(serialNumber));
-    if (this.delegate.getDevices !== undefined) electron.ipcMain.handle(GET_DEVICES, (_) => this.getDevices());
+    if (this.delegate.getDevice !== undefined)
+      electron.ipcMain.handle(GET_DEVICE, (_, serialNumber?: string) => this.getDevice(serialNumber));
+    if (this.delegate.getDevices !== undefined) electron.ipcMain.handle(GET_DEVICES, () => this.getDevices());
     electron.ipcMain.handle(GET_TRANSPORT_DELEGATE, (_, handle: string) => this.getTransportDelegate(handle));
     for (const delegateMethod of [
       "isOpened",
@@ -56,19 +57,23 @@ export class Server<DeviceType extends object, DelegateType extends keepkey.Adap
       "writeChunk",
       "readChunk",
     ] as const) {
-      electron.ipcMain.handle(`${PREFIX}:${delegateMethod}`, async (_, handle: string, ...args: any[]): Promise<any> => {
-        const device = this.devices.get(handle);
-        if (!device) throw new Error("invalid device handle");
-        const delegate = this.delegates.get(device);
-        if (!delegate) throw new Error("no delegate for device");
-        switch (delegateMethod) {
-          case "tryConnectDebugLink":
-            if (delegate.tryConnectDebugLink === undefined) return false;
-            return await delegate.tryConnectDebugLink();
-          default:
-            return await (delegate[delegateMethod] as (...args: any[]) => Promise<any>)(...args);
+      electron.ipcMain.handle(
+        `${PREFIX}:${delegateMethod}`,
+        async (_, handle: string, ...args: any[]): Promise<any> => {
+          const device = this.devices.get(handle);
+          if (!device) throw new Error("invalid device handle");
+          const delegate = this.delegates.get(device);
+          if (!delegate) throw new Error("no delegate for device");
+          switch (delegateMethod) {
+            case "tryConnectDebugLink":
+              if (delegate.tryConnectDebugLink === undefined) return false;
+              return await delegate.tryConnectDebugLink();
+            default:
+              // eslint-disable-next-line @typescript-eslint/no-shadow
+              return await (delegate[delegateMethod] as (...args: any[]) => Promise<any>)(...args);
+          }
         }
-      });
+      );
     }
   }
 }

@@ -1,23 +1,10 @@
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 
-import { CLIENT_TAG, Client } from "./client";
+import { Client, CLIENT_TAG } from "./client";
 
 function getClient(): Client {
   return ((window as any)?.[CLIENT_TAG] as Client) ?? Client;
 }
-
-export const AdapterDelegateProxy = {
-  getDevices(): Promise<string[]> {
-    return getClient().getDevices();
-  },
-  getDevice(serialNumber?: string): Promise<string> {
-    return getClient().getDevice(serialNumber);
-  },
-  async getTransportDelegate(handle: string) {
-    await getClient().getTransportDelegate(handle);
-    return new TransportDelegateProxy(handle);
-  },
-};
 
 export class TransportDelegateProxy implements keepkey.TransportDelegate {
   handle: string;
@@ -49,3 +36,16 @@ export class TransportDelegateProxy implements keepkey.TransportDelegate {
     return getClient().readChunk(this.handle, debugLink);
   }
 }
+
+export const AdapterDelegateProxy = {
+  getDevices(): Promise<string[]> {
+    return getClient().getDevices();
+  },
+  getDevice(serialNumber?: string): Promise<string> {
+    return getClient().getDevice(serialNumber);
+  },
+  async getTransportDelegate(handle: string) {
+    await getClient().getTransportDelegate(handle);
+    return new TransportDelegateProxy(handle);
+  },
+};

@@ -2,7 +2,6 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 
 import tx_unsigned from "./tx02.mainnet.thorchain.json";
 import tx_signed from "./tx02.mainnet.thorchain.signed.json";
-
 import tx_unsigned_swap from "./tx03.mainnet.thorchain.swap.json";
 import tx_signed_swap from "./tx03.mainnet.thorchain.swap.signed.json";
 
@@ -47,12 +46,36 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
       "describePath() thorchain",
       async () => {
         if (!wallet) return;
-        expect(
-          wallet.describePath({
-            path: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
-            coin: "Thorchain",
-          })
-        );
+
+        const out = wallet.describePath({
+          path: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
+          coin: "Thorchain",
+        });
+
+        // This is strange, and probably wrong, behavior... but it's what happens.
+        if (wallet.getVendor() === "KeepKey") {
+          // eslint-disable-next-line jest/no-conditional-expect
+          expect(out).toMatchInlineSnapshot(`
+          Object {
+            "coin": "Thorchain",
+            "isKnown": false,
+            "scriptType": undefined,
+            "verbose": "m/44'/931'/0'/0/0",
+          }
+          `);
+        } else {
+          // eslint-disable-next-line jest/no-conditional-expect
+          expect(out).toMatchInlineSnapshot(`
+            Object {
+              "accountIdx": 0,
+              "coin": "Thorchain",
+              "isKnown": true,
+              "isPrefork": false,
+              "verbose": "Thorchain Account #0",
+              "wholeAccount": true,
+            }
+          `);
+        }
       },
       TIMEOUT
     );
@@ -86,7 +109,6 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
 
         const res = await wallet.thorchainSignTx(input);
         expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
-
       },
       TIMEOUT
     );
@@ -104,8 +126,7 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
         };
 
         const res = await wallet.thorchainSignTx(input);
-        expect(res?.signatures?.[0].signature).toEqual(tx_signed_swap.signatures[0].signature)
-
+        expect(res?.signatures?.[0].signature).toEqual(tx_signed_swap.signatures[0].signature);
       },
       TIMEOUT
     );

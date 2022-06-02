@@ -80,6 +80,7 @@ export function binanceTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         // Check that the signed transaction matches tx02_signed -- KeepKey doesn't provide this field,
         // but the tests will be run with hdwallet-native as well, which will prove this invariant under
         // the assumption that both are generating signatures over the same data.
+        // eslint-disable-next-line jest/no-conditional-expect
         if (res.serialized) expect(res.serialized).toEqual(tx02_signed.serialized);
         const txBytes = Buffer.from(tx02_signed.serialized, "hex");
         expect(validateBnbTx(txBytes, input.chain_id)).toEqual(true);

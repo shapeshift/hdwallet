@@ -5,10 +5,10 @@ orbs:
     executors:
       node:
         docker:
-          - image: circleci/node:16
+          - image: cimg/node:16.14
       kkemu:
         docker:
-          - image: circleci/node:16
+          - image: cimg/node:16.14
           - image: kktech/kkemu:latest
     jobs:
       build:
@@ -17,7 +17,7 @@ orbs:
         environment:
           JEST_JUNIT_OUTPUT: "test-results/js-test-results.xml"
         steps:
-          - run: sudo apt-get install libudev-dev libusb-dev libusb-1.0
+          - run: sudo apt-get update && sudo apt-get install libudev-dev libusb-dev libusb-1.0 libtool
           - checkout
           - run:
               name: Authenticate with registry
@@ -31,6 +31,9 @@ orbs:
               no_output_timeout: 30m
               name: Build packages
               command: yarn build
+          - run:
+              name: Lint
+              command: yarn lint
           - run:
               name: Run unit tests
               command: yarn test --runInBand --coverage=false
@@ -77,3 +80,4 @@ workflows:
             branches:
               only:
                 - master
+                - v1-legacy

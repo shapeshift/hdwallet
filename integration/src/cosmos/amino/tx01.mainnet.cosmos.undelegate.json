@@ -1,0 +1,28 @@
+{
+  "account_number": "16359",
+  "chain_id": "cosmoshub-4",
+  "sequence": "37",
+  "fee": {
+    "amount": [
+      {
+        "denom": "uatom",
+        "amount": "2500"
+      }
+    ],
+    "gas": "250000"
+  },
+  
+  "msg": [
+    {
+      "type": "cosmos-sdk/MsgUndelegate",
+      "value": {
+        "delegator_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
+        "validator_address": "cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf",
+        "amount": {
+          "denom": "uatom",
+          "amount": "10000"
+        }
+      }
+    }
+  ]
+}

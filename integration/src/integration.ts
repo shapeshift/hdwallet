@@ -4,26 +4,23 @@ import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 import * as metamask from "@shapeshiftoss/hdwallet-metamask";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
+import * as tallyHo from "@shapeshiftoss/hdwallet-tallyho";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 
-import { btcTests } from "./bitcoin";
-import { ethTests } from "./ethereum";
-import { cosmosTests } from "./cosmos";
-import { osmosisTests } from "./osmosis";
 import { binanceTests } from "./binance";
-import { rippleTests } from "./ripple";
+import { btcTests } from "./bitcoin";
+import { cosmosTests } from "./cosmos";
 import { eosTests } from "./eos";
+import { ethTests } from "./ethereum";
 import { fioTests } from "./fio";
-import { thorchainTests } from "./thorchain";
+import { kavaTests } from "./kava";
+import { osmosisTests } from "./osmosis";
+import { rippleTests } from "./ripple";
 import { secretTests } from "./secret";
 import { terraTests } from "./terra";
-import { kavaTests } from "./kava";
+import { thorchainTests } from "./thorchain";
 import { WalletSuite } from "./wallets/suite";
-
-import { ethereum } from "./wallets/mocks/@metamask/detect-provider";
-
-jest.mock("@metamask/detect-provider", () => async () => Promise.resolve(ethereum));
 
 /**
  * We run all the integration tests against every device, even though some
@@ -58,7 +55,8 @@ export function integration(suite: WalletSuite): void {
             (portis.isPortis(wallet) ? 1 : 0) +
             (native.isNative(wallet) ? 1 : 0) +
             (metamask.isMetaMask(wallet) ? 1 : 0) +
-            (xdefi.isXDeFi(wallet) ? 1 : 0)
+            (tallyHo.isTallyHo(wallet) ? 1 : 0) +
+            (xdefi.isXDEFI(wallet) ? 1 : 0)
         ).toEqual(1);
       });
     });

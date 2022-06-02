@@ -2,12 +2,12 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { argon2id } from "hash-wasm";
 import * as idb from "idb-keyval";
 import * as jose from "jose";
-import * as uuid from "uuid";
 import * as ta from "type-assertions";
-import { argonBenchmark } from "./argonBenchmark";
+import * as uuid from "uuid";
 
+import { argonBenchmark } from "./argonBenchmark";
 import { ArgonParams, IVaultBackedBy, IVaultFactory, VaultPrepareParams } from "./types";
-import { Revocable, crypto, revocable, encoder, keyStoreUUID, vaultStoreUUID, setCrypto, setPerformance } from "./util";
+import { crypto, encoder, keyStoreUUID, Revocable, revocable, setCrypto, setPerformance, vaultStoreUUID } from "./util";
 
 // This has to be outside the class so the static initializers for defaultArgonParams and #machineSeed can reference it.
 let resolvers:
@@ -75,7 +75,7 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
               iterations: 26,
             };
             const argonBenchmarkResults = await argonBenchmark(out.memorySize, 1000, { measureError: true });
-            console.log("argonBenchmarkResults:", argonBenchmarkResults);
+            console.debug("argonBenchmarkResults:", argonBenchmarkResults);
             await idb.set("argonBenchmarkResults", argonBenchmarkResults, await RawVault.#keyStore);
             out.iterations = argonBenchmarkResults.iterations;
             await idb.set("defaultArgonParams", out, await RawVault.#keyStore);
@@ -92,6 +92,7 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
     id: string,
     argonParams: ArgonParams,
     password: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     addRevoker: (revoke: () => void) => void
   ) {
     const idBuf = encoder.encode(id);
@@ -154,6 +155,7 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
   static async open(id?: string, password?: string) {
     await RawVault.prepare();
 
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     const factory = async (id: string, argonParams: Promise<ArgonParams>) => {
       const vaultRevoker = new (Revocable(class {}))();
       const vault = revocable(new RawVault(id, argonParams), (x) => vaultRevoker.addRevoker(x));
@@ -217,12 +219,16 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
   protected constructor(id: string, argonParams: Promise<ArgonParams>) {
     super();
     this.id = id;
-    this.#argonParams = argonParams.then(x => Object.freeze(JSON.parse(JSON.stringify(x))));
+    this.#argonParams = argonParams.then((x) => Object.freeze(JSON.parse(JSON.stringify(x))));
   }
 
   async setPassword(password: string): Promise<this> {
-    this.#key = await RawVault.#deriveVaultKey(await RawVault.#machineSeed, this.id, await this.#argonParams, password, (x) =>
-      this.addRevoker(x)
+    this.#key = await RawVault.#deriveVaultKey(
+      await RawVault.#machineSeed,
+      this.id,
+      await this.#argonParams,
+      password,
+      (x) => this.addRevoker(x)
     );
     return this;
   }

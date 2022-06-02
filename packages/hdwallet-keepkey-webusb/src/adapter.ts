@@ -2,23 +2,21 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 
 import { Device, TransportDelegate } from "./transport";
-import { VENDOR_ID, WEBUSB_PRODUCT_ID, HID_PRODUCT_ID } from "./utils";
+import { HID_PRODUCT_ID, VENDOR_ID, WEBUSB_PRODUCT_ID } from "./utils";
 
 // This avoids a prompt ReferenceError if the module is imported outside a browser.
-const webUSB = typeof window === "object" && window?.navigator?.usb as unknown;
+const webUSB = typeof window === "object" && (window?.navigator?.usb as unknown);
 type WebUSB = typeof window.navigator.usb;
 
-function assertWebUSB(webUSB: any): asserts webUSB is WebUSB {
-  if (!webUSB) throw new core.WebUSBNotAvailable();
+function assertWebUSB(x: any): asserts x is WebUSB {
+  if (!x) throw new core.WebUSBNotAvailable();
 }
 
 export const AdapterDelegate = {
   async getDevices(): Promise<Device[]> {
     assertWebUSB(webUSB);
     const devices = (await webUSB.getDevices()).filter((d) => d.serialNumber !== undefined) as Device[];
-    return devices.filter(
-      (x) => x.vendorId === VENDOR_ID && [WEBUSB_PRODUCT_ID, HID_PRODUCT_ID].includes(x.productId)
-    );
+    return devices.filter((x) => x.vendorId === VENDOR_ID && [WEBUSB_PRODUCT_ID, HID_PRODUCT_ID].includes(x.productId));
   },
   async getDevice(serialNumber?: string): Promise<Device> {
     assertWebUSB(webUSB);

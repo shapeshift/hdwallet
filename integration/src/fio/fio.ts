@@ -1,7 +1,8 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import * as tx01_unsigned from "./tx01.unsigned.json";
-import * as tx02_signed from "./tx02.signed.json";
+// TODO: Use these test TXs for something?
+// import * as tx01_unsigned from "./tx01.unsigned.json";
+// import * as tx02_signed from "./tx02.signed.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 const MNEMONIC12_NOPIN_NOPASSPHRASE2 = "all all all all all all all all all all all all";

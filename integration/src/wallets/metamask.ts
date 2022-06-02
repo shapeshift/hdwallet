@@ -6,11 +6,34 @@ export function name(): string {
 }
 
 export function createInfo(): core.HDWalletInfo {
-  return metamask.info();
+  return new metamask.MetaMaskHDWalletInfo();
 }
 
 export async function createWallet(): Promise<core.HDWallet> {
-  const wallet = new metamask.MetaMaskHDWallet();
+  const provider = {
+    request: jest.fn(({ method, params }: any) => {
+      switch (method) {
+        case "eth_accounts":
+          return ["0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"];
+        case "personal_sign": {
+          const [message] = params;
+
+          if (message === "48656c6c6f20576f726c64")
+            return "0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b";
+
+          throw new Error("unknown message");
+        }
+        case "eth_sendTransaction": {
+          const [{ to }] = params;
+
+          return `txHash-${to}`;
+        }
+        default:
+          throw new Error(`ethereum: Unkown method ${method}`);
+      }
+    }),
+  };
+  const wallet = new metamask.MetaMaskHDWallet(provider);
   await wallet.initialize();
   return wallet;
 }
@@ -19,12 +42,12 @@ export function selfTest(get: () => core.HDWallet): void {
   let wallet: metamask.MetaMaskHDWallet;
 
   beforeAll(async () => {
-    let w = get() as metamask.MetaMaskHDWallet;
+    const w = get() as metamask.MetaMaskHDWallet;
 
     if (metamask.isMetaMask(w) && !core.supportsBTC(w) && core.supportsETH(w)) {
       wallet = w;
     } else {
-      fail("Wallet is not a MetaMask");
+      throw new Error("Wallet is not a MetaMask");
     }
   });
 
@@ -56,7 +79,7 @@ export function selfTest(get: () => core.HDWallet): void {
   it("uses correct eth bip44 paths", () => {
     if (!wallet) return;
     [0, 1, 3, 27].forEach((account) => {
-      let paths = wallet.ethGetAccountPaths({
+      const paths = wallet.ethGetAccountPaths({
         coin: "Ethereum",
         accountIdx: account,
       });
@@ -119,7 +142,7 @@ export function selfTest(get: () => core.HDWallet): void {
     });
   });
 
-  it('should return a valid ETH address', async () => {
+  it("should return a valid ETH address", async () => {
     if (!wallet) return;
     expect(
       await wallet.ethGetAddress({
@@ -127,11 +150,11 @@ export function selfTest(get: () => core.HDWallet): void {
         showDisplay: false,
       })
     ).toEqual("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8");
-  })
+  });
 
-  it('should sign a message', async () => {
+  it("should sign a message", async () => {
     if (!wallet) return;
-    let res = await wallet.ethSignMessage({
+    const res = await wallet.ethSignMessage({
       addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
       message: "Hello World",
     });

@@ -1,9 +1,10 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
+import type { WebUSBDevice } from "usb";
 
 import { VENDOR_ID, WEBUSB_PRODUCT_ID } from "./utils";
 
-export type Device = USBDevice & {serialNumber: string};
+export type Device = WebUSBDevice & { serialNumber: string };
 
 export class TransportDelegate implements keepkey.TransportDelegate {
   usbDevice: Device;
@@ -11,12 +12,12 @@ export class TransportDelegate implements keepkey.TransportDelegate {
   constructor(usbDevice: Device) {
     if (usbDevice.vendorId !== VENDOR_ID) throw new core.WebUSBCouldNotPair("KeepKey", "bad vendor id");
     if (usbDevice.productId !== WEBUSB_PRODUCT_ID) throw new core.FirmwareUpdateRequired("KeepKey", "6.1.0");
-    this.usbDevice = usbDevice
+    this.usbDevice = usbDevice;
   }
 
   async create(usbDevice: Device): Promise<TransportDelegate | null> {
     if (usbDevice.vendorId !== VENDOR_ID) return null;
-    return new TransportDelegate(usbDevice)
+    return new TransportDelegate(usbDevice);
   }
 
   async isOpened(): Promise<boolean> {
@@ -27,9 +28,9 @@ export class TransportDelegate implements keepkey.TransportDelegate {
     return this.usbDevice.serialNumber;
   }
 
-  async connect(): Promise<void> {   
+  async connect(): Promise<void> {
     if (await this.isOpened()) throw new Error("cannot connect an already-connected connection");
-    
+
     await this.usbDevice.open();
 
     if (this.usbDevice.configuration === null) await this.usbDevice.selectConfiguration(1);
@@ -63,12 +64,15 @@ export class TransportDelegate implements keepkey.TransportDelegate {
       // If the device is disconnected, this will fail and throw, which is fine.
       await this.usbDevice.close();
     } catch (e) {
-      console.log("Disconnect Error (Ignored):", e);
+      console.warn("Disconnect Error (Ignored):", e);
     }
   }
 
   async writeChunk(buf: Uint8Array, debugLink?: boolean): Promise<void> {
-    const result = await this.usbDevice.transferOut(debugLink ? 2 : 1, buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
+    const result = await this.usbDevice.transferOut(
+      debugLink ? 2 : 1,
+      buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength)
+    );
     if (result.status !== "ok" || result.bytesWritten !== buf.length) throw new Error("bad write");
   }
 
@@ -81,6 +85,8 @@ export class TransportDelegate implements keepkey.TransportDelegate {
       throw new Error("bad read");
     }
 
-    return new Uint8Array(result.data.buffer.slice(result.data.byteOffset, result.data.byteOffset + result.data.byteLength))
+    return new Uint8Array(
+      result.data.buffer.slice(result.data.byteOffset, result.data.byteOffset + result.data.byteLength)
+    );
   }
 }

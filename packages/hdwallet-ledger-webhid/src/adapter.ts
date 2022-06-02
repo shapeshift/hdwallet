@@ -1,14 +1,20 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
-import { LedgerWebHIDTransport, MOCK_SERIAL_NUMBER, getFirstLedgerDevice, getTransport, openTransport } from "./transport";
+import {
+  getFirstLedgerDevice,
+  getTransport,
+  LedgerWebHIDTransport,
+  MOCK_SERIAL_NUMBER,
+  openTransport,
+} from "./transport";
 
 const VENDOR_ID = 11415;
 const APP_NAVIGATION_DELAY = 3000;
 
 export class WebHIDLedgerAdapter {
   keyring: core.Keyring;
-  currentEventTimestamp: number = 0;
+  currentEventTimestamp = 0;
 
   constructor(keyring: core.Keyring) {
     this.keyring = keyring;
@@ -31,7 +37,7 @@ export class WebHIDLedgerAdapter {
     try {
       await this.initialize(e.device);
       this.keyring.emit(["Ledger", e.device.productName ?? "", core.Events.CONNECT], MOCK_SERIAL_NUMBER);
-    } catch (error) {
+    } catch (error: any) {
       this.keyring.emit(
         ["Ledger", e.device.productName ?? "", core.Events.FAILURE],
         [MOCK_SERIAL_NUMBER, { message: { code: error.type, ...error } }]
@@ -52,16 +58,16 @@ export class WebHIDLedgerAdapter {
 
       try {
         await this.keyring.remove(MOCK_SERIAL_NUMBER);
-      } catch (e) {
-        console.error(e);
+      } catch (error) {
+        console.error(error);
       } finally {
         this.keyring.emit(["Ledger", e.device.productName ?? "", core.Events.DISCONNECT], MOCK_SERIAL_NUMBER);
       }
     }, APP_NAVIGATION_DELAY);
   }
 
-  public get(): core.HDWallet {
-    return core.mustBeDefined(this.keyring.get(MOCK_SERIAL_NUMBER));
+  public get(): ledger.LedgerHDWallet {
+    return core.mustBeDefined(this.keyring.get<ledger.LedgerHDWallet>(MOCK_SERIAL_NUMBER));
   }
 
   // without unique device identifiers, we should only ever have one HID ledger device on the keyring at a time
@@ -81,13 +87,13 @@ export class WebHIDLedgerAdapter {
     return Object.keys(this.keyring.wallets).length;
   }
 
-  public async pairDevice(): Promise<core.HDWallet> {
+  public async pairDevice(): Promise<ledger.LedgerHDWallet> {
     const ledgerTransport = await getTransport();
 
     const device = ledgerTransport.device;
 
     await this.initialize(device);
 
-    return core.mustBeDefined(this.keyring.get(MOCK_SERIAL_NUMBER));
+    return core.mustBeDefined(this.keyring.get<ledger.LedgerHDWallet>(MOCK_SERIAL_NUMBER));
   }
 }
