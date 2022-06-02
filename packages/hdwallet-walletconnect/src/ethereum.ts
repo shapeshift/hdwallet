@@ -48,5 +48,5 @@ export async function ethSignMessage(
   args: { data: string; fromAddress: string },
   provider: any
 ): Promise<core.ETHSignedMessage | null> {
-  return  await provider.wc.signMessage([Buffer.from(args.data).toString("hex"), args.fromAddress]);
+  return await provider.wc.signMessage([Buffer.from(args.data).toString("hex"), args.fromAddress]);
 }
