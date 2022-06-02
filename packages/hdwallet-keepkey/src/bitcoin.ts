@@ -1,7 +1,6 @@
 import * as Exchange from "@keepkey/device-protocol/lib/exchange_pb";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
-import * as bitcoinjs from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { thaw } from "icepick";
 
@@ -37,13 +36,6 @@ function segwitNativeAccount(coin: core.Coin, slip44: number, accountIdx: number
     scriptType: core.BTCInputScriptType.SpendWitness,
     addressNList: [0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + accountIdx],
   };
-}
-
-function packVarint(n: number): string {
-  if (n < 253) return n.toString(16).padStart(2, "0");
-  else if (n < 0xffff) return "FD" + n.toString(16).padStart(4, "0");
-  else if (n < 0xffffffff) return "FE" + n.toString(16).padStart(8, "0");
-  else return "FF" + n.toString(16).padStart(16, "0");
 }
 
 function prepareSignTx(
@@ -126,7 +118,7 @@ function prepareSignTx(
 
   inputs.forEach((inputTx) => {
     if (inputTx.txid in txmap) return;
-      return;
+    return;
   });
 
   return txmap;
