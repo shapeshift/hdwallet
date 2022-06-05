@@ -1,4 +1,3 @@
-import * as Exchange from "@keepkey/device-protocol/lib/exchange_pb";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
 import * as bitcoinjs from "@shapeshiftoss/bitcoinjs-lib";
