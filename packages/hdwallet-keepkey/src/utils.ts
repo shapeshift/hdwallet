@@ -1,4 +1,4 @@
-import * as Types from "@keepkey/device-protocol/lib/types_pb";
+import * as Types from "@markrypto/device-protocol/lib/types_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
 
 export const SEGMENT_SIZE = 63;

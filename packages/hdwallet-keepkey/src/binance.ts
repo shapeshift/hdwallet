@@ -1,5 +1,5 @@
-import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
-import * as BinanceMessages from "@keepkey/device-protocol/lib/messages-binance_pb";
+import * as Messages from "@markrypto/device-protocol/lib/messages_pb";
+import * as BinanceMessages from "@markrypto/device-protocol/lib/messages-binance_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import BigNumber from "bignumber.js";
 import CryptoJS from "crypto-js";

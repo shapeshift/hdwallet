@@ -2185,14 +2185,6 @@
     "@types/yargs" "^16.0.0"
     chalk "^4.0.0"
 
-"@keepkey/device-protocol@^7.8.1":
-  version "7.8.1"
-  resolved "https://registry.yarnpkg.com/@keepkey/device-protocol/-/device-protocol-7.8.1.tgz#e7b1f90390d8314247f5af4f7975c2824f758d9b"
-  integrity sha512-+QY+ivAIxkfN/U50w979WpdHruU9tPVIRddaAItIcfZVKZxs5aNs8/ciUyso0/47p/rRxJpaEJSKz2K0lEes1w==
-  dependencies:
-    google-protobuf "^3.7.0-rc.2"
-    pbjs "^0.0.5"
-
 "@keplr-wallet/types@^0.9.10":
   version "0.9.12"
   resolved "https://registry.yarnpkg.com/@keplr-wallet/types/-/types-0.9.12.tgz#5771913343030a491c551a5a2eebb9cb0ad480f7"
@@ -3238,6 +3230,14 @@
   dependencies:
     npmlog "^4.1.2"
     write-file-atomic "^2.3.0"
+
+"@markrypto/device-protocol@^7.10.0":
+  version "7.10.0"
+  resolved "https://registry.npmjs.org/@markrypto/device-protocol/-/device-protocol-7.10.0.tgz#71368d985fe10a0a132d4792db4709c397d4f584"
+  integrity sha512-+rwK+Q1nfihLpnvV3M+Yj2c1hIYBd4N/yKMfHqPyhIY3AB42jQQUp1AuTBxDk7jm9qdVT4OKzmdXTqLkAk48kA==
+  dependencies:
+    google-protobuf "^3.7.0-rc.2"
+    pbjs "^0.0.5"
 
 "@metamask/detect-provider@^1.2.0":
   version "1.2.0"

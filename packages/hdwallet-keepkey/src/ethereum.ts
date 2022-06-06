@@ -1,8 +1,8 @@
 import Common from "@ethereumjs/common";
 import { FeeMarketEIP1559Transaction, Transaction } from "@ethereumjs/tx";
-import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
-import * as EthMessages from "@keepkey/device-protocol/lib/messages-ethereum_pb";
-import * as Types from "@keepkey/device-protocol/lib/types_pb";
+import * as Messages from "@markrypto/device-protocol/lib/messages_pb";
+import * as EthMessages from "@markrypto/device-protocol/lib/messages-ethereum_pb";
+import * as Types from "@markrypto/device-protocol/lib/types_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as eip55 from "eip55";
 

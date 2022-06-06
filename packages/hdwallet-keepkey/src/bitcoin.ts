@@ -1,5 +1,5 @@
-import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
-import * as Types from "@keepkey/device-protocol/lib/types_pb";
+import * as Messages from "@markrypto/device-protocol/lib/messages_pb";
+import * as Types from "@markrypto/device-protocol/lib/types_pb";
 import * as bitcoinjs from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { thaw } from "icepick";
