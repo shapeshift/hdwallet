@@ -22,7 +22,6 @@
     "@shapeshiftoss/hdwallet-core": "1.23.0",
     "@shapeshiftoss/proto-tx-builder": "^0.2.1",
     "bignumber.js": "^9.0.1",
-    "bnb-javascript-sdk-nobroadcast": "^2.16.14",
     "crypto-js": "^4.0.0",
     "eip55": "^2.1.0",
     "google-protobuf": "^3.15.8",
@@ -35,6 +34,7 @@
   "devDependencies": {
     "@cosmjs/amino": "^0.28.3",
     "@cosmjs/proto-signing": "^0.27.1",
+    "@shapeshiftoss/bnb-javascript-sdk": "^4.2.0-shapeshift.1",
     "@types/create-hash": "^1.2.2",
     "@types/crypto-js": "^4.0.0",
     "@types/google-protobuf": "^3.15.1",
@@ -44,5 +44,8 @@
     "@types/tiny-secp256k1": "^1.0.0",
     "typedoc": "^0.20.36",
     "typescript": "^4.3.2"
+  },
+  "optionalDependencies": {
+    "@shapeshiftoss/bnb-javascript-sdk": "^4.2.0-shapeshift.1"
   }
 }

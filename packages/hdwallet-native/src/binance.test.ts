@@ -1,5 +1,5 @@
+import * as bnbSdk from "@shapeshiftoss/bnb-javascript-sdk";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as bnbSdk from "bnb-javascript-sdk-nobroadcast";
 
 import * as native from "./native";
 

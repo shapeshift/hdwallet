@@ -1,7 +1,7 @@
+import type * as bnbSdkTypes from "@shapeshiftoss/bnb-javascript-sdk";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bech32 from "bech32";
 import BigNumber from "bignumber.js";
-import type * as bnbSdkTypes from "bnb-javascript-sdk-nobroadcast";
 import CryptoJS from "crypto-js";
 import PLazy from "p-lazy";
 
@@ -9,7 +9,7 @@ import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
 
-const bnbSdk = PLazy.from(() => import("bnb-javascript-sdk-nobroadcast"));
+const bnbSdk = PLazy.from(() => import("@shapeshiftoss/bnb-javascript-sdk"));
 
 export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -93,7 +93,9 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
 
         const client = new (await bnbSdk).BncClient(
           msg.testnet ? "https://testnet-dex.binance.org" : "https://dex.binance.org"
-        ); // broadcast not used but available
+        );
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        client.setBroadcastDelegate((signedTx) => signedTx as any);
         await client.chooseNetwork(msg.testnet ? "testnet" : "mainnet");
         const haveAccountNumber = !!msg.tx.account_number && Number.isInteger(Number(msg.tx.account_number));
         if (haveAccountNumber) await client.setAccountNumber(Number(msg.tx.account_number));

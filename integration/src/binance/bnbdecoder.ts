@@ -1,4 +1,4 @@
-import * as bnbSdk from "bnb-javascript-sdk-nobroadcast";
+import * as bnbSdk from "@shapeshiftoss/bnb-javascript-sdk";
 import * as crypto from "crypto";
 import tinyecc from "tiny-secp256k1";
 

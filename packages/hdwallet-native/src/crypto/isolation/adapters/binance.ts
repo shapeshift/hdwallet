@@ -1,11 +1,11 @@
-import type { BncClient, Transaction } from "bnb-javascript-sdk-nobroadcast";
+import type { BncClient, Transaction } from "@shapeshiftoss/bnb-javascript-sdk";
 import PLazy from "p-lazy";
 
 import { BIP32, SecP256K1 } from "../core";
 
 type SigningDelegate = Parameters<BncClient["setSigningDelegate"]>[0];
 
-const bnbSdk = PLazy.from(() => import("bnb-javascript-sdk-nobroadcast"));
+const bnbSdk = PLazy.from(() => import("@shapeshiftoss/bnb-javascript-sdk"));
 
 export default {
   async create(keyPair: BIP32.Node): Promise<SigningDelegate> {

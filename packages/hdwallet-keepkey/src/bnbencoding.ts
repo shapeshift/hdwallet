@@ -1,9 +1,12 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as bnbSdk from "bnb-javascript-sdk-nobroadcast";
 import CryptoJS from "crypto-js";
+import PLazy from "p-lazy";
 import TinySecP256K1 from "tiny-secp256k1";
 
-export function decodeBnbTx(txBytes: Buffer, chainId: string) {
+const bnbSdkLazy = PLazy.from(() => import("@shapeshiftoss/bnb-javascript-sdk"));
+
+export async function decodeBnbTx(txBytes: Buffer, chainId: string) {
+  const bnbSdk = await bnbSdkLazy;
   const txDecoded = bnbSdk.amino.decoder.unMarshalBinaryLengthPrefixed(txBytes, {
     aminoPrefix: "f0625dee",
     msgs: [
@@ -68,12 +71,13 @@ export function decodeBnbTx(txBytes: Buffer, chainId: string) {
   return { signBytes, signBytesHash, pubKey, signature };
 }
 
-export function validateBnbTx(txBytes: Buffer, chainId: string) {
-  const { signBytesHash, pubKey, signature } = decodeBnbTx(txBytes, chainId);
+export async function validateBnbTx(txBytes: Buffer, chainId: string) {
+  const { signBytesHash, pubKey, signature } = await decodeBnbTx(txBytes, chainId);
   return TinySecP256K1.verify(Buffer.from(signBytesHash, "hex"), pubKey, signature);
 }
 
-export function encodeBnbTx(unsignedTx: core.BinanceTx, publicKey: Buffer, signature: Buffer) {
+export async function encodeBnbTx(unsignedTx: core.BinanceTx, publicKey: Buffer, signature: Buffer) {
+  const bnbSdk = await bnbSdkLazy;
   const { account_number, chain_id, sequence, source } = unsignedTx;
   const msg = unsignedTx.msgs[0];
 

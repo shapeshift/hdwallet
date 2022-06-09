@@ -88,10 +88,8 @@ export async function binanceSignTx(transport: Transport, msg: core.BinanceSignT
     signedTx.setSignature(resp.message.signature);
     signedTx.setPublicKey(resp.message.publicKey);
 
-    const serialized = encodeBnbTx(
-      tx,
-      Buffer.from(signedTx.getPublicKey_asU8()),
-      Buffer.from(signedTx.getSignature_asU8())
+    const serialized = (
+      await encodeBnbTx(tx, Buffer.from(signedTx.getPublicKey_asU8()), Buffer.from(signedTx.getSignature_asU8()))
     ).toString("hex");
 
     const out: core.BinanceSignedTx = {
