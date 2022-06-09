@@ -222,8 +222,8 @@ $walletConnect.on("click", async (e) => {
   try {
     const config = {
       rpc: {
-        1: "https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57"
-      }
+        1: "https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57",
+      },
     };
     wallet = await walletConnectAdapter.pairDevice(config);
     window["wallet"] = wallet;
@@ -233,7 +233,7 @@ $walletConnect.on("click", async (e) => {
   } catch (error) {
     console.error(error);
   }
-})
+});
 
 $xdefi.on("click", async (e) => {
   e.preventDefault();

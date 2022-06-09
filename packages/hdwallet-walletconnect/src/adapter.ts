@@ -1,11 +1,13 @@
-import WalletConnectProvider from "@walletconnect/web3-provider";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import WalletConnectProvider from "@walletconnect/web3-provider";
 
 import { WalletConnectHDWallet } from "./walletconnect";
 
-type WalletConnectConfig = {
-  infuraId: string
-} | { rpc: { [key: number]: string }}
+type WalletConnectConfig =
+  | {
+      infuraId: string;
+    }
+  | { rpc: { [key: number]: string } };
 
 export class WalletConnectAdapter {
   keyring: core.Keyring;

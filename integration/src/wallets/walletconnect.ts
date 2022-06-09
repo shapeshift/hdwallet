@@ -10,7 +10,11 @@ export function createInfo(): core.HDWalletInfo {
 }
 
 export async function createWallet(): Promise<core.HDWallet> {
-  const accounts = ["0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8", "0x8CB8864f185f14e8d7da0000e4a55a09e4156ff6", "0x4e8d2E3d5FDe8CB80A917e258548268734973f23"];
+  const accounts = [
+    "0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8",
+    "0x8CB8864f185f14e8d7da0000e4a55a09e4156ff6",
+    "0x4e8d2E3d5FDe8CB80A917e258548268734973f23",
+  ];
   const provider = {
     request: jest.fn(({ method, params }: any) => {
       switch (method) {
@@ -43,13 +47,13 @@ export async function createWallet(): Promise<core.HDWallet> {
     wc: {
       sendTransaction: jest.fn((msg) => {
         const { to } = msg;
-        return {hash: `txHash-${to}`};
+        return { hash: `txHash-${to}` };
       }),
       signMessage: jest.fn().mockReturnValue({
         address: "0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8",
         signature:
           "0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b",
-      })
+      }),
     }, // connector
     isConnecting: false,
     connected: false,
@@ -59,10 +63,10 @@ export async function createWallet(): Promise<core.HDWallet> {
     connector: {
       chainId: 1,
       accounts,
-      connected: true
+      connected: true,
     },
-    walletMeta: { // wc.peerMeta
-
+    walletMeta: {
+      // wc.peerMeta
     },
     enable: async () => Promise.resolve(accounts),
     send: jest.fn(),
@@ -80,7 +84,7 @@ export async function createWallet(): Promise<core.HDWallet> {
     updateState: jest.fn(),
     updateRpcUrl: jest.fn(),
     updateHttpConnection: jest.fn(),
-    sendAsyncPromise: jest.fn()
+    sendAsyncPromise: jest.fn(),
   };
   const wallet = new walletconnect.WalletConnectHDWallet(provider as any);
   await wallet.initialize();
@@ -195,9 +199,7 @@ export function selfTest(get: () => core.HDWallet): void {
 
   it("should return a valid ETH address", async () => {
     if (!wallet) return;
-    expect(
-      await wallet.ethGetAddress()
-    ).toEqual("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8");
+    expect(await wallet.ethGetAddress()).toEqual("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8");
   });
 
   it("should sign a message", async () => {
