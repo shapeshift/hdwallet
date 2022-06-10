@@ -74,10 +74,8 @@ export class MetaMaskHDWalletInfo implements core.HDWalletInfo, core.ETHWalletIn
   }
 
   public async ethGetChainId(): Promise<number> {
+    // at this point, we know that we're in the context of a valid MetaMask provider
     const provider: any = await detectEthereumProvider({ mustBeMetaMask: true, silent: false, timeout: 3000 });
-    if (!provider) {
-      throw new Error("Cannot get chainId");
-    }
     // chainId as hex string
     const chainId: string = await provider.request({ method: "eth_chainId" });
     return parseInt(chainId, 16);
@@ -261,10 +259,8 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async ethGetChainId(): Promise<number> {
+    // at this point, we know that we're in the context of a valid MetaMask provider
     const provider: any = await detectEthereumProvider({ mustBeMetaMask: true, silent: false, timeout: 3000 });
-    if (!provider) {
-      throw new Error("Cannot get chainId");
-    }
     // chainId as hex string
     const chainId: string = await provider.request({ method: "eth_chainId" });
     return parseInt(chainId, 16);

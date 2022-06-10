@@ -102,12 +102,10 @@ export class TallyHoHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInf
     });
   }
 
-  public async ethGetChainId(): Promise<number | void> {
+  public async ethGetChainId(): Promise<number> {
+    // at this point, we know that we're in the context of a valid TallyHo provider
     const provider: any = await this.detectTallyProvider();
     // chainId as hex string
-    if (!provider) {
-      throw new Error("Cannot get chainId");
-    }
     const chainId: string = await provider.request({ method: "eth_chainId" });
     return parseInt(chainId, 16);
   }
@@ -303,12 +301,10 @@ export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
     });
   }
 
-  public async ethGetChainId(): Promise<number | void> {
+  public async ethGetChainId(): Promise<number> {
+    // at this point, we know that we're in the context of a valid TallyHo provider
     const provider: any = await this.detectTallyProvider();
     // chainId as hex string
-    if (!provider) {
-      throw new Error("Cannot get chainId");
-    }
     const chainId: string = await provider.request({ method: "eth_chainId" });
     return parseInt(chainId, 16);
   }
