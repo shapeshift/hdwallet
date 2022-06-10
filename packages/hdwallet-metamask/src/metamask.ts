@@ -79,7 +79,7 @@ export class MetaMaskHDWalletInfo implements core.HDWalletInfo, core.ETHWalletIn
       throw new Error("Cannot get chainId");
     }
     // chainId as hex string
-    const chainId: string = provider.request({ method: "eth_chainId" });
+    const chainId: string = await provider.request({ method: "eth_chainId" });
     return parseInt(chainId, 16);
   }
 
@@ -266,7 +266,7 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
       throw new Error("Cannot get chainId");
     }
     // chainId as hex string
-    const chainId: string = provider.request({ method: "eth_chainId" });
+    const chainId: string = await provider.request({ method: "eth_chainId" });
     return parseInt(chainId, 16);
   }
 

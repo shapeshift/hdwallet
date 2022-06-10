@@ -70,7 +70,7 @@ export class XDEFIHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
       throw new Error("Cannot get chainId");
     }
     // chainId as hex string
-    const chainId: string = provider.request({ method: "eth_chainId" });
+    const chainId: string = await provider.request({ method: "eth_chainId" });
     return parseInt(chainId, 16);
   }
 
@@ -237,7 +237,7 @@ export class XDEFIHDWallet implements core.HDWallet, core.ETHWallet {
       throw new Error("Cannot get chainId");
     }
     // chainId as hex string
-    const chainId: string = provider.request({ method: "eth_chainId" });
+    const chainId: string = await provider.request({ method: "eth_chainId" });
     return parseInt(chainId, 16);
   }
 

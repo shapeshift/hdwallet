@@ -108,7 +108,7 @@ export class TallyHoHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInf
     if (!provider) {
       throw new Error("Cannot get chainId");
     }
-    const chainId: string = provider.request({ method: "eth_chainId" });
+    const chainId: string = await provider.request({ method: "eth_chainId" });
     return parseInt(chainId, 16);
   }
 
@@ -309,7 +309,7 @@ export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
     if (!provider) {
       throw new Error("Cannot get chainId");
     }
-    const chainId: string = provider.request({ method: "eth_chainId" });
+    const chainId: string = await provider.request({ method: "eth_chainId" });
     return parseInt(chainId, 16);
   }
 
