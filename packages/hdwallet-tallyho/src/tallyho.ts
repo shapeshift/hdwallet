@@ -1,6 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import _ from "lodash";
 
+import { TallyHoEthereumProvider, Window } from "./adapter";
 import * as eth from "./ethereum";
 
 export function isTallyHo(wallet: core.HDWallet): wallet is TallyHoHDWallet {
@@ -60,6 +61,55 @@ export class TallyHoHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInf
 
   public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
     return chainId === 1;
+  }
+
+  private async detectTallyProvider(): Promise<TallyHoEthereumProvider | null> {
+    let handled = false;
+
+    return new Promise((resolve) => {
+      if ((window as Window).ethereum) {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        handleEthereum();
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        window.addEventListener("ethereum#initialized", handleEthereum, { once: true });
+
+        setTimeout(() => {
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          handleEthereum();
+        }, 3000);
+      }
+
+      function handleEthereum() {
+        if (handled) {
+          return;
+        }
+        handled = true;
+
+        window.removeEventListener("ethereum#initialized", handleEthereum);
+
+        const { ethereum } = window as Window;
+
+        if (ethereum && ethereum.isTally) {
+          resolve(ethereum as unknown as TallyHoEthereumProvider);
+        } else {
+          const message = ethereum ? "Non-TallyHo window.ethereum detected." : "Unable to detect window.ethereum.";
+
+          console.error("hdwallet-tallyho: ", message);
+          resolve(null);
+        }
+      }
+    });
+  }
+
+  public async ethGetChainId(): Promise<number | void> {
+    const provider: any = await this.detectTallyProvider();
+    // chainId as hex string
+    if (!provider) {
+      throw new Error("Cannot get chainId");
+    }
+    const chainId: string = provider.request({ method: "eth_chainId" });
+    return parseInt(chainId, 16);
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
@@ -212,6 +262,55 @@ export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
 
   public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
     return chainId === 1;
+  }
+
+  private async detectTallyProvider(): Promise<TallyHoEthereumProvider | null> {
+    let handled = false;
+
+    return new Promise((resolve) => {
+      if ((window as Window).ethereum) {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        handleEthereum();
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        window.addEventListener("ethereum#initialized", handleEthereum, { once: true });
+
+        setTimeout(() => {
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          handleEthereum();
+        }, 3000);
+      }
+
+      function handleEthereum() {
+        if (handled) {
+          return;
+        }
+        handled = true;
+
+        window.removeEventListener("ethereum#initialized", handleEthereum);
+
+        const { ethereum } = window as Window;
+
+        if (ethereum && ethereum.isTally) {
+          resolve(ethereum as unknown as TallyHoEthereumProvider);
+        } else {
+          const message = ethereum ? "Non-TallyHo window.ethereum detected." : "Unable to detect window.ethereum.";
+
+          console.error("hdwallet-tallyho: ", message);
+          resolve(null);
+        }
+      }
+    });
+  }
+
+  public async ethGetChainId(): Promise<number | void> {
+    const provider: any = await this.detectTallyProvider();
+    // chainId as hex string
+    if (!provider) {
+      throw new Error("Cannot get chainId");
+    }
+    const chainId: string = provider.request({ method: "eth_chainId" });
+    return parseInt(chainId, 16);
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {

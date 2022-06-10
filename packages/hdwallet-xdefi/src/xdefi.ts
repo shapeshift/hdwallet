@@ -1,3 +1,4 @@
+import detectEthereumProvider from "@metamask/detect-provider";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import isObject from "lodash/isObject";
 
@@ -61,6 +62,16 @@ export class XDEFIHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
 
   public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
     return chainId === 1;
+  }
+
+  public async ethGetChainId(): Promise<number | void> {
+    const provider: any = await detectEthereumProvider({ mustBeMetaMask: false, silent: false, timeout: 3000 });
+    if (!provider) {
+      throw new Error("Cannot get chainId");
+    }
+    // chainId as hex string
+    const chainId: string = provider.request({ method: "eth_chainId" });
+    return parseInt(chainId, 16);
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
@@ -218,6 +229,16 @@ export class XDEFIHDWallet implements core.HDWallet, core.ETHWallet {
 
   public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
     return chainId === 1;
+  }
+
+  public async ethGetChainId(): Promise<number> {
+    const provider: any = await detectEthereumProvider({ mustBeMetaMask: false, silent: false, timeout: 3000 });
+    if (!provider) {
+      throw new Error("Cannot get chainId");
+    }
+    // chainId as hex string
+    const chainId: string = provider.request({ method: "eth_chainId" });
+    return parseInt(chainId, 16);
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {

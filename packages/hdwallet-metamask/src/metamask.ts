@@ -1,3 +1,4 @@
+import detectEthereumProvider from "@metamask/detect-provider";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import _ from "lodash";
 
@@ -70,6 +71,16 @@ export class MetaMaskHDWalletInfo implements core.HDWalletInfo, core.ETHWalletIn
 
   public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
     return chainId === 1;
+  }
+
+  public async ethGetChainId(): Promise<number> {
+    const provider: any = await detectEthereumProvider({ mustBeMetaMask: true, silent: false, timeout: 3000 });
+    if (!provider) {
+      throw new Error("Cannot get chainId");
+    }
+    // chainId as hex string
+    const chainId: string = provider.request({ method: "eth_chainId" });
+    return parseInt(chainId, 16);
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
@@ -247,6 +258,16 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
 
   public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
     return chainId === 1;
+  }
+
+  public async ethGetChainId(): Promise<number> {
+    const provider: any = await detectEthereumProvider({ mustBeMetaMask: true, silent: false, timeout: 3000 });
+    if (!provider) {
+      throw new Error("Cannot get chainId");
+    }
+    // chainId as hex string
+    const chainId: string = provider.request({ method: "eth_chainId" });
+    return parseInt(chainId, 16);
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
