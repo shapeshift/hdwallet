@@ -245,7 +245,6 @@ export class XDEFIHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async ethSwitchChain(chainId = 1): Promise<void> {
-    console.log("ethSwitchChain...");
     const hexChainId = ethers.utils.hexValue(chainId);
     // at this point, we know that we're in the context of a valid MetaMask provider
     const provider: any = await detectEthereumProvider({ mustBeMetaMask: true, silent: false, timeout: 3000 });
