@@ -66,9 +66,6 @@ export class XDEFIHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
 
   public async ethGetChainId(): Promise<number> {
     const provider: any = await detectEthereumProvider({ mustBeMetaMask: false, silent: false, timeout: 3000 });
-    if (!provider) {
-      throw new Error("Cannot get chainId");
-    }
     // chainId as hex string
     const chainId: string = await provider.request({ method: "eth_chainId" });
     return parseInt(chainId, 16);
