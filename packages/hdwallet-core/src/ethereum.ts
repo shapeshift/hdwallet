@@ -1,6 +1,13 @@
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { BIP32Path, ExchangeType, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
+// https://github.com/MetaMask/eth-rpc-errors/blob/f917c2cfee9e6117a88be4178f2a877aff3acabe/src/classes.ts#L3-L7
+export interface SerializedEthereumRpcError {
+  code: number;
+  message: string;
+  stack?: string;
+}
+
 export enum ETHTransactionType {
   ETH_TX_TYPE_LEGACY = 0,
   ETH_TX_TYPE_EIP_2930 = 1,

@@ -5,13 +5,6 @@ import _ from "lodash";
 import { TallyHoEthereumProvider, Window } from "./adapter";
 import * as eth from "./ethereum";
 
-// https://github.com/MetaMask/eth-rpc-errors/blob/f917c2cfee9e6117a88be4178f2a877aff3acabe/src/classes.ts#L3-L7
-interface SerializedEthereumRpcError {
-  code: number;
-  message: string;
-  stack?: string;
-}
-
 export function isTallyHo(wallet: core.HDWallet): wallet is TallyHoHDWallet {
   return _.isObject(wallet) && (wallet as any)._isTallyHo;
 }
@@ -119,7 +112,7 @@ export class TallyHoHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInf
       const provider: any = await this.detectTallyProvider();
       await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hexChainId }] });
     } catch (e: any) {
-      const error: SerializedEthereumRpcError = e;
+      const error: core.SerializedEthereumRpcError = e;
       if (error.code === 4902) {
         // TODO: EVM Chains Milestone
         // We will need to pass chainName and rpcUrls, which we don't have yet, to add a chain to MetaMask.
@@ -327,12 +320,12 @@ export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
   }
   public async ethSwitchChain(chainId = 1): Promise<void> {
     const hexChainId = ethers.utils.hexValue(chainId);
-    // at this point, we know that we're in the context of a valid MetaMask provider
     try {
+      // at this point, we know that we're in the context of a valid MetaMask provider
       const provider: any = await this.detectTallyProvider();
       await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hexChainId }] });
     } catch (e: any) {
-      const error: SerializedEthereumRpcError = e;
+      const error: core.SerializedEthereumRpcError = e;
       if (error.code === 4902) {
         // TODO: EVM Chains Milestone
         // We will need to pass chainName and rpcUrls, which we don't have yet, to add a chain to MetaMask.
