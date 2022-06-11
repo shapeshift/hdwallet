@@ -1,7 +1,16 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ethers from "ethers";
 import _ from "lodash";
 
+import { TallyHoEthereumProvider, Window } from "./adapter";
 import * as eth from "./ethereum";
+
+// https://github.com/MetaMask/eth-rpc-errors/blob/f917c2cfee9e6117a88be4178f2a877aff3acabe/src/classes.ts#L3-L7
+interface SerializedEthereumRpcError {
+  code: number;
+  message: string;
+  stack?: string;
+}
 
 export function isTallyHo(wallet: core.HDWallet): wallet is TallyHoHDWallet {
   return _.isObject(wallet) && (wallet as any)._isTallyHo;
@@ -60,6 +69,62 @@ export class TallyHoHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInf
 
   public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
     return chainId === 1;
+  }
+
+  private async detectTallyProvider(): Promise<TallyHoEthereumProvider | null> {
+    let handled = false;
+
+    return new Promise((resolve) => {
+      if ((window as Window).ethereum) {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        handleEthereum();
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        window.addEventListener("ethereum#initialized", handleEthereum, { once: true });
+
+        setTimeout(() => {
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          handleEthereum();
+        }, 3000);
+      }
+
+      function handleEthereum() {
+        if (handled) {
+          return;
+        }
+        handled = true;
+
+        window.removeEventListener("ethereum#initialized", handleEthereum);
+
+        const { ethereum } = window as Window;
+
+        if (ethereum && ethereum.isTally) {
+          resolve(ethereum as unknown as TallyHoEthereumProvider);
+        } else {
+          const message = ethereum ? "Non-TallyHo window.ethereum detected." : "Unable to detect window.ethereum.";
+
+          console.error("hdwallet-tallyho: ", message);
+          resolve(null);
+        }
+      }
+    });
+  }
+
+  public async ethSwitchChain(chainId = 1): Promise<void> {
+    // NOTE: TallyHo currently supports mainnet only and doesn't allow for chain
+    // However, multi-chain/custom RPC support is in the roadmap, see https://tally-ho.upvoty.com/
+    const hexChainId = ethers.utils.hexValue(chainId);
+    try {
+      // at this point, we know that we're in the context of a valid MetaMask provider
+      const provider: any = await this.detectTallyProvider();
+      await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hexChainId }] });
+    } catch (e: any) {
+      const error: SerializedEthereumRpcError = e;
+      if (error.code === 4902) {
+        // TODO: EVM Chains Milestone
+        // We will need to pass chainName and rpcUrls, which we don't have yet, to add a chain to MetaMask.
+      }
+    }
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
@@ -220,6 +285,59 @@ export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
 
   public ethSupportsNativeShapeShift(): boolean {
     return false;
+  }
+
+  private async detectTallyProvider(): Promise<TallyHoEthereumProvider | null> {
+    let handled = false;
+
+    return new Promise((resolve) => {
+      if ((window as Window).ethereum) {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        handleEthereum();
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        window.addEventListener("ethereum#initialized", handleEthereum, { once: true });
+
+        setTimeout(() => {
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          handleEthereum();
+        }, 3000);
+      }
+
+      function handleEthereum() {
+        if (handled) {
+          return;
+        }
+        handled = true;
+
+        window.removeEventListener("ethereum#initialized", handleEthereum);
+
+        const { ethereum } = window as Window;
+
+        if (ethereum && ethereum.isTally) {
+          resolve(ethereum as unknown as TallyHoEthereumProvider);
+        } else {
+          const message = ethereum ? "Non-TallyHo window.ethereum detected." : "Unable to detect window.ethereum.";
+
+          console.error("hdwallet-tallyho: ", message);
+          resolve(null);
+        }
+      }
+    });
+  }
+  public async ethSwitchChain(chainId = 1): Promise<void> {
+    const hexChainId = ethers.utils.hexValue(chainId);
+    // at this point, we know that we're in the context of a valid MetaMask provider
+    try {
+      const provider: any = await this.detectTallyProvider();
+      await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hexChainId }] });
+    } catch (e: any) {
+      const error: SerializedEthereumRpcError = e;
+      if (error.code === 4902) {
+        // TODO: EVM Chains Milestone
+        // We will need to pass chainName and rpcUrls, which we don't have yet, to add a chain to MetaMask.
+      }
+    }
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {
