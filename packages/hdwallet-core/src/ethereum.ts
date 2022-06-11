@@ -108,6 +108,12 @@ export interface ETHWalletInfo extends HDWalletInfo {
   ethSupportsNetwork(chain_id: number): Promise<boolean>;
 
   /**
+   * Switch the wallet's active Ethereum chain
+   * https://eips.ethereum.org/EIPS/eip-3326
+   */
+  ethSwitchChain(chain_id: number): Promise<void>;
+
+  /**
    * Does the device support internal transfers without the user needing to
    * confirm the destination address?
    */
