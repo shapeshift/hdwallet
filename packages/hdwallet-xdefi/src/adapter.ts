@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ethers from "ethers";
 
 import { XDEFIHDWallet } from "./xdefi";
 
@@ -20,13 +21,14 @@ export class XDEFIAdapter {
     return Object.keys(this.keyring.wallets).length;
   }
 
-  public async pairDevice(): Promise<XDEFIHDWallet> {
-    const provider: any = (globalThis as any).xfi?.ethereum;
+  public async pairDevice(): Promise<XDEFIHDWallet | undefined> {
+    const provider: ethers.providers.ExternalProvider | null = (globalThis as any).xfi?.ethereum;
     if (!provider) {
+      console.error("Please install XDEFI!");
       throw new Error("XDEFI provider not found");
     }
     try {
-      await provider.request({ method: "eth_requestAccounts" });
+      await provider.request?.({ method: "eth_requestAccounts" });
     } catch (error) {
       console.error("Could not get XDEFI accounts. ");
       throw error;

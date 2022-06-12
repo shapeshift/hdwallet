@@ -1,9 +1,10 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ethers from "ethers";
 import TallyHoOnboarding from "tallyho-onboarding";
 
 import { TallyHoHDWallet } from "./tallyho";
 
-interface TallyHoEthereumProvider {
+interface TallyHoEthereumProvider extends ethers.providers.ExternalProvider {
   isTally?: boolean;
 }
 
@@ -22,8 +23,8 @@ export class TallyHoAdapter {
     return new TallyHoAdapter(keyring);
   }
 
-  public async pairDevice(): Promise<TallyHoHDWallet> {
-    let provider: any;
+  public async pairDevice(): Promise<TallyHoHDWallet | undefined> {
+    let provider;
     // eslint-disable-next-line no-useless-catch
     try {
       provider = await this.detectTallyProvider();
@@ -34,14 +35,12 @@ export class TallyHoAdapter {
       const onboarding = new TallyHoOnboarding();
       onboarding.startOnboarding();
       console.error("Please install Tally Ho!");
-    }
-    if (provider === null) {
       throw new Error("Could not get Tally Ho accounts.");
     }
 
     // eslint-disable-next-line no-useless-catch
     try {
-      await provider.request({ method: "eth_requestAccounts" });
+      await provider.request?.({ method: "eth_requestAccounts" });
     } catch (error) {
       throw error;
     }
