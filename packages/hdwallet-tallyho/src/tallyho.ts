@@ -115,7 +115,7 @@ export class TallyHoHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInf
       const error: core.SerializedEthereumRpcError = e;
       if (error.code === 4902) {
         // TODO: EVM Chains Milestone
-        // We will need to pass chainName and rpcUrls, which we don't have yet, to add a chain to MetaMask.
+        // We will need to pass chainName and rpcUrls, which we don't have yet, to add a chain to Tally.
       }
     }
   }
@@ -328,7 +328,7 @@ export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
       const error: core.SerializedEthereumRpcError = e;
       if (error.code === 4902) {
         // TODO: EVM Chains Milestone
-        // We will need to pass chainName and rpcUrls, which we don't have yet, to add a chain to MetaMask.
+        // We will need to pass chainName and rpcUrls, which we don't have yet, to add a chain to Tally.
       }
     }
   }

@@ -75,7 +75,7 @@ export class XDEFIHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
       const error: core.SerializedEthereumRpcError = e;
       if (error.code === 4902) {
         // TODO: EVM Chains Milestone
-        // We will need to pass chainName and rpcUrls, which we don't have yet, to add a chain to MetaMask.
+        // We will need to pass chainName and rpcUrls, which we don't have yet, to add a chain to XDEFI.
       }
     }
   }
@@ -247,7 +247,7 @@ export class XDEFIHDWallet implements core.HDWallet, core.ETHWallet {
       const error: core.SerializedEthereumRpcError = e;
       if (error.code === 4902) {
         // TODO: EVM Chains Milestone
-        // We will need to pass chainName and rpcUrls, which we don't have yet, to add a chain to MetaMask.
+        // We will need to pass chainName and rpcUrls, which we don't have yet, to add a chain to XDEFI.
       }
     }
   }
