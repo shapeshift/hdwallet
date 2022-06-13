@@ -164,27 +164,19 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
       if (error) {
         throw error;
       }
-
+      
       this.onConnect(payload);
-    });
-
-    this.provider.connector.on("disconnect", (error) => {
-      if (error) {
-        throw error;
-      }
-
-      this.onDisconnect();
     });
 
     // Display QR modal to connect
     await this.provider.enable();
 
-    if (this.provider.connector.connected) {
-      const { chainId, accounts } = this.provider.connector;
-      const [address] = accounts;
-      this.setState({ connected: true, chainId, accounts, address });
-      this.onSessionUpdate(accounts, chainId);
-    }
+    this.provider.connector.on("disconnect", (error) => {
+      if (error) {
+        throw error;
+      }
+      this.onDisconnect();
+    });
   }
 
   public hasOnDevicePinEntry(): boolean {
@@ -224,7 +216,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async clearSession(): Promise<void> {
-    this.disconnect();
+    await this.disconnect();
   }
 
   public async ping(msg: core.Ping): Promise<core.Pong> {
@@ -290,7 +282,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async disconnect(): Promise<void> {
-    this.provider.disconnect();
+    await this.provider.disconnect();
   }
 
   public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
@@ -376,7 +368,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
   /**
    * onDisconnect
    *
-   * Resets state
+   * Resets state.
    */
   private onDisconnect() {
     this.setState({ connected: false, chainId: 1, accounts: [], address: "" });
