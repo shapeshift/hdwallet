@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import WalletConnectProvider from "@walletconnect/web3-provider";
+
 import { WalletConnectHDWallet } from "./walletconnect";
 
 export class WalletConnectAdapter {

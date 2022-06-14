@@ -164,7 +164,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
       if (error) {
         throw error;
       }
-      
+
       this.onConnect(payload);
     });
 
