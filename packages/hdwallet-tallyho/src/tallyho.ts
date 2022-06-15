@@ -262,6 +262,7 @@ export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
       }
     });
   }
+
   public async ethSwitchChain(chainId = 1): Promise<void> {
     const hexChainId = ethers.utils.hexValue(chainId);
     try {
