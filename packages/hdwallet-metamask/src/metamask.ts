@@ -74,21 +74,6 @@ export class MetaMaskHDWalletInfo implements core.HDWalletInfo, core.ETHWalletIn
     return chainId === 1;
   }
 
-  public async ethSwitchChain(chainId = 1): Promise<void> {
-    const hexChainId = ethers.utils.hexValue(chainId);
-    try {
-      // at this point, we know that we're in the context of a valid MetaMask provider
-      const provider: any = await detectEthereumProvider({ mustBeMetaMask: true, silent: false, timeout: 3000 });
-      await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hexChainId }] });
-    } catch (e: any) {
-      const error: core.SerializedEthereumRpcError = e;
-      if (error.code === 4902) {
-        // TODO: EVM Chains Milestone
-        // We will need to pass chainName and rpcUrls, which we don't have yet, to add a chain to MetaMask.
-      }
-    }
-  }
-
   public async ethSupportsSecureTransfer(): Promise<boolean> {
     return false;
   }
@@ -274,6 +259,7 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
       await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hexChainId }] });
     } catch (e: any) {
       const error: core.SerializedEthereumRpcError = e;
+      console.error(error);
       if (error.code === 4902) {
         // TODO: EVM Chains Milestone
         // We will need to pass chainName and rpcUrls, which we don't have yet, to add a chain to MetaMask.

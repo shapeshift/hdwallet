@@ -73,6 +73,7 @@ export class XDEFIHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
       await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hexChainId }] });
     } catch (e: any) {
       const error: core.SerializedEthereumRpcError = e;
+      console.error(error);
       if (error.code === 4902) {
         // TODO: EVM Chains Milestone
         // We will need to pass chainName and rpcUrls, which we don't have yet, to add a chain to XDEFI.
@@ -245,6 +246,7 @@ export class XDEFIHDWallet implements core.HDWallet, core.ETHWallet {
       await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hexChainId }] });
     } catch (e: any) {
       const error: core.SerializedEthereumRpcError = e;
+      console.error(error);
       if (error.code === 4902) {
         // TODO: EVM Chains Milestone
         // We will need to pass chainName and rpcUrls, which we don't have yet, to add a chain to XDEFI.
