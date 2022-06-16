@@ -171,9 +171,8 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
       this.onDisconnect();
     });
 
-      /** Display QR modal to connect */
-      await this.provider.enable();
-
+    /** Display QR modal to connect */
+    await this.provider.enable();
   }
 
   public hasOnDevicePinEntry(): boolean {
