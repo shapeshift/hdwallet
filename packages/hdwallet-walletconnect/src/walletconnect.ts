@@ -145,12 +145,8 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
     return "WalletConnect";
   }
 
-  /**
-   * Initialize
-   *
-   * Subscribes to EIP-1193 events
-   */
   public async initialize(): Promise<void> {
+    /** Subscribe to EIP-1193 events */
     this.provider.connector.on("session_update", async (error, payload) => {
       if (error) {
         throw error;
@@ -168,15 +164,16 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
       this.onConnect(payload);
     });
 
-    // Display QR modal to connect
-    await this.provider.enable();
-
     this.provider.connector.on("disconnect", (error) => {
       if (error) {
         throw error;
       }
       this.onDisconnect();
     });
+
+      /** Display QR modal to connect */
+      await this.provider.enable();
+
   }
 
   public hasOnDevicePinEntry(): boolean {
