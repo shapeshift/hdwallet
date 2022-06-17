@@ -41,7 +41,12 @@ export async function ethSendTx(
   args: core.ETHSignTx & { from: string },
   provider: any
 ): Promise<core.ETHTxHash | null> {
-  return await provider.wc.sendTransaction(args);
+  const txHash: string = await provider.wc.sendTransaction(args);
+  return txHash
+    ? {
+        hash: txHash,
+      }
+    : null;
 }
 
 export async function ethSignMessage(
