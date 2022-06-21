@@ -63,45 +63,6 @@ export class TallyHoHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInf
     return chainId === 1;
   }
 
-  private async detectTallyProvider(): Promise<TallyHoEthereumProvider | null> {
-    let handled = false;
-
-    return new Promise((resolve) => {
-      if ((window as Window).ethereum) {
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        handleEthereum();
-      } else {
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        window.addEventListener("ethereum#initialized", handleEthereum, { once: true });
-
-        setTimeout(() => {
-          // eslint-disable-next-line @typescript-eslint/no-use-before-define
-          handleEthereum();
-        }, 3000);
-      }
-
-      function handleEthereum() {
-        if (handled) {
-          return;
-        }
-        handled = true;
-
-        window.removeEventListener("ethereum#initialized", handleEthereum);
-
-        const { ethereum } = window as Window;
-
-        if (ethereum && ethereum.isTally) {
-          resolve(ethereum as unknown as TallyHoEthereumProvider);
-        } else {
-          const message = ethereum ? "Non-TallyHo window.ethereum detected." : "Unable to detect window.ethereum.";
-
-          console.error("hdwallet-tallyho: ", message);
-          resolve(null);
-        }
-      }
-    });
-  }
-
   public async ethSupportsSecureTransfer(): Promise<boolean> {
     return false;
   }
