@@ -156,6 +156,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
       this.onSessionUpdate(accounts, chainId);
     });
 
+    /** Note that this event does not fire on page reload */
     this.provider.connector.on("connect", (error, payload) => {
       if (error) {
         throw error;
@@ -306,7 +307,17 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async ethGetAddress(): Promise<string | null> {
-    return this.ethAddress;
+    if (this.ethAddress) {
+      return this.ethAddress;
+    }
+    const address = await eth.ethGetAddress(this.provider);
+    if (address) {
+      this.ethAddress = address;
+      return address;
+    } else {
+      this.ethAddress = "";
+      return null;
+    }
   }
 
   /**

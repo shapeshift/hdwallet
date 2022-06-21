@@ -55,3 +55,18 @@ export async function ethSignMessage(
 ): Promise<core.ETHSignedMessage | null> {
   return await provider.wc.signMessage([Buffer.from(args.data).toString("hex"), args.fromAddress]);
 }
+
+export async function ethGetAddress(provider: any): Promise<string | null> {
+  if (!(provider && provider.request && provider.connected)) {
+    return null;
+  }
+  try {
+    const ethAccounts = await provider.request({
+      method: "eth_accounts",
+    });
+    return ethAccounts[0];
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
