@@ -111,7 +111,7 @@ export interface ETHWalletInfo extends HDWalletInfo {
    * Get the current chainId from ethereum's JSON RPC
    * https://eips.ethereum.org/EIPS/eip-695
    */
-  ethGetChainId?(): Promise<number>;
+  ethGetChainId?(): Promise<number | null>;
 
   /**
    * Does the device support internal transfers without the user needing to

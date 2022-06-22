@@ -254,12 +254,16 @@ export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
     });
   }
 
-  public async ethGetChainId(): Promise<number> {
-    // at this point, we know that we're in the context of a valid TallyHo provider
-    const provider: any = await this.detectTallyProvider();
-    // chainId as hex string
-    const chainId: string = await provider.request({ method: "eth_chainId" });
-    return parseInt(chainId, 16);
+  public async ethGetChainId(): Promise<number | null> {
+    try {
+      const provider: any = await this.detectTallyProvider();
+      // chainId as hex string
+      const chainId: string = await provider.request({ method: "eth_chainId" });
+      return parseInt(chainId, 16);
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
