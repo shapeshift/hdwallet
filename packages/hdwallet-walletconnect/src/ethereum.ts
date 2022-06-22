@@ -57,10 +57,10 @@ export async function ethSignMessage(
 }
 
 export async function ethGetAddress(provider: any): Promise<string | null> {
-  if (!(provider && provider.request && provider.connected)) {
-    return null;
-  }
   try {
+    if (!(provider && provider.request && provider.connected)) {
+      throw new Error("No WalletConnect provider available.");
+    }
     const ethAccounts = await provider.request({
       method: "eth_accounts",
     });
