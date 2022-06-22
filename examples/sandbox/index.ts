@@ -49,9 +49,9 @@ const portisAppId = "ff763d3d-9e34-45a1-81d1-caa39b9c64f9";
 const mnemonic = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 const walletConnectOptions: WalletConnectProviderConfig = {
   rpc: {
-    1: 'https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57',
+    1: "https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57",
   },
-}
+};
 
 const testPublicWalletXpubs = [
   "xpub661MyMwAqRbcFLgDU7wpcEVubSF7NkswwmXBUkDiGUW6uopeUMys4AqKXNgpfZKRTLnpKQgffd6a2c3J8JxLkF1AQN17Pm9QYHEqEfo1Rsx", // all seed root key
@@ -223,11 +223,6 @@ $tallyHo.on("click", async (e) => {
 $walletConnect.on("click", async (e) => {
   e.preventDefault();
   try {
-    const config = {
-      rpc: {
-        1: "https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57",
-      },
-    };
     wallet = await walletConnectAdapter.pairDevice();
     window["wallet"] = wallet;
     let deviceID = "nothing";

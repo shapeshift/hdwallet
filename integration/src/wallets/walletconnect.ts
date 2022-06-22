@@ -64,7 +64,7 @@ export async function createWallet(): Promise<core.HDWallet> {
       chainId: 1,
       accounts,
       connected: true,
-      on: jest.fn()
+      on: jest.fn(),
     },
     walletMeta: {
       // wc.peerMeta
