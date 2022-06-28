@@ -224,6 +224,11 @@ export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
     return false;
   }
 
+  /*
+   * Tally works the same way as metamask.
+   * This code is copied from the @metamask/detect-provider package
+   * @see https://www.npmjs.com/package/@metamask/detect-provider
+   */
   private async detectTallyProvider(): Promise<TallyHoEthereumProvider | null> {
     let handled = false;
 
