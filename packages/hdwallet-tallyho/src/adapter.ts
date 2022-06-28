@@ -24,7 +24,7 @@ export class TallyHoAdapter {
   }
 
   public async pairDevice(): Promise<TallyHoHDWallet | undefined> {
-    let provider;
+    let provider: TallyHoEthereumProvider | null;
     // eslint-disable-next-line no-useless-catch
     try {
       provider = await this.detectTallyProvider();
