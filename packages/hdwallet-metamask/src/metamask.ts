@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ethers from "ethers";
 import _ from "lodash";
 
 import * as eth from "./ethereum";
@@ -68,7 +69,7 @@ export class MetaMaskHDWalletInfo implements core.HDWalletInfo, core.ETHWalletIn
     return undefined;
   }
 
-  public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
+  public async ethSupportsNetwork(chainId: number): Promise<boolean> {
     return chainId === 1;
   }
 
@@ -257,6 +258,21 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
     } catch (e) {
       console.error(e);
       return null;
+    }
+  }
+
+  public async ethSwitchChain(chainId: number): Promise<void> {
+    const hexChainId = ethers.utils.hexValue(chainId);
+    try {
+      // at this point, we know that we're in the context of a valid MetaMask provider
+      await this.provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hexChainId }] });
+    } catch (e: any) {
+      const error: core.SerializedEthereumRpcError = e;
+      console.error(error);
+      if (error.code === 4902) {
+        // TODO: EVM Chains Milestone
+        // We will need to pass chainName and rpcUrls, which we don't have yet, to add a chain to MetaMask.
+      }
     }
   }
 
