@@ -1,7 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import _ from "lodash";
 
-import { TallyHoEthereumProvider, Window } from "./adapter";
 import * as eth from "./ethereum";
 
 export function isTallyHo(wallet: core.HDWallet): wallet is TallyHoHDWallet {
@@ -215,55 +214,10 @@ export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
     return chainId === 1;
   }
 
-  /*
-   * Tally works the same way as metamask.
-   * This code is copied from the @metamask/detect-provider package
-   * @see https://www.npmjs.com/package/@metamask/detect-provider
-   */
-  private async detectTallyProvider(): Promise<TallyHoEthereumProvider | null> {
-    let handled = false;
-
-    return new Promise((resolve) => {
-      if ((window as Window).ethereum) {
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        handleEthereum();
-      } else {
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        window.addEventListener("ethereum#initialized", handleEthereum, { once: true });
-
-        setTimeout(() => {
-          // eslint-disable-next-line @typescript-eslint/no-use-before-define
-          handleEthereum();
-        }, 3000);
-      }
-
-      function handleEthereum() {
-        if (handled) {
-          return;
-        }
-        handled = true;
-
-        window.removeEventListener("ethereum#initialized", handleEthereum);
-
-        const { ethereum } = window as Window;
-
-        if (ethereum && ethereum.isTally) {
-          resolve(ethereum as unknown as TallyHoEthereumProvider);
-        } else {
-          const message = ethereum ? "Non-TallyHo window.ethereum detected." : "Unable to detect window.ethereum.";
-
-          console.error("hdwallet-tallyho: ", message);
-          resolve(null);
-        }
-      }
-    });
-  }
-
   public async ethGetChainId(): Promise<number | null> {
     try {
-      const provider: any = await this.detectTallyProvider();
       // chainId as hex string
-      const chainId: string = await provider.request({ method: "eth_chainId" });
+      const chainId: string = await this.provider.request({ method: "eth_chainId" });
       return parseInt(chainId, 16);
     } catch (e) {
       console.error(e);

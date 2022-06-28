@@ -1,4 +1,3 @@
-import detectEthereumProvider from "@metamask/detect-provider";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import isObject from "lodash/isObject";
 
@@ -223,9 +222,8 @@ export class XDEFIHDWallet implements core.HDWallet, core.ETHWallet {
 
   public async ethGetChainId(): Promise<number | null> {
     try {
-      const provider: any = await detectEthereumProvider({ mustBeMetaMask: false, silent: false, timeout: 3000 });
       // chainId as hex string
-      const chainId: string = await provider.request({ method: "eth_chainId" });
+      const chainId: string = await this.provider.request({ method: "eth_chainId" });
       return parseInt(chainId, 16);
     } catch (e) {
       console.error(e);
