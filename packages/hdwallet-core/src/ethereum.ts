@@ -115,6 +115,12 @@ export interface ETHWalletInfo extends HDWalletInfo {
   ethSupportsNetwork(chain_id: number): Promise<boolean>;
 
   /**
+   * Get the current chainId from ethereum's JSON RPC
+   * https://eips.ethereum.org/EIPS/eip-695
+   */
+  ethGetChainId?(): Promise<number | null>;
+
+  /**
    * Switch the wallet's active Ethereum chain
    * https://eips.ethereum.org/EIPS/eip-3326
    */
