@@ -1,4 +1,3 @@
-import detectEthereumProvider from "@metamask/detect-provider";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ethers from "ethers";
 import isObject from "lodash/isObject";
@@ -224,10 +223,9 @@ export class XDEFIHDWallet implements core.HDWallet, core.ETHWallet {
 
   public async ethSwitchChain(chainId: number): Promise<void> {
     const hexChainId = ethers.utils.hexValue(chainId);
-    const provider: any = await detectEthereumProvider({ mustBeMetaMask: true, silent: false, timeout: 3000 });
     try {
-      // at this point, we know that we're in the context of a valid MetaMask provider
-      await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hexChainId }] });
+      // at this point, we know that we're in the context of a valid XDEFI provider
+      await this.provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hexChainId }] });
     } catch (e: any) {
       const error: core.SerializedEthereumRpcError = e;
       console.error(error);
