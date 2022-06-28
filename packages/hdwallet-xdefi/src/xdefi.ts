@@ -222,7 +222,7 @@ export class XDEFIHDWallet implements core.HDWallet, core.ETHWallet {
     return chainId === 1;
   }
 
-  public async ethSwitchChain(chainId = 1): Promise<void> {
+  public async ethSwitchChain(chainId: number): Promise<void> {
     const hexChainId = ethers.utils.hexValue(chainId);
     const provider: any = await detectEthereumProvider({ mustBeMetaMask: true, silent: false, timeout: 3000 });
     try {

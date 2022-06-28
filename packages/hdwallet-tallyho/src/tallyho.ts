@@ -263,7 +263,7 @@ export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
     });
   }
 
-  public async ethSwitchChain(chainId = 1): Promise<void> {
+  public async ethSwitchChain(chainId: number): Promise<void> {
     const hexChainId = ethers.utils.hexValue(chainId);
     try {
       // at this point, we know that we're in the context of a valid MetaMask provider
