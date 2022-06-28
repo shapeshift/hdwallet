@@ -3,11 +3,11 @@ import TallyHoOnboarding from "tallyho-onboarding";
 
 import { TallyHoHDWallet } from "./tallyho";
 
-export interface TallyHoEthereumProvider {
+interface TallyHoEthereumProvider {
   isTally?: boolean;
 }
 
-export interface Window {
+interface Window {
   ethereum?: TallyHoEthereumProvider;
 }
 
