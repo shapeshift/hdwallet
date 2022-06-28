@@ -21,6 +21,6 @@ describe("XDEFIAdapter", () => {
     const wallet = await adapter.pairDevice();
     expect(wallet).toBeInstanceOf(XDEFIHDWallet);
     expect(add).toBeCalled();
-    expect(await wallet.getDeviceID()).toBe("xDeFi:0x123");
+    expect(await wallet?.getDeviceID()).toBe("xDeFi:0x123");
   });
 });

@@ -1,6 +1,14 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ethers from "ethers";
 
 import { XDEFIHDWallet } from "./xdefi";
+
+declare global {
+  // https://stackoverflow.com/questions/59459312/using-globalthis-in-typescript
+  // Global declarations require the use of var
+  // eslint-disable-next-line no-var
+  var xfi: { ethereum: ethers.providers.ExternalProvider } | null;
+}
 
 export class XDEFIAdapter {
   keyring: core.Keyring;
@@ -20,13 +28,14 @@ export class XDEFIAdapter {
     return Object.keys(this.keyring.wallets).length;
   }
 
-  public async pairDevice(): Promise<XDEFIHDWallet> {
-    const provider: any = (globalThis as any).xfi?.ethereum;
+  public async pairDevice(): Promise<XDEFIHDWallet | undefined> {
+    const provider = globalThis.xfi?.ethereum;
     if (!provider) {
+      console.error("Please install XDEFI!");
       throw new Error("XDEFI provider not found");
     }
     try {
-      await provider.request({ method: "eth_requestAccounts" });
+      await provider.request?.({ method: "eth_requestAccounts" });
     } catch (error) {
       console.error("Could not get XDEFI accounts. ");
       throw error;
