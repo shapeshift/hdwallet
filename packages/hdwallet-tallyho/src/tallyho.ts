@@ -242,10 +242,11 @@ export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
     } catch (e: any) {
       const error: core.SerializedEthereumRpcError = e;
       console.error(error);
-      if (error.code === 4902) {
-        // TODO: EVM Chains Milestone
-        // We will need to pass chainName and rpcUrls, which we don't have yet, to add a chain to Tally.
+      if (error.code === -32603) {
+        // TODO: TallyHo currently supports a finite number of chains natively (Mainnet + Polygon/Arbitrum/Optimism under feature flag), with no capabilities to add new chains
       }
+
+      throw new Error(e);
     }
   }
 

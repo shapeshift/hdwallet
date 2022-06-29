@@ -106,6 +106,20 @@ export interface ETHVerifyMessage {
   signature: string;
 }
 
+// https://docs.metamask.io/guide/rpc-api.html#wallet-addethereumchain
+export interface AddEthereumChainParameter {
+  chainId: string; // A 0x-prefixed hexadecimal string
+  chainName: string;
+  nativeCurrency: {
+    name: string;
+    symbol: string; // 2-6 characters long
+    decimals: 18;
+  };
+  rpcUrls: string[];
+  blockExplorerUrls?: string[];
+  iconUrls?: string[]; // Currently ignored.
+}
+
 export interface ETHWalletInfo extends HDWalletInfo {
   readonly _supportsETHInfo: boolean;
 
@@ -125,6 +139,12 @@ export interface ETHWalletInfo extends HDWalletInfo {
    * https://eips.ethereum.org/EIPS/eip-3326
    */
   ethSwitchChain?(chain_id: number): Promise<void>;
+
+  /**
+   * Add an Ethereum chain to user's wallet
+   * https://eips.ethereum.org/EIPS/eip-3085
+   * */
+  ethAddChain?(params: AddEthereumChainParameter): Promise<void>;
 
   /**
    * Does the device support internal transfers without the user needing to
