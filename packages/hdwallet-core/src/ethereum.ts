@@ -108,6 +108,7 @@ export interface ETHVerifyMessage {
 
 export interface ETHWalletInfo extends HDWalletInfo {
   readonly _supportsETHInfo: boolean;
+  readonly _supportsAvalancheInfo: boolean;
 
   /**
    * Does the device support the Ethereum network with the given chain_id?
@@ -160,6 +161,7 @@ export interface ETHWalletInfo extends HDWalletInfo {
 
 export interface ETHWallet extends ETHWalletInfo, HDWallet {
   readonly _supportsETH: boolean;
+  readonly _supportsAvalanche: boolean;
 
   ethGetAddress(msg: ETHGetAddress): Promise<string | null>;
   ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx | null>;
