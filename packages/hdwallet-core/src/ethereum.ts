@@ -83,9 +83,11 @@ export interface ETHSignedTx {
   serialized: string;
 }
 
+export type Bytes = ArrayLike<number>;
+
 export interface ETHSignMessage {
   addressNList: BIP32Path;
-  message: string;
+  message: string | Bytes;
 }
 
 export interface ETHSignedMessage {
@@ -95,7 +97,7 @@ export interface ETHSignedMessage {
 
 export interface ETHVerifyMessage {
   address: string;
-  message: string;
+  message: string | Bytes;
   signature: string;
 }
 

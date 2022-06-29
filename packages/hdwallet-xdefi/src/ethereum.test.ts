@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ethers from "ethers";
 
 import * as ethereum from "./ethereum";
 
@@ -133,6 +134,49 @@ describe("XDEFI - Ethereum Adapter", () => {
     );
     expect(ethereumProvider.request).toHaveBeenCalled();
     expect(hash).toBe(null);
+  });
+
+  it("ethSignMessage returns a valid signature object when called with bytes message", async () => {
+    const ethereumProvider = {
+      request: jest.fn().mockReturnValue(
+        `Object {
+          "address": "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
+          "signature": "0x05f51140905ffa33ffdc57f46b0b8d8fbb1d2a99f8cd843ca27893c01c31351c08b76d83dce412731c846e3b50649724415deb522d00950fbf4f2c1459c2b70b1b",
+        }`
+      ),
+    };
+
+    const msg: ethers.Bytes = ethers.utils.arrayify(
+      "0xcf8746d5aa75ecfd907eb3cae0aecf7f698a8bfe1f97eb2d77d6539e8991b0ea"
+    );
+    const sig = await ethereum.ethSignMessage(
+      {
+        addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+        message: msg,
+      },
+      ethereumProvider,
+      "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8"
+    );
+
+    expect(ethereumProvider.request.mock.calls[0][0]).toMatchInlineSnapshot(`
+    Object {
+      "method": "personal_sign",
+      "params": Array [
+        "cf8746d5aa75ecfd907eb3cae0aecf7f698a8bfe1f97eb2d77d6539e8991b0ea",
+        "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
+      ],
+    }
+  `);
+
+    expect(sig).toMatchInlineSnapshot(`
+      Object {
+        "address": "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
+        "signature": "Object {
+                \\"address\\": \\"0x73d0385F4d8E00C5e6504C6030F47BF6212736A8\\",
+                \\"signature\\": \\"0x05f51140905ffa33ffdc57f46b0b8d8fbb1d2a99f8cd843ca27893c01c31351c08b76d83dce412731c846e3b50649724415deb522d00950fbf4f2c1459c2b70b1b\\",
+              }",
+      }
+    `);
   });
 
   it("ethSignMessage returns a valid signature object", async () => {
