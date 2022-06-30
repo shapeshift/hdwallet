@@ -10,6 +10,7 @@ export function isTallyHo(wallet: core.HDWallet): wallet is TallyHoHDWallet {
 
 export class TallyHoHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
   readonly _supportsETHInfo = true;
+  readonly _supportsAvalancheInfo = false;
   private _ethAddress: string | null = null;
 
   public getVendor(): string {
@@ -83,6 +84,8 @@ export class TallyHoHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInf
 export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
+  readonly _supportsAvalanche = false;
+  readonly _supportsAvalancheInfo = false;
   readonly _isTallyHo = true;
 
   info: TallyHoHDWalletInfo & core.HDWalletInfo;

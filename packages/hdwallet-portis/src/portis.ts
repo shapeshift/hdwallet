@@ -19,6 +19,7 @@ export type Portis = InstanceType<HasNonTrivialConstructor<typeof Portis>>;
 export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo, core.BTCWalletInfo {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
+  readonly _supportsAvalancheInfo = false;
 
   public getVendor(): string {
     return "Portis";
@@ -124,6 +125,8 @@ export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
 export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWallet {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
+  readonly _supportsAvalanche = false;
+  readonly _supportsAvalancheInfo = false;
   readonly _supportsBTCInfo = true;
   readonly _supportsBTC = true;
   readonly _isPortis = true;
