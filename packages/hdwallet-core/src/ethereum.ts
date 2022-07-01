@@ -1,6 +1,7 @@
+import { Bytes } from "@ethersproject/bytes";
+
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { BIP32Path, ExchangeType, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
-import { Bytes } from "@ethersproject/bytes";
 
 export enum ETHTransactionType {
   ETH_TX_TYPE_LEGACY = 0,
