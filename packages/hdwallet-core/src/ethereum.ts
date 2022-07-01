@@ -1,5 +1,6 @@
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { BIP32Path, ExchangeType, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
+import { Bytes } from "@ethersproject/bytes";
 
 export enum ETHTransactionType {
   ETH_TX_TYPE_LEGACY = 0,
@@ -82,8 +83,6 @@ export interface ETHSignedTx {
   /** big-endian hex, prefixed with '0x' */
   serialized: string;
 }
-
-export type Bytes = ArrayLike<number>;
 
 export interface ETHSignMessage {
   addressNList: BIP32Path;
