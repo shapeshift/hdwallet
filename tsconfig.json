@@ -61,6 +61,7 @@
     { "path": "./packages/hdwallet-tallyho" },
     { "path": "./packages/hdwallet-trezor" },
     { "path": "./packages/hdwallet-trezor-connect" },
+    { "path": "./packages/hdwallet-walletconnect" },
     { "path": "./packages/hdwallet-xdefi" },
     { "path": "./packages/hdwallet-keplr" }
   ]

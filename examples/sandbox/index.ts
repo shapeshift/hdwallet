@@ -13,6 +13,7 @@ import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as tallyHo from "@shapeshiftoss/hdwallet-tallyho";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
+import {HDWalletWCBridge} from '@shapeshiftoss/hdwallet-walletconnect';
 import $ from "jquery";
 import Web3 from "web3";
 
@@ -391,6 +392,16 @@ window["useTestWallet"] = async function () {
   });
   document.getElementById("#mnemonicModal").className = "modal";
 };
+
+const $walletConnectButton = $("#walletConnectButton");
+$walletConnectButton.on("click", async (e) => {
+  e.preventDefault();
+  const input = document.getElementById("walletConnectUri") as HTMLInputElement;
+  const wcUri = input.value;
+
+  const bridge = new HDWalletWCBridge(wallet, wcUri);
+  await bridge.connect();
+});
 
 const $yes = $("#yes");
 const $no = $("#no");
