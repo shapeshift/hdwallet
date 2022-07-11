@@ -137,6 +137,7 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
 export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
+  readonly _supportsAvalancheInfo = true;
 
   public getVendor(): string {
     return "Ledger";
@@ -288,9 +289,11 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
 
 export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet {
   readonly _supportsETHInfo = true;
+  readonly _supportsAvalancheInfo = true;
   readonly _supportsBTCInfo = true;
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
+  readonly _supportsAvalanche = true;
 
   _isLedger = true;
 
