@@ -122,7 +122,6 @@ export interface AddEthereumChainParameter {
 
 export interface ETHWalletInfo extends HDWalletInfo {
   readonly _supportsETHInfo: boolean;
-  readonly _supportsAvalancheInfo: boolean;
 
   /**
    * Does the device support the Ethereum network with the given chain_id?

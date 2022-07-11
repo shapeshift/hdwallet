@@ -27,7 +27,6 @@ export class MetaMaskHDWalletInfo implements core.HDWalletInfo, core.ETHWalletIn
   readonly _supportsBTCInfo = false;
   readonly _supportsETHInfo = true;
   readonly _supportsCosmosInfo = false;
-  readonly _supportsAvalancheInfo = true;
   readonly _supportsBinanceInfo = false;
   readonly _supportsRippleInfo = false;
   readonly _supportsEosInfo = false;
@@ -114,7 +113,6 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsCosmosInfo = false;
   readonly _supportsCosmos = false;
   readonly _supportsAvalanche = true;
-  readonly _supportsAvalancheInfo = true;
   readonly _supportsOsmosisInfo = false;
   readonly _supportsOsmosis = false;
   readonly _supportsBinanceInfo = false;

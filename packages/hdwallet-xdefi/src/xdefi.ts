@@ -10,7 +10,6 @@ export function isXDEFI(wallet: core.HDWallet): wallet is XDEFIHDWallet {
 
 export class XDEFIHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
   readonly _supportsETHInfo = true;
-  readonly _supportsAvalancheInfo = true;
   readonly _supportsBTCInfo = false;
   readonly _supportsCosmosInfo = false;
 
@@ -86,7 +85,6 @@ export class XDEFIHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
   readonly _supportsAvalanche = true;
-  readonly _supportsAvalancheInfo = true;
   readonly _supportsBTCInfo = false;
   readonly _supportsBTC = false;
   readonly _supportsCosmosInfo = false;
