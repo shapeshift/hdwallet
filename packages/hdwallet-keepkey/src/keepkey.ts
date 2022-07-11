@@ -623,7 +623,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   readonly _supportsDebugLink: boolean;
   readonly _isKeepKey = true;
   readonly _supportsETH = true;
-  readonly _supportsAvalanche = true;
+  readonly _supportsEthSwitchChain = true;
   readonly _supportsBTC = true;
   _supportsCosmos = true;
   _supportsRipple = true;

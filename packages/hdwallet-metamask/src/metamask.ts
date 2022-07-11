@@ -112,7 +112,7 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsBTC = false;
   readonly _supportsCosmosInfo = false;
   readonly _supportsCosmos = false;
-  readonly _supportsAvalanche = true;
+  readonly _supportsEthSwitchChain = true;
   readonly _supportsOsmosisInfo = false;
   readonly _supportsOsmosis = false;
   readonly _supportsBinanceInfo = false;

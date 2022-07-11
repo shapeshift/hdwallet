@@ -180,7 +180,7 @@ export interface ETHWalletInfo extends HDWalletInfo {
 
 export interface ETHWallet extends ETHWalletInfo, HDWallet {
   readonly _supportsETH: boolean;
-  readonly _supportsAvalanche: boolean;
+  readonly _supportsEthSwitchChain: boolean;
 
   ethGetAddress(msg: ETHGetAddress): Promise<string | null>;
   ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx | null>;
