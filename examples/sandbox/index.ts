@@ -411,18 +411,6 @@ $wcConnectButton.on("click", async (e) => {
   await $wcBridge.connect();
 });
 
-// $wcDisconnectButton.on("click", async (e) => {
-//   e.preventDefault();
-
-//   if (!$wcBridge) {
-//     alert('Wallet Connect not connected');
-//     return;
-//   }
-
-//   $wcBridge.disconnect();
-//   $wcBridge = null;
-// });
-
 const wcSessionJsonString = localStorage.getItem("walletconnect");
 if (wcSessionJsonString) {
   try {
