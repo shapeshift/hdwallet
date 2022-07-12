@@ -394,6 +394,7 @@ window["useTestWallet"] = async function () {
 };
 
 const $wcConnectButton = $("#wcConnectButton");
+const $wcReconnectButton = $("#wcReconnectButton");
 const $wcDisconnectButton = $("#wcDisconnectButton");
 let $wcBridge: HDWalletWCBridge;
 
@@ -401,7 +402,7 @@ $wcConnectButton.on("click", async (e) => {
   e.preventDefault();
 
   if ($wcBridge) {
-    await $wcBridge.disconnect();
+    alert('Wallet Connect already connected. Disconnect first');
   }
 
   const input = document.getElementById("wcUriInput") as HTMLInputElement;
@@ -411,16 +412,41 @@ $wcConnectButton.on("click", async (e) => {
   await $wcBridge.connect();
 });
 
-const wcSessionJsonString = localStorage.getItem("walletconnect");
-if (wcSessionJsonString) {
+$wcReconnectButton.on("click", async (e) => {
+  e.preventDefault();
+
+  if ($wcBridge) {
+    alert('Wallet Connect already connected. Disconnect first');
+    return;
+  }
+
+  const wcSessionJsonString = localStorage.getItem("walletconnect");
+  if (!wcSessionJsonString) {
+    alert('No existing Wallet Connect session found');
+    return;
+  }
+
   try {
     const session = JSON.parse(wcSessionJsonString);
     $wcBridge = HDWalletWCBridge.fromSession(session, wallet);
-    $wcBridge.connect();
+    await $wcBridge.connect();
   } catch (error) {
-    console.error("Failed connecting", { error, wcSessionJsonString });
+    alert("Failed connecting: " + JSON.stringify({ error, wcSessionJsonString }, null, 2));
+    $wcBridge?.disconnect();
   }
-}
+});
+
+$wcDisconnectButton.on("click", async (e) => {
+  e.preventDefault();
+
+  if (!$wcBridge) {
+    alert('Wallet Connect not connected');
+    return;
+  }
+
+  $wcBridge.disconnect();
+  $wcBridge = null;
+});
 
 const $yes = $("#yes");
 const $no = $("#no");
