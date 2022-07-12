@@ -251,6 +251,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async reset(_msg: core.ResetDevice): Promise<void> {
+    // no concept of reset
     return;
   }
 
