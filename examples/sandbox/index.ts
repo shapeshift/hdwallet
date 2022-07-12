@@ -399,7 +399,7 @@ $walletConnectButton.on("click", async (e) => {
   const input = document.getElementById("walletConnectUri") as HTMLInputElement;
   const wcUri = input.value;
 
-  const bridge = new HDWalletWCBridge(wallet, wcUri);
+  const bridge = HDWalletWCBridge.fromWallet(wallet, wcUri);
   await bridge.connect();
 });
 
