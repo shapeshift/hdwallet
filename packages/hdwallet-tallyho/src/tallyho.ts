@@ -243,6 +243,8 @@ export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
     } catch (e: any) {
       const error: core.SerializedEthereumRpcError = e;
       console.error(error);
+      // https://docs.metamask.io/guide/ethereum-provider.html#errors
+      // Internal error, which in the case of wallet_switchEthereumChain call means the chain isn't currently added to the wallet
       if (error.code === -32603) {
         // TODO: TallyHo currently supports a finite number of chains natively (Mainnet + Polygon/Arbitrum/Optimism under feature flag), with no capabilities to add new chains
       }

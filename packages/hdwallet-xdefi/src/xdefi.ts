@@ -241,6 +241,8 @@ export class XDEFIHDWallet implements core.HDWallet, core.ETHWallet {
     } catch (e: any) {
       const error: core.SerializedEthereumRpcError = e;
       console.error(error);
+      // https://docs.metamask.io/guide/ethereum-provider.html#errors
+      // Internal error, which in the case of wallet_switchEthereumChain call means the chain isn't currently added to the wallet
       if (error.code === -32603) {
         // TODO: XDEFI currently supports a finite number of chains natively, with no capabilities to add new chains
       }
