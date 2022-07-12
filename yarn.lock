@@ -4594,16 +4594,6 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-core@1.24.1-alpha.0":
-  version "1.24.1-alpha.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.24.1-alpha.0.tgz#91d7bd237c295130d4235bc2df030bfea2e3419c"
-  integrity sha512-HIYAvgj9IKMWmIN9Oi2v1fPB+XAe9dh9kXKg0O1/CTK8wppV6NB6ye93Qqcqdo1cNDgTGHw09uYR18MXaDICUg==
-  dependencies:
-    eventemitter2 "^5.0.1"
-    lodash "^4.17.21"
-    rxjs "^6.4.0"
-    type-assertions "^1.1.0"
-
 "@shapeshiftoss/hdwallet-core@latest":
   version "1.18.4"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.18.4.tgz#7272baa4b43de0fbb5e651d47cdeb9554f4ddd33"
