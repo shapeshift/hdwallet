@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import WalletConnect from "@walletconnect/client";
+import { IWalletConnectSession } from "@walletconnect/types";
 import { convertHexToUtf8 } from "@walletconnect/utils";
 
 import { WalletConnectCallRequest, WalletConnectSessionRequestPayload } from "./types";
@@ -9,8 +10,12 @@ const addressNList = core.bip32ToAddressNList("m/44'/60'/0'/0/0");
 export class HDWalletWCBridge {
   constructor(private readonly wallet: core.ETHWallet, private readonly connector: WalletConnect) {}
 
-  static fromWallet(wallet: core.ETHWallet, uri: string) {
+  static fromURI(uri: string, wallet: core.ETHWallet) {
     return new HDWalletWCBridge(wallet, new WalletConnect({ uri }));
+  }
+
+  static fromSession(session: IWalletConnectSession, wallet: core.ETHWallet) {
+    return new HDWalletWCBridge(wallet, new WalletConnect({ session }));
   }
 
   async connect() {
@@ -21,6 +26,15 @@ export class HDWalletWCBridge {
     }
 
     this.subscribeToEvents();
+  }
+
+  async disconnect() {
+    await this.connector.killSession();
+    this.connector.off("session_request");
+    this.connector.off("session_update");
+    this.connector.off("connect");
+    this.connector.off("disconnect");
+    this.connector.off("call_request");
   }
 
   private subscribeToEvents() {
