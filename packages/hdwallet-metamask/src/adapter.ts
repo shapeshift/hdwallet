@@ -1,6 +1,7 @@
 import detectEthereumProvider from "@metamask/detect-provider";
 import MetaMaskOnboarding from "@metamask/onboarding";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ethers from "ethers";
 
 import { MetaMaskHDWallet } from "./metamask";
 
@@ -19,15 +20,22 @@ export class MetaMaskAdapter {
     return Object.keys(this.keyring.wallets).length;
   }
 
-  public async pairDevice(): Promise<MetaMaskHDWallet> {
-    const provider: any = await detectEthereumProvider({ mustBeMetaMask: true, silent: false, timeout: 3000 });
+  public async pairDevice(): Promise<MetaMaskHDWallet | undefined> {
+    // TODO: remove casting, @metamask/detect-provider npm package hasn't been published with latest typings
+    // https://github.com/MetaMask/detect-provider/blame/5ce916fc24779c4b36741531a41d9c8b3cbb0a17/src/index.ts#L37
+    const provider = (await detectEthereumProvider({
+      mustBeMetaMask: true,
+      silent: false,
+      timeout: 3000,
+    })) as ethers.providers.ExternalProvider | null;
     if (!provider) {
       const onboarding = new MetaMaskOnboarding();
       onboarding.startOnboarding();
       console.error("Please install MetaMask!");
+      throw new Error("MetaMask provider not found");
     }
     try {
-      await provider.request({ method: "eth_requestAccounts" });
+      await provider.request?.({ method: "eth_requestAccounts" });
     } catch (error) {
       console.error("Could not get MetaMask accounts. ");
       throw error;

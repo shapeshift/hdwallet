@@ -1,6 +1,13 @@
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { BIP32Path, ExchangeType, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
+// https://github.com/MetaMask/eth-rpc-errors/blob/f917c2cfee9e6117a88be4178f2a877aff3acabe/src/classes.ts#L3-L7
+export interface SerializedEthereumRpcError {
+  code: number;
+  message: string;
+  stack?: string;
+}
+
 export enum ETHTransactionType {
   ETH_TX_TYPE_LEGACY = 0,
   ETH_TX_TYPE_EIP_2930 = 1,
@@ -99,6 +106,20 @@ export interface ETHVerifyMessage {
   signature: string;
 }
 
+// https://docs.metamask.io/guide/rpc-api.html#wallet-addethereumchain
+export interface AddEthereumChainParameter {
+  chainId: string; // A 0x-prefixed hexadecimal string
+  chainName: string;
+  nativeCurrency: {
+    name: string;
+    symbol: string; // 2-6 characters long
+    decimals: 18;
+  };
+  rpcUrls: string[];
+  blockExplorerUrls?: string[];
+  iconUrls?: string[]; // Currently ignored.
+}
+
 export interface ETHWalletInfo extends HDWalletInfo {
   readonly _supportsETHInfo: boolean;
 
@@ -106,6 +127,24 @@ export interface ETHWalletInfo extends HDWalletInfo {
    * Does the device support the Ethereum network with the given chain_id?
    */
   ethSupportsNetwork(chain_id: number): Promise<boolean>;
+
+  /**
+   * Get the current chainId from ethereum's JSON RPC
+   * https://eips.ethereum.org/EIPS/eip-695
+   */
+  ethGetChainId?(): Promise<number | null>;
+
+  /**
+   * Switch the wallet's active Ethereum chain
+   * https://eips.ethereum.org/EIPS/eip-3326
+   */
+  ethSwitchChain?(chain_id: number): Promise<void>;
+
+  /**
+   * Add an Ethereum chain to user's wallet
+   * https://eips.ethereum.org/EIPS/eip-3085
+   * */
+  ethAddChain?(params: AddEthereumChainParameter): Promise<void>;
 
   /**
    * Does the device support internal transfers without the user needing to
@@ -141,6 +180,7 @@ export interface ETHWalletInfo extends HDWalletInfo {
 
 export interface ETHWallet extends ETHWalletInfo, HDWallet {
   readonly _supportsETH: boolean;
+  readonly _supportsEthSwitchChain: boolean;
 
   ethGetAddress(msg: ETHGetAddress): Promise<string | null>;
   ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx | null>;

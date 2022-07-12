@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ethers from "ethers";
 import isObject from "lodash/isObject";
 
 import * as eth from "./ethereum";
@@ -83,6 +84,7 @@ export class XDEFIHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
 export class XDEFIHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
+  readonly _supportsEthSwitchChain = true;
   readonly _supportsBTCInfo = false;
   readonly _supportsBTC = false;
   readonly _supportsCosmosInfo = false;
@@ -218,6 +220,35 @@ export class XDEFIHDWallet implements core.HDWallet, core.ETHWallet {
 
   public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
     return chainId === 1;
+  }
+
+  public async ethGetChainId(): Promise<number | null> {
+    try {
+      // chainId as hex string
+      const chainId: string = await this.provider.request({ method: "eth_chainId" });
+      return parseInt(chainId, 16);
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  }
+
+  public async ethSwitchChain(chainId: number): Promise<void> {
+    const hexChainId = ethers.utils.hexValue(chainId);
+    try {
+      // at this point, we know that we're in the context of a valid XDEFI provider
+      await this.provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hexChainId }] });
+    } catch (e: any) {
+      const error: core.SerializedEthereumRpcError = e;
+      console.error(error);
+      // https://docs.metamask.io/guide/ethereum-provider.html#errors
+      // Internal error, which in the case of wallet_switchEthereumChain call means the chain isn't currently added to the wallet
+      if (error.code === -32603) {
+        // TODO: XDEFI currently supports a finite number of chains natively, with no capabilities to add new chains
+      }
+
+      throw new Error(e);
+    }
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
