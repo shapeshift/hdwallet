@@ -84,6 +84,7 @@ export class XDEFIHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
 export class XDEFIHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
+  readonly _supportsEthSwitchChain = true;
   readonly _supportsBTCInfo = false;
   readonly _supportsBTC = false;
   readonly _supportsCosmosInfo = false;
@@ -240,10 +241,13 @@ export class XDEFIHDWallet implements core.HDWallet, core.ETHWallet {
     } catch (e: any) {
       const error: core.SerializedEthereumRpcError = e;
       console.error(error);
-      if (error.code === 4902) {
-        // TODO: EVM Chains Milestone
-        // We will need to pass chainName and rpcUrls, which we don't have yet, to add a chain to XDEFI.
+      // https://docs.metamask.io/guide/ethereum-provider.html#errors
+      // Internal error, which in the case of wallet_switchEthereumChain call means the chain isn't currently added to the wallet
+      if (error.code === -32603) {
+        // TODO: XDEFI currently supports a finite number of chains natively, with no capabilities to add new chains
       }
+
+      throw new Error(e);
     }
   }
 

@@ -1,8 +1,23 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { AddEthereumChainParameter } from "@shapeshiftoss/hdwallet-core";
+import { serializeError } from "eth-rpc-errors";
 import * as ethers from "ethers";
 import _ from "lodash";
 
 import * as eth from "./ethereum";
+
+// https://docs.avax.network/dapps/smart-contracts/add-avalanche-to-metamask-programmatically
+const AVALANCHE_MAINNET_ADD_CHAIN_PARAMS: AddEthereumChainParameter = {
+  chainId: "0xA86A",
+  chainName: "Avalanche Mainnet C-Chain",
+  nativeCurrency: {
+    name: "Avalanche",
+    symbol: "AVAX",
+    decimals: 18,
+  },
+  rpcUrls: ["https://api.avax.network/ext/bc/C/rpc"],
+  blockExplorerUrls: ["https://snowtrace.io/"],
+};
 
 export function isMetaMask(wallet: core.HDWallet): wallet is MetaMaskHDWallet {
   return _.isObject(wallet) && (wallet as any)._isMetaMask;
@@ -97,6 +112,7 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsBTC = false;
   readonly _supportsCosmosInfo = false;
   readonly _supportsCosmos = false;
+  readonly _supportsEthSwitchChain = true;
   readonly _supportsOsmosisInfo = false;
   readonly _supportsOsmosis = false;
   readonly _supportsBinanceInfo = false;
@@ -261,18 +277,32 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
     }
   }
 
+  public async ethAddChain(params: AddEthereumChainParameter): Promise<void> {
+    // at this point, we know that we're in the context of a valid MetaMask provider
+    await this.provider.request({ method: "wallet_addEthereumChain", params: [params] });
+  }
+
   public async ethSwitchChain(chainId: number): Promise<void> {
     const hexChainId = ethers.utils.hexValue(chainId);
     try {
       // at this point, we know that we're in the context of a valid MetaMask provider
       await this.provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hexChainId }] });
     } catch (e: any) {
-      const error: core.SerializedEthereumRpcError = e;
-      console.error(error);
-      if (error.code === 4902) {
-        // TODO: EVM Chains Milestone
-        // We will need to pass chainName and rpcUrls, which we don't have yet, to add a chain to MetaMask.
+      const error = serializeError(e);
+      // https://docs.metamask.io/guide/ethereum-provider.html#errors
+      // Internal error, which in the case of wallet_switchEthereumChain call means the chain isn't currently added to the wallet
+      if (error.code === -32603) {
+        // We only support Avalanche C-Chain currently. It is supported natively in XDEFI, and unsupported in Tally, both with no capabilities to add a new chain
+        // TODO(gomes): Find a better home for these. When that's done, we'll want to call ethSwitchChain with (params: AddEthereumChainParameter) instead
+        await this.ethAddChain(AVALANCHE_MAINNET_ADD_CHAIN_PARAMS);
+        return;
       }
+
+      throw (error.data as any).originalError as {
+        code: number;
+        message: string;
+        stack: string;
+      };
     }
   }
 
