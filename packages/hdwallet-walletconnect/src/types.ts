@@ -1,4 +1,3 @@
-
 export interface WalletConnectSessionRequestPayload {
   params: {
     chainId: number | null;
@@ -49,4 +48,9 @@ export interface WalletConnectEthSignTransactionCallRequest {
   }[];
 }
 
-export type WalletConnectCallRequest = WalletConnectEthSignCallRequest | WalletConnectEthSignTypedDataCallRequest | WalletConnectPersonalSignCallRequest | WalletConnectEthSendTransactionCallRequest | WalletConnectEthSignTransactionCallRequest;
+export type WalletConnectCallRequest =
+  | WalletConnectEthSignCallRequest
+  | WalletConnectEthSignTypedDataCallRequest
+  | WalletConnectPersonalSignCallRequest
+  | WalletConnectEthSendTransactionCallRequest
+  | WalletConnectEthSignTransactionCallRequest;

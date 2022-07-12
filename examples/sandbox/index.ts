@@ -12,8 +12,8 @@ import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as tallyHo from "@shapeshiftoss/hdwallet-tallyho";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
+import { HDWalletWCBridge } from "@shapeshiftoss/hdwallet-walletconnect";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
-import {HDWalletWCBridge} from '@shapeshiftoss/hdwallet-walletconnect';
 import $ from "jquery";
 import Web3 from "web3";
 

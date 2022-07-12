@@ -1,6 +1,7 @@
-import WalletConnect from "@walletconnect/client";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import WalletConnect from "@walletconnect/client";
 import { convertHexToUtf8 } from "@walletconnect/utils";
+
 import { WalletConnectCallRequest, WalletConnectSessionRequestPayload } from "./types";
 
 const addressNList = core.bip32ToAddressNList("m/44'/60'/0'/0/0");
@@ -13,7 +14,7 @@ export class HDWalletWCBridge {
   }
 
   async connect() {
-    if (!this.wallet) throw new Error('Missing ETH Wallet to connect with');
+    if (!this.wallet) throw new Error("Missing ETH Wallet to connect with");
 
     if (!this.connector.connected) {
       await this.connector.createSession();
@@ -31,7 +32,7 @@ export class HDWalletWCBridge {
   }
 
   async _onSessionRequest(error: Error | null, payload: WalletConnectSessionRequestPayload) {
-    this.log('Session Request', {error, payload});
+    this.log("Session Request", { error, payload });
 
     const address = await this.wallet.ethGetAddress({ addressNList });
     this.connector.approveSession({
@@ -41,19 +42,19 @@ export class HDWalletWCBridge {
   }
 
   async _onSessionUpdate(error: Error | null, payload: any) {
-    this.log('Session Update', {error, payload});
+    this.log("Session Update", { error, payload });
   }
 
   async _onConnect(error: Error | null, payload: any) {
-    this.log('Connect', {error, payload});
+    this.log("Connect", { error, payload });
   }
 
   async _onDisonnect(error: Error | null, payload: any) {
-    this.log('Disonnect', {error, payload});
+    this.log("Disonnect", { error, payload });
   }
 
   async _onCallRequest(error: Error | null, payload: WalletConnectCallRequest) {
-    this.log('Call Request', {error, payload});
+    this.log("Call Request", { error, payload });
 
     let result: any;
     switch (payload.method) {
@@ -107,19 +108,19 @@ export class HDWalletWCBridge {
       }
     }
 
-    if (!!result) {
-      this.log('Approve Request', {payload, result});
+    if (result) {
+      this.log("Approve Request", { payload, result });
       this.connector.approveRequest({ id: payload.id, result });
     } else {
       const message = "JSON RPC method not supported";
-      this.log('Reject Request', {payload, message});
+      this.log("Reject Request", { payload, message });
       this.connector.rejectRequest({ id: payload.id, error: { message } });
     }
   }
 
   private log(eventName: string, properties: object) {
-    if (process.env.NODE_ENV !== 'test') {
-      console.log('WalletConnect Bridge', eventName, properties);
+    if (process.env.NODE_ENV !== "test") {
+      console.log("WalletConnect Bridge", eventName, properties);
     }
   }
 
