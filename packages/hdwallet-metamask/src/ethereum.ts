@@ -101,8 +101,9 @@ export async function ethSignMessage(
   address: string
 ): Promise<core.ETHSignedMessage | null> {
   try {
-    const buffer =
-      typeof msg.message === "string" ? Buffer.from(msg.message) : Buffer.from(ethers.utils.arrayify(msg.message));
+    const buffer = ethers.utils.isBytes(msg.message)
+      ? Buffer.from(ethers.utils.arrayify(msg.message))
+      : Buffer.from(msg.message);
     const signedMsg = await ethereum.request({
       method: "personal_sign",
       params: [buffer.toString("hex"), address],

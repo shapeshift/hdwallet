@@ -152,8 +152,9 @@ export async function ethSignMessage(
 ): Promise<core.ETHSignedMessage> {
   const bip32path = core.addressNListToBIP32(msg.addressNList);
 
-  const buffer =
-    typeof msg.message === "string" ? Buffer.from(msg.message) : Buffer.from(ethers.utils.arrayify(msg.message));
+  const buffer = ethers.utils.isBytes(msg.message)
+    ? Buffer.from(ethers.utils.arrayify(msg.message))
+    : Buffer.from(msg.message);
   const res = await transport.call("Eth", "signPersonalMessage", bip32path, buffer.toString("hex"));
   handleError(res, transport, "Could not sign ETH message with Ledger");
 
@@ -178,8 +179,9 @@ export async function ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<bool
     return false;
   }
   sigb[64] = sigb[64] === 0 || sigb[64] === 1 ? sigb[64] + 27 : sigb[64];
-  const buffer =
-    typeof msg.message === "string" ? Buffer.from(msg.message) : Buffer.from(ethers.utils.arrayify(msg.message));
+  const buffer = ethers.utils.isBytes(msg.message)
+    ? Buffer.from(ethers.utils.arrayify(msg.message))
+    : Buffer.from(msg.message);
   const hash = ethereumUtil.hashPersonalMessage(buffer);
   const pubKey = ethereumUtil.ecrecover(hash, sigb[64], sigb.slice(0, 32), sigb.slice(32, 64));
 
