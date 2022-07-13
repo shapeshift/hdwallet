@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ethers from "ethers";
 import _ from "lodash";
 
 import * as eth from "./ethereum";
@@ -82,6 +83,7 @@ export class TallyHoHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInf
 export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
+  readonly _supportsEthSwitchChain = false;
   readonly _isTallyHo = true;
 
   info: TallyHoHDWalletInfo & core.HDWalletInfo;
@@ -214,12 +216,41 @@ export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
     return chainId === 1;
   }
 
+  public async ethGetChainId(): Promise<number | null> {
+    try {
+      // chainId as hex string
+      const chainId: string = await this.provider.request({ method: "eth_chainId" });
+      return parseInt(chainId, 16);
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  }
+
   public async ethSupportsSecureTransfer(): Promise<boolean> {
     return false;
   }
 
   public ethSupportsNativeShapeShift(): boolean {
     return false;
+  }
+
+  public async ethSwitchChain(chainId: number): Promise<void> {
+    const hexChainId = ethers.utils.hexValue(chainId);
+    try {
+      // at this point, we know that we're in the context of a valid TallyHo provider
+      await this.provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hexChainId }] });
+    } catch (e: any) {
+      const error: core.SerializedEthereumRpcError = e;
+      console.error(error);
+      // https://docs.metamask.io/guide/ethereum-provider.html#errors
+      // Internal error, which in the case of wallet_switchEthereumChain call means the chain isn't currently added to the wallet
+      if (error.code === -32603) {
+        // TODO: TallyHo currently supports a finite number of chains natively (Mainnet + Polygon/Arbitrum/Optimism under feature flag), with no capabilities to add new chains
+      }
+
+      throw new Error(e);
+    }
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {
