@@ -12,6 +12,8 @@ import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as tallyHo from "@shapeshiftoss/hdwallet-tallyho";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
+import { WalletConnectProviderConfig } from "@shapeshiftoss/hdwallet-walletconnect";
+import * as walletConnect from "@shapeshiftoss/hdwallet-walletconnect";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 import $ from "jquery";
 import Web3 from "web3";
@@ -45,6 +47,11 @@ const keyring = new core.Keyring();
 
 const portisAppId = "ff763d3d-9e34-45a1-81d1-caa39b9c64f9";
 const mnemonic = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
+const walletConnectOptions: WalletConnectProviderConfig = {
+  rpc: {
+    1: "https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57",
+  },
+};
 
 const testPublicWalletXpubs = [
   "xpub661MyMwAqRbcFLgDU7wpcEVubSF7NkswwmXBUkDiGUW6uopeUMys4AqKXNgpfZKRTLnpKQgffd6a2c3J8JxLkF1AQN17Pm9QYHEqEfo1Rsx", // all seed root key
@@ -67,12 +74,10 @@ const kkemuAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const portisAdapter = portis.PortisAdapter.useKeyring(keyring, { portisAppId });
 const metaMaskAdapter = metaMask.MetaMaskAdapter.useKeyring(keyring);
 const tallyHoAdapter = tallyHo.TallyHoAdapter.useKeyring(keyring);
+const walletConnectAdapter = walletConnect.WalletConnectAdapter.useKeyring(keyring, walletConnectOptions);
 const xdefiAdapter = xdefi.XDEFIAdapter.useKeyring(keyring);
 const keplrAdapter = keplr.KeplrAdapter.useKeyring(keyring);
-const nativeAdapter = native.NativeAdapter.useKeyring(keyring, {
-  mnemonic,
-  deviceId: "native-wallet-test",
-});
+const nativeAdapter = native.NativeAdapter.useKeyring(keyring);
 const trezorAdapter = trezorConnect.TrezorAdapter.useKeyring(keyring, {
   debug: false,
   manifest: {
@@ -100,6 +105,7 @@ const $portis = $("#portis");
 const $native = $("#native");
 const $metaMask = $("#metaMask");
 const $tallyHo = $("#tallyHo");
+const $walletConnect = $("#walletConnect");
 const $xdefi = $("#xdefi");
 const $keplr = $("#keplr");
 const $keyring = $("#keyring");
@@ -214,9 +220,22 @@ $tallyHo.on("click", async (e) => {
   }
 });
 
+$walletConnect.on("click", async (e) => {
+  e.preventDefault();
+  try {
+    wallet = await walletConnectAdapter.pairDevice();
+    window["wallet"] = wallet;
+    let deviceID = "nothing";
+    deviceID = await wallet.getDeviceID();
+    $("#keyring select").val(deviceID);
+  } catch (error) {
+    console.error(error);
+  }
+});
+
 $xdefi.on("click", async (e) => {
   e.preventDefault();
-  wallet = await xdefiAdapter.pairDevice("testid");
+  wallet = await xdefiAdapter.pairDevice();
   window["wallet"] = wallet;
   let deviceID = "nothing";
   try {
@@ -312,6 +331,12 @@ async function deviceConnected(deviceId) {
     await tallyHoAdapter.initialize();
   } catch (e) {
     console.error("Could not initialize TallyHoAdapter", e);
+  }
+
+  try {
+    await walletConnectAdapter.initialize();
+  } catch (e) {
+    console.error("Could not initialize WalletConnectAdapter", e);
   }
 
   for (const deviceID of Object.keys(keyring.wallets)) {
@@ -676,7 +701,6 @@ $binanceTx.on("click", async (e) => {
   if (core.supportsBinance(wallet)) {
     const res = await wallet.binanceSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/714'/0'/0/0`),
-      chain_id: "Binance-Chain-Nile",
       account_number: "24250",
       sequence: 31,
       tx: bnbTxJson,
