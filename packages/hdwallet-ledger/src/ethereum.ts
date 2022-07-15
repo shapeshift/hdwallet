@@ -3,6 +3,7 @@ import { Transaction } from "@ethereumjs/tx";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import EthereumTx from "ethereumjs-tx";
 import * as ethereumUtil from "ethereumjs-util";
+import * as ethers from "ethers";
 
 import { LedgerTransport } from "./transport";
 import { compressPublicKey, createXpub, handleError, networksUtil } from "./utils";
@@ -150,7 +151,11 @@ export async function ethSignMessage(
   msg: core.ETHSignMessage
 ): Promise<core.ETHSignedMessage> {
   const bip32path = core.addressNListToBIP32(msg.addressNList);
-  const res = await transport.call("Eth", "signPersonalMessage", bip32path, Buffer.from(msg.message).toString("hex"));
+
+  const buffer = ethers.utils.isBytes(msg.message)
+    ? Buffer.from(ethers.utils.arrayify(msg.message))
+    : Buffer.from(msg.message);
+  const res = await transport.call("Eth", "signPersonalMessage", bip32path, buffer.toString("hex"));
   handleError(res, transport, "Could not sign ETH message with Ledger");
 
   let { v } = res.payload;
@@ -174,7 +179,10 @@ export async function ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<bool
     return false;
   }
   sigb[64] = sigb[64] === 0 || sigb[64] === 1 ? sigb[64] + 27 : sigb[64];
-  const hash = ethereumUtil.hashPersonalMessage(Buffer.from(msg.message));
+  const buffer = ethers.utils.isBytes(msg.message)
+    ? Buffer.from(ethers.utils.arrayify(msg.message))
+    : Buffer.from(msg.message);
+  const hash = ethereumUtil.hashPersonalMessage(buffer);
   const pubKey = ethereumUtil.ecrecover(hash, sigb[64], sigb.slice(0, 32), sigb.slice(32, 64));
 
   return core.stripHexPrefixAndLower(msg.address) === ethereumUtil.pubToAddress(pubKey).toString("hex");
