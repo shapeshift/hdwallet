@@ -1,3 +1,5 @@
+import { Bytes } from "@ethersproject/bytes";
+
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { BIP32Path, ExchangeType, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
@@ -92,7 +94,7 @@ export interface ETHSignedTx {
 
 export interface ETHSignMessage {
   addressNList: BIP32Path;
-  message: string;
+  message: string | Bytes;
 }
 
 export interface ETHSignedMessage {
@@ -102,8 +104,22 @@ export interface ETHSignedMessage {
 
 export interface ETHVerifyMessage {
   address: string;
-  message: string;
+  message: string | Bytes;
   signature: string;
+}
+
+// https://docs.metamask.io/guide/rpc-api.html#wallet-addethereumchain
+export interface AddEthereumChainParameter {
+  chainId: string; // A 0x-prefixed hexadecimal string
+  chainName: string;
+  nativeCurrency: {
+    name: string;
+    symbol: string; // 2-6 characters long
+    decimals: 18;
+  };
+  rpcUrls: string[];
+  blockExplorerUrls?: string[];
+  iconUrls?: string[]; // Currently ignored.
 }
 
 export interface ETHWalletInfo extends HDWalletInfo {
@@ -125,6 +141,12 @@ export interface ETHWalletInfo extends HDWalletInfo {
    * https://eips.ethereum.org/EIPS/eip-3326
    */
   ethSwitchChain?(chain_id: number): Promise<void>;
+
+  /**
+   * Add an Ethereum chain to user's wallet
+   * https://eips.ethereum.org/EIPS/eip-3085
+   * */
+  ethAddChain?(params: AddEthereumChainParameter): Promise<void>;
 
   /**
    * Does the device support internal transfers without the user needing to
@@ -160,6 +182,7 @@ export interface ETHWalletInfo extends HDWalletInfo {
 
 export interface ETHWallet extends ETHWalletInfo, HDWallet {
   readonly _supportsETH: boolean;
+  readonly _supportsEthSwitchChain: boolean;
 
   ethGetAddress(msg: ETHGetAddress): Promise<string | null>;
   ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx | null>;

@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ethers from "ethers";
 
 export function describeETHPath(path: core.BIP32Path): core.PathDescription {
   const pathStr = core.addressNListToBIP32(path);
@@ -99,9 +100,12 @@ export async function ethSignMessage(
   address: string
 ): Promise<core.ETHSignedMessage | null> {
   try {
+    const buffer = ethers.utils.isBytes(msg.message)
+      ? Buffer.from(ethers.utils.arrayify(msg.message))
+      : Buffer.from(msg.message);
     const signedMsg = await ethereum.request({
       method: "personal_sign",
-      params: [Buffer.from(msg.message).toString("hex"), address],
+      params: [buffer.toString("hex"), address],
     });
 
     return {

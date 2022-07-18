@@ -77,6 +77,10 @@ export async function createWallet(): Promise<core.HDWallet> {
   const adapter = xdefi.XDEFIAdapter.useKeyring(new core.Keyring());
   const wallet = await adapter.pairDevice();
 
+  if (!wallet) {
+    throw new Error("Unable to pair XDEFIWallet!");
+  }
+
   wallet.ethSignTx = jest
     .fn()
     .mockReturnValueOnce(mockSignEthTxResponse)
