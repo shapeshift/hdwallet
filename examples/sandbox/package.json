@@ -21,7 +21,7 @@
     "@shapeshiftoss/hdwallet-portis": "1.24.0",
     "@shapeshiftoss/hdwallet-trezor": "1.24.0",
     "@shapeshiftoss/hdwallet-trezor-connect": "1.24.0",
-    "@shapeshiftoss/hdwallet-walletconnect": "1.24.0",
+    "@shapeshiftoss/hdwallet-walletconnect-bridge": "1.24.0",
     "@shapeshiftoss/hdwallet-xdefi": "1.24.0",
     "bip32": "^2.0.4",
     "jquery": "^3.4.1",

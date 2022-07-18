@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/hdwallet-walletconnect",
+  "name": "@shapeshiftoss/hdwallet-walletconnect-bridge",
   "version": "1.24.0",
   "license": "MIT",
   "publishConfig": {

@@ -12,7 +12,7 @@ import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as tallyHo from "@shapeshiftoss/hdwallet-tallyho";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
-import { HDWalletWCBridge } from "@shapeshiftoss/hdwallet-walletconnect";
+import { HDWalletWCBridge } from "@shapeshiftoss/hdwallet-walletconnect-bridge";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 import $ from "jquery";
 import Web3 from "web3";
@@ -27,7 +27,7 @@ import {
   cosmosRedelegateTx,
   cosmosRewardsTx,
   cosmosTransferTx,
-  cosmosUndelegateTx,
+  cosmosUndelegateTx
 } from "./json/cosmosAminoTx.json";
 import * as dashTxJson from "./json/dashTx.json";
 import * as dogeTxJson from "./json/dogeTx.json";
@@ -39,7 +39,7 @@ import {
   thorchainEthereumBaseTx,
   thorchainNativeRuneBaseTx,
   thorchainRouterAbi,
-  thorchainUnsignedTx,
+  thorchainUnsignedTx
 } from "./json/thorchainTx.json";
 
 const keyring = new core.Keyring();
@@ -402,7 +402,7 @@ $wcConnectButton.on("click", async (e) => {
   e.preventDefault();
 
   if ($wcBridge) {
-    alert('Wallet Connect already connected. Disconnect first');
+    alert("Wallet Connect already connected. Disconnect first");
   }
 
   const input = document.getElementById("wcUriInput") as HTMLInputElement;
@@ -416,13 +416,13 @@ $wcReconnectButton.on("click", async (e) => {
   e.preventDefault();
 
   if ($wcBridge) {
-    alert('Wallet Connect already connected. Disconnect first');
+    alert("Wallet Connect already connected. Disconnect first");
     return;
   }
 
   const wcSessionJsonString = localStorage.getItem("walletconnect");
   if (!wcSessionJsonString) {
-    alert('No existing Wallet Connect session found');
+    alert("No existing Wallet Connect session found");
     return;
   }
 
@@ -440,7 +440,7 @@ $wcDisconnectButton.on("click", async (e) => {
   e.preventDefault();
 
   if (!$wcBridge) {
-    alert('Wallet Connect not connected');
+    alert("Wallet Connect not connected");
     return;
   }
 
