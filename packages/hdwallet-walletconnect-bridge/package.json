@@ -14,7 +14,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "1.24.0"
+    "@shapeshiftoss/hdwallet-core": "1.27.0"
   },
   "devDependencies": {
     "typescript": "^4.3.2"
