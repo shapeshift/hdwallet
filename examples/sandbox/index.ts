@@ -29,7 +29,7 @@ import {
   cosmosRedelegateTx,
   cosmosRewardsTx,
   cosmosTransferTx,
-  cosmosUndelegateTx
+  cosmosUndelegateTx,
 } from "./json/cosmosAminoTx.json";
 import * as dashTxJson from "./json/dashTx.json";
 import * as dogeTxJson from "./json/dogeTx.json";
@@ -41,7 +41,7 @@ import {
   thorchainEthereumBaseTx,
   thorchainNativeRuneBaseTx,
   thorchainRouterAbi,
-  thorchainUnsignedTx
+  thorchainUnsignedTx,
 } from "./json/thorchainTx.json";
 
 const keyring = new core.Keyring();

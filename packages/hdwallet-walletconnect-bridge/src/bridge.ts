@@ -132,9 +132,10 @@ export class HDWalletWCBridge {
     }
   }
 
-  private log(eventName: string, properties: object) {
+  private log(_eventName: string, _properties: object) {
     if (process.env.NODE_ENV !== "test") {
-      console.log("WalletConnect Bridge", eventName, properties);
+      // TODO: what are conventions around log statements (which can be very helpful in dev mode)
+      // console.log("WalletConnect Bridge", eventName, properties);
     }
   }
 
