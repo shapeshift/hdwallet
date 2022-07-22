@@ -5,6 +5,7 @@ import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as eip55 from "eip55";
+import * as ethers from "ethers";
 
 import { Transport } from "./transport";
 import { toUTF8Array, translateInputScriptType } from "./utils";
@@ -189,7 +190,7 @@ export async function ethGetAddress(transport: Transport, msg: core.ETHGetAddres
 export async function ethSignMessage(transport: Transport, msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
   const m = new Messages.EthereumSignMessage();
   m.setAddressNList(msg.addressNList);
-  m.setMessage(toUTF8Array(msg.message));
+  m.setMessage(ethers.utils.isBytes(msg.message) ? ethers.utils.arrayify(msg.message) : toUTF8Array(msg.message));
   const response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNMESSAGE, m, {
     msgTimeout: core.LONG_TIMEOUT,
   });
@@ -204,7 +205,7 @@ export async function ethVerifyMessage(transport: Transport, msg: core.ETHVerify
   const m = new Messages.EthereumVerifyMessage();
   m.setAddress(core.arrayify(msg.address));
   m.setSignature(core.arrayify(msg.signature));
-  m.setMessage(toUTF8Array(msg.message));
+  m.setMessage(ethers.utils.isBytes(msg.message) ? ethers.utils.arrayify(msg.message) : toUTF8Array(msg.message));
   let event: core.Event;
   try {
     event = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMVERIFYMESSAGE, m, {
