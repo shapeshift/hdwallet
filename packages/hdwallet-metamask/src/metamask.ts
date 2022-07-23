@@ -1,6 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { AddEthereumChainParameter } from "@shapeshiftoss/hdwallet-core";
-import { serializeError } from "eth-rpc-errors";
+import { ethErrors, serializeError } from "eth-rpc-errors";
+import * as ethers from "ethers";
 import _ from "lodash";
 
 import * as eth from "./ethereum";
@@ -279,8 +280,26 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
       if (error.code === -32603) {
         // We only support Avalanche C-Chain currently. It is supported natively in XDEFI, and unsupported in Tally, both with no capabilities to add a new chain
         // TODO(gomes): Find a better home for these. When that's done, we'll want to call ethSwitchChain with (params: AddEthereumChainParameter) instead
-        await this.ethAddChain(params);
-        return;
+        try {
+          await this.ethAddChain(params);
+          return;
+        } catch (addChainE: any) {
+          const addChainError = serializeError(addChainE);
+
+          if (addChainError.code === 4001) {
+            throw ethErrors.provider.userRejectedRequest();
+          }
+
+          throw (addChainError.data as any).originalError as {
+            code: number;
+            message: string;
+            stack: string;
+          };
+        }
+      }
+
+      if (error.code === 4001) {
+        throw ethErrors.provider.userRejectedRequest();
       }
 
       throw (error.data as any).originalError as {
