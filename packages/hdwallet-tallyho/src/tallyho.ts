@@ -1,6 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { AddEthereumChainParameter } from "@shapeshiftoss/hdwallet-core";
-import * as ethers from "ethers";
 import _ from "lodash";
 
 import * as eth from "./ethereum";
