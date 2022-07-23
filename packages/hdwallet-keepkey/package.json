@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey",
-  "version": "1.19.1",
+  "version": "1.28.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -17,9 +17,10 @@
   "dependencies": {
     "@ethereumjs/common": "^2.4.0",
     "@ethereumjs/tx": "^3.3.0",
-    "@keepkey/device-protocol": "^7.7.1",
+    "@keepkey/device-protocol": "^7.8.1",
     "@shapeshiftoss/bitcoinjs-lib": "5.2.0-shapeshift.2",
-    "@shapeshiftoss/hdwallet-core": "1.19.1",
+    "@shapeshiftoss/hdwallet-core": "1.28.0",
+    "@shapeshiftoss/proto-tx-builder": "^0.2.1",
     "bignumber.js": "^9.0.1",
     "bnb-javascript-sdk-nobroadcast": "^2.16.14",
     "crypto-js": "^4.0.0",
@@ -27,10 +28,13 @@
     "google-protobuf": "^3.15.8",
     "icepick": "^2.4.0",
     "lodash": "^4.17.21",
+    "p-lazy": "^3.1.0",
     "semver": "^6.3.0",
     "tiny-secp256k1": "^1.1.6"
   },
   "devDependencies": {
+    "@cosmjs/amino": "^0.28.3",
+    "@cosmjs/proto-signing": "^0.27.1",
     "@types/create-hash": "^1.2.2",
     "@types/crypto-js": "^4.0.0",
     "@types/google-protobuf": "^3.15.1",

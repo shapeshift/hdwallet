@@ -1,0 +1,29 @@
+{
+  "name": "@shapeshiftoss/hdwallet-keplr",
+  "version": "1.28.0",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "dist/index.js",
+  "source": "src/index.ts",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "prepublishOnly": "yarn clean && yarn build"
+  },
+  "dependencies": {
+    "@shapeshiftoss/caip": "3.0.0",
+    "@shapeshiftoss/hdwallet-core": "1.28.0",
+    "@shapeshiftoss/proto-tx-builder": "0.2.1",
+    "@shapeshiftoss/types": "3.1.3",
+    "base64-js": "^1.5.1",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@keplr-wallet/types": "^0.9.10",
+    "@types/lodash": "^4.14.168",
+    "typescript": "^4.3.2"
+  }
+}

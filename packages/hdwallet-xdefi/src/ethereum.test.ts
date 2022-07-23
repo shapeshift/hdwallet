@@ -1,10 +1,11 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ethers from "ethers";
 
 import * as ethereum from "./ethereum";
 
-describe("XDeFi - Ethereum Adapter", () => {
+describe("XDEFI - Ethereum Adapter", () => {
   it("ethVerifyMessage returns null as its not implemented", async () => {
-    const ethereumProvider = {
+    const ethereumProvider: ethers.providers.ExternalProvider = {
       request: jest.fn().mockReturnValue("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"),
     };
     expect(
@@ -26,7 +27,7 @@ describe("XDeFi - Ethereum Adapter", () => {
         addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
         hardenedPath: core.bip32ToAddressNList("m/44'/60'/0'"),
         relPath: [0, 0],
-        description: "XDeFi",
+        description: "XDEFI",
       },
     ]);
   });
@@ -35,7 +36,7 @@ describe("XDeFi - Ethereum Adapter", () => {
     expect(paths).toMatchObject([]);
   });
   it("ethSignTx returns null as its not implemented", async () => {
-    const ethereumProvider = {
+    const ethereumProvider: ethers.providers.ExternalProvider = {
       request: jest.fn().mockReturnValue({
         r: "0x63db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0a",
         s: "0x28297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
@@ -68,7 +69,7 @@ describe("XDeFi - Ethereum Adapter", () => {
     });
   });
   it("ethSendTx returns a valid hash", async () => {
-    const ethereumProvider = {
+    const ethereumProvider: ethers.providers.ExternalProvider = {
       request: jest.fn().mockReturnValue("0x123"),
     };
 
@@ -90,7 +91,7 @@ describe("XDeFi - Ethereum Adapter", () => {
     expect(hash).toMatchObject({ hash: "0x123" });
   });
   it("ethSendTx returns a valid hash if maxFeePerGas is present in msg", async () => {
-    const ethereumProvider = {
+    const ethereumProvider: ethers.providers.ExternalProvider = {
       request: jest.fn().mockReturnValue("0x123"),
     };
 
@@ -113,7 +114,7 @@ describe("XDeFi - Ethereum Adapter", () => {
     expect(hash).toMatchObject({ hash: "0x123" });
   });
   it("ethSendTx returns null on error", async () => {
-    const ethereumProvider = {
+    const ethereumProvider: ethers.providers.ExternalProvider = {
       request: jest.fn().mockRejectedValue(new Error("An Error has occurred")),
     };
 
@@ -135,8 +136,51 @@ describe("XDeFi - Ethereum Adapter", () => {
     expect(hash).toBe(null);
   });
 
-  it("ethSignMessage returns a valid signature object", async () => {
+  it("ethSignMessage returns a valid signature object when called with bytes message", async () => {
     const ethereumProvider = {
+      request: jest.fn().mockReturnValue(
+        `Object {
+          "address": "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
+          "signature": "0x05f51140905ffa33ffdc57f46b0b8d8fbb1d2a99f8cd843ca27893c01c31351c08b76d83dce412731c846e3b50649724415deb522d00950fbf4f2c1459c2b70b1b",
+        }`
+      ),
+    };
+
+    const msg: ethers.Bytes = ethers.utils.arrayify(
+      "0xcf8746d5aa75ecfd907eb3cae0aecf7f698a8bfe1f97eb2d77d6539e8991b0ea"
+    );
+    const sig = await ethereum.ethSignMessage(
+      {
+        addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+        message: msg,
+      },
+      ethereumProvider,
+      "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8"
+    );
+
+    expect(ethereumProvider.request.mock.calls[0][0]).toMatchInlineSnapshot(`
+    Object {
+      "method": "personal_sign",
+      "params": Array [
+        "cf8746d5aa75ecfd907eb3cae0aecf7f698a8bfe1f97eb2d77d6539e8991b0ea",
+        "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
+      ],
+    }
+  `);
+
+    expect(sig).toMatchInlineSnapshot(`
+      Object {
+        "address": "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
+        "signature": "Object {
+                \\"address\\": \\"0x73d0385F4d8E00C5e6504C6030F47BF6212736A8\\",
+                \\"signature\\": \\"0x05f51140905ffa33ffdc57f46b0b8d8fbb1d2a99f8cd843ca27893c01c31351c08b76d83dce412731c846e3b50649724415deb522d00950fbf4f2c1459c2b70b1b\\",
+              }",
+      }
+    `);
+  });
+
+  it("ethSignMessage returns a valid signature object", async () => {
+    const ethereumProvider: ethers.providers.ExternalProvider = {
       request: jest.fn().mockReturnValue(
         `Object {
           "address": "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
@@ -167,7 +211,7 @@ describe("XDeFi - Ethereum Adapter", () => {
   });
 
   it("ethSignMessage returns null on error", async () => {
-    const ethereumProvider = {
+    const ethereumProvider: ethers.providers.ExternalProvider = {
       request: jest.fn().mockRejectedValue(new Error("An Error has occurred")),
     };
 
@@ -185,7 +229,7 @@ describe("XDeFi - Ethereum Adapter", () => {
   });
 
   it("ethGetAddress returns a valid address", async () => {
-    const ethereumProvider = {
+    const ethereumProvider: ethers.providers.ExternalProvider = {
       request: jest.fn().mockReturnValue(["0x73d0385F4d8E00C5e6504C6030F47BF6212736A8"]),
     };
 
@@ -194,7 +238,7 @@ describe("XDeFi - Ethereum Adapter", () => {
     expect(address).toBe("0x73d0385F4d8E00C5e6504C6030F47BF6212736A8");
   });
   it("ethGetAddress returns null on error", async () => {
-    const ethereumProvider = {
+    const ethereumProvider: ethers.providers.ExternalProvider = {
       request: jest.fn().mockRejectedValue(new Error("An error has occurred")),
     };
 
@@ -203,7 +247,7 @@ describe("XDeFi - Ethereum Adapter", () => {
     expect(address).toBe(null);
   });
   it("ethGetAddress returns null if no provider", async () => {
-    const ethereumProvider = {};
+    const ethereumProvider: ethers.providers.ExternalProvider = {};
 
     const address = await ethereum.ethGetAddress(ethereumProvider);
 

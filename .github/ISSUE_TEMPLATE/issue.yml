@@ -1,0 +1,54 @@
+name: Issue
+description: Create an issue
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this issue. Please give your issue a short and succinct title.
+  - type: textarea
+    id: overview
+    attributes:
+      label: Overview
+      description: General background needed for an engineer to complete the task.
+      placeholder: We want a new widget on the dashboard that displays fancy things.
+    validations:
+      required: true
+  - type: textarea
+    id: reference
+    attributes:
+      label: References and additional details
+      description: An explanation as to relevant or affected code. Include any relevent transaction IDs and replication steps.
+      placeholder: E.g. code wise, it may be useful to start by looking at `Dashboard.tsx`. For bug reports, please include reproduction steps and transaction IDs here if applicable.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: The criteria that needs to be completed in order for the issue to be considered complete
+      placeholder: The widget displays correctly on the dashboard as per the mockups.
+    validations:
+      required: true
+  - type: textarea
+    id: need-by-date
+    attributes:
+      label: Need By Date
+      description: Does this issue have a hard due date for completion?
+      placeholder: Enter a date if applicable.
+    validations:
+      required: false
+  - type: textarea
+    id: screenshots-or-mockups
+    attributes:
+      label: Screenshots/Mockups
+      description: Screenshots related to UI changes for simple changes, links to clickable mockups for larger features
+      placeholder: Only include screenshots or mockups for features that require UI changes.
+    validations:
+      required: false
+  - type: input
+    id: estimate
+    attributes:
+      label: Estimated effort
+      description: "Estimated effort to complete the bounty, in hours or days"
+      placeholder: "Half a day"
+

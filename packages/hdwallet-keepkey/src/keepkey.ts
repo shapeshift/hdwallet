@@ -374,7 +374,7 @@ export class KeepKeyHDWalletInfo
 {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
-  readonly _supportsCosmosInfo = false;
+  readonly _supportsCosmosInfo = true;
   readonly _supportsRippleInfo = true;
   readonly _supportsBinanceInfo = true;
   readonly _supportsEosInfo = true;
@@ -615,7 +615,7 @@ export class KeepKeyHDWalletInfo
 export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.DebugLinkWallet {
   readonly _supportsETHInfo = true;
   readonly _supportsBTCInfo = true;
-  readonly _supportsCosmosInfo = false;
+  readonly _supportsCosmosInfo = true;
   readonly _supportsRippleInfo = true;
   readonly _supportsBinanceInfo = true;
   readonly _supportsEosInfo = true;
@@ -623,8 +623,9 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   readonly _supportsDebugLink: boolean;
   readonly _isKeepKey = true;
   readonly _supportsETH = true;
+  readonly _supportsEthSwitchChain = false;
   readonly _supportsBTC = true;
-  _supportsCosmos = false;
+  _supportsCosmos = true;
   _supportsRipple = true;
   _supportsBinance = true;
   _supportsEos = true;
@@ -657,8 +658,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   public async getDeviceID(): Promise<string> {
     const featuresId = (await this.getFeatures(/*cached=*/ true)).deviceId;
 
-    // Some devices are showing up with empty string deviceId's in their
-    // features object. Not sure how that's happening.
+    // Devices in bootloader mode show up with empty string deviceId's in their features object.
     if (featuresId) return featuresId;
 
     // Grabbing the one from the transport seems to be a reasonable fallback.
@@ -975,25 +975,24 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     const event = await this.transport.call(Messages.MessageType.MESSAGETYPE_INITIALIZE, initialize);
     if (!event.message) throw event;
     const out = event.message as Messages.Features.AsObject;
-    if (!out.deviceId) throw new Error("no deviceId in features object");
     this.features = out;
 
     // v6.1.0 firmware changed usb serial numbers to match STM32 desig_device_id
     // If the deviceId in the features table doesn't match, then we need to
     // add another k-v pair to the keyring so it can be looked up either way.
     const transportDeviceID = await this.transport.getDeviceID();
-    if (transportDeviceID !== out.deviceId) {
+    if (out.deviceId && transportDeviceID !== out.deviceId) {
       this.transport.keyring.addAlias(transportDeviceID, out.deviceId);
     }
 
     // Cosmos isn't supported until v6.3.0
     const fwVersion = `v${out.majorVersion}.${out.minorVersion}.${out.patchVersion}`;
     //Lost Support per proto 44.3
-    //this._supportsCosmos = semver.gte(fwVersion, "v6.3.0");
+    this._supportsCosmos = semver.gte(fwVersion, "v7.3.0");
     this._supportsRipple = semver.gte(fwVersion, "v6.4.0");
     this._supportsBinance = semver.gte(fwVersion, "v6.4.0");
     this._supportsEos = semver.gte(fwVersion, "v6.4.0");
-    // this._supportsThorchain = Semver.get(fwVersion, "v7.0.0");
+    // this._supportsThorchain = semver.get(fwVersion, "v7.3.0");
 
     this.cacheFeatures(out);
     return out;

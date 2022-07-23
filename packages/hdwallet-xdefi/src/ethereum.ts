@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { ETHSignedMessage } from "@shapeshiftoss/hdwallet-core";
+import * as ethers from "ethers";
 
 export async function ethVerifyMessage(msg: core.ETHVerifyMessage, ethereum: any): Promise<boolean | null> {
   const recoveredAddress = await ethereum.request({
@@ -17,7 +18,7 @@ export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHA
       addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
       hardenedPath: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
       relPath: [0, 0],
-      description: "XDeFi",
+      description: "XDEFI",
     },
   ];
 }
@@ -39,7 +40,8 @@ export async function ethSendTx(msg: core.ETHSignTx, ethereum: any, from: string
       data: msg.data,
       chainId: msg.chainId,
       nonce: msg.nonce,
-      gasLimit: msg.gasLimit,
+      gas: msg.gasLimit,
+      gasPrice: msg.gasPrice,
     };
 
     const utx = msg.maxFeePerGas
@@ -70,9 +72,12 @@ export async function ethSignMessage(
   address: string
 ): Promise<core.ETHSignedMessage | null> {
   try {
+    const buffer = ethers.utils.isBytes(msg.message)
+      ? Buffer.from(ethers.utils.arrayify(msg.message))
+      : Buffer.from(msg.message);
     const signedMsg = await ethereum.request({
       method: "personal_sign",
-      params: [Buffer.from(msg.message).toString("hex"), address],
+      params: [buffer.toString("hex"), address],
     });
 
     return {

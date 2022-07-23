@@ -42,7 +42,7 @@ const mockSignLongContractData = {
 };
 
 export function name(): string {
-  return "XDeFi";
+  return "XDEFI";
 }
 
 export async function createWallet(): Promise<core.HDWallet> {
@@ -74,8 +74,12 @@ export async function createWallet(): Promise<core.HDWallet> {
     },
   };
 
-  const adapter = xdefi.XDeFiAdapter.useKeyring(new core.Keyring());
+  const adapter = xdefi.XDEFIAdapter.useKeyring(new core.Keyring());
   const wallet = await adapter.pairDevice();
+
+  if (!wallet) {
+    throw new Error("Unable to pair XDEFIWallet!");
+  }
 
   wallet.ethSignTx = jest
     .fn()
@@ -102,18 +106,18 @@ export async function createWallet(): Promise<core.HDWallet> {
 }
 
 export function createInfo(): core.HDWalletInfo {
-  return new xdefi.XDeFiHDWalletInfo();
+  return new xdefi.XDEFIHDWalletInfo();
 }
 
 export function selfTest(get: () => core.HDWallet): void {
-  let wallet: xdefi.XDeFiHDWallet & core.ETHWallet & core.HDWallet;
+  let wallet: xdefi.XDEFIHDWallet & core.ETHWallet & core.HDWallet;
 
   beforeAll(() => {
     const w = get();
-    if (xdefi.isXDeFi(w) && core.supportsETH(w)) {
+    if (xdefi.isXDEFI(w) && core.supportsETH(w)) {
       wallet = w;
     } else {
-      throw new Error("Wallet is not XDeFi");
+      throw new Error("Wallet is not XDEFI");
     }
   });
 

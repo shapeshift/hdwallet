@@ -1,11 +1,11 @@
 import * as library from "./";
 
 describe("Exports all expected classes", () => {
-  it("should export XDeFiAdapter", () => {
-    expect(library.XDeFiAdapter.name).toBe("XDeFiAdapter");
+  it("should export XDEFIAdapter", () => {
+    expect(library.XDEFIAdapter.name).toBe("XDEFIAdapter");
   });
 
-  it("should export XDeFiHDWallet", () => {
-    expect(library.XDeFiHDWallet.name).toBe("XDeFiHDWallet");
+  it("should export XDEFIHDWallet", () => {
+    expect(library.XDEFIHDWallet.name).toBe("XDEFIHDWallet");
   });
 });
