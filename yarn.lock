@@ -4604,6 +4604,11 @@
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
 
+"@shapeshiftoss/logger@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.1.2.tgz#abbcc087387823448f8ea404722aab44048460a2"
+  integrity sha512-6P3lM5aCjQse1NoPMgniXJvz0ccEcBisyHmu+q45eyStD7qap3S953esc+l9e9cjWGNuO48+97tQh8tkfY0Wsg==
+
 "@shapeshiftoss/proto-tx-builder@0.2.1", "@shapeshiftoss/proto-tx-builder@^0.2.1":
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.2.1.tgz#82106d45adcec0d5d215a6098b52d16ef3db3dc8"

@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { Logger } from "@shapeshiftoss/logger";
 import WalletConnect from "@walletconnect/client";
 import { IWalletConnectSession } from "@walletconnect/types";
 import { convertHexToUtf8 } from "@walletconnect/utils";
@@ -8,6 +9,8 @@ import { WalletConnectCallRequest, WalletConnectSessionRequestPayload } from "./
 const addressNList = core.bip32ToAddressNList("m/44'/60'/0'/0/0");
 
 export class HDWalletWCBridge {
+  private logger = new Logger({ name: "HDWalletWCBridge", level: "debug" });
+
   constructor(private readonly wallet: core.ETHWallet, private readonly connector: WalletConnect) {}
 
   static fromURI(uri: string, wallet: core.ETHWallet) {
@@ -41,7 +44,7 @@ export class HDWalletWCBridge {
     this.connector.on("session_request", this._onSessionRequest.bind(this));
     this.connector.on("session_update", this._onSessionUpdate.bind(this));
     this.connector.on("connect", this._onConnect.bind(this));
-    this.connector.on("disconnect", this._onDisonnect.bind(this));
+    this.connector.on("disconnect", this._onDisconnect.bind(this));
     this.connector.on("call_request", this._onCallRequest.bind(this));
   }
 
@@ -49,10 +52,12 @@ export class HDWalletWCBridge {
     this.log("Session Request", { error, payload });
 
     const address = await this.wallet.ethGetAddress({ addressNList });
-    this.connector.approveSession({
-      chainId: payload.params[0].chainId ?? 4,
-      accounts: [address!],
-    });
+    if (address) {
+      this.connector.approveSession({
+        chainId: payload.params[0].chainId ?? 4,
+        accounts: [address],
+      });
+    }
   }
 
   async _onSessionUpdate(error: Error | null, payload: any) {
@@ -63,8 +68,8 @@ export class HDWalletWCBridge {
     this.log("Connect", { error, payload });
   }
 
-  async _onDisonnect(error: Error | null, payload: any) {
-    this.log("Disonnect", { error, payload });
+  async _onDisconnect(error: Error | null, payload: any) {
+    this.log("Disconnect", { error, payload });
   }
 
   async _onCallRequest(error: Error | null, payload: WalletConnectCallRequest) {
@@ -132,11 +137,8 @@ export class HDWalletWCBridge {
     }
   }
 
-  private log(_eventName: string, _properties: object) {
-    if (process.env.NODE_ENV !== "test") {
-      // TODO: what are conventions around log statements (which can be very helpful in dev mode)
-      // console.log("WalletConnect Bridge", eventName, properties);
-    }
+  private log(eventName: string, properties: object) {
+    this.logger.debug(properties, eventName);
   }
 
   private convertHexToUtf8IfPossible(hex: string) {
