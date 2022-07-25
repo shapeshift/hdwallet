@@ -124,10 +124,11 @@ function prepareSignTx(
   const forceBip143Coins = ["BitcoinGold", "BitcoinCash", "BitcoinSV"];
   if (forceBip143Coins.includes(coin)) return txmap;
 
+  console.info("NEW STUFF");
   inputs.forEach((inputTx) => {
     if (inputTx.txid in txmap) return;
-
     if (
+      // eslint-disable-next-line no-constant-condition
       inputTx.scriptType === core.BTCInputScriptType.SpendP2SHWitness ||
       inputTx.scriptType === core.BTCInputScriptType.SpendWitness ||
       inputTx.scriptType === core.BTCInputScriptType.External
@@ -135,6 +136,7 @@ function prepareSignTx(
       return;
 
     const prevTx = ((): core.BitcoinTx => {
+      console.info("***inputTx.tx: ", JSON.stringify(inputTx.tx));
       if (inputTx.tx) return inputTx.tx;
       if (!inputTx.hex) throw new Error("non-segwit inputs must have the associated prev tx");
       const tx = bitcoinjs.Transaction.fromHex(inputTx.hex);
@@ -172,13 +174,18 @@ function prepareSignTx(
         txInput.setScriptSig(core.fromHexString(core.mustBeDefined(vin.coinbase)));
         txInput.setSequence(vin.sequence);
       } else {
-        txInput.setPrevHash(core.fromHexString(vin.txid));
+        console.info(`setting prevHash from ${vin.txid}`);
+        const buffz = Buffer.from(vin.txid, "hex");
+        const buffBadz = core.fromHexString(vin.txid);
+        console.info(`buffz len ${buffz.length}, buffBadz len ${buffBadz.length}`);
+        txInput.setPrevHash(buffz);
         txInput.setPrevIndex(vin.vout);
         txInput.setScriptSig(core.fromHexString(vin.scriptSig.hex));
         txInput.setSequence(vin.sequence);
+        txInput.setAddressNList // do we need to set this vs address?
       }
       tx.addInputs(txInput, i);
-    });
+    }); // take a look at HDWallet on axiom/beta branch. 
 
     prevTx.vout.forEach((vout, i) => {
       const txOutput = new Types.TxOutputBinType();
@@ -294,6 +301,7 @@ export async function btcSignTx(
     // Unfreezing a recursively-frozen object is nontrivial, so we leverage an existing package
     const msg = thaw(msgIn);
     msg.outputs = thaw(msgIn.outputs);
+    console.info("btcSignTx, msgIn: ", JSON.stringify(msg));
 
     await ensureCoinSupport(wallet, msg.coin);
 
@@ -323,6 +331,7 @@ export async function btcSignTx(
     tx.setCoinName(msg.coin);
     if (msg.version !== undefined) tx.setVersion(msg.version);
     tx.setLockTime(msg.locktime || 0);
+    console.info("**** final tx: ", JSON.stringify(tx));
 
     let responseType: number | undefined;
     let response: any;
@@ -340,10 +349,11 @@ export async function btcSignTx(
       // Begin callback loop
       // eslint-disable-next-line no-constant-condition
       while (true) {
+        console.info("whileloop 1");
         if (responseType !== Messages.MessageType.MESSAGETYPE_TXREQUEST) {
           throw new Error(`Unexpected message type: ${responseType}`);
         }
-
+        console.info("whileloop 2");
         const txRequest = response as Messages.TxRequest;
 
         // If there's some part of signed transaction, add it
@@ -380,12 +390,15 @@ export async function btcSignTx(
 
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         if (!reqDetails!.hasTxHash()) {
+          console.info("whileloop 3");
           currentTx = txmap["unsigned"];
         } else {
+          console.info("whileloop 4");
           currentTx = txmap[core.toHexString(reqDetails.getTxHash_asU8())];
         }
 
         if (txRequest.getRequestType() === Types.RequestType.TXMETA) {
+          console.info("whileloop 5");
           currentMsg = new Types.TransactionType();
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           if (currentTx.hasVersion()) currentMsg.setVersion(currentTx.getVersion()!);
@@ -405,6 +418,7 @@ export async function btcSignTx(
           }
           txAck = new Messages.TxAck();
           txAck.setTx(currentMsg);
+          console.info("whileloop 6");
           const message = await transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, {
             msgTimeout: core.LONG_TIMEOUT,
             omitLock: true,
@@ -415,23 +429,27 @@ export async function btcSignTx(
         }
 
         if (txRequest.getRequestType() === Types.RequestType.TXINPUT) {
+          console.info("whileloop 7");
           if (!reqDetails.hasRequestIndex()) throw new Error("expected request index");
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const reqIndex = reqDetails.getRequestIndex()!;
           currentMsg = new Types.TransactionType();
           currentMsg.setInputsList([currentTx.getInputsList()[reqIndex]]);
+          console.info("whileloop 8: ", JSON.stringify(currentMsg));
           txAck = new Messages.TxAck();
           txAck.setTx(currentMsg);
           const message = await transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, {
             msgTimeout: core.LONG_TIMEOUT,
             omitLock: true,
           }); // 5 Minute timeout
+          console.info("whileloop 9");
           responseType = message.message_enum;
           response = message.proto;
           continue;
         }
 
         if (txRequest.getRequestType() === Types.RequestType.TXOUTPUT) {
+          console.info("whileloop 10");
           if (!reqDetails.hasRequestIndex()) throw new Error("expected request index");
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const reqIndex = reqDetails.getRequestIndex()!;
@@ -454,6 +472,7 @@ export async function btcSignTx(
         }
 
         if (txRequest.getRequestType() === Types.RequestType.TXEXTRADATA) {
+          console.info("whileloop 11");
           if (!reqDetails.hasExtraDataOffset() || !reqDetails.hasExtraDataLen())
             throw new Error("missing extra data offset and length");
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -474,6 +493,7 @@ export async function btcSignTx(
         }
       }
     } catch (error) {
+      console.info("whileloop 12");
       console.error({ error });
       throw new Error("Failed to sign BTC transaction");
     }
