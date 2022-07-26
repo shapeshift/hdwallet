@@ -56,6 +56,7 @@ function prepareSignTx(
   unsignedTx.setOutputsCnt(outputs.length);
 
   inputs.forEach((input, i) => {
+    console.info(`handle input ${i}: `, JSON.stringify(input));
     const utxo = new Types.TxInputType();
     utxo.setPrevHash(core.fromHexString(input.txid));
     utxo.setPrevIndex(input.vout);
@@ -63,6 +64,7 @@ function prepareSignTx(
     utxo.setScriptType(translateInputScriptType(input.scriptType));
     utxo.setAddressNList(input.addressNList);
     utxo.setAmount(Number(input.amount));
+    console.info("created utxo: ", JSON.stringify(utxo));
     unsignedTx.addInputs(utxo, i);
   });
 
@@ -70,38 +72,14 @@ function prepareSignTx(
     const output: core.BTCSignTxOutput = o;
     const newOutput = new Types.TxOutputType();
     newOutput.setAmount(Number(output.amount));
-    if (output.exchangeType) {
-      // BTCSignTxOutputExchange
-      // convert the base64 encoded signedExchangeResponse message into the correct object
-      const signedHex = core.base64toHEX(output.exchangeType.signedExchangeResponse);
-      const signedExchange = Exchange.SignedExchangeResponse.deserializeBinary(core.arrayify(signedHex));
-
-      // decode the deposit amount from a little-endian Uint8Array into an unsigned uint64
-      const depAmt = core.mustBeDefined(signedExchange.getResponsev2()).getDepositAmount_asU8();
-      let val = 0;
-      for (let jj = depAmt.length - 1; jj >= 0; jj--) {
-        val += depAmt[jj] * Math.pow(2, 8 * (depAmt.length - jj - 1));
-        // TODO validate is uint64
-      }
-      const outExchangeType = new Types.ExchangeType();
-      outExchangeType.setSignedExchangeResponse(signedExchange);
-      outExchangeType.setWithdrawalCoinName(output.exchangeType.withdrawalCoinName);
-      outExchangeType.setWithdrawalAddressNList(output.exchangeType.withdrawalAddressNList);
-      outExchangeType.setWithdrawalScriptType(
-        translateInputScriptType(output.exchangeType.withdrawalScriptType || core.BTCInputScriptType.SpendAddress)
-      );
-      outExchangeType.setReturnAddressNList(output.exchangeType.returnAddressNList);
-      outExchangeType.setReturnScriptType(
-        translateInputScriptType(output.exchangeType.returnScriptType || core.BTCInputScriptType.SpendAddress)
-      );
-      newOutput.setAmount(val);
-      newOutput.setAddress(core.mustBeDefined(signedExchange.toObject().responsev2?.depositAddress?.address));
-      newOutput.setScriptType(Types.OutputScriptType.PAYTOADDRESS);
-      newOutput.setAddressType(Types.OutputAddressType.EXCHANGE);
-      newOutput.setExchangeType(outExchangeType);
-    } else if (output.isChange || output.addressType === core.BTCOutputAddressType.Transfer) {
+    if (output.isChange || output.addressType === core.BTCOutputAddressType.Transfer) {
       // BTCSignTxOutputTranfer ||  BTCSignTxOutputChange
       newOutput.setScriptType(translateOutputScriptType(output.scriptType));
+      console.info(
+        `setting output's scriptType to ${translateOutputScriptType(output.scriptType)}, addressNList for change to: ${
+          output.addressNList
+        }`
+      );
       newOutput.setAddressNList(output.addressNList);
       newOutput.setAddressType(output.isChange ? Types.OutputAddressType.CHANGE : Types.OutputAddressType.TRANSFER);
     } else if (output.opReturnData !== undefined && output.opReturnData !== null) {
@@ -112,7 +90,7 @@ function prepareSignTx(
     } else {
       // BTCSignTxOutputSpend
       newOutput.setScriptType(Types.OutputScriptType.PAYTOADDRESS);
-      newOutput.setAddress(output.address);
+      newOutput.setAddress(output.address || "");
       newOutput.setAddressType(Types.OutputAddressType.SPEND);
     }
     unsignedTx.addOutputs(newOutput, k);
@@ -160,6 +138,8 @@ function prepareSignTx(
       };
     })();
 
+    console.info("*** prevTx: ", JSON.stringify(prevTx));
+
     const tx = new Types.TransactionType();
     tx.setVersion(prevTx.version);
     tx.setLockTime(prevTx.locktime);
@@ -174,22 +154,25 @@ function prepareSignTx(
         txInput.setScriptSig(core.fromHexString(core.mustBeDefined(vin.coinbase)));
         txInput.setSequence(vin.sequence);
       } else {
-        console.info(`setting prevHash from ${vin.txid}`);
-        const buffz = Buffer.from(vin.txid, "hex");
-        const buffBadz = core.fromHexString(vin.txid);
-        console.info(`buffz len ${buffz.length}, buffBadz len ${buffBadz.length}`);
-        txInput.setPrevHash(buffz);
+        console.info(`initializing txInput for ${vin.txid}: `, JSON.stringify(vin));
+        txInput.setPrevHash(core.fromHexString(vin.txid));
+        // const buffz = Buffer.from(vin.txid, "hex");
+        // const buffBadz = core.fromHexString(vin.txid);
+        // console.info(`buffz len ${buffz.length}, buffBadz len ${buffBadz.length}`);
+        // txInput.setPrevHash(buffz);
         txInput.setPrevIndex(vin.vout);
         txInput.setScriptSig(core.fromHexString(vin.scriptSig.hex));
         txInput.setSequence(vin.sequence);
-        txInput.setAddressNList // do we need to set this vs address?
+        // txInput.setAddressNList // do we need to set this vs address?
       }
       tx.addInputs(txInput, i);
     }); // take a look at HDWallet on axiom/beta branch. 
 
     prevTx.vout.forEach((vout, i) => {
+      console.info(`initializing txOutput for ${vout.scriptPubKey.hex}: `, JSON.stringify(vout));
       const txOutput = new Types.TxOutputBinType();
-      txOutput.setAmount(core.satsFromStr(vout.value));
+      txOutput.setAmount(Number(vout.value));
+      console.info(`set txOutput amount to ${Number(vout.value)}`);
       txOutput.setScriptPubkey(core.fromHexString(vout.scriptPubKey.hex));
       tx.addBinOutputs(txOutput, i);
     });
@@ -323,7 +306,7 @@ export async function btcSignTx(
     }
 
     const txmap = prepareSignTx(msg.coin, msg.inputs, msg.outputs);
-
+    // console.info('*** txmap: ', JSON.stringify(txmap));
     // Prepare and send initial message
     const tx = new Messages.SignTx();
     tx.setInputsCount(msg.inputs.length);
@@ -331,7 +314,7 @@ export async function btcSignTx(
     tx.setCoinName(msg.coin);
     if (msg.version !== undefined) tx.setVersion(msg.version);
     tx.setLockTime(msg.locktime || 0);
-    console.info("**** final tx: ", JSON.stringify(tx));
+    console.info("*** final tx: ", JSON.stringify(tx));
 
     let responseType: number | undefined;
     let response: any;
@@ -349,12 +332,13 @@ export async function btcSignTx(
       // Begin callback loop
       // eslint-disable-next-line no-constant-condition
       while (true) {
-        console.info("whileloop 1");
+        console.info("whileloop begin");
         if (responseType !== Messages.MessageType.MESSAGETYPE_TXREQUEST) {
           throw new Error(`Unexpected message type: ${responseType}`);
         }
-        console.info("whileloop 2");
+
         const txRequest = response as Messages.TxRequest;
+        console.info(`whileloop iteration begins requestType: ${txRequest.getRequestType()}`);
 
         // If there's some part of signed transaction, add it
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -375,6 +359,7 @@ export async function btcSignTx(
         }
 
         if (txRequest.getRequestType() === Types.RequestType.TXFINISHED) {
+          console.info("FINISHED!!!")
           // Device didn't ask for more information, finish workflow
           break;
         }
@@ -390,15 +375,21 @@ export async function btcSignTx(
 
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         if (!reqDetails!.hasTxHash()) {
-          console.info("whileloop 3");
+          console.info("reqDetails does not have txHash, using 'unsigned' from txmap");
           currentTx = txmap["unsigned"];
         } else {
-          console.info("whileloop 4");
-          currentTx = txmap[core.toHexString(reqDetails.getTxHash_asU8())];
+          const reqTxHash = core.toHexString(reqDetails.getTxHash_asU8());
+          console.info(`reqDetails reqTxHash: ${reqTxHash}`);
+          currentTx = txmap[reqTxHash];
         }
 
+        if (!currentTx) {
+          throw new Error("currentTx cannot be false");
+        }
+
+        console.info(`currentTx: `, JSON.stringify(currentTx));
         if (txRequest.getRequestType() === Types.RequestType.TXMETA) {
-          console.info("whileloop 5");
+          console.info("handling TXMETA request");
           currentMsg = new Types.TransactionType();
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           if (currentTx.hasVersion()) currentMsg.setVersion(currentTx.getVersion()!);
@@ -407,72 +398,88 @@ export async function btcSignTx(
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           if (currentTx.hasInputsCnt()) currentMsg.setInputsCnt(currentTx.getInputsCnt()!);
           if (reqDetails.hasTxHash()) {
+            console.info(`hasTxHash setting length of outputs to ${currentTx.getBinOutputsList().length}`);
             currentMsg.setOutputsCnt(currentTx.getBinOutputsList().length);
           } else {
+            console.info(`!hasTxHash setting length of outputs to ${currentTx.getOutputsList().length}`);
             currentMsg.setOutputsCnt(currentTx.getOutputsList().length);
           }
+
           if (currentTx.hasExtraData()) {
+            console.info("hasExtraData, setting it");
             currentMsg.setExtraDataLen(currentTx.getExtraData_asU8().length);
           } else {
             currentMsg.setExtraDataLen(0);
           }
           txAck = new Messages.TxAck();
           txAck.setTx(currentMsg);
-          console.info("whileloop 6");
+          console.info("sending TXMETA txAck");
           const message = await transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, {
             msgTimeout: core.LONG_TIMEOUT,
             omitLock: true,
           }); // 5 Minute timeout
+          console.info(`sending TXMETA txAck complete: ${message.message_enum}`);
           responseType = message.message_enum;
           response = message.proto;
           continue;
         }
 
         if (txRequest.getRequestType() === Types.RequestType.TXINPUT) {
-          console.info("whileloop 7");
+          console.info(`handling TXINPUT request for index ${reqDetails.getRequestIndex()}`);
           if (!reqDetails.hasRequestIndex()) throw new Error("expected request index");
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const reqIndex = reqDetails.getRequestIndex()!;
           currentMsg = new Types.TransactionType();
-          currentMsg.setInputsList([currentTx.getInputsList()[reqIndex]]);
-          console.info("whileloop 8: ", JSON.stringify(currentMsg));
+          const inputsList = [currentTx.getInputsList()[reqIndex]];
+          console.info(`TXINPUT inputsList: `, inputsList);
+          currentMsg.setInputsList(inputsList);
           txAck = new Messages.TxAck();
           txAck.setTx(currentMsg);
+          console.info("sending TXINPUT txAck");
           const message = await transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, {
             msgTimeout: core.LONG_TIMEOUT,
             omitLock: true,
           }); // 5 Minute timeout
-          console.info("whileloop 9");
+          console.info("sent TXINPUT txAck", message.message_enum);
           responseType = message.message_enum;
           response = message.proto;
           continue;
         }
 
         if (txRequest.getRequestType() === Types.RequestType.TXOUTPUT) {
-          console.info("whileloop 10");
+          console.info(`handling TXOUTPUT request for index ${reqDetails.getRequestIndex()}`);
           if (!reqDetails.hasRequestIndex()) throw new Error("expected request index");
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const reqIndex = reqDetails.getRequestIndex()!;
           currentMsg = new Types.TransactionType();
           if (reqDetails.hasTxHash()) {
-            currentMsg.setBinOutputsList([currentTx.getBinOutputsList()[reqIndex]]);
+            const binOutputsList = [currentTx.getBinOutputsList()[reqIndex]];
+            console.info(`TXOUTPUT binOutputsList for reqIndex ${reqIndex}: `, JSON.stringify(binOutputsList));
+            for (const o of binOutputsList) {
+              console.info(`TXOUTPUT binOutput: ${JSON.stringify(o.toObject(true))}`);
+            }
+            currentMsg.setBinOutputsList(binOutputsList);
           } else {
+            const outputsList = [currentTx.getOutputsList()[reqIndex]];
+            console.info(`TXOUTPUT outputsList for reqIndex ${reqIndex}: `, JSON.stringify(outputsList));
             currentMsg.setOutputsList([currentTx.getOutputsList()[reqIndex]]);
             currentMsg.setOutputsCnt(1);
           }
           txAck = new Messages.TxAck();
           txAck.setTx(currentMsg);
+          console.info("sending TXOUTPUT txAck");
           const message = await transport.call(Messages.MessageType.MESSAGETYPE_TXACK, txAck, {
             msgTimeout: core.LONG_TIMEOUT,
             omitLock: true,
           }); // 5 Minute timeout
+          console.info("sent TXOUTPUT txAck: ", message.message_enum);
           responseType = message.message_enum;
           response = message.proto;
           continue;
         }
 
         if (txRequest.getRequestType() === Types.RequestType.TXEXTRADATA) {
-          console.info("whileloop 11");
+          console.info(`handling TXEXTRADATA request`);
           if (!reqDetails.hasExtraDataOffset() || !reqDetails.hasExtraDataLen())
             throw new Error("missing extra data offset and length");
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -493,7 +500,7 @@ export async function btcSignTx(
         }
       }
     } catch (error) {
-      console.info("whileloop 12");
+      console.info("whileloop error: ", error);
       console.error({ error });
       throw new Error("Failed to sign BTC transaction");
     }
