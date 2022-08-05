@@ -182,7 +182,7 @@ function prepareSignTx(
 
     prevTx.vout.forEach((vout, i) => {
       const txOutput = new Types.TxOutputBinType();
-      txOutput.setAmount(core.satsFromStr(vout.value));
+      txOutput.setAmount(Number(vout.value));
       txOutput.setScriptPubkey(core.fromHexString(vout.scriptPubKey.hex));
       tx.addBinOutputs(txOutput, i);
     });

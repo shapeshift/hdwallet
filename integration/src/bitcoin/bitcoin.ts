@@ -239,7 +239,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           ],
           vout: [
             {
-              value: "0.00390000",
+              value: "390000",
               scriptPubKey: {
                 hex: "76a91424a56db43cf6f2b02e838ea493f95d8d6047423188ac",
               },
@@ -315,7 +315,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           ],
           vout: [
             {
-              value: "0.00390000",
+              value: "390000",
               scriptPubKey: {
                 hex: "76a91424a56db43cf6f2b02e838ea493f95d8d6047423188ac",
               },
