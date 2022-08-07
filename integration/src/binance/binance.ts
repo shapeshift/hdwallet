@@ -12,7 +12,7 @@ const TIMEOUT = 60 * 1000;
 /**
  *  Main integration suite for testing BinanceWallet implementations' Cosmos support.
  */
-export function binanceTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
+export function binanceTests(get: () => { wallet: core.BinanceWallet & core.HDWallet; info: core.HDWalletInfo }): void {
   let wallet: core.BinanceWallet & core.HDWallet;
 
   describe("Binance", () => {

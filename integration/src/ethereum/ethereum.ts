@@ -11,7 +11,7 @@ const TIMEOUT = 60 * 1000;
 /**
  *  Main integration suite for testing ETHWallet implementations' Ethereum support.
  */
-export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
+export function ethereumTests(get: () => { wallet: core.ETHWallet & core.HDWallet; info: core.HDWalletInfo }): void {
   let wallet: core.ETHWallet & core.HDWallet;
 
   describe("Ethereum", () => {

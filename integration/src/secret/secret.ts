@@ -11,7 +11,7 @@ const TIMEOUT = 60 * 1000;
 /**
  *  Main integration suite for testing SecretWallet implementations' Secret support.
  */
-export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
+export function secretTests(get: () => { wallet: core.SecretWallet & core.HDWallet; info: core.HDWalletInfo }): void {
   let wallet: core.SecretWallet & core.HDWallet;
 
   describe("Secret", () => {

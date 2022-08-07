@@ -10,7 +10,7 @@ const TIMEOUT = 60 * 1000;
 /**
  *  Main integration suite for testing KavaWallet implementations' Kava support.
  */
-export function kavaTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
+export function kavaTests(get: () => { wallet: core.KavaWallet & core.HDWallet; info: core.HDWalletInfo }): void {
   let wallet: core.KavaWallet & core.HDWallet;
 
   describe("Kava", () => {

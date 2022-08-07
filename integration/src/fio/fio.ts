@@ -9,7 +9,13 @@ const MNEMONIC12_NOPIN_NOPASSPHRASE2 = "all all all all all all all all all all 
 
 const TIMEOUT = 60 * 1000;
 
-export function fioTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo; wallet2: core.HDWallet }): void {
+export function fioTests(
+  get: () => {
+    wallet: core.FioWallet & core.HDWallet;
+    info: core.HDWalletInfo;
+    wallet2: core.FioWallet & core.HDWallet;
+  }
+): void {
   let wallet: core.FioWallet & core.HDWallet;
   let wallet2: core.FioWallet & core.HDWallet;
 

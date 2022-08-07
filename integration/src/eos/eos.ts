@@ -11,7 +11,7 @@ const TIMEOUT = 60 * 1000;
 /**
  *  Main integration suite for testing eos wallet.
  */
-export function eosTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
+export function eosTests(get: () => { wallet: core.EosWallet & core.HDWallet; info: core.HDWalletInfo }): void {
   let wallet: core.EosWallet & core.HDWallet;
 
   describe("Eos", () => {

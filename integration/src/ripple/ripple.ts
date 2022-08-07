@@ -10,7 +10,7 @@ const TIMEOUT = 60 * 1000;
 /**
  *  Main integration suite for testing RippleWallet implementations' Ripple support.
  */
-export function rippleTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
+export function rippleTests(get: () => { wallet: core.RippleWallet & core.HDWallet; info: core.HDWalletInfo }): void {
   let wallet: core.RippleWallet & core.HDWallet;
 
   describe("Ripple", () => {
