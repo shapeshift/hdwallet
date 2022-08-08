@@ -35,7 +35,6 @@ import { WalletSuite } from "./wallets/suite";
 export function integration(suite: WalletSuite): void {
   const name: string = suite.name();
 
-  let wallet: core.HDWallet;
   let info: core.HDWalletInfo;
 
   describe(`${name}`, () => {
@@ -44,6 +43,7 @@ export function integration(suite: WalletSuite): void {
     });
 
     describe("Type Guards", () => {
+      let wallet: core.HDWallet;
       beforeAll(async () => {
         wallet = await suite.createWallet();
       });
@@ -64,103 +64,116 @@ export function integration(suite: WalletSuite): void {
     });
 
     describe("ETHWallet", () => {
+      let ethWallet: core.HDWallet & core.ETHWallet;
       beforeAll(async () => {
-        wallet = await suite.createWallet("Ethereum");
+        ethWallet = (await suite.createWallet("Ethereum")) as core.HDWallet & core.ETHWallet;
       });
 
-      ethTests(() => ({ wallet, info }));
+      ethTests(() => ({ wallet: ethWallet, info }));
     });
 
     describe("BTCWallet", () => {
+      let btcWallet: core.HDWallet & core.BTCWallet;
       beforeAll(async () => {
-        wallet = await suite.createWallet("Bitcoin");
+        btcWallet = (await suite.createWallet("Bitcoin")) as core.HDWallet & core.BTCWallet;
       });
 
-      btcTests(() => ({ wallet, info }));
+      btcTests(() => ({ wallet: btcWallet, info }));
     });
 
     describe("EosWallet", () => {
+      let eosWallet: core.HDWallet & core.EosWallet;
       beforeAll(async () => {
-        wallet = await suite.createWallet("Eos");
+        eosWallet = (await suite.createWallet("Eos")) as core.HDWallet & core.EosWallet;
       });
 
-      eosTests(() => ({ wallet, info }));
+      eosTests(() => ({ wallet: eosWallet, info }));
     });
 
     describe("FioWallet", () => {
-      let wallet2: core.HDWallet;
+      let fioWallet: core.HDWallet & core.FioWallet;
+      let fioWallet2: core.HDWallet & core.FioWallet;
       beforeAll(async () => {
-        wallet = await suite.createWallet("Fio");
-        wallet2 = await suite.createWallet("Fio");
+        fioWallet = (await suite.createWallet("Fio")) as core.HDWallet & core.FioWallet;
+        fioWallet2 = (await suite.createWallet("Fio")) as core.HDWallet & core.FioWallet;
       });
 
-      fioTests(() => ({ wallet, info, wallet2 }));
+      fioTests(() => ({ wallet: fioWallet, info, wallet2: fioWallet2 }));
     });
 
     describe("CosmosWallet", () => {
+      let cosmosWallet: core.HDWallet & core.CosmosWallet;
       beforeAll(async () => {
-        wallet = await suite.createWallet("Cosmos");
+        cosmosWallet = (await suite.createWallet("Cosmos")) as core.HDWallet & core.CosmosWallet;
       });
 
-      cosmosTests(() => ({ wallet, info }));
+      cosmosTests(() => ({ wallet: cosmosWallet, info }));
     });
 
     describe("OsmosisWallet", () => {
+      let osmosisWallet: core.HDWallet & core.OsmosisWallet;
       beforeAll(async () => {
-        wallet = await suite.createWallet("Osmo");
+        osmosisWallet = (await suite.createWallet("Osmo")) as core.HDWallet & core.OsmosisWallet;
       });
-      osmosisTests(() => ({ wallet, info }));
+      osmosisTests(() => ({ wallet: osmosisWallet, info }));
     });
 
     describe("BinanceWallet", () => {
+      let binanceWallet: core.HDWallet & core.BinanceWallet;
       beforeAll(async () => {
-        wallet = await suite.createWallet("Binance");
+        binanceWallet = (await suite.createWallet("Binance")) as core.HDWallet & core.BinanceWallet;
       });
 
-      binanceTests(() => ({ wallet, info }));
+      binanceTests(() => ({ wallet: binanceWallet, info }));
     });
 
     describe("RippleWallet", () => {
+      let rippleWallet: core.HDWallet & core.RippleWallet;
       beforeAll(async () => {
-        wallet = await suite.createWallet("Ripple");
+        rippleWallet = (await suite.createWallet("Ripple")) as core.HDWallet & core.RippleWallet;
       });
 
-      rippleTests(() => ({ wallet, info }));
+      rippleTests(() => ({ wallet: rippleWallet, info }));
     });
 
     describe("ThorchainWallet", () => {
+      let thorchainWallet: core.HDWallet & core.ThorchainWallet;
       beforeAll(async () => {
-        wallet = await suite.createWallet("Thorchain");
+        thorchainWallet = (await suite.createWallet("Thorchain")) as core.HDWallet & core.ThorchainWallet;
       });
 
-      thorchainTests(() => ({ wallet, info }));
+      thorchainTests(() => ({ wallet: thorchainWallet, info }));
     });
 
     describe("SecretWallet", () => {
+      let secretWallet: core.HDWallet & core.SecretWallet;
       beforeAll(async () => {
-        wallet = await suite.createWallet("Secret");
+        secretWallet = (await suite.createWallet("Secret")) as core.HDWallet & core.SecretWallet;
       });
 
-      secretTests(() => ({ wallet, info }));
+      secretTests(() => ({ wallet: secretWallet, info }));
     });
 
     describe("TerraWallet", () => {
+      let terraWallet: core.HDWallet & core.TerraWallet;
       beforeAll(async () => {
-        wallet = await suite.createWallet("Terra");
+        terraWallet = (await suite.createWallet("Terra")) as core.HDWallet & core.TerraWallet;
       });
 
-      terraTests(() => ({ wallet, info }));
+      terraTests(() => ({ wallet: terraWallet, info }));
     });
 
     describe("KavaWallet", () => {
+      let kavaWallet: core.HDWallet & core.KavaWallet;
       beforeAll(async () => {
-        wallet = await suite.createWallet("Kava");
+        kavaWallet = (await suite.createWallet("Kava")) as core.HDWallet & core.KavaWallet;
       });
 
-      kavaTests(() => ({ wallet, info }));
+      kavaTests(() => ({ wallet: kavaWallet, info }));
     });
 
     describe("SelfTest", () => {
+      let wallet: core.HDWallet;
       beforeAll(async () => {
         wallet = await suite.createWallet();
       });
