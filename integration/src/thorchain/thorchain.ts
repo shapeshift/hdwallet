@@ -18,7 +18,8 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
   describe("Thorchain", () => {
     beforeAll(async () => {
       const { wallet: w } = get();
-      if (core.supportsThorchain(w)) wallet = w;
+      const thorchainWallet = w as core.ThorchainWallet & core.HDWallet;
+      if (core.supportsThorchain(w)) wallet = thorchainWallet;
     });
 
     beforeEach(async () => {

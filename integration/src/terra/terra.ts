@@ -16,7 +16,8 @@ export function terraTests(get: () => { wallet: core.HDWallet; info: core.HDWall
   describe("Terra", () => {
     beforeAll(async () => {
       const { wallet: w } = get();
-      if (core.supportsTerra(w)) wallet = w;
+      const terraWallet = w as core.TerraWallet & core.HDWallet;
+      if (core.supportsTerra(w)) wallet = terraWallet;
     });
 
     beforeEach(async () => {
