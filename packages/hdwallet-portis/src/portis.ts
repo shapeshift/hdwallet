@@ -10,7 +10,7 @@ import * as eth from "./ethereum";
 const web3 = PLazy.from(async () => (await import("web3")).default);
 
 export function isPortis(wallet: core.HDWallet): wallet is PortisHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isPortis;
+  return Boolean(_.isObject(wallet) && (wallet as any)._isPortis);
 }
 
 type HasNonTrivialConstructor<T> = T extends { new (): any } ? never : T;

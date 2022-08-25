@@ -7,7 +7,7 @@ import { LedgerTransport } from "./transport";
 import { coinToLedgerAppName, handleError } from "./utils";
 
 export function isLedger(wallet: core.HDWallet): wallet is LedgerHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isLedger;
+  return Boolean(_.isObject(wallet) && (wallet as any)._isLedger);
 }
 
 function describeETHPath(path: core.BIP32Path): core.PathDescription {

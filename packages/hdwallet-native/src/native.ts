@@ -411,7 +411,7 @@ export class NativeHDWallet
 }
 
 export function isNative(wallet: core.HDWallet): wallet is NativeHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isNative;
+  return Boolean(_.isObject(wallet) && (wallet as any)._isNative);
 }
 
 export function info() {

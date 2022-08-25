@@ -16,7 +16,7 @@ import { messageTypeRegistry } from "./typeRegistry";
 import { protoFieldToSetMethod, translateInputScriptType } from "./utils";
 
 export function isKeepKey(wallet: core.HDWallet): wallet is KeepKeyHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isKeepKey;
+  return Boolean(_.isObject(wallet) && (wallet as any)._isKeepKey);
 }
 
 function describeETHPath(path: core.BIP32Path): core.PathDescription {

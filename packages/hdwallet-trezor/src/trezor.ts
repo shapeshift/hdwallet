@@ -7,7 +7,7 @@ import { TrezorTransport } from "./transport";
 import { handleError } from "./utils";
 
 export function isTrezor(wallet: core.HDWallet): wallet is TrezorHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isTrezor;
+  return Boolean(_.isObject(wallet) && (wallet as any)._isTrezor);
 }
 
 function describeETHPath(path: core.BIP32Path): core.PathDescription {

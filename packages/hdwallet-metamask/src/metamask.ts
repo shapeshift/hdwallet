@@ -6,7 +6,7 @@ import _ from "lodash";
 import * as eth from "./ethereum";
 
 export function isMetaMask(wallet: core.HDWallet): wallet is MetaMaskHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isMetaMask;
+  return Boolean(_.isObject(wallet) && (wallet as any)._isMetaMask);
 }
 
 export class MetaMaskHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {

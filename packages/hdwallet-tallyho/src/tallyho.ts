@@ -5,7 +5,7 @@ import _ from "lodash";
 import * as eth from "./ethereum";
 
 export function isTallyHo(wallet: core.HDWallet): wallet is TallyHoHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isTallyHo;
+  return Boolean(_.isObject(wallet) && (wallet as any)._isTallyHo);
 }
 
 export class TallyHoHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
