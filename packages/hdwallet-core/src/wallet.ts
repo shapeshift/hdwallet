@@ -108,107 +108,107 @@ export type Symbol = string;
  */
 
 export function supportsBTC(wallet: HDWallet): wallet is BTCWallet {
-  return _.isObject(wallet) && (wallet as any)._supportsBTC;
+  return Boolean(_.isObject(wallet) && (wallet as any)._supportsBTC);
 }
 
 export function infoBTC(info: HDWalletInfo): info is BTCWalletInfo {
-  return _.isObject(info) && (info as any)._supportsBTCInfo;
+  return Boolean(_.isObject(info) && (info as any)._supportsBTCInfo);
 }
 
 export function supportsETH(wallet: HDWallet) {
-  return _.isObject(wallet) && (wallet as any)._supportsETH;
+  return Boolean(_.isObject(wallet) && (wallet as any)._supportsETH);
 }
 
 export function infoETH(info: HDWalletInfo) {
-  return _.isObject(info) && (info as any)._supportsETHInfo;
+  return Boolean(_.isObject(info) && (info as any)._supportsETHInfo);
 }
 
 export function supportsCosmos(wallet: HDWallet): wallet is CosmosWallet {
-  return _.isObject(wallet) && (wallet as any)._supportsCosmos;
+  return Boolean(_.isObject(wallet) && (wallet as any)._supportsCosmos);
 }
 
 export function supportsEthSwitchChain(wallet: HDWallet) {
-  return _.isObject(wallet) && (wallet as any)._supportsEthSwitchChain;
+  return Boolean(_.isObject(wallet) && (wallet as any)._supportsEthSwitchChain);
 }
 
 export function infoCosmos(info: HDWalletInfo) {
-  return _.isObject(info) && (info as any)._supportsCosmosInfo;
+  return Boolean(_.isObject(info) && (info as any)._supportsCosmosInfo);
 }
 
 export function supportsOsmosis(wallet: HDWallet): wallet is OsmosisWallet {
-  return _.isObject(wallet) && (wallet as any)._supportsOsmosis;
+  return Boolean(_.isObject(wallet) && (wallet as any)._supportsOsmosis);
 }
 
 export function infoOsmosis(info: HDWalletInfo) {
-  return _.isObject(info) && (info as any)._supportsOsmosisInfo;
+  return Boolean(_.isObject(info) && (info as any)._supportsOsmosisInfo);
 }
 
 export function supportsThorchain(wallet: HDWallet) {
-  return _.isObject(wallet) && (wallet as any)._supportsThorchain;
+  return Boolean(_.isObject(wallet) && (wallet as any)._supportsThorchain);
 }
 
 export function infoThorchain(info: HDWalletInfo) {
-  return _.isObject(info) && (info as any)._supportsThorchainInfo;
+  return Boolean(_.isObject(info) && (info as any)._supportsThorchainInfo);
 }
 
 export function supportsEos(wallet: HDWallet) {
-  return _.isObject(wallet) && (wallet as any)._supportsEos;
+  return Boolean(_.isObject(wallet) && (wallet as any)._supportsEos);
 }
 
 export function infoEos(info: HDWalletInfo) {
-  return _.isObject(info) && (info as any)._supportsEosInfo;
+  return Boolean(_.isObject(info) && (info as any)._supportsEosInfo);
 }
 
 export function supportsFio(wallet: HDWallet) {
-  return _.isObject(wallet) && (wallet as any)._supportsFio;
+  return Boolean(_.isObject(wallet) && (wallet as any)._supportsFio);
 }
 
 export function infoFio(info: HDWalletInfo) {
-  return _.isObject(info) && (info as any)._supportsFioInfo;
+  return Boolean(_.isObject(info) && (info as any)._supportsFioInfo);
 }
 
 export function supportsSecret(wallet: HDWallet) {
-  return _.isObject(wallet) && (wallet as any)._supportsSecret;
+  return Boolean(_.isObject(wallet) && (wallet as any)._supportsSecret);
 }
 
 export function infoSecret(info: HDWalletInfo) {
-  return _.isObject(info) && (info as any)._supportsSecretInfo;
+  return Boolean(_.isObject(info) && (info as any)._supportsSecretInfo);
 }
 
 export function supportsTerra(wallet: HDWallet) {
-  return _.isObject(wallet) && (wallet as any)._supportsTerra;
+  return Boolean(_.isObject(wallet) && (wallet as any)._supportsTerra);
 }
 
 export function infoTerra(info: HDWalletInfo) {
-  return _.isObject(info) && (info as any)._supportsTerraInfo;
+  return Boolean(_.isObject(info) && (info as any)._supportsTerraInfo);
 }
 
 export function supportsKava(wallet: HDWallet) {
-  return _.isObject(wallet) && (wallet as any)._supportsKava;
+  return Boolean(_.isObject(wallet) && (wallet as any)._supportsKava);
 }
 
 export function infoKava(info: HDWalletInfo) {
-  return _.isObject(info) && (info as any)._supportsKavaInfo;
+  return Boolean(_.isObject(info) && (info as any)._supportsKavaInfo);
 }
 
 export function supportsRipple(wallet: HDWallet) {
-  return _.isObject(wallet) && (wallet as any)._supportsRipple;
+  return Boolean(_.isObject(wallet) && (wallet as any)._supportsRipple);
 }
 
 export function infoRipple(info: HDWalletInfo) {
-  return _.isObject(info) && (info as any)._supportsRippleInfo;
+  return Boolean(_.isObject(info) && (info as any)._supportsRippleInfo);
 }
 
 export function supportsBinance(wallet: HDWallet) {
-  return _.isObject(wallet) && (wallet as any)._supportsBinance;
+  return Boolean(_.isObject(wallet) && (wallet as any)._supportsBinance);
 }
 
 export function infoBinance(info: HDWalletInfo) {
-  return _.isObject(info) && (info as any)._supportsBinanceInfo;
+  return Boolean(_.isObject(info) && (info as any)._supportsBinanceInfo);
 }
 
 export function supportsDebugLink(wallet: HDWallet) {
-  return _.isObject(wallet) && (wallet as any)._supportsDebugLink;
+  return Boolean(_.isObject(wallet) && (wallet as any)._supportsDebugLink);
 }
 
 export interface HDWalletInfo {
