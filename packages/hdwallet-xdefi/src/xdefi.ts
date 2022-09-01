@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { AddEthereumChainParameter } from "@shapeshiftoss/hdwallet-core";
+import * as ethers from "ethers";
 import isObject from "lodash/isObject";
 
 import * as eth from "./ethereum";
@@ -233,10 +233,11 @@ export class XDEFIHDWallet implements core.HDWallet, core.ETHWallet {
     }
   }
 
-  public async ethSwitchChain(params: AddEthereumChainParameter): Promise<void> {
+  public async ethSwitchChain(chainId: number): Promise<void> {
+    const hexChainId = ethers.utils.hexValue(chainId);
     try {
       // at this point, we know that we're in the context of a valid XDEFI provider
-      await this.provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: params.chainId }] });
+      await this.provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hexChainId }] });
     } catch (e: any) {
       const error: core.SerializedEthereumRpcError = e;
       console.error(error);
