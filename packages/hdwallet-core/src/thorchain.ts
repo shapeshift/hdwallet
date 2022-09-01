@@ -64,7 +64,12 @@ export interface ThorchainSignTx {
   testnet?: boolean;
 }
 
-export type ThorchainSignedTx = ThorchainTx;
+export interface ThorchainSignedTx {
+  serialized: string;
+  body: string;
+  authInfoBytes: string;
+  signatures: string[];
+}
 
 export interface ThorchainGetAccountPaths {
   accountIdx: number;
