@@ -140,7 +140,7 @@ export interface ETHWalletInfo extends HDWalletInfo {
    * Switch the wallet's active Ethereum chain
    * https://eips.ethereum.org/EIPS/eip-3326
    */
-  ethSwitchChain?(params: AddEthereumChainParameter): Promise<void>;
+  ethSwitchChain?(chain_id: number): Promise<void>;
 
   /**
    * Add an Ethereum chain to user's wallet
