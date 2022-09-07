@@ -77,7 +77,7 @@ describe("NativeCosmosWallet", () => {
           ],
           gas: "100000",
         },
-        signatures: null,
+        signatures: [],
         memo: "foobar",
       },
       chain_id: "cosmoshub-4",

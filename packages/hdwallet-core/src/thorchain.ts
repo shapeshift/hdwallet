@@ -41,17 +41,17 @@ export namespace Thorchain {
 
   export interface StdTx {
     fee: StdFee;
-    memo: string;
+    memo?: string;
     msg: Msg[];
-    signatures: null | StdSignature[];
+    signatures: StdSignature[];
   }
 }
 
 export interface ThorchainTx {
   msg: Thorchain.Msg[];
   fee: Thorchain.StdFee;
-  signatures: null | Thorchain.StdSignature[];
-  memo: string;
+  signatures: Thorchain.StdSignature[];
+  memo?: string;
 }
 
 export interface ThorchainSignTx {
