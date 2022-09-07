@@ -144,7 +144,7 @@ export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public supportsBip44Accounts(): boolean {
-    return false; // unsure
+    return this.info.supportsBip44Accounts();
   }
 
   public supportsOfflineSigning(): boolean {

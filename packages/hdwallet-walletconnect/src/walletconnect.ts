@@ -202,7 +202,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public supportsBip44Accounts(): boolean {
-    return false;
+    return this.info.supportsBip44Accounts();
   }
 
   /**

@@ -17,6 +17,7 @@ describe("NativeHDWalletInfo", () => {
     expect(info.hasOnDevicePassphrase()).toBe(false);
     expect(info.hasOnDeviceDisplay()).toBe(false);
     expect(info.hasOnDeviceRecovery()).toBe(false);
+    expect(info.supportsBip44Accounts()).toBe(true);
   });
   it("should produce correct path descriptions", () => {
     const info = native.info();

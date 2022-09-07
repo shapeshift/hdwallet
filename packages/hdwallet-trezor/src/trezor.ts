@@ -468,7 +468,7 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public supportsBip44Accounts(): boolean {
-    return true;
+    return this.info.supportsBip44Accounts();
   }
 
   public supportsOfflineSigning(): boolean {

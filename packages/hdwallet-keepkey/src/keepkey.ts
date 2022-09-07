@@ -809,7 +809,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   }
 
   public supportsBip44Accounts(): boolean {
-    return true;
+    return this.info.supportsBip44Accounts();
   }
 
   public supportsOfflineSigning(): boolean {

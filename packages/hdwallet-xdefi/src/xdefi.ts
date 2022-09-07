@@ -149,7 +149,7 @@ export class XDEFIHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public supportsBip44Accounts(): boolean {
-    return true; // probably?
+    return this.info.supportsBip44Accounts();
   }
 
   public supportsOfflineSigning(): boolean {

@@ -195,7 +195,7 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
   }
 
   public supportsBip44Accounts(): boolean {
-    return true; // I think?
+    return this.info.supportsBip44Accounts();
   }
 
   public supportsOfflineSigning(): boolean {
