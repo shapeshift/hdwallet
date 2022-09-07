@@ -10,12 +10,12 @@ const cosmJsProtoSigning = PLazy.from(() => import("@cosmjs/proto-signing"));
 export class OfflineDirectSignerAdapter implements OfflineDirectSigner {
   protected readonly _isolatedKey: SecP256K1.ECDSAKey;
   protected readonly _pubkey: Uint8Array;
-  protected readonly _address: string;
+  readonly address: string;
 
   protected constructor(isolatedKey: SecP256K1.ECDSAKey, pubkey: Uint8Array, address: string) {
     this._isolatedKey = isolatedKey;
     this._pubkey = pubkey;
-    this._address = address;
+    this.address = address;
   }
 
   static async create(isolatedKey: SecP256K1.ECDSAKey, prefix: string): Promise<OfflineDirectSignerAdapter> {
@@ -30,7 +30,7 @@ export class OfflineDirectSignerAdapter implements OfflineDirectSigner {
   async getAccounts(): Promise<readonly AccountData[]> {
     return [
       {
-        address: this._address,
+        address: this.address,
         algo: "secp256k1",
         pubkey: this._pubkey,
       },
@@ -38,7 +38,7 @@ export class OfflineDirectSignerAdapter implements OfflineDirectSigner {
   }
 
   async signDirect(signerAddress: string, signDoc: SignDoc): Promise<DirectSignResponse> {
-    if (signerAddress !== this._address) throw new Error("signerAddress mismatch");
+    if (signerAddress !== this.address) throw new Error("signerAddress mismatch");
 
     const signBytes = (await cosmJsProtoSigning).makeSignBytes(signDoc);
     const signatureBytes = await this._isolatedKey.ecdsaSign("sha256", signBytes);

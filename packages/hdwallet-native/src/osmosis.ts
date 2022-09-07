@@ -1,13 +1,17 @@
+import { StdTx } from "@cosmjs/amino";
+import { SignerData } from "@cosmjs/stargate";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as protoTxBuilder from "@shapeshiftoss/proto-tx-builder";
 import * as bech32 from "bech32";
 import CryptoJS from "crypto-js";
+import PLazy from "p-lazy";
 
 import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
 
 const OSMOSIS_CHAIN = "osmosis-1";
+
+const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
 
 export function MixinNativeOsmosisWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -82,7 +86,14 @@ export function MixinNativeOsmosisWallet<TBase extends core.Constructor<NativeHD
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "osmosis");
         const adapter = await Isolation.Adapters.CosmosDirect.create(keyPair.node, "osmo");
-        return await protoTxBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, OSMOSIS_CHAIN);
+
+        const signerData: SignerData = {
+          sequence: Number(msg.sequence),
+          accountNumber: Number(msg.account_number),
+          chainId: OSMOSIS_CHAIN,
+        };
+
+        return (await protoTxBuilder).sign(adapter.address, msg.tx as StdTx, adapter, signerData, "osmos");
       });
     }
   };
