@@ -33,8 +33,12 @@ export class TallyHoHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInf
   }
 
   public hasNativeShapeShift(): boolean {
-    // It doesn't... yet?
+    // It doesn't... yet? - never ever never ever ever
     return false;
+  }
+
+  public supportsBip44Accounts(): boolean {
+    return false; // unsure
   }
 
   public supportsOfflineSigning(): boolean {
@@ -137,6 +141,10 @@ export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
 
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return this.info.hasNativeShapeShift(srcCoin, dstCoin);
+  }
+
+  public supportsBip44Accounts(): boolean {
+    return false; // unsure
   }
 
   public supportsOfflineSigning(): boolean {

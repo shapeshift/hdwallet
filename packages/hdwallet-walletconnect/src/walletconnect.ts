@@ -54,6 +54,10 @@ export class WalletConnectWalletInfo implements core.HDWalletInfo, core.ETHWalle
     return false;
   }
 
+  public supportsBip44Accounts(): boolean {
+    return false;
+  }
+
   public supportsOfflineSigning(): boolean {
     return false;
   }
@@ -195,6 +199,10 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
 
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return this.info.hasNativeShapeShift(srcCoin, dstCoin);
+  }
+
+  public supportsBip44Accounts(): boolean {
+    return false;
   }
 
   /**

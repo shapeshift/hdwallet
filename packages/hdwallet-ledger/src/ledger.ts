@@ -191,6 +191,10 @@ export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     return false;
   }
 
+  public supportsBip44Accounts(): boolean {
+    return true;
+  }
+
   public supportsOfflineSigning(): boolean {
     return true;
   }
@@ -409,6 +413,10 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return false;
+  }
+
+  public supportsBip44Accounts(): boolean {
+    return true;
   }
 
   public supportsOfflineSigning(): boolean {
