@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
+import { Node } from "./crypto/isolation/engines/default/bip32";
 import * as native from "./native";
 
 const MNEMONIC = "all all all all all all all all all all all all";
@@ -140,6 +141,92 @@ describe("NativeHDWallet", () => {
           out: [
             {
               xpub: "xpub6A4ydEAik39rFLs1hcm6XiwpFN5XKEf9tdAZWK23tkXmSr8bHmfYyfVt2nTskZQj3yYydcST2DLUFq2iJAELtTVfW9UNnnK8zBi8bzFcQVB",
+            },
+          ],
+        },
+      ];
+      for (const params of testCases) {
+        expect(await wallet.getPublicKeys(params.in)).toStrictEqual(params.out);
+      }
+    });
+
+    it("should load wallet with a root node", async () => {
+      const fakePrivateKey = Buffer.from(MNEMONIC).slice(0, 32);
+      const fakeChainCode = Buffer.from(MNEMONIC).slice(0, 32);
+      const node = await Node.create(fakePrivateKey, fakeChainCode);
+      const wallet = native.create({ deviceId: "native", masterKey: node });
+      expect(await wallet.isInitialized()).toBe(false);
+      expect(await wallet.isLocked()).toBe(false);
+      await wallet.loadDevice({ masterKey: node });
+      expect(await wallet.initialize()).toBe(true);
+      expect(await wallet.isInitialized()).toBe(true);
+      expect(await wallet.isLocked()).toBe(false);
+      const testCases: Array<{ in: any; out: any }> = [
+        {
+          in: [{ coin: "bitcoin", addressNList: [] }],
+          out: [
+            {
+              xpub: "xpub661MyMwAqRbcFWh493x39ckzUX7ZahggShZfWoQfYNhiup7fZMjbPFhNbeappNxriW2xFo2xwWEvs7qm57YvsE6GH4ADum2XiYZUuVfpbpi",
+            },
+          ],
+        },
+        {
+          in: [{ coin: "bitcoin", addressNList: [1 + 0x80000000, 2 + 0x80000000] }],
+          out: [
+            {
+              xpub: "xpub6BdjWYp313igwUYRb5F54n7E5uwersC8EY6jfkhiXSJeHjHcGnL53JLkdGqpeh4z78EUiUmdbPPBjQzyqFk71icueBLo6PGSu5L6XRe4Rki",
+            },
+          ],
+        },
+        // Note how this produces the same xpub as the path above. This is not intuitive behavior, and is probably a bug.
+        {
+          in: [{ coin: "bitcoin", addressNList: [1 + 0x80000000, 2 + 0x80000000, 3] }],
+          out: [
+            {
+              xpub: "xpub6BdjWYp313igwUYRb5F54n7E5uwersC8EY6jfkhiXSJeHjHcGnL53JLkdGqpeh4z78EUiUmdbPPBjQzyqFk71icueBLo6PGSu5L6XRe4Rki",
+            },
+          ],
+        },
+      ];
+      for (const params of testCases) {
+        expect(await wallet.getPublicKeys(params.in)).toStrictEqual(params.out);
+      }
+    });
+
+    it("should load wallet with a non-root node", async () => {
+      const fakePrivateKey = Buffer.from(MNEMONIC).slice(0, 32);
+      const fakeChainCode = Buffer.from(MNEMONIC).slice(0, 32);
+      const node = await Node.create(fakePrivateKey, fakeChainCode, "m/44'/0'");
+      const wallet = native.create({ deviceId: "native", masterKey: node });
+      expect(await wallet.isInitialized()).toBe(false);
+      expect(await wallet.isLocked()).toBe(false);
+      await wallet.loadDevice({ masterKey: node });
+      expect(await wallet.initialize()).toBe(true);
+      expect(await wallet.isInitialized()).toBe(true);
+      expect(await wallet.isLocked()).toBe(false);
+      const testCases: Array<{ in: any; out: any }> = [
+        {
+          in: [{ coin: "bitcoin", addressNList: [] }],
+          out: [
+            {
+              xpub: "xpub661MyMwAqRbcFWh493x39ckzUX7ZahggShZfWoQfYNhiup7fZMjbPFhNbeappNxriW2xFo2xwWEvs7qm57YvsE6GH4ADum2XiYZUuVfpbpi",
+            },
+          ],
+        },
+        {
+          in: [{ coin: "bitcoin", addressNList: [1 + 0x80000000, 2 + 0x80000000] }],
+          out: [
+            {
+              xpub: "xpub6BdjWYp313igwUYRb5F54n7E5uwersC8EY6jfkhiXSJeHjHcGnL53JLkdGqpeh4z78EUiUmdbPPBjQzyqFk71icueBLo6PGSu5L6XRe4Rki",
+            },
+          ],
+        },
+        // Note how this produces the same xpub as the path above. This is not intuitive behavior, and is probably a bug.
+        {
+          in: [{ coin: "bitcoin", addressNList: [1 + 0x80000000, 2 + 0x80000000, 3] }],
+          out: [
+            {
+              xpub: "xpub6BdjWYp313igwUYRb5F54n7E5uwersC8EY6jfkhiXSJeHjHcGnL53JLkdGqpeh4z78EUiUmdbPPBjQzyqFk71icueBLo6PGSu5L6XRe4Rki",
             },
           ],
         },
