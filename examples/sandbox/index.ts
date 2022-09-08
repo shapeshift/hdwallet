@@ -29,10 +29,23 @@ import {
   cosmosRewardsTx,
   cosmosTransferTx,
   cosmosUndelegateTx,
-} from "./json/cosmos/cosmosAminoTx.json";
+} from "./json/cosmos/cosmos/cosmosAminoTx.json";
 import * as dashTxJson from "./json/dashTx.json";
 import * as dogeTxJson from "./json/dogeTx.json";
 import * as ltcTxJson from "./json/ltcTx.json";
+import {
+  osmosisDelegateTx,
+  osmosisIBCTransferTx,
+  osmosisLPAddTx,
+  osmosisLPRemoveTx,
+  osmosisLPStakeTx,
+  osmosisLPUnstakeTx,
+  osmosisRedelegateTx,
+  osmosisRewardsTx,
+  osmosisSendTx,
+  osmosisSwapTx,
+  osmosisUndelegateTx,
+} from "./json/osmosis/osmosisAminoTx.json";
 import {
   osmosisDelegateTx,
   osmosisIBCTransferTx,
@@ -1549,6 +1562,8 @@ $osmosisSend.on("click", async (e) => {
   if (core.supportsOsmosis(wallet)) {
     const unsigned: core.Osmosis.StdTx = osmosisSendTx;
 
+    const unsigned: core.Osmosis.StdTx = osmosisSendTx;
+
     const res = await wallet.osmosisSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
       chain_id: "osmosis-1",
@@ -1570,6 +1585,8 @@ $osmosisDelegate.on("click", async (e) => {
     return;
   }
   if (core.supportsOsmosis(wallet)) {
+    const unsigned: core.Osmosis.StdTx = osmosisDelegateTx;
+
     const unsigned: core.Osmosis.StdTx = osmosisDelegateTx;
 
     const res = await wallet.osmosisSignTx({
@@ -1777,6 +1794,8 @@ $osmosisSwap.on("click", async (e) => {
     return;
   }
   if (core.supportsOsmosis(wallet)) {
+    const unsigned: core.Osmosis.StdTx = osmosisSwapTx;
+
     const unsigned: core.Osmosis.StdTx = osmosisSwapTx;
 
     const res = await wallet.osmosisSignTx({
