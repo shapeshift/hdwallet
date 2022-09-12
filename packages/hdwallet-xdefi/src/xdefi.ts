@@ -38,7 +38,7 @@ export class XDEFIHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
   }
 
   public supportsBip44Accounts(): boolean {
-    return true; // probably?
+    return false;
   }
 
   public supportsOfflineSigning(): boolean {
