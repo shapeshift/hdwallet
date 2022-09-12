@@ -342,6 +342,10 @@ export function selfTest(get: () => core.HDWallet): void {
     ]);
   });
 
+  it("returns true for supportsBip44Accounts", () => {
+    expect(wallet.supportsBip44Accounts()).toBe(true);
+  });
+
   it("can describe a Bitcoin path", () => {
     expect(
       wallet.describePath({
