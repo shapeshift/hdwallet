@@ -56,7 +56,7 @@ export class KeplrHDWalletInfo implements core.HDWalletInfo, core.CosmosWalletIn
   }
 
   public supportsBip44Accounts(): boolean {
-    return true;
+    return false;
   }
 
   public supportsOfflineSigning(): boolean {
