@@ -35,7 +35,7 @@ export namespace Thorchain {
   }
 
   export interface StdSignature {
-    pub_key?: crypto.PubKey;
+    pub_key: crypto.PubKey;
     signature: string;
   }
 
