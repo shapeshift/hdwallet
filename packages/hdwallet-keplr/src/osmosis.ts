@@ -66,7 +66,9 @@ export async function osmosisGetAddress(provider: any): Promise<string | undefin
 
 export async function osmosisSignTx(provider: any, msg: OsmosisSignTx): Promise<OsmosisSignedTx> {
   const offlineSigner = provider.getOfflineSigner(ChainReference.OsmosisMainnet);
-  const address = (await offlineSigner?.getAccounts())?.[0].address;
+
+  const address = await osmosisGetAddress(provider);
+  if (!address) throw new Error("failed to get address");
 
   const signerData: SignerData = {
     sequence: Number(msg.sequence),

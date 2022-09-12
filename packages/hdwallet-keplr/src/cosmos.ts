@@ -66,7 +66,9 @@ export async function cosmosGetAddress(provider: any): Promise<string | undefine
 
 export async function cosmosSignTx(provider: any, msg: CosmosSignTx): Promise<CosmosSignedTx> {
   const offlineSigner = provider.getOfflineSigner(ChainReference.CosmosHubMainnet);
-  const address = (await offlineSigner?.getAccounts())?.[0]?.address;
+
+  const address = await cosmosGetAddress(provider);
+  if (!address) throw new Error("failed to get address");
 
   const signerData: SignerData = {
     sequence: Number(msg.sequence),
