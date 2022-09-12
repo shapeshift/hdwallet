@@ -1,9 +1,14 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 
-import tx_unsigned from "./tx02.mainnet.thorchain.json";
-import tx_signed from "./tx02.mainnet.thorchain.signed.json";
-import tx_unsigned_swap from "./tx03.mainnet.thorchain.swap.json";
-import tx_signed_swap from "./tx03.mainnet.thorchain.swap.signed.json";
+import tx_unsigned_swap_amino from "./tx01.mainnet.thorchain.swap.amino.json";
+import tx_unsigned_swap from "./tx01.mainnet.thorchain.swap.json";
+import tx_signed_swap_amino from "./tx01.mainnet.thorchain.swap.signed.amino.json";
+import tx_signed_swap from "./tx01.mainnet.thorchain.swap.signed.json";
+import tx_unsigned_transfer_amino from "./tx01.mainnet.thorchain.transfer.amino.json";
+import tx_unsigned_transfer from "./tx01.mainnet.thorchain.transfer.json";
+import tx_signed_transfer_amino from "./tx01.mainnet.thorchain.transfer.signed.amino.json";
+import tx_signed_transfer from "./tx01.mainnet.thorchain.transfer.signed.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
@@ -14,11 +19,13 @@ const TIMEOUT = 60 * 1000;
  */
 export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
   let wallet: core.ThorchainWallet & core.HDWallet;
+  let useAmino: boolean;
 
   describe("Thorchain", () => {
     beforeAll(async () => {
       const { wallet: w } = get();
       if (core.supportsThorchain(w)) wallet = w;
+      useAmino = w instanceof keepkey.KeepKeyHDWallet;
     });
 
     beforeEach(async () => {
@@ -95,40 +102,43 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
       TIMEOUT
     );
 
-    test(
-      "thorchainSignTx()",
-      async () => {
-        if (!wallet) return;
-        const input: core.ThorchainSignTx = {
-          tx: tx_unsigned as any,
-          addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
-          chain_id: "thorchain",
-          account_number: "17",
-          sequence: "2",
-        };
+    describe("thorchainSignTx()", () => {
+      it.each([
+        [
+          "should correctly sign a transfer tx",
+          tx_unsigned_transfer_amino,
+          tx_unsigned_transfer,
+          tx_signed_transfer_amino,
+          tx_signed_transfer,
+        ],
+        [
+          "should correctly sign a swap tx",
+          tx_unsigned_swap_amino,
+          tx_unsigned_swap,
+          tx_signed_swap_amino,
+          tx_signed_swap,
+        ],
+      ])(
+        "%s",
+        async (_, aminoTx, protoTx, signedAminoTx, signedProtoTx) => {
+          const tx = useAmino ? aminoTx : protoTx;
+          const signedTx = useAmino ? signedAminoTx : signedProtoTx;
 
-        const res = await wallet.thorchainSignTx(input);
-        expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature);
-      },
-      TIMEOUT
-    );
+          if (!wallet || !tx) return;
 
-    test(
-      "thorchainSignTx() (thorchain/MsgDeposit)",
-      async () => {
-        if (!wallet) return;
-        const input: core.ThorchainSignTx = {
-          tx: tx_unsigned_swap as any,
-          addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
-          chain_id: "thorchain",
-          account_number: "2722",
-          sequence: "4",
-        };
+          const input: core.ThorchainSignTx = {
+            tx,
+            addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
+            chain_id: tx.chain_id,
+            account_number: tx.account_number,
+            sequence: tx.sequence,
+          };
 
-        const res = await wallet.thorchainSignTx(input);
-        expect(res?.signatures?.[0].signature).toEqual(tx_signed_swap.signatures[0].signature);
-      },
-      TIMEOUT
-    );
+          const res = await wallet.thorchainSignTx(input);
+          expect(res).toEqual(signedTx);
+        },
+        TIMEOUT
+      );
+    });
   });
 }

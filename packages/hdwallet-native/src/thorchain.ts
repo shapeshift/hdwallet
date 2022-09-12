@@ -1,18 +1,22 @@
+import type { StdTx } from "@cosmjs/amino";
+import type { SignerData } from "@cosmjs/stargate";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bech32 from "bech32";
 import CryptoJS from "crypto-js";
-import * as txBuilder from "tendermint-tx-builder";
+import PLazy from "p-lazy";
 
 import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
 
-const THOR_CHAIN = "thorchain";
+const THOR_CHAIN = "thorchain-mainnet-v1";
+
+const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
 
 export function MixinNativeThorchainWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeThorchainWalletInfo extends Base implements core.ThorchainWalletInfo {
-    _supportsThorchainInfo = true;
+    readonly _supportsThorchainInfo = true;
     async thorchainSupportsNetwork(): Promise<boolean> {
       return true;
     }
@@ -45,7 +49,7 @@ export function MixinNativeThorchainWalletInfo<TBase extends core.Constructor<co
 export function MixinNativeThorchainWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
   // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeThorchainWallet extends Base {
-    _supportsThorchain = true;
+    readonly _supportsThorchain = true;
 
     #masterKey: Isolation.Core.BIP32.Node | undefined;
 
@@ -81,9 +85,15 @@ export function MixinNativeThorchainWallet<TBase extends core.Constructor<Native
       return this.needsMnemonic(!!this.#masterKey, async () => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "thorchain");
-        const adapter = await Isolation.Adapters.Cosmos.create(keyPair.node);
-        const result = await txBuilder.sign(msg.tx, adapter, msg.sequence, msg.account_number, THOR_CHAIN);
-        return txBuilder.createSignedTx(msg.tx, result);
+        const adapter = await Isolation.Adapters.CosmosDirect.create(keyPair.node, "thor");
+
+        const signerData: SignerData = {
+          sequence: Number(msg.sequence),
+          accountNumber: Number(msg.account_number),
+          chainId: THOR_CHAIN,
+        };
+
+        return (await protoTxBuilder).sign(adapter.address, msg.tx as StdTx, adapter, signerData, "thor");
       });
     }
   };

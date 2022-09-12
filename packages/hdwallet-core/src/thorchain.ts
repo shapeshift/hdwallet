@@ -35,23 +35,23 @@ export namespace Thorchain {
   }
 
   export interface StdSignature {
-    pub_key?: crypto.PubKey;
+    pub_key: crypto.PubKey;
     signature: string;
   }
 
   export interface StdTx {
     fee: StdFee;
-    memo: string;
+    memo?: string;
     msg: Msg[];
-    signatures: null | StdSignature[];
+    signatures: StdSignature[];
   }
 }
 
 export interface ThorchainTx {
   msg: Thorchain.Msg[];
   fee: Thorchain.StdFee;
-  signatures: null | Thorchain.StdSignature[];
-  memo: string;
+  signatures: Thorchain.StdSignature[];
+  memo?: string;
 }
 
 export interface ThorchainSignTx {
@@ -64,7 +64,12 @@ export interface ThorchainSignTx {
   testnet?: boolean;
 }
 
-export type ThorchainSignedTx = ThorchainTx;
+export interface ThorchainSignedTx {
+  serialized: string;
+  body: string;
+  authInfoBytes: string;
+  signatures: string[];
+}
 
 export interface ThorchainGetAccountPaths {
   accountIdx: number;
