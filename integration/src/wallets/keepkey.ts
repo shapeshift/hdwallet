@@ -101,7 +101,7 @@ export function selfTest(get: () => core.HDWallet): void {
 
   it("supports bip44 accounts", async () => {
     if (!wallet) return;
-    await expect(wallet.supportsBip44Accounts()).resolves.toEqual(true);
+    expect(wallet.supportsBip44Accounts()).toEqual(true);
   });
 
   it("supports ShapeShift", async () => {

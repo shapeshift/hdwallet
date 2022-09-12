@@ -152,6 +152,11 @@ export function selfTest(get: () => core.HDWallet): void {
     ).toEqual("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8");
   });
 
+  it("does not support bip44 accounts", async () => {
+    if (!wallet) return;
+    expect(wallet.supportsBip44Accounts()).toEqual(false);
+  });
+
   it("should sign a message", async () => {
     if (!wallet) return;
     const res = await wallet.ethSignMessage({

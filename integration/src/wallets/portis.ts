@@ -92,4 +92,9 @@ export function selfTest(get: () => core.HDWallet): void {
     const nextPath = await wallet.ethNextAccountPath(paths[0]);
     expect(nextPath).toBeUndefined();
   });
+
+  it("supports bip44 accounts", async () => {
+    if (!wallet) return;
+    expect(wallet.supportsBip44Accounts()).toEqual(true);
+  });
 }

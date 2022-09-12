@@ -372,6 +372,11 @@ export function selfTest(get: () => core.HDWallet): void {
     expect(await wallet.btcSupportsSecureTransfer()).toEqual(false);
   });
 
+  it("supports bip44 accounts", async () => {
+    if (!wallet) return;
+    expect(wallet.supportsBip44Accounts()).toEqual(true);
+  });
+
   it("uses the same BIP32 paths for ETH as wallet.trezor.io", () => {
     if (!wallet) return;
     [0, 1, 3, 27].forEach((account) => {

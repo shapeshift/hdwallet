@@ -66,6 +66,11 @@ export function selfTest(get: () => core.HDWallet): void {
     expect(wallet.ethSupportsNativeShapeShift()).toEqual(false);
   });
 
+  it("does not supports bip44 accounts", async () => {
+    if (!wallet) return;
+    expect(wallet.supportsBip44Accounts()).toEqual(false);
+  });
+
   it("does not support EIP1559", async () => {
     if (!wallet) return;
     expect(await wallet.ethSupportsEIP1559()).toEqual(false);
