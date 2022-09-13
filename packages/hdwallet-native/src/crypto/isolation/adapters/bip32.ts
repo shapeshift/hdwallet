@@ -25,6 +25,7 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32InterfaceAsync {
   readonly index: number;
   readonly _parent?: BIP32Adapter;
   readonly _children = new Map<number, this>();
+  readonly _explicitPath?: string;
   _identifier?: Buffer;
   _base58?: string;
 
@@ -44,6 +45,7 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32InterfaceAsync {
     this._publicKey = publicKey;
     this.index = index ?? 0;
     if (networkOrParent instanceof BIP32Adapter) this._parent = networkOrParent;
+    if (node.explicitPath) this._explicitPath = node.explicitPath;
   }
 
   protected static async prepare(): Promise<void> {
@@ -88,6 +90,7 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32InterfaceAsync {
   }
 
   get path(): string {
+    if (this._explicitPath) return this._explicitPath;
     if (!this._parent) return "";
     let parentPath = this._parent.path ?? "";
     if (parentPath === "") parentPath = "m";
@@ -99,6 +102,7 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32InterfaceAsync {
   get publicKey() {
     return Buffer.from(SecP256K1.CompressedPoint.from(this._publicKey)) as Buffer & SecP256K1.CompressedPoint;
   }
+
   getPublicKey() {
     return this.publicKey;
   }
@@ -137,10 +141,25 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32InterfaceAsync {
   }
 
   async derivePath(path: string): Promise<BIP32Adapter> {
+    /**
+     * If a non-root explicit path has been set, we cannot construct
+     * a full representation of the BIP32 key tree and therefore may
+     * only derive keys for nodes that are children of this one.
+     */
+    if (this._explicitPath) {
+      if (!(path.startsWith(this._explicitPath) && path.length >= this._explicitPath.length)) {
+        throw new Error("path is not a child of this node");
+      }
+    }
     const ownPath = this.path;
-    if (path.startsWith(ownPath)) path = path.slice(ownPath.length);
+    if (path.startsWith(ownPath) && path !== ownPath) path = path.slice(ownPath.length);
+    if (path.startsWith("/")) path = path.slice(1);
     if (/^m/.test(path) && this._parent) throw new Error("expected master, got child");
     return await BIP32.derivePath<BIP32Adapter>(this, path);
+  }
+
+  hasExplicitPath(): boolean {
+    return typeof this._explicitPath === "string" && this._explicitPath.length > 0;
   }
 }
 
