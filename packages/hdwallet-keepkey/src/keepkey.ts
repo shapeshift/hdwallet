@@ -469,6 +469,10 @@ export class KeepKeyHDWalletInfo
     return true;
   }
 
+  public supportsBip44Accounts(): boolean {
+    return true;
+  }
+
   public supportsOfflineSigning(): boolean {
     return true;
   }
@@ -802,6 +806,10 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return true;
+  }
+
+  public supportsBip44Accounts(): boolean {
+    return this.info.supportsBip44Accounts();
   }
 
   public supportsOfflineSigning(): boolean {

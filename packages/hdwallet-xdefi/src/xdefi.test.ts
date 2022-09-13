@@ -16,6 +16,7 @@ describe("XDeFIHDWalletInfo", () => {
     expect(info.ethSupportsNativeShapeShift()).toBe(false);
     expect(await info.ethSupportsEIP1559()).toBe(true);
     expect(await info.supportsOfflineSigning()).toBe(false);
+    expect(info.supportsBip44Accounts()).toBe(false);
     expect(await info.supportsBroadcast()).toBe(true);
   });
   it("should produce correct path descriptions", () => {
@@ -48,6 +49,7 @@ describe("XDEFIHDWallet", () => {
     expect(wallet.ethSupportsNativeShapeShift()).toBe(false);
     expect(await wallet.ethSupportsEIP1559()).toBe(true);
     expect(await wallet.supportsOfflineSigning()).toBe(false);
+    expect(wallet.supportsBip44Accounts()).toBe(false);
     expect(await wallet.supportsBroadcast()).toBe(true);
   });
 
