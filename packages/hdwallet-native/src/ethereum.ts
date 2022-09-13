@@ -57,7 +57,10 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
 
     async ethInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
       const rootNode = await Isolation.Adapters.BIP32.create(masterKey);
-      const isolatedSigner = await rootNode.derivePath(ethers.utils.defaultPath);
+
+      // hard coding this path works fine. need to figure out how to
+      // re-enable supplying a path
+      const isolatedSigner = await rootNode.derivePath("m/44'/60'/1'/0/0");
       this.#ethSigner = await Isolation.Adapters.Ethereum.create(isolatedSigner.node);
     }
 
@@ -66,9 +69,18 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     }
 
     async ethGetAddress(msg: core.ETHGetAddress): Promise<string | null> {
-      if (!_.isEqual(msg.addressNList, core.bip32ToAddressNList("m/44'/60'/0'/0/0"))) {
-        throw new Error("path not supported");
+      if (msg.addressNList.length < 5) {
+        throw new Error(`path not supported length: ${msg.addressNList.length}`);
       }
+
+      // regex sux
+      const refAddressNList = core.bip32ToAddressNList("m/44'/60'/0'/0/0");
+      refAddressNList[2] = msg.addressNList[2];
+
+      if (!_.isEqual(msg.addressNList, refAddressNList)) {
+        throw new Error(`path not supported: ${msg.addressNList}`);
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return this.needsMnemonic(!!this.#ethSigner, () => this.#ethSigner!.getAddress());
     }
