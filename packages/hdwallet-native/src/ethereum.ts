@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ethers from "ethers";
+import isEqual from "lodash/isEqual";
 
 import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
@@ -70,8 +71,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     }
 
     async ethGetAddress(msg: core.ETHGetAddress): Promise<string | null> {
-      /* Yes this looks derpy, but it's a short array comparison to replace _.isEqual()*/
-      if (!(JSON.stringify(msg.addressNList) === JSON.stringify(core.bip32ToAddressNList(ethers.utils.defaultPath)))) {
+      if (!isEqual(msg.addressNList, core.bip32ToAddressNList("m/44'/60'/0'/0/0"))) {
         throw new Error("path not supported");
       }
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
