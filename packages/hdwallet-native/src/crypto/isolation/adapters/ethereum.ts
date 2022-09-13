@@ -2,6 +2,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ethers from "ethers";
 
 import { SecP256K1 } from "../core";
+import { BIP32 } from ".";
 
 function ethSigFromRecoverableSig(x: SecP256K1.RecoverableSignature): ethers.Signature {
   const sig = SecP256K1.RecoverableSignature.sig(x);
@@ -9,12 +10,11 @@ function ethSigFromRecoverableSig(x: SecP256K1.RecoverableSignature): ethers.Sig
   return ethers.utils.splitSignature(core.compatibleBufferConcat([sig, Buffer.from([recoveryParam])]));
 }
 
-export class SignerAdapter extends ethers.Signer {
+export class SignerAdapter {
   protected readonly _isolatedKey: SecP256K1.ECDSAKey;
   readonly provider?: ethers.providers.Provider;
 
   protected constructor(isolatedKey: SecP256K1.ECDSAKey, provider?: ethers.providers.Provider) {
-    super();
     this._isolatedKey = isolatedKey;
     this.provider = provider;
   }
@@ -32,8 +32,11 @@ export class SignerAdapter extends ethers.Signer {
     throw new Error("changing providers on a SignerAdapter is unsupported");
   }
 
-  async getAddress(): Promise<string> {
-    return ethers.utils.computeAddress(SecP256K1.UncompressedPoint.from(await this._isolatedKey.getPublicKey()));
+  async getAddress(addressNList: core.BIP32Path): Promise<string> {
+    // const usable = this._isolatedKey as unknown as BIP32;
+    // const node = await usable.derivePath(core.addressNListToBIP32(addressNList));
+    const node = this._isolatedKey.getPublicKey() as unknown as BIP32;
+    return ethers.utils.computeAddress(SecP256K1.UncompressedPoint.from(node.getPublicKey()));
   }
 
   async signDigest(digest: ethers.BytesLike): Promise<ethers.Signature> {
@@ -47,10 +50,13 @@ export class SignerAdapter extends ethers.Signer {
     return ethers.utils.splitSignature(core.compatibleBufferConcat([sig, Buffer.from([recoveryParam])]));
   }
 
-  async signTransaction(transaction: ethers.utils.Deferrable<ethers.providers.TransactionRequest>): Promise<string> {
+  async signTransaction(
+    transaction: ethers.utils.Deferrable<ethers.providers.TransactionRequest>,
+    addressNList: core.BIP32Path
+  ): Promise<string> {
     const tx = await ethers.utils.resolveProperties(transaction);
     if (tx.from != null) {
-      if (ethers.utils.getAddress(tx.from) !== (await this.getAddress())) {
+      if (ethers.utils.getAddress(tx.from) !== (await this.getAddress(addressNList))) {
         throw new Error("transaction from address mismatch");
       }
       delete tx.from;

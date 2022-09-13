@@ -3,7 +3,9 @@ import * as ethers from "ethers";
 import _ from "lodash";
 
 import * as Isolation from "./crypto/isolation";
+import SignerAdapter from "./crypto/isolation/adapters/ethereum";
 import { NativeHDWalletBase } from "./native";
+// import { addressNListToBIP32 } from "./utils";
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -53,15 +55,15 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
   return class MixinNativeETHWallet extends Base {
     readonly _supportsETH = true;
 
-    #ethSigner: ethers.Signer | undefined;
+    #ethSigner: SignerAdapter | undefined;
 
     async ethInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
       const rootNode = await Isolation.Adapters.BIP32.create(masterKey);
 
       // hard coding this path works fine. need to figure out how to
       // re-enable supplying a path
-      const isolatedSigner = await rootNode.derivePath("m/44'/60'/1'/0/0");
-      this.#ethSigner = await Isolation.Adapters.Ethereum.create(isolatedSigner.node);
+      // const isolatedSigner = await rootNode.derivePath("m/44'/60'/1'/0/0");
+      this.#ethSigner = await Isolation.Adapters.Ethereum.create(rootNode.node);
     }
 
     ethWipe() {
@@ -81,8 +83,10 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
         throw new Error(`path not supported: ${msg.addressNList}`);
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return this.needsMnemonic(!!this.#ethSigner, () => this.#ethSigner!.getAddress());
+      return this.needsMnemonic(!!this.#ethSigner, () => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return this.#ethSigner!.getAddress(msg.addressNList);
+      });
     }
 
     async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {
@@ -90,7 +94,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
         const utx = {
           to: msg.to,
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          from: await this.#ethSigner!.getAddress(),
+          from: await this.#ethSigner!.getAddress(msg.addressNList),
           nonce: msg.nonce,
           gasLimit: msg.gasLimit,
           data: msg.data,
@@ -99,18 +103,24 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
         };
         const result: string = msg.maxFeePerGas
           ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            await this.#ethSigner!.signTransaction({
-              ...utx,
-              maxFeePerGas: msg.maxFeePerGas,
-              maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
-              type: core.ETHTransactionType.ETH_TX_TYPE_EIP_1559,
-            })
+            await this.#ethSigner!.signTransaction(
+              {
+                ...utx,
+                maxFeePerGas: msg.maxFeePerGas,
+                maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
+                type: core.ETHTransactionType.ETH_TX_TYPE_EIP_1559,
+              },
+              msg.addressNList
+            )
           : // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            await this.#ethSigner!.signTransaction({
-              ...utx,
-              gasPrice: msg.gasPrice,
-              type: core.ETHTransactionType.ETH_TX_TYPE_LEGACY,
-            });
+            await this.#ethSigner!.signTransaction(
+              {
+                ...utx,
+                gasPrice: msg.gasPrice,
+                type: core.ETHTransactionType.ETH_TX_TYPE_LEGACY,
+              },
+              msg.addressNList
+            );
 
         const decoded = ethers.utils.parseTransaction(result);
         return {
@@ -128,7 +138,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
         const result = await this.#ethSigner!.signMessage(msg.message);
         return {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          address: await this.#ethSigner!.getAddress(),
+          address: await this.#ethSigner!.getAddress(msg.addressNList),
           signature: result,
         };
       });
