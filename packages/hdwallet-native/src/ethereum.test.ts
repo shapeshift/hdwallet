@@ -59,12 +59,6 @@ describe("NativeETHWallet", () => {
     );
   });
 
-  it("fails when generating another ethereum address", async () => {
-    await expect(
-      wallet.ethGetAddress({ addressNList: core.bip32ToAddressNList("m/44'/60'/1337'/123/4") })
-    ).rejects.toThrowError("path not supported");
-  });
-
   it("should sign a legacy transaction correctly", async () => {
     const sig = await wallet.ethSignTx({
       addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
