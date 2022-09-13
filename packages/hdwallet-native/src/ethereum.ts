@@ -1,6 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ethers from "ethers";
-import _ from "lodash";
 
 import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
@@ -56,6 +55,11 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     #ethSigner: ethers.Signer | undefined;
 
     async ethInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
+      const node = await Isolation.Adapters.BIP32.create(masterKey);
+      // Do not initialize an ethSigner if masterKey is not a node on the ethereum branch of the BIP-32 key tree
+      if (node.hasExplicitPath() && !node.path.startsWith("m/44'/60'")) {
+        return;
+      }
       const rootNode = await Isolation.Adapters.BIP32.create(masterKey);
       const isolatedSigner = await rootNode.derivePath(ethers.utils.defaultPath);
       this.#ethSigner = await Isolation.Adapters.Ethereum.create(isolatedSigner.node);
@@ -66,7 +70,8 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     }
 
     async ethGetAddress(msg: core.ETHGetAddress): Promise<string | null> {
-      if (!_.isEqual(msg.addressNList, core.bip32ToAddressNList("m/44'/60'/0'/0/0"))) {
+      /* Yes this looks derpy, but it's a short array comparison to replace _.isEqual()*/
+      if (!(JSON.stringify(msg.addressNList) === JSON.stringify(core.bip32ToAddressNList(ethers.utils.defaultPath)))) {
         throw new Error("path not supported");
       }
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
