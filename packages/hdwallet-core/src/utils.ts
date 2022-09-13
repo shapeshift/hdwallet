@@ -254,7 +254,7 @@ export function isIndexable(x: unknown): x is Record<string | number | symbol, u
   return x !== null && ["object", "function"].includes(typeof x);
 }
 
-/* Replacement for _.isObject() */
-export function isObject(x: any) {
-  return typeof x === "object" && x !== null;
+/* Replacement for lodash.isObject() */
+export function isObject(x: unknown) {
+  return x !== null && ["object", "function"].includes(typeof x);
 }
