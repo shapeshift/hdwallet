@@ -72,14 +72,6 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
         throw new Error(`path not supported length: ${msg.addressNList.length}`);
       }
 
-      // regex sux
-      const refAddressNList = core.bip32ToAddressNList("m/44'/60'/0'/0/0");
-      refAddressNList[2] = msg.addressNList[2];
-
-      if (!_.isEqual(msg.addressNList, refAddressNList)) {
-        throw new Error(`path not supported: ${msg.addressNList}`);
-      }
-
       return this.needsMnemonic(!!this.#ethSigner, () => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return this.#ethSigner!.getAddress(msg.addressNList);
