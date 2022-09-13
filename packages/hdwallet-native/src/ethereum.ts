@@ -60,10 +60,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     async ethInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
       const rootNode = await Isolation.Adapters.BIP32.create(masterKey);
 
-      // hard coding this path works fine. need to figure out how to
-      // re-enable supplying a path
-      // const isolatedSigner = await rootNode.derivePath("m/44'/60'/1'/0/0");
-      this.#ethSigner = await Isolation.Adapters.Ethereum.create(rootNode.node);
+      this.#ethSigner = await Isolation.Adapters.Ethereum.create(rootNode);
     }
 
     ethWipe() {
@@ -135,7 +132,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
       return this.needsMnemonic(!!this.#ethSigner, async () => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const result = await this.#ethSigner!.signMessage(msg.message);
+        const result = await this.#ethSigner!.signMessage(msg.message, msg.addressNList);
         return {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           address: await this.#ethSigner!.getAddress(msg.addressNList),

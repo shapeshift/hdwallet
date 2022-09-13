@@ -1,8 +1,8 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ethers from "ethers";
 
+import { Isolation } from "../..";
 import { SecP256K1 } from "../core";
-import { BIP32 } from ".";
 
 function ethSigFromRecoverableSig(x: SecP256K1.RecoverableSignature): ethers.Signature {
   const sig = SecP256K1.RecoverableSignature.sig(x);
@@ -11,16 +11,19 @@ function ethSigFromRecoverableSig(x: SecP256K1.RecoverableSignature): ethers.Sig
 }
 
 export class SignerAdapter {
-  protected readonly _isolatedKey: SecP256K1.ECDSAKey;
+  protected readonly rootNode: Isolation.Adapters.BIP32;
   readonly provider?: ethers.providers.Provider;
 
-  protected constructor(isolatedKey: SecP256K1.ECDSAKey, provider?: ethers.providers.Provider) {
-    this._isolatedKey = isolatedKey;
+  protected constructor(rootNode: Isolation.Adapters.BIP32, provider?: ethers.providers.Provider) {
+    this.rootNode = rootNode;
     this.provider = provider;
   }
 
-  static async create(isolatedKey: SecP256K1.ECDSAKey, provider?: ethers.providers.Provider): Promise<SignerAdapter> {
-    return new SignerAdapter(isolatedKey, provider);
+  static async create(
+    rootNode: Isolation.Adapters.BIP32,
+    provider?: ethers.providers.Provider
+  ): Promise<SignerAdapter> {
+    return new SignerAdapter(rootNode, provider);
   }
 
   // This throws (as allowed by ethers.Signer) to avoid having to return an object which is initialized asynchronously
@@ -33,15 +36,14 @@ export class SignerAdapter {
   }
 
   async getAddress(addressNList: core.BIP32Path): Promise<string> {
-    // const usable = this._isolatedKey as unknown as BIP32;
-    // const node = await usable.derivePath(core.addressNListToBIP32(addressNList));
-    const node = this._isolatedKey.getPublicKey() as unknown as BIP32;
-    return ethers.utils.computeAddress(SecP256K1.UncompressedPoint.from(node.getPublicKey()));
+    const addressNode = await this.rootNode.derivePath(core.addressNListToBIP32(addressNList));
+    return ethers.utils.computeAddress(SecP256K1.UncompressedPoint.from(addressNode.getPublicKey()));
   }
 
-  async signDigest(digest: ethers.BytesLike): Promise<ethers.Signature> {
+  async signDigest(digest: ethers.BytesLike, addressNList: core.BIP32Path): Promise<ethers.Signature> {
+    const addressNode = await this.rootNode.derivePath(core.addressNListToBIP32(addressNList));
     const recoverableSig = await SecP256K1.RecoverableSignature.signCanonically(
-      this._isolatedKey,
+      addressNode.node,
       null,
       digest instanceof Uint8Array ? digest : ethers.utils.arrayify(digest)
     );
@@ -66,12 +68,13 @@ export class SignerAdapter {
       nonce: tx.nonce !== undefined ? ethers.BigNumber.from(tx.nonce).toNumber() : undefined,
     };
 
+    const addressNode = await this.rootNode.derivePath(core.addressNListToBIP32(addressNList));
     const txBuf = ethers.utils.arrayify(ethers.utils.serializeTransaction(unsignedTx));
-    const rawSig = await SecP256K1.RecoverableSignature.signCanonically(this._isolatedKey, "keccak256", txBuf);
+    const rawSig = await SecP256K1.RecoverableSignature.signCanonically(addressNode.node, "keccak256", txBuf);
     return ethers.utils.serializeTransaction(unsignedTx, ethSigFromRecoverableSig(rawSig));
   }
 
-  async signMessage(messageData: ethers.Bytes | string): Promise<string> {
+  async signMessage(messageData: ethers.Bytes | string, addressNList: core.BIP32Path): Promise<string> {
     const messageDataBuf =
       typeof messageData === "string"
         ? Buffer.from(messageData.normalize("NFKD"), "utf8")
@@ -80,7 +83,8 @@ export class SignerAdapter {
       Buffer.from(`\x19Ethereum Signed Message:\n${messageDataBuf.length}`, "utf8"),
       messageDataBuf,
     ]);
-    const rawSig = await SecP256K1.RecoverableSignature.signCanonically(this._isolatedKey, "keccak256", messageBuf);
+    const addressNode = await this.rootNode.derivePath(core.addressNListToBIP32(addressNList));
+    const rawSig = await SecP256K1.RecoverableSignature.signCanonically(addressNode.node, "keccak256", messageBuf);
     return ethers.utils.joinSignature(ethSigFromRecoverableSig(rawSig));
   }
 }
