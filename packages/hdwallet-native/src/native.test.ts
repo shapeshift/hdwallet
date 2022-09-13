@@ -1,9 +1,13 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
 import { Node } from "./crypto/isolation/engines/default/bip32";
+import { fromB64ToArray } from "./crypto/utils";
 import * as native from "./native";
 
 const MNEMONIC = "all all all all all all all all all all all all";
+
+const PRIVATE_KEY = "oe5ysT50Qkvnh1q9JwLULQuvK7flK664UkVA/srziyY="; // root private key generated from the 'all all all' seed
+const CHAIN_CODE = "UBS48IuLdtYu2dXcWEAQDfUWmcwYvdSIAPM3VgRd0tI="; // root chain code generated from the 'all all all' seed
 
 const mswMock = require("mswMock")().startServer();
 afterEach(() => expect(mswMock).not.toHaveBeenCalled());
@@ -151,9 +155,7 @@ describe("NativeHDWallet", () => {
     });
 
     it("should load wallet with a root node", async () => {
-      const fakePrivateKey = Buffer.from(MNEMONIC).slice(0, 32);
-      const fakeChainCode = Buffer.from(MNEMONIC).slice(0, 32);
-      const node = await Node.create(fakePrivateKey, fakeChainCode);
+      const node = await Node.create(fromB64ToArray(PRIVATE_KEY), fromB64ToArray(CHAIN_CODE));
       const wallet = native.create({ deviceId: "native", masterKey: node });
       expect(await wallet.isInitialized()).toBe(false);
       expect(await wallet.isLocked()).toBe(false);
@@ -166,7 +168,7 @@ describe("NativeHDWallet", () => {
           in: [{ coin: "bitcoin", addressNList: [] }],
           out: [
             {
-              xpub: "xpub661MyMwAqRbcFWh493x39ckzUX7ZahggShZfWoQfYNhiup7fZMjbPFhNbeappNxriW2xFo2xwWEvs7qm57YvsE6GH4ADum2XiYZUuVfpbpi",
+              xpub: "xpub661MyMwAqRbcFLgDU7wpcEVubSF7NkswwmXBUkDiGUW6uopeUMys4AqKXNgpfZKRTLnpKQgffd6a2c3J8JxLkF1AQN17Pm9QYHEqEfo1Rsx",
             },
           ],
         },
@@ -174,7 +176,7 @@ describe("NativeHDWallet", () => {
           in: [{ coin: "bitcoin", addressNList: [1 + 0x80000000, 2 + 0x80000000] }],
           out: [
             {
-              xpub: "xpub6BdjWYp313igwUYRb5F54n7E5uwersC8EY6jfkhiXSJeHjHcGnL53JLkdGqpeh4z78EUiUmdbPPBjQzyqFk71icueBLo6PGSu5L6XRe4Rki",
+              xpub: "xpub6A4ydEAik39rFLs1hcm6XiwpFN5XKEf9tdAZWK23tkXmSr8bHmfYyfVt2nTskZQj3yYydcST2DLUFq2iJAELtTVfW9UNnnK8zBi8bzFcQVB",
             },
           ],
         },
@@ -183,7 +185,7 @@ describe("NativeHDWallet", () => {
           in: [{ coin: "bitcoin", addressNList: [1 + 0x80000000, 2 + 0x80000000, 3] }],
           out: [
             {
-              xpub: "xpub6BdjWYp313igwUYRb5F54n7E5uwersC8EY6jfkhiXSJeHjHcGnL53JLkdGqpeh4z78EUiUmdbPPBjQzyqFk71icueBLo6PGSu5L6XRe4Rki",
+              xpub: "xpub6A4ydEAik39rFLs1hcm6XiwpFN5XKEf9tdAZWK23tkXmSr8bHmfYyfVt2nTskZQj3yYydcST2DLUFq2iJAELtTVfW9UNnnK8zBi8bzFcQVB",
             },
           ],
         },
@@ -194,9 +196,7 @@ describe("NativeHDWallet", () => {
     });
 
     it("should load wallet with a non-root node", async () => {
-      const fakePrivateKey = Buffer.from(MNEMONIC).slice(0, 32);
-      const fakeChainCode = Buffer.from(MNEMONIC).slice(0, 32);
-      const node = await Node.create(fakePrivateKey, fakeChainCode, "m/44'/0'");
+      const node = await Node.create(fromB64ToArray(PRIVATE_KEY), fromB64ToArray(CHAIN_CODE), "m/44'/0'");
       const wallet = native.create({ deviceId: "native", masterKey: node });
       expect(await wallet.isInitialized()).toBe(false);
       expect(await wallet.isLocked()).toBe(false);
@@ -206,33 +206,85 @@ describe("NativeHDWallet", () => {
       expect(await wallet.isLocked()).toBe(false);
       const testCases: Array<{ in: any; out: any }> = [
         {
-          in: [{ coin: "bitcoin", addressNList: [] }],
+          in: [{ coin: "bitcoin", addressNList: [44 + 0x80000000, 0 + 0x80000000] }],
           out: [
             {
-              xpub: "xpub661MyMwAqRbcFWh493x39ckzUX7ZahggShZfWoQfYNhiup7fZMjbPFhNbeappNxriW2xFo2xwWEvs7qm57YvsE6GH4ADum2XiYZUuVfpbpi",
+              xpub: "xpub6APRH5kELakva27TFbzpfhfsY3Jd4dRGo7NocHb63qWecSgK2dUkjWaYevJsCunicpdAkPg9fvHAdpSFMDCMCDMit8kiTM1w9QoGmfyVwDo",
             },
           ],
         },
         {
-          in: [{ coin: "bitcoin", addressNList: [1 + 0x80000000, 2 + 0x80000000] }],
+          in: [{ coin: "bitcoin", addressNList: [44 + 0x80000000, 0 + 0x80000000, 0 + 0x80000000] }],
           out: [
             {
-              xpub: "xpub6BdjWYp313igwUYRb5F54n7E5uwersC8EY6jfkhiXSJeHjHcGnL53JLkdGqpeh4z78EUiUmdbPPBjQzyqFk71icueBLo6PGSu5L6XRe4Rki",
+              xpub: "xpub68Zyu13qjcQvJXTsnmhH2h2TyPiXAama5bTU8u9iRXyYtS9X9yWvSKij6YGt7JJ2nr5rSGi4KLUW5Z8bTKHqXhbLwqb7smG3Y8j2wy4rmf3",
             },
           ],
         },
-        // Note how this produces the same xpub as the path above. This is not intuitive behavior, and is probably a bug.
         {
-          in: [{ coin: "bitcoin", addressNList: [1 + 0x80000000, 2 + 0x80000000, 3] }],
+          in: [{ coin: "bitcoin", addressNList: [44 + 0x80000000, 0 + 0x80000000, 0 + 0x80000000, 0, 0] }],
           out: [
             {
-              xpub: "xpub6BdjWYp313igwUYRb5F54n7E5uwersC8EY6jfkhiXSJeHjHcGnL53JLkdGqpeh4z78EUiUmdbPPBjQzyqFk71icueBLo6PGSu5L6XRe4Rki",
+              xpub: "xpub68Zyu13qjcQvJXTsnmhH2h2TyPiXAama5bTU8u9iRXyYtS9X9yWvSKij6YGt7JJ2nr5rSGi4KLUW5Z8bTKHqXhbLwqb7smG3Y8j2wy4rmf3",
             },
           ],
         },
       ];
       for (const params of testCases) {
         expect(await wallet.getPublicKeys(params.in)).toStrictEqual(params.out);
+      }
+    });
+
+    it("should throw when attempting to derive a key for a path that is not a child of the explicit path", async () => {
+      const node = await Node.create(fromB64ToArray(PRIVATE_KEY), fromB64ToArray(CHAIN_CODE), "m/44'/0'/0'");
+      const wallet = native.create({ deviceId: "native", masterKey: node });
+      expect(await wallet.isInitialized()).toBe(false);
+      expect(await wallet.isLocked()).toBe(false);
+      await wallet.loadDevice({ masterKey: node });
+      expect(await wallet.initialize()).toBe(true);
+      expect(await wallet.isInitialized()).toBe(true);
+      expect(await wallet.isLocked()).toBe(false);
+
+      const testCases: Array<{ in: any }> = [
+        {
+          in: [
+            {
+              coin: "bitcoin",
+              addressNList: [44 + 0x80000000, 0 + 0x80000000],
+              curve: "secp256k1",
+            },
+          ],
+        },
+        {
+          in: [
+            {
+              coin: "bitcoin",
+              addressNList: [44 + 0x80000000, 60 + 0x80000000],
+              curve: "secp256k1",
+            },
+          ],
+        },
+        {
+          in: [
+            {
+              coin: "bitcoin",
+              addressNList: [44 + 0x80000000, 0 + 0x80000000, 1 + 0x80000000],
+              curve: "secp256k1",
+            },
+          ],
+        },
+        {
+          in: [
+            {
+              coin: "bitcoin",
+              addressNList: [44 + 0x80000000, 118 + 0x80000000, 0 + 0x80000000, 0, 0],
+              curve: "secp256k1",
+            },
+          ],
+        },
+      ];
+      for (const params of testCases) {
+        await expect(wallet.getPublicKeys(params.in)).rejects.toThrowError("path is not a child of this node");
       }
     });
 
