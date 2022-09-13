@@ -3,6 +3,7 @@ import {
   bip32ToAddressNList,
   fromHexString,
   isArray,
+  isObject,
   satsFromStr,
   slip44ByCoin,
   stripHexPrefix,
@@ -112,5 +113,16 @@ describe("satsFromStr", () => {
     expect(satsFromStr("21000000")).toEqual(2100000000000000);
 
     expect(satsFromStr("12345678.90123456")).toEqual(1234567890123456);
+  });
+});
+
+describe("isObject", () => {
+  it("passes basic smoke tests", () => {
+    expect(isObject(1)).toEqual(false);
+    expect(isObject("")).toEqual(false);
+    expect(isObject(["test"])).toEqual(true);
+    expect(isObject(true)).toEqual(false);
+    expect(isObject({})).toEqual(true);
+    expect(isObject({ 1: 1, 2: [], 3: { a: "a", b: "b" } })).toEqual(true);
   });
 });

@@ -253,3 +253,8 @@ export function compatibleBufferConcat(list: Uint8Array[]): Buffer {
 export function isIndexable(x: unknown): x is Record<string | number | symbol, unknown> {
   return x !== null && ["object", "function"].includes(typeof x);
 }
+
+/* Replacement for _.isObject() */
+export function isObject(x: any) {
+  return typeof x === "object" && x !== null;
+}
