@@ -95,6 +95,6 @@ export function selfTest(get: () => core.HDWallet): void {
 
   it("supports bip44 accounts", () => {
     if (!wallet) return;
-    expect(wallet.supportsBip44Accounts()).toEqual(true);
+    expect(wallet.supportsBip44Accounts()).toEqual(false);
   });
 }
