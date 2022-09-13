@@ -99,6 +99,11 @@ export function selfTest(get: () => core.HDWallet): void {
     await expect(wallet.ethSupportsNetwork(1)).resolves.toEqual(true);
   });
 
+  it("supports bip44 accounts", () => {
+    if (!wallet) return;
+    expect(wallet.supportsBip44Accounts()).toEqual(true);
+  });
+
   it("supports ShapeShift", async () => {
     if (!wallet) return;
     expect(wallet.ethSupportsNativeShapeShift()).toEqual(true);
@@ -470,5 +475,8 @@ export function selfTest(get: () => core.HDWallet): void {
       coin: "Ethereum",
       isKnown: false,
     });
+  });
+  it("returns true for supportsBip44Accounts", () => {
+    expect(wallet.info.supportsBip44Accounts()).toBe(true);
   });
 }

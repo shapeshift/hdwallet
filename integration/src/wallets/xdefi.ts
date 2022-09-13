@@ -131,6 +131,11 @@ export function selfTest(get: () => core.HDWallet): void {
     expect(await wallet.getDeviceID()).toEqual("xDeFi:0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8");
   });
 
+  it("does not support bip44 accounts", async () => {
+    if (!wallet) return;
+    expect(wallet.supportsBip44Accounts()).toEqual(false);
+  });
+
   it("does not support more than one account path", async () => {
     if (!wallet) return;
     const paths = core.mustBeDefined(
