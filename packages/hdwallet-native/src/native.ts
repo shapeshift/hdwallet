@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bip39 from "bip39";
 import * as eventemitter2 from "eventemitter2";
-import _ from "lodash";
+import isObject from "lodash/isObject";
 
 import type { NativeAdapterArgs } from "./adapter";
 import { MixinNativeBinanceWallet, MixinNativeBinanceWalletInfo } from "./binance";
@@ -411,7 +411,7 @@ export class NativeHDWallet
 }
 
 export function isNative(wallet: core.HDWallet): wallet is NativeHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isNative;
+  return isObject(wallet) && (wallet as any)._isNative;
 }
 
 export function info() {
