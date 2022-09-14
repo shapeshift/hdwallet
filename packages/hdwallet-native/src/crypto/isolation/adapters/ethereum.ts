@@ -11,11 +11,11 @@ function ethSigFromRecoverableSig(x: SecP256K1.RecoverableSignature): ethers.Sig
 }
 
 export class SignerAdapter {
-  protected readonly master: Isolation.Adapters.BIP32;
+  protected readonly nodeAdapter: Isolation.Adapters.BIP32;
   readonly provider?: ethers.providers.Provider;
 
-  constructor(master: Isolation.Adapters.BIP32, provider?: ethers.providers.Provider) {
-    this.master = master;
+  constructor(nodeAdapter: Isolation.Adapters.BIP32, provider?: ethers.providers.Provider) {
+    this.nodeAdapter = nodeAdapter;
     this.provider = provider;
   }
 
@@ -29,12 +29,12 @@ export class SignerAdapter {
   }
 
   async getAddress(addressNList: core.BIP32Path): Promise<string> {
-    const addressNode = await this.master.derivePath(core.addressNListToBIP32(addressNList));
+    const addressNode = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
     return ethers.utils.computeAddress(SecP256K1.UncompressedPoint.from(addressNode.getPublicKey()));
   }
 
   async signDigest(digest: ethers.BytesLike, addressNList: core.BIP32Path): Promise<ethers.Signature> {
-    const addressNode = await this.master.derivePath(core.addressNListToBIP32(addressNList));
+    const addressNode = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
     const recoverableSig = await SecP256K1.RecoverableSignature.signCanonically(
       addressNode.node,
       null,
@@ -61,7 +61,7 @@ export class SignerAdapter {
       nonce: tx.nonce !== undefined ? ethers.BigNumber.from(tx.nonce).toNumber() : undefined,
     };
 
-    const addressNode = await this.master.derivePath(core.addressNListToBIP32(addressNList));
+    const addressNode = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
     const txBuf = ethers.utils.arrayify(ethers.utils.serializeTransaction(unsignedTx));
     const rawSig = await SecP256K1.RecoverableSignature.signCanonically(addressNode.node, "keccak256", txBuf);
     return ethers.utils.serializeTransaction(unsignedTx, ethSigFromRecoverableSig(rawSig));
@@ -76,7 +76,7 @@ export class SignerAdapter {
       Buffer.from(`\x19Ethereum Signed Message:\n${messageDataBuf.length}`, "utf8"),
       messageDataBuf,
     ]);
-    const addressNode = await this.master.derivePath(core.addressNListToBIP32(addressNList));
+    const addressNode = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
     const rawSig = await SecP256K1.RecoverableSignature.signCanonically(addressNode.node, "keccak256", messageBuf);
     return ethers.utils.joinSignature(ethSigFromRecoverableSig(rawSig));
   }
