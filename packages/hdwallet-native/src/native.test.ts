@@ -214,27 +214,85 @@ describe("NativeHDWallet", () => {
       expect(await wallet.initialize()).toBe(true);
       expect(await wallet.isInitialized()).toBe(true);
       expect(await wallet.isLocked()).toBe(false);
-      const testCases: Array<{ in: any; out: any }> = [
-        {
-          in: {
-            coin: "bitcoin",
-            addressNList: [44 + 0x80000000, 0 + 0x80000000],
-            scriptType: core.BTCInputScriptType.SpendAddress,
-          },
-          out: "1Hvzdx2kSLHT93aTnEeDNDSo4DS1Wn3CML",
-        },
-        {
-          in: {
-            coin: "bitcoin",
-            addressNList: [44 + 0x80000000, 0 + 0x80000000, 0 + 0x80000000, 0, 0],
-            scriptType: core.BTCInputScriptType.SpendAddress,
-          },
-          out: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
-        },
-      ];
-      for (const params of testCases) {
-        expect(await wallet.btcGetAddress(params.in)).toStrictEqual(params.out);
-      }
+
+      expect(
+        await wallet.btcGetAddress({
+          coin: "bitcoin",
+          addressNList: [44 + 0x80000000, 0 + 0x80000000],
+          scriptType: core.BTCInputScriptType.SpendAddress,
+        })
+      ).toStrictEqual("1Hvzdx2kSLHT93aTnEeDNDSo4DS1Wn3CML");
+    });
+
+    it("should generate valid UTXO addresses when initialized with a non-root node", async () => {
+      const PRIVATE_KEY_DEPTH_2 = "GNjTirvFO9+GTP2Mp+4tmJAWRhxVmgVopzGXLeGbsw4=";
+      const CHAIN_CODE_DEPTH_2 = "mMkqCbitsaueXWZf1q4d0zHRMBctdZFhid4z8c8v9II=";
+
+      const node = await Node.create(
+        fromB64ToArray(PRIVATE_KEY_DEPTH_2),
+        fromB64ToArray(CHAIN_CODE_DEPTH_2),
+        "m/44'/0'"
+      );
+      const wallet = native.create({ deviceId: "native", masterKey: node });
+      expect(await wallet.isInitialized()).toBe(false);
+      expect(await wallet.isLocked()).toBe(false);
+      await wallet.loadDevice({ masterKey: node });
+      expect(await wallet.initialize()).toBe(true);
+      expect(await wallet.isInitialized()).toBe(true);
+      expect(await wallet.isLocked()).toBe(false);
+      expect(
+        await wallet.btcGetAddress({
+          coin: "bitcoin",
+          addressNList: [44 + 0x80000000, 0 + 0x80000000, 0 + 0x80000000, 0, 0],
+          scriptType: core.BTCInputScriptType.SpendAddress,
+        })
+      ).toStrictEqual("1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM");
+    });
+
+    it("should generate valid Cosmos-SDK addresses when initialized with a non-root node", async () => {
+      const PRIVATE_KEY_DEPTH_2 = "dbSElgfG40sz9QXOfAdw4CStHymWOj76YwCP/7J7gfg=";
+      const CHAIN_CODE_DEPTH_2 = "pBbxxP1ydHOWjGXtMOeeCMqvtiVpJlM0OQIJS3gsUcY=";
+
+      const node = await Node.create(
+        fromB64ToArray(PRIVATE_KEY_DEPTH_2),
+        fromB64ToArray(CHAIN_CODE_DEPTH_2),
+        "m/44'/118'"
+      );
+      const wallet = native.create({ deviceId: "native", masterKey: node });
+      expect(await wallet.isInitialized()).toBe(false);
+      expect(await wallet.isLocked()).toBe(false);
+      await wallet.loadDevice({ masterKey: node });
+      expect(await wallet.initialize()).toBe(true);
+      expect(await wallet.isInitialized()).toBe(true);
+      expect(await wallet.isLocked()).toBe(false);
+      expect(
+        await wallet.cosmosGetAddress({
+          addressNList: [44 + 0x80000000, 118 + 0x80000000, 0 + 0x80000000, 0, 0],
+        })
+      ).toStrictEqual("cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj");
+    });
+
+    it("should generate valid EVM addresses when initialized with a non-root node", async () => {
+      const PRIVATE_KEY_DEPTH_2 = "/z/nU3ZlAc3LMiIGaMzjPzGBKK55MXCv/NKLYnJ+4ZM=";
+      const CHAIN_CODE_DEPTH_2 = "c7sxhcAlFHGVnu0Ui5zJBvWAcuFddqFdX7eUHjd4Aw4=";
+
+      const node = await Node.create(
+        fromB64ToArray(PRIVATE_KEY_DEPTH_2),
+        fromB64ToArray(CHAIN_CODE_DEPTH_2),
+        "m/44'/118'"
+      );
+      const wallet = native.create({ deviceId: "native", masterKey: node });
+      expect(await wallet.isInitialized()).toBe(false);
+      expect(await wallet.isLocked()).toBe(false);
+      await wallet.loadDevice({ masterKey: node });
+      expect(await wallet.initialize()).toBe(true);
+      expect(await wallet.isInitialized()).toBe(true);
+      expect(await wallet.isLocked()).toBe(false);
+      expect(
+        await wallet.ethGetAddress({
+          addressNList: [44 + 0x80000000, 118 + 0x80000000, 0 + 0x80000000, 0, 0],
+        })
+      ).toStrictEqual("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8");
     });
 
     it("should throw when attempting to derive a key for a path that is not a child of the explicit path", async () => {
