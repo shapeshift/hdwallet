@@ -8,8 +8,8 @@ const chainCodeStatic = {};
 const chainCode = Object.assign(chainCodeBase, chainCodeStatic);
 export const ChainCode: typeof chainCode = chainCode;
 
-// This is the same regex that the bip32 library uses to validate paths.
-const pathBase = BoundedString(/^((m\/)?(\d+'?\/)*\d+'?)$/);
+// https://regex101.com/r/KwmgAp/1
+const pathBase = BoundedString(/^((m\/)?(\d+'?\/)*\d+'?)$|^(?![\s\S])/);
 export type Path = Static<typeof pathBase>;
 const pathStatic = {};
 const path = Object.assign(pathBase, pathStatic);
