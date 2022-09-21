@@ -196,7 +196,13 @@ describe("NativeHDWallet", () => {
     });
 
     it("should load wallet with a non-root node", async () => {
-      const node = await Node.create(fromB64ToArray(PRIVATE_KEY), fromB64ToArray(CHAIN_CODE), "m/44'/0'");
+      const PRIVATE_KEY_DEPTH_2 = "GNjTirvFO9+GTP2Mp+4tmJAWRhxVmgVopzGXLeGbsw4=";
+      const CHAIN_CODE_DEPTH_2 = "mMkqCbitsaueXWZf1q4d0zHRMBctdZFhid4z8c8v9II=";
+      const node = await Node.create(
+        fromB64ToArray(PRIVATE_KEY_DEPTH_2),
+        fromB64ToArray(CHAIN_CODE_DEPTH_2),
+        "m/44'/0'"
+      );
       const wallet = native.create({ deviceId: "native", masterKey: node });
       expect(await wallet.isInitialized()).toBe(false);
       expect(await wallet.isLocked()).toBe(false);
@@ -206,32 +212,24 @@ describe("NativeHDWallet", () => {
       expect(await wallet.isLocked()).toBe(false);
       const testCases: Array<{ in: any; out: any }> = [
         {
-          in: [{ coin: "bitcoin", addressNList: [44 + 0x80000000, 0 + 0x80000000] }],
-          out: [
-            {
-              xpub: "xpub6APRH5kELakva27TFbzpfhfsY3Jd4dRGo7NocHb63qWecSgK2dUkjWaYevJsCunicpdAkPg9fvHAdpSFMDCMCDMit8kiTM1w9QoGmfyVwDo",
-            },
-          ],
+          in: {
+            coin: "bitcoin",
+            addressNList: [44 + 0x80000000, 0 + 0x80000000],
+            scriptType: core.BTCInputScriptType.SpendAddress,
+          },
+          out: "1Hvzdx2kSLHT93aTnEeDNDSo4DS1Wn3CML",
         },
         {
-          in: [{ coin: "bitcoin", addressNList: [44 + 0x80000000, 0 + 0x80000000, 0 + 0x80000000] }],
-          out: [
-            {
-              xpub: "xpub68Zyu13qjcQvJXTsnmhH2h2TyPiXAama5bTU8u9iRXyYtS9X9yWvSKij6YGt7JJ2nr5rSGi4KLUW5Z8bTKHqXhbLwqb7smG3Y8j2wy4rmf3",
-            },
-          ],
-        },
-        {
-          in: [{ coin: "bitcoin", addressNList: [44 + 0x80000000, 0 + 0x80000000, 0 + 0x80000000, 0, 0] }],
-          out: [
-            {
-              xpub: "xpub68Zyu13qjcQvJXTsnmhH2h2TyPiXAama5bTU8u9iRXyYtS9X9yWvSKij6YGt7JJ2nr5rSGi4KLUW5Z8bTKHqXhbLwqb7smG3Y8j2wy4rmf3",
-            },
-          ],
+          in: {
+            coin: "bitcoin",
+            addressNList: [44 + 0x80000000, 0 + 0x80000000, 0 + 0x80000000, 0, 0],
+            scriptType: core.BTCInputScriptType.SpendAddress,
+          },
+          out: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
         },
       ];
       for (const params of testCases) {
-        expect(await wallet.getPublicKeys(params.in)).toStrictEqual(params.out);
+        expect(await wallet.btcGetAddress(params.in)).toStrictEqual(params.out);
       }
     });
 
