@@ -257,6 +257,12 @@ export interface HDWalletInfo {
   hasNativeShapeShift(srcCoin: Coin, dstCoin: Coin): boolean;
 
   /**
+   * Does the implementation support multiple accounts via the account level bip44 node (hardened)
+   * https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki#Account
+   */
+  supportsBip44Accounts(): boolean;
+
+  /**
    * Will the device allow for transactions to be signed offline to be
    * broadcasted separately?
    */

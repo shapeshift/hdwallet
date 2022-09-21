@@ -22,6 +22,7 @@ describe("NativeHDWalletInfo", () => {
     expect(info.hasOnDevicePassphrase()).toBe(false);
     expect(info.hasOnDeviceDisplay()).toBe(false);
     expect(info.hasOnDeviceRecovery()).toBe(false);
+    expect(info.supportsBip44Accounts()).toBe(true);
   });
   it("should produce correct path descriptions", () => {
     const info = native.info();
@@ -101,6 +102,9 @@ describe("NativeHDWalletInfo", () => {
       },
     ].forEach((x) => expect(info.describePath(x.msg)).toMatchObject(x.out));
     expect(() => info.describePath({ coin: "foobar", path: [1, 2, 3] })).toThrowError("Unsupported path");
+  });
+  it("should return true for supportsBip44Accounts", async () => {
+    expect(native.info().supportsBip44Accounts()).toBe(true);
   });
 });
 
@@ -321,6 +325,10 @@ describe("NativeHDWallet", () => {
         await expect(wallet.loadDevice({ mnemonic: param })).rejects.toThrow("Required property [mnemonic] is invalid");
       }
     );
+    it("should return true for supportsBip44Accounts", async () => {
+      const wallet = native.create({ deviceId: "native" });
+      expect(wallet.supportsBip44Accounts()).toBe(true);
+    });
   });
 
   it("should wipe if an error occurs during initialization", async () => {

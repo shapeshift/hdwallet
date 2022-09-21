@@ -65,6 +65,10 @@ export class NativeHDWalletInfoBase implements core.HDWalletInfo {
     return false;
   }
 
+  public supportsBip44Accounts(): boolean {
+    return true;
+  }
+
   public supportsOfflineSigning(): boolean {
     return true;
   }

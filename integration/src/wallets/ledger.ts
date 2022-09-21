@@ -249,6 +249,11 @@ export function selfTest(get: () => core.HDWallet): void {
     expect(await wallet.btcSupportsSecureTransfer()).toEqual(false);
   });
 
+  it("supports bip44 accounts", async () => {
+    if (!wallet) return;
+    expect(wallet.supportsBip44Accounts()).toEqual(true);
+  });
+
   it("validates current app", async () => {
     if (!wallet) return;
     await expect(wallet.validateCurrentApp("Bitcoin")).resolves.not.toThrow();
