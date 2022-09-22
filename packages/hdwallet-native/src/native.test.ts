@@ -200,6 +200,9 @@ describe("NativeHDWallet", () => {
     });
 
     it("should load wallet with a non-root node", async () => {
+      /** NOTE: Private key and chain code for node at depth 2 was generated
+       * using 'alcohol' 'woman' 'abuse' seed.
+       */
       const PRIVATE_KEY_DEPTH_2 = "GNjTirvFO9+GTP2Mp+4tmJAWRhxVmgVopzGXLeGbsw4=";
       const CHAIN_CODE_DEPTH_2 = "mMkqCbitsaueXWZf1q4d0zHRMBctdZFhid4z8c8v9II=";
       const node = await Node.create(
@@ -225,6 +228,9 @@ describe("NativeHDWallet", () => {
     });
 
     it("should generate valid UTXO addresses when initialized with a non-root node", async () => {
+      /** NOTE: Private key and chain code for node at depth 2 was generated
+       * using 'alcohol' 'woman' 'abuse' seed.
+       */
       const PRIVATE_KEY_DEPTH_2 = "GNjTirvFO9+GTP2Mp+4tmJAWRhxVmgVopzGXLeGbsw4=";
       const CHAIN_CODE_DEPTH_2 = "mMkqCbitsaueXWZf1q4d0zHRMBctdZFhid4z8c8v9II=";
 
@@ -250,6 +256,9 @@ describe("NativeHDWallet", () => {
     });
 
     it("should generate valid Cosmos-SDK addresses when initialized with a non-root node", async () => {
+      /** NOTE: Private key and chain code for node at depth 2 was generated
+       * using 'alcohol' 'woman' 'abuse' seed.
+       */
       const PRIVATE_KEY_DEPTH_2 = "dbSElgfG40sz9QXOfAdw4CStHymWOj76YwCP/7J7gfg=";
       const CHAIN_CODE_DEPTH_2 = "pBbxxP1ydHOWjGXtMOeeCMqvtiVpJlM0OQIJS3gsUcY=";
 
@@ -273,6 +282,9 @@ describe("NativeHDWallet", () => {
     });
 
     it("should generate valid EVM addresses when initialized with a non-root node", async () => {
+      /** NOTE: Private key and chain code for node at depth 2 was generated
+       * using 'alcohol' 'woman' 'abuse' seed.
+       */
       const PRIVATE_KEY_DEPTH_2 = "/z/nU3ZlAc3LMiIGaMzjPzGBKK55MXCv/NKLYnJ+4ZM=";
       const CHAIN_CODE_DEPTH_2 = "c7sxhcAlFHGVnu0Ui5zJBvWAcuFddqFdX7eUHjd4Aw4=";
 
