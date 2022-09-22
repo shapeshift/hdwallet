@@ -279,7 +279,7 @@ describe("NativeHDWallet", () => {
       const node = await Node.create(
         fromB64ToArray(PRIVATE_KEY_DEPTH_2),
         fromB64ToArray(CHAIN_CODE_DEPTH_2),
-        "m/44'/118'"
+        "m/44'/60'"
       );
       const wallet = native.create({ deviceId: "native", masterKey: node });
       expect(await wallet.isInitialized()).toBe(false);
@@ -290,7 +290,7 @@ describe("NativeHDWallet", () => {
       expect(await wallet.isLocked()).toBe(false);
       expect(
         await wallet.ethGetAddress({
-          addressNList: [44 + 0x80000000, 118 + 0x80000000, 0 + 0x80000000, 0, 0],
+          addressNList: [44 + 0x80000000, 60 + 0x80000000, 0 + 0x80000000, 0, 0],
         })
       ).toStrictEqual("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8");
     });
