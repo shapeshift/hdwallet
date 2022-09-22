@@ -162,10 +162,6 @@ export class BIP32Adapter extends ECPairAdapter implements BIP32InterfaceAsync {
     if (/^m/.test(path) && this._parent) throw new Error("expected master, got child");
     return await BIP32.derivePath<BIP32Adapter>(this, path);
   }
-
-  hasExplicitPath(): boolean {
-    return typeof this._explicitPath === "string" && this._explicitPath.length > 0;
-  }
 }
 
 export default BIP32Adapter;
