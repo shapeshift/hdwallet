@@ -1,8 +1,13 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
+import { Node } from "./crypto/isolation/engines/default/bip32";
+import { fromB64ToArray } from "./crypto/utils";
 import * as native from "./native";
 
 const MNEMONIC = "all all all all all all all all all all all all";
+
+const PRIVATE_KEY = "oe5ysT50Qkvnh1q9JwLULQuvK7flK664UkVA/srziyY="; // root private key generated from the 'all all all' seed
+const CHAIN_CODE = "UBS48IuLdtYu2dXcWEAQDfUWmcwYvdSIAPM3VgRd0tI="; // root chain code generated from the 'all all all' seed
 
 const mswMock = require("mswMock")().startServer();
 afterEach(() => expect(mswMock).not.toHaveBeenCalled());
@@ -150,6 +155,208 @@ describe("NativeHDWallet", () => {
       ];
       for (const params of testCases) {
         expect(await wallet.getPublicKeys(params.in)).toStrictEqual(params.out);
+      }
+    });
+
+    it("should load wallet with a root node", async () => {
+      const node = await Node.create(fromB64ToArray(PRIVATE_KEY), fromB64ToArray(CHAIN_CODE));
+      const wallet = native.create({ deviceId: "native", masterKey: node });
+      expect(await wallet.isInitialized()).toBe(false);
+      expect(await wallet.isLocked()).toBe(false);
+      await wallet.loadDevice({ masterKey: node });
+      expect(await wallet.initialize()).toBe(true);
+      expect(await wallet.isInitialized()).toBe(true);
+      expect(await wallet.isLocked()).toBe(false);
+      const testCases: Array<{ in: any; out: any }> = [
+        {
+          in: [{ coin: "bitcoin", addressNList: [] }],
+          out: [
+            {
+              xpub: "xpub661MyMwAqRbcFLgDU7wpcEVubSF7NkswwmXBUkDiGUW6uopeUMys4AqKXNgpfZKRTLnpKQgffd6a2c3J8JxLkF1AQN17Pm9QYHEqEfo1Rsx",
+            },
+          ],
+        },
+        {
+          in: [{ coin: "bitcoin", addressNList: [1 + 0x80000000, 2 + 0x80000000] }],
+          out: [
+            {
+              xpub: "xpub6A4ydEAik39rFLs1hcm6XiwpFN5XKEf9tdAZWK23tkXmSr8bHmfYyfVt2nTskZQj3yYydcST2DLUFq2iJAELtTVfW9UNnnK8zBi8bzFcQVB",
+            },
+          ],
+        },
+        // Note how this produces the same xpub as the path above. This is not intuitive behavior, and is probably a bug.
+        {
+          in: [{ coin: "bitcoin", addressNList: [1 + 0x80000000, 2 + 0x80000000, 3] }],
+          out: [
+            {
+              xpub: "xpub6A4ydEAik39rFLs1hcm6XiwpFN5XKEf9tdAZWK23tkXmSr8bHmfYyfVt2nTskZQj3yYydcST2DLUFq2iJAELtTVfW9UNnnK8zBi8bzFcQVB",
+            },
+          ],
+        },
+      ];
+      for (const params of testCases) {
+        expect(await wallet.getPublicKeys(params.in)).toStrictEqual(params.out);
+      }
+    });
+
+    it("should load wallet with a non-root node", async () => {
+      /** NOTE: Private key and chain code for node at depth 2 was generated
+       * using 'alcohol' 'woman' 'abuse' seed.
+       */
+      const PRIVATE_KEY_DEPTH_2 = "GNjTirvFO9+GTP2Mp+4tmJAWRhxVmgVopzGXLeGbsw4=";
+      const CHAIN_CODE_DEPTH_2 = "mMkqCbitsaueXWZf1q4d0zHRMBctdZFhid4z8c8v9II=";
+      const node = await Node.create(
+        fromB64ToArray(PRIVATE_KEY_DEPTH_2),
+        fromB64ToArray(CHAIN_CODE_DEPTH_2),
+        "m/44'/0'"
+      );
+      const wallet = native.create({ deviceId: "native", masterKey: node });
+      expect(await wallet.isInitialized()).toBe(false);
+      expect(await wallet.isLocked()).toBe(false);
+      await wallet.loadDevice({ masterKey: node });
+      expect(await wallet.initialize()).toBe(true);
+      expect(await wallet.isInitialized()).toBe(true);
+      expect(await wallet.isLocked()).toBe(false);
+
+      expect(
+        await wallet.btcGetAddress({
+          coin: "bitcoin",
+          addressNList: [44 + 0x80000000, 0 + 0x80000000],
+          scriptType: core.BTCInputScriptType.SpendAddress,
+        })
+      ).toStrictEqual("1Hvzdx2kSLHT93aTnEeDNDSo4DS1Wn3CML");
+    });
+
+    it("should generate valid UTXO addresses when initialized with a non-root node", async () => {
+      /** NOTE: Private key and chain code for node at depth 2 was generated
+       * using 'alcohol' 'woman' 'abuse' seed.
+       */
+      const PRIVATE_KEY_DEPTH_2 = "GNjTirvFO9+GTP2Mp+4tmJAWRhxVmgVopzGXLeGbsw4=";
+      const CHAIN_CODE_DEPTH_2 = "mMkqCbitsaueXWZf1q4d0zHRMBctdZFhid4z8c8v9II=";
+
+      const node = await Node.create(
+        fromB64ToArray(PRIVATE_KEY_DEPTH_2),
+        fromB64ToArray(CHAIN_CODE_DEPTH_2),
+        "m/44'/0'"
+      );
+      const wallet = native.create({ deviceId: "native", masterKey: node });
+      expect(await wallet.isInitialized()).toBe(false);
+      expect(await wallet.isLocked()).toBe(false);
+      await wallet.loadDevice({ masterKey: node });
+      expect(await wallet.initialize()).toBe(true);
+      expect(await wallet.isInitialized()).toBe(true);
+      expect(await wallet.isLocked()).toBe(false);
+      expect(
+        await wallet.btcGetAddress({
+          coin: "bitcoin",
+          addressNList: [44 + 0x80000000, 0 + 0x80000000, 0 + 0x80000000, 0, 0],
+          scriptType: core.BTCInputScriptType.SpendAddress,
+        })
+      ).toStrictEqual("1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM");
+    });
+
+    it("should generate valid Cosmos-SDK addresses when initialized with a non-root node", async () => {
+      /** NOTE: Private key and chain code for node at depth 2 was generated
+       * using 'alcohol' 'woman' 'abuse' seed.
+       */
+      const PRIVATE_KEY_DEPTH_2 = "dbSElgfG40sz9QXOfAdw4CStHymWOj76YwCP/7J7gfg=";
+      const CHAIN_CODE_DEPTH_2 = "pBbxxP1ydHOWjGXtMOeeCMqvtiVpJlM0OQIJS3gsUcY=";
+
+      const node = await Node.create(
+        fromB64ToArray(PRIVATE_KEY_DEPTH_2),
+        fromB64ToArray(CHAIN_CODE_DEPTH_2),
+        "m/44'/118'"
+      );
+      const wallet = native.create({ deviceId: "native", masterKey: node });
+      expect(await wallet.isInitialized()).toBe(false);
+      expect(await wallet.isLocked()).toBe(false);
+      await wallet.loadDevice({ masterKey: node });
+      expect(await wallet.initialize()).toBe(true);
+      expect(await wallet.isInitialized()).toBe(true);
+      expect(await wallet.isLocked()).toBe(false);
+      expect(
+        await wallet.cosmosGetAddress({
+          addressNList: [44 + 0x80000000, 118 + 0x80000000, 0 + 0x80000000, 0, 0],
+        })
+      ).toStrictEqual("cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj");
+    });
+
+    it("should generate valid EVM addresses when initialized with a non-root node", async () => {
+      /** NOTE: Private key and chain code for node at depth 2 was generated
+       * using 'alcohol' 'woman' 'abuse' seed.
+       */
+      const PRIVATE_KEY_DEPTH_2 = "/z/nU3ZlAc3LMiIGaMzjPzGBKK55MXCv/NKLYnJ+4ZM=";
+      const CHAIN_CODE_DEPTH_2 = "c7sxhcAlFHGVnu0Ui5zJBvWAcuFddqFdX7eUHjd4Aw4=";
+
+      const node = await Node.create(
+        fromB64ToArray(PRIVATE_KEY_DEPTH_2),
+        fromB64ToArray(CHAIN_CODE_DEPTH_2),
+        "m/44'/60'"
+      );
+      const wallet = native.create({ deviceId: "native", masterKey: node });
+      expect(await wallet.isInitialized()).toBe(false);
+      expect(await wallet.isLocked()).toBe(false);
+      await wallet.loadDevice({ masterKey: node });
+      expect(await wallet.initialize()).toBe(true);
+      expect(await wallet.isInitialized()).toBe(true);
+      expect(await wallet.isLocked()).toBe(false);
+      expect(
+        await wallet.ethGetAddress({
+          addressNList: [44 + 0x80000000, 60 + 0x80000000, 0 + 0x80000000, 0, 0],
+        })
+      ).toStrictEqual("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8");
+    });
+
+    it("should throw when attempting to derive a key for a path that is not a child of the explicit path", async () => {
+      const node = await Node.create(fromB64ToArray(PRIVATE_KEY), fromB64ToArray(CHAIN_CODE), "m/44'/0'/0'");
+      const wallet = native.create({ deviceId: "native", masterKey: node });
+      expect(await wallet.isInitialized()).toBe(false);
+      expect(await wallet.isLocked()).toBe(false);
+      await wallet.loadDevice({ masterKey: node });
+      expect(await wallet.initialize()).toBe(true);
+      expect(await wallet.isInitialized()).toBe(true);
+      expect(await wallet.isLocked()).toBe(false);
+
+      const testCases: Array<{ in: any }> = [
+        {
+          in: [
+            {
+              coin: "bitcoin",
+              addressNList: [44 + 0x80000000, 0 + 0x80000000],
+              curve: "secp256k1",
+            },
+          ],
+        },
+        {
+          in: [
+            {
+              coin: "bitcoin",
+              addressNList: [44 + 0x80000000, 60 + 0x80000000],
+              curve: "secp256k1",
+            },
+          ],
+        },
+        {
+          in: [
+            {
+              coin: "bitcoin",
+              addressNList: [44 + 0x80000000, 0 + 0x80000000, 1 + 0x80000000],
+              curve: "secp256k1",
+            },
+          ],
+        },
+        {
+          in: [
+            {
+              coin: "bitcoin",
+              addressNList: [44 + 0x80000000, 118 + 0x80000000, 0 + 0x80000000, 0, 0],
+              curve: "secp256k1",
+            },
+          ],
+        },
+      ];
+      for (const params of testCases) {
+        await expect(wallet.getPublicKeys(params.in)).rejects.toThrowError("path is not a child of this node");
       }
     });
 
