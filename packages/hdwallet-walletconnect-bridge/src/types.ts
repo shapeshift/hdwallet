@@ -1,3 +1,5 @@
+import { ETHSignMessage, ETHSignTx } from "@shapeshiftoss/hdwallet-core";
+
 export interface WalletConnectSessionRequestPayload {
   params: {
     chainId: number | null;
@@ -54,3 +56,9 @@ export type WalletConnectCallRequest =
   | WalletConnectPersonalSignCallRequest
   | WalletConnectEthSendTransactionCallRequest
   | WalletConnectEthSignTransactionCallRequest;
+
+export type WalletConnectCallRequestResponseMap = {
+  personal_sign: ETHSignMessage;
+  eth_sendTransaction: ETHSignTx;
+  eth_signTransaction: ETHSignTx;
+};

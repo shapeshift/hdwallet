@@ -4,21 +4,33 @@ import WalletConnect from "@walletconnect/client";
 import { IWalletConnectSession } from "@walletconnect/types";
 import { convertHexToUtf8 } from "@walletconnect/utils";
 
-import { WalletConnectCallRequest, WalletConnectSessionRequestPayload } from "./types";
+import {
+  WalletConnectCallRequest,
+  WalletConnectCallRequestResponseMap,
+  WalletConnectSessionRequestPayload
+} from "./types";
 
 const addressNList = core.bip32ToAddressNList("m/44'/60'/0'/0/0");
+
+type HDWalletWCBridgeOptions = {
+  onCallRequest(request: WalletConnectCallRequest): void;
+};
 
 export class HDWalletWCBridge {
   private logger = new Logger({ name: "HDWalletWCBridge", level: "debug" });
 
-  constructor(private readonly wallet: core.ETHWallet, private readonly connector: WalletConnect) {}
+  constructor(
+    private readonly wallet: core.ETHWallet,
+    public readonly connector: WalletConnect,
+    private readonly options?: HDWalletWCBridgeOptions
+  ) {}
 
-  static fromURI(uri: string, wallet: core.ETHWallet) {
-    return new HDWalletWCBridge(wallet, new WalletConnect({ uri }));
+  static fromURI(uri: string, wallet: core.ETHWallet, options?: HDWalletWCBridgeOptions) {
+    return new HDWalletWCBridge(wallet, new WalletConnect({ uri }), options);
   }
 
-  static fromSession(session: IWalletConnectSession, wallet: core.ETHWallet) {
-    return new HDWalletWCBridge(wallet, new WalletConnect({ session }));
+  static fromSession(session: IWalletConnectSession, wallet: core.ETHWallet, options?: HDWalletWCBridgeOptions) {
+    return new HDWalletWCBridge(wallet, new WalletConnect({ session }), options);
   }
 
   async connect() {
@@ -75,8 +87,15 @@ export class HDWalletWCBridge {
   async _onCallRequest(error: Error | null, payload: WalletConnectCallRequest) {
     this.log("Call Request", { error, payload });
 
+    this.options?.onCallRequest(payload);
+  }
+
+  public async approveRequest(
+    request: WalletConnectCallRequest,
+    approveData?: Partial<WalletConnectCallRequestResponseMap[keyof WalletConnectCallRequestResponseMap]>
+  ) {
     let result: any;
-    switch (payload.method) {
+    switch (request.method) {
       // TODO: figure out what to do for "eth_sign" and "eth_signTypedData".
       // MetaMaskHDWallet's ethSignMessage calls "personal_sign"
       // and the other fns don't seem to be exposed on HDWallet
@@ -92,14 +111,15 @@ export class HDWalletWCBridge {
       }
       case "personal_sign": {
         const response = await this.wallet.ethSignMessage({
+          ...approveData,
           addressNList,
-          message: this.convertHexToUtf8IfPossible(payload.params[0]),
+          message: this.convertHexToUtf8IfPossible(request.params[0]),
         });
         result = response?.signature;
         break;
       }
       case "eth_sendTransaction": {
-        const tx = payload.params[0];
+        const tx = request.params[0];
         const response = await this.wallet.ethSendTx?.({
           addressNList,
           chainId: tx.chainId,
@@ -108,12 +128,13 @@ export class HDWalletWCBridge {
           nonce: tx.nonce,
           to: tx.to,
           value: tx.value,
+          ...approveData,
         });
         result = response?.hash;
         break;
       }
       case "eth_signTransaction": {
-        const tx = payload.params[0];
+        const tx = request.params[0];
         const response = await this.wallet.ethSignTx({
           addressNList,
           chainId: tx.chainId,
@@ -122,19 +143,25 @@ export class HDWalletWCBridge {
           nonce: tx.nonce,
           to: tx.to,
           value: tx.value,
+          ...approveData,
         });
         result = response?.serialized;
       }
     }
 
     if (result) {
-      this.log("Approve Request", { payload, result });
-      this.connector.approveRequest({ id: payload.id, result });
+      this.log("Approve Request", { request, result });
+      this.connector.approveRequest({ id: request.id, result });
     } else {
       const message = "JSON RPC method not supported";
-      this.log("Reject Request", { payload, message });
-      this.connector.rejectRequest({ id: payload.id, error: { message } });
+      this.log("Reject Request (catch)", { request, message });
+      this.connector.rejectRequest({ id: request.id, error: { message } });
     }
+  }
+
+  public async rejectRequest(request: WalletConnectCallRequest) {
+    this.log("Reject Request", { request });
+    this.connector.rejectRequest({ id: request.id, error: { message: "Rejected by user" } });
   }
 
   private log(eventName: string, properties: object) {
