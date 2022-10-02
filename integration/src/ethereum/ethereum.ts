@@ -244,6 +244,52 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
     );
 
     test(
+      "ethSignTx() - AVAX",
+      async () => {
+        if (!wallet) return;
+        // only test keepkey AVAX signing
+        // eslint-disable-next-line jest/no-jasmine-globals, jest/no-disabled-tests
+
+        const txToSign = {
+          addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+          nonce: "0x01",
+          gasPrice: "0x1dcd65000",
+          gasLimit: "0x5622",
+          value: "0x2c68af0bb14000",
+          to: "0xDAFEA492D9c6733ae3d56b7Ed1ADB60692c98Bc5",
+          chainId: 43114,
+          data:
+            "0x" +
+            "a9059cbb000000000000000000000000" +
+            "1d8ce9022f6284c3a5c317f8f34620107214e545" +
+            "00000000000000000000000000000000000000000000000000000002540be400",
+        };
+        if (wallet.supportsOfflineSigning()) {
+          const res = await wallet.ethSignTx(txToSign);
+
+          // eslint-disable-next-line jest/no-conditional-expect
+          expect(res).toEqual({
+            r: "0x5183891ab9dc1c6813e43db1a156a2f8c9195a637c0dabe93a84281bcb1ca3c4",
+            s: "0x3ff9b668277c2d388bab436d209fdda1281b2b8fc4b3ad1d92464861afaa2e6f",
+            v: 86264,
+            serialized:
+              "0xf8b3018501dcd6500082562294dafea492d9c6733ae3d56b7ed1adb60692c98bc5872c68af0bb14000b844a9059cbb0000000000000000000000001d8ce9022f6284c3a5c317f8f34620107214e54500000000000000000000000000000000000000000000000000000002540be400830150f8a05183891ab9dc1c6813e43db1a156a2f8c9195a637c0dabe93a84281bcb1ca3c4a03ff9b668277c2d388bab436d209fdda1281b2b8fc4b3ad1d92464861afaa2e6f",
+          });
+        } else if (wallet.supportsBroadcast() && wallet.ethSendTx) {
+          const res = await wallet.ethSendTx(txToSign);
+
+          // eslint-disable-next-line jest/no-conditional-expect
+          expect(res).toMatchInlineSnapshot(`
+            Object {
+              "hash": "txHash-0xDAFEA492D9c6733ae3d56b7Ed1ADB60692c98Bc5",
+            }
+          `);
+        }
+      },
+      TIMEOUT
+    );
+
+    test(
       "ethSignTx() - long contract data",
       async () => {
         if (!wallet) return;
