@@ -61,7 +61,7 @@ export async function ethSignTx(
 
   handleError(transport, res, "Could not sign ETH transaction with Trezor");
 
-  const common = new Common({ chain: "mainnet", hardfork: "london" });
+  const common = Common.custom({ chainId: msg.chainId });
   const tx = Transaction.fromTxData({ ...utx, v: res.payload.v, r: res.payload.r, s: res.payload.s }, { common });
 
   return {
