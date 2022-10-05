@@ -83,13 +83,14 @@ export class MockTransport extends trezor.TrezorTransport {
       }
     );
 
+    // AVAX
     this.memoize(
       "ethereumSignTransaction",
       {
-        path: [2147483692, 2147483708, 2147483648, 0, 0],
+        path: [2147483692, 2147492648, 2147483648, 0, 0],
         transaction: {
           to: "0xDAFEA492D9c6733ae3d56b7Ed1ADB60692c98Bc5",
-          value: "0x2c68af0bb14000",
+          value: "0x00",
           data: "0xa9059cbb0000000000000000000000001d8ce9022f6284c3a5c317f8f34620107214e54500000000000000000000000000000000000000000000000000000002540be400",
           chainId: 43114,
           nonce: "0x01",
@@ -101,8 +102,8 @@ export class MockTransport extends trezor.TrezorTransport {
         success: true,
         payload: {
           v: 86264,
-          r: "0x5183891ab9dc1c6813e43db1a156a2f8c9195a637c0dabe93a84281bcb1ca3c4",
-          s: "0x3ff9b668277c2d388bab436d209fdda1281b2b8fc4b3ad1d92464861afaa2e6f",
+          r: "0x6852b5d760ca9f31098c747c6f8a747ee31ba7b1bca413dbe42805df8fbbb7c8",
+          s: "0x38f92d9c8e4d9a806d48b6bb2090c8d76808711cd345cb95f19c1843b334ffab",
         },
       }
     );
