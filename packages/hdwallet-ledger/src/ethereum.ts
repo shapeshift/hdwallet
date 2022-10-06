@@ -76,7 +76,7 @@ export async function ethGetPublicKeys(
 
 export async function ethSignTx(transport: LedgerTransport, msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
   const bip32path = core.addressNListToBIP32(msg.addressNList);
-  const common = new Common({ chain: "mainnet", hardfork: "london" });
+  const common = Common.custom({ chainId: msg.chainId });
   const txParams = {
     to: msg.to,
     value: msg.value,

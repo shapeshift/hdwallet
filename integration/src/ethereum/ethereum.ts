@@ -244,6 +244,51 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
     );
 
     test(
+      "ethSignTx() - AVAX",
+      async () => {
+        if (!wallet) return;
+        // eslint-disable-next-line jest/no-jasmine-globals, jest/no-disabled-tests
+
+        const txToSign = {
+          addressNList: core.bip32ToAddressNList("m/44'/9000'/0'/0/0"),
+          nonce: "0x01",
+          gasPrice: "0x1dcd65000",
+          gasLimit: "0x5622",
+          value: "0x00",
+          to: "0xDAFEA492D9c6733ae3d56b7Ed1ADB60692c98Bc5",
+          chainId: 43114,
+          data:
+            "0x" +
+            "a9059cbb000000000000000000000000" +
+            "1d8ce9022f6284c3a5c317f8f34620107214e545" +
+            "00000000000000000000000000000000000000000000000000000002540be400",
+        };
+        if (wallet.supportsOfflineSigning()) {
+          const res = await wallet.ethSignTx(txToSign);
+
+          // eslint-disable-next-line jest/no-conditional-expect
+          expect(res).toEqual({
+            r: "0x6852b5d760ca9f31098c747c6f8a747ee31ba7b1bca413dbe42805df8fbbb7c8",
+            s: "0x38f92d9c8e4d9a806d48b6bb2090c8d76808711cd345cb95f19c1843b334ffab",
+            v: 86264,
+            serialized:
+              "0xf8ac018501dcd6500082562294dafea492d9c6733ae3d56b7ed1adb60692c98bc580b844a9059cbb0000000000000000000000001d8ce9022f6284c3a5c317f8f34620107214e54500000000000000000000000000000000000000000000000000000002540be400830150f8a06852b5d760ca9f31098c747c6f8a747ee31ba7b1bca413dbe42805df8fbbb7c8a038f92d9c8e4d9a806d48b6bb2090c8d76808711cd345cb95f19c1843b334ffab",
+          });
+        } else if (wallet.supportsBroadcast() && wallet.ethSendTx) {
+          const res = await wallet.ethSendTx(txToSign);
+
+          // eslint-disable-next-line jest/no-conditional-expect
+          expect(res).toMatchInlineSnapshot(`
+            Object {
+              "hash": "txHash-0xDAFEA492D9c6733ae3d56b7Ed1ADB60692c98Bc5",
+            }
+          `);
+        }
+      },
+      TIMEOUT
+    );
+
+    test(
       "ethSignTx() - long contract data",
       async () => {
         if (!wallet) return;
