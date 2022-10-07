@@ -10,6 +10,7 @@ export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDW
   // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeETHWalletInfo extends Base implements core.ETHWalletInfo {
     readonly _supportsETHInfo = true;
+    _chainId = 1;
 
     async ethSupportsNetwork(): Promise<boolean> {
       return true;
@@ -25,6 +26,15 @@ export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDW
 
     async ethSupportsEIP1559(): Promise<boolean> {
       return true;
+    }
+
+    async ethGetChainId(): Promise<number | null> {
+      return Promise.resolve(this._chainId);
+    }
+
+    async ethSwitchChain(chainId: number): Promise<void> {
+      this._chainId = chainId;
+      return Promise.resolve();
     }
 
     ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {

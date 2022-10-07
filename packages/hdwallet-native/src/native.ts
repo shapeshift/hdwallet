@@ -214,7 +214,7 @@ export class NativeHDWallet
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
   readonly _supportsCosmos = true;
-  readonly _supportsEthSwitchChain = false;
+  readonly _supportsEthSwitchChain = true;
   readonly _supportsOsmosis = true;
   readonly _supportsBinance = true;
   readonly _supportsFio = true;

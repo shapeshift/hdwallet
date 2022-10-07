@@ -33,6 +33,29 @@ describe("NativeETHWalletInfo", () => {
     ]);
   });
 
+  it("should return the correct account paths for other coin", async () => {
+    const paths = info.ethGetAccountPaths({ coin: "Avalanche", accountIdx: 0 });
+    expect(paths).toMatchObject([
+      {
+        addressNList: core.bip32ToAddressNList("m/44'/9000'/0'/0/0"),
+        hardenedPath: core.bip32ToAddressNList("m/44'/9000'/0'"),
+        relPath: [0, 0],
+        description: "Native",
+      },
+    ]);
+  });
+
+  it("should return the correct chain id initially", async () => {
+    const chainId = await info.ethGetChainId();
+    expect(chainId).toEqual(1);
+  });
+
+  it("should return the correct chain id when ethSwitchChain has been called", async () => {
+    await info.ethSwitchChain(43114);
+    const chainId = await info.ethGetChainId();
+    expect(chainId).toEqual(43114);
+  });
+
   it("does not support getting the next account path", async () => {
     expect(untouchable.call(info, "ethNextAccountPath", {})).toBe(undefined);
   });
