@@ -4500,10 +4500,10 @@
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
 
-"@shapeshiftoss/proto-tx-builder@0.3.0", "@shapeshiftoss/proto-tx-builder@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.3.0.tgz#713413b3352d73bcc1ea1b04068522216950d38a"
-  integrity sha512-weav9Dygn6tXKQAq8c8Gs5q/CkmQ2Cm3cUXM3yQoZ+FbeZ8aPg/UmHDuLnYwoA2HezmXvqQsUHQY/IAideaOEA==
+"@shapeshiftoss/proto-tx-builder@0.4.0", "@shapeshiftoss/proto-tx-builder@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.4.0.tgz#970eadcd098e5851bc1938d227faa543c619c6a2"
+  integrity sha512-frXIpry5IxYQst1b2BrumYeepgJUNYFNFDub4w1yudKplFz0alQuKv5tbiDqVUbZQHs1Rq3KeJo7GUWgXEfkig==
   dependencies:
     "@cosmjs/encoding" "^0.28.13"
     "@cosmjs/proto-signing" "^0.28.13"
