@@ -45,17 +45,6 @@ describe("NativeETHWalletInfo", () => {
     ]);
   });
 
-  it("should return the correct chain id initially", async () => {
-    const chainId = await info.ethGetChainId();
-    expect(chainId).toEqual(1);
-  });
-
-  it("should return the correct chain id when ethSwitchChain has been called", async () => {
-    await info.ethSwitchChain(43114);
-    const chainId = await info.ethGetChainId();
-    expect(chainId).toEqual(43114);
-  });
-
   it("does not support getting the next account path", async () => {
     expect(untouchable.call(info, "ethNextAccountPath", {})).toBe(undefined);
   });

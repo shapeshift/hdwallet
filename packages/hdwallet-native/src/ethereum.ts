@@ -28,15 +28,6 @@ export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDW
       return true;
     }
 
-    async ethGetChainId(): Promise<number | null> {
-      return Promise.resolve(this._chainId);
-    }
-
-    async ethSwitchChain(chainId: number): Promise<void> {
-      this._chainId = chainId;
-      return Promise.resolve();
-    }
-
     ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
       const slip44 = core.slip44ByCoin(msg.coin);
       if (slip44 === undefined) return [];
