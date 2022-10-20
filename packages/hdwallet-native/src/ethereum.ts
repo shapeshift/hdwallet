@@ -10,6 +10,7 @@ export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDW
   // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeETHWalletInfo extends Base implements core.ETHWalletInfo {
     readonly _supportsETHInfo = true;
+    _chainId = 1;
 
     async ethSupportsNetwork(): Promise<boolean> {
       return true;

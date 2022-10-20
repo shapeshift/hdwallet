@@ -141,6 +141,10 @@ export function supportsEthSwitchChain(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsEthSwitchChain;
 }
 
+export function supportsAvalanche(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsAvalanche;
+}
+
 export function infoCosmos(info: HDWalletInfo): info is CosmosWalletInfo {
   return isObject(info) && (info as any)._supportsCosmosInfo;
 }
