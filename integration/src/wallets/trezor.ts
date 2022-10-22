@@ -87,7 +87,7 @@ export class MockTransport extends trezor.TrezorTransport {
     this.memoize(
       "ethereumSignTransaction",
       {
-        path: [2147483692, 2147492648, 2147483648, 0, 0],
+        path: [2147483692, 2147483708, 2147483648, 0, 0],
         transaction: {
           to: "0xDAFEA492D9c6733ae3d56b7Ed1ADB60692c98Bc5",
           value: "0x00",

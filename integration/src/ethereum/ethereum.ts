@@ -249,8 +249,10 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
         if (!wallet) return;
         // eslint-disable-next-line jest/no-jasmine-globals, jest/no-disabled-tests
 
+        if (portis.isPortis(wallet)) return; // Portis doesn't support AVAX C-Chain
+
         const txToSign = {
-          addressNList: core.bip32ToAddressNList("m/44'/9000'/0'/0/0"),
+          addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
           nonce: "0x01",
           gasPrice: "0x1dcd65000",
           gasLimit: "0x5622",
@@ -268,11 +270,11 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
 
           // eslint-disable-next-line jest/no-conditional-expect
           expect(res).toEqual({
-            r: "0x6852b5d760ca9f31098c747c6f8a747ee31ba7b1bca413dbe42805df8fbbb7c8",
-            s: "0x38f92d9c8e4d9a806d48b6bb2090c8d76808711cd345cb95f19c1843b334ffab",
+            r: "0x119c4c0d4b6301aaa363f738680a6c0836b9c7331faf34d8485f683541d63040",
+            s: "0x6618ceebe49b2cb2789a9012b2bad6c1c291a15ea2fdfe060f73e7d42db786c5",
             v: 86264,
             serialized:
-              "0xf8ac018501dcd6500082562294dafea492d9c6733ae3d56b7ed1adb60692c98bc580b844a9059cbb0000000000000000000000001d8ce9022f6284c3a5c317f8f34620107214e54500000000000000000000000000000000000000000000000000000002540be400830150f8a06852b5d760ca9f31098c747c6f8a747ee31ba7b1bca413dbe42805df8fbbb7c8a038f92d9c8e4d9a806d48b6bb2090c8d76808711cd345cb95f19c1843b334ffab",
+              "0xf8ac018501dcd6500082562294dafea492d9c6733ae3d56b7ed1adb60692c98bc580b844a9059cbb0000000000000000000000001d8ce9022f6284c3a5c317f8f34620107214e54500000000000000000000000000000000000000000000000000000002540be400830150f8a0119c4c0d4b6301aaa363f738680a6c0836b9c7331faf34d8485f683541d63040a06618ceebe49b2cb2789a9012b2bad6c1c291a15ea2fdfe060f73e7d42db786c5",
           });
         } else if (wallet.supportsBroadcast() && wallet.ethSendTx) {
           const res = await wallet.ethSendTx(txToSign);
