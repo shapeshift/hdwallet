@@ -249,7 +249,9 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
         if (!wallet) return;
         // eslint-disable-next-line jest/no-jasmine-globals, jest/no-disabled-tests
 
-        if (portis.isPortis(wallet)) return; // Portis doesn't support AVAX C-Chain
+        if (ledger.isLedger(wallet)) return; // FIXME: just test kk and native for now
+        if (trezor.isTrezor(wallet)) return; // FIXME: just test kk and native for now
+        if (portis.isPortis(wallet)) return; // FIXME: just test kk and native for now
 
         const txToSign = {
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
