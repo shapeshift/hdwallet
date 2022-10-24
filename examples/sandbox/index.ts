@@ -14,6 +14,7 @@ import * as tallyHo from "@shapeshiftoss/hdwallet-tallyho";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
 import { WalletConnectProviderConfig } from "@shapeshiftoss/hdwallet-walletconnect";
 import * as walletConnect from "@shapeshiftoss/hdwallet-walletconnect";
+import { HDWalletWCBridge } from "@shapeshiftoss/hdwallet-walletconnect-bridge";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 import $ from "jquery";
 import Web3 from "web3";
@@ -416,6 +417,61 @@ window["useTestWallet"] = async function () {
   });
   document.getElementById("#mnemonicModal").className = "modal";
 };
+
+const $wcConnectButton = $("#wcConnectButton");
+const $wcReconnectButton = $("#wcReconnectButton");
+const $wcDisconnectButton = $("#wcDisconnectButton");
+let $wcBridge: HDWalletWCBridge;
+
+$wcConnectButton.on("click", async (e) => {
+  e.preventDefault();
+
+  if ($wcBridge) {
+    alert("Wallet Connect already connected. Disconnect first");
+  }
+
+  const input = document.getElementById("wcUriInput") as HTMLInputElement;
+  const wcUri = input.value;
+
+  $wcBridge = HDWalletWCBridge.fromURI(wcUri, wallet);
+  await $wcBridge.connect();
+});
+
+$wcReconnectButton.on("click", async (e) => {
+  e.preventDefault();
+
+  if ($wcBridge) {
+    alert("Wallet Connect already connected. Disconnect first");
+    return;
+  }
+
+  const wcSessionJsonString = localStorage.getItem("walletconnect");
+  if (!wcSessionJsonString) {
+    alert("No existing Wallet Connect session found");
+    return;
+  }
+
+  try {
+    const session = JSON.parse(wcSessionJsonString);
+    $wcBridge = HDWalletWCBridge.fromSession(session, wallet);
+    await $wcBridge.connect();
+  } catch (error) {
+    alert("Failed connecting: " + JSON.stringify({ error, wcSessionJsonString }, null, 2));
+    $wcBridge?.disconnect();
+  }
+});
+
+$wcDisconnectButton.on("click", async (e) => {
+  e.preventDefault();
+
+  if (!$wcBridge) {
+    alert("Wallet Connect not connected");
+    return;
+  }
+
+  $wcBridge.disconnect();
+  $wcBridge = null;
+});
 
 const $yes = $("#yes");
 const $no = $("#no");
