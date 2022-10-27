@@ -1,11 +1,12 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import WalletConnect from "@walletconnect/client";
 
-import { HDWalletWCBridge } from "./bridge";
+import { HDWalletWCBridge, HDWalletWCBridgeOptions } from "./bridge";
 
 describe("HDWalletWCBridge", () => {
   let bridge: HDWalletWCBridge;
   let connector: Partial<WalletConnect>;
+  let options: HDWalletWCBridgeOptions;
 
   beforeEach(async () => {
     const wallet: Partial<core.ETHWallet> = {
@@ -33,7 +34,9 @@ describe("HDWalletWCBridge", () => {
       approveRequest: jest.fn(),
       rejectRequest: jest.fn(),
     };
-    bridge = new HDWalletWCBridge(wallet as core.ETHWallet, connector as WalletConnect);
+    const onCallRequest = jest.fn();
+    options = { onCallRequest };
+    bridge = new HDWalletWCBridge(wallet as core.ETHWallet, connector as WalletConnect, options);
   });
 
   it("should subscribe to events when connecting", async () => {
@@ -60,96 +63,6 @@ describe("HDWalletWCBridge", () => {
         chainId: 4,
         accounts: ["test address"],
       });
-    });
-  });
-
-  describe("on call_request", () => {
-    it("eth_sign", async () => {
-      await bridge._onCallRequest(null, {
-        id: 1,
-        method: "eth_sign",
-        payload: null,
-      });
-
-      expect(connector.approveRequest).not.toHaveBeenCalled();
-      expect(connector.rejectRequest).toHaveBeenCalledWith({
-        id: 1,
-        error: { message: "JSON RPC method not supported" },
-      });
-    });
-
-    it("eth_signTypedData", async () => {
-      await bridge._onCallRequest(null, {
-        id: 42,
-        method: "eth_signTypedData",
-        payload: null,
-      });
-
-      expect(connector.approveRequest).not.toHaveBeenCalled();
-      expect(connector.rejectRequest).toHaveBeenCalledWith({
-        id: 42,
-        error: { message: "JSON RPC method not supported" },
-      });
-    });
-
-    it("personal_sign", async () => {
-      await bridge._onCallRequest(null, {
-        id: 42,
-        method: "personal_sign",
-        params: ["message to be signed", ""],
-      });
-
-      expect(connector.approveRequest).toHaveBeenCalledWith({
-        id: 42,
-        result: "test signature",
-      });
-      expect(connector.rejectRequest).not.toHaveBeenCalled();
-    });
-
-    it("eth_sendTransaction", async () => {
-      await bridge._onCallRequest(null, {
-        id: 42,
-        method: "eth_sendTransaction",
-        params: [
-          {
-            chainId: 0,
-            data: "0x0",
-            gasLimit: "0x0",
-            nonce: "0x0",
-            to: "0x0",
-            value: "0x0",
-          },
-        ],
-      });
-
-      expect(connector.approveRequest).toHaveBeenCalledWith({
-        id: 42,
-        result: "tx hash",
-      });
-      expect(connector.rejectRequest).not.toHaveBeenCalled();
-    });
-
-    it("eth_signTransaction", async () => {
-      await bridge._onCallRequest(null, {
-        id: 42,
-        method: "eth_signTransaction",
-        params: [
-          {
-            chainId: 0,
-            data: "0x0",
-            gas: "0x0",
-            nonce: "0x0",
-            to: "0x0",
-            value: "0x0",
-          },
-        ],
-      });
-
-      expect(connector.approveRequest).toHaveBeenCalledWith({
-        id: 42,
-        result: "serialized signature",
-      });
-      expect(connector.rejectRequest).not.toHaveBeenCalled();
     });
   });
 });

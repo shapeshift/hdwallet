@@ -7,12 +7,12 @@ import { convertHexToUtf8 } from "@walletconnect/utils";
 import {
   WalletConnectCallRequest,
   WalletConnectCallRequestResponseMap,
-  WalletConnectSessionRequestPayload
+  WalletConnectSessionRequestPayload,
 } from "./types";
 
 const addressNList = core.bip32ToAddressNList("m/44'/60'/0'/0/0");
 
-type HDWalletWCBridgeOptions = {
+export type HDWalletWCBridgeOptions = {
   onCallRequest(request: WalletConnectCallRequest): void;
 };
 
