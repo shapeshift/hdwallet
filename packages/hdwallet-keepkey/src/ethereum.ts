@@ -148,7 +148,7 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
     const v = core.mustBeDefined(response.getSignatureV());
     const v2 = "0x" + v.toString(16);
 
-    const common = new Common({ chain: "mainnet", hardfork: "london" });
+    const common = Common.custom({ chainId: msg.chainId });
     const tx = msg.maxFeePerGas
       ? FeeMarketEIP1559Transaction.fromTxData({
           ...utxBase,

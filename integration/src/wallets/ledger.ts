@@ -113,6 +113,18 @@ export class MockTransport extends ledger.LedgerTransport {
         )
       );
 
+      // AVAX
+      this.memoize(
+        "Eth",
+        "signTransaction",
+        JSON.parse(
+          '["m/44\'/9000\'/0\'/0/0","f86b018501dcd6500082562294dafea492d9c6733ae3d56b7ed1adb60692c98bc580b844a9059cbb0000000000000000000000001d8ce9022f6284c3a5c317f8f34620107214e54500000000000000000000000000000000000000000000000000000002540be40082a86a8080"]'
+        ),
+        JSON.parse(
+          '{"success":true,"payload":{"v": "150F8","r":"6852b5d760ca9f31098c747c6f8a747ee31ba7b1bca413dbe42805df8fbbb7c8","s":"38f92d9c8e4d9a806d48b6bb2090c8d76808711cd345cb95f19c1843b334ffab"},"coin":"Eth","method":"signTransaction"}'
+        )
+      );
+
       // Bitcoin:
       // first mock of getPublicKeys()
       this.memoize(
@@ -247,6 +259,11 @@ export function selfTest(get: () => core.HDWallet): void {
     if (!wallet) return;
     expect(await wallet.ethSupportsSecureTransfer()).toEqual(false);
     expect(await wallet.btcSupportsSecureTransfer()).toEqual(false);
+  });
+
+  it("supports bip44 accounts", async () => {
+    if (!wallet) return;
+    expect(wallet.supportsBip44Accounts()).toEqual(true);
   });
 
   it("validates current app", async () => {

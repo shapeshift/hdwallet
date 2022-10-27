@@ -41,7 +41,7 @@ export namespace Cosmos {
   export interface StdTx {
     msg: Msg[];
     fee: StdFee;
-    signatures?: null | StdSignature[];
+    signatures: StdSignature[];
     memo?: string;
   }
 }
@@ -49,7 +49,7 @@ export namespace Cosmos {
 export interface CosmosTx {
   msg: Cosmos.Msg[];
   fee: Cosmos.StdFee;
-  signatures?: null | Cosmos.StdSignature[];
+  signatures: Cosmos.StdSignature[];
   memo?: string;
 }
 

@@ -37,6 +37,10 @@ export class XDEFIHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo 
     return false;
   }
 
+  public supportsBip44Accounts(): boolean {
+    return false;
+  }
+
   public supportsOfflineSigning(): boolean {
     return false;
   }
@@ -85,6 +89,7 @@ export class XDEFIHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
   readonly _supportsEthSwitchChain = true;
+  readonly _supportsAvalanche = true;
   readonly _supportsBTCInfo = false;
   readonly _supportsBTC = false;
   readonly _supportsCosmosInfo = false;
@@ -142,6 +147,10 @@ export class XDEFIHDWallet implements core.HDWallet, core.ETHWallet {
 
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return this.info.hasNativeShapeShift(srcCoin, dstCoin);
+  }
+
+  public supportsBip44Accounts(): boolean {
+    return this.info.supportsBip44Accounts();
   }
 
   public supportsOfflineSigning(): boolean {

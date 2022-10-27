@@ -12,21 +12,22 @@ export class Node extends Revocable(class {}) implements BIP32.Node, SecP256K1.E
   readonly #privateKey: Buffer & ByteArray<32>;
   readonly chainCode: Buffer & BIP32.ChainCode;
   #publicKey: SecP256K1.CompressedPoint | undefined;
-
+  readonly explicitPath?: string;
   // When running tests, this will keep us aware of any codepaths that don't pass in the preimage
   static requirePreimage = typeof expect === "function";
 
-  protected constructor(privateKey: Uint8Array, chainCode: Uint8Array) {
+  protected constructor(privateKey: Uint8Array, chainCode: Uint8Array, explicitPath?: string) {
     super();
     // We avoid handing the private key to any non-platform code -- including our type-checking machinery.
     if (privateKey.length !== 32) throw new Error("bad private key length");
     this.#privateKey = safeBufferFrom(privateKey) as Buffer & ByteArray<32>;
     this.addRevoker(() => this.#privateKey.fill(0));
     this.chainCode = safeBufferFrom(checkType(BIP32.ChainCode, chainCode)) as Buffer & BIP32.ChainCode;
+    this.explicitPath = explicitPath;
   }
 
-  static async create(privateKey: Uint8Array, chainCode: Uint8Array): Promise<BIP32.Node> {
-    const obj = new Node(privateKey, chainCode);
+  static async create(privateKey: Uint8Array, chainCode: Uint8Array, explicitPath?: string): Promise<BIP32.Node> {
+    const obj = new Node(privateKey, chainCode, explicitPath);
     return revocable(obj, (x) => obj.addRevoker(x));
   }
 

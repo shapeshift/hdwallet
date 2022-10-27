@@ -55,6 +55,10 @@ export class KeplrHDWalletInfo implements core.HDWalletInfo, core.CosmosWalletIn
     return false;
   }
 
+  public supportsBip44Accounts(): boolean {
+    return false;
+  }
+
   public supportsOfflineSigning(): boolean {
     return true;
   }
@@ -194,6 +198,10 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
 
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return this.info.hasNativeShapeShift(srcCoin, dstCoin);
+  }
+
+  public supportsBip44Accounts(): boolean {
+    return this.info.supportsBip44Accounts();
   }
 
   public supportsOfflineSigning(): boolean {

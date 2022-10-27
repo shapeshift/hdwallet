@@ -196,6 +196,10 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     return false;
   }
 
+  public supportsBip44Accounts(): boolean {
+    return true;
+  }
+
   public supportsOfflineSigning(): boolean {
     return true;
   }
@@ -263,6 +267,7 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
   readonly _supportsEthSwitchChain = true;
+  readonly _supportsAvalanche = true;
   readonly _supportsKavaInfo = true;
   readonly _supportsTerraInfo = true;
   readonly _isTrezor = true;
@@ -461,6 +466,10 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return false;
+  }
+
+  public supportsBip44Accounts(): boolean {
+    return this.info.supportsBip44Accounts();
   }
 
   public supportsOfflineSigning(): boolean {

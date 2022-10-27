@@ -61,6 +61,10 @@ export class MetaMaskHDWalletInfo implements core.HDWalletInfo, core.ETHWalletIn
     return false;
   }
 
+  public supportsBip44Accounts(): boolean {
+    return false;
+  }
+
   public supportsOfflineSigning(): boolean {
     return false;
   }
@@ -113,6 +117,7 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsCosmosInfo = false;
   readonly _supportsCosmos = false;
   readonly _supportsEthSwitchChain = true;
+  readonly _supportsAvalanche = true;
   readonly _supportsOsmosisInfo = false;
   readonly _supportsOsmosis = false;
   readonly _supportsBinanceInfo = false;
@@ -186,6 +191,10 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
 
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return this.info.hasNativeShapeShift(srcCoin, dstCoin);
+  }
+
+  public supportsBip44Accounts(): boolean {
+    return this.info.supportsBip44Accounts();
   }
 
   public supportsOfflineSigning(): boolean {
