@@ -2,8 +2,10 @@ import Common from "@ethereumjs/common";
 import { FeeMarketEIP1559Transaction, Transaction } from "@ethereumjs/tx";
 import * as Exchange from "@keepkey/device-protocol/lib/exchange_pb";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
+import * as Ethereum from "@keepkey/device-protocol/lib/messages-ethereum_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { getMessage, getTypeHash, TypedData } from "eip-712";
 import * as eip55 from "eip55";
 import * as ethers from "ethers";
 
@@ -43,7 +45,7 @@ function stripLeadingZeroes(buf: Uint8Array) {
 
 export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
   return transport.lockDuring(async () => {
-    const est: Messages.EthereumSignTx = new Messages.EthereumSignTx();
+    const est: Ethereum.EthereumSignTx = new Ethereum.EthereumSignTx();
     est.setAddressNList(msg.addressNList);
     est.setNonce(stripLeadingZeroes(core.arrayify(msg.nonce)));
     est.setGasLimit(core.arrayify(msg.gasLimit));
@@ -105,14 +107,14 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
       est.setChainId(msg.chainId);
     }
 
-    let response: Messages.EthereumTxRequest;
+    let response: Ethereum.EthereumTxRequest;
     let nextResponse = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNTX, est, {
       msgTimeout: core.LONG_TIMEOUT,
       omitLock: true,
     });
-    response = nextResponse.proto as Messages.EthereumTxRequest;
+    response = nextResponse.proto as Ethereum.EthereumTxRequest;
     try {
-      const esa: Messages.EthereumTxAck = new Messages.EthereumTxAck();
+      const esa: Ethereum.EthereumTxAck = new Ethereum.EthereumTxAck();
       while (response.hasDataLength()) {
         const dataLength = response.getDataLength();
         dataRemaining = core.mustBeDefined(dataRemaining);
@@ -124,7 +126,7 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
           msgTimeout: core.LONG_TIMEOUT,
           omitLock: true,
         });
-        response = nextResponse.proto as Messages.EthereumTxRequest;
+        response = nextResponse.proto as Ethereum.EthereumTxRequest;
       }
     } catch (error) {
       console.error({ error });
@@ -170,13 +172,13 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
 }
 
 export async function ethGetAddress(transport: Transport, msg: core.ETHGetAddress): Promise<string> {
-  const getAddr = new Messages.EthereumGetAddress();
+  const getAddr = new Ethereum.EthereumGetAddress();
   getAddr.setAddressNList(msg.addressNList);
   getAddr.setShowDisplay(msg.showDisplay !== false);
   const response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMGETADDRESS, getAddr, {
     msgTimeout: core.LONG_TIMEOUT,
   });
-  const ethAddress = response.proto as Messages.EthereumAddress;
+  const ethAddress = response.proto as Ethereum.EthereumAddress;
 
   let address: string;
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -188,21 +190,94 @@ export async function ethGetAddress(transport: Transport, msg: core.ETHGetAddres
 }
 
 export async function ethSignMessage(transport: Transport, msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
-  const m = new Messages.EthereumSignMessage();
+  const m = new Ethereum.EthereumSignMessage();
   m.setAddressNList(msg.addressNList);
   m.setMessage(ethers.utils.isBytes(msg.message) ? ethers.utils.arrayify(msg.message) : toUTF8Array(msg.message));
   const response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNMESSAGE, m, {
     msgTimeout: core.LONG_TIMEOUT,
   });
-  const sig = response.proto as Messages.EthereumMessageSignature;
+  const sig = response.proto as Ethereum.EthereumMessageSignature;
   return {
     address: eip55.encode("0x" + core.toHexString(sig.getAddress_asU8())), // FIXME: this should be done in the firmware
     signature: "0x" + core.toHexString(sig.getSignature_asU8()),
   };
 }
 
+export async function ethSignTypedData(
+  transport: Transport,
+  msg: core.ETHSignTypedData
+): Promise<core.ETHSignedTypedData> {
+  const makeCString = (str: string): string => {
+    // eslint-disable-next-line no-control-regex
+    return (str + "").replace(/[\\"']/g, "\\$&").replace(/\u0000/g, "\\0");
+  };
+  /**
+   * If the message to be signed is sufficiently small, the KeepKey can calculate the
+   * domain separator and message hashes. Otherwise, we need to pre-calculate hashes
+   * here and verify on device.
+   */
+
+  let result: Ethereum.EthereumTypedDataSignature;
+
+  const sTypes = makeCString(JSON.stringify(msg.types));
+  const sPrimaryType = makeCString(JSON.stringify(msg.primaryType));
+  const sDomain = makeCString(JSON.stringify(msg.domain));
+  const sMessage = makeCString(JSON.stringify(msg.message));
+
+  if (sTypes.length > 2048 || sPrimaryType.length > 80 || sDomain.length > 2048 || sMessage.length > 2048) {
+    const hashableMessage: TypedData = {
+      domain: msg.domain,
+      types: msg.types,
+      primaryType: msg.primaryType,
+      message: msg.message,
+    };
+    /* Pre-calculate domain separator and messages hashes and verify on KeepKey */
+    const domainSeparatorHash = getTypeHash(hashableMessage, "EIP712Domain").toString();
+    const messageHash = getMessage(hashableMessage, true);
+    const t = new Ethereum.EthereumSignTypedHash();
+    t.setAddressNList(msg.addressNList);
+    t.setMessageHash(messageHash);
+    t.setDomainSeparatorHash(domainSeparatorHash);
+
+    const response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNTYPEDHASH, t, {
+      msgTimeout: core.LONG_TIMEOUT,
+    });
+
+    result = response.proto as Ethereum.EthereumTypedDataSignature;
+  } else {
+    /* Let KeepKey calculate domain separator and message hashes */
+    const t = new Ethereum.Ethereum712TypesValues();
+    t.setAddressNList(msg.addressNList);
+    t.setEip712types(sTypes);
+    t.setEip712primetype(sPrimaryType);
+    t.setEip712data(sDomain);
+    t.setEip712typevals(1);
+
+    let response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUM712TYPESVALUES, t, {
+      msgTimeout: core.LONG_TIMEOUT,
+    });
+
+    t.setEip712data(sMessage);
+    t.setEip712typevals(2);
+
+    response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUM712TYPESVALUES, t, {
+      msgTimeout: core.LONG_TIMEOUT,
+    });
+
+    result = response.proto as Ethereum.EthereumTypedDataSignature;
+  }
+
+  const res: core.ETHSignedTypedData = {
+    signature: core.toHexString(result.getSignature_asU8()),
+    address: result.getAddress() || "",
+    domainSeparatorHash: core.toHexString(result.getDomainSeparatorHash_asU8()),
+    messageHash: result.hasMessageHash() ? core.toHexString(result.getMessageHash_asU8()) : undefined,
+  };
+  return res;
+}
+
 export async function ethVerifyMessage(transport: Transport, msg: core.ETHVerifyMessage): Promise<boolean> {
-  const m = new Messages.EthereumVerifyMessage();
+  const m = new Ethereum.EthereumVerifyMessage();
   m.setAddress(core.arrayify(msg.address));
   m.setSignature(core.arrayify(msg.signature));
   m.setMessage(ethers.utils.isBytes(msg.message) ? ethers.utils.arrayify(msg.message) : toUTF8Array(msg.message));
