@@ -171,31 +171,6 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
       this.onConnect(payload);
     });
 
-    // 3 disconnect events
-    // this.provider.connector.on("disconnect", (error) => {
-    //   if (error) {
-    //     throw error;
-    //   }
-    //   console.info("received disconnect, disconnecting");
-    //   this.onDisconnect();
-    // });
-
-    // this.provider.connector.on("stop", (error) => {
-    //   if (error) {
-    //     throw error;
-    //   }
-    //   console.info("received stop, disconnecting");
-    //   this.onDisconnect();
-    // });
-
-    this.provider.wc.on("disconnect", (error) => {
-      if (error) {
-        throw error;
-      }
-      console.info("walletconnect.ts: received wc.disconnect, disconnecting");
-      this.onDisconnect();
-    });
-
     /** Display QR modal to connect */
     await this.provider.enable();
   }
@@ -390,6 +365,10 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
     return "WalletConnect";
   }
 
+  public clearState() {
+    this.setState({ connected: false, chainId: 1, accounts: [], address: "" });
+  }
+
   private onConnect(payload: any) {
     const { accounts, chainId } = payload.params[0];
     const [address] = accounts;
@@ -399,18 +378,6 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
   private onSessionUpdate(accounts: string[], chainId: number) {
     const [address] = accounts;
     this.setState({ accounts, address, chainId });
-  }
-
-  /**
-   * onDisconnect
-   *
-   * Resets state.
-   */
-  private onDisconnect() {
-    this.setState({ connected: false, chainId: 1, accounts: [], address: "" });
-    console.info(
-      `post clear state, connected: ${this.connected}, chainId: ${this.chainId}, ethAddr: ${this.ethAddress}`
-    );
   }
 
   private setState(config: WCState) {

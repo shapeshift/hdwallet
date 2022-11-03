@@ -39,24 +39,29 @@ export class WalletConnectAdapter {
       const deviceID = await wallet.getDeviceID();
       this.keyring.add(wallet, deviceID);
       this.keyring.emit(["WalletConnect", deviceID, core.Events.CONNECT], deviceID);
-      let disconnectedB = false;
-      provider.connector.on("disconnect", (error) => {
-        if (error) {
-          throw error;
-        }
-        if (!disconnectedB) {
-          disconnectedB = true;
-          console.info("adapter.ts: received disconnect, emitting DISCONNECT event");
-          this.keyring.emit(["WalletConnect", deviceID, core.Events.DISCONNECT], deviceID);
-        } else {
-          console.warn(`already disconnected wallet ${deviceID}`);
-        }
-      });
+      provider.connector.on("disconnect", this.handleDisconnect(deviceID));
 
       return wallet;
     } catch (error) {
       console.error("Could not pair WalletConnect");
       throw error;
     }
+  }
+
+  private handleDisconnect(deviceID: string) {
+    return (error: Error | null) => {
+      if (error) {
+        throw error;
+      }
+
+      const wallet = this.keyring.get<WalletConnectHDWallet>();
+      if (!wallet) {
+        return;
+      }
+
+      console.info("adapter.ts: received disconnect, emitting DISCONNECT event");
+      this.keyring.emit(["WalletConnect", deviceID, core.Events.DISCONNECT], deviceID);
+      wallet.clearState();
+    };
   }
 }
