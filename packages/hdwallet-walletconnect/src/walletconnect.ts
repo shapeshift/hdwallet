@@ -171,10 +171,28 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
       this.onConnect(payload);
     });
 
-    this.provider.connector.on("disconnect", (error) => {
+    // 3 disconnect events
+    // this.provider.connector.on("disconnect", (error) => {
+    //   if (error) {
+    //     throw error;
+    //   }
+    //   console.info("received disconnect, disconnecting");
+    //   this.onDisconnect();
+    // });
+
+    // this.provider.connector.on("stop", (error) => {
+    //   if (error) {
+    //     throw error;
+    //   }
+    //   console.info("received stop, disconnecting");
+    //   this.onDisconnect();
+    // });
+
+    this.provider.wc.on("disconnect", (error) => {
       if (error) {
         throw error;
       }
+      console.info("walletconnect.ts: received wc.disconnect, disconnecting");
       this.onDisconnect();
     });
 
@@ -390,6 +408,9 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
    */
   private onDisconnect() {
     this.setState({ connected: false, chainId: 1, accounts: [], address: "" });
+    console.info(
+      `post clear state, connected: ${this.connected}, chainId: ${this.chainId}, ethAddr: ${this.ethAddress}`
+    );
   }
 
   private setState(config: WCState) {
