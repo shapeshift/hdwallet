@@ -1,3 +1,4 @@
+/* eslint-disable no-debugger */
 import Common from "@ethereumjs/common";
 import { FeeMarketEIP1559Transaction, Transaction } from "@ethereumjs/tx";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
@@ -189,10 +190,6 @@ export async function ethSignTypedData(
   transport: Transport,
   msg: core.ETHSignTypedData
 ): Promise<core.ETHSignedTypedData> {
-  const makeCString = (str: string): string => {
-    // eslint-disable-next-line no-control-regex
-    return (str + "").replace(/[\\"']/g, "\\$&").replace(/\u0000/g, "\\0");
-  };
   /**
    * If the message to be signed is sufficiently small, the KeepKey can calculate the
    * domain separator and message hashes. Otherwise, we need to pre-calculate hashes
@@ -201,52 +198,63 @@ export async function ethSignTypedData(
 
   let result: Ethereum.EthereumTypedDataSignature;
 
-  const sTypes = makeCString(JSON.stringify(msg.types));
-  const sPrimaryType = makeCString(JSON.stringify(msg.primaryType));
-  const sDomain = makeCString(JSON.stringify(msg.domain));
-  const sMessage = makeCString(JSON.stringify(msg.message));
+  const sTypes = JSON.stringify({ types: msg.types });
+  const sPrimaryType = JSON.stringify({ primaryType: msg.primaryType });
+  const sDomain = JSON.stringify({ domain: msg.domain });
+  const sMessage = JSON.stringify({ message: msg.message });
 
-  if (sTypes.length > 2048 || sPrimaryType.length > 80 || sDomain.length > 2048 || sMessage.length > 2048) {
-    const hashableMessage: TypedData = {
-      domain: msg.domain,
-      types: msg.types,
-      primaryType: msg.primaryType,
-      message: msg.message,
-    };
-    /* Pre-calculate domain separator and messages hashes and verify on KeepKey */
-    const domainSeparatorHash = getTypeHash(hashableMessage, "EIP712Domain").toString();
-    const messageHash = getMessage(hashableMessage, true);
-    const t = new Ethereum.EthereumSignTypedHash();
-    t.setAddressNList(msg.addressNList);
-    t.setMessageHash(messageHash);
-    t.setDomainSeparatorHash(domainSeparatorHash);
+  try {
+    if (sTypes.length > 2048 || sPrimaryType.length > 80 || sDomain.length > 2048 || sMessage.length > 2048) {
+      const hashableMessage: TypedData = {
+        domain: msg.domain,
+        types: msg.types,
+        primaryType: msg.primaryType,
+        message: msg.message,
+      };
+      /* Pre-calculate domain separator and messages hashes and verify on KeepKey */
+      const domainSeparatorHash = getTypeHash(hashableMessage, "EIP712Domain").toString();
+      const messageHash = getMessage(hashableMessage, true);
+      const t = new Ethereum.EthereumSignTypedHash();
+      t.setAddressNList(msg.addressNList);
+      t.setMessageHash(messageHash);
+      t.setDomainSeparatorHash(domainSeparatorHash);
 
-    const response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNTYPEDHASH, t, {
-      msgTimeout: core.LONG_TIMEOUT,
-    });
+      const response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNTYPEDHASH, t, {
+        msgTimeout: core.LONG_TIMEOUT,
+      });
 
-    result = response.proto as Ethereum.EthereumTypedDataSignature;
-  } else {
-    /* Let KeepKey calculate domain separator and message hashes */
-    const t = new Ethereum.Ethereum712TypesValues();
-    t.setAddressNList(msg.addressNList);
-    t.setEip712types(sTypes);
-    t.setEip712primetype(sPrimaryType);
-    t.setEip712data(sDomain);
-    t.setEip712typevals(1);
+      result = response.proto as Ethereum.EthereumTypedDataSignature;
+    } else {
+      /* Let KeepKey calculate domain separator and message hashes */
+      const dsh = new Ethereum.Ethereum712TypesValues();
+      dsh.setAddressNList(msg.addressNList);
+      dsh.setEip712types(sTypes);
+      dsh.setEip712primetype(sPrimaryType);
+      dsh.setEip712data(sDomain);
+      dsh.setEip712typevals(1);
 
-    let response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUM712TYPESVALUES, t, {
-      msgTimeout: core.LONG_TIMEOUT,
-    });
+      let response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUM712TYPESVALUES, dsh, {
+        msgTimeout: core.LONG_TIMEOUT,
+        omitLock: true,
+      });
 
-    t.setEip712data(sMessage);
-    t.setEip712typevals(2);
+      const mh = new Ethereum.Ethereum712TypesValues();
+      mh.setAddressNList(msg.addressNList);
+      mh.setEip712types(sTypes);
+      mh.setEip712primetype(sPrimaryType);
 
-    response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUM712TYPESVALUES, t, {
-      msgTimeout: core.LONG_TIMEOUT,
-    });
+      mh.setEip712data(sMessage);
+      mh.setEip712typevals(2);
+      response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUM712TYPESVALUES, mh, {
+        msgTimeout: core.LONG_TIMEOUT,
+        omitLock: true,
+      });
 
-    result = response.proto as Ethereum.EthereumTypedDataSignature;
+      result = response.proto as Ethereum.EthereumTypedDataSignature;
+    }
+  } catch (error) {
+    console.error({ error });
+    throw new Error("Failed to sign typed ETH message");
   }
 
   const res: core.ETHSignedTypedData = {
@@ -255,6 +263,7 @@ export async function ethSignTypedData(
     domainSeparatorHash: core.toHexString(result.getDomainSeparatorHash_asU8()),
     messageHash: result.hasMessageHash() ? core.toHexString(result.getMessageHash_asU8()) : undefined,
   };
+
   return res;
 }
 
