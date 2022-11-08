@@ -37,8 +37,8 @@ describe("NativeETHWalletInfo", () => {
     const paths = info.ethGetAccountPaths({ coin: "Avalanche", accountIdx: 0 });
     expect(paths).toMatchObject([
       {
-        addressNList: core.bip32ToAddressNList("m/44'/9000'/0'/0/0"),
-        hardenedPath: core.bip32ToAddressNList("m/44'/9000'/0'"),
+        addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+        hardenedPath: core.bip32ToAddressNList("m/44'/60'/0'"),
         relPath: [0, 0],
         description: "Native",
       },
