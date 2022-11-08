@@ -3,6 +3,8 @@ import WalletConnect from "@walletconnect/client";
 
 import { HDWalletWCBridge, HDWalletWCBridgeOptions } from "./bridge";
 
+const mainnetChainId = "1";
+
 describe("HDWalletWCBridge", () => {
   let bridge: HDWalletWCBridge;
   let connector: Partial<WalletConnect>;
@@ -36,7 +38,7 @@ describe("HDWalletWCBridge", () => {
     };
     const onCallRequest = jest.fn();
     options = { onCallRequest };
-    bridge = new HDWalletWCBridge(wallet as core.ETHWallet, connector as WalletConnect, options);
+    bridge = new HDWalletWCBridge(wallet as core.ETHWallet, connector as WalletConnect, mainnetChainId, options);
   });
 
   it("should subscribe to events when connecting", async () => {
@@ -50,17 +52,28 @@ describe("HDWalletWCBridge", () => {
 
   describe("on session_request", () => {
     it("should approve session with current chain and account", async () => {
-      await bridge._onSessionRequest(null, { params: [{ chainId: 123 }] });
+      const wallet: Partial<core.ETHWallet> = {
+        _supportsETH: true,
+        ethGetAddress: () => Promise.resolve("test address"),
+        ethSignTx: () =>
+          Promise.resolve({
+            v: 0,
+            r: "r",
+            s: "s",
+            serialized: "serialized signature",
+          }),
+        ethSendTx: () => Promise.resolve({ hash: "tx hash" }),
+        ethSignMessage: () =>
+          Promise.resolve({
+            address: "test address",
+            signature: "test signature",
+          }),
+        ethVerifyMessage: () => Promise.reject(new Error("not implemented")),
+      };
+      const wcBridge = new HDWalletWCBridge(wallet as core.ETHWallet, connector as WalletConnect, "123", options);
+      await wcBridge._onSessionRequest(null, { params: [] });
       expect(connector.approveSession).toHaveBeenCalledWith({
         chainId: 123,
-        accounts: ["test address"],
-      });
-    });
-
-    it("should default to rinkeby chain", async () => {
-      await bridge._onSessionRequest(null, { params: [{ chainId: null }] });
-      expect(connector.approveSession).toHaveBeenCalledWith({
-        chainId: 4,
         accounts: ["test address"],
       });
     });

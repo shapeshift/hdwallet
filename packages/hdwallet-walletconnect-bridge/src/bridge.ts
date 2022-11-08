@@ -1,3 +1,4 @@
+import type { ChainId } from "@shapeshiftoss/caip";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Logger } from "@shapeshiftoss/logger";
 import WalletConnect from "@walletconnect/client";
@@ -22,15 +23,21 @@ export class HDWalletWCBridge {
   constructor(
     private readonly wallet: core.ETHWallet,
     public readonly connector: WalletConnect,
+    private readonly chainId: ChainId,
     private readonly options?: HDWalletWCBridgeOptions
   ) {}
 
-  static fromURI(uri: string, wallet: core.ETHWallet, options?: HDWalletWCBridgeOptions) {
-    return new HDWalletWCBridge(wallet, new WalletConnect({ uri }), options);
+  static fromURI(uri: string, wallet: core.ETHWallet, chainId: ChainId, options?: HDWalletWCBridgeOptions) {
+    return new HDWalletWCBridge(wallet, new WalletConnect({ uri }), chainId, options);
   }
 
-  static fromSession(session: IWalletConnectSession, wallet: core.ETHWallet, options?: HDWalletWCBridgeOptions) {
-    return new HDWalletWCBridge(wallet, new WalletConnect({ session }), options);
+  static fromSession(
+    session: IWalletConnectSession,
+    wallet: core.ETHWallet,
+    chainId: ChainId,
+    options?: HDWalletWCBridgeOptions
+  ) {
+    return new HDWalletWCBridge(wallet, new WalletConnect({ session }), chainId, options);
   }
 
   async connect() {
@@ -66,7 +73,7 @@ export class HDWalletWCBridge {
     const address = await this.wallet.ethGetAddress({ addressNList });
     if (address) {
       this.connector.approveSession({
-        chainId: payload.params[0].chainId ?? 4,
+        chainId: parseInt(this.chainId),
         accounts: [address],
       });
     }

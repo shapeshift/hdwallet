@@ -2,7 +2,7 @@ import { ETHSignMessage, ETHSignTx } from "@shapeshiftoss/hdwallet-core";
 
 export interface WalletConnectSessionRequestPayload {
   params: {
-    chainId: number | null;
+    chainId: number;
   }[];
 }
 
