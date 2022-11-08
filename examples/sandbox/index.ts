@@ -32,6 +32,7 @@ import {
 } from "./json/cosmosAminoTx.json";
 import * as dashTxJson from "./json/dashTx.json";
 import * as dogeTxJson from "./json/dogeTx.json";
+import { eip712 } from "./json/ethTx.json";
 import * as ltcTxJson from "./json/ltcTx.json";
 import * as rippleTxJson from "./json/rippleTx.json";
 import {
@@ -117,6 +118,8 @@ const $ethSend = $("#ethSend");
 const $ethVerify = $("#ethVerify");
 const $ethResults = $("#ethResults");
 const $ethEIP1559 = $("#ethEIP1559");
+const $ethSignTypedData = $("#ethSignTypedData");
+const $ethSignTypedDataPreCalculate = $("#ethSignTypedDataPreCalculate");
 
 $keepkey.on("click", async (e) => {
   e.preventDefault();
@@ -1817,6 +1820,36 @@ $ethEIP1559.on("click", async () => {
     $ethEIP1559.attr("class", "button-outline");
   }
   ethEIP1559Selected = !ethEIP1559Selected;
+});
+
+$ethSignTypedData.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $ethResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsETH(wallet)) {
+    const result = await wallet.ethSignTypedData({
+      ...eip712["calculateHashesOnDevice"],
+      addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+    });
+    $ethResults.val(JSON.stringify(result, null, 2));
+  }
+});
+
+$ethSignTypedDataPreCalculate.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $ethResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsETH(wallet)) {
+    const result = await wallet.ethSignTypedData({
+      ...eip712["precalculateHashes"],
+      addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+    });
+    $ethResults.val(JSON.stringify(result, null, 2));
+  }
 });
 
 /*
