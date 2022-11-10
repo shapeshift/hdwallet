@@ -92,7 +92,13 @@ export class Transport extends core.Transport {
     const buffer = new Uint8Array(9 + 2 + msgLength);
     buffer.set(first.slice(0, Math.min(first.length, buffer.length)));
 
-    for (let offset = first.length; offset < buffer.length; ) {
+    // msgLength includes the preamble overhead "?" for each chunk.
+    // We don't want the preamble from each chunk in the buffer (though, curiously, the preamble 
+    // for the first chunk is included in the buffer for some reason).
+    // We do, however, have to count the preamble in each chunk to make the proper number
+    // of chunked reads
+    let msgLenReceived = 64 // already have first buffer
+    for (let offset = first.length; msgLenReceived < msgLength; msgLenReceived+=64) {
       // Drop USB "?" reportId in the first byte
       const next = (await this.delegate.readChunk(debugLink)).slice(1);
       buffer.set(next.slice(0, Math.min(next.length, buffer.length - offset)), offset);
