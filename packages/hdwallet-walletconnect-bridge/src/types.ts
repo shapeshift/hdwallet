@@ -9,7 +9,7 @@ export interface WalletConnectSessionRequestPayload {
 export interface WalletConnectEthSignCallRequest {
   id: number;
   method: "eth_sign";
-  payload: unknown;
+  params: [string, string];
 }
 
 export interface WalletConnectEthSignTypedDataCallRequest {
@@ -29,8 +29,10 @@ export interface WalletConnectEthSendTransactionCallRequest {
   method: "eth_sendTransaction";
   params: {
     chainId: number;
+    from: string;
     data: string;
-    gasLimit: string;
+    gas: string;
+    gasPrice: string;
     nonce: string;
     to: string;
     value: string;
@@ -42,8 +44,10 @@ export interface WalletConnectEthSignTransactionCallRequest {
   method: "eth_signTransaction";
   params: {
     chainId: number;
+    from: string;
     data: string;
     gas: string;
+    gasPrice: string;
     nonce: string;
     to: string;
     value: string;

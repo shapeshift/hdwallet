@@ -107,10 +107,12 @@ export class HDWalletWCBridge {
       // MetaMaskHDWallet's ethSignMessage calls "personal_sign"
       // and the other fns don't seem to be exposed on HDWallet
       case "eth_sign": {
-        // result = await this.wallet.ethSignMessage({
-        //   addressNList,
-        //   message: payload.params[1],
-        // });
+        const response = await this.wallet.ethSignMessage({
+          ...approveData,
+          addressNList,
+          message: this.convertHexToUtf8IfPossible(request.params[1]),
+        });
+        result = response?.signature;
         break;
       }
       case "eth_signTypedData": {
@@ -131,7 +133,7 @@ export class HDWalletWCBridge {
           addressNList,
           chainId: tx.chainId,
           data: tx.data,
-          gasLimit: tx.gasLimit,
+          gasLimit: tx.gas,
           nonce: tx.nonce,
           to: tx.to,
           value: tx.value,
