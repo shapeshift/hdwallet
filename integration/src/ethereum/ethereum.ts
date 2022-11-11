@@ -421,5 +421,53 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
       },
       TIMEOUT
     );
+
+    test(
+      "ethSignTypedData()",
+      async () => {
+        if (!wallet.isKeepKey()) return;
+
+        const res = await wallet.ethSignTypedData({
+          types: {
+            EIP712Domain: [
+              { name: "name", type: "string" },
+              { name: "version", type: "string" },
+              { name: "chainId", type: "uint256" },
+              { name: "verifyingContract", type: "address" },
+            ],
+            Permit: [
+              { name: "owner", type: "address" },
+              { name: "spender", type: "address" },
+              { name: "value", type: "uint256" },
+              { name: "nonce", type: "uint256" },
+              { name: "deadline", type: "uint256" },
+            ],
+          },
+          domain: {
+            name: "USD Coin",
+            version: "2",
+            verifyingContract: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+            chainId: 1,
+          },
+          primaryType: "Permit",
+          message: {
+            owner: "0x33b35c665496bA8E71B22373843376740401F106",
+            spender: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
+            value: "4023865",
+            nonce: 0,
+            deadline: 1655431026,
+          },
+        });
+
+        // eslint-disable-next-line jest/no-conditional-expect
+        expect(res?.signature).toEqual(
+          "0x7ce6f01f14d8a1d1923073ccd77f97b78972b3cf14b9c2874d6a46f6a196cc0b7fef13c100b2a5a3517c0baa18981e0fe19cb7d9f869279041b537d91e839d281c"
+        );
+        expect(res?.address).toEqual("0x73d0385F4d8E00C5e6504C6030F47BF6212736A8");
+        expect(res?.domainSeparatorHash).toEqual("0x06c37168a7db5138defc7866392bb87a741f9b3d104deb5094588ce041cae335");
+        expect(res?.messageHash).toEqual("0x12b75f932b4f17e1f62bc7a630a033f46649a18f4e759bb1ff559c57cb2bc39b");
+      },
+      TIMEOUT
+    );
   });
 }
