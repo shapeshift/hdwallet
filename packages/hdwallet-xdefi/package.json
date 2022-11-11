@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/hdwallet-xdefi",
+  "name": "@keepkey/hdwallet-xdefi",
   "version": "1.38.0",
   "license": "MIT",
   "publishConfig": {

@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/hdwallet-ledger-webhid",
+  "name": "@keepkey/hdwallet-ledger-webhid",
   "version": "1.38.0",
   "license": "MIT",
   "publishConfig": {

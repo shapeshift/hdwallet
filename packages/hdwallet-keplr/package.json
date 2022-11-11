@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/hdwallet-keplr",
+  "name": "@keepkey/hdwallet-keplr",
   "version": "1.38.0",
   "license": "MIT",
   "publishConfig": {
