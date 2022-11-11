@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 import * as scryptJs from "scrypt-js";
 
 import { CryptoEngine, DigestAlgorithm, ScryptParams } from "./types";

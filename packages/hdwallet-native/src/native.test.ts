@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 
 import { Node } from "./crypto/isolation/engines/default/bip32";
 import { fromB64ToArray } from "./crypto/utils";

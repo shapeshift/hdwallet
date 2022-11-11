@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 
 import { BTCScriptType } from "./bitcoin";
 import * as Isolation from "./crypto/isolation";

@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/hdwallet-native",
+  "name": "@keepkey/hdwallet-native",
   "version": "1.38.0",
   "license": "MIT",
   "publishConfig": {
@@ -16,8 +16,8 @@
   "dependencies": {
     "@shapeshiftoss/bitcoinjs-lib": "5.2.0-shapeshift.2",
     "@shapeshiftoss/fiosdk": "1.2.1-shapeshift.6",
-    "@shapeshiftoss/hdwallet-core": "1.38.0",
-    "@shapeshiftoss/proto-tx-builder": "^0.4.0",
+    "@keepkey/hdwallet-core": "1.38.0",
+    "@keepkey/proto-tx-builder": "^0.4.0",
     "@zxing/text-encoding": "^0.9.0",
     "bchaddrjs": "^0.4.9",
     "bignumber.js": "^9.0.1",

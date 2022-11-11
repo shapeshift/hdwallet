@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 import * as bip39 from "bip39";
 import * as eventemitter2 from "eventemitter2";
 import isObject from "lodash/isObject";

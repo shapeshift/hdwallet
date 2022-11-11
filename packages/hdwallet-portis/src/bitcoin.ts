@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 import Base64 from "base64-js";
 import * as bip32 from "bip32";
 import * as bitcoin from "bitcoinjs-lib";

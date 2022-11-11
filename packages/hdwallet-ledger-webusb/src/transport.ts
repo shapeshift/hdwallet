@@ -5,8 +5,8 @@ import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import getAppAndVersion from "@ledgerhq/live-common/lib/hw/getAppAndVersion";
 import getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
 import openApp from "@ledgerhq/live-common/lib/hw/openApp";
-import * as core from "@shapeshiftoss/hdwallet-core";
-import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+import * as core from "@keepkey/hdwallet-core";
+import * as ledger from "@keepkey/hdwallet-ledger";
 import {
   LedgerResponse,
   LedgerTransportCoinType,

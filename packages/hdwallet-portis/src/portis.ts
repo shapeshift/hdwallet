@@ -1,5 +1,5 @@
 import Portis from "@portis/web3";
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 import _ from "lodash";
 import PLazy from "p-lazy";
 import type Web3 from "web3";

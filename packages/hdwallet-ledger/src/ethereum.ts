@@ -1,6 +1,6 @@
 import Common from "@ethereumjs/common";
 import { Transaction } from "@ethereumjs/tx";
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 import EthereumTx from "ethereumjs-tx";
 import * as ethereumUtil from "ethereumjs-util";
 import * as ethers from "ethers";

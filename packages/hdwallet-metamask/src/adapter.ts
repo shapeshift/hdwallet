@@ -1,6 +1,6 @@
 import detectEthereumProvider from "@metamask/detect-provider";
 import MetaMaskOnboarding from "@metamask/onboarding";
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 import * as ethers from "ethers";
 
 import { MetaMaskHDWallet } from "./metamask";

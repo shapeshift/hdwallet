@@ -8,7 +8,7 @@ module.exports = {
   rootDir: "packages",
   testMatch: ["<rootDir>/**/*.test.ts"],
   moduleNameMapper: {
-    "^@shapeshiftoss/hdwallet-(.*)": "<rootDir>/hdwallet-$1/src",
+    "^@keepkey/hdwallet-(.*)": "<rootDir>/hdwallet-$1/src",
   },
   globals: {
     "ts-jest": {

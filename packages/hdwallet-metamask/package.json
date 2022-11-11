@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/hdwallet-metamask",
+  "name": "@keepkey/hdwallet-metamask",
   "version": "1.38.0",
   "license": "MIT",
   "publishConfig": {
@@ -16,7 +16,7 @@
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
     "@metamask/onboarding": "^1.0.1",
-    "@shapeshiftoss/hdwallet-core": "1.38.0",
+    "@keepkey/hdwallet-core": "1.38.0",
     "eth-rpc-errors": "^4.0.3",
     "lodash": "^4.17.21"
   },

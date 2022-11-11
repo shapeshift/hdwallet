@@ -1,13 +1,13 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
-import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
-import * as ledger from "@shapeshiftoss/hdwallet-ledger";
-import * as metamask from "@shapeshiftoss/hdwallet-metamask";
-import * as native from "@shapeshiftoss/hdwallet-native";
-import * as portis from "@shapeshiftoss/hdwallet-portis";
-import * as tallyHo from "@shapeshiftoss/hdwallet-tallyho";
-import * as trezor from "@shapeshiftoss/hdwallet-trezor";
-import * as walletconnect from "@shapeshiftoss/hdwallet-walletconnect";
-import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
+import * as core from "@keepkey/hdwallet-core";
+import * as keepkey from "@keepkey/hdwallet-keepkey";
+import * as ledger from "@keepkey/hdwallet-ledger";
+import * as metamask from "@keepkey/hdwallet-metamask";
+import * as native from "@keepkey/hdwallet-native";
+import * as portis from "@keepkey/hdwallet-portis";
+import * as tallyHo from "@keepkey/hdwallet-tallyho";
+import * as trezor from "@keepkey/hdwallet-trezor";
+import * as walletconnect from "@keepkey/hdwallet-walletconnect";
+import * as xdefi from "@keepkey/hdwallet-xdefi";
 
 import { binanceTests } from "./binance";
 import { btcTests } from "./bitcoin";

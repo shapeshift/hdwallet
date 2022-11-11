@@ -1,5 +1,5 @@
 import * as EosMessages from "@keepkey/device-protocol/lib/messages-eos_pb";
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 
 import * as tx01_unsigned from "./tx01.unsigned.json";
 import * as tx02_unsigned from "./tx02.unsigned.json";

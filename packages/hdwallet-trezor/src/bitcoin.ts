@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 import Base64 from "base64-js";
 
 import { TrezorTransport } from "./transport";

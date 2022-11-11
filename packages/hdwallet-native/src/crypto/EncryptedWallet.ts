@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 import * as bip39 from "bip39";
 
 import { CipherString, SymmetricCryptoKey } from "./classes";

@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 
 import tx_unsigned from "./tx01.mainnet.terra.json";
 import tx_signed from "./tx01.mainnet.terra.signed.json";

@@ -1,5 +1,5 @@
 import * as fio from "@shapeshiftoss/fiosdk";
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 import fetch, { RequestInfo, RequestInit } from "node-fetch";
 
 import * as Isolation from "./crypto/isolation";

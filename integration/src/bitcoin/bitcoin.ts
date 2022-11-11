@@ -1,8 +1,8 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
-import * as ledger from "@shapeshiftoss/hdwallet-ledger";
-import * as native from "@shapeshiftoss/hdwallet-native";
-import * as portis from "@shapeshiftoss/hdwallet-portis";
-import * as trezor from "@shapeshiftoss/hdwallet-trezor";
+import * as core from "@keepkey/hdwallet-core";
+import * as ledger from "@keepkey/hdwallet-ledger";
+import * as native from "@keepkey/hdwallet-native";
+import * as portis from "@keepkey/hdwallet-portis";
+import * as trezor from "@keepkey/hdwallet-trezor";
 
 import { each } from "../utils";
 

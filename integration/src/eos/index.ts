@@ -1,4 +1,4 @@
-import { HDWallet, HDWalletInfo } from "@shapeshiftoss/hdwallet-core";
+import { HDWallet, HDWalletInfo } from "@keepkey/hdwallet-core";
 
 import { eosTests as tests } from "./eos";
 

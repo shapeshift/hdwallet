@@ -1,4 +1,4 @@
-import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
+import * as keepkey from "@keepkey/hdwallet-keepkey";
 import * as hid from "node-hid";
 
 export type Device = hid.Device & { path: string; serialNumber: string };

@@ -1,5 +1,5 @@
 import * as fio from "@shapeshiftoss/fiosdk";
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 import * as bs58 from "bs58";
 import * as tinyecc from "tiny-secp256k1";
 

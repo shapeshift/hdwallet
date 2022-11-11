@@ -30,7 +30,7 @@
     "resolveJsonModule": true,
     "baseUrl": "./packages",
     "paths": {
-      "@shapeshiftoss/*": ["$1/src/*"]
+      "@keepkey/*": ["$1/src/*"]
     },
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,

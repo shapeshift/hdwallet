@@ -1,20 +1,20 @@
 import "regenerator-runtime/runtime";
 
-import * as core from "@shapeshiftoss/hdwallet-core";
-import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
-import * as keepkeyTcp from "@shapeshiftoss/hdwallet-keepkey-tcp";
-import * as keepkeyWebUSB from "@shapeshiftoss/hdwallet-keepkey-webusb";
-import * as keplr from "@shapeshiftoss/hdwallet-keplr";
-import * as ledgerWebHID from "@shapeshiftoss/hdwallet-ledger-webhid";
-import * as ledgerWebUSB from "@shapeshiftoss/hdwallet-ledger-webusb";
-import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
-import * as native from "@shapeshiftoss/hdwallet-native";
-import * as portis from "@shapeshiftoss/hdwallet-portis";
-import * as tallyHo from "@shapeshiftoss/hdwallet-tallyho";
-import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
-import { WalletConnectProviderConfig } from "@shapeshiftoss/hdwallet-walletconnect";
-import * as walletConnect from "@shapeshiftoss/hdwallet-walletconnect";
-import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
+import * as core from "@keepkey/hdwallet-core";
+import * as keepkey from "@keepkey/hdwallet-keepkey";
+import * as keepkeyTcp from "@keepkey/hdwallet-keepkey-tcp";
+import * as keepkeyWebUSB from "@keepkey/hdwallet-keepkey-webusb";
+import * as keplr from "@keepkey/hdwallet-keplr";
+import * as ledgerWebHID from "@keepkey/hdwallet-ledger-webhid";
+import * as ledgerWebUSB from "@keepkey/hdwallet-ledger-webusb";
+import * as metaMask from "@keepkey/hdwallet-metamask";
+import * as native from "@keepkey/hdwallet-native";
+import * as portis from "@keepkey/hdwallet-portis";
+import * as tallyHo from "@keepkey/hdwallet-tallyho";
+import * as trezorConnect from "@keepkey/hdwallet-trezor-connect";
+import { WalletConnectProviderConfig } from "@keepkey/hdwallet-walletconnect";
+import * as walletConnect from "@keepkey/hdwallet-walletconnect";
+import * as xdefi from "@keepkey/hdwallet-xdefi";
 import $ from "jquery";
 import Web3 from "web3";
 

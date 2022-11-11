@@ -1,5 +1,5 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
-import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
+import * as core from "@keepkey/hdwallet-core";
+import * as keepkey from "@keepkey/hdwallet-keepkey";
 
 import tx_unsigned_swap_amino from "./tx01.mainnet.thorchain.swap.amino.json";
 import tx_unsigned_swap from "./tx01.mainnet.thorchain.swap.json";
