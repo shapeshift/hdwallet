@@ -205,25 +205,40 @@ export async function ethSignTypedData(
 
   try {
     if (sTypes.length > 2048 || sPrimaryType.length > 80 || sDomain.length > 2048 || sMessage.length > 2048) {
+      /* Pre-calculate domain separator and messages hashes and verify on KeepKey */
       const hashableMessage: TypedData = {
         domain: msg.domain,
         types: msg.types,
         primaryType: msg.primaryType,
         message: msg.message,
       };
-      /* Pre-calculate domain separator and messages hashes and verify on KeepKey */
-      const domainSeparatorHash = getTypeHash(hashableMessage, "EIP712Domain").toString();
-      const messageHash = getMessage(hashableMessage, true);
+      let messageHash = undefined;
+      const domainSeparatorHash = getTypeHash(hashableMessage, "EIP712Domain");
+      const domainSeparatorHash64 = Buffer.from(domainSeparatorHash).toString("base64");
+
       const t = new Ethereum.EthereumSignTypedHash();
       t.setAddressNList(msg.addressNList);
-      t.setMessageHash(messageHash);
-      t.setDomainSeparatorHash(domainSeparatorHash);
+      t.setDomainSeparatorHash(domainSeparatorHash64);
+
+      if (msg.message) {
+        messageHash = getMessage(hashableMessage, true);
+        const messageHash64 = Buffer.from(messageHash).toString("base64");
+        t.setMessageHash(messageHash64);
+      }
 
       const response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNTYPEDHASH, t, {
         msgTimeout: core.LONG_TIMEOUT,
       });
 
       result = response.proto as Ethereum.EthereumTypedDataSignature;
+      const res: core.ETHSignedTypedData = {
+        signature: "0x" + core.toHexString(result.getSignature_asU8()),
+        address: result.getAddress() || "",
+        domainSeparatorHash: "0x" + core.toHexString(domainSeparatorHash),
+        messageHash: messageHash ? "0x" + core.toHexString(messageHash) : undefined,
+      };
+
+      return res;
     } else {
       /* Let KeepKey calculate domain separator and message hashes */
       const dsh = new Ethereum.Ethereum712TypesValues();
@@ -251,20 +266,19 @@ export async function ethSignTypedData(
       });
 
       result = response.proto as Ethereum.EthereumTypedDataSignature;
+      const res: core.ETHSignedTypedData = {
+        signature: "0x" + core.toHexString(result.getSignature_asU8()),
+        address: result.getAddress() || "",
+        domainSeparatorHash: "0x" + core.toHexString(result.getDomainSeparatorHash_asU8()),
+        messageHash: result.hasMessageHash() ? "0x" + core.toHexString(result.getMessageHash_asU8()) : undefined,
+      };
+
+      return res;
     }
   } catch (error) {
     console.error({ error });
     throw new Error("Failed to sign typed ETH message");
   }
-
-  const res: core.ETHSignedTypedData = {
-    signature: core.toHexString(result.getSignature_asU8()),
-    address: result.getAddress() || "",
-    domainSeparatorHash: core.toHexString(result.getDomainSeparatorHash_asU8()),
-    messageHash: result.hasMessageHash() ? core.toHexString(result.getMessageHash_asU8()) : undefined,
-  };
-
-  return res;
 }
 
 export async function ethVerifyMessage(transport: Transport, msg: core.ETHVerifyMessage): Promise<boolean> {
