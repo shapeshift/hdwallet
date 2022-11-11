@@ -199,7 +199,7 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
   ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx | null>;
   ethSendTx?(msg: ETHSignTx): Promise<ETHTxHash | null>;
   ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage | null>;
-  ethSignTypedData(msg: ETHSignTypedData): Promise<ETHSignedTypedData | null>;
+  ethSignTypedData?(msg: ETHSignTypedData): Promise<ETHSignedTypedData | null>;
   ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean | null>;
 }
 
