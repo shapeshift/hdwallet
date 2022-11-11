@@ -5,11 +5,6 @@ export interface WalletConnectSessionRequestPayload {
     chainId: number;
   }[];
 }
-export interface WalletConnectSessionUpdatePayload {
-  chainId?: string;
-  account?: string;
-}
-
 export interface WalletConnectEthSignCallRequest {
   id: number;
   method: "eth_sign";
