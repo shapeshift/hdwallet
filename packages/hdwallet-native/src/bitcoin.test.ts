@@ -136,7 +136,7 @@ const OP_RETURN_BENCHMARK_TX = benchmarkTx(
 );
 
 //@TODO FIXME
-describe.skip("NativeBTCWalletInfo", () => {
+describe("NativeBTCWalletInfo", () => {
   const info = native.info();
 
   it("should return some static metadata", async () => {
@@ -281,7 +281,7 @@ describe.skip("NativeBTCWalletInfo", () => {
       ).toBeUndefined();
     });
 
-    it.each([
+    it.skip.each([
       ["BIP44", "m/44'/0'/0'/0/0", "p2pkh"],
       ["BIP49", "m/49'/0'/0'/0/0", "p2sh-p2wpkh"],
       ["BIP84", "m/84'/0'/0'/0/0", "p2wpkh"],
