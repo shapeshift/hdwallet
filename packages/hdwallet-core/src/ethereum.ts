@@ -1,4 +1,5 @@
 import { Bytes } from "@ethersproject/bytes";
+import { TypedData } from "eip-712";
 
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { BIP32Path, ExchangeType, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
@@ -108,6 +109,15 @@ export interface ETHVerifyMessage {
   signature: string;
 }
 
+export type ETHSignTypedData = TypedData & { addressNList: BIP32Path };
+
+export type ETHSignedTypedData = {
+  signature: string;
+  address: string;
+  domainSeparatorHash: string;
+  messageHash?: string;
+};
+
 // https://docs.metamask.io/guide/rpc-api.html#wallet-addethereumchain
 export interface AddEthereumChainParameter {
   chainId: string; // A 0x-prefixed hexadecimal string
@@ -189,6 +199,7 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
   ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx | null>;
   ethSendTx?(msg: ETHSignTx): Promise<ETHTxHash | null>;
   ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage | null>;
+  ethSignTypedData?(msg: ETHSignTypedData): Promise<ETHSignedTypedData | null>;
   ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean | null>;
 }
 
