@@ -1,4 +1,4 @@
-import * as bitcoin from "@keepkey/bitcoinjs-lib";
+import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@keepkey/hdwallet-core";
 import * as bchAddr from "bchaddrjs";
 

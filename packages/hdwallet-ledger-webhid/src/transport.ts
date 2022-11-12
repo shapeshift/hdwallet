@@ -113,6 +113,7 @@ export class LedgerWebHIDTransport extends ledger.LedgerTransport {
     return MOCK_SERIAL_NUMBER;
   }
 
+  // @ts-ignore
   public async call<T extends LedgerTransportCoinType, U extends LedgerTransportMethodName<T>>(
     coin: T,
     method: U,
