@@ -38,7 +38,7 @@ describe("HDWalletWCBridge", () => {
     };
     const onCallRequest = jest.fn();
     options = { onCallRequest };
-    bridge = new HDWalletWCBridge(wallet as core.ETHWallet, connector as WalletConnect, mainnetChainId, options);
+    bridge = new HDWalletWCBridge(wallet as core.ETHWallet, connector as WalletConnect, mainnetChainId, null, options);
   });
 
   it("should subscribe to events when connecting", async () => {
@@ -70,7 +70,13 @@ describe("HDWalletWCBridge", () => {
           }),
         ethVerifyMessage: () => Promise.reject(new Error("not implemented")),
       };
-      const wcBridge = new HDWalletWCBridge(wallet as core.ETHWallet, connector as WalletConnect, "123", options);
+      const wcBridge = new HDWalletWCBridge(
+        wallet as core.ETHWallet,
+        connector as WalletConnect,
+        "123",
+        "test address",
+        options
+      );
       await wcBridge._onSessionRequest(null, { params: [] });
       expect(connector.approveSession).toHaveBeenCalledWith({
         chainId: 123,

@@ -24,20 +24,28 @@ export class HDWalletWCBridge {
     private readonly wallet: core.ETHWallet,
     public readonly connector: WalletConnect,
     private readonly chainId: ChainId,
+    private readonly account: string | null,
     private readonly options?: HDWalletWCBridgeOptions
   ) {}
 
-  static fromURI(uri: string, wallet: core.ETHWallet, chainId: ChainId, options?: HDWalletWCBridgeOptions) {
-    return new HDWalletWCBridge(wallet, new WalletConnect({ uri }), chainId, options);
+  static fromURI(
+    uri: string,
+    wallet: core.ETHWallet,
+    chainId: ChainId,
+    account: string | null,
+    options?: HDWalletWCBridgeOptions
+  ) {
+    return new HDWalletWCBridge(wallet, new WalletConnect({ uri }), chainId, account, options);
   }
 
   static fromSession(
     session: IWalletConnectSession,
     wallet: core.ETHWallet,
     chainId: ChainId,
+    account: string | null,
     options?: HDWalletWCBridgeOptions
   ) {
-    return new HDWalletWCBridge(wallet, new WalletConnect({ session }), chainId, options);
+    return new HDWalletWCBridge(wallet, new WalletConnect({ session }), chainId, account, options);
   }
 
   async connect() {
@@ -70,7 +78,7 @@ export class HDWalletWCBridge {
   async _onSessionRequest(error: Error | null, payload: WalletConnectSessionRequestPayload) {
     this.log("Session Request", { error, payload });
 
-    const address = await this.wallet.ethGetAddress({ addressNList });
+    const address = this.account ?? (await this.wallet.ethGetAddress({ addressNList }));
     if (address) {
       this.connector.approveSession({
         chainId: parseInt(this.chainId),
@@ -79,8 +87,8 @@ export class HDWalletWCBridge {
     }
   }
 
-  async updateSession({ chainId, wallet }: { chainId: ChainId; wallet: core.ETHWallet }) {
-    const address = await wallet.ethGetAddress({ addressNList });
+  async updateSession({ chainId, wallet, account }: { chainId: ChainId; wallet: core.ETHWallet; account?: string }) {
+    const address = account ?? (await wallet.ethGetAddress({ addressNList }));
     if (address) {
       this.connector.updateSession({
         chainId: parseInt(chainId),
