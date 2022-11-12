@@ -1,10 +1,10 @@
+import * as core from "@keepkey/hdwallet-core";
 import type Btc from "@ledgerhq/hw-app-btc";
 import type Eth from "@ledgerhq/hw-app-eth";
 import type Transport from "@ledgerhq/hw-transport";
 import type getAppAndVersion from "@ledgerhq/live-common/lib/hw/getAppAndVersion";
 import type getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
 import type openApp from "@ledgerhq/live-common/lib/hw/openApp";
-import * as core from "@keepkey/hdwallet-core";
 
 type MethodsOnly<T> = {
   [k in keyof T as T[k] extends (...args: any) => any ? k : never]: T[k];

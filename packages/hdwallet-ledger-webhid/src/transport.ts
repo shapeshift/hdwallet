@@ -112,7 +112,7 @@ export class LedgerWebHIDTransport extends ledger.LedgerTransport {
   public async getDeviceID(): Promise<string> {
     return MOCK_SERIAL_NUMBER;
   }
-
+  /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
   // @ts-ignore
   public async call<T extends LedgerTransportCoinType, U extends LedgerTransportMethodName<T>>(
     coin: T,

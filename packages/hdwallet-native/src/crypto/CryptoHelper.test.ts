@@ -1,8 +1,8 @@
 /**
  * @jest-environment jsdom
  */
-import * as webcrypto from "@peculiar/webcrypto";
 import * as core from "@keepkey/hdwallet-core";
+import * as webcrypto from "@peculiar/webcrypto";
 
 import { CipherString } from "./classes";
 import CryptoHelper from "./CryptoHelper";

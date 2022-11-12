@@ -1,3 +1,5 @@
+import * as core from "@keepkey/hdwallet-core";
+import * as ledger from "@keepkey/hdwallet-ledger";
 import Btc from "@ledgerhq/hw-app-btc";
 import Eth from "@ledgerhq/hw-app-eth";
 import Transport from "@ledgerhq/hw-transport";
@@ -5,8 +7,6 @@ import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import getAppAndVersion from "@ledgerhq/live-common/lib/hw/getAppAndVersion";
 import getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
 import openApp from "@ledgerhq/live-common/lib/hw/openApp";
-import * as core from "@keepkey/hdwallet-core";
-import * as ledger from "@keepkey/hdwallet-ledger";
 import {
   LedgerResponse,
   LedgerTransportCoinType,

@@ -1,5 +1,5 @@
-import type { AddressFormat } from "@ledgerhq/hw-app-btc";
 import * as core from "@keepkey/hdwallet-core";
+import type { AddressFormat } from "@ledgerhq/hw-app-btc";
 import bs58check from "bs58check";
 import _ from "lodash";
 

@@ -1,5 +1,5 @@
-import { ExternalPrivateKey as FIOExternalPrivateKey } from "@shapeshiftoss/fiojs";
 import * as core from "@keepkey/hdwallet-core";
+import { ExternalPrivateKey as FIOExternalPrivateKey } from "@shapeshiftoss/fiojs";
 import bs58 from "bs58";
 
 import { SecP256K1 } from "../core";
