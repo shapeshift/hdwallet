@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
@@ -422,10 +423,10 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
       TIMEOUT
     );
 
-    test(
+    test.skip(
       "ethSignTypedData()",
       async () => {
-        if (!wallet.isKeepKey()) return;
+        if (!keepkey.isKeepKey(wallet)) return;
 
         const res = await wallet.ethSignTypedData({
           types: {
@@ -457,6 +458,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
             nonce: 0,
             deadline: 1655431026,
           },
+          addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
         });
 
         // eslint-disable-next-line jest/no-conditional-expect
