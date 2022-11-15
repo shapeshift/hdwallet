@@ -18,7 +18,9 @@
   },
   "dependencies": {
     "@shapeshiftoss/hdwallet-core": "^1.37.0",
-    "@shapeshiftoss/logger": "^1.1.3"
+    "@shapeshiftoss/logger": "^1.1.3",
+    "@walletconnect/sign-client": "^2.1.3",
+    "@walletconnect/types": "^2.1.3"
   },
   "devDependencies": {
     "typescript": "^4.3.2"

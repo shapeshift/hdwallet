@@ -1,126 +1,136 @@
 import type { ChainId } from "@shapeshiftoss/caip";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Logger } from "@shapeshiftoss/logger";
-import WalletConnect from "@walletconnect/client";
-import { IWalletConnectSession } from "@walletconnect/types";
+import SignClient from "@walletconnect/sign-client";
 import { convertHexToUtf8 } from "@walletconnect/utils";
 
 import {
-  WalletConnectCallRequest,
+  SessionDeleteEvent,
+  SessionEventEvent,
+  SessionPingEvent,
+  SessionProposalEvent,
+  SessionRequestEvent,
   WalletConnectCallRequestResponseMap,
-  WalletConnectSessionRequestPayload,
+  // WalletConnectSessionRequestPayload,
 } from "./types";
+import { addressNList, getAccountId } from "./utils";
 
-const addressNList = core.bip32ToAddressNList("m/44'/60'/0'/0/0");
-
-export type HDWalletWCBridgeOptions = {
-  onCallRequest(request: WalletConnectCallRequest): void;
-};
+export type HDWalletWCBridgeCallRequest = (request: SessionRequestEvent) => void;
 
 export class HDWalletWCBridge {
   private logger = new Logger({ name: "HDWalletWCBridge", level: "debug" });
 
   constructor(
     private readonly wallet: core.ETHWallet,
-    public readonly connector: WalletConnect,
+    public readonly signClient: SignClient,
     private readonly chainId: ChainId,
-    private readonly account: string | null,
-    private readonly options?: HDWalletWCBridgeOptions
+    private readonly accountId: string | null,
+    private readonly onCallRequest: HDWalletWCBridgeCallRequest,
+    public topic?: string
   ) {}
 
-  static fromURI(
+  static async fromURI(
     uri: string,
+    projectId: string,
     wallet: core.ETHWallet,
     chainId: ChainId,
-    account: string | null,
-    options?: HDWalletWCBridgeOptions
+    accountId: string | null,
+    onCallRequest: HDWalletWCBridgeCallRequest
   ) {
-    return new HDWalletWCBridge(wallet, new WalletConnect({ uri }), chainId, account, options);
+    const signClient = await SignClient.init({
+      projectId,
+    });
+    await signClient.core.pairing.pair({ uri });
+    return new HDWalletWCBridge(wallet, signClient, chainId, accountId, onCallRequest);
   }
 
-  static fromSession(
-    session: IWalletConnectSession,
-    wallet: core.ETHWallet,
-    chainId: ChainId,
-    account: string | null,
-    options?: HDWalletWCBridgeOptions
-  ) {
-    return new HDWalletWCBridge(wallet, new WalletConnect({ session }), chainId, account, options);
-  }
+  // static fromSession(
+  //   session: IWalletConnectSession,
+  //   wallet: core.ETHWallet,
+  //   chainId: ChainId,
+  //   account: string | null,
+  //   options?: HDWalletWCBridgeOptions
+  // ) {
+  //   return new HDWalletWCBridge(wallet, new WalletConnect({ session }), chainId, account, options);
+  // }
 
   async connect() {
-    if (!this.wallet) throw new Error("Missing ETH Wallet to connect with");
-
-    if (!this.connector.connected) {
-      await this.connector.createSession();
-    }
-
     this.subscribeToEvents();
   }
 
   async disconnect() {
-    await this.connector.killSession();
-    this.connector.off("session_request");
-    this.connector.off("session_update");
-    this.connector.off("connect");
-    this.connector.off("disconnect");
-    this.connector.off("call_request");
+    await this.signClient.pairing.disconnect({ topic: this.topic });
+    this.signClient.off("session_proposal");
+    this.signClient.off("session_event");
+    this.signClient.off("session_request");
+    this.signClient.off("session_ping");
+    this.signClient.off("session_delete");
   }
 
   private subscribeToEvents() {
-    this.connector.on("session_request", this._onSessionRequest.bind(this));
-    this.connector.on("session_update", this._onSessionUpdate.bind(this));
-    this.connector.on("connect", this._onConnect.bind(this));
-    this.connector.on("disconnect", this._onDisconnect.bind(this));
-    this.connector.on("call_request", this._onCallRequest.bind(this));
-  }
-
-  async _onSessionRequest(error: Error | null, payload: WalletConnectSessionRequestPayload) {
-    this.log("Session Request", { error, payload });
-
-    const address = this.account ?? (await this.wallet.ethGetAddress({ addressNList }));
-    if (address) {
-      this.connector.approveSession({
-        chainId: parseInt(this.chainId),
-        accounts: [address],
+    this.signClient.on("session_proposal", async (event: SessionProposalEvent) => {
+      // Show session proposal data to the user i.e. in a modal with options to approve / reject it
+      const accountId = await getAccountId(this.wallet, this.accountId, this.chainId);
+      const { topic, acknowledged } = await this.signClient.approve({
+        id: event.id,
+        namespaces: {
+          eip155: {
+            accounts: [accountId],
+            methods: ["personal_sign", "eth_sendTransaction", "eth_signTransaction", "eth_sign", "eth_signTypedData"],
+          },
+        },
       });
-    }
+      this.topic = topic;
+      await acknowledged();
+    });
+
+    this.signClient.on("session_event", (event: SessionEventEvent) => {
+      // Handle session events, such as "chainChanged", "accountsChanged", etc.
+    });
+
+    this.signClient.on("session_request", (event: SessionRequestEvent) => {
+      // Handle session method requests, such as "eth_sign", "eth_sendTransaction", etc.
+      this.onCallRequest(event);
+    });
+
+    this.signClient.on("session_ping", (event: SessionPingEvent) => {
+      // React to session ping event
+    });
+
+    this.signClient.on("session_delete", (event: SessionDeleteEvent) => {
+      // React to session delete event
+      this.disconnect();
+    });
   }
 
-  async updateSession({ chainId, wallet, account }: { chainId: ChainId; wallet: core.ETHWallet; account?: string }) {
-    const address = account ?? (await wallet.ethGetAddress({ addressNList }));
-    if (address) {
-      this.connector.updateSession({
-        chainId: parseInt(chainId),
-        accounts: [address],
-      });
-    }
-  }
+  // async _onSessionRequest(error: Error | null, payload: WalletConnectSessionRequestPayload) {
+  //   this.log("Session Request", { error, payload });
 
-  async _onSessionUpdate(error: Error | null, payload: any) {
-    this.log("Session Update", { error, payload });
-  }
+  //   const address = this.accountId ?? (await this.wallet.ethGetAddress({ addressNList }));
+  //   if (address) {
+  //     this.signClient.approve({
+  //       chainId: parseInt(this.chainId),
+  //       accounts: [address],
+  //     });
+  //   }
+  // }
 
-  async _onConnect(error: Error | null, payload: any) {
-    this.log("Connect", { error, payload });
-  }
-
-  async _onDisconnect(error: Error | null, payload: any) {
-    this.log("Disconnect", { error, payload });
-  }
-
-  async _onCallRequest(error: Error | null, payload: WalletConnectCallRequest) {
-    this.log("Call Request", { error, payload });
-
-    this.options?.onCallRequest(payload);
-  }
+  // async updateSession({ chainId, wallet, account }: { chainId: ChainId; wallet: core.ETHWallet; account?: string }) {
+  //   const address = account ?? (await wallet.ethGetAddress({ addressNList }));
+  //   if (address) {
+  //     this.connector.updateSession({
+  //       chainId: parseInt(chainId),
+  //       accounts: [address],
+  //     });
+  //   }
+  // }
 
   public async approveRequest(
-    request: WalletConnectCallRequest,
+    request: SessionRequestEvent,
     approveData?: Partial<WalletConnectCallRequestResponseMap[keyof WalletConnectCallRequestResponseMap]>
   ) {
     let result: any;
-    switch (request.method) {
+    switch (request.params.request.method) {
       // TODO: figure out what to do for "eth_sign" and "eth_signTypedData".
       // MetaMaskHDWallet's ethSignMessage calls "personal_sign"
       // and the other fns don't seem to be exposed on HDWallet
@@ -128,7 +138,7 @@ export class HDWalletWCBridge {
         const response = await this.wallet.ethSignMessage({
           ...approveData,
           addressNList,
-          message: this.convertHexToUtf8IfPossible(request.params[1]),
+          message: this.convertHexToUtf8IfPossible(request.params.request.params[1]),
         });
         result = response?.signature;
         break;
@@ -140,16 +150,16 @@ export class HDWalletWCBridge {
         const response = await this.wallet.ethSignMessage({
           ...approveData,
           addressNList,
-          message: this.convertHexToUtf8IfPossible(request.params[0]),
+          message: this.convertHexToUtf8IfPossible(request.params.request.params[0]),
         });
         result = response?.signature;
         break;
       }
       case "eth_sendTransaction": {
-        const tx = request.params[0];
+        const tx = request.params.request.params[0];
         const response = await this.wallet.ethSendTx?.({
           addressNList,
-          chainId: tx.chainId,
+          chainId: parseInt(this.chainId),
           data: tx.data,
           gasLimit: tx.gas,
           nonce: tx.nonce,
@@ -161,10 +171,10 @@ export class HDWalletWCBridge {
         break;
       }
       case "eth_signTransaction": {
-        const tx = request.params[0];
+        const tx = request.params.request.params[0];
         const response = await this.wallet.ethSignTx({
           addressNList,
-          chainId: tx.chainId,
+          chainId: parseInt(this.chainId),
           data: tx.data,
           gasLimit: tx.gas,
           nonce: tx.nonce,
@@ -178,17 +188,20 @@ export class HDWalletWCBridge {
 
     if (result) {
       this.log("Approve Request", { request, result });
-      this.connector.approveRequest({ id: request.id, result });
+      this.signClient.respond({ topic: this.topic, response: { id: request.id, result } });
     } else {
       const message = "JSON RPC method not supported";
       this.log("Reject Request (catch)", { request, message });
-      this.connector.rejectRequest({ id: request.id, error: { message } });
+      this.signClient.respond({ topic: this.topic, response: { id: request.id, error: { message } } });
     }
   }
 
-  public async rejectRequest(request: WalletConnectCallRequest) {
+  public async rejectRequest(request: SessionRequestEvent) {
     this.log("Reject Request", { request });
-    this.connector.rejectRequest({ id: request.id, error: { message: "Rejected by user" } });
+    this.signClient.respond({
+      topic: this.topic,
+      response: { id: request.id, error: { message: "Rejected by user" } },
+    });
   }
 
   private log(eventName: string, properties: object) {
