@@ -1,11 +1,10 @@
-/* eslint-disable no-debugger */
 import Common from "@ethereumjs/common";
 import { FeeMarketEIP1559Transaction, Transaction } from "@ethereumjs/tx";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Ethereum from "@keepkey/device-protocol/lib/messages-ethereum_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { getMessage, getTypeHash, TypedData } from "eip-712";
+import { getMessage, getTypeHash } from "eip-712";
 import * as eip55 from "eip55";
 import * as ethers from "ethers";
 
@@ -196,41 +195,30 @@ export async function ethSignTypedData(
    * here and verify on device.
    */
 
-  let result: Ethereum.EthereumTypedDataSignature;
-
-  const sTypes = JSON.stringify({ types: msg.types });
-  const sPrimaryType = JSON.stringify({ primaryType: msg.primaryType });
-  const sDomain = JSON.stringify({ domain: msg.domain });
-  const sMessage = JSON.stringify({ message: msg.message });
+  const sTypes = JSON.stringify({ types: msg.hashableData.types });
+  const sPrimaryType = JSON.stringify({ primaryType: msg.hashableData.primaryType });
+  const sDomain = JSON.stringify({ domain: msg.hashableData.domain });
+  const sMessage = JSON.stringify({ message: msg.hashableData.message });
 
   try {
     if (sTypes.length > 2048 || sPrimaryType.length > 80 || sDomain.length > 2048 || sMessage.length > 2048) {
       /* Pre-calculate domain separator and messages hashes and verify on KeepKey */
-      const hashableMessage: TypedData = {
-        domain: msg.domain,
-        types: msg.types,
-        primaryType: msg.primaryType,
-        message: msg.message,
-      };
-      let messageHash = undefined;
-      const domainSeparatorHash = getTypeHash(hashableMessage, "EIP712Domain");
+
+      const domainSeparatorHash = getTypeHash(msg.hashableData, "EIP712Domain");
       const domainSeparatorHash64 = Buffer.from(domainSeparatorHash).toString("base64");
+      const messageHash = getMessage(msg.hashableData, true);
+      const messageHash64 = Buffer.from(messageHash).toString("base64");
 
       const t = new Ethereum.EthereumSignTypedHash();
       t.setAddressNList(msg.addressNList);
       t.setDomainSeparatorHash(domainSeparatorHash64);
-
-      if (msg.message) {
-        messageHash = getMessage(hashableMessage, true);
-        const messageHash64 = Buffer.from(messageHash).toString("base64");
-        t.setMessageHash(messageHash64);
-      }
+      t.setMessageHash(messageHash64);
 
       const response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNTYPEDHASH, t, {
         msgTimeout: core.LONG_TIMEOUT,
       });
 
-      result = response.proto as Ethereum.EthereumTypedDataSignature;
+      const result = response.proto as Ethereum.EthereumTypedDataSignature;
       const res: core.ETHSignedTypedData = {
         signature: "0x" + core.toHexString(result.getSignature_asU8()),
         address: result.getAddress() || "",
@@ -257,15 +245,15 @@ export async function ethSignTypedData(
       mh.setAddressNList(msg.addressNList);
       mh.setEip712types(sTypes);
       mh.setEip712primetype(sPrimaryType);
-
       mh.setEip712data(sMessage);
       mh.setEip712typevals(2);
+
       response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUM712TYPESVALUES, mh, {
         msgTimeout: core.LONG_TIMEOUT,
         omitLock: true,
       });
 
-      result = response.proto as Ethereum.EthereumTypedDataSignature;
+      const result = response.proto as Ethereum.EthereumTypedDataSignature;
       const res: core.ETHSignedTypedData = {
         signature: "0x" + core.toHexString(result.getSignature_asU8()),
         address: result.getAddress() || "",

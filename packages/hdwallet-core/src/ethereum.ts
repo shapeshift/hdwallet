@@ -109,7 +109,10 @@ export interface ETHVerifyMessage {
   signature: string;
 }
 
-export type ETHSignTypedData = TypedData & { addressNList: BIP32Path };
+export type ETHSignTypedData = {
+  hashableData: TypedData;
+  addressNList: BIP32Path;
+};
 
 export type ETHSignedTypedData = {
   signature: string;
