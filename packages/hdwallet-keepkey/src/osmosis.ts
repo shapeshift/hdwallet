@@ -1,5 +1,6 @@
-import type { AminoSignResponse, OfflineAminoSigner, StdSignDoc } from "@cosmjs/amino";
+import type { AminoSignResponse, OfflineAminoSigner, StdSignDoc, StdTx } from "@cosmjs/amino";
 import type { AccountData } from "@cosmjs/proto-signing";
+import type { SignerData } from "@cosmjs/stargate";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as OsmosisMessages from "@keepkey/device-protocol/lib/messages-osmosis_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
@@ -285,6 +286,11 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
         };
       },
     };
-    return await (await protoTxBuilder).sign(msg.tx, offlineSigner, msg.sequence, msg.account_number, msg.chain_id);
+    const signerData: SignerData = {
+      sequence: Number(msg.sequence),
+      accountNumber: Number(msg.account_number),
+      chainId: msg.chain_id,
+    };
+    return (await protoTxBuilder).sign(address, msg.tx as StdTx, offlineSigner, signerData);
   });
 }
