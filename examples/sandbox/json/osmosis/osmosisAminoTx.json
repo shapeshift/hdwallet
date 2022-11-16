@@ -32,14 +32,14 @@
     "timeout_height": "0"
   },
   "osmosisDelegateTx": {
-    "account_number": "16359",
-    "chain_id": "cosmoshub-4",
-    "sequence": "18",
+    "account_number": "95421",
+    "chain_id": "osmosis-1",
+    "sequence": "36",
     "fee": {
       "amount": [
         {
           "amount": "2800",
-          "denom": "uatom"
+          "denom": "uosmo"
         }
       ],
       "gas": "290000"
@@ -49,10 +49,10 @@
       {
         "type": "cosmos-sdk/MsgDelegate",
         "value": {
-          "delegator_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
-          "validator_address": "cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys",
+          "delegator_address": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
+          "validator_address": "osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n",
           "amount": {
-            "denom": "uatom",
+            "denom": "uosmo",
             "amount": "1000"
           }
         }
@@ -60,13 +60,13 @@
     ]
   },
   "osmosisUndelegateTx": {
-    "account_number": "16359",
-    "chain_id": "cosmoshub-4",
-    "sequence": "20",
+    "account_number": "95421",
+    "chain_id": "osmosis-1",
+    "sequence": "39",
     "fee": {
       "amount": [
         {
-          "denom": "uatom",
+          "denom": "uosmo",
           "amount": "0"
         }
       ],
@@ -76,10 +76,10 @@
       {
         "type": "cosmos-sdk/MsgUndelegate",
         "value": {
-          "delegator_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
-          "validator_address": "cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys",
+          "delegator_address": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
+          "validator_address": "osmovaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4ep88n0y4",
           "amount": {
-            "denom": "uatom",
+            "denom": "uosmo",
             "amount": "3000"
           }
         }
@@ -87,9 +87,9 @@
     ]
   },
   "osmosisRedelegateTx": {
-    "account_number": "16359",
-    "chain_id": "cosmoshub-4",
-    "sequence": "19",
+    "account_number": "95421",
+    "chain_id": "osmosis-1",
+    "sequence": "37",
     "fee": {
       "amount": [
         {
@@ -104,9 +104,9 @@
       {
         "type": "cosmos-sdk/MsgBeginRedelegate",
         "value": {
-          "delegator_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
-          "validator_src_address": "cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys",
-          "validator_dst_address": "cosmosvaloper1qs8tnw2t8l6amtzvdemnnsq9dzk0ag0z52uzay",
+          "delegator_address": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
+          "validator_src_address": "osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n",
+          "validator_dst_address": "osmovaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4ep88n0y4",
           "amount": {
             "denom": "uosmo",
             "amount": "100"
@@ -116,14 +116,14 @@
     ]
   },
   "osmosisRewardsTx": {
-    "account_number": "16359",
-    "chain_id": "cosmoshub-4",
-    "sequence": "19",
+    "account_number": "95421",
+    "chain_id": "osmosis-1",
+    "sequence": "38",
     "fee": {
       "amount": [
         {
           "amount": "2800",
-          "denom": "uatom"
+          "denom": "uosmo"
         }
       ],
       "gas": "290000"
@@ -131,12 +131,12 @@
     "memo": "",
     "msg": [
       {
-        "type": "cosmos-sdk/MsgWithdrawDelegatorReward",
+        "type": "cosmos-sdk/MsgWithdrawDelegationReward",
         "value": {
-          "delegator_address": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
-          "validator_address": "cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys",
+          "delegator_address": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
+          "validator_address": "osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n",
           "amount": {
-            "denom": "uatom",
+            "denom": "uosmo",
             "amount": "100"
           }
         }
@@ -212,7 +212,8 @@
         }
       }
     ]
-  },
+  }
+  ,
   "osmosisLPStakeTx": {
     "chain_id": "osmosis-1",
     "account_number": "95421",
@@ -268,38 +269,36 @@
     ]
   },
   "osmosisIBCTransferTx": {
-    "account_number": "16359",
-    "chain_id": "cosmoshub-4",
-    "sequence": "27",
+    "chain_id": "osmosis-1",
+    "account_number": "95421",
+    "sequence": "35",
+    "msg": [
+      {
+        "type": "cosmos-sdk/MsgSend",
+        "value": {
+          "from_address": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
+          "to_address": "osmo1qjwdyn56ecagk8rjf7crrzwcyz6775cj07qz9r",
+          "amount": [
+            {
+              "denom": "uosmo",
+              "amount": "1000"
+            }
+          ]
+        }
+      }
+    ],
     "fee": {
       "amount": [
         {
-          "amount": "2800",
-          "denom": "uatom"
+          "denom": "uosmo",
+          "amount": "2800"
         }
       ],
-      "gas": "290000"
+      "gas": "80000"
     },
-    "memo": "",
-    "msg": [
-      {
-        "type": "cosmos-sdk/MsgTransfer",
-        "value": {
-          "receiver": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
-          "sender": "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
-          "source_channel": "channel-141",
-          "source_port": "transfer",
-          "timeout_height": {
-            "revision_height": "9339851",
-            "revision_number": "1"
-          },
-          "token": {
-            "amount": "100",
-            "denom": "uatom"
-          }
-        }
-      }
-    ]
+    "signatures": [],
+    "memo": "hello world",
+    "timeout_height": "0"
   },
   "osmosisSwapTx": {
     "chain_id": "osmosis-1",
