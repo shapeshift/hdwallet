@@ -204,6 +204,11 @@ export function selfTest(get: () => core.HDWallet): void {
     expect(await wallet.btcSupportsSecureTransfer()).toEqual(false);
   });
 
+  it("supports bip44 accounts", async () => {
+    if (!wallet) return;
+    expect(wallet.supportsBip44Accounts()).toEqual(true);
+  });
+
   it("uses correct eth bip44 paths", () => {
     if (!wallet) return;
     [0, 1, 3, 27].forEach((account) => {
@@ -340,6 +345,10 @@ export function selfTest(get: () => core.HDWallet): void {
         isPrefork: false,
       },
     ]);
+  });
+
+  it("returns true for supportsBip44Accounts", () => {
+    expect(wallet.supportsBip44Accounts()).toBe(true);
   });
 
   it("can describe a Bitcoin path", () => {

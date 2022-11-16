@@ -77,7 +77,7 @@ describe("NativeOsmosisWallet", () => {
           ],
           gas: "100000",
         },
-        signatures: null,
+        signatures: [],
         memo: "foobar",
       },
       chain_id: "osmosishub-4",

@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bip39 from "bip39";
 import * as eventemitter2 from "eventemitter2";
-import _ from "lodash";
+import isObject from "lodash/isObject";
 
 import type { NativeAdapterArgs } from "./adapter";
 import { MixinNativeBinanceWallet, MixinNativeBinanceWalletInfo } from "./binance";
@@ -63,6 +63,10 @@ export class NativeHDWalletInfoBase implements core.HDWalletInfo {
 
   hasNativeShapeShift(): boolean {
     return false;
+  }
+
+  public supportsBip44Accounts(): boolean {
+    return true;
   }
 
   public supportsOfflineSigning(): boolean {
@@ -211,6 +215,7 @@ export class NativeHDWallet
   readonly _supportsETH = true;
   readonly _supportsCosmos = true;
   readonly _supportsEthSwitchChain = false;
+  readonly _supportsAvalanche = true;
   readonly _supportsOsmosis = true;
   readonly _supportsBinance = true;
   readonly _supportsFio = true;
@@ -411,7 +416,7 @@ export class NativeHDWallet
 }
 
 export function isNative(wallet: core.HDWallet): wallet is NativeHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isNative;
+  return isObject(wallet) && (wallet as any)._isNative;
 }
 
 export function info() {

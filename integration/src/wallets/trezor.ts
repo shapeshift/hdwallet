@@ -83,6 +83,31 @@ export class MockTransport extends trezor.TrezorTransport {
       }
     );
 
+    // AVAX
+    this.memoize(
+      "ethereumSignTransaction",
+      {
+        path: [2147483692, 2147483708, 2147483648, 0, 0],
+        transaction: {
+          to: "0xDAFEA492D9c6733ae3d56b7Ed1ADB60692c98Bc5",
+          value: "0x00",
+          data: "0xa9059cbb0000000000000000000000001d8ce9022f6284c3a5c317f8f34620107214e54500000000000000000000000000000000000000000000000000000002540be400",
+          chainId: 43114,
+          nonce: "0x01",
+          gasLimit: "0x5622",
+          gasPrice: "0x1dcd65000",
+        },
+      },
+      {
+        success: true,
+        payload: {
+          v: 86264,
+          r: "0x6852b5d760ca9f31098c747c6f8a747ee31ba7b1bca413dbe42805df8fbbb7c8",
+          s: "0x38f92d9c8e4d9a806d48b6bb2090c8d76808711cd345cb95f19c1843b334ffab",
+        },
+      }
+    );
+
     this.memoize(
       "ethereumSignMessage",
       {
@@ -370,6 +395,11 @@ export function selfTest(get: () => core.HDWallet): void {
     if (!wallet) return;
     expect(await wallet.ethSupportsSecureTransfer()).toEqual(false);
     expect(await wallet.btcSupportsSecureTransfer()).toEqual(false);
+  });
+
+  it("supports bip44 accounts", () => {
+    if (!wallet) return;
+    expect(wallet.supportsBip44Accounts()).toEqual(true);
   });
 
   it("uses the same BIP32 paths for ETH as wallet.trezor.io", () => {

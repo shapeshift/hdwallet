@@ -1,6 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ethers from "ethers";
 
+import { Isolation } from "../..";
 import { SecP256K1 } from "../core";
 
 function ethSigFromRecoverableSig(x: SecP256K1.RecoverableSignature): ethers.Signature {
@@ -9,18 +10,13 @@ function ethSigFromRecoverableSig(x: SecP256K1.RecoverableSignature): ethers.Sig
   return ethers.utils.splitSignature(core.compatibleBufferConcat([sig, Buffer.from([recoveryParam])]));
 }
 
-export class SignerAdapter extends ethers.Signer {
-  protected readonly _isolatedKey: SecP256K1.ECDSAKey;
+export class SignerAdapter {
+  protected readonly nodeAdapter: Isolation.Adapters.BIP32;
   readonly provider?: ethers.providers.Provider;
 
-  protected constructor(isolatedKey: SecP256K1.ECDSAKey, provider?: ethers.providers.Provider) {
-    super();
-    this._isolatedKey = isolatedKey;
+  constructor(nodeAdapter: Isolation.Adapters.BIP32, provider?: ethers.providers.Provider) {
+    this.nodeAdapter = nodeAdapter;
     this.provider = provider;
-  }
-
-  static async create(isolatedKey: SecP256K1.ECDSAKey, provider?: ethers.providers.Provider): Promise<SignerAdapter> {
-    return new SignerAdapter(isolatedKey, provider);
   }
 
   // This throws (as allowed by ethers.Signer) to avoid having to return an object which is initialized asynchronously
@@ -32,13 +28,15 @@ export class SignerAdapter extends ethers.Signer {
     throw new Error("changing providers on a SignerAdapter is unsupported");
   }
 
-  async getAddress(): Promise<string> {
-    return ethers.utils.computeAddress(SecP256K1.UncompressedPoint.from(await this._isolatedKey.getPublicKey()));
+  async getAddress(addressNList: core.BIP32Path): Promise<string> {
+    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
+    return ethers.utils.computeAddress(SecP256K1.UncompressedPoint.from(nodeAdapter.getPublicKey()));
   }
 
-  async signDigest(digest: ethers.BytesLike): Promise<ethers.Signature> {
+  async signDigest(digest: ethers.BytesLike, addressNList: core.BIP32Path): Promise<ethers.Signature> {
+    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
     const recoverableSig = await SecP256K1.RecoverableSignature.signCanonically(
-      this._isolatedKey,
+      nodeAdapter.node,
       null,
       digest instanceof Uint8Array ? digest : ethers.utils.arrayify(digest)
     );
@@ -47,10 +45,13 @@ export class SignerAdapter extends ethers.Signer {
     return ethers.utils.splitSignature(core.compatibleBufferConcat([sig, Buffer.from([recoveryParam])]));
   }
 
-  async signTransaction(transaction: ethers.utils.Deferrable<ethers.providers.TransactionRequest>): Promise<string> {
+  async signTransaction(
+    transaction: ethers.utils.Deferrable<ethers.providers.TransactionRequest>,
+    addressNList: core.BIP32Path
+  ): Promise<string> {
     const tx = await ethers.utils.resolveProperties(transaction);
     if (tx.from != null) {
-      if (ethers.utils.getAddress(tx.from) !== (await this.getAddress())) {
+      if (ethers.utils.getAddress(tx.from) !== (await this.getAddress(addressNList))) {
         throw new Error("transaction from address mismatch");
       }
       delete tx.from;
@@ -60,12 +61,13 @@ export class SignerAdapter extends ethers.Signer {
       nonce: tx.nonce !== undefined ? ethers.BigNumber.from(tx.nonce).toNumber() : undefined,
     };
 
+    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
     const txBuf = ethers.utils.arrayify(ethers.utils.serializeTransaction(unsignedTx));
-    const rawSig = await SecP256K1.RecoverableSignature.signCanonically(this._isolatedKey, "keccak256", txBuf);
+    const rawSig = await SecP256K1.RecoverableSignature.signCanonically(nodeAdapter.node, "keccak256", txBuf);
     return ethers.utils.serializeTransaction(unsignedTx, ethSigFromRecoverableSig(rawSig));
   }
 
-  async signMessage(messageData: ethers.Bytes | string): Promise<string> {
+  async signMessage(messageData: ethers.Bytes | string, addressNList: core.BIP32Path): Promise<string> {
     const messageDataBuf =
       typeof messageData === "string"
         ? Buffer.from(messageData.normalize("NFKD"), "utf8")
@@ -74,7 +76,8 @@ export class SignerAdapter extends ethers.Signer {
       Buffer.from(`\x19Ethereum Signed Message:\n${messageDataBuf.length}`, "utf8"),
       messageDataBuf,
     ]);
-    const rawSig = await SecP256K1.RecoverableSignature.signCanonically(this._isolatedKey, "keccak256", messageBuf);
+    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
+    const rawSig = await SecP256K1.RecoverableSignature.signCanonically(nodeAdapter.node, "keccak256", messageBuf);
     return ethers.utils.joinSignature(ethSigFromRecoverableSig(rawSig));
   }
 }

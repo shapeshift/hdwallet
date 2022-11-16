@@ -1,9 +1,14 @@
+import type { AccountData, AminoSignResponse, OfflineAminoSigner, StdSignDoc, StdTx } from "@cosmjs/amino";
+import type { SignerData } from "@cosmjs/stargate";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as ThorchainMessages from "@keepkey/device-protocol/lib/messages-thorchain_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import _ from "lodash";
+import bs58check from "bs58check";
+import PLazy from "p-lazy";
 
 import { Transport } from "./transport";
+
+const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
 
 export function thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
   return [
@@ -13,7 +18,35 @@ export function thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Ar
   ];
 }
 
+export async function thorchainGetAddress(
+  transport: Transport,
+  msg: ThorchainMessages.ThorchainGetAddress.AsObject
+): Promise<string> {
+  const getAddr = new ThorchainMessages.ThorchainGetAddress();
+  getAddr.setAddressNList(msg.addressNList);
+  getAddr.setShowDisplay(msg.showDisplay !== false);
+  if (msg.testnet !== undefined) getAddr.setTestnet(msg.testnet);
+  const response = await transport.call(Messages.MessageType.MESSAGETYPE_THORCHAINGETADDRESS, getAddr, {
+    msgTimeout: core.LONG_TIMEOUT,
+  });
+
+  const thorchainAddress = response.proto as ThorchainMessages.ThorchainAddress;
+  return core.mustBeDefined(thorchainAddress.getAddress());
+}
+
 export async function thorchainSignTx(transport: Transport, msg: core.ThorchainSignTx): Promise<any> {
+  const address = await thorchainGetAddress(transport, { addressNList: msg.addressNList });
+
+  const getPublicKeyMsg = new Messages.GetPublicKey();
+  getPublicKeyMsg.setAddressNList(msg.addressNList);
+  getPublicKeyMsg.setEcdsaCurveName("secp256k1");
+
+  const response = await transport.call(Messages.MessageType.MESSAGETYPE_GETPUBLICKEY, getPublicKeyMsg, {
+    msgTimeout: core.DEFAULT_TIMEOUT,
+  });
+  const pubkeyMsg = response.proto as Messages.PublicKey;
+  const pubkey = bs58check.decode(core.mustBeDefined(pubkeyMsg.getXpub())).slice(45);
+
   return transport.lockDuring(async () => {
     const signTx = new ThorchainMessages.ThorchainSignTx();
     signTx.setAddressNList(msg.addressNList);
@@ -88,34 +121,37 @@ export async function thorchainSignTx(transport: Transport, msg: core.ThorchainS
 
     const signedTx = resp.proto as ThorchainMessages.ThorchainSignedTx;
 
-    const signed = _.cloneDeep(msg.tx);
-
-    signed.signatures = [
-      {
-        signature: signedTx.getSignature_asB64(),
-        pub_key: {
-          type: "tendermint/PubKeySecp256k1",
-          value: signedTx.getPublicKey_asB64(),
-        },
+    const offlineSigner: OfflineAminoSigner = {
+      async getAccounts(): Promise<readonly AccountData[]> {
+        return [
+          {
+            address,
+            algo: "secp256k1",
+            pubkey,
+          },
+        ];
       },
-    ];
+      async signAmino(signerAddress: string, signDoc: StdSignDoc): Promise<AminoSignResponse> {
+        if (signerAddress !== address) throw new Error("expected signerAddress to match address");
+        return {
+          signed: signDoc,
+          signature: {
+            pub_key: {
+              type: "tendermint/PubKeySecp256k1",
+              value: signedTx.getPublicKey_asB64(),
+            },
+            signature: signedTx.getSignature_asB64(),
+          },
+        };
+      },
+    };
 
-    return signed;
+    const signerData: SignerData = {
+      sequence: Number(msg.sequence),
+      accountNumber: Number(msg.account_number),
+      chainId: msg.chain_id,
+    };
+
+    return (await protoTxBuilder).sign(address, msg.tx as StdTx, offlineSigner, signerData, "thor");
   });
-}
-
-export async function thorchainGetAddress(
-  transport: Transport,
-  msg: ThorchainMessages.ThorchainGetAddress.AsObject
-): Promise<string> {
-  const getAddr = new ThorchainMessages.ThorchainGetAddress();
-  getAddr.setAddressNList(msg.addressNList);
-  getAddr.setShowDisplay(msg.showDisplay !== false);
-  if (msg.testnet !== undefined) getAddr.setTestnet(msg.testnet);
-  const response = await transport.call(Messages.MessageType.MESSAGETYPE_THORCHAINGETADDRESS, getAddr, {
-    msgTimeout: core.LONG_TIMEOUT,
-  });
-
-  const thorchainAddress = response.proto as ThorchainMessages.ThorchainAddress;
-  return core.mustBeDefined(thorchainAddress.getAddress());
 }

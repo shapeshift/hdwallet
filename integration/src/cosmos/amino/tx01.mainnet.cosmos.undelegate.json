@@ -11,7 +11,6 @@
     ],
     "gas": "250000"
   },
-  
   "msg": [
     {
       "type": "cosmos-sdk/MsgUndelegate",
@@ -24,5 +23,6 @@
         }
       }
     }
-  ]
+  ],
+  "signatures": []
 }

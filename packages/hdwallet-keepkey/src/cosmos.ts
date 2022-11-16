@@ -1,9 +1,10 @@
-import type { AminoSignResponse, OfflineAminoSigner, StdSignDoc } from "@cosmjs/amino";
+import type { AminoSignResponse, OfflineAminoSigner, StdSignDoc, StdTx } from "@cosmjs/amino";
 import type { AccountData } from "@cosmjs/proto-signing";
+import type { SignerData } from "@cosmjs/stargate";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as CosmosMessages from "@keepkey/device-protocol/lib/messages-cosmos_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as bs58check from "bs58check";
+import bs58check from "bs58check";
 import PLazy from "p-lazy";
 
 import { Transport } from "./transport";
@@ -202,6 +203,13 @@ export async function cosmosSignTx(transport: Transport, msg: core.CosmosSignTx)
         };
       },
     };
-    return await (await protoTxBuilder).sign(msg.tx, offlineSigner, msg.sequence, msg.account_number, msg.chain_id);
+
+    const signerData: SignerData = {
+      sequence: Number(msg.sequence),
+      accountNumber: Number(msg.account_number),
+      chainId: msg.chain_id,
+    };
+
+    return (await protoTxBuilder).sign(address, msg.tx as StdTx, offlineSigner, signerData);
   });
 }

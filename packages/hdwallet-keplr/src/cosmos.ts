@@ -1,3 +1,5 @@
+import { StdTx } from "@cosmjs/amino";
+import { SignerData } from "@cosmjs/stargate";
 import { ChainReference } from "@shapeshiftoss/caip";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import {
@@ -64,8 +66,17 @@ export async function cosmosGetAddress(provider: any): Promise<string | undefine
 
 export async function cosmosSignTx(provider: any, msg: CosmosSignTx): Promise<CosmosSignedTx> {
   const offlineSigner = provider.getOfflineSigner(ChainReference.CosmosHubMainnet);
-  const output = await sign(msg.tx, offlineSigner, msg.sequence, msg.account_number, msg.chain_id);
-  return output;
+
+  const address = await cosmosGetAddress(provider);
+  if (!address) throw new Error("failed to get address");
+
+  const signerData: SignerData = {
+    sequence: Number(msg.sequence),
+    accountNumber: Number(msg.account_number),
+    chainId: msg.chain_id,
+  };
+
+  return await sign(address, msg.tx as StdTx, offlineSigner, signerData);
 }
 
 /**

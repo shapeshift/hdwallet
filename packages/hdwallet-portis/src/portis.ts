@@ -45,6 +45,10 @@ export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
     return false;
   }
 
+  public supportsBip44Accounts(): boolean {
+    return false;
+  }
+
   public supportsOfflineSigning(): boolean {
     return true;
   }
@@ -125,6 +129,7 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
   readonly _supportsEthSwitchChain = false;
+  readonly _supportsAvalanche = false;
   readonly _supportsBTCInfo = true;
   readonly _supportsBTC = true;
   readonly _isPortis = true;
@@ -188,6 +193,10 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
 
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return this.info.hasNativeShapeShift(srcCoin, dstCoin);
+  }
+
+  public supportsBip44Accounts(): boolean {
+    return this.info.supportsBip44Accounts();
   }
 
   public supportsOfflineSigning(): boolean {

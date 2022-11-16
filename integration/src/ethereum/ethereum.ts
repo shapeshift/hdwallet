@@ -244,6 +244,55 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
     );
 
     test(
+      "ethSignTx() - AVAX",
+      async () => {
+        if (!wallet) return;
+        // eslint-disable-next-line jest/no-jasmine-globals, jest/no-disabled-tests
+
+        if (ledger.isLedger(wallet)) return; // FIXME: just test kk and native for now
+        if (trezor.isTrezor(wallet)) return; // FIXME: just test kk and native for now
+        if (portis.isPortis(wallet)) return; // FIXME: just test kk and native for now
+
+        const txToSign = {
+          addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+          nonce: "0x01",
+          gasPrice: "0x1dcd65000",
+          gasLimit: "0x5622",
+          value: "0x00",
+          to: "0xDAFEA492D9c6733ae3d56b7Ed1ADB60692c98Bc5",
+          chainId: 43114,
+          data:
+            "0x" +
+            "a9059cbb000000000000000000000000" +
+            "1d8ce9022f6284c3a5c317f8f34620107214e545" +
+            "00000000000000000000000000000000000000000000000000000002540be400",
+        };
+        if (wallet.supportsOfflineSigning()) {
+          const res = await wallet.ethSignTx(txToSign);
+
+          // eslint-disable-next-line jest/no-conditional-expect
+          expect(res).toEqual({
+            r: "0x119c4c0d4b6301aaa363f738680a6c0836b9c7331faf34d8485f683541d63040",
+            s: "0x6618ceebe49b2cb2789a9012b2bad6c1c291a15ea2fdfe060f73e7d42db786c5",
+            v: 86264,
+            serialized:
+              "0xf8ac018501dcd6500082562294dafea492d9c6733ae3d56b7ed1adb60692c98bc580b844a9059cbb0000000000000000000000001d8ce9022f6284c3a5c317f8f34620107214e54500000000000000000000000000000000000000000000000000000002540be400830150f8a0119c4c0d4b6301aaa363f738680a6c0836b9c7331faf34d8485f683541d63040a06618ceebe49b2cb2789a9012b2bad6c1c291a15ea2fdfe060f73e7d42db786c5",
+          });
+        } else if (wallet.supportsBroadcast() && wallet.ethSendTx) {
+          const res = await wallet.ethSendTx(txToSign);
+
+          // eslint-disable-next-line jest/no-conditional-expect
+          expect(res).toMatchInlineSnapshot(`
+            Object {
+              "hash": "txHash-0xDAFEA492D9c6733ae3d56b7Ed1ADB60692c98Bc5",
+            }
+          `);
+        }
+      },
+      TIMEOUT
+    );
+
+    test(
       "ethSignTx() - long contract data",
       async () => {
         if (!wallet) return;
