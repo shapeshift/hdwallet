@@ -155,7 +155,7 @@ export async function btcSignTx(
 
   //bitcoinjs-lib
   msg.outputs.map((output) => {
-    if (output.exchangeType && !supportsShapeShift) throw new Error("Ledger does not support Native ShapeShift");
+    if (!supportsShapeShift) throw new Error("Ledger does not support Native ShapeShift");
 
     if (output.addressNList !== undefined) {
       if (output.addressType === core.BTCOutputAddressType.Transfer && !supportsSecureTransfer)

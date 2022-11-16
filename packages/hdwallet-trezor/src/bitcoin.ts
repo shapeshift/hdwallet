@@ -104,7 +104,7 @@ export async function btcSignTx(
   });
 
   const outputs: BTCTrezorSignTxOutput[] = msg.outputs.map((output) => {
-    if (output.exchangeType && !supportsShapeShift) throw new Error("Trezor does not support Native ShapeShift");
+    if (!supportsShapeShift) throw new Error("Trezor does not support Native ShapeShift");
 
     if (output.addressNList) {
       if (output.addressType === core.BTCOutputAddressType.Transfer && !supportsSecureTransfer)
