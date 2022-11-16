@@ -46,19 +46,6 @@ import {
   osmosisSwapTx,
   osmosisUndelegateTx,
 } from "./json/osmosis/osmosisAminoTx.json";
-import {
-  osmosisDelegateTx,
-  osmosisIBCTransferTx,
-  osmosisLPAddTx,
-  osmosisLPRemoveTx,
-  osmosisLPStakeTx,
-  osmosisLPUnstakeTx,
-  osmosisRedelegateTx,
-  osmosisRewardsTx,
-  osmosisSendTx,
-  osmosisSwapTx,
-  osmosisUndelegateTx,
-} from "./json/osmosis/osmosisAminoTx.json";
 import * as rippleTxJson from "./json/rippleTx.json";
 import {
   thorchainBinanceBaseTx,
@@ -1523,7 +1510,7 @@ const $osmosisRedelegate = $("#osmosisRedelegate");
 const $osmosisRewards = $("#osmosisRewards");
 const $osmosisLPAdd = $("#osmosisLPAdd");
 const $osmosisLPRemove = $("#osmosisLPRemove");
-const $osmosisLPStake = $("#osmosisRedelegate");
+const $osmosisLPStake = $("#osmosisLPStake");
 const $osmosisLPUnstake = $("#osmosisLPUnstake");
 const $osmosisIBCTransfer = $("#osmosisIBCTransfer");
 const $osmosisSwap = $("#osmosisSwap");
@@ -1562,8 +1549,6 @@ $osmosisSend.on("click", async (e) => {
   if (core.supportsOsmosis(wallet)) {
     const unsigned: core.Osmosis.StdTx = osmosisSendTx;
 
-    const unsigned: core.Osmosis.StdTx = osmosisSendTx;
-
     const res = await wallet.osmosisSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
       chain_id: "osmosis-1",
@@ -1585,8 +1570,6 @@ $osmosisDelegate.on("click", async (e) => {
     return;
   }
   if (core.supportsOsmosis(wallet)) {
-    const unsigned: core.Osmosis.StdTx = osmosisDelegateTx;
-
     const unsigned: core.Osmosis.StdTx = osmosisDelegateTx;
 
     const res = await wallet.osmosisSignTx({
@@ -1794,8 +1777,6 @@ $osmosisSwap.on("click", async (e) => {
     return;
   }
   if (core.supportsOsmosis(wallet)) {
-    const unsigned: core.Osmosis.StdTx = osmosisSwapTx;
-
     const unsigned: core.Osmosis.StdTx = osmosisSwapTx;
 
     const res = await wallet.osmosisSignTx({
