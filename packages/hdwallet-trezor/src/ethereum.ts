@@ -41,8 +41,6 @@ export async function ethSignTx(
   if (msg.toAddressNList !== undefined && !(await ethSupportsSecureTransfer()))
     throw new Error("Trezor does not support SecureTransfer");
 
-  if (!ethSupportsNativeShapeShift()) throw new Error("Trezor does not support Native ShapeShift");
-
   const utx = {
     to: msg.to,
     value: msg.value,
