@@ -2403,10 +2403,10 @@
     "@types/yargs" "^16.0.0"
     chalk "^4.0.0"
 
-"@keepkey/device-protocol@^7.9.1":
-  version "7.9.1"
-  resolved "https://registry.yarnpkg.com/@keepkey/device-protocol/-/device-protocol-7.9.1.tgz#7e40bd45e8fb1f042a9936d4010054c642056c89"
-  integrity sha512-s4XKN1/YY8GOVtURcRQyj3d9dvVh9Y3BgWDQ+V771JrVMmts3ViTxRiSjpnt8SEOykQkWG7m8h/fQzDsBcuYEQ==
+"@keepkey/device-protocol@^7.10.2":
+  version "7.10.2"
+  resolved "https://registry.yarnpkg.com/@keepkey/device-protocol/-/device-protocol-7.10.2.tgz#9c856af8703386cfc709ec6c7856464cf8913870"
+  integrity sha512-T+D/ADUWPJ9zuvUSj16gyhJ6qqoCmDTQQoM6nNUh7OWlMORGvz+ktUYo8sGZWBmC5spjw945sYv0dWOJ7ANw4w==
   dependencies:
     google-protobuf "^3.7.0-rc.2"
     pbjs "^0.0.5"
