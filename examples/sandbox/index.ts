@@ -29,7 +29,7 @@ import {
   cosmosRewardsTx,
   cosmosTransferTx,
   cosmosUndelegateTx,
-} from "./json/cosmos/cosmos/cosmosAminoTx.json";
+} from "./json/cosmos/cosmosAminoTx.json";
 import * as dashTxJson from "./json/dashTx.json";
 import * as dogeTxJson from "./json/dogeTx.json";
 import * as ltcTxJson from "./json/ltcTx.json";
