@@ -61,26 +61,26 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
     }
     signTx.setMsgCount(1);
 
-    let resp = await transport.call(Messages.MessageType.MESSAGETYPE_COSMOSSIGNTX, signTx, {
+    let resp = await transport.call(Messages.MessageType.MESSAGETYPE_OSMOSISSIGNTX, signTx, {
       msgTimeout: core.LONG_TIMEOUT,
       omitLock: true,
     });
 
     for (const m of msg.tx.msg) {
-      if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_COSMOSMSGREQUEST) {
+      if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_OSMOSISMSGREQUEST) {
         throw new Error(`osmosis: unexpected response ${resp.message_type}`);
       }
 
       let ack;
       switch (m.type) {
-        case "osmosis-sdk/MsgSend": {
+        case "cosmos-sdk/MsgSend": {
           // Transfer
           if (m.value.amount.length !== 1) {
             throw new Error("osmosis: Multiple amounts per msg not supported");
           }
 
           const denom = m.value.amount[0].denom;
-          if (denom !== "uatom") {
+          if (denom !== "uosmo") {
             throw new Error("osmosis: Unsupported denomination: " + denom);
           }
 
@@ -97,15 +97,15 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
         case "cosmos-sdk/MsgDelegate": {
           // Delegate
           const denom = m.value.amount.denom;
-          if (denom !== "uatom") {
+          if (denom !== "uosmo") {
             throw new Error("osmosis: Unsupported denomination: " + denom);
           }
 
           const delegate = new OsmosisMessages.OsmosisMsgDelegate();
           delegate.setDelegatorAddress(m.value.delegator_address);
           delegate.setValidatorAddress(m.value.validator_address);
-          delegate.setDenom(m.value.amount[0].denom);
-          delegate.setAmount(m.value.amount[0].amount);
+          delegate.setDenom(m.value.amount.denom);
+          delegate.setAmount(m.value.amount.amount);
 
           ack = new OsmosisMessages.OsmosisMsgAck();
           ack.setDelegate(delegate);
@@ -114,15 +114,15 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
         case "cosmos-sdk/MsgUndelegate": {
           // Undelegate
           const denom = m.value.amount.denom;
-          if (denom !== "uatom") {
+          if (denom !== "uosmo") {
             throw new Error("osmosis: Unsupported denomination: " + denom);
           }
 
           const undelegate = new OsmosisMessages.OsmosisMsgUndelegate();
           undelegate.setDelegatorAddress(m.value.delegator_address);
           undelegate.setValidatorAddress(m.value.validator_address);
-          undelegate.setDenom(m.value.amount[0].denom);
-          undelegate.setAmount(m.value.amount[0].amount);
+          undelegate.setDenom(m.value.amount.denom);
+          undelegate.setAmount(m.value.amount.amount);
 
           ack = new OsmosisMessages.OsmosisMsgAck();
           ack.setUndelegate(undelegate);
@@ -131,7 +131,7 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
         case "cosmos-sdk/MsgBeginRedelegate": {
           // Redelegate
           const denom = m.value.amount.denom;
-          if (denom !== "uatom") {
+          if (denom !== "uosmo") {
             throw new Error("osmosis: Unsupported denomination: " + denom);
           }
 
@@ -140,6 +140,7 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
           redelegate.setValidatorSrcAddress(m.value.validator_src_address);
           redelegate.setValidatorDstAddress(m.value.validator_dst_address);
           redelegate.setAmount(m.value.amount.amount);
+          redelegate.setDenom(m.value.amount.denom);
 
           ack = new OsmosisMessages.OsmosisMsgAck();
           ack.setRedelegate(redelegate);
@@ -148,7 +149,7 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
         case "cosmos-sdk/MsgWithdrawDelegationReward": {
           // Rewards
           const denom = m.value.amount.denom;
-          if (denom !== "uatom") {
+          if (denom !== "uosmo") {
             throw new Error("osmosis: Unsupported denomination: " + denom);
           }
 
@@ -156,6 +157,7 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
           rewards.setDelegatorAddress(m.value.delegator_address);
           rewards.setValidatorAddress(m.value.validator_address);
           rewards.setAmount(m.value.amount.amount);
+          rewards.setDenom(m.value.amount.denom);
 
           ack = new OsmosisMessages.OsmosisMsgAck();
           ack.setRewards(rewards);
@@ -165,6 +167,7 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
           // LP add
           const lpAdd = new OsmosisMessages.OsmosisMsgLPAdd();
           lpAdd.setSender(m.value.sender);
+          lpAdd.setPoolId(m.value.poolId);
           lpAdd.setShareOutAmount(m.value.shareOutAmount);
           lpAdd.setDenomInMaxA(m.value.tokenInMaxs[0].denom);
           lpAdd.setAmountInMaxA(m.value.tokenInMaxs[0].amount);
@@ -179,11 +182,12 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
           // LP remove
           const lpRemove = new OsmosisMessages.OsmosisMsgLPRemove();
           lpRemove.setSender(m.value.sender);
+          lpRemove.setPoolId(m.value.poolId);
           lpRemove.setShareOutAmount(m.value.shareOutAmount);
-          lpRemove.setDenomOutMinA(m.value.tokenInMaxs[0].denom);
-          lpRemove.setAmountOutMinA(m.value.tokenInMaxs[0].amount);
-          lpRemove.setDenomOutMinB(m.value.tokenInMaxs[1].denom);
-          lpRemove.setAmountOutMinB(m.value.tokenInMaxs[1].amount);
+          lpRemove.setDenomOutMinA(m.value.tokenOutMins[0].denom);
+          lpRemove.setAmountOutMinA(m.value.tokenOutMins[0].amount);
+          lpRemove.setDenomOutMinB(m.value.tokenOutMins[1].denom);
+          lpRemove.setAmountOutMinB(m.value.tokenOutMins[1].amount);
 
           ack = new OsmosisMessages.OsmosisMsgAck();
           ack.setLpRemove(lpRemove);
@@ -211,10 +215,10 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
           ack.setLpUnstake(lpUnstake);
           break;
         }
-        case "osmosis-sdk/MsgTransfer": {
+        case "cosmos-sdk/MsgTransfer": {
           // IBC Transfer
           const denom = m.value.token.denom;
-          if (denom !== "uatom") {
+          if (denom !== "uosmo") {
             throw new Error("osmosis: Unsupported denomination: " + denom);
           }
 
@@ -250,13 +254,13 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
           throw new Error(`osmosis: Message ${m.type} is not yet supported`);
       }
 
-      resp = await transport.call(Messages.MessageType.MESSAGETYPE_COSMOSMSGACK, ack, {
+      resp = await transport.call(Messages.MessageType.MESSAGETYPE_OSMOSISMSGACK, ack, {
         msgTimeout: core.LONG_TIMEOUT,
         omitLock: true,
       });
     }
 
-    if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_COSMOSSIGNEDTX) {
+    if (resp.message_enum !== Messages.MessageType.MESSAGETYPE_OSMOSISSIGNEDTX) {
       throw new Error(`osmosis: unexpected response ${resp.message_type}`);
     }
 
