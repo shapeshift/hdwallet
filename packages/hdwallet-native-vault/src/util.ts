@@ -1,4 +1,4 @@
-import * as native from "@shapeshiftoss/hdwallet-native";
+import * as native from "@keepkey/hdwallet-native";
 import * as bip39 from "bip39";
 import PLazy from "p-lazy";
 import * as uuid from "uuid";
@@ -7,7 +7,7 @@ import { TextDecoder, TextEncoder } from "web-encoding";
 import { AsyncCrypto } from "./types";
 
 const nativeEngines = PLazy.from(async () => {
-  return (await import("@shapeshiftoss/hdwallet-native")).crypto.Isolation.Engines;
+  return (await import("@keepkey/hdwallet-native")).crypto.Isolation.Engines;
 });
 
 export async function createMnemonic(mnemonic: string) {

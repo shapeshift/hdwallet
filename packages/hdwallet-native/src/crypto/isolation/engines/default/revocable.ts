@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 
 const _Set = Set;
 const _freeze = Object.freeze.bind(Object);
