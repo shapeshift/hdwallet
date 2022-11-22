@@ -1,6 +1,6 @@
 {
   "name": "@keepkey/hdwallet-keepkey-webusb",
-  "version": "1.38.0",
+  "version": "1.38.1",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@keepkey/hdwallet-core": "1.38.0",
-    "@keepkey/hdwallet-keepkey": "1.38.0"
+    "@keepkey/hdwallet-core": "1.38.1",
+    "@keepkey/hdwallet-keepkey": "1.38.1"
   },
   "devDependencies": {
     "@types/w3c-web-usb": "^1.0.4",

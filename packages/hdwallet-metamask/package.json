@@ -1,6 +1,6 @@
 {
   "name": "@keepkey/hdwallet-metamask",
-  "version": "1.38.0",
+  "version": "1.38.1",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,9 +14,9 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
+    "@keepkey/hdwallet-core": "1.38.1",
     "@metamask/detect-provider": "^1.2.0",
     "@metamask/onboarding": "^1.0.1",
-    "@keepkey/hdwallet-core": "1.38.0",
     "eth-rpc-errors": "^4.0.3",
     "lodash": "^4.17.21"
   },
