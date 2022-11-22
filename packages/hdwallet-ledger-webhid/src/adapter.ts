@@ -1,5 +1,5 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
-import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+import * as core from "@keepkey/hdwallet-core";
+import * as ledger from "@keepkey/hdwallet-ledger";
 
 import {
   getFirstLedgerDevice,

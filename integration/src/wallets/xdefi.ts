@@ -1,5 +1,5 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
-import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
+import * as core from "@keepkey/hdwallet-core";
+import * as xdefi from "@keepkey/hdwallet-xdefi";
 
 const mockSignEthTxResponse = {
   r: "0x122269dc9cffc02962cdaa5af54913ac3e7293c3dd2a8ba7e38da2bc638f92df",

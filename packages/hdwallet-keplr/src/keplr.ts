@@ -1,6 +1,6 @@
 import { Window as KeplrWindow } from "@keplr-wallet/types";
 import { ChainReference } from "@shapeshiftoss/caip";
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 import isObject from "lodash/isObject";
 
 import * as cosmos from "./cosmos";

@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/hdwallet-walletconnect",
+  "name": "@keepkey/hdwallet-walletconnect",
   "version": "1.38.0",
   "license": "MIT",
   "publishConfig": {
@@ -15,7 +15,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "1.38.0",
+    "@keepkey/hdwallet-core": "1.38.0",
     "@walletconnect/qrcode-modal": "^1.7.8",
     "@walletconnect/web3-provider": "^1.7.8",
     "ethers": "^5.6.5"

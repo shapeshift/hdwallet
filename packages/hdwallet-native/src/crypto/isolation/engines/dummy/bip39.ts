@@ -1,4 +1,4 @@
-import { toArrayBuffer } from "@shapeshiftoss/hdwallet-core";
+import { toArrayBuffer } from "@keepkey/hdwallet-core";
 import * as bs58check from "bs58check";
 
 import * as BIP32 from "../../core/bip32";

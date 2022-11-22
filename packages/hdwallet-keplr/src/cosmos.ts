@@ -1,14 +1,14 @@
 import { StdTx } from "@cosmjs/amino";
 import { SignerData } from "@cosmjs/stargate";
 import { ChainReference } from "@shapeshiftoss/caip";
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 import {
   CosmosAccountPath,
   CosmosGetAccountPaths,
   CosmosSignedTx,
   CosmosSignTx,
   slip44ByCoin,
-} from "@shapeshiftoss/hdwallet-core";
+} from "@keepkey/hdwallet-core";
 import { sign } from "@shapeshiftoss/proto-tx-builder";
 
 export function cosmosDescribePath(path: core.BIP32Path): core.PathDescription {
