@@ -1,5 +1,5 @@
 {
-  "name": "@keepkey/hdwallet-keepkey",
+  "name": "@keepkey/hdwallet-keepkey-rest",
   "version": "1.38.5",
   "license": "MIT",
   "publishConfig": {
@@ -19,6 +19,7 @@
     "@ethereumjs/tx": "^3.3.0",
     "@keepkey/device-protocol": "^7.10.2",
     "@keepkey/hdwallet-core": "1.38.5",
+    "@keepkey/keepkey-sdk": "^0.0.11",
     "@shapeshiftoss/bitcoinjs-lib": "5.2.0-shapeshift.2",
     "@shapeshiftoss/proto-tx-builder": "^0.4.0",
     "bignumber.js": "^9.0.1",

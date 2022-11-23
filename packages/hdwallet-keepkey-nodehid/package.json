@@ -1,6 +1,6 @@
 {
   "name": "@keepkey/hdwallet-keepkey-nodehid",
-  "version": "1.38.0",
+  "version": "1.38.5",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,7 +14,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@keepkey/hdwallet-keepkey": "1.38.0"
+    "@keepkey/hdwallet-keepkey": "1.38.5"
   },
   "peerDependencies": {
     "node-hid": "^2.1.1"
@@ -22,5 +22,6 @@
   "devDependencies": {
     "@types/node-hid": "^1.3.1",
     "typescript": "^4.3.2"
-  }
+  },
+  "gitHead": "8bbab0ffb8715bca0ea3383f4c193d70a11ff4e0"
 }
