@@ -11,8 +11,6 @@ export function isKeepKey(wallet: core.HDWallet): wallet is KeepKeyRestHDWallet 
   return _.isObject(wallet) && (wallet as any)._isKeepKey;
 }
 
-
-
 export class KeepKeyRestHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.DebugLinkWallet {
   readonly _supportsETHInfo = true;
   readonly _supportsBTCInfo = true;
@@ -370,6 +368,7 @@ export class KeepKeyRestHDWallet implements core.HDWallet, core.BTCWallet, core.
 
   public async rippleSignTx(msg: core.RippleSignTx): Promise<core.RippleSignedTx> {
     const sdk = await this.getSdk();
+        // @ts-ignore
     return sdk.sign.rippleSignTx({ rippleSignTx: msg});
   }
 
@@ -384,6 +383,7 @@ export class KeepKeyRestHDWallet implements core.HDWallet, core.BTCWallet, core.
 
   public async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx> {
     const sdk = await this.getSdk();
+        // @ts-ignore
     return sdk.sign.cosmosSignTx({ cosmosSignTx: msg });
   }
 
@@ -398,6 +398,7 @@ export class KeepKeyRestHDWallet implements core.HDWallet, core.BTCWallet, core.
 
   public async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx> {
     const sdk = await this.getSdk();
+    // @ts-ignore
     return sdk.sign.thorchainSignTx({ thorchainSignTx: msg });
   }
 
