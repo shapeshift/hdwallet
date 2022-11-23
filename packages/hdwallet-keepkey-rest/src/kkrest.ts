@@ -3,6 +3,7 @@
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
 import * as core from "@keepkey/hdwallet-core";
+import { BTCInputScriptType, describeUTXOPath } from "@keepkey/hdwallet-core";
 import { getKeepKeySDK } from "@keepkey/keepkey-sdk";
 import _ from "lodash";
 import semver from "semver";
@@ -11,6 +12,347 @@ export function isKeepKey(wallet: core.HDWallet): wallet is KeepKeyRestHDWallet 
   return _.isObject(wallet) && (wallet as any)._isKeepKey;
 }
 
+function describeETHPath(path: core.BIP32Path): core.PathDescription {
+  const pathStr = core.addressNListToBIP32(path);
+  const unknown: core.PathDescription = {
+    verbose: pathStr,
+    coin: "Ethereum",
+    isKnown: false,
+  };
+
+  if (path.length != 5) return unknown;
+
+  if (path[0] != 0x80000000 + 44) return unknown;
+
+  if (path[1] != 0x80000000 + core.slip44ByCoin("Ethereum")) return unknown;
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
+
+  if (path[3] != 0) return unknown;
+
+  if (path[4] != 0) return unknown;
+
+  const index = path[2] & 0x7fffffff;
+  return {
+    verbose: `Ethereum Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "Ethereum",
+    isKnown: true,
+    isPrefork: false,
+  };
+}
+
+// function describeUTXOPath(
+//   path: core.BIP32Path,
+//   coin: core.Coin,
+//   scriptType?: core.BTCInputScriptType
+// ): core.PathDescription {
+//   const pathStr = core.addressNListToBIP32(path);
+//   const unknown: core.PathDescription = {
+//     verbose: pathStr,
+//     coin,
+//     scriptType,
+//     isKnown: false,
+//   };
+//   if (!scriptType) return unknown;
+
+//   if (!Btc.btcSupportsCoin(coin)) return unknown;
+
+//   if (!Btc.btcSupportsScriptType(coin, scriptType)) return unknown;
+
+//   if (path.length !== 3 && path.length !== 5) return unknown;
+
+//   if ((path[0] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
+
+//   const purpose = path[0] & 0x7fffffff;
+
+//   if (![44, 49, 84].includes(purpose)) return unknown;
+
+//   if (purpose === 44 && scriptType !== core.BTCInputScriptType.SpendAddress) return unknown;
+
+//   if (purpose === 49 && scriptType !== core.BTCInputScriptType.SpendP2SHWitness) return unknown;
+
+//   if (purpose === 84 && scriptType !== core.BTCInputScriptType.SpendWitness) return unknown;
+
+//   const wholeAccount = path.length === 3;
+
+//   const script = scriptType
+//     ? (
+//         {
+//           [core.BTCInputScriptType.SpendAddress]: ["Legacy"],
+//           [core.BTCInputScriptType.SpendP2SHWitness]: [],
+//           [core.BTCInputScriptType.SpendWitness]: ["Segwit Native"],
+//         } as Partial<Record<core.BTCInputScriptType, string[]>>
+//       )[scriptType] ?? []
+//     : [];
+
+//   let isPrefork = false;
+//   const slip44 = core.slip44ByCoin(coin);
+//   if (slip44 === undefined) return unknown;
+//   if (path[1] !== 0x80000000 + slip44) {
+//     switch (coin) {
+//       case "BitcoinCash":
+//       case "BitcoinGold": {
+//         if (path[1] === 0x80000000 + core.slip44ByCoin("Bitcoin")) {
+//           isPrefork = true;
+//           break;
+//         }
+//         return unknown;
+//       }
+//       case "BitcoinSV": {
+//         if (
+//           path[1] === 0x80000000 + core.slip44ByCoin("Bitcoin") ||
+//           path[1] === 0x80000000 + core.slip44ByCoin("BitcoinCash")
+//         ) {
+//           isPrefork = true;
+//           break;
+//         }
+//         return unknown;
+//       }
+//       default:
+//         return unknown;
+//     }
+//   }
+
+//   let attributes = isPrefork ? ["Prefork"] : [];
+//   switch (coin) {
+//     case "Bitcoin":
+//     case "Litecoin":
+//     case "BitcoinGold":
+//     case "Testnet": {
+//       attributes = attributes.concat(script);
+//       break;
+//     }
+//     default:
+//       break;
+//   }
+
+//   const attr = attributes.length ? ` (${attributes.join(", ")})` : "";
+
+//   const accountIdx = path[2] & 0x7fffffff;
+
+//   if (wholeAccount) {
+//     return {
+//       coin,
+//       verbose: `${coin} Account #${accountIdx}${attr}`,
+//       accountIdx,
+//       wholeAccount: true,
+//       isKnown: true,
+//       scriptType,
+//       isPrefork,
+//     };
+//   } else {
+//     const change = path[3] === 1 ? "Change " : "";
+//     const addressIdx = path[4];
+//     return {
+//       coin,
+//       verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${attr}`,
+//       accountIdx,
+//       addressIdx,
+//       wholeAccount: false,
+//       isKnown: true,
+//       isChange: path[3] === 1,
+//       scriptType,
+//       isPrefork,
+//     };
+//   }
+// }
+
+function describeCosmosPath(path: core.BIP32Path): core.PathDescription {
+  const pathStr = core.addressNListToBIP32(path);
+  const unknown: core.PathDescription = {
+    verbose: pathStr,
+    coin: "Atom",
+    isKnown: false,
+  };
+
+  if (path.length != 5) {
+    return unknown;
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown;
+  }
+
+  if (path[1] != 0x80000000 + core.slip44ByCoin("Atom")) {
+    return unknown;
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown;
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown;
+  }
+
+  const index = path[2] & 0x7fffffff;
+  return {
+    verbose: `Cosmos Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "Atom",
+    isKnown: true,
+    isPrefork: false,
+  };
+}
+
+function describeThorchainPath(path: core.BIP32Path): core.PathDescription {
+  const pathStr = core.addressNListToBIP32(path);
+  const unknown: core.PathDescription = {
+    verbose: pathStr,
+    coin: "Rune",
+    isKnown: false,
+  };
+
+  if (path.length != 5) {
+    return unknown;
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown;
+  }
+
+  if (path[1] != 0x80000000 + core.slip44ByCoin("Rune")) {
+    return unknown;
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown;
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown;
+  }
+
+  const index = path[2] & 0x7fffffff;
+  return {
+    verbose: `THORChain Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "Rune",
+    isKnown: true,
+    isPrefork: false,
+  };
+}
+
+function describeEosPath(path: core.BIP32Path): core.PathDescription {
+  const pathStr = core.addressNListToBIP32(path);
+  const unknown: core.PathDescription = {
+    verbose: pathStr,
+    coin: "Eos",
+    isKnown: false,
+  };
+
+  if (path.length != 5) {
+    return unknown;
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown;
+  }
+
+  if (path[1] != 0x80000000 + core.slip44ByCoin("Eos")) {
+    return unknown;
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown;
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown;
+  }
+
+  const index = path[2] & 0x7fffffff;
+  return {
+    verbose: `Eos Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "Eos",
+    isKnown: true,
+    isPrefork: false,
+  };
+}
+
+function describeRipplePath(path: core.BIP32Path): core.PathDescription {
+  const pathStr = core.addressNListToBIP32(path);
+  const unknown: core.PathDescription = {
+    verbose: pathStr,
+    coin: "Ripple",
+    isKnown: false,
+  };
+
+  if (path.length != 5) {
+    return unknown;
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown;
+  }
+
+  if (path[1] != 0x80000000 + core.slip44ByCoin("Ripple")) {
+    return unknown;
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown;
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown;
+  }
+
+  const index = path[2] & 0x7fffffff;
+  return {
+    verbose: `Ripple Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "Ripple",
+    isKnown: true,
+    isPrefork: false,
+  };
+}
+
+function describeBinancePath(path: core.BIP32Path): core.PathDescription {
+  const pathStr = core.addressNListToBIP32(path);
+  const unknown: core.PathDescription = {
+    verbose: pathStr,
+    coin: "Binance",
+    isKnown: false,
+  };
+
+  if (path.length != 5) {
+    return unknown;
+  }
+
+  if (path[0] != 0x80000000 + 44) {
+    return unknown;
+  }
+
+  if (path[1] != 0x80000000 + core.slip44ByCoin("Binance")) {
+    return unknown;
+  }
+
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
+    return unknown;
+  }
+
+  if (path[3] !== 0 || path[4] !== 0) {
+    return unknown;
+  }
+
+  const index = path[2] & 0x7fffffff;
+  return {
+    verbose: `Binance Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "Binance",
+    isKnown: true,
+    isPrefork: false,
+  };
+}
 export class KeepKeyRestHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.DebugLinkWallet {
   readonly _supportsETHInfo = true;
   readonly _supportsBTCInfo = true;
@@ -73,24 +415,28 @@ export class KeepKeyRestHDWallet implements core.HDWallet, core.BTCWallet, core.
   }
 
   public async getModel(): Promise<string> {
-    return core.mustBeDefined((await this.getFeatures(true)).model);
+    const features = (await this.getFeatures(true)) as any;
+    return core.mustBeDefined(features).model;
   }
 
   public async getFirmwareVersion(): Promise<string> {
-    const features = await this.getFeatures(true);
+    const features = (await this.getFeatures(true)) as any;
+
     return `v${features.majorVersion}.${features.minorVersion}.${features.patchVersion}`;
   }
 
   public async getLabel(): Promise<string> {
-    return (await this.getFeatures(true)).label ?? "";
+    const features = (await this.getFeatures(true)) as any;
+    return features.label ?? "";
   }
 
   public async isInitialized(): Promise<boolean> {
-    return !!(await this.getFeatures()).initialized;
+    const features = (await this.getFeatures(true)) as any;
+    return !!features.initialized;
   }
 
   public async isLocked(): Promise<boolean> {
-    const features = await this.getFeatures();
+    const features = (await this.getFeatures()) as any;
     if (features.pinProtection && !features.pinCached) return true;
     if (features.passphraseProtection && !features.passphraseCached) return true;
     return false;
@@ -98,8 +444,8 @@ export class KeepKeyRestHDWallet implements core.HDWallet, core.BTCWallet, core.
 
   public async getPublicKeys(getPublicKeys: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
     const sdk = await this.getSdk();
-    const publicKeysResponse = (await sdk.wallet.getPublicKeys(getPublicKeys as any));
-    return publicKeysResponse;
+    const publicKeysResponse = await sdk.wallet.getPublicKeys(getPublicKeys as any);
+    return publicKeysResponse.data;
   }
 
   public async ping(msg: core.Ping): Promise<core.Pong> {
@@ -164,14 +510,14 @@ export class KeepKeyRestHDWallet implements core.HDWallet, core.BTCWallet, core.
     const sdk = await this.getSdk();
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    return (await sdk.recovery.sendPin({ pin }));
+    return await sdk.recovery.sendPin({ pin });
   }
 
   public async sendPassphrase(passphrase: string): Promise<void> {
     const sdk = await this.getSdk();
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    return (await sdk.recovery.sendPassphrase({ passphrase }));
+    return await sdk.recovery.sendPassphrase({ passphrase });
   }
 
   public async sendCharacter(character: string): Promise<void> {
@@ -192,7 +538,8 @@ export class KeepKeyRestHDWallet implements core.HDWallet, core.BTCWallet, core.
   }
 
   public async sendCharacterProto(character: string, _delete: boolean, _done: boolean): Promise<any> {
-    throw new Error("not implemented");
+    const sdk = await this.getSdk();
+    await sdk.recovery.sendCharacterProto({ sendCharacterProto: { character, _delete, _done } });
   }
 
   public async applyPolicy(p: Required<Types.PolicyType.AsObject>): Promise<void> {
@@ -206,7 +553,8 @@ export class KeepKeyRestHDWallet implements core.HDWallet, core.BTCWallet, core.
   }
 
   public async cancel(): Promise<void> {
-    throw new Error("WE NEED TO IMPLEMENT SEND PIN IN THE API & SDK");
+    const sdk = await this.getSdk();
+    await sdk.developer.cancel({ body: undefined });
   }
 
   public async changePin(): Promise<void> {
@@ -234,9 +582,9 @@ export class KeepKeyRestHDWallet implements core.HDWallet, core.BTCWallet, core.
     await sdk.developer.initialize({ body: null });
   }
 
-  public async getFeatures(cached = false): Promise<null> {
+  public async getFeatures(cached = false): Promise<any> {
     const sdk = await this.getSdk();
-    await sdk.developer.getFeatures({ body: null });
+    return sdk.developer.getFeatures({ getFeatures: { cached } });
   }
 
   public cacheFeatures(features?: Messages.Features.AsObject): void {
@@ -264,7 +612,7 @@ export class KeepKeyRestHDWallet implements core.HDWallet, core.BTCWallet, core.
     const sdk = await this.getSdk();
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    return (await sdk.developer.removePin({}));
+    return await sdk.developer.removePin({});
   }
 
   public async send(events: core.Event[]): Promise<void> {
@@ -291,12 +639,14 @@ export class KeepKeyRestHDWallet implements core.HDWallet, core.BTCWallet, core.
 
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
     const sdk = await this.getSdk();
-    return (await sdk.wallet.btcGetAddress({ bTCGetAddress: msg }));
+    const addressResponse = await sdk.wallet.btcGetAddress({ bTCGetAddress: msg });
+    return addressResponse.data;
   }
 
   public async btcSignTx(msg: core.BTCSignTxKK): Promise<core.BTCSignedTx> {
     const sdk = await this.getSdk();
-    return (await sdk.sign.btcSignTx({ body: msg }));
+    const addressResponse = await sdk.sign.btcSignTx({ body: msg });
+    return addressResponse.data;
   }
 
   public async btcSupportsSecureTransfer(): Promise<boolean> {
@@ -329,14 +679,16 @@ export class KeepKeyRestHDWallet implements core.HDWallet, core.BTCWallet, core.
 
   public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
     const sdk = await this.getSdk();
-    return (await sdk.sign.ethSignTx({ body: msg }));
+    const signedResponse = await sdk.sign.ethSignTx({ body: msg });
+    return signedResponse.data;
   }
 
   // TODO check if sdk supports below messages
 
   public async ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
     const sdk = await this.getSdk();
-    return (await sdk.wallet.ethGetAddress({ eTHGetAddress: msg }));
+    const addressResponse = await sdk.wallet.ethGetAddress({ eTHGetAddress: msg });
+    return addressResponse.data;
   }
 
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
@@ -352,35 +704,52 @@ export class KeepKeyRestHDWallet implements core.HDWallet, core.BTCWallet, core.
   }
 
   public async ethSupportsNetwork(chain_id: number): Promise<boolean> {
-    throw new Error("not implemented");
+    return true;
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
-    throw new Error("not implemented");
+    return false;
   }
 
   public ethSupportsNativeShapeShift(): boolean {
-    throw new Error("not implemented");
+    return false;
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
-    throw new Error("not implemented");
+    const slip44 = core.slip44ByCoin(msg.coin);
+    if (slip44 === undefined) return [];
+    return [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
+        hardenedPath: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
+        relPath: [0, 0],
+        description: "KeepKey",
+      },
+    ];
   }
 
   public rippleGetAccountPaths(msg: core.RippleGetAccountPaths): Array<core.RippleAccountPath> {
-    throw new Error("not implemented");
+    return [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin("Ripple"), 0x80000000 + msg.accountIdx, 0, 0],
+      },
+    ];
   }
 
   public async rippleGetAddress(msg: core.RippleGetAddress): Promise<string> {
     const sdk = await this.getSdk();
-    return (await sdk.wallet.rippleGetAddress({ rippleGetAddress: msg }));
+    const addressResponse = await sdk.wallet.rippleGetAddress({ rippleGetAddress: msg });
+    return addressResponse.data;
   }
 
   public async rippleSignTx(msg: core.RippleSignTx): Promise<core.RippleSignedTx> {
     const sdk = await this.getSdk();
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    return (await sdk.sign.rippleSignTx({ rippleSignTx: msg }));
+    const rippleSignTxResponse = await sdk.sign.rippleSignTx({ rippleSignTx: msg });
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return rippleSignTxResponse.data;
   }
 
   public cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
@@ -389,7 +758,8 @@ export class KeepKeyRestHDWallet implements core.HDWallet, core.BTCWallet, core.
 
   public async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string> {
     const sdk = await this.getSdk();
-    return (await sdk.wallet.cosmosGetAddress({ cosmosGetAddress: msg }));
+    const cosmossAddressResponse = await sdk.wallet.cosmosGetAddress({ cosmosGetAddress: msg });
+    return cosmossAddressResponse.data;
   }
 
   public async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx> {
@@ -405,7 +775,8 @@ export class KeepKeyRestHDWallet implements core.HDWallet, core.BTCWallet, core.
 
   public async thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string | null> {
     const sdk = await this.getSdk();
-    return (await sdk.wallet.thorchainGetAddress({ thorchainGetAddress: msg }));
+    const thorGetAddressResponse = await sdk.wallet.thorchainGetAddress({ thorchainGetAddress: msg });
+    return thorGetAddressResponse.data;
   }
 
   public async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx> {
@@ -421,30 +792,53 @@ export class KeepKeyRestHDWallet implements core.HDWallet, core.BTCWallet, core.
 
   public async binanceGetAddress(msg: core.BinanceGetAddress): Promise<string> {
     const sdk = await this.getSdk();
-    return (await sdk.wallet.binanceGetAddress({ binanceGetAddress: msg }));
+    const binanceGetAddressResponse = await sdk.wallet.binanceGetAddress({ binanceGetAddress: msg });
+    return binanceGetAddressResponse.data;
   }
 
   public async binanceSignTx(msg: core.BinanceSignTx): Promise<core.BinanceSignedTx> {
     const sdk = await this.getSdk();
-    return (await sdk.sign.binanceSignTx({ body: msg }));
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return await sdk.sign.binanceSignTx({ body: msg });
   }
 
   public eosGetAccountPaths(msg: core.EosGetAccountPaths): Array<core.EosAccountPath> {
-    throw new Error("not implemented");
+    return [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin("Eos"), 0x80000000 + msg.accountIdx, 0, 0],
+      },
+    ];
   }
 
   public async eosGetPublicKey(msg: core.EosGetPublicKey): Promise<string> {
     const sdk = await this.getSdk();
-    return (await sdk.wallet.eosGetPublicKey({ eosGetPublicKey: msg }));
+    const eosPublicKeyResponse = await sdk.wallet.eosGetPublicKey({ eosGetPublicKey: msg });
+    return eosPublicKeyResponse.data;
   }
 
   public async eosSignTx(msg: core.EosToSignTx): Promise<core.EosTxSigned> {
     const sdk = await this.getSdk();
-    return (await sdk.sign.eosSignTx({ body: msg }));
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return await sdk.sign.eosSignTx({ body: msg });
   }
 
   public describePath(msg: core.DescribePath): core.PathDescription {
-    throw new Error("not implemented");
+    switch (msg.coin) {
+      case "Ethereum":
+        return describeETHPath(msg.path);
+      case "Atom":
+        return describeCosmosPath(msg.path);
+      case "Binance":
+        return describeBinancePath(msg.path);
+      case "Ripple":
+        return describeRipplePath(msg.path);
+      case "Eos":
+        return describeEosPath(msg.path);
+      default:
+        return describeUTXOPath(msg.path, msg.coin, msg.scriptType as BTCInputScriptType);
+    }
   }
 
   public async disconnect(): Promise<void> {
