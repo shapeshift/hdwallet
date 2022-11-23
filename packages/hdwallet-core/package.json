@@ -1,6 +1,6 @@
 {
   "name": "@keepkey/hdwallet-core",
-  "version": "1.38.2",
+  "version": "1.38.3",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
