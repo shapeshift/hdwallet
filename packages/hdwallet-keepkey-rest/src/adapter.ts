@@ -2,7 +2,7 @@ import * as core from "@keepkey/hdwallet-core";
 
 import { KeepKeyRestHDWallet } from "./kkrest";
 
-export class KeplrAdapter {
+export class KkRestAdapter {
   keyring: core.Keyring;
 
   // wallet id to remove from the keyring when the active wallet changes
@@ -13,7 +13,7 @@ export class KeplrAdapter {
   }
 
   public static useKeyring(keyring: core.Keyring) {
-    return new KeplrAdapter(keyring);
+    return new KkRestAdapter(keyring);
   }
 
   public async initialize(): Promise<number> {
