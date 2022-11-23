@@ -1,6 +1,6 @@
 {
   "name": "@keepkey/hdwallet-core",
-  "version": "1.38.4",
+  "version": "1.38.5",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -27,5 +27,6 @@
     "jest-environment-jsdom": "^25.5.0",
     "ts-jest": "^26.5.5",
     "typescript": "^4.3.2"
-  }
+  },
+  "gitHead": "8bbab0ffb8715bca0ea3383f4c193d70a11ff4e0"
 }

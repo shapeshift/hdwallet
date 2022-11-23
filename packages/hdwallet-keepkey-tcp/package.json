@@ -1,6 +1,6 @@
 {
   "name": "@keepkey/hdwallet-keepkey-tcp",
-  "version": "1.38.4",
+  "version": "1.38.5",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,11 +14,12 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@keepkey/hdwallet-core": "1.38.4",
-    "@keepkey/hdwallet-keepkey": "1.38.4",
+    "@keepkey/hdwallet-core": "1.38.5",
+    "@keepkey/hdwallet-keepkey": "1.38.5",
     "axios": "^0.21.1"
   },
   "devDependencies": {
     "typescript": "^4.3.2"
-  }
+  },
+  "gitHead": "8bbab0ffb8715bca0ea3383f4c193d70a11ff4e0"
 }

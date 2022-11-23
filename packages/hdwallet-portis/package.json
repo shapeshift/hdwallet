@@ -1,6 +1,6 @@
 {
   "name": "@keepkey/hdwallet-portis",
-  "version": "1.38.4",
+  "version": "1.38.5",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,7 +14,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@keepkey/hdwallet-core": "1.38.4",
+    "@keepkey/hdwallet-core": "1.38.5",
     "@portis/web3": "3.0.10",
     "base64-js": "^1.5.1",
     "bip32": "^2.0.4",
@@ -27,5 +27,6 @@
   "devDependencies": {
     "@types/lodash": "^4.14.168",
     "typescript": "^4.3.2"
-  }
+  },
+  "gitHead": "8bbab0ffb8715bca0ea3383f4c193d70a11ff4e0"
 }
