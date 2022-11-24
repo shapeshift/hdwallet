@@ -1,145 +1,149 @@
 {
   "eip712": {
     "precalculateHashes": {
-      "types": {
-        "EIP712Domain": [
-          {
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "name": "version",
-            "type": "string"
-          },
-          {
-            "name": "chainId",
-            "type": "uint256"
-          },
-          {
-            "name": "verifyingContract",
-            "type": "address"
-          },
-          {
-            "name": "salt",
-            "type": "bytes32"
-          }
-        ],
-        "Person": [
-          {
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "name": "wallet",
-            "type": "address"
-          },
-          {
-            "name": "married",
-            "type": "bool"
-          },
-          {
-            "name": "kids",
-            "type": "uint8"
-          },
-          {
-            "name": "karma",
-            "type": "int16"
-          },
-          {
-            "name": "secret",
-            "type": "bytes"
-          },
-          {
-            "name": "small_secret",
-            "type": "bytes16"
-          },
-          {
-            "name": "pets",
-            "type": "string[]"
-          },
-          {
-            "name": "two_best_friends",
-            "type": "string[2]"
-          }
-        ],
-        "ThisIsARidiculouslyLongPrimaryTypeToForceHashesToBePrecalculatedByHDWalletKeepKey": [
-          {
-            "name": "from",
-            "type": "Person"
-          },
-          {
-            "name": "to",
-            "type": "Person"
-          },
-          {
-            "name": "messages",
-            "type": "string[]"
-          }
-        ]
-      },
-      "primaryType": "ThisIsARidiculouslyLongPrimaryTypeToForceHashesToBePrecalculatedByHDWalletKeepKey",
-      "domain": {
-        "name": "Ether Mail",
-        "version": "1",
-        "chainId": 1,
-        "verifyingContract": "0x1e0Ae8205e9726E6F296ab8869160A6423E2337E",
-        "salt": "0xca92da1a6e91d9358328d2f2155af143a7cb74b81a3a4e3e57e2191823dbb56c"
-      },
-      "message": {
-        "from": {
-          "name": "Amy",
-          "wallet": "0xc0004B62C5A39a728e4Af5bee0c6B4a4E54b15ad",
-          "married": true,
-          "kids": 2,
-          "karma": 4,
-          "secret": "0x62c5a39a728e4af5bee0c6b462c5a39a728e4af5bee0c6b462c5a39a728e4af5bee0c6b462c5a39a728e4af5bee0c6b4",
-          "small_secret": "0x5ccf0e54367104795a47bc0481645d9e",
-          "pets": ["parrot"],
-          "two_best_friends": ["Carl", "Denis"]
+      "hashableData": {
+        "types": {
+          "EIP712Domain": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "version",
+              "type": "string"
+            },
+            {
+              "name": "chainId",
+              "type": "uint256"
+            },
+            {
+              "name": "verifyingContract",
+              "type": "address"
+            },
+            {
+              "name": "salt",
+              "type": "bytes32"
+            }
+          ],
+          "Person": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "wallet",
+              "type": "address"
+            },
+            {
+              "name": "married",
+              "type": "bool"
+            },
+            {
+              "name": "kids",
+              "type": "uint8"
+            },
+            {
+              "name": "karma",
+              "type": "int16"
+            },
+            {
+              "name": "secret",
+              "type": "bytes"
+            },
+            {
+              "name": "small_secret",
+              "type": "bytes16"
+            },
+            {
+              "name": "pets",
+              "type": "string[]"
+            },
+            {
+              "name": "two_best_friends",
+              "type": "string[2]"
+            }
+          ],
+          "ThisIsARidiculouslyLongPrimaryTypeToForceHashesToBePrecalculatedByHDWalletKeepKey": [
+            {
+              "name": "from",
+              "type": "Person"
+            },
+            {
+              "name": "to",
+              "type": "Person"
+            },
+            {
+              "name": "messages",
+              "type": "string[]"
+            }
+          ]
         },
-        "to": {
-          "name": "Bob",
-          "wallet": "0x54B0Fa66A065748C40dCA2C7Fe125A2028CF9982",
-          "married": false,
-          "kids": 0,
-          "karma": -4,
-          "secret": "0x7fe125a2028cf97fe125a2028cf97fe125a2028cf97fe125a2028cf97fe125a2028cf97fe125a2028cf97fe125a2028cf9",
-          "small_secret": "0xa5e5c47b64775abc476d2962403258de",
-          "pets": ["dog", "cat"],
-          "two_best_friends": ["Emil", "Franz"]
+        "primaryType": "ThisIsARidiculouslyLongPrimaryTypeToForceHashesToBePrecalculatedByHDWalletKeepKey",
+        "domain": {
+          "name": "Ether Mail",
+          "version": "1",
+          "chainId": 1,
+          "verifyingContract": "0x1e0Ae8205e9726E6F296ab8869160A6423E2337E",
+          "salt": "0xca92da1a6e91d9358328d2f2155af143a7cb74b81a3a4e3e57e2191823dbb56c"
         },
-        "messages": ["Hello, Bob!", "How are you?", "Hope you're fine"]
+        "message": {
+          "from": {
+            "name": "Amy",
+            "wallet": "0xc0004B62C5A39a728e4Af5bee0c6B4a4E54b15ad",
+            "married": true,
+            "kids": 2,
+            "karma": 4,
+            "secret": "0x62c5a39a728e4af5bee0c6b462c5a39a728e4af5bee0c6b462c5a39a728e4af5bee0c6b462c5a39a728e4af5bee0c6b4",
+            "small_secret": "0x5ccf0e54367104795a47bc0481645d9e",
+            "pets": ["parrot"],
+            "two_best_friends": ["Carl", "Denis"]
+          },
+          "to": {
+            "name": "Bob",
+            "wallet": "0x54B0Fa66A065748C40dCA2C7Fe125A2028CF9982",
+            "married": false,
+            "kids": 0,
+            "karma": -4,
+            "secret": "0x7fe125a2028cf97fe125a2028cf97fe125a2028cf97fe125a2028cf97fe125a2028cf97fe125a2028cf97fe125a2028cf9",
+            "small_secret": "0xa5e5c47b64775abc476d2962403258de",
+            "pets": ["dog", "cat"],
+            "two_best_friends": ["Emil", "Franz"]
+          },
+          "messages": ["Hello, Bob!", "How are you?", "Hope you're fine"]
+        }
       }
     },
     "calculateHashesOnDevice": {
-      "types": {
-        "EIP712Domain": [
-          { "name": "name", "type": "string" },
-          { "name": "version", "type": "string" },
-          { "name": "chainId", "type": "uint256" },
-          { "name": "verifyingContract", "type": "address" }
-        ],
-        "Permit": [
-          { "name": "owner", "type": "address" },
-          { "name": "spender", "type": "address" },
-          { "name": "value", "type": "uint256" },
-          { "name": "nonce", "type": "uint256" },
-          { "name": "deadline", "type": "uint256" }
-        ]
-      },
-      "domain": {
-        "name": "USD Coin",
-        "version": "2",
-        "verifyingContract": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-        "chainId": 1
-      },
-      "primaryType": "Permit",
-      "message": {
-        "owner": "0x33b35c665496bA8E71B22373843376740401F106",
-        "spender": "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
-        "value": "4023865",
-        "nonce": 0,
-        "deadline": 1655431026
+      "hashableData": {
+        "types": {
+          "EIP712Domain": [
+            { "name": "name", "type": "string" },
+            { "name": "version", "type": "string" },
+            { "name": "chainId", "type": "uint256" },
+            { "name": "verifyingContract", "type": "address" }
+          ],
+          "Permit": [
+            { "name": "owner", "type": "address" },
+            { "name": "spender", "type": "address" },
+            { "name": "value", "type": "uint256" },
+            { "name": "nonce", "type": "uint256" },
+            { "name": "deadline", "type": "uint256" }
+          ]
+        },
+        "domain": {
+          "name": "USD Coin",
+          "version": "2",
+          "verifyingContract": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          "chainId": 1
+        },
+        "primaryType": "Permit",
+        "message": {
+          "owner": "0x33b35c665496bA8E71B22373843376740401F106",
+          "spender": "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
+          "value": "4023865",
+          "nonce": 0,
+          "deadline": 1655431026
+        }
       }
     }
   }

@@ -1830,7 +1830,7 @@ $ethSignTypedData.on("click", async (e) => {
   }
   if (core.supportsETH(wallet)) {
     const result = await wallet.ethSignTypedData({
-      ...eip712["calculateHashesOnDevice"],
+      ...eip712["calculateHashesOnDevice"]["hashableData"],
       addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
     });
     $ethResults.val(JSON.stringify(result, null, 2));
@@ -1845,7 +1845,7 @@ $ethSignTypedDataPreCalculate.on("click", async (e) => {
   }
   if (core.supportsETH(wallet)) {
     const result = await wallet.ethSignTypedData({
-      ...eip712["precalculateHashes"],
+      ...eip712["precalculateHashes"]["hashableData"],
       addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
     });
     $ethResults.val(JSON.stringify(result, null, 2));
