@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keplr",
-  "version": "1.38.0",
+  "version": "1.39.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@shapeshiftoss/caip": "3.0.0",
-    "@shapeshiftoss/hdwallet-core": "1.38.0",
+    "@shapeshiftoss/hdwallet-core": "1.39.0",
     "@shapeshiftoss/proto-tx-builder": "0.4.0",
     "@shapeshiftoss/types": "3.1.3",
     "base64-js": "^1.5.1",
