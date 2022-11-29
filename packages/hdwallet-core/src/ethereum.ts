@@ -2,7 +2,7 @@ import { Bytes } from "@ethersproject/bytes";
 import { TypedData } from "eip-712";
 
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
-import { BIP32Path, ExchangeType, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
+import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
 // https://github.com/MetaMask/eth-rpc-errors/blob/f917c2cfee9e6117a88be4178f2a877aff3acabe/src/classes.ts#L3-L7
 export interface SerializedEthereumRpcError {
@@ -61,7 +61,6 @@ export type ETHSignTx = {
   /**
    * Device must `ethSupportsNativeShapeShift()`
    */
-  exchangeType?: ExchangeType;
 } & (
   | {
       /** big-endian hex, prefixed with '0x' */
