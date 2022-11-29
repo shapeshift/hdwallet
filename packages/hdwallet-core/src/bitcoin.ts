@@ -1,7 +1,7 @@
 import * as ta from "type-assertions";
 
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
-import { BIP32Path, Coin, ExchangeType, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
+import { BIP32Path, Coin, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
 // GuardedUnion<T> will ensure a static typechecking error if any properties are set that aren't supposed
 // to be present on the specific union member being passed in. (This also helps the compiler with type inference.)
@@ -201,15 +201,6 @@ export type BTCSignTxOutputChange = {
   isChange: true;
 };
 
-export type BTCSignTxOutputExchange = {
-  /**
-   * Device must `btcSupportsNativeShapeShift()`
-   */
-  addressType: BTCOutputAddressType.Exchange;
-  amount: string;
-  exchangeType: ExchangeType;
-};
-
 export type BTCSignTxOutputMemo = {
   addressType?: BTCOutputAddressType.Spend;
   amount?: "0";
@@ -223,7 +214,6 @@ export type BTCSignTxOutput = GuardedUnion<
   | BTCSignTxOutputSpendP2WPKH
   | BTCSignTxOutputTransfer
   | BTCSignTxOutputChange
-  | BTCSignTxOutputExchange
   | BTCSignTxOutputMemo
 >;
 
@@ -272,7 +262,6 @@ export enum BTCOutputAddressType {
   Spend = "spend",
   Transfer = "transfer",
   Change = "change",
-  Exchange = "exchange",
 }
 
 export interface BTCSignMessage {
