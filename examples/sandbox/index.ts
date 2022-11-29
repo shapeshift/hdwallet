@@ -1843,6 +1843,10 @@ $ethSignTypedDataPreCalculate.on("click", async (e) => {
     $ethResults.val("No wallet?");
     return;
   }
+  if (!keepkey.isKeepKey(wallet)) {
+    $ethResults.val("Action only supported for KeepKey");
+    return;
+  }
   if (core.supportsETH(wallet)) {
     const result = await wallet.ethSignTypedData({
       hashableData: eip712["precalculateHashes"]["hashableData"],
