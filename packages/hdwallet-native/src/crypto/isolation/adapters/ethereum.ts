@@ -87,7 +87,7 @@ export class SignerAdapter {
     const domainSeparatorHashArray = getTypeHash(typedData, "EIP712Domain");
     const domainSeparatorHash = "0x" + core.toHexString(domainSeparatorHashArray);
     const messageArray = getMessage(typedData);
-    const messageHash = "0x" + ethers.utils.keccak256(messageArray);
+    const messageHash = ethers.utils.keccak256(messageArray);
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
     const rawSig = await SecP256K1.RecoverableSignature.signCanonically(nodeAdapter.node, "keccak256", messageArray);
     const signature = ethers.utils.joinSignature(ethSigFromRecoverableSig(rawSig));
