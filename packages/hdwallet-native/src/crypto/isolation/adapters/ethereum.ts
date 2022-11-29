@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { getMessage, getTypeHash, TypedData } from "eip-712";
+import { getMessage, TypedData } from "eip-712";
 import * as ethers from "ethers";
 
 import { Isolation } from "../..";
