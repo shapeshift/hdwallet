@@ -116,8 +116,6 @@ export type ETHSignTypedData = {
 export type ETHSignedTypedData = {
   signature: string;
   address: string;
-  domainSeparatorHash: string;
-  messageHash?: string;
 };
 
 // https://docs.metamask.io/guide/rpc-api.html#wallet-addethereumchain

@@ -220,10 +220,8 @@ export async function ethSignTypedData(
 
       const result = response.proto as Ethereum.EthereumTypedDataSignature;
       const res: core.ETHSignedTypedData = {
-        signature: "0x" + core.toHexString(result.getSignature_asU8()),
         address: result.getAddress() || "",
-        domainSeparatorHash: "0x" + core.toHexString(domainSeparatorHash),
-        messageHash: messageHash ? "0x" + core.toHexString(messageHash) : undefined,
+        signature: "0x" + core.toHexString(result.getSignature_asU8()),
       };
 
       return res;
@@ -256,8 +254,6 @@ export async function ethSignTypedData(
       const result = response.proto as Ethereum.EthereumTypedDataSignature;
       const res: core.ETHSignedTypedData = {
         address: result.getAddress() || "",
-        domainSeparatorHash: "0x" + core.toHexString(result.getDomainSeparatorHash_asU8()),
-        messageHash: result.hasMessageHash() ? "0x" + core.toHexString(result.getMessageHash_asU8()) : undefined,
         signature: "0x" + core.toHexString(result.getSignature_asU8()),
       };
 
