@@ -468,8 +468,6 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
           "0x7ce6f01f14d8a1d1923073ccd77f97b78972b3cf14b9c2874d6a46f6a196cc0b7fef13c100b2a5a3517c0baa18981e0fe19cb7d9f869279041b537d91e839d281c"
         );
         expect(res?.address).toEqual("0x73d0385F4d8E00C5e6504C6030F47BF6212736A8");
-        expect(res?.domainSeparatorHash).toEqual("0x06c37168a7db5138defc7866392bb87a741f9b3d104deb5094588ce041cae335");
-        expect(res?.messageHash).toEqual("0x12b75f932b4f17e1f62bc7a630a033f46649a18f4e759bb1ff559c57cb2bc39b");
       },
       TIMEOUT
     );
