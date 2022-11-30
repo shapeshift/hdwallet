@@ -133,6 +133,13 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
       });
     }
 
+    async ethSignTypedData(msg: core.ETHSignTypedData): Promise<core.ETHSignedTypedData | null> {
+      return this.needsMnemonic(!!this.#ethSigner, async () => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return await this.#ethSigner!.signTypedData(msg.typedData, msg.addressNList);
+      });
+    }
+
     async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
       if (!msg.signature.startsWith("0x")) msg.signature = `0x${msg.signature}`;
       const signingAddress = ethers.utils.verifyMessage(msg.message, msg.signature);
