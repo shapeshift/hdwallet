@@ -4362,6 +4362,21 @@
     chrome-trace-event "^1.0.2"
     nullthrows "^1.1.1"
 
+"@pastaghost/proto-tx-builder@^0.7.1-alpha.0":
+  version "0.7.1-alpha.0"
+  resolved "https://registry.yarnpkg.com/@pastaghost/proto-tx-builder/-/proto-tx-builder-0.7.1-alpha.0.tgz#8351ace57aba3d1a87b975906d9d729a4a241d17"
+  integrity sha512-RziddI14pV79fdOmzkxwtmYSiT0m3IGAWYcaYG5sZeq+3Vf1FTkrlo2dJzZvUkenXAAGEDYj0F957pU+MgjUIw==
+  dependencies:
+    "@cosmjs/amino" "^0.29.4"
+    "@cosmjs/crypto" "0.29.4"
+    "@cosmjs/encoding" "^0.29.4"
+    "@cosmjs/proto-signing" "^0.29.4"
+    "@cosmjs/stargate" "^0.29.4"
+    bn.js "^5.2.1"
+    cosmjs-types "^0.5.1"
+    google-protobuf "^3.17.0"
+    osmojs "^0.37.0"
+
 "@peculiar/asn1-schema@^2.0.27", "@peculiar/asn1-schema@^2.0.32":
   version "2.0.36"
   resolved "https://registry.yarnpkg.com/@peculiar/asn1-schema/-/asn1-schema-2.0.36.tgz#ca7978f43ffa4f35fbb74436c3f983c10a69ac27"
@@ -4672,7 +4687,7 @@
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
 
-"@shapeshiftoss/proto-tx-builder@0.6.0", "@shapeshiftoss/proto-tx-builder@^0.6.0":
+"@shapeshiftoss/proto-tx-builder@0.6.0":
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.6.0.tgz#eda038dad642f2e52372042daa6fea6a2de1a679"
   integrity sha512-XCHhjO3hLw7vb0UL2E8HrLPsw6Gt3/qEe2GAlPKAgfPyGGr+DJyfPk4hJuVF/Ob3UHSCEZe11Buyol4DfL/r/Q==

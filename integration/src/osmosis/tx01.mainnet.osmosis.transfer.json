@@ -1,32 +1,32 @@
 {
-  "chain_id": "osmosis-1",
   "account_number": "95421",
-  "sequence": "35",
-  "msg": [
-    {
-      "type": "cosmos-sdk/MsgSend",
-      "value": {
-        "from_address": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
-        "to_address": "osmo1qjwdyn56ecagk8rjf7crrzwcyz6775cj07qz9r",
-        "amount": [
-          {
-            "denom": "uosmo",
-            "amount": "1000"
-          }
-        ]
-      }
-    }
-  ],
+  "chain_id": "osmosis-1",
   "fee": {
     "amount": [
       {
-        "denom": "uosmo",
-        "amount": "2800"
+        "amount": "2800",
+        "denom": "uosmo"
       }
     ],
     "gas": "80000"
   },
-  "signatures": [],
   "memo": "hello world",
+  "msg": [
+    {
+      "type": "cosmos-sdk/MsgSend",
+      "value": {
+        "amount": [
+          {
+            "amount": "1000",
+            "denom": "uosmo"
+          }
+        ],
+        "from_address": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
+        "to_address": "osmo1qjwdyn56ecagk8rjf7crrzwcyz6775cj07qz9r"
+      }
+    }
+  ],
+  "sequence": "35",
+  "signatures": [],
   "timeout_height": "0"
 }

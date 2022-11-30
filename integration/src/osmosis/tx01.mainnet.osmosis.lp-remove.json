@@ -1,35 +1,35 @@
 {
-  "chain_id": "osmosis-1",
   "account_number": "95421",
-  "sequence": "46",
+  "chain_id": "osmosis-1",
   "fee": {
     "amount": [
       {
-        "amount": "2800",
+        "amount": "7000",
         "denom": "uosmo"
       }
     ],
-    "gas": "290000"
+    "gas": "280000"
   },
   "memo": "",
-  "msg": [
+  "msgs": [
     {
       "type": "osmosis/gamm/exit-pool",
       "value": {
+        "pool_id": "1",
         "sender": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
-        "poolId": "1",
-        "shareOutAmount": "78719426289889034",
-        "tokenOutMins": [
+        "share_in_amount": "12589450650908760706",
+        "token_out_mins": [
           {
-            "denom": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2",
-            "amount": "1532"
+            "amount": "143697",
+            "denom": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"
           },
           {
-            "denom": "uosmo",
-            "amount": "5304"
+            "amount": "1478380",
+            "denom": "uosmo"
           }
         ]
       }
     }
-  ]
+  ],
+  "sequence": "46"
 }

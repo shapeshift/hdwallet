@@ -1,7 +1,6 @@
 {
-  "chain_id": "osmosis-1",
   "account_number": "95421",
-  "sequence": "47",
+  "chain_id": "osmosis-1",
   "fee": {
     "amount": [
       {
@@ -16,9 +15,10 @@
     {
       "type": "osmosis/lockup/begin-unlock-period-lock",
       "value": {
-        "owner": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq",
-        "ID": "382614"
+        "ID": "382614",
+        "owner": "osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq"
       }
     }
-  ]
+  ],
+  "sequence": "47"
 }
