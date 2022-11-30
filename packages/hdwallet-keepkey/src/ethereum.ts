@@ -8,7 +8,7 @@ import * as eip55 from "eip55";
 import * as ethers from "ethers";
 
 import { Transport } from "./transport";
-import { toUTF8Array, translateInputScriptType } from "./utils";
+import { toUTF8Array } from "./utils";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function ethSupportsNetwork(chainId: number): Promise<boolean> {
@@ -65,23 +65,6 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
     if (msg.toAddressNList) {
       est.setAddressType(Types.OutputAddressType.SPEND);
       est.setToAddressNList(msg.toAddressNList);
-    } else if (msg.exchangeType) {
-      est.setAddressType(Types.OutputAddressType.EXCHANGE);
-
-      const signedHex = core.base64toHEX(msg.exchangeType.signedExchangeResponse);
-      const signedExchangeOut = Exchange.SignedExchangeResponse.deserializeBinary(core.arrayify(signedHex));
-      const exchangeType = new Types.ExchangeType();
-      exchangeType.setSignedExchangeResponse(signedExchangeOut);
-      exchangeType.setWithdrawalCoinName(msg.exchangeType.withdrawalCoinName); // KeepKey firmware will complain if this doesn't match signed exchange response
-      exchangeType.setWithdrawalAddressNList(msg.exchangeType.withdrawalAddressNList);
-      exchangeType.setWithdrawalScriptType(
-        translateInputScriptType(msg.exchangeType.withdrawalScriptType || core.BTCInputScriptType.SpendAddress)
-      );
-      exchangeType.setReturnAddressNList(msg.exchangeType.returnAddressNList);
-      exchangeType.setReturnScriptType(
-        translateInputScriptType(msg.exchangeType.returnScriptType || core.BTCInputScriptType.SpendAddress)
-      );
-      est.setExchangeType(exchangeType);
     } else {
       est.setAddressType(Types.OutputAddressType.SPEND);
     }

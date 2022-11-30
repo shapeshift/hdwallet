@@ -2,6 +2,7 @@ import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
 import * as bitcoinjs from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import assert from "assert";
 import { thaw } from "icepick";
 
 import { Transport } from "./transport";
@@ -69,36 +70,7 @@ function prepareSignTx(
     const output: core.BTCSignTxOutput = o;
     const newOutput = new Types.TxOutputType();
     newOutput.setAmount(Number(output.amount));
-    if (output.exchangeType) {
-      // BTCSignTxOutputExchange
-      // convert the base64 encoded signedExchangeResponse message into the correct object
-      const signedHex = core.base64toHEX(output.exchangeType.signedExchangeResponse);
-      const signedExchange = Exchange.SignedExchangeResponse.deserializeBinary(core.arrayify(signedHex));
-
-      // decode the deposit amount from a little-endian Uint8Array into an unsigned uint64
-      const depAmt = core.mustBeDefined(signedExchange.getResponsev2()).getDepositAmount_asU8();
-      let val = 0;
-      for (let jj = depAmt.length - 1; jj >= 0; jj--) {
-        val += depAmt[jj] * Math.pow(2, 8 * (depAmt.length - jj - 1));
-        // TODO validate is uint64
-      }
-      const outExchangeType = new Types.ExchangeType();
-      outExchangeType.setSignedExchangeResponse(signedExchange);
-      outExchangeType.setWithdrawalCoinName(output.exchangeType.withdrawalCoinName);
-      outExchangeType.setWithdrawalAddressNList(output.exchangeType.withdrawalAddressNList);
-      outExchangeType.setWithdrawalScriptType(
-        translateInputScriptType(output.exchangeType.withdrawalScriptType || core.BTCInputScriptType.SpendAddress)
-      );
-      outExchangeType.setReturnAddressNList(output.exchangeType.returnAddressNList);
-      outExchangeType.setReturnScriptType(
-        translateInputScriptType(output.exchangeType.returnScriptType || core.BTCInputScriptType.SpendAddress)
-      );
-      newOutput.setAmount(val);
-      newOutput.setAddress(core.mustBeDefined(signedExchange.toObject().responsev2?.depositAddress?.address));
-      newOutput.setScriptType(Types.OutputScriptType.PAYTOADDRESS);
-      newOutput.setAddressType(Types.OutputAddressType.EXCHANGE);
-      newOutput.setExchangeType(outExchangeType);
-    } else if (output.isChange || output.addressType === core.BTCOutputAddressType.Transfer) {
+    if (output.isChange || output.addressType === core.BTCOutputAddressType.Transfer) {
       // BTCSignTxOutputTranfer ||  BTCSignTxOutputChange
       newOutput.setScriptType(translateOutputScriptType(output.scriptType));
       newOutput.setAddressNList(output.addressNList);
@@ -111,6 +83,7 @@ function prepareSignTx(
     } else {
       // BTCSignTxOutputSpend
       newOutput.setScriptType(Types.OutputScriptType.PAYTOADDRESS);
+      assert(output.address !== undefined, "Output must have a valid BTC address.");
       newOutput.setAddress(output.address);
       newOutput.setAddressType(Types.OutputAddressType.SPEND);
     }

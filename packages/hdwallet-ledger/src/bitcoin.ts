@@ -144,7 +144,6 @@ export async function btcSignTx(
   transport: LedgerTransport,
   msg: core.BTCSignTxLedger
 ): Promise<core.BTCSignedTx> {
-  const supportsShapeShift = wallet.btcSupportsNativeShapeShift();
   const supportsSecureTransfer = await wallet.btcSupportsSecureTransfer();
   const slip44 = core.mustBeDefined(core.slip44ByCoin(msg.coin));
   const txBuilder = new bitcoin.TransactionBuilder(networksUtil[slip44].bitcoinjs as any);
@@ -155,8 +154,6 @@ export async function btcSignTx(
 
   //bitcoinjs-lib
   msg.outputs.map((output) => {
-    if (output.exchangeType && !supportsShapeShift) throw new Error("Ledger does not support Native ShapeShift");
-
     if (output.addressNList !== undefined) {
       if (output.addressType === core.BTCOutputAddressType.Transfer && !supportsSecureTransfer)
         throw new Error("Ledger does not support SecureTransfer");

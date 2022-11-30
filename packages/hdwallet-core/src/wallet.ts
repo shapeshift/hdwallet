@@ -74,16 +74,6 @@ export interface LoadDevice {
   skipChecksum?: boolean;
 }
 
-export interface ExchangeType {
-  /** `SignedExchangeResponse` from the `/sendamountProto2` ShapeShift endpoint, base64 encoded */
-  signedExchangeResponse: string;
-  withdrawalCoinName: string;
-  withdrawalAddressNList: BIP32Path;
-  withdrawalScriptType?: BTCInputScriptType;
-  returnAddressNList: BIP32Path;
-  returnScriptType?: BTCInputScriptType;
-}
-
 export interface DescribePath {
   path: BIP32Path;
   coin: Coin;

@@ -90,7 +90,6 @@ export async function btcSignTx(
   transport: TrezorTransport,
   msg: core.BTCSignTxTrezor
 ): Promise<core.BTCSignedTx> {
-  const supportsShapeShift = wallet.btcSupportsNativeShapeShift();
   const supportsSecureTransfer = await wallet.btcSupportsSecureTransfer();
 
   const inputs = msg.inputs.map((input) => {
@@ -104,8 +103,6 @@ export async function btcSignTx(
   });
 
   const outputs: BTCTrezorSignTxOutput[] = msg.outputs.map((output) => {
-    if (output.exchangeType && !supportsShapeShift) throw new Error("Trezor does not support Native ShapeShift");
-
     if (output.addressNList) {
       if (output.addressType === core.BTCOutputAddressType.Transfer && !supportsSecureTransfer)
         throw new Error("Trezor does not support SecureTransfer");
