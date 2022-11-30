@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-native",
-  "version": "1.39.0",
+  "version": "1.40.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -16,7 +16,7 @@
   "dependencies": {
     "@shapeshiftoss/bitcoinjs-lib": "5.2.0-shapeshift.2",
     "@shapeshiftoss/fiosdk": "1.2.1-shapeshift.6",
-    "@shapeshiftoss/hdwallet-core": "1.39.0",
+    "@shapeshiftoss/hdwallet-core": "1.40.0",
     "@shapeshiftoss/proto-tx-builder": "^0.4.0",
     "@zxing/text-encoding": "^0.9.0",
     "bchaddrjs": "^0.4.9",
@@ -25,6 +25,7 @@
     "bip39": "^3.0.2",
     "bnb-javascript-sdk-nobroadcast": "^2.16.14",
     "crypto-js": "^4.0.0",
+    "eip-712": "^1.0.0",
     "ethers": "5.6.5",
     "eventemitter2": "^5.0.1",
     "funtypes": "^3.0.1",

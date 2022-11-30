@@ -4,6 +4,7 @@ import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Ethereum from "@keepkey/device-protocol/lib/messages-ethereum_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { getMessage, getTypeHash } from "eip-712";
 import * as eip55 from "eip55";
 import * as ethers from "ethers";
 
@@ -182,6 +183,86 @@ export async function ethSignMessage(transport: Transport, msg: core.ETHSignMess
     address: eip55.encode("0x" + core.toHexString(sig.getAddress_asU8())), // FIXME: this should be done in the firmware
     signature: "0x" + core.toHexString(sig.getSignature_asU8()),
   };
+}
+
+export async function ethSignTypedData(
+  transport: Transport,
+  msg: core.ETHSignTypedData
+): Promise<core.ETHSignedTypedData> {
+  /**
+   * If the message to be signed is sufficiently small, the KeepKey can calculate the
+   * domain separator and message hashes. Otherwise, we need to pre-calculate hashes
+   * here and verify on device.
+   */
+
+  const sTypes = JSON.stringify({ types: msg.typedData.types });
+  const sPrimaryType = JSON.stringify({ primaryType: msg.typedData.primaryType });
+  const sDomain = JSON.stringify({ domain: msg.typedData.domain });
+  const sMessage = JSON.stringify({ message: msg.typedData.message });
+
+  try {
+    if (sTypes.length > 2048 || sPrimaryType.length > 80 || sDomain.length > 2048 || sMessage.length > 2048) {
+      /* Pre-calculate domain separator and messages hashes and verify on KeepKey */
+
+      const domainSeparatorHash = getTypeHash(msg.typedData, "EIP712Domain");
+      const domainSeparatorHash64 = Buffer.from(domainSeparatorHash).toString("base64");
+      const messageHash = getMessage(msg.typedData, true);
+      const messageHash64 = Buffer.from(messageHash).toString("base64");
+
+      const t = new Ethereum.EthereumSignTypedHash();
+      t.setAddressNList(msg.addressNList);
+      t.setDomainSeparatorHash(domainSeparatorHash64);
+      t.setMessageHash(messageHash64);
+
+      const response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNTYPEDHASH, t, {
+        msgTimeout: core.LONG_TIMEOUT,
+      });
+
+      const result = response.proto as Ethereum.EthereumTypedDataSignature;
+      const res: core.ETHSignedTypedData = {
+        address: result.getAddress() || "",
+        signature: "0x" + core.toHexString(result.getSignature_asU8()),
+      };
+
+      return res;
+    } else {
+      /* Let KeepKey calculate domain separator and message hashes */
+      const dsh = new Ethereum.Ethereum712TypesValues();
+      dsh.setAddressNList(msg.addressNList);
+      dsh.setEip712types(sTypes);
+      dsh.setEip712primetype(sPrimaryType);
+      dsh.setEip712data(sDomain);
+      dsh.setEip712typevals(1);
+
+      let response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUM712TYPESVALUES, dsh, {
+        msgTimeout: core.LONG_TIMEOUT,
+        omitLock: true,
+      });
+
+      const mh = new Ethereum.Ethereum712TypesValues();
+      mh.setAddressNList(msg.addressNList);
+      mh.setEip712types(sTypes);
+      mh.setEip712primetype(sPrimaryType);
+      mh.setEip712data(sMessage);
+      mh.setEip712typevals(2);
+
+      response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUM712TYPESVALUES, mh, {
+        msgTimeout: core.LONG_TIMEOUT,
+        omitLock: true,
+      });
+
+      const result = response.proto as Ethereum.EthereumTypedDataSignature;
+      const res: core.ETHSignedTypedData = {
+        address: result.getAddress() || "",
+        signature: "0x" + core.toHexString(result.getSignature_asU8()),
+      };
+
+      return res;
+    }
+  } catch (error) {
+    console.error({ error });
+    throw new Error("Failed to sign typed ETH message");
+  }
 }
 
 export async function ethVerifyMessage(transport: Transport, msg: core.ETHVerifyMessage): Promise<boolean> {

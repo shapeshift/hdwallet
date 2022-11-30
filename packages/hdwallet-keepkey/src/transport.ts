@@ -89,7 +89,7 @@ export class Transport extends core.Transport {
     const msgLength = firstView.getUint32(5);
     if (!valid) throw new Error("message not valid");
 
-    const buffer = new Uint8Array(9 + 2 + msgLength);
+    const buffer = new Uint8Array(9 + msgLength);
     buffer.set(first.slice(0, Math.min(first.length, buffer.length)));
 
     for (let offset = first.length; offset < buffer.length; ) {
@@ -389,7 +389,7 @@ export class Transport extends core.Transport {
       return [Messages.MessageType.MESSAGETYPE_FAILURE, msg];
     }
     const msg = new MType();
-    const reader = new jspb.BinaryReader(buf, 9, buf.length - (9 + 2));
+    const reader = new jspb.BinaryReader(buf, 9, buf.length - 9);
     return [typeID, MType.deserializeBinaryFromReader(msg, reader)];
   }
 
