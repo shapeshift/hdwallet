@@ -1,4 +1,5 @@
 import { Bytes } from "@ethersproject/bytes";
+import { TypedData } from "eip-712";
 
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
@@ -101,6 +102,16 @@ export interface ETHSignedMessage {
   signature: string;
 }
 
+export interface ETHSignTypedData {
+  addressNList: BIP32Path;
+  typedData: TypedData;
+}
+
+export interface ETHSignedTypedData {
+  address: string;
+  signature: string;
+}
+
 export interface ETHVerifyMessage {
   address: string;
   message: string | Bytes;
@@ -188,6 +199,7 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
   ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx | null>;
   ethSendTx?(msg: ETHSignTx): Promise<ETHTxHash | null>;
   ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage | null>;
+  ethSignTypedData?(msg: ETHSignTypedData): Promise<ETHSignedTypedData | null>;
   ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean | null>;
 }
 
