@@ -44,7 +44,7 @@ export function customNow(now: () => number, roundMs: number, jitter: number): (
 }
 
 /**
- * This function benchmarks the current machine to determine how many iterations of single-theaded argon2id can be afforded in a given time budget.
+ * This function benchmarks the current machine to determine how many iterations of single-threaded argon2id can be afforded in a given time budget.
  * The time budget is considered to include only the time spent actually iterating; setup time is proportional to the memory allocation and excluded,
  * though it usually only is a few tens of milliseconds extra.
  *
@@ -103,7 +103,7 @@ export async function argonBenchmark(
     if (msPerIteration === 0) {
       // This ensures that a non-increasing performance.now() implementation won't loop infinitely
       if (i * memorySizeKib > 2 ** 20) break;
-      // This happen on the first loop, but also can happen with rounded timestamps
+      // This happens on the first loop, but also can happen with rounded timestamps
       i *= 2;
     } else {
       const iStep = Math.round((targetTimeMs + setupDuration - duration) / msPerIteration);
@@ -121,7 +121,7 @@ export async function argonBenchmark(
 
     duration = await argonBenchInner(memorySizeKib, i, roundedNow);
     msPerIteration = (duration - setupDuration) / i;
-    // We want the the duration of the first *measurable* run (i.e. duration > 0). (Duration can be 0 if timestamps are
+    // We want the duration of the first *measurable* run (i.e. duration > 0). (Duration can be 0 if timestamps are
     // rounded.)
     if (!firstDuration) {
       firstDuration = duration;
