@@ -34,8 +34,17 @@ describe("NativeETHWalletInfo", () => {
   });
 
   it("should return the correct account paths for other coin", async () => {
-    const paths = info.ethGetAccountPaths({ coin: "Avalanche", accountIdx: 0 });
-    expect(paths).toMatchObject([
+    const avalanchePaths = info.ethGetAccountPaths({ coin: "Avalanche", accountIdx: 0 });
+    expect(avalanchePaths).toMatchObject([
+      {
+        addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+        hardenedPath: core.bip32ToAddressNList("m/44'/60'/0'"),
+        relPath: [0, 0],
+        description: "Native",
+      },
+    ]);
+    const optimismPaths = info.ethGetAccountPaths({ coin: "Optimism", accountIdx: 0 });
+    expect(optimismPaths).toMatchObject([
       {
         addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
         hardenedPath: core.bip32ToAddressNList("m/44'/60'/0'"),

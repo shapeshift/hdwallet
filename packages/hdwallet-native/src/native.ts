@@ -216,6 +216,7 @@ export class NativeHDWallet
   readonly _supportsCosmos = true;
   readonly _supportsEthSwitchChain = false;
   readonly _supportsAvalanche = true;
+  readonly _supportsOptimism = true;
   readonly _supportsOsmosis = true;
   readonly _supportsBinance = true;
   readonly _supportsFio = true;
