@@ -130,6 +130,7 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
   readonly _supportsETHInfo = true;
   readonly _supportsEthSwitchChain = false;
   readonly _supportsAvalanche = false;
+  readonly _supportsOptimism = false;
   readonly _supportsBTCInfo = true;
   readonly _supportsBTC = true;
   readonly _isPortis = true;
