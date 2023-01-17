@@ -150,7 +150,7 @@ export interface ETHWalletInfo extends HDWalletInfo {
    * Switch the wallet's active Ethereum chain
    * https://eips.ethereum.org/EIPS/eip-3326
    */
-  ethSwitchChain?(chain_id: number): Promise<void>;
+  ethSwitchChain?(params: AddEthereumChainParameter): Promise<void>;
 
   /**
    * Add an Ethereum chain to user's wallet
@@ -194,6 +194,7 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
   readonly _supportsETH: boolean;
   readonly _supportsEthSwitchChain: boolean;
   readonly _supportsAvalanche: boolean;
+  readonly _supportsOptimism: boolean;
 
   ethGetAddress(msg: ETHGetAddress): Promise<string | null>;
   ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx | null>;
