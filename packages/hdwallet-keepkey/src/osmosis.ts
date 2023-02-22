@@ -8,13 +8,14 @@ import * as bs58check from "bs58check";
 import PLazy from "p-lazy";
 
 import { Transport } from "./transport";
+import { sortTxFields } from "./utils";
 
 const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
 
 export function osmosisGetAccountPaths(msg: core.OsmosisGetAccountPaths): Array<core.OsmosisAccountPath> {
   return [
     {
-      addressNList: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin("Atom"), 0x80000000 + msg.accountIdx, 0, 0],
+      addressNList: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin("Osmo"), 0x80000000 + msg.accountIdx, 0, 0],
     },
   ];
 }
@@ -35,8 +36,7 @@ export async function osmosisGetAddress(
 }
 
 export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignTx): Promise<any> {
-  const address = await osmosisGetAddress(transport, { addressNList: msg.addressNList });
-
+  const address = await osmosisGetAddress(transport, { addressNList: msg.addressNList, showDisplay: false });
   const getPublicKeyMsg = new Messages.GetPublicKey();
   getPublicKeyMsg.setAddressNList(msg.addressNList);
   getPublicKeyMsg.setEcdsaCurveName("secp256k1");
@@ -148,16 +148,9 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
         }
         case "cosmos-sdk/MsgWithdrawDelegationReward": {
           // Rewards
-          const denom = m.value.amount.denom;
-          if (denom !== "uosmo") {
-            throw new Error("osmosis: Unsupported denomination: " + denom);
-          }
-
           const rewards = new OsmosisMessages.OsmosisMsgRewards();
           rewards.setDelegatorAddress(m.value.delegator_address);
           rewards.setValidatorAddress(m.value.validator_address);
-          rewards.setAmount(m.value.amount.amount);
-          rewards.setDenom(m.value.amount.denom);
 
           ack = new OsmosisMessages.OsmosisMsgAck();
           ack.setRewards(rewards);
@@ -167,12 +160,12 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
           // LP add
           const lpAdd = new OsmosisMessages.OsmosisMsgLPAdd();
           lpAdd.setSender(m.value.sender);
-          lpAdd.setPoolId(m.value.poolId);
-          lpAdd.setShareOutAmount(m.value.shareOutAmount);
-          lpAdd.setDenomInMaxA(m.value.tokenInMaxs[0].denom);
-          lpAdd.setAmountInMaxA(m.value.tokenInMaxs[0].amount);
-          lpAdd.setDenomInMaxB(m.value.tokenInMaxs[1].denom);
-          lpAdd.setAmountInMaxB(m.value.tokenInMaxs[1].amount);
+          lpAdd.setPoolId(m.value.pool_id);
+          lpAdd.setShareOutAmount(m.value.share_out_amount);
+          lpAdd.setDenomInMaxA(m.value.token_in_maxs[0].denom);
+          lpAdd.setAmountInMaxA(m.value.token_in_maxs[0].amount);
+          lpAdd.setDenomInMaxB(m.value.token_in_maxs[1].denom);
+          lpAdd.setAmountInMaxB(m.value.token_in_maxs[1].amount);
 
           ack = new OsmosisMessages.OsmosisMsgAck();
           ack.setLpAdd(lpAdd);
@@ -182,12 +175,12 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
           // LP remove
           const lpRemove = new OsmosisMessages.OsmosisMsgLPRemove();
           lpRemove.setSender(m.value.sender);
-          lpRemove.setPoolId(m.value.poolId);
-          lpRemove.setShareOutAmount(m.value.shareOutAmount);
-          lpRemove.setDenomOutMinA(m.value.tokenOutMins[0].denom);
-          lpRemove.setAmountOutMinA(m.value.tokenOutMins[0].amount);
-          lpRemove.setDenomOutMinB(m.value.tokenOutMins[1].denom);
-          lpRemove.setAmountOutMinB(m.value.tokenOutMins[1].amount);
+          lpRemove.setPoolId(m.value.pool_id);
+          lpRemove.setShareInAmount(m.value.share_in_amount);
+          lpRemove.setDenomOutMinA(m.value.token_out_mins[0].denom);
+          lpRemove.setAmountOutMinA(m.value.token_out_mins[0].amount);
+          lpRemove.setDenomOutMinB(m.value.token_out_mins[1].denom);
+          lpRemove.setAmountOutMinB(m.value.token_out_mins[1].amount);
 
           ack = new OsmosisMessages.OsmosisMsgAck();
           ack.setLpRemove(lpRemove);
@@ -240,11 +233,11 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
           // Swap
           const swap = new OsmosisMessages.OsmosisMsgSwap();
           swap.setSender(m.value.sender);
-          swap.setPoolId(m.value.routes[0].poolId);
-          swap.setTokenOutDenom(m.value.routes[0].tokenOutDenom);
-          swap.setTokenInDenom(m.value.tokenIn.denom);
-          swap.setTokenInAmount(m.value.tokenIn.amount);
-          swap.setTokenOutMinAmount(m.value.tokenOutMinAmount);
+          swap.setPoolId(m.value.routes[0].pool_id);
+          swap.setTokenOutDenom(m.value.routes[0].token_out_denom);
+          swap.setTokenInDenom(m.value.token_in.denom);
+          swap.setTokenInAmount(m.value.token_in.amount);
+          swap.setTokenOutMinAmount(m.value.token_out_min_amount);
 
           ack = new OsmosisMessages.OsmosisMsgAck();
           ack.setSwap(swap);
@@ -295,6 +288,6 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
       accountNumber: Number(msg.account_number),
       chainId: msg.chain_id,
     };
-    return (await protoTxBuilder).sign(address, msg.tx as StdTx, offlineSigner, signerData);
+    return (await protoTxBuilder).sign(address, sortTxFields(msg.tx) as StdTx, offlineSigner, signerData);
   });
 }
