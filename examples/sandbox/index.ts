@@ -350,6 +350,12 @@ async function deviceConnected(deviceId) {
   }
 
   try {
+    await keplrAdapter.initialize([]);
+  } catch (e) {
+    console.error("Could not initialize KeplrAdapter", e);
+  }
+
+  try {
     await walletConnectAdapter.initialize();
   } catch (e) {
     console.error("Could not initialize WalletConnectAdapter", e);
@@ -1554,9 +1560,9 @@ $osmosisSend.on("click", async (e) => {
 
     const res = await wallet.osmosisSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
-      chain_id: "osmosis-1",
-      account_number: "95421",
-      sequence: "35",
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
       tx: unsigned,
     });
     $osmosisResults.val(JSON.stringify(res));
@@ -1577,9 +1583,9 @@ $osmosisDelegate.on("click", async (e) => {
 
     const res = await wallet.osmosisSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
-      chain_id: "osmosis-1",
-      account_number: "95421",
-      sequence: "36",
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
       tx: unsigned,
     });
     $osmosisResults.val(JSON.stringify(res));
@@ -1600,9 +1606,9 @@ $osmosisUndelegate.on("click", async (e) => {
 
     const res = await wallet.osmosisSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
-      chain_id: "osmosis-1",
-      account_number: "95421",
-      sequence: "39",
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
       tx: unsigned,
     });
     $osmosisResults.val(JSON.stringify(res));
@@ -1623,9 +1629,9 @@ $osmosisRedelegate.on("click", async (e) => {
 
     const res = await wallet.osmosisSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
-      chain_id: "osmosis-1",
-      account_number: "95421",
-      sequence: "37",
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
       tx: unsigned,
     });
     $osmosisResults.val(JSON.stringify(res));
@@ -1646,9 +1652,9 @@ $osmosisRewards.on("click", async (e) => {
 
     const res = await wallet.osmosisSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
-      chain_id: "osmosis-1",
-      account_number: "95421",
-      sequence: "38",
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
       tx: unsigned,
     });
     $osmosisResults.val(JSON.stringify(res));
@@ -1669,9 +1675,9 @@ $osmosisLPAdd.on("click", async (e) => {
 
     const res = await wallet.osmosisSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
-      chain_id: "osmosis-1",
-      account_number: "95421",
-      sequence: "45",
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
       tx: unsigned,
     });
     $osmosisResults.val(JSON.stringify(res));
@@ -1692,9 +1698,9 @@ $osmosisLPRemove.on("click", async (e) => {
 
     const res = await wallet.osmosisSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
-      chain_id: "osmosis-1",
-      account_number: "95421",
-      sequence: "46",
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
       tx: unsigned,
     });
     $osmosisResults.val(JSON.stringify(res));
@@ -1715,9 +1721,9 @@ $osmosisLPStake.on("click", async (e) => {
 
     const res = await wallet.osmosisSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
-      chain_id: "osmosis-1",
-      account_number: "95421",
-      sequence: "46",
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
       tx: unsigned,
     });
     $osmosisResults.val(JSON.stringify(res));
@@ -1738,9 +1744,9 @@ $osmosisLPUnstake.on("click", async (e) => {
 
     const res = await wallet.osmosisSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
-      chain_id: "osmosis-1",
-      account_number: "95421",
-      sequence: "47",
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
       tx: unsigned,
     });
     $osmosisResults.val(JSON.stringify(res));
@@ -1761,9 +1767,9 @@ $osmosisIBCTransfer.on("click", async (e) => {
 
     const res = await wallet.osmosisSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
-      chain_id: "osmosis-1",
-      account_number: "95421",
-      sequence: "35",
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
       tx: unsigned,
     });
     $osmosisResults.val(JSON.stringify(res));
@@ -1784,9 +1790,9 @@ $osmosisSwap.on("click", async (e) => {
 
     const res = await wallet.osmosisSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
-      chain_id: "osmosis-1",
-      account_number: "95421",
-      sequence: "40",
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
       tx: unsigned,
     });
     $osmosisResults.val(JSON.stringify(res));
