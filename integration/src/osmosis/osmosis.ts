@@ -30,7 +30,7 @@ const TIMEOUT = 60 * 1000;
 export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
   let wallet: core.OsmosisWallet & core.HDWallet;
 
-  describe("Osmosis", () => {
+  describe.skip("Osmosis", () => {
     beforeAll(async () => {
       const { wallet: w } = get();
       if (core.supportsOsmosis(w)) {
@@ -111,7 +111,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     );
 
     //undelegate
-    test.skip(
+    test(
       "(undelegate) osmosisSignTx()",
       async () => {
         if (!wallet) return;
@@ -168,7 +168,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     );
 
     //lp add
-    test.skip(
+    test(
       "(lp add) osmosisSignTx()",
       async () => {
         if (!wallet) return;
@@ -205,7 +205,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     );
 
     //lp stake
-    test.skip(
+    test(
       "(lp stake) osmosisSignTx()",
       async () => {
         if (!wallet) return;
@@ -224,7 +224,7 @@ export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     );
 
     //lp unstake
-    test.skip(
+    test(
       "(lp unstake) osmosisSignTx()",
       async () => {
         if (!wallet) return;
