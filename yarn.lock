@@ -529,7 +529,7 @@
     bech32 "^1.1.4"
     readonly-date "^1.0.0"
 
-"@cosmjs/encoding@0.28.13", "@cosmjs/encoding@^0.28.13":
+"@cosmjs/encoding@0.28.13":
   version "0.28.13"
   resolved "https://registry.yarnpkg.com/@cosmjs/encoding/-/encoding-0.28.13.tgz#7994e8e2c435beaf0690296ffb0f7f3eaec8150b"
   integrity sha512-jtXbAYtV77rLHxoIrjGFsvgGjeTKttuHRv6cvuy3toCZzY7JzTclKH5O2g36IIE4lXwD9xwuhGJ2aa6A3dhNkA==
@@ -845,7 +845,7 @@
     readonly-date "^1.0.0"
     xstream "^11.14.0"
 
-"@cosmjs/tendermint-rpc@0.28.13", "@cosmjs/tendermint-rpc@^0.28.13":
+"@cosmjs/tendermint-rpc@0.28.13":
   version "0.28.13"
   resolved "https://registry.yarnpkg.com/@cosmjs/tendermint-rpc/-/tendermint-rpc-0.28.13.tgz#0bf587ae66fa3f88319edbd258492d28e73f9f29"
   integrity sha512-GB+ZmfuJIGQm0hsRtLYjeR3lOxF7Z6XyCBR0cX5AAYOZzSEBJjevPgUHD6tLn8zIhvzxaW3/VKnMB+WmlxdH4w==
@@ -4707,23 +4707,10 @@
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
 
-"@shapeshiftoss/proto-tx-builder@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.4.0.tgz#970eadcd098e5851bc1938d227faa543c619c6a2"
-  integrity sha512-frXIpry5IxYQst1b2BrumYeepgJUNYFNFDub4w1yudKplFz0alQuKv5tbiDqVUbZQHs1Rq3KeJo7GUWgXEfkig==
-  dependencies:
-    "@cosmjs/encoding" "^0.28.13"
-    "@cosmjs/proto-signing" "^0.28.13"
-    "@cosmjs/stargate" "^0.28.13"
-    "@cosmjs/tendermint-rpc" "^0.28.13"
-    cosmjs-types "^0.5.1"
-    google-protobuf "^3.17.0"
-    long "^4.0.0"
-
-"@shapeshiftoss/proto-tx-builder@^0.7.1-alpha.8":
-  version "0.7.1-alpha.8"
-  resolved "http://localhost:4873/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.7.1-alpha.8.tgz#285c5fc44d7a990c829481c564f9dc0061d3d2c7"
-  integrity sha512-u6NgprgBT02QWakaV05dlDLJ82HjzfUoG2yT675IuhcSkH0Eg/71jcwVLqGfIMf0wIp3zxhTvNNXaMqCbj2dsw==
+"@shapeshiftoss/proto-tx-builder@^0.7.0":
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.7.0.tgz#21239d8463ef45ef82d70a99906a3c674c4c2572"
+  integrity sha512-h1iHF5Hr3IeaqK6eN7r7lbhSwA9Zd5IUBUERtN/5dp8KiK8ez3p0QQztAh7zw+M5FWOcNCaNbHILzuNPNPx7ZQ==
   dependencies:
     "@cosmjs/amino" "^0.29.4"
     "@cosmjs/crypto" "0.29.4"
@@ -4731,15 +4718,9 @@
     "@cosmjs/proto-signing" "^0.29.4"
     "@cosmjs/stargate" "^0.29.4"
     bn.js "^5.2.1"
-    buffer "^6.0.3"
     cosmjs-types "^0.5.1"
-    crypto-browserify "^3.12.0"
-    events-browserify "^0.0.1"
     google-protobuf "^3.17.0"
     osmojs "^0.37.0"
-    path-browserify "^1.0.1"
-    process "^0.11.10"
-    stream-browserify "^3.0.0"
 
 "@shapeshiftoss/types@3.1.3":
   version "3.1.3"
@@ -9374,11 +9355,6 @@ eventemitter3@^3.1.0:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-3.1.2.tgz#2d3d48f9c346698fce83a85d7d664e98535df6e7"
   integrity sha512-tvtQIeLVHjDkJYnzf2dgVMxfuSGJeM/7UCG17TT4EumTfNtF+0nebF/4zWOIkCreAbtNqhGEboB6BWrwqNaw4Q==
-
-events-browserify@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/events-browserify/-/events-browserify-0.0.1.tgz#60ab35ca33f437a6e43d834f939b859b6c0d7860"
-  integrity sha512-tqfegiUiuPspc1bUJb01i9ZBAPb2Cs+URaJZDKKg6uItFykGGYCcK6eUH+4L/3cNu7AGBbfY2UZevEecY3H7Kg==
 
 events@^3.0.0, events@^3.2.0, events@^3.3.0:
   version "3.3.0"
