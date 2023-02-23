@@ -4,11 +4,11 @@ import type { SignerData } from "@cosmjs/stargate";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as OsmosisMessages from "@keepkey/device-protocol/lib/messages-osmosis_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { sortTxFields } from "@shapeshiftoss/hdwallet-core";
 import * as bs58check from "bs58check";
 import PLazy from "p-lazy";
 
 import { Transport } from "./transport";
-import { sortTxFields } from "./utils";
 
 const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
 

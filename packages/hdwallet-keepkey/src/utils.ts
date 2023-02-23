@@ -62,32 +62,3 @@ export function translateOutputScriptType(scriptType: core.BTCOutputScriptType):
   }
   throw new Error("unhandled OutputScriptType enum: " + scriptType);
 }
-
-//codereview.stackexchange.com/questions/265820/using-javascript-given-a-json-value-recursively-find-all-json-objects-then-so
-const strSorter = (a: any, b: any) => (a > b ? 1 : a < b ? -1 : 0);
-const isObj = (obj: any) => "object" === typeof obj && null !== obj;
-
-const sortInPlaceObjectKeys = (obj: any) => {
-  const sorted = Object.entries(obj).sort((a, b) => strSorter(a[0], b[0]));
-  for (const [key] of sorted) {
-    delete obj[key];
-  }
-  return Object.assign(obj, Object.fromEntries(sorted));
-};
-
-export function sortTxFields(obj: any): any {
-  const stack = [],
-    checked = new WeakSet();
-  if (isObj(obj)) {
-    stack.push(obj);
-    while (stack.length) {
-      let o = stack.pop();
-      checked.add(o);
-      o = !Array.isArray(o) && sortInPlaceObjectKeys(o);
-      for (const val of Object.values(o)) {
-        isObj(val) && !checked.has(val as any) && stack.push(val);
-      }
-    }
-  }
-  return obj;
-}
