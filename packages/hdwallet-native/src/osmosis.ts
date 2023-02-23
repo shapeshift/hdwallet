@@ -92,7 +92,6 @@ export function MixinNativeOsmosisWallet<TBase extends core.Constructor<NativeHD
           accountNumber: Number(msg.account_number),
           chainId: OSMOSIS_CHAIN,
         };
-
         return (await protoTxBuilder).sign(adapter.address, msg.tx as StdTx, adapter, signerData, "osmos");
       });
     }

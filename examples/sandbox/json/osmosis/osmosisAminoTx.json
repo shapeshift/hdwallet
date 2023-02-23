@@ -1,0 +1,280 @@
+{
+  "osmosisSendTx": {
+    "account_number": "97721",
+    "chain_id": "osmosis-1",
+    "fee": {
+      "amount": [
+        {
+          "amount": "2291",
+          "denom": "uosmo"
+        }
+      ],
+      "gas": "91633"
+    },
+    "memo": "memo",
+    "msg": [
+      {
+        "type": "cosmos-sdk/MsgSend",
+        "value": {
+          "amount": [
+            {
+              "amount": "10000",
+              "denom": "uosmo"
+            }
+          ],
+          "from_address": "osmo1zjk9dkhzz2waxmtvtl3hnnl0t3ac0k5utyhxgz",
+          "to_address": "osmo1zjk9dkhzz2waxmtvtl3hnnl0t3ac0k5utyhxgz"
+        }
+      }
+    ],
+    "sequence": "90"
+  },
+  "osmosisDelegateTx": {
+    "account_number": "97721",
+    "chain_id": "osmosis-1",
+    "fee": {
+      "amount": [
+        {
+          "amount": "2291",
+          "denom": "uosmo"
+        }
+      ],
+      "gas": "91633"
+    },
+    "memo": "memo",
+    "msg": [
+      {
+        "type": "cosmos-sdk/MsgDelegate",
+        "value": {
+          "amount": {
+            "amount": "1000",
+            "denom": "uosmo"
+          },
+          "delegator_address": "osmo1zjk9dkhzz2waxmtvtl3hnnl0t3ac0k5utyhxgz",
+          "validator_address": "osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n"
+        }
+      }
+    ],
+    "sequence": "90"
+  },
+  "osmosisUndelegateTx": {
+    "account_number": "97721",
+    "chain_id": "osmosis-1",
+    "fee": {
+      "amount": [
+        {
+          "amount": "2291",
+          "denom": "uosmo"
+        }
+      ],
+      "gas": "91633"
+    },
+    "memo": "memo",
+    "msg": [
+      {
+        "type": "cosmos-sdk/MsgUndelegate",
+        "value": {
+          "amount": {
+            "amount": "3000",
+            "denom": "uosmo"
+          },
+          "delegator_address": "osmo1zjk9dkhzz2waxmtvtl3hnnl0t3ac0k5utyhxgz",
+          "validator_address": "osmovaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4ep88n0y4"
+        }
+      }
+    ],
+    "sequence": "90"
+  },
+  "osmosisRedelegateTx": {
+    "account_number": "97721",
+    "chain_id": "osmosis-1",
+    "fee": {
+      "amount": [
+        {
+          "amount": "2291",
+          "denom": "uosmo"
+        }
+      ],
+      "gas": "91633"
+    },
+    "memo": "memo",
+    "msg": [
+      {
+        "type": "cosmos-sdk/MsgBeginRedelegate",
+        "value": {
+          "amount": {
+            "amount": "100",
+            "denom": "uosmo"
+          },
+          "delegator_address": "osmo1zjk9dkhzz2waxmtvtl3hnnl0t3ac0k5utyhxgz",
+          "validator_dst_address": "osmovaloper1clpqr4nrk4khgkxj78fcwwh6dl3uw4ep88n0y4",
+          "validator_src_address": "osmovaloper1cyw4vw20el8e7ez8080md0r8psg25n0cq98a9n"
+        }
+      }
+    ],
+    "sequence": "90"
+  },
+  "osmosisRewardsTx": {
+  "account_number": "97721",
+  "chain_id": "osmosis-1",
+  "fee": {
+    "amount": [
+      {
+        "amount": "2291",
+        "denom": "uosmo"
+      }
+    ],
+    "gas": "91633"
+  },
+  "memo": "memo",
+  "msg": [
+    {
+      "type": "cosmos-sdk/MsgWithdrawDelegationReward",
+      "value": {
+        "delegator_address": "osmo1zjk9dkhzz2waxmtvtl3hnnl0t3ac0k5utyhxgz",
+        "validator_address": "osmovaloper1q4mlwtw3ncve72na65xacck557wcknc8j0lmke"
+      }
+    }
+  ],
+  "sequence": "90"
+},
+  "osmosisLPAddTx": {
+    "account_number": "97721",
+    "chain_id": "osmosis-1",
+    "fee": {
+      "amount": [
+        {
+          "amount": "2291",
+          "denom": "uosmo"
+        }
+      ],
+      "gas": "91633"
+    },
+    "memo": "memo",
+    "msg": [
+      {
+        "type": "osmosis/gamm/join-pool",
+        "value": {
+          "pool_id": "1",
+          "sender": "osmo1zjk9dkhzz2waxmtvtl3hnnl0t3ac0k5utyhxgz",
+          "share_out_amount": "1006980521903380445",
+          "token_in_maxs": [
+            {
+              "amount": "10595",
+              "denom": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"
+            },
+            {
+              "amount": "143474",
+              "denom": "uosmo"
+            }
+          ]
+        }
+      }
+    ],
+    "sequence": "90"
+  },
+  "osmosisLPRemoveTx": {
+    "account_number": "97721",
+    "chain_id": "osmosis-1",
+    "fee": {
+      "amount": [
+        {
+          "amount": "2291",
+          "denom": "uosmo"
+        }
+      ],
+      "gas": "91633"
+    },
+    "memo": "memo",
+    "msg": [
+      {
+        "type": "osmosis/gamm/exit-pool",
+        "value": {
+          "pool_id": "1",
+          "sender": "osmo1zjk9dkhzz2waxmtvtl3hnnl0t3ac0k5utyhxgz",
+          "share_in_amount": "78719426289889034",
+          "token_out_mins": [
+            {
+              "amount": "1532",
+              "denom": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"
+            },
+            {
+              "amount": "5304",
+              "denom": "uosmo"
+            }
+          ]
+        }
+      }
+    ],
+    "sequence": "90"
+  },
+
+  "osmosisIBCTransferTx": {
+    "account_number": "97721",
+    "chain_id": "osmosis-1",
+    "fee": {
+      "amount": [
+        {
+          "amount": "2291",
+          "denom": "uosmo"
+        }
+      ],
+      "gas": "91633"
+    },
+    "memo": "memo",
+    "msg": [
+      {
+        "type": "cosmos-sdk/MsgTransfer",
+        "value": {
+          "receiver": "cosmos1zjk9dkhzz2waxmtvtl3hnnl0t3ac0k5urlyk7s",
+          "sender": "osmo1zjk9dkhzz2waxmtvtl3hnnl0t3ac0k5utyhxgz",
+          "source_channel": "channel-0",
+          "source_port": "transfer",
+          "timeout_height": {
+            "revision_height": "14165482",
+            "revision_number": "4"
+          },
+          "token": {
+            "amount": "10000",
+            "denom": "uosmo"
+          }
+        }
+      }
+    ],
+    "sequence": "90"
+  },
+  "osmosisSwapTx": {
+    "account_number": "97721",
+    "chain_id": "osmosis-1",
+    "fee": {
+      "amount": [
+        {
+          "amount": "2291",
+          "denom": "uosmo"
+        }
+      ],
+      "gas": "91633"
+    },
+    "memo": "memo",
+    "msg": [
+      {
+        "type": "osmosis/gamm/swap-exact-amount-in",
+        "value": {
+          "routes": [
+            {
+              "pool_id": "1",
+              "token_out_denom": "ibc/27394FB092D2ECCD56123C74F36E4C1F926001CEADA9CA97EA622B25F41E5EB2"
+            }
+          ],
+          "sender": "osmo1zjk9dkhzz2waxmtvtl3hnnl0t3ac0k5utyhxgz",
+          "token_in": {
+            "amount": "6500",
+            "denom": "uosmo"
+          },
+          "token_out_min_amount": "8204"
+        }
+      }
+    ],
+    "sequence": "90"
+  }
+}
