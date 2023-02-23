@@ -14,7 +14,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@pastaghost/proto-tx-builder": "^0.7.1-alpha.0",
+    "@shapeshiftoss/proto-tx-builder": "^0.7.0",
     "@shapeshiftoss/caip": "3.0.0",
     "@shapeshiftoss/hdwallet-core": "1.43.0",
     "@shapeshiftoss/types": "3.1.3",
