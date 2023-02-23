@@ -208,60 +208,7 @@
     ],
     "sequence": "90"
   },
-  "osmosisLPStakeTx": {
-    "account_number": "97721",
-    "chain_id": "osmosis-1",
-    "fee": {
-      "amount": [
-        {
-          "amount": "2291",
-          "denom": "uosmo"
-        }
-      ],
-      "gas": "91633"
-    },
-    "memo": "memo",
-    "msg": [
-      {
-        "type": "osmosis/lockup/lock-tokens",
-        "value": {
-          "coins": [
-            {
-              "amount": "10000000000000000",
-              "denom": "gamm/pool/1"
-            }
-          ],
-          "duration": "86400000000000",
-          "owner": "osmo1zjk9dkhzz2waxmtvtl3hnnl0t3ac0k5utyhxgz"
-        }
-      }
-    ],
-    "sequence": "90"
-  },
-  "osmosisLPUnstakeTx": {
-    "account_number": "97721",
-    "chain_id": "osmosis-1",
-    "fee": {
-      "amount": [
-        {
-          "amount": "2291",
-          "denom": "uosmo"
-        }
-      ],
-      "gas": "91633"
-    },
-    "memo": "memo",
-    "msg": [
-      {
-        "type": "osmosis/lockup/begin-unlock-period-lock",
-        "value": {
-          "ID": "382614",
-          "owner": "osmo1zjk9dkhzz2waxmtvtl3hnnl0t3ac0k5utyhxgz"
-        }
-      }
-    ],
-    "sequence": "90"
-  },
+
   "osmosisIBCTransferTx": {
     "account_number": "97721",
     "chain_id": "osmosis-1",

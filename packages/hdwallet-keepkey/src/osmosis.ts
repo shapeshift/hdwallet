@@ -186,28 +186,6 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
           ack.setLpRemove(lpRemove);
           break;
         }
-        case "osmosis/lockup/lock-tokens": {
-          // LP stake
-          const lpStake = new OsmosisMessages.OsmosisMsgLPStake();
-          lpStake.setOwner(m.value.owner);
-          lpStake.setDuration(m.value.duration);
-          lpStake.setDenom(m.value.coins[0].denom);
-          lpStake.setAmount(m.value.coins[0].amount);
-
-          ack = new OsmosisMessages.OsmosisMsgAck();
-          ack.setLpStake(lpStake);
-          break;
-        }
-        case "osmosis/lockup/begin-unlock-period-lock": {
-          // LP unstake
-          const lpUnstake = new OsmosisMessages.OsmosisMsgLPUnstake();
-          lpUnstake.setOwner(m.value.owner);
-          lpUnstake.setId(m.value.id);
-
-          ack = new OsmosisMessages.OsmosisMsgAck();
-          ack.setLpUnstake(lpUnstake);
-          break;
-        }
         case "cosmos-sdk/MsgTransfer": {
           // IBC Transfer
           const denom = m.value.token.denom;

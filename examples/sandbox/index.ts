@@ -1710,52 +1710,6 @@ $osmosisLPRemove.on("click", async (e) => {
   }
 });
 
-$osmosisLPStake.on("click", async (e) => {
-  e.preventDefault();
-  if (!wallet) {
-    $osmosisResults.val("No wallet?");
-    return;
-  }
-  if (core.supportsOsmosis(wallet)) {
-    const unsigned: core.Osmosis.StdTx = osmosisLPStakeTx;
-
-    const res = await wallet.osmosisSignTx({
-      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
-      chain_id: unsigned.chain_id,
-      account_number: unsigned.account_number,
-      sequence: unsigned.sequence,
-      tx: unsigned,
-    });
-    $osmosisResults.val(JSON.stringify(res));
-  } else {
-    const label = await wallet.getLabel();
-    $osmosisResults.val(label + " does not support Osmosis");
-  }
-});
-
-$osmosisLPUnstake.on("click", async (e) => {
-  e.preventDefault();
-  if (!wallet) {
-    $osmosisResults.val("No wallet?");
-    return;
-  }
-  if (core.supportsOsmosis(wallet)) {
-    const unsigned: core.Osmosis.StdTx = osmosisLPUnstakeTx;
-
-    const res = await wallet.osmosisSignTx({
-      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
-      chain_id: unsigned.chain_id,
-      account_number: unsigned.account_number,
-      sequence: unsigned.sequence,
-      tx: unsigned,
-    });
-    $osmosisResults.val(JSON.stringify(res));
-  } else {
-    const label = await wallet.getLabel();
-    $osmosisResults.val(label + " does not support Osmosis");
-  }
-});
-
 $osmosisIBCTransfer.on("click", async (e) => {
   e.preventDefault();
   if (!wallet) {
