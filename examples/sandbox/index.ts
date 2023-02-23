@@ -39,8 +39,6 @@ import {
   osmosisIBCTransferTx,
   osmosisLPAddTx,
   osmosisLPRemoveTx,
-  osmosisLPStakeTx,
-  osmosisLPUnstakeTx,
   osmosisRedelegateTx,
   osmosisRewardsTx,
   osmosisSendTx,
@@ -1519,8 +1517,6 @@ const $osmosisRedelegate = $("#osmosisRedelegate");
 const $osmosisRewards = $("#osmosisRewards");
 const $osmosisLPAdd = $("#osmosisLPAdd");
 const $osmosisLPRemove = $("#osmosisLPRemove");
-const $osmosisLPStake = $("#osmosisLPStake");
-const $osmosisLPUnstake = $("#osmosisLPUnstake");
 const $osmosisIBCTransfer = $("#osmosisIBCTransfer");
 const $osmosisSwap = $("#osmosisSwap");
 
