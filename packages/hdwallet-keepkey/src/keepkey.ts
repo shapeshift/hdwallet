@@ -1061,7 +1061,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
 
     const fwVersion = `v${out.majorVersion}.${out.minorVersion}.${out.patchVersion}`;
     //Lost Support per proto 44.3
-    this._supportsOsmosis = semver.gte(fwVersion, "v7.4.0");
+    this._supportsOsmosis = semver.gte(fwVersion, "v7.7.0");
     this._supportsCosmos = semver.gte(fwVersion, "v7.3.0");
     this._supportsRipple = semver.gte(fwVersion, "v6.4.0");
     this._supportsBinance = semver.gte(fwVersion, "v6.4.0");
