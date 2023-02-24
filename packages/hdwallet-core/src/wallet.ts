@@ -139,6 +139,10 @@ export function supportsOptimism(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsOptimism;
 }
 
+export function supportsBSC(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsBSC;
+}
+
 export function infoCosmos(info: HDWalletInfo): info is CosmosWalletInfo {
   return isObject(info) && (info as any)._supportsCosmosInfo;
 }
