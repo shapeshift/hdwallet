@@ -90,7 +90,7 @@ export class XDEFIHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETHInfo = true;
   readonly _supportsEthSwitchChain = true;
   readonly _supportsAvalanche = true;
-  readonly _supportsOptimism = true;
+  readonly _supportsOptimism = false;
   readonly _supportsBSC = true;
   readonly _supportsBTCInfo = false;
   readonly _supportsBTC = false;
