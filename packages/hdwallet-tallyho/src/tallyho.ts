@@ -87,10 +87,10 @@ export class TallyHoHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInf
 export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
-  readonly _supportsEthSwitchChain = false;
-  readonly _supportsAvalanche = false;
-  readonly _supportsOptimism = false;
-  readonly _supportsBSC = false;
+  readonly _supportsEthSwitchChain = true;
+  readonly _supportsAvalanche = true;
+  readonly _supportsOptimism = true;
+  readonly _supportsBSC = true;
   readonly _isTallyHo = true;
 
   info: TallyHoHDWalletInfo & core.HDWalletInfo;
@@ -256,7 +256,7 @@ export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
       // https://docs.metamask.io/guide/ethereum-provider.html#errors
       // Internal error, which in the case of wallet_switchEthereumChain call means the chain isn't currently added to the wallet
       if (error.code === -32603) {
-        // TODO: TallyHo currently supports a finite number of chains natively (Mainnet + Polygon/Arbitrum/Optimism under feature flag), with no capabilities to add new chains
+        // TODO: TallyHo currently supports a finite number of chains natively, with no capabilities to add new chains
       }
 
       throw new Error(e);
