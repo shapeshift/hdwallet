@@ -188,11 +188,6 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
         }
         case "cosmos-sdk/MsgTransfer": {
           // IBC Transfer
-          const denom = m.value.token.denom;
-          if (denom !== "uosmo") {
-            throw new Error("osmosis: Unsupported denomination: " + denom);
-          }
-
           const ibcTransfer = new OsmosisMessages.OsmosisMsgIBCTransfer();
           ibcTransfer.setReceiver(m.value.receiver);
           ibcTransfer.setSender(m.value.sender);
