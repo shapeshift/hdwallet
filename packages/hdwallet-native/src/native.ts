@@ -294,8 +294,8 @@ export class NativeHDWallet
     return !!this.#initialized;
   }
 
-  async isLocked(): Promise<boolean> {
-    return false;
+  public async isLocked(): Promise<boolean> {
+    return !!this.#masterKey;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
