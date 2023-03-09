@@ -121,7 +121,7 @@ describe("NativeHDWallet", () => {
     it("should load wallet with a mnemonic", async () => {
       const wallet = native.create({ deviceId: "native" });
       expect(await wallet.isInitialized()).toBe(false);
-      expect(await wallet.isLocked()).toBe(false);
+      expect(await wallet.isLocked()).toBe(true);
       await wallet.loadDevice({ mnemonic: MNEMONIC });
       expect(await wallet.initialize()).toBe(true);
       expect(await wallet.isInitialized()).toBe(true);
@@ -162,7 +162,7 @@ describe("NativeHDWallet", () => {
       const node = await Node.create(fromB64ToArray(PRIVATE_KEY), fromB64ToArray(CHAIN_CODE));
       const wallet = native.create({ deviceId: "native", masterKey: node });
       expect(await wallet.isInitialized()).toBe(false);
-      expect(await wallet.isLocked()).toBe(false);
+      expect(await wallet.isLocked()).toBe(true);
       await wallet.loadDevice({ masterKey: node });
       expect(await wallet.initialize()).toBe(true);
       expect(await wallet.isInitialized()).toBe(true);
@@ -212,7 +212,7 @@ describe("NativeHDWallet", () => {
       );
       const wallet = native.create({ deviceId: "native", masterKey: node });
       expect(await wallet.isInitialized()).toBe(false);
-      expect(await wallet.isLocked()).toBe(false);
+      expect(await wallet.isLocked()).toBe(true);
       await wallet.loadDevice({ masterKey: node });
       expect(await wallet.initialize()).toBe(true);
       expect(await wallet.isInitialized()).toBe(true);
@@ -241,7 +241,7 @@ describe("NativeHDWallet", () => {
       );
       const wallet = native.create({ deviceId: "native", masterKey: node });
       expect(await wallet.isInitialized()).toBe(false);
-      expect(await wallet.isLocked()).toBe(false);
+      expect(await wallet.isLocked()).toBe(true);
       await wallet.loadDevice({ masterKey: node });
       expect(await wallet.initialize()).toBe(true);
       expect(await wallet.isInitialized()).toBe(true);
@@ -269,7 +269,7 @@ describe("NativeHDWallet", () => {
       );
       const wallet = native.create({ deviceId: "native", masterKey: node });
       expect(await wallet.isInitialized()).toBe(false);
-      expect(await wallet.isLocked()).toBe(false);
+      expect(await wallet.isLocked()).toBe(true);
       await wallet.loadDevice({ masterKey: node });
       expect(await wallet.initialize()).toBe(true);
       expect(await wallet.isInitialized()).toBe(true);
@@ -295,7 +295,7 @@ describe("NativeHDWallet", () => {
       );
       const wallet = native.create({ deviceId: "native", masterKey: node });
       expect(await wallet.isInitialized()).toBe(false);
-      expect(await wallet.isLocked()).toBe(false);
+      expect(await wallet.isLocked()).toBe(true);
       await wallet.loadDevice({ masterKey: node });
       expect(await wallet.initialize()).toBe(true);
       expect(await wallet.isInitialized()).toBe(true);
@@ -311,7 +311,7 @@ describe("NativeHDWallet", () => {
       const node = await Node.create(fromB64ToArray(PRIVATE_KEY), fromB64ToArray(CHAIN_CODE), "m/44'/0'/0'");
       const wallet = native.create({ deviceId: "native", masterKey: node });
       expect(await wallet.isInitialized()).toBe(false);
-      expect(await wallet.isLocked()).toBe(false);
+      expect(await wallet.isLocked()).toBe(true);
       await wallet.loadDevice({ masterKey: node });
       expect(await wallet.initialize()).toBe(true);
       expect(await wallet.isInitialized()).toBe(true);
