@@ -322,7 +322,12 @@ export class Transport extends core.Transport {
         response.message.code === Types.FailureType.FAILURE_ACTIONCANCELLED
       ) {
         this.callInProgress = { main: undefined, debug: undefined };
-        throw new core.ActionCancelled();
+        if (response.message.message === "PINs do not match") {
+          response.message.code = Types.FailureType.FAILURE_PINMISMATCH;
+          throw response;
+        } else {
+          throw new core.ActionCancelled();
+        }
       }
       if (response.message_type === core.Events.FAILURE) throw response;
       return response;
