@@ -293,6 +293,47 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
     );
 
     test(
+      "ethSignTx() - ETH EIP-1559 AVAX",
+      async () => {
+        if (!wallet) {
+          return;
+        }
+
+        if (!(await wallet.ethSupportsEIP1559())) {
+          return;
+        }
+
+        // for some reason MNEMONIC12_NOPIN_NOPASSPHRASE will not produce sigs that match on native an kk
+        await wallet.wipe();
+        await wallet.loadDevice({
+          mnemonic: MNEMONIC_TEST,
+          label: "test",
+          skipChecksum: true,
+        });
+
+        const res = await wallet.ethSignTx({
+          addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+          nonce: "0x0",
+          gasLimit: "0x5ac3",
+          maxFeePerGas: "0x16854be509",
+          maxPriorityFeePerGas: "0x540ae480",
+          value: "0x1550f7dca70000", // 0.006 eth
+          to: "0xfc0cc6e85dff3d75e3985e0cb83b090cfd498dd1",
+          chainId: 43114,
+          data: "",
+        });
+        expect(res).toEqual({
+          r: "0x122269dc9cffc02962cdaa5af54913ac3e7293c3dd2a8ba7e38da2bc638f92df",
+          s: "0x36334d475fc12eb62681fb2cb10f177101d5cf4c3a735c94460d92bfa2389cc8",
+          v: 1,
+          serialized:
+            "0x02f872018084540ae4808516854be509825ac394fc0cc6e85dff3d75e3985e0cb83b090cfd498dd1871550f7dca7000080c001a0122269dc9cffc02962cdaa5af54913ac3e7293c3dd2a8ba7e38da2bc638f92dfa036334d475fc12eb62681fb2cb10f177101d5cf4c3a735c94460d92bfa2389cc8",
+        });
+      },
+      TIMEOUT
+    );
+
+    test(
       "ethSignTx() - long contract data",
       async () => {
         if (!wallet) return;
