@@ -323,11 +323,11 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
           data: "",
         });
         expect(res).toEqual({
-          r: "0x122269dc9cffc02962cdaa5af54913ac3e7293c3dd2a8ba7e38da2bc638f92df",
-          s: "0x36334d475fc12eb62681fb2cb10f177101d5cf4c3a735c94460d92bfa2389cc8",
+          r: "0x4fc6dc7e73572c000d502c980be09e1313d68f9f5f8d9295b06b99af673122b7",
+          s: "0x2173a8c216b926dd5aff5bfe0260148ee53d63b710e15431ffd5b148a5e52ffc",
           v: 1,
           serialized:
-            "0x02f872018084540ae4808516854be509825ac394fc0cc6e85dff3d75e3985e0cb83b090cfd498dd1871550f7dca7000080c001a0122269dc9cffc02962cdaa5af54913ac3e7293c3dd2a8ba7e38da2bc638f92dfa036334d475fc12eb62681fb2cb10f177101d5cf4c3a735c94460d92bfa2389cc8",
+            "0x02f87482a86a8084540ae4808516854be509825ac394fc0cc6e85dff3d75e3985e0cb83b090cfd498dd1871550f7dca7000080c001a04fc6dc7e73572c000d502c980be09e1313d68f9f5f8d9295b06b99af673122b7a02173a8c216b926dd5aff5bfe0260148ee53d63b710e15431ffd5b148a5e52ffc",
         });
       },
       TIMEOUT
