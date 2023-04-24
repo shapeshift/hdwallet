@@ -71,9 +71,9 @@ export function selfTest(get: () => core.HDWallet): void {
     expect(wallet.supportsBip44Accounts()).toEqual(false);
   });
 
-  it("does not support EIP1559", async () => {
+  it("supports EIP1559", async () => {
     if (!wallet) return;
-    expect(await wallet.ethSupportsEIP1559()).toEqual(false);
+    expect(await wallet.ethSupportsEIP1559()).toEqual(true);
   });
 
   it("does not support Secure Transfer", async () => {
