@@ -70,6 +70,12 @@ function prepareSignTx(
     const output: core.BTCSignTxOutput = o;
     const newOutput = new Types.TxOutputType();
     newOutput.setAmount(Number(output.amount));
+    //map to BCH address format
+    if (coin === "BitcoinCash") {
+      if (output.address && !output.address.startsWith("bitcoincash:")) {
+        output.address = "bitcoincash:" + output.address;
+      }
+    }
     if (output.isChange || output.addressType === core.BTCOutputAddressType.Transfer) {
       // BTCSignTxOutputTranfer ||  BTCSignTxOutputChange
       newOutput.setScriptType(translateOutputScriptType(output.scriptType));
