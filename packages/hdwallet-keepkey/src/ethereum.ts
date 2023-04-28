@@ -48,6 +48,15 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
     est.setAddressNList(msg.addressNList);
     est.setNonce(stripLeadingZeroes(core.arrayify(msg.nonce)));
     est.setGasLimit(core.arrayify(msg.gasLimit));
+    if(msg.maxFeePerGas && msg.chainId !== 1 && msg.chainId){
+      //force non eip1559 tx for non-eth txs
+      const maxFeePerGas = parseInt(msg.maxFeePerGas, 16);
+      const maxPriorityFeePerGas = parseInt(msg.maxPriorityFeePerGas || "0", 16);
+      msg.maxFeePerGas = undefined
+      msg.maxPriorityFeePerGas = undefined
+      // @ts-ignore (union mismatch on switchover)
+      msg.gasPrice = '0x' + (maxFeePerGas + maxPriorityFeePerGas).toString(16);
+    }
     if (msg.gasPrice) {
       est.setGasPrice(core.arrayify(msg.gasPrice));
     }
@@ -136,6 +145,7 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
     const tx = msg.maxFeePerGas
       ? FeeMarketEIP1559Transaction.fromTxData({
           ...utxBase,
+          chainId: msg.chainId,
           maxFeePerGas: msg.maxFeePerGas,
           maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
           r: r,
