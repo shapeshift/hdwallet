@@ -173,6 +173,7 @@ for (const coin of [
   "osmosis",
   "binance",
   "ethereum",
+  "arkeo",
 ])
   networks[coin] = networks.bitcoin;
 
