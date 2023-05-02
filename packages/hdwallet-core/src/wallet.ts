@@ -1,5 +1,6 @@
 import isObject from "lodash/isObject";
 
+import { ArkeoWallet, ArkeoWalletInfo } from "./arkeo";
 import { BinanceWallet, BinanceWalletInfo } from "./binance";
 import { BTCInputScriptType, BTCWallet, BTCWalletInfo } from "./bitcoin";
 import { CosmosWallet, CosmosWalletInfo } from "./cosmos";
@@ -153,6 +154,14 @@ export function supportsOsmosis(wallet: HDWallet): wallet is OsmosisWallet {
 
 export function infoOsmosis(info: HDWalletInfo): info is OsmosisWalletInfo {
   return isObject(info) && (info as any)._supportsOsmosisInfo;
+}
+
+export function supportsArkeo(wallet: HDWallet): wallet is ArkeoWallet {
+  return isObject(wallet) && (wallet as any)._supportsArkeo;
+}
+
+export function infoArkeo(info: HDWalletInfo): info is ArkeoWalletInfo {
+  return isObject(info) && (info as any)._supportsArkeoInfo;
 }
 
 export function supportsThorchain(wallet: HDWallet): wallet is ThorchainWallet {
