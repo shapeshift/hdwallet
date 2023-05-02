@@ -87,7 +87,7 @@ export class MetaMaskHDWalletInfo implements core.HDWalletInfo, core.ETHWalletIn
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {
-    return false;
+    return true;
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
@@ -106,6 +106,7 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsAvalanche = true;
   readonly _supportsOptimism = true;
   readonly _supportsBSC = true;
+  readonly _supportsPolygon = true;
   readonly _supportsOsmosisInfo = false;
   readonly _supportsOsmosis = false;
   readonly _supportsBinanceInfo = false;
@@ -329,7 +330,7 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {
-    return false;
+    return true;
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {

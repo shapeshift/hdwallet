@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+import * as metamask from "@shapeshiftoss/hdwallet-metamask";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 
@@ -163,6 +164,9 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
         if (!wallet) {
           return;
         }
+
+        // MetaMask *does* support EIP-1559, though not through offline signing
+        if (metamask.isMetaMask(wallet)) return;
 
         if (!(await wallet.ethSupportsEIP1559())) {
           return;
