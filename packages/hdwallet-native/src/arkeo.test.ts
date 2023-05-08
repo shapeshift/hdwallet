@@ -76,13 +76,13 @@ describe("NativeArkeoWallet", () => {
         signatures: [],
         memo: "foobar",
       },
-      chain_id: "arkeo-1",
+      chain_id: "arkeo-mainnet-1",
       account_number: "97721",
       sequence: "90",
     });
     await expect(signed?.signatures?.length).toBe(1);
     await expect(signed?.signatures?.[0]).toMatchInlineSnapshot(
-      `"KmIATzv4tqcsuqribKB2ZIU69OuTpNlSZUuFx2eWO0UZmzMUEBr2Jn7nYlG6fIUAOlTJ0O10g+KCRF+LK1Efmg=="`
+      `"nkq6+HHu7R2op3goq/UoyE6Ci4QyNFB8OFmNJRn0SSAHYKsl7J4AeItbuzZ+WapPhVdCbaAKlZoieQuAzHwW9A=="`
     );
   });
 });

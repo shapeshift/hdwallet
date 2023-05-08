@@ -9,7 +9,7 @@ import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
 
-const ARKEO_CHAIN = "arkeo-mainnet";
+const ARKEO_CHAIN = "arkeo-mainnet-1";
 
 const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
 

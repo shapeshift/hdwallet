@@ -1,7 +1,7 @@
 {
   "arkeoBondProviderTx": {
     "account_number": "97721",
-    "chain_id": "arkeo-1",
+    "chain_id": "arkeo-mainnet-1",
     "fee": {
       "amount": [
         {
@@ -27,7 +27,7 @@
   },
   "arkeoModProviderTx": {
     "account_number": "97721",
-    "chain_id": "arkeo-1",
+    "chain_id": "arkeo-mainnet-1",
     "fee": {
       "amount": [
         {
@@ -70,7 +70,7 @@
   },
   "arkeoOpenContractTx": {
     "account_number": "97721",
-    "chain_id": "arkeo-1",
+    "chain_id": "arkeo-mainnet-1",
     "fee": {
       "amount": [
         {
@@ -108,7 +108,7 @@
   },
   "arkeoCloseContractTx": {
     "account_number": "97721",
-    "chain_id": "arkeo-1",
+    "chain_id": "arkeo-mainnet-1",
     "fee": {
       "amount": [
         {
@@ -132,7 +132,7 @@
   },
   "arkeoClaimContractIncomeTx": {
     "account_number": "97721",
-    "chain_id": "arkeo-1",
+    "chain_id": "arkeo-mainnet-1",
     "fee": {
       "amount": [
         {
@@ -159,7 +159,7 @@
   },
   "arkeoClaimEthTx": {
     "account_number": "97721",
-    "chain_id": "arkeo-1",
+    "chain_id": "arkeo-mainnet-1",
     "fee": {
       "amount": [
         {
@@ -184,7 +184,7 @@
   },
   "arkeoClaimArkeoTx": {
     "account_number": "97721",
-    "chain_id": "arkeo-1",
+    "chain_id": "arkeo-mainnet-1",
     "fee": {
       "amount": [
         {
@@ -207,7 +207,7 @@
   },
   "arkeoTransferClaimTx": {
     "account_number": "97721",
-    "chain_id": "arkeo-1",
+    "chain_id": "arkeo-mainnet-1",
     "fee": {
       "amount": [
         {
@@ -231,7 +231,7 @@
   },
   "arkeoAddClaimTx": {
     "account_number": "97721",
-    "chain_id": "arkeo-1",
+    "chain_id": "arkeo-mainnet-1",
     "fee": {
       "amount": [
         {
