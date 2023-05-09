@@ -18,6 +18,17 @@ import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 import $ from "jquery";
 import Web3 from "web3";
 
+import {
+  arkeoAddClaimTx,
+  arkeoBondProviderTx,
+  arkeoClaimArkeoTx,
+  arkeoClaimContractIncomeTx,
+  arkeoClaimEthTx,
+  arkeoCloseContractTx,
+  arkeoModProviderTx,
+  arkeoOpenContractTx,
+  arkeoTransferClaimTx,
+} from "./json/arkeo/arkeoAminoTx.json";
 import * as bnbTxJson from "./json/bnbTx.json";
 import * as btcBech32TxJson from "./json/btcBech32Tx.json";
 import * as btcSegWitTxJson from "./json/btcSegWitTx.json";
@@ -1136,6 +1147,17 @@ const $thorchainLiquidityAmount = $("#thorchainLiquidityAmount");
 const $thorchainLiquidityPoolAddress = $("#thorchainLiquidityPoolAddress");
 const $thorchainAddLiquidityResults = $("#thorchainAddLiquidityResults");
 
+const $thorchainArkeoBondProvider = $("#thorchainArkeoBondProvider");
+const $thorchainArkeoModProvider = $("#thorchainArkeoModProvider");
+const $thorchainArkeoOpenContract = $("#thorchainArkeoOpenContract");
+const $thorchainArkeoCloseContract = $("#thorchainArkeoCloseContract");
+const $thorchainArkeoClaimContractIncome = $("#thorchainArkeoClaimContractIncome");
+const $thorchainArkeoClaimEth = $("#thorchainArkeoClaimEth");
+const $thorchainArkeoClaimArkeo = $("#thorchainArkeoClaimArkeo");
+const $thorchainArkeoTransferClaim = $("#thorchainArkeoTransferClaim");
+const $thorchainArkeoAddClaim = $("#thorchainArkeoAddClaim");
+const $thorchainArkeoResults = $("#thorchainArkeoResults");
+
 $thorchainAddr.on("click", async (e) => {
   e.preventDefault();
   if (!wallet) {
@@ -1506,6 +1528,195 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
   }
 });
 
+$thorchainArkeoBondProvider.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $thorchainNativeResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsThorchain(wallet)) {
+    const res = await wallet.thorchainSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/931'/0'/0/0`),
+      chain_id: "thorchain",
+      account_number: "24250",
+      sequence: "3",
+      tx: arkeoBondProviderTx,
+    });
+    $thorchainArkeoResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $thorchainArkeoResults.val(label + " does not support THORChain");
+  }
+});
+
+$thorchainArkeoModProvider.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $thorchainArkeoResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsThorchain(wallet)) {
+    const res = await wallet.thorchainSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/931'/0'/0/0`),
+      chain_id: "thorchain",
+      account_number: "24250",
+      sequence: "3",
+      tx: arkeoModProviderTx,
+    });
+    $thorchainArkeoResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $thorchainArkeoResults.val(label + " does not support THORChain");
+  }
+});
+
+$thorchainArkeoOpenContract.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $thorchainArkeoResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsThorchain(wallet)) {
+    const res = await wallet.thorchainSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/931'/0'/0/0`),
+      chain_id: "thorchain",
+      account_number: "24250",
+      sequence: "3",
+      tx: arkeoOpenContractTx,
+    });
+    $thorchainArkeoResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $thorchainArkeoResults.val(label + " does not support THORChain");
+  }
+});
+
+$thorchainArkeoCloseContract.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $thorchainArkeoResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsThorchain(wallet)) {
+    const res = await wallet.thorchainSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/931'/0'/0/0`),
+      chain_id: "thorchain",
+      account_number: "24250",
+      sequence: "3",
+      tx: arkeoCloseContractTx,
+    });
+    $thorchainArkeoResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $thorchainArkeoResults.val(label + " does not support THORChain");
+  }
+});
+
+$thorchainArkeoClaimContractIncome.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $thorchainArkeoResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsThorchain(wallet)) {
+    const res = await wallet.thorchainSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/931'/0'/0/0`),
+      chain_id: "thorchain",
+      account_number: "24250",
+      sequence: "3",
+      tx: arkeoClaimContractIncomeTx,
+    });
+    $thorchainArkeoResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $thorchainArkeoResults.val(label + " does not support THORChain");
+  }
+});
+
+$thorchainArkeoClaimEth.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $thorchainArkeoResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsThorchain(wallet)) {
+    const res = await wallet.thorchainSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/931'/0'/0/0`),
+      chain_id: "thorchain",
+      account_number: "24250",
+      sequence: "3",
+      tx: arkeoClaimEthTx,
+    });
+    $thorchainArkeoResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $thorchainArkeoResults.val(label + " does not support THORChain");
+  }
+});
+
+$thorchainArkeoClaimArkeo.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $thorchainArkeoResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsThorchain(wallet)) {
+    const res = await wallet.thorchainSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/931'/0'/0/0`),
+      chain_id: "thorchain",
+      account_number: "24250",
+      sequence: "3",
+      tx: arkeoClaimArkeoTx,
+    });
+    $thorchainArkeoResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $thorchainArkeoResults.val(label + " does not support THORChain");
+  }
+});
+
+$thorchainArkeoTransferClaim.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $thorchainArkeoResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsThorchain(wallet)) {
+    const res = await wallet.thorchainSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/931'/0'/0/0`),
+      chain_id: "thorchain",
+      account_number: "24250",
+      sequence: "3",
+      tx: arkeoTransferClaimTx,
+    });
+    $thorchainArkeoResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $thorchainArkeoResults.val(label + " does not support THORChain");
+  }
+});
+
+$thorchainArkeoAddClaim.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $thorchainArkeoResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsThorchain(wallet)) {
+    const res = await wallet.thorchainSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/931'/0'/0/0`),
+      chain_id: "thorchain",
+      account_number: "24250",
+      sequence: "3",
+      tx: arkeoAddClaimTx,
+    });
+    $thorchainArkeoResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $thorchainArkeoResults.val(label + " does not support THORChain");
+  }
+});
+
 /*
  * Osmosis
  */
@@ -1634,6 +1845,367 @@ $osmosisRedelegate.on("click", async (e) => {
   } else {
     const label = await wallet.getLabel();
     $osmosisResults.val(label + " does not support Osmosis");
+  }
+});
+
+$osmosisRewards.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $osmosisResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsOsmosis(wallet)) {
+    const unsigned: core.Osmosis.StdTx = osmosisRewardsTx;
+
+    const res = await wallet.osmosisSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
+      tx: unsigned,
+    });
+    $osmosisResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $osmosisResults.val(label + " does not support Osmosis");
+  }
+});
+
+$osmosisLPAdd.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $osmosisResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsOsmosis(wallet)) {
+    const unsigned: core.Osmosis.StdTx = osmosisLPAddTx;
+
+    const res = await wallet.osmosisSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
+      tx: unsigned,
+    });
+    $osmosisResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $osmosisResults.val(label + " does not support Osmosis");
+  }
+});
+
+$osmosisLPRemove.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $osmosisResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsOsmosis(wallet)) {
+    const unsigned: core.Osmosis.StdTx = osmosisLPRemoveTx;
+
+    const res = await wallet.osmosisSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
+      tx: unsigned,
+    });
+    $osmosisResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $osmosisResults.val(label + " does not support Osmosis");
+  }
+});
+
+$osmosisIBCTransfer.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $osmosisResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsOsmosis(wallet)) {
+    const unsigned: core.Osmosis.StdTx = osmosisIBCTransferTx;
+
+    const res = await wallet.osmosisSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
+      tx: unsigned,
+    });
+    $osmosisResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $osmosisResults.val(label + " does not support Osmosis");
+  }
+});
+
+$osmosisSwap.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $osmosisResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsOsmosis(wallet)) {
+    const unsigned: core.Osmosis.StdTx = osmosisSwapTx;
+
+    const res = await wallet.osmosisSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
+      tx: unsigned,
+    });
+    $osmosisResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $osmosisResults.val(label + " does not support Osmosis");
+  }
+});
+
+/*
+ * Arkeo
+ */
+const $arkeoGetAddress = $("#arkeoGetAddress");
+const $arkeoBondProvider = $("#arkeoBondProvider");
+const $arkeoModProvider = $("#arkeoModProvider");
+const $arkeoOpenContract = $("#arkeoOpenContract");
+const $arkeoCloseContract = $("#arkeoCloseContract");
+const $arkeoClaimContractIncome = $("#arkeoClaimContractIncome");
+const $arkeoClaimETH = $("#arkeoClaimETH");
+const $arkeoClaimArkeo = $("#arkeoClaimArkeo");
+const $arkeoTransferClaim = $("#arkeoTransferClaim");
+const $arkeoAddClaim = $("#arkeoAddClaim");
+
+const $arkeoResults = $("#arkeoResults");
+
+$arkeoGetAddress.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $arkeoResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsArkeo(wallet)) {
+    const { addressNList } = wallet.arkeoGetAccountPaths({ accountIdx: 0 })[0];
+    const result = await wallet.arkeoGetAddress({
+      addressNList,
+      showDisplay: false,
+    });
+    await wallet.arkeoGetAddress({
+      addressNList,
+      showDisplay: true,
+    });
+    $arkeoResults.val(result);
+  } else {
+    const label = await wallet.getLabel();
+    $arkeoResults.val(label + " does not support Arkeo");
+  }
+});
+
+$arkeoBondProvider.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $arkeoResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsArkeo(wallet)) {
+    const unsigned: core.Arkeo.StdTx = arkeoBondProviderTx;
+
+    const res = await wallet.arkeoSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
+      tx: unsigned,
+    });
+    $arkeoResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $arkeoResults.val(label + " does not support Arkeo");
+  }
+});
+
+$arkeoModProvider.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $arkeoResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsArkeo(wallet)) {
+    const unsigned: core.Arkeo.StdTx = arkeoModProviderTx;
+
+    const res = await wallet.arkeoSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
+      tx: unsigned,
+    });
+    $arkeoResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $arkeoResults.val(label + " does not support Arkeo");
+  }
+});
+
+$arkeoOpenContract.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $arkeoResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsArkeo(wallet)) {
+    const unsigned: core.Arkeo.StdTx = arkeoOpenContractTx;
+
+    const res = await wallet.arkeoSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
+      tx: unsigned,
+    });
+    $arkeoResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $arkeoResults.val(label + " does not support Arkeo");
+  }
+});
+
+$arkeoCloseContract.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $arkeoResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsArkeo(wallet)) {
+    const unsigned: core.Arkeo.StdTx = arkeoCloseContractTx;
+
+    const res = await wallet.arkeoSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
+      tx: unsigned,
+    });
+    $arkeoResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $arkeoResults.val(label + " does not support Arkeo");
+  }
+});
+
+$arkeoClaimContractIncome.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $arkeoResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsArkeo(wallet)) {
+    const unsigned: core.Arkeo.StdTx = arkeoClaimContractIncomeTx;
+
+    const res = await wallet.arkeoSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
+      tx: unsigned,
+    });
+    $arkeoResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $arkeoResults.val(label + " does not support Arkeo");
+  }
+});
+
+$arkeoClaimETH.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $arkeoResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsArkeo(wallet)) {
+    const unsigned: core.Arkeo.StdTx = arkeoClaimEthTx;
+
+    const res = await wallet.arkeoSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
+      tx: unsigned,
+    });
+    $arkeoResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $arkeoResults.val(label + " does not support Arkeo");
+  }
+});
+
+$arkeoClaimArkeo.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $arkeoResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsArkeo(wallet)) {
+    const unsigned: core.Arkeo.StdTx = arkeoClaimArkeoTx;
+
+    const res = await wallet.arkeoSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
+      tx: unsigned,
+    });
+    $arkeoResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $arkeoResults.val(label + " does not support Arkeo");
+  }
+});
+
+$arkeoTransferClaim.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $arkeoResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsArkeo(wallet)) {
+    const unsigned: core.Arkeo.StdTx = arkeoTransferClaimTx;
+
+    const res = await wallet.arkeoSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
+      tx: unsigned,
+    });
+    $arkeoResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $arkeoResults.val(label + " does not support Arkeo");
+  }
+});
+
+$arkeoAddClaim.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $arkeoResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsArkeo(wallet)) {
+    const unsigned: core.Arkeo.StdTx = arkeoAddClaimTx;
+
+    const res = await wallet.arkeoSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
+      chain_id: unsigned.chain_id,
+      account_number: unsigned.account_number,
+      sequence: unsigned.sequence,
+      tx: unsigned,
+    });
+    $arkeoResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $arkeoResults.val(label + " does not support Arkeo");
   }
 });
 

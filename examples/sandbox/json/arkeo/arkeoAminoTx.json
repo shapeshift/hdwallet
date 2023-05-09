@@ -1,0 +1,258 @@
+{
+  "arkeoBondProviderTx": {
+    "account_number": "97721",
+    "chain_id": "arkeo-mainnet-1",
+    "fee": {
+      "amount": [
+        {
+          "amount": "2291",
+          "denom": "uarkeo"
+        }
+      ],
+      "gas": "91633"
+    },
+    "memo": "memo",
+    "msg": [
+      {
+        "type": "arkeo/BondProvider",
+        "value": {
+          "creator": "arkeo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7r7z5sh",
+          "provider": "arkeo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7r7z5sh",
+          "service": "test-service-string",
+          "bond": "10000"
+        }
+      }
+    ],
+    "sequence": "90"
+  },
+  "arkeoModProviderTx": {
+    "account_number": "97721",
+    "chain_id": "arkeo-mainnet-1",
+    "fee": {
+      "amount": [
+        {
+          "amount": "2291",
+          "denom": "uarkeo"
+        }
+      ],
+      "gas": "91633"
+    },
+    "memo": "memo",
+    "msg": [
+      {
+        "type": "arkeo/ModProvider",
+        "value": {
+          "creator": "arkeo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7r7z5sh",
+          "provider": "arkeo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7r7z5sh",
+          "service": "test-service-string",
+          "metadata_uri": "https://www.example.com",
+          "metadata_nonce": 69,
+          "status": 0,
+          "min_contract_duration": 420,
+          "max_contract_duration": 420,
+          "subscription_rate": [
+            {
+              "amount": "1200",
+              "denom": "uarkeo"
+            }
+          ],
+          "pay_as_you_go_rate": [
+            {
+              "amount": "1542",
+              "denom": "uarkeo"
+            }
+          ],
+          "settlement_duration": 94
+        }
+      }
+    ],
+    "sequence": "90"
+  },
+  "arkeoOpenContractTx": {
+    "account_number": "97721",
+    "chain_id": "arkeo-mainnet-1",
+    "fee": {
+      "amount": [
+        {
+          "amount": "2291",
+          "denom": "uarkeo"
+        }
+      ],
+      "gas": "91633"
+    },
+    "memo": "memo",
+    "msg": [
+      {
+        "type": "arkeo/OpenContract",
+        "value": {
+          "creator": "arkeo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7r7z5sh",
+          "provider": "arkeo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7r7z5sh",
+          "service": "test-service-string",
+          "client": "arkeo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7r7z5sh",
+          "delegate": "arkeo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7r7z5sh",
+          "contract_type": 0,
+          "duration": 0,
+          "rate": [
+            {
+              "amount": "354",
+              "denom": "uarkeo"
+            }
+          ],
+          "deposit": "1000",
+          "settlement_duration": 94,
+          "authorization": 0
+        }
+      }
+    ],
+    "sequence": "90"
+  },
+  "arkeoCloseContractTx": {
+    "account_number": "97721",
+    "chain_id": "arkeo-mainnet-1",
+    "fee": {
+      "amount": [
+        {
+          "amount": "2291",
+          "denom": "uarkeo"
+        }
+      ],
+      "gas": "91633"
+    },
+    "memo": "memo",
+    "msg": [
+      {
+        "type": "arkeo/CloseContract",
+        "value": {
+          "creator": "arkeo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7r7z5sh",
+          "contract_id": 82
+        }
+      }
+    ],
+    "sequence": "90"
+  },
+  "arkeoClaimContractIncomeTx": {
+    "account_number": "97721",
+    "chain_id": "arkeo-mainnet-1",
+    "fee": {
+      "amount": [
+        {
+          "amount": "2291",
+          "denom": "uarkeo"
+        }
+      ],
+      "gas": "91633"
+    },
+    "memo": "memo",
+    "msg": [
+      {
+        "type": "arkeo/ClaimContractIncome",
+        "value": {
+          "creator": "arkeo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7r7z5sh",
+          "contract_id": 28,
+          "spender": "arkeovaloper1q4mlwtw3ncve72na65xacck557wcknc8j0lmke",
+          "signature": "qCgcA/DWCU04nmbvPyXNRx6yUGVzIgY8deDoenNmEcVKfakIzdKJmBLGKEEJEsS676aN6c6DzXfOKIS+YGYR8g==",
+          "nonce": 48
+        }
+      }
+    ],
+    "sequence": "90"
+  },
+  "arkeoClaimEthTx": {
+    "account_number": "97721",
+    "chain_id": "arkeo-mainnet-1",
+    "fee": {
+      "amount": [
+        {
+          "amount": "2291",
+          "denom": "uarkeo"
+        }
+      ],
+      "gas": "91633"
+    },
+    "memo": "memo",
+    "msg": [
+      {
+        "type": "claim/ClaimEth",
+        "value": {
+          "creator": "arkeo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7r7z5sh",
+          "eth_address": "0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5",
+          "signature": "qCgcA/DWCU04nmbvPyXNRx6yUGVzIgY8deDoenNmEcVKfakIzdKJmBLGKEEJEsS676aN6c6DzXfOKIS+YGYR8g=="
+        }
+      }
+    ],
+    "sequence": "90"
+  },
+  "arkeoClaimArkeoTx": {
+    "account_number": "97721",
+    "chain_id": "arkeo-mainnet-1",
+    "fee": {
+      "amount": [
+        {
+          "amount": "2291",
+          "denom": "uarkeo"
+        }
+      ],
+      "gas": "91633"
+    },
+    "memo": "memo",
+    "msg": [
+      {
+        "type": "claim/ClaimArkeo",
+        "value": {
+          "creator": "arkeo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7r7z5sh"
+        }
+      }
+    ],
+    "sequence": "90"
+  },
+  "arkeoTransferClaimTx": {
+    "account_number": "97721",
+    "chain_id": "arkeo-mainnet-1",
+    "fee": {
+      "amount": [
+        {
+          "amount": "2291",
+          "denom": "uarkeo"
+        }
+      ],
+      "gas": "91633"
+    },
+    "memo": "memo",
+    "msg": [
+      {
+        "type": "claim/TransferClaim",
+        "value": {
+          "creator": "arkeo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7r7z5sh",
+          "to_address": "arkeo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7r7z5sh"
+        }
+      }
+    ],
+    "sequence": "90"
+  },
+  "arkeoAddClaimTx": {
+    "account_number": "97721",
+    "chain_id": "arkeo-mainnet-1",
+    "fee": {
+      "amount": [
+        {
+          "amount": "2291",
+          "denom": "uarkeo"
+        }
+      ],
+      "gas": "91633"
+    },
+    "memo": "memo",
+    "msg": [
+      {
+        "type": "claim/AddClaim",
+        "value": {
+          "creator": "arkeo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7r7z5sh",
+          "chain": 0,
+          "address": "arkeo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7r7z5sh",
+          "amount": 21827
+        }
+      }
+    ],
+    "sequence": "90"
+  }
+}
