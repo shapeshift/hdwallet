@@ -300,6 +300,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   readonly _supportsOptimism = false;
   readonly _supportsBSC = false;
   readonly _supportsPolygon = false;
+  readonly _supportsGnosis = false;
 
   _isLedger = true;
 
