@@ -15,7 +15,7 @@
     "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "1.50.1",
     "@shapeshiftoss/hdwallet-keepkey-tcp": "1.50.1",
     "@shapeshiftoss/hdwallet-ledger": "1.50.1",
-    "@shapeshiftoss/hdwallet-native": "1.50.1-alpha.0",
+    "@shapeshiftoss/hdwallet-native": "1.50.1",
     "@shapeshiftoss/hdwallet-portis": "1.50.1",
     "@shapeshiftoss/hdwallet-trezor": "1.50.1",
     "@shapeshiftoss/hdwallet-xdefi": "1.50.1",
