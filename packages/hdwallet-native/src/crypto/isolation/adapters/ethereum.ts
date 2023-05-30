@@ -71,11 +71,17 @@ export class SignerAdapter {
   async signMessage(messageData: ethers.Bytes | string, addressNList: core.BIP32Path): Promise<string> {
     const messageDataBuf = (() => {
       if (messageData === "string") {
-        if (ethers.utils.isHexString(messageData)) return Buffer.from(messageData.normalize("NFKD"), "utf8");
+        if (ethers.utils.isHexString(messageData)) {
+          console.log("signMessage (hex)", messageData);
+          return Buffer.from(messageData.normalize("NFKD"), "utf8");
+        }
+        console.log("signMessage (string)", messageData);
         return Buffer.from(messageData);
       }
+      console.log("signMessage (bytes)", messageData);
       return Buffer.from(ethers.utils.arrayify(messageData));
     })();
+    console.log({ messageDataBuf });
     const messageBuf = core.compatibleBufferConcat([
       Buffer.from(`\x19Ethereum Signed Message:\n${messageDataBuf.length}`, "utf8"),
       messageDataBuf,
