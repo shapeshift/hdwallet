@@ -1,7 +1,5 @@
-import { concat } from "@ethersproject/bytes";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ethers from "ethers";
-import { TextEncoder } from "web-encoding";
 
 import * as native from "./native";
 
