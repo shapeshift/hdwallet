@@ -136,6 +136,8 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
         };
       }
 
+      console.log(`signing with ethSigner`);
+
       return this.needsMnemonic(!!this.#ethSigner, async () => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const result = await this.#ethSigner!.signMessage(msg.message, msg.addressNList);
