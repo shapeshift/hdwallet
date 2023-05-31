@@ -243,18 +243,12 @@ export class NativeHDWallet
   #deviceId: string;
   #initialized = false;
   #masterKey: Promise<Isolation.Core.BIP32.Node> | undefined = undefined;
-  #mnemonic?: string;
 
   constructor({ mnemonic, deviceId, masterKey }: NativeAdapterArgs) {
     super();
     if (masterKey) {
       this.#masterKey = Promise.resolve(masterKey);
     } else if (mnemonic) {
-      // store mnemonic as private field for signing messages with ethers wallet
-      if (typeof mnemonic === "string") {
-        this.#mnemonic = mnemonic;
-      }
-
       this.#masterKey = (async () => {
         const isolatedMnemonic =
           typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
@@ -327,7 +321,7 @@ export class NativeHDWallet
       try {
         await Promise.all([
           super.btcInitializeWallet(masterKey),
-          super.ethInitializeWallet(masterKey, this.#mnemonic),
+          super.ethInitializeWallet(masterKey),
           super.cosmosInitializeWallet(masterKey),
           super.osmosisInitializeWallet(masterKey),
           super.binanceInitializeWallet(masterKey),
@@ -404,8 +398,6 @@ export class NativeHDWallet
           const isolatedMnemonic = await (async () => {
             if (isMnemonicInterface(mnemonic)) return mnemonic;
             if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
-              // store mnemonic as private field for signing messages with ethers wallet
-              this.#mnemonic = mnemonic;
               return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
             }
             throw new Error("Required property [mnemonic] is invalid");

@@ -4,6 +4,7 @@ import * as ethers from "ethers";
 import * as Isolation from "./crypto/isolation";
 import SignerAdapter from "./crypto/isolation/adapters/ethereum";
 import { NativeHDWalletBase } from "./native";
+import { hashMessage } from "./util";
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -55,13 +56,11 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     readonly _supportsETH = true;
 
     #ethSigner: SignerAdapter | undefined;
-    #mnemonic?: string;
 
-    async ethInitializeWallet(masterKey: Isolation.Core.BIP32.Node, mnemonic?: string): Promise<void> {
+    async ethInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
       const nodeAdapter = await Isolation.Adapters.BIP32.create(masterKey);
 
       this.#ethSigner = new SignerAdapter(nodeAdapter);
-      this.#mnemonic = mnemonic;
     }
 
     ethWipe() {
@@ -123,21 +122,6 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     }
 
     async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
-      // ethers wallet signing workaround
-      // handles utf8 and hex encoded strings properly, which ethSigner does not at this time
-      // remove once ethSigner is fixed...
-      if (this.#mnemonic) {
-        console.log(`signing with ethers wallet at path: ${core.addressNListToBIP32(msg.addressNList)}`);
-        const wallet = ethers.Wallet.fromMnemonic(this.#mnemonic, core.addressNListToBIP32(msg.addressNList));
-        const signature = await wallet.signMessage(msg.message);
-        return {
-          address: await wallet.getAddress(),
-          signature,
-        };
-      }
-
-      console.log(`signing with ethSigner`);
-
       return this.needsMnemonic(!!this.#ethSigner, async () => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const result = await this.#ethSigner!.signMessage(msg.message, msg.addressNList);
@@ -156,10 +140,10 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
       });
     }
 
-    async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
-      if (!msg.signature.startsWith("0x")) msg.signature = `0x${msg.signature}`;
-      const signingAddress = ethers.utils.verifyMessage(msg.message, msg.signature);
-      return signingAddress === msg.address;
+    async ethVerifyMessage({ address, message, signature }: core.ETHVerifyMessage): Promise<boolean> {
+      if (!signature.startsWith("0x")) signature = `0x${signature}`;
+      const digest = hashMessage(message);
+      return ethers.utils.recoverAddress(ethers.utils.keccak256(digest), signature) === address;
     }
   };
 }
