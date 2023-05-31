@@ -56,11 +56,13 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     readonly _supportsETH = true;
 
     #ethSigner: SignerAdapter | undefined;
+    #mnemonic?: string;
 
-    async ethInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
+    async ethInitializeWallet(masterKey: Isolation.Core.BIP32.Node, mnemonic?: string): Promise<void> {
       const nodeAdapter = await Isolation.Adapters.BIP32.create(masterKey);
 
       this.#ethSigner = new SignerAdapter(nodeAdapter);
+      this.#mnemonic = mnemonic;
     }
 
     ethWipe() {
@@ -122,6 +124,18 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     }
 
     async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
+      // ethers wallet signing workaround
+      // handles utf8 and hex encoded strings properly, which ethSigner does not at this time
+      // remove once ethSigner is fixed...
+      if (this.#mnemonic) {
+        const wallet = ethers.Wallet.fromMnemonic(this.#mnemonic, core.addressNListToBIP32(msg.addressNList));
+        const signature = await wallet.signMessage(msg.message);
+        return {
+          address: await wallet.getAddress(),
+          signature,
+        };
+      }
+
       return this.needsMnemonic(!!this.#ethSigner, async () => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const result = await this.#ethSigner!.signMessage(msg.message, msg.addressNList);
