@@ -4,7 +4,6 @@ import * as ethers from "ethers";
 import * as Isolation from "./crypto/isolation";
 import SignerAdapter from "./crypto/isolation/adapters/ethereum";
 import { NativeHDWalletBase } from "./native";
-// import { addressNListToBIP32 } from "./utils";
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -128,6 +127,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
       // handles utf8 and hex encoded strings properly, which ethSigner does not at this time
       // remove once ethSigner is fixed...
       if (this.#mnemonic) {
+        console.log(`signing with ethers wallet at path: ${core.addressNListToBIP32(msg.addressNList)}`);
         const wallet = ethers.Wallet.fromMnemonic(this.#mnemonic, core.addressNListToBIP32(msg.addressNList));
         const signature = await wallet.signMessage(msg.message);
         return {
