@@ -2,7 +2,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { getMessage, TypedData } from "eip-712";
 import * as ethers from "ethers";
 
-import { hashMessage } from "../../../util";
+import { buildMessage } from "../../../util";
 import { Isolation } from "../..";
 import { SecP256K1 } from "../core";
 
@@ -70,9 +70,9 @@ export class SignerAdapter {
   }
 
   async signMessage(messageData: ethers.BytesLike, addressNList: core.BIP32Path): Promise<string> {
-    const digest = hashMessage(messageData);
+    const messageBuf = buildMessage(messageData);
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
-    const rawSig = await SecP256K1.RecoverableSignature.signCanonically(nodeAdapter.node, "keccak256", digest);
+    const rawSig = await SecP256K1.RecoverableSignature.signCanonically(nodeAdapter.node, "keccak256", messageBuf);
     return ethers.utils.joinSignature(ethSigFromRecoverableSig(rawSig));
   }
 

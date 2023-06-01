@@ -17,7 +17,7 @@ export async function getKeyPair(
   return await wallet.derivePath(path);
 }
 
-export function hashMessage(message: ethers.utils.BytesLike): Uint8Array {
+export function buildMessage(message: ethers.utils.BytesLike): Uint8Array {
   const messageBytes = (() => {
     if (typeof message === "string") {
       if (ethers.utils.isHexString(message)) return ethers.utils.arrayify(message);
