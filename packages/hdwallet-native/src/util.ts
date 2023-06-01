@@ -18,13 +18,10 @@ export async function getKeyPair(
 }
 
 export function buildMessage(message: ethers.utils.BytesLike): Uint8Array {
-  const messageBytes = (() => {
-    if (typeof message === "string") {
-      if (ethers.utils.isHexString(message)) return ethers.utils.arrayify(message);
-      return ethers.utils.toUtf8Bytes(message);
-    }
-    return message;
-  })();
+  const messageBytes =
+    typeof message === "string" && !ethers.utils.isHexString(message)
+      ? ethers.utils.toUtf8Bytes(message)
+      : ethers.utils.arrayify(message);
 
   return ethers.utils.concat([
     ethers.utils.toUtf8Bytes("\x19Ethereum Signed Message:\n"),

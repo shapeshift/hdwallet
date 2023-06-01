@@ -172,9 +172,14 @@ export async function ethGetAddress(transport: Transport, msg: core.ETHGetAddres
 }
 
 export async function ethSignMessage(transport: Transport, msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
+  const { addressNList, message } = msg;
   const m = new Ethereum.EthereumSignMessage();
-  m.setAddressNList(msg.addressNList);
-  m.setMessage(ethers.utils.isBytes(msg.message) ? ethers.utils.arrayify(msg.message) : toUTF8Array(msg.message));
+  m.setAddressNList(addressNList);
+  const messageBytes =
+    typeof message === "string" && !ethers.utils.isHexString(message)
+      ? ethers.utils.toUtf8Bytes(message)
+      : ethers.utils.arrayify(message);
+  m.setMessage(messageBytes);
   const response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNMESSAGE, m, {
     msgTimeout: core.LONG_TIMEOUT,
   });
