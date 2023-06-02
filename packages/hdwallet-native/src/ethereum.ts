@@ -4,7 +4,7 @@ import * as ethers from "ethers";
 import * as Isolation from "./crypto/isolation";
 import SignerAdapter from "./crypto/isolation/adapters/ethereum";
 import { NativeHDWalletBase } from "./native";
-// import { addressNListToBIP32 } from "./utils";
+import { buildMessage } from "./util";
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -140,10 +140,10 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
       });
     }
 
-    async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
-      if (!msg.signature.startsWith("0x")) msg.signature = `0x${msg.signature}`;
-      const signingAddress = ethers.utils.verifyMessage(msg.message, msg.signature);
-      return signingAddress === msg.address;
+    async ethVerifyMessage({ address, message, signature }: core.ETHVerifyMessage): Promise<boolean> {
+      if (!signature.startsWith("0x")) signature = `0x${signature}`;
+      const digest = ethers.utils.keccak256(buildMessage(message));
+      return ethers.utils.recoverAddress(digest, signature) === address;
     }
   };
 }

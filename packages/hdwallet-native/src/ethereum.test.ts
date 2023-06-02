@@ -1,7 +1,5 @@
-import { concat } from "@ethersproject/bytes";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ethers from "ethers";
-import { TextEncoder } from "web-encoding";
 
 import * as native from "./native";
 
@@ -173,118 +171,106 @@ describe("NativeETHWallet", () => {
     expect(ethers.utils.parseTransaction(sig!.serialized).from).toEqual("0x73d0385F4d8E00C5e6504C6030F47BF6212736A8");
   });
 
-  it("should sign a message correctly", async () => {
-    const msg = "super secret message";
-    const sig = await wallet.ethSignMessage({
-      addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-      message: msg,
-    });
-    // This is the output from tiny-secp256k1.
-    expect(sig).toMatchInlineSnapshot(`
-      Object {
-        "address": "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
-        "signature": "0x05f51140905ffa33ffdc57f46b0b8d8fbb1d2a99f8cd843ca27893c01c31351c08b76d83dce412731c846e3b50649724415deb522d00950fbf4f2c1459c2b70b1b",
-      }
-    `);
-    // This is the output of the native library's own signing function.
-    /*expect(sig).toMatchInlineSnapshot(`
-      Object {
-        "address": "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
-        "signature": "0xd67ad52016d6fbc19fb9db81f32dd22cb67570b93b1c0e64ae30a4c2bc0b9c265c2d0f86906610d0cecac42ab90ee298a3474a5eb6d895aa7279d344f32aab191b",
-      }
-    `);*/
-    expect(
-      ethers.utils.computeAddress(
-        ethers.utils.recoverPublicKey(
-          ethers.utils.keccak256(new TextEncoder().encode(`\x19Ethereum Signed Message:\n${msg.length}${msg}`)),
-          ethers.utils.splitSignature(sig!.signature)
-        )
-      )
-    ).toEqual(sig!.address);
-  });
-
-  it("should sign a bytes message correctly", async () => {
-    const msg: ethers.Bytes = ethers.utils.arrayify(
-      "0xcf8746d5aa75ecfd907eb3cae0aecf7f698a8bfe1f97eb2d77d6539e8991b0ea"
-    );
-    const sig = await wallet.ethSignMessage({
-      addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-      message: msg,
-    });
-
-    expect(sig).toMatchInlineSnapshot(`
-      Object {
-        "address": "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
-        "signature": "0x3509a531d2e47f2b6a796d69b91568ad9ad2276f4d17399660192ef8cd6580db70dc16b6941f5ba97be926f3717a71c001778da68f9c9771375beb3f3aaa8eb31b",
-      }
-    `);
-    expect(
-      ethers.utils.computeAddress(
-        ethers.utils.recoverPublicKey(
-          ethers.utils.keccak256(
-            concat([new TextEncoder().encode(`\x19Ethereum Signed Message:\n${msg.length}`), msg])
-          ),
-          ethers.utils.splitSignature(sig!.signature)
-        )
-      )
-    ).toEqual(sig!.address);
-  });
-
-  it("should verify a correctly signed message", async () => {
-    expect(
-      await wallet.ethVerifyMessage({
+  describe("sign and verify message", () => {
+    it("should handle a utf8 message", async () => {
+      const message = "super secret message";
+      const result = await wallet.ethSignMessage({
+        addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+        message,
+      });
+      if (!result) throw new Error("failed to sign message");
+      expect(result).toEqual({
         address: "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
-        message: "super secret message",
         signature:
-          "0xd67ad52016d6fbc19fb9db81f32dd22cb67570b93b1c0e64ae30a4c2bc0b9c265c2d0f86906610d0cecac42ab90ee298a3474a5eb6d895aa7279d344f32aab191b",
-      })
-    ).toBe(true);
-  });
+          "0x05f51140905ffa33ffdc57f46b0b8d8fbb1d2a99f8cd843ca27893c01c31351c08b76d83dce412731c846e3b50649724415deb522d00950fbf4f2c1459c2b70b1b",
+      });
+      const { address, signature } = result;
+      const valid = await wallet.ethVerifyMessage({ address, message, signature });
+      expect(valid).toEqual(true);
+    });
 
-  it("should verify a correctly signed bytes message", async () => {
-    const msg: ethers.Bytes = ethers.utils.arrayify(
-      "0xcf8746d5aa75ecfd907eb3cae0aecf7f698a8bfe1f97eb2d77d6539e8991b0ea"
-    );
-    expect(
-      await wallet.ethVerifyMessage({
+    it("should handle a hex encoded utf8 message", async () => {
+      const message = "0x737570657220736563726574206d657373616765";
+      const result = await wallet.ethSignMessage({
+        addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+        message,
+      });
+      if (!result) throw new Error("failed to sign message");
+      expect(result).toEqual({
         address: "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
-        message: msg,
+        signature:
+          "0x05f51140905ffa33ffdc57f46b0b8d8fbb1d2a99f8cd843ca27893c01c31351c08b76d83dce412731c846e3b50649724415deb522d00950fbf4f2c1459c2b70b1b",
+      });
+      const { address, signature } = result;
+      const valid = await wallet.ethVerifyMessage({ address, message, signature });
+      expect(valid).toEqual(true);
+    });
+
+    it("should handle a keccak256 encoded message", async () => {
+      const message = "0x55d6a11839e2105c96a87f358961004575bae1fe5acd80e26a5eb7e361b20903";
+      const result = await wallet.ethSignMessage({
+        addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+        message,
+      });
+      if (!result) throw new Error("failed to sign message");
+      expect(result).toEqual({
+        address: "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
+        signature:
+          "0x4b4d22773b4a761a2f4cbafb3054830dd1ebaffdc166b4736cf98f1d3dbb0abe31590d32797f55a9b9e77bc46b262dde59eca27c866ad9bb4d83f488d8f208b61c",
+      });
+      const { address, signature } = result;
+      const valid = await wallet.ethVerifyMessage({ address, message, signature });
+      expect(valid).toEqual(true);
+    });
+
+    it("should handle a byte message", async () => {
+      const message = ethers.utils.arrayify("0xcf8746d5aa75ecfd907eb3cae0aecf7f698a8bfe1f97eb2d77d6539e8991b0ea");
+      const result = await wallet.ethSignMessage({
+        addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+        message,
+      });
+      if (!result) throw new Error("failed to sign message");
+      expect(result).toEqual({
+        address: "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
         signature:
           "0x3509a531d2e47f2b6a796d69b91568ad9ad2276f4d17399660192ef8cd6580db70dc16b6941f5ba97be926f3717a71c001778da68f9c9771375beb3f3aaa8eb31b",
-      })
-    ).toBe(true);
-  });
+      });
+      const { address, signature } = result;
+      const valid = await wallet.ethVerifyMessage({ address, message, signature });
+      expect(valid).toEqual(true);
+    });
 
-  it("should verify a differently, but still correctly, signed message", async () => {
-    expect(
-      await wallet.ethVerifyMessage({
-        address: "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
-        message: "super secret message",
-        signature:
-          "0x72d4baca0c1ca0eea587decb0177ded99fb50f62c4bd24d8595000d70e6383833eb0700fb6c96086154c2607b735ee1047ed4060211b32a52b43d827615b3e691c",
-      })
-    ).toBe(true);
-  });
+    it("should pass verification of a message signed with a different format", async () => {
+      expect(
+        await wallet.ethVerifyMessage({
+          address: "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
+          message: "super secret message",
+          signature:
+            "0x72d4baca0c1ca0eea587decb0177ded99fb50f62c4bd24d8595000d70e6383833eb0700fb6c96086154c2607b735ee1047ed4060211b32a52b43d827615b3e691c",
+        })
+      ).toBe(true);
+    });
 
-  it("should not verify if the message doesn't match", async () => {
-    expect(
-      await wallet.ethVerifyMessage({
-        address: "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
-        message: "super public message",
-        signature:
-          "0xd67ad52016d6fbc19fb9db81f32dd22cb67570b93b1c0e64ae30a4c2bc0b9c265c2d0f86906610d0cecac42ab90ee298a3474a5eb6d895aa7279d344f32aab191b",
-      })
-    ).toBe(false);
-  });
+    it("should fail verification of a mismatched message and signature", async () => {
+      expect(
+        await wallet.ethVerifyMessage({
+          address: "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
+          message: "super public message",
+          signature:
+            "0xd67ad52016d6fbc19fb9db81f32dd22cb67570b93b1c0e64ae30a4c2bc0b9c265c2d0f86906610d0cecac42ab90ee298a3474a5eb6d895aa7279d344f32aab191b",
+        })
+      ).toBe(false);
+    });
 
-  it("should not verify if the signature is invalid", async () => {
-    expect(
-      await wallet.ethVerifyMessage({
-        address: "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
-        message: "super secret message",
-        signature:
-          "deadbeef16d6fbc19fb9db81f32dd22cb67570b93b1c0e64ae30a4c2bc0b9c265c2d0f86906610d0cecac42ab90ee298a3474a5eb6d895aa7279d344f32aab191b",
-      })
-    ).toBe(false);
+    it("should fail verification if the signature is invalid", async () => {
+      expect(
+        await wallet.ethVerifyMessage({
+          address: "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
+          message: "super secret message",
+          signature:
+            "deadbeef16d6fbc19fb9db81f32dd22cb67570b93b1c0e64ae30a4c2bc0b9c265c2d0f86906610d0cecac42ab90ee298a3474a5eb6d895aa7279d344f32aab191b",
+        })
+      ).toBe(false);
+    });
   });
 });
