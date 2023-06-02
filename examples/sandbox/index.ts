@@ -1,5 +1,6 @@
 import "regenerator-runtime/runtime";
 
+import * as coinbase from "@shapeshiftoss/hdwallet-coinbase";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as keepkeyTcp from "@shapeshiftoss/hdwallet-keepkey-tcp";
@@ -91,6 +92,7 @@ const testPublicWalletXpubs = [
   "xpub6DDUPHpUo4pcy43iJeZjbSVWGav1SMMmuWdMHiGtkK8rhKmfbomtkwW6GKs1GGAKehT6QRocrmda3WWxXawpjmwaUHfFRXuKrXSapdckEYF", // all seed m/84'/0'/0'
 ].join(" ");
 
+const coinbaseAdapter = coinbase.CoinbaseAdapter.useKeyring(keyring);
 const keepkeyAdapter = keepkeyWebUSB.WebUSBKeepKeyAdapter.useKeyring(keyring);
 const kkbridgeAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const kkemuAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
@@ -127,6 +129,7 @@ const $ledgerwebhid = $("#ledgerwebhid");
 const $portis = $("#portis");
 const $native = $("#native");
 const $metaMask = $("#metaMask");
+const $coinbase = $("#coinbase");
 const $tallyHo = $("#tallyHo");
 const $walletConnect = $("#walletConnect");
 const $xdefi = $("#xdefi");
@@ -216,6 +219,19 @@ $metaMask.on("click", async (e) => {
     $("#keyring select").val(deviceID);
   } catch (err) {
     console.error(err);
+  }
+});
+
+$coinbase.on("click", async (e) => {
+  e.preventDefault();
+  wallet = await coinbaseAdapter.pairDevice();
+  window["wallet"] = wallet;
+  let deviceID = "nothing";
+  try {
+    deviceID = await wallet.getDeviceID();
+    $("#keyring select").val(deviceID);
+  } catch (error) {
+    console.error(error);
   }
 });
 
@@ -362,6 +378,12 @@ async function deviceConnected(deviceId) {
     await keplrAdapter.initialize([]);
   } catch (e) {
     console.error("Could not initialize KeplrAdapter", e);
+  }
+
+  try {
+    await coinbaseAdapter.initialize();
+  } catch (e) {
+    console.error("Could not initialize CoinbaseAdapter", e);
   }
 
   try {
