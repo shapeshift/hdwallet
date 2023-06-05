@@ -1,3 +1,4 @@
+import { CoinbaseWalletProvider } from "@coinbase/wallet-sdk";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { AddEthereumChainParameter } from "@shapeshiftoss/hdwallet-core";
 import { ethErrors, serializeError } from "eth-rpc-errors";
@@ -98,12 +99,12 @@ export class CoinbaseHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsBTC = false;
   readonly _supportsCosmosInfo = false;
   readonly _supportsCosmos = false;
-  readonly _supportsEthSwitchChain = true; // maybe?
-  readonly _supportsAvalanche = false;
-  readonly _supportsOptimism = false;
-  readonly _supportsBSC = false;
+  readonly _supportsEthSwitchChain = true;
+  readonly _supportsAvalanche = true;
+  readonly _supportsOptimism = true;
+  readonly _supportsBSC = true;
   readonly _supportsPolygon = true;
-  readonly _supportsGnosis = false;
+  readonly _supportsGnosis = true;
   readonly _supportsOsmosisInfo = false;
   readonly _supportsOsmosis = false;
   readonly _supportsBinanceInfo = false;
@@ -129,12 +130,11 @@ export class CoinbaseHDWallet implements core.HDWallet, core.ETHWallet {
 
   info: CoinbaseHDWalletInfo & core.HDWalletInfo;
   ethAddress?: string | null;
-  provider: any;
+  provider: CoinbaseWalletProvider | null;
 
   constructor(provider: unknown) {
-    console.info("CoinbaseHDWallet constructor: ", provider);
     this.info = new CoinbaseHDWalletInfo();
-    this.provider = provider;
+    this.provider = provider as CoinbaseWalletProvider;
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -142,7 +142,8 @@ export class CoinbaseHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async isLocked(): Promise<boolean> {
-    return !this.provider._coinbase.isUnlocked();
+    // is there an equivalent for cb wallet? lifted from metamask
+    return false; // !this.provider._coinbase.isUnlocked();
   }
 
   public getVendor(): string {
@@ -266,7 +267,7 @@ export class CoinbaseHDWallet implements core.HDWallet, core.ETHWallet {
   public async ethGetChainId(): Promise<number | null> {
     try {
       // chainId as hex string
-      const chainId: string = await this.provider.request({ method: "eth_chainId" });
+      const chainId: string = (await this.provider?.request({ method: "eth_chainId" })) || "";
       return parseInt(chainId, 16);
     } catch (e) {
       console.error(e);
@@ -276,13 +277,13 @@ export class CoinbaseHDWallet implements core.HDWallet, core.ETHWallet {
 
   public async ethAddChain(params: AddEthereumChainParameter): Promise<void> {
     // at this point, we know that we're in the context of a valid Coinbase provider
-    await this.provider.request({ method: "wallet_addEthereumChain", params: [params] });
+    await this.provider?.request({ method: "wallet_addEthereumChain", params: [params] });
   }
 
   public async ethSwitchChain(params: AddEthereumChainParameter): Promise<void> {
     try {
       // at this point, we know that we're in the context of a valid Coinbase provider
-      await this.provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: params.chainId }] });
+      await this.provider?.request({ method: "wallet_switchEthereumChain", params: [{ chainId: params.chainId }] });
     } catch (e: any) {
       const error = serializeError(e);
       // https://docs.metamask.io/guide/ethereum-provider.html#errors
@@ -357,17 +358,17 @@ export class CoinbaseHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {
-    const address = await this.ethGetAddress(this.provider);
+    const address = await this.ethGetAddress(this.provider as any);
     return address ? eth.ethSignTx(msg, this.provider, address) : null;
   }
 
   public async ethSendTx(msg: core.ETHSignTx): Promise<core.ETHTxHash | null> {
-    const address = await this.ethGetAddress(this.provider);
+    const address = await this.ethGetAddress(this.provider as any);
     return address ? eth.ethSendTx(msg, this.provider, address) : null;
   }
 
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
-    const address = await this.ethGetAddress(this.provider);
+    const address = await this.ethGetAddress(this.provider as any);
     return address ? eth.ethSignMessage(msg, this.provider, address) : null;
   }
 
@@ -376,7 +377,7 @@ export class CoinbaseHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async getDeviceID(): Promise<string> {
-    return "coinbase:" + (await this.ethGetAddress(this.provider));
+    return "coinbase:" + (await this.ethGetAddress(this.provider as any));
   }
 
   public async getFirmwareVersion(): Promise<string> {

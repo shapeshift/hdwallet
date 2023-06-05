@@ -50,7 +50,7 @@ describe("CoinbaseHDWallet", () => {
           "signature": "0x05f51140905ffa33ffdc57f46b0b8d8fbb1d2a99f8cd843ca27893c01c31351c08b76d83dce412731c846e3b50649724415deb522d00950fbf4f2c1459c2b70b1b",
         }`
       ),
-    };
+    } as any;
     const msg = "super secret message";
     expect(
       await wallet.ethSignMessage({
@@ -71,7 +71,7 @@ describe("CoinbaseHDWallet", () => {
   it("ethSignMessage returns null on error", async () => {
     wallet.provider = {
       request: jest.fn().mockRejectedValue(new Error("An Error has occurred")),
-    };
+    } as any;
 
     const msg = "super secret message";
     const sig = await wallet.ethSignMessage({
@@ -85,7 +85,7 @@ describe("CoinbaseHDWallet", () => {
   it("ethGetAddress returns a valid address", async () => {
     wallet.provider = {
       request: jest.fn().mockReturnValue(["0x73d0385F4d8E00C5e6504C6030F47BF6212736A8"]),
-    };
+    } as any;
 
     const msg = "super secret message";
     const sig = await wallet.ethSignMessage({
@@ -101,7 +101,7 @@ describe("CoinbaseHDWallet", () => {
   it("ethSendTx returns a valid hash", async () => {
     wallet.provider = {
       request: jest.fn().mockReturnValue("0x123"),
-    };
+    } as any;
 
     const hash = await wallet.ethSendTx({
       addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
@@ -113,13 +113,13 @@ describe("CoinbaseHDWallet", () => {
       data: "0xDEADBEEFDEADBEEFDEADBEEFDEADBEEF",
       chainId: 1,
     });
-    expect(wallet.provider.request).toHaveBeenCalled();
+    expect(wallet.provider?.request).toHaveBeenCalled();
     expect(hash).toMatchObject({ hash: "0x123" });
   });
   it("ethSendTx returns a valid hash if maxFeePerGas is present in msg", async () => {
     wallet.provider = {
       request: jest.fn().mockReturnValue("0x123"),
-    };
+    } as any;
 
     const hash = await wallet.ethSendTx({
       addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
@@ -131,13 +131,13 @@ describe("CoinbaseHDWallet", () => {
       data: "0xDEADBEEFDEADBEEFDEADBEEFDEADBEEF",
       chainId: 1,
     });
-    expect(wallet.provider.request).toHaveBeenCalled();
+    expect(wallet.provider?.request).toHaveBeenCalled();
     expect(hash).toMatchObject({ hash: "0x123" });
   });
   it("ethSendTx returns null on error", async () => {
     wallet.provider = {
       request: jest.fn().mockRejectedValue(new Error("An Error has occurred")),
-    };
+    } as any;
 
     const hash = await wallet.ethSendTx({
       addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
@@ -149,13 +149,13 @@ describe("CoinbaseHDWallet", () => {
       data: "0xDEADBEEFDEADBEEFDEADBEEFDEADBEEF",
       chainId: 1,
     });
-    expect(wallet.provider.request).toHaveBeenCalled();
+    expect(wallet.provider?.request).toHaveBeenCalled();
     expect(hash).toBe(null);
   });
   it("ethVerifyMessage returns null as its not implemented", async () => {
     wallet.provider = {
       request: jest.fn().mockReturnValue("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"),
-    };
+    } as any;
     expect(
       await wallet.ethVerifyMessage({
         address: "0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8",
