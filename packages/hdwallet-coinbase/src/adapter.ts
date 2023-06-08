@@ -35,26 +35,19 @@ export class CoinbaseAdapter {
     // Initialize a Web3 Provider object
     const coinbaseWalletProvider = coinbaseWallet.makeWeb3Provider(DEFAULT_ETH_JSONRPC_URL, DEFAULT_CHAIN_ID);
 
-    // Initialize a Web3 object
-    // const web3 = new Web3(coinbaseWalletProvider as any);
-
     try {
-      const accts = (await coinbaseWalletProvider.request?.({ method: "eth_requestAccounts" })) as string[];
-      console.info(`account address: ${accts[0]}`);
+      await coinbaseWalletProvider.request?.({ method: "eth_requestAccounts" });
     } catch (err) {
-      console.error(`Could not get Coinbase accounts: ${err}`);
+      console.error("Could not get Coinbase accounts: ", err);
       throw err;
     }
 
     const wallet = new CoinbaseHDWallet(coinbaseWalletProvider);
     await wallet.initialize();
     const deviceID = await wallet.getDeviceID();
-    console.info(`deviceID: ${deviceID}`);
 
     this.keyring.add(wallet, deviceID);
     this.keyring.emit(["Coinbase", deviceID, core.Events.CONNECT], deviceID);
-    // Optionally, have the default account set for web3.js
-    // web3.eth.defaultAccount = accounts[0]
 
     return wallet;
   }
