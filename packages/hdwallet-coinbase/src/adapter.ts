@@ -3,15 +3,25 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 
 import { CoinbaseHDWallet } from "./coinbase";
 
+export type CoinbaseProviderConfig = {
+  appName: string;
+  appLogoUrl: string;
+  defaultJsonRpcUrl: string;
+  defaultChainId: number;
+  darkMode: boolean;
+};
+
 export class CoinbaseAdapter {
   keyring: core.Keyring;
+  providerConfig: CoinbaseProviderConfig;
 
-  private constructor(keyring: core.Keyring) {
+  private constructor(keyring: core.Keyring, config: CoinbaseProviderConfig) {
     this.keyring = keyring;
+    this.providerConfig = config;
   }
 
-  public static useKeyring(keyring: core.Keyring) {
-    return new CoinbaseAdapter(keyring);
+  public static useKeyring(keyring: core.Keyring, config: CoinbaseProviderConfig) {
+    return new CoinbaseAdapter(keyring, config);
   }
 
   public async initialize(): Promise<number> {
@@ -20,20 +30,18 @@ export class CoinbaseAdapter {
 
   public async pairDevice(): Promise<CoinbaseHDWallet | undefined> {
     console.info("coinbase-wallet: pairDevice");
-    const APP_NAME = "ShapeShift";
-    const APP_LOGO_URL = "https://avatars.githubusercontent.com/u/52928763?s=50&v=4";
-    const DEFAULT_ETH_JSONRPC_URL = `https://mainnet.infura.io/v3/6e2f28ff4f5340fdb0db5da3baec0af2`;
-    const DEFAULT_CHAIN_ID = 1;
-
     // Initialize Coinbase Wallet SDK
     const coinbaseWallet = new CoinbaseWalletSDK({
-      appName: APP_NAME,
-      appLogoUrl: APP_LOGO_URL,
-      darkMode: false,
+      appName: this.providerConfig.appName,
+      appLogoUrl: this.providerConfig.appLogoUrl,
+      darkMode: this.providerConfig.darkMode,
     });
 
     // Initialize a Web3 Provider object
-    const coinbaseWalletProvider = coinbaseWallet.makeWeb3Provider(DEFAULT_ETH_JSONRPC_URL, DEFAULT_CHAIN_ID);
+    const coinbaseWalletProvider = coinbaseWallet.makeWeb3Provider(
+      this.providerConfig.defaultJsonRpcUrl,
+      this.providerConfig.defaultChainId
+    );
 
     try {
       await coinbaseWalletProvider.request?.({ method: "eth_requestAccounts" });

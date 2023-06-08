@@ -1,6 +1,7 @@
 import "regenerator-runtime/runtime";
 
 import * as coinbase from "@shapeshiftoss/hdwallet-coinbase";
+import { CoinbaseProviderConfig } from "@shapeshiftoss/hdwallet-coinbase";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as keepkeyTcp from "@shapeshiftoss/hdwallet-keepkey-tcp";
@@ -77,6 +78,14 @@ const walletConnectOptions: WalletConnectProviderConfig = {
   },
 };
 
+const coinbaseOptions: CoinbaseProviderConfig = {
+  appName: "ShapeShift Sandbox",
+  appLogoUrl: "https://shapeshift.com/favicon.ico",
+  defaultJsonRpcUrl: "https://avatars.githubusercontent.com/u/52928763?s=50&v=4",
+  defaultChainId: 1,
+  darkMode: false,
+};
+
 const testPublicWalletXpubs = [
   "xpub661MyMwAqRbcFLgDU7wpcEVubSF7NkswwmXBUkDiGUW6uopeUMys4AqKXNgpfZKRTLnpKQgffd6a2c3J8JxLkF1AQN17Pm9QYHEqEfo1Rsx", // all seed root key
   "xpub68Zyu13qjcQxDzLNfTYnUXtJuX2qJgnxP6osrcAvJGdo6bs9M2Adt2BunbwiYrZS5qpA1QKoMf3uqS2NHpbyZp4KMJxDrL58NTyvHXBeAv6", // all seed m/44'
@@ -92,7 +101,7 @@ const testPublicWalletXpubs = [
   "xpub6DDUPHpUo4pcy43iJeZjbSVWGav1SMMmuWdMHiGtkK8rhKmfbomtkwW6GKs1GGAKehT6QRocrmda3WWxXawpjmwaUHfFRXuKrXSapdckEYF", // all seed m/84'/0'/0'
 ].join(" ");
 
-const coinbaseAdapter = coinbase.CoinbaseAdapter.useKeyring(keyring);
+const coinbaseAdapter = coinbase.CoinbaseAdapter.useKeyring(keyring, coinbaseOptions);
 const keepkeyAdapter = keepkeyWebUSB.WebUSBKeepKeyAdapter.useKeyring(keyring);
 const kkbridgeAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const kkemuAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
