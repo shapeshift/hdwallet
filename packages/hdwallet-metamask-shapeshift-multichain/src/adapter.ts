@@ -1,7 +1,7 @@
 import detectEthereumProvider from "@metamask/detect-provider";
 import MetaMaskOnboarding from "@metamask/onboarding";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { enableShapeShiftMultichain, shapeShiftMultichainInstalled } from "@shapeshiftoss/metamask-snaps-adapter";
+import { enableShapeShiftSnap, shapeShiftSnapInstalled } from "@shapeshiftoss/metamask-snaps-adapter";
 import * as ethers from "ethers";
 
 import { SNAP_ID } from "./common";
@@ -36,9 +36,9 @@ export class MetaMaskAdapter {
       console.error("Please install MetaMask!");
       throw new Error("MetaMask provider not found");
     }
-    if (!shapeShiftMultichainInstalled()) {
+    if (!shapeShiftSnapInstalled(SNAP_ID)) {
       console.info("ShapeShift Multichain snap not found. Prompting user to install.");
-      const result = enableShapeShiftMultichain({ snapId: SNAP_ID });
+      const result = await enableShapeShiftSnap(SNAP_ID);
       if (result.success === false) {
         throw new Error("Could not install ShapeShift Multichain snap");
       }

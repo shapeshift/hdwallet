@@ -267,7 +267,7 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
 }
 
 export class MetaMaskShapeShiftMultiChainHDWallet
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet, core.OsmosisWallet, core.ThorchainWallet
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet, core.ThorchainWallet
 {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;

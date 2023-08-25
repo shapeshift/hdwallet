@@ -21,7 +21,7 @@ export function thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.T
 }
 
 export async function thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string | null> {
-  return await snapThorchainGetAddress({ snapId: SNAP_ID, addressNList: msg.addressNList });
+  return await snapThorchainGetAddress({ snapId: SNAP_ID, addressParams: { addressNList: msg.addressNList } });
 }
 
 export async function thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {

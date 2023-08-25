@@ -21,7 +21,7 @@ export function cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosA
 }
 
 export async function cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string | null> {
-  return await snapCosmosGetAddress({ snapId: SNAP_ID, addressNList: msg.addressNList });
+  return await snapCosmosGetAddress({ snapId: SNAP_ID, addressParams: { addressNList: msg.addressNList } });
 }
 
 export async function cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
