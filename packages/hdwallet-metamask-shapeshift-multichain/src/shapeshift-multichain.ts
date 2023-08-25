@@ -3,7 +3,6 @@ import { AddEthereumChainParameter } from "@shapeshiftoss/hdwallet-core";
 import { ethErrors, serializeError } from "eth-rpc-errors";
 import _ from "lodash";
 
-import * as Binance from "./binance";
 import * as Btc from "./bitcoin";
 import * as BtcCash from "./bitcoincash";
 import * as Cosmos from "./cosmos";
@@ -38,7 +37,7 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
   readonly _supportsCosmosInfo = true;
-  readonly _supportsBinanceInfo = true;
+  readonly _supportsBinanceInfo = false;
   readonly _supportsRippleInfo = false;
   readonly _supportsEosInfo = false;
   readonly _supportsFioInfo = false;
@@ -86,8 +85,6 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
 
   public describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin) {
-      case "binance":
-        return core.binanceDescribePath(msg.path);
       case "bitcoin":
       case "bitcoincash":
       case "dogecoin":
@@ -133,28 +130,6 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
       default:
         throw new Error("Unsupported path");
     }
-  }
-
-  public async binanceSupportsNetwork(chainId = 714): Promise<boolean> {
-    return chainId === 714;
-  }
-
-  public async binanceSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public binanceSupportsNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public binanceGetAccountPaths(msg: core.BinanceGetAccountPaths): Array<core.BinanceAccountPath> {
-    return Binance.binanceGetAccountPaths(msg);
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public binanceNextAccountPath(msg: core.BinanceAccountPath): core.BinanceAccountPath | undefined {
-    // TODO: What do we do here?
-    return undefined;
   }
 
   public async bitcoinSupportsNetwork(chainId = 0): Promise<boolean> {
@@ -430,8 +405,8 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   readonly _supportsGnosis = true;
   readonly _supportsOsmosisInfo = true;
   readonly _supportsOsmosis = true;
-  readonly _supportsBinanceInfo = true;
-  readonly _supportsBinance = true;
+  readonly _supportsBinanceInfo = false;
+  readonly _supportsBinance = false;
   readonly _supportsDebugLink = false;
   readonly _isPortis = false;
   readonly _isMetaMask = true;
@@ -451,7 +426,6 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   readonly _supportsTerraInfo = true;
 
   info: MetaMaskShapeShiftMultiChainHDWalletInfo & core.HDWalletInfo;
-  binanceAddress?: string | null;
   bitcoinAddress?: string | null;
   bitcoinCashAddress?: string | null;
   cosmosAddress?: string | null;
@@ -596,43 +570,6 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   }
 
   /** INSERT NEW CODE HERE */
-
-  /** BINANCE */
-
-  public async binanceSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public binanceSupportsNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public binanceGetAccountPaths(msg: core.BinanceGetAccountPaths): Array<core.BinanceAccountPath> {
-    return Binance.binanceGetAccountPaths(msg);
-  }
-
-  public binanceNextAccountPath(msg: core.BinanceAccountPath): core.BinanceAccountPath | undefined {
-    return this.info.binanceNextAccountPath(msg);
-  }
-
-  public async binanceGetAddress(msg: core.BinanceGetAddress): Promise<string | null> {
-    if (this.binanceAddress) {
-      return this.binanceAddress;
-    }
-    const address = await Binance.binanceGetAddress(msg);
-    if (address) {
-      this.binanceAddress = address;
-      return address;
-    } else {
-      this.binanceAddress = null;
-      return null;
-    }
-  }
-
-  public async binanceSignTx(msg: core.BinanceSignTx): Promise<core.BinanceSignedTx | null> {
-    const address = await Binance.binanceGetAddress(msg);
-    return address ? Binance.binanceSignTx(msg) : null;
-  }
 
   /** BITCOIN */
 
