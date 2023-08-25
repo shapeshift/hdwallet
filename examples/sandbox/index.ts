@@ -7,8 +7,6 @@ import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as keepkeyTcp from "@shapeshiftoss/hdwallet-keepkey-tcp";
 import * as keepkeyWebUSB from "@shapeshiftoss/hdwallet-keepkey-webusb";
 import * as keplr from "@shapeshiftoss/hdwallet-keplr";
-import * as ledgerWebHID from "@shapeshiftoss/hdwallet-ledger-webhid";
-import * as ledgerWebUSB from "@shapeshiftoss/hdwallet-ledger-webusb";
 import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
@@ -119,8 +117,6 @@ const trezorAdapter = trezorConnect.TrezorAdapter.useKeyring(keyring, {
     appUrl: "https://shapeshift.com",
   },
 });
-const ledgerWebUSBAdapter = ledgerWebUSB.WebUSBLedgerAdapter.useKeyring(keyring);
-const ledgerWebHIDAdapter = ledgerWebHID.WebHIDLedgerAdapter.useKeyring(keyring);
 
 window["keyring"] = keyring;
 
@@ -133,8 +129,6 @@ const $keepkey = $("#keepkey");
 const $keepkeybridge = $("#keepkeybridge");
 const $kkemu = $("#kkemu");
 const $trezor = $("#trezor");
-const $ledgerwebusb = $("#ledgerwebusb");
-const $ledgerwebhid = $("#ledgerwebhid");
 const $portis = $("#portis");
 const $native = $("#native");
 const $metaMask = $("#metaMask");
@@ -179,20 +173,6 @@ $kkemu.on("click", async (e) => {
 $trezor.on("click", async (e) => {
   e.preventDefault();
   wallet = await trezorAdapter.pairDevice();
-  window["wallet"] = wallet;
-  $("#keyring select").val(await wallet.getDeviceID());
-});
-
-$ledgerwebusb.on("click", async (e) => {
-  e.preventDefault();
-  wallet = await ledgerWebUSBAdapter.pairDevice();
-  window["wallet"] = wallet;
-  $("#keyring select").val(await wallet.getDeviceID());
-});
-
-$ledgerwebhid.on("click", async (e) => {
-  e.preventDefault();
-  wallet = await ledgerWebHIDAdapter.pairDevice();
   window["wallet"] = wallet;
   $("#keyring select").val(await wallet.getDeviceID());
 });
@@ -345,18 +325,6 @@ async function deviceConnected(deviceId) {
     await trezorAdapter.initialize();
   } catch (e) {
     console.error("Could not initialize TrezorAdapter", e);
-  }
-
-  try {
-    await ledgerWebUSBAdapter.initialize();
-  } catch (e) {
-    console.error("Could not initialize LedgerWebUSBAdapter", e);
-  }
-
-  try {
-    await ledgerWebHIDAdapter.initialize();
-  } catch (e) {
-    console.error("Could not initialize LedgerWebHIDAdapter", e);
   }
 
   try {
@@ -2590,7 +2558,8 @@ function erc20SetSetSelected(selectedButton: any) {
     },
     {
       button: $erc20TotalSupply,
-      content: "\
+      content:
+        "\
       <input type='text' placeholder='Contract Address' id='erc20ContractAddress' />\
       ",
     },

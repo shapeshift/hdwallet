@@ -1,5 +1,4 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 import * as metamask from "@shapeshiftoss/hdwallet-metamask";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
@@ -253,7 +252,6 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
         if (!wallet) return;
         // eslint-disable-next-line jest/no-jasmine-globals, jest/no-disabled-tests
 
-        if (ledger.isLedger(wallet)) return; // FIXME: just test kk and native for now
         if (trezor.isTrezor(wallet)) return; // FIXME: just test kk and native for now
         if (portis.isPortis(wallet)) return; // FIXME: just test kk and native for now
 
@@ -300,7 +298,6 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
       "ethSignTx() - long contract data",
       async () => {
         if (!wallet) return;
-        if (ledger.isLedger(wallet)) return; // FIXME: just test kk for now
         if (trezor.isTrezor(wallet)) return; // FIXME: just test kk for now
         if (portis.isPortis(wallet)) return; // FIXME: just test kk for now
 
@@ -393,7 +390,6 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
       "ethSignMessage()",
       async () => {
         if (!wallet) return;
-        if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
         const res = await wallet.ethSignMessage({
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
           message: "Hello World",

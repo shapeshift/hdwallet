@@ -1,6 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
-import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 import * as metamask from "@shapeshiftoss/hdwallet-metamask";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
@@ -52,7 +51,6 @@ export function integration(suite: WalletSuite): void {
         expect(
           (keepkey.isKeepKey(wallet) ? 1 : 0) +
             (trezor.isTrezor(wallet) ? 1 : 0) +
-            (ledger.isLedger(wallet) ? 1 : 0) +
             (portis.isPortis(wallet) ? 1 : 0) +
             (native.isNative(wallet) ? 1 : 0) +
             (metamask.isMetaMask(wallet) ? 1 : 0) +
