@@ -11,7 +11,6 @@ import * as Eth from "./ethereum";
 import * as Litecoin from "./litecoin";
 import * as Osmosis from "./osmosis";
 import * as Secret from "./secret";
-import * as Terra from "./terra";
 import * as Thorchain from "./thorchain";
 import * as utxo from "./utxo";
 
@@ -42,7 +41,6 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
   readonly _supportsFioInfo = false;
   readonly _supportsThorchainInfo = true;
   readonly _supportsSecretInfo = true;
-  readonly _supportsTerraInfo = true;
 
   public getVendor(): string {
     return "MetaMask";
@@ -110,11 +108,6 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
       case "scrt":
       case "tscrt":
         return core.secretDescribePath(msg.path);
-
-      case "luna":
-      case "terra":
-      case "tluna":
-        return core.terraDescribePath(msg.path);
 
       case "rune":
       case "trune":
@@ -306,28 +299,6 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
     return undefined;
   }
 
-  public async terraSupportsNetwork(chainId = 330): Promise<boolean> {
-    return chainId === 330;
-  }
-
-  public async terraSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public terraSupportsNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public terraGetAccountPaths(msg: core.TerraGetAccountPaths): Array<core.TerraAccountPath> {
-    return Terra.terraGetAccountPaths(msg);
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public terraNextAccountPath(msg: core.TerraAccountPath): core.TerraAccountPath | undefined {
-    // TODO: What do we do here?
-    return undefined;
-  }
-
   public async thorchainSupportsNetwork(chainId = 931): Promise<boolean> {
     return chainId === 931;
   }
@@ -359,8 +330,7 @@ export class MetaMaskShapeShiftMultiChainHDWallet
     core.CosmosWallet,
     core.OsmosisWallet,
     core.ThorchainWallet,
-    core.SecretWallet,
-    core.TerraWallet
+    core.SecretWallet
 {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
@@ -391,8 +361,6 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   readonly _supportsThorchain = true;
   readonly _supportsSecretInfo = true;
   readonly _supportsSecret = true;
-  readonly _supportsTerra = true;
-  readonly _supportsTerraInfo = true;
 
   info: MetaMaskShapeShiftMultiChainHDWalletInfo & core.HDWalletInfo;
   bitcoinAddress?: string | null;
@@ -403,7 +371,6 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   litecoinAddress?: string | null;
   osmosisAddress?: string | null;
   secretAddress?: string | null;
-  terraAddress?: string | null;
   thorchainAddress?: string | null;
   provider: any;
 
@@ -938,43 +905,6 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   public async secretSignTx(msg: core.SecretSignTx): Promise<core.SecretSignedTx | null> {
     const address = await this.secretGetAddress(this.provider);
     return address ? Secret.secretSignTx(msg) : null;
-  }
-
-  /** TERRA */
-
-  public async terraSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public terraSupportsNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public terraGetAccountPaths(msg: core.TerraGetAccountPaths): Array<core.TerraAccountPath> {
-    return Terra.terraGetAccountPaths(msg);
-  }
-
-  public terraNextAccountPath(msg: core.TerraAccountPath): core.TerraAccountPath | undefined {
-    return this.info.terraNextAccountPath(msg);
-  }
-
-  public async terraGetAddress(msg: core.TerraGetAddress): Promise<string | null> {
-    if (this.terraAddress) {
-      return this.terraAddress;
-    }
-    const address = await Terra.terraGetAddress(msg);
-    if (address) {
-      this.terraAddress = address;
-      return address;
-    } else {
-      this.terraAddress = null;
-      return null;
-    }
-  }
-
-  public async terraSignTx(msg: core.TerraSignTx): Promise<core.TerraSignedTx | null> {
-    const address = await this.terraGetAddress(this.provider);
-    return address ? Terra.terraSignTx(msg) : null;
   }
 
   /** THORCHAIN */
