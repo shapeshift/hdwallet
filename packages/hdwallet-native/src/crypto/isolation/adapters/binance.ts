@@ -9,7 +9,7 @@ const bnbSdk = PLazy.from(() => import("bnb-javascript-sdk-nobroadcast"));
 
 export default {
   async create(keyPair: BIP32.Node): Promise<SigningDelegate> {
-    return async (tx: Transaction, signMsg?: any): Promise<Transaction> => {
+    return await (tx: Transaction, signMsg?: any): Promise<Transaction> => {
       const signBytes = tx.getSignBytes(signMsg);
       const pubKey = (await bnbSdk).crypto.getPublicKey(Buffer.from(await keyPair.getPublicKey()).toString("hex"));
       const sig = Buffer.from(await SecP256K1.Signature.signCanonically(keyPair, "sha256", signBytes));
