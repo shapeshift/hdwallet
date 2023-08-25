@@ -10,7 +10,6 @@ import * as Doge from "./dogecoin";
 import * as Eth from "./ethereum";
 import * as Litecoin from "./litecoin";
 import * as Osmosis from "./osmosis";
-import * as Secret from "./secret";
 import * as Thorchain from "./thorchain";
 import * as utxo from "./utxo";
 
@@ -40,7 +39,6 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
   readonly _supportsEosInfo = false;
   readonly _supportsFioInfo = false;
   readonly _supportsThorchainInfo = true;
-  readonly _supportsSecretInfo = true;
 
   public getVendor(): string {
     return "MetaMask";
@@ -103,11 +101,6 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
       case "osmosis":
       case "osmo":
         return core.osmosisDescribePath(msg.path);
-
-      case "secret":
-      case "scrt":
-      case "tscrt":
-        return core.secretDescribePath(msg.path);
 
       case "rune":
       case "trune":
@@ -277,28 +270,6 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
     return undefined;
   }
 
-  public async secretSupportsNetwork(chainId = 529): Promise<boolean> {
-    return chainId === 529;
-  }
-
-  public async secretSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public secretSupportsNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public secretGetAccountPaths(msg: core.SecretGetAccountPaths): Array<core.SecretAccountPath> {
-    return Secret.secretGetAccountPaths(msg);
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public secretNextAccountPath(msg: core.SecretAccountPath): core.SecretAccountPath | undefined {
-    // TODO: What do we do here?
-    return undefined;
-  }
-
   public async thorchainSupportsNetwork(chainId = 931): Promise<boolean> {
     return chainId === 931;
   }
@@ -323,14 +294,7 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
 }
 
 export class MetaMaskShapeShiftMultiChainHDWallet
-  implements
-    core.HDWallet,
-    core.BTCWallet,
-    core.ETHWallet,
-    core.CosmosWallet,
-    core.OsmosisWallet,
-    core.ThorchainWallet,
-    core.SecretWallet
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet, core.OsmosisWallet, core.ThorchainWallet
 {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
@@ -359,8 +323,6 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   readonly _supportsFio = false;
   readonly _supportsThorchainInfo = true;
   readonly _supportsThorchain = true;
-  readonly _supportsSecretInfo = true;
-  readonly _supportsSecret = true;
 
   info: MetaMaskShapeShiftMultiChainHDWalletInfo & core.HDWalletInfo;
   bitcoinAddress?: string | null;
@@ -370,7 +332,6 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   ethAddress?: string | null;
   litecoinAddress?: string | null;
   osmosisAddress?: string | null;
-  secretAddress?: string | null;
   thorchainAddress?: string | null;
   provider: any;
 
@@ -868,43 +829,6 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   public async osmosisSignTx(msg: core.OsmosisSignTx): Promise<core.OsmosisSignedTx | null> {
     const address = await this.osmosisGetAddress(this.provider);
     return address ? Osmosis.osmosisSignTx(msg) : null;
-  }
-
-  /** SECRET */
-
-  public async secretSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public secretSupportsNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public secretGetAccountPaths(msg: core.SecretGetAccountPaths): Array<core.SecretAccountPath> {
-    return Secret.secretGetAccountPaths(msg);
-  }
-
-  public secretNextAccountPath(msg: core.SecretAccountPath): core.SecretAccountPath | undefined {
-    return this.info.secretNextAccountPath(msg);
-  }
-
-  public async secretGetAddress(msg: core.SecretGetAddress): Promise<string | null> {
-    if (this.secretAddress) {
-      return this.secretAddress;
-    }
-    const address = await Secret.secretGetAddress(msg);
-    if (address) {
-      this.secretAddress = address;
-      return address;
-    } else {
-      this.secretAddress = null;
-      return null;
-    }
-  }
-
-  public async secretSignTx(msg: core.SecretSignTx): Promise<core.SecretSignedTx | null> {
-    const address = await this.secretGetAddress(this.provider);
-    return address ? Secret.secretSignTx(msg) : null;
   }
 
   /** THORCHAIN */
