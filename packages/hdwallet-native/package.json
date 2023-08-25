@@ -59,6 +59,6 @@
     "jest-environment-jsdom": "^25.5.0",
     "msw": "^0.27.1",
     "ts-jest": "^26.5.5",
-    "typescript": "^4.3.2"
+    "typescript": "^4.7.4"
   }
 }
