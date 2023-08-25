@@ -8,7 +8,6 @@ import * as BtcCash from "./bitcoincash";
 import * as Cosmos from "./cosmos";
 import * as Doge from "./dogecoin";
 import * as Eth from "./ethereum";
-import * as Kava from "./kava";
 import * as Litecoin from "./litecoin";
 import * as Osmosis from "./osmosis";
 import * as Secret from "./secret";
@@ -43,7 +42,6 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
   readonly _supportsFioInfo = false;
   readonly _supportsThorchainInfo = true;
   readonly _supportsSecretInfo = true;
-  readonly _supportsKavaInfo = true;
   readonly _supportsTerraInfo = true;
 
   public getVendor(): string {
@@ -103,10 +101,6 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
 
       case "ethereum":
         return core.describeETHPath(msg.path);
-
-      case "kava":
-      case "tkava":
-        return core.kavaDescribePath(msg.path);
 
       case "osmosis":
       case "osmo":
@@ -246,28 +240,6 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
     return true;
   }
 
-  public async kavaSupportsNetwork(chainId = 459): Promise<boolean> {
-    return chainId === 459;
-  }
-
-  public async kavaSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public kavaSupportsNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public kavaGetAccountPaths(msg: core.KavaGetAccountPaths): Array<core.KavaAccountPath> {
-    return Kava.kavaGetAccountPaths(msg);
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public kavaNextAccountPath(msg: core.KavaAccountPath): core.KavaAccountPath | undefined {
-    // TODO: What do we do here?
-    return undefined;
-  }
-
   public async litecoinSupportsNetwork(chainId = 2): Promise<boolean> {
     return chainId === 2;
   }
@@ -388,8 +360,7 @@ export class MetaMaskShapeShiftMultiChainHDWallet
     core.OsmosisWallet,
     core.ThorchainWallet,
     core.SecretWallet,
-    core.TerraWallet,
-    core.KavaWallet
+    core.TerraWallet
 {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
@@ -420,8 +391,6 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   readonly _supportsThorchain = true;
   readonly _supportsSecretInfo = true;
   readonly _supportsSecret = true;
-  readonly _supportsKava = true;
-  readonly _supportsKavaInfo = true;
   readonly _supportsTerra = true;
   readonly _supportsTerraInfo = true;
 
@@ -431,7 +400,6 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   cosmosAddress?: string | null;
   dogecoinAddress?: string | null;
   ethAddress?: string | null;
-  kavaAddress?: string | null;
   litecoinAddress?: string | null;
   osmosisAddress?: string | null;
   secretAddress?: string | null;
@@ -859,43 +827,6 @@ export class MetaMaskShapeShiftMultiChainHDWallet
 
   public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean | null> {
     return Eth.ethVerifyMessage(msg, this.provider);
-  }
-
-  /** KAVA */
-
-  public async kavaSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public kavaSupportsNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public kavaGetAccountPaths(msg: core.KavaGetAccountPaths): Array<core.KavaAccountPath> {
-    return Kava.kavaGetAccountPaths(msg);
-  }
-
-  public kavaNextAccountPath(msg: core.KavaAccountPath): core.KavaAccountPath | undefined {
-    return this.info.kavaNextAccountPath(msg);
-  }
-
-  public async kavaGetAddress(msg: core.KavaGetAddress): Promise<string | null> {
-    if (this.kavaAddress) {
-      return this.kavaAddress;
-    }
-    const address = await Kava.kavaGetAddress(msg);
-    if (address) {
-      this.kavaAddress = address;
-      return address;
-    } else {
-      this.kavaAddress = null;
-      return null;
-    }
-  }
-
-  public async kavaSignTx(msg: core.KavaSignTx): Promise<core.KavaSignedTx | null> {
-    const address = await this.kavaGetAddress(this.provider);
-    return address ? Kava.kavaSignTx(msg) : null;
   }
 
   /** LITECOIN */
