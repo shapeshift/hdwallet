@@ -9,7 +9,6 @@ import * as Cosmos from "./cosmos";
 import * as Doge from "./dogecoin";
 import * as Eth from "./ethereum";
 import * as Litecoin from "./litecoin";
-import * as Osmosis from "./osmosis";
 import * as Thorchain from "./thorchain";
 import * as utxo from "./utxo";
 
@@ -97,10 +96,6 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
 
       case "ethereum":
         return core.describeETHPath(msg.path);
-
-      case "osmosis":
-      case "osmo":
-        return core.osmosisDescribePath(msg.path);
 
       case "rune":
       case "trune":
@@ -244,28 +239,6 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public litecoinNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    // TODO: What do we do here?
-    return undefined;
-  }
-
-  public async osmosisSupportsNetwork(chainId = 118): Promise<boolean> {
-    return chainId === 118;
-  }
-
-  public async osmosisSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public osmosisSupportsNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public osmosisGetAccountPaths(msg: core.OsmosisGetAccountPaths): Array<core.OsmosisAccountPath> {
-    return Osmosis.osmosisGetAccountPaths(msg);
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public osmosisNextAccountPath(msg: core.OsmosisAccountPath): core.OsmosisAccountPath | undefined {
     // TODO: What do we do here?
     return undefined;
   }
@@ -792,43 +765,6 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   public async litecoinSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
     const address = await this.litecoinGetAddress(this.provider);
     return address ? Litecoin.litecoinSignTx(msg) : null;
-  }
-
-  /** OSMOSIS */
-
-  public async osmosisSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public osmosisSupportsNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public osmosisGetAccountPaths(msg: core.OsmosisGetAccountPaths): Array<core.OsmosisAccountPath> {
-    return Osmosis.osmosisGetAccountPaths(msg);
-  }
-
-  public osmosisNextAccountPath(msg: core.OsmosisAccountPath): core.OsmosisAccountPath | undefined {
-    return this.info.osmosisNextAccountPath(msg);
-  }
-
-  public async osmosisGetAddress(msg: core.OsmosisGetAddress): Promise<string | null> {
-    if (this.osmosisAddress) {
-      return this.osmosisAddress;
-    }
-    const address = await Osmosis.osmosisGetAddress(msg);
-    if (address) {
-      this.osmosisAddress = address;
-      return address;
-    } else {
-      this.osmosisAddress = null;
-      return null;
-    }
-  }
-
-  public async osmosisSignTx(msg: core.OsmosisSignTx): Promise<core.OsmosisSignedTx | null> {
-    const address = await this.osmosisGetAddress(this.provider);
-    return address ? Osmosis.osmosisSignTx(msg) : null;
   }
 
   /** THORCHAIN */
