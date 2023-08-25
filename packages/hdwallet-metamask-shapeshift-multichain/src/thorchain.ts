@@ -25,5 +25,5 @@ export async function thorchainGetAddress(msg: core.ThorchainGetAddress): Promis
 }
 
 export async function thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {
-  return await snapThorchainSignTransaction({ snapId: SNAP_ID, ...msg });
+  return await snapThorchainSignTransaction({ snapId: SNAP_ID, transaction: msg });
 }

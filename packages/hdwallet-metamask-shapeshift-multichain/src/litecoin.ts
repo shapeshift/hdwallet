@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import {
-  litecoinGetAddress as snapLitecoinGetAddress,
-  litecoinSignTransaction as snapLitecoinSignTransaction,
+  LTCGetAddress as snapLitecoinGetAddress,
+  LTCSignTransaction as snapLitecoinSignTransaction,
 } from "@shapeshiftoss/metamask-snaps-adapter";
 
 import { SNAP_ID } from "./common";
@@ -18,9 +18,9 @@ export function litecoinNextAccountPath(msg: core.BTCAccountPath): core.BTCAccou
 }
 
 export async function litecoinGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
-  return await snapLitecoinGetAddress({ snapId: SNAP_ID, addressNList: msg.addressNList });
+  return await snapLitecoinGetAddress({ snapId: SNAP_ID, addressParams: msg });
 }
 
 export async function litecoinSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
-  return await snapLitecoinSignTransaction({ snapId: SNAP_ID, ...msg });
+  return await snapLitecoinSignTransaction({ snapId: SNAP_ID, transaction: msg });
 }

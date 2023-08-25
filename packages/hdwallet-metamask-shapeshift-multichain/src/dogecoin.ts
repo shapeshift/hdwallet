@@ -18,9 +18,9 @@ export function dogecoinNextAccountPath(msg: core.BTCAccountPath): core.BTCAccou
 }
 
 export async function dogecoinGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
-  return await snapDogecoinGetAddress({ snapId: SNAP_ID, addressParams: { addressNList: msg.addressNList } });
+  return await snapDogecoinGetAddress({ snapId: SNAP_ID, addressParams: msg });
 }
 
 export async function dogecoinSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
-  return await snapDogecoinSignTransaction({ snapId: SNAP_ID, ...msg });
+  return await snapDogecoinSignTransaction({ snapId: SNAP_ID, transaction: msg });
 }

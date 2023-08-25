@@ -18,9 +18,9 @@ export function bitcoinCashNextAccountPath(msg: core.BTCAccountPath): core.BTCAc
 }
 
 export async function bitcoinCashGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
-  return await snapBitcoinCashGetAddress({ snapId: SNAP_ID, addressParams: { addressNList: msg.addressNList } });
+  return await snapBitcoinCashGetAddress({ snapId: SNAP_ID, addressParams: msg });
 }
 
 export async function bitcoinCashSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
-  return await snapBitcoinCashSignTransaction({ snapId: SNAP_ID, ...msg });
+  return await snapBitcoinCashSignTransaction({ snapId: SNAP_ID, transaction: msg });
 }

@@ -25,5 +25,5 @@ export async function cosmosGetAddress(msg: core.CosmosGetAddress): Promise<stri
 }
 
 export async function cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
-  return await snapCosmosSignTransaction({ snapId: SNAP_ID, ...msg });
+  return await snapCosmosSignTransaction({ snapId: SNAP_ID, transaction: msg });
 }
