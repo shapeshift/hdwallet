@@ -1,10 +1,7 @@
 import detectEthereumProvider from "@metamask/detect-provider";
 import MetaMaskOnboarding from "@metamask/onboarding";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import {
-  enableShapeShiftMultichain,
-  shapeShiftMultichainInstalled,
-} from "@shapeshiftoss/shapeshift-multichain-adapter";
+import { enableShapeShiftMultichain, shapeShiftMultichainInstalled } from "@shapeshiftoss/metamask-snaps-adapter";
 import * as ethers from "ethers";
 
 import { SNAP_ID } from "./common";

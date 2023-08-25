@@ -2,7 +2,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import {
   bitcoinCashGetAddress as snapBitcoinCashGetAddress,
   bitcoinCashSignTransaction as snapBitcoinCashSignTransaction,
-} from "@shapeshiftoss/shapeshift-multichain-adapter";
+} from "@shapeshiftoss/metamask-snaps-adapter";
 
 import { SNAP_ID } from "./common";
 import { utxoGetAccountPaths } from "./utxo";

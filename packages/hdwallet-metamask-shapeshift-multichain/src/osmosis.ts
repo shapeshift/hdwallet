@@ -2,7 +2,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import {
   osmosisGetAddress as snapOsmosisGetAddress,
   osmosisSignTransaction as snapOsmosisSignTransaction,
-} from "@shapeshiftoss/shapeshift-multichain-adapter";
+} from "@shapeshiftoss/metamask-snaps-adapter";
 
 import { SNAP_ID } from "./common";
 
