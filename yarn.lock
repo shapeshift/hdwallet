@@ -5790,7 +5790,7 @@
     "@types/bn.js" "*"
     "@types/node" "*"
 
-"@types/eventsource@^1.1.2":
+"@types/eventsource@1.1.11", "@types/eventsource@^1.1.2":
   version "1.1.11"
   resolved "http://localhost:4873/@types/eventsource/-/eventsource-1.1.11.tgz#a2c0bfd0436b7db42ed1b2b2117f7ec2e8478dc7"
   integrity sha512-L7wLDZlWm5mROzv87W0ofIYeQP5K2UhoFnnUyEWLKM6UBb0ZNRgAqp98qE5DkgfBXdWfc2kYmw9KZm4NLjRbsw==
@@ -5868,6 +5868,14 @@
   version "2.3.0"
   resolved "http://localhost:4873/@types/icepick/-/icepick-2.3.0.tgz#5abda9af4f7b91be390c8ea242bd9f6c39c1fbf5"
   integrity sha512-1NjupwGyCzA0tJoIu+Sm2OyGNoi8wsg5UkJSoEwK+QWWz67b17oOxQObV6Md+LbFRnevfCaTfzccHAv8h0+IfQ==
+
+"@types/inquirer@9.0.3":
+  version "9.0.3"
+  resolved "http://localhost:4873/@types/inquirer/-/inquirer-9.0.3.tgz#dc99da4f2f6de9d26c284b4f6aaab4d98c456db1"
+  integrity sha512-CzNkWqQftcmk2jaCWdBTf9Sm7xSw4rkI1zpU/Udw3HX5//adEZUIm9STtoRP1qgWj0CWQtJ9UTvqmO2NNjhMJw==
+  dependencies:
+    "@types/through" "*"
+    rxjs "^7.2.0"
 
 "@types/inquirer@^7.3.1":
   version "7.3.3"
@@ -16684,7 +16692,7 @@ rxjs@6, rxjs@^6.4.0, rxjs@^6.6.0, rxjs@^6.6.3, rxjs@^6.6.7:
   dependencies:
     tslib "^1.9.0"
 
-rxjs@^7.5.4, rxjs@^7.5.5:
+rxjs@^7.2.0, rxjs@^7.5.4, rxjs@^7.5.5:
   version "7.8.1"
   resolved "http://localhost:4873/rxjs/-/rxjs-7.8.1.tgz#6f6f3d99ea8044291efd92e7c7fcf562c4057543"
   integrity sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==

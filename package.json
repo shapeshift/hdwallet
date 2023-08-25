@@ -37,6 +37,8 @@
     "postinstall": "patch-package"
   },
   "devDependencies": {
+    "@types/eventsource": "1.1.11",
+    "@types/inquirer": "9.0.3",
     "@typescript-eslint/eslint-plugin": "^5.14.0",
     "@typescript-eslint/parser": "^5.14.0",
     "eslint": "^8.10.0",
