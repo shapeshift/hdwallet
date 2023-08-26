@@ -17,6 +17,7 @@ export async function derivePath<T extends Derivable>(node: T, path: Path): Prom
   }
   const endIndex = splitPath.lastIndexOf("");
   if (endIndex >= 0) splitPath = splitPath.slice(0, endIndex);
+  // @ts-ignore FIXME
   return await splitPath.reduce(async (prevHd, indexStr) => {
     let index;
     if (indexStr.slice(-1) === `'`) {

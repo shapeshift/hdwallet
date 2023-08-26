@@ -21,7 +21,7 @@ function algorithmNameBase<L extends NonNegativeInteger | undefined = undefined>
 }
 // This can't be inline (or use generic type bounds) because it needs to distributed over the members of a union type.
 type algorithmNameInner<K, L> = K extends keyof typeof AlgorithmLength
-  ? typeof AlgorithmLength[K] extends L
+  ? (typeof AlgorithmLength)[K] extends L
     ? K
     : never
   : never;
@@ -52,7 +52,7 @@ function unverifiedDigestBase<N extends AlgorithmName = AlgorithmName>(name?: N)
 }
 // This can't be inline (or use generic type bounds) because it needs to distributed over the members of a union type.
 type unverifiedDigestInner<N> = N extends keyof typeof AlgorithmLength
-  ? ByteArray<typeof AlgorithmLength[N]> & { preimage: ByteArray; algorithm: N }
+  ? ByteArray<(typeof AlgorithmLength)[N]> & { preimage: ByteArray; algorithm: N }
   : never;
 // The generic parameter is optional, and will restrict the type to digests with matching length/name combinations.
 type UnverifiedDigest<N extends AlgorithmName = AlgorithmName> = unverifiedDigestInner<N>;
@@ -85,6 +85,7 @@ export const Algorithms = (() => {
     AlgorithmName.assert(name);
     if (name in algorithms) throw new Error(`digest algorithm implementation already provided for ${name}`);
     algorithms[name] = Algorithm(name).enforce((x: ByteArray) => {
+      // @ts-ignore FIXME
       const out = checkType(ByteArray(AlgorithmLength[name]), fn(x)) as Partial<UnverifiedDigest<N>>;
       out.preimage = x;
       out.algorithm = name;

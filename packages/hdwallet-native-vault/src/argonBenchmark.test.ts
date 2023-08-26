@@ -11,6 +11,7 @@ jest.setTimeout(30 * 1000);
 describe("argonBenchmark", () => {
   beforeAll(async () => {
     const realCrypto = require("crypto").webcrypto as Crypto;
+    // @ts-ignore FIXME
     setCrypto({
       subtle: realCrypto.subtle,
       getRandomValues: await deterministicGetRandomValues(realCrypto),
