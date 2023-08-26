@@ -430,8 +430,23 @@ export class MetaMaskShapeShiftMultiChainHDWallet
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
-    // Ethereum public keys are not exposed by the RPC API
-    return [];
+    return await Promise.all(
+      msg.map(async (getPublicKey) => {
+        const { addressNList } = getPublicKey;
+        const hardenedPath = core.hardenedPath(addressNList);
+        const publicKey = await this.provider.request({
+          method: "snap_getBip32PublicKey",
+          params: {
+            path: hardenedPath,
+            curve: "secp256k1",
+            compressed: false,
+          },
+        });
+        // eslint-disable-next-line no-console
+        console.log({ publicKey });
+        return publicKey;
+      })
+    );
   }
 
   public async isInitialized(): Promise<boolean> {
