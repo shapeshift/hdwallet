@@ -432,9 +432,6 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
     const pubKeys = await Promise.all(
       msg.map(async (getPublicKey) => {
-        // TODO(gomes): support all
-        if (getPublicKey.coin !== "Dogecoin" && getPublicKey.coin !== "Bitcoin" && getPublicKey.coin !== "Litecoin")
-          return null;
         switch (getPublicKey.coin) {
           case "Bitcoin":
             return Btc.bitcoinGetPublicKeys(getPublicKey);
@@ -442,6 +439,8 @@ export class MetaMaskShapeShiftMultiChainHDWallet
             return Litecoin.litecoinGetPublicKeys(getPublicKey);
           case "Dogecoin":
             return Doge.dogecoinGetPublicKeys(getPublicKey);
+          case "BitcoinCash":
+            return BtcCash.bitcoinCashGetPublicKeys(getPublicKey);
           default:
             return null;
         }
