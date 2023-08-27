@@ -476,16 +476,17 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   }
 
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
-    if (this.bitcoinAddress) {
-      return this.bitcoinAddress;
-    }
-    const address = await Btc.bitcoinGetAddress(msg);
-    if (address) {
-      this.bitcoinAddress = address;
-      return address;
-    } else {
-      this.bitcoinAddress = null;
-      return null;
+    switch (msg.coin) {
+      case "Bitcoin":
+        return Btc.bitcoinGetAddress(msg);
+      case "Litecoin":
+        return Litecoin.litecoinGetAddress(msg);
+      case "Dogecoin":
+        return Doge.dogecoinGetAddress(msg);
+      case "BitcoinCash":
+        return BtcCash.bitcoinCashGetAddress(msg);
+      default:
+        return null;
     }
   }
 
