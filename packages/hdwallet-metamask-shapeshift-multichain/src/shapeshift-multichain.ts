@@ -438,12 +438,8 @@ export class MetaMaskShapeShiftMultiChainHDWallet
       })
     );
 
-    return pubKeys.map((pubKey) => {
-      if (pubKey) {
-        return { xpub: pubKey };
-      }
-      return null;
-    });
+    const flattened = pubKeys.flat();
+    return flattened.filter((x) => x !== null) as Array<core.PublicKey>;
   }
 
   public async isInitialized(): Promise<boolean> {

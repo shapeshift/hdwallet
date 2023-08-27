@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { PublicKey } from "@shapeshiftoss/hdwallet-core";
 import {
   BTCGetAddress as snapBitcoinGetAddress,
   BTCGetPublicKeys as snapBitcoinGetPublicKeys,
@@ -18,7 +19,7 @@ export function bitcoinNextAccountPath(msg: core.BTCAccountPath): core.BTCAccoun
   return undefined;
 }
 
-export async function bitcoinGetPublicKeys(msg: core.BTCGetAddress): Promise<string | null> {
+export async function bitcoinGetPublicKeys(msg: core.BTCGetAddress): Promise<Array<PublicKey | null>> {
   return await snapBitcoinGetPublicKeys({ snapId: SNAP_ID, addressParams: msg });
 }
 
