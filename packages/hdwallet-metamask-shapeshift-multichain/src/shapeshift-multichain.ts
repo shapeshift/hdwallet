@@ -433,8 +433,15 @@ export class MetaMaskShapeShiftMultiChainHDWallet
     const pubKeys = await Promise.all(
       msg.map(async (getPublicKey) => {
         // TODO(gomes): support all
-        if (getPublicKey.coin !== "Bitcoin") return null;
-        return Btc.bitcoinGetPublicKeys(getPublicKey);
+        if (getPublicKey.coin !== "Bitcoin" && getPublicKey.coin !== "Litecoin") return null;
+        switch (getPublicKey.coin) {
+          case "Bitcoin":
+            return Btc.bitcoinGetPublicKeys(getPublicKey);
+          case "Litecoin":
+            return Litecoin.litecoinGetPublicKeys(getPublicKey);
+          default:
+            return null;
+        }
       })
     );
 
