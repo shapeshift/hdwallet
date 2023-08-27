@@ -1,6 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import {
   BTCGetAddress as snapBitcoinGetAddress,
+  BTCGetPublicKeys as snapBitcoinGetPublicKeys,
   BTCSignTransaction as snapBitcoinSignTransaction,
 } from "@shapeshiftoss/metamask-snaps-adapter";
 
@@ -15,6 +16,10 @@ export function bitcoinGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core
 export function bitcoinNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
   // Only support one account for now (like portis).
   return undefined;
+}
+
+export async function bitcoinGetPublicKeys(msg: core.BTCGetAddress): Promise<string | null> {
+  return await snapBitcoinGetPublicKeys({ snapId: SNAP_ID, addressParams: msg });
 }
 
 export async function bitcoinGetAddress(msg: core.BTCGetAddress): Promise<string | null> {

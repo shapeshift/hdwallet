@@ -430,8 +430,20 @@ export class MetaMaskShapeShiftMultiChainHDWallet
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
-    // Ethereum public keys are not exposed by the RPC API
-    return [];
+    const pubKeys = await Promise.all(
+      msg.map(async (getPublicKey) => {
+        // TODO(gomes): support all
+        if (getPublicKey.coin !== "Bitcoin") return null;
+        return Btc.bitcoinGetPublicKeys(getPublicKey);
+      })
+    );
+
+    return pubKeys.map((pubKey) => {
+      if (pubKey) {
+        return { xpub: pubKey };
+      }
+      return null;
+    });
   }
 
   public async isInitialized(): Promise<boolean> {
