@@ -490,7 +490,19 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   }
 
   public async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
-    return Btc.bitcoinSignTx(msg);
+    const { coin } = msg;
+    switch (coin) {
+      case "Bitcoin":
+        return Btc.bitcoinSignTx(msg);
+      case "Litecoin":
+        return Litecoin.litecoinSignTx(msg);
+      case "Dogecoin":
+        return Doge.dogecoinSignTx(msg);
+      case "BitcoinCash":
+        return BtcCash.bitcoinCashSignTx(msg);
+      default:
+        return null;
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
