@@ -52,7 +52,7 @@
     { "path": "./packages/hdwallet-keepkey-tcp" },
     { "path": "./packages/hdwallet-keepkey-webusb" },
     { "path": "./packages/hdwallet-metamask" },
-    { "path": "./packages/hdwallet-shapeshift-multichain" },
+    { "path": "./packages/hdwallet-metamask-shapeshift-multichain" },
     { "path": "./packages/hdwallet-coinbase" },
     { "path": "./packages/hdwallet-native" },
     { "path": "./packages/hdwallet-native-vault" },
