@@ -2,7 +2,6 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { AddEthereumChainParameter } from "@shapeshiftoss/hdwallet-core";
 import { ethErrors, serializeError } from "eth-rpc-errors";
 import _ from "lodash";
-import pMemoize from "p-memoize";
 
 import * as Btc from "./bitcoin";
 import * as BtcCash from "./bitcoincash";
@@ -16,74 +15,6 @@ import * as utxo from "./utxo";
 export function isMetaMask(wallet: core.HDWallet): wallet is MetaMaskShapeShiftMultiChainHDWallet {
   return _.isObject(wallet) && (wallet as any)._isMetaMask;
 }
-
-// Don't refactor me to lodash/memoize. p-memoize does NOT cache promise rejections, which would bring large problems here if we did so.
-const _btcGetAddress = pMemoize(
-  async (msg: core.BTCGetAddress): Promise<string | null> => {
-    const maybeAddress = await (async () => {
-      switch (msg.coin) {
-        case "Bitcoin":
-          return Btc.bitcoinGetAddress(msg);
-        case "Litecoin":
-          return Litecoin.litecoinGetAddress(msg);
-        case "Dogecoin":
-          return Doge.dogecoinGetAddress(msg);
-        case "BitcoinCash":
-          return BtcCash.bitcoinCashGetAddress(msg);
-        default:
-          return Promise.resolve(null);
-      }
-    })();
-
-    // TODO(gomes): snap types are super dumb, we should be able to handle errors better
-    // eslint-disable-next-line no-console
-    console.log({ maybeAddress });
-    if (typeof maybeAddress !== "string") throw new Error("Error getting UTXO address");
-
-    return maybeAddress;
-  },
-  // deep equal comparison of BTCGetAddress
-  { cacheKey: JSON.stringify }
-);
-
-// Don't refactor me to lodash/memoize. p-memoize does NOT cache promise rejections, which would bring large problems here if we did so.
-const _getPublicKeys = pMemoize(
-  async (msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> => {
-    const pubKeys = await Promise.all(
-      msg.map(async (getPublicKey) => {
-        switch (getPublicKey.coin) {
-          case "Bitcoin":
-            return Btc.bitcoinGetPublicKeys(getPublicKey);
-          case "Litecoin":
-            return Litecoin.litecoinGetPublicKeys(getPublicKey);
-          case "Dogecoin":
-            return Doge.dogecoinGetPublicKeys(getPublicKey);
-          case "BitcoinCash":
-            return BtcCash.bitcoinCashGetPublicKeys(getPublicKey);
-          default:
-            return null;
-        }
-      })
-    );
-
-    const flattened = pubKeys.flat();
-    const maybePublicKeys = flattened.filter((x) => typeof x === "string") as Array<core.PublicKey>;
-    if (!maybePublicKeys.length) throw new Error("Error getting UTXO public keys");
-    return maybePublicKeys;
-  },
-  // deep equal comparison of entire GetPublicKey array
-  { cacheKey: JSON.stringify }
-);
-
-const _thorchainGetAddress = pMemoize(
-  async (msg: core.ThorchainGetAddress): Promise<string | null> => {
-    const maybeAddress = await Thorchain.thorchainGetAddress(msg);
-    if (typeof maybeAddress !== "string") throw new Error("Error getting THORChain address");
-    return maybeAddress;
-  }
-  // deep equal comparison of thorchainGetAddress
-  // { cacheKey: JSON.stringify }
-);
 
 export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
   ethGetChainId?(): Promise<number | null> {
@@ -499,10 +430,25 @@ export class MetaMaskShapeShiftMultiChainHDWallet
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
-    return _getPublicKeys(msg).catch((e) => {
-      console.error(e, { msg });
-      return [];
-    });
+    const pubKeys = await Promise.all(
+      msg.map(async (getPublicKey) => {
+        switch (getPublicKey.coin) {
+          case "Bitcoin":
+            return Btc.bitcoinGetPublicKeys(getPublicKey);
+          case "Litecoin":
+            return Litecoin.litecoinGetPublicKeys(getPublicKey);
+          case "Dogecoin":
+            return Doge.dogecoinGetPublicKeys(getPublicKey);
+          case "BitcoinCash":
+            return BtcCash.bitcoinCashGetPublicKeys(getPublicKey);
+          default:
+            return null;
+        }
+      })
+    );
+
+    const flattened = pubKeys.flat();
+    return flattened.filter((x) => x !== null) as Array<core.PublicKey>;
   }
 
   public async isInitialized(): Promise<boolean> {
@@ -530,10 +476,18 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   }
 
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
-    return _btcGetAddress(msg).catch((e) => {
-      console.error(e, { msg });
-      return null;
-    });
+    switch (msg.coin) {
+      case "Bitcoin":
+        return Btc.bitcoinGetAddress(msg);
+      case "Litecoin":
+        return Litecoin.litecoinGetAddress(msg);
+      case "Dogecoin":
+        return Doge.dogecoinGetAddress(msg);
+      case "BitcoinCash":
+        return BtcCash.bitcoinCashGetAddress(msg);
+      default:
+        return null;
+    }
   }
 
   public async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
@@ -862,10 +816,17 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   }
 
   public async thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string | null> {
-    return _thorchainGetAddress(msg).catch((e) => {
-      console.error(e, { msg });
+    if (this.thorchainAddress) {
+      return this.thorchainAddress;
+    }
+    const address = await Thorchain.thorchainGetAddress(msg);
+    if (address) {
+      this.thorchainAddress = address;
+      return address;
+    } else {
+      this.thorchainAddress = null;
       return null;
-    });
+    }
   }
 
   public async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {
