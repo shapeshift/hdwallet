@@ -10,7 +10,6 @@ import * as Doge from "./dogecoin";
 import * as Eth from "./ethereum";
 import * as Litecoin from "./litecoin";
 import * as Thorchain from "./thorchain";
-import { fromAddressNList } from "./utils";
 import * as utxo from "./utxo";
 
 export function isMetaMask(wallet: core.HDWallet): wallet is MetaMaskShapeShiftMultiChainHDWallet {
@@ -299,12 +298,12 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   readonly _supportsThorchain = true;
 
   info: MetaMaskShapeShiftMultiChainHDWalletInfo & core.HDWalletInfo;
-  bitcoinAddresses: Map<number, string | null>;
-  bitcoinCashAddresses: Map<number, string | null>;
+  bitcoinAddress?: string | null;
+  bitcoinCashAddress?: string | null;
   cosmosAddress?: string | null;
-  dogecoinAddresses: Map<number, string | null>;
+  dogecoinAddress?: string | null;
   ethAddress?: string | null;
-  litecoinAddresses: Map<number, string | null>;
+  litecoinAddress?: string | null;
   osmosisAddress?: string | null;
   thorchainAddress?: string | null;
   provider: any;
@@ -312,10 +311,6 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   constructor(provider: unknown) {
     this.info = new MetaMaskShapeShiftMultiChainHDWalletInfo();
     this.provider = provider;
-    this.bitcoinAddresses = new Map();
-    this.bitcoinCashAddresses = new Map();
-    this.dogecoinAddresses = new Map();
-    this.litecoinAddresses = new Map();
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -481,37 +476,15 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   }
 
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
-    const bip44Params = fromAddressNList(msg.addressNList);
-    const { accountNumber } = bip44Params;
     switch (msg.coin) {
-      case "Bitcoin": {
-        const maybeBitcoinAddress = this.bitcoinAddresses.get(accountNumber);
-        if (maybeBitcoinAddress !== undefined) return maybeBitcoinAddress;
-        const bitcoinAddress = await Btc.bitcoinGetAddress(msg);
-        this.bitcoinAddresses.set(accountNumber, bitcoinAddress);
-        return bitcoinAddress;
-      }
-      case "Litecoin": {
-        const maybeLitecoinAddress = this.litecoinAddresses.get(accountNumber);
-        if (maybeLitecoinAddress !== undefined) return maybeLitecoinAddress;
-        const litecoinAddress = await Litecoin.litecoinGetAddress(msg);
-        this.litecoinAddresses.set(accountNumber, litecoinAddress);
-        return litecoinAddress;
-      }
-      case "Dogecoin": {
-        const maybeDogecoinAddress = this.dogecoinAddresses.get(accountNumber);
-        if (maybeDogecoinAddress !== undefined) return maybeDogecoinAddress;
-        const dogecoinAddress = await Doge.dogecoinGetAddress(msg);
-        this.dogecoinAddresses.set(accountNumber, dogecoinAddress);
-        return dogecoinAddress;
-      }
-      case "BitcoinCash": {
-        const maybeBitcoinCashAddress = this.bitcoinCashAddresses.get(accountNumber);
-        if (maybeBitcoinCashAddress !== undefined) return maybeBitcoinCashAddress;
-        const bchAddress = await BtcCash.bitcoinCashGetAddress(msg);
-        this.bitcoinCashAddresses.set(accountNumber, bchAddress);
-        return bchAddress;
-      }
+      case "Bitcoin":
+        return Btc.bitcoinGetAddress(msg);
+      case "Litecoin":
+        return Litecoin.litecoinGetAddress(msg);
+      case "Dogecoin":
+        return Doge.dogecoinGetAddress(msg);
+      case "BitcoinCash":
+        return BtcCash.bitcoinCashGetAddress(msg);
       default:
         return null;
     }
@@ -574,18 +547,15 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   }
 
   public async bitcoinCashGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
-    const bip44Params = fromAddressNList(msg.addressNList);
-    const bitcoinCashAddress = this.bitcoinCashAddresses.get(bip44Params.accountNumber);
-    if (bitcoinCashAddress) {
-      return bitcoinCashAddress;
+    if (this.bitcoinCashAddress) {
+      return this.bitcoinCashAddress;
     }
-
-    const maybeBitcoinCashAddress = await BtcCash.bitcoinCashGetAddress(msg);
-    if (maybeBitcoinCashAddress) {
-      this.bitcoinCashAddresses.set(bip44Params.accountNumber, maybeBitcoinCashAddress);
-      return maybeBitcoinCashAddress;
+    const address = await BtcCash.bitcoinCashGetAddress(msg);
+    if (address) {
+      this.bitcoinCashAddress = address;
+      return address;
     } else {
-      this.bitcoinCashAddresses.set(bip44Params.accountNumber, null);
+      this.bitcoinCashAddress = null;
       return null;
     }
   }
@@ -651,18 +621,15 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   }
 
   public async dogecoinGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
-    const bip44Params = fromAddressNList(msg.addressNList);
-    const dogecoinAddress = this.dogecoinAddresses.get(bip44Params.accountNumber);
-    if (dogecoinAddress) {
-      return dogecoinAddress;
+    if (this.dogecoinAddress) {
+      return this.dogecoinAddress;
     }
-
-    const maybeDogecoinAddress = await Doge.dogecoinGetAddress(msg);
-    if (maybeDogecoinAddress) {
-      this.dogecoinAddresses.set(bip44Params.accountNumber, maybeDogecoinAddress);
-      return maybeDogecoinAddress;
+    const address = await Doge.dogecoinGetAddress(msg);
+    if (address) {
+      this.dogecoinAddress = address;
+      return address;
     } else {
-      this.dogecoinAddresses.set(bip44Params.accountNumber, null);
+      this.dogecoinAddress = null;
       return null;
     }
   }
@@ -812,17 +779,17 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   }
 
   public async litecoinGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
-    const bip44Params = fromAddressNList(msg.addressNList);
-    const litecoinAddress = this.litecoinAddresses.get(bip44Params.accountNumber);
-    if (litecoinAddress) {
-      return litecoinAddress;
+    if (this.litecoinAddress) {
+      return this.litecoinAddress;
     }
-    const maybeLitecoinAddress = await Litecoin.litecoinGetAddress(msg);
-    if (maybeLitecoinAddress) {
-      this.litecoinAddresses.set(bip44Params.accountNumber, maybeLitecoinAddress);
-      return maybeLitecoinAddress;
+    const address = await Litecoin.litecoinGetAddress(msg);
+    if (address) {
+      this.litecoinAddress = address;
+      return address;
+    } else {
+      this.litecoinAddress = null;
+      return null;
     }
-    return null;
   }
 
   public async litecoinSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
