@@ -20,7 +20,8 @@
     "@shapeshiftoss/hdwallet-core": "1.50.5-alpha.0",
     "@shapeshiftoss/metamask-snaps-adapter": "^1.0.7",
     "eth-rpc-errors": "^4.0.3",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "p-memoize": "^7.1.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.17",
