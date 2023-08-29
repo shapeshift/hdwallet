@@ -2461,16 +2461,16 @@
     pump "^3.0.0"
     webextension-polyfill-ts "^0.25.0"
 
-"@metamask/rpc-methods@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@metamask/rpc-methods/-/rpc-methods-1.0.1.tgz#b1e6bc2600f7b4ad2c5f907cfc3ad04365edc843"
-  integrity sha512-2JiDO/CVyG7ND5lKJx/jI9AF75UJ8ROELWCJTnkJ783dmR01j0CwpKfEUJSy1dCU9XIxw08KiUhvPDON6/2kDQ==
+"@metamask/rpc-methods@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@metamask/rpc-methods/-/rpc-methods-1.0.2.tgz#6d45d71c7f8d2d3a75679f13f095f3679de3c387"
+  integrity sha512-EXDCOCVIEhFamg/X/jlbiANynoBbHikRIEhE8/DO7ZCoWBD6rPONqH0mtw8Sj2DYLyvOCeym1D7Z23xJh+FWvQ==
   dependencies:
     "@metamask/browser-passworder" "^4.0.2"
     "@metamask/key-tree" "^7.1.1"
     "@metamask/permission-controller" "^4.0.0"
-    "@metamask/snaps-ui" "^1.0.1"
-    "@metamask/snaps-utils" "^1.0.1"
+    "@metamask/snaps-ui" "^1.0.2"
+    "@metamask/snaps-utils" "^1.0.2"
     "@metamask/types" "^1.1.0"
     "@metamask/utils" "^6.0.1"
     "@noble/hashes" "^1.1.3"
@@ -2506,13 +2506,13 @@
     superstruct "^1.0.3"
 
 "@metamask/snaps-types@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@metamask/snaps-types/-/snaps-types-1.0.1.tgz#63644913a8351d999eaa90f3408e0f0748fb8eba"
-  integrity sha512-+F/B2HoAVKPxPoNkSuIrPjSA1Cw/1gII1CLruIdc7dvpAS8XyWUc8h4D612naEpq7rTs9Vg0gFM61Khwb1v8iw==
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@metamask/snaps-types/-/snaps-types-1.0.2.tgz#d2269fc10a00f1a6621c3fd49223b3cefe9a1534"
+  integrity sha512-mnvdjMWFsZXWMEx8Dt+mYwtDsPdswookPIArH1PVKHdLUBi94tT1BsR/nwUpLYh3mPY6fO6/m1PEkOXuDbS7Fg==
   dependencies:
     "@metamask/providers" "^10.2.0"
-    "@metamask/rpc-methods" "^1.0.1"
-    "@metamask/snaps-utils" "^1.0.1"
+    "@metamask/rpc-methods" "^1.0.2"
+    "@metamask/snaps-utils" "^1.0.2"
     "@metamask/utils" "^6.0.1"
 
 "@metamask/snaps-ui@0.32.2":
@@ -2523,18 +2523,18 @@
     "@metamask/utils" "^5.0.0"
     superstruct "^1.0.3"
 
-"@metamask/snaps-ui@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@metamask/snaps-ui/-/snaps-ui-1.0.1.tgz#ba46fbb8525ab9cc81445a00d9dde244e3c1ae17"
-  integrity sha512-Wix1RWKa1l0T5Lo7KHsZf+SGbxpkV2pskaAms89APNFLyTofgZoKZg+HxsHMQTdWkNv/++9FBkim1jYMxzEgOQ==
+"@metamask/snaps-ui@^1.0.1", "@metamask/snaps-ui@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@metamask/snaps-ui/-/snaps-ui-1.0.2.tgz#392af94186a5c40f9f3ab650ce117237169eeffd"
+  integrity sha512-YIY3dxepYeAWNZlPcT46Hr8OLY3bmI9AWoFDuyIqbh9YmMDdjbDAy3plzebaLyeKoH4/m5vd/9eFrMXSoLW7OA==
   dependencies:
     "@metamask/utils" "^6.0.1"
     superstruct "^1.0.3"
 
-"@metamask/snaps-utils@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@metamask/snaps-utils/-/snaps-utils-1.0.1.tgz#2e8b56173dbef15cb4bb5e0b66d479d2798f3791"
-  integrity sha512-K7L7GvMz0kObVmbVWJV2EdvduQ3DpU5NJc5kl7fde5YQQZzhRx3/fn+alBMOPucQwEzAsJVVO+79h29ayqMZOg==
+"@metamask/snaps-utils@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@metamask/snaps-utils/-/snaps-utils-1.0.2.tgz#439fcc07133388c469fa86b2f632a5285ed88f00"
+  integrity sha512-QzESjW+7x5OLbqaIDHlvLzGC6IlDrlWqxvJ9C3aYpcQcYl932REc0z5NeSTipMic+Fqu3mVrUzTjlvidXWEv1g==
   dependencies:
     "@babel/core" "^7.18.6"
     "@babel/types" "^7.18.7"
@@ -2543,7 +2543,7 @@
     "@metamask/permission-controller" "^4.0.0"
     "@metamask/providers" "^10.2.1"
     "@metamask/snaps-registry" "^1.2.1"
-    "@metamask/snaps-ui" "^1.0.1"
+    "@metamask/snaps-ui" "^1.0.2"
     "@metamask/utils" "^6.0.1"
     "@noble/hashes" "^1.1.3"
     "@scure/base" "^1.1.1"
