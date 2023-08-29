@@ -54,6 +54,9 @@
     "ts-jest": "^26.5.5",
     "typescript": "^4.7.4"
   },
+  "resolutions": {
+    "bip174": "2.1.0"
+  },
   "dependencies": {
     "patch-package": "^6.2.2",
     "postinstall-postinstall": "^2.1.0"
