@@ -3990,17 +3990,17 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.1.3.tgz#ff05765775351c8adc99cf747f14b5619311e023"
   integrity sha512-II9vFeaB5RCnGiEUVGpZC599vJeO3JK186v1SPUIMM7Q+U/FjroN5MybHgnJ+buBx3f8HpXorv6ksgVT2f5Xwg==
 
-"@shapeshiftoss/metamask-snaps-adapter@^1.0.0-alpha.1":
-  version "1.0.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/metamask-snaps-adapter/-/metamask-snaps-adapter-1.0.0-alpha.1.tgz#1cf46d43a738e27095dff636a059e1a48ff17be1"
-  integrity sha512-Mqmobt5f0BS/kyOuMujmE2Zlllr8cOFdVp1RfEy1bRDhodhLBW1a/OjlqQjFXMO+VrksnBQiG4BaCA+HdXnKhg==
+"@shapeshiftoss/metamask-snaps-adapter@^1.0.0-alpha.6":
+  version "1.0.0-alpha.7"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/metamask-snaps-adapter/-/metamask-snaps-adapter-1.0.0-alpha.7.tgz#eb6686b473f40170e05f2be76a7af553af35bf08"
+  integrity sha512-bXJ8acD4tQx9rfO0t0d3WNqaJgYitNsIlUI20db5iRNtiUjl7Qm8cxd324FIKgw13HL5XPW7RxRmN6c09HICLQ==
   dependencies:
     "@ethersproject/providers" "^5.7.2"
     "@metamask/detect-provider" "^2.0.0"
     "@metamask/snaps-ui" "0.32.2"
     "@shapeshiftoss/hdwallet-core" "^1.29.0"
     "@shapeshiftoss/logger" "^1.1.3"
-    "@shapeshiftoss/metamask-snaps" "^1.0.0-alpha.1"
+    "@shapeshiftoss/metamask-snaps" "^1.0.0-alpha.7"
     "@shapeshiftoss/metamask-snaps-types" "^1.0.0-alpha.1"
 
 "@shapeshiftoss/metamask-snaps-types@^1.0.0-alpha.1":
@@ -4013,10 +4013,10 @@
     "@shapeshiftoss/hdwallet-native" "^1.33.0"
     "@shapeshiftoss/unchained-client" "^10.1.1"
 
-"@shapeshiftoss/metamask-snaps@^1.0.0-alpha.1":
-  version "1.0.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/metamask-snaps/-/metamask-snaps-1.0.0-alpha.1.tgz#30e9036974ec298ef83e0cf5cde6081b3a703ca2"
-  integrity sha512-3N0/Jhf3Oy+Zgi5GcSw7cE4h8Il2HWz5pHHzpPWlkQv0r/OEA+TaP+Db4LiKDXb3r5j1LC1ebbFwo9zXzoF+nA==
+"@shapeshiftoss/metamask-snaps@^1.0.0-alpha.7":
+  version "1.0.0-alpha.7"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/metamask-snaps/-/metamask-snaps-1.0.0-alpha.7.tgz#5ddde34f56659bee7fd74d0cf3e1fc76f82cb20a"
+  integrity sha512-+q1UqZ5C/eK06zzJmdrMop7R/TkeQJF/TjZw6mlu/LrsiUYkj2cqJDDABS2fkKl3MnOMlB3L3pklNgBMSmbOEQ==
   dependencies:
     "@ethersproject/providers" "^5.7.0"
     "@metamask/detect-provider" "^2.0.0"
