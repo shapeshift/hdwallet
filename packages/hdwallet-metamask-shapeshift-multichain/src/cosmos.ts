@@ -3,6 +3,7 @@ import {
   cosmosGetAddress as snapCosmosGetAddress,
   cosmosSignTransaction as snapCosmosSignTransaction,
 } from "@shapeshiftoss/metamask-snaps-adapter";
+import { CosmosGetAddressResponse } from "@shapeshiftoss/metamask-snaps-types";
 
 import { SNAP_ID } from "./common";
 
@@ -20,7 +21,7 @@ export function cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosA
   return undefined;
 }
 
-export async function cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string | null> {
+export async function cosmosGetAddress(msg: core.CosmosGetAddress): Promise<CosmosGetAddressResponse> {
   return await snapCosmosGetAddress({ snapId: SNAP_ID, addressParams: { addressNList: msg.addressNList } });
 }
 

@@ -3,6 +3,7 @@ import {
   thorchainGetAddress as snapThorchainGetAddress,
   thorchainSignTransaction as snapThorchainSignTransaction,
 } from "@shapeshiftoss/metamask-snaps-adapter";
+import { ThorchainGetAddressResponse } from "@shapeshiftoss/metamask-snaps-types";
 
 import { SNAP_ID } from "./common";
 
@@ -20,7 +21,7 @@ export function thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.T
   return undefined;
 }
 
-export async function thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string | null> {
+export async function thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<ThorchainGetAddressResponse> {
   return await snapThorchainGetAddress({ snapId: SNAP_ID, addressParams: { addressNList: msg.addressNList } });
 }
 
