@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-native",
-  "version": "1.50.5-alpha.46",
+  "version": "1.50.5-alpha.47",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
