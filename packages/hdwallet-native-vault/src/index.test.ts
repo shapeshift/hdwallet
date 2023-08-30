@@ -36,8 +36,8 @@ let prepareOnce: () => void;
 const preparedOnce = new Promise<void>((resolve) => (prepareOnce = resolve)).then(async () => {
   await resetGetRandomValues();
   await RawVault.prepare({
-    // @ts-ignore TODO(gomes):fixme
     crypto: {
+      randomUUID: realCrypto.randomUUID,
       subtle: realCrypto.subtle,
       async getRandomValues<T extends ArrayBufferView | null>(array: T): Promise<T> {
         return await mockGetRandomValues(array);

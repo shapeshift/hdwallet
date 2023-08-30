@@ -17,8 +17,10 @@ export async function derivePath<T extends Derivable>(node: T, path: Path): Prom
   }
   const endIndex = splitPath.lastIndexOf("");
   if (endIndex >= 0) splitPath = splitPath.slice(0, endIndex);
-  // @ts-ignore FIXME
-  return await splitPath.reduce(async (prevHd, indexStr) => {
+  // TODO(gomes): fix this generic hell
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore this breaks type checking and I haven't touched this diff, ts-ignoring it for the time being
+  return splitPath.reduce(async (prevHd, indexStr) => {
     let index;
     if (indexStr.slice(-1) === `'`) {
       index = parseInt(indexStr.slice(0, -1), 10);
