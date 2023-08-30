@@ -114,7 +114,9 @@ export class LedgerWebUsbTransport extends ledger.LedgerTransport {
     coin: T,
     method: U,
     ...args: Parameters<LedgerTransportMethod<T, U>>
-  ): Promise<LedgerResponse<T, U>> {
+  ): // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore ts is drunk, stop pls
+  Promise<LedgerResponse<T, U>> {
     this.emit(
       `ledger.${coin}.${method}.call`,
       core.makeEvent({
@@ -126,6 +128,8 @@ export class LedgerWebUsbTransport extends ledger.LedgerTransport {
 
     try {
       const methodInstance: LedgerTransportMethod<T, U> = translateCoinAndMethod(this.transport, coin, method);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore ts is drunk, stop pls
       const response = await methodInstance(...args);
       const result = {
         success: true,
@@ -143,6 +147,8 @@ export class LedgerWebUsbTransport extends ledger.LedgerTransport {
         );
       }
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore ts is drunk, stop pls
       return result;
     } catch (e) {
       console.error(e);

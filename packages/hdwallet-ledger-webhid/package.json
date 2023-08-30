@@ -27,5 +27,5 @@
   "devDependencies": {
     "@types/ledgerhq__hw-transport": "^4.21.3"
   },
-  "gitHead": "e8295b8660b5a27f0d397ccf813dd90e137da0e9"
+  "gitHead": "243421f1de13f0098e03acdba5d7626ae4ae883b"
 }
