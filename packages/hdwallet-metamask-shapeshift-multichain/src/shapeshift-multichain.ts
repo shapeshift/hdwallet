@@ -475,19 +475,29 @@ export class MetaMaskShapeShiftMultiChainHDWallet
     return this.info.bitcoinNextAccountPath(msg);
   }
 
+  addressCache: Map<string, string> = new Map();
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
-    switch (msg.coin) {
-      case "Bitcoin":
-        return Btc.bitcoinGetAddress(msg);
-      case "Litecoin":
-        return Litecoin.litecoinGetAddress(msg);
-      case "Dogecoin":
-        return Doge.dogecoinGetAddress(msg);
-      case "BitcoinCash":
-        return BtcCash.bitcoinCashGetAddress(msg);
-      default:
-        return null;
-    }
+    const key = JSON.stringify(msg);
+    const maybeCachedAddress = this.addressCache.get(key);
+    if (maybeCachedAddress) return maybeCachedAddress;
+    const value = await (async () => {
+      switch (msg.coin) {
+        case "Bitcoin":
+          return Btc.bitcoinGetAddress(msg);
+        case "Litecoin":
+          return Litecoin.litecoinGetAddress(msg);
+        case "Dogecoin":
+          return Doge.dogecoinGetAddress(msg);
+        case "BitcoinCash":
+          return BtcCash.bitcoinCashGetAddress(msg);
+        default:
+          return null;
+      }
+    })();
+    if (!value || typeof value !== "string") return null;
+
+    this.addressCache.set(key, value);
+    return value;
   }
 
   public async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
