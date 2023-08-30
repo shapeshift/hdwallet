@@ -1,0 +1,42 @@
+{
+  "name": "@shapeshiftoss/hdwallet-ledger",
+  "version": "1.50.4",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "dist/index.js",
+  "source": "src/index.ts",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc --build",
+    "build:docs": "typedoc --out docs --target es6 --theme minimal --mode file src",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "prepublishOnly": "yarn clean && yarn build"
+  },
+  "dependencies": {
+    "@ethereumjs/common": "^2.4.0",
+    "@ethereumjs/tx": "^3.3.0",
+    "@shapeshiftoss/hdwallet-core": "1.50.4",
+    "base64-js": "^1.5.1",
+    "bchaddrjs": "^0.4.4",
+    "bitcoinjs-lib": "^5.1.6",
+    "bitcoinjs-message": "^2.0.0",
+    "bs58check": "2.1.2",
+    "ethereumjs-tx": "1.3.7",
+    "ethereumjs-util": "^6.1.0",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@ledgerhq/hw-app-btc": "^6.7.0",
+    "@ledgerhq/hw-app-eth": "^6.9.0",
+    "@ledgerhq/hw-transport": "^6.7.0",
+    "@ledgerhq/live-common": "^21.8.2",
+    "@types/bchaddrjs": "^0.4.0",
+    "@types/bs58check": "^2.1.0",
+    "@types/ethereumjs-tx": "1.0.1",
+    "@types/lodash": "^4.14.168",
+    "typedoc": "^0.20.36",
+    "typescript": "^4.7.4"
+  }
+}

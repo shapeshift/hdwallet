@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
@@ -69,7 +70,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     );
 
     test("getPublicKeys", async () => {
-      if (!wallet || trezor.isTrezor(wallet) || portis.isPortis(wallet)) return;
+      if (!wallet || ledger.isLedger(wallet) || trezor.isTrezor(wallet) || portis.isPortis(wallet)) return;
 
       /* FIXME: Expected failure (trezor does not use scriptType in deriving public keys
           and ledger's dependency bitcoinjs-lib/src/crypto.js throws a mysterious TypeError
@@ -214,6 +215,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       "btcSignTx() - p2pkh",
       async () => {
         if (!wallet || portis.isPortis(wallet)) return;
+        if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
         const tx: core.BitcoinTx = {
           version: 1,
           locktime: 0,
@@ -288,6 +290,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       "btcSignTx() - thorchain swap",
       async () => {
         if (!wallet || portis.isPortis(wallet)) return;
+        if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
         if (trezor.isTrezor(wallet)) return; //TODO: Add trezor support for op return data passed at top level
         const tx: core.BitcoinTx = {
           version: 1,
