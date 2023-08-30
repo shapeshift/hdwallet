@@ -11,6 +11,8 @@ import { WebCryptoEngine } from "./web-crypto";
 
 describe("WebCryptoEngine JavaScript", () => {
   // Load shim to support running tests in node
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore nothing changed at runtime but ts now complains here, ser you're drunk
   globalThis.crypto = new webcrypto.Crypto();
 
   const engine = new WebCryptoEngine();
