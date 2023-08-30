@@ -55,7 +55,8 @@
     "typescript": "^4.7.4"
   },
   "resolutions": {
-    "bip174": "2.1.0"
+    "bip174": "2.1.0",
+    "@types/eventsource": "1.1.8"
   },
   "dependencies": {
     "patch-package": "^6.2.2",
