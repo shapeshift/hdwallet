@@ -561,7 +561,7 @@ export class MetaMaskShapeShiftMultiChainHDWallet
       return this.bitcoinCashAddress;
     }
     const address = await BtcCash.bitcoinCashGetAddress(msg);
-    if (address) {
+    if (address && typeof address === "string") {
       this.bitcoinCashAddress = address;
       return address;
     } else {
@@ -598,7 +598,7 @@ export class MetaMaskShapeShiftMultiChainHDWallet
       return this.cosmosAddress;
     }
     const address = await Cosmos.cosmosGetAddress(msg);
-    if (address) {
+    if (address && typeof address === "string") {
       this.cosmosAddress = address;
       return address;
     } else {
@@ -635,7 +635,7 @@ export class MetaMaskShapeShiftMultiChainHDWallet
       return this.dogecoinAddress;
     }
     const address = await Doge.dogecoinGetAddress(msg);
-    if (address) {
+    if (address && typeof address === "string") {
       this.dogecoinAddress = address;
       return address;
     } else {
@@ -793,7 +793,7 @@ export class MetaMaskShapeShiftMultiChainHDWallet
       return this.litecoinAddress;
     }
     const address = await Litecoin.litecoinGetAddress(msg);
-    if (address) {
+    if (address && typeof address === "string") {
       this.litecoinAddress = address;
       return address;
     } else {
@@ -830,7 +830,7 @@ export class MetaMaskShapeShiftMultiChainHDWallet
       return this.thorchainAddress;
     }
     const address = await Thorchain.thorchainGetAddress(msg);
-    if (address) {
+    if (address && typeof address === "string") {
       this.thorchainAddress = address;
       return address;
     } else {
