@@ -5516,18 +5516,6 @@
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
 
-"@shapeshiftoss/hdwallet-core@1.50.5-alpha.1":
-  version "1.50.5-alpha.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.50.5-alpha.1.tgz#897c194427f303f103b5f87a4b827d9f9e12f88d"
-  integrity sha512-DwF24UZlldjLKkljXYhkB3zVlVTcMnREwPk8aE/FxG5uU7v/0iqfT+9vG2s8VEkC4KfPmf9YgazsCLaRqg8aBA==
-  dependencies:
-    "@shapeshiftoss/proto-tx-builder" "^0.8.0"
-    eip-712 "^1.0.0"
-    eventemitter2 "^5.0.1"
-    lodash "^4.17.21"
-    rxjs "^6.4.0"
-    type-assertions "^1.1.0"
-
 "@shapeshiftoss/hdwallet-core@latest":
   version "1.18.4"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.18.4.tgz#7272baa4b43de0fbb5e651d47cdeb9554f4ddd33"
@@ -5539,43 +5527,37 @@
     type-assertions "^1.1.0"
 
 "@shapeshiftoss/hdwallet-ledger-webhid@^1.50.5-alpha.46":
-  version "1.50.5-alpha.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-ledger-webhid/-/hdwallet-ledger-webhid-1.50.5-alpha.1.tgz#e855082ba452ad6d0cb8eb72ae2d08c52bb8efca"
-  integrity sha512-tBY08LJUMEpLPG4iou84s1fTzZERujlvdg+3Utpq8VM70htLZL8h70LlSkf2kmOKhiivq8b0eNTEwJ6YA+ac5Q==
+  version "1.50.4"
   dependencies:
     "@ledgerhq/hw-app-btc" "^6.7.0"
     "@ledgerhq/hw-app-eth" "^6.9.0"
     "@ledgerhq/hw-transport" "^6.7.0"
     "@ledgerhq/hw-transport-webhid" "^6.7.0"
     "@ledgerhq/live-common" "^21.8.2"
-    "@shapeshiftoss/hdwallet-core" "1.50.5-alpha.1"
-    "@shapeshiftoss/hdwallet-ledger" "1.50.5-alpha.1"
+    "@shapeshiftoss/hdwallet-core" "1.50.4"
+    "@shapeshiftoss/hdwallet-ledger" "1.50.4"
     "@types/w3c-web-hid" "^1.0.2"
-    typescript "^4.3.2"
+    typescript "^4.7.4"
 
 "@shapeshiftoss/hdwallet-ledger-webusb@^1.50.5-alpha.46":
-  version "1.50.5-alpha.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-ledger-webusb/-/hdwallet-ledger-webusb-1.50.5-alpha.1.tgz#674ca81e13f0ba868f705e1e73aa71c55b778951"
-  integrity sha512-018KGgQQ9tAhjof9KpvfScqUQboURyQkXK6AQFsSEiV+IuW2ngSAjS8lQY9rNesiv44JCpsCJAjmXTGSPBuuEg==
+  version "1.50.4"
   dependencies:
     "@ledgerhq/hw-app-btc" "^6.7.0"
     "@ledgerhq/hw-app-eth" "^6.9.0"
     "@ledgerhq/hw-transport" "^6.7.0"
     "@ledgerhq/hw-transport-webusb" "^6.7.0"
     "@ledgerhq/live-common" "^21.8.2"
-    "@shapeshiftoss/hdwallet-core" "1.50.5-alpha.1"
-    "@shapeshiftoss/hdwallet-ledger" "1.50.5-alpha.1"
+    "@shapeshiftoss/hdwallet-core" "1.50.4"
+    "@shapeshiftoss/hdwallet-ledger" "1.50.4"
     "@types/w3c-web-usb" "^1.0.4"
-    typescript "^4.3.2"
+    typescript "^4.7.4"
 
-"@shapeshiftoss/hdwallet-ledger@1.50.5-alpha.1", "@shapeshiftoss/hdwallet-ledger@^1.50.5-alpha.46":
-  version "1.50.5-alpha.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-ledger/-/hdwallet-ledger-1.50.5-alpha.1.tgz#5832b059b1f8963833196bd51a7799fb82c491d2"
-  integrity sha512-b+LnYeBqmat0kTm56huhtmckxhyffufBDHQW+E2uftc1m5i9CiRfk/HYFFjB1HeJn40uIyxGBj5tDTvxAIYkdw==
+"@shapeshiftoss/hdwallet-ledger@^1.50.5-alpha.46":
+  version "1.50.4"
   dependencies:
     "@ethereumjs/common" "^2.4.0"
     "@ethereumjs/tx" "^3.3.0"
-    "@shapeshiftoss/hdwallet-core" "1.50.5-alpha.1"
+    "@shapeshiftoss/hdwallet-core" "1.50.4"
     base64-js "^1.5.1"
     bchaddrjs "^0.4.4"
     bitcoinjs-lib "^5.1.6"
@@ -13832,7 +13814,7 @@ jsonify@~0.0.0:
 jsonparse@^1.2.0, jsonparse@^1.3.1:
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/jsonparse/-/jsonparse-1.3.1.tgz#3f4dae4a91fac315f71062f8521cc239f1366280"
-  integrity sha512-POQXvpdL69+CluYsillJ7SUhKvytYjW9vG/GKpnf+xP8UWgYEM/RaMzHHofbALDiKbbP1W8UEYmgGl39WkPZsg==
+  integrity sha1-P02uSpH6wxX3EGL4UhzCOfE2YoA=
 
 jsonschema@1.2.2:
   version "1.2.2"
@@ -19059,11 +19041,6 @@ typescript@^3.9.5:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.9.10.tgz#70f3910ac7a51ed6bef79da7800690b19bf778b8"
   integrity sha512-w6fIxVE/H1PkLKcCPsFqKE7Kv7QUwhU8qQY2MueZXWx5cPZdwFupLgKK3vntcK98BtNHZtAF4LA/yl2a7k8R6Q==
 
-typescript@^4.3.2:
-  version "4.3.5"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.3.5.tgz#4d1c37cc16e893973c45a06886b7113234f119f4"
-  integrity sha512-DqQgihaQ9cUrskJo9kIyW/+g0Vxsk8cDtZ52a3NGh0YNTfpUSArXSohyUGnvbPazEPLu398C0UxmKSOrPumUzA==
-
 typeson-registry@^1.0.0-alpha.20:
   version "1.0.0-alpha.39"
   resolved "https://registry.yarnpkg.com/typeson-registry/-/typeson-registry-1.0.0-alpha.39.tgz#9e0f5aabd5eebfcffd65a796487541196f4b1211"
@@ -19471,7 +19448,7 @@ walker@^1.0.7, walker@~1.0.5:
 wcwidth@^1.0.0, wcwidth@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/wcwidth/-/wcwidth-1.0.1.tgz#f0b0dcf915bc5ff1528afadb2c0e17b532da2fe8"
-  integrity sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==
+  integrity sha1-8LDc+RW8X/FSivrbLA4XtTLaL+g=
   dependencies:
     defaults "^1.0.3"
 
