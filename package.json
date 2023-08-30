@@ -56,9 +56,11 @@
   },
   "resolutions": {
     "bip174": "2.1.0",
-    "@types/eventsource": "1.1.8"
+    "@types/eventsource": "1.1.8",
+    "@types/node": "20.5.7@ts4.7"
   },
   "dependencies": {
+    "@types/node": "^20.5.7",
     "patch-package": "^6.2.2",
     "postinstall-postinstall": "^2.1.0"
   }
