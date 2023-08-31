@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-shapeshift-multichain",
-  "version": "1.50.5-alpha.51",
+  "version": "1.50.5-alpha.52",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
