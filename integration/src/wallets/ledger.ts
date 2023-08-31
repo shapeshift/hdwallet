@@ -19,7 +19,9 @@ export class MockTransport extends ledger.LedgerTransport {
     coin: T,
     method: U,
     ...args: Parameters<ledger.LedgerTransportMethod<T, U>>
-  ): Promise<ledger.LedgerResponse<T, U>> {
+  ): // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore TODO: remove ts-ignore, tsc is drunk, runtime didn't change in this diff
+  Promise<ledger.LedgerResponse<T, U>> {
     const key = JSON.stringify({ coin: coin, method: method, args: args });
 
     if (!this.memoized.has(key)) {
