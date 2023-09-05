@@ -428,8 +428,15 @@ export class MetaMaskShapeShiftMultiChainHDWallet
     return this.info.describePath(msg);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  publicKeysCache: Map<string, Array<core.PublicKey | null>> = new Map();
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
+    const key = JSON.stringify(msg);
+    const maybeCachedPublicKeys = this.publicKeysCache.get(key);
+
+    if (maybeCachedPublicKeys) {
+      return maybeCachedPublicKeys;
+    }
+
     const pubKeys = await Promise.all(
       msg.map(async (getPublicKey) => {
         switch (getPublicKey.coin) {
@@ -448,9 +455,13 @@ export class MetaMaskShapeShiftMultiChainHDWallet
     );
 
     const flattened = pubKeys.flat();
-    return flattened.filter((x) => x !== null) as Array<core.PublicKey>;
-  }
+    const filtered = flattened.filter((x) => x !== null) as Array<core.PublicKey>;
 
+    // Cache the result
+    this.publicKeysCache.set(key, filtered);
+
+    return filtered;
+  }
   public async isInitialized(): Promise<boolean> {
     return true;
   }
