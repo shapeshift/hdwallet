@@ -116,13 +116,13 @@ export class WalletConnectV2HDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETHInfo = true;
   readonly _supportsBTCInfo = false;
   readonly _supportsBTC = false;
-  readonly _isWalletConnect = true;
+  readonly _isWalletConnect = true; // TODO: _isWalletConnectV2?
   readonly _supportsEthSwitchChain = false;
-  readonly _supportsAvalanche = false;
-  readonly _supportsOptimism = false;
-  readonly _supportsBSC = false;
-  readonly _supportsPolygon = false;
-  readonly _supportsGnosis = false;
+  readonly _supportsAvalanche = true;
+  readonly _supportsOptimism = true;
+  readonly _supportsBSC = true;
+  readonly _supportsPolygon = true;
+  readonly _supportsGnosis = true;
 
   info: WalletConnectV2WalletInfo & core.HDWalletInfo;
   provider: EthereumProvider;

@@ -3,8 +3,6 @@ import { EthereumProvider } from "@walletconnect/ethereum-provider";
 import { EthereumProviderOptions } from "@walletconnect/ethereum-provider/dist/types/EthereumProvider";
 import { WalletConnectV2HDWallet } from "hdwallet-walletconnectV2/src/walletconnect";
 
-// import { WalletConnectV2HDWallet } from "./walletconnect";
-
 export class WalletConnectV2Adapter {
   keyring: core.Keyring;
   private readonly providerConfig: EthereumProviderOptions;
@@ -28,6 +26,7 @@ export class WalletConnectV2Adapter {
         throw new Error("WalletConnectV2 provider configuration not set.");
       }
 
+      // TODO: Swap with UniversalProvider: https://docs.walletconnect.com/2.0/advanced/providers/universal
       const provider = await EthereumProvider.init(this.providerConfig);
       const wallet = new WalletConnectV2HDWallet(provider);
 
@@ -35,10 +34,10 @@ export class WalletConnectV2Adapter {
       await wallet.initialize();
       const deviceID = await wallet.getDeviceID();
       this.keyring.add(wallet, deviceID);
-      this.keyring.emit(["WalletConnect", deviceID, core.Events.CONNECT], deviceID);
+      this.keyring.emit(["WalletConnect", deviceID, core.Events.CONNECT], deviceID); // TODO: emit "WalletConnectV2"?
       return wallet;
     } catch (error) {
-      console.error("Could not pair WalletConnect");
+      console.error("Could not pair WalletConnectV2");
       throw error;
     }
   }
