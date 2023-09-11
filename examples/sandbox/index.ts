@@ -79,7 +79,13 @@ const walletConnectOptions: WalletConnectProviderConfig = {
     1: "https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57",
   },
 };
-const walletConnectV2Options: EthereumProviderOptions = {};
+const walletConnectV2Options: EthereumProviderOptions = {
+  projectId: "5abef0455c768644c2bc866f1520374f",
+  chains: [1],
+  optionalChains: [100],
+  optionalMethods: ["eth_signTypedData", "eth_signTypedData_v4", "eth_sign"],
+  showQrModal: true,
+};
 
 const coinbaseOptions: CoinbaseProviderConfig = {
   appName: "ShapeShift Sandbox",
@@ -542,6 +548,8 @@ const $getXpubs = $("#getXpubs");
 const $doPing = $("#doPing");
 const $doWipe = $("#doWipe");
 const $doLoadDevice = $("#doLoadDevice");
+const $doDisconnect = $("#doDisconnect");
+const $doClearSession = $("#doClearSession");
 const $manageResults = $("#manageResults");
 
 $getVendor.on("click", async (e) => {
@@ -673,6 +681,24 @@ $doLoadDevice.on("click", (e) => {
   wallet.loadDevice({
     mnemonic: /*trezor test seed:*/ "alcohol woman abuse must during monitor noble actual mixed trade anger aisle",
   });
+});
+
+$doDisconnect.on("click", (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $manageResults.val("No wallet?");
+    return;
+  }
+  wallet.disconnect().then(() => $manageResults.val("Disconnected"));
+});
+
+$doClearSession.on("click", (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $manageResults.val("No wallet?");
+    return;
+  }
+  wallet.clearSession().then(() => $manageResults.val("Session Cleared"));
 });
 
 const $openApp = $("#openApp");

@@ -21,7 +21,7 @@ export class WalletConnectV2Adapter {
     return Object.keys(this.keyring.wallets).length;
   }
 
-  public async pairDevice(): Promise<any> {
+  public async pairDevice(): Promise<WalletConnectV2HDWallet> {
     try {
       if (!this.providerConfig) {
         throw new Error("WalletConnectV2 provider configuration not set.");

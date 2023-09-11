@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import EthereumProvider from "@walletconnect/ethereum-provider";
 import * as ethers from "ethers";
 
 export function describeETHPath(path: core.BIP32Path): core.PathDescription {
@@ -33,16 +34,16 @@ export function describeETHPath(path: core.BIP32Path): core.PathDescription {
 
 export async function ethSignTx(
   args: core.ETHSignTx & { from: string },
-  provider: any
+  provider: EthereumProvider
 ): Promise<core.ETHSignedTx | null> {
-  return await provider.wc.signTransaction(args);
+  return await provider.request({ method: "eth_signTransaction", params: [args] });
 }
 
 export async function ethSendTx(
   args: core.ETHSignTx & { from: string },
-  provider: any
+  provider: EthereumProvider
 ): Promise<core.ETHTxHash | null> {
-  const txHash: string = await provider.wc.sendTransaction(args);
+  const txHash: string = await provider.request({ method: "eth_sendTransaction", params: [args] });
   return txHash
     ? {
         hash: txHash,
@@ -52,20 +53,24 @@ export async function ethSendTx(
 
 export async function ethSignMessage(
   args: { data: string | ethers.Bytes; fromAddress: string },
-  provider: any
+  provider: EthereumProvider
 ): Promise<core.ETHSignedMessage | null> {
   const buffer = ethers.utils.isBytes(args.data)
     ? Buffer.from(ethers.utils.arrayify(args.data))
     : Buffer.from(args.data);
-  return await provider.wc.signMessage([buffer.toString("hex"), args.fromAddress]);
+
+  return await provider.request({
+    method: "eth_sign",
+    params: [args.fromAddress, buffer],
+  });
 }
 
-export async function ethGetAddress(provider: any): Promise<string | null> {
+export async function ethGetAddress(provider: EthereumProvider): Promise<string | null> {
   try {
-    if (!(provider && provider.request && provider.connected)) {
-      throw new Error("No WalletConnect provider available.");
+    if (!(provider && provider.connected)) {
+      throw new Error("No WalletConnectV2 provider available.");
     }
-    const ethAccounts = await provider.request({
+    const ethAccounts: string[] = await provider.request({
       method: "eth_accounts",
     });
     return ethAccounts[0];

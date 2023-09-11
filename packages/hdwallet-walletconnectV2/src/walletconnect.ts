@@ -5,6 +5,7 @@ import isObject from "lodash/isObject";
 
 import * as eth from "./ethereum";
 
+// FIXME: what is the actual state?
 interface WCState {
   connected?: boolean;
   chainId: number;
@@ -12,8 +13,8 @@ interface WCState {
   address?: string;
 }
 
-export function isWalletConnect(wallet: core.HDWallet): wallet is WalletConnectV2HDWallet {
-  return isObject(wallet) && (wallet as any)._isWalletConnect;
+export function isWalletConnectV2(wallet: core.HDWallet): wallet is WalletConnectV2HDWallet {
+  return isObject(wallet) && (wallet as any)._isWalletConnectV2;
 }
 
 /**
@@ -67,6 +68,7 @@ export class WalletConnectV2WalletInfo implements core.HDWalletInfo, core.ETHWal
     return true;
   }
 
+  // FIXME
   public describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin) {
       case "Ethereum":
@@ -81,6 +83,7 @@ export class WalletConnectV2WalletInfo implements core.HDWalletInfo, core.ETHWal
     return undefined;
   }
 
+  // FIXME
   public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
     return chainId === 1;
   }
@@ -93,8 +96,9 @@ export class WalletConnectV2WalletInfo implements core.HDWalletInfo, core.ETHWal
     return false;
   }
 
+  // FIXME: confirm this is true
   public async ethSupportsEIP1559(): Promise<boolean> {
-    return false;
+    return true;
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
@@ -116,7 +120,7 @@ export class WalletConnectV2HDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsETHInfo = true;
   readonly _supportsBTCInfo = false;
   readonly _supportsBTC = false;
-  readonly _isWalletConnect = true; // TODO: _isWalletConnectV2?
+  readonly _isWalletConnectV2 = true;
   readonly _supportsEthSwitchChain = false;
   readonly _supportsAvalanche = true;
   readonly _supportsOptimism = true;
@@ -127,9 +131,9 @@ export class WalletConnectV2HDWallet implements core.HDWallet, core.ETHWallet {
   info: WalletConnectV2WalletInfo & core.HDWalletInfo;
   provider: EthereumProvider;
   connected = false;
-  chainId = -1;
+  chainId = -1; // FIXME: undefined?
   accounts: string[] = [];
-  ethAddress = "";
+  ethAddress = ""; // FIXME: undefined?
 
   constructor(provider: EthereumProvider) {
     this.provider = provider;
@@ -156,6 +160,7 @@ export class WalletConnectV2HDWallet implements core.HDWallet, core.ETHWallet {
     return "WalletConnectV2";
   }
 
+  // FIXME: flesh out?
   public async initialize(): Promise<void> {
     /** Subscribe to EIP-1193 events */
     this.provider.on("session_event", async (args) => {
@@ -165,15 +170,26 @@ export class WalletConnectV2HDWallet implements core.HDWallet, core.ETHWallet {
 
     /** Note that this event does not fire on page reload */
     this.provider.on("connect", (args) => {
-      this.onConnect(args);
+      const { chainId } = args;
+      this.setState({ connected: true, chainId: parseInt(chainId, 10) });
     });
 
+    // FIXME: error is always defined?
     this.provider.on("disconnect", (error) => {
       if (error) {
         throw error;
       }
       this.onDisconnect();
     });
+
+    // TODO
+    this.provider.on("message", (args) => {});
+    this.provider.on("chainChanged", (args) => {});
+    this.provider.on("accountsChanged", (args) => {});
+    this.provider.on("session_event", (args) => {});
+    this.provider.on("session_delete", (args) => {});
+    this.provider.on("session_update", (args) => {});
+    this.provider.on("display_uri", (args) => {});
 
     /** Display QR modal to connect */
     await this.provider.enable();
@@ -290,6 +306,7 @@ export class WalletConnectV2HDWallet implements core.HDWallet, core.ETHWallet {
     await this.provider.disconnect();
   }
 
+  // FIXME
   public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
     return chainId === 1;
   }
@@ -302,6 +319,7 @@ export class WalletConnectV2HDWallet implements core.HDWallet, core.ETHWallet {
     return false;
   }
 
+  // FIXME?
   public async ethSupportsEIP1559(): Promise<boolean> {
     return false;
   }
@@ -320,6 +338,7 @@ export class WalletConnectV2HDWallet implements core.HDWallet, core.ETHWallet {
     }
     const address = await eth.ethGetAddress(this.provider);
     if (address) {
+      // FIXME: why does a getter set something?
       this.ethAddress = address;
       return address;
     } else {
@@ -355,6 +374,7 @@ export class WalletConnectV2HDWallet implements core.HDWallet, core.ETHWallet {
     return eth.ethSignMessage({ data: msg.message, fromAddress: this.ethAddress }, this.provider);
   }
 
+  // FIXME: is this still true for V2?
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean | null> {
     console.error("Method ethVerifyMessage unsupported for WalletConnectV2 wallet!");
@@ -369,11 +389,6 @@ export class WalletConnectV2HDWallet implements core.HDWallet, core.ETHWallet {
     return "WalletConnectV2";
   }
 
-  private onConnect(payload: ProviderInfo) {
-    const { chainId } = payload;
-    this.setState({ connected: true, chainId: parseInt(chainId, 10) });
-  }
-
   private onSessionUpdate(accounts: string[], chainId: number) {
     const [address] = accounts;
     this.setState({ accounts, address, chainId });
@@ -385,6 +400,7 @@ export class WalletConnectV2HDWallet implements core.HDWallet, core.ETHWallet {
    * Resets state.
    */
   private onDisconnect() {
+    // FIXME: chinaId set to 1?
     this.setState({ connected: false, chainId: 1, accounts: [], address: "" });
   }
 
