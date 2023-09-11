@@ -18,7 +18,7 @@
     "@metamask/onboarding": "^1.0.1",
     "@shapeshiftoss/common-api": "^9.3.0",
     "@shapeshiftoss/hdwallet-core": "^1.50.5-alpha.62",
-    "@shapeshiftoss/metamask-snaps-adapter": "^1.0.0-alpha.25",
+    "@shapeshiftoss/metamask-snaps-adapter": "^1.0.0-alpha.26",
     "@shapeshiftoss/metamask-snaps-types": "^1.0.0-alpha.22",
     "eth-rpc-errors": "^4.0.3",
     "lodash": "^4.17.21"
