@@ -1,7 +1,8 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { EthereumProvider } from "@walletconnect/ethereum-provider";
 import { EthereumProviderOptions } from "@walletconnect/ethereum-provider/dist/types/EthereumProvider";
-import { WalletConnectV2HDWallet } from "hdwallet-walletconnectV2/src/walletconnect";
+
+import { WalletConnectV2HDWallet } from "./walletconnect";
 
 export class WalletConnectV2Adapter {
   keyring: core.Keyring;

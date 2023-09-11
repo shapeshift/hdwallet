@@ -24,6 +24,7 @@
     "@shapeshiftoss/hdwallet-trezor": "1.50.4",
     "@shapeshiftoss/hdwallet-trezor-connect": "1.50.4",
     "@shapeshiftoss/hdwallet-walletconnect": "1.50.4",
+    "@shapeshiftoss/hdwallet-walletconnectv2": "/Users/apotheosis/git/shapeshift/hdwallet/packages/hdwallet-walletconnectV2",
     "@shapeshiftoss/hdwallet-xdefi": "1.50.4",
     "bip32": "^2.0.4",
     "jquery": "^3.4.1",
