@@ -5526,17 +5526,17 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.1.3.tgz#ff05765775351c8adc99cf747f14b5619311e023"
   integrity sha512-II9vFeaB5RCnGiEUVGpZC599vJeO3JK186v1SPUIMM7Q+U/FjroN5MybHgnJ+buBx3f8HpXorv6ksgVT2f5Xwg==
 
-"@shapeshiftoss/metamask-snaps-adapter@^1.0.0-alpha.26":
-  version "1.0.0-alpha.26"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/metamask-snaps-adapter/-/metamask-snaps-adapter-1.0.0-alpha.26.tgz#2a2c5ccfaa4a418db2f3843174853cb9e25f3679"
-  integrity sha512-09G2Ikc6ZH/tNOm5lM+UqCngqrW0GdDGWsS3yQc2GMAn+TG1YPAgM9CWs/PHVEH0ogr1gO6UAe2uMY6a/fegcg==
+"@shapeshiftoss/metamask-snaps-adapter@^1.0.0-alpha.27":
+  version "1.0.0-alpha.27"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/metamask-snaps-adapter/-/metamask-snaps-adapter-1.0.0-alpha.27.tgz#6455eef4f75f6f3d5ada598bded6754325d5b0db"
+  integrity sha512-KbyH6oBau/b6AKTNiVIcc/62jbvIFSC+edeouQgLPxzvj5LPtLczP0PVGw3FYMr/XgilBhHp6dK+5tyif0QhEA==
   dependencies:
     "@ethersproject/providers" "^5.7.2"
     "@metamask/detect-provider" "^2.0.0"
     "@metamask/snaps-ui" "1.0.1"
     "@shapeshiftoss/hdwallet-core" "^1.50.4"
     "@shapeshiftoss/logger" "^1.1.3"
-    "@shapeshiftoss/metamask-snaps" "^1.0.0-alpha.26"
+    "@shapeshiftoss/metamask-snaps" "^1.0.0-alpha.27"
     "@shapeshiftoss/metamask-snaps-types" "^1.0.0-alpha.22"
     p-queue "^7.4.1"
 
@@ -5550,10 +5550,10 @@
     "@shapeshiftoss/hdwallet-native" "^1.50.4"
     "@shapeshiftoss/unchained-client" "^10.1.1"
 
-"@shapeshiftoss/metamask-snaps@^1.0.0-alpha.26":
-  version "1.0.0-alpha.26"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/metamask-snaps/-/metamask-snaps-1.0.0-alpha.26.tgz#652c0eb0c7f19c2a65ada37c8f0474d806a3b9f5"
-  integrity sha512-+yptPnxKaXqw9kcP5pHCdvjzEC2jvk0Els+7wUfi8+jZ4HeXhVFMdmJZs+pYJq7tKP5PCWL3ro9GGOJmbFLsmw==
+"@shapeshiftoss/metamask-snaps@^1.0.0-alpha.27":
+  version "1.0.0-alpha.27"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/metamask-snaps/-/metamask-snaps-1.0.0-alpha.27.tgz#30935344120c54c8d18c394f0d6125362e617b0d"
+  integrity sha512-eSCDcHlSBxxUYYVRpgjUovcjm4IbmMzif/SdtLkFylEjy3bnqB94SAw1rfJj/0nLYDMjEP4p4MOQQc+nJQRrDw==
   dependencies:
     "@ethersproject/providers" "^5.7.0"
     "@metamask/detect-provider" "^2.0.0"
