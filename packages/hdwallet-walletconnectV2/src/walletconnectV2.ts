@@ -374,11 +374,8 @@ export class WalletConnectV2HDWallet implements core.HDWallet, core.ETHWallet {
     return eth.ethSignMessage({ data: msg.message, fromAddress: this.ethAddress }, this.provider);
   }
 
-  // FIXME: is this still true for V2?
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean | null> {
-    console.error("Method ethVerifyMessage unsupported for WalletConnectV2 wallet!");
-    return null;
+    return eth.ethVerifyMessage(this.provider, msg);
   }
 
   public async getDeviceID(): Promise<string> {

@@ -83,7 +83,15 @@ const walletConnectV2Options: EthereumProviderOptions = {
   projectId: "5abef0455c768644c2bc866f1520374f",
   chains: [1],
   optionalChains: [100],
-  optionalMethods: ["eth_signTypedData", "eth_signTypedData_v4", "eth_sign"],
+  optionalMethods: [
+    "eth_signTypedData",
+    "eth_signTypedData_v4",
+    "eth_sign",
+    "ethVerifyMessage",
+    "eth_accounts",
+    "eth_sendTransaction",
+    "eth_signTransaction",
+  ],
   showQrModal: true,
 };
 

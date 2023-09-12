@@ -40,10 +40,27 @@ export async function ethSignTx(
 }
 
 export async function ethSendTx(
-  args: core.ETHSignTx & { from: string },
+  msg: core.ETHSignTx & { from: string },
   provider: EthereumProvider
 ): Promise<core.ETHTxHash | null> {
-  const txHash: string = await provider.request({ method: "eth_sendTransaction", params: [args] });
+  const utxBase = {
+    from: msg.from,
+    to: msg.to,
+    value: msg.value,
+    data: msg.data,
+    chainId: msg.chainId,
+    nonce: msg.nonce,
+    gasLimit: msg.gasLimit,
+  };
+
+  const utx = msg.maxFeePerGas
+    ? {
+        ...utxBase,
+        maxFeePerGas: msg.maxFeePerGas,
+        maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
+      }
+    : { ...utxBase, gasPrice: msg.gasPrice };
+  const txHash: string = await provider.request({ method: "eth_sendTransaction", params: [utx] });
   return txHash
     ? {
         hash: txHash,
@@ -78,4 +95,8 @@ export async function ethGetAddress(provider: EthereumProvider): Promise<string 
     console.error(error);
     return null;
   }
+}
+
+export async function ethVerifyMessage(provider: EthereumProvider, args: core.ETHVerifyMessage): Promise<boolean> {
+  return await provider.request({ method: "ethVerifyMessage", params: [args.message, args.signature] });
 }
