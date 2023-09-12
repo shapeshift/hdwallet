@@ -2,6 +2,26 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import EthereumProvider from "@walletconnect/ethereum-provider";
 import * as ethers from "ethers";
 
+const getUnsignedTxFromMessage = (msg: core.ETHSignTx & { from: string }) => {
+  const utxBase = {
+    from: msg.from,
+    to: msg.to,
+    value: msg.value,
+    data: msg.data,
+    chainId: msg.chainId,
+    nonce: msg.nonce,
+    gasLimit: msg.gasLimit,
+  };
+
+  return msg.maxFeePerGas
+    ? {
+        ...utxBase,
+        maxFeePerGas: msg.maxFeePerGas,
+        maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
+      }
+    : { ...utxBase, gasPrice: msg.gasPrice };
+};
+
 export function describeETHPath(path: core.BIP32Path): core.PathDescription {
   const pathStr = core.addressNListToBIP32(path);
   const unknown: core.PathDescription = {
@@ -36,30 +56,15 @@ export async function ethSignTx(
   args: core.ETHSignTx & { from: string },
   provider: EthereumProvider
 ): Promise<core.ETHSignedTx | null> {
-  return await provider.request({ method: "eth_signTransaction", params: [args] });
+  const utx = getUnsignedTxFromMessage(args);
+  return await provider.request({ method: "eth_signTransaction", params: [utx] });
 }
 
 export async function ethSendTx(
   msg: core.ETHSignTx & { from: string },
   provider: EthereumProvider
 ): Promise<core.ETHTxHash | null> {
-  const utxBase = {
-    from: msg.from,
-    to: msg.to,
-    value: msg.value,
-    data: msg.data,
-    chainId: msg.chainId,
-    nonce: msg.nonce,
-    gasLimit: msg.gasLimit,
-  };
-
-  const utx = msg.maxFeePerGas
-    ? {
-        ...utxBase,
-        maxFeePerGas: msg.maxFeePerGas,
-        maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
-      }
-    : { ...utxBase, gasPrice: msg.gasPrice };
+  const utx = getUnsignedTxFromMessage(msg);
   const txHash: string = await provider.request({ method: "eth_sendTransaction", params: [utx] });
   return txHash
     ? {
