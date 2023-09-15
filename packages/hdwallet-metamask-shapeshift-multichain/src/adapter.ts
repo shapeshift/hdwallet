@@ -30,7 +30,7 @@ export class MetaMaskAdapter {
       silent: false,
       timeout: 3000,
     })) as ethers.providers.ExternalProvider | null;
-    if (!provider) {
+    if (!provider || (provider as any).isBraveWallet) {
       const onboarding = new MetaMaskOnboarding();
       onboarding.startOnboarding();
       console.error("Please install MetaMask!");
