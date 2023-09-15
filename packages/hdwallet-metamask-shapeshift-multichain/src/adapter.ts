@@ -36,8 +36,7 @@ export class MetaMaskAdapter {
       console.error("Please install MetaMask!");
       throw new Error("MetaMask provider not found");
     }
-    // Brave is the odd one, not only does it hijack window.ethereum, but it also sets the isMetaMask property to true
-    if ((provider as any).isBraveWallet || !shapeShiftSnapInstalled(SNAP_ID)) {
+    if (!(provider as any).isBraveWallet && !shapeShiftSnapInstalled(SNAP_ID)) {
       console.info("ShapeShift Multichain snap not found. Prompting user to install.");
       const result = await enableShapeShiftSnap(SNAP_ID);
       if (result.success === false) {
