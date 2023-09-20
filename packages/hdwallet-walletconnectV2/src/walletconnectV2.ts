@@ -1,6 +1,29 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import type {
+  Coin,
+  DescribePath,
+  ETHAccountPath,
+  ETHGetAccountPath,
+  ETHSignedMessage,
+  ETHSignedTx,
+  ETHSignMessage,
+  ETHSignTx,
+  ETHTxHash,
+  ETHVerifyMessage,
+  ETHWallet,
+  ETHWalletInfo,
+  GetPublicKey,
+  HDWallet,
+  HDWalletInfo,
+  LoadDevice,
+  PathDescription,
+  Ping,
+  Pong,
+  PublicKey,
+  RecoverDevice,
+  ResetDevice,
+} from "@shapeshiftoss/hdwallet-core";
+import { slip44ByCoin } from "@shapeshiftoss/hdwallet-core";
 import EthereumProvider from "@walletconnect/ethereum-provider";
-import { ProviderInfo } from "@walletconnect/ethereum-provider/dist/types/types";
 import isObject from "lodash/isObject";
 
 import * as eth from "./ethereum";
@@ -13,7 +36,7 @@ interface WCState {
   address?: string;
 }
 
-export function isWalletConnectV2(wallet: core.HDWallet): wallet is WalletConnectV2HDWallet {
+export function isWalletConnectV2(wallet: HDWallet): wallet is WalletConnectV2HDWallet {
   return isObject(wallet) && (wallet as any)._isWalletConnectV2;
 }
 
@@ -29,7 +52,7 @@ export function isWalletConnectV2(wallet: core.HDWallet): wallet is WalletConnec
  * 🚧 eth_sendRawTransaction
  * @see https://docs.walletconnect.com/
  */
-export class WalletConnectV2WalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
+export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo {
   readonly _supportsETHInfo = true;
   readonly _supportsBTCInfo = false;
   public getVendor(): string {
@@ -69,7 +92,7 @@ export class WalletConnectV2WalletInfo implements core.HDWalletInfo, core.ETHWal
   }
 
   // FIXME
-  public describePath(msg: core.DescribePath): core.PathDescription {
+  public describePath(msg: DescribePath): PathDescription {
     switch (msg.coin) {
       case "Ethereum":
         return eth.describeETHPath(msg.path);
@@ -79,7 +102,7 @@ export class WalletConnectV2WalletInfo implements core.HDWalletInfo, core.ETHWal
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public ethNextAccountPath(_msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
+  public ethNextAccountPath(_msg: ETHAccountPath): ETHAccountPath | undefined {
     return undefined;
   }
 
@@ -101,8 +124,8 @@ export class WalletConnectV2WalletInfo implements core.HDWalletInfo, core.ETHWal
     return true;
   }
 
-  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
-    const slip44 = core.slip44ByCoin(msg.coin);
+  public ethGetAccountPaths(msg: ETHGetAccountPath): Array<ETHAccountPath> {
+    const slip44 = slip44ByCoin(msg.coin);
     if (slip44 === undefined) return [];
     return [
       {
@@ -115,7 +138,7 @@ export class WalletConnectV2WalletInfo implements core.HDWalletInfo, core.ETHWal
   }
 }
 
-export class WalletConnectV2HDWallet implements core.HDWallet, core.ETHWallet {
+export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
   readonly _supportsETH = true;
   readonly _supportsETHInfo = true;
   readonly _supportsBTCInfo = false;
@@ -128,7 +151,7 @@ export class WalletConnectV2HDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsPolygon = true;
   readonly _supportsGnosis = true;
 
-  info: WalletConnectV2WalletInfo & core.HDWalletInfo;
+  info: WalletConnectV2WalletInfo & HDWalletInfo;
   provider: EthereumProvider;
   connected = false;
   chainId = -1; // FIXME: undefined?
@@ -211,7 +234,7 @@ export class WalletConnectV2HDWallet implements core.HDWallet, core.ETHWallet {
     return this.info.hasOnDeviceRecovery();
   }
 
-  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
+  public hasNativeShapeShift(srcCoin: Coin, dstCoin: Coin): boolean {
     return this.info.hasNativeShapeShift(srcCoin, dstCoin);
   }
 
@@ -239,7 +262,7 @@ export class WalletConnectV2HDWallet implements core.HDWallet, core.ETHWallet {
     await this.disconnect();
   }
 
-  public async ping(msg: core.Ping): Promise<core.Pong> {
+  public async ping(msg: Ping): Promise<Pong> {
     // ping function for Wallet Connect?
     return { msg: msg.msg };
   }
@@ -273,27 +296,27 @@ export class WalletConnectV2HDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async reset(_msg: core.ResetDevice): Promise<void> {
+  public async reset(_msg: ResetDevice): Promise<void> {
     // no concept of reset
     return;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async recover(_msg: core.RecoverDevice): Promise<void> {
+  public async recover(_msg: RecoverDevice): Promise<void> {
     // no concept of recover
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async loadDevice(_msg: core.LoadDevice): Promise<void> {
+  public async loadDevice(_msg: LoadDevice): Promise<void> {
     return;
   }
 
-  public describePath(msg: core.DescribePath): core.PathDescription {
+  public describePath(msg: DescribePath): PathDescription {
     return this.info.describePath(msg);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async getPublicKeys(_msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
+  public async getPublicKeys(_msg: Array<GetPublicKey>): Promise<Array<PublicKey | null>> {
     // Ethereum public keys are not exposed by the RPC API
     return [];
   }
@@ -324,11 +347,11 @@ export class WalletConnectV2HDWallet implements core.HDWallet, core.ETHWallet {
     return false;
   }
 
-  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
+  public ethGetAccountPaths(msg: ETHGetAccountPath): Array<ETHAccountPath> {
     return this.info.ethGetAccountPaths(msg);
   }
 
-  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
+  public ethNextAccountPath(msg: ETHAccountPath): ETHAccountPath | undefined {
     return this.info.ethNextAccountPath(msg);
   }
 
@@ -352,7 +375,7 @@ export class WalletConnectV2HDWallet implements core.HDWallet, core.ETHWallet {
    *
    * @see https://docs.walletconnect.com/client-api#sign-transaction-eth_signtransaction
    */
-  public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {
+  public async ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx | null> {
     return eth.ethSignTx({ ...msg, from: this.ethAddress }, this.provider);
   }
 
@@ -361,7 +384,7 @@ export class WalletConnectV2HDWallet implements core.HDWallet, core.ETHWallet {
    *
    * @see https://docs.walletconnect.com/client-api#send-transaction-eth_sendtransaction
    */
-  public async ethSendTx(msg: core.ETHSignTx): Promise<core.ETHTxHash | null> {
+  public async ethSendTx(msg: ETHSignTx): Promise<ETHTxHash | null> {
     return eth.ethSendTx({ ...msg, from: this.ethAddress }, this.provider);
   }
 
@@ -370,11 +393,11 @@ export class WalletConnectV2HDWallet implements core.HDWallet, core.ETHWallet {
    *
    * @see https://docs.walletconnect.com/client-api#sign-message-eth_sign
    */
-  public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
+  public async ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage | null> {
     return eth.ethSignMessage({ data: msg.message, fromAddress: this.ethAddress }, this.provider);
   }
 
-  public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean | null> {
+  public async ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean | null> {
     return eth.ethVerifyMessage(this.provider, msg);
   }
 

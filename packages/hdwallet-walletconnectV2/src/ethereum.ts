@@ -1,8 +1,17 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import type {
+  BIP32Path,
+  ETHSignedMessage,
+  ETHSignedTx,
+  ETHSignTx,
+  ETHTxHash,
+  ETHVerifyMessage,
+  PathDescription,
+} from "@shapeshiftoss/hdwallet-core";
+import { addressNListToBIP32, slip44ByCoin } from "@shapeshiftoss/hdwallet-core";
 import EthereumProvider from "@walletconnect/ethereum-provider";
 import * as ethers from "ethers";
 
-const getUnsignedTxFromMessage = (msg: core.ETHSignTx & { from: string }) => {
+const getUnsignedTxFromMessage = (msg: ETHSignTx & { from: string }) => {
   const utxBase = {
     from: msg.from,
     to: msg.to,
@@ -22,9 +31,9 @@ const getUnsignedTxFromMessage = (msg: core.ETHSignTx & { from: string }) => {
     : { ...utxBase, gasPrice: msg.gasPrice };
 };
 
-export function describeETHPath(path: core.BIP32Path): core.PathDescription {
-  const pathStr = core.addressNListToBIP32(path);
-  const unknown: core.PathDescription = {
+export function describeETHPath(path: BIP32Path): PathDescription {
+  const pathStr = addressNListToBIP32(path);
+  const unknown: PathDescription = {
     verbose: pathStr,
     coin: "Ethereum",
     isKnown: false,
@@ -34,7 +43,7 @@ export function describeETHPath(path: core.BIP32Path): core.PathDescription {
 
   if (path[0] !== 0x80000000 + 44) return unknown;
 
-  if (path[1] !== 0x80000000 + core.slip44ByCoin("Ethereum")) return unknown;
+  if (path[1] !== 0x80000000 + slip44ByCoin("Ethereum")) return unknown;
 
   if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
 
@@ -53,17 +62,17 @@ export function describeETHPath(path: core.BIP32Path): core.PathDescription {
 }
 
 export async function ethSignTx(
-  args: core.ETHSignTx & { from: string },
+  args: ETHSignTx & { from: string },
   provider: EthereumProvider
-): Promise<core.ETHSignedTx | null> {
+): Promise<ETHSignedTx | null> {
   const utx = getUnsignedTxFromMessage(args);
   return await provider.request({ method: "eth_signTransaction", params: [utx] });
 }
 
 export async function ethSendTx(
-  msg: core.ETHSignTx & { from: string },
+  msg: ETHSignTx & { from: string },
   provider: EthereumProvider
-): Promise<core.ETHTxHash | null> {
+): Promise<ETHTxHash | null> {
   const utx = getUnsignedTxFromMessage(msg);
   const txHash: string = await provider.request({ method: "eth_sendTransaction", params: [utx] });
   return txHash
@@ -76,7 +85,7 @@ export async function ethSendTx(
 export async function ethSignMessage(
   args: { data: string | ethers.Bytes; fromAddress: string },
   provider: EthereumProvider
-): Promise<core.ETHSignedMessage | null> {
+): Promise<ETHSignedMessage | null> {
   const buffer = ethers.utils.isBytes(args.data)
     ? Buffer.from(ethers.utils.arrayify(args.data))
     : Buffer.from(args.data);
@@ -102,6 +111,6 @@ export async function ethGetAddress(provider: EthereumProvider): Promise<string 
   }
 }
 
-export async function ethVerifyMessage(provider: EthereumProvider, args: core.ETHVerifyMessage): Promise<boolean> {
+export async function ethVerifyMessage(provider: EthereumProvider, args: ETHVerifyMessage): Promise<boolean> {
   return await provider.request({ method: "ethVerifyMessage", params: [args.message, args.signature] });
 }
