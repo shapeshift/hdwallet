@@ -230,6 +230,7 @@ export class NativeHDWallet
   readonly _supportsBSC = true;
   readonly _supportsPolygon = true;
   readonly _supportsGnosis = true;
+  readonly _supportsArbitrum = true;
   readonly _supportsOsmosis = true;
   readonly _supportsBinance = true;
   readonly _supportsFio = true;
