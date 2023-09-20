@@ -7,6 +7,7 @@ import * as bitcoin from "bitcoinjs-lib";
 import * as bitcoinMsg from "bitcoinjs-message";
 import _ from "lodash";
 
+import { currencies } from "./currencies";
 import { LedgerTransport } from "./transport";
 import { compressPublicKey, createXpub, handleError, networksUtil, translateScriptType } from "./utils";
 
@@ -61,7 +62,10 @@ export async function btcGetPublicKeys(
 
     // TODO(gomes): programmatic xpubVersion
     // See https://github.com/LedgerHQ/ledgerjs/blob/master/packages/cryptoassets/src/currencies.ts#L299 for full list of xpubVersion
-    const res1 = await transport.call("Btc", "getWalletXpub", { path: parentBip32path, xpubVersion: 0x0488b21e });
+    const res1 = await transport.call("Btc", "getWalletXpub", {
+      path: parentBip32path,
+      xpubVersion: currencies[getPublicKey.coin].xpubVersion,
+    });
     handleError(res1, transport, "Unable to obtain public key from device.");
 
     const { payload: xpub } = res1;
