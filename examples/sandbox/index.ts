@@ -585,25 +585,25 @@ $getXpubs.on("click", async (e) => {
   })[0];
 
   const result = await wallet.getPublicKeys([
-    {
-      addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0],
-      curve: "secp256k1",
-      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-      coin: "Bitcoin",
-    },
-    {
-      addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 1],
-      curve: "secp256k1",
-      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-      coin: "Bitcoin",
-    },
-    {
-      addressNList: [0x80000000 + 49, 0x80000000 + 0, 0x80000000 + 0],
-      curve: "secp256k1",
-      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-      coin: "Bitcoin",
-      scriptType: core.BTCInputScriptType.SpendP2SHWitness,
-    },
+    // {
+    // addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0],
+    // curve: "secp256k1",
+    // showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+    // coin: "Bitcoin",
+    // },
+    // {
+    // addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 1],
+    // curve: "secp256k1",
+    // showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+    // coin: "Bitcoin",
+    // },
+    // {
+    // addressNList: [0x80000000 + 49, 0x80000000 + 0, 0x80000000 + 0],
+    // curve: "secp256k1",
+    // showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+    // coin: "Bitcoin",
+    // scriptType: core.BTCInputScriptType.SpendP2SHWitness,
+    // },
     {
       addressNList: [0x80000000 + 44, 0x80000000 + 2, 0x80000000 + 0],
       curve: "secp256k1",
