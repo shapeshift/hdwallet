@@ -53,45 +53,21 @@ export async function btcGetPublicKeys(
   const xpubs: Array<core.PublicKey | null> = [];
 
   for (const getPublicKey of msg) {
-    let { scriptType } = getPublicKey;
     const { addressNList, coin } = getPublicKey;
 
     if (!coin) throw new Error("coin is required");
 
-    const parentBip32path: string = core.addressNListToBIP32(addressNList.slice(0, -1)).substring(2); // i.e. "44'/0'"
-    const bip32path: string = core.addressNListToBIP32(addressNList).substring(2); // i.e 44'/0'/0'
+    const parentBip32path: string = core.addressNListToBIP32(addressNList).substring(2); // i.e. "44'/0'/0'"
 
-    const opts = { verify: false };
-
-    const res1 = await transport.call("Btc", "getWalletPublicKey", parentBip32path, opts);
+    // TODO(gomes): programmatic xpubVersion
+    // See https://github.com/LedgerHQ/ledgerjs/blob/master/packages/cryptoassets/src/currencies.ts#L299 for full list of xpubVersion
+    const res1 = await transport.call("Btc", "getWalletXpub", { path: parentBip32path, xpubVersion: 0x0488b21e });
     handleError(res1, transport, "Unable to obtain public key from device.");
 
-    const {
-      payload: { publicKey: parentPublicKeyHex },
-    } = res1;
-    const parentPublicKey = compressPublicKey(Buffer.from(parentPublicKeyHex, "hex"));
-    const parentFingerprint = new DataView(
-      bitcoin.crypto.ripemd160(bitcoin.crypto.sha256(parentPublicKey)).buffer
-    ).getUint32(0);
-
-    const res2 = await transport.call("Btc", "getWalletPublicKey", bip32path, opts);
-    handleError(res2, transport, "Unable to obtain public key from device.");
-
-    const {
-      payload: { publicKey: publicKeyHex, chainCode: chainCodeHex },
-    } = res2;
-    const publicKey = compressPublicKey(Buffer.from(publicKeyHex, "hex"));
-    const chainCode = Buffer.from(chainCodeHex, "hex");
-
-    const coinDetails = networksUtil[core.mustBeDefined(core.slip44ByCoin(coin))];
-    const childNum: number = addressNList[addressNList.length - 1];
-
-    scriptType = scriptType || core.BTCInputScriptType.SpendAddress;
-    const networkMagic = coinDetails.bitcoinjs.bip32.public[scriptType];
-    if (!networkMagic) throw new Error("unable to get networkMagic");
+    const { payload: xpub } = res1;
 
     xpubs.push({
-      xpub: createXpub(addressNList.length, parentFingerprint, childNum, chainCode, publicKey, networkMagic),
+      xpub,
     });
   }
 

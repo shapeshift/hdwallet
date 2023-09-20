@@ -604,18 +604,18 @@ $getXpubs.on("click", async (e) => {
       coin: "Bitcoin",
       scriptType: core.BTCInputScriptType.SpendP2SHWitness,
     },
-    {
-      addressNList: [0x80000000 + 44, 0x80000000 + 2, 0x80000000 + 0],
-      curve: "secp256k1",
-      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-      coin: "Litecoin",
-    },
-    {
-      addressNList: hardenedPath,
-      curve: "secp256k1",
-      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-      coin: portis.isPortis(wallet) ? "Bitcoin" : "Ethereum",
-    },
+    // {
+    // addressNList: [0x80000000 + 44, 0x80000000 + 2, 0x80000000 + 0],
+    // curve: "secp256k1",
+    // showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+    // coin: "Litecoin",
+    // },
+    // {
+    // addressNList: hardenedPath,
+    // curve: "secp256k1",
+    // showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+    // coin: portis.isPortis(wallet) ? "Bitcoin" : "Ethereum",
+    // },
   ]);
 
   $manageResults.val(JSON.stringify(result));
