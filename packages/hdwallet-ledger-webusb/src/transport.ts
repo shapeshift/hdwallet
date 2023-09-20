@@ -57,6 +57,7 @@ export function translateCoinAndMethod<T extends LedgerTransportCoinType, U exte
   coin: T,
   method: U
 ): LedgerTransportMethod<T, U> {
+  console.log({ transport });
   switch (coin) {
     case "Btc": {
       const btc = new Btc({ transport });

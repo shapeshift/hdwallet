@@ -29,9 +29,9 @@
   },
   "devDependencies": {
     "@ledgerhq/hw-app-btc": "^10.0.8",
-    "@ledgerhq/hw-app-eth": "^6.34.5",
-    "@ledgerhq/hw-transport": "^6.28.8",
-    "@ledgerhq/live-common": "^31.7.0",
+    "@ledgerhq/hw-app-eth": "6.34.5",
+    "@ledgerhq/hw-transport": "6.28.8",
+    "@ledgerhq/live-common": "31.7.0",
     "@types/bchaddrjs": "^0.4.0",
     "@types/bs58check": "^2.1.0",
     "@types/ethereumjs-tx": "1.0.1",
