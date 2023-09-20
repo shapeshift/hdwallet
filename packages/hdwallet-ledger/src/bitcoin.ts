@@ -227,7 +227,7 @@ export async function btcSignTx(
     txArgs.sigHashType = networksUtil[slip44].sigHash;
   }
 
-  const signedTx = await transport.call("Btc", "createPaymentTransactionNew", txArgs);
+  const signedTx = await transport.call("Btc", "createPaymentTransaction", txArgs);
   handleError(signedTx, transport, "Could not sign transaction with device");
 
   return {
@@ -251,7 +251,7 @@ export async function btcSignMessage(
 ): Promise<core.BTCSignedMessage> {
   const bip32path = core.addressNListToBIP32(msg.addressNList);
 
-  const res = await transport.call("Btc", "signMessageNew", bip32path, Buffer.from(msg.message).toString("hex"));
+  const res = await transport.call("Btc", "signMessage", bip32path, Buffer.from(msg.message).toString("hex"));
   handleError(res, transport, "Could not sign message with device");
   const v = res.payload["v"] + 27 + 4;
 
