@@ -1,19 +1,19 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import { Events, Keyring } from "@shapeshiftoss/hdwallet-core";
 import { EthereumProvider } from "@walletconnect/ethereum-provider";
 import { EthereumProviderOptions } from "@walletconnect/ethereum-provider/dist/types/EthereumProvider";
 
 import { WalletConnectV2HDWallet } from "./walletconnectV2";
 
 export class WalletConnectV2Adapter {
-  keyring: core.Keyring;
+  keyring: Keyring;
   private readonly providerConfig: EthereumProviderOptions;
 
-  private constructor(keyring: core.Keyring, config: EthereumProviderOptions) {
+  private constructor(keyring: Keyring, config: EthereumProviderOptions) {
     this.keyring = keyring;
     this.providerConfig = config;
   }
 
-  public static useKeyring(keyring: core.Keyring, config: EthereumProviderOptions) {
+  public static useKeyring(keyring: Keyring, config: EthereumProviderOptions) {
     return new WalletConnectV2Adapter(keyring, config);
   }
 
@@ -35,7 +35,7 @@ export class WalletConnectV2Adapter {
       await wallet.initialize();
       const deviceID = await wallet.getDeviceID();
       this.keyring.add(wallet, deviceID);
-      this.keyring.emit(["WalletConnect", deviceID, core.Events.CONNECT], deviceID); // TODO: emit "WalletConnectV2"?
+      this.keyring.emit(["WalletConnect", deviceID, Events.CONNECT], deviceID); // TODO: emit "WalletConnectV2"?
       return wallet;
     } catch (error) {
       console.error("Could not pair WalletConnectV2");
