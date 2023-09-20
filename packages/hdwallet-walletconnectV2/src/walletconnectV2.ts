@@ -430,7 +430,5 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
       this.connected = connected;
     }
     this.chainId = chainId;
-    // this.accounts = accounts;
-    // this.ethAddress = address;
   }
 }

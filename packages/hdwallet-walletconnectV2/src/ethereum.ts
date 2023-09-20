@@ -9,7 +9,8 @@ import type {
 } from "@shapeshiftoss/hdwallet-core";
 import { addressNListToBIP32, slip44ByCoin } from "@shapeshiftoss/hdwallet-core";
 import EthereumProvider from "@walletconnect/ethereum-provider";
-import * as ethers from "ethers";
+import type { Bytes } from "ethers";
+import { arrayify, isBytes } from "ethers/lib/utils";
 
 const getUnsignedTxFromMessage = (msg: ETHSignTx & { from: string }) => {
   const utxBase = {
@@ -83,12 +84,10 @@ export async function ethSendTx(
 }
 
 export async function ethSignMessage(
-  args: { data: string | ethers.Bytes; fromAddress: string },
+  args: { data: string | Bytes; fromAddress: string },
   provider: EthereumProvider
 ): Promise<ETHSignedMessage | null> {
-  const buffer = ethers.utils.isBytes(args.data)
-    ? Buffer.from(ethers.utils.arrayify(args.data))
-    : Buffer.from(args.data);
+  const buffer = isBytes(args.data) ? Buffer.from(arrayify(args.data)) : Buffer.from(args.data);
 
   return await provider.request({
     method: "eth_sign",
