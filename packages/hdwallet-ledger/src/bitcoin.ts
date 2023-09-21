@@ -60,15 +60,13 @@ export async function btcGetPublicKeys(
 
     const parentBip32path: string = core.addressNListToBIP32(addressNList).substring(2); // i.e. "44'/0'/0'"
 
-    // TODO(gomes): programmatic xpubVersion
-    // See https://github.com/LedgerHQ/ledgerjs/blob/master/packages/cryptoassets/src/currencies.ts#L299 for full list of xpubVersion
-    const res1 = await transport.call("Btc", "getWalletXpub", {
+    const getWalletXpubResponse = await transport.call("Btc", "getWalletXpub", {
       path: parentBip32path,
       xpubVersion: currencies[getPublicKey.coin].xpubVersion,
     });
-    handleError(res1, transport, "Unable to obtain public key from device.");
+    handleError(getWalletXpubResponse, transport, "Unable to obtain public key from device.");
 
-    const { payload: xpub } = res1;
+    const { payload: xpub } = getWalletXpubResponse;
 
     xpubs.push({
       xpub,
