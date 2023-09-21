@@ -653,7 +653,9 @@ $getXpubs.each(function () {
     ];
 
     const getPublicKeysInput =
-      coin === "all" ? getAllPublicKeysInput : getAllPublicKeysInput.filter((input) => input.coin === coin);
+      coin === "all"
+        ? getAllPublicKeysInput
+        : getAllPublicKeysInput.filter((input) => input.coin.replace(/\s/g, "") === coin);
     const result = await wallet.getPublicKeys(getPublicKeysInput);
 
     // Populate either the "Manage" or xpub section input with the results
