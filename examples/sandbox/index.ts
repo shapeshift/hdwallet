@@ -610,11 +610,17 @@ $getXpubs.on("click", async (e) => {
     // showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
     // coin: "Litecoin",
     // },
+    // {
+    // addressNList: [0x80000000 + 44, 0x80000000 + 145, 0x80000000 + 0],
+    // curve: "secp256k1",
+    // showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+    // coin: "Bitcoin Cash",
+    // },
     {
-      addressNList: [0x80000000 + 44, 0x80000000 + 145, 0x80000000 + 0],
+      addressNList: [0x80000000 + 44, 0x80000000 + 3, 0x80000000 + 0],
       curve: "secp256k1",
       showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-      coin: "Bitcoin Cash",
+      coin: "Dogecoin",
     },
     // {
     // addressNList: hardenedPath,
