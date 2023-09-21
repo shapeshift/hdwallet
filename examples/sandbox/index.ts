@@ -649,7 +649,6 @@ $getXpubs.each(function () {
       ...bchGetPublicKeysInput,
       ...dogeGetPublicKeysInput,
       ...hardenedPathGetPublicKeysInput,
-      ...hardenedPathGetPublicKeysInput,
     ];
 
     const getPublicKeysInput =
