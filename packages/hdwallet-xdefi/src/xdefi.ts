@@ -94,6 +94,7 @@ export class XDEFIHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsBSC = true;
   readonly _supportsPolygon = true;
   readonly _supportsGnosis = false;
+  readonly _supportsArbitrum = true;
   readonly _supportsBTCInfo = false;
   readonly _supportsBTC = false;
   readonly _supportsCosmosInfo = false;
