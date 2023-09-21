@@ -77,6 +77,15 @@ describe("NativeETHWalletInfo", () => {
         description: "Native",
       },
     ]);
+    const arbitrumPaths = info.ethGetAccountPaths({ coin: "Arbitrum", accountIdx: 0 });
+    expect(arbitrumPaths).toMatchObject([
+      {
+        addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
+        hardenedPath: core.bip32ToAddressNList("m/44'/60'/0'"),
+        relPath: [0, 0],
+        description: "Native",
+      },
+    ]);
   });
 
   it("does not support getting the next account path", async () => {
