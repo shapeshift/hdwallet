@@ -1,3 +1,4 @@
+import logger from "@ledgerhq/logs";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
@@ -17,6 +18,9 @@ export class WebUSBLedgerAdapter {
       window.navigator.usb.addEventListener("connect", this.handleConnectWebUSBLedger.bind(this));
       window.navigator.usb.addEventListener("disconnect", this.handleDisconnectWebUSBLedger.bind(this));
     }
+
+    // eslint-disable-next-line no-console
+    logger.listen((log) => console.log(log));
   }
 
   public static useKeyring(keyring: core.Keyring) {
