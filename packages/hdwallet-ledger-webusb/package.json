@@ -27,5 +27,6 @@
   "devDependencies": {
     "@types/ledgerhq__hw-transport": "^4.21.3",
     "@types/w3c-web-usb": "^1.0.6"
-  }
+  },
+  "gitHead": "64bf68d0087821d82d2c714a82991cee8dbdc4b3"
 }
