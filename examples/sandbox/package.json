@@ -1,6 +1,6 @@
 {
   "name": "hdwallet-sandbox",
-  "version": "1.50.8-ledger.2",
+  "version": "1.50.8-ledger.5",
   "license": "MIT",
   "private": true,
   "browserslist": "> 0.5%, last 2 versions, not dead",
@@ -16,7 +16,7 @@
     "@shapeshiftoss/hdwallet-keplr": "^1.50.8-ledger.2",
     "@shapeshiftoss/hdwallet-ledger": "^1.50.8-ledger.2",
     "@shapeshiftoss/hdwallet-ledger-webhid": "^1.50.8-ledger.2",
-    "@shapeshiftoss/hdwallet-ledger-webusb": "^1.50.8-ledger.2",
+    "@shapeshiftoss/hdwallet-ledger-webusb": "^1.50.8-ledger.5",
     "@shapeshiftoss/hdwallet-metamask": "^1.50.8-ledger.2",
     "@shapeshiftoss/hdwallet-native": "^1.50.8-ledger.2",
     "@shapeshiftoss/hdwallet-portis": "^1.50.8-ledger.2",
