@@ -42,7 +42,7 @@ export async function getTransport(): Promise<TransportWebUSB> {
   if (!(window && window.navigator.usb)) throw new core.WebUSBNotAvailable();
 
   try {
-    return (await TransportWebUSB.create()) as TransportWebUSB;
+    return (await TransportWebUSB.request()) as TransportWebUSB;
   } catch (err) {
     if (core.isIndexable(err) && err.name === "TransportInterfaceNotAvailable") {
       throw new core.ConflictingApp("Ledger");
