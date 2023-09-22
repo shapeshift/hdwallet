@@ -1,4 +1,4 @@
-import logger from "@ledgerhq/logs";
+import { listen } from "@ledgerhq/logs";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
@@ -20,7 +20,7 @@ export class WebUSBLedgerAdapter {
     }
 
     // eslint-disable-next-line no-console
-    logger.listen((log) => console.log(log));
+    listen((log) => console.log(log));
   }
 
   public static useKeyring(keyring: core.Keyring) {
