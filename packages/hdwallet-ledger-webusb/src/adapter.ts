@@ -2,7 +2,7 @@ import { listen } from "@ledgerhq/logs";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
-import { getFirstLedgerDevice, getTransport, LedgerWebUsbTransport, openTransport } from "./transport";
+import { getFirstLedgerDevice, getTransport, LedgerWebUsbTransport } from "./transport";
 
 const VENDOR_ID = 11415;
 const APP_NAVIGATION_DELAY = 3000;
@@ -81,7 +81,7 @@ export class WebUSBLedgerAdapter {
     if (device) {
       await this.keyring.remove(core.mustBeDefined(device.serialNumber));
 
-      const ledgerTransport = await openTransport(device);
+      const ledgerTransport = await getTransport();
 
       const wallet = ledger.create(
         new LedgerWebUsbTransport(device, ledgerTransport, this.keyring) as ledger.LedgerTransport
