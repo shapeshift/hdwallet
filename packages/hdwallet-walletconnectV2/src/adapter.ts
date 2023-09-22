@@ -27,7 +27,6 @@ export class WalletConnectV2Adapter {
         throw new Error("WalletConnectV2 provider configuration not set.");
       }
 
-      // TODO: Swap with UniversalProvider: https://docs.walletconnect.com/2.0/advanced/providers/universal
       const provider = await EthereumProvider.init(this.providerConfig);
       const wallet = new WalletConnectV2HDWallet(provider);
 

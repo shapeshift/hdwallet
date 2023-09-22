@@ -11,30 +11,18 @@ import type {
   ETHVerifyMessage,
   ETHWallet,
   ETHWalletInfo,
-  GetPublicKey,
   HDWallet,
   HDWalletInfo,
-  LoadDevice,
   PathDescription,
   Ping,
   Pong,
   PublicKey,
-  RecoverDevice,
-  ResetDevice,
 } from "@shapeshiftoss/hdwallet-core";
 import { slip44ByCoin } from "@shapeshiftoss/hdwallet-core";
 import EthereumProvider from "@walletconnect/ethereum-provider";
 import isObject from "lodash/isObject";
 
-import * as eth from "./ethereum";
-
-// FIXME: what is the actual state?
-interface WCState {
-  connected?: boolean;
-  chainId: number;
-  accounts?: string[];
-  address?: string;
-}
+import { describeETHPath, ethGetAddress, ethSendTx, ethSignMessage, ethSignTx, ethVerifyMessage } from "./ethereum";
 
 export function isWalletConnectV2(wallet: HDWallet): wallet is WalletConnectV2HDWallet {
   return isObject(wallet) && (wallet as any)._isWalletConnectV2;
@@ -49,8 +37,8 @@ export function isWalletConnectV2(wallet: HDWallet): wallet is WalletConnectV2HD
  * - eth_signTypedData
  * - eth_sendTransaction
  * - eth_signTransaction
- * 🚧 eth_sendRawTransaction
- * @see https://docs.walletconnect.com/
+ * - eth_sendRawTransaction
+ * @see https://specs.walletconnect.com/2.0/blockchain-rpc/ethereum-rpc
  */
 export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo {
   readonly _supportsETHInfo = true;
@@ -91,24 +79,21 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo {
     return true;
   }
 
-  // FIXME
   public describePath(msg: DescribePath): PathDescription {
     switch (msg.coin) {
       case "Ethereum":
-        return eth.describeETHPath(msg.path);
+        return describeETHPath(msg.path);
       default:
         throw new Error("Unsupported path");
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public ethNextAccountPath(_msg: ETHAccountPath): ETHAccountPath | undefined {
+  public ethNextAccountPath(): ETHAccountPath | undefined {
     return undefined;
   }
 
-  // FIXME
-  public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
-    return chainId === 1;
+  public async ethSupportsNetwork(chainId: number): Promise<boolean> {
+    return [1, 10, 56, 100, 137, 43114].includes(chainId);
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
@@ -119,7 +104,6 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo {
     return false;
   }
 
-  // FIXME: confirm this is true
   public async ethSupportsEIP1559(): Promise<boolean> {
     return true;
   }
@@ -144,7 +128,7 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
   readonly _supportsBTCInfo = false;
   readonly _supportsBTC = false;
   readonly _isWalletConnectV2 = true;
-  readonly _supportsEthSwitchChain = false;
+  readonly _supportsEthSwitchChain = true;
   readonly _supportsAvalanche = true;
   readonly _supportsOptimism = true;
   readonly _supportsBSC = true;
@@ -154,9 +138,9 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
   info: WalletConnectV2WalletInfo & HDWalletInfo;
   provider: EthereumProvider;
   connected = false;
-  chainId = -1; // FIXME: undefined?
+  chainId: number | undefined;
   accounts: string[] = [];
-  ethAddress = ""; // FIXME: undefined?
+  ethAddress: string | undefined;
 
   constructor(provider: EthereumProvider) {
     this.provider = provider;
@@ -183,37 +167,7 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
     return "WalletConnectV2";
   }
 
-  // FIXME: flesh out?
   public async initialize(): Promise<void> {
-    /** Subscribe to EIP-1193 events */
-    this.provider.on("session_event", async (args) => {
-      // const { chainId, event } = args.params;
-      // this.onSessionUpdate(chainId);
-    });
-
-    /** Note that this event does not fire on page reload */
-    this.provider.on("connect", (args) => {
-      const { chainId } = args;
-      this.setState({ connected: true, chainId: parseInt(chainId, 10) });
-    });
-
-    // FIXME: error is always defined?
-    this.provider.on("disconnect", (error) => {
-      if (error) {
-        throw error;
-      }
-      this.onDisconnect();
-    });
-
-    // TODO
-    this.provider.on("message", (args) => {});
-    this.provider.on("chainChanged", (args) => {});
-    this.provider.on("accountsChanged", (args) => {});
-    this.provider.on("session_event", (args) => {});
-    this.provider.on("session_delete", (args) => {});
-    this.provider.on("session_update", (args) => {});
-    this.provider.on("display_uri", (args) => {});
-
     /** Display QR modal to connect */
     await this.provider.enable();
   }
@@ -248,14 +202,13 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
    * Offline signing is supported when `signTransaction` does not broadcast
    * the tx message. WalletConnect's core Connector implementation always
    * makes a request, so offline signing is not supported.
-   * @see https://github.com/WalletConnect/walletconnect-monorepo/blob/7573fa9e1d91588d4af3409159b4fd2f9448a0e2/packages/clients/core/src/index.ts#L630
    */
   public supportsOfflineSigning(): boolean {
-    return false;
+    return this.info.supportsOfflineSigning();
   }
 
   public supportsBroadcast(): boolean {
-    return true;
+    return this.info.supportsBroadcast();
   }
 
   public async clearSession(): Promise<void> {
@@ -263,51 +216,42 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
   }
 
   public async ping(msg: Ping): Promise<Pong> {
-    // ping function for Wallet Connect?
     return { msg: msg.msg };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async sendPin(_pin: string): Promise<void> {
-    // no concept of pin in WalletConnect
+  public async sendPin(): Promise<void> {
+    return;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async sendPassphrase(_passphrase: string): Promise<void> {
-    // cannot send passphrase. Could show the widget?
+  public async sendPassphrase(): Promise<void> {
+    return;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async sendCharacter(_character: string): Promise<void> {
-    // no concept of sendCharacter
+  public async sendCharacter(): Promise<void> {
+    return;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async sendWord(_word: string): Promise<void> {
-    // no concept of sendWord
+  public async sendWord(): Promise<void> {
+    return;
   }
 
   public async cancel(): Promise<void> {
-    // no concept of cancel
+    return;
   }
 
   public async wipe(): Promise<void> {
     return;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async reset(_msg: ResetDevice): Promise<void> {
-    // no concept of reset
+  public async reset(): Promise<void> {
     return;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async recover(_msg: RecoverDevice): Promise<void> {
-    // no concept of recover
+  public async recover(): Promise<void> {
+    return;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async loadDevice(_msg: LoadDevice): Promise<void> {
+  public async loadDevice(): Promise<void> {
     return;
   }
 
@@ -315,8 +259,7 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
     return this.info.describePath(msg);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async getPublicKeys(_msg: Array<GetPublicKey>): Promise<Array<PublicKey | null>> {
+  public async getPublicKeys(): Promise<Array<PublicKey | null>> {
     // Ethereum public keys are not exposed by the RPC API
     return [];
   }
@@ -329,43 +272,40 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
     await this.provider.disconnect();
   }
 
-  // FIXME
   public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
-    return chainId === 1;
+    return this.info.ethSupportsNetwork(chainId);
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
-    return false;
+    return this.info.ethSupportsSecureTransfer();
   }
 
   public ethSupportsNativeShapeShift(): boolean {
-    return false;
+    return this.info.ethSupportsNativeShapeShift();
   }
 
-  // FIXME?
   public async ethSupportsEIP1559(): Promise<boolean> {
-    return false;
+    return this.info.ethSupportsEIP1559();
   }
 
   public ethGetAccountPaths(msg: ETHGetAccountPath): Array<ETHAccountPath> {
     return this.info.ethGetAccountPaths(msg);
   }
 
-  public ethNextAccountPath(msg: ETHAccountPath): ETHAccountPath | undefined {
-    return this.info.ethNextAccountPath(msg);
+  public ethNextAccountPath(): ETHAccountPath | undefined {
+    return this.info.ethNextAccountPath();
   }
 
   public async ethGetAddress(): Promise<string | null> {
     if (this.ethAddress) {
       return this.ethAddress;
     }
-    const address = await eth.ethGetAddress(this.provider);
+    const address = await ethGetAddress(this.provider);
     if (address) {
-      // FIXME: why does a getter set something?
       this.ethAddress = address;
       return address;
     } else {
-      this.ethAddress = "";
+      this.ethAddress = undefined;
       return null;
     }
   }
@@ -376,7 +316,10 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
    * @see https://docs.walletconnect.com/client-api#sign-transaction-eth_signtransaction
    */
   public async ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx | null> {
-    return eth.ethSignTx({ ...msg, from: this.ethAddress }, this.provider);
+    if (!this.ethAddress) {
+      throw new Error("No eth address");
+    }
+    return ethSignTx({ ...msg, from: this.ethAddress }, this.provider);
   }
 
   /**
@@ -385,7 +328,10 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
    * @see https://docs.walletconnect.com/client-api#send-transaction-eth_sendtransaction
    */
   public async ethSendTx(msg: ETHSignTx): Promise<ETHTxHash | null> {
-    return eth.ethSendTx({ ...msg, from: this.ethAddress }, this.provider);
+    if (!this.ethAddress) {
+      throw new Error("No eth address");
+    }
+    return ethSendTx({ ...msg, from: this.ethAddress }, this.provider);
   }
 
   /**
@@ -394,11 +340,14 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
    * @see https://docs.walletconnect.com/client-api#sign-message-eth_sign
    */
   public async ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage | null> {
-    return eth.ethSignMessage({ data: msg.message, fromAddress: this.ethAddress }, this.provider);
+    if (!this.ethAddress) {
+      throw new Error("No eth address");
+    }
+    return ethSignMessage({ data: msg.message, fromAddress: this.ethAddress }, this.provider);
   }
 
   public async ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean | null> {
-    return eth.ethVerifyMessage(this.provider, msg);
+    return ethVerifyMessage(this.provider, msg);
   }
 
   public async getDeviceID(): Promise<string> {
@@ -407,28 +356,5 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
 
   public async getFirmwareVersion(): Promise<string> {
     return "WalletConnectV2";
-  }
-
-  private onSessionUpdate(accounts: string[], chainId: number) {
-    const [address] = accounts;
-    this.setState({ accounts, address, chainId });
-  }
-
-  /**
-   * onDisconnect
-   *
-   * Resets state.
-   */
-  private onDisconnect() {
-    // FIXME: chinaId set to 1?
-    this.setState({ connected: false, chainId: 1, accounts: [], address: "" });
-  }
-
-  private setState(config: WCState) {
-    const { connected, chainId } = config;
-    if (connected !== undefined) {
-      this.connected = connected;
-    }
-    this.chainId = chainId;
   }
 }
