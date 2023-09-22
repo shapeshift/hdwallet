@@ -1,6 +1,6 @@
 {
   "name": "hdwallet-sandbox",
-  "version": "1.50.5-ledger.1",
+  "version": "1.50.5-ledger.2",
   "license": "MIT",
   "private": true,
   "browserslist": "> 0.5%, last 2 versions, not dead",
