@@ -14,7 +14,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@ledgerhq/hw-app-btc": "^6.7.0",
+    "@ledgerhq/hw-app-btc": "^10.0.8",
     "@ledgerhq/hw-app-eth": "^6.9.0",
     "@ledgerhq/hw-transport": "^6.7.0",
     "@ledgerhq/hw-transport-webhid": "^6.7.0",
