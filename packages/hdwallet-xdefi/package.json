@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-xdefi",
-  "version": "1.50.6-alpha.0",
+  "version": "1.50.5",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,12 +14,11 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.50.6-alpha.0",
+    "@shapeshiftoss/hdwallet-core": "1.50.5",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.168",
     "typescript": "^4.3.2"
-  },
-  "gitHead": "64bf68d0087821d82d2c714a82991cee8dbdc4b3"
+  }
 }
