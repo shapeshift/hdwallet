@@ -34,7 +34,7 @@ export class WalletConnectV2Adapter {
       await wallet.initialize();
       const deviceID = await wallet.getDeviceID();
       this.keyring.add(wallet, deviceID);
-      this.keyring.emit(["WalletConnect", deviceID, Events.CONNECT], deviceID); // TODO: emit "WalletConnectV2"?
+      this.keyring.emit(["WalletConnectV2", deviceID, Events.CONNECT], deviceID);
       return wallet;
     } catch (error) {
       console.error("Could not pair WalletConnectV2");
