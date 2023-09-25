@@ -98,9 +98,6 @@ export class WebUSBLedgerAdapter {
 
     const device = ledgerTransport.device;
 
-    // eslint-disable-next-line no-console
-    console.log({ device });
-
     await this.initialize(device);
 
     return core.mustBeDefined(this.keyring.get<ledger.LedgerHDWallet>(device.serialNumber));
