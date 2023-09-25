@@ -101,7 +101,7 @@ export function translateCoinAndMethod<T extends LedgerTransportCoinType, U exte
 export class LedgerWebUsbTransport extends ledger.LedgerTransport {
   device: USBDevice;
 
-  constructor(device: USBDevice, transport: Transport, keyring: core.Keyring) {
+  constructor(device: USBDevice, transport: TransportWebUSB, keyring: core.Keyring) {
     super(transport, keyring);
     this.device = device;
   }
@@ -128,7 +128,7 @@ export class LedgerWebUsbTransport extends ledger.LedgerTransport {
 
     try {
       // Re-creates transport on method call, which will reconnect the device if disconnected
-      await getTransport();
+      await TransportWebUSB.create();
       const methodInstance: LedgerTransportMethod<T, U> = translateCoinAndMethod(this.transport, coin, method);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore ts is drunk, stop pls
