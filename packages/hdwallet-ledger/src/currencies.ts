@@ -7,7 +7,7 @@ export const currencies: Record<string, Currency> = {
     name: "Bitcoin",
     xpubVersion: 0x0488b21e,
   },
-  "Bitcoin Cash": {
+  BitcoinCash: {
     name: "Bitcoin Cash",
     xpubVersion: 0x0488b21e,
   },
