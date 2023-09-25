@@ -16,7 +16,9 @@ import * as tallyHo from "@shapeshiftoss/hdwallet-tallyho";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
 import { WalletConnectProviderConfig } from "@shapeshiftoss/hdwallet-walletconnect";
 import * as walletConnect from "@shapeshiftoss/hdwallet-walletconnect";
+import * as walletConnectv2 from "@shapeshiftoss/hdwallet-walletconnectv2";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
+import { EthereumProviderOptions } from "@walletconnect/ethereum-provider/dist/types/EthereumProvider";
 import $ from "jquery";
 import Web3 from "web3";
 
@@ -77,6 +79,21 @@ const walletConnectOptions: WalletConnectProviderConfig = {
     1: "https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57",
   },
 };
+const walletConnectV2Options: EthereumProviderOptions = {
+  projectId: "5abef0455c768644c2bc866f1520374f",
+  chains: [1],
+  optionalChains: [100],
+  optionalMethods: [
+    "eth_signTypedData",
+    "eth_signTypedData_v4",
+    "eth_sign",
+    "ethVerifyMessage",
+    "eth_accounts",
+    "eth_sendTransaction",
+    "eth_signTransaction",
+  ],
+  showQrModal: true,
+};
 
 const coinbaseOptions: CoinbaseProviderConfig = {
   appName: "ShapeShift Sandbox",
@@ -109,6 +126,7 @@ const portisAdapter = portis.PortisAdapter.useKeyring(keyring, { portisAppId });
 const metaMaskAdapter = metaMask.MetaMaskAdapter.useKeyring(keyring);
 const tallyHoAdapter = tallyHo.TallyHoAdapter.useKeyring(keyring);
 const walletConnectAdapter = walletConnect.WalletConnectAdapter.useKeyring(keyring, walletConnectOptions);
+const walletConnectV2Adapter = walletConnectv2.WalletConnectV2Adapter.useKeyring(keyring, walletConnectV2Options);
 const xdefiAdapter = xdefi.XDEFIAdapter.useKeyring(keyring);
 const keplrAdapter = keplr.KeplrAdapter.useKeyring(keyring);
 const nativeAdapter = native.NativeAdapter.useKeyring(keyring);
@@ -141,6 +159,7 @@ const $metaMask = $("#metaMask");
 const $coinbase = $("#coinbase");
 const $tallyHo = $("#tallyHo");
 const $walletConnect = $("#walletConnect");
+const $walletConnectV2 = $("#walletConnectV2");
 const $xdefi = $("#xdefi");
 const $keplr = $("#keplr");
 const $keyring = $("#keyring");
@@ -283,6 +302,19 @@ $walletConnect.on("click", async (e) => {
   }
 });
 
+$walletConnectV2.on("click", async (e) => {
+  e.preventDefault();
+  try {
+    wallet = await walletConnectV2Adapter.pairDevice();
+    window["wallet"] = wallet;
+    let deviceID = "nothing";
+    deviceID = await wallet.getDeviceID();
+    $("#keyring select").val(deviceID);
+  } catch (error) {
+    console.error(error);
+  }
+});
+
 $xdefi.on("click", async (e) => {
   e.preventDefault();
   wallet = await xdefiAdapter.pairDevice();
@@ -399,6 +431,12 @@ async function deviceConnected(deviceId) {
     await walletConnectAdapter.initialize();
   } catch (e) {
     console.error("Could not initialize WalletConnectAdapter", e);
+  }
+
+  try {
+    await walletConnectV2Adapter.initialize();
+  } catch (e) {
+    console.error("Could not initialize WalletConnectV2Adapter", e);
   }
 
   for (const deviceID of Object.keys(keyring.wallets)) {
@@ -519,6 +557,8 @@ const $xpubResults = $(".xpubResults");
 const $doPing = $("#doPing");
 const $doWipe = $("#doWipe");
 const $doLoadDevice = $("#doLoadDevice");
+const $doDisconnect = $("#doDisconnect");
+const $doClearSession = $("#doClearSession");
 const $manageResults = $("#manageResults");
 
 $getVendor.on("click", async (e) => {
@@ -690,6 +730,24 @@ $doLoadDevice.on("click", (e) => {
   wallet.loadDevice({
     mnemonic: /*trezor test seed:*/ "alcohol woman abuse must during monitor noble actual mixed trade anger aisle",
   });
+});
+
+$doDisconnect.on("click", (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $manageResults.val("No wallet?");
+    return;
+  }
+  wallet.disconnect().then(() => $manageResults.val("Disconnected"));
+});
+
+$doClearSession.on("click", (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $manageResults.val("No wallet?");
+    return;
+  }
+  wallet.clearSession().then(() => $manageResults.val("Session Cleared"));
 });
 
 const $openApp = $("#openApp");
