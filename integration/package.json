@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/integration",
-  "version": "1.50.8-ledger.6",
+  "version": "1.50.8-ledger.9",
   "main": "index.js",
   "license": "MIT",
   "private": true,
@@ -14,7 +14,7 @@
     "@shapeshiftoss/hdwallet-keepkey": "^1.50.8-ledger.2",
     "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "^1.50.8-ledger.2",
     "@shapeshiftoss/hdwallet-keepkey-tcp": "^1.50.8-ledger.2",
-    "@shapeshiftoss/hdwallet-ledger": "^1.50.8-ledger.6",
+    "@shapeshiftoss/hdwallet-ledger": "^1.50.8-ledger.9",
     "@shapeshiftoss/hdwallet-native": "^1.50.8-ledger.2",
     "@shapeshiftoss/hdwallet-portis": "^1.50.8-ledger.2",
     "@shapeshiftoss/hdwallet-trezor": "^1.50.8-ledger.2",
