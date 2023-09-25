@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import { Events, Keyring } from "@shapeshiftoss/hdwallet-core";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 
 import { WalletConnectHDWallet } from "./walletconnect";
@@ -10,15 +10,15 @@ export type WalletConnectProviderConfig =
   | { rpc: { [key: number]: string } };
 
 export class WalletConnectAdapter {
-  keyring: core.Keyring;
+  keyring: Keyring;
   private providerConfig: WalletConnectProviderConfig;
 
-  private constructor(keyring: core.Keyring, config: WalletConnectProviderConfig) {
+  private constructor(keyring: Keyring, config: WalletConnectProviderConfig) {
     this.keyring = keyring;
     this.providerConfig = config;
   }
 
-  public static useKeyring(keyring: core.Keyring, config: WalletConnectProviderConfig) {
+  public static useKeyring(keyring: Keyring, config: WalletConnectProviderConfig) {
     return new WalletConnectAdapter(keyring, config);
   }
 
@@ -38,7 +38,7 @@ export class WalletConnectAdapter {
       await wallet.initialize();
       const deviceID = await wallet.getDeviceID();
       this.keyring.add(wallet, deviceID);
-      this.keyring.emit(["WalletConnect", deviceID, core.Events.CONNECT], deviceID);
+      this.keyring.emit(["WalletConnect", deviceID, Events.CONNECT], deviceID);
       return wallet;
     } catch (error) {
       console.error("Could not pair WalletConnect");
