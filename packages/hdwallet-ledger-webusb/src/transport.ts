@@ -1,3 +1,4 @@
+import { ledgerUSBVendorId } from "@ledgerhq/devices";
 import Btc from "@ledgerhq/hw-app-btc";
 import Eth from "@ledgerhq/hw-app-eth";
 import Transport from "@ledgerhq/hw-transport";
@@ -16,16 +17,25 @@ import {
 
 const RECORD_CONFORMANCE_MOCKS = false;
 
-export async function getFirstLedgerDevice(): Promise<USBDevice | null> {
+export async function getFirstLedgerDevice(): Promise<USBDevice> {
   if (!(window && window.navigator.usb)) throw new core.WebUSBNotAvailable();
 
-  const existingDevices = await TransportWebUSB.list();
+  const allUsbDevices = await navigator?.usb?.getDevices();
 
-  return existingDevices.length > 0 ? existingDevices[0] : null;
+  const existingLedgerDevice = allUsbDevices.find((d) => d.vendorId === ledgerUSBVendorId);
+
+  if (existingLedgerDevice) return existingLedgerDevice;
+
+  const ledgerDevice = await navigator?.usb?.requestDevice({
+    filters: [{ vendorId: ledgerUSBVendorId }],
+  });
+  return ledgerDevice;
 }
 
-export async function openTransport(device: USBDevice): Promise<TransportWebUSB> {
+export async function openTransport(): Promise<TransportWebUSB> {
   if (!(window && window.navigator.usb)) throw new core.WebUSBNotAvailable();
+
+  const device = await getFirstLedgerDevice();
 
   try {
     return await TransportWebUSB.open(device);
@@ -42,7 +52,17 @@ export async function getTransport(): Promise<TransportWebUSB> {
   if (!(window && window.navigator.usb)) throw new core.WebUSBNotAvailable();
 
   try {
-    return (await TransportWebUSB.create()) as TransportWebUSB;
+    const device = await getFirstLedgerDevice();
+
+    const maybeDeviceInterface = device.configurations[0].interfaces.find(({ alternates }: any) =>
+      alternates.some(({ interfaceClass }: any) => interfaceClass === 255)
+    );
+
+    if (!maybeDeviceInterface) throw new Error("No Ledger device found");
+    const { interfaceNumber } = maybeDeviceInterface;
+
+    const transport = new TransportWebUSB(device, interfaceNumber);
+    return transport;
   } catch (err) {
     if (core.isIndexable(err) && err.name === "TransportInterfaceNotAvailable") {
       throw new core.ConflictingApp("Ledger");

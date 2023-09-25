@@ -78,17 +78,15 @@ export class WebUSBLedgerAdapter {
   public async initialize(usbDevice?: USBDevice): Promise<number> {
     const device = usbDevice ?? (await getFirstLedgerDevice());
 
-    if (device) {
-      await this.keyring.remove(core.mustBeDefined(device.serialNumber));
+    await this.keyring.remove(core.mustBeDefined(device.serialNumber));
 
-      const ledgerTransport = await openTransport(device);
+    const ledgerTransport = await openTransport();
 
-      const wallet = ledger.create(
-        new LedgerWebUsbTransport(device, ledgerTransport, this.keyring) as ledger.LedgerTransport
-      );
+    const wallet = ledger.create(
+      new LedgerWebUsbTransport(device, ledgerTransport, this.keyring) as ledger.LedgerTransport
+    );
 
-      this.keyring.add(wallet, device.serialNumber);
-    }
+    this.keyring.add(wallet, device.serialNumber);
 
     return Object.keys(this.keyring.wallets).length;
   }
