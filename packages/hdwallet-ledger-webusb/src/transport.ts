@@ -53,8 +53,6 @@ export async function getTransport(): Promise<TransportWebUSB> {
 
   try {
     const device = await getFirstLedgerDevice();
-    await device.open();
-    await device.reset();
 
     const maybeDeviceInterface = device.configurations[0].interfaces.find(({ alternates }: any) =>
       alternates.some(({ interfaceClass }: any) => interfaceClass === 255)
@@ -62,7 +60,6 @@ export async function getTransport(): Promise<TransportWebUSB> {
 
     if (!maybeDeviceInterface) throw new Error("No Ledger device found");
     const { interfaceNumber } = maybeDeviceInterface;
-    await device.claimInterface(interfaceNumber);
 
     const transport = new TransportWebUSB(device, interfaceNumber);
     return transport;
