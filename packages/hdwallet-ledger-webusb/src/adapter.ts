@@ -28,6 +28,8 @@ export class WebUSBLedgerAdapter {
   }
 
   private async handleConnectWebUSBLedger(e: USBConnectionEvent): Promise<void> {
+    // eslint-disable-next-line no-console
+    console.log({ e });
     if (e.device.vendorId !== VENDOR_ID) return;
 
     this.currentEventTimestamp = Date.now();
@@ -47,6 +49,8 @@ export class WebUSBLedgerAdapter {
   }
 
   private async handleDisconnectWebUSBLedger(e: USBConnectionEvent): Promise<void> {
+    // eslint-disable-next-line no-console
+    console.log({ e });
     if (e.device.vendorId !== VENDOR_ID) return;
 
     const ts = Date.now();
