@@ -14,6 +14,8 @@ import {
   LedgerTransportMethodName,
 } from "hdwallet-ledger/src/transport";
 
+import { WebUSBLedgerAdapter } from "./adapter";
+
 const RECORD_CONFORMANCE_MOCKS = false;
 
 export async function getFirstLedgerDevice(): Promise<USBDevice | null> {
@@ -100,10 +102,13 @@ export function translateCoinAndMethod<T extends LedgerTransportCoinType, U exte
 
 export class LedgerWebUsbTransport extends ledger.LedgerTransport {
   device: USBDevice;
+  webUsbLedgerAdapter: WebUSBLedgerAdapter;
 
   constructor(device: USBDevice, transport: Transport, keyring: core.Keyring) {
     super(transport, keyring);
     this.device = device;
+    // Re-creates transport on method call, which will reconnect the device if disconnected
+    this.webUsbLedgerAdapter = WebUSBLedgerAdapter.useKeyring(keyring);
   }
 
   public async getDeviceID(): Promise<string> {
@@ -128,7 +133,7 @@ export class LedgerWebUsbTransport extends ledger.LedgerTransport {
 
     try {
       // Re-creates transport on method call, which will reconnect the device if disconnected
-      await getTransport();
+      await this.webUsbLedgerAdapter.pairDevice();
       const methodInstance: LedgerTransportMethod<T, U> = translateCoinAndMethod(this.transport, coin, method);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore ts is drunk, stop pls
