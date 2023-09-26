@@ -50,7 +50,6 @@ export class WebUSBLedgerAdapter {
 
   private async handleDisconnectWebUSBLedger(e: USBConnectionEvent): Promise<void> {
     // eslint-disable-next-line no-console
-    console.log({ e });
     if (e.device.vendorId !== VENDOR_ID) return;
 
     const ts = Date.now();
@@ -62,7 +61,8 @@ export class WebUSBLedgerAdapter {
       if (ts !== this.currentEventTimestamp) return;
 
       try {
-        if (e.device.serialNumber) await this.keyring.remove(e.device.serialNumber);
+        // TODO(gomes): we may want to bring this back
+        // if (e.device.serialNumber) await this.keyring.remove(e.device.serialNumber);
       } catch (error) {
         console.error(error);
       } finally {
