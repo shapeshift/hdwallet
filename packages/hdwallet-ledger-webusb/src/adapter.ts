@@ -88,12 +88,7 @@ export class WebUSBLedgerAdapter {
       const ledgerTransport = await openTransport(device);
 
       const wallet = ledger.create(
-        new LedgerWebUsbTransport(
-          device,
-          ledgerTransport,
-          this.keyring,
-          this.pairDevice.bind(this)
-        ) as ledger.LedgerTransport
+        new LedgerWebUsbTransport(device, ledgerTransport, this.keyring) as ledger.LedgerTransport
       );
 
       this.keyring.add(wallet, device.serialNumber);
