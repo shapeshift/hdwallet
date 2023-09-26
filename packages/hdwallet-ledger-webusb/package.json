@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger-webusb",
-  "version": "1.50.8-ledger.17",
+  "version": "1.50.8-ledger.18",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
