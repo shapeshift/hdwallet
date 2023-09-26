@@ -10,7 +10,7 @@ import _ from "lodash";
 
 import { currencies } from "./currencies";
 import { LedgerTransport } from "./transport";
-import { compressPublicKey, createXpub, handleError, networksUtil, translateScriptType } from "./utils";
+import { handleError, networksUtil, translateScriptType } from "./utils";
 
 export const supportedCoins = ["Testnet", "Bitcoin", "BitcoinCash", "Litecoin", "Dash", "DigiByte", "Dogecoin"];
 
@@ -133,15 +133,8 @@ export async function btcSignTx(
 
   //bitcoinjs-lib
   msg.outputs.map(async (output) => {
-    if (output.addressNList !== undefined) {
-      if (output.addressType === core.BTCOutputAddressType.Transfer && !supportsSecureTransfer)
-        throw new Error("Ledger does not support SecureTransfer");
-    }
-
     let outputAddress: string;
-    if (output.address !== undefined) {
-      outputAddress = output.address;
-    } else if (output.isChange) {
+    if (output.addressNList !== undefined && output.isChange) {
       const maybeOutputAddress = await wallet.btcGetAddress({
         addressNList: output.addressNList,
         scriptType: output.scriptType as unknown as BTCInputScriptType,
@@ -149,6 +142,14 @@ export async function btcSignTx(
       });
       if (!maybeOutputAddress) throw new Error("could not determine output address from addressNList");
       outputAddress = maybeOutputAddress;
+    } else if (
+      output.addressNList !== undefined &&
+      output.addressType === core.BTCOutputAddressType.Transfer &&
+      !supportsSecureTransfer
+    ) {
+      throw new Error("Ledger does not support SecureTransfer");
+    } else if (output.address !== undefined) {
+      outputAddress = output.address;
     } else {
       throw new Error("could not determine output address");
     }
