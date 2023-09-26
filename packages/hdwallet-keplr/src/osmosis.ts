@@ -1,6 +1,6 @@
 import { StdTx } from "@cosmjs/amino";
 import { SignerData } from "@cosmjs/stargate";
-import { ChainReference } from "@shapeshiftoss/caip";
+import { CHAIN_REFERENCE } from "@shapeshiftoss/caip";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import {
   OsmosisAccountPath,
@@ -59,13 +59,13 @@ export function osmosisGetAccountPaths(msg: OsmosisGetAccountPaths): Array<Osmos
 }
 
 export async function osmosisGetAddress(provider: any): Promise<string | undefined> {
-  const offlineSigner = provider.getOfflineSigner(ChainReference.OsmosisMainnet);
+  const offlineSigner = provider.getOfflineSigner(CHAIN_REFERENCE.OsmosisMainnet);
   const osmosisAddress = (await offlineSigner?.getAccounts())?.[0].address;
   return osmosisAddress;
 }
 
 export async function osmosisSignTx(provider: any, msg: OsmosisSignTx): Promise<OsmosisSignedTx> {
-  const offlineSigner = provider.getOfflineSigner(ChainReference.OsmosisMainnet);
+  const offlineSigner = provider.getOfflineSigner(CHAIN_REFERENCE.OsmosisMainnet);
 
   const address = await osmosisGetAddress(provider);
   if (!address) throw new Error("failed to get address");
