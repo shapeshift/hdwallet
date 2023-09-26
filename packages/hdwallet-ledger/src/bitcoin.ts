@@ -147,7 +147,7 @@ export async function btcSignTx(
         scriptType: output.scriptType as unknown as BTCInputScriptType,
         coin: msg.coin,
       });
-      if (!maybeOutputAddress) throw new Error("could not determine output address");
+      if (!maybeOutputAddress) throw new Error("could not determine output address from addressNList");
       outputAddress = maybeOutputAddress;
     } else {
       throw new Error("could not determine output address");
