@@ -52,6 +52,11 @@ export class WebUSBLedgerAdapter {
     // eslint-disable-next-line no-console
     if (e.device.vendorId !== VENDOR_ID) return;
 
+    this.keyring.emit(
+      [e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.DISCONNECT],
+      e.device.serialNumber
+    );
+
     const ts = Date.now();
     this.currentEventTimestamp = ts;
 
@@ -61,15 +66,9 @@ export class WebUSBLedgerAdapter {
       if (ts !== this.currentEventTimestamp) return;
 
       try {
-        // TODO(gomes): we may want to bring this back
-        // if (e.device.serialNumber) await this.keyring.remove(e.device.serialNumber);
+        if (e.device.serialNumber) await this.keyring.remove(e.device.serialNumber);
       } catch (error) {
         console.error(error);
-      } finally {
-        this.keyring.emit(
-          [e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.DISCONNECT],
-          e.device.serialNumber
-        );
       }
     }, APP_NAVIGATION_DELAY);
   }
