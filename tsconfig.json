@@ -55,7 +55,6 @@
     { "path": "./packages/hdwallet-walletconnect" },
     { "path": "./packages/hdwallet-walletconnectV2" },
     { "path": "./packages/hdwallet-xdefi" },
-    { "path": "./packages/hdwallet-native-vault" },
     { "path": "./packages/hdwallet-keplr" }
   ]
 }
