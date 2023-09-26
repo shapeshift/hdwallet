@@ -1,6 +1,7 @@
 import { CreateTransactionArg } from "@ledgerhq/hw-app-btc/lib/createTransaction";
 import { Transaction } from "@ledgerhq/hw-app-btc/lib/types";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
 import Base64 from "base64-js";
 import * as bchAddr from "bchaddrjs";
 import * as bitcoin from "bitcoinjs-lib";
@@ -131,7 +132,7 @@ export async function btcSignTx(
   let segwit = false;
 
   //bitcoinjs-lib
-  msg.outputs.map((output) => {
+  msg.outputs.map(async (output) => {
     if (output.addressNList !== undefined) {
       if (output.addressType === core.BTCOutputAddressType.Transfer && !supportsSecureTransfer)
         throw new Error("Ledger does not support SecureTransfer");
@@ -140,6 +141,14 @@ export async function btcSignTx(
     let outputAddress: string;
     if (output.address !== undefined) {
       outputAddress = output.address;
+    } else if (output.isChange) {
+      const maybeOutputAddress = await wallet.btcGetAddress({
+        addressNList: output.addressNList,
+        scriptType: output.scriptType as unknown as BTCInputScriptType,
+        coin: msg.coin,
+      });
+      if (!maybeOutputAddress) throw new Error("could not determine output address");
+      outputAddress = maybeOutputAddress;
     } else {
       throw new Error("could not determine output address");
     }
