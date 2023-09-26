@@ -53,10 +53,17 @@ export async function getTransport(): Promise<TransportWebUSB> {
 }
 
 export function translateCoinAndMethod<T extends LedgerTransportCoinType, U extends LedgerTransportMethodName<T>>(
-  transport: Transport,
   coin: T,
   method: U
 ): LedgerTransportMethod<T, U> {
+  // TODO(gomes): move all the following implementation to an actual sane getTransport
+  const device = await getFirstLedgerDevice();
+
+  if (!device) throw new Error("No device found");
+
+  // TODO(gomes): touch sleep and make this async
+  await device.open();
+  if (device.configuration === null) await device.selectConfiguration(1);
   switch (coin) {
     case "Btc": {
       const btc = new Btc({ transport });
@@ -125,7 +132,7 @@ export class LedgerWebUsbTransport extends ledger.LedgerTransport {
     );
 
     try {
-      const methodInstance: LedgerTransportMethod<T, U> = translateCoinAndMethod(this.transport, coin, method);
+      const methodInstance: LedgerTransportMethod<T, U> = translateCoinAndMethod(coin, method);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore ts is drunk, stop pls
       const response = await methodInstance(...args);
