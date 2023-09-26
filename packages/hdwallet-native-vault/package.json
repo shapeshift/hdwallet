@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-native-vault",
-  "version": "1.50.8-ledger.2",
+  "version": "1.50.8-ledger.24",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,7 +14,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-native": "^1.50.8-ledger.2",
+    "@shapeshiftoss/hdwallet-native": "^1.50.8-ledger.24",
     "bip39": "^3.0.4",
     "hash-wasm": "^4.9.0",
     "idb-keyval": "^6.0.3",
@@ -32,5 +32,5 @@
     "ts-jest": "^26.5.5",
     "typescript": "^4.7.4"
   },
-  "gitHead": "243421f1de13f0098e03acdba5d7626ae4ae883b"
+  "gitHead": "890332863d68869801f3350f09732760dfa389ae"
 }

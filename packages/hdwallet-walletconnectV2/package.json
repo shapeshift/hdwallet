@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-walletconnectv2",
-  "version": "1.50.8-ledger.7",
+  "version": "1.50.8-ledger.24",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,7 +15,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "1.50.8-ledger.2",
+    "@shapeshiftoss/hdwallet-core": "^1.50.8-ledger.24",
     "@walletconnect/ethereum-provider": "^2.10.1",
     "@walletconnect/modal": "^2.6.2",
     "ethers": "^5.6.5"
@@ -23,5 +23,5 @@
   "devDependencies": {
     "typescript": "^4.3.2"
   },
-  "gitHead": "64bf68d0087821d82d2c714a82991cee8dbdc4b3"
+  "gitHead": "890332863d68869801f3350f09732760dfa389ae"
 }
