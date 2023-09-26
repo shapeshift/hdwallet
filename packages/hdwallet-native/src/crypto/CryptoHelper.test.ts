@@ -19,8 +19,6 @@ const BAD_ARGS = [undefined, null, "encrypteddatastring", [1, 2, 3, 4, 5, 6], {}
 
 describe("CryptoHelpers", () => {
   // Load shim to support running tests in node
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore nothing changed at runtime but ts now complains here, ser you're drunk
   globalThis.crypto = new webcrypto.Crypto();
   const engine = new WebCryptoEngine();
   const helper = new CryptoHelper(engine);

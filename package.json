@@ -52,7 +52,7 @@
     "lerna": "^5.2.0",
     "prettier": "^2.0.5",
     "ts-jest": "^26.5.5",
-    "typescript": "^4.7.4"
+    "typescript": "^5.2.2"
   },
   "resolutions": {
     "bip174": "2.1.0",
@@ -61,6 +61,7 @@
     "@ledgerhq/hw-transport": "6.7.0"
   },
   "dependencies": {
+    "@types/jest": "^26.0.23",
     "@types/node": "^20.5.7",
     "patch-package": "^6.2.2",
     "postinstall-postinstall": "^2.1.0"

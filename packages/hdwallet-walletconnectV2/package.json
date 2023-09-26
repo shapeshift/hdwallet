@@ -10,17 +10,14 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc --build",
-    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "clean": "rm -rf dist node_modules tsconfig.tsbuildinfo",
     "dev": "yarn tsc --build --watch",
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "1.50.7",
+    "@shapeshiftoss/hdwallet-core": "^1.50.7",
     "@walletconnect/ethereum-provider": "^2.10.1",
     "@walletconnect/modal": "^2.6.2",
     "ethers": "^5.6.5"
-  },
-  "devDependencies": {
-    "typescript": "^4.3.2"
   }
 }
