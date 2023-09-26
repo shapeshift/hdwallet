@@ -100,10 +100,17 @@ export function translateCoinAndMethod<T extends LedgerTransportCoinType, U exte
 
 export class LedgerWebUsbTransport extends ledger.LedgerTransport {
   device: USBDevice;
+  pairDevice: () => Promise<ledger.LedgerHDWallet>;
 
-  constructor(device: USBDevice, transport: TransportWebUSB, keyring: core.Keyring) {
+  constructor(
+    device: USBDevice,
+    transport: TransportWebUSB,
+    keyring: core.Keyring,
+    pairDevice: () => Promise<ledger.LedgerHDWallet>
+  ) {
     super(transport, keyring);
     this.device = device;
+    this.pairDevice = pairDevice;
   }
 
   public async getDeviceID(): Promise<string> {
@@ -127,7 +134,10 @@ export class LedgerWebUsbTransport extends ledger.LedgerTransport {
     );
 
     try {
+      await this.pairDevice();
       const methodInstance: LedgerTransportMethod<T, U> = translateCoinAndMethod(this.transport, coin, method);
+      // eslint-disable-next-line no-console
+      console.log("call", { method: `ledger.${coin}.${method}.call`, methodInstance, args });
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore ts is drunk, stop pls
       const response = await methodInstance(...args);
