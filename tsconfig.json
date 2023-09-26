@@ -48,13 +48,14 @@
     { "path": "./packages/hdwallet-metamask-shapeshift-multichain" },
     { "path": "./packages/hdwallet-coinbase" },
     { "path": "./packages/hdwallet-native" },
-    { "path": "./packages/hdwallet-native-vault" },
     { "path": "./packages/hdwallet-portis" },
     { "path": "./packages/hdwallet-tallyho" },
     { "path": "./packages/hdwallet-trezor" },
     { "path": "./packages/hdwallet-trezor-connect" },
     { "path": "./packages/hdwallet-walletconnect" },
+    { "path": "./packages/hdwallet-walletconnectV2" },
     { "path": "./packages/hdwallet-xdefi" },
+    { "path": "./packages/hdwallet-native-vault" },
     { "path": "./packages/hdwallet-keplr" }
   ]
 }
