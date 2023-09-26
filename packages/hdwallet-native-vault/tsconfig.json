@@ -5,6 +5,6 @@
     "outDir": "dist"
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "*.test.ts", "*.skip.ts"],
+  "exclude": ["node_modules", "dist", "test", "**/*.test.ts"],
   "references": [{ "path": "../hdwallet-core" }, { "path": "../hdwallet-native" }]
 }

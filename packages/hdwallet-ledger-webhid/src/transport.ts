@@ -117,9 +117,7 @@ export class LedgerWebHIDTransport extends ledger.LedgerTransport {
     coin: T,
     method: U,
     ...args: Parameters<LedgerTransportMethod<T, U>>
-  ): // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore TODO(gomes): ts pls I didn't diff this why is this failing type check
-  Promise<LedgerResponse<T, U>> {
+  ): Promise<LedgerResponse<T, U>> {
     this.emit(
       `ledger.${coin}.${method}.call`,
       core.makeEvent({

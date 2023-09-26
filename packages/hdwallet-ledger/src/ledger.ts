@@ -365,9 +365,6 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
    * @param appName - human-readable app name i.e. "Bitcoin Cash"
    */
   public async openApp(appName: string): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore TS is drunk and think there's a mismatch in @ledgerhq/hw-transport's type between our own deeply-resolve one
-    // and @ledgerhq/live-common one - nothing changed at runtime so this'll do for now
     const res = await this.transport.call(null, "openApp", appName);
     handleError(res, this.transport);
   }

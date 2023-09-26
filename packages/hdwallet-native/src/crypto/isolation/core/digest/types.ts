@@ -85,10 +85,7 @@ export const Algorithms = (() => {
     AlgorithmName.assert(name);
     if (name in algorithms) throw new Error(`digest algorithm implementation already provided for ${name}`);
     algorithms[name] = Algorithm(name).enforce((x: ByteArray) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore TODO(gomes): tsc fix this line or maybe not, this is a major sensitive core bitand
-      // and the error is just TS being stricter in later versions than it used to
-      const out = checkType(ByteArray(AlgorithmLength[name]), fn(x)) as Partial<UnverifiedDigest<N>>;
+      const out = checkType(ByteArray<20 | 32 | 64>(AlgorithmLength[name]), fn(x)) as Partial<UnverifiedDigest<N>>;
       out.preimage = x;
       out.algorithm = name;
       return checkType(UnverifiedDigest(name), out);

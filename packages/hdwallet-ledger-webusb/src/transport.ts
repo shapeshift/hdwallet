@@ -114,9 +114,7 @@ export class LedgerWebUsbTransport extends ledger.LedgerTransport {
     coin: T,
     method: U,
     ...args: Parameters<LedgerTransportMethod<T, U>>
-  ): // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore ts is drunk, stop pls
-  Promise<LedgerResponse<T, U>> {
+  ): Promise<LedgerResponse<T, U>> {
     this.emit(
       `ledger.${coin}.${method}.call`,
       core.makeEvent({

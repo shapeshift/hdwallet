@@ -62,7 +62,7 @@ export type LedgerTransportMethod<T, U> = T extends LedgerTransportCoinType
 
 export type LedgerResponse<
   T extends LedgerTransportCoinType | unknown,
-  U extends T extends unknown ? unknown : LedgerTransportMethodName<Exclude<T, unknown>>
+  U extends LedgerTransportMethodName<Exclude<T, unknown>> | unknown
 > = {
   coin: T;
   method: U;
@@ -89,8 +89,5 @@ export abstract class LedgerTransport extends core.Transport {
     coin: T,
     method: U,
     ...args: Parameters<LedgerTransportMethod<T, U>>
-  ): // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore TS is drunk and think there's a mismatch in @ledgerhq/hw-transport's type between our own deeply-resolve one
-  // and @ledgerhq/live-common one - nothing changed at runtime so this'll do for now
-  Promise<LedgerResponse<T, U>>;
+  ): Promise<LedgerResponse<T, U>>;
 }

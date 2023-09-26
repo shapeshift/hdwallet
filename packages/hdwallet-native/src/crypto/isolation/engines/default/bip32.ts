@@ -20,7 +20,7 @@ export class Node extends Revocable(class {}) implements BIP32.Node, SecP256K1.E
     super();
     // We avoid handing the private key to any non-platform code -- including our type-checking machinery.
     if (privateKey.length !== 32) throw new Error("bad private key length");
-    this.#privateKey = safeBufferFrom(privateKey) as Buffer & ByteArray<32>;
+    this.#privateKey = safeBufferFrom<undefined>(privateKey) as Buffer & ByteArray<32>;
     this.addRevoker(() => this.#privateKey.fill(0));
     this.chainCode = safeBufferFrom(checkType(BIP32.ChainCode, chainCode)) as Buffer & BIP32.ChainCode;
     this.explicitPath = explicitPath;
