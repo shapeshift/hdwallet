@@ -1,5 +1,5 @@
 {
-  "name": "hdwallet-sandbox",
+  "name": "@shapeshiftoss/hdwallet-sandbox",
   "version": "1.50.8-ledger.24",
   "license": "MIT",
   "private": true,
@@ -7,7 +7,7 @@
   "scripts": {
     "build": "rm -rf public; yarn parcel build index.html --dist-dir public",
     "dev": "yarn parcel index.html",
-    "clean": "rm -rf public .parcel-cache"
+    "clean": "rm -rf dist node_modules public .parcel-cache"
   },
   "dependencies": {
     "@shapeshiftoss/hdwallet-core": "^1.50.8-ledger.24",
