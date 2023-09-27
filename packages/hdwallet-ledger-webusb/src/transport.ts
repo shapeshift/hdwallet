@@ -20,13 +20,13 @@ const RECORD_CONFORMANCE_MOCKS = false;
 export async function getFirstLedgerDevice(): Promise<USBDevice | null> {
   if (!(window && window.navigator.usb)) throw new core.WebUSBNotAvailable();
 
-  // const existingDevices = await TransportWebUSB.list();
+  const existingDevices = await TransportWebUSB.list();
 
-  // return existingDevices.length > 0
-  // ? existingDevices[0]
-  return window.navigator.usb.requestDevice({
-    filters: [{ vendorId: VENDOR_ID }],
-  });
+  return existingDevices.length > 0
+    ? existingDevices[0]
+    : window.navigator.usb.requestDevice({
+        filters: [{ vendorId: VENDOR_ID }],
+      });
 }
 
 export async function openTransport(device: USBDevice): Promise<TransportWebUSB> {
