@@ -4,7 +4,7 @@ import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
 import { getFirstLedgerDevice, getTransport, LedgerWebUsbTransport, openTransport } from "./transport";
 
-const VENDOR_ID = 11415;
+export const VENDOR_ID = 11415;
 const APP_NAVIGATION_DELAY = 3000;
 
 export class WebUSBLedgerAdapter {
@@ -49,7 +49,6 @@ export class WebUSBLedgerAdapter {
   }
 
   private async handleDisconnectWebUSBLedger(e: USBConnectionEvent): Promise<void> {
-    // eslint-disable-next-line no-console
     if (e.device.vendorId !== VENDOR_ID) return;
 
     this.keyring.emit(

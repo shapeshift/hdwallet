@@ -13,6 +13,8 @@ import {
   LedgerTransportMethodName,
 } from "hdwallet-ledger/src/transport";
 
+import { VENDOR_ID } from "./adapter";
+
 const RECORD_CONFORMANCE_MOCKS = false;
 
 export async function getFirstLedgerDevice(): Promise<USBDevice | null> {
@@ -20,7 +22,11 @@ export async function getFirstLedgerDevice(): Promise<USBDevice | null> {
 
   const existingDevices = await TransportWebUSB.list();
 
-  return existingDevices.length > 0 ? existingDevices[0] : null;
+  return existingDevices.length > 0
+    ? existingDevices[0]
+    : window.navigator.usb.requestDevice({
+        filters: [{ vendorId: VENDOR_ID }],
+      });
 }
 
 export async function openTransport(device: USBDevice): Promise<TransportWebUSB> {
@@ -60,7 +66,6 @@ export async function translateCoinAndMethod<T extends LedgerTransportCoinType, 
 
   if (!device) throw new Error("No device found");
 
-  // TODO(gomes): touch sleep and make this async
   await device.open();
   if (device.configuration === null) await device.selectConfiguration(1);
 
