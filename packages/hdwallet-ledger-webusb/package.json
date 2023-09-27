@@ -23,6 +23,7 @@
     "@shapeshiftoss/hdwallet-core": "^1.50.9-ledger.3",
     "@shapeshiftoss/hdwallet-ledger": "^1.50.9-ledger.3",
     "@types/w3c-web-usb": "^1.0.4",
+    "p-queue": "^7.4.1",
     "typescript": "^4.7.4"
   },
   "devDependencies": {
