@@ -79,11 +79,10 @@ export const getLedgerTransport = async (): Promise<TransportWebUSB> => {
 };
 
 export async function translateCoinAndMethod<T extends LedgerTransportCoinType, U extends LedgerTransportMethodName<T>>(
+  transport: TransportWebUSB,
   coin: T,
   method: U
 ): Promise<LedgerTransportMethod<T, U>> {
-  const transport = await getLedgerTransport();
-
   switch (coin) {
     case "Btc": {
       const btc = new Btc({ transport });
@@ -152,10 +151,12 @@ export class LedgerWebUsbTransport extends ledger.LedgerTransport {
     );
 
     try {
-      const methodInstance: LedgerTransportMethod<T, U> = await translateCoinAndMethod(coin, method);
+      const transport = await getLedgerTransport();
+      const methodInstance: LedgerTransportMethod<T, U> = await translateCoinAndMethod(transport, coin, method);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore ts is drunk, stop pls
       const response = await methodInstance(...args);
+      await transport.close();
       const result = {
         success: true,
         payload: response,
