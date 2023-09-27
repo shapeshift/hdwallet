@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger",
-  "version": "1.50.9-ledger.3",
+  "version": "1.50.10-ledger.14",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
