@@ -1,3 +1,4 @@
+import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { listen } from "@ledgerhq/logs";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
@@ -35,7 +36,6 @@ export class WebUSBLedgerAdapter {
     this.currentEventTimestamp = Date.now();
 
     try {
-      await this.initialize(e.device);
       this.keyring.emit(
         [e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.CONNECT],
         e.device.serialNumber
@@ -77,20 +77,23 @@ export class WebUSBLedgerAdapter {
   }
 
   // without unique device identifiers, we should only ever have one ledger device on the keyring at a time
-  public async initialize(usbDevice?: USBDevice): Promise<number> {
-    const device = usbDevice ?? (await getFirstLedgerDevice());
+  public async initialize(ledgerTransport?: TransportWebUSB): Promise<number> {
+    const transport =
+      ledgerTransport ??
+      (await (async () => {
+        const device = await getFirstLedgerDevice();
+        if (!device) return;
+        await this.keyring.remove(core.mustBeDefined(device.serialNumber));
+        return openTransport(device);
+      })());
 
-    if (device) {
-      await this.keyring.remove(core.mustBeDefined(device.serialNumber));
+    if (!transport) throw new Error("Cannot get transport");
 
-      const ledgerTransport = await openTransport(device);
+    const wallet = ledger.create(
+      new LedgerWebUsbTransport(transport.device, transport, this.keyring) as ledger.LedgerTransport
+    );
 
-      const wallet = ledger.create(
-        new LedgerWebUsbTransport(device, ledgerTransport, this.keyring) as ledger.LedgerTransport
-      );
-
-      this.keyring.add(wallet, device.serialNumber);
-    }
+    this.keyring.add(wallet, transport.device.serialNumber);
 
     return Object.keys(this.keyring.wallets).length;
   }
@@ -100,7 +103,7 @@ export class WebUSBLedgerAdapter {
 
     const device = ledgerTransport.device;
 
-    await this.initialize(device);
+    await this.initialize(ledgerTransport);
 
     return core.mustBeDefined(this.keyring.get<ledger.LedgerHDWallet>(device.serialNumber));
   }
