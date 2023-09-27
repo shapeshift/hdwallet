@@ -43,24 +43,7 @@ export async function openTransport(device: USBDevice): Promise<TransportWebUSB>
   }
 }
 
-export async function getTransport(): Promise<TransportWebUSB> {
-  if (!(window && window.navigator.usb)) throw new core.WebUSBNotAvailable();
-
-  try {
-    return (await TransportWebUSB.create()) as TransportWebUSB;
-  } catch (err) {
-    if (core.isIndexable(err) && err.name === "TransportInterfaceNotAvailable") {
-      throw new core.ConflictingApp("Ledger");
-    }
-
-    throw new core.WebUSBCouldNotPair("Ledger", String(core.isIndexable(err) ? err.message : err));
-  }
-}
-
-export async function translateCoinAndMethod<T extends LedgerTransportCoinType, U extends LedgerTransportMethodName<T>>(
-  coin: T,
-  method: U
-): Promise<LedgerTransportMethod<T, U>> {
+export const getLedgerTransport = async (): Promise<TransportWebUSB> => {
   // TODO(gomes): move all the following implementation to an actual sane getTransport
   const device = await getFirstLedgerDevice();
 
@@ -92,6 +75,14 @@ export async function translateCoinAndMethod<T extends LedgerTransportCoinType, 
   // TODO end - all of this should be all we need to getTransport and be moved to a non-class member, exported function to be used in other places where we get a transport
 
   const transport = new TransportWebUSB(device, inyerface.interfaceNumber);
+  return transport;
+};
+
+export async function translateCoinAndMethod<T extends LedgerTransportCoinType, U extends LedgerTransportMethodName<T>>(
+  coin: T,
+  method: U
+): Promise<LedgerTransportMethod<T, U>> {
+  const transport = await getLedgerTransport();
 
   switch (coin) {
     case "Btc": {

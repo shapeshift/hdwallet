@@ -2,7 +2,7 @@ import { listen } from "@ledgerhq/logs";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
-import { getFirstLedgerDevice, getTransport, LedgerWebUsbTransport, openTransport } from "./transport";
+import { getFirstLedgerDevice, getLedgerTransport, LedgerWebUsbTransport, openTransport } from "./transport";
 
 export const VENDOR_ID = 11415;
 const APP_NAVIGATION_DELAY = 3000;
@@ -96,7 +96,7 @@ export class WebUSBLedgerAdapter {
   }
 
   public async pairDevice(): Promise<ledger.LedgerHDWallet> {
-    const ledgerTransport = await getTransport();
+    const ledgerTransport = await getLedgerTransport();
 
     const device = ledgerTransport.device;
 
