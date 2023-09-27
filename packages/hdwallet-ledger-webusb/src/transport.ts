@@ -12,6 +12,7 @@ import {
   LedgerTransportMethod,
   LedgerTransportMethodName,
 } from "hdwallet-ledger/src/transport";
+import PQueue from "p-queue";
 
 import { VENDOR_ID } from "./adapter";
 
@@ -126,10 +127,12 @@ export async function translateCoinAndMethod<T extends LedgerTransportCoinType, 
 
 export class LedgerWebUsbTransport extends ledger.LedgerTransport {
   device: USBDevice;
+  callsQueue: PQueue;
 
   constructor(device: USBDevice, transport: TransportWebUSB, keyring: core.Keyring) {
     super(transport, keyring);
     this.device = device;
+    this.callsQueue = new PQueue({ concurrency: 1, interval: 1000 });
   }
 
   public async getDeviceID(): Promise<string> {
@@ -155,7 +158,7 @@ export class LedgerWebUsbTransport extends ledger.LedgerTransport {
       const methodInstance: LedgerTransportMethod<T, U> = await translateCoinAndMethod(transport, coin, method);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore ts is drunk, stop pls
-      const response = await methodInstance(...args);
+      const response = await this.callsQueue.add(() => methodInstance(...args));
       await transport.close();
       const result = {
         success: true,
