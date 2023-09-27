@@ -207,11 +207,12 @@ export async function btcSignTx(
     outputScriptHex,
     additionals: (() => {
       if (msg.coin === "BitcoinCash") return ["abc"];
-      if (segwit) return ["bech32"];
+      if (msg.inputs.some((input) => input.scriptType === core.BTCInputScriptType.SpendWitness)) return ["bech32"];
 
       return [];
     })(),
     segwit,
+    useTrustedInputForSegwit: Boolean(segwit),
   };
 
   // "invalid data received" error from Ledger if not done this way:
