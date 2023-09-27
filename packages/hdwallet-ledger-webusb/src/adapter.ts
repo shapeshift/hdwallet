@@ -6,7 +6,7 @@ import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 import { getFirstLedgerDevice, getLedgerTransport, LedgerWebUsbTransport, openTransport } from "./transport";
 
 export const VENDOR_ID = 11415;
-const APP_NAVIGATION_DELAY = 3000;
+// const APP_NAVIGATION_DELAY = 3000;
 
 export class WebUSBLedgerAdapter {
   keyring: core.Keyring;
@@ -61,15 +61,16 @@ export class WebUSBLedgerAdapter {
 
     // timeout gives time to detect if it is an app navigation based disconnect/connect event
     // discard disconnect event if it is not the most recent event received
-    setTimeout(async () => {
-      if (ts !== this.currentEventTimestamp) return;
-
-      try {
-        if (e.device.serialNumber) await this.keyring.remove(e.device.serialNumber);
-      } catch (error) {
-        console.error(error);
-      }
-    }, APP_NAVIGATION_DELAY);
+    // TODO(gomes): maybe uncomment me maybe not
+    // setTimeout(async () => {
+    // if (ts !== this.currentEventTimestamp) return;
+    //
+    // try {
+    // if (e.device.serialNumber) await this.keyring.remove(e.device.serialNumber);
+    // } catch (error) {
+    // console.error(error);
+    // }
+    // }, APP_NAVIGATION_DELAY);
   }
 
   public get(device: USBDevice): ledger.LedgerHDWallet {
