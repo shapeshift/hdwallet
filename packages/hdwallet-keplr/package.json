@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keplr",
-  "version": "1.50.9-ledger.3",
+  "version": "1.50.50-ledger.12",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
