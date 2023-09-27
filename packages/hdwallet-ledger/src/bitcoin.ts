@@ -205,7 +205,12 @@ export async function btcSignTx(
     inputs,
     associatedKeysets,
     outputScriptHex,
-    additionals: msg.coin === "BitcoinCash" ? ["abc"] : [],
+    additionals: (() => {
+      if (msg.coin === "BitcoinCash") return ["abc"];
+      if (msg.inputs.some((input) => input.scriptType === core.BTCInputScriptType.SpendWitness)) return ["bech32m"];
+
+      return [];
+    })(),
     segwit,
   };
 
