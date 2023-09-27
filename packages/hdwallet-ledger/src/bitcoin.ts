@@ -131,8 +131,7 @@ export async function btcSignTx(
   const associatedKeysets: string[] = [];
   let segwit = false;
 
-  //bitcoinjs-lib
-  msg.outputs.map(async (output) => {
+  for (const output of msg.outputs) {
     let outputAddress: string;
     if (output.addressNList !== undefined && output.isChange) {
       const maybeOutputAddress = await wallet.btcGetAddress({
@@ -157,7 +156,7 @@ export async function btcSignTx(
       outputAddress = bchAddr.toLegacyAddress(outputAddress);
     }
     txBuilder.addOutput(outputAddress, Number(output.amount));
-  });
+  }
 
   if (msg.opReturnData) {
     if (msg.opReturnData.length > 80) {
