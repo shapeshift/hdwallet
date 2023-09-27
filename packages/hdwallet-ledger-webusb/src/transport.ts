@@ -1,6 +1,5 @@
 import Btc from "@ledgerhq/hw-app-btc";
 import Eth from "@ledgerhq/hw-app-eth";
-import Transport from "@ledgerhq/hw-transport";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import getAppAndVersion from "@ledgerhq/live-common/lib/hw/getAppAndVersion";
 import getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
@@ -52,10 +51,10 @@ export async function getTransport(): Promise<TransportWebUSB> {
   }
 }
 
-export function translateCoinAndMethod<T extends LedgerTransportCoinType, U extends LedgerTransportMethodName<T>>(
+export async function translateCoinAndMethod<T extends LedgerTransportCoinType, U extends LedgerTransportMethodName<T>>(
   coin: T,
   method: U
-): LedgerTransportMethod<T, U> {
+): Promise<LedgerTransportMethod<T, U>> {
   // TODO(gomes): move all the following implementation to an actual sane getTransport
   const device = await getFirstLedgerDevice();
 
@@ -64,6 +63,31 @@ export function translateCoinAndMethod<T extends LedgerTransportCoinType, U exte
   // TODO(gomes): touch sleep and make this async
   await device.open();
   if (device.configuration === null) await device.selectConfiguration(1);
+
+  try {
+    await device.reset();
+  } catch (err) {
+    console.warn(err);
+  }
+
+  const inyerface = device.configurations[0].interfaces.find(({ alternates }) =>
+    alternates.some(({ interfaceClass }) => interfaceClass === 255)
+  );
+
+  if (!inyerface) throw new Error("No Ledger device found");
+
+  try {
+    await device.claimInterface(inyerface.interfaceNumber);
+  } catch (error: any) {
+    await device.close();
+    console.error(error);
+    throw new Error(error.message);
+  }
+
+  // TODO end - all of this should be all we need to getTransport and be moved to a non-class member, exported function to be used in other places where we get a transport
+
+  const transport = new TransportWebUSB(device, inyerface.interfaceNumber);
+
   switch (coin) {
     case "Btc": {
       const btc = new Btc({ transport });
@@ -132,7 +156,7 @@ export class LedgerWebUsbTransport extends ledger.LedgerTransport {
     );
 
     try {
-      const methodInstance: LedgerTransportMethod<T, U> = translateCoinAndMethod(coin, method);
+      const methodInstance: LedgerTransportMethod<T, U> = await translateCoinAndMethod(coin, method);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore ts is drunk, stop pls
       const response = await methodInstance(...args);
