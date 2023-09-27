@@ -12,7 +12,7 @@ import {
   LedgerTransportMethod,
   LedgerTransportMethodName,
 } from "hdwallet-ledger/src/transport";
-import PQueue from "p-queue";
+import PQueue from "p-queue/dist";
 
 import { VENDOR_ID } from "./adapter";
 
