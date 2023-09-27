@@ -659,11 +659,29 @@ $getXpubs.each(function () {
       },
     ];
     const ltcGetPublicKeysInput = [
+      // SegwitNative
       {
-        addressNList: [0x80000000 + 44, 0x80000000 + 2, 0x80000000 + 0],
+        addressNList: [2147483732, 2147483648, 2147483648],
         curve: "secp256k1",
         showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
         coin: "Litecoin",
+        scriptType: "p2wpkh",
+      },
+      // SegwitP2sh
+      {
+        addressNList: [2147483697, 2147483650, 2147483648],
+        curve: "secp256k1",
+        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+        coin: "Litecoin",
+        scriptType: "p2sh-p2wpkh",
+      },
+      // P2Pksh
+      {
+        addressNList: [2147483692, 2147483650, 2147483648],
+        curve: "secp256k1",
+        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+        coin: "Litecoin",
+        scriptType: "p2pkh",
       },
     ];
     const dogeGetPublicKeysInput = [
