@@ -5512,12 +5512,7 @@
   dependencies:
     ws "^8.8.0"
 
-"@shapeshiftoss/caip@3.0.0":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-3.0.0.tgz#c2865d114a33c59cbd073dc330ddd021bcddb11d"
-  integrity sha512-mxxFlQUWY+v3bAoV8lZoAhj1NISmilyBFvVzGshC6sDts2ObZWU5+6teP7IFLuPecoxn9GJFNRxAF7LKFR+HmA==
-
-"@shapeshiftoss/caip@^8.15.0":
+"@shapeshiftoss/caip@8.15.0", "@shapeshiftoss/caip@^8.15.0":
   version "8.15.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/caip/-/caip-8.15.0.tgz#ab3d530973a80d29e3d2409bdd9956a7c4376dbc"
   integrity sha512-G5SNuqabE+zj2XYwg5Z/8WlfDPRsaqcnh4KUIKhJl22mygnFNWb2XNKkgtrNzB969QHZ7xMxCtSR7m067GywrQ==

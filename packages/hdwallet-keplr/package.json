@@ -14,7 +14,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/caip": "3.0.0",
+    "@shapeshiftoss/caip": "8.15.0",
     "@shapeshiftoss/hdwallet-core": "^1.50.9-ledger.3",
     "@shapeshiftoss/proto-tx-builder": "^0.8.0",
     "@shapeshiftoss/types": "3.1.3",
