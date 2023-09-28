@@ -661,7 +661,7 @@ $getXpubs.each(function () {
     const ltcGetPublicKeysInput = [
       // SegwitNative
       {
-        addressNList: [2147483732, 2147483648, 2147483648],
+        addressNList: [2147483732, 2147483650, 2147483648],
         curve: "secp256k1",
         showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
         coin: "Litecoin",

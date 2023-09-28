@@ -5579,6 +5579,55 @@
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
 
+"@shapeshiftoss/hdwallet-ledger-webhid@^1.50.10-ledger.16":
+  version "1.50.10-ledger.16"
+  resolved "http://localhost:4873/@shapeshiftoss/hdwallet-ledger-webhid/-/hdwallet-ledger-webhid-1.50.10-ledger.16.tgz#cdf069fb74e4313814b5975dc6b59e2269f0559d"
+  integrity sha512-MkMfuGASqf8iZhdrusfoU1xEyK+eXKe84RjanVneqTbZku6AtaNf8jfVljW9Kiubh9pIsCfFAkEQxHVQ5UT8tA==
+  dependencies:
+    "@ledgerhq/hw-app-btc" "^10.0.8"
+    "@ledgerhq/hw-app-eth" "^6.9.0"
+    "@ledgerhq/hw-transport" "^6.7.0"
+    "@ledgerhq/hw-transport-webhid" "^6.7.0"
+    "@ledgerhq/live-common" "^21.8.2"
+    "@shapeshiftoss/hdwallet-core" "^1.50.9-ledger.3"
+    "@shapeshiftoss/hdwallet-ledger" "^1.50.10-ledger.16"
+    "@types/w3c-web-hid" "^1.0.2"
+    typescript "^4.7.4"
+
+"@shapeshiftoss/hdwallet-ledger-webusb@^1.50.10-ledger.16":
+  version "1.50.10-ledger.16"
+  resolved "http://localhost:4873/@shapeshiftoss/hdwallet-ledger-webusb/-/hdwallet-ledger-webusb-1.50.10-ledger.16.tgz#34ba69bb7dd6cd096591582e69f34a2448223aea"
+  integrity sha512-CBg9J9bDBG9+ASXVGPkudNQRUSFhHjGZ47p01V8NWocsBt5OtraxlDpmr3OTj4tl2vk8CWUdyWoReGBOAgLHTg==
+  dependencies:
+    "@ledgerhq/hw-app-btc" "^10.0.8"
+    "@ledgerhq/hw-app-eth" "^6.9.0"
+    "@ledgerhq/hw-transport" "^6.7.0"
+    "@ledgerhq/hw-transport-webusb" "^6.7.0"
+    "@ledgerhq/live-common" "^21.8.2"
+    "@ledgerhq/logs" "^6.10.1"
+    "@shapeshiftoss/hdwallet-core" "^1.50.9-ledger.3"
+    "@shapeshiftoss/hdwallet-ledger" "^1.50.10-ledger.16"
+    "@types/w3c-web-usb" "^1.0.4"
+    p-queue "^7.4.1"
+    typescript "^4.7.4"
+
+"@shapeshiftoss/hdwallet-ledger@^1.50.10-ledger.16":
+  version "1.50.10-ledger.16"
+  resolved "http://localhost:4873/@shapeshiftoss/hdwallet-ledger/-/hdwallet-ledger-1.50.10-ledger.16.tgz#47942e30e074c6cd88f5a28699b210979e074709"
+  integrity sha512-NcybMYMYyIMiN+DErBB1lR+t2RWbKyRSeRG3h1b5xFHU1fOBBDFbPZPuc7LDnldqae7tsVe7YYgcDKmUlJCjsA==
+  dependencies:
+    "@ethereumjs/common" "^2.4.0"
+    "@ethereumjs/tx" "^3.3.0"
+    "@shapeshiftoss/hdwallet-core" "^1.50.9-ledger.3"
+    base64-js "^1.5.1"
+    bchaddrjs "^0.4.4"
+    bitcoinjs-lib "^5.1.6"
+    bitcoinjs-message "^2.0.0"
+    bs58check "2.1.2"
+    ethereumjs-tx "1.3.7"
+    ethereumjs-util "^6.1.0"
+    lodash "^4.17.21"
+
 "@shapeshiftoss/hdwallet-native@^1.50.4":
   version "1.50.8"
   resolved "http://localhost:4873/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.50.8.tgz#704939ec5ee25cac78891c51b0516a06fd517107"
