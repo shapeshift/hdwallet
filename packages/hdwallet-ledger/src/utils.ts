@@ -177,7 +177,7 @@ export const networksUtil: Record<number, NetworkMagic> = {
     isSegwitSupported: true,
     satoshi: 8,
     bitcoinjs: {
-      bech32: "bc",
+      bech32: "ltc",
       bip32: {
         private: 0x019d9cfe,
         public: {
