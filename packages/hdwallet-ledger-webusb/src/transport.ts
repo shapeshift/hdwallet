@@ -47,7 +47,6 @@ export async function openTransport(device: USBDevice): Promise<TransportWebUSB>
 }
 
 export const getLedgerTransport = async (): Promise<TransportWebUSB> => {
-  // TODO(gomes): move all the following implementation to an actual sane getTransport
   const device = await getFirstLedgerDevice();
 
   if (!device) throw new Error("No device found");
@@ -61,23 +60,21 @@ export const getLedgerTransport = async (): Promise<TransportWebUSB> => {
     console.warn(err);
   }
 
-  const inyerface = device.configurations[0].interfaces.find(({ alternates }) =>
+  const usbInterface = device.configurations[0].interfaces.find(({ alternates }) =>
     alternates.some(({ interfaceClass }) => interfaceClass === 255)
   );
 
-  if (!inyerface) throw new Error("No Ledger device found");
+  if (!usbInterface) throw new Error("No Ledger device found");
 
   try {
-    await device.claimInterface(inyerface.interfaceNumber);
+    await device.claimInterface(usbInterface.interfaceNumber);
   } catch (error: any) {
     await device.close();
     console.error(error);
     throw new Error(error.message);
   }
 
-  // TODO end - all of this should be all we need to getTransport and be moved to a non-class member, exported function to be used in other places where we get a transport
-
-  const transport = new TransportWebUSB(device, inyerface.interfaceNumber);
+  const transport = new TransportWebUSB(device, usbInterface.interfaceNumber);
   return transport;
 };
 

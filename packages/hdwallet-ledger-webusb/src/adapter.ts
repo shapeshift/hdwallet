@@ -1,5 +1,4 @@
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import { listen } from "@ledgerhq/logs";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
@@ -19,9 +18,6 @@ export class WebUSBLedgerAdapter {
       window.navigator.usb.addEventListener("connect", this.handleConnectWebUSBLedger.bind(this));
       window.navigator.usb.addEventListener("disconnect", this.handleDisconnectWebUSBLedger.bind(this));
     }
-
-    // eslint-disable-next-line no-console
-    listen((log) => console.log(log));
   }
 
   public static useKeyring(keyring: core.Keyring) {
@@ -29,8 +25,6 @@ export class WebUSBLedgerAdapter {
   }
 
   private async handleConnectWebUSBLedger(e: USBConnectionEvent): Promise<void> {
-    // eslint-disable-next-line no-console
-    console.log({ e });
     if (e.device.vendorId !== VENDOR_ID) return;
 
     this.currentEventTimestamp = Date.now();
