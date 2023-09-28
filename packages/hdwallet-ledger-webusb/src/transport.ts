@@ -1,6 +1,5 @@
 import Btc from "@ledgerhq/hw-app-btc";
 import Eth from "@ledgerhq/hw-app-eth";
-import Transport from "@ledgerhq/hw-transport";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import getAppAndVersion from "@ledgerhq/live-common/lib/hw/getAppAndVersion";
 import getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
@@ -13,53 +12,75 @@ import {
   LedgerTransportMethod,
   LedgerTransportMethodName,
 } from "hdwallet-ledger/src/transport";
+import PQueue from "p-queue/dist";
+
+import { VENDOR_ID } from "./adapter";
 
 const RECORD_CONFORMANCE_MOCKS = false;
 
-export async function getFirstLedgerDevice(): Promise<USBDevice | null> {
-  if (!(window && window.navigator.usb)) throw new core.WebUSBNotAvailable();
+const callsQueue = new PQueue({ concurrency: 1, interval: 1000 });
 
-  const existingDevices = await TransportWebUSB.list();
-
-  return existingDevices.length > 0 ? existingDevices[0] : null;
-}
-
-export async function openTransport(device: USBDevice): Promise<TransportWebUSB> {
+export async function getFirstLedgerDevice(): Promise<USBDevice> {
   if (!(window && window.navigator.usb)) throw new core.WebUSBNotAvailable();
 
   try {
-    return await TransportWebUSB.open(device);
+    const existingDevices = await TransportWebUSB.list();
+
+    const maybeExistingDevice = existingDevices?.[0];
+    if (maybeExistingDevice) return maybeExistingDevice;
+
+    const requestedDevice = await window.navigator.usb.requestDevice({
+      filters: [{ vendorId: VENDOR_ID }],
+    });
+
+    return requestedDevice;
   } catch (err) {
     if (core.isIndexable(err) && err.name === "TransportInterfaceNotAvailable") {
       throw new core.ConflictingApp("Ledger");
     }
-
     throw new core.WebUSBCouldNotInitialize("Ledger", String(core.isIndexable(err) ? err.message : err));
   }
 }
 
-export async function getTransport(): Promise<TransportWebUSB> {
-  if (!(window && window.navigator.usb)) throw new core.WebUSBNotAvailable();
+export const getLedgerTransport = async (): Promise<TransportWebUSB> => {
+  const device = await getFirstLedgerDevice();
+
+  if (!device) throw new Error("No device found");
+
+  await device.open();
+  if (device.configuration === null) await device.selectConfiguration(1);
 
   try {
-    return (await TransportWebUSB.request()) as TransportWebUSB;
+    await device.reset();
   } catch (err) {
-    if (core.isIndexable(err) && err.name === "TransportInterfaceNotAvailable") {
-      throw new core.ConflictingApp("Ledger");
-    }
-
-    throw new core.WebUSBCouldNotPair("Ledger", String(core.isIndexable(err) ? err.message : err));
+    console.warn(err);
   }
-}
 
-export function translateCoinAndMethod<T extends LedgerTransportCoinType, U extends LedgerTransportMethodName<T>>(
-  transport: Transport,
+  const usbInterface = device.configurations[0].interfaces.find(({ alternates }) =>
+    alternates.some(({ interfaceClass }) => interfaceClass === 255)
+  );
+
+  if (!usbInterface) throw new Error("No Ledger device found");
+
+  try {
+    await device.claimInterface(usbInterface.interfaceNumber);
+  } catch (error: any) {
+    await device.close();
+    console.error(error);
+    throw new Error(error.message);
+  }
+
+  return new TransportWebUSB(device, usbInterface.interfaceNumber);
+};
+
+export async function translateCoinAndMethod<T extends LedgerTransportCoinType, U extends LedgerTransportMethodName<T>>(
+  transport: TransportWebUSB,
   coin: T,
   method: U
-): LedgerTransportMethod<T, U> {
+): Promise<LedgerTransportMethod<T, U>> {
   switch (coin) {
     case "Btc": {
-      const btc = new Btc(transport);
+      const btc = new Btc({ transport });
       const methodInstance = btc[method as LedgerTransportMethodName<"Btc">].bind(btc);
       return methodInstance as LedgerTransportMethod<T, U>;
     }
@@ -101,7 +122,7 @@ export function translateCoinAndMethod<T extends LedgerTransportCoinType, U exte
 export class LedgerWebUsbTransport extends ledger.LedgerTransport {
   device: USBDevice;
 
-  constructor(device: USBDevice, transport: Transport, keyring: core.Keyring) {
+  constructor(device: USBDevice, transport: TransportWebUSB, keyring: core.Keyring) {
     super(transport, keyring);
     this.device = device;
   }
@@ -125,10 +146,12 @@ export class LedgerWebUsbTransport extends ledger.LedgerTransport {
     );
 
     try {
-      const methodInstance: LedgerTransportMethod<T, U> = translateCoinAndMethod(this.transport, coin, method);
+      const transport = await getLedgerTransport();
+      const methodInstance: LedgerTransportMethod<T, U> = await translateCoinAndMethod(transport, coin, method);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore ts is drunk, stop pls
-      const response = await methodInstance(...args);
+      const response = await callsQueue.add(() => methodInstance(...args));
+      await transport.close();
       const result = {
         success: true,
         payload: response,

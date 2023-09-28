@@ -1,14 +1,17 @@
 import { CreateTransactionArg } from "@ledgerhq/hw-app-btc/lib/createTransaction";
 import { Transaction } from "@ledgerhq/hw-app-btc/lib/types";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
 import Base64 from "base64-js";
 import * as bchAddr from "bchaddrjs";
 import * as bitcoin from "bitcoinjs-lib";
 import * as bitcoinMsg from "bitcoinjs-message";
 import _ from "lodash";
 
+import { currencies } from "./currencies";
 import { LedgerTransport } from "./transport";
-import { compressPublicKey, createXpub, handleError, networksUtil, translateScriptType } from "./utils";
+import { handleError, networksUtil, translateScriptType } from "./utils";
+import { convertXpubVersion, scriptTypeToAccountType } from "./utxoUtils";
 
 export const supportedCoins = ["Testnet", "Bitcoin", "BitcoinCash", "Litecoin", "Dash", "DigiByte", "Dogecoin"];
 
@@ -53,45 +56,27 @@ export async function btcGetPublicKeys(
   const xpubs: Array<core.PublicKey | null> = [];
 
   for (const getPublicKey of msg) {
-    let { scriptType } = getPublicKey;
     const { addressNList, coin } = getPublicKey;
 
     if (!coin) throw new Error("coin is required");
+    if (!getPublicKey.scriptType) throw new Error("scriptType is required");
 
-    const parentBip32path: string = core.addressNListToBIP32(addressNList.slice(0, -1)).substring(2); // i.e. "44'/0'"
-    const bip32path: string = core.addressNListToBIP32(addressNList).substring(2); // i.e 44'/0'/0'
+    const parentBip32path: string = core.addressNListToBIP32(addressNList);
 
-    const opts = { verify: false };
+    const getWalletXpubResponse = await transport.call("Btc", "getWalletXpub", {
+      path: parentBip32path,
+      xpubVersion: currencies[getPublicKey.coin].xpubVersion,
+    });
+    handleError(getWalletXpubResponse, transport, "Unable to obtain public key from device.");
 
-    const res1 = await transport.call("Btc", "getWalletPublicKey", parentBip32path, opts);
-    handleError(res1, transport, "Unable to obtain public key from device.");
+    const { payload: _xpub } = getWalletXpubResponse;
 
-    const {
-      payload: { publicKey: parentPublicKeyHex },
-    } = res1;
-    const parentPublicKey = compressPublicKey(Buffer.from(parentPublicKeyHex, "hex"));
-    const parentFingerprint = new DataView(
-      bitcoin.crypto.ripemd160(bitcoin.crypto.sha256(parentPublicKey)).buffer
-    ).getUint32(0);
-
-    const res2 = await transport.call("Btc", "getWalletPublicKey", bip32path, opts);
-    handleError(res2, transport, "Unable to obtain public key from device.");
-
-    const {
-      payload: { publicKey: publicKeyHex, chainCode: chainCodeHex },
-    } = res2;
-    const publicKey = compressPublicKey(Buffer.from(publicKeyHex, "hex"));
-    const chainCode = Buffer.from(chainCodeHex, "hex");
-
-    const coinDetails = networksUtil[core.mustBeDefined(core.slip44ByCoin(coin))];
-    const childNum: number = addressNList[addressNList.length - 1];
-
-    scriptType = scriptType || core.BTCInputScriptType.SpendAddress;
-    const networkMagic = coinDetails.bitcoinjs.bip32.public[scriptType];
-    if (!networkMagic) throw new Error("unable to get networkMagic");
+    // Ledger returns LTC pubkeys in Ltub format for all scriptTypes. It *is* the correct account, but not in the format we want.
+    // We need to convert SegWit pubkeys to Mtubs, and SegWit native to zpubs.
+    const xpub = convertXpubVersion(_xpub, scriptTypeToAccountType[getPublicKey.scriptType]);
 
     xpubs.push({
-      xpub: createXpub(addressNList.length, parentFingerprint, childNum, chainCode, publicKey, networkMagic),
+      xpub,
     });
   }
 
@@ -152,15 +137,23 @@ export async function btcSignTx(
   const associatedKeysets: string[] = [];
   let segwit = false;
 
-  //bitcoinjs-lib
-  msg.outputs.map((output) => {
-    if (output.addressNList !== undefined) {
-      if (output.addressType === core.BTCOutputAddressType.Transfer && !supportsSecureTransfer)
-        throw new Error("Ledger does not support SecureTransfer");
-    }
-
+  for (const output of msg.outputs) {
     let outputAddress: string;
-    if (output.address !== undefined) {
+    if (output.addressNList !== undefined && output.isChange) {
+      const maybeOutputAddress = await wallet.btcGetAddress({
+        addressNList: output.addressNList,
+        scriptType: output.scriptType as unknown as BTCInputScriptType,
+        coin: msg.coin,
+      });
+      if (!maybeOutputAddress) throw new Error("could not determine output address from addressNList");
+      outputAddress = maybeOutputAddress;
+    } else if (
+      output.addressNList !== undefined &&
+      output.addressType === core.BTCOutputAddressType.Transfer &&
+      !supportsSecureTransfer
+    ) {
+      throw new Error("Ledger does not support SecureTransfer");
+    } else if (output.address !== undefined) {
       outputAddress = output.address;
     } else {
       throw new Error("could not determine output address");
@@ -169,7 +162,7 @@ export async function btcSignTx(
       outputAddress = bchAddr.toLegacyAddress(outputAddress);
     }
     txBuilder.addOutput(outputAddress, Number(output.amount));
-  });
+  }
 
   if (msg.opReturnData) {
     if (msg.opReturnData.length > 80) {
@@ -218,8 +211,14 @@ export async function btcSignTx(
     inputs,
     associatedKeysets,
     outputScriptHex,
-    additionals: msg.coin === "BitcoinCash" ? ["abc"] : [],
+    additionals: (() => {
+      if (msg.coin === "BitcoinCash") return ["abc"];
+      if (msg.inputs.some((input) => input.scriptType === core.BTCInputScriptType.SpendWitness)) return ["bech32"];
+
+      return [];
+    })(),
     segwit,
+    useTrustedInputForSegwit: Boolean(segwit),
   };
 
   // "invalid data received" error from Ledger if not done this way:
@@ -227,7 +226,7 @@ export async function btcSignTx(
     txArgs.sigHashType = networksUtil[slip44].sigHash;
   }
 
-  const signedTx = await transport.call("Btc", "createPaymentTransactionNew", txArgs);
+  const signedTx = await transport.call("Btc", "createPaymentTransaction", txArgs);
   handleError(signedTx, transport, "Could not sign transaction with device");
 
   return {
@@ -251,7 +250,7 @@ export async function btcSignMessage(
 ): Promise<core.BTCSignedMessage> {
   const bip32path = core.addressNListToBIP32(msg.addressNList);
 
-  const res = await transport.call("Btc", "signMessageNew", bip32path, Buffer.from(msg.message).toString("hex"));
+  const res = await transport.call("Btc", "signMessage", bip32path, Buffer.from(msg.message).toString("hex"));
   handleError(res, transport, "Could not sign message with device");
   const v = res.payload["v"] + 27 + 4;
 

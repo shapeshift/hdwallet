@@ -156,7 +156,7 @@ export class MockTransport extends ledger.LedgerTransport {
 
       this.memoize(
         "Btc",
-        "signMessageNew",
+        "signMessage",
         JSON.parse('["m/44\'/0\'/0\'/0/0", "48656c6c6f20576f726c64"]'),
         JSON.parse(
           '{"success":true,"coin":"Btc","method":"signMessageNew","payload":{"r":"a037c911044cd6c851b6508317d8892067b0b62074b2cf1c0df9abd4aa053a3c","s":"243ffdc37f64d7af2c857128eafc81947c380995596615e5dcc313a15f512cdd","v":1}}'
@@ -188,7 +188,7 @@ export class MockTransport extends ledger.LedgerTransport {
       ); // TODO need payload
       this.memoize(
         "Btc",
-        "createPaymentTransactionNew",
+        "createPaymentTransaction",
         JSON.parse(
           '["Btc", "createPaymentTransactionNew", {"0":[[{"version":{"type":"Buffer","data":[2,0,0,0]},"inputs":[{"prevout":{"type":"Buffer","data":[130,72,134,80,239,37,165,143,239,103,136,189,113,184,33,32,56,215,242,187,228,117,11,199,188,180,71,1,232,94,246,213,0,0,0,0]},"script":{"type":"Buffer","data":[118,169,20,36,165,109,180,60,246,242,176,46,131,142,164,147,249,93,141,96,71,66,49,136,172]},"sequence":{"type":"Buffer","data":[255,255,255,255]},"tree":{"type":"Buffer","data":[]}}],"outputs":[{"amount":{"type":"Buffer","data":[96,204,5,0,0,0,0,0]},"script":{"type":"Buffer","data":[118,169,20,222,155,42,141,160,136,130,78,143,229,29,235,234,86,102,23,216,81,83,120,136,172]}}],"locktime":{"type":"Buffer","data":[0,0,0,0]},"timestamp":{"type":"Buffer","data":[]},"nVersionGroupId":{"type":"Buffer","data":[]},"nExpiryHeight":{"type":"Buffer","data":[]},"extraData":{"type":"Buffer","data":[]}},0]],"1":["0\'/0/0"],"3":{"type":"Buffer","data":[1,96,204,5,0,0,0,0,0,25,118,169,20,222,155,42,141,160,136,130,78,143,229,29,235,234,86,102,23,216,81,83,120,136,172]}}]'
         ),

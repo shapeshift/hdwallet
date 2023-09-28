@@ -552,7 +552,8 @@ const $getModel = $("#getModel");
 const $getDeviceID = $("#getDeviceID");
 const $getFirmware = $("#getFirmware");
 const $getLabel = $("#getLabel");
-const $getXpubs = $("#getXpubs");
+const $getXpubs = $(".getXpubs");
+const $xpubResults = $(".xpubResults");
 const $doPing = $("#doPing");
 const $doWipe = $("#doWipe");
 const $doLoadDevice = $("#doLoadDevice");
@@ -610,55 +611,113 @@ $getLabel.on("click", async (e) => {
   $manageResults.val(label);
 });
 
-$getXpubs.on("click", async (e) => {
-  e.preventDefault();
+$getXpubs.each(function () {
+  $(this).on("click", async (e) => {
+    const {
+      groups: { coin },
+    } = $(this).attr("class").match("coin-(?<coin>.+)");
+    e.preventDefault();
 
-  if (!wallet) {
-    $manageResults.val("No wallet?");
-    return;
-  }
+    if (!wallet) {
+      $manageResults.val("No wallet?");
+      return;
+    }
 
-  // Get Ethereum path
-  const { hardenedPath } = wallet.ethGetAccountPaths({
-    coin: "Ethereum",
-    accountIdx: 0,
-  })[0];
+    // Get Ethereum path
+    const { hardenedPath } = wallet.ethGetAccountPaths({
+      coin: "Ethereum",
+      accountIdx: 0,
+    })[0];
 
-  const result = await wallet.getPublicKeys([
-    {
-      addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0],
-      curve: "secp256k1",
-      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-      coin: "Bitcoin",
-    },
-    {
-      addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 1],
-      curve: "secp256k1",
-      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-      coin: "Bitcoin",
-    },
-    {
-      addressNList: [0x80000000 + 49, 0x80000000 + 0, 0x80000000 + 0],
-      curve: "secp256k1",
-      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-      coin: "Bitcoin",
-      scriptType: core.BTCInputScriptType.SpendP2SHWitness,
-    },
-    {
-      addressNList: [0x80000000 + 44, 0x80000000 + 2, 0x80000000 + 0],
-      curve: "secp256k1",
-      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-      coin: "Litecoin",
-    },
-    {
-      addressNList: hardenedPath,
-      curve: "secp256k1",
-      showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-      coin: portis.isPortis(wallet) ? "Bitcoin" : "Ethereum",
-    },
-  ]);
+    const btcGetPublicKeysInput = [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0],
+        curve: "secp256k1",
+        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+        coin: "Bitcoin",
+      },
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 1],
+        curve: "secp256k1",
+        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+        coin: "Bitcoin",
+      },
+      {
+        addressNList: [0x80000000 + 49, 0x80000000 + 0, 0x80000000 + 0],
+        curve: "secp256k1",
+        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+        coin: "Bitcoin",
+        scriptType: core.BTCInputScriptType.SpendP2SHWitness,
+      },
+    ];
+    const bchGetPublicKeysInput = [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + 145, 0x80000000 + 0],
+        curve: "secp256k1",
+        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+        coin: "Bitcoin Cash",
+      },
+    ];
+    const ltcGetPublicKeysInput = [
+      // SegwitNative
+      {
+        addressNList: [2147483732, 2147483650, 2147483648],
+        curve: "secp256k1",
+        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+        coin: "Litecoin",
+        scriptType: "p2wpkh",
+      },
+      // SegwitP2sh
+      {
+        addressNList: [2147483697, 2147483650, 2147483648],
+        curve: "secp256k1",
+        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+        coin: "Litecoin",
+        scriptType: "p2sh-p2wpkh",
+      },
+      // P2Pksh
+      {
+        addressNList: [2147483692, 2147483650, 2147483648],
+        curve: "secp256k1",
+        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+        coin: "Litecoin",
+        scriptType: "p2pkh",
+      },
+    ];
+    const dogeGetPublicKeysInput = [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + 3, 0x80000000 + 0],
+        curve: "secp256k1",
+        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+        coin: "Dogecoin",
+      },
+    ];
+    const hardenedPathGetPublicKeysInput = [
+      {
+        addressNList: hardenedPath,
+        curve: "secp256k1",
+        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+        coin: portis.isPortis(wallet) ? "Bitcoin" : "Ethereum",
+      },
+    ];
 
-  $manageResults.val(JSON.stringify(result));
+    const getAllPublicKeysInput = [
+      ...btcGetPublicKeysInput,
+      ...ltcGetPublicKeysInput,
+      ...bchGetPublicKeysInput,
+      ...dogeGetPublicKeysInput,
+      ...hardenedPathGetPublicKeysInput,
+    ];
+
+    const getPublicKeysInput =
+      coin === "all"
+        ? getAllPublicKeysInput
+        : getAllPublicKeysInput.filter((input) => input.coin.replace(/\s/g, "") === coin);
+    const result = await wallet.getPublicKeys(getPublicKeysInput);
+
+    // Populate either the "Manage" or xpub section input with the results
+    (coin === "all" ? $manageResults : $xpubResults).val(JSON.stringify(result));
+  });
 });
 
 $doPing.on("click", async (e) => {

@@ -1,14 +1,13 @@
+import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
-import { getFirstLedgerDevice, getTransport, LedgerWebUsbTransport, openTransport } from "./transport";
+import { getLedgerTransport, LedgerWebUsbTransport } from "./transport";
 
-const VENDOR_ID = 11415;
-const APP_NAVIGATION_DELAY = 3000;
+export const VENDOR_ID = 11415;
 
 export class WebUSBLedgerAdapter {
   keyring: core.Keyring;
-  currentEventTimestamp = 0;
 
   constructor(keyring: core.Keyring) {
     this.keyring = keyring;
@@ -26,10 +25,7 @@ export class WebUSBLedgerAdapter {
   private async handleConnectWebUSBLedger(e: USBConnectionEvent): Promise<void> {
     if (e.device.vendorId !== VENDOR_ID) return;
 
-    this.currentEventTimestamp = Date.now();
-
     try {
-      await this.initialize(e.device);
       this.keyring.emit(
         [e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.CONNECT],
         e.device.serialNumber
@@ -45,25 +41,10 @@ export class WebUSBLedgerAdapter {
   private async handleDisconnectWebUSBLedger(e: USBConnectionEvent): Promise<void> {
     if (e.device.vendorId !== VENDOR_ID) return;
 
-    const ts = Date.now();
-    this.currentEventTimestamp = ts;
-
-    // timeout gives time to detect if it is an app navigation based disconnect/connect event
-    // discard disconnect event if it is not the most recent event received
-    setTimeout(async () => {
-      if (ts !== this.currentEventTimestamp) return;
-
-      try {
-        if (e.device.serialNumber) await this.keyring.remove(e.device.serialNumber);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        this.keyring.emit(
-          [e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.DISCONNECT],
-          e.device.serialNumber
-        );
-      }
-    }, APP_NAVIGATION_DELAY);
+    this.keyring.emit(
+      [e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.DISCONNECT],
+      e.device.serialNumber
+    );
   }
 
   public get(device: USBDevice): ledger.LedgerHDWallet {
@@ -71,30 +52,24 @@ export class WebUSBLedgerAdapter {
   }
 
   // without unique device identifiers, we should only ever have one ledger device on the keyring at a time
-  public async initialize(usbDevice?: USBDevice): Promise<number> {
-    const device = usbDevice ?? (await getFirstLedgerDevice());
+  public async initialize(ledgerTransport?: TransportWebUSB): Promise<number> {
+    const transport = ledgerTransport ?? (await getLedgerTransport());
 
-    if (device) {
-      await this.keyring.remove(core.mustBeDefined(device.serialNumber));
+    const wallet = ledger.create(
+      new LedgerWebUsbTransport(transport.device, transport, this.keyring) as ledger.LedgerTransport
+    );
 
-      const ledgerTransport = await openTransport(device);
-
-      const wallet = ledger.create(
-        new LedgerWebUsbTransport(device, ledgerTransport, this.keyring) as ledger.LedgerTransport
-      );
-
-      this.keyring.add(wallet, device.serialNumber);
-    }
+    this.keyring.add(wallet, transport.device.serialNumber);
 
     return Object.keys(this.keyring.wallets).length;
   }
 
   public async pairDevice(): Promise<ledger.LedgerHDWallet> {
-    const ledgerTransport = await getTransport();
+    const ledgerTransport = await getLedgerTransport();
 
     const device = ledgerTransport.device;
 
-    await this.initialize(device);
+    await this.initialize(ledgerTransport);
 
     return core.mustBeDefined(this.keyring.get<ledger.LedgerHDWallet>(device.serialNumber));
   }

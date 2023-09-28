@@ -1,5 +1,5 @@
 import { Window as KeplrWindow } from "@keplr-wallet/types";
-import { ChainReference } from "@shapeshiftoss/caip";
+import { CHAIN_REFERENCE, ChainReference } from "@shapeshiftoss/caip";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import isObject from "lodash/isObject";
 
@@ -134,7 +134,7 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
 
   initialized = false;
   provider: any = {};
-  supportedNetworks: ChainReference[] = [ChainReference.CosmosHubMainnet, ChainReference.OsmosisMainnet];
+  supportedNetworks: ChainReference[] = [CHAIN_REFERENCE.CosmosHubMainnet, CHAIN_REFERENCE.OsmosisMainnet];
 
   constructor() {
     this.info = new KeplrHDWalletInfo();
@@ -280,7 +280,7 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async getPublicKeys(
     msg: Array<core.GetPublicKey>,
-    chainId: ChainReference = ChainReference.CosmosHubMainnet
+    chainId: ChainReference = CHAIN_REFERENCE.CosmosHubMainnet
   ): Promise<Array<core.PublicKey | null>> {
     if (!this.supportedNetworks.includes(chainId)) {
       throw new Error(`Unsupported chainId: ${chainId}`);
