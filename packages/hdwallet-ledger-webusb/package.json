@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger-webusb",
-  "version": "1.50.8",
+  "version": "1.50.9",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -10,7 +10,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc --build",
-    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "clean": "rm -rf dist node_modules tsconfig.tsbuildinfo",
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
@@ -19,10 +19,9 @@
     "@ledgerhq/hw-transport": "^6.7.0",
     "@ledgerhq/hw-transport-webusb": "^6.7.0",
     "@ledgerhq/live-common": "^21.8.2",
-    "@shapeshiftoss/hdwallet-core": "^1.50.8",
-    "@shapeshiftoss/hdwallet-ledger": "^1.50.8",
-    "@types/w3c-web-usb": "^1.0.4",
-    "typescript": "^4.3.2"
+    "@shapeshiftoss/hdwallet-core": "^1.50.9",
+    "@shapeshiftoss/hdwallet-ledger": "^1.50.9",
+    "@types/w3c-web-usb": "^1.0.4"
   },
   "devDependencies": {
     "@types/ledgerhq__hw-transport": "^4.21.3",

@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-nodewebusb",
-  "version": "1.50.8",
+  "version": "1.50.9",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -10,18 +10,17 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc --build",
-    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "clean": "rm -rf dist node_modules tsconfig.tsbuildinfo",
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.50.8",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.50.8"
+    "@shapeshiftoss/hdwallet-core": "^1.50.9",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.50.9"
   },
   "peerDependencies": {
     "usb": "^2.3.1"
   },
   "devDependencies": {
-    "typescript": "^4.3.2",
     "usb": "^2.3.1"
   }
 }

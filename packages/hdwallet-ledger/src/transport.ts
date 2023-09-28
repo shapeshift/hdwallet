@@ -62,7 +62,7 @@ export type LedgerTransportMethod<T, U> = T extends LedgerTransportCoinType
 
 export type LedgerResponse<
   T extends LedgerTransportCoinType | unknown,
-  U extends T extends unknown ? unknown : LedgerTransportMethodName<Exclude<T, unknown>>
+  U extends LedgerTransportMethodName<Exclude<T, unknown>> | unknown
 > = {
   coin: T;
   method: U;

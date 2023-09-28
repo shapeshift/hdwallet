@@ -12,6 +12,7 @@ describe("argonBenchmark", () => {
   beforeAll(async () => {
     const realCrypto = require("crypto").webcrypto as Crypto;
     setCrypto({
+      randomUUID: realCrypto.randomUUID,
       subtle: realCrypto.subtle,
       getRandomValues: await deterministicGetRandomValues(realCrypto),
     });

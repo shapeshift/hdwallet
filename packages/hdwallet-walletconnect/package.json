@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-walletconnect",
-  "version": "1.50.8",
+  "version": "1.50.9",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -10,17 +10,14 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc --build",
-    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "clean": "rm -rf dist node_modules tsconfig.tsbuildinfo",
     "dev": "yarn tsc --build --watch",
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.50.8",
+    "@shapeshiftoss/hdwallet-core": "^1.50.9",
     "@walletconnect/qrcode-modal": "^1.7.8",
     "@walletconnect/web3-provider": "^1.7.8",
     "ethers": "^5.6.5"
-  },
-  "devDependencies": {
-    "typescript": "^4.3.2"
   }
 }

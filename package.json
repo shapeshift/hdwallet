@@ -20,13 +20,13 @@
     "lint:fix": "yarn lint --fix",
     "lint:ts": "tsc --noEmit",
     "format": "prettier .",
-    "build": "yarn tsc --build",
+    "build": "yarn tsc --build && lerna run build --scope @shapeshiftoss/hdwallet-native-vault",
     "dev:all": "yarn tsc --build --watch",
     "dev:sandbox": "cd examples/sandbox && yarn dev",
     "docker:run:emulator": "docker run -p 5000:5000 kktech/kkemu:latest",
     "docker:stop:run:emulator": "docker stop $(docker ps -a -q --filter ancestor=kktech/kkemu:latest --format=\"{{.ID}}\") && docker run -p 5000:5000 kktech/kkemu:latest",
     "vercel-install": "yarn install --frozen-lockfile",
-    "vercel-build": "lerna run build --scope @shapeshiftoss/hdwallet-core && lerna run build --scope hdwallet-sandbox --ignore @shapeshiftoss/hdwallet-keepkey-nodehid --include-filtered-dependencies && mkdir -p ./public && cp -R ./examples/sandbox/public/. ./public/",
+    "vercel-build": "lerna run build --scope @shapeshiftoss/hdwallet-core && lerna run build --scope @shapeshiftoss/hdwallet-sandbox --ignore @shapeshiftoss/hdwallet-keepkey-nodehid --include-filtered-dependencies && mkdir -p ./public && cp -R ./examples/sandbox/public/. ./public/",
     "test": "yarn jest --verbose --config jest.config.js",
     "test:integration": "yarn jest -c integration/jest.config.js",
     "lerna:version-alpha": "lerna version prerelease --force-publish --no-push --exact --yes",
@@ -37,8 +37,9 @@
     "postinstall": "patch-package"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.14.0",
-    "@typescript-eslint/parser": "^5.14.0",
+    "@types/inquirer": "9.0.3",
+    "@typescript-eslint/eslint-plugin": "^6.7.3",
+    "@typescript-eslint/parser": "^6.7.3",
     "eslint": "^8.10.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-jest": "26.1.1",
@@ -48,13 +49,22 @@
     "jest": "^26.6.3",
     "jest-environment-jsdom": "^25.5.0",
     "jest-junit": "^12.0.0",
-    "lerna": "^3.22.1",
+    "lerna": "^5.2.0",
     "prettier": "^2.0.5",
     "ts-jest": "^26.5.5",
-    "typescript": "^4.3.2"
+    "typescript": "^5.2.2"
+  },
+  "resolutions": {
+    "bip174": "2.1.0",
+    "@types/eventsource": "1.1.8",
+    "@types/node": "20.5.7@ts4.7",
+    "@ledgerhq/hw-transport": "6.7.0"
   },
   "dependencies": {
+    "@types/jest": "^26.0.23",
+    "@types/node": "^20.5.7",
     "patch-package": "^6.2.2",
     "postinstall-postinstall": "^2.1.0"
-  }
+  },
+  "packageManager": "yarn@1.22.19"
 }

@@ -85,7 +85,7 @@ export const Algorithms = (() => {
     AlgorithmName.assert(name);
     if (name in algorithms) throw new Error(`digest algorithm implementation already provided for ${name}`);
     algorithms[name] = Algorithm(name).enforce((x: ByteArray) => {
-      const out = checkType(ByteArray(AlgorithmLength[name]), fn(x)) as Partial<UnverifiedDigest<N>>;
+      const out = checkType(ByteArray<20 | 32 | 64>(AlgorithmLength[name]), fn(x)) as Partial<UnverifiedDigest<N>>;
       out.preimage = x;
       out.algorithm = name;
       return checkType(UnverifiedDigest(name), out);

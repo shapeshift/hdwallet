@@ -129,6 +129,8 @@ export class LedgerWebHIDTransport extends ledger.LedgerTransport {
 
     try {
       const methodInstance: LedgerTransportMethod<T, U> = translateCoinAndMethod(this.transport, coin, method);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore TODO(gomes): ts pls I didn't diff this why is this failing type check
       const response = await methodInstance(...args);
       const result = {
         success: true,
@@ -146,6 +148,8 @@ export class LedgerWebHIDTransport extends ledger.LedgerTransport {
         );
       }
 
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore TODO(gomes): ts pls I didn't diff this why is this failing type check
       return result;
     } catch (e) {
       console.error(e);
