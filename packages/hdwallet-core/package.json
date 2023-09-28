@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-core",
-  "version": "1.50.9-ledger.3",
+  "version": "1.50.10-alpha.1",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
