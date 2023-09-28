@@ -27,6 +27,5 @@
   "devDependencies": {
     "@types/tiny-secp256k1": "^1.0.0",
     "fake-indexeddb": "^3.1.7"
-  },
-  "gitHead": "d19f37eaed3bf2896d2c310129fabb369b0a24a8"
+  }
 }

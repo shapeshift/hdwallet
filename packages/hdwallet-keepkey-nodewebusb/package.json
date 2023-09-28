@@ -21,8 +21,6 @@
     "usb": "^2.3.1"
   },
   "devDependencies": {
-    "typescript": "^4.7.4",
     "usb": "^2.3.1"
-  },
-  "gitHead": "d19f37eaed3bf2896d2c310129fabb369b0a24a8"
+  }
 }

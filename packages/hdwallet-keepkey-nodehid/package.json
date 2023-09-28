@@ -20,8 +20,6 @@
     "node-hid": "^2.1.1"
   },
   "devDependencies": {
-    "@types/node-hid": "^1.3.1",
-    "typescript": "^4.7.4"
-  },
-  "gitHead": "d19f37eaed3bf2896d2c310129fabb369b0a24a8"
+    "@types/node-hid": "^1.3.1"
+  }
 }

@@ -23,8 +23,6 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.168",
-    "typedoc": "^0.20.36",
-    "typescript": "^4.7.4"
-  },
-  "gitHead": "d19f37eaed3bf2896d2c310129fabb369b0a24a8"
+    "typedoc": "^0.20.36"
+  }
 }
