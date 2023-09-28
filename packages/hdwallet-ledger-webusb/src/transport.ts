@@ -20,16 +20,25 @@ const RECORD_CONFORMANCE_MOCKS = false;
 
 const callsQueue = new PQueue({ concurrency: 1, interval: 1000 });
 
-export async function getFirstLedgerDevice(): Promise<USBDevice | null> {
+export async function getFirstLedgerDevice(): Promise<USBDevice> {
   if (!(window && window.navigator.usb)) throw new core.WebUSBNotAvailable();
 
   const existingDevices = await TransportWebUSB.list();
 
-  return existingDevices.length > 0
-    ? existingDevices[0]
-    : window.navigator.usb.requestDevice({
-        filters: [{ vendorId: VENDOR_ID }],
-      });
+  const maybeExistingDevice = existingDevices?.[0];
+  if (maybeExistingDevice) return maybeExistingDevice;
+
+  try {
+    const requestedDevice = await window.navigator.usb.requestDevice({
+      filters: [{ vendorId: VENDOR_ID }],
+    });
+    return requestedDevice;
+  } catch (err) {
+    if (core.isIndexable(err) && err.name === "TransportInterfaceNotAvailable") {
+      throw new core.ConflictingApp("Ledger");
+    }
+    throw new core.WebUSBCouldNotInitialize("Ledger", String(core.isIndexable(err) ? err.message : err));
+  }
 }
 
 export async function openTransport(device: USBDevice): Promise<TransportWebUSB> {
