@@ -73,15 +73,7 @@ export class WebUSBLedgerAdapter {
 
   // without unique device identifiers, we should only ever have one ledger device on the keyring at a time
   public async initialize(ledgerTransport?: TransportWebUSB): Promise<number> {
-    const transport =
-      ledgerTransport ??
-      (await (async () => {
-        const device = await getFirstLedgerDevice();
-        if (!device) return;
-        await this.keyring.remove(core.mustBeDefined(device.serialNumber));
-        return openTransport(device);
-      })());
-
+    const transport = ledgerTransport ?? (await getLedgerTransport());
     if (!transport) throw new Error("Cannot get transport");
 
     const wallet = ledger.create(
