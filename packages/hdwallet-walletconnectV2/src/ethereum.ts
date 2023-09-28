@@ -87,11 +87,9 @@ export async function ethSignMessage(
   args: { data: string | Bytes; fromAddress: string },
   provider: EthereumProvider
 ): Promise<ETHSignedMessage | null> {
-  const buffer = isBytes(args.data) ? Buffer.from(arrayify(args.data)) : Buffer.from(args.data);
-
   const signedMsg: string = await provider.request({
     method: "personal_sign",
-    params: [buffer.toString("hex"), args.fromAddress],
+    params: [args.data, args.fromAddress],
   });
 
   return {
