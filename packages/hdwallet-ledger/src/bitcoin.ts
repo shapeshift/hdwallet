@@ -59,7 +59,7 @@ export async function btcGetPublicKeys(
 
     if (!coin) throw new Error("coin is required");
 
-    const parentBip32path: string = core.addressNListToBIP32(addressNList).substring(2); // i.e. "44'/0'/0'"
+    const parentBip32path: string = core.addressNListToBIP32(addressNList);
 
     const getWalletXpubResponse = await transport.call("Btc", "getWalletXpub", {
       path: parentBip32path,
