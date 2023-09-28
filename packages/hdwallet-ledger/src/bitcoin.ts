@@ -11,6 +11,7 @@ import _ from "lodash";
 import { currencies } from "./currencies";
 import { LedgerTransport } from "./transport";
 import { handleError, networksUtil, translateScriptType } from "./utils";
+import { convertXpubVersion, scriptTypeToAccountType } from "./utxoUtils";
 
 export const supportedCoins = ["Testnet", "Bitcoin", "BitcoinCash", "Litecoin", "Dash", "DigiByte", "Dogecoin"];
 
@@ -58,6 +59,7 @@ export async function btcGetPublicKeys(
     const { addressNList, coin } = getPublicKey;
 
     if (!coin) throw new Error("coin is required");
+    if (!getPublicKey.scriptType) throw new Error("scriptType is required");
 
     const parentBip32path: string = core.addressNListToBIP32(addressNList);
 
@@ -67,7 +69,11 @@ export async function btcGetPublicKeys(
     });
     handleError(getWalletXpubResponse, transport, "Unable to obtain public key from device.");
 
-    const { payload: xpub } = getWalletXpubResponse;
+    const { payload: _xpub } = getWalletXpubResponse;
+
+    // Ledger returns LTC pubkeys in Ltub format for all scriptTypes. It *is* the correct account, but not in the format we want.
+    // We need to convert SegWit pubkeys to Mtubs, and SegWit native to zpubs.
+    const xpub = convertXpubVersion(_xpub, scriptTypeToAccountType[getPublicKey.scriptType]);
 
     xpubs.push({
       xpub,
