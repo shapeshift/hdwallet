@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/integration",
-  "version": "1.50.10-ledger.18",
+  "version": "1.50.10-ledger.21",
   "main": "index.js",
   "license": "MIT",
   "private": true,
