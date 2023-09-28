@@ -2,8 +2,6 @@ import Common from "@ethereumjs/common";
 import { Transaction } from "@ethereumjs/tx";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import EthereumTx from "ethereumjs-tx";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore wtf
 import * as ethereumUtil from "ethereumjs-util";
 import * as ethers from "ethers";
 
