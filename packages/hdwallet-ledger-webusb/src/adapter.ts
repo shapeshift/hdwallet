@@ -2,14 +2,12 @@ import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
-import { getFirstLedgerDevice, getLedgerTransport, LedgerWebUsbTransport, openTransport } from "./transport";
+import { getLedgerTransport, LedgerWebUsbTransport } from "./transport";
 
 export const VENDOR_ID = 11415;
-// const APP_NAVIGATION_DELAY = 3000;
 
 export class WebUSBLedgerAdapter {
   keyring: core.Keyring;
-  currentEventTimestamp = 0;
 
   constructor(keyring: core.Keyring) {
     this.keyring = keyring;
@@ -26,8 +24,6 @@ export class WebUSBLedgerAdapter {
 
   private async handleConnectWebUSBLedger(e: USBConnectionEvent): Promise<void> {
     if (e.device.vendorId !== VENDOR_ID) return;
-
-    this.currentEventTimestamp = Date.now();
 
     try {
       this.keyring.emit(
@@ -49,22 +45,6 @@ export class WebUSBLedgerAdapter {
       [e.device.manufacturerName ?? "", e.device.productName ?? "", core.Events.DISCONNECT],
       e.device.serialNumber
     );
-
-    const ts = Date.now();
-    this.currentEventTimestamp = ts;
-
-    // timeout gives time to detect if it is an app navigation based disconnect/connect event
-    // discard disconnect event if it is not the most recent event received
-    // TODO(gomes): maybe uncomment me maybe not
-    // setTimeout(async () => {
-    // if (ts !== this.currentEventTimestamp) return;
-    //
-    // try {
-    // if (e.device.serialNumber) await this.keyring.remove(e.device.serialNumber);
-    // } catch (error) {
-    // console.error(error);
-    // }
-    // }, APP_NAVIGATION_DELAY);
   }
 
   public get(device: USBDevice): ledger.LedgerHDWallet {
@@ -74,7 +54,6 @@ export class WebUSBLedgerAdapter {
   // without unique device identifiers, we should only ever have one ledger device on the keyring at a time
   public async initialize(ledgerTransport?: TransportWebUSB): Promise<number> {
     const transport = ledgerTransport ?? (await getLedgerTransport());
-    if (!transport) throw new Error("Cannot get transport");
 
     const wallet = ledger.create(
       new LedgerWebUsbTransport(transport.device, transport, this.keyring) as ledger.LedgerTransport

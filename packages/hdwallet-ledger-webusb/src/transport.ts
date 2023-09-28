@@ -23,34 +23,21 @@ const callsQueue = new PQueue({ concurrency: 1, interval: 1000 });
 export async function getFirstLedgerDevice(): Promise<USBDevice> {
   if (!(window && window.navigator.usb)) throw new core.WebUSBNotAvailable();
 
-  const existingDevices = await TransportWebUSB.list();
-
-  const maybeExistingDevice = existingDevices?.[0];
-  if (maybeExistingDevice) return maybeExistingDevice;
-
   try {
+    const existingDevices = await TransportWebUSB.list();
+
+    const maybeExistingDevice = existingDevices?.[0];
+    if (maybeExistingDevice) return maybeExistingDevice;
+
     const requestedDevice = await window.navigator.usb.requestDevice({
       filters: [{ vendorId: VENDOR_ID }],
     });
+
     return requestedDevice;
   } catch (err) {
     if (core.isIndexable(err) && err.name === "TransportInterfaceNotAvailable") {
       throw new core.ConflictingApp("Ledger");
     }
-    throw new core.WebUSBCouldNotInitialize("Ledger", String(core.isIndexable(err) ? err.message : err));
-  }
-}
-
-export async function openTransport(device: USBDevice): Promise<TransportWebUSB> {
-  if (!(window && window.navigator.usb)) throw new core.WebUSBNotAvailable();
-
-  try {
-    return await TransportWebUSB.open(device);
-  } catch (err) {
-    if (core.isIndexable(err) && err.name === "TransportInterfaceNotAvailable") {
-      throw new core.ConflictingApp("Ledger");
-    }
-
     throw new core.WebUSBCouldNotInitialize("Ledger", String(core.isIndexable(err) ? err.message : err));
   }
 }
@@ -83,8 +70,7 @@ export const getLedgerTransport = async (): Promise<TransportWebUSB> => {
     throw new Error(error.message);
   }
 
-  const transport = new TransportWebUSB(device, usbInterface.interfaceNumber);
-  return transport;
+  return new TransportWebUSB(device, usbInterface.interfaceNumber);
 };
 
 export async function translateCoinAndMethod<T extends LedgerTransportCoinType, U extends LedgerTransportMethodName<T>>(

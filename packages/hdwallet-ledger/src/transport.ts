@@ -78,6 +78,7 @@ export type LedgerResponse<
 );
 
 export abstract class LedgerTransport extends core.Transport {
+  // TODO: we aren't using the class transport anymore, we should remove this instance in favor of JIT transport interaction
   transport: Transport;
 
   constructor(transport: Transport, keyring: core.Keyring) {
