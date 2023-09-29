@@ -5572,34 +5572,34 @@
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.1.3.tgz#ff05765775351c8adc99cf747f14b5619311e023"
   integrity sha512-II9vFeaB5RCnGiEUVGpZC599vJeO3JK186v1SPUIMM7Q+U/FjroN5MybHgnJ+buBx3f8HpXorv6ksgVT2f5Xwg==
 
-"@shapeshiftoss/metamask-snaps-adapter@^1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/metamask-snaps-adapter/-/metamask-snaps-adapter-1.0.6.tgz#58617907545780df3ef2e1e2742fcb2b8c64a51a"
-  integrity sha512-doopoFj/WNXmOOGnc4HoYrB931mBuWYwI5j2f1Kw6APxDqfJkMH2Y0XNBVzTWgixEGOII0QrBuWRyENhYcFjoA==
+"@shapeshiftoss/metamask-snaps-adapter@^1.0.8":
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/metamask-snaps-adapter/-/metamask-snaps-adapter-1.0.8.tgz#3564b3e09ed92687502d6149df889fa57582224b"
+  integrity sha512-jeE0Aiy2bc+OrC8Obma9hyrZ2lgXCpMIg7m/1GTnnUhw36M3AqyQJborNqJ8f93Q2y4PZmlZIL5zRfVTGbJ0Xg==
   dependencies:
     "@ethersproject/providers" "^5.7.2"
     "@metamask/detect-provider" "^2.0.0"
     "@metamask/snaps-ui" "1.0.2"
     "@shapeshiftoss/hdwallet-core" "^1.50.4"
     "@shapeshiftoss/logger" "^1.1.3"
-    "@shapeshiftoss/metamask-snaps" "^1.0.6"
-    "@shapeshiftoss/metamask-snaps-types" "^1.0.6"
+    "@shapeshiftoss/metamask-snaps" "^1.0.8"
+    "@shapeshiftoss/metamask-snaps-types" "^1.0.8"
     p-queue "^7.4.1"
 
-"@shapeshiftoss/metamask-snaps-types@^1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/metamask-snaps-types/-/metamask-snaps-types-1.0.6.tgz#3ae4070013a85dc434744353ce5781dc533ec3b7"
-  integrity sha512-WS6ecY2PG240Pu/0N+m9acApuHGiqwYifRSfSeC3Ajdeb50FFX06mZNBb1YBx6+eJFHseX1VKHzTtmXVnyD81A==
+"@shapeshiftoss/metamask-snaps-types@^1.0.8":
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/metamask-snaps-types/-/metamask-snaps-types-1.0.8.tgz#da059dd2c2293fede17b7fb6d1cdf8dcc477cd0d"
+  integrity sha512-C912A0K2MCD2A9ixwLuduRSQezZjjxojNGzYDQpcdedpipvaWhHETFLz4wbRNGaXCh6bCyH609+mXnqhEuOCNg==
   dependencies:
     "@metamask/types" "^1.1.0"
     "@shapeshiftoss/hdwallet-core" "^1.50.4"
     "@shapeshiftoss/hdwallet-native" "^1.50.4"
     "@shapeshiftoss/unchained-client" "^10.1.1"
 
-"@shapeshiftoss/metamask-snaps@^1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/metamask-snaps/-/metamask-snaps-1.0.6.tgz#6f3b2951dd09668cbacbda5cad21df33606e4d77"
-  integrity sha512-8teeQnbwcfxmI5j0/6CCaFlaaji+G+LXT+R/6XeJXMpK+1lo1VJ+8i3WvOvxFBElYNnyB+7UEnHH3mVXo9cN9A==
+"@shapeshiftoss/metamask-snaps@^1.0.8":
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/metamask-snaps/-/metamask-snaps-1.0.8.tgz#9340fd6fc317865977bf8585b5965dd437a0d4bf"
+  integrity sha512-x/71nNj2tpOYYkyz7QScBEa+PTm/Y6Gu9sjXD7dLnKpKaDXMn4Ce4CVUXtKlP9FFFncxQGvV/Hyupqg9MnsR9A==
   dependencies:
     "@ethersproject/providers" "^5.7.0"
     "@metamask/detect-provider" "^2.0.0"
@@ -5610,7 +5610,7 @@
     "@shapeshiftoss/hdwallet-core" "^1.50.4"
     "@shapeshiftoss/hdwallet-native" "^1.50.4"
     "@shapeshiftoss/logger" "^1.1.2"
-    "@shapeshiftoss/metamask-snaps-types" "^1.0.6"
+    "@shapeshiftoss/metamask-snaps-types" "^1.0.8"
     "@shapeshiftoss/types" "^8.3.0"
     "@shapeshiftoss/unchained-client" "10.1.1"
     eth-rpc-errors "^4.0.3"
