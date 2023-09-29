@@ -45,7 +45,8 @@ export async function btcGetAddress(transport: LedgerTransport, msg: core.BTCGet
   const res = await transport.call("Btc", "getWalletPublicKey", bip32path, opts);
   handleError(res, transport, "Unable to obtain BTC address from device");
 
-  return res.payload.bitcoinAddress;
+  const address = res.payload.bitcoinAddress;
+  return msg.coin.toLowerCase() === "bitcoincash" ? bchAddr.toCashAddress(address) : address;
 }
 
 // Adapted from https://github.com/LedgerHQ/ledger-wallet-webtool
