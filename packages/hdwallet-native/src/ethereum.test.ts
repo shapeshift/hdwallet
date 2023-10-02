@@ -182,7 +182,7 @@ describe("NativeETHWallet", () => {
 
   describe("sign and verify message", () => {
     it("should handle a utf8 message", async () => {
-      const message = "super secret message";
+      const message = "0x737570657220736563726574206d657373616765"; // super secret message
       const result = await wallet.ethSignMessage({
         addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
         message,
@@ -233,7 +233,7 @@ describe("NativeETHWallet", () => {
     });
 
     it("should handle a byte message", async () => {
-      const message = ethers.utils.arrayify("0xcf8746d5aa75ecfd907eb3cae0aecf7f698a8bfe1f97eb2d77d6539e8991b0ea");
+      const message = "0xcf8746d5aa75ecfd907eb3cae0aecf7f698a8bfe1f97eb2d77d6539e8991b0ea";
       const result = await wallet.ethSignMessage({
         addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
         message,
@@ -250,10 +250,11 @@ describe("NativeETHWallet", () => {
     });
 
     it("should pass verification of a message signed with a different format", async () => {
+      const message = "0x737570657220736563726574206d657373616765"; // super secret message
       expect(
         await wallet.ethVerifyMessage({
           address: "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
-          message: "super secret message",
+          message,
           signature:
             "0x72d4baca0c1ca0eea587decb0177ded99fb50f62c4bd24d8595000d70e6383833eb0700fb6c96086154c2607b735ee1047ed4060211b32a52b43d827615b3e691c",
         })
@@ -272,10 +273,11 @@ describe("NativeETHWallet", () => {
     });
 
     it("should fail verification if the signature is invalid", async () => {
+      const message = "0x737570657220736563726574206d657373616765"; // super secret message
       expect(
         await wallet.ethVerifyMessage({
           address: "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
-          message: "super secret message",
+          message,
           signature:
             "deadbeef16d6fbc19fb9db81f32dd22cb67570b93b1c0e64ae30a4c2bc0b9c265c2d0f86906610d0cecac42ab90ee298a3474a5eb6d895aa7279d344f32aab191b",
         })

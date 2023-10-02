@@ -1,6 +1,7 @@
 import Common from "@ethereumjs/common";
 import { Transaction } from "@ethereumjs/tx";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { isHexString } from "ethers/lib/utils";
 
 import { TrezorTransport } from "./transport";
 import { handleError } from "./utils";
@@ -73,6 +74,7 @@ export async function ethSignMessage(
   transport: TrezorTransport,
   msg: core.ETHSignMessage
 ): Promise<core.ETHSignedMessage> {
+  if (!isHexString(msg.message)) throw new Error("data is not an hex string");
   const res = await transport.call("ethereumSignMessage", {
     path: msg.addressNList,
     message: msg.message,

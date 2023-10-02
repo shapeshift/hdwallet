@@ -7,6 +7,7 @@ import EthereumTx from "ethereumjs-tx";
 // TODO: fix ts-ignore
 import * as ethereumUtil from "ethereumjs-util";
 import * as ethers from "ethers";
+import { isHexString } from "ethjs-util";
 
 import { LedgerTransport } from "./transport";
 import { compressPublicKey, createXpub, handleError, networksUtil } from "./utils";
@@ -155,10 +156,8 @@ export async function ethSignMessage(
 ): Promise<core.ETHSignedMessage> {
   const bip32path = core.addressNListToBIP32(msg.addressNList);
 
-  const buffer = ethers.utils.isBytes(msg.message)
-    ? Buffer.from(ethers.utils.arrayify(msg.message))
-    : Buffer.from(msg.message);
-  const res = await transport.call("Eth", "signPersonalMessage", bip32path, buffer.toString("hex"));
+  if (!isHexString(msg.message)) throw new Error("data is not an hex string");
+  const res = await transport.call("Eth", "signPersonalMessage", bip32path, msg.message);
   handleError(res, transport, "Could not sign ETH message with Ledger");
 
   let { v } = res.payload;

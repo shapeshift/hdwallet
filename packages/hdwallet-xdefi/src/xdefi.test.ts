@@ -93,7 +93,7 @@ describe("XDEFIHDWallet", () => {
         }`
       ),
     };
-    const msg = "super secret message";
+    const msg = "0x737570657220736563726574206d657373616765"; // super secret message
     expect(
       await wallet.ethSignMessage({
         addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
@@ -115,7 +115,7 @@ describe("XDEFIHDWallet", () => {
       request: jest.fn().mockRejectedValue(new Error("An Error has occurred")),
     };
 
-    const msg = "super secret message";
+    const msg = "0x737570657220736563726574206d657373616765"; // super secret message
     const sig = await wallet.ethSignMessage({
       addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
       message: msg,
@@ -129,7 +129,7 @@ describe("XDEFIHDWallet", () => {
       request: jest.fn().mockReturnValue(["0x73d0385F4d8E00C5e6504C6030F47BF6212736A8"]),
     };
 
-    const msg = "super secret message";
+    const msg = "0x737570657220736563726574206d657373616765"; // super secret message
     const sig = await wallet.ethSignMessage({
       addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
       message: msg,
