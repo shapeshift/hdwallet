@@ -94,7 +94,7 @@ export interface ETHSignedTx {
 
 export interface ETHSignMessage {
   addressNList: BIP32Path;
-  message: string | Bytes;
+  message: string;
 }
 
 export interface ETHSignedMessage {

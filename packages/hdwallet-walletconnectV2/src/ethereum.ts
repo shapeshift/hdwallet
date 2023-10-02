@@ -10,6 +10,7 @@ import type {
 import { addressNListToBIP32, slip44ByCoin } from "@shapeshiftoss/hdwallet-core";
 import EthereumProvider from "@walletconnect/ethereum-provider";
 import type { Bytes } from "ethers";
+import { isHexString } from "ethers/lib/utils";
 
 const getUnsignedTxFromMessage = (msg: ETHSignTx & { from: string }) => {
   const utxBase = {
@@ -83,9 +84,11 @@ export async function ethSendTx(
 }
 
 export async function ethSignMessage(
-  args: { data: string | Bytes; fromAddress: string },
+  args: { data: string; fromAddress: string },
   provider: EthereumProvider
 ): Promise<ETHSignedMessage | null> {
+  if (!isHexString(args.data)) throw new Error("data is not an hex string");
+
   const signedMsg: string = await provider.request({
     method: "personal_sign",
     params: [args.data, args.fromAddress],
