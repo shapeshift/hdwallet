@@ -18,7 +18,7 @@ export async function createWallet(): Promise<core.HDWallet> {
         case "personal_sign": {
           const [message] = params;
 
-          if (message === "48656c6c6f20576f726c64")
+          if (message === "48656c6c6f20576f726c64" || message === "0x48656c6c6f20576f726c64")
             return "0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b";
 
           throw new Error("unknown message");
@@ -161,7 +161,7 @@ export function selfTest(get: () => core.HDWallet): void {
     if (!wallet) return;
     const res = await wallet.ethSignMessage({
       addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-      message: "Hello World",
+      message: "0x48656c6c6f20576f726c64", // "Hello World"
     });
     expect(res?.address).toEqual("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8");
     expect(res?.signature).toEqual(

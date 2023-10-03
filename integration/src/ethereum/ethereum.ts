@@ -396,7 +396,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
         if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
         const res = await wallet.ethSignMessage({
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-          message: "Hello World",
+          message: "0x48656c6c6f20576f726c64", // "Hello World",
         });
         expect(res?.address).toEqual("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8");
         expect(res?.signature).toEqual(

@@ -146,9 +146,8 @@ describe("XDEFI - Ethereum Adapter", () => {
       ),
     };
 
-    const msg: ethers.Bytes = ethers.utils.arrayify(
-      "0xcf8746d5aa75ecfd907eb3cae0aecf7f698a8bfe1f97eb2d77d6539e8991b0ea"
-    );
+    const msg = "0xcf8746d5aa75ecfd907eb3cae0aecf7f698a8bfe1f97eb2d77d6539e8991b0ea";
+
     const sig = await ethereum.ethSignMessage(
       {
         addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
@@ -159,14 +158,14 @@ describe("XDEFI - Ethereum Adapter", () => {
     );
 
     expect(ethereumProvider.request.mock.calls[0][0]).toMatchInlineSnapshot(`
-    Object {
-      "method": "personal_sign",
-      "params": Array [
-        "cf8746d5aa75ecfd907eb3cae0aecf7f698a8bfe1f97eb2d77d6539e8991b0ea",
-        "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
-      ],
-    }
-  `);
+      Object {
+        "method": "personal_sign",
+        "params": Array [
+          "0xcf8746d5aa75ecfd907eb3cae0aecf7f698a8bfe1f97eb2d77d6539e8991b0ea",
+          "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
+        ],
+      }
+    `);
 
     expect(sig).toMatchInlineSnapshot(`
       Object {
@@ -189,7 +188,7 @@ describe("XDEFI - Ethereum Adapter", () => {
       ),
     };
 
-    const msg = "super secret message";
+    const msg = "0x737570657220736563726574206d657373616765"; // super secret message
     const sig = await ethereum.ethSignMessage(
       {
         addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
@@ -215,7 +214,7 @@ describe("XDEFI - Ethereum Adapter", () => {
       request: jest.fn().mockRejectedValue(new Error("An Error has occurred")),
     };
 
-    const msg = "super secret message";
+    const msg = "0x737570657220736563726574206d657373616765"; // super secret message
     const sig = await ethereum.ethSignMessage(
       {
         addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),

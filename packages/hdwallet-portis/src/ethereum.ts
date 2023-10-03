@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { isHexString } from "ethers/lib/utils";
 
 export function describeETHPath(path: core.BIP32Path): core.PathDescription {
   const pathStr = core.addressNListToBIP32(path);
@@ -71,6 +72,7 @@ export async function ethSignMessage(
   web3: any,
   address: string
 ): Promise<core.ETHSignedMessage> {
+  if (!isHexString(msg.message)) throw new Error("data is not an hex string");
   const result = await web3.eth.sign(msg.message, address);
   return {
     address,
