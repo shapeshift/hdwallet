@@ -72,9 +72,12 @@ export async function btcGetPublicKeys(
 
     const { payload: _xpub } = getWalletXpubResponse;
 
-    // Ledger returns LTC pubkeys in Ltub format for all scriptTypes. It *is* the correct account, but not in the format we want.
-    // We need to convert SegWit pubkeys to Mtubs, and SegWit native to zpubs.
-    const xpub = convertXpubVersion(_xpub, scriptTypeToAccountType[getPublicKey.scriptType]);
+    // Ledger returns
+    // - LTC pubkeys in Ltub format for all scriptTypes.
+    // - BTC pubkeys in xpub format for all scriptTypes
+    // They *are* the correct accounts, but not in the format we want.
+    // We need to convert SegWit pubkeys to Mtubs/xpubs, and SegWit native to zpubs.
+    const xpub = convertXpubVersion(_xpub, scriptTypeToAccountType[getPublicKey.scriptType], getPublicKey.coin);
 
     xpubs.push({
       xpub,
