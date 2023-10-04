@@ -225,7 +225,6 @@ export function convertXpubVersion(xpub: string, accountType: UtxoAccountType | 
   const payload = decode(xpub);
   const version = payload.slice(0, 4);
   const desiredVersion = accountTypeToVersion(coin, accountType);
-  // eslint-disable-next-line no-console
   if (version.compare(desiredVersion) !== 0) {
     // Get the key without the version code at the front
     const key = payload.slice(4);
