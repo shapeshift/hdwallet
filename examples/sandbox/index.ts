@@ -635,12 +635,14 @@ $getXpubs.each(function () {
         curve: "secp256k1",
         showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
         coin: "Bitcoin",
+        scriptType: core.BTCInputScriptType.SpendAddress,
       },
       {
         addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 1],
         curve: "secp256k1",
         showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
         coin: "Bitcoin",
+        scriptType: core.BTCInputScriptType.SpendWitness,
       },
       {
         addressNList: [0x80000000 + 49, 0x80000000 + 0, 0x80000000 + 0],
@@ -656,6 +658,7 @@ $getXpubs.each(function () {
         curve: "secp256k1",
         showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
         coin: "Bitcoin Cash",
+        scriptType: core.BTCInputScriptType.SpendAddress,
       },
     ];
     const ltcGetPublicKeysInput = [
