@@ -631,25 +631,22 @@ $getXpubs.each(function () {
 
     const btcGetPublicKeysInput = [
       {
-        addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0],
-        curve: "secp256k1",
-        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
         coin: "Bitcoin",
-        scriptType: core.BTCInputScriptType.SpendAddress,
-      },
-      {
-        addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 1],
+        addressNList: [2147483732, 2147483648, 2147483648],
         curve: "secp256k1",
-        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-        coin: "Bitcoin",
         scriptType: core.BTCInputScriptType.SpendWitness,
       },
       {
-        addressNList: [0x80000000 + 49, 0x80000000 + 0, 0x80000000 + 0],
-        curve: "secp256k1",
-        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
         coin: "Bitcoin",
+        addressNList: [2147483697, 2147483648, 2147483648],
+        curve: "secp256k1",
         scriptType: core.BTCInputScriptType.SpendP2SHWitness,
+      },
+      {
+        coin: "Bitcoin",
+        addressNList: [2147483692, 2147483648, 2147483648],
+        curve: "secp256k1",
+        scriptType: core.BTCInputScriptType.SpendAddress,
       },
     ];
     const bchGetPublicKeysInput = [
@@ -657,7 +654,7 @@ $getXpubs.each(function () {
         addressNList: [0x80000000 + 44, 0x80000000 + 145, 0x80000000 + 0],
         curve: "secp256k1",
         showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-        coin: "Bitcoin Cash",
+        coin: "BitcoinCash",
         scriptType: core.BTCInputScriptType.SpendAddress,
       },
     ];
@@ -668,7 +665,7 @@ $getXpubs.each(function () {
         curve: "secp256k1",
         showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
         coin: "Litecoin",
-        scriptType: "p2wpkh",
+        scriptType: core.BTCInputScriptType.SpendWitness,
       },
       // SegwitP2sh
       {
@@ -676,7 +673,7 @@ $getXpubs.each(function () {
         curve: "secp256k1",
         showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
         coin: "Litecoin",
-        scriptType: "p2sh-p2wpkh",
+        scriptType: core.BTCInputScriptType.SpendP2SHWitness,
       },
       // P2Pksh
       {
@@ -684,7 +681,7 @@ $getXpubs.each(function () {
         curve: "secp256k1",
         showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
         coin: "Litecoin",
-        scriptType: "p2pkh",
+        scriptType: core.BTCInputScriptType.SpendAddress,
       },
     ];
     const dogeGetPublicKeysInput = [
@@ -693,6 +690,7 @@ $getXpubs.each(function () {
         curve: "secp256k1",
         showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
         coin: "Dogecoin",
+        scriptType: core.BTCInputScriptType.SpendAddress,
       },
     ];
     const hardenedPathGetPublicKeysInput = [
