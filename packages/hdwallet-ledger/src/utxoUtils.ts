@@ -172,14 +172,38 @@ enum PublicKeyType {
   Mtub = "01b26ef6",
 }
 
-const accountTypeToVersion = {
-  [UtxoAccountType.P2pkh]: Buffer.from(PublicKeyType.Ltub, "hex"), // no-op
-  [UtxoAccountType.SegwitP2sh]: Buffer.from(PublicKeyType.Mtub, "hex"), // LTub to Mtub
-  [UtxoAccountType.SegwitNative]: Buffer.from(PublicKeyType.zpub, "hex"), // Ltub to zpub
-};
+const accountTypeToVersion = (() => {
+  const Litecoin = {
+    [UtxoAccountType.P2pkh]: Buffer.from(PublicKeyType.Ltub, "hex"),
+    [UtxoAccountType.SegwitP2sh]: Buffer.from(PublicKeyType.Mtub, "hex"),
+    [UtxoAccountType.SegwitNative]: Buffer.from(PublicKeyType.zpub, "hex"),
+  };
 
-// We already get accounts in the format we want from Ledger - except LiteCoin SegWit/Native
-const convertVersions = ["Ltub"];
+  const Dogecoin = {
+    [UtxoAccountType.P2pkh]: Buffer.from(PublicKeyType.dgub, "hex"),
+  };
+  const Bitcoin = {
+    [UtxoAccountType.P2pkh]: Buffer.from(PublicKeyType.xpub, "hex"),
+    [UtxoAccountType.SegwitP2sh]: Buffer.from(PublicKeyType.ypub, "hex"),
+    [UtxoAccountType.SegwitNative]: Buffer.from(PublicKeyType.zpub, "hex"),
+  };
+
+  return (coin: string, type: UtxoAccountType) => {
+    switch (coin) {
+      case "Litecoin":
+        return Litecoin[type];
+      case "Bitcoin":
+        return Bitcoin[type];
+      case "Dogecoin":
+        if (type !== UtxoAccountType.P2pkh) throw new Error("Unsupported account type");
+        return Dogecoin[type];
+      default:
+        return Bitcoin[type]; // xpub, ypub, zpub
+    }
+  };
+})();
+// Legacy accounts should be left as-is
+const convertVersions = ["Ltub", "xpub", "dgub"];
 
 /**
  * Convert any public key into an xpub, ypub, or zpub based on account type
@@ -190,8 +214,9 @@ const convertVersions = ["Ltub"];
  * USE SPARINGLY - there aren't many cases where we should convert version bytes
  * @param {string} xpub - the public key provided by the wallet
  * @param {UtxoAccountType} accountType - The desired account type to be encoded into the public key
+ * @param {string} coin - The coin type, which will determine what version we derive
  */
-export function convertXpubVersion(xpub: string, accountType: UtxoAccountType | undefined) {
+export function convertXpubVersion(xpub: string, accountType: UtxoAccountType | undefined, coin: string) {
   if (!accountType) return xpub;
   if (!convertVersions.includes(xpub.substring(0, 4))) {
     return xpub;
@@ -199,10 +224,12 @@ export function convertXpubVersion(xpub: string, accountType: UtxoAccountType | 
 
   const payload = decode(xpub);
   const version = payload.slice(0, 4);
-  if (version.compare(accountTypeToVersion[accountType]) !== 0) {
+  const desiredVersion = accountTypeToVersion(coin, accountType);
+  // eslint-disable-next-line no-console
+  if (version.compare(desiredVersion) !== 0) {
     // Get the key without the version code at the front
     const key = payload.slice(4);
-    return encode(Buffer.concat([accountTypeToVersion[accountType], key]));
+    return encode(Buffer.concat([desiredVersion, key]));
   }
   return xpub;
 }
