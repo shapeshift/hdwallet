@@ -41,7 +41,7 @@ class THORChainApp {
     }
 
     this.transport = transport as any;
-    transport.decorateAppAPIMethods(
+    transport.decorateAppAPIMethods.bind(transport)(
       this,
       ["getVersion", "sign", "getAddressAndPubKey", "appInfo", "deviceInfo", "getBech32FromPK"],
       scrambleKey
