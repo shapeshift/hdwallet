@@ -18,7 +18,7 @@ import type {
   Pong,
   PublicKey,
 } from "@shapeshiftoss/hdwallet-core";
-import { slip44ByCoin } from "@shapeshiftoss/hdwallet-core";
+import { AddEthereumChainParameter, slip44ByCoin } from "@shapeshiftoss/hdwallet-core";
 import EthereumProvider from "@walletconnect/ethereum-provider";
 import isObject from "lodash/isObject";
 
@@ -357,5 +357,23 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
 
   public async getFirmwareVersion(): Promise<string> {
     return "WalletConnectV2";
+  }
+
+  public async ethGetChainId(): Promise<number | null> {
+    return this.provider.chainId;
+  }
+
+  public async ethSwitchChain({ chainId }: AddEthereumChainParameter): Promise<void> {
+    const parsedChainId = parseInt(chainId, 16);
+    if (isNaN(parsedChainId) || this.chainId === parsedChainId) {
+      return;
+    }
+
+    await this.provider.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId }],
+    });
+
+    this.chainId = parsedChainId;
   }
 }
