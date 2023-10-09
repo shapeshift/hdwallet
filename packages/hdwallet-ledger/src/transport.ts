@@ -12,7 +12,7 @@ type MethodsOnly<T> = {
 type UnwrapPromise<T> = T extends Promise<infer R> ? R : T;
 type DefinitelyCallable<T> = T extends (...args: any) => any ? T : never;
 
-export type LedgerTransportCoinType = null | "Btc" | "Eth";
+export type LedgerTransportCoinType = null | "Btc" | "Eth" | "Rune";
 type CurriedWithTransport<T extends (transport: Transport, ...args: any) => any> = T extends (
   transport: Transport,
   ...args: infer R

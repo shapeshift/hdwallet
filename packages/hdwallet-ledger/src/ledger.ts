@@ -3,6 +3,7 @@ import _ from "lodash";
 
 import * as btc from "./bitcoin";
 import * as eth from "./ethereum";
+import * as thorchain from "./thorchain";
 import { LedgerTransport } from "./transport";
 import { coinToLedgerAppName, handleError } from "./utils";
 
@@ -302,6 +303,8 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   readonly _supportsPolygon = true;
   readonly _supportsGnosis = true;
   readonly _supportsArbitrum = true;
+  readonly _supportsThorchainInfo = true;
+  readonly _supportsThorchain = true;
 
   _isLedger = true;
 
@@ -508,6 +511,9 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
     await this.validateCurrentApp(msg.coin);
     return btc.btcGetAddress(this.transport, msg);
+  }
+  public thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string | null> {
+    return thorchain.thorchainGetAddress(this.transport, msg);
   }
 
   public async btcSignTx(msg: core.BTCSignTxLedger): Promise<core.BTCSignedTx> {
