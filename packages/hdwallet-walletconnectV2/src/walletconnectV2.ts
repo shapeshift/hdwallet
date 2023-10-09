@@ -369,11 +369,11 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
       return;
     }
 
-    this.chainId = parsedChainId;
-    this.provider.chainId = parsedChainId;
     await this.provider.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId }],
     });
+
+    this.chainId = parsedChainId;
   }
 }
