@@ -1,6 +1,6 @@
 {
   "lerna": "5.2.0",
-  "version": "1.51.2-thorchain.3",
+  "version": "1.52.3-thorchain.4",
   "npmClient": "yarn",
   "useWorkspaces": true,
   "command": {
