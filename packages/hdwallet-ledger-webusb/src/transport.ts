@@ -80,7 +80,7 @@ export async function translateCoinAndMethod<T extends LedgerTransportCoinType, 
 ): Promise<LedgerTransportMethod<T, U>> {
   switch (coin) {
     case "Rune": {
-      const thor = new ledger.THORChainApp({ transport });
+      const thor = new ledger.THORChainApp(transport);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore TODO(gomes): fixme
       const methodInstance = thor[method as LedgerTransportMethodName<"Rune">].bind(thor);
