@@ -1,6 +1,10 @@
 {
   "lerna": "5.2.0",
+<<<<<<< HEAD
   "version": "1.52.3-thorchain.15",
+=======
+  "version": "1.52.3-thorchain.5",
+>>>>>>> c1430a15 (feat: bump)
   "npmClient": "yarn",
   "useWorkspaces": true,
   "command": {
