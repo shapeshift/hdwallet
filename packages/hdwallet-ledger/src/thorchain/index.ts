@@ -20,7 +20,8 @@ export const thorchainGetAddress = async (
     "thor"
   );
 
-  // eslint-disable-next-line no-console
-  console.log({ addressAndPubkey });
-  return "TODO";
+  const maybeAddress = (addressAndPubkey.payload as any)?.bech32_address as string | undefined;
+  if (!maybeAddress) return null;
+
+  return maybeAddress;
 };
