@@ -233,8 +233,14 @@ class THORChainApp {
     }
   }
 
-  async getAddressAndPubKey(path: string, hrp: any) {
+  async getAddressAndPubKey(_path: string, hrp: any) {
     try {
+      // TODO(gomes): this is obviously temporary, find a better way to do this and pass our bip32 path in and make it work here
+      // eslint-disable-next-line no-console
+      console.log({ _path });
+      const path = [44, 931, 0, 0, 0];
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore TODO(gomes): fixme swapkit types are turbo derp
       return await this.serializePath(path)
         .then((serializedPath) => {
           const data = Buffer.concat([THORChainApp.serializeHRP(hrp), serializedPath as any]);
