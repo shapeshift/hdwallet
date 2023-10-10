@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "1.52.3-thorchain.15",
 =======
   "version": "1.52.3-thorchain.5",
@@ -13,6 +14,9 @@
 =======
   "version": "1.52.3-thorchain.7",
 >>>>>>> 1ca288a8 (feat: boimp)
+=======
+  "version": "1.52.3-thorchain.8",
+>>>>>>> a775be7e (feat: boimp)
   "npmClient": "yarn",
   "useWorkspaces": true,
   "command": {
