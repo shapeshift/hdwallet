@@ -4,6 +4,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "1.52.3-thorchain.15",
 =======
   "version": "1.52.3-thorchain.5",
@@ -17,6 +18,9 @@
 =======
   "version": "1.52.3-thorchain.8",
 >>>>>>> a775be7e (feat: boimp)
+=======
+  "version": "1.52.3-thorchain.9",
+>>>>>>> 63766913 (chore(release): publish 1.52.3-thorchain.9)
   "npmClient": "yarn",
   "useWorkspaces": true,
   "command": {
@@ -24,10 +28,5 @@
       "message": "chore(release): publish %v"
     }
   },
-  "ignoreChanges": [
-    "**/__fixtures__/**",
-    "**/__tests__/**",
-    "**/*.md",
-    "**/.env"
-  ]
+  "ignoreChanges": ["**/__fixtures__/**", "**/__tests__/**", "**/*.md", "**/.env"]
 }
