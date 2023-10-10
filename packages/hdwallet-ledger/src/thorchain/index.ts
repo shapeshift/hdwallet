@@ -48,5 +48,5 @@ export const thorchainSignTx = async (
   if (!signed) throw new Error("TODO error handling");
 
   // TODO(gomes): be fully compliant to ThorchainSignedTx type
-  return { serialized: Buffer.from(signed).toString("hex") } as unknown as core.ThorchainSignedTx;
+  return { serialized: Buffer.from(signed).toString("base64") } as unknown as core.ThorchainSignedTx;
 };
