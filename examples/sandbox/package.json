@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "1.52.3-thorchain.15",
 =======
   "version": "1.52.3-thorchain.5",
@@ -21,6 +22,9 @@
 =======
   "version": "1.52.3-thorchain.9",
 >>>>>>> 63766913 (chore(release): publish 1.52.3-thorchain.9)
+=======
+  "version": "1.52.3-thorchain.10",
+>>>>>>> fb8c5ee4 (feat: boimp boimp)
   "license": "MIT",
   "private": true,
   "browserslist": "> 0.5%, last 2 versions, not dead",
@@ -30,6 +34,7 @@
     "clean": "rm -rf dist node_modules public .parcel-cache"
   },
   "dependencies": {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -135,6 +140,23 @@
     "@shapeshiftoss/hdwallet-walletconnect": "^1.52.3-thorchain.9",
     "@shapeshiftoss/hdwallet-xdefi": "^1.52.3-thorchain.9",
 >>>>>>> 63766913 (chore(release): publish 1.52.3-thorchain.9)
+=======
+    "@shapeshiftoss/hdwallet-core": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-keepkey-tcp": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-keepkey-webusb": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-keplr": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-ledger": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-ledger-webhid": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-ledger-webusb": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-metamask": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-native": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-portis": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-tallyho": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-trezor": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-trezor-connect": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-walletconnect": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-xdefi": "^1.52.3-thorchain.10",
+>>>>>>> fb8c5ee4 (feat: boimp boimp)
     "bip32": "^2.0.4",
     "jquery": "^3.4.1",
     "json": "^9.0.6",

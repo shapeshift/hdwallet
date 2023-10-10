@@ -5,6 +5,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "1.52.3-thorchain.15",
 =======
   "version": "1.52.3-thorchain.5",
@@ -21,6 +22,9 @@
 =======
   "version": "1.52.3-thorchain.9",
 >>>>>>> 63766913 (chore(release): publish 1.52.3-thorchain.9)
+=======
+  "version": "1.52.3-thorchain.10",
+>>>>>>> fb8c5ee4 (feat: boimp boimp)
   "main": "index.js",
   "license": "MIT",
   "private": true,
@@ -30,6 +34,7 @@
     "dev": "lerna run test --scope integration --parallel --include-filtered-dependencies"
   },
   "dependencies": {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -99,6 +104,17 @@
     "@shapeshiftoss/hdwallet-trezor": "^1.52.3-thorchain.9",
     "@shapeshiftoss/hdwallet-xdefi": "^1.52.3-thorchain.9",
 >>>>>>> 63766913 (chore(release): publish 1.52.3-thorchain.9)
+=======
+    "@shapeshiftoss/hdwallet-core": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-keepkey-tcp": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-ledger": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-native": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-portis": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-trezor": "^1.52.3-thorchain.10",
+    "@shapeshiftoss/hdwallet-xdefi": "^1.52.3-thorchain.10",
+>>>>>>> fb8c5ee4 (feat: boimp boimp)
     "fast-json-stable-stringify": "^2.1.0",
     "msw": "^0.27.1",
     "whatwg-fetch": "^3.6.2"
