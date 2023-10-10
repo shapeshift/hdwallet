@@ -25,3 +25,24 @@ export const thorchainGetAddress = async (
 
   return maybeAddress;
 };
+
+export const thorchainSignTx = async (
+  transport: LedgerTransport,
+  msg: core.ThorchainSignTx
+): Promise<core.ThorchainSignedTx> => {
+  const signed = await transport.call(
+    "Rune",
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore TODO(gomes): fixme
+    "sign",
+    msg
+  );
+
+  // eslint-disable-next-line no-console
+  console.log({ signed });
+
+  const maybeSigned = signed;
+  if (!maybeSigned) throw new Error("TODO error handling");
+
+  return maybeSigned as unknown as core.ThorchainSignedTx;
+};
