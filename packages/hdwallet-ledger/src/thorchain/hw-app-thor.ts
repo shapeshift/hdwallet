@@ -15,6 +15,7 @@
  *  limitations under the License.
  ******************************************************************************* */
 import { bech32 } from "@scure/base";
+import * as core from "@shapeshiftoss/hdwallet-core";
 import crypto from "crypto";
 import Ripemd160 from "ripemd160";
 
@@ -30,6 +31,30 @@ import {
   processErrorResponse,
 } from "./common";
 import { publicKeyv2, serializePathv2, signSendChunkv2 } from "./helpers";
+
+const THOR_CHAIN = "thorchain-mainnet-v1";
+const THORCHAIN_SEND_GAS_FEE = "500000000";
+
+const recursivelyOrderKeys = (unordered: any) => {
+  // If it's an array - recursively order any
+  // dictionary items within the array
+  if (Array.isArray(unordered)) {
+    unordered.forEach((item, index) => {
+      unordered[index] = recursivelyOrderKeys(item);
+    });
+    return unordered;
+  }
+
+  // If it's an object - let's order the keys
+  if (typeof unordered !== "object") return unordered;
+  const ordered: any = {};
+  Object.keys(unordered)
+    .sort()
+    .forEach((key) => (ordered[key] = recursivelyOrderKeys(unordered[key])));
+  return ordered;
+};
+
+const stringifyKeysInOrder = (data: any) => JSON.stringify(recursivelyOrderKeys(data));
 
 class THORChainApp {
   transport: any;
@@ -307,8 +332,24 @@ class THORChainApp {
     }
   }
 
-  async sign(path: string, message: any) {
-    return this.signGetChunks(path, message).then((chunks) => {
+  async sign(_path: string, message: core.ThorchainSignTx) {
+    // eslint-disable-next-line no-console
+    console.log({ _path, message });
+    const path = [44, 931, 0, 0, 0];
+
+    const fee = { amount: [], gas: THORCHAIN_SEND_GAS_FEE };
+    // TODO(gomes): this only handles sends for now - do we want to support deposit messages as well?
+    const rawTx = stringifyKeysInOrder({
+      account_number: message.account_number,
+      chain_id: THOR_CHAIN,
+      fee,
+      memo: message.tx.memo,
+      msgs: message.tx.msg,
+      sequence: message.sequence,
+    });
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore TODO(gomes): fixme swapkit types are turbo derp
+    return this.signGetChunks(path, rawTx).then((chunks) => {
       return this.signSendChunk(1, chunks.length, chunks[0]).then(async (response) => {
         let result = {
           return_code: response.return_code,

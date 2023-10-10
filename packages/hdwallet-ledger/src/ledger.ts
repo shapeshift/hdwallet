@@ -516,6 +516,10 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return thorchain.thorchainGetAddress(this.transport, msg);
   }
 
+  public thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx> {
+    return thorchain.thorchainSignTx(this.transport, msg);
+  }
+
   public async btcSignTx(msg: core.BTCSignTxLedger): Promise<core.BTCSignedTx> {
     await this.validateCurrentApp(msg.coin);
     return btc.btcSignTx(this, this.transport, msg);
