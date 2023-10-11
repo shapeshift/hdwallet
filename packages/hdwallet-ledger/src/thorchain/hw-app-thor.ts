@@ -270,7 +270,11 @@ class THORChainApp {
     }
   }
 
-  async getAddressAndPubKey(path: number[], hrp: any): Promise<GetAddressAndPubKeyResponse> {
+  async getAddressAndPubKey(_path: number[], hrp: any): Promise<GetAddressAndPubKeyResponse> {
+    // TODO(gomes): this is obviously temporary, find a better way to do this and pass our bip32 path in and make it work here
+    // eslint-disable-next-line no-console
+    console.log({ _path });
+    const path = [44, 931, 0, 0, 0];
     try {
       return await this.serializePath(path as any)
         .then((serializedPath) => {
@@ -342,7 +346,7 @@ class THORChainApp {
     const rawTx = stringifyKeysInOrder({
       account_number: msg.account_number,
       chain_id: THOR_CHAIN,
-      fee: { amount: [msg.fee], gas: msg.tx.fee.gas},
+      fee: { amount: [msg.fee], gas: msg.tx.fee.gas },
       memo: msg.tx.memo,
       msgs: msg.tx.msg,
       sequence: msg.sequence,
