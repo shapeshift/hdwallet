@@ -33,7 +33,19 @@ import {
 import { publicKeyv2, serializePathv2, signSendChunkv2 } from "./helpers";
 
 const THOR_CHAIN = "thorchain-mainnet-v1";
-const THORCHAIN_SEND_GAS_FEE = "500000000";
+
+export type GetAddressAndPubKeyResponse = {
+  bech32_address: string;
+  compressed_pk: any;
+  error_message: string;
+  return_code: number;
+};
+
+export type SignResponse = {
+  signature: any;
+  error_message: string;
+  return_code: number;
+};
 
 const recursivelyOrderKeys = (unordered: any) => {
   // If it's an array - recursively order any
@@ -258,15 +270,9 @@ class THORChainApp {
     }
   }
 
-  async getAddressAndPubKey(_path: string, hrp: any) {
+  async getAddressAndPubKey(path: number[], hrp: any): Promise<GetAddressAndPubKeyResponse> {
     try {
-      // TODO(gomes): this is obviously temporary, find a better way to do this and pass our bip32 path in and make it work here
-      // eslint-disable-next-line no-console
-      console.log({ _path });
-      const path = [44, 931, 0, 0, 0];
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore TODO(gomes): fixme swapkit types are turbo derp
-      return await this.serializePath(path)
+      return await this.serializePath(path as any)
         .then((serializedPath) => {
           const data = Buffer.concat([THORChainApp.serializeHRP(hrp), serializedPath as any]);
           return this.transport
@@ -332,24 +338,17 @@ class THORChainApp {
     }
   }
 
-  async sign(_path: string, message: core.ThorchainSignTx) {
-    // eslint-disable-next-line no-console
-    console.log({ _path, message });
-    const path = [44, 931, 0, 0, 0];
-
-    const fee = { amount: [], gas: THORCHAIN_SEND_GAS_FEE };
-    // TODO(gomes): this only handles sends for now - do we want to support deposit messages as well?
+  async sign(msg: core.ThorchainSignTx): Promise<SignResponse> {
     const rawTx = stringifyKeysInOrder({
-      account_number: message.account_number,
+      account_number: msg.account_number,
       chain_id: THOR_CHAIN,
-      fee,
-      memo: message.tx.memo,
-      msgs: message.tx.msg,
-      sequence: message.sequence,
+      fee: { amount: [msg.fee], gas: msg.tx.fee.gas},
+      memo: msg.tx.memo,
+      msgs: msg.tx.msg,
+      sequence: msg.sequence,
     });
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore TODO(gomes): fixme swapkit types are turbo derp
-    return this.signGetChunks(path, rawTx).then((chunks) => {
+
+    return this.signGetChunks(msg.addressNList as any, rawTx).then((chunks) => {
       return this.signSendChunk(1, chunks.length, chunks[0]).then(async (response) => {
         let result = {
           return_code: response.return_code,
@@ -367,7 +366,6 @@ class THORChainApp {
         return {
           return_code: result.return_code,
           error_message: result.error_message,
-          // ///
           signature: result.signature,
         };
       }, processErrorResponse);
