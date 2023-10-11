@@ -25,15 +25,15 @@ const signSendChunkv1 = async (app: any, chunkIdx: any, chunkNum: any, chunk: an
     }, processErrorResponse);
 };
 
-export const serializePathv2 = (path: any) => {
+export const serializePathv2 = (path: Array<number>) => {
   if (!path || path.length !== 5) {
     throw new Error("Invalid path.");
   }
 
   const buf = Buffer.alloc(20);
-  buf.writeUInt32LE(0x80000000 + path[0], 0);
-  buf.writeUInt32LE(0x80000000 + path[1], 4);
-  buf.writeUInt32LE(0x80000000 + path[2], 8);
+  buf.writeUInt32LE(path[0], 0);
+  buf.writeUInt32LE(path[1], 4);
+  buf.writeUInt32LE(path[2], 8);
   buf.writeUInt32LE(path[3], 12);
   buf.writeUInt32LE(path[4], 16);
 

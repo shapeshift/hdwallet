@@ -1,11 +1,10 @@
 import type { AccountData, AminoSignResponse, OfflineAminoSigner, StdSignDoc, StdTx } from "@cosmjs/amino";
-import { fromByteArray } from "base64-js";
-import { fromBase64 } from '@cosmjs/encoding';
 import type { SignerData } from "@cosmjs/stargate";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { fromByteArray } from "base64-js";
 import PLazy from "p-lazy";
 
-import { LedgerTransport } from "..";
+import { handleError, LedgerTransport } from "..";
 import { getSignature } from "./utils";
 export * from "./common";
 export * from "./helpers";
@@ -18,51 +17,28 @@ const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"
 export const thorchainGetAddress = async (
   transport: LedgerTransport,
   msg: core.ThorchainGetAddress
-): Promise<string | null> => {
-  const addressAndPubkey = await transport.call(
-    "Rune",
-    "getAddressAndPubKey",
-    msg.addressNList,
-    "thor"
-  );
+): Promise<string | undefined> => {
+  const addressAndPubkey = await transport.call("Rune", "getAddressAndPubKey", msg.addressNList, "thor");
 
-  if ('error' in addressAndPubkey.payload) {
-    throw new Error(addressAndPubkey.payload.error)
-  }
+  handleError(addressAndPubkey, transport, "Unable to obtain address and public key from device.");
 
-  return addressAndPubkey.payload.bech32_address
+  return addressAndPubkey.payload.bech32_address;
 };
 
 export const thorchainSignTx = async (
   transport: LedgerTransport,
   msg: core.ThorchainSignTx
 ): Promise<core.ThorchainSignedTx> => {
+  const addressAndPubkey = await transport.call("Rune", "getAddressAndPubKey", msg.addressNList, "thor");
 
-  const addressAndPubkey = await transport.call(
-    "Rune",
-    "getAddressAndPubKey",
-    msg.addressNList,
-    "thor"
-  );
+  handleError(addressAndPubkey, transport, "Unable to obtain address and public key from device.");
 
-  if ('error' in addressAndPubkey.payload) {
-    throw new Error(addressAndPubkey.payload.error)
-  }
+  const { bech32_address: address, compressed_pk } = addressAndPubkey.payload;
+  const pubkey = fromByteArray(compressed_pk);
 
-  const address = addressAndPubkey.payload.bech32_address;
-  const pubkey = addressAndPubkey.payload.compressed_pk;
+  const signResponse = await transport.call("Rune", "sign", msg);
 
-  const signResponse = await transport.call(
-    "Rune",
-    "sign",
-    msg
-  );
-
-  if ('error' in signResponse.payload) {
-    throw new Error(signResponse.payload.error)
-  }
-
-  console.log({ signResponse: signResponse.payload })
+  handleError(signResponse, transport, "Unable to obtain signature from device.");
 
   const signature = signResponse.payload.signature;
 
@@ -72,7 +48,7 @@ export const thorchainSignTx = async (
         {
           address,
           algo: "secp256k1",
-          pubkey,
+          pubkey: compressed_pk,
         },
       ];
     },
@@ -85,9 +61,9 @@ export const thorchainSignTx = async (
         signature: {
           pub_key: {
             type: "tendermint/PubKeySecp256k1",
-            value: fromByteArray(pubkey),
+            value: pubkey,
           },
-          signature: fromBase64(getSignature(signature)).toString(),
+          signature: getSignature(signature),
         },
       };
     },
