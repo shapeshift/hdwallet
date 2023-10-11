@@ -270,15 +270,7 @@ class THORChainApp {
     }
   }
 
-<<<<<<< HEAD
   async getAddressAndPubKey(path: Array<number>, hrp: any): Promise<GetAddressAndPubKeyResponse> {
-=======
-  async getAddressAndPubKey(_path: number[], hrp: any): Promise<GetAddressAndPubKeyResponse> {
-    // TODO(gomes): this is obviously temporary, find a better way to do this and pass our bip32 path in and make it work here
-    // eslint-disable-next-line no-console
-    console.log({ _path });
-    const path = [44, 931, 0, 0, 0];
->>>>>>> d5fd4902 (feat: bring back hardcoded path)
     try {
       return await this.serializePath(path)
         .then((serializedPath) => {
