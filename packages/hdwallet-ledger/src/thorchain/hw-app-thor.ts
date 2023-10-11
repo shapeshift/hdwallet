@@ -109,7 +109,7 @@ class THORChainApp {
     return encode(hrp, toWords(hashRip));
   }
 
-  async serializePath(path: string) {
+  async serializePath(path: Array<number>) {
     this.versionResponse = await getVersion(this.transport);
 
     if (this.versionResponse.return_code !== ErrorCode.NoError) {
@@ -127,7 +127,7 @@ class THORChainApp {
     }
   }
 
-  async signGetChunks(path: string, message: any) {
+  async signGetChunks(path: Array<number>, message: any) {
     const serializedPath = await this.serializePath(path);
 
     const chunks = [];
@@ -250,7 +250,7 @@ class THORChainApp {
     }, processErrorResponse);
   }
 
-  async publicKey(path: string) {
+  async publicKey(path: Array<number>) {
     try {
       const serializedPath = await this.serializePath(path);
 
@@ -270,9 +270,9 @@ class THORChainApp {
     }
   }
 
-  async getAddressAndPubKey(path: number[], hrp: any): Promise<GetAddressAndPubKeyResponse> {
+  async getAddressAndPubKey(path: Array<number>, hrp: any): Promise<GetAddressAndPubKeyResponse> {
     try {
-      return await this.serializePath(path as any)
+      return await this.serializePath(path)
         .then((serializedPath) => {
           const data = Buffer.concat([THORChainApp.serializeHRP(hrp), serializedPath as any]);
           return this.transport
@@ -298,7 +298,7 @@ class THORChainApp {
     }
   }
 
-  async showAddressAndPubKey(path: string, hrp: any) {
+  async showAddressAndPubKey(path: Array<number>, hrp: any) {
     try {
       return await this.serializePath(path)
         .then((serializedPath) => {
@@ -348,7 +348,7 @@ class THORChainApp {
       sequence: msg.sequence,
     });
 
-    return this.signGetChunks(msg.addressNList as any, rawTx).then((chunks) => {
+    return this.signGetChunks(msg.addressNList, rawTx).then((chunks) => {
       return this.signSendChunk(1, chunks.length, chunks[0]).then(async (response) => {
         let result = {
           return_code: response.return_code,
