@@ -96,7 +96,10 @@ export async function ethSignTx(transport: LedgerTransport, msg: core.ETHSignTx)
 
   const utx = new EthereumTx(txParams);
 
-  const res = await transport.call("Eth", "signTransaction", bip32path, utx.serialize().toString("hex"));
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore transport.call is drunk, there *is* a third argument to eth.signTransaction
+  // see https://github.com/LedgerHQ/ledgerjs/blob/master/packages/hw-app-eth/README.md#parameters-2
+  const res = await transport.call("Eth", "signTransaction", bip32path, utx.serialize().toString("hex"), null);
   handleError(res, transport, "Could not sign ETH tx with Ledger");
 
   const { v, r, s } = res.payload;
