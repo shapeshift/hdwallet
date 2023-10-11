@@ -1,8 +1,8 @@
 import type { AccountData, AminoSignResponse, OfflineAminoSigner, StdSignDoc, StdTx } from "@cosmjs/amino";
-import { fromByteArray } from "base64-js";
-import { fromBase64 } from '@cosmjs/encoding';
+import { fromBase64 } from "@cosmjs/encoding";
 import type { SignerData } from "@cosmjs/stargate";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { fromByteArray } from "base64-js";
 import PLazy from "p-lazy";
 
 import { LedgerTransport } from "..";
@@ -19,50 +19,35 @@ export const thorchainGetAddress = async (
   transport: LedgerTransport,
   msg: core.ThorchainGetAddress
 ): Promise<string | null> => {
-  const addressAndPubkey = await transport.call(
-    "Rune",
-    "getAddressAndPubKey",
-    msg.addressNList,
-    "thor"
-  );
+  const addressAndPubkey = await transport.call("Rune", "getAddressAndPubKey", msg.addressNList, "thor");
 
-  if ('error' in addressAndPubkey.payload) {
-    throw new Error(addressAndPubkey.payload.error)
+  if ("error" in addressAndPubkey.payload) {
+    throw new Error(addressAndPubkey.payload.error);
   }
 
-  return addressAndPubkey.payload.bech32_address
+  return addressAndPubkey.payload.bech32_address;
 };
 
 export const thorchainSignTx = async (
   transport: LedgerTransport,
   msg: core.ThorchainSignTx
 ): Promise<core.ThorchainSignedTx> => {
+  const addressAndPubkey = await transport.call("Rune", "getAddressAndPubKey", msg.addressNList, "thor");
 
-  const addressAndPubkey = await transport.call(
-    "Rune",
-    "getAddressAndPubKey",
-    msg.addressNList,
-    "thor"
-  );
-
-  if ('error' in addressAndPubkey.payload) {
-    throw new Error(addressAndPubkey.payload.error)
+  if ("error" in addressAndPubkey.payload) {
+    throw new Error(addressAndPubkey.payload.error);
   }
 
   const address = addressAndPubkey.payload.bech32_address;
   const pubkey = addressAndPubkey.payload.compressed_pk;
 
-  const signResponse = await transport.call(
-    "Rune",
-    "sign",
-    msg
-  );
+  const signResponse = await transport.call("Rune", "sign", msg);
 
-  if ('error' in signResponse.payload) {
-    throw new Error(signResponse.payload.error)
+  if ("error" in signResponse.payload) {
+    throw new Error(signResponse.payload.error);
   }
 
-  console.log({ signResponse: signResponse.payload })
+  console.log({ signResponse: signResponse.payload });
 
   const signature = signResponse.payload.signature;
 
@@ -87,7 +72,7 @@ export const thorchainSignTx = async (
             type: "tendermint/PubKeySecp256k1",
             value: fromByteArray(pubkey),
           },
-          signature: fromBase64(getSignature(signature)).toString(),
+          signature: getSignature(signature),
         },
       };
     },
