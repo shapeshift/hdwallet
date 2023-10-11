@@ -6,6 +6,8 @@ import type getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
 import type openApp from "@ledgerhq/live-common/lib/hw/openApp";
 import * as core from "@shapeshiftoss/hdwallet-core";
 
+import { THORChainApp } from "./thorchain";
+
 type MethodsOnly<T> = {
   [k in keyof T as T[k] extends (...args: any) => any ? k : never]: T[k];
 };
@@ -33,6 +35,8 @@ type LedgerTransportMethodMap<T extends LedgerTransportCoinType> = T extends nul
   ? MethodsOnly<Btc>
   : T extends "Eth"
   ? MethodsOnly<Eth>
+  : T extends "Rune"
+  ? MethodsOnly<THORChainApp>
   : never;
 export type LedgerTransportMethodName<T extends LedgerTransportCoinType> = LedgerTransportMethodMap<T> extends never
   ? never
