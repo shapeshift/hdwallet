@@ -9,6 +9,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "1.52.3-thorchain.15",
 =======
   "version": "1.52.3-thorchain.5",
@@ -37,6 +38,9 @@
 =======
   "version": "1.52.3-thorchain.13",
 >>>>>>> 9ec1233c (feat: boimp)
+=======
+  "version": "1.52.3-thorchain.14",
+>>>>>>> 4deac1a8 (feat: boimp)
   "license": "MIT",
   "private": true,
   "browserslist": "> 0.5%, last 2 versions, not dead",
