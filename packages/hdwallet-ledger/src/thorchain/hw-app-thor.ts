@@ -352,7 +352,11 @@ class THORChainApp {
       sequence: msg.sequence,
     });
 
-    return this.signGetChunks(msg.addressNList as any, rawTx).then((chunks) => {
+    const path = [44, 931, 0, 0, 0];
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore swapkit types are drunk
+    return this.signGetChunks(path, rawTx).then((chunks) => {
       return this.signSendChunk(1, chunks.length, chunks[0]).then(async (response) => {
         let result = {
           return_code: response.return_code,
