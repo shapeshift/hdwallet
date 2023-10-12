@@ -160,7 +160,12 @@ export async function ethSignMessage(
   const bip32path = core.addressNListToBIP32(msg.addressNList);
 
   if (!isHexString(msg.message)) throw new Error("data is not an hex string");
-  const res = await transport.call("Eth", "signPersonalMessage", bip32path, msg.message);
+
+  // Ledger's inner implementation does a Buffer.from(messageHex, "hex").length on our message
+  // However, Buffer.from method with the "hex" encoding expects a valid hexadecimal string without the 0x prefix
+  // so we need to strip it in case it's present
+  const sanitizedMessageHex = msg.message.startsWith("0x") ? msg.message.slice(2) : msg.message;
+  const res = await transport.call("Eth", "signPersonalMessage", bip32path, sanitizedMessageHex);
   handleError(res, transport, "Could not sign ETH message with Ledger");
 
   let { v } = res.payload;
