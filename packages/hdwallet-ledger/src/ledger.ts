@@ -512,7 +512,7 @@ export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     await this.validateCurrentApp(msg.coin);
     return btc.btcGetAddress(this.transport, msg);
   }
-  public thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string | null> {
+  public thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string> {
     return thorchain.thorchainGetAddress(this.transport, msg);
   }
 

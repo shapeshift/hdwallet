@@ -17,7 +17,7 @@ const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"
 export const thorchainGetAddress = async (
   transport: LedgerTransport,
   msg: core.ThorchainGetAddress
-): Promise<string | undefined> => {
+): Promise<string> => {
   const addressAndPubkey = await transport.call("Rune", "getAddressAndPubKey", msg.addressNList, "thor");
 
   handleError(addressAndPubkey, transport, "Unable to obtain address and public key from device.");

@@ -60,6 +60,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a7faff57 (bump)
     "@shapeshiftoss/hdwallet-core": "^1.52.3-thorchain.15",
     "@shapeshiftoss/hdwallet-keepkey-tcp": "^1.52.3-thorchain.15",
     "@shapeshiftoss/hdwallet-keepkey-webusb": "^1.52.3-thorchain.15",
@@ -75,6 +78,7 @@
     "@shapeshiftoss/hdwallet-trezor-connect": "^1.52.3-thorchain.15",
     "@shapeshiftoss/hdwallet-walletconnect": "^1.52.3-thorchain.15",
     "@shapeshiftoss/hdwallet-xdefi": "^1.52.3-thorchain.15",
+<<<<<<< HEAD
 =======
     "@shapeshiftoss/hdwallet-core": "^1.52.3-thorchain.5",
     "@shapeshiftoss/hdwallet-keepkey-tcp": "^1.52.3-thorchain.5",
@@ -177,6 +181,8 @@
     "@shapeshiftoss/hdwallet-walletconnect": "^1.52.3-thorchain.10",
     "@shapeshiftoss/hdwallet-xdefi": "^1.52.3-thorchain.10",
 >>>>>>> fb8c5ee4 (feat: boimp boimp)
+=======
+>>>>>>> a7faff57 (bump)
     "bip32": "^2.0.4",
     "jquery": "^3.4.1",
     "json": "^9.0.6",
