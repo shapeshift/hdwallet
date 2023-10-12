@@ -10,6 +10,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "1.52.3-thorchain.15",
 =======
   "version": "1.52.3-thorchain.5",
@@ -41,6 +42,9 @@
 =======
   "version": "1.52.3-thorchain.14",
 >>>>>>> 4deac1a8 (feat: boimp)
+=======
+  "version": "1.52.3-thorchain.15",
+>>>>>>> 83672427 (feat: bump)
   "main": "index.js",
   "license": "MIT",
   "private": true,
