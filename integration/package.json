@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/integration",
-  "version": "1.52.3-thorchain.11",
+  "version": "1.52.3-thorchain.15",
   "main": "index.js",
   "license": "MIT",
   "private": true,

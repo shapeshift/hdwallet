@@ -342,7 +342,7 @@ class THORChainApp {
     const rawTx = stringifyKeysInOrder({
       account_number: msg.account_number,
       chain_id: THOR_CHAIN,
-      fee: { amount: [msg.fee], gas: msg.tx.fee.gas},
+      fee: { amount: [msg.fee], gas: msg.tx.fee.gas },
       memo: msg.tx.memo,
       msgs: msg.tx.msg,
       sequence: msg.sequence,

@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-sandbox",
-  "version": "1.52.3-thorchain.11",
+  "version": "1.52.3-thorchain.15",
   "license": "MIT",
   "private": true,
   "browserslist": "> 0.5%, last 2 versions, not dead",
