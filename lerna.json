@@ -1,6 +1,6 @@
 {
   "lerna": "5.2.0",
-  "version": "1.52.3-ledger-improvements.2",
+  "version": "1.53.3-ledger-improvements.3",
   "npmClient": "yarn",
   "useWorkspaces": true,
   "command": {
