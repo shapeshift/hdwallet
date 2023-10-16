@@ -487,11 +487,7 @@ export class MetaMaskShapeShiftMultiChainHDWallet
     return this.info.bitcoinNextAccountPath(msg);
   }
 
-  addressCache: Map<string, string> = new Map();
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
-    const key = JSON.stringify(msg);
-    const maybeCachedAddress = this.addressCache.get(key);
-    if (maybeCachedAddress) return maybeCachedAddress;
     const value = await (async () => {
       switch (msg.coin) {
         case "Bitcoin":
@@ -508,7 +504,6 @@ export class MetaMaskShapeShiftMultiChainHDWallet
     })();
     if (!value || typeof value !== "string") return null;
 
-    this.addressCache.set(key, value);
     return value;
   }
 
