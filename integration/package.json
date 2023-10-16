@@ -1,50 +1,6 @@
 {
   "name": "@shapeshiftoss/integration",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
   "version": "1.52.3-thorchain.15",
-=======
-  "version": "1.52.3-thorchain.5",
->>>>>>> c1430a15 (feat: bump)
-=======
-  "version": "1.52.3-thorchain.6",
->>>>>>> 7cb9bd66 (feat: boimp)
-=======
-  "version": "1.52.3-thorchain.7",
->>>>>>> 1ca288a8 (feat: boimp)
-=======
-  "version": "1.52.3-thorchain.8",
->>>>>>> a775be7e (feat: boimp)
-=======
-  "version": "1.52.3-thorchain.9",
->>>>>>> 63766913 (chore(release): publish 1.52.3-thorchain.9)
-=======
-  "version": "1.52.3-thorchain.10",
->>>>>>> fb8c5ee4 (feat: boimp boimp)
-=======
-  "version": "1.52.3-thorchain.11",
->>>>>>> ae133cd4 (feat: boimp boimp)
-=======
-  "version": "1.52.3-thorchain.12",
->>>>>>> 0d72dc07 (feat: boimp)
-=======
-  "version": "1.52.3-thorchain.13",
->>>>>>> 9ec1233c (feat: boimp)
-=======
-  "version": "1.52.3-thorchain.14",
->>>>>>> 4deac1a8 (feat: boimp)
-=======
-  "version": "1.52.3-thorchain.15",
->>>>>>> 83672427 (feat: bump)
   "main": "index.js",
   "license": "MIT",
   "private": true,
@@ -54,15 +10,6 @@
     "dev": "lerna run test --scope integration --parallel --include-filtered-dependencies"
   },
   "dependencies": {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> a7faff57 (bump)
     "@shapeshiftoss/hdwallet-core": "^1.52.3-thorchain.15",
     "@shapeshiftoss/hdwallet-keepkey": "^1.52.3-thorchain.15",
     "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "^1.52.3-thorchain.15",
@@ -72,75 +19,6 @@
     "@shapeshiftoss/hdwallet-portis": "^1.52.3-thorchain.15",
     "@shapeshiftoss/hdwallet-trezor": "^1.52.3-thorchain.15",
     "@shapeshiftoss/hdwallet-xdefi": "^1.52.3-thorchain.15",
-<<<<<<< HEAD
-=======
-    "@shapeshiftoss/hdwallet-core": "^1.52.3-thorchain.5",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.52.3-thorchain.5",
-    "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "^1.52.3-thorchain.5",
-    "@shapeshiftoss/hdwallet-keepkey-tcp": "^1.52.3-thorchain.5",
-    "@shapeshiftoss/hdwallet-ledger": "^1.52.3-thorchain.5",
-    "@shapeshiftoss/hdwallet-native": "^1.52.3-thorchain.5",
-    "@shapeshiftoss/hdwallet-portis": "^1.52.3-thorchain.5",
-    "@shapeshiftoss/hdwallet-trezor": "^1.52.3-thorchain.5",
-    "@shapeshiftoss/hdwallet-xdefi": "^1.52.3-thorchain.5",
->>>>>>> c1430a15 (feat: bump)
-=======
-    "@shapeshiftoss/hdwallet-core": "^1.52.3-thorchain.6",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.52.3-thorchain.6",
-    "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "^1.52.3-thorchain.6",
-    "@shapeshiftoss/hdwallet-keepkey-tcp": "^1.52.3-thorchain.6",
-    "@shapeshiftoss/hdwallet-ledger": "^1.52.3-thorchain.6",
-    "@shapeshiftoss/hdwallet-native": "^1.52.3-thorchain.6",
-    "@shapeshiftoss/hdwallet-portis": "^1.52.3-thorchain.6",
-    "@shapeshiftoss/hdwallet-trezor": "^1.52.3-thorchain.6",
-    "@shapeshiftoss/hdwallet-xdefi": "^1.52.3-thorchain.6",
->>>>>>> 7cb9bd66 (feat: boimp)
-=======
-    "@shapeshiftoss/hdwallet-core": "^1.52.3-thorchain.7",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.52.3-thorchain.7",
-    "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "^1.52.3-thorchain.7",
-    "@shapeshiftoss/hdwallet-keepkey-tcp": "^1.52.3-thorchain.7",
-    "@shapeshiftoss/hdwallet-ledger": "^1.52.3-thorchain.7",
-    "@shapeshiftoss/hdwallet-native": "^1.52.3-thorchain.7",
-    "@shapeshiftoss/hdwallet-portis": "^1.52.3-thorchain.7",
-    "@shapeshiftoss/hdwallet-trezor": "^1.52.3-thorchain.7",
-    "@shapeshiftoss/hdwallet-xdefi": "^1.52.3-thorchain.7",
->>>>>>> 1ca288a8 (feat: boimp)
-=======
-    "@shapeshiftoss/hdwallet-core": "^1.52.3-thorchain.8",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.52.3-thorchain.8",
-    "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "^1.52.3-thorchain.8",
-    "@shapeshiftoss/hdwallet-keepkey-tcp": "^1.52.3-thorchain.8",
-    "@shapeshiftoss/hdwallet-ledger": "^1.52.3-thorchain.8",
-    "@shapeshiftoss/hdwallet-native": "^1.52.3-thorchain.8",
-    "@shapeshiftoss/hdwallet-portis": "^1.52.3-thorchain.8",
-    "@shapeshiftoss/hdwallet-trezor": "^1.52.3-thorchain.8",
-    "@shapeshiftoss/hdwallet-xdefi": "^1.52.3-thorchain.8",
->>>>>>> a775be7e (feat: boimp)
-=======
-    "@shapeshiftoss/hdwallet-core": "^1.52.3-thorchain.9",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.52.3-thorchain.9",
-    "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "^1.52.3-thorchain.9",
-    "@shapeshiftoss/hdwallet-keepkey-tcp": "^1.52.3-thorchain.9",
-    "@shapeshiftoss/hdwallet-ledger": "^1.52.3-thorchain.9",
-    "@shapeshiftoss/hdwallet-native": "^1.52.3-thorchain.9",
-    "@shapeshiftoss/hdwallet-portis": "^1.52.3-thorchain.9",
-    "@shapeshiftoss/hdwallet-trezor": "^1.52.3-thorchain.9",
-    "@shapeshiftoss/hdwallet-xdefi": "^1.52.3-thorchain.9",
->>>>>>> 63766913 (chore(release): publish 1.52.3-thorchain.9)
-=======
-    "@shapeshiftoss/hdwallet-core": "^1.52.3-thorchain.10",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.52.3-thorchain.10",
-    "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "^1.52.3-thorchain.10",
-    "@shapeshiftoss/hdwallet-keepkey-tcp": "^1.52.3-thorchain.10",
-    "@shapeshiftoss/hdwallet-ledger": "^1.52.3-thorchain.10",
-    "@shapeshiftoss/hdwallet-native": "^1.52.3-thorchain.10",
-    "@shapeshiftoss/hdwallet-portis": "^1.52.3-thorchain.10",
-    "@shapeshiftoss/hdwallet-trezor": "^1.52.3-thorchain.10",
-    "@shapeshiftoss/hdwallet-xdefi": "^1.52.3-thorchain.10",
->>>>>>> fb8c5ee4 (feat: boimp boimp)
-=======
->>>>>>> a7faff57 (bump)
     "fast-json-stable-stringify": "^2.1.0",
     "msw": "^0.27.1",
     "whatwg-fetch": "^3.6.2"

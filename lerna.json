@@ -1,50 +1,6 @@
 {
   "lerna": "5.2.0",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
   "version": "1.52.3-thorchain.15",
-=======
-  "version": "1.52.3-thorchain.5",
->>>>>>> c1430a15 (feat: bump)
-=======
-  "version": "1.52.3-thorchain.6",
->>>>>>> 7cb9bd66 (feat: boimp)
-=======
-  "version": "1.52.3-thorchain.7",
->>>>>>> 1ca288a8 (feat: boimp)
-=======
-  "version": "1.52.3-thorchain.8",
->>>>>>> a775be7e (feat: boimp)
-=======
-  "version": "1.52.3-thorchain.9",
->>>>>>> 63766913 (chore(release): publish 1.52.3-thorchain.9)
-=======
-  "version": "1.52.3-thorchain.10",
->>>>>>> fb8c5ee4 (feat: boimp boimp)
-=======
-  "version": "1.52.3-thorchain.11",
->>>>>>> ae133cd4 (feat: boimp boimp)
-=======
-  "version": "1.52.3-thorchain.12",
->>>>>>> 0d72dc07 (feat: boimp)
-=======
-  "version": "1.52.3-thorchain.13",
->>>>>>> 9ec1233c (feat: boimp)
-=======
-  "version": "1.52.3-thorchain.14",
->>>>>>> 4deac1a8 (feat: boimp)
-=======
-  "version": "1.52.3-thorchain.15",
->>>>>>> 83672427 (feat: bump)
   "npmClient": "yarn",
   "useWorkspaces": true,
   "command": {
