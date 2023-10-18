@@ -96,7 +96,7 @@ export class MockTransport extends ledger.LedgerTransport {
         "Eth",
         "signTransaction",
         JSON.parse(
-          '["m/44\'/60\'/0\'/0/0","eb018501dcd650008256229412ec06288edd7ae2cc41a843fe089237fc7354f0872c68af0bb1400080018080"]'
+          '["m/44\'/60\'/0\'/0/0","eb018501dcd650008256229412ec06288edd7ae2cc41a843fe089237fc7354f0872c68af0bb1400080018080", null]'
         ),
         JSON.parse(
           '{"success":true,"payload":{"v":"26","r":"63db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0a","s":"28297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b"},"coin":"Eth","method":"signTransaction"}'
@@ -106,7 +106,7 @@ export class MockTransport extends ledger.LedgerTransport {
         "Eth",
         "signTransaction",
         JSON.parse(
-          '["m/44\'/60\'/0\'/0/0","f8620114149441e5560054824ea6b0732e656e3ad64e20e94e4580b844a9059cbb0000000000000000000000001d8ce9022f6284c3a5c317f8f34620107214e54500000000000000000000000000000000000000000000000000000002540be400018080"]'
+          '["m/44\'/60\'/0\'/0/0","f8620114149441e5560054824ea6b0732e656e3ad64e20e94e4580b844a9059cbb0000000000000000000000001d8ce9022f6284c3a5c317f8f34620107214e54500000000000000000000000000000000000000000000000000000002540be400018080", null]'
         ),
         JSON.parse(
           '{"success":true,"payload":{"v":"25","r":"1238fd332545415f09a01470350a5a20abc784dbf875cf58f7460560e66c597f","s":"10efa4dd6fdb381c317db8f815252c2ac0d2a883bd364901dee3dec5b7d3660a"},"coin":"Eth","method":"signTransaction"}'
