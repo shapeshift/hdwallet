@@ -81,8 +81,6 @@ export async function translateCoinAndMethod<T extends LedgerTransportCoinType, 
   switch (coin) {
     case "Rune": {
       const thor = new ledger.THORChainApp(transport);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore TODO(gomes): fixme
       const methodInstance = thor[method as LedgerTransportMethodName<"Rune">].bind(thor);
       return methodInstance as LedgerTransportMethod<T, U>;
     }

@@ -10,8 +10,6 @@ export * from "./common";
 export * from "./helpers";
 export * from "./hw-app-thor";
 
-// TODO(gomes): move all below to ./thorchain
-
 const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
 
 export const thorchainGetAddress = async (
