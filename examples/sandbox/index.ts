@@ -1,5 +1,6 @@
 import "regenerator-runtime/runtime";
 
+import * as sigUtil from "@metamask/eth-sig-util";
 import * as coinbase from "@shapeshiftoss/hdwallet-coinbase";
 import { CoinbaseProviderConfig } from "@shapeshiftoss/hdwallet-coinbase";
 import * as core from "@shapeshiftoss/hdwallet-core";
@@ -19,7 +20,9 @@ import * as walletConnect from "@shapeshiftoss/hdwallet-walletconnect";
 import * as walletConnectv2 from "@shapeshiftoss/hdwallet-walletconnectv2";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 import { EthereumProviderOptions } from "@walletconnect/ethereum-provider/dist/types/EthereumProvider";
-import $ from "jquery";
+import { TypedData } from "eip-712";
+import { toChecksumAddress } from "ethereumjs-util";
+import $, { noop } from "jquery";
 import Web3 from "web3";
 
 import {
@@ -47,7 +50,8 @@ import {
 } from "./json/cosmos/cosmosAminoTx.json";
 import * as dashTxJson from "./json/dashTx.json";
 import * as dogeTxJson from "./json/dogeTx.json";
-import { eip712 } from "./json/ethTx.json";
+import { openSeaListNFTMessage } from "./json/ethereum/ethSignTypedDataV4.json";
+import { eip712, txs } from "./json/ethereum/ethTx.json";
 import * as ltcTxJson from "./json/ltcTx.json";
 import {
   osmosisDelegateTx,
@@ -163,16 +167,6 @@ const $walletConnectV2 = $("#walletConnectV2");
 const $xdefi = $("#xdefi");
 const $keplr = $("#keplr");
 const $keyring = $("#keyring");
-
-const $ethAddr = $("#ethAddr");
-const $ethTx = $("#ethTx");
-const $ethSign = $("#ethSign");
-const $ethSend = $("#ethSend");
-const $ethVerify = $("#ethVerify");
-const $ethResults = $("#ethResults");
-const $ethEIP1559 = $("#ethEIP1559");
-const $ethSignTypedData = $("#ethSignTypedData");
-const $ethSignTypedDataPreCalculate = $("#ethSignTypedDataPreCalculate");
 
 $keepkey.on("click", async (e) => {
   e.preventDefault();
@@ -380,7 +374,10 @@ async function deviceConnected(deviceId) {
   }
 
   try {
-    await ledgerWebUSBAdapter.initialize();
+    // skip initialize() on page load b/c:
+    // Error: WebUSBCouldNotInitialize....
+    // "Must be handling a user gesture to show a permission request."
+    noop();
   } catch (e) {
     console.error("Could not initialize LedgerWebUSBAdapter", e);
   }
@@ -416,7 +413,7 @@ async function deviceConnected(deviceId) {
   }
 
   try {
-    await keplrAdapter.initialize([]);
+    await keplrAdapter.initialize();
   } catch (e) {
     console.error("Could not initialize KeplrAdapter", e);
   }
@@ -920,7 +917,7 @@ $rippleAddr.on("click", async (e) => {
 $rippleTx.on("click", async (e) => {
   e.preventDefault();
   if (!wallet) {
-    $ethResults.val("No wallet?");
+    $rippleResults.val("No wallet?");
     return;
   }
   if (core.supportsRipple(wallet)) {
@@ -953,7 +950,7 @@ const $eosResults = $("#eosResults");
 $eosAddr.on("click", async (e) => {
   e.preventDefault();
   if (!wallet) {
-    $ethResults.val("No wallet?");
+    $eosResults.val("No wallet?");
     return;
   }
   if (core.supportsEos(wallet)) {
@@ -977,7 +974,7 @@ $eosAddr.on("click", async (e) => {
 $eosTx.on("click", async (e) => {
   e.preventDefault();
   if (!wallet) {
-    $ethResults.val("No wallet?");
+    $eosResults.val("No wallet?");
     return;
   }
   if (core.supportsEos(wallet)) {
@@ -1043,21 +1040,18 @@ const $fioResults = $("#fioResults");
 $fioAddr.on("click", async (e) => {
   e.preventDefault();
   if (!wallet) {
-    $ethResults.val("No wallet?");
+    $fioResults.val("No wallet?");
     return;
   }
   if (core.supportsFio(wallet)) {
     const { addressNList } = wallet.fioGetAccountPaths({ accountIdx: 0 })[0];
-    let result = await wallet.fioGetPublicKey({
+    let result = await wallet.fioGetAddress({
       addressNList,
       showDisplay: false,
-      kind: 0,
     });
-    result = await wallet.fioGetPublicKey({
+    result = await wallet.fioGetAddress({
       addressNList,
       showDisplay: true,
-      kind: 0,
-      address: result,
     });
     $fioResults.val(result);
   } else {
@@ -1069,7 +1063,7 @@ $fioAddr.on("click", async (e) => {
 $fioTx.on("click", async (e) => {
   e.preventDefault();
   if (!wallet) {
-    $ethResults.val("No wallet?");
+    $fioResults.val("No wallet?");
     return;
   }
   if (core.supportsFio(wallet)) {
@@ -1093,9 +1087,9 @@ $fioTx.on("click", async (e) => {
 
     console.info(res);
     console.info("signature = %d", res.signature);
-    console.info("serialized = %s", core.toHexString(res.serialized));
+    console.info("serialized = %s", res.serialized);
 
-    $eosResults.val(res.fioFormSig);
+    $fioResults.val(JSON.stringify(res));
   } else {
     const label = await wallet.getLabel();
     $fioResults.val(label + " does not support Fio");
@@ -1495,7 +1489,7 @@ $thorchainSignSwap.on("click", async (e) => {
         $thorchainSwapResults.val(JSON.stringify(res));
       } else {
         const label = await wallet.getLabel();
-        $ethResults.val(label + " does not support ETH");
+        $thorchainSwapResults.val(label + " does not support ETH");
       }
       break;
     default:
@@ -1665,7 +1659,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
         $thorchainAddLiquidityResults.val(JSON.stringify(res));
       } else {
         const label = await wallet.getLabel();
-        $ethResults.val(label + " does not support ETH");
+        $thorchainAddLiquidityResults.val(label + " does not support ETH");
       }
       break;
     default:
@@ -2479,36 +2473,32 @@ $osmosisSwap.on("click", async (e) => {
         * Bech32: false
 
 */
+interface EthOperationConfig {
+  handler: (paths: any) => Promise<any>;
+  useEIP1559?: boolean;
+}
 
 let ethEIP1559Selected = false;
 
-const ethTx = {
-  addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-  nonce: "0x01",
-  gasPrice: "0x1dcd65000",
-  gasLimit: "0x5622",
-  value: "0x2c68af0bb14000",
-  to: "0x12eC06288EDD7Ae2CC41A843fE089237fC7354F0",
-  chainId: 1,
-  data: "",
-};
+const ethButtons = [
+  "ethAddr",
+  "ethTx",
+  "ethSign",
+  "ethSend",
+  "ethVerify",
+  "ethResults",
+  "ethEIP1559",
+  "ethSignTypedData",
+  "ethSignTypedDataAlternate",
+].reduce((acc, id) => {
+  acc[id] = $(`#${id}`);
+  return acc;
+}, {} as Record<string, JQuery<HTMLElement>>);
 
-const ethTx1559 = {
-  addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-  nonce: "0x0",
-  gasLimit: "0x5ac3",
-  maxFeePerGas: "0x16854be509",
-  maxPriorityFeePerGas: "0x540ae480",
-  value: "0x1550f7dca70000", // 0.006 eth
-  to: "0xfc0cc6e85dff3d75e3985e0cb83b090cfd498dd1",
-  chainId: 1,
-  data: "",
-};
-
-$ethAddr.on("click", async (e) => {
+const performEthOperation = async (e: any, config: EthOperationConfig) => {
   e.preventDefault();
   if (!wallet) {
-    $ethResults.val("No wallet?");
+    ethButtons.ethResults.val("No wallet?");
     return;
   }
 
@@ -2517,139 +2507,132 @@ $ethAddr.on("click", async (e) => {
       coin: "Ethereum",
       accountIdx: 0,
     })[0];
-    let result = await wallet.ethGetAddress({
-      addressNList: hardenedPath.concat(relPath),
-      showDisplay: false,
-    });
-    result = await wallet.ethGetAddress({
-      addressNList: hardenedPath.concat(relPath),
-      showDisplay: true,
-      address: result,
-    });
-    $ethResults.val(result);
+
+    const tx = config.useEIP1559 && ethEIP1559Selected ? txs.ethTx1559 : txs.ethTxLegacy;
+    const result = await config.handler({ hardenedPath, relPath, tx });
+    ethButtons.ethResults.val(result);
   } else {
     const label = await wallet.getLabel();
-    $ethResults.val(label + " does not support ETH");
+    ethButtons.ethResults.val(`${label} does not support ETH`);
   }
-});
+};
 
-$ethTx.on("click", async (e) => {
-  e.preventDefault();
-  if (!wallet) {
-    $ethResults.val("No wallet?");
-    return;
-  }
-  if (core.supportsETH(wallet)) {
-    const res = ethEIP1559Selected ? await wallet.ethSignTx(ethTx1559) : await wallet.ethSignTx(ethTx);
-    $ethResults.val(JSON.stringify(res));
-  } else {
-    const label = await wallet.getLabel();
-    $ethResults.val(label + " does not support ETH");
-  }
-});
+ethButtons.ethAddr.on("click", (e) =>
+  performEthOperation(e, {
+    handler: async ({ hardenedPath, relPath }) => {
+      let result = await wallet.ethGetAddress({
+        addressNList: hardenedPath.concat(relPath),
+        showDisplay: false,
+      });
+      result = await wallet.ethGetAddress({
+        addressNList: hardenedPath.concat(relPath),
+        showDisplay: true,
+        address: result,
+      });
+      return result;
+    },
+  })
+);
 
-$ethSign.on("click", async (e) => {
-  e.preventDefault();
-  if (!wallet) {
-    $ethResults.val("No wallet?");
-    return;
-  }
-  if (core.supportsETH(wallet)) {
-    const { hardenedPath: hard, relPath: rel } = wallet.ethGetAccountPaths({
-      coin: "Ethereum",
-      accountIdx: 0,
-    })[0];
-    const result = await wallet.ethSignMessage({
-      addressNList: hard.concat(rel),
-      message: "Hello World",
-    });
-    $ethResults.val(result.address + ", " + result.signature);
-  } else {
-    const label = await wallet.getLabel();
-    $ethResults.val(label + " does not support ETH");
-  }
-});
+ethButtons.ethTx.on("click", (e) =>
+  performEthOperation(e, {
+    handler: async ({ tx }) => {
+      const res = await wallet.ethSignTx(tx);
+      return JSON.stringify(res);
+    },
+    useEIP1559: ethEIP1559Selected,
+  })
+);
 
-$ethSend.on("click", async (e) => {
-  e.preventDefault();
-  if (!wallet) {
-    $ethResults.val("No wallet?");
-    return;
-  }
-  if (core.supportsETH(wallet)) {
-    const result = ethEIP1559Selected
-      ? await wallet.ethSendTx(ethTx1559 as core.ETHSignTx)
-      : await wallet.ethSendTx(ethTx as core.ETHSignTx);
-    console.info("Result: ", result);
-    $ethResults.val(result.hash);
-  } else {
-    const label = await wallet.getLabel();
-    $ethResults.val(label + " does not support ETH");
-  }
-});
+ethButtons.ethSign.on("click", (e) =>
+  performEthOperation(e, {
+    handler: async ({ hardenedPath, relPath }) => {
+      const result = await wallet.ethSignMessage({
+        addressNList: hardenedPath.concat(relPath),
+        message: "0x48656c6c6f20576f726c64", // "Hello World",
+      });
+      return `Address: ${result.address} Signature: ${result.signature}`;
+    },
+  })
+);
 
-$ethVerify.on("click", async (e) => {
-  e.preventDefault();
-  if (!wallet) {
-    $ethResults.val("No wallet?");
-    return;
-  }
-  if (core.supportsETH(wallet)) {
-    const result = await wallet.ethVerifyMessage({
-      address: "0x2068dD92B6690255553141Dfcf00dF308281f763",
-      message: "Hello World",
-      signature:
-        "61f1dda82e9c3800e960894396c9ce8164fd1526fccb136c71b88442405f7d09721725629915d10bc7cecfca2818fe76bc5816ed96a1b0cebee9b03b052980131b",
-    });
-    $ethResults.val(result ? "✅" : "❌");
-  } else {
-    const label = await wallet.getLabel();
-    $ethResults.val(label + " does not support ETH");
-  }
-});
+ethButtons.ethSend.on("click", (e) =>
+  performEthOperation(e, {
+    handler: async ({ tx }) => {
+      if (wallet?.ethSendTx) {
+        const result = await wallet.ethSendTx(tx as core.ETHSignTx);
+        return result.hash;
+      } else {
+        const label = await wallet.getVendor();
+        return label + " does not support ethSendTx";
+      }
+    },
+    useEIP1559: ethEIP1559Selected,
+  })
+);
 
-$ethEIP1559.on("click", async () => {
-  if (!ethEIP1559Selected) {
-    $ethEIP1559.attr("class", "button");
-  } else {
-    $ethEIP1559.attr("class", "button-outline");
-  }
+ethButtons.ethVerify.on("click", (e) =>
+  performEthOperation(e, {
+    handler: async () => {
+      const signerAddress = "0x2068dD92B6690255553141Dfcf00dF308281f763";
+      const result = await wallet.ethVerifyMessage({
+        address: signerAddress,
+        message: "Hello World",
+        signature:
+          "0x61f1dda82e9c3800e960894396c9ce8164fd1526fccb136c71b88442405f7d09721725629915d10bc7cecfca2818fe76bc5816ed96a1b0cebee9b03b052980131b",
+      });
+      return result ? `✅ ${signerAddress} is the signer` : `❌ ${signerAddress} is NOT the signer`;
+    },
+  })
+);
+
+ethButtons.ethEIP1559.on("click", () => {
   ethEIP1559Selected = !ethEIP1559Selected;
+  ethButtons.ethEIP1559.attr("class", ethEIP1559Selected ? "button" : "button-outline");
 });
 
-$ethSignTypedData.on("click", async (e) => {
-  e.preventDefault();
-  if (!wallet) {
-    $ethResults.val("No wallet?");
-    return;
-  }
-  if (core.supportsETH(wallet)) {
-    const result = await wallet.ethSignTypedData({
-      typedData: eip712["calculateHashesOnDevice"]["typedData"],
-      addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-    });
-    $ethResults.val(JSON.stringify(result, null, 2));
-  }
-});
+const doesRecoveredMatchAddress = (typedData: TypedData, fromAddress: string, signature: string): boolean => {
+  const recoveredAddress = sigUtil.recoverTypedSignature({
+    data: typedData,
+    signature: signature,
+    version: sigUtil.SignTypedDataVersion.V4,
+  });
+  return toChecksumAddress(recoveredAddress) === toChecksumAddress(fromAddress);
+};
 
-$ethSignTypedDataPreCalculate.on("click", async (e) => {
-  e.preventDefault();
-  if (!wallet) {
-    $ethResults.val("No wallet?");
-    return;
-  }
-  if (!keepkey.isKeepKey(wallet)) {
-    $ethResults.val("Action only supported for KeepKey");
-    return;
-  }
-  if (core.supportsETH(wallet)) {
-    const result = await wallet.ethSignTypedData({
-      typedData: eip712["precalculateHashes"]["typedData"],
-      addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-    });
-    $ethResults.val(JSON.stringify(result, null, 2));
-  }
-});
+ethButtons.ethSignTypedData.on("click", (e) =>
+  performEthOperation(e, {
+    handler: async ({ hardenedPath, relPath }) => {
+      const typedData = openSeaListNFTMessage; // irl example of an OpenSea eth_signTypedData_v4 message
+      const { address, signature } = await wallet.ethSignTypedData({
+        typedData,
+        addressNList: hardenedPath.concat(relPath),
+      });
+      const success = doesRecoveredMatchAddress(typedData, address, signature);
+      return (
+        (success ? `✅ "${address}" is the signer` : `❌ "${address}" is NOT the signer`) +
+        `; Signature is: "${signature}"`
+      );
+    },
+  })
+);
+
+ethButtons.ethSignTypedDataAlternate.on("click", (e) =>
+  performEthOperation(e, {
+    handler: async ({ hardenedPath, relPath }) => {
+      const typedData = eip712["precalculateHashes"]["typedData"];
+      const { address, signature } = await wallet.ethSignTypedData({
+        typedData,
+        addressNList: hardenedPath.concat(relPath),
+      });
+      const success = doesRecoveredMatchAddress(typedData, address, signature);
+      return (
+        (success ? `✅ "${address}" is the signer` : `❌ "${address}" is NOT the signer`) +
+        `; Signature is: "${signature}"`
+      );
+    },
+  })
+);
 
 /*
       ERC-20

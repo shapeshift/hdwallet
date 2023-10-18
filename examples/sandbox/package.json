@@ -10,6 +10,7 @@
     "clean": "rm -rf dist node_modules public .parcel-cache"
   },
   "dependencies": {
+    "@metamask/eth-sig-util": "^7.0.0",
     "@shapeshiftoss/hdwallet-core": "1.52.2",
     "@shapeshiftoss/hdwallet-keepkey-tcp": "1.52.2",
     "@shapeshiftoss/hdwallet-keepkey-webusb": "1.52.2",
@@ -26,16 +27,20 @@
     "@shapeshiftoss/hdwallet-walletconnect": "1.52.2",
     "@shapeshiftoss/hdwallet-xdefi": "1.52.2",
     "bip32": "^2.0.4",
-    "jquery": "^3.4.1",
+    "eip-712": "^1.0.0",
+    "ethereumjs-util": "^7.1.5",
+    "jquery": "^3.7.1",
     "json": "^9.0.6",
     "p-queue": "^7.4.1",
-    "parcel": "^2.3.2",
     "source-map": "^0.8.0-beta.0",
+    "update-browserslist-db": "^1.0.13",
     "web3": "^1.5.1"
   },
   "devDependencies": {
+    "@types/jquery": "^3.5.22",
     "https-browserify": "^1.0.0",
     "os-browserify": "^0.3.0",
+    "parcel": "^2.3.2",
     "path-browserify": "^1.0.1",
     "querystring-es3": "^0.2.1",
     "stream-http": "^3.2.0"

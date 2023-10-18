@@ -201,7 +201,7 @@ export async function ethSignTypedData(
   try {
     const version = SignTypedDataVersion.V4;
     const EIP_712_DOMAIN = "EIP712Domain";
-    const { types, primaryType, domain, message } = TypedDataUtils.sanitizeData(msg.typedData);
+    const { types, primaryType, domain, message } = msg.typedData;
     const domainSeparatorHash = TypedDataUtils.hashStruct(EIP_712_DOMAIN, domain, types, version);
     const ethereumSignTypedHash = new Ethereum.EthereumSignTypedHash();
     ethereumSignTypedHash.setAddressNList(msg.addressNList);

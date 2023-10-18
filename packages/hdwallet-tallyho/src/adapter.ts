@@ -23,6 +23,10 @@ export class TallyHoAdapter {
     return new TallyHoAdapter(keyring);
   }
 
+  public async initialize(): Promise<number> {
+    return Object.keys(this.keyring.wallets).length;
+  }
+
   public async pairDevice(): Promise<TallyHoHDWallet | undefined> {
     let provider: TallyHoEthereumProvider | null;
     // eslint-disable-next-line no-useless-catch

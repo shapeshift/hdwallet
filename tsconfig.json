@@ -11,7 +11,7 @@
     "sourceMap": true,
     "composite": true,
     "isolatedModules": true,
-
+    "typeRoots": ["./node_modules/@types", "./packages/*/node_modules/@types"],
     /* Strict Type-Checking Options */
     "strict": true,
 
