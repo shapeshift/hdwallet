@@ -1,6 +1,6 @@
 import { fromByteArray } from "base64-js";
 
-export const getSignature = (signatureArray: any) => {
+export const getSignature = (signatureArray: Uint8Array) => {
   // Check Type Length Value encoding
   if (signatureArray.length < 64) {
     throw new Error("Invalid Signature: Too short");
@@ -28,7 +28,9 @@ export const getSignature = (signatureArray: any) => {
 
   // add leading zero's to pad to 32 bytes
   while (rSignature.length < 32) {
-    rSignature.unshift(0);
+    const rSignaturePadded = new Uint8Array(32);
+    rSignaturePadded.set(rSignature, 32 - rSignature.length);
+    rSignature = rSignaturePadded;
   }
 
   // s signature
@@ -53,7 +55,9 @@ export const getSignature = (signatureArray: any) => {
 
   // add leading zero's to pad to 32 bytes
   while (sSignature.length < 32) {
-    sSignature.unshift(0);
+    const sSignaturePadded = new Uint8Array(32);
+    sSignaturePadded.set(sSignature, 32 - sSignature.length);
+    sSignature = sSignaturePadded;
   }
 
   if (rSignature.length !== 32 || sSignature.length !== 32) {

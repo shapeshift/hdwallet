@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+import { toByteArray } from "base64-js";
 
 export class MockTransport extends ledger.LedgerTransport {
   memoized = new Map();
@@ -211,6 +212,62 @@ export class MockTransport extends ledger.LedgerTransport {
         JSON.parse(
           '{"success":true,"coin":"Btc","method":"getWalletPublicKey","payload":{"bitcoinAddress":"1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM","chainCode":"fixme","publicKey":"fixme"}}'
         )
+      );
+
+      // Thorchain
+      this.memoize(
+        "Rune",
+        "getAddressAndPubKey",
+        JSON.parse(`[[${core.bip32ToAddressNList("m/44'/931'/0'/0/0")}], "thor"]`),
+        JSON.parse(
+          `{"success":true,"coin":"Rune","method":"getAddressAndPubkey","payload":{"bech32_address":"thor1ls33ayg26kmltw7jjy55p32ghjna09zp74t4az","compressed_pk":[${toByteArray(
+            "AxUZcTuLQr3DZxEtMxMs8Uzt+SisV3HURLpFm5SXEXuj"
+          )}]}}`
+        )
+      );
+
+      const sig1 = toByteArray(
+        "1s+0FVJ5R8O+ewGq5yNbTQuVG5MJZppFDqVJ4cd5D68ogOb2GMVHvYCH2dvQXo/uK/fT6Rk6dLGhK8tgW/HqtA=="
+      );
+      const r1 = sig1.slice(0, 32);
+      const s1 = sig1.slice(32, 64);
+      const rawSig1 = Uint8Array.from([48, 68, 2, 32, ...r1, 2, 32, ...s1]);
+      this.memoize(
+        "Rune",
+        "sign",
+        JSON.parse(
+          '[{"tx":{"account_number":"17","chain_id":"thorchain-mainnet-v1","sequence":"2","fee":{"amount":[{"amount":"3000","denom":"rune"}],"gas":"200000"},"memo":"","msg":[{"type":"thorchain/MsgSend","value":{"amount":[{"amount":"100","denom":"rune"}],"from_address":"thor1ls33ayg26kmltw7jjy55p32ghjna09zp74t4az","to_address":"thor1wy58774wagy4hkljz9mchhqtgk949zdwwe80d5"}}],"signatures":[]},"addressNList":[2147483692,2147484579,2147483648,0,0],"chain_id":"thorchain-mainnet-v1","account_number":"17","sequence":"2"}]'
+        ),
+        {
+          success: true,
+          coin: "Rune",
+          method: "sign",
+          payload: {
+            signature: rawSig1,
+          },
+        }
+      );
+
+      const sig2 = toByteArray(
+        "0Bjk7npdUw/Qa4MQTS4PH8sw8jM4JSzpd7G2DsF3DMVoYgdpO2fjHh/DUq6v30nghxUSJj0jNm0VIq9viPB+tQ=="
+      );
+      const r2 = sig2.slice(0, 32);
+      const s2 = sig2.slice(32, 64);
+      const rawSig2 = Uint8Array.from([48, 68, 2, 32, ...r2, 2, 32, ...s2]);
+      this.memoize(
+        "Rune",
+        "sign",
+        JSON.parse(
+          '[{"tx":{"account_number":"2722","chain_id":"thorchain-mainnet-v1","sequence":"4","fee":{"amount":[{"amount":"0","denom":"rune"}],"gas":"350000"},"memo":"","msg":[{"type":"thorchain/MsgDeposit","value":{"coins":[{"asset":"THOR.RUNE","amount":"50994000"}],"memo":"SWAP:BNB.BNB:bnb12splwpg8jenr9pjw3dwc5rr35t8792y8pc4mtf:348953501","signer":"thor1ls33ayg26kmltw7jjy55p32ghjna09zp74t4az"}}],"signatures":[]},"addressNList":[2147483692,2147484579,2147483648,0,0],"chain_id":"thorchain-mainnet-v1","account_number":"2722","sequence":"4"}]'
+        ),
+        {
+          success: true,
+          coin: "Rune",
+          method: "sign",
+          payload: {
+            signature: rawSig2,
+          },
+        }
       );
     } catch (e) {
       console.error(e);

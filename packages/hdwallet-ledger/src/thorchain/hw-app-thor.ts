@@ -36,13 +36,13 @@ const THOR_CHAIN = "thorchain-mainnet-v1";
 
 export type GetAddressAndPubKeyResponse = {
   bech32_address: string;
-  compressed_pk: any;
+  compressed_pk: Uint8Array;
   error_message: string;
   return_code: number;
 };
 
 export type SignResponse = {
-  signature: any;
+  signature: Uint8Array;
   error_message: string;
   return_code: number;
 };
