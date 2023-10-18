@@ -24,8 +24,6 @@ export class Mnemonic extends Revocable(class {}) implements Bip39Mnemonic {
   }
 
   async toSeed(passphrase?: string): Promise<SeedType> {
-    if (passphrase !== undefined && typeof passphrase !== "string") throw new Error("bad passphrase type");
-
     const mnemonic = this.#mnemonic;
     const salt = new TextEncoder().encode(`mnemonic${passphrase ?? ""}`.normalize("NFKD"));
 
