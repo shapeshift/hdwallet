@@ -6473,9 +6473,9 @@
   integrity sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==
 
 "@types/ripemd160@^2.0.1":
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/@types/ripemd160/-/ripemd160-2.0.1.tgz#e9ea7a26adf0e2541917fc2b1ecb497e8ced4b7e"
-  integrity sha512-l3pt9f8vK1tU2qBXY1aL7HofNnJKbpNa+2DznrD7j0lhaS4587e3iwgSMRDJFlidsrNjrrjIl8G+EeXFMjcGXg==
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@types/ripemd160/-/ripemd160-2.0.2.tgz#e8ec7b1572e25fff9b3d0c4bc79022df4e037d12"
+  integrity sha512-hv3Oh/+ldCqp1xBRGi/1G6y2fxV6wUiiwjPt2Q7fe4UgmbD52ChdmxJyjDsGCRb9yuTBS9281UhH4D9gO85k7A==
   dependencies:
     "@types/node" "*"
 
