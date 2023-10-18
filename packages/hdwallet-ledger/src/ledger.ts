@@ -486,13 +486,6 @@ export class LedgerHDWallet
     await this.validateCurrentApp(msg.coin);
     return btc.btcGetAddress(this.transport, msg);
   }
-  public thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string> {
-    return thorchain.thorchainGetAddress(this.transport, msg);
-  }
-
-  public thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx> {
-    return thorchain.thorchainSignTx(this.transport, msg);
-  }
 
   public async btcSignTx(msg: core.BTCSignTxLedger): Promise<core.BTCSignedTx> {
     await this.validateCurrentApp(msg.coin);
@@ -525,6 +518,14 @@ export class LedgerHDWallet
 
   public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
     return eth.ethVerifyMessage(msg);
+  }
+
+  public thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string> {
+    return thorchain.thorchainGetAddress(this.transport, msg);
+  }
+
+  public thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx> {
+    return thorchain.thorchainSignTx(this.transport, msg);
   }
 
   public disconnect(): Promise<void> {

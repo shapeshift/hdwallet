@@ -215,14 +215,13 @@ export class MockTransport extends ledger.LedgerTransport {
       );
 
       // Thorchain
+      const compress_pk = toByteArray("AxUZcTuLQr3DZxEtMxMs8Uzt+SisV3HURLpFm5SXEXuj");
       this.memoize(
         "Rune",
         "getAddressAndPubKey",
         JSON.parse(`[[${core.bip32ToAddressNList("m/44'/931'/0'/0/0")}], "thor"]`),
         JSON.parse(
-          `{"success":true,"coin":"Rune","method":"getAddressAndPubkey","payload":{"bech32_address":"thor1ls33ayg26kmltw7jjy55p32ghjna09zp74t4az","compressed_pk":[${toByteArray(
-            "AxUZcTuLQr3DZxEtMxMs8Uzt+SisV3HURLpFm5SXEXuj"
-          )}]}}`
+          `{"success":true,"coin":"Rune","method":"getAddressAndPubkey","payload":{"bech32_address":"thor1ls33ayg26kmltw7jjy55p32ghjna09zp74t4az","compressed_pk":[${compress_pk}]}}`
         )
       );
 
