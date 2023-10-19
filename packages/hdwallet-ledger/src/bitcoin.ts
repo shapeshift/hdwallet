@@ -45,7 +45,8 @@ export async function btcGetAddress(transport: LedgerTransport, msg: core.BTCGet
   const res = await transport.call("Btc", "getWalletPublicKey", bip32path, opts);
   handleError(res, transport, "Unable to obtain BTC address from device");
 
-  return res.payload.bitcoinAddress;
+  const address = res.payload.bitcoinAddress;
+  return msg.coin.toLowerCase() === "bitcoincash" ? bchAddr.toCashAddress(address) : address;
 }
 
 // Adapted from https://github.com/LedgerHQ/ledger-wallet-webtool
@@ -71,9 +72,13 @@ export async function btcGetPublicKeys(
 
     const { payload: _xpub } = getWalletXpubResponse;
 
-    // Ledger returns LTC pubkeys in Ltub format for all scriptTypes. It *is* the correct account, but not in the format we want.
-    // We need to convert SegWit pubkeys to Mtubs, and SegWit native to zpubs.
-    const xpub = convertXpubVersion(_xpub, scriptTypeToAccountType[getPublicKey.scriptType]);
+    // Ledger returns
+    // - LTC pubkeys in Ltub format for all scriptTypes.
+    // - BTC pubkeys in xpub format for all scriptTypes
+    // - Doge pubkeys in xpub format instead of dgub
+    // They *are* the correct accounts, but not in the format we want.
+    // We need to convert SegWit pubkeys to Mtubs/ypubs, and SegWit native to zpubs, and Doge xpubs to dgubs.
+    const xpub = convertXpubVersion(_xpub, scriptTypeToAccountType[getPublicKey.scriptType], getPublicKey.coin);
 
     xpubs.push({
       xpub,
