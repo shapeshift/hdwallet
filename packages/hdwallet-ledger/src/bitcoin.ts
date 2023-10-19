@@ -37,9 +37,16 @@ export async function btcSupportsScriptType(coin: core.Coin, scriptType?: core.B
 
 export async function btcGetAddress(transport: LedgerTransport, msg: core.BTCGetAddress): Promise<string> {
   const bip32path = core.addressNListToBIP32(msg.addressNList);
+
+  const scriptTypeish = (() => {
+    if (msg.coin === "BitcoinCash") return core.BTCInputScriptType.CashAddr;
+    if (msg.scriptType) return msg.scriptType;
+    return core.BTCInputScriptType.SpendAddress;
+  })();
+
   const opts = {
     verify: !!msg.showDisplay,
-    format: translateScriptType(msg.scriptType ?? core.BTCInputScriptType.SpendAddress),
+    format: translateScriptType(scriptTypeish),
   };
 
   const res = await transport.call("Btc", "getWalletPublicKey", bip32path, opts);
