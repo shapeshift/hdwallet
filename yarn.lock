@@ -6471,13 +6471,6 @@
   resolved "https://registry.yarnpkg.com/@types/range-parser/-/range-parser-1.2.4.tgz#cd667bcfdd025213aafb7ca5915a932590acdcdc"
   integrity sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==
 
-"@types/ripemd160@^2.0.2":
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/@types/ripemd160/-/ripemd160-2.0.2.tgz#e8ec7b1572e25fff9b3d0c4bc79022df4e037d12"
-  integrity sha512-hv3Oh/+ldCqp1xBRGi/1G6y2fxV6wUiiwjPt2Q7fe4UgmbD52ChdmxJyjDsGCRb9yuTBS9281UhH4D9gO85k7A==
-  dependencies:
-    "@types/node" "*"
-
 "@types/secp256k1@^4.0.1":
   version "4.0.3"
   resolved "https://registry.yarnpkg.com/@types/secp256k1/-/secp256k1-4.0.3.tgz#1b8e55d8e00f08ee7220b4d59a6abe89c37a901c"

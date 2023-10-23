@@ -3,7 +3,6 @@ import _ from "lodash";
 
 import * as btc from "./bitcoin";
 import * as eth from "./ethereum";
-import * as thorchain from "./thorchain";
 import { LedgerTransport } from "./transport";
 import { coinToLedgerAppName, handleError } from "./utils";
 
@@ -135,12 +134,9 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
   }
 }
 
-export class LedgerHDWalletInfo
-  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo, core.ThorchainWalletInfo
-{
+export class LedgerHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
-  readonly _supportsThorchainInfo = true;
 
   public getVendor(): string {
     return "Ledger";
@@ -190,16 +186,6 @@ export class LedgerHDWalletInfo
     return eth.ethGetAccountPaths(msg);
   }
 
-  public thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
-    const slip44 = core.slip44ByCoin("Thorchain");
-    return [{ addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0] }];
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
-    return undefined;
-  }
-
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return false;
@@ -237,8 +223,6 @@ export class LedgerHDWalletInfo
     switch (msg.coin) {
       case "Ethereum":
         return describeETHPath(msg.path);
-      case "Thorchain":
-        return core.thorchainDescribePath(msg.path);
       default:
         return describeUTXOPath(msg.path, msg.coin, msg.scriptType);
     }
@@ -306,10 +290,7 @@ export class LedgerHDWalletInfo
   }
 }
 
-export class LedgerHDWallet
-  extends LedgerHDWalletInfo
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.ThorchainWallet
-{
+export class LedgerHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet {
   readonly _supportsETHInfo = true;
   readonly _supportsBTCInfo = true;
   readonly _supportsBTC = true;
@@ -321,8 +302,6 @@ export class LedgerHDWallet
   readonly _supportsPolygon = true;
   readonly _supportsGnosis = true;
   readonly _supportsArbitrum = true;
-  readonly _supportsThorchainInfo = true;
-  readonly _supportsThorchain = true;
 
   _isLedger = true;
 
@@ -330,7 +309,6 @@ export class LedgerHDWallet
   info: LedgerHDWalletInfo & core.HDWalletInfo;
 
   constructor(transport: LedgerTransport) {
-    super();
     this.transport = transport;
     this.info = new LedgerHDWalletInfo();
   }
@@ -396,6 +374,10 @@ export class LedgerHDWallet
     return version;
   }
 
+  public getVendor(): string {
+    return "Ledger";
+  }
+
   public async getModel(): Promise<string> {
     const {
       device: { productName },
@@ -432,6 +414,39 @@ export class LedgerHDWallet
       default:
         throw new Error(`getPublicKeys is not supported with the ${name} app`);
     }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
+    return false;
+  }
+
+  public supportsBip44Accounts(): boolean {
+    return this.info.supportsBip44Accounts();
+  }
+
+  public supportsOfflineSigning(): boolean {
+    return true;
+  }
+
+  public supportsBroadcast(): boolean {
+    return false;
+  }
+
+  public hasOnDeviceDisplay(): boolean {
+    return true;
+  }
+
+  public hasOnDevicePassphrase(): boolean {
+    return true;
+  }
+
+  public hasOnDevicePinEntry(): boolean {
+    return true;
+  }
+
+  public hasOnDeviceRecovery(): boolean {
+    return true;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -482,6 +497,14 @@ export class LedgerHDWallet
     return;
   }
 
+  public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
+    return this.info.btcSupportsCoin(coin);
+  }
+
+  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
+    return this.info.btcSupportsScriptType(coin, scriptType);
+  }
+
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
     await this.validateCurrentApp(msg.coin);
     return btc.btcGetAddress(this.transport, msg);
@@ -492,6 +515,14 @@ export class LedgerHDWallet
     return btc.btcSignTx(this, this.transport, msg);
   }
 
+  public async btcSupportsSecureTransfer(): Promise<boolean> {
+    return this.info.btcSupportsSecureTransfer();
+  }
+
+  public btcSupportsNativeShapeShift(): boolean {
+    return this.info.btcSupportsNativeShapeShift();
+  }
+
   public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
     await this.validateCurrentApp(msg.coin);
     return btc.btcSignMessage(this, this.transport, msg);
@@ -499,6 +530,14 @@ export class LedgerHDWallet
 
   public async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
     return btc.btcVerifyMessage(msg);
+  }
+
+  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
+    return this.info.btcGetAccountPaths(msg);
+  }
+
+  public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
+    return this.info.btcIsSameAccount(msg);
   }
 
   public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
@@ -520,16 +559,40 @@ export class LedgerHDWallet
     return eth.ethVerifyMessage(msg);
   }
 
-  public thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string> {
-    return thorchain.thorchainGetAddress(this.transport, msg);
+  public async ethSupportsNetwork(chain_id: number): Promise<boolean> {
+    return this.info.ethSupportsNetwork(chain_id);
   }
 
-  public thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx> {
-    return thorchain.thorchainSignTx(this.transport, msg);
+  public async ethSupportsSecureTransfer(): Promise<boolean> {
+    return this.info.ethSupportsSecureTransfer();
+  }
+
+  public ethSupportsNativeShapeShift(): boolean {
+    return this.info.ethSupportsNativeShapeShift();
+  }
+
+  public async ethSupportsEIP1559(): Promise<boolean> {
+    return await this.info.ethSupportsEIP1559();
+  }
+
+  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
+    return this.info.ethGetAccountPaths(msg);
+  }
+
+  public describePath(msg: core.DescribePath): core.PathDescription {
+    return this.info.describePath(msg);
   }
 
   public disconnect(): Promise<void> {
     return this.transport.disconnect();
+  }
+
+  public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
+    return this.info.btcNextAccountPath(msg);
+  }
+
+  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
+    return this.info.ethNextAccountPath(msg);
   }
 }
 

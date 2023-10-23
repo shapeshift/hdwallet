@@ -134,7 +134,7 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
 
   initialized = false;
   provider: any = {};
-  supportedNetworks: ChainReference[] = [CHAIN_REFERENCE.CosmosHubMainnet];
+  supportedNetworks: ChainReference[] = [CHAIN_REFERENCE.CosmosHubMainnet, CHAIN_REFERENCE.OsmosisMainnet];
 
   constructor() {
     this.info = new KeplrHDWalletInfo();
