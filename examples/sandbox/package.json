@@ -28,7 +28,6 @@
     "@shapeshiftoss/hdwallet-xdefi": "1.52.5",
     "bip32": "^2.0.4",
     "eip-712": "^1.0.0",
-    "ethereumjs-util": "^7.1.5",
     "jquery": "^3.7.1",
     "json": "^9.0.6",
     "p-queue": "^7.4.1",

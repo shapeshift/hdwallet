@@ -21,7 +21,6 @@ import * as walletConnectv2 from "@shapeshiftoss/hdwallet-walletconnectv2";
 import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 import { EthereumProviderOptions } from "@walletconnect/ethereum-provider/dist/types/EthereumProvider";
 import { TypedData } from "eip-712";
-import { toChecksumAddress } from "ethereumjs-util";
 import $, { noop } from "jquery";
 import Web3 from "web3";
 
@@ -2598,7 +2597,7 @@ const doesRecoveredMatchAddress = (typedData: TypedData, fromAddress: string, si
     signature: signature,
     version: sigUtil.SignTypedDataVersion.V4,
   });
-  return toChecksumAddress(recoveredAddress) === toChecksumAddress(fromAddress);
+  return Web3.utils.toChecksumAddress(recoveredAddress) === Web3.utils.toChecksumAddress(fromAddress);
 };
 
 ethButtons.ethSignTypedData.on("click", (e) =>
