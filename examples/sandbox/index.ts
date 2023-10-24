@@ -49,8 +49,8 @@ import {
 } from "./json/cosmos/cosmosAminoTx.json";
 import * as dashTxJson from "./json/dashTx.json";
 import * as dogeTxJson from "./json/dogeTx.json";
-import { openSeaListNFTMessage } from "./json/ethereum/ethSignTypedDataV4.json";
 import { eip712, txs } from "./json/ethereum/ethTx.json";
+import { openSeaListNFTMessage } from "./json/ethereum/OpenSea-ethSignTypedDataV4.json";
 import * as ltcTxJson from "./json/ltcTx.json";
 import {
   osmosisDelegateTx,
@@ -2474,8 +2474,9 @@ $osmosisSwap.on("click", async (e) => {
 
 */
 interface EthOperationConfig {
-  handler: (paths: any) => Promise<any>;
+  handler: (params: any) => Promise<any>;
   useEIP1559?: boolean;
+  typedDataValue?: "OpenSea" | "EIP712DomainIsPrimaryType" | "longPrimaryTypeString";
 }
 
 let ethEIP1559Selected = false;
@@ -2489,7 +2490,8 @@ const ethButtons = [
   "ethResults",
   "ethEIP1559",
   "ethSignTypedData",
-  "ethSignTypedDataAlternate",
+  "ethSignTypedDataAlternate1",
+  "ethSignTypedDataAlternate2",
 ].reduce((acc, id) => {
   acc[id] = $(`#${id}`);
   return acc;
@@ -2509,7 +2511,22 @@ const performEthOperation = async (e: any, config: EthOperationConfig) => {
     })[0];
 
     const tx = config.useEIP1559 && ethEIP1559Selected ? txs.ethTx1559 : txs.ethTxLegacy;
-    const result = await config.handler({ hardenedPath, relPath, tx });
+    let typedData: TypedData | undefined;
+
+    switch (config.typedDataValue) {
+      case "OpenSea":
+        typedData = openSeaListNFTMessage;
+        break;
+      case "longPrimaryTypeString":
+        typedData = eip712["longPrimaryTypeString"]["typedData"];
+        break;
+      case "EIP712DomainIsPrimaryType":
+        typedData = eip712["EIP712DomainIsPrimaryType"]["typedData"];
+        break;
+      default:
+        typedData = undefined;
+    }
+    const result = await config.handler({ hardenedPath, relPath, tx, typedData });
     ethButtons.ethResults.val(result);
   } else {
     const label = await wallet.getLabel();
@@ -2600,37 +2617,35 @@ const doesRecoveredMatchAddress = (typedData: TypedData, fromAddress: string, si
   return Web3.utils.toChecksumAddress(recoveredAddress) === Web3.utils.toChecksumAddress(fromAddress);
 };
 
+const ethSignTypedDataHandler = async ({ hardenedPath, relPath, typedData }) => {
+  const { address, signature } = await wallet.ethSignTypedData({
+    typedData,
+    addressNList: hardenedPath.concat(relPath),
+  });
+  const success = doesRecoveredMatchAddress(typedData, address, signature);
+  return (
+    (success ? `✅ "${address}" is the signer` : `❌ "${address}" is NOT the signer`) + `; Signature is: "${signature}"`
+  );
+};
+
 ethButtons.ethSignTypedData.on("click", (e) =>
   performEthOperation(e, {
-    handler: async ({ hardenedPath, relPath }) => {
-      const typedData = openSeaListNFTMessage; // irl example of an OpenSea eth_signTypedData_v4 message
-      const { address, signature } = await wallet.ethSignTypedData({
-        typedData,
-        addressNList: hardenedPath.concat(relPath),
-      });
-      const success = doesRecoveredMatchAddress(typedData, address, signature);
-      return (
-        (success ? `✅ "${address}" is the signer` : `❌ "${address}" is NOT the signer`) +
-        `; Signature is: "${signature}"`
-      );
-    },
+    handler: ethSignTypedDataHandler,
+    typedDataValue: "OpenSea",
   })
 );
 
-ethButtons.ethSignTypedDataAlternate.on("click", (e) =>
+ethButtons.ethSignTypedDataAlternate1.on("click", (e) =>
   performEthOperation(e, {
-    handler: async ({ hardenedPath, relPath }) => {
-      const typedData = eip712["precalculateHashes"]["typedData"];
-      const { address, signature } = await wallet.ethSignTypedData({
-        typedData,
-        addressNList: hardenedPath.concat(relPath),
-      });
-      const success = doesRecoveredMatchAddress(typedData, address, signature);
-      return (
-        (success ? `✅ "${address}" is the signer` : `❌ "${address}" is NOT the signer`) +
-        `; Signature is: "${signature}"`
-      );
-    },
+    handler: ethSignTypedDataHandler,
+    typedDataValue: "longPrimaryTypeString",
+  })
+);
+
+ethButtons.ethSignTypedDataAlternate2.on("click", (e) =>
+  performEthOperation(e, {
+    handler: ethSignTypedDataHandler,
+    typedDataValue: "EIP712DomainIsPrimaryType",
   })
 );
 
