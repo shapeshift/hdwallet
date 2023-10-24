@@ -202,16 +202,17 @@ export async function ethSignTypedData(
     const version = SignTypedDataVersion.V4;
     const EIP_712_DOMAIN = "EIP712Domain";
     const { types, primaryType, domain, message } = msg.typedData;
-    const domainSeparatorHash = TypedDataUtils.hashStruct(EIP_712_DOMAIN, domain, types, version);
+    const domainSeparatorHash: Uint8Array = TypedDataUtils.hashStruct(EIP_712_DOMAIN, domain, types, version);
+
     const ethereumSignTypedHash = new Ethereum.EthereumSignTypedHash();
     ethereumSignTypedHash.setAddressNList(msg.addressNList);
     ethereumSignTypedHash.setDomainSeparatorHash(domainSeparatorHash);
 
-    // If "EIP712Domain" is the primaryType, then the message IS the domain separator hash
-    if (primaryType === EIP_712_DOMAIN) {
-      ethereumSignTypedHash.setMessageHash(domainSeparatorHash);
-    } else {
-      const messageHash = TypedDataUtils.hashStruct(primaryType as string, message, types, version);
+    let messageHash: Uint8Array | undefined = undefined;
+    // If "EIP712Domain" is the primaryType, messageHash is not required - look at T1 connect impl ;)
+    // todo: the firmware should define messageHash as an optional Uint8Array field for this case
+    if (primaryType !== EIP_712_DOMAIN) {
+      messageHash = TypedDataUtils.hashStruct(primaryType, message, types, version);
       ethereumSignTypedHash.setMessageHash(messageHash);
     }
 
