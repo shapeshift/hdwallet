@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as ethers from "ethers";
+import { keccak256, parseTransaction, recoverAddress } from "ethers/lib/utils.js";
 
 import * as Isolation from "./crypto/isolation";
 import SignerAdapter from "./crypto/isolation/adapters/ethereum";
@@ -111,7 +111,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
               msg.addressNList
             );
 
-        const decoded = ethers.utils.parseTransaction(result);
+        const decoded = parseTransaction(result);
         return {
           v: core.mustBeDefined(decoded.v),
           r: core.mustBeDefined(decoded.r),
@@ -142,8 +142,8 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
 
     async ethVerifyMessage({ address, message, signature }: core.ETHVerifyMessage): Promise<boolean> {
       if (!signature.startsWith("0x")) signature = `0x${signature}`;
-      const digest = ethers.utils.keccak256(buildMessage(message));
-      return ethers.utils.recoverAddress(digest, signature) === address;
+      const digest = keccak256(buildMessage(message));
+      return recoverAddress(digest, signature) === address;
     }
   };
 }
