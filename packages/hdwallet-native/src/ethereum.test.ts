@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as ethers from "ethers";
+import { parseTransaction } from "ethers/lib/utils.js";
 
 import * as native from "./native";
 
@@ -143,7 +143,7 @@ describe("NativeETHWallet", () => {
         "v": 38,
       }
     `);*/
-    expect(ethers.utils.parseTransaction(sig!.serialized).from).toEqual("0x73d0385F4d8E00C5e6504C6030F47BF6212736A8");
+    expect(parseTransaction(sig!.serialized).from).toEqual("0x73d0385F4d8E00C5e6504C6030F47BF6212736A8");
   });
 
   it("should sign a EIP-1559 transaction correctly", async () => {
@@ -177,7 +177,7 @@ describe("NativeETHWallet", () => {
         "v": 38,
       }
     `);*/
-    expect(ethers.utils.parseTransaction(sig!.serialized).from).toEqual("0x73d0385F4d8E00C5e6504C6030F47BF6212736A8");
+    expect(parseTransaction(sig!.serialized).from).toEqual("0x73d0385F4d8E00C5e6504C6030F47BF6212736A8");
   });
 
   describe("sign and verify message", () => {

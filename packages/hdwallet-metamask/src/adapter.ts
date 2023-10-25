@@ -1,7 +1,7 @@
 import detectEthereumProvider from "@metamask/detect-provider";
 import MetaMaskOnboarding from "@metamask/onboarding";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as ethers from "ethers";
+import { providers } from "ethers";
 
 import { MetaMaskHDWallet } from "./metamask";
 
@@ -27,7 +27,7 @@ export class MetaMaskAdapter {
       mustBeMetaMask: true,
       silent: false,
       timeout: 3000,
-    })) as ethers.providers.ExternalProvider | null;
+    })) as providers.ExternalProvider | null;
     if (!provider) {
       const onboarding = new MetaMaskOnboarding();
       onboarding.startOnboarding();
