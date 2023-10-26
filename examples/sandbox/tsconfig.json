@@ -1,8 +1,5 @@
 {
   "compilerOptions": {
     "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "lib": ["es2020", "dom", "es5"],
-    "typeRoots": ["../node_modules/@types", "../packages/*/node_modules/@types"]
   }
 }
