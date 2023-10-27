@@ -1,11 +1,11 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as ethers from "ethers";
+import { providers } from "ethers";
 
 import * as ethereum from "./ethereum";
 
 describe("Tally Ho - Ethereum Adapter", () => {
   it("ethVerifyMessage returns null as its not implemented", async () => {
-    const ethereumProvider: ethers.providers.ExternalProvider = {
+    const ethereumProvider: providers.ExternalProvider = {
       request: jest.fn().mockReturnValue("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"),
     };
     expect(
@@ -36,7 +36,7 @@ describe("Tally Ho - Ethereum Adapter", () => {
     expect(paths).toMatchObject([]);
   });
   it("ethSignTx returns null as its not implemented", async () => {
-    const ethereumProvider: ethers.providers.ExternalProvider = {
+    const ethereumProvider: providers.ExternalProvider = {
       request: jest.fn().mockReturnValue({
         r: "0x63db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0a",
         s: "0x28297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
@@ -63,7 +63,7 @@ describe("Tally Ho - Ethereum Adapter", () => {
     ).toEqual(null);
   });
   it("ethSendTx returns a valid hash", async () => {
-    const ethereumProvider: ethers.providers.ExternalProvider = {
+    const ethereumProvider: providers.ExternalProvider = {
       request: jest.fn().mockReturnValue("0x123"),
     };
 
@@ -85,7 +85,7 @@ describe("Tally Ho - Ethereum Adapter", () => {
     expect(hash).toMatchObject({ hash: "0x123" });
   });
   it("ethSendTx returns a valid hash if maxFeePerGas is present in msg", async () => {
-    const ethereumProvider: ethers.providers.ExternalProvider = {
+    const ethereumProvider: providers.ExternalProvider = {
       request: jest.fn().mockReturnValue("0x123"),
     };
 
@@ -107,7 +107,7 @@ describe("Tally Ho - Ethereum Adapter", () => {
     expect(hash).toMatchObject({ hash: "0x123" });
   });
   it("ethSendTx returns null on error", async () => {
-    const ethereumProvider: ethers.providers.ExternalProvider = {
+    const ethereumProvider: providers.ExternalProvider = {
       request: jest.fn().mockRejectedValue(new Error("An Error has occurred")),
     };
 
@@ -130,7 +130,7 @@ describe("Tally Ho - Ethereum Adapter", () => {
   });
 
   it("ethSignMessage returns a valid signature object", async () => {
-    const ethereumProvider: ethers.providers.ExternalProvider = {
+    const ethereumProvider: providers.ExternalProvider = {
       request: jest.fn().mockReturnValue(
         `Object {
           "address": "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
@@ -201,7 +201,7 @@ describe("Tally Ho - Ethereum Adapter", () => {
   });
 
   it("ethSignMessage returns null on error", async () => {
-    const ethereumProvider: ethers.providers.ExternalProvider = {
+    const ethereumProvider: providers.ExternalProvider = {
       request: jest.fn().mockRejectedValue(new Error("An Error has occurred")),
     };
 
@@ -219,7 +219,7 @@ describe("Tally Ho - Ethereum Adapter", () => {
   });
 
   it("ethGetAddress returns a valid address", async () => {
-    const ethereumProvider: ethers.providers.ExternalProvider = {
+    const ethereumProvider: providers.ExternalProvider = {
       request: jest.fn().mockReturnValue(["0x73d0385F4d8E00C5e6504C6030F47BF6212736A8"]),
     };
 
@@ -228,7 +228,7 @@ describe("Tally Ho - Ethereum Adapter", () => {
     expect(address).toBe("0x73d0385F4d8E00C5e6504C6030F47BF6212736A8");
   });
   it("ethGetAddress returns null on error", async () => {
-    const ethereumProvider: ethers.providers.ExternalProvider = {
+    const ethereumProvider: providers.ExternalProvider = {
       request: jest.fn().mockRejectedValue(new Error("An error has occurred")),
     };
 
