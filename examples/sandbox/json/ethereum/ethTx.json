@@ -1,0 +1,198 @@
+{
+  "eip712": {
+    "longPrimaryTypeString": {
+      "typedData": {
+        "types": {
+          "EIP712Domain": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "version",
+              "type": "string"
+            },
+            {
+              "name": "chainId",
+              "type": "uint256"
+            },
+            {
+              "name": "verifyingContract",
+              "type": "address"
+            },
+            {
+              "name": "salt",
+              "type": "bytes32"
+            }
+          ],
+          "Person": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "wallet",
+              "type": "address"
+            },
+            {
+              "name": "married",
+              "type": "bool"
+            },
+            {
+              "name": "kids",
+              "type": "uint8"
+            },
+            {
+              "name": "karma",
+              "type": "int16"
+            },
+            {
+              "name": "secret",
+              "type": "bytes"
+            },
+            {
+              "name": "small_secret",
+              "type": "bytes16"
+            },
+            {
+              "name": "pets",
+              "type": "string[]"
+            },
+            {
+              "name": "two_best_friends",
+              "type": "string[2]"
+            }
+          ],
+          "ThisIsARidiculouslyLongPrimaryTypeToForceHashesToBePrecalculatedByHDWalletKeepKey": [
+            {
+              "name": "from",
+              "type": "Person"
+            },
+            {
+              "name": "to",
+              "type": "Person"
+            },
+            {
+              "name": "messages",
+              "type": "string[]"
+            }
+          ]
+        },
+        "primaryType": "ThisIsARidiculouslyLongPrimaryTypeToForceHashesToBePrecalculatedByHDWalletKeepKey",
+        "domain": {
+          "name": "Ether Mail",
+          "version": "1",
+          "chainId": 1,
+          "verifyingContract": "0x1e0Ae8205e9726E6F296ab8869160A6423E2337E",
+          "salt": "0xca92da1a6e91d9358328d2f2155af143a7cb74b81a3a4e3e57e2191823dbb56c"
+        },
+        "message": {
+          "from": {
+            "name": "Amy",
+            "wallet": "0xc0004B62C5A39a728e4Af5bee0c6B4a4E54b15ad",
+            "married": true,
+            "kids": 2,
+            "karma": 4,
+            "secret": "0x62c5a39a728e4af5bee0c6b462c5a39a728e4af5bee0c6b462c5a39a728e4af5bee0c6b462c5a39a728e4af5bee0c6b4",
+            "small_secret": "0x5ccf0e54367104795a47bc0481645d9e",
+            "pets": [
+              "parrot"
+            ],
+            "two_best_friends": [
+              "Carl",
+              "Denis"
+            ]
+          },
+          "to": {
+            "name": "Bob",
+            "wallet": "0x54B0Fa66A065748C40dCA2C7Fe125A2028CF9982",
+            "married": false,
+            "kids": 0,
+            "karma": -4,
+            "secret": "0x7fe125a2028cf97fe125a2028cf97fe125a2028cf97fe125a2028cf97fe125a2028cf97fe125a2028cf97fe125a2028cf9",
+            "small_secret": "0xa5e5c47b64775abc476d2962403258de",
+            "pets": [
+              "dog",
+              "cat"
+            ],
+            "two_best_friends": [
+              "Emil",
+              "Franz"
+            ]
+          },
+          "messages": [
+            "Hello, Bob!",
+            "How are you?",
+            "Hope you're fine"
+          ]
+        }
+      }
+    },
+    "EIP712DomainIsPrimaryType": {
+      "typedData": {
+        "types": {
+          "EIP712Domain": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "version",
+              "type": "string"
+            },
+            {
+              "name": "chainId",
+              "type": "uint256"
+            },
+            {
+              "name": "verifyingContract",
+              "type": "address"
+            }
+          ]
+        },
+        "domain": {
+          "name": "USD Coin",
+          "version": "2",
+          "verifyingContract": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          "chainId": 1
+        },
+        "primaryType": "EIP712Domain"
+      }
+    }
+  },
+  "txs": {
+    "ethTxLegacy": {
+      "addressNList": [
+        2147483692,
+        2147483708,
+        2147483648,
+        0,
+        0
+      ],
+      "nonce": "0x01",
+      "gasPrice": "0x1dcd65000",
+      "gasLimit": "0x5622",
+      "value": "0x2c68af0bb14000",
+      "to": "0x12eC06288EDD7Ae2CC41A843fE089237fC7354F0",
+      "chainId": 1,
+      "data": ""
+    },
+    "ethTx1559": {
+      "addressNList": [
+        2147483692,
+        2147483708,
+        2147483648,
+        0,
+        0
+      ],
+      "nonce": "0x0",
+      "gasLimit": "0x5ac3",
+      "maxFeePerGas": "0x16854be509",
+      "maxPriorityFeePerGas": "0x540ae480",
+      "value": "0x1550f7dca70000",
+      "to": "0xfc0cc6e85dff3d75e3985e0cb83b090cfd498dd1",
+      "chainId": 1,
+      "data": ""
+    }
+  }
+}
