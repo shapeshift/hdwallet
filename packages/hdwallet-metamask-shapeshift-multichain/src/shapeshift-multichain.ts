@@ -282,6 +282,7 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   readonly _supportsPolygon = true;
   readonly _supportsGnosis = true;
   readonly _supportsArbitrum = true;
+  readonly _supportsArbitrumNova = true;
   readonly _supportsOsmosisInfo = true;
   readonly _supportsOsmosis = true;
   readonly _supportsBinanceInfo = false;

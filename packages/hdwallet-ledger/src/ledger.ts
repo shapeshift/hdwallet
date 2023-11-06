@@ -321,6 +321,7 @@ export class LedgerHDWallet
   readonly _supportsPolygon = true;
   readonly _supportsGnosis = true;
   readonly _supportsArbitrum = true;
+  readonly _supportsArbitrumNova = true;
   readonly _supportsThorchainInfo = true;
   readonly _supportsThorchain = true;
 
