@@ -5,7 +5,6 @@ import * as jose from "jose";
 import * as ta from "type-assertions";
 import * as uuid from "uuid";
 
-import { argonBenchmark } from "./argonBenchmark";
 import { ArgonParams, IVaultBackedBy, IVaultFactory, VaultPrepareParams } from "./types";
 import { crypto, encoder, keyStoreUUID, Revocable, revocable, setCrypto, setPerformance, vaultStoreUUID } from "./util";
 
@@ -69,16 +68,16 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
       (await idb.get<ArgonParams>("defaultArgonParams", await RawVault.#keyStore)) ?? {
         then: (onfulfilled, onrejected) => {
           return (async () => {
+            // For more details on parameter selection, see:
+            // https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-argon2-04#section-4
             const out: ArgonParams = {
               parallelism: 1,
               memorySize: 32 * 1024,
-              iterations: 26,
+              iterations: 16,
             };
-            const argonBenchmarkResults = await argonBenchmark(out.memorySize, 1000, { measureError: true });
-            console.debug("argonBenchmarkResults:", argonBenchmarkResults);
-            await idb.set("argonBenchmarkResults", argonBenchmarkResults, await RawVault.#keyStore);
-            out.iterations = argonBenchmarkResults.iterations;
+
             await idb.set("defaultArgonParams", out, await RawVault.#keyStore);
+
             return out;
           })().then(onfulfilled, onrejected);
         },
