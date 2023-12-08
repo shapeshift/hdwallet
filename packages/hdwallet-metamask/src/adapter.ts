@@ -35,7 +35,12 @@ export class MetaMaskAdapter {
       throw new Error("MetaMask provider not found");
     }
     try {
-      await provider.request?.({ method: "eth_requestAccounts" });
+      await provider.request?.({ method: "eth_requestAccounts" }).catch(() =>
+        provider.request?.({
+          method: "wallet_requestPermissions",
+          params: [{ eth_accounts: {} }],
+        })
+      );
     } catch (error) {
       console.error("Could not get MetaMask accounts. ");
       throw error;
