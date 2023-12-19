@@ -326,7 +326,15 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   }
 
   public async isLocked(): Promise<boolean> {
-    return !this.provider._metamask.isUnlocked();
+    try {
+      return !this.provider._metamask.isUnlocked();
+    } catch (e) {
+      // This may not be properly implemented in MM impersonators, e.g
+      // https://github.com/zeriontech/zerion-wallet-extension/blob/294630a4e1ef303205a6e6dd681245a27c8d1eec/src/modules/ethereum/provider.ts#L36C1-L39
+      // Assume unlocked, but log the error regardless in case this happens with *actual* MM
+      console.error(e);
+      return false;
+    }
   }
 
   public getVendor(): string {
