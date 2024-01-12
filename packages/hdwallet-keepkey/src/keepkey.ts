@@ -420,6 +420,7 @@ export class KeepKeyHDWalletInfo
   readonly _supportsBinanceInfo = true;
   readonly _supportsEosInfo = true;
   readonly _supportsThorchainInfo = true;
+  readonly _supportsMayachainInfo = false;
 
   public getVendor(): string {
     return "KeepKey";
@@ -707,6 +708,8 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   readonly _supportsFio = false;
   readonly _supportsThorchainInfo = true;
   readonly _supportsThorchain = true;
+  readonly _supportsMayachainInfo = false;
+  readonly _supportsMayachain = false;
   readonly _supportsSecretInfo = false;
   readonly _supportsSecret = false;
   readonly _supportsKava = false;

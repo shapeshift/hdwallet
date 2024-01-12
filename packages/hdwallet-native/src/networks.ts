@@ -174,6 +174,7 @@ for (const coin of [
   "binance",
   "ethereum",
   "arkeo",
+  "mayachain",
 ])
   networks[coin] = networks.bitcoin;
 

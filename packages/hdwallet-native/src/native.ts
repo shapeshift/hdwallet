@@ -12,6 +12,7 @@ import * as Isolation from "./crypto/isolation";
 import { MixinNativeETHWallet, MixinNativeETHWalletInfo } from "./ethereum";
 import { MixinNativeFioWallet, MixinNativeFioWalletInfo } from "./fio";
 import { MixinNativeKavaWallet, MixinNativeKavaWalletInfo } from "./kava";
+import { MixinNativeMayachainWallet, MixinNativeMayachainWalletInfo } from "./mayachain";
 import { getNetwork } from "./networks";
 import { MixinNativeOsmosisWallet, MixinNativeOsmosisWalletInfo } from "./osmosis";
 import { MixinNativeSecretWallet, MixinNativeSecretWalletInfo } from "./secret";
@@ -127,7 +128,9 @@ class NativeHDWalletInfo
               MixinNativeSecretWalletInfo(
                 MixinNativeTerraWalletInfo(
                   MixinNativeKavaWalletInfo(
-                    MixinNativeArkeoWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase))
+                    MixinNativeArkeoWalletInfo(
+                      MixinNativeOsmosisWalletInfo(MixinNativeMayachainWalletInfo(NativeHDWalletBase))
+                    )
                   )
                 )
               )
@@ -184,6 +187,10 @@ class NativeHDWalletInfo
         return core.fioDescribePath(msg.path);
       case "arkeo":
         return core.arkeoDescribePath(msg.path);
+      case "cacap":
+      case "scacao":
+      case "mayachain":
+        return core.mayachainDescribePath(msg.path);
       default:
         throw new Error("Unsupported path");
     }
@@ -199,7 +206,11 @@ export class NativeHDWallet
             MixinNativeThorchainWallet(
               MixinNativeSecretWallet(
                 MixinNativeTerraWallet(
-                  MixinNativeKavaWallet(MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo)))
+                  MixinNativeKavaWallet(
+                    // MixinNativeOsmosisWallet(
+                    MixinNativeArkeoWallet(MixinNativeMayachainWallet(NativeHDWalletInfo))
+                    // )
+                  )
                 )
               )
             )
@@ -219,7 +230,8 @@ export class NativeHDWallet
     core.SecretWallet,
     core.TerraWallet,
     core.KavaWallet,
-    core.ArkeoWallet
+    core.ArkeoWallet,
+    core.MayachainWallet
 {
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
@@ -240,6 +252,7 @@ export class NativeHDWallet
   readonly _supportsTerra = true;
   readonly _supportsKava = true;
   readonly _supportsArkeo = true;
+  readonly _supportsMayachain = true;
   readonly _isNative = true;
 
   #deviceId: string;
@@ -325,7 +338,7 @@ export class NativeHDWallet
           super.btcInitializeWallet(masterKey),
           super.ethInitializeWallet(masterKey),
           super.cosmosInitializeWallet(masterKey),
-          super.osmosisInitializeWallet(masterKey),
+          // super.osmosisInitializeWallet(masterKey),
           super.binanceInitializeWallet(masterKey),
           super.fioInitializeWallet(masterKey),
           super.thorchainInitializeWallet(masterKey),
@@ -333,6 +346,7 @@ export class NativeHDWallet
           super.terraInitializeWallet(masterKey),
           super.kavaInitializeWallet(masterKey),
           super.arkeoInitializeWallet(masterKey),
+          super.mayachainInitializeWallet(masterKey),
         ]);
 
         this.#initialized = true;
@@ -373,7 +387,7 @@ export class NativeHDWallet
     super.btcWipe();
     super.ethWipe();
     super.cosmosWipe();
-    super.osmosisWipe();
+    // super.osmosisWipe();
     super.binanceWipe();
     super.fioWipe();
     super.thorchainWipe();
@@ -381,6 +395,7 @@ export class NativeHDWallet
     super.terraWipe();
     super.kavaWipe();
     super.arkeoWipe();
+    super.mayachainWipe();
 
     (await oldMasterKey)?.revoke?.();
   }

@@ -16,6 +16,7 @@ import { eosTests } from "./eos";
 import { ethTests } from "./ethereum";
 import { fioTests } from "./fio";
 import { kavaTests } from "./kava";
+import { mayachainTests } from "./mayachain";
 import { osmosisTests } from "./osmosis";
 import { rippleTests } from "./ripple";
 import { secretTests } from "./secret";
