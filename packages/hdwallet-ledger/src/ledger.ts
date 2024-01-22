@@ -2,6 +2,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import _ from "lodash";
 
 import * as btc from "./bitcoin";
+import * as cosmos from "./cosmos";
 import * as eth from "./ethereum";
 import * as thorchain from "./thorchain";
 import { LedgerTransport } from "./transport";
@@ -136,11 +137,12 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
 }
 
 export class LedgerHDWalletInfo
-  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo, core.ThorchainWalletInfo
+  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo, core.ThorchainWalletInfo, core.CosmosWalletInfo
 {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
   readonly _supportsThorchainInfo = true;
+  readonly _supportsCosmosInfo = true;
 
   public getVendor(): string {
     return "Ledger";
@@ -197,6 +199,16 @@ export class LedgerHDWalletInfo
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
+    return undefined;
+  }
+
+  public cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
+    const slip44 = core.slip44ByCoin("Atom");
+    return [{ addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0] }];
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
     return undefined;
   }
 
@@ -308,10 +320,8 @@ export class LedgerHDWalletInfo
 
 export class LedgerHDWallet
   extends LedgerHDWalletInfo
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.ThorchainWallet
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.ThorchainWallet, core.CosmosWallet
 {
-  readonly _supportsETHInfo = true;
-  readonly _supportsBTCInfo = true;
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
   readonly _supportsEthSwitchChain = false;
@@ -322,8 +332,8 @@ export class LedgerHDWallet
   readonly _supportsGnosis = true;
   readonly _supportsArbitrum = true;
   readonly _supportsArbitrumNova = true;
-  readonly _supportsThorchainInfo = true;
   readonly _supportsThorchain = true;
+  readonly _supportsCosmos = true;
 
   _isLedger = true;
 
@@ -527,6 +537,14 @@ export class LedgerHDWallet
 
   public thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx> {
     return thorchain.thorchainSignTx(this.transport, msg);
+  }
+
+  public cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string> {
+    return cosmos.cosmosGetAddress(this.transport, msg);
+  }
+
+  public cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx> {
+    return cosmos.cosmosSignTx(this.transport, msg);
   }
 
   public disconnect(): Promise<void> {
