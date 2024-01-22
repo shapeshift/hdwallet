@@ -84,6 +84,11 @@ export async function translateCoinAndMethod<T extends LedgerTransportCoinType, 
       const methodInstance = thor[method as LedgerTransportMethodName<"Rune">].bind(thor);
       return methodInstance as LedgerTransportMethod<T, U>;
     }
+    case "Atom": {
+      const thor = new ledger.CosmosApp(transport);
+      const methodInstance = thor[method as LedgerTransportMethodName<"Atom">].bind(thor);
+      return methodInstance as LedgerTransportMethod<T, U>;
+    }
     case "Btc": {
       const btc = new Btc({ transport });
       const methodInstance = btc[method as LedgerTransportMethodName<"Btc">].bind(btc);

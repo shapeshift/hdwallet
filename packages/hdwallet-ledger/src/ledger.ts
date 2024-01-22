@@ -2,6 +2,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import _ from "lodash";
 
 import * as btc from "./bitcoin";
+import * as cosmos from "./cosmos";
 import * as eth from "./ethereum";
 import * as thorchain from "./thorchain";
 import { LedgerTransport } from "./transport";
@@ -141,6 +142,7 @@ export class LedgerHDWalletInfo
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
   readonly _supportsThorchainInfo = true;
+  readonly _supportsCosmosInfo = true;
 
   public getVendor(): string {
     return "Ledger";
@@ -324,6 +326,8 @@ export class LedgerHDWallet
   readonly _supportsArbitrumNova = true;
   readonly _supportsThorchainInfo = true;
   readonly _supportsThorchain = true;
+  readonly _supportsCosmosInfo = true;
+  readonly _supportsCosmos = true;
 
   _isLedger = true;
 
@@ -525,8 +529,16 @@ export class LedgerHDWallet
     return thorchain.thorchainGetAddress(this.transport, msg);
   }
 
+  public cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string> {
+    return cosmos.cosmosGetAddress(this.transport, msg);
+  }
+
   public thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx> {
     return thorchain.thorchainSignTx(this.transport, msg);
+  }
+
+  public cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx> {
+    return cosmos.cosmosSignTx(this.transport, msg);
   }
 
   public disconnect(): Promise<void> {

@@ -29,10 +29,10 @@ import {
   INS,
   P1_VALUES,
   processErrorResponse,
-} from "./common";
-import { publicKeyv2, serializePathv2, signSendChunkv2 } from "./helpers";
+} from "../thorchain/common";
+import { publicKeyv2, serializePathv2, signSendChunkv2 } from "../thorchain/helpers";
 
-const THOR_CHAIN = "thorchain-mainnet-v1";
+const COSMOSHUB_CHAIN = "cosmoshub-4";
 
 type GetAddressAndPubKeyResponse = {
   bech32_address: string;
@@ -68,7 +68,7 @@ const recursivelyOrderKeys = (unordered: any) => {
 
 const stringifyKeysInOrder = (data: any) => JSON.stringify(recursivelyOrderKeys(data));
 
-class THORChainApp {
+class CosmosApp {
   transport: any;
   versionResponse: any;
 
@@ -256,7 +256,7 @@ class THORChainApp {
 
       switch (this.versionResponse.major) {
         case 2: {
-          const data = Buffer.concat([THORChainApp.serializeHRP("thor"), serializedPath as any]);
+          const data = Buffer.concat([CosmosApp.serializeHRP("cosmos"), serializedPath as any]);
           return await publicKeyv2(this, data);
         }
         default:
@@ -274,7 +274,7 @@ class THORChainApp {
     try {
       return await this.serializePath(path)
         .then((serializedPath) => {
-          const data = Buffer.concat([THORChainApp.serializeHRP(hrp), serializedPath as any]);
+          const data = Buffer.concat([CosmosApp.serializeHRP(hrp), serializedPath as any]);
           return this.transport
             .send(CLA, INS.GET_ADDR_SECP256K1, P1_VALUES.ONLY_RETRIEVE, 0, data, [ErrorCode.NoError])
             .then((response: any) => {
@@ -302,7 +302,7 @@ class THORChainApp {
     try {
       return await this.serializePath(path)
         .then((serializedPath) => {
-          const data = Buffer.concat([THORChainApp.serializeHRP(hrp), serializedPath as any]);
+          const data = Buffer.concat([CosmosApp.serializeHRP(hrp), serializedPath as any]);
           return this.transport
             .send(CLA, INS.GET_ADDR_SECP256K1, P1_VALUES.SHOW_ADDRESS_IN_DEVICE, 0, data, [ErrorCode.NoError])
             .then((response: any) => {
@@ -338,10 +338,10 @@ class THORChainApp {
     }
   }
 
-  async sign(msg: core.ThorchainSignTx): Promise<SignResponse> {
+  async sign(msg: core.CosmosSignTx): Promise<SignResponse> {
     const rawTx = stringifyKeysInOrder({
       account_number: msg.account_number,
-      chain_id: THOR_CHAIN,
+      chain_id: COSMOSHUB_CHAIN,
       fee: { amount: msg.tx.fee.amount, gas: msg.tx.fee.gas },
       memo: msg.tx.memo,
       msgs: msg.tx.msg,
@@ -373,4 +373,4 @@ class THORChainApp {
   }
 }
 
-export { THORChainApp };
+export { CosmosApp };

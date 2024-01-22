@@ -6,6 +6,7 @@ import type getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
 import type openApp from "@ledgerhq/live-common/lib/hw/openApp";
 import * as core from "@shapeshiftoss/hdwallet-core";
 
+import { CosmosApp } from "./cosmos/hw-app-cosmos";
 import { THORChainApp } from "./thorchain";
 
 type MethodsOnly<T> = {
@@ -14,7 +15,7 @@ type MethodsOnly<T> = {
 type UnwrapPromise<T> = T extends Promise<infer R> ? R : T;
 type DefinitelyCallable<T> = T extends (...args: any) => any ? T : never;
 
-export type LedgerTransportCoinType = null | "Btc" | "Eth" | "Rune";
+export type LedgerTransportCoinType = null | "Btc" | "Eth" | "Rune" | "Atom";
 type CurriedWithTransport<T extends (transport: Transport, ...args: any) => any> = T extends (
   transport: Transport,
   ...args: infer R
@@ -31,6 +32,8 @@ type LedgerNullTransportMethodMap = {
 // The null check must be first, because null is a subtype of everything if we're not in strict mode.
 type LedgerTransportMethodMap<T extends LedgerTransportCoinType> = T extends null
   ? LedgerNullTransportMethodMap
+  : T extends "Atom"
+  ? MethodsOnly<CosmosApp>
   : T extends "Btc"
   ? MethodsOnly<Btc>
   : T extends "Eth"
