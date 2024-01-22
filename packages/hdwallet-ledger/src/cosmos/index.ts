@@ -58,7 +58,6 @@ export const cosmosSignTx = async (
             type: "tendermint/PubKeySecp256k1",
             value: pubkey,
           },
-          // TODO(gomes): this may or may not work for Cosmos, though this should really be common across Cosmos SDK chains
           signature: getSignature(signature),
         },
       };
