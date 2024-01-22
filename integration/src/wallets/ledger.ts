@@ -2,6 +2,13 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 import { toByteArray } from "base64-js";
 
+const getRawSig = (sig: string) => {
+  const sigBz = toByteArray(sig);
+  const r = sigBz.slice(0, 32);
+  const s = sigBz.slice(32, 64);
+  return Uint8Array.from([48, 68, 2, 32, ...r, 2, 32, ...s]);
+};
+
 export class MockTransport extends ledger.LedgerTransport {
   memoized = new Map();
   currentApp: string;
@@ -225,12 +232,6 @@ export class MockTransport extends ledger.LedgerTransport {
         )
       );
 
-      const sig1 = toByteArray(
-        "1s+0FVJ5R8O+ewGq5yNbTQuVG5MJZppFDqVJ4cd5D68ogOb2GMVHvYCH2dvQXo/uK/fT6Rk6dLGhK8tgW/HqtA=="
-      );
-      const r1 = sig1.slice(0, 32);
-      const s1 = sig1.slice(32, 64);
-      const rawSig1 = Uint8Array.from([48, 68, 2, 32, ...r1, 2, 32, ...s1]);
       this.memoize(
         "Rune",
         "sign",
@@ -242,17 +243,13 @@ export class MockTransport extends ledger.LedgerTransport {
           coin: "Rune",
           method: "sign",
           payload: {
-            signature: rawSig1,
+            signature: getRawSig(
+              "1s+0FVJ5R8O+ewGq5yNbTQuVG5MJZppFDqVJ4cd5D68ogOb2GMVHvYCH2dvQXo/uK/fT6Rk6dLGhK8tgW/HqtA=="
+            ),
           },
         }
       );
 
-      const sig2 = toByteArray(
-        "0Bjk7npdUw/Qa4MQTS4PH8sw8jM4JSzpd7G2DsF3DMVoYgdpO2fjHh/DUq6v30nghxUSJj0jNm0VIq9viPB+tQ=="
-      );
-      const r2 = sig2.slice(0, 32);
-      const s2 = sig2.slice(32, 64);
-      const rawSig2 = Uint8Array.from([48, 68, 2, 32, ...r2, 2, 32, ...s2]);
       this.memoize(
         "Rune",
         "sign",
@@ -264,7 +261,127 @@ export class MockTransport extends ledger.LedgerTransport {
           coin: "Rune",
           method: "sign",
           payload: {
-            signature: rawSig2,
+            signature: getRawSig(
+              "0Bjk7npdUw/Qa4MQTS4PH8sw8jM4JSzpd7G2DsF3DMVoYgdpO2fjHh/DUq6v30nghxUSJj0jNm0VIq9viPB+tQ=="
+            ),
+          },
+        }
+      );
+
+      // Cosmos
+      this.memoize(
+        "Cosmos",
+        "getAddress",
+        JSON.parse(`["m/44'/118'/0'/0/0", "cosmos"]`),
+        JSON.parse(
+          '{"success":true,"coin":"Cosmos","method":"getAddress","payload":{"address":"cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj","publicKey":"03bee3af30e53a73f38abc5a2fcdac426d7b04eb72a8ebd3b01992e2d206e24ad8"}}'
+        )
+      );
+
+      this.memoize(
+        "Cosmos",
+        "sign",
+        JSON.parse(
+          `["m/44'/118'/0'/0/0","{\\"account_number\\":\\"16359\\",\\"chain_id\\":\\"cosmoshub-4\\",\\"fee\\":{\\"amount\\":[{\\"amount\\":\\"900\\",\\"denom\\":\\"uatom\\"}],\\"gas\\":\\"90000\\"},\\"memo\\":\\"\\",\\"msgs\\":[{\\"type\\":\\"cosmos-sdk/MsgSend\\",\\"value\\":{\\"amount\\":[{\\"amount\\":\\"9000\\",\\"denom\\":\\"uatom\\"}],\\"from_address\\":\\"cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj\\",\\"to_address\\":\\"cosmos19xq52fdl5x2pp8gu4ph0ytzjz8msrdxwtjlm95\\"}}],\\"sequence\\":\\"29\\"}"]`
+        ),
+        {
+          success: true,
+          coin: "Cosmos",
+          method: "sign",
+          payload: {
+            signature: getRawSig(
+              "5R1jQIAu45Ded6nIuzusHIKOuR2sAsFFGvMbCumCbhE3k86gYOKUlJ3829dwe6n2clMueEbLeESMBG/dhAMeDA=="
+            ),
+          },
+        }
+      );
+
+      this.memoize(
+        "Cosmos",
+        "sign",
+        JSON.parse(
+          `["m/44'/118'/0'/0/0","{\\"account_number\\":\\"16359\\",\\"chain_id\\":\\"cosmoshub-4\\",\\"fee\\":{\\"amount\\":[{\\"amount\\":\\"2500\\",\\"denom\\":\\"uatom\\"}],\\"gas\\":\\"250000\\"},\\"memo\\":\\"\\",\\"msgs\\":[{\\"type\\":\\"cosmos-sdk/MsgDelegate\\",\\"value\\":{\\"amount\\":{\\"amount\\":\\"10000\\",\\"denom\\":\\"uatom\\"},\\"delegator_address\\":\\"cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj\\",\\"validator_address\\":\\"cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf\\"}}],\\"sequence\\":\\"35\\"}"]`
+        ),
+        {
+          success: true,
+          coin: "Cosmos",
+          method: "sign",
+          payload: {
+            signature: getRawSig(
+              "lM+NkHlL5lx1Kt8/3TQXZo3TENWb+qWBsJ5XQFq7WekHw4O+YF6Iv0aCqoH7YD40vYubGZpZXcjMZy/mAbe0cA=="
+            ),
+          },
+        }
+      );
+
+      this.memoize(
+        "Cosmos",
+        "sign",
+        JSON.parse(
+          `["m/44'/118'/0'/0/0","{\\"account_number\\":\\"16359\\",\\"chain_id\\":\\"cosmoshub-4\\",\\"fee\\":{\\"amount\\":[{\\"amount\\":\\"2500\\",\\"denom\\":\\"uatom\\"}],\\"gas\\":\\"250000\\"},\\"msgs\\":[{\\"type\\":\\"cosmos-sdk/MsgUndelegate\\",\\"value\\":{\\"amount\\":{\\"amount\\":\\"10000\\",\\"denom\\":\\"uatom\\"},\\"delegator_address\\":\\"cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj\\",\\"validator_address\\":\\"cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf\\"}}],\\"sequence\\":\\"37\\"}"]`
+        ),
+        {
+          success: true,
+          coin: "Cosmos",
+          method: "sign",
+          payload: {
+            signature: getRawSig(
+              "mfJjZ2w5iNDFJ1bTsw/Ln3LPbOZ0r33jqrIz0LB3LNYFNq7X+uFV/UErZiehSDAwv09PgF24+zi8Ip7yZ1ISkQ=="
+            ),
+          },
+        }
+      );
+
+      this.memoize(
+        "Cosmos",
+        "sign",
+        JSON.parse(
+          `["m/44'/118'/0'/0/0","{\\"account_number\\":\\"16359\\",\\"chain_id\\":\\"cosmoshub-4\\",\\"fee\\":{\\"amount\\":[{\\"amount\\":\\"2500\\",\\"denom\\":\\"uatom\\"}],\\"gas\\":\\"250000\\"},\\"memo\\":\\"\\",\\"msgs\\":[{\\"type\\":\\"cosmos-sdk/MsgBeginRedelegate\\",\\"value\\":{\\"amount\\":{\\"amount\\":\\"1000\\",\\"denom\\":\\"uatom\\"},\\"delegator_address\\":\\"cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj\\",\\"validator_dst_address\\":\\"cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf\\",\\"validator_src_address\\":\\"cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys\\"}}],\\"sequence\\":\\"33\\"}"]`
+        ),
+        {
+          success: true,
+          coin: "Cosmos",
+          method: "sign",
+          payload: {
+            signature: getRawSig(
+              "kskHVIe2AyWzRpHszO/9ePI4yVgcAWB10lWbolEOBCpDSIeD0JWTX4x1TO3lnKNMawcm2NfGyTh3GseC7s+BRg=="
+            ),
+          },
+        }
+      );
+
+      this.memoize(
+        "Cosmos",
+        "sign",
+        JSON.parse(
+          `["m/44'/118'/0'/0/0","{\\"account_number\\":\\"16359\\",\\"chain_id\\":\\"cosmoshub-4\\",\\"fee\\":{\\"amount\\":[{\\"amount\\":\\"1400\\",\\"denom\\":\\"uatom\\"}],\\"gas\\":\\"140000\\"},\\"memo\\":\\"\\",\\"msgs\\":[{\\"type\\":\\"cosmos-sdk/MsgWithdrawDelegationReward\\",\\"value\\":{\\"delegator_address\\":\\"cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj\\",\\"validator_address\\":\\"cosmosvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys\\"}}],\\"sequence\\":\\"31\\"}"]`
+        ),
+        {
+          success: true,
+          coin: "Cosmos",
+          method: "sign",
+          payload: {
+            signature: getRawSig(
+              "rxrww6IUxj89HZ3Yx3dH51/SkRZzHzuSwH4ZwCGUSc4ggVuiaPCyClO1q8CGQDuc/D9Lx6JWDnnaQnvty8RkCw=="
+            ),
+          },
+        }
+      );
+
+      this.memoize(
+        "Cosmos",
+        "sign",
+        JSON.parse(
+          `["m/44'/118'/0'/0/0","{\\"account_number\\":\\"16359\\",\\"chain_id\\":\\"cosmoshub-4\\",\\"fee\\":{\\"amount\\":[{\\"amount\\":\\"4500\\",\\"denom\\":\\"uatom\\"}],\\"gas\\":\\"450000\\"},\\"memo\\":\\"\\",\\"msgs\\":[{\\"type\\":\\"cosmos-sdk/MsgTransfer\\",\\"value\\":{\\"receiver\\":\\"osmo15cenya0tr7nm3tz2wn3h3zwkht2rxrq7g9ypmq\\",\\"sender\\":\\"cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj\\",\\"source_channel\\":\\"channel-141\\",\\"source_port\\":\\"transfer\\",\\"timeout_height\\":{\\"revision_height\\":\\"4006321\\",\\"revision_number\\":\\"1\\"},\\"token\\":{\\"amount\\":\\"5500\\",\\"denom\\":\\"uatom\\"}}}],\\"sequence\\":\\"39\\"}"]`
+        ),
+        {
+          success: true,
+          coin: "Cosmos",
+          method: "sign",
+          payload: {
+            signature: getRawSig(
+              "cZPi9Dkq4b0NoePZWwN6QIxgu4Yi0i64iKgsDx3eAftX3j/jtQCxE75oxw583j2tm4xwj8r5t/3CU0WqAAEGbw=="
+            ),
           },
         }
       );
