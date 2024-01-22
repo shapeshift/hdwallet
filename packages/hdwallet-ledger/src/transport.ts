@@ -7,6 +7,7 @@ import type openApp from "@ledgerhq/live-common/lib/hw/openApp";
 import * as core from "@shapeshiftoss/hdwallet-core";
 
 import { CosmosApp } from "./cosmos/hw-app-cosmos";
+// import { CosmosApp } from "./hw-app-cosmos";
 import { THORChainApp } from "./thorchain";
 
 type MethodsOnly<T> = {

@@ -6,8 +6,8 @@ import PLazy from "p-lazy";
 
 import { handleError, LedgerTransport } from "..";
 import { getSignature } from "../thorchain/utils";
-export * from "../thorchain/common";
-export * from "../thorchain/helpers";
+export * from "../common";
+export * from "../helpers";
 export * from "./hw-app-cosmos";
 
 const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));

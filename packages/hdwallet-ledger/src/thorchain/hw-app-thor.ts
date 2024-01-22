@@ -29,8 +29,8 @@ import {
   INS,
   P1_VALUES,
   processErrorResponse,
-} from "./common";
-import { publicKeyv2, serializePathv2, signSendChunkv2 } from "./helpers";
+} from "../common";
+import { publicKeyv2, serializePathv2, signSendChunkv2 } from "../helpers";
 
 const THOR_CHAIN = "thorchain-mainnet-v1";
 

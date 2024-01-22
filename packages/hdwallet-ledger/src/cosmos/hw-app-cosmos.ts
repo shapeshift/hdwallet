@@ -29,8 +29,8 @@ import {
   INS,
   P1_VALUES,
   processErrorResponse,
-} from "../thorchain/common";
-import { publicKeyv2, serializePathv2, signSendChunkv2 } from "../thorchain/helpers";
+} from "../common";
+import { publicKeyv2, serializePathv2, signSendChunkv2 } from "../helpers";
 
 const COSMOSHUB_CHAIN = "cosmoshub-4";
 
