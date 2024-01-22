@@ -17,6 +17,7 @@
   "dependencies": {
     "@ethereumjs/common": "^2.4.0",
     "@ethereumjs/tx": "^3.3.0",
+    "@ledgerhq/hw-app-cosmos": "^6.29.1",
     "@shapeshiftoss/bitcoinjs-lib": "5.2.0-shapeshift.2",
     "@shapeshiftoss/hdwallet-core": "1.52.14",
     "base64-js": "^1.5.1",

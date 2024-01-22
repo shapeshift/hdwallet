@@ -594,3 +594,24 @@ export const networksUtil: Record<number, NetworkMagic> = {
 export function coinToLedgerAppName(coin: core.Coin): string | undefined {
   return _.get(networksUtil[core.mustBeDefined(core.slip44ByCoin(coin))], "appName");
 }
+
+export const recursivelyOrderKeys = (unordered: any) => {
+  // If it's an array - recursively order any
+  // dictionary items within the array
+  if (Array.isArray(unordered)) {
+    unordered.forEach((item, index) => {
+      unordered[index] = recursivelyOrderKeys(item);
+    });
+    return unordered;
+  }
+
+  // If it's an object - let's order the keys
+  if (typeof unordered !== "object") return unordered;
+  const ordered: any = {};
+  Object.keys(unordered)
+    .sort()
+    .forEach((key) => (ordered[key] = recursivelyOrderKeys(unordered[key])));
+  return ordered;
+};
+
+export const stringifyKeysInOrder = (data: any) => JSON.stringify(recursivelyOrderKeys(data));
