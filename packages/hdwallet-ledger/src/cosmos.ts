@@ -32,7 +32,7 @@ export const cosmosSignTx = async (
 
   const { address, publicKey } = getAddressResponse.payload;
 
-  const rawTx = stringifyKeysInOrder({
+  const unsignedTx = stringifyKeysInOrder({
     account_number: msg.account_number,
     chain_id: ATOM_CHAIN,
     fee: { amount: msg.tx.fee.amount, gas: msg.tx.fee.gas },
@@ -41,7 +41,7 @@ export const cosmosSignTx = async (
     sequence: msg.sequence,
   });
 
-  const signResponse = await transport.call("Cosmos", "sign", bip32path, rawTx);
+  const signResponse = await transport.call("Cosmos", "sign", bip32path, unsignedTx);
 
   handleError(signResponse, transport, "Unable to obtain signature from device.");
 

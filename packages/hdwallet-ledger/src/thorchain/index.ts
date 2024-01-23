@@ -1,44 +1,55 @@
 import type { AccountData, AminoSignResponse, OfflineAminoSigner, StdSignDoc, StdTx } from "@cosmjs/amino";
+import { Secp256k1Signature } from "@cosmjs/crypto";
 import type { SignerData } from "@cosmjs/stargate";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { fromByteArray } from "base64-js";
 import PLazy from "p-lazy";
 
-import { handleError, LedgerTransport } from "..";
-import { getSignature } from "./utils";
+import { handleError, LedgerTransport, stringifyKeysInOrder } from "..";
 export * from "./common";
-export * from "./helpers";
 export * from "./hw-app-thor";
 
 const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
+
+const THOR_CHAIN = "thorchain-mainnet-v1";
 
 export const thorchainGetAddress = async (
   transport: LedgerTransport,
   msg: core.ThorchainGetAddress
 ): Promise<string> => {
-  const addressAndPubkey = await transport.call("Rune", "getAddressAndPubKey", msg.addressNList, "thor");
+  const res = await transport.call("Thorchain", "getAddress", msg.addressNList, "thor");
 
-  handleError(addressAndPubkey, transport, "Unable to obtain address and public key from device.");
+  handleError(res, transport, "Unable to obtain address and public key from device.");
 
-  return addressAndPubkey.payload.bech32_address;
+  return res.payload.address;
 };
 
 export const thorchainSignTx = async (
   transport: LedgerTransport,
   msg: core.ThorchainSignTx
 ): Promise<core.ThorchainSignedTx> => {
-  const addressAndPubkey = await transport.call("Rune", "getAddressAndPubKey", msg.addressNList, "thor");
+  const getAddressResponse = await transport.call("Thorchain", "getAddress", msg.addressNList, "thor");
 
-  handleError(addressAndPubkey, transport, "Unable to obtain address and public key from device.");
+  handleError(getAddressResponse, transport, "Unable to obtain address and public key from device.");
 
-  const { bech32_address: address, compressed_pk } = addressAndPubkey.payload;
-  const pubkey = fromByteArray(compressed_pk);
+  const { address, publicKey } = getAddressResponse.payload;
 
-  const signResponse = await transport.call("Rune", "sign", msg);
+  const unsignedTx = stringifyKeysInOrder({
+    account_number: msg.account_number,
+    chain_id: THOR_CHAIN,
+    fee: { amount: msg.tx.fee.amount, gas: msg.tx.fee.gas },
+    memo: msg.tx.memo,
+    msgs: msg.tx.msg,
+    sequence: msg.sequence,
+  });
+
+  const signResponse = await transport.call("Thorchain", "sign", msg.addressNList, unsignedTx);
 
   handleError(signResponse, transport, "Unable to obtain signature from device.");
 
   const signature = signResponse.payload.signature;
+
+  if (!signature) throw new Error("No signature returned from device");
 
   const offlineSigner: OfflineAminoSigner = {
     async getAccounts(): Promise<readonly AccountData[]> {
@@ -46,7 +57,7 @@ export const thorchainSignTx = async (
         {
           address,
           algo: "secp256k1",
-          pubkey: compressed_pk,
+          pubkey: Buffer.from(publicKey, "hex"),
         },
       ];
     },
@@ -59,9 +70,9 @@ export const thorchainSignTx = async (
         signature: {
           pub_key: {
             type: "tendermint/PubKeySecp256k1",
-            value: pubkey,
+            value: publicKey,
           },
-          signature: getSignature(signature),
+          signature: fromByteArray(Secp256k1Signature.fromDer(signature).toFixedLength()),
         },
       };
     },
