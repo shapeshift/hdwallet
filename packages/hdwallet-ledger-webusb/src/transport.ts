@@ -6,7 +6,7 @@ import getAppAndVersion from "@ledgerhq/live-common/lib/hw/getAppAndVersion";
 import getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
 import openApp from "@ledgerhq/live-common/lib/hw/openApp";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+import { LedgerTransport, Thorchain } from "@shapeshiftoss/hdwallet-ledger";
 import {
   LedgerResponse,
   LedgerTransportCoinType,
@@ -80,11 +80,6 @@ export async function translateCoinAndMethod<T extends LedgerTransportCoinType, 
   method: U
 ): Promise<LedgerTransportMethod<T, U>> {
   switch (coin) {
-    case "Rune": {
-      const thor = new ledger.THORChainApp(transport);
-      const methodInstance = thor[method as LedgerTransportMethodName<"Rune">].bind(thor);
-      return methodInstance as LedgerTransportMethod<T, U>;
-    }
     case "Btc": {
       const btc = new Btc({ transport });
       const methodInstance = btc[method as LedgerTransportMethodName<"Btc">].bind(btc);
@@ -93,6 +88,11 @@ export async function translateCoinAndMethod<T extends LedgerTransportCoinType, 
     case "Eth": {
       const eth = new Eth(transport);
       const methodInstance = eth[method as LedgerTransportMethodName<"Eth">].bind(eth);
+      return methodInstance as LedgerTransportMethod<T, U>;
+    }
+    case "Thorchain": {
+      const thorchain = new Thorchain(transport);
+      const methodInstance = thorchain[method as LedgerTransportMethodName<"Thorchain">].bind(thorchain);
       return methodInstance as LedgerTransportMethod<T, U>;
     }
     case "Cosmos": {
@@ -130,7 +130,7 @@ export async function translateCoinAndMethod<T extends LedgerTransportCoinType, 
   }
 }
 
-export class LedgerWebUsbTransport extends ledger.LedgerTransport {
+export class LedgerWebUsbTransport extends LedgerTransport {
   device: USBDevice;
 
   constructor(device: USBDevice, transport: TransportWebUSB, keyring: core.Keyring) {
