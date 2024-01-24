@@ -2,14 +2,11 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
-import tx_unsigned_swap_amino from "./tx01.mainnet.mayachain.swap.amino.json";
 import tx_unsigned_swap from "./tx01.mainnet.mayachain.swap.json";
-import tx_signed_swap_amino from "./tx01.mainnet.mayachain.swap.signed.amino.json";
 import tx_signed_swap from "./tx01.mainnet.mayachain.swap.signed.json";
-import tx_unsigned_transfer_amino from "./tx01.mainnet.mayachain.transfer.amino.json";
 import tx_unsigned_transfer from "./tx01.mainnet.mayachain.transfer.json";
-import tx_signed_transfer_amino from "./tx01.mainnet.mayachain.transfer.signed.amino.json";
 import tx_signed_transfer from "./tx01.mainnet.mayachain.transfer.signed.json";
+
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
@@ -107,16 +104,12 @@ export function mayachainTests(get: () => { wallet: core.HDWallet; info: core.HD
       it.each([
         [
           "should correctly sign a transfer tx",
-          tx_unsigned_transfer_amino,
           tx_unsigned_transfer,
-          tx_signed_transfer_amino,
           tx_signed_transfer,
         ],
         [
           "should correctly sign a swap tx",
-          tx_unsigned_swap_amino,
           tx_unsigned_swap,
-          tx_signed_swap_amino,
           tx_signed_swap,
         ],
       ])(
