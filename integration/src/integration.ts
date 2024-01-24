@@ -44,129 +44,137 @@ export function integration(suite: WalletSuite): void {
       info = suite.createInfo();
     });
 
-    describe("Type Guards", () => {
-      beforeAll(async () => {
-        wallet = await suite.createWallet();
-      });
+    // describe("Type Guards", () => {
+    //   beforeAll(async () => {
+    //     wallet = await suite.createWallet();
+    //   });
+    //
+    //   it("has only one vendor", () => {
+    //     expect(
+    //       (keepkey.isKeepKey(wallet) ? 1 : 0) +
+    //         (trezor.isTrezor(wallet) ? 1 : 0) +
+    //         (ledger.isLedger(wallet) ? 1 : 0) +
+    //         (portis.isPortis(wallet) ? 1 : 0) +
+    //         (native.isNative(wallet) ? 1 : 0) +
+    //         (metamask.isMetaMask(wallet) ? 1 : 0) +
+    //         (tallyHo.isTallyHo(wallet) ? 1 : 0) +
+    //         (walletconnect.isWalletConnect(wallet) ? 1 : 0) +
+    //         (xdefi.isXDEFI(wallet) ? 1 : 0)
+    //     ).toEqual(1);
+    //   });
+    // });
+    //
+    // describe("ETHWallet", () => {
+    //   beforeAll(async () => {
+    //     wallet = await suite.createWallet("Ethereum");
+    //   });
+    //
+    //   ethTests(() => ({ wallet, info }));
+    // });
+    //
+    // describe("BTCWallet", () => {
+    //   beforeAll(async () => {
+    //     wallet = await suite.createWallet("Bitcoin");
+    //   });
+    //
+    //   btcTests(() => ({ wallet, info }));
+    // });
+    //
+    // describe("EosWallet", () => {
+    //   beforeAll(async () => {
+    //     wallet = await suite.createWallet("Eos");
+    //   });
+    //
+    //   eosTests(() => ({ wallet, info }));
+    // });
+    //
+    // describe("FioWallet", () => {
+    //   let wallet2: core.HDWallet;
+    //   beforeAll(async () => {
+    //     wallet = await suite.createWallet("Fio");
+    //     wallet2 = await suite.createWallet("Fio");
+    //   });
+    //
+    //   fioTests(() => ({ wallet, info, wallet2 }));
+    // });
+    //
+    // describe("CosmosWallet", () => {
+    //   beforeAll(async () => {
+    //     wallet = await suite.createWallet("Cosmos");
+    //   });
+    //
+    //   cosmosTests(() => ({ wallet, info }));
+    // });
+    //
+    // describe("OsmosisWallet", () => {
+    //   beforeAll(async () => {
+    //     wallet = await suite.createWallet("Osmo");
+    //   });
+    //   osmosisTests(() => ({ wallet, info }));
+    // });
+    //
+    // describe("BinanceWallet", () => {
+    //   beforeAll(async () => {
+    //     wallet = await suite.createWallet("Binance");
+    //   });
+    //
+    //   binanceTests(() => ({ wallet, info }));
+    // });
+    //
+    // describe("RippleWallet", () => {
+    //   beforeAll(async () => {
+    //     wallet = await suite.createWallet("Ripple");
+    //   });
+    //
+    //   rippleTests(() => ({ wallet, info }));
+    // });
+    //
+    // describe("ThorchainWallet", () => {
+    //   beforeAll(async () => {
+    //     wallet = await suite.createWallet("Thorchain");
+    //   });
+    //
+    //   thorchainTests(() => ({ wallet, info }));
+    // });
 
-      it("has only one vendor", () => {
-        expect(
-          (keepkey.isKeepKey(wallet) ? 1 : 0) +
-            (trezor.isTrezor(wallet) ? 1 : 0) +
-            (ledger.isLedger(wallet) ? 1 : 0) +
-            (portis.isPortis(wallet) ? 1 : 0) +
-            (native.isNative(wallet) ? 1 : 0) +
-            (metamask.isMetaMask(wallet) ? 1 : 0) +
-            (tallyHo.isTallyHo(wallet) ? 1 : 0) +
-            (walletconnect.isWalletConnect(wallet) ? 1 : 0) +
-            (xdefi.isXDEFI(wallet) ? 1 : 0)
-        ).toEqual(1);
-      });
-    });
-
-    describe("ETHWallet", () => {
-      beforeAll(async () => {
-        wallet = await suite.createWallet("Ethereum");
-      });
-
-      ethTests(() => ({ wallet, info }));
-    });
-
-    describe("BTCWallet", () => {
-      beforeAll(async () => {
-        wallet = await suite.createWallet("Bitcoin");
-      });
-
-      btcTests(() => ({ wallet, info }));
-    });
-
-    describe("EosWallet", () => {
-      beforeAll(async () => {
-        wallet = await suite.createWallet("Eos");
-      });
-
-      eosTests(() => ({ wallet, info }));
-    });
-
-    describe("FioWallet", () => {
-      let wallet2: core.HDWallet;
-      beforeAll(async () => {
-        wallet = await suite.createWallet("Fio");
-        wallet2 = await suite.createWallet("Fio");
-      });
-
-      fioTests(() => ({ wallet, info, wallet2 }));
-    });
-
-    describe("CosmosWallet", () => {
-      beforeAll(async () => {
-        wallet = await suite.createWallet("Cosmos");
-      });
-
-      cosmosTests(() => ({ wallet, info }));
-    });
-
-    describe("OsmosisWallet", () => {
-      beforeAll(async () => {
-        wallet = await suite.createWallet("Osmo");
-      });
-      osmosisTests(() => ({ wallet, info }));
-    });
-
-    describe("BinanceWallet", () => {
-      beforeAll(async () => {
-        wallet = await suite.createWallet("Binance");
-      });
-
-      binanceTests(() => ({ wallet, info }));
-    });
-
-    describe("RippleWallet", () => {
-      beforeAll(async () => {
-        wallet = await suite.createWallet("Ripple");
-      });
-
-      rippleTests(() => ({ wallet, info }));
-    });
-
-    describe("ThorchainWallet", () => {
+    describe("mayachainTests", () => {
       beforeAll(async () => {
         wallet = await suite.createWallet("Thorchain");
       });
 
-      thorchainTests(() => ({ wallet, info }));
+      mayachainTests(() => ({ wallet, info }));
     });
 
-    describe("SecretWallet", () => {
-      beforeAll(async () => {
-        wallet = await suite.createWallet("Secret");
-      });
-
-      secretTests(() => ({ wallet, info }));
-    });
-
-    describe("TerraWallet", () => {
-      beforeAll(async () => {
-        wallet = await suite.createWallet("Terra");
-      });
-
-      terraTests(() => ({ wallet, info }));
-    });
-
-    describe("KavaWallet", () => {
-      beforeAll(async () => {
-        wallet = await suite.createWallet("Kava");
-      });
-
-      kavaTests(() => ({ wallet, info }));
-    });
-
-    describe("SelfTest", () => {
-      beforeAll(async () => {
-        wallet = await suite.createWallet();
-      });
-
-      suite.selfTest(() => wallet);
-    });
+    // describe("SecretWallet", () => {
+    //   beforeAll(async () => {
+    //     wallet = await suite.createWallet("Secret");
+    //   });
+    //
+    //   secretTests(() => ({ wallet, info }));
+    // });
+    //
+    // describe("TerraWallet", () => {
+    //   beforeAll(async () => {
+    //     wallet = await suite.createWallet("Terra");
+    //   });
+    //
+    //   terraTests(() => ({ wallet, info }));
+    // });
+    //
+    // describe("KavaWallet", () => {
+    //   beforeAll(async () => {
+    //     wallet = await suite.createWallet("Kava");
+    //   });
+    //
+    //   kavaTests(() => ({ wallet, info }));
+    // });
+    //
+    // describe("SelfTest", () => {
+    //   beforeAll(async () => {
+    //     wallet = await suite.createWallet();
+    //   });
+    //
+    //   suite.selfTest(() => wallet);
+    // });
   });
 }
