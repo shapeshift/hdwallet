@@ -207,9 +207,7 @@ export class NativeHDWallet
               MixinNativeSecretWallet(
                 MixinNativeTerraWallet(
                   MixinNativeKavaWallet(
-                    // MixinNativeOsmosisWallet(
-                    MixinNativeArkeoWallet(MixinNativeMayachainWallet(NativeHDWalletInfo))
-                    // )
+                    MixinNativeOsmosisWallet(MixinNativeArkeoWallet(MixinNativeMayachainWallet(NativeHDWalletInfo)))
                   )
                 )
               )

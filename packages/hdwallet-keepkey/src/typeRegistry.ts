@@ -5,6 +5,7 @@ import * as EosMessages from "@keepkey/device-protocol/lib/messages-eos_pb";
 import * as NanoMessages from "@keepkey/device-protocol/lib/messages-nano_pb";
 import * as RippleMessages from "@keepkey/device-protocol/lib/messages-ripple_pb";
 import * as ThorchainMessages from "@keepkey/device-protocol/lib/messages-thorchain_pb";
+import * as MayachainMessages from "@keepkey/device-protocol/lib/messages-mayachain_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as jspb from "google-protobuf";
 import _ from "lodash";
@@ -18,7 +19,8 @@ const AllMessages = ([] as Array<[string, core.Constructor<jspb.Message>]>)
   .concat(Object.entries(RippleMessages))
   .concat(Object.entries(NanoMessages))
   .concat(Object.entries(_.omit(EosMessages, "EosPublicKeyKind", "EosPublicKeyKindMap")))
-  .concat(Object.entries(ThorchainMessages));
+  .concat(Object.entries(ThorchainMessages))
+  .concat(Object.entries(MayachainMessages));
 
 const upperCasedMessageClasses = AllMessages.reduce((registry, entry: [string, core.Constructor<jspb.Message>]) => {
   registry[entry[0].toUpperCase()] = entry[1];

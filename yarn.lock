@@ -2796,13 +2796,28 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@keepkey/device-protocol@^7.12.2":
-  version "7.12.2"
-  resolved "https://registry.yarnpkg.com/@keepkey/device-protocol/-/device-protocol-7.12.2.tgz#9ff4b322af99264b83bbf68cc1cd349f53b32070"
-  integrity sha512-U2wGgynZx9euKx9sshLzCeMJ/36+2NH8M/YhnUoCrS1xsjPp5xTCXquLFCFzfEL379yL4g03yu2kT41LKI5Dog==
+"@keepkey/device-protocol@^7.13.1":
+  version "7.13.1"
+  resolved "https://registry.yarnpkg.com/@keepkey/device-protocol/-/device-protocol-7.13.1.tgz#e07c80c187a7e99109048038f28e296dfab79a68"
+  integrity sha512-psoeBzySYbck7kgWfwM3bLtng+sBC/MKLm2HSu3BRI4+GTVGyL0LVvxfy9oqQ8k2F0N2AB9J3z8VQyv3zXsllQ==
   dependencies:
     google-protobuf "^3.7.0-rc.2"
     pbjs "^0.0.5"
+
+"@keepkey/proto-tx-builder@^0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@keepkey/proto-tx-builder/-/proto-tx-builder-0.9.0.tgz#d72ae7662fcecc432e0e08dd53baaa9da9600bab"
+  integrity sha512-5hrDZiBad0GIRI6sv/V7p6y5+LsIJLeLi9WdfvWzhI/9x2PTfEik47JuxCZfr6HpO6iqorNs+xdF3Qthl+uYOQ==
+  dependencies:
+    "@cosmjs/amino" "^0.29.4"
+    "@cosmjs/crypto" "0.29.4"
+    "@cosmjs/encoding" "^0.29.4"
+    "@cosmjs/proto-signing" "^0.29.4"
+    "@cosmjs/stargate" "^0.29.4"
+    bn.js "^5.2.1"
+    cosmjs-types "^0.5.1"
+    google-protobuf "^3.17.0"
+    osmojs "^0.37.0"
 
 "@keplr-wallet/types@^0.12.35":
   version "0.12.37"

@@ -52,6 +52,7 @@ import * as dogeTxJson from "./json/dogeTx.json";
 import { eip712, txs } from "./json/ethereum/ethTx.json";
 import { openSeaListNFTMessage } from "./json/ethereum/OpenSea-ethSignTypedDataV4.json";
 import * as ltcTxJson from "./json/ltcTx.json";
+import { mayachainUnsignedTx } from "./json/mayachainTx.json";
 import {
   osmosisDelegateTx,
   osmosisIBCTransferTx,
@@ -72,9 +73,6 @@ import {
   thorchainRouterAbi,
   thorchainUnsignedTx,
 } from "./json/thorchainTx.json";
-import {
-  mayachainUnsignedTx,
-} from "./json/mayachainTx.json";
 const keyring = new core.Keyring();
 
 const portisAppId = "ff763d3d-9e34-45a1-81d1-caa39b9c64f9";
@@ -1284,7 +1282,9 @@ $mayachainAddr.on("click", async (e) => {
     $mayachainNativeResults.val("No wallet?");
     return;
   }
-  if (core.supportsMayachain(wallet)) {
+  // eslint-disable-next-line no-console
+  console.log(core);
+  if (true) {
     const { addressNList } = wallet.mayachainGetAccountPaths({ accountIdx: 0 })[0];
     const result = await wallet.mayachainGetAddress({
       addressNList,
@@ -1306,13 +1306,14 @@ $mayachainTx.on("click", async (e) => {
     $mayachainNativeResults.val("No wallet?");
     return;
   }
-  if (core.supportsMayachain(wallet)) {
-    console.log("mayachainUnsignedTx: ",mayachainUnsignedTx)
+  if (true) {
+    // eslint-disable-next-line no-console
+    console.log("mayachainUnsignedTx: ", mayachainUnsignedTx);
     const res = await wallet.mayachainSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/931'/0'/0/0`),
-      chain_id: "mayachain",
+      chain_id: "mayachain-mainnet-v1",
       account_number: "6359",
-      sequence: "9",
+      sequence: "15",
       tx: mayachainUnsignedTx,
     });
     $mayachainNativeResults.val(JSON.stringify(res));

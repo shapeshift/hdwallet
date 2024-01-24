@@ -2,6 +2,10 @@
   "mayachainUnsignedTx": {
     "fee": {
       "amount": [
+        {
+          "amount": "1",
+          "denom": "cacao"
+        }
       ],
       "gas": "200000"
     },
@@ -13,7 +17,7 @@
           "amount": [
             {
               "amount": "1",
-              "denom": "CACAO"
+              "denom": "cacao"
             }
           ],
           "from_address": "maya1ls33ayg26kmltw7jjy55p32ghjna09zp7z4etj",
