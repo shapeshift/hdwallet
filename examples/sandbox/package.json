@@ -1,31 +1,11 @@
 {
-  "name": "@shapeshiftoss/hdwallet-sandbox",
-  "version": "1.53.3",
-  "license": "MIT",
-  "private": true,
   "browserslist": "> 0.5%, last 2 versions, not dead",
-  "scripts": {
-    "build": "rm -rf public; yarn parcel build index.html --dist-dir public",
-    "dev": "yarn parcel index.html",
-    "clean": "rm -rf dist node_modules public .parcel-cache"
-  },
   "dependencies": {
     "@metamask/eth-sig-util": "^7.0.0",
     "@shapeshiftoss/hdwallet-core": "1.53.3",
     "@shapeshiftoss/hdwallet-keepkey-tcp": "1.53.3",
     "@shapeshiftoss/hdwallet-keepkey-webusb": "1.53.3",
-    "@shapeshiftoss/hdwallet-keplr": "1.53.3",
-    "@shapeshiftoss/hdwallet-ledger": "1.53.3",
-    "@shapeshiftoss/hdwallet-ledger-webhid": "1.53.3",
-    "@shapeshiftoss/hdwallet-ledger-webusb": "1.53.3",
-    "@shapeshiftoss/hdwallet-metamask": "1.53.3",
     "@shapeshiftoss/hdwallet-native": "1.53.3",
-    "@shapeshiftoss/hdwallet-portis": "1.53.3",
-    "@shapeshiftoss/hdwallet-tallyho": "1.53.3",
-    "@shapeshiftoss/hdwallet-trezor": "1.53.3",
-    "@shapeshiftoss/hdwallet-trezor-connect": "1.53.3",
-    "@shapeshiftoss/hdwallet-walletconnect": "1.53.3",
-    "@shapeshiftoss/hdwallet-xdefi": "1.53.3",
     "bip32": "^2.0.4",
     "eip-712": "^1.0.0",
     "jquery": "^3.7.1",
@@ -42,5 +22,14 @@
     "path-browserify": "^1.0.1",
     "querystring-es3": "^0.2.1",
     "stream-http": "^3.2.0"
-  }
+  },
+  "license": "MIT",
+  "name": "@shapeshiftoss/hdwallet-sandbox",
+  "private": true,
+  "scripts": {
+    "build": "rm -rf public; yarn parcel build index.html --dist-dir public",
+    "clean": "rm -rf dist node_modules public .parcel-cache",
+    "dev": "yarn parcel index.html"
+  },
+  "version": "1.53.3"
 }
