@@ -43,7 +43,7 @@ export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDW
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
-      // Only support one account for now (like portis).
+      // Only support one account for now.
       // the ethers library supports paths so it shouldnt be too hard if we decide multiple accounts are needed
       return undefined;
     }

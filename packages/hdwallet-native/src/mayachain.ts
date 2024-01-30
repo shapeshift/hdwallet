@@ -40,7 +40,7 @@ export function MixinNativeMayachainWalletInfo<TBase extends core.Constructor<co
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mayachainNextAccountPath(msg: core.MayachainAccountPath): core.MayachainAccountPath | undefined {
-      // Only support one account for now (like portis).
+      // Only support one account for now.
       return undefined;
     }
   };

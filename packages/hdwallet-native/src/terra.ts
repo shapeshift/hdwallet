@@ -35,7 +35,7 @@ export function MixinNativeTerraWalletInfo<TBase extends core.Constructor<core.H
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     terraNextAccountPath(msg: core.TerraAccountPath): core.TerraAccountPath | undefined {
-      // Only support one account for now (like portis).
+      // Only support one account for now.
       return undefined;
     }
   };
