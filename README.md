@@ -10,7 +10,7 @@ Try it out [here](https://hdwallet.shapeshift.now.sh/)!
 
 ## Documentation
 
-- [hdwallet](#hdwallet)
+- [HDWallet](#hdwallet)
   - [Documentation](#documentation)
   - [Installation](#installation)
   - [Importing Library](#importing-library)
@@ -36,12 +36,7 @@ You can import the generated bundle to use each of the component libraries:
 ```javascript
 import { HDWallet } from "@shapeshiftoss/hdwallet-core";
 import { isKeepKey, KeepKeyHDWallet } from "@shapeshiftoss/hdwallet-keepkey";
-import { isLedger, LedgerHDWallet } from "@shapeshiftoss/hdwallet-ledger";
-import { isTrezor, TrezorHDWallet } from "@shapeshiftoss/hdwallet-trezor";
-
 import { WebUSBKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-webusb";
-import { WebUSBLedgerAdapter } from "@shapeshiftoss/hdwallet-ledger-webusb";
-import { TrezorAdapter } from "@shapeshiftoss/hdwallet-trezor-connect";
 ```
 
 ## Usage
@@ -59,19 +54,8 @@ adapter by calling `useKeyring()` on it:
 
 ```javascript
 import { WebUSBKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-webusb";
-import { TrezorAdapter } from "@shapeshiftoss/hdwallet-trezor-connect";
 
 const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring);
-
-const trezorAdapter = TrezorAdapter.useKeyring(keyring, {
-  debug: false,
-  manifest: {
-    email: "you@example.com", // TrezorConnect info
-    appUrl: "https://example.com", // URL of hosted domain
-  },
-});
-
-const ledgerAdapter = LedgerAdapter.useKeyring(keyring);
 ```
 
 After setting up a `Keyring`, and plugging various transport adapters into
