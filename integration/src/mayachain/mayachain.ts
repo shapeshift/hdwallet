@@ -134,7 +134,6 @@ export function mayachainTests(get: () => { wallet: core.HDWallet; info: core.HD
             account_number: tx.account_number,
             sequence: tx.sequence,
           };
-
           const res = await wallet.mayachainSignTx(input);
           expect(res).toEqual(signedTx);
         },
