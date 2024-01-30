@@ -61,7 +61,6 @@ import {
 } from "./json/thorchainTx.json";
 const keyring = new core.Keyring();
 
-const portisAppId = "ff763d3d-9e34-45a1-81d1-caa39b9c64f9";
 const mnemonic = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 
 const testPublicWalletXpubs = [
