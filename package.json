@@ -40,6 +40,7 @@
     "@types/inquirer": "9.0.3",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
     "@typescript-eslint/parser": "^6.7.3",
+    "assert": "^2.1.0",
     "browserify-zlib": "^0.2.0",
     "eslint": "^8.10.0",
     "eslint-config-prettier": "8.5.0",
@@ -52,6 +53,7 @@
     "jest-junit": "^12.0.0",
     "lerna": "^5.2.0",
     "prettier": "^2.0.5",
+    "stream-browserify": "^3.0.0",
     "ts-jest": "^26.5.5",
     "typescript": "^5.2.2"
   },
@@ -59,7 +61,6 @@
     "bip174": "2.1.0",
     "@types/eventsource": "1.1.8",
     "@types/node": "20.5.7@ts4.7",
-    "@ledgerhq/hw-transport": "6.7.0",
     "p-queue": "^6.6.2"
   },
   "dependencies": {
