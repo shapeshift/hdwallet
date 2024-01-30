@@ -187,9 +187,10 @@ class NativeHDWalletInfo
         return core.fioDescribePath(msg.path);
       case "arkeo":
         return core.arkeoDescribePath(msg.path);
-      case "cacap":
+      case "cacao":
       case "scacao":
       case "mayachain":
+      case "maya":
         return core.mayachainDescribePath(msg.path);
       default:
         throw new Error("Unsupported path");
@@ -336,7 +337,7 @@ export class NativeHDWallet
           super.btcInitializeWallet(masterKey),
           super.ethInitializeWallet(masterKey),
           super.cosmosInitializeWallet(masterKey),
-          // super.osmosisInitializeWallet(masterKey),
+          super.osmosisInitializeWallet(masterKey),
           super.binanceInitializeWallet(masterKey),
           super.fioInitializeWallet(masterKey),
           super.thorchainInitializeWallet(masterKey),
@@ -385,7 +386,7 @@ export class NativeHDWallet
     super.btcWipe();
     super.ethWipe();
     super.cosmosWipe();
-    // super.osmosisWipe();
+    super.osmosisWipe();
     super.binanceWipe();
     super.fioWipe();
     super.thorchainWipe();

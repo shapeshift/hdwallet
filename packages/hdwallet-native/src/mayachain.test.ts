@@ -82,7 +82,7 @@ describe("NativeThorchainWallet", () => {
 
     expect(signed?.signatures?.length).toBe(1);
     expect(signed?.signatures?.[0]).toBe(
-      "hKgBg+lB6poFDTMIKPA/hBMkgrKb0BJ5aP1vy5KMze8/joV30TPZrayrLBK42/MDSCmVauNJbfwvRhrCQwRCmg=="
+      "JV+DawmfyQldwLBaLC8pe75bSaQSthH+BqHciZXZW3pzXHiZ3tFVawUgRhHPaoe38Au/pnsJMqG/LLYqGRnVlQ=="
     );
   });
 });
