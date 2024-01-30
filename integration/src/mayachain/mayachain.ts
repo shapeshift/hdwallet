@@ -1,6 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
-import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
 import tx_unsigned_swap_amino from "./tx01.mainnet.mayachain.swap.amino.json";
 import tx_unsigned_swap from "./tx01.mainnet.mayachain.swap.json";
@@ -26,7 +25,7 @@ export function mayachainTests(get: () => { wallet: core.HDWallet; info: core.HD
     beforeAll(async () => {
       const { wallet: w } = get();
       if (core.supportsMayachain(w)) wallet = w;
-      useAmino = w instanceof keepkey.KeepKeyHDWallet || w instanceof ledger.LedgerHDWallet;
+      useAmino = w instanceof keepkey.KeepKeyHDWallet;
     });
 
     beforeEach(async () => {
