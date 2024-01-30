@@ -14,10 +14,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  ******************************************************************************* */
-import { bech32 } from "@scure/base";
-import * as core from "@shapeshiftoss/hdwallet-core";
-import crypto from "crypto";
-import Ripemd160 from "ripemd160";
+import type Transport from "@ledgerhq/hw-transport";
 
 import {
   APP_KEY,
@@ -25,100 +22,94 @@ import {
   CLA,
   ErrorCode,
   errorCodeToString,
-  getVersion,
   INS,
   P1_VALUES,
+  PAYLOAD_TYPE,
   processErrorResponse,
 } from "./common";
-import { publicKeyv2, serializePathv2, signSendChunkv2 } from "./helpers";
-
-const THOR_CHAIN = "thorchain-mainnet-v1";
 
 export type GetAddressAndPubKeyResponse = {
-  bech32_address: string;
-  compressed_pk: Uint8Array;
+  address: string;
+  publicKey: string;
   error_message: string;
   return_code: number;
 };
 
 export type SignResponse = {
-  signature: Uint8Array;
+  signature: null | Buffer;
   error_message: string;
   return_code: number;
 };
 
-const recursivelyOrderKeys = (unordered: any) => {
-  // If it's an array - recursively order any
-  // dictionary items within the array
-  if (Array.isArray(unordered)) {
-    unordered.forEach((item, index) => {
-      unordered[index] = recursivelyOrderKeys(item);
-    });
-    return unordered;
-  }
-
-  // If it's an object - let's order the keys
-  if (typeof unordered !== "object") return unordered;
-  const ordered: any = {};
-  Object.keys(unordered)
-    .sort()
-    .forEach((key) => (ordered[key] = recursivelyOrderKeys(unordered[key])));
-  return ordered;
-};
-
-const stringifyKeysInOrder = (data: any) => JSON.stringify(recursivelyOrderKeys(data));
-
-class THORChainApp {
-  transport: any;
+export class Thorchain {
+  transport: Transport;
   versionResponse: any;
 
-  constructor(transport: any, scrambleKey = APP_KEY) {
+  constructor(transport: Transport, scrambleKey = APP_KEY) {
     if (!transport) {
       throw new Error("Transport has not been defined");
     }
 
-    this.transport = transport as any;
-    transport.decorateAppAPIMethods.bind(transport)(
-      this,
-      ["getVersion", "sign", "getAddressAndPubKey", "appInfo", "deviceInfo", "getBech32FromPK"],
-      scrambleKey
-    );
+    this.transport = transport;
+    transport.decorateAppAPIMethods.bind(transport)(this, ["getAddress", "sign"], scrambleKey);
   }
 
-  static serializeHRP(hrp: any) {
-    if (hrp == null || hrp.length < 3 || hrp.length > 83) {
+  getVersion() {
+    return this.transport.send(CLA, INS.GET_VERSION, 0, 0).then((response) => {
+      const errorCodeData = response.slice(-2);
+      const returnCode = errorCodeData[0] * 256 + errorCodeData[1];
+
+      let targetId = 0;
+      if (response.length >= 9) {
+        targetId = (response[5] << 24) + (response[6] << 16) + (response[7] << 8) + (response[8] << 0);
+      }
+
+      return {
+        return_code: returnCode,
+        error_message: errorCodeToString(returnCode),
+        test_mode: response[0] !== 0,
+        major: response[1],
+        minor: response[2],
+        patch: response[3],
+        device_locked: response[4] === 1,
+        target_id: targetId.toString(16),
+      };
+    }, processErrorResponse);
+  }
+
+  serializeHRP(hrp: string) {
+    if (hrp == null || hrp.length === 0 || hrp.length > 83) {
       throw new Error("Invalid HRP");
     }
+
     const buf = Buffer.alloc(1 + hrp.length);
     buf.writeUInt8(hrp.length, 0);
     buf.write(hrp, 1);
     return buf;
   }
 
-  static getBech32FromPK(hrp: any, pk: any) {
-    if (pk.length !== 33) {
-      throw new Error("expected compressed public key [31 bytes]");
-    }
-    const hashSha256 = crypto.createHash("sha256").update(pk).digest();
-    const hashRip = new Ripemd160().update(hashSha256).digest();
-    // ts is drunk and doesn't like bech32.bech32 here
-    const encode = bech32.encode || (bech32 as any).bech32?.encode;
-    // ts is drunk and doesn't like bech32.bech32 here
-    const toWords = bech32.toWords || (bech32 as any).bech32?.toWords;
-
-    return encode(hrp, toWords(hashRip));
-  }
-
   async serializePath(path: Array<number>) {
-    this.versionResponse = await getVersion(this.transport);
+    this.versionResponse = await this.getVersion();
 
     if (this.versionResponse.return_code !== ErrorCode.NoError) {
       throw this.versionResponse;
     }
 
     switch (this.versionResponse.major) {
-      case 2:
-        return serializePathv2(path);
+      case 2: {
+        if (!path || path.length !== 5) {
+          throw new Error("Invalid path.");
+        }
+
+        const buf = Buffer.alloc(20);
+        buf.writeUInt32LE(path[0], 0);
+        buf.writeUInt32LE(path[1], 4);
+        buf.writeUInt32LE(path[2], 8);
+        buf.writeUInt32LE(path[3], 12);
+        buf.writeUInt32LE(path[4], 16);
+
+        return buf;
+      }
       default:
         return {
           return_code: 0x6400,
@@ -127,8 +118,44 @@ class THORChainApp {
     }
   }
 
-  async signGetChunks(path: Array<number>, message: any) {
+  async getAddress(path: Array<number>, hrp: string, boolDisplay?: boolean): Promise<GetAddressAndPubKeyResponse> {
+    try {
+      return await this.serializePath(path)
+        .then((serializedPath) => {
+          if (!Buffer.isBuffer(serializedPath)) return serializedPath;
+
+          const data = Buffer.concat([this.serializeHRP(hrp), serializedPath]);
+
+          return this.transport
+            .send(
+              CLA,
+              INS.GET_ADDR_SECP256K1,
+              boolDisplay ? P1_VALUES.SHOW_ADDRESS_IN_DEVICE : P1_VALUES.ONLY_RETRIEVE,
+              0,
+              data,
+              [ErrorCode.NoError]
+            )
+            .then((response) => {
+              const errorCodeData = response.slice(-2);
+              const return_code = errorCodeData[0] * 256 + errorCodeData[1];
+              return {
+                address: Buffer.from(response.slice(33, -2)).toString(),
+                publicKey: Buffer.from(response.slice(0, 33)).toString("hex"),
+                return_code,
+                error_message: errorCodeToString(return_code),
+              };
+            }, processErrorResponse);
+        })
+        .catch((err) => processErrorResponse(err));
+    } catch (e) {
+      return processErrorResponse(e);
+    }
+  }
+
+  async signGetChunks(path: Array<number>, message: string) {
     const serializedPath = await this.serializePath(path);
+
+    if (!Buffer.isBuffer(serializedPath)) return serializedPath;
 
     const chunks = [];
     chunks.push(serializedPath);
@@ -145,212 +172,53 @@ class THORChainApp {
     return chunks;
   }
 
-  async getVersion() {
-    try {
-      this.versionResponse = await getVersion(this.transport);
-      return this.versionResponse;
-    } catch (e) {
-      return processErrorResponse(e);
-    }
-  }
-
-  async appInfo() {
-    return this.transport.send(0xb0, 0x01, 0, 0).then((response: any) => {
-      const errorCodeData = response.slice(-2);
-      const returnCode = errorCodeData[0] * 256 + errorCodeData[1];
-
-      const result = {} as any;
-
-      let appName = "err";
-      let appVersion = "err";
-      let flagLen = 0;
-      let flagsValue = 0;
-
-      if (response[0] !== 1) {
-        // Ledger responds with format ID 1. There is no spec for any format != 1
-        result.error_message = "response format ID not recognized";
-        result.return_code = 0x9001;
-      } else {
-        const appNameLen = response[1];
-        appName = response.slice(2, 2 + appNameLen).toString("ascii");
-        let idx = 2 + appNameLen;
-        const appVersionLen = response[idx];
-        idx += 1;
-        appVersion = response.slice(idx, idx + appVersionLen).toString("ascii");
-        idx += appVersionLen;
-        const appFlagsLen = response[idx];
-        idx += 1;
-        flagLen = appFlagsLen;
-        flagsValue = response[idx];
-      }
-
-      return {
-        return_code: returnCode,
-        error_message: errorCodeToString(returnCode),
-        // //
-        appName,
-        appVersion,
-        flagLen,
-        flagsValue,
-
-        flag_recovery: (flagsValue & 1) !== 0,
-
-        flag_signed_mcu_code: (flagsValue & 2) !== 0,
-
-        flag_onboarded: (flagsValue & 4) !== 0,
-
-        flag_pin_validated: (flagsValue & 128) !== 0,
-      };
-    }, processErrorResponse);
-  }
-
-  async deviceInfo() {
-    return this.transport.send(0xe0, 0x01, 0, 0, Buffer.from([]), [ErrorCode.NoError, 0x6e00]).then((response: any) => {
-      const errorCodeData = response.slice(-2);
-      const returnCode = errorCodeData[0] * 256 + errorCodeData[1];
-
-      if (returnCode === 0x6e00) {
-        return {
-          return_code: returnCode,
-          error_message: "This command is only available in the Dashboard",
-        };
-      }
-
-      const targetId = response.slice(0, 4).toString("hex");
-
-      let pos = 4;
-      const secureElementVersionLen = response[pos];
-      pos += 1;
-      const seVersion = response.slice(pos, pos + secureElementVersionLen).toString();
-      pos += secureElementVersionLen;
-
-      const flagsLen = response[pos];
-      pos += 1;
-      const flag = response.slice(pos, pos + flagsLen).toString("hex");
-      pos += flagsLen;
-
-      const mcuVersionLen = response[pos];
-      pos += 1;
-      // Patch issue in mcu version
-      let tmp = response.slice(pos, pos + mcuVersionLen);
-      if (tmp[mcuVersionLen - 1] === 0) {
-        tmp = response.slice(pos, pos + mcuVersionLen - 1);
-      }
-      const mcuVersion = tmp.toString();
-
-      return {
-        return_code: returnCode,
-        error_message: errorCodeToString(returnCode),
-        // //
-        targetId,
-        seVersion,
-        flag,
-        mcuVersion,
-      };
-    }, processErrorResponse);
-  }
-
-  async publicKey(path: Array<number>) {
-    try {
-      const serializedPath = await this.serializePath(path);
-
-      switch (this.versionResponse.major) {
-        case 2: {
-          const data = Buffer.concat([THORChainApp.serializeHRP("thor"), serializedPath as any]);
-          return await publicKeyv2(this, data);
-        }
-        default:
-          return {
-            return_code: 0x6400,
-            error_message: "App Version is not supported",
-          };
-      }
-    } catch (e) {
-      return processErrorResponse(e);
-    }
-  }
-
-  async getAddressAndPubKey(path: Array<number>, hrp: any): Promise<GetAddressAndPubKeyResponse> {
-    try {
-      return await this.serializePath(path)
-        .then((serializedPath) => {
-          const data = Buffer.concat([THORChainApp.serializeHRP(hrp), serializedPath as any]);
-          return this.transport
-            .send(CLA, INS.GET_ADDR_SECP256K1, P1_VALUES.ONLY_RETRIEVE, 0, data, [ErrorCode.NoError])
-            .then((response: any) => {
-              const errorCodeData = response.slice(-2);
-              const returnCode = errorCodeData[0] * 256 + errorCodeData[1];
-
-              const compressedPk = Buffer.from(response.slice(0, 33));
-              const bech32Address = Buffer.from(response.slice(33, -2)).toString();
-
-              return {
-                bech32_address: bech32Address,
-                compressed_pk: compressedPk,
-                return_code: returnCode,
-                error_message: errorCodeToString(returnCode),
-              };
-            }, processErrorResponse);
-        })
-        .catch((err) => processErrorResponse(err));
-    } catch (e) {
-      return processErrorResponse(e);
-    }
-  }
-
-  async showAddressAndPubKey(path: Array<number>, hrp: any) {
-    try {
-      return await this.serializePath(path)
-        .then((serializedPath) => {
-          const data = Buffer.concat([THORChainApp.serializeHRP(hrp), serializedPath as any]);
-          return this.transport
-            .send(CLA, INS.GET_ADDR_SECP256K1, P1_VALUES.SHOW_ADDRESS_IN_DEVICE, 0, data, [ErrorCode.NoError])
-            .then((response: any) => {
-              const errorCodeData = response.slice(-2);
-              const returnCode = errorCodeData[0] * 256 + errorCodeData[1];
-
-              const compressedPk = Buffer.from(response.slice(0, 33));
-              const bech32Address = Buffer.from(response.slice(33, -2)).toString();
-
-              return {
-                bech32_address: bech32Address,
-                compressed_pk: compressedPk,
-                return_code: returnCode,
-                error_message: errorCodeToString(returnCode),
-              };
-            }, processErrorResponse);
-        })
-        .catch((err) => processErrorResponse(err));
-    } catch (e) {
-      return processErrorResponse(e);
-    }
-  }
-
-  async signSendChunk(chunkIdx: number, chunkNum: number, chunk: any) {
+  async signSendChunk(chunkIdx: number, chunkNum: number, chunk: Buffer): Promise<SignResponse> {
     switch (this.versionResponse.major) {
-      case 2:
-        return signSendChunkv2(this, chunkIdx, chunkNum, chunk);
+      case 2: {
+        chunkIdx = (() => {
+          if (chunkIdx === 1) return PAYLOAD_TYPE.INIT;
+          if (chunkIdx === chunkNum) return PAYLOAD_TYPE.LAST;
+          return PAYLOAD_TYPE.ADD;
+        })();
+
+        return this.transport
+          .send(CLA, INS.SIGN_SECP256K1, chunkIdx, 0, chunk, [ErrorCode.NoError, 0x6984, 0x6a80])
+          .then((response) => {
+            const errorCodeData = response.slice(-2);
+            const returnCode = errorCodeData[0] * 256 + errorCodeData[1];
+            let errorMessage = errorCodeToString(returnCode);
+
+            if (returnCode === 0x6a80 || returnCode === 0x6984) {
+              errorMessage = `${errorMessage} : ${response.slice(0, response.length - 2).toString("ascii")}`;
+            }
+
+            let signature: Buffer | null = null;
+            if (response.length > 2) {
+              signature = response.slice(0, response.length - 2);
+            }
+
+            return {
+              signature,
+              return_code: returnCode,
+              error_message: errorMessage,
+            };
+          }, processErrorResponse);
+      }
       default:
         return {
+          signature: null,
           return_code: 0x6400,
           error_message: "App Version is not supported",
         };
     }
   }
 
-  async sign(msg: core.ThorchainSignTx): Promise<SignResponse> {
-    const rawTx = stringifyKeysInOrder({
-      account_number: msg.account_number,
-      chain_id: THOR_CHAIN,
-      fee: { amount: msg.tx.fee.amount, gas: msg.tx.fee.gas },
-      memo: msg.tx.memo,
-      msgs: msg.tx.msg,
-      sequence: msg.sequence,
-    });
+  async sign(path: Array<number>, message: string): Promise<SignResponse> {
+    return this.signGetChunks(path, message).then((chunks) => {
+      if (!Array.isArray(chunks)) return chunks;
 
-    return this.signGetChunks(msg.addressNList, rawTx).then((chunks) => {
       return this.signSendChunk(1, chunks.length, chunks[0]).then(async (response) => {
-        let result = {
+        let result: SignResponse = {
           return_code: response.return_code,
           error_message: response.error_message,
           signature: null,
@@ -372,5 +240,3 @@ class THORChainApp {
     }, processErrorResponse);
   }
 }
-
-export { THORChainApp };

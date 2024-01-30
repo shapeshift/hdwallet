@@ -1,0 +1,31 @@
+{
+  "account_number": "6359",
+  "chain_id": "mayachain-mainnet-v1",
+  "sequence": "19",
+  "fee": {
+    "amount": [
+      {
+        "amount": "3000",
+        "denom": "cacao"
+      }
+    ],
+    "gas": "200000"
+  },
+  "memo": "",
+  "msg": [
+    {
+      "type": "mayachain/MsgSend",
+      "value": {
+        "amount": [
+          {
+            "amount": "100",
+            "denom": "cacao"
+          }
+        ],
+        "from_address": "maya1ls33ayg26kmltw7jjy55p32ghjna09zp7z4etj",
+        "to_address": "maya1g9el7lzjwh9yun2c4jjzhy09j98vkhfxfqkl5k"
+      }
+    }
+  ],
+  "signatures": []
+}

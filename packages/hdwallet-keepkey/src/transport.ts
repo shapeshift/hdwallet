@@ -353,6 +353,7 @@ export class Transport extends core.Transport {
       this.callInProgress = { main: undefined, debug: undefined };
       const cancelMsg = new Messages.Cancel();
       await this.call(Messages.MessageType.MESSAGETYPE_CANCEL, cancelMsg, {
+        omitLock: this.userActionRequired,
         noWait: this.userActionRequired,
       });
     } catch (e) {

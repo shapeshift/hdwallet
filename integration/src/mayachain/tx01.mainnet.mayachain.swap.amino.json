@@ -1,0 +1,31 @@
+{
+  "account_number": "6359",
+  "chain_id": "mayachain-mainnet-v1",
+  "sequence": "20",
+  "fee": {
+    "amount": [
+      {
+        "amount": "0",
+        "denom": "cacao"
+      }
+    ],
+    "gas": "350000"
+  },
+  "memo": "",
+  "msg": [
+    {
+      "type": "mayachain/MsgDeposit",
+      "value": {
+        "coins": [
+          {
+            "asset": "MAYA.CACAO",
+            "amount": "1000000"
+          }
+        ],
+        "memo": "SWAP:DASH.DASH:XdTw4G5AWW4cogGd7ayybyBNDbuB45UpgH:10000",
+        "signer": "maya1ls33ayg26kmltw7jjy55p32ghjna09zp7z4etj"
+      }
+    }
+  ],
+  "signatures": []
+}
