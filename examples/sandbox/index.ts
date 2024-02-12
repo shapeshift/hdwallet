@@ -7,7 +7,7 @@ import * as keepkeyWebUSB from "@keepkey/hdwallet-keepkey-webusb";
 import * as native from "@keepkey/hdwallet-native";
 import * as sigUtil from "@metamask/eth-sig-util";
 import { TypedData } from "eip-712";
-import $, { noop } from "jquery";
+import $ from "jquery";
 import Web3 from "web3";
 
 import {
@@ -952,18 +952,17 @@ $mayachainAddr.on("click", async (e) => {
   }
   // eslint-disable-next-line no-console
   console.log(core);
-  if (true) {
-    const { addressNList } = wallet.mayachainGetAccountPaths({ accountIdx: 0 })[0];
-    const result = await wallet.mayachainGetAddress({
-      addressNList,
-      showDisplay: false,
-    });
-    await wallet.mayachainGetAddress({
-      addressNList,
-      showDisplay: true,
-    });
-    $mayachainNativeResults.val(result);
-  }
+
+  const { addressNList } = wallet.mayachainGetAccountPaths({ accountIdx: 0 })[0];
+  const result = await wallet.mayachainGetAddress({
+    addressNList,
+    showDisplay: false,
+  });
+  await wallet.mayachainGetAddress({
+    addressNList,
+    showDisplay: true,
+  });
+  $mayachainNativeResults.val(result);
 });
 
 $mayachainTx.on("click", async (e) => {
@@ -972,19 +971,17 @@ $mayachainTx.on("click", async (e) => {
     $mayachainNativeResults.val("No wallet?");
     return;
   }
-  if (true) {
-    // eslint-disable-next-line no-console
-    console.log("mayachainUnsignedTx: ", mayachainUnsignedTx);
-    const res = await wallet.mayachainSignTx({
-      addressNList: core.bip32ToAddressNList(`m/44'/931'/0'/0/0`),
-      chain_id: "mayachain-mainnet-v1",
-      account_number: "6359",
-      sequence: "15",
-      tx: mayachainUnsignedTx,
-    });
-    $mayachainNativeResults.val(JSON.stringify(res));
-    const label = await wallet.getLabel();
-  }
+
+  // eslint-disable-next-line no-console
+  console.log("mayachainUnsignedTx: ", mayachainUnsignedTx);
+  const res = await wallet.mayachainSignTx({
+    addressNList: core.bip32ToAddressNList(`m/44'/931'/0'/0/0`),
+    chain_id: "mayachain-mainnet-v1",
+    account_number: "6359",
+    sequence: "15",
+    tx: mayachainUnsignedTx,
+  });
+  $mayachainNativeResults.val(JSON.stringify(res));
 });
 /*
  * THORChain
