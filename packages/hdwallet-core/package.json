@@ -1,6 +1,6 @@
 {
-  "name": "@shapeshiftoss/hdwallet-core",
-  "version": "1.53.3",
+  "name": "@keepkey/hdwallet-core",
+  "version": "1.53.9",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,7 +14,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/proto-tx-builder": "^0.8.0",
+    "@keepkey/proto-tx-builder": "^0.9.0",
     "eip-712": "^1.0.0",
     "eventemitter2": "^5.0.1",
     "lodash": "^4.17.21",

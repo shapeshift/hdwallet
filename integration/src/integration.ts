@@ -1,13 +1,6 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
-import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
-import * as ledger from "@shapeshiftoss/hdwallet-ledger";
-import * as metamask from "@shapeshiftoss/hdwallet-metamask";
-import * as native from "@shapeshiftoss/hdwallet-native";
-import * as portis from "@shapeshiftoss/hdwallet-portis";
-import * as tallyHo from "@shapeshiftoss/hdwallet-tallyho";
-import * as trezor from "@shapeshiftoss/hdwallet-trezor";
-import * as walletconnect from "@shapeshiftoss/hdwallet-walletconnect";
-import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
+import * as core from "@keepkey/hdwallet-core";
+import * as keepkey from "@keepkey/hdwallet-keepkey";
+import * as native from "@keepkey/hdwallet-native";
 
 import { binanceTests } from "./binance";
 import { btcTests } from "./bitcoin";
@@ -50,17 +43,7 @@ export function integration(suite: WalletSuite): void {
       });
 
       it("has only one vendor", () => {
-        expect(
-          (keepkey.isKeepKey(wallet) ? 1 : 0) +
-            (trezor.isTrezor(wallet) ? 1 : 0) +
-            (ledger.isLedger(wallet) ? 1 : 0) +
-            (portis.isPortis(wallet) ? 1 : 0) +
-            (native.isNative(wallet) ? 1 : 0) +
-            (metamask.isMetaMask(wallet) ? 1 : 0) +
-            (tallyHo.isTallyHo(wallet) ? 1 : 0) +
-            (walletconnect.isWalletConnect(wallet) ? 1 : 0) +
-            (xdefi.isXDEFI(wallet) ? 1 : 0)
-        ).toEqual(1);
+        expect((keepkey.isKeepKey(wallet) ? 1 : 0) + (native.isNative(wallet) ? 1 : 0)).toEqual(1);
       });
     });
 

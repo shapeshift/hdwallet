@@ -3,8 +3,8 @@ import { FeeMarketEIP1559Transaction, Transaction } from "@ethereumjs/tx";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Ethereum from "@keepkey/device-protocol/lib/messages-ethereum_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
+import * as core from "@keepkey/hdwallet-core";
 import { SignTypedDataVersion, TypedDataUtils } from "@metamask/eth-sig-util";
-import * as core from "@shapeshiftoss/hdwallet-core";
 import * as eip55 from "eip55";
 import { arrayify, isBytes, isHexString } from "ethers/lib/utils.js";
 

@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 import { Literal, Object as Obj, Static, Union } from "funtypes";
 import PLazy from "p-lazy";
 import * as tinyecc from "tiny-secp256k1";

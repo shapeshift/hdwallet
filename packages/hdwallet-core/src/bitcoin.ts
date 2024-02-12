@@ -124,23 +124,8 @@ type BTCSignTxInputKKNonSegwit = BTCSignTxInputKKBase & {
 type BTCSignTxInputKKUnguarded = BTCSignTxInputKKNonSegwit | BTCSignTxInputKKSegwit;
 export type BTCSignTxInputKK = GuardedUnion<BTCSignTxInputKKUnguarded>;
 
-export type BTCSignTxInputTrezor = BTCSignTxInputBase & {
-  txid: string;
-  amount: string;
-  scriptType: BTCInputScriptType;
-};
-
-export type BTCSignTxInputLedger = BTCSignTxInputBase & {
-  addressNList: BIP32Path;
-  scriptType: BTCInputScriptType;
-  hex: string;
-};
-
-export type BTCSignTxInput = BTCSignTxInputNative & BTCSignTxInputKK & BTCSignTxInputTrezor & BTCSignTxInputLedger;
-export type BTCSignTxInputUnguarded = BTCSignTxInputNativeUnguarded &
-  BTCSignTxInputKKUnguarded &
-  BTCSignTxInputTrezor &
-  BTCSignTxInputLedger;
+export type BTCSignTxInput = BTCSignTxInputNative & BTCSignTxInputKK;
+export type BTCSignTxInputUnguarded = BTCSignTxInputNativeUnguarded & BTCSignTxInputKKUnguarded;
 
 // Stick to this common subset of input fields to avoid type hell.
 export type BTCSignTxInputSafe = {
@@ -229,8 +214,6 @@ export interface BTCSignTx {
 
 export type BTCSignTxKK = Omit<BTCSignTx, "inputs"> & { inputs: Array<BTCSignTxInputKK> };
 export type BTCSignTxNative = Omit<BTCSignTx, "inputs"> & { inputs: Array<BTCSignTxInputNative> };
-export type BTCSignTxTrezor = Omit<BTCSignTx, "inputs"> & { inputs: Array<BTCSignTxInputTrezor> };
-export type BTCSignTxLedger = Omit<BTCSignTx, "inputs"> & { inputs: Array<BTCSignTxInputLedger> };
 
 export interface BTCSignedTx {
   signatures: Array<string>;

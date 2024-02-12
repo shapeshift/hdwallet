@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 
 import * as Isolation from "./crypto/isolation";
 import * as native from "./native";

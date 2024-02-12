@@ -1,4 +1,4 @@
-import { toArrayBuffer } from "@shapeshiftoss/hdwallet-core";
+import { toArrayBuffer } from "@keepkey/hdwallet-core";
 import * as bip32crypto from "bip32/src/crypto";
 import * as tinyecc from "tiny-secp256k1";
 

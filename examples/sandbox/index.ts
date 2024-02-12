@@ -1,25 +1,11 @@
 import "regenerator-runtime/runtime";
 
+import * as core from "@keepkey/hdwallet-core";
+import * as keepkey from "@keepkey/hdwallet-keepkey";
+import * as keepkeyTcp from "@keepkey/hdwallet-keepkey-tcp";
+import * as keepkeyWebUSB from "@keepkey/hdwallet-keepkey-webusb";
+import * as native from "@keepkey/hdwallet-native";
 import * as sigUtil from "@metamask/eth-sig-util";
-import * as coinbase from "@shapeshiftoss/hdwallet-coinbase";
-import { CoinbaseProviderConfig } from "@shapeshiftoss/hdwallet-coinbase";
-import * as core from "@shapeshiftoss/hdwallet-core";
-import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
-import * as keepkeyTcp from "@shapeshiftoss/hdwallet-keepkey-tcp";
-import * as keepkeyWebUSB from "@shapeshiftoss/hdwallet-keepkey-webusb";
-import * as keplr from "@shapeshiftoss/hdwallet-keplr";
-import * as ledgerWebHID from "@shapeshiftoss/hdwallet-ledger-webhid";
-import * as ledgerWebUSB from "@shapeshiftoss/hdwallet-ledger-webusb";
-import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
-import * as native from "@shapeshiftoss/hdwallet-native";
-import * as portis from "@shapeshiftoss/hdwallet-portis";
-import * as tallyHo from "@shapeshiftoss/hdwallet-tallyho";
-import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
-import { WalletConnectProviderConfig } from "@shapeshiftoss/hdwallet-walletconnect";
-import * as walletConnect from "@shapeshiftoss/hdwallet-walletconnect";
-import * as walletConnectv2 from "@shapeshiftoss/hdwallet-walletconnectv2";
-import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
-import { EthereumProviderOptions } from "@walletconnect/ethereum-provider/dist/types/EthereumProvider";
 import { TypedData } from "eip-712";
 import $, { noop } from "jquery";
 import Web3 from "web3";
@@ -75,36 +61,7 @@ import {
 } from "./json/thorchainTx.json";
 const keyring = new core.Keyring();
 
-const portisAppId = "ff763d3d-9e34-45a1-81d1-caa39b9c64f9";
 const mnemonic = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
-const walletConnectOptions: WalletConnectProviderConfig = {
-  rpc: {
-    1: "https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57",
-  },
-};
-const walletConnectV2Options: EthereumProviderOptions = {
-  projectId: "5abef0455c768644c2bc866f1520374f",
-  chains: [1],
-  optionalChains: [100],
-  optionalMethods: [
-    "eth_signTypedData",
-    "eth_signTypedData_v4",
-    "eth_sign",
-    "ethVerifyMessage",
-    "eth_accounts",
-    "eth_sendTransaction",
-    "eth_signTransaction",
-  ],
-  showQrModal: true,
-};
-
-const coinbaseOptions: CoinbaseProviderConfig = {
-  appName: "ShapeShift Sandbox",
-  appLogoUrl: "https://shapeshift.com/favicon.ico",
-  defaultJsonRpcUrl: "https://avatars.githubusercontent.com/u/52928763?s=50&v=4",
-  defaultChainId: 1,
-  darkMode: false,
-};
 
 const testPublicWalletXpubs = [
   "xpub661MyMwAqRbcFLgDU7wpcEVubSF7NkswwmXBUkDiGUW6uopeUMys4AqKXNgpfZKRTLnpKQgffd6a2c3J8JxLkF1AQN17Pm9QYHEqEfo1Rsx", // all seed root key
@@ -121,27 +78,10 @@ const testPublicWalletXpubs = [
   "xpub6DDUPHpUo4pcy43iJeZjbSVWGav1SMMmuWdMHiGtkK8rhKmfbomtkwW6GKs1GGAKehT6QRocrmda3WWxXawpjmwaUHfFRXuKrXSapdckEYF", // all seed m/84'/0'/0'
 ].join(" ");
 
-const coinbaseAdapter = coinbase.CoinbaseAdapter.useKeyring(keyring, coinbaseOptions);
 const keepkeyAdapter = keepkeyWebUSB.WebUSBKeepKeyAdapter.useKeyring(keyring);
 const kkbridgeAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const kkemuAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
-const portisAdapter = portis.PortisAdapter.useKeyring(keyring, { portisAppId });
-const metaMaskAdapter = metaMask.MetaMaskAdapter.useKeyring(keyring);
-const tallyHoAdapter = tallyHo.TallyHoAdapter.useKeyring(keyring);
-const walletConnectAdapter = walletConnect.WalletConnectAdapter.useKeyring(keyring, walletConnectOptions);
-const walletConnectV2Adapter = walletConnectv2.WalletConnectV2Adapter.useKeyring(keyring, walletConnectV2Options);
-const xdefiAdapter = xdefi.XDEFIAdapter.useKeyring(keyring);
-const keplrAdapter = keplr.KeplrAdapter.useKeyring(keyring);
 const nativeAdapter = native.NativeAdapter.useKeyring(keyring);
-const trezorAdapter = trezorConnect.TrezorAdapter.useKeyring(keyring, {
-  debug: false,
-  manifest: {
-    email: "oss@shapeshiftoss.io",
-    appUrl: "https://shapeshift.com",
-  },
-});
-const ledgerWebUSBAdapter = ledgerWebUSB.WebUSBLedgerAdapter.useKeyring(keyring);
-const ledgerWebHIDAdapter = ledgerWebHID.WebHIDLedgerAdapter.useKeyring(keyring);
 
 window["keyring"] = keyring;
 
@@ -153,18 +93,7 @@ window["wallet"] = wallet;
 const $keepkey = $("#keepkey");
 const $keepkeybridge = $("#keepkeybridge");
 const $kkemu = $("#kkemu");
-const $trezor = $("#trezor");
-const $ledgerwebusb = $("#ledgerwebusb");
-const $ledgerwebhid = $("#ledgerwebhid");
-const $portis = $("#portis");
 const $native = $("#native");
-const $metaMask = $("#metaMask");
-const $coinbase = $("#coinbase");
-const $tallyHo = $("#tallyHo");
-const $walletConnect = $("#walletConnect");
-const $walletConnectV2 = $("#walletConnectV2");
-const $xdefi = $("#xdefi");
-const $keplr = $("#keplr");
 const $keyring = $("#keyring");
 
 $keepkey.on("click", async (e) => {
@@ -188,137 +117,11 @@ $kkemu.on("click", async (e) => {
   $("#keyring select").val(await wallet.transport.getDeviceID());
 });
 
-$trezor.on("click", async (e) => {
-  e.preventDefault();
-  wallet = await trezorAdapter.pairDevice();
-  window["wallet"] = wallet;
-  $("#keyring select").val(await wallet.getDeviceID());
-});
-
-$ledgerwebusb.on("click", async (e) => {
-  e.preventDefault();
-  wallet = await ledgerWebUSBAdapter.pairDevice();
-  window["wallet"] = wallet;
-  $("#keyring select").val(await wallet.getDeviceID());
-});
-
-$ledgerwebhid.on("click", async (e) => {
-  e.preventDefault();
-  wallet = await ledgerWebHIDAdapter.pairDevice();
-  window["wallet"] = wallet;
-  $("#keyring select").val(await wallet.getDeviceID());
-});
-
-$portis.on("click", async (e) => {
-  e.preventDefault();
-  wallet = await portisAdapter.pairDevice();
-  window["wallet"] = wallet;
-
-  let deviceId = "nothing";
-  try {
-    deviceId = await wallet.getDeviceID();
-  } catch (error) {
-    console.error(error);
-  }
-  $("#keyring select").val(deviceId);
-});
-
 $native.on("click", async (e) => {
   e.preventDefault();
   wallet = await nativeAdapter.pairDevice("testid");
   window["wallet"] = wallet;
   $("#keyring select").val(await wallet.getDeviceID());
-});
-
-$metaMask.on("click", async (e) => {
-  e.preventDefault();
-  wallet = await metaMaskAdapter.pairDevice();
-  window["wallet"] = wallet;
-  let deviceID = "nothing";
-  try {
-    deviceID = await wallet.getDeviceID();
-    $("#keyring select").val(deviceID);
-  } catch (err) {
-    console.error(err);
-  }
-});
-
-$coinbase.on("click", async (e) => {
-  e.preventDefault();
-  wallet = await coinbaseAdapter.pairDevice();
-  window["wallet"] = wallet;
-  let deviceID = "nothing";
-  try {
-    deviceID = await wallet.getDeviceID();
-    $("#keyring select").val(deviceID);
-  } catch (error) {
-    console.error(error);
-  }
-});
-
-$keplr.on("click", async (e) => {
-  e.preventDefault();
-  wallet = await keplrAdapter.pairDevice();
-  window["wallet"] = wallet;
-  let deviceID = "nothing";
-  try {
-    deviceID = await wallet.getDeviceID();
-    $("#keyring select").val(deviceID);
-  } catch (error) {
-    console.error(error);
-  }
-});
-
-$tallyHo.on("click", async (e) => {
-  e.preventDefault();
-  wallet = await tallyHoAdapter.pairDevice();
-  window["wallet"] = wallet;
-  let deviceID = "nothing";
-  try {
-    deviceID = await wallet.getDeviceID();
-    $("#keyring select").val(deviceID);
-  } catch (error) {
-    console.error(error);
-  }
-});
-
-$walletConnect.on("click", async (e) => {
-  e.preventDefault();
-  try {
-    wallet = await walletConnectAdapter.pairDevice();
-    window["wallet"] = wallet;
-    let deviceID = "nothing";
-    deviceID = await wallet.getDeviceID();
-    $("#keyring select").val(deviceID);
-  } catch (error) {
-    console.error(error);
-  }
-});
-
-$walletConnectV2.on("click", async (e) => {
-  e.preventDefault();
-  try {
-    wallet = await walletConnectV2Adapter.pairDevice();
-    window["wallet"] = wallet;
-    let deviceID = "nothing";
-    deviceID = await wallet.getDeviceID();
-    $("#keyring select").val(deviceID);
-  } catch (error) {
-    console.error(error);
-  }
-});
-
-$xdefi.on("click", async (e) => {
-  e.preventDefault();
-  wallet = await xdefiAdapter.pairDevice();
-  window["wallet"] = wallet;
-  let deviceID = "nothing";
-  try {
-    deviceID = await wallet.getDeviceID();
-    $("#keyring select").val(deviceID);
-  } catch (error) {
-    console.error(error);
-  }
 });
 
 async function deviceConnected(deviceId) {
@@ -367,72 +170,9 @@ async function deviceConnected(deviceId) {
   }
 
   try {
-    await trezorAdapter.initialize();
-  } catch (e) {
-    console.error("Could not initialize TrezorAdapter", e);
-  }
-
-  try {
-    // skip initialize() on page load b/c:
-    // Error: WebUSBCouldNotInitialize....
-    // "Must be handling a user gesture to show a permission request."
-    noop();
-  } catch (e) {
-    console.error("Could not initialize LedgerWebUSBAdapter", e);
-  }
-
-  try {
-    await ledgerWebHIDAdapter.initialize();
-  } catch (e) {
-    console.error("Could not initialize LedgerWebHIDAdapter", e);
-  }
-
-  try {
-    await portisAdapter.initialize();
-  } catch (e) {
-    console.error("Could not initialize PortisAdapter", e);
-  }
-
-  try {
     await nativeAdapter.initialize();
   } catch (e) {
     console.error("Could not initialize NativeAdapter", e);
-  }
-
-  try {
-    await metaMaskAdapter.initialize();
-  } catch (e) {
-    console.error("Could not initialize MetaMaskAdapter", e);
-  }
-
-  try {
-    await tallyHoAdapter.initialize();
-  } catch (e) {
-    console.error("Could not initialize TallyHoAdapter", e);
-  }
-
-  try {
-    await keplrAdapter.initialize();
-  } catch (e) {
-    console.error("Could not initialize KeplrAdapter", e);
-  }
-
-  try {
-    await coinbaseAdapter.initialize();
-  } catch (e) {
-    console.error("Could not initialize CoinbaseAdapter", e);
-  }
-
-  try {
-    await walletConnectAdapter.initialize();
-  } catch (e) {
-    console.error("Could not initialize WalletConnectAdapter", e);
-  }
-
-  try {
-    await walletConnectV2Adapter.initialize();
-  } catch (e) {
-    console.error("Could not initialize WalletConnectV2Adapter", e);
   }
 
   for (const deviceID of Object.keys(keyring.wallets)) {
@@ -649,7 +389,7 @@ $getXpubs.each(function () {
       {
         addressNList: [0x80000000 + 44, 0x80000000 + 145, 0x80000000 + 0],
         curve: "secp256k1",
-        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+        showDisplay: true,
         coin: "BitcoinCash",
         scriptType: core.BTCInputScriptType.SpendAddress,
       },
@@ -659,7 +399,7 @@ $getXpubs.each(function () {
       {
         addressNList: [2147483732, 2147483650, 2147483648],
         curve: "secp256k1",
-        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+        showDisplay: true,
         coin: "Litecoin",
         scriptType: core.BTCInputScriptType.SpendWitness,
       },
@@ -667,7 +407,7 @@ $getXpubs.each(function () {
       {
         addressNList: [2147483697, 2147483650, 2147483648],
         curve: "secp256k1",
-        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+        showDisplay: true,
         coin: "Litecoin",
         scriptType: core.BTCInputScriptType.SpendP2SHWitness,
       },
@@ -675,7 +415,7 @@ $getXpubs.each(function () {
       {
         addressNList: [2147483692, 2147483650, 2147483648],
         curve: "secp256k1",
-        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+        showDisplay: true,
         coin: "Litecoin",
         scriptType: core.BTCInputScriptType.SpendAddress,
       },
@@ -684,7 +424,7 @@ $getXpubs.each(function () {
       {
         addressNList: [0x80000000 + 44, 0x80000000 + 3, 0x80000000 + 0],
         curve: "secp256k1",
-        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+        showDisplay: true,
         coin: "Dogecoin",
         scriptType: core.BTCInputScriptType.SpendAddress,
       },
@@ -693,8 +433,8 @@ $getXpubs.each(function () {
       {
         addressNList: hardenedPath,
         curve: "secp256k1",
-        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-        coin: portis.isPortis(wallet) ? "Bitcoin" : "Ethereum",
+        showDisplay: true,
+        coin: "Ethereum",
       },
     ];
 
@@ -763,78 +503,6 @@ $doClearSession.on("click", (e) => {
     return;
   }
   wallet.clearSession().then(() => $manageResults.val("Session Cleared"));
-});
-
-const $openApp = $("#openApp");
-const $ledgerAppToOpen = $("#ledgerAppToOpen");
-const $validateApp = $("#validateApp");
-const $ledgerAppToValidate = $("#ledgerAppToValidate");
-const $getAppInfo = $("#getAppInfo");
-const $appInfo = $("#appInfo");
-
-$ledgerAppToOpen.attr("placeholder", "App name i.e. Bitcoin Cash");
-$ledgerAppToValidate.attr("placeholder", "PascalCase coin name i.e. BitcoinCash");
-
-$openApp.on("click", async (e) => {
-  e.preventDefault();
-  if (!wallet) {
-    $ledgerAppToOpen.val("No wallet?");
-    return;
-  }
-  const appName = $("#ledgerAppToOpen").val();
-  if (!appName) {
-    $ledgerAppToOpen.val("Please enter app name here");
-    return;
-  }
-  let result = "Check device for prompt";
-  $ledgerAppToOpen.val(result);
-  try {
-    await wallet.openApp(appName);
-    result = `${appName} app opened`;
-  } catch (err) {
-    console.error(err);
-    result = err.message;
-  }
-  $ledgerAppToOpen.val(result);
-});
-
-$validateApp.on("click", async (e) => {
-  e.preventDefault();
-  if (!wallet) {
-    $ledgerAppToValidate.val("No wallet?");
-    return;
-  }
-  const appName = $("#ledgerAppToValidate").val();
-  if (!appName) {
-    $ledgerAppToValidate.val("Please enter app name here");
-    return;
-  }
-  let result;
-  try {
-    await wallet.validateCurrentApp(appName);
-    result = "Correct app open";
-  } catch (err) {
-    console.error(err);
-    result = err.message;
-  }
-  $ledgerAppToValidate.val(result);
-});
-
-$getAppInfo.on("click", async (e) => {
-  e.preventDefault();
-  if (!wallet) {
-    $appInfo.val("No wallet?");
-    return;
-  }
-  let result;
-  try {
-    const res = await wallet.transport.call(null, "getAppAndVersion");
-    result = res.payload.name;
-  } catch (err) {
-    console.error(err);
-    result = err.message;
-  }
-  $appInfo.val(result);
 });
 
 /*
@@ -1295,11 +963,9 @@ $mayachainAddr.on("click", async (e) => {
       showDisplay: true,
     });
     $mayachainNativeResults.val(result);
-  } else {
-    const label = await wallet.getLabel();
-    $mayachainNativeResults.val(label + " does not support THORChain");
   }
 });
+
 $mayachainTx.on("click", async (e) => {
   e.preventDefault();
   if (!wallet) {
@@ -1317,9 +983,7 @@ $mayachainTx.on("click", async (e) => {
       tx: mayachainUnsignedTx,
     });
     $mayachainNativeResults.val(JSON.stringify(res));
-  } else {
     const label = await wallet.getLabel();
-    $mayachainNativeResults.val(label + " does not support MAYAchain");
   }
 });
 /*
@@ -3229,7 +2893,7 @@ $dogeTx.on("click", async (e) => {
       version: 1,
       locktime: 0,
     });
-    $dogeResults.val(res.serializedTx); // TODO: Fails for Ledger: "TransportStatusError: Ledger device: Invalid data received (0x6a80)"
+    $dogeResults.val(res.serializedTx);
   } else {
     const label = await wallet.getLabel();
     $dogeResults.val(label + " does not support Litecoin");
@@ -3267,7 +2931,7 @@ $bchAddr.on("click", async (e) => {
     });
     $bchResults.val(res);
   } else {
-    const label = await wallet.getLabel(); // KK: bitcoincash:qzqxk2q6rhy3j9fnnc00m08g4n5dm827xv2dmtjzzp or Ledger: 1Ci1rvsLpZqvaMLSq7LiFj6mfnV4p3833E
+    const label = await wallet.getLabel(); // KK: bitcoincash:qzqxk2q6rhy3j9fnnc00m08g4n5dm827xv2dmtjzzp
     $bchResults.val(label + " does not support BCH");
   }
 });

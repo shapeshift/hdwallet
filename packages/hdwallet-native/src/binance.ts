@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 import * as bech32 from "bech32";
 import BigNumber from "bignumber.js";
 import type * as bnbSdkTypes from "bnb-javascript-sdk-nobroadcast";
@@ -39,7 +39,7 @@ export function MixinNativeBinanceWalletInfo<TBase extends core.Constructor<core
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     binanceNextAccountPath(msg: core.BinanceAccountPath): core.BinanceAccountPath | undefined {
-      // Only support one account for now (like portis).
+      // Only support one account for now.
       return undefined;
     }
   };

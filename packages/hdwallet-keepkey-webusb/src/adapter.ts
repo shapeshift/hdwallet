@@ -1,5 +1,5 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
-import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
+import * as core from "@keepkey/hdwallet-core";
+import * as keepkey from "@keepkey/hdwallet-keepkey";
 
 import { Device, TransportDelegate } from "./transport";
 import { HID_PRODUCT_ID, VENDOR_ID, WEBUSB_PRODUCT_ID } from "./utils";

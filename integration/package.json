@@ -1,26 +1,22 @@
 {
-  "name": "@shapeshiftoss/integration",
-  "version": "1.53.3",
-  "main": "index.js",
-  "license": "MIT",
-  "private": true,
-  "scripts": {
-    "clean": "rm -rf dist node_modules .cache tsconfig.tsbuildinfo",
-    "test": "yarn jest --verbose",
-    "dev": "lerna run test --scope integration --parallel --include-filtered-dependencies"
-  },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "1.53.3",
-    "@shapeshiftoss/hdwallet-keepkey": "1.53.3",
-    "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "1.53.3",
-    "@shapeshiftoss/hdwallet-keepkey-tcp": "1.53.3",
-    "@shapeshiftoss/hdwallet-ledger": "1.53.3",
-    "@shapeshiftoss/hdwallet-native": "1.53.3",
-    "@shapeshiftoss/hdwallet-portis": "1.53.3",
-    "@shapeshiftoss/hdwallet-trezor": "1.53.3",
-    "@shapeshiftoss/hdwallet-xdefi": "1.53.3",
+    "@keepkey/hdwallet-core": "1.53.9",
+    "@keepkey/hdwallet-keepkey": "1.53.9",
+    "@keepkey/hdwallet-keepkey-nodewebusb": "1.53.9",
+    "@keepkey/hdwallet-keepkey-tcp": "1.53.9",
+    "@keepkey/hdwallet-native": "1.53.9",
     "fast-json-stable-stringify": "^2.1.0",
     "msw": "^0.27.1",
     "whatwg-fetch": "^3.6.2"
-  }
+  },
+  "license": "MIT",
+  "main": "index.js",
+  "name": "@keepkey/integration",
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf dist node_modules .cache tsconfig.tsbuildinfo",
+    "dev": "lerna run test --scope integration --parallel --include-filtered-dependencies",
+    "test": "yarn jest --verbose"
+  },
+  "version": "1.53.9"
 }

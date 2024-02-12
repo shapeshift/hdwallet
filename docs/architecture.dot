@@ -30,24 +30,5 @@ digraph D {
     hdwalletkeepkeychromeusb -> hdwalletkeepkey
   }
 
-  subgraph cluster_2 {
-    label = "Trezor"
-
-    hdwallettrezor [label="hdwallet-trezor", shape=box]
-    hdwallettrezor -> hdwalletcore
-
-    hdwallettrezorconnect [label="hdwallet-trezor-connect", shape=box, fillcolor="darkseagreen1", style=filled]
-    hdwallettrezorconnect -> hdwallettrezor
-  }
-
-  subgraph cluster_3 {
-    label = "Ledger"
-
-    hdwalletledger [label="hdwallet-ledger", shape=box]
-    hdwalletledger -> hdwalletcore
-
-    hdwalletledgerwebusb [label="hdwallet-ledger-webusb", shape=box, fillcolor="darkseagreen1", style=filled]
-    hdwalletledgerwebusb -> hdwalletledger
-  }
 }
 

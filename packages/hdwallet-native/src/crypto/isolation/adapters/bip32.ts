@@ -1,5 +1,5 @@
+import { bip32ToAddressNList } from "@keepkey/hdwallet-core";
 import type { crypto as btccrypto, Network, SignerAsync } from "@shapeshiftoss/bitcoinjs-lib";
-import { bip32ToAddressNList } from "@shapeshiftoss/hdwallet-core";
 import * as bip32 from "bip32";
 import bs58check from "bs58check";
 import PLazy from "p-lazy";

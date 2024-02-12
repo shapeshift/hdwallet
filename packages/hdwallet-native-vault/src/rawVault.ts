@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 import { argon2id } from "hash-wasm";
 import * as idb from "idb-keyval";
 import * as jose from "jose";

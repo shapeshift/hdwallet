@@ -1,6 +1,5 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
-import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
-import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+import * as core from "@keepkey/hdwallet-core";
+import * as keepkey from "@keepkey/hdwallet-keepkey";
 
 // Amino-encoded transactions
 import tx_unsigned_delegate_cosmos_amino from "./amino/tx01.mainnet.cosmos.delegate.json";
@@ -44,7 +43,7 @@ export function cosmosTests(get: () => { wallet: core.HDWallet; info: core.HDWal
     beforeAll(async () => {
       const { wallet: w } = get();
       if (core.supportsCosmos(w)) wallet = w;
-      useAmino = w instanceof keepkey.KeepKeyHDWallet || w instanceof ledger.LedgerHDWallet;
+      useAmino = w instanceof keepkey.KeepKeyHDWallet;
     });
 
     beforeEach(async () => {

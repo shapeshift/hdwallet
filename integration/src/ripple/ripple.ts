@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 
 import * as tx01_signed from "./tx01.signed.json";
 import * as tx01_unsigned from "./tx01.unsigned.json";

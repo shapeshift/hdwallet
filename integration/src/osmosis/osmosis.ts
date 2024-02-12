@@ -1,5 +1,5 @@
 /* eslint-disable jest/no-disabled-tests */
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 
 import tx_unsigned_delegation from "./tx01.mainnet.osmosis.delegate.json";
 import tx_signed_delegation from "./tx01.mainnet.osmosis.delegate.signed.json";

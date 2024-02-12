@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 
 import { KeepKeyHDWallet } from "./keepkey";
 import { Transport, TransportDelegate } from "./transport";

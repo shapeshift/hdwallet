@@ -1,6 +1,6 @@
 /* This is intended to be used to test the tests. It should not be shipped or *shudder* actually used. */
-import * as core from "@shapeshiftoss/hdwallet-core";
-import * as native from "@shapeshiftoss/hdwallet-native";
+import * as core from "@keepkey/hdwallet-core";
+import * as native from "@keepkey/hdwallet-native";
 import * as bip39 from "bip39";
 import * as ta from "type-assertions";
 import * as uuid from "uuid";
