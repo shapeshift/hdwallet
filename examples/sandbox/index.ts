@@ -1,11 +1,11 @@
 import "regenerator-runtime/runtime";
 
+import * as core from "@keepkey/hdwallet-core";
+import * as keepkey from "@keepkey/hdwallet-keepkey";
+import * as keepkeyTcp from "@keepkey/hdwallet-keepkey-tcp";
+import * as keepkeyWebUSB from "@keepkey/hdwallet-keepkey-webusb";
+import * as native from "@keepkey/hdwallet-native";
 import * as sigUtil from "@metamask/eth-sig-util";
-import * as core from "@shapeshiftoss/hdwallet-core";
-import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
-import * as keepkeyTcp from "@shapeshiftoss/hdwallet-keepkey-tcp";
-import * as keepkeyWebUSB from "@shapeshiftoss/hdwallet-keepkey-webusb";
-import * as native from "@shapeshiftoss/hdwallet-native";
 import { TypedData } from "eip-712";
 import $, { noop } from "jquery";
 import Web3 from "web3";

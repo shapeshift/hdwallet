@@ -24,7 +24,7 @@
     "stream-http": "^3.2.0"
   },
   "license": "MIT",
-  "name": "@shapeshiftoss/hdwallet-sandbox",
+  "name": "@keepkey/hdwallet-sandbox",
   "private": true,
   "scripts": {
     "build": "rm -rf public; yarn parcel build index.html --dist-dir public",
