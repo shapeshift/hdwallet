@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 import { keccak256, parseTransaction, recoverAddress } from "ethers/lib/utils.js";
 
 import * as Isolation from "./crypto/isolation";

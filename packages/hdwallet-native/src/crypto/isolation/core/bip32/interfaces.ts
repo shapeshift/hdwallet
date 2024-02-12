@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 
 import { Revocable } from "..";
 import * as SecP256K1 from "../secp256k1";

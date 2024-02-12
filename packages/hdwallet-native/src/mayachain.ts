@@ -1,6 +1,6 @@
 import type { StdTx } from "@cosmjs/amino";
 import type { SignerData } from "@cosmjs/stargate";
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 import * as bech32 from "bech32";
 import CryptoJS from "crypto-js";
 import PLazy from "p-lazy";

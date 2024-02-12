@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/hdwallet-native-vault",
+  "name": "@keepkey/hdwallet-native-vault",
   "version": "1.53.3",
   "license": "MIT",
   "publishConfig": {

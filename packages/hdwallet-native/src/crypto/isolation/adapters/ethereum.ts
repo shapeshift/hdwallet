@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 import { getMessage, TypedData } from "eip-712";
 import { BigNumber, BytesLike, providers, Signature, UnsignedTransaction } from "ethers";
 import {
