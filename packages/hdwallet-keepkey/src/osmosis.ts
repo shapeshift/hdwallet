@@ -10,7 +10,7 @@ import PLazy from "p-lazy";
 
 import { Transport } from "./transport";
 
-const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
+const protoTxBuilder = PLazy.from(() => import("@keepkey/proto-tx-builder"));
 
 export function osmosisGetAccountPaths(msg: core.OsmosisGetAccountPaths): Array<core.OsmosisAccountPath> {
   return [
