@@ -11,7 +11,7 @@ import * as util from "./util";
 
 const ARKEO_CHAIN = "arkeo-mainnet-1";
 
-const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
+const protoTxBuilder = PLazy.from(() => import("@keepkey/proto-tx-builder"));
 
 export function MixinNativeArkeoWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   // eslint-disable-next-line @typescript-eslint/no-shadow

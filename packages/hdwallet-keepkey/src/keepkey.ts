@@ -9,6 +9,7 @@ import * as Btc from "./bitcoin";
 import * as Cosmos from "./cosmos";
 import * as Eos from "./eos";
 import * as Eth from "./ethereum";
+import * as Mayachain from "./mayachain";
 import * as Osmosis from "./osmosis";
 import * as Ripple from "./ripple";
 import * as Thorchain from "./thorchain";
@@ -410,7 +411,8 @@ export class KeepKeyHDWalletInfo
     core.BinanceWalletInfo,
     core.RippleWalletInfo,
     core.EosWalletInfo,
-    core.ThorchainWalletInfo
+    core.ThorchainWalletInfo,
+    core.MayachainWalletInfo
 {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
@@ -420,6 +422,7 @@ export class KeepKeyHDWalletInfo
   readonly _supportsBinanceInfo = true;
   readonly _supportsEosInfo = true;
   readonly _supportsThorchainInfo = true;
+  readonly _supportsMayachainInfo = true;
 
   public getVendor(): string {
     return "KeepKey";
@@ -479,6 +482,10 @@ export class KeepKeyHDWalletInfo
 
   public thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
     return Thorchain.thorchainGetAccountPaths(msg);
+  }
+
+  public mayachainGetAccountPaths(msg: core.MayachainGetAccountPaths): Array<core.MayachainAccountPath> {
+    return Mayachain.mayachainGetAccountPaths(msg);
   }
 
   public rippleGetAccountPaths(msg: core.RippleGetAccountPaths): Array<core.RippleAccountPath> {
@@ -633,6 +640,21 @@ export class KeepKeyHDWalletInfo
     };
   }
 
+  public mayachainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
+    const description = describeThorchainPath(msg.addressNList);
+    if (!description.isKnown) {
+      return undefined;
+    }
+
+    const addressNList = msg.addressNList;
+    addressNList[2] += 1;
+
+    return {
+      ...msg,
+      addressNList,
+    };
+  }
+
   public rippleNextAccountPath(msg: core.RippleAccountPath): core.RippleAccountPath | undefined {
     const description = describeRipplePath(msg.addressNList);
     if (!description.isKnown) {
@@ -707,6 +729,8 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   readonly _supportsFio = false;
   readonly _supportsThorchainInfo = true;
   readonly _supportsThorchain = true;
+  readonly _supportsMayachainInfo = false;
+  readonly _supportsMayachain = false;
   readonly _supportsSecretInfo = false;
   readonly _supportsSecret = false;
   readonly _supportsKava = false;
@@ -1311,6 +1335,18 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
 
   public thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx> {
     return Thorchain.thorchainSignTx(this.transport, msg);
+  }
+
+  public mayachainGetAccountPaths(msg: core.MayachainGetAccountPaths): Array<core.MayachainAccountPath> {
+    return this.info.mayachainGetAccountPaths(msg);
+  }
+
+  public mayachainGetAddress(msg: core.MayachainGetAddress): Promise<string | null> {
+    return Mayachain.mayachainGetAddress(this.transport, msg);
+  }
+
+  public mayachainSignTx(msg: core.MayachainSignTx): Promise<core.MayachainSignedTx> {
+    return Mayachain.mayachainSignTx(this.transport, msg);
   }
 
   public binanceGetAccountPaths(msg: core.BinanceGetAccountPaths): Array<core.BinanceAccountPath> {

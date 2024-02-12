@@ -9,6 +9,7 @@ import { EosWallet, EosWalletInfo } from "./eos";
 import { ETHWallet, ETHWalletInfo } from "./ethereum";
 import { FioWallet, FioWalletInfo } from "./fio";
 import { KavaWallet, KavaWalletInfo } from "./kava";
+import { MayachainWallet, MayachainWalletInfo } from "./mayachain";
 import { OsmosisWallet, OsmosisWalletInfo } from "./osmosis";
 import { RippleWallet, RippleWalletInfo } from "./ripple";
 import { SecretWallet, SecretWalletInfo } from "./secret";
@@ -186,6 +187,14 @@ export function supportsThorchain(wallet: HDWallet): wallet is ThorchainWallet {
 
 export function infoThorchain(info: HDWalletInfo): info is ThorchainWalletInfo {
   return isObject(info) && (info as any)._supportsThorchainInfo;
+}
+
+export function supportsMayachain(wallet: HDWallet): wallet is MayachainWallet {
+  return isObject(wallet) && (wallet as any)._supportsMayachain;
+}
+
+export function infoMayachain(info: HDWalletInfo): info is MayachainWalletInfo {
+  return isObject(info) && (info as any)._supportsMayachainInfo;
 }
 
 export function supportsEos(wallet: HDWallet): wallet is EosWallet {
