@@ -7,7 +7,7 @@ import { TextDecoder, TextEncoder } from "web-encoding";
 import { AsyncCrypto } from "./types";
 
 const nativeEngines = PLazy.from(async () => {
-  return (await import("@shapeshiftoss/hdwallet-native")).crypto.Isolation.Engines;
+  return (await import("@keepkey/hdwallet-native")).crypto.Isolation.Engines;
 });
 
 export async function createMnemonic(mnemonic: string) {
