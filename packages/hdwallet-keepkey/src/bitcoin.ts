@@ -1,7 +1,7 @@
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
+import * as core from "@keepkey/hdwallet-core";
 import * as bitcoinjs from "@shapeshiftoss/bitcoinjs-lib";
-import * as core from "@shapeshiftoss/hdwallet-core";
 import assert from "assert";
 import { thaw } from "icepick";
 

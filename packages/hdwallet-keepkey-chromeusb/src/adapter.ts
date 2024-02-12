@@ -1,4 +1,4 @@
-import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
+import * as keepkey from "@keepkey/hdwallet-keepkey";
 
 import { TransportDelegate } from "./transport";
 import { assertChromeUSB, chromeUSB, HID_PRODUCT_ID, makePromise, VENDOR_ID, WEBUSB_PRODUCT_ID } from "./utils";

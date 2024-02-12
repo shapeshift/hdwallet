@@ -1,4 +1,4 @@
-import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
+import * as keepkey from "@keepkey/hdwallet-keepkey";
 import * as electron from "electron";
 import * as uuid from "uuid";
 

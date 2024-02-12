@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/hdwallet-keepkey-nodehid",
+  "name": "@keepkey/hdwallet-keepkey-nodehid",
   "version": "1.53.3",
   "license": "MIT",
   "publishConfig": {

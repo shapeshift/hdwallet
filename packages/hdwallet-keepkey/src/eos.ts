@@ -1,6 +1,6 @@
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as EosMessages from "@keepkey/device-protocol/lib/messages-eos_pb";
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 import * as bs58 from "bs58";
 import createHash from "create-hash";
 import Long from "long";

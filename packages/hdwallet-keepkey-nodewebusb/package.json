@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/hdwallet-keepkey-nodewebusb",
+  "name": "@keepkey/hdwallet-keepkey-nodewebusb",
   "version": "1.53.3",
   "license": "MIT",
   "publishConfig": {

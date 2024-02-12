@@ -1,4 +1,4 @@
-import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
+import * as keepkey from "@keepkey/hdwallet-keepkey";
 import * as hid from "node-hid";
 
 import { Device, TransportDelegate } from "./transport";

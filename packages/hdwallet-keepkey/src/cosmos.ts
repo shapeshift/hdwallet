@@ -3,7 +3,7 @@ import type { AccountData } from "@cosmjs/proto-signing";
 import type { SignerData } from "@cosmjs/stargate";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as CosmosMessages from "@keepkey/device-protocol/lib/messages-cosmos_pb";
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 import bs58check from "bs58check";
 import PLazy from "p-lazy";
 
