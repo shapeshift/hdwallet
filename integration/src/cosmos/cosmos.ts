@@ -1,5 +1,5 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
-import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
+import * as core from "@keepkey/hdwallet-core";
+import * as keepkey from "@keepkey/hdwallet-keepkey";
 
 // Amino-encoded transactions
 import tx_unsigned_delegate_cosmos_amino from "./amino/tx01.mainnet.cosmos.delegate.json";

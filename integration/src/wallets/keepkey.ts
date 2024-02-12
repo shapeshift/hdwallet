@@ -1,7 +1,7 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
-import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
-import * as keepkeyNodeWebUSB from "@shapeshiftoss/hdwallet-keepkey-nodewebusb";
-import * as keepkeyTcp from "@shapeshiftoss/hdwallet-keepkey-tcp";
+import * as core from "@keepkey/hdwallet-core";
+import * as keepkey from "@keepkey/hdwallet-keepkey";
+import * as keepkeyNodeWebUSB from "@keepkey/hdwallet-keepkey-nodewebusb";
+import * as keepkeyTcp from "@keepkey/hdwallet-keepkey-tcp";
 import AxiosHTTPAdapter from "axios/lib/adapters/http";
 
 const TIMEOUT = 60 * 1000;

@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 
 const MNEMONIC12_ALLALL = "all all all all all all all all all all all all";
 

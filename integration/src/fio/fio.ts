@@ -1,4 +1,4 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from "@keepkey/hdwallet-core";
 
 // TODO: Use these test TXs for something?
 // import * as tx01_unsigned from "./tx01.unsigned.json";

@@ -1,6 +1,6 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
-import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
-import * as native from "@shapeshiftoss/hdwallet-native";
+import * as core from "@keepkey/hdwallet-core";
+import * as keepkey from "@keepkey/hdwallet-keepkey";
+import * as native from "@keepkey/hdwallet-native";
 
 import { binanceTests } from "./binance";
 import { btcTests } from "./bitcoin";
