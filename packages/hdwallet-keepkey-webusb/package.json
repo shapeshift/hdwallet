@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "1.53.3",
-    "@shapeshiftoss/hdwallet-keepkey": "1.53.3"
+    "@keepkey/hdwallet-core": "1.53.3",
+    "@keepkey/hdwallet-keepkey": "1.53.3"
   },
   "devDependencies": {
     "@types/w3c-web-usb": "^1.0.4"

@@ -20,7 +20,7 @@
     "@keepkey/device-protocol": "^7.13.1",
     "@metamask/eth-sig-util": "^7.0.0",
     "@shapeshiftoss/bitcoinjs-lib": "5.2.0-shapeshift.2",
-    "@shapeshiftoss/hdwallet-core": "1.53.3",
+    "@keepkey/hdwallet-core": "1.53.3",
     "@shapeshiftoss/proto-tx-builder": "^0.8.0",
     "bignumber.js": "^9.0.1",
     "bnb-javascript-sdk-nobroadcast": "^2.16.14",
