@@ -34,9 +34,9 @@ yarn add @shapeshiftoss/hdwallet-ledger-webusb
 You can import the generated bundle to use each of the component libraries:
 
 ```javascript
-import { HDWallet } from "@shapeshiftoss/hdwallet-core";
-import { isKeepKey, KeepKeyHDWallet } from "@shapeshiftoss/hdwallet-keepkey";
-import { WebUSBKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-webusb";
+import { HDWallet } from "@keepkey/hdwallet-core";
+import { isKeepKey, KeepKeyHDWallet } from "@keepkey/hdwallet-keepkey";
+import { WebUSBKeepKeyAdapter } from "@keepkey/hdwallet-keepkey-webusb";
 ```
 
 ## Usage
@@ -45,7 +45,7 @@ The recommended way to use the library is through a `Keyring` singleton,
 which manages connected devices:
 
 ```javascript
-import { Keyring } from "@shapeshiftoss/hdwallet-core";
+import { Keyring } from "@keepkey/hdwallet-core";
 const keyring = new Keyring();
 ```
 
@@ -53,7 +53,7 @@ To add in support for a given wallet type, add in the relevant `Transport`
 adapter by calling `useKeyring()` on it:
 
 ```javascript
-import { WebUSBKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-webusb";
+import { WebUSBKeepKeyAdapter } from "@keepkey/hdwallet-keepkey-webusb";
 
 const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring);
 ```
