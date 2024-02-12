@@ -1,10 +1,10 @@
 {
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "1.53.3",
-    "@shapeshiftoss/hdwallet-keepkey": "1.53.3",
-    "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "1.53.3",
-    "@shapeshiftoss/hdwallet-keepkey-tcp": "1.53.3",
-    "@shapeshiftoss/hdwallet-native": "1.53.3",
+    "@keepkey/hdwallet-core": "1.53.3",
+    "@keepkey/hdwallet-keepkey": "1.53.3",
+    "@keepkey/hdwallet-keepkey-nodewebusb": "1.53.3",
+    "@keepkey/hdwallet-keepkey-tcp": "1.53.3",
+    "@keepkey/hdwallet-native": "1.53.3",
     "fast-json-stable-stringify": "^2.1.0",
     "msw": "^0.27.1",
     "whatwg-fetch": "^3.6.2"
