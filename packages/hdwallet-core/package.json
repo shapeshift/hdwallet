@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/hdwallet-core",
+  "name": "@keepkey/hdwallet-core",
   "version": "1.53.3",
   "license": "MIT",
   "publishConfig": {
