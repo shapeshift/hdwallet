@@ -23,10 +23,10 @@ Try it out [here](https://hdwallet.shapeshift.now.sh/)!
 ## Installation
 
 ```bash
-yarn add @shapeshiftoss/hdwallet-core
-yarn add @shapeshiftoss/hdwallet-keepkey-webusb
-yarn add @shapeshiftoss/hdwallet-trezor-connect
-yarn add @shapeshiftoss/hdwallet-ledger-webusb
+yarn add @keepkey/hdwallet-core
+yarn add @keepkey/hdwallet-keepkey-webusb
+yarn add @keepkey/hdwallet-trezor-connect
+yarn add @keepkey/hdwallet-ledger-webusb
 ```
 
 ## Importing Library
