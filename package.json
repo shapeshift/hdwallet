@@ -15,7 +15,7 @@
     ]
   },
   "scripts": {
-    "clean": "lerna run clean --scope @shapeshiftoss/* && rm -rf coverage test-report node_modules && yarn cache clean",
+    "clean": "lerna run clean --scope @keepkey/* && rm -rf coverage test-report node_modules && yarn cache clean",
     "lint": "eslint --cache --max-warnings=0 .",
     "lint:fix": "yarn lint --fix",
     "lint:ts": "tsc --noEmit",
