@@ -1,6 +1,6 @@
 import type { StdTx } from "@cosmjs/amino";
 import type { SignerData } from "@cosmjs/stargate";
-import * as core from "@keepkey/hdwallet-core";
+import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bech32 from "bech32";
 import CryptoJS from "crypto-js";
 import PLazy from "p-lazy";
@@ -40,7 +40,7 @@ export function MixinNativeCosmosWalletInfo<TBase extends core.Constructor<core.
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
-      // Only support one account for now.
+      // Only support one account for now (like portis).
       return undefined;
     }
   };

@@ -10,7 +10,7 @@ Try it out [here](https://hdwallet.shapeshift.now.sh/)!
 
 ## Documentation
 
-- [HDWallet](#hdwallet)
+- [hdwallet](#hdwallet)
   - [Documentation](#documentation)
   - [Installation](#installation)
   - [Importing Library](#importing-library)
@@ -23,10 +23,10 @@ Try it out [here](https://hdwallet.shapeshift.now.sh/)!
 ## Installation
 
 ```bash
-yarn add @keepkey/hdwallet-core
-yarn add @keepkey/hdwallet-keepkey-webusb
-yarn add @keepkey/hdwallet-trezor-connect
-yarn add @keepkey/hdwallet-ledger-webusb
+yarn add @shapeshiftoss/hdwallet-core
+yarn add @shapeshiftoss/hdwallet-keepkey-webusb
+yarn add @shapeshiftoss/hdwallet-trezor-connect
+yarn add @shapeshiftoss/hdwallet-ledger-webusb
 ```
 
 ## Importing Library
@@ -34,9 +34,14 @@ yarn add @keepkey/hdwallet-ledger-webusb
 You can import the generated bundle to use each of the component libraries:
 
 ```javascript
-import { HDWallet } from "@keepkey/hdwallet-core";
-import { isKeepKey, KeepKeyHDWallet } from "@keepkey/hdwallet-keepkey";
-import { WebUSBKeepKeyAdapter } from "@keepkey/hdwallet-keepkey-webusb";
+import { HDWallet } from "@shapeshiftoss/hdwallet-core";
+import { isKeepKey, KeepKeyHDWallet } from "@shapeshiftoss/hdwallet-keepkey";
+import { isLedger, LedgerHDWallet } from "@shapeshiftoss/hdwallet-ledger";
+import { isTrezor, TrezorHDWallet } from "@shapeshiftoss/hdwallet-trezor";
+
+import { WebUSBKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-webusb";
+import { WebUSBLedgerAdapter } from "@shapeshiftoss/hdwallet-ledger-webusb";
+import { TrezorAdapter } from "@shapeshiftoss/hdwallet-trezor-connect";
 ```
 
 ## Usage
@@ -45,7 +50,7 @@ The recommended way to use the library is through a `Keyring` singleton,
 which manages connected devices:
 
 ```javascript
-import { Keyring } from "@keepkey/hdwallet-core";
+import { Keyring } from "@shapeshiftoss/hdwallet-core";
 const keyring = new Keyring();
 ```
 
@@ -53,9 +58,20 @@ To add in support for a given wallet type, add in the relevant `Transport`
 adapter by calling `useKeyring()` on it:
 
 ```javascript
-import { WebUSBKeepKeyAdapter } from "@keepkey/hdwallet-keepkey-webusb";
+import { WebUSBKeepKeyAdapter } from "@shapeshiftoss/hdwallet-keepkey-webusb";
+import { TrezorAdapter } from "@shapeshiftoss/hdwallet-trezor-connect";
 
 const keepkeyAdapter = WebUSBKeepKeyAdapter.useKeyring(keyring);
+
+const trezorAdapter = TrezorAdapter.useKeyring(keyring, {
+  debug: false,
+  manifest: {
+    email: "you@example.com", // TrezorConnect info
+    appUrl: "https://example.com", // URL of hosted domain
+  },
+});
+
+const ledgerAdapter = LedgerAdapter.useKeyring(keyring);
 ```
 
 After setting up a `Keyring`, and plugging various transport adapters into

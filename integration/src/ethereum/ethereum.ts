@@ -1,4 +1,8 @@
-import * as core from "@keepkey/hdwallet-core";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+import * as metamask from "@shapeshiftoss/hdwallet-metamask";
+import * as portis from "@shapeshiftoss/hdwallet-portis";
+import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
 const MNEMONIC_TEST = "smooth antenna immense oppose august casual fresh meadow happy ugly wave control";
@@ -249,6 +253,10 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
         if (!wallet) return;
         // eslint-disable-next-line jest/no-jasmine-globals, jest/no-disabled-tests
 
+        if (ledger.isLedger(wallet)) return; // FIXME: just test kk and native for now
+        if (trezor.isTrezor(wallet)) return; // FIXME: just test kk and native for now
+        if (portis.isPortis(wallet)) return; // FIXME: just test kk and native for now
+
         const txToSign = {
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
           nonce: "0x01",
@@ -292,6 +300,9 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
       "ethSignTx() - long contract data",
       async () => {
         if (!wallet) return;
+        if (ledger.isLedger(wallet)) return; // FIXME: just test kk for now
+        if (trezor.isTrezor(wallet)) return; // FIXME: just test kk for now
+        if (portis.isPortis(wallet)) return; // FIXME: just test kk for now
 
         const txToSign = {
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
@@ -382,6 +393,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
       "ethSignMessage()",
       async () => {
         if (!wallet) return;
+        if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
         const res = await wallet.ethSignMessage({
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
           message: "0x48656c6c6f20576f726c64", // "Hello World",

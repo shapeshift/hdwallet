@@ -1,4 +1,4 @@
-import * as core from "@keepkey/hdwallet-core";
+import * as core from "@shapeshiftoss/hdwallet-core";
 
 import { kavaTests as tests } from "./kava";
 

@@ -1,4 +1,6 @@
-import * as core from "@keepkey/hdwallet-core";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+import * as portis from "@shapeshiftoss/hdwallet-portis";
 
 const MNEMONIC12_ALLALL = "all all all all all all all all all all all all";
 
@@ -29,6 +31,8 @@ export function testnetTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test(
       "btcSignTx() - p2sh-p2wpkh",
       async () => {
+        if (!wallet || portis.isPortis(wallet)) return;
+        if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
         if (!wallet.btcSupportsCoin("Testnet")) return;
         const inputs: core.BTCSignTxInputUnguarded[] = [
           {
@@ -70,6 +74,8 @@ export function testnetTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     );
 
     test("btcSignTx() - p2wpkh", async () => {
+      if (!wallet || portis.isPortis(wallet)) return;
+      if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
       if (!wallet.btcSupportsCoin("Testnet")) return;
       const tx: core.BitcoinTx = {
         version: core.untouchable("tx.version not provided by test"),

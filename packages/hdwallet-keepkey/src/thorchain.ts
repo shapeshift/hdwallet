@@ -2,13 +2,13 @@ import type { AccountData, AminoSignResponse, OfflineAminoSigner, StdSignDoc, St
 import type { SignerData } from "@cosmjs/stargate";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as ThorchainMessages from "@keepkey/device-protocol/lib/messages-thorchain_pb";
-import * as core from "@keepkey/hdwallet-core";
+import * as core from "@shapeshiftoss/hdwallet-core";
 import bs58check from "bs58check";
 import PLazy from "p-lazy";
 
 import { Transport } from "./transport";
 
-const protoTxBuilder = PLazy.from(() => import("@keepkey/proto-tx-builder"));
+const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
 
 export function thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
   return [

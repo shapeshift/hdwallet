@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": [
+    "src/**/*",
+    "../../node_modules/@types/w3c-web-usb/index.d.ts"
+  ],
+  "exclude": ["node_modules", "dist"],
+  "references": [{ "path": "../hdwallet-core" }, { "path": "../hdwallet-ledger" }]
+}
