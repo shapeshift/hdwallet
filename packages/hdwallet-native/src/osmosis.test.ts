@@ -49,7 +49,7 @@ describe("NativeOsmosisWallet", () => {
     );
   });
 
-  it.skip("should sign a transaction correctly", async () => {
+  it("should sign a transaction correctly", async () => {
     const signed = await wallet.osmosisSignTx({
       addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
       tx: {
