@@ -110,7 +110,18 @@
       <button id="keepkey">Pair KeepKey</button>
       <button id="keepkeybridge">Pair KKBridge</button>
       <button id="kkemu">Pair Emulator</button>
+      <button id="trezor">Pair Trezor</button>
+      <button id="ledgerwebusb">Pair Ledger (webUSB)</button>
+      <button id="ledgerwebhid">Pair Ledger (webHID)</button>
+      <button id="portis">Pair Portis</button>
       <button id="native">Pair Native</button>
+      <button id="metaMask">Pair MetaMask</button>
+      <button id="xdefi">Pair XDEFI</button>
+      <button id="keplr">Pair Keplr</button>
+      <button id="tallyHo">Pair Tally Ho</button>
+      <button id="coinbase">Pair Coinbase</button>
+      <button id="walletConnect">Pair WalletConnect</button>
+      <button id="walletConnectV2">Pair WalletConnect V2</button>
 
       <select id="keyring" style="height: 100px" size="4"></select>
     </div>
@@ -147,6 +158,15 @@
       <button class="button button-outline getXpubs coin-BitcoinCash">Bitcoin Cash</button>
       <button class="button button-outline getXpubs coin-Ethereum">Ethereum</button>
       <input type="text" class="xpubResults" />
+    </div>
+    <div class="container">
+      <h4>Ledger Device</h4>
+      <button class="button button-outline" id="openApp">Open App</button>
+      <input type="text" id="ledgerAppToOpen" />
+      <button class="button button-outline" id="validateApp">Validate Open App</button>
+      <input type="text" id="ledgerAppToValidate" />
+      <button class="button button-outline" id="getAppInfo">App Info</button>
+      <input type="text" id="appInfo" />
     </div>
     <div class="container">
       <h4>Eos</h4>
@@ -291,12 +311,8 @@
       <button class="button button-outline" id="ethSign">Sign Message</button>
       <button class="button button-outline" id="ethVerify">Verify</button>
       <button class="button button-outline" id="ethSignTypedData">Sign Typed Data (OpenSea Listing)</button>
-      <button class="button button-outline" id="ethSignTypedDataAlternate1">
-        Sign Typed Data (primaryType is 80+ chars)
-      </button>
-      <button class="button button-outline" id="ethSignTypedDataAlternate2">
-        Sign Typed Data (primaryType is "EIP712Domain")
-      </button>
+      <button class="button button-outline" id="ethSignTypedDataAlternate1">Sign Typed Data (primaryType is 80+ chars)</button>
+      <button class="button button-outline" id="ethSignTypedDataAlternate2">Sign Typed Data (primaryType is "EIP712Domain")</button>
       <input type="text" id="ethResults" />
     </div>
     <div class="container">

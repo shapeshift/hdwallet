@@ -1,5 +1,5 @@
 {
-  "name": "@keepkey/hdwallet",
+  "name": "@shapeshiftoss/hdwallet",
   "private": true,
   "repository": "https://github.com/shapeshift/hdwallet",
   "author": "ShapeShift Open Source <oss@shapeshiftoss.io>",
@@ -15,18 +15,18 @@
     ]
   },
   "scripts": {
-    "clean": "lerna run clean --scope @keepkey/* && rm -rf coverage test-report node_modules && yarn cache clean",
+    "clean": "lerna run clean --scope @shapeshiftoss/* && rm -rf coverage test-report node_modules && yarn cache clean",
     "lint": "eslint --cache --max-warnings=0 .",
     "lint:fix": "yarn lint --fix",
     "lint:ts": "tsc --noEmit",
     "format": "prettier .",
-    "build": "yarn tsc --build && lerna run build --scope @keepkey/hdwallet-native-vault",
+    "build": "yarn tsc --build && lerna run build --scope @shapeshiftoss/hdwallet-native-vault",
     "dev:all": "yarn tsc --build --watch",
     "dev:sandbox": "cd examples/sandbox && yarn dev",
     "docker:run:emulator": "docker run -p 5000:5000 kktech/kkemu:latest",
     "docker:stop:run:emulator": "docker stop $(docker ps -a -q --filter ancestor=kktech/kkemu:latest --format=\"{{.ID}}\") && docker run -p 5000:5000 kktech/kkemu:latest",
     "vercel-install": "yarn install --frozen-lockfile",
-    "vercel-build": "lerna run build --scope @keepkey/hdwallet-core && lerna run build --scope @keepkey/hdwallet-sandbox --ignore @keepkey/hdwallet-keepkey-nodehid --include-filtered-dependencies && mkdir -p ./public && cp -R ./examples/sandbox/public/. ./public/",
+    "vercel-build": "lerna run build --scope @shapeshiftoss/hdwallet-core && lerna run build --scope @shapeshiftoss/hdwallet-sandbox --ignore @shapeshiftoss/hdwallet-keepkey-nodehid --include-filtered-dependencies && mkdir -p ./public && cp -R ./examples/sandbox/public/. ./public/",
     "test": "yarn jest --verbose --config jest.config.js",
     "test:integration": "yarn jest -c integration/jest.config.js",
     "lerna:version-alpha": "lerna version prerelease --force-publish --no-push --exact --yes",
@@ -40,7 +40,6 @@
     "@types/inquirer": "9.0.3",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
     "@typescript-eslint/parser": "^6.7.3",
-    "assert": "^2.1.0",
     "browserify-zlib": "^0.2.0",
     "eslint": "^8.10.0",
     "eslint-config-prettier": "8.5.0",
@@ -53,7 +52,6 @@
     "jest-junit": "^12.0.0",
     "lerna": "^5.2.0",
     "prettier": "^2.0.5",
-    "stream-browserify": "^3.0.0",
     "ts-jest": "^26.5.5",
     "typescript": "^5.2.2"
   },
@@ -61,6 +59,7 @@
     "bip174": "2.1.0",
     "@types/eventsource": "1.1.8",
     "@types/node": "20.5.7@ts4.7",
+    "@ledgerhq/hw-transport": "6.7.0",
     "p-queue": "^6.6.2"
   },
   "dependencies": {

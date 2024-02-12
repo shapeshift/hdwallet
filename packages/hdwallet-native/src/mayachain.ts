@@ -1,6 +1,6 @@
 import type { StdTx } from "@cosmjs/amino";
 import type { SignerData } from "@cosmjs/stargate";
-import * as core from "@keepkey/hdwallet-core";
+import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bech32 from "bech32";
 import CryptoJS from "crypto-js";
 import PLazy from "p-lazy";
@@ -40,7 +40,7 @@ export function MixinNativeMayachainWalletInfo<TBase extends core.Constructor<co
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mayachainNextAccountPath(msg: core.MayachainAccountPath): core.MayachainAccountPath | undefined {
-      // Only support one account for now.
+      // Only support one account for now (like portis).
       return undefined;
     }
   };

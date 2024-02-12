@@ -281,7 +281,8 @@ export interface HDWalletInfo {
   /**
    * Does the wallet use a recovery method that does not involve communicating
    * with the host? Eg. for a KeepKey, this is `false` since we use Ciphered
-   * Recovery.
+   * Recovery, but for a Ledger it's `true` since you enter words using only
+   * the device.
    */
   hasOnDeviceRecovery(): boolean;
 
@@ -333,7 +334,7 @@ export interface HDWallet extends HDWalletInfo {
   getFirmwareVersion(): Promise<string>;
 
   /**
-   * Retrieve the name of the model of wallet, eg 'KeepKey'
+   * Retrieve the name of the model of wallet, eg 'KeepKey' or 'Trezor One'
    */
   getModel(): Promise<string>;
 
@@ -375,7 +376,7 @@ export interface HDWallet extends HDWalletInfo {
   /**
    * Respond to device with the user's pin.
    *
-   * For KeepKey, this would be encoded with the PIN matrix OTP, so the
+   * For KeepKey/Trezor, this would be encoded with the PIN matrix OTP, so the
    * host cannot decipher it without actually seeing the device's screen.
    */
   sendPin(pin: string): Promise<void>;

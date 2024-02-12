@@ -1,5 +1,8 @@
-import * as core from "@keepkey/hdwallet-core";
-import * as native from "@keepkey/hdwallet-native";
+import * as core from "@shapeshiftoss/hdwallet-core";
+import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+import * as native from "@shapeshiftoss/hdwallet-native";
+import * as portis from "@shapeshiftoss/hdwallet-portis";
+import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 
 import { each } from "../utils";
 
@@ -57,6 +60,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test(
       "btcSupportsCoin()",
       async () => {
+        if (!wallet || portis.isPortis(wallet)) return;
         expect(wallet.btcSupportsCoin("Bitcoin")).toBeTruthy();
         expect(await info.btcSupportsCoin("Bitcoin")).toBeTruthy();
         expect(wallet.btcSupportsCoin("Testnet")).toBeTruthy();
@@ -66,6 +70,12 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     );
 
     test("getPublicKeys", async () => {
+      if (!wallet || ledger.isLedger(wallet) || trezor.isTrezor(wallet) || portis.isPortis(wallet)) return;
+
+      /* FIXME: Expected failure (trezor does not use scriptType in deriving public keys
+          and ledger's dependency bitcoinjs-lib/src/crypto.js throws a mysterious TypeError
+          in between mock transport calls.
+       */
       expect(
         await wallet.getPublicKeys([
           {
@@ -138,6 +148,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test(
       "btcGetAddress()",
       async () => {
+        if (!wallet || portis.isPortis(wallet)) return;
         await each(
           [
             [
@@ -203,6 +214,8 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test(
       "btcSignTx() - p2pkh",
       async () => {
+        if (!wallet || portis.isPortis(wallet)) return;
+        if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
         const tx: core.BitcoinTx = {
           version: 1,
           locktime: 0,
@@ -276,6 +289,9 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test(
       "btcSignTx() - thorchain swap",
       async () => {
+        if (!wallet || portis.isPortis(wallet)) return;
+        if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
+        if (trezor.isTrezor(wallet)) return; //TODO: Add trezor support for op return data passed at top level
         const tx: core.BitcoinTx = {
           version: 1,
           locktime: 0,
@@ -371,6 +387,13 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           scriptType: core.BTCInputScriptType.SpendAddress,
           message: "Hello World",
         });
+
+        // not implemented on portis
+        if (portis.isPortis(wallet)) {
+          // eslint-disable-next-line jest/no-conditional-expect
+          await expect(res).rejects.toThrowError("not supported");
+          return;
+        }
 
         await expect(res).resolves.toEqual({
           address: "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
@@ -510,8 +533,13 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           });
           expect(typeof wallet.btcIsSameAccount(paths) === typeof true).toBeTruthy();
           paths.forEach((path) => {
-            // eslint-disable-next-line jest/no-conditional-expect
-            expect(wallet.btcNextAccountPath(path)).not.toBeUndefined();
+            if (wallet.getVendor() === "Portis") {
+              // eslint-disable-next-line jest/no-conditional-expect
+              expect(wallet.btcNextAccountPath(path)).toBeUndefined();
+            } else {
+              // eslint-disable-next-line jest/no-conditional-expect
+              expect(wallet.btcNextAccountPath(path)).not.toBeUndefined();
+            }
           });
         });
       },
