@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { keccak256, parseTransaction, recoverAddress } from "ethers/lib/utils.js";
+import { keccak256, recoverAddress } from "ethers";
 
 import * as Isolation from "./crypto/isolation";
 import SignerAdapter from "./crypto/isolation/adapters/ethereum";

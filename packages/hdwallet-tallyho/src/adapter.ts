@@ -1,10 +1,10 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { providers } from "ethers";
+import { Eip1193Provider } from "ethers";
 import TallyHoOnboarding from "tallyho-onboarding";
 
 import { TallyHoHDWallet } from "./tallyho";
 
-interface TallyHoEthereumProvider extends providers.ExternalProvider {
+interface TallyHoEthereumProvider extends Eip1193Provider {
   isTally?: boolean;
 }
 

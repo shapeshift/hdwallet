@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { toQuantity } from "ethers";
 import { Literal, Object as Obj, Static, Union } from "funtypes";
 import PLazy from "p-lazy";
 import * as tinyecc from "tiny-secp256k1";
@@ -296,7 +297,7 @@ const _recoverableSignatureStatic = {
     const ethSig = core.compatibleBufferConcat([sig, Buffer.from([recoveryParam])]);
     const ethRecovered = (await ethers).utils.recoverPublicKey(
       msgOrDigest,
-      (await ethers).utils.splitSignature(ethSig)
+      (await ethers).Signature.from(toQuantity(ethSig))
     );
     return checkType(UncompressedPoint, Buffer.from(ethRecovered.slice(2), "hex"));
   },
