@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { ethers } from "ethers";
+import type { BytesLike } from "ethers";
+import { concat, getBytes, isHexString, toUtf8Bytes } from "ethers";
 
 import { BTCScriptType } from "./bitcoin";
 import * as Isolation from "./crypto/isolation";
@@ -17,15 +18,10 @@ export async function getKeyPair(
   return await wallet.derivePath(path);
 }
 
-export function buildMessage(message: ethers.utils.BytesLike): Uint8Array {
-  const messageBytes =
-    typeof message === "string" && !ethers.utils.isHexString(message)
-      ? ethers.utils.toUtf8Bytes(message)
-      : ethers.utils.arrayify(message);
+export function buildMessage(message: BytesLike): Uint8Array {
+  const messageBytes = typeof message === "string" && !isHexString(message) ? toUtf8Bytes(message) : getBytes(message);
 
-  return ethers.utils.concat([
-    ethers.utils.toUtf8Bytes("\x19Ethereum Signed Message:\n"),
-    ethers.utils.toUtf8Bytes(String(messageBytes.length)),
-    messageBytes,
-  ]);
+  return getBytes(
+    concat([toUtf8Bytes("\x19Ethereum Signed Message:\n"), toUtf8Bytes(String(messageBytes.length)), messageBytes])
+  );
 }

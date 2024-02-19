@@ -1,7 +1,7 @@
 import Common from "@ethereumjs/common";
 import { Transaction } from "@ethereumjs/tx";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { isHexString } from "ethers/lib/utils";
+import { isHexString } from "ethers";
 
 import { TrezorTransport } from "./transport";
 import { handleError } from "./utils";

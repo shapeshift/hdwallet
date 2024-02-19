@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { ETHSignedMessage } from "@shapeshiftoss/hdwallet-core";
-import { isHexString } from "ethers/lib/utils";
+import { isHexString } from "ethers";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function ethVerifyMessage(msg: core.ETHVerifyMessage, ethereum: any): Promise<boolean | null> {

@@ -9,7 +9,7 @@ import type {
 } from "@shapeshiftoss/hdwallet-core";
 import { addressNListToBIP32, slip44ByCoin } from "@shapeshiftoss/hdwallet-core";
 import EthereumProvider from "@walletconnect/ethereum-provider";
-import { isHexString } from "ethers/lib/utils";
+import { isHexString } from "ethers";
 
 const getUnsignedTxFromMessage = (msg: ETHSignTx & { from: string }) => {
   const utxBase = {

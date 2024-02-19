@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { ETHSignedMessage } from "@shapeshiftoss/hdwallet-core";
-import { isHexString } from "ethers/lib/utils";
+import { isHexString } from "ethers";
 
 export function describeETHPath(path: core.BIP32Path): core.PathDescription {
   return core.describeETHPath(path);

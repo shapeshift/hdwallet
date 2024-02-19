@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { parseTransaction } from "ethers/lib/utils.js";
+import { parseTransaction } from "ethers";
 
 import * as native from "./native";
 

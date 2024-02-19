@@ -6,7 +6,7 @@ import EthereumTx from "ethereumjs-tx";
 // @ts-ignore
 // TODO: fix ts-ignore
 import * as ethereumUtil from "ethereumjs-util";
-import { arrayify, isBytes } from "ethers/lib/utils.js";
+import { getBytes, isBytesLike } from "ethers";
 import { isHexString } from "ethjs-util";
 
 import { LedgerTransport } from "./transport";
@@ -189,7 +189,7 @@ export async function ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<bool
     return false;
   }
   sigb[64] = sigb[64] === 0 || sigb[64] === 1 ? sigb[64] + 27 : sigb[64];
-  const buffer = isBytes(msg.message) ? Buffer.from(arrayify(msg.message)) : Buffer.from(msg.message);
+  const buffer = isBytesLike(msg.message) ? Buffer.from(getBytes(msg.message)) : Buffer.from(msg.message);
   const hash = ethereumUtil.hashPersonalMessage(buffer);
   const pubKey = ethereumUtil.ecrecover(hash, sigb[64], sigb.slice(0, 32), sigb.slice(32, 64));
 

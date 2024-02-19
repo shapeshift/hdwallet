@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { ETHSignedMessage } from "@shapeshiftoss/hdwallet-core";
-import { isHexString } from "ethers/lib/utils";
+import { isHexString } from "ethers";
 
 export async function ethVerifyMessage(msg: core.ETHVerifyMessage, ethereum: any): Promise<boolean | null> {
   const recoveredAddress = await ethereum.request({
