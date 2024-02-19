@@ -462,7 +462,8 @@ export class KeepKeyHDWalletInfo
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {
-    return true;
+    // disable EIP1559 support until edge case fail states are fixed across all evm chains
+    return false;
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
@@ -1205,7 +1206,10 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
 
   public async ethSupportsEIP1559(): Promise<boolean> {
     // EIP1559 support starts in v7.2.1
-    return semver.gte(await this.getFirmwareVersion(), "v7.2.1");
+    // return semver.gte(await this.getFirmwareVersion(), "v7.2.1");
+
+    // disable EIP1559 support until edge case fail states are fixed across all evm chains
+    return false;
   }
 
   public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
