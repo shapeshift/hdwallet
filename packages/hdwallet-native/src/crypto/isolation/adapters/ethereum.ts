@@ -8,7 +8,6 @@ import {
   Provider,
   resolveProperties,
   SigningKey,
-  toQuantity,
   Transaction,
   TransactionLike,
   TransactionRequest,
