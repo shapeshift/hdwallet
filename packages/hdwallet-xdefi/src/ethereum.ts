@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { ETHSignedMessage } from "@shapeshiftoss/hdwallet-core";
-import { isHexString } from "ethers";
+import { isHex } from "viem";
 
 export async function ethVerifyMessage(msg: core.ETHVerifyMessage, ethereum: any): Promise<boolean | null> {
   const recoveredAddress = await ethereum.request({
@@ -72,7 +72,7 @@ export async function ethSignMessage(
   address: string
 ): Promise<core.ETHSignedMessage | null> {
   try {
-    if (!isHexString(msg.message)) throw new Error("data is not an hex string");
+    if (!isHex(msg.message)) throw new Error("data is not an hex string");
     const signedMsg = await ethereum.request({
       method: "personal_sign",
       params: [msg.message, address],

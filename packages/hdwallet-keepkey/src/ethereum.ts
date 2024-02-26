@@ -6,7 +6,8 @@ import * as Types from "@keepkey/device-protocol/lib/types_pb";
 import { SignTypedDataVersion, TypedDataUtils } from "@metamask/eth-sig-util";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as eip55 from "eip55";
-import { getBytes, isBytesLike, isHexString } from "ethers";
+import { getBytes, isBytesLike } from "ethers";
+import { isHex } from "viem";
 
 import { Transport } from "./transport";
 import { toUTF8Array } from "./utils";
@@ -173,7 +174,7 @@ export async function ethGetAddress(transport: Transport, msg: core.ETHGetAddres
 
 export async function ethSignMessage(transport: Transport, msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
   const { addressNList, message } = msg;
-  if (!isHexString(message)) throw new Error("data is not an hex string");
+  if (!isHex(message)) throw new Error("data is not an hex string");
   const m = new Ethereum.EthereumSignMessage();
   m.setAddressNList(addressNList);
   const messageBytes = getBytes(message);

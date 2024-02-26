@@ -7,7 +7,7 @@ import EthereumTx from "ethereumjs-tx";
 // TODO: fix ts-ignore
 import * as ethereumUtil from "ethereumjs-util";
 import { getBytes, isBytesLike } from "ethers";
-import { isHexString } from "ethjs-util";
+import { isHex } from "viem";
 
 import { LedgerTransport } from "./transport";
 import { compressPublicKey, createXpub, handleError, networksUtil } from "./utils";
@@ -159,7 +159,7 @@ export async function ethSignMessage(
 ): Promise<core.ETHSignedMessage> {
   const bip32path = core.addressNListToBIP32(msg.addressNList);
 
-  if (!isHexString(msg.message)) throw new Error("data is not an hex string");
+  if (!isHex(msg.message)) throw new Error("data is not an hex string");
 
   // Ledger's inner implementation does a Buffer.from(messageHex, "hex").length on our message
   // However, Buffer.from method with the "hex" encoding expects a valid hexadecimal string without the 0x prefix
