@@ -7,13 +7,13 @@ import {
   getBytes,
   Provider,
   resolveProperties,
-  Signature,
   SigningKey,
   toQuantity,
   Transaction,
   TransactionLike,
   TransactionRequest,
 } from "ethers";
+import { hexToSignature, Signature, signatureToHex, toHex } from "viem";
 
 import { buildMessage } from "../../../util";
 import { Isolation } from "../..";
@@ -22,7 +22,7 @@ import { SecP256K1 } from "../core";
 function ethSigFromRecoverableSig(x: SecP256K1.RecoverableSignature): Signature {
   const sig = SecP256K1.RecoverableSignature.sig(x);
   const recoveryParam = SecP256K1.RecoverableSignature.recoveryParam(x);
-  return Signature.from(toQuantity(core.compatibleBufferConcat([sig, Buffer.from([recoveryParam])])));
+  return hexToSignature(toHex(core.compatibleBufferConcat([sig, Buffer.from([recoveryParam])])));
 }
 
 export class SignerAdapter {
@@ -57,7 +57,7 @@ export class SignerAdapter {
     );
     const sig = SecP256K1.RecoverableSignature.sig(recoverableSig);
     const recoveryParam = SecP256K1.RecoverableSignature.recoveryParam(recoverableSig);
-    return Signature.from(toQuantity(core.compatibleBufferConcat([sig, Buffer.from([recoveryParam])])));
+    return hexToSignature(toHex(core.compatibleBufferConcat([sig, Buffer.from([recoveryParam])])));
   }
 
   async signTransaction(transaction: TransactionRequest, addressNList: core.BIP32Path): Promise<string> {
@@ -88,7 +88,7 @@ export class SignerAdapter {
     const messageBuf = buildMessage(messageData);
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
     const rawSig = await SecP256K1.RecoverableSignature.signCanonically(nodeAdapter.node, "keccak256", messageBuf);
-    return Signature.from(ethSigFromRecoverableSig(rawSig)).serialized;
+    return signatureToHex(ethSigFromRecoverableSig(rawSig));
   }
 
   async signTypedData(typedData: TypedData, addressNList: core.BIP32Path): Promise<core.ETHSignedTypedData> {
@@ -96,7 +96,7 @@ export class SignerAdapter {
     const messageArray = getMessage(typedData);
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
     const rawSig = await SecP256K1.RecoverableSignature.signCanonically(nodeAdapter.node, "keccak256", messageArray);
-    const signature = Signature.from(ethSigFromRecoverableSig(rawSig)).serialized;
+    const signature = signatureToHex(ethSigFromRecoverableSig(rawSig));
     return { address, signature };
   }
 }
