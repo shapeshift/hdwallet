@@ -6,7 +6,8 @@ import * as Types from "@keepkey/device-protocol/lib/types_pb";
 import { SignTypedDataVersion, TypedDataUtils } from "@metamask/eth-sig-util";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as eip55 from "eip55";
-import { arrayify, isBytes, isHexString } from "ethers/lib/utils.js";
+import { getBytes, isBytesLike } from "ethers";
+import { isHex } from "viem";
 
 import { Transport } from "./transport";
 import { toUTF8Array } from "./utils";
@@ -173,10 +174,10 @@ export async function ethGetAddress(transport: Transport, msg: core.ETHGetAddres
 
 export async function ethSignMessage(transport: Transport, msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
   const { addressNList, message } = msg;
-  if (!isHexString(message)) throw new Error("data is not an hex string");
+  if (!isHex(message)) throw new Error("data is not an hex string");
   const m = new Ethereum.EthereumSignMessage();
   m.setAddressNList(addressNList);
-  const messageBytes = arrayify(message);
+  const messageBytes = getBytes(message);
   m.setMessage(messageBytes);
   const response = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMSIGNMESSAGE, m, {
     msgTimeout: core.LONG_TIMEOUT,
@@ -241,7 +242,7 @@ export async function ethVerifyMessage(transport: Transport, msg: core.ETHVerify
   const m = new Ethereum.EthereumVerifyMessage();
   m.setAddress(core.arrayify(msg.address));
   m.setSignature(core.arrayify(msg.signature));
-  m.setMessage(isBytes(msg.message) ? arrayify(msg.message) : toUTF8Array(msg.message));
+  m.setMessage(isBytesLike(msg.message) ? getBytes(msg.message) : toUTF8Array(msg.message));
   let event: core.Event;
   try {
     event = await transport.call(Messages.MessageType.MESSAGETYPE_ETHEREUMVERIFYMESSAGE, m, {

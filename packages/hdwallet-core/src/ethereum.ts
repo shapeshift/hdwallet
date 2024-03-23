@@ -1,5 +1,5 @@
-import { Bytes } from "@ethersproject/bytes";
 import { TypedData } from "eip-712";
+import { BytesLike } from "ethers";
 
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
@@ -114,7 +114,7 @@ export interface ETHSignedTypedData {
 
 export interface ETHVerifyMessage {
   address: string;
-  message: string | Bytes;
+  message: BytesLike;
   signature: string;
 }
 

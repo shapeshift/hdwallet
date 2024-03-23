@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { providers } from "ethers";
+import { Eip1193Provider } from "ethers";
 
 import { XDEFIHDWallet } from "./xdefi";
 
@@ -7,7 +7,7 @@ declare global {
   // https://stackoverflow.com/questions/59459312/using-globalthis-in-typescript
   // Global declarations require the use of var
   // eslint-disable-next-line no-var
-  var xfi: { ethereum: providers.ExternalProvider } | null;
+  var xfi: { ethereum: Eip1193Provider } | null;
 }
 
 export class XDEFIAdapter {

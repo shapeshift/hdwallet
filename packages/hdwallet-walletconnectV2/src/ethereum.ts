@@ -9,7 +9,7 @@ import type {
 } from "@shapeshiftoss/hdwallet-core";
 import { addressNListToBIP32, slip44ByCoin } from "@shapeshiftoss/hdwallet-core";
 import EthereumProvider from "@walletconnect/ethereum-provider";
-import { isHexString } from "ethers/lib/utils";
+import { isHex } from "viem";
 
 const getUnsignedTxFromMessage = (msg: ETHSignTx & { from: string }) => {
   const utxBase = {
@@ -86,7 +86,7 @@ export async function ethSignMessage(
   args: { data: string; fromAddress: string },
   provider: EthereumProvider
 ): Promise<ETHSignedMessage | null> {
-  if (!isHexString(args.data)) throw new Error("data is not an hex string");
+  if (!isHex(args.data)) throw new Error("data is not an hex string");
 
   const signedMsg: string = await provider.request({
     method: "personal_sign",

@@ -2,7 +2,7 @@ import detectEthereumProvider from "@metamask/detect-provider";
 import MetaMaskOnboarding from "@metamask/onboarding";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { enableShapeShiftSnap, shapeShiftSnapInstalled } from "@shapeshiftoss/metamask-snaps-adapter";
-import { providers } from "ethers";
+import { Eip1193Provider } from "ethers";
 
 import { SNAP_ID } from "./common";
 import { MetaMaskShapeShiftMultiChainHDWallet } from "./shapeshift-multichain";
@@ -94,7 +94,7 @@ export class MetaMaskAdapter {
       mustBeMetaMask: true,
       silent: false,
       timeout: 3000,
-    })) as providers.ExternalProvider | null;
+    })) as Eip1193Provider | null;
     if (!provider) {
       const onboarding = new MetaMaskOnboarding();
       onboarding.startOnboarding();
