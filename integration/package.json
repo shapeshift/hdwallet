@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/integration",
-  "version": "1.53.5",
+  "version": "1.53.6",
   "main": "index.js",
   "license": "MIT",
   "private": true,
@@ -10,15 +10,15 @@
     "dev": "lerna run test --scope integration --parallel --include-filtered-dependencies"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "1.53.5",
-    "@shapeshiftoss/hdwallet-keepkey": "1.53.5",
-    "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "1.53.5",
-    "@shapeshiftoss/hdwallet-keepkey-tcp": "1.53.5",
-    "@shapeshiftoss/hdwallet-ledger": "1.53.5",
-    "@shapeshiftoss/hdwallet-native": "1.53.5",
-    "@shapeshiftoss/hdwallet-portis": "1.53.5",
-    "@shapeshiftoss/hdwallet-trezor": "1.53.5",
-    "@shapeshiftoss/hdwallet-xdefi": "1.53.5",
+    "@shapeshiftoss/hdwallet-core": "1.53.6",
+    "@shapeshiftoss/hdwallet-keepkey": "1.53.6",
+    "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "1.53.6",
+    "@shapeshiftoss/hdwallet-keepkey-tcp": "1.53.6",
+    "@shapeshiftoss/hdwallet-ledger": "1.53.6",
+    "@shapeshiftoss/hdwallet-native": "1.53.6",
+    "@shapeshiftoss/hdwallet-portis": "1.53.6",
+    "@shapeshiftoss/hdwallet-trezor": "1.53.6",
+    "@shapeshiftoss/hdwallet-xdefi": "1.53.6",
     "fast-json-stable-stringify": "^2.1.0",
     "msw": "^0.27.1",
     "whatwg-fetch": "^3.6.2"
