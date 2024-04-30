@@ -126,7 +126,7 @@ export function base64toHEX(base64: string): string {
 }
 
 // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
-const slip44Table = Object.freeze({
+export const slip44Table = Object.freeze({
   Bitcoin: 0,
   Testnet: 1,
   BitcoinCash: 145,
@@ -159,7 +159,9 @@ const slip44Table = Object.freeze({
   Arbitrum: 60,
   ArbitrumNova: 60,
 } as const);
-type Slip44ByCoin<T> = T extends keyof typeof slip44Table ? typeof slip44Table[T] : number | undefined;
+
+export type Slip44ByCoin<T> = T extends keyof typeof slip44Table ? typeof slip44Table[T] : number | undefined;
+
 export function slip44ByCoin<T extends Coin>(coin: T): Slip44ByCoin<T> {
   return (slip44Table as any)[coin];
 }
