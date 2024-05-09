@@ -1,7 +1,6 @@
 import type { AddressFormat } from "@ledgerhq/hw-app-btc";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import bs58check from "bs58check";
-import _ from "lodash";
 
 import { LedgerResponse } from ".";
 import { LedgerTransport } from "./transport";
@@ -591,8 +590,21 @@ export const networksUtil: Record<number, NetworkMagic> = {
   },
 };
 
+const appNameBySlip44: Record<number, string> = {
+  0: "Bitcoin",
+  2: "Litecoin",
+  3: "Dogecoin",
+  5: "Dash",
+  20: "Digibyte",
+  60: "Ethereum",
+  118: "Cosmos",
+  145: "Bitcoin Cash",
+  931: "THORChain",
+};
+
 export function coinToLedgerAppName(coin: core.Coin): string | undefined {
-  return _.get(networksUtil[core.mustBeDefined(core.slip44ByCoin(coin))], "appName");
+  const slip44 = core.mustBeDefined(core.slip44ByCoin(coin));
+  return appNameBySlip44[slip44];
 }
 
 export const recursivelyOrderKeys = (unordered: any) => {
