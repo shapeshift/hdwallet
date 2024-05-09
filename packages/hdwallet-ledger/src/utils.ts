@@ -562,6 +562,7 @@ export const networksUtil: Record<number, NetworkMagic> = {
         public: {
           p2pkh: 76067358,
         },
+        private: 87393172,
       },
       pubKeyHash: 0x2089,
       scriptHash: 0x2096,
