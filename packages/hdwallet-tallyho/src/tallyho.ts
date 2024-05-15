@@ -94,6 +94,7 @@ export class TallyHoHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsGnosis = false;
   readonly _supportsArbitrum = true;
   readonly _supportsArbitrumNova = false;
+  readonly _supportsBase = false;
   readonly _supportsBSC = false;
   readonly _isTallyHo = true;
 

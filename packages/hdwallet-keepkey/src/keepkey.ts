@@ -699,6 +699,7 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   readonly _supportsGnosis = true;
   readonly _supportsArbitrum = true;
   readonly _supportsArbitrumNova = false;
+  readonly _supportsBase = true;
   readonly _supportsBTC = true;
   _supportsCosmos = true;
   _supportsOsmosis = true;

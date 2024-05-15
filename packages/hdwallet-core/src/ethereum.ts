@@ -199,6 +199,7 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
   readonly _supportsGnosis: boolean;
   readonly _supportsArbitrum: boolean;
   readonly _supportsArbitrumNova: boolean;
+  readonly _supportsBase: boolean;
   readonly _supportsBSC: boolean;
 
   ethGetAddress(msg: ETHGetAddress): Promise<string | null>;
