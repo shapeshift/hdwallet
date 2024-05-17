@@ -65,7 +65,7 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
   }
 
   public supportsBip44Accounts(): boolean {
-    return false;
+    return true;
   }
 
   public supportsOfflineSigning(): boolean {

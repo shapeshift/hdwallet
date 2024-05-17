@@ -40,7 +40,7 @@ describe("MetaMaskShapeShiftMultiChainHDWallet", () => {
     expect(wallet.ethSupportsNativeShapeShift()).toBe(false);
     expect(await wallet.ethSupportsEIP1559()).toBe(true);
     expect(await wallet.supportsOfflineSigning()).toBe(false);
-    expect(wallet.supportsBip44Accounts()).toBe(false);
+    expect(wallet.supportsBip44Accounts()).toBe(true);
     expect(await wallet.supportsBroadcast()).toBe(true);
   });
 
