@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { ETHSignedMessage } from "@shapeshiftoss/hdwallet-core";
-import { isHexString } from "ethers/lib/utils";
+import { isHex } from "viem";
 
 export function describeETHPath(path: core.BIP32Path): core.PathDescription {
   return core.describeETHPath(path);
@@ -86,7 +86,7 @@ export async function ethSignMessage(
   address: string
 ): Promise<core.ETHSignedMessage | null> {
   try {
-    if (!isHexString(msg.message)) throw new Error("data is not an hex string");
+    if (!isHex(msg.message)) throw new Error("data is not an hex string");
     const signedMsg = await ethereum.request({
       method: "personal_sign",
       params: [msg, address],

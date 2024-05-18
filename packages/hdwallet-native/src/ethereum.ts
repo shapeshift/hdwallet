@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { keccak256, parseTransaction, recoverAddress } from "ethers/lib/utils.js";
+import { keccak256, recoverAddress, toNumber, Transaction } from "ethers";
 
 import * as Isolation from "./crypto/isolation";
 import SignerAdapter from "./crypto/isolation/adapters/ethereum";
@@ -84,7 +84,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
           to: msg.to,
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           from: await this.#ethSigner!.getAddress(msg.addressNList),
-          nonce: msg.nonce,
+          nonce: toNumber(msg.nonce),
           gasLimit: msg.gasLimit,
           data: msg.data,
           value: msg.value,
@@ -111,11 +111,11 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
               msg.addressNList
             );
 
-        const decoded = parseTransaction(result);
+        const decoded = Transaction.from(result);
         return {
-          v: core.mustBeDefined(decoded.v),
-          r: core.mustBeDefined(decoded.r),
-          s: core.mustBeDefined(decoded.s),
+          v: core.mustBeDefined(decoded.signature?.v),
+          r: core.mustBeDefined(decoded.signature?.r),
+          s: core.mustBeDefined(decoded.signature?.s),
           serialized: result,
         };
       });

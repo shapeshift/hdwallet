@@ -27,7 +27,7 @@
     "bnb-javascript-sdk-nobroadcast": "^2.16.14",
     "crypto-js": "^4.0.0",
     "eip-712": "^1.0.0",
-    "ethers": "5.7.2",
+    "ethers": "^6.11.1",
     "eventemitter2": "^5.0.1",
     "funtypes": "^3.0.1",
     "lodash": "^4.17.21",
@@ -36,6 +36,7 @@
     "scrypt-js": "^3.0.1",
     "tendermint-tx-builder": "^1.0.9",
     "tiny-secp256k1": "^1.1.6",
+    "viem": "^1.16.6",
     "web-encoding": "^1.1.0"
   },
   "devDependencies": {

@@ -1,16 +1,18 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { getMessage, TypedData } from "eip-712";
-import { BigNumber, BytesLike, providers, Signature, UnsignedTransaction } from "ethers";
 import {
-  arrayify,
+  BytesLike,
   computeAddress,
-  Deferrable,
   getAddress,
-  joinSignature,
+  getBytes,
+  Provider,
   resolveProperties,
-  serializeTransaction,
-  splitSignature,
-} from "ethers/lib/utils.js";
+  SigningKey,
+  Transaction,
+  TransactionLike,
+  TransactionRequest,
+} from "ethers";
+import { hexToSignature, Signature, signatureToHex, toHex } from "viem";
 
 import { buildMessage } from "../../../util";
 import { Isolation } from "../..";
@@ -19,14 +21,14 @@ import { SecP256K1 } from "../core";
 function ethSigFromRecoverableSig(x: SecP256K1.RecoverableSignature): Signature {
   const sig = SecP256K1.RecoverableSignature.sig(x);
   const recoveryParam = SecP256K1.RecoverableSignature.recoveryParam(x);
-  return splitSignature(core.compatibleBufferConcat([sig, Buffer.from([recoveryParam])]));
+  return hexToSignature(toHex(core.compatibleBufferConcat([sig, Buffer.from([recoveryParam])])));
 }
 
 export class SignerAdapter {
   protected readonly nodeAdapter: Isolation.Adapters.BIP32;
-  readonly provider?: providers.Provider;
+  readonly provider?: Provider;
 
-  constructor(nodeAdapter: Isolation.Adapters.BIP32, provider?: providers.Provider) {
+  constructor(nodeAdapter: Isolation.Adapters.BIP32, provider?: Provider) {
     this.nodeAdapter = nodeAdapter;
     this.provider = provider;
   }
@@ -36,13 +38,13 @@ export class SignerAdapter {
   // wrapper that deferred its initialization and awaited it before calling through to a "real" method, but that's
   // a lot of complexity just to implement this one method we don't actually use.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  connect(_provider: providers.Provider): never {
+  connect(_provider: Provider): never {
     throw new Error("changing providers on a SignerAdapter is unsupported");
   }
 
   async getAddress(addressNList: core.BIP32Path): Promise<string> {
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
-    return computeAddress(SecP256K1.UncompressedPoint.from(nodeAdapter.getPublicKey()));
+    return computeAddress(new SigningKey(SecP256K1.UncompressedPoint.from(nodeAdapter.getPublicKey())));
   }
 
   async signDigest(digest: BytesLike, addressNList: core.BIP32Path): Promise<Signature> {
@@ -50,40 +52,42 @@ export class SignerAdapter {
     const recoverableSig = await SecP256K1.RecoverableSignature.signCanonically(
       nodeAdapter.node,
       null,
-      digest instanceof Uint8Array ? digest : arrayify(digest)
+      digest instanceof Uint8Array ? digest : getBytes(digest)
     );
     const sig = SecP256K1.RecoverableSignature.sig(recoverableSig);
     const recoveryParam = SecP256K1.RecoverableSignature.recoveryParam(recoverableSig);
-    return splitSignature(core.compatibleBufferConcat([sig, Buffer.from([recoveryParam])]));
+    return hexToSignature(toHex(core.compatibleBufferConcat([sig, Buffer.from([recoveryParam])])));
   }
 
-  async signTransaction(
-    transaction: Deferrable<providers.TransactionRequest>,
-    addressNList: core.BIP32Path
-  ): Promise<string> {
+  async signTransaction(transaction: TransactionRequest, addressNList: core.BIP32Path): Promise<string> {
     const tx = await resolveProperties(transaction);
     if (tx.from != null) {
-      if (getAddress(tx.from) !== (await this.getAddress(addressNList))) {
+      // This can be string | Addressable, where Addressable is an object containing getAddress()
+      // for ENS names. We can safely narrow it down to a string, as we do not instantiate contracts with an ens name.
+      if (getAddress(tx.from as string) !== (await this.getAddress(addressNList))) {
         throw new Error("transaction from address mismatch");
       }
       delete tx.from;
     }
-    const unsignedTx: UnsignedTransaction = {
+    const unsignedTx = {
       ...tx,
-      nonce: tx.nonce !== undefined ? BigNumber.from(tx.nonce).toNumber() : undefined,
-    };
+      nonce: tx?.nonce !== undefined ? tx!.nonce : undefined,
+    } as TransactionLike<string>;
 
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
-    const txBuf = arrayify(serializeTransaction(unsignedTx));
+    const txBuf = getBytes(Transaction.from(unsignedTx).serialized);
     const rawSig = await SecP256K1.RecoverableSignature.signCanonically(nodeAdapter.node, "keccak256", txBuf);
-    return serializeTransaction(unsignedTx, ethSigFromRecoverableSig(rawSig));
+    return Transaction.from({
+      ...unsignedTx,
+      signature: ethSigFromRecoverableSig(rawSig),
+    }).serialized;
   }
 
   async signMessage(messageData: BytesLike, addressNList: core.BIP32Path): Promise<string> {
     const messageBuf = buildMessage(messageData);
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
     const rawSig = await SecP256K1.RecoverableSignature.signCanonically(nodeAdapter.node, "keccak256", messageBuf);
-    return joinSignature(ethSigFromRecoverableSig(rawSig));
+    return signatureToHex(ethSigFromRecoverableSig(rawSig));
   }
 
   async signTypedData(typedData: TypedData, addressNList: core.BIP32Path): Promise<core.ETHSignedTypedData> {
@@ -91,7 +95,7 @@ export class SignerAdapter {
     const messageArray = getMessage(typedData);
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
     const rawSig = await SecP256K1.RecoverableSignature.signCanonically(nodeAdapter.node, "keccak256", messageArray);
-    const signature = joinSignature(ethSigFromRecoverableSig(rawSig));
+    const signature = signatureToHex(ethSigFromRecoverableSig(rawSig));
     return { address, signature };
   }
 }
