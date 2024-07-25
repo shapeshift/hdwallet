@@ -1,3 +1,4 @@
+import Transport from "@ledgerhq/hw-transport";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 
@@ -79,7 +80,10 @@ export class WebHIDLedgerAdapter {
 
       const ledgerTransport = await openTransport(device);
 
-      const wallet = ledger.create(new LedgerWebHIDTransport(device, ledgerTransport, this.keyring));
+      const wallet = ledger.create(
+        // this cast is most likely wrong, but we don't use webhid and ledger packages bumps are hell so that'll do
+        new LedgerWebHIDTransport(device, ledgerTransport as unknown as Transport, this.keyring)
+      );
 
       this.keyring.add(wallet, MOCK_SERIAL_NUMBER);
     }
