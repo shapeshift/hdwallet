@@ -87,6 +87,34 @@ export async function ethSignMessage(
   }
 }
 
+export async function ethSignTypedData(
+  msg: core.ETHSignTypedData,
+  ethereum: any,
+  address: string
+): Promise<core.ETHSignedMessage | null> {
+  try {
+    // eslint-disable-next-line no-console
+    console.log("requesting...", {
+      method: "eth_signTypedData_v4",
+      params: [address, JSON.stringify(msg)],
+      from: address,
+    });
+    const signedMsg = await ethereum.request({
+      method: "eth_signTypedData_v4",
+      params: [address, JSON.stringify(msg.typedData)],
+      from: address,
+    });
+
+    return {
+      address: address,
+      signature: signedMsg,
+    } as ETHSignedMessage;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
 export async function ethGetAddress(ethereum: any): Promise<string | null> {
   if (!(ethereum && ethereum.request)) {
     return null;
