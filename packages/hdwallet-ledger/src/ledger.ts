@@ -528,6 +528,11 @@ export class LedgerHDWallet
     return eth.ethSignMessage(this.transport, msg);
   }
 
+  public async ethSignTypedData(msg: core.ETHSignTypedData): Promise<core.ETHSignedTypedData | null> {
+    await this.validateCurrentApp("Ethereum");
+    return eth.ethSignTypedData(this.transport, msg);
+  }
+
   public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
     return eth.ethVerifyMessage(msg);
   }
