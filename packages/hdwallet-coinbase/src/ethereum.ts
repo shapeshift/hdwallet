@@ -86,12 +86,6 @@ export async function ethSignTypedData(
   address: string
 ): Promise<core.ETHSignedMessage | null> {
   try {
-    // eslint-disable-next-line no-console
-    console.log("requesting...", {
-      method: "eth_signTypedData_v4",
-      params: [address, JSON.stringify(msg)],
-      from: address,
-    });
     const signedMsg = await ethereum.request({
       method: "eth_signTypedData_v4",
       params: [address, JSON.stringify(msg.typedData)],
