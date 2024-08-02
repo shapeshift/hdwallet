@@ -7,7 +7,7 @@ import EthereumTx from "ethereumjs-tx";
 // @ts-ignore
 // TODO: fix ts-ignore
 import * as ethereumUtil from "ethereumjs-util";
-import { arrayify, isBytes } from "ethers/lib/utils.js";
+import { arrayify, isBytes, joinSignature } from "ethers/lib/utils.js";
 import { isHexString } from "ethjs-util";
 
 import { LedgerTransport } from "./transport";
@@ -183,6 +183,9 @@ export async function ethSignMessage(
   };
 }
 
+// TODO(gomes): Implement signEIP712Message instead and fallback to signEIP712HashedMessage only if it fails (incompatible with Nano S)
+// https://github.com/LedgerHQ/ledger-live/blob/1de4de022b4e3abc02fcb823ae6ef1f9a64adba2/libs/ledgerjs/packages/hw-app-eth/README.md#signeip712message
+// The reason why we don't do that now is because bumping hw-app-eth to latest means problems
 export async function ethSignTypedData(
   transport: LedgerTransport,
   msg: core.ETHSignTypedData
@@ -191,19 +194,15 @@ export async function ethSignTypedData(
 
   if (!("EIP712Domain" in msg.typedData.types)) throw new Error("msg.typedData missing EIP712Domain");
 
-  const { domain, types, primaryType, message } = sigUtil.TypedDataUtils.sanitizeData(
-    msg.typedData as sigUtil.TypedMessage<sigUtil.MessageTypes>
-  );
+  const typedData = msg.typedData as sigUtil.TypedMessage<sigUtil.MessageTypes>;
 
-  // TODO(gomes): Implement signEIP712Message instead and fallback to signEIP712HashedMessage only if it fails (incompatible with Nano S)
-  // https://github.com/LedgerHQ/ledger-live/blob/1de4de022b4e3abc02fcb823ae6ef1f9a64adba2/libs/ledgerjs/packages/hw-app-eth/README.md#signeip712message
-  // The reason why we don't do that now is because bumping hw-app-eth to latest means problems
-  const domainSeparatorHex = sigUtil.TypedDataUtils.hashStruct(
-    "EIP712Domain",
-    domain,
-    types,
+  const { types, primaryType, message } = sigUtil.TypedDataUtils.sanitizeData(typedData);
+
+  const domainSeparatorHex = sigUtil.TypedDataUtils.eip712DomainHash(
+    typedData,
     sigUtil.SignTypedDataVersion.V4
   ).toString("hex");
+
   const hashStructMessageHex = sigUtil.TypedDataUtils.hashStruct(
     primaryType as string,
     message,
@@ -220,17 +219,20 @@ export async function ethSignTypedData(
   );
   handleError(res, transport, "Could not sign typed data with Ledger");
 
-  let { v } = res.payload;
-  const { r, s } = res.payload;
+  const { r, s, v } = res.payload;
 
-  v = v - 27;
-  const vStr = v.toString(16).padStart(2, "0");
+  const signature = joinSignature({
+    r: `0x${r}`,
+    s: `0x${s}`,
+    v: typeof v === "string" ? parseInt(v, 16) : v,
+  });
+
   const addressRes = await transport.call("Eth", "getAddress", bip32path, false);
   handleError(addressRes, transport, "Unable to obtain ETH address from Ledger.");
 
   return {
     address: addressRes.payload.address,
-    signature: "0x" + r + s + vStr,
+    signature,
   };
 }
 
