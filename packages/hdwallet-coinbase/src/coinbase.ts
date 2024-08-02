@@ -375,6 +375,11 @@ export class CoinbaseHDWallet implements core.HDWallet, core.ETHWallet {
     return address ? eth.ethSignMessage(msg, this.provider, address) : null;
   }
 
+  async ethSignTypedData(msg: core.ETHSignTypedData): Promise<core.ETHSignedTypedData | null> {
+    const address = await this.ethGetAddress(this.provider as any);
+    return address ? eth.ethSignTypedData(msg, this.provider, address) : null;
+  }
+
   public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean | null> {
     return eth.ethVerifyMessage(msg, this.provider);
   }

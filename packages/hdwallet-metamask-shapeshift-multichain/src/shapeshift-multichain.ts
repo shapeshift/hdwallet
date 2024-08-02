@@ -316,10 +316,6 @@ export class MetaMaskShapeShiftMultiChainHDWallet
     this.provider = provider;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  ethSignTypedData?(msg: core.ETHSignTypedData): Promise<core.ETHSignedTypedData | null> {
-    throw new Error("Method not implemented.");
-  }
   transport?: core.Transport | undefined;
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -784,8 +780,13 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   }
 
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
-    const signedMessage = await this.ethGetAddress(this.provider);
-    return signedMessage ? Eth.ethSignMessage(msg, this.provider, signedMessage) : null;
+    const address = await this.ethGetAddress(this.provider);
+    return address ? Eth.ethSignMessage(msg, this.provider, address) : null;
+  }
+
+  async ethSignTypedData(msg: core.ETHSignTypedData): Promise<core.ETHSignedTypedData | null> {
+    const address = await this.ethGetAddress(this.provider);
+    return address ? Eth.ethSignTypedData(msg, this.provider, address) : null;
   }
 
   public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean | null> {

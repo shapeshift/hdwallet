@@ -80,6 +80,28 @@ export async function ethVerifyMessage(msg: core.ETHVerifyMessage, ethereum: any
   return null;
 }
 
+export async function ethSignTypedData(
+  msg: core.ETHSignTypedData,
+  ethereum: any,
+  address: string
+): Promise<core.ETHSignedMessage | null> {
+  try {
+    const signedMsg = await ethereum.request({
+      method: "eth_signTypedData_v4",
+      params: [address, JSON.stringify(msg.typedData)],
+      from: address,
+    });
+
+    return {
+      address: address,
+      signature: signedMsg,
+    } as ETHSignedMessage;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
 export async function ethSignMessage(
   msg: core.ETHSignMessage,
   ethereum: any,
