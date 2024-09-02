@@ -3,6 +3,7 @@ import type {
   ETHSignedMessage,
   ETHSignedTx,
   ETHSignTx,
+  ETHSignTypedData,
   ETHTxHash,
   ETHVerifyMessage,
   PathDescription,
@@ -97,6 +98,27 @@ export async function ethSignMessage(
     address: args.fromAddress,
     signature: signedMsg,
   };
+}
+
+export async function ethSignTypedData(
+  args: { msg: ETHSignTypedData; fromAddress: string },
+  provider: EthereumProvider
+): Promise<ETHSignedMessage | null> {
+  const { msg, fromAddress } = args;
+  try {
+    const signedMsg = await provider.request({
+      method: "eth_signTypedData_v4",
+      params: [fromAddress, JSON.stringify(msg.typedData)],
+    });
+
+    return {
+      address: fromAddress,
+      signature: signedMsg,
+    } as ETHSignedMessage;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }
 
 export async function ethGetAddress(provider: EthereumProvider): Promise<string | null> {

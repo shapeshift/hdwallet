@@ -7,6 +7,7 @@ import type {
   ETHSignedTx,
   ETHSignMessage,
   ETHSignTx,
+  ETHSignTypedData,
   ETHTxHash,
   ETHVerifyMessage,
   ETHWallet,
@@ -22,7 +23,15 @@ import { AddEthereumChainParameter, slip44ByCoin } from "@shapeshiftoss/hdwallet
 import EthereumProvider from "@walletconnect/ethereum-provider";
 import isObject from "lodash/isObject";
 
-import { describeETHPath, ethGetAddress, ethSendTx, ethSignMessage, ethSignTx, ethVerifyMessage } from "./ethereum";
+import {
+  describeETHPath,
+  ethGetAddress,
+  ethSendTx,
+  ethSignMessage,
+  ethSignTx,
+  ethSignTypedData,
+  ethVerifyMessage,
+} from "./ethereum";
 
 export function isWalletConnectV2(wallet: HDWallet): wallet is WalletConnectV2HDWallet {
   return isObject(wallet) && (wallet as any)._isWalletConnectV2;
@@ -340,13 +349,25 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
   /**
    * Ethereum Sign Message
    *
-   * @see https://docs.walletconnect.com/client-api#sign-message-eth_sign
-   */
+   * @see https://docs.walletconnect.com/advanced/multichain/rpc-reference/ethereum-rpc#eth_sign
+   * */
   public async ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage | null> {
     if (!this.ethAddress) {
       throw new Error("No eth address");
     }
     return ethSignMessage({ data: msg.message, fromAddress: this.ethAddress }, this.provider);
+  }
+
+  /**
+   * Ethereum Sign Typed Data
+   *
+   * @see https://docs.walletconnect.com/advanced/multichain/rpc-reference/ethereum-rpc#eth_signtypeddata
+   */
+  public async ethSignTypedData(msg: ETHSignTypedData): Promise<ETHSignedMessage | null> {
+    if (!this.ethAddress) {
+      throw new Error("No eth address");
+    }
+    return ethSignTypedData({ msg, fromAddress: this.ethAddress }, this.provider);
   }
 
   public async ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean | null> {
