@@ -11,8 +11,6 @@ export * from "./hw-app-thor";
 
 const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
 
-const THOR_CHAIN = "thorchain-mainnet-v1";
-
 export const thorchainGetAddress = async (
   transport: LedgerTransport,
   msg: core.ThorchainGetAddress
@@ -36,7 +34,7 @@ export const thorchainSignTx = async (
 
   const unsignedTx = stringifyKeysInOrder({
     account_number: msg.account_number,
-    chain_id: THOR_CHAIN,
+    chain_id: msg.chain_id,
     fee: { amount: msg.tx.fee.amount, gas: msg.tx.fee.gas },
     memo: msg.tx.memo,
     msgs: msg.tx.msg,
