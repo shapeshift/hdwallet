@@ -19,6 +19,7 @@
     "@shapeshiftoss/hdwallet-ledger-webhid": "1.54.2",
     "@shapeshiftoss/hdwallet-ledger-webusb": "1.54.2",
     "@shapeshiftoss/hdwallet-metamask": "1.54.2",
+    "@shapeshiftoss/hdwallet-phantom": "1.54.2",
     "@shapeshiftoss/hdwallet-native": "1.54.2",
     "@shapeshiftoss/hdwallet-portis": "1.54.2",
     "@shapeshiftoss/hdwallet-tallyho": "1.54.2",

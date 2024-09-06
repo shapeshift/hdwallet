@@ -11,6 +11,7 @@ import * as keplr from "@shapeshiftoss/hdwallet-keplr";
 import * as ledgerWebHID from "@shapeshiftoss/hdwallet-ledger-webhid";
 import * as ledgerWebUSB from "@shapeshiftoss/hdwallet-ledger-webusb";
 import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
+import * as phantom from "@shapeshiftoss/hdwallet-phantom";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as tallyHo from "@shapeshiftoss/hdwallet-tallyho";
@@ -127,6 +128,7 @@ const kkbridgeAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const kkemuAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const portisAdapter = portis.PortisAdapter.useKeyring(keyring, { portisAppId });
 const metaMaskAdapter = metaMask.MetaMaskAdapter.useKeyring(keyring);
+const phantomAdapter = phantom.PhantomAdapter.useKeyring(keyring);
 const tallyHoAdapter = tallyHo.TallyHoAdapter.useKeyring(keyring);
 const walletConnectAdapter = walletConnect.WalletConnectAdapter.useKeyring(keyring, walletConnectOptions);
 const walletConnectV2Adapter = walletConnectv2.WalletConnectV2Adapter.useKeyring(keyring, walletConnectV2Options);
@@ -159,6 +161,7 @@ const $ledgerwebhid = $("#ledgerwebhid");
 const $portis = $("#portis");
 const $native = $("#native");
 const $metaMask = $("#metaMask");
+const $phantom = $("#phantom");
 const $coinbase = $("#coinbase");
 const $tallyHo = $("#tallyHo");
 const $walletConnect = $("#walletConnect");
@@ -233,6 +236,19 @@ $native.on("click", async (e) => {
 $metaMask.on("click", async (e) => {
   e.preventDefault();
   wallet = await metaMaskAdapter.pairDevice();
+  window["wallet"] = wallet;
+  let deviceID = "nothing";
+  try {
+    deviceID = await wallet.getDeviceID();
+    $("#keyring select").val(deviceID);
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+$phantom.on("click", async (e) => {
+  e.preventDefault();
+  wallet = await phantomAdapter.pairDevice();
   window["wallet"] = wallet;
   let deviceID = "nothing";
   try {
@@ -403,6 +419,12 @@ async function deviceConnected(deviceId) {
     await metaMaskAdapter.initialize();
   } catch (e) {
     console.error("Could not initialize MetaMaskAdapter", e);
+  }
+
+  try {
+    await phantomAdapter.initialize();
+  } catch (e) {
+    console.error("Could not initialize PhantomAdapter", e);
   }
 
   try {

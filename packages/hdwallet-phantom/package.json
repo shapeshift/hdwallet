@@ -1,0 +1,24 @@
+{
+  "name": "@shapeshiftoss/hdwallet-phantom",
+  "version": "1.54.2",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "dist/index.js",
+  "source": "src/index.ts",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "rm -rf dist node_modules tsconfig.tsbuildinfo",
+    "prepublishOnly": "yarn clean && yarn build"
+  },
+  "dependencies": {
+    "@shapeshiftoss/hdwallet-core": "1.54.2",
+    "eth-rpc-errors": "^4.0.3",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.168"
+  }
+}
