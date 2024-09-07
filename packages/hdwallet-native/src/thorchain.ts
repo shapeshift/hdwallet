@@ -9,8 +9,6 @@ import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
 
-const THOR_CHAIN = "thorchain-mainnet-v1";
-
 const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
 
 export function MixinNativeThorchainWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
@@ -90,7 +88,7 @@ export function MixinNativeThorchainWallet<TBase extends core.Constructor<Native
         const signerData: SignerData = {
           sequence: Number(msg.sequence),
           accountNumber: Number(msg.account_number),
-          chainId: THOR_CHAIN,
+          chainId: msg.chain_id,
         };
 
         return (await protoTxBuilder).sign(adapter.address, msg.tx as StdTx, adapter, signerData, "thor");
