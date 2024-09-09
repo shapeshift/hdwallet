@@ -1,8 +1,8 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { AddEthereumChainParameter } from "@shapeshiftoss/hdwallet-core";
-import { ethErrors, serializeError } from "eth-rpc-errors";
 import _ from "lodash";
 
+import * as Btc from "./bitcoin";
 import * as eth from "./ethereum";
 
 export function isPhantom(wallet: core.HDWallet): wallet is PhantomHDWallet {
@@ -21,6 +21,9 @@ export class PhantomHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInf
   readonly _supportsSecretInfo = false;
   readonly _supportsKavaInfo = false;
   readonly _supportsTerraInfo = false;
+
+  bitcoinAddress?: string | null;
+  ethAddress?: string | null;
 
   public getVendor(): string {
     return "Phantom";
@@ -135,11 +138,13 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
 
   info: PhantomHDWalletInfo & core.HDWalletInfo;
   ethAddress?: string | null;
-  provider: any;
+  evmProvider: any;
+  bitcoinProvider: any;
 
-  constructor(provider: unknown) {
+  constructor(evmProvider: unknown, bitcoinProvider: unknown) {
     this.info = new PhantomHDWalletInfo();
-    this.provider = provider;
+    this.evmProvider = evmProvider;
+    this.bitcoinProvider = bitcoinProvider;
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -147,7 +152,7 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async isLocked(): Promise<boolean> {
-    return !this.provider._phantom.isUnlocked();
+    return !this.evmProvider._phantom.isUnlocked();
   }
 
   public getVendor(): string {
@@ -248,7 +253,19 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public describePath(msg: core.DescribePath): core.PathDescription {
-    return this.info.describePath(msg);
+    switch (msg.coin) {
+      case "bitcoin": {
+        const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
+
+        if (!msg.scriptType) return unknown;
+
+        return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+      }
+      case "ethereum":
+        return core.describeETHPath(msg.path);
+      default:
+        throw new Error("Unsupported path");
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -271,7 +288,7 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
   public async ethGetChainId(): Promise<number | null> {
     try {
       // chainId as hex string
-      const chainId: string = await this.provider.request({ method: "eth_chainId" });
+      const chainId: string = await this.evmProvider.request({ method: "eth_chainId" });
       return parseInt(chainId, 16);
     } catch (e) {
       console.error(e);
@@ -279,23 +296,9 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async ethSwitchChain(params: AddEthereumChainParameter): Promise<void> {
-    try {
-      // at this point, we know that we're in the context of a valid Phantom provider
-      await this.provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: params.chainId }] });
-    } catch (e: any) {
-      const error = serializeError(e);
-
-      if (error.code === 4001) {
-        throw ethErrors.provider.userRejectedRequest();
-      }
-
-      throw (error.data as any).originalError as {
-        code: number;
-        message: string;
-        stack: string;
-      };
-    }
+    // no concept of switch chain in phantom
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
@@ -324,7 +327,7 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
     if (this.ethAddress) {
       return this.ethAddress;
     }
-    const address = await eth.ethGetAddress(this.provider);
+    const address = await eth.ethGetAddress(this.evmProvider);
     if (address) {
       this.ethAddress = address;
       return address;
@@ -335,29 +338,107 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {
-    const address = await this.ethGetAddress(this.provider);
-    return address ? eth.ethSignTx(msg, this.provider, address) : null;
+    const address = await this.ethGetAddress(this.evmProvider);
+    return address ? eth.ethSignTx(msg, this.evmProvider, address) : null;
   }
 
   public async ethSendTx(msg: core.ETHSignTx): Promise<core.ETHTxHash | null> {
-    const address = await this.ethGetAddress(this.provider);
-    return address ? eth.ethSendTx(msg, this.provider, address) : null;
+    const address = await this.ethGetAddress(this.evmProvider);
+    return address ? eth.ethSendTx(msg, this.evmProvider, address) : null;
   }
 
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
-    const address = await this.ethGetAddress(this.provider);
-    return address ? eth.ethSignMessage(msg, this.provider, address) : null;
+    const address = await this.ethGetAddress(this.evmProvider);
+    return address ? eth.ethSignMessage(msg, this.evmProvider, address) : null;
   }
 
   public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean | null> {
-    return eth.ethVerifyMessage(msg, this.provider);
+    return eth.ethVerifyMessage(msg, this.evmProvider);
   }
 
   public async getDeviceID(): Promise<string> {
-    return "phantom:" + (await this.ethGetAddress(this.provider));
+    return "phantom:" + (await this.ethGetAddress(this.evmProvider));
   }
 
   public async getFirmwareVersion(): Promise<string> {
     return "phantom";
+  }
+
+  /** BITCOIN */
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public bitcoinNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
+    // TODO: What do we do here?
+    return undefined;
+  }
+
+  public async btcSupportsSecureTransfer(): Promise<boolean> {
+    return false;
+  }
+
+  public btcSupportsNativeShapeShift(): boolean {
+    return false;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
+    throw new Error("Method not implemented.");
+  }
+
+  public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
+    return this.bitcoinNextAccountPath(msg);
+  }
+
+  addressCache: Map<string, string> = new Map();
+  public async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
+    const key = JSON.stringify(msg);
+    const maybeCachedAddress = this.addressCache.get(key);
+    if (maybeCachedAddress) return maybeCachedAddress;
+    const value = await (async () => {
+      switch (msg.coin) {
+        case "Bitcoin":
+          return Btc.bitcoinGetAddress(msg, this.bitcoinProvider);
+        default:
+          return null;
+      }
+    })();
+    if (!value || typeof value !== "string") return null;
+
+    this.addressCache.set(key, value);
+    return value;
+  }
+
+  public async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
+    const { coin } = msg;
+    switch (coin) {
+      case "Bitcoin":
+        return Btc.bitcoinSignTx(this, msg, this.bitcoinProvider);
+      default:
+        return null;
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage | null> {
+    throw new Error("Method not implemented.");
+  }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean | null> {
+    throw new Error("Method not implemented.");
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async btcSupportsScriptType(coin: string, scriptType?: core.BTCInputScriptType | undefined): Promise<boolean> {
+    throw new Error("Method not implemented.");
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
+    throw new Error("Method not implemented.");
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public btcIsSameAccount(msg: core.BTCAccountPath[]): boolean {
+    throw new Error("Method not implemented.");
   }
 }

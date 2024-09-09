@@ -23,7 +23,10 @@ describe("HDWalletInfo", () => {
 describe("PhantomHDWallet", () => {
   let wallet: PhantomHDWallet;
   beforeEach(() => {
-    wallet = new PhantomHDWallet(core.untouchable("PhantomHDWallet:provider"));
+    wallet = new PhantomHDWallet(
+      core.untouchable("PhantomHDWallet:provider"),
+      core.untouchable("PhantomHDWallet:provider")
+    );
     wallet.ethAddress = "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8";
   });
 
@@ -43,7 +46,7 @@ describe("PhantomHDWallet", () => {
   });
 
   it("should test ethSignMessage", async () => {
-    wallet.provider = {
+    wallet.evmProvider = {
       request: jest.fn().mockReturnValue(
         `Object {
           "address": "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
@@ -69,7 +72,7 @@ describe("PhantomHDWallet", () => {
   });
 
   it("ethSignMessage returns null on error", async () => {
-    wallet.provider = {
+    wallet.evmProvider = {
       request: jest.fn().mockRejectedValue(new Error("An Error has occurred")),
     };
 
@@ -83,7 +86,7 @@ describe("PhantomHDWallet", () => {
   });
 
   it("ethGetAddress returns a valid address", async () => {
-    wallet.provider = {
+    wallet.evmProvider = {
       request: jest.fn().mockReturnValue(["0x73d0385F4d8E00C5e6504C6030F47BF6212736A8"]),
     };
 
@@ -99,7 +102,7 @@ describe("PhantomHDWallet", () => {
     });
   });
   it("ethSendTx returns a valid hash", async () => {
-    wallet.provider = {
+    wallet.evmProvider = {
       request: jest.fn().mockReturnValue("0x123"),
     };
 
@@ -113,11 +116,11 @@ describe("PhantomHDWallet", () => {
       data: "0xDEADBEEFDEADBEEFDEADBEEFDEADBEEF",
       chainId: 1,
     });
-    expect(wallet.provider.request).toHaveBeenCalled();
+    expect(wallet.evmProvider.request).toHaveBeenCalled();
     expect(hash).toMatchObject({ hash: "0x123" });
   });
   it("ethSendTx returns a valid hash if maxFeePerGas is present in msg", async () => {
-    wallet.provider = {
+    wallet.evmProvider = {
       request: jest.fn().mockReturnValue("0x123"),
     };
 
@@ -131,11 +134,11 @@ describe("PhantomHDWallet", () => {
       data: "0xDEADBEEFDEADBEEFDEADBEEFDEADBEEF",
       chainId: 1,
     });
-    expect(wallet.provider.request).toHaveBeenCalled();
+    expect(wallet.evmProvider.request).toHaveBeenCalled();
     expect(hash).toMatchObject({ hash: "0x123" });
   });
   it("ethSendTx returns null on error", async () => {
-    wallet.provider = {
+    wallet.evmProvider = {
       request: jest.fn().mockRejectedValue(new Error("An Error has occurred")),
     };
 
@@ -149,11 +152,11 @@ describe("PhantomHDWallet", () => {
       data: "0xDEADBEEFDEADBEEFDEADBEEFDEADBEEF",
       chainId: 1,
     });
-    expect(wallet.provider.request).toHaveBeenCalled();
+    expect(wallet.evmProvider.request).toHaveBeenCalled();
     expect(hash).toBe(null);
   });
   it("ethVerifyMessage returns null as its not implemented", async () => {
-    wallet.provider = {
+    wallet.evmProvider = {
       request: jest.fn().mockReturnValue("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"),
     };
     expect(
