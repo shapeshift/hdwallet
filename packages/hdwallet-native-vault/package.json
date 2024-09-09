@@ -16,7 +16,7 @@
   "dependencies": {
     "@shapeshiftoss/hdwallet-native": "1.55.0",
     "bip39": "^3.0.4",
-    "hash-wasm": "^4.9.0",
+    "hash-wasm": "^4.11.0",
     "idb-keyval": "^6.0.3",
     "jose": "^4.3.5",
     "p-lazy": "^3.1.0",
