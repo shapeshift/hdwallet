@@ -79,6 +79,7 @@ export class WebHIDLedgerAdapter {
 
       const ledgerTransport = await openTransport(device);
 
+      // @ts-ignore TS is drunk
       const wallet = ledger.create(new LedgerWebHIDTransport(device, ledgerTransport, this.keyring));
 
       this.keyring.add(wallet, MOCK_SERIAL_NUMBER);

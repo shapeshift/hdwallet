@@ -16,6 +16,7 @@ import {
 import PQueue from "p-queue/dist";
 
 import { VENDOR_ID } from "./adapter";
+import Transport from "@ledgerhq/hw-transport";
 
 const RECORD_CONFORMANCE_MOCKS = false;
 
@@ -81,22 +82,22 @@ export async function translateCoinAndMethod<T extends LedgerTransportCoinType, 
 ): Promise<LedgerTransportMethod<T, U>> {
   switch (coin) {
     case "Btc": {
-      const btc = new Btc({ transport });
+      const btc = new Btc({ transport : transport as Transport});
       const methodInstance = btc[method as LedgerTransportMethodName<"Btc">].bind(btc);
       return methodInstance as LedgerTransportMethod<T, U>;
     }
     case "Eth": {
-      const eth = new Eth(transport);
+      const eth = new Eth(transport as Transport);
       const methodInstance = eth[method as LedgerTransportMethodName<"Eth">].bind(eth);
       return methodInstance as LedgerTransportMethod<T, U>;
     }
     case "Thorchain": {
-      const thorchain = new Thorchain(transport);
+      const thorchain = new Thorchain(transport as Transport);
       const methodInstance = thorchain[method as LedgerTransportMethodName<"Thorchain">].bind(thorchain);
       return methodInstance as LedgerTransportMethod<T, U>;
     }
     case "Cosmos": {
-      const cosmos = new Cosmos(transport);
+      const cosmos = new Cosmos(transport as Transport);
       const methodInstance = cosmos[method as LedgerTransportMethodName<"Cosmos">].bind(cosmos);
       return methodInstance as LedgerTransportMethod<T, U>;
     }
@@ -108,15 +109,15 @@ export async function translateCoinAndMethod<T extends LedgerTransportCoinType, 
           return out as LedgerTransportMethod<T, U>;
         }
         case "getAppAndVersion": {
-          const out: LedgerTransportMethod<null, "getAppAndVersion"> = getAppAndVersion.bind(undefined, transport);
+          const out: LedgerTransportMethod<null, "getAppAndVersion"> = getAppAndVersion.bind(undefined, transport as Transport);
           return out as LedgerTransportMethod<T, U>;
         }
         case "getDeviceInfo": {
-          const out: LedgerTransportMethod<null, "getDeviceInfo"> = getDeviceInfo.bind(undefined, transport);
+          const out: LedgerTransportMethod<null, "getDeviceInfo"> = getDeviceInfo.bind(undefined, transport as Transport);
           return out as LedgerTransportMethod<T, U>;
         }
         case "openApp": {
-          const out: LedgerTransportMethod<null, "openApp"> = openApp.bind(undefined, transport);
+          const out: LedgerTransportMethod<null, "openApp"> = openApp.bind(undefined, transport as Transport);
           return out as LedgerTransportMethod<T, U>;
         }
         default: {
@@ -134,7 +135,7 @@ export class LedgerWebUsbTransport extends LedgerTransport {
   device: USBDevice;
 
   constructor(device: USBDevice, transport: TransportWebUSB, keyring: core.Keyring) {
-    super(transport, keyring);
+    super(transport as Transport, keyring);
     this.device = device;
   }
 
