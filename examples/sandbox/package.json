@@ -5,9 +5,9 @@
   "private": true,
   "browserslist": "> 0.5%, last 2 versions, not dead",
   "scripts": {
-    "build": "rm -rf public; yarn parcel build index.html --dist-dir public",
-    "dev": "yarn parcel index.html",
-    "clean": "rm -rf dist node_modules public .parcel-cache"
+    "build": "rm -rf public && vite build --outDir public",
+    "preview": "vite",
+    "clean": "rm -rf dist node_modules public"
   },
   "dependencies": {
     "@metamask/eth-sig-util": "^7.0.0",
@@ -31,8 +31,8 @@
     "jquery": "^3.7.1",
     "json": "^9.0.6",
     "p-queue": "^7.4.1",
-    "parcel": "^2.3.2",
     "source-map": "^0.8.0-beta.0",
+    "vite": "^5.4.4",
     "web3": "^1.5.1"
   },
   "devDependencies": {
