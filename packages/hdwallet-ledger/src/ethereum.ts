@@ -7,8 +7,7 @@ import EthereumTx from "ethereumjs-tx";
 // @ts-ignore
 // TODO: fix ts-ignore
 import * as ethereumUtil from "ethereumjs-util";
-import { arrayify, isBytes, joinSignature } from "ethers/lib/utils.js";
-import { isHexString } from "ethers/lib/utils";
+import { arrayify, isBytes, isHexString, joinSignature } from "ethers/lib/utils";
 
 import { LedgerTransport } from "./transport";
 import { compressPublicKey, createXpub, handleError, networksUtil } from "./utils";

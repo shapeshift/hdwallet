@@ -1,6 +1,7 @@
 import Btc from "@ledgerhq/hw-app-btc";
 import Cosmos from "@ledgerhq/hw-app-cosmos";
 import Eth from "@ledgerhq/hw-app-eth";
+import Transport from "@ledgerhq/hw-transport";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import getAppAndVersion from "@ledgerhq/live-common/lib/hw/getAppAndVersion";
 import getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
@@ -16,7 +17,6 @@ import {
 import PQueue from "p-queue/dist";
 
 import { VENDOR_ID } from "./adapter";
-import Transport from "@ledgerhq/hw-transport";
 
 const RECORD_CONFORMANCE_MOCKS = false;
 
@@ -82,7 +82,7 @@ export async function translateCoinAndMethod<T extends LedgerTransportCoinType, 
 ): Promise<LedgerTransportMethod<T, U>> {
   switch (coin) {
     case "Btc": {
-      const btc = new Btc({ transport : transport as Transport});
+      const btc = new Btc({ transport: transport as Transport });
       const methodInstance = btc[method as LedgerTransportMethodName<"Btc">].bind(btc);
       return methodInstance as LedgerTransportMethod<T, U>;
     }
@@ -109,11 +109,17 @@ export async function translateCoinAndMethod<T extends LedgerTransportCoinType, 
           return out as LedgerTransportMethod<T, U>;
         }
         case "getAppAndVersion": {
-          const out: LedgerTransportMethod<null, "getAppAndVersion"> = getAppAndVersion.bind(undefined, transport as Transport);
+          const out: LedgerTransportMethod<null, "getAppAndVersion"> = getAppAndVersion.bind(
+            undefined,
+            transport as Transport
+          );
           return out as LedgerTransportMethod<T, U>;
         }
         case "getDeviceInfo": {
-          const out: LedgerTransportMethod<null, "getDeviceInfo"> = getDeviceInfo.bind(undefined, transport as Transport);
+          const out: LedgerTransportMethod<null, "getDeviceInfo"> = getDeviceInfo.bind(
+            undefined,
+            transport as Transport
+          );
           return out as LedgerTransportMethod<T, U>;
         }
         case "openApp": {
