@@ -6,7 +6,7 @@
   "browserslist": "> 0.5%, last 2 versions, not dead",
   "scripts": {
     "build": "rm -rf public && vite build --outDir public",
-    "dev": "concurrently \"vite build --watch --outDir public\" \"serve public\"",
+    "dev": "NODE_OPTIONS=--max-old-space-size=8192 concurrently \"vite build --watch --outDir public\" \"serve public\"",
     "clean": "rm -rf dist node_modules public"
   },
   "dependencies": {
