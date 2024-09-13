@@ -1137,15 +1137,12 @@ $cosmosTx.on("click", async (e) => {
     return;
   }
   if (core.supportsCosmos(wallet)) {
-    // @ts-expect-error this wrong but at least now it's clear to us that it is
-    const unsigned = cosmosTransferTx as core.Cosmos.StdTx;
-
     const res = await wallet.cosmosSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
       chain_id: "cosmoshub-4",
       account_number: "16359",
       sequence: "17",
-      tx: unsigned,
+      tx: cosmosTransferTx,
     });
     $cosmosResults.val(JSON.stringify(res));
   } else {
@@ -1161,15 +1158,12 @@ $cosmosDelegate.on("click", async (e) => {
     return;
   }
   if (core.supportsCosmos(wallet)) {
-    // @ts-expect-error this wrong but at least now it's clear to us that it is
-    const unsigned: core.Cosmos.StdTx = cosmosDelegateTx;
-
     const res = await wallet.cosmosSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
       chain_id: "cosmoshub-4",
       account_number: "16359",
       sequence: "18",
-      tx: unsigned,
+      tx: cosmosDelegateTx,
     });
     $cosmosResults.val(JSON.stringify(res));
   } else {
@@ -1185,15 +1179,12 @@ $cosmosUndelegate.on("click", async (e) => {
     return;
   }
   if (core.supportsCosmos(wallet)) {
-    // @ts-expect-error this wrong but at least now it's clear to us that it is
-    const unsigned: core.Cosmos.StdTx = cosmosUndelegateTx;
-
     const res = await wallet.cosmosSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
       chain_id: "cosmoshub-4",
       account_number: "16359",
       sequence: "20",
-      tx: unsigned,
+      tx: cosmosUndelegateTx,
     });
     $cosmosResults.val(JSON.stringify(res));
   } else {
@@ -1209,15 +1200,12 @@ $cosmosRedelegate.on("click", async (e) => {
     return;
   }
   if (core.supportsCosmos(wallet)) {
-    // @ts-expect-error this wrong but at least now it's clear to us that it is
-    const unsigned: core.Cosmos.StdTx = cosmosRedelegateTx;
-
     const res = await wallet.cosmosSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
       chain_id: "cosmoshub-4",
       account_number: "16359",
       sequence: "19",
-      tx: unsigned,
+      tx: cosmosRedelegateTx,
     });
     $cosmosResults.val(JSON.stringify(res));
   } else {
@@ -1233,15 +1221,12 @@ $cosmosRewards.on("click", async (e) => {
     return;
   }
   if (core.supportsCosmos(wallet)) {
-    // @ts-expect-error this wrong but at least now it's clear to us that it is
-    const unsigned: core.Cosmos.StdTx = cosmosRewardsTx;
-
     const res = await wallet.cosmosSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
       chain_id: "cosmoshub-4",
       account_number: "16359",
       sequence: "19",
-      tx: unsigned,
+      tx: cosmosRewardsTx,
     });
     $cosmosResults.val(JSON.stringify(res));
   } else {
@@ -1257,15 +1242,12 @@ $cosmosIBCTransfer.on("click", async (e) => {
     return;
   }
   if (core.supportsCosmos(wallet)) {
-    // @ts-expect-error this wrong but at least now it's clear to us that it is
-    const unsigned: core.Cosmos.StdTx = cosmosIBCTransferTx;
-
     const res = await wallet.cosmosSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
       chain_id: "cosmoshub-4",
       account_number: "16359",
       sequence: "27",
-      tx: unsigned,
+      tx: cosmosIBCTransferTx,
     });
     $cosmosResults.val(JSON.stringify(res));
   } else {
