@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@metamask/eth-sig-util": "^7.0.0",
+    "@shapeshiftoss/hdwallet-coinbase": "1.55.2",
     "@shapeshiftoss/hdwallet-core": "1.55.2",
     "@shapeshiftoss/hdwallet-keepkey": "1.55.2",
     "@shapeshiftoss/hdwallet-keepkey-tcp": "1.55.2",
@@ -28,7 +29,6 @@
     "@shapeshiftoss/hdwallet-walletconnect": "1.55.2",
     "@shapeshiftoss/hdwallet-walletconnectv2": "1.55.2",
     "@shapeshiftoss/hdwallet-xdefi": "1.55.2",
-    "@shapeshiftoss/hdwallet-coinbase": "1.55.2",
     "bip32": "^2.0.4",
     "eip-712": "^1.0.0",
     "jquery": "^3.7.1",
@@ -44,6 +44,7 @@
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
     "querystring-es3": "^0.2.1",
-    "stream-http": "^3.2.0"
+    "stream-http": "^3.2.0",
+    "vite-plugin-node-polyfills": "^0.22.0"
   }
 }
