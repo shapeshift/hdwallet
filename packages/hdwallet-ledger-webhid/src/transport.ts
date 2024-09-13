@@ -55,18 +55,18 @@ export async function getTransport(): Promise<TransportWebHID> {
 }
 
 export function translateCoinAndMethod<T extends LedgerTransportCoinType, U extends LedgerTransportMethodName<T>>(
-  transport: Transport,
+  transport: TransportWebHID,
   coin: T,
   method: U
 ): LedgerTransportMethod<T, U> {
   switch (coin) {
     case "Btc": {
-      const btc = new Btc({ transport });
+      const btc = new Btc({ transport: transport as Transport });
       const methodInstance = btc[method as LedgerTransportMethodName<"Btc">].bind(btc);
       return methodInstance as LedgerTransportMethod<T, U>;
     }
     case "Eth": {
-      const eth = new Eth(transport);
+      const eth = new Eth(transport as Transport);
       const methodInstance = eth[method as LedgerTransportMethodName<"Eth">].bind(eth);
       return methodInstance as LedgerTransportMethod<T, U>;
     }
@@ -78,15 +78,21 @@ export function translateCoinAndMethod<T extends LedgerTransportCoinType, U exte
           return out as LedgerTransportMethod<T, U>;
         }
         case "getAppAndVersion": {
-          const out: LedgerTransportMethod<null, "getAppAndVersion"> = getAppAndVersion.bind(undefined, transport);
+          const out: LedgerTransportMethod<null, "getAppAndVersion"> = getAppAndVersion.bind(
+            undefined,
+            transport as Transport
+          );
           return out as LedgerTransportMethod<T, U>;
         }
         case "getDeviceInfo": {
-          const out: LedgerTransportMethod<null, "getDeviceInfo"> = getDeviceInfo.bind(undefined, transport);
+          const out: LedgerTransportMethod<null, "getDeviceInfo"> = getDeviceInfo.bind(
+            undefined,
+            transport as Transport
+          );
           return out as LedgerTransportMethod<T, U>;
         }
         case "openApp": {
-          const out: LedgerTransportMethod<null, "openApp"> = openApp.bind(undefined, transport);
+          const out: LedgerTransportMethod<null, "openApp"> = openApp.bind(undefined, transport as Transport);
           return out as LedgerTransportMethod<T, U>;
         }
         default: {
@@ -128,7 +134,11 @@ export class LedgerWebHIDTransport extends ledger.LedgerTransport {
     );
 
     try {
-      const methodInstance: LedgerTransportMethod<T, U> = translateCoinAndMethod(this.transport, coin, method);
+      const methodInstance: LedgerTransportMethod<T, U> = translateCoinAndMethod(
+        this.transport as TransportWebHID,
+        coin,
+        method
+      );
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore TODO(gomes): ts pls I didn't diff this why is this failing type check
       const response = await methodInstance(...args);

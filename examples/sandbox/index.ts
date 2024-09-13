@@ -1,5 +1,3 @@
-import "regenerator-runtime/runtime";
-
 import * as sigUtil from "@metamask/eth-sig-util";
 import * as coinbase from "@shapeshiftoss/hdwallet-coinbase";
 import { CoinbaseProviderConfig } from "@shapeshiftoss/hdwallet-coinbase";
