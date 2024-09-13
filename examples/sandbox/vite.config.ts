@@ -1,4 +1,3 @@
-import react from "@vitejs/plugin-react-swc";
 import { UserConfig } from "vite";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 
