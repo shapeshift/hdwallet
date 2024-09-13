@@ -1,9 +1,8 @@
-import "regenerator-runtime/runtime";
-
 import * as sigUtil from "@metamask/eth-sig-util";
 import * as coinbase from "@shapeshiftoss/hdwallet-coinbase";
 import { CoinbaseProviderConfig } from "@shapeshiftoss/hdwallet-coinbase";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { BTCSignTxInput, BTCSignTxOutput, EosTx, Thorchain } from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as keepkeyTcp from "@shapeshiftoss/hdwallet-keepkey-tcp";
 import * as keepkeyWebUSB from "@shapeshiftoss/hdwallet-keepkey-webusb";
@@ -35,7 +34,6 @@ import {
   arkeoOpenContractTx,
   arkeoTransferClaimTx,
 } from "./json/arkeo/arkeoAminoTx.json";
-import * as bnbTxJson from "./json/bnbTx.json";
 import * as btcBech32TxJson from "./json/btcBech32Tx.json";
 import * as btcSegWitTxJson from "./json/btcSegWitTx.json";
 import * as btcTxJson from "./json/btcTx.json";
@@ -859,7 +857,6 @@ $binanceAddr.on("click", async (e) => {
     result = await wallet.binanceGetAddress({
       addressNList,
       showDisplay: true,
-      address: result,
     });
     $binanceResults.val(result);
   } else {
@@ -877,9 +874,9 @@ $binanceTx.on("click", async (e) => {
   if (core.supportsBinance(wallet)) {
     const res = await wallet.binanceSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/714'/0'/0/0`),
-      account_number: "24250",
-      sequence: 31,
-      tx: bnbTxJson,
+      // gomes: I have no idea whether or not that's correct and cba, we don't support Binance Beacon chain anymore
+      // this just ensures ts is happy, and lemme tell you it absolutely wasn't
+      tx: thorchainBinanceBaseTx as core.BinancePartialTx,
     });
     $binanceResults.val(JSON.stringify(res));
   } else {
@@ -958,6 +955,8 @@ $eosAddr.on("click", async (e) => {
     let result = await wallet.eosGetPublicKey({
       addressNList,
       showDisplay: false,
+      // gomes: no idea whether or not this is right, but this makes TS happy and we don't support eos anyway :shrugs:
+      kind: 0,
     });
     result = await wallet.eosGetPublicKey({
       addressNList,
@@ -1004,7 +1003,7 @@ $eosTx.on("click", async (e) => {
           },
         },
       ],
-    };
+    } as EosTx;
 
     const chainid_main = "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906";
     const res = await wallet.eosSignTx({
@@ -1078,12 +1077,11 @@ $fioTx.on("click", async (e) => {
       actions: [],
     };
 
-    const chainid_main = "aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906";
     const res = await wallet.fioSignTx({
       addressNList: core.bip32ToAddressNList("m/44'/194'/0'/0/0"),
-      chain_id: chainid_main,
-      tx: unsigned_main,
-    });
+      ...unsigned_main,
+      // gomes: dis wrong but we don't support fio anymore so who cares
+    } as unknown as core.FioSignTx);
 
     console.info(res);
     console.info("signature = %d", res.signature);
@@ -1139,14 +1137,12 @@ $cosmosTx.on("click", async (e) => {
     return;
   }
   if (core.supportsCosmos(wallet)) {
-    const unsigned: core.Cosmos.StdTx = cosmosTransferTx;
-
     const res = await wallet.cosmosSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
       chain_id: "cosmoshub-4",
       account_number: "16359",
       sequence: "17",
-      tx: unsigned,
+      tx: cosmosTransferTx,
     });
     $cosmosResults.val(JSON.stringify(res));
   } else {
@@ -1162,14 +1158,12 @@ $cosmosDelegate.on("click", async (e) => {
     return;
   }
   if (core.supportsCosmos(wallet)) {
-    const unsigned: core.Cosmos.StdTx = cosmosDelegateTx;
-
     const res = await wallet.cosmosSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
       chain_id: "cosmoshub-4",
       account_number: "16359",
       sequence: "18",
-      tx: unsigned,
+      tx: cosmosDelegateTx,
     });
     $cosmosResults.val(JSON.stringify(res));
   } else {
@@ -1185,14 +1179,12 @@ $cosmosUndelegate.on("click", async (e) => {
     return;
   }
   if (core.supportsCosmos(wallet)) {
-    const unsigned: core.Cosmos.StdTx = cosmosUndelegateTx;
-
     const res = await wallet.cosmosSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
       chain_id: "cosmoshub-4",
       account_number: "16359",
       sequence: "20",
-      tx: unsigned,
+      tx: cosmosUndelegateTx,
     });
     $cosmosResults.val(JSON.stringify(res));
   } else {
@@ -1208,14 +1200,12 @@ $cosmosRedelegate.on("click", async (e) => {
     return;
   }
   if (core.supportsCosmos(wallet)) {
-    const unsigned: core.Cosmos.StdTx = cosmosRedelegateTx;
-
     const res = await wallet.cosmosSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
       chain_id: "cosmoshub-4",
       account_number: "16359",
       sequence: "19",
-      tx: unsigned,
+      tx: cosmosRedelegateTx,
     });
     $cosmosResults.val(JSON.stringify(res));
   } else {
@@ -1231,14 +1221,12 @@ $cosmosRewards.on("click", async (e) => {
     return;
   }
   if (core.supportsCosmos(wallet)) {
-    const unsigned: core.Cosmos.StdTx = cosmosRewardsTx;
-
     const res = await wallet.cosmosSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
       chain_id: "cosmoshub-4",
       account_number: "16359",
       sequence: "19",
-      tx: unsigned,
+      tx: cosmosRewardsTx,
     });
     $cosmosResults.val(JSON.stringify(res));
   } else {
@@ -1254,14 +1242,12 @@ $cosmosIBCTransfer.on("click", async (e) => {
     return;
   }
   if (core.supportsCosmos(wallet)) {
-    const unsigned: core.Cosmos.StdTx = cosmosIBCTransferTx;
-
     const res = await wallet.cosmosSignTx({
       addressNList: core.bip32ToAddressNList(`m/44'/118'/0'/0/0`),
       chain_id: "cosmoshub-4",
       account_number: "16359",
       sequence: "27",
-      tx: unsigned,
+      tx: cosmosIBCTransferTx,
     });
     $cosmosResults.val(JSON.stringify(res));
   } else {
@@ -1350,12 +1336,12 @@ $thorchainSignSwap.on("click", async (e) => {
     $thorchainSwapResults.val("No wallet?");
     return;
   }
-  if (!$thorchainDestAddress.val().match(/^[a-z0-9]+$/i) && $thorchainDestAddress.val() != "") {
+  if (!($thorchainDestAddress.val() as string).match(/^[a-z0-9]+$/i) && $thorchainDestAddress.val() != "") {
     console.info($thorchainDestAddress.val());
     $thorchainSwapResults.val("Invalid destination address");
     return;
   }
-  if (!$thorchainAmount.val().match(/^\d*\.?\d*$/) && $thorchainAmount.val() != "") {
+  if (!($thorchainAmount.val() as string).match(/^\d*\.?\d*$/) && $thorchainAmount.val() != "") {
     $thorchainSwapResults.val("Amount is not a number");
     return;
   }
@@ -1375,14 +1361,14 @@ $thorchainSignSwap.on("click", async (e) => {
         const inputs = [
           {
             addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
-            scriptType: core.BTCInputScriptType.SpendAddress,
+            scriptType: core.BTCInputScriptType.SpendAddress as const,
             amount: String(10000),
             vout: 1,
             txid: txid,
             tx: btcTxJson,
             hex,
           },
-        ];
+        ] as unknown as Array<BTCSignTxInput>;
 
         const outputs = [
           {
@@ -1392,7 +1378,7 @@ $thorchainSignSwap.on("click", async (e) => {
             amount: String(0),
             isChange: false,
           },
-        ];
+        ] as unknown as Array<BTCSignTxOutput>;
 
         const res = await wallet.btcSignTx({
           coin: "Bitcoin",
@@ -1433,9 +1419,6 @@ $thorchainSignSwap.on("click", async (e) => {
         console.info(tx);
         const res = await wallet.binanceSignTx({
           addressNList: core.bip32ToAddressNList(`m/44'/714'/0'/0/0`),
-          chain_id: "Binance-Chain-Nile",
-          account_number: "24250",
-          sequence: 31,
           tx: tx as any,
         });
         $thorchainSwapResults.val(JSON.stringify(res));
@@ -1451,9 +1434,6 @@ $thorchainSignSwap.on("click", async (e) => {
         console.info(tx);
         const res = await wallet.binanceSignTx({
           addressNList: core.bip32ToAddressNList(`m/44'/714'/0'/0/0`),
-          chain_id: "Binance-Chain-Nile",
-          account_number: "24250",
-          sequence: 31,
           tx: tx as any,
         });
         $thorchainSwapResults.val(JSON.stringify(res));
@@ -1508,12 +1488,12 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
     $thorchainAddLiquidityResults.val("No wallet?");
     return;
   }
-  if (!$thorchainDestAddress.val().match(/^[a-z0-9]+$/i) && $thorchainDestAddress.val() != "") {
+  if (!($thorchainDestAddress.val() as string).match(/^[a-z0-9]+$/i) && $thorchainDestAddress.val() != "") {
     console.info($thorchainDestAddress.val());
     $thorchainAddLiquidityResults.val("Invalid destination address");
     return;
   }
-  if (!$thorchainAmount.val().match(/^\d*\.?\d*$/) && $thorchainAmount.val() != "") {
+  if (!($thorchainAmount.val() as string).match(/^\d*\.?\d*$/) && $thorchainAmount.val() != "") {
     $thorchainAddLiquidityResults.val("Amount is not a number");
     return;
   }
@@ -1540,7 +1520,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
             tx: btcTxJson,
             hex,
           },
-        ];
+        ] as unknown as Array<BTCSignTxInput>;
 
         const outputs = [
           {
@@ -1549,7 +1529,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
             amount: $thorchainLiquidityAmount.val(),
             isChange: false,
           },
-        ];
+        ] as unknown as Array<BTCSignTxOutput>;
 
         const res = await wallet.btcSignTx({
           coin: "Bitcoin",
@@ -1594,9 +1574,6 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
         };
         const res = await wallet.binanceSignTx({
           addressNList: core.bip32ToAddressNList(`m/44'/714'/0'/0/0`),
-          chain_id: "Binance-Chain-Nile",
-          account_number: "24250",
-          sequence: 31,
           tx: tx as any,
         });
         $thorchainAddLiquidityResults.val(JSON.stringify(res));
@@ -1615,9 +1592,6 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
         };
         const res = await wallet.binanceSignTx({
           addressNList: core.bip32ToAddressNList(`m/44'/714'/0'/0/0`),
-          chain_id: "Binance-Chain-Nile",
-          account_number: "24250",
-          sequence: 31,
           tx: tx as any,
         });
         $thorchainAddLiquidityResults.val(JSON.stringify(res));
@@ -1682,7 +1656,7 @@ $thorchainArkeoBondProvider.on("click", async (e) => {
       chain_id: "thorchain",
       account_number: "24250",
       sequence: "3",
-      tx: arkeoBondProviderTx,
+      tx: arkeoBondProviderTx as unknown as Thorchain.StdTx,
     });
     $thorchainArkeoResults.val(JSON.stringify(res));
   } else {
@@ -1703,7 +1677,7 @@ $thorchainArkeoModProvider.on("click", async (e) => {
       chain_id: "thorchain",
       account_number: "24250",
       sequence: "3",
-      tx: arkeoModProviderTx,
+      tx: arkeoModProviderTx as unknown as Thorchain.StdTx,
     });
     $thorchainArkeoResults.val(JSON.stringify(res));
   } else {
@@ -1724,7 +1698,7 @@ $thorchainArkeoOpenContract.on("click", async (e) => {
       chain_id: "thorchain",
       account_number: "24250",
       sequence: "3",
-      tx: arkeoOpenContractTx,
+      tx: arkeoOpenContractTx as unknown as Thorchain.StdTx,
     });
     $thorchainArkeoResults.val(JSON.stringify(res));
   } else {
@@ -1745,7 +1719,7 @@ $thorchainArkeoCloseContract.on("click", async (e) => {
       chain_id: "thorchain",
       account_number: "24250",
       sequence: "3",
-      tx: arkeoCloseContractTx,
+      tx: arkeoCloseContractTx as unknown as Thorchain.StdTx,
     });
     $thorchainArkeoResults.val(JSON.stringify(res));
   } else {
@@ -1766,7 +1740,7 @@ $thorchainArkeoClaimContractIncome.on("click", async (e) => {
       chain_id: "thorchain",
       account_number: "24250",
       sequence: "3",
-      tx: arkeoClaimContractIncomeTx,
+      tx: arkeoClaimContractIncomeTx as unknown as Thorchain.StdTx,
     });
     $thorchainArkeoResults.val(JSON.stringify(res));
   } else {
@@ -1787,7 +1761,7 @@ $thorchainArkeoClaimEth.on("click", async (e) => {
       chain_id: "thorchain",
       account_number: "24250",
       sequence: "3",
-      tx: arkeoClaimEthTx,
+      tx: arkeoClaimEthTx as unknown as Thorchain.StdTx,
     });
     $thorchainArkeoResults.val(JSON.stringify(res));
   } else {
@@ -1808,7 +1782,7 @@ $thorchainArkeoClaimArkeo.on("click", async (e) => {
       chain_id: "thorchain",
       account_number: "24250",
       sequence: "3",
-      tx: arkeoClaimArkeoTx,
+      tx: arkeoClaimArkeoTx as unknown as Thorchain.StdTx,
     });
     $thorchainArkeoResults.val(JSON.stringify(res));
   } else {
@@ -1829,7 +1803,7 @@ $thorchainArkeoTransferClaim.on("click", async (e) => {
       chain_id: "thorchain",
       account_number: "24250",
       sequence: "3",
-      tx: arkeoTransferClaimTx,
+      tx: arkeoTransferClaimTx as unknown as Thorchain.StdTx,
     });
     $thorchainArkeoResults.val(JSON.stringify(res));
   } else {
@@ -1850,7 +1824,7 @@ $thorchainArkeoAddClaim.on("click", async (e) => {
       chain_id: "thorchain",
       account_number: "24250",
       sequence: "3",
-      tx: arkeoAddClaimTx,
+      tx: arkeoAddClaimTx as unknown as Thorchain.StdTx,
     });
     $thorchainArkeoResults.val(JSON.stringify(res));
   } else {
@@ -2705,7 +2679,8 @@ function erc20SetSetSelected(selectedButton: any) {
     },
     {
       button: $erc20TotalSupply,
-      content: "\
+      content:
+        "\
       <input type='text' placeholder='Contract Address' id='erc20ContractAddress' />\
       ",
     },
