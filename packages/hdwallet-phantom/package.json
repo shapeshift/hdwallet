@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@shapeshiftoss/hdwallet-core": "1.54.2",
-    "eth-rpc-errors": "^4.0.3",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
