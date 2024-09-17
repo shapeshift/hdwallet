@@ -29,6 +29,7 @@
 !/examples/sandbox/json/**
 !/examples/sandbox/package.json
 !/examples/sandbox/tsconfig.json
+!/examples/sandbox/vite.config.ts
 !/integration/
 !/integration/jest.config.js
 !/integration/json.d.ts
