@@ -3,8 +3,8 @@
     // tsc is insanely drunk with internal resolutions currently, this at least silences it so we can ship things
     // the installed versions are still the same as before, but the bumped tsc version might have made it stricter
     "skipLibCheck": true,
-    "target": "ESNext",
-    "module": "ESNext",
+    "target": "ES2016",
+    "module": "commonjs",
     "lib": ["es2020", "dom", "es5"],
     "declaration": true,
     "declarationMap": true,
