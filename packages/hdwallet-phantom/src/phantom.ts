@@ -397,7 +397,8 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
     const value = await (async () => {
       switch (msg.coin) {
         case "Bitcoin": {
-          const accounts = await this.bitcoinProvider.requestAccounts();
+          // TODO(gomes): type this
+          const accounts = await (this.bitcoinProvider as any).requestAccounts();
           const paymentAddress = accounts.find((account: BtcAccount) => account.purpose === "payment")?.address;
 
           return paymentAddress;
