@@ -51,12 +51,6 @@ export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHA
   ];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function ethSignTx(msg: core.ETHSignTx, ethereum: any, from: string): Promise<core.ETHSignedTx | null> {
-  console.error("Method ethSignTx unsupported for Phantom wallet!");
-  return null;
-}
-
 export async function ethSendTx(msg: core.ETHSignTx, ethereum: any, from: string): Promise<core.ETHTxHash | null> {
   try {
     const utxBase = {
@@ -77,7 +71,6 @@ export async function ethSendTx(msg: core.ETHSignTx, ethereum: any, from: string
         }
       : { ...utxBase, gasPrice: msg.gasPrice };
 
-    console.log({ utx });
     const signedTx = await ethereum.request({
       method: "eth_sendTransaction",
       params: [utx],
