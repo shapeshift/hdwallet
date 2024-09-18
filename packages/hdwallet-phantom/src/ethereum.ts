@@ -2,6 +2,8 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { ETHSignedMessage } from "@shapeshiftoss/hdwallet-core";
 import { isHexString } from "ethers/lib/utils";
 
+import { PhantomEvmProvider } from "./types";
+
 export function describeETHPath(path: core.BIP32Path): core.PathDescription {
   const pathStr = core.addressNListToBIP32(path);
   const unknown: core.PathDescription = {
@@ -32,9 +34,13 @@ export function describeETHPath(path: core.BIP32Path): core.PathDescription {
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function ethVerifyMessage(msg: core.ETHVerifyMessage, ethereum: any): Promise<boolean | null> {
-  console.error("Method ethVerifyMessage unsupported for Phantom wallet!");
+export async function ethVerifyMessage(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  msg: core.ETHVerifyMessage,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  phantom: PhantomEvmProvider
+): Promise<boolean | null> {
+  console.error("Unimplemented");
   return null;
 }
 
@@ -51,7 +57,11 @@ export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHA
   ];
 }
 
-export async function ethSendTx(msg: core.ETHSignTx, ethereum: any, from: string): Promise<core.ETHTxHash | null> {
+export async function ethSendTx(
+  msg: core.ETHSignTx,
+  phantom: PhantomEvmProvider,
+  from: string
+): Promise<core.ETHTxHash | null> {
   try {
     const utxBase = {
       from: from,
@@ -71,7 +81,7 @@ export async function ethSendTx(msg: core.ETHSignTx, ethereum: any, from: string
         }
       : { ...utxBase, gasPrice: msg.gasPrice };
 
-    const signedTx = await ethereum.request({
+    const signedTx = await phantom.request?.({
       method: "eth_sendTransaction",
       params: [utx],
     });
@@ -87,12 +97,12 @@ export async function ethSendTx(msg: core.ETHSignTx, ethereum: any, from: string
 
 export async function ethSignMessage(
   msg: core.ETHSignMessage,
-  ethereum: any,
+  phantom: PhantomEvmProvider,
   address: string
 ): Promise<core.ETHSignedMessage | null> {
   try {
     if (!isHexString(msg.message)) throw new Error("data is not an hex string");
-    const signedMsg = await ethereum.request({
+    const signedMsg = await phantom.request?.({
       method: "personal_sign",
       params: [msg.message, address],
     });
@@ -107,12 +117,12 @@ export async function ethSignMessage(
   }
 }
 
-export async function ethGetAddress(ethereum: any): Promise<string | null> {
-  if (!(ethereum && ethereum.request)) {
+export async function ethGetAddress(phantom: PhantomEvmProvider): Promise<string | null> {
+  if (!(phantom && phantom.request)) {
     return null;
   }
   try {
-    const ethAccounts = await ethereum.request({
+    const ethAccounts = await phantom.request({
       method: "eth_accounts",
     });
     return ethAccounts[0];
