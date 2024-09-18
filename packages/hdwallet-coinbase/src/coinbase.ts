@@ -344,7 +344,6 @@ export class CoinbaseHDWallet implements core.HDWallet, core.ETHWallet {
     return this.info.ethNextAccountPath(msg);
   }
 
-  // TODO: Respect msg.addressNList!
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async ethGetAddress(msg: core.ETHGetAddress): Promise<string | null> {
     if (this.ethAddress) {

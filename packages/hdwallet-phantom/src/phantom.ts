@@ -325,9 +325,7 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
     return this.info.ethNextAccountPath(msg);
   }
 
-  // TODO: Respect msg.addressNList!
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async ethGetAddress(msg: core.ETHGetAddress): Promise<string | null> {
+  public async ethGetAddress(): Promise<string | null> {
     if (this.ethAddress) {
       return this.ethAddress;
     }
@@ -342,17 +340,17 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {
-    const address = await this.ethGetAddress(this.evmProvider);
+    const address = await this.ethGetAddress();
     return address ? eth.ethSignTx(msg, this.evmProvider, address) : null;
   }
 
   public async ethSendTx(msg: core.ETHSignTx): Promise<core.ETHTxHash | null> {
-    const address = await this.ethGetAddress(this.evmProvider);
+    const address = await this.ethGetAddress();
     return address ? eth.ethSendTx(msg, this.evmProvider, address) : null;
   }
 
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
-    const address = await this.ethGetAddress(this.evmProvider);
+    const address = await this.ethGetAddress();
     return address ? eth.ethSignMessage(msg, this.evmProvider, address) : null;
   }
 
@@ -361,7 +359,7 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async getDeviceID(): Promise<string> {
-    return "phantom:" + (await this.ethGetAddress(this.evmProvider));
+    return "phantom:" + (await this.ethGetAddress());
   }
 
   public async getFirmwareVersion(): Promise<string> {
