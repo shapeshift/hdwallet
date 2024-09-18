@@ -8,6 +8,9 @@ declare global {
     phantom?: {
       ethereum?: providers.ExternalProvider;
       bitcoin?: providers.ExternalProvider;
+      // TODO: update with proper types once implemented
+      // https://github.com/anza-xyz/wallet-adapter/blob/3761cd8cc867da39da7c0b070bbf8779402cff36/packages/wallets/phantom/src/adapter.ts#L36
+      solana?: any;
     };
   }
 }
