@@ -48,6 +48,8 @@ export class PhantomAdapter {
           params: [{ eth_accounts: {} }],
         })
       );
+      // TODO(gomes): type bitcoinprovider
+      await (bitcoinProvider as any).requestAccounts();
     } catch (error) {
       console.error("Could not get Phantom accounts. ");
       throw error;
