@@ -438,7 +438,7 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
-    throw new Error("Method not implemented.");
+    return coin === "bitcoin";
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
