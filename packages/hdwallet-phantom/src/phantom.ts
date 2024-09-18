@@ -372,8 +372,7 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public bitcoinNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    // TODO: What do we do here?
-    return undefined;
+    throw new Error("Method not implemented.");
   }
 
   public async btcSupportsSecureTransfer(): Promise<boolean> {
