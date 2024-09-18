@@ -1,9 +1,12 @@
 import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
 
 export type BtcAccount = {
   address: string;
-  addressType: "p2tr" | "p2wpkh" | "p2sh" | "p2pkh";
+  // Phantom supposedly supports more scriptTypes but in effect, doesn't (currently)
+  // https://github.com/orgs/phantom/discussions/173
+  addressType: BTCInputScriptType.SpendWitness;
   publicKey: string;
   purpose: "payment" | "ordinals";
 };
@@ -53,11 +56,13 @@ async function addInput(
 
   if (input.scriptType) {
     switch (input.scriptType) {
-      case "p2pkh":
-        inputData.nonWitnessUtxo = Buffer.from(input.hex, "hex");
-        break;
-      case "p2sh-p2wpkh":
-      case "p2wpkh": {
+      // Phantom supposedly supports more scriptTypes but in effect, doesn't (currently)
+      // https://github.com/orgs/phantom/discussions/173
+      // case "p2pkh":
+      // inputData.nonWitnessUtxo = Buffer.from(input.hex, "hex");
+      // break;
+      // case "p2sh-p2wpkh":
+      case BTCInputScriptType.SpendWitness: {
         const inputAddress = await wallet.btcGetAddress({ addressNList: input.addressNList, coin, showDisplay: false });
 
         if (!inputAddress) throw new Error("Could not get address from wallet");
