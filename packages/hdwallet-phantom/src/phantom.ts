@@ -426,11 +426,12 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage | null> {
     const address = await this.btcGetAddress({ coin: "Bitcoin" } as core.BTCGetAddress);
+    if (!address) throw new Error("Could not get Bitcoin address");
     const message = new TextEncoder().encode(msg.message);
 
     // TODO(gomes): type bitcoinpovider
-    const result = await (this.bitcoinProvider as any).signMessage(address, message);
-    return result;
+    const { signature } = await (this.bitcoinProvider as any).signMessage(address, message);
+    return { signature, address };
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean | null> {
