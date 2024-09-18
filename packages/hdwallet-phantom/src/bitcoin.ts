@@ -8,6 +8,13 @@ type BtcAccount = {
   purpose: "payment" | "ordinals";
 };
 
+const fromHexString = (hexString: string) => {
+  const bytes = hexString.match(/.{1,2}/g);
+  if (!bytes) throw new Error("Invalid hex string");
+
+  return Uint8Array.from(bytes.map((byte) => parseInt(byte, 16)));
+};
+
 function getNetwork(coin: string): bitcoin.networks.Network {
   switch (coin.toLowerCase()) {
     case "bitcoin":
@@ -156,12 +163,6 @@ export async function bitcoinSignTx(
     })
   );
 
-  const fromHexString = (hexString: string) => {
-    const bytes = hexString.match(/.{1,2}/g);
-    if (!bytes) throw new Error("Invalid hex string");
-
-    return Uint8Array.from(bytes.map((byte) => parseInt(byte, 16)));
-  };
   const signedPsbtHex = await provider.signPSBT(fromHexString(psbt.toHex()), { inputsToSign });
 
   const signedPsbt = bitcoin.Psbt.fromHex(signedPsbtHex, { network });
