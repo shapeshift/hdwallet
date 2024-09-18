@@ -67,8 +67,15 @@ export class PhantomHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInf
 
   public describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin) {
-      case "Ethereum":
-        return eth.describeETHPath(msg.path);
+      case "bitcoin": {
+        const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
+
+        if (!msg.scriptType) return unknown;
+
+        return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+      }
+      case "ethereum":
+        return core.describeETHPath(msg.path);
       default:
         throw new Error("Unsupported path");
     }
@@ -256,19 +263,7 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public describePath(msg: core.DescribePath): core.PathDescription {
-    switch (msg.coin) {
-      case "bitcoin": {
-        const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
-
-        if (!msg.scriptType) return unknown;
-
-        return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
-      }
-      case "ethereum":
-        return core.describeETHPath(msg.path);
-      default:
-        throw new Error("Unsupported path");
-    }
+    return this.info.describePath(msg);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
