@@ -25,12 +25,6 @@ const getNetwork = (coin: string): bitcoin.networks.Network => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function bitcoinNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-  // Only support one account for now (like portis).
-  return undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function bitcoinGetAddress(msg: core.BTCGetAddress, provider: any): Promise<string> {
   const accounts = await provider.requestAccounts();
   const paymentAddress = accounts.find((account: BtcAccount) => account.purpose === "payment")?.address;

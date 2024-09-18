@@ -382,11 +382,14 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
+    // Phantom doesn't support BIP44 paths
     throw new Error("Method not implemented.");
   }
 
-  public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    return this.bitcoinNextAccountPath(msg);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public btcNextAccountPath(_msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
+    // Phantom doesn't support BIP44 paths
+    throw new Error("Method not implemented.");
   }
 
   addressCache: Map<string, string> = new Map();
