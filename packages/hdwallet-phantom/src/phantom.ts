@@ -269,6 +269,7 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
     // Only p2wpkh effectively supported for now
+    if (msg[0].coin !== "Bitcoin") return [];
     if (msg[0].scriptType !== BTCInputScriptType.SpendWitness) return [];
 
     // Note this is a pubKey, not an xpub
