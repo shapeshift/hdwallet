@@ -83,8 +83,7 @@ export class PhantomHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInf
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
-    // TODO: What do we do here?
-    return undefined;
+    throw new Error("Unimplemented");
   }
 
   public async ethSupportsNetwork(chainId: number): Promise<boolean> {
