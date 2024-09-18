@@ -34,16 +34,6 @@ export function describeETHPath(path: core.BIP32Path): core.PathDescription {
   };
 }
 
-export async function ethVerifyMessage(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  msg: core.ETHVerifyMessage,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  phantom: PhantomEvmProvider
-): Promise<boolean | null> {
-  console.error("Unimplemented");
-  return null;
-}
-
 export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
   const slip44 = core.slip44ByCoin(msg.coin);
   if (slip44 === undefined) return [];

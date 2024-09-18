@@ -355,8 +355,9 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
     return address ? eth.ethSignMessage(msg, this.evmProvider, address) : null;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean | null> {
-    return eth.ethVerifyMessage(msg, this.evmProvider);
+    throw new Error("Method not implemented.");
   }
 
   public async getDeviceID(): Promise<string> {
