@@ -395,11 +395,7 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
     throw new Error("Method not implemented.");
   }
 
-  addressCache: Map<string, string> = new Map();
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
-    const key = JSON.stringify(msg);
-    const maybeCachedAddress = this.addressCache.get(key);
-    if (maybeCachedAddress) return maybeCachedAddress;
     const value = await (async () => {
       switch (msg.coin) {
         case "Bitcoin": {
@@ -415,7 +411,6 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
     })();
     if (!value || typeof value !== "string") return null;
 
-    this.addressCache.set(key, value);
     return value;
   }
 
