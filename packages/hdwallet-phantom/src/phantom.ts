@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { AddEthereumChainParameter } from "@shapeshiftoss/hdwallet-core";
+import { AddEthereumChainParameter, BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
 import { providers } from "ethers";
 import _ from "lodash";
 
@@ -268,8 +268,14 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
+    // Only p2wpkh effectively supported for now
+    if (msg[0].scriptType !== BTCInputScriptType.SpendWitness) return [];
+
+    // Note this is a pubKey, not an xpub
+    const pubKey = await this.btcGetAddress({ coin: "Bitcoin" } as core.BTCGetAddress);
+    if (!pubKey) return [];
     // Ethereum public keys are not exposed by the RPC API
-    return [];
+    return [{ xpub: pubKey }];
   }
 
   public async isInitialized(): Promise<boolean> {
@@ -399,7 +405,6 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
         case "Bitcoin": {
           // TODO(gomes): type this
           const accounts = await (this.bitcoinProvider as any).requestAccounts();
-          console.log({ accounts });
           const paymentAddress = accounts.find((account: BtcAccount) => account.purpose === "payment")?.address;
 
           return paymentAddress;
