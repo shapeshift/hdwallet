@@ -66,6 +66,7 @@ export async function ethSendTx(msg: core.ETHSignTx, ethereum: any, from: string
       chainId: msg.chainId,
       data: msg.data && msg.data !== "" ? msg.data : undefined,
       gasLimit: msg.gasLimit,
+      gasPrice: msg.gasPrice,
     };
 
     const utx = msg.maxFeePerGas
@@ -76,6 +77,7 @@ export async function ethSendTx(msg: core.ETHSignTx, ethereum: any, from: string
         }
       : { ...utxBase, gasPrice: msg.gasPrice };
 
+    console.log({ utx });
     const signedTx = await ethereum.request({
       method: "eth_sendTransaction",
       params: [utx],
