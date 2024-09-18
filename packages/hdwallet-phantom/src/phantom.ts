@@ -87,7 +87,7 @@ export class PhantomHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInf
   }
 
   public async ethSupportsNetwork(chainId: number): Promise<boolean> {
-    return chainId === 1;
+    return chainId === 1 || chainId === 137;
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
