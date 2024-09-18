@@ -15,16 +15,14 @@ const fromHexString = (hexString: string) => {
   return Uint8Array.from(bytes.map((byte) => parseInt(byte, 16)));
 };
 
-function getNetwork(coin: string): bitcoin.networks.Network {
+const getNetwork = (coin: string): bitcoin.networks.Network => {
   switch (coin.toLowerCase()) {
     case "bitcoin":
       return bitcoin.networks.bitcoin;
-    case "testnet":
-      return bitcoin.networks.testnet;
     default:
       throw new Error(`Unsupported coin: ${coin}`);
   }
-}
+};
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function bitcoinNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
