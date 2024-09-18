@@ -47,6 +47,9 @@ describe("PhantomHDWallet", () => {
 
   it("should test ethSignMessage", async () => {
     wallet.evmProvider = {
+      _metamask: {
+        isUnlocked: () => true,
+      },
       request: jest.fn().mockReturnValue(
         `Object {
           "address": "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
@@ -73,6 +76,9 @@ describe("PhantomHDWallet", () => {
 
   it("ethSignMessage returns null on error", async () => {
     wallet.evmProvider = {
+      _metamask: {
+        isUnlocked: () => true,
+      },
       request: jest.fn().mockRejectedValue(new Error("An Error has occurred")),
     };
 
@@ -87,6 +93,9 @@ describe("PhantomHDWallet", () => {
 
   it("ethGetAddress returns a valid address", async () => {
     wallet.evmProvider = {
+      _metamask: {
+        isUnlocked: () => true,
+      },
       request: jest.fn().mockReturnValue(["0x73d0385F4d8E00C5e6504C6030F47BF6212736A8"]),
     };
 
@@ -103,6 +112,9 @@ describe("PhantomHDWallet", () => {
   });
   it("ethSendTx returns a valid hash", async () => {
     wallet.evmProvider = {
+      _metamask: {
+        isUnlocked: () => true,
+      },
       request: jest.fn().mockReturnValue("0x123"),
     };
 
@@ -121,6 +133,9 @@ describe("PhantomHDWallet", () => {
   });
   it("ethSendTx returns a valid hash if maxFeePerGas is present in msg", async () => {
     wallet.evmProvider = {
+      _metamask: {
+        isUnlocked: () => true,
+      },
       request: jest.fn().mockReturnValue("0x123"),
     };
 
@@ -139,6 +154,9 @@ describe("PhantomHDWallet", () => {
   });
   it("ethSendTx returns null on error", async () => {
     wallet.evmProvider = {
+      _metamask: {
+        isUnlocked: () => true,
+      },
       request: jest.fn().mockRejectedValue(new Error("An Error has occurred")),
     };
 
@@ -157,6 +175,9 @@ describe("PhantomHDWallet", () => {
   });
   it("ethVerifyMessage returns null as its not implemented", async () => {
     wallet.evmProvider = {
+      _metamask: {
+        isUnlocked: () => true,
+      },
       request: jest.fn().mockReturnValue("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"),
     };
     expect(
