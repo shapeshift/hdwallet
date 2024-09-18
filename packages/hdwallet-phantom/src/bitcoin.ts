@@ -1,7 +1,7 @@
 import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-type BtcAccount = {
+export type BtcAccount = {
   address: string;
   addressType: "p2tr" | "p2wpkh" | "p2sh" | "p2pkh";
   publicKey: string;
@@ -25,7 +25,7 @@ const getNetwork = (coin: string): bitcoin.networks.Network => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function bitcoinGetAddress(msg: core.BTCGetAddress, provider: any): Promise<string> {
+export async function bitcoinGetAddress(_msg: core.BTCGetAddress, provider: any): Promise<string> {
   const accounts = await provider.requestAccounts();
   const paymentAddress = accounts.find((account: BtcAccount) => account.purpose === "payment")?.address;
 

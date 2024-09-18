@@ -1,9 +1,12 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { AddEthereumChainParameter } from "@shapeshiftoss/hdwallet-core";
+import { providers } from "ethers";
 import _ from "lodash";
 
 import * as Btc from "./bitcoin";
+import { BtcAccount } from "./bitcoin";
 import * as eth from "./ethereum";
+import { PhantomEvmProvider } from "./types";
 
 export function isPhantom(wallet: core.HDWallet): wallet is PhantomHDWallet {
   return _.isObject(wallet) && (wallet as any)._isPhantom;
@@ -138,10 +141,10 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
 
   info: PhantomHDWalletInfo & core.HDWalletInfo;
   ethAddress?: string | null;
-  evmProvider: any;
-  bitcoinProvider: any;
+  evmProvider: PhantomEvmProvider;
+  bitcoinProvider: providers.ExternalProvider;
 
-  constructor(evmProvider: unknown, bitcoinProvider: unknown) {
+  constructor(evmProvider: PhantomEvmProvider, bitcoinProvider: providers.ExternalProvider) {
     this.info = new PhantomHDWalletInfo();
     this.evmProvider = evmProvider;
     this.bitcoinProvider = bitcoinProvider;
@@ -152,7 +155,7 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async isLocked(): Promise<boolean> {
-    return !this.evmProvider._phantom.isUnlocked();
+    return !this.evmProvider._metamask.isUnlocked();
   }
 
   public getVendor(): string {
@@ -287,6 +290,7 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
 
   public async ethGetChainId(): Promise<number | null> {
     try {
+      if (!this.evmProvider.request) throw new Error("Provider does not support ethereum.request");
       // chainId as hex string
       const chainId: string = await this.evmProvider.request({ method: "eth_chainId" });
       return parseInt(chainId, 16);
@@ -399,8 +403,12 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
     if (maybeCachedAddress) return maybeCachedAddress;
     const value = await (async () => {
       switch (msg.coin) {
-        case "Bitcoin":
-          return Btc.bitcoinGetAddress(msg, this.bitcoinProvider);
+        case "Bitcoin": {
+          const accounts = await this.bitcoinProvider.requestAccounts();
+          const paymentAddress = accounts.find((account: BtcAccount) => account.purpose === "payment")?.address;
+
+          return paymentAddress;
+        }
         default:
           return null;
       }
