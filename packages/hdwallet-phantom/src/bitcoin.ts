@@ -42,11 +42,13 @@ async function addInput(
   coin: string,
   network: bitcoin.networks.Network
 ): Promise<void> {
-  const inputData: bitcoin.PsbtTxInput & {
+  const inputData: Omit<bitcoin.PsbtTxInput, "hash"> & {
     nonWitnessUtxo?: Buffer;
     witnessUtxo?: { script: Buffer; value: number };
+    hash: string | Buffer;
   } = {
-    hash: Buffer.from(input.txid, "hex"),
+    nonWitnessUtxo: input.hex ? Buffer.from(input.hex, "hex") : undefined,
+    hash: input.txid,
     index: input.vout,
   };
 
