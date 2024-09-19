@@ -1,5 +1,6 @@
 import Common from "@ethereumjs/common";
 import { Transaction } from "@ethereumjs/tx";
+import type { EIP712Message } from "@ledgerhq/types-live";
 import * as sigUtil from "@metamask/eth-sig-util";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import EthereumTx from "ethereumjs-tx";
@@ -182,9 +183,6 @@ export async function ethSignMessage(
   };
 }
 
-// TODO(gomes): Implement signEIP712Message instead and fallback to signEIP712HashedMessage only if it fails (incompatible with Nano S)
-// https://github.com/LedgerHQ/ledger-live/blob/1de4de022b4e3abc02fcb823ae6ef1f9a64adba2/libs/ledgerjs/packages/hw-app-eth/README.md#signeip712message
-// The reason why we don't do that now is because bumping hw-app-eth to latest means problems
 export async function ethSignTypedData(
   transport: LedgerTransport,
   msg: core.ETHSignTypedData
@@ -193,29 +191,30 @@ export async function ethSignTypedData(
 
   if (!("EIP712Domain" in msg.typedData.types)) throw new Error("msg.typedData missing EIP712Domain");
 
-  const typedData = msg.typedData as sigUtil.TypedMessage<sigUtil.MessageTypes>;
+  const res = await (async () => {
+    const _res = await transport.call("Eth", "signEIP712Message", bip32path, msg.typedData as EIP712Message);
+    if (_res.success === true) return _res;
 
-  const { types, primaryType, message } = sigUtil.TypedDataUtils.sanitizeData(typedData);
+    const typedData = msg.typedData as sigUtil.TypedMessage<sigUtil.MessageTypes>;
+    const { types, primaryType, message } = sigUtil.TypedDataUtils.sanitizeData(typedData);
 
-  const domainSeparatorHex = sigUtil.TypedDataUtils.eip712DomainHash(
-    typedData,
-    sigUtil.SignTypedDataVersion.V4
-  ).toString("hex");
+    const domainSeparatorHex = sigUtil.TypedDataUtils.eip712DomainHash(
+      typedData,
+      sigUtil.SignTypedDataVersion.V4
+    ).toString("hex");
 
-  const hashStructMessageHex = sigUtil.TypedDataUtils.hashStruct(
-    primaryType as string,
-    message,
-    types,
-    sigUtil.SignTypedDataVersion.V4
-  ).toString("hex");
+    const hashStructMessageHex = sigUtil.TypedDataUtils.hashStruct(
+      primaryType as string,
+      message,
+      types,
+      sigUtil.SignTypedDataVersion.V4
+    ).toString("hex");
 
-  const res = await transport.call(
-    "Eth",
-    "signEIP712HashedMessage",
-    bip32path,
-    domainSeparatorHex,
-    hashStructMessageHex
-  );
+    // The old Ledger Nano S (not S+) doesn't support signEIP712Message, so we have to fallback to signEIP712HashedMessage
+    // https://github.com/LedgerHQ/ledger-live/blob/1de4de022b4e3abc02fcb823ae6ef1f9a64adba2/libs/ledgerjs/packages/hw-app-eth/README.md#signeip712message
+    return transport.call("Eth", "signEIP712HashedMessage", bip32path, domainSeparatorHex, hashStructMessageHex);
+  })();
+
   handleError(res, transport, "Could not sign typed data with Ledger");
 
   const { r, s, v } = res.payload;

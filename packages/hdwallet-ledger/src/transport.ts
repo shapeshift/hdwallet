@@ -1,10 +1,11 @@
 import type Btc from "@ledgerhq/hw-app-btc";
 import type Cosmos from "@ledgerhq/hw-app-cosmos";
 import type Eth from "@ledgerhq/hw-app-eth";
-import type Transport from "@ledgerhq/hw-transport";
 import type getAppAndVersion from "@ledgerhq/live-common/lib/hw/getAppAndVersion";
 import type getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
 import type openApp from "@ledgerhq/live-common/lib/hw/openApp";
+// Blame Ledger here, enforcing resolutions isn't enough to fix the types inconsistencies
+import type Transport from "@ledgerhq/live-common/node_modules/@ledgerhq/hw-transport/lib/Transport";
 import * as core from "@shapeshiftoss/hdwallet-core";
 
 import { Thorchain } from "./thorchain";
