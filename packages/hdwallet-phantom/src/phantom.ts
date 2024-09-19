@@ -1,12 +1,10 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { AddEthereumChainParameter, BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
-import { providers } from "ethers";
 import _ from "lodash";
 
 import * as Btc from "./bitcoin";
-import { BtcAccount } from "./bitcoin";
 import * as eth from "./ethereum";
-import { PhantomEvmProvider } from "./types";
+import { PhantomEvmProvider, PhantomUtxoProvider } from "./types";
 
 export function isPhantom(wallet: core.HDWallet): wallet is PhantomHDWallet {
   return _.isObject(wallet) && (wallet as any)._isPhantom;
@@ -145,9 +143,9 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
   info: PhantomHDWalletInfo & core.HDWalletInfo;
   ethAddress?: string | null;
   evmProvider: PhantomEvmProvider;
-  bitcoinProvider: providers.ExternalProvider;
+  bitcoinProvider: PhantomUtxoProvider;
 
-  constructor(evmProvider: PhantomEvmProvider, bitcoinProvider: providers.ExternalProvider) {
+  constructor(evmProvider: PhantomEvmProvider, bitcoinProvider: PhantomUtxoProvider) {
     this.info = new PhantomHDWalletInfo();
     this.evmProvider = evmProvider;
     this.bitcoinProvider = bitcoinProvider;
@@ -392,9 +390,8 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
     const value = await (async () => {
       switch (msg.coin) {
         case "Bitcoin": {
-          // TODO(gomes): type this
-          const accounts = await (this.bitcoinProvider as any).requestAccounts();
-          const paymentAddress = accounts.find((account: BtcAccount) => account.purpose === "payment")?.address;
+          const accounts = await this.bitcoinProvider.requestAccounts();
+          const paymentAddress = accounts.find((account) => account.purpose === "payment")?.address;
 
           return paymentAddress;
         }
@@ -423,9 +420,8 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
     if (!address) throw new Error("Could not get Bitcoin address");
     const message = new TextEncoder().encode(msg.message);
 
-    // TODO(gomes): type bitcoinpovider
-    const { signature } = await (this.bitcoinProvider as any).signMessage(address, message);
-    return { signature, address };
+    const { signature } = await this.bitcoinProvider.signMessage(address, message);
+    return { signature: core.toHexString(signature), address };
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean | null> {

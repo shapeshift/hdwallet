@@ -1,15 +1,14 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { providers } from "ethers";
 
 import { PhantomHDWallet } from "./phantom";
-import { PhantomEvmProvider } from "./types";
+import { PhantomEvmProvider, PhantomUtxoProvider } from "./types";
 
 declare global {
   interface Window {
     ethereum?: PhantomEvmProvider;
     phantom?: {
       ethereum?: PhantomEvmProvider;
-      bitcoin?: providers.ExternalProvider;
+      bitcoin?: PhantomUtxoProvider;
       // TODO: update with proper types once implemented
       // https://github.com/anza-xyz/wallet-adapter/blob/3761cd8cc867da39da7c0b070bbf8779402cff36/packages/wallets/phantom/src/adapter.ts#L36
       solana?: any;
