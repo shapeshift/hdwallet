@@ -25,9 +25,6 @@ export class PhantomHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInf
   readonly _supportsKavaInfo = false;
   readonly _supportsTerraInfo = false;
 
-  bitcoinAddress?: string | null;
-  ethAddress?: string | null;
-
   public getVendor(): string {
     return "Phantom";
   }
