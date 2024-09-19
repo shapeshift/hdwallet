@@ -209,9 +209,7 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
     return true;
   }
 
-  public async clearSession(): Promise<void> {
-    // TODO: Can we lock Phantom from here?
-  }
+  public async clearSession(): Promise<void> {}
 
   public async ping(msg: core.Ping): Promise<core.Pong> {
     // no ping function for Phantom, so just returning Core.Pong
