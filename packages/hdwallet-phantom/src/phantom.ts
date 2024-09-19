@@ -252,9 +252,7 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async loadDevice(msg: core.LoadDevice): Promise<void> {
-    // TODO: Does Phantom allow this to be done programatically?
-  }
+  public async loadDevice(msg: core.LoadDevice): Promise<void> {}
 
   public describePath(msg: core.DescribePath): core.PathDescription {
     return this.info.describePath(msg);
