@@ -191,29 +191,29 @@ export async function ethSignTypedData(
 
   if (!("EIP712Domain" in msg.typedData.types)) throw new Error("msg.typedData missing EIP712Domain");
 
-  const typedData = msg.typedData as sigUtil.TypedMessage<sigUtil.MessageTypes>;
+  const res = await (async () => {
+    const _res = await transport.call("Eth", "signEIP712Message", bip32path, msg.typedData as EIP712Message);
+    if (_res.success === true) return _res;
 
-  const { types, primaryType, message } = sigUtil.TypedDataUtils.sanitizeData(typedData);
+    const typedData = msg.typedData as sigUtil.TypedMessage<sigUtil.MessageTypes>;
+    const { types, primaryType, message } = sigUtil.TypedDataUtils.sanitizeData(typedData);
 
-  const domainSeparatorHex = sigUtil.TypedDataUtils.eip712DomainHash(
-    typedData,
-    sigUtil.SignTypedDataVersion.V4
-  ).toString("hex");
+    const domainSeparatorHex = sigUtil.TypedDataUtils.eip712DomainHash(
+      typedData,
+      sigUtil.SignTypedDataVersion.V4
+    ).toString("hex");
 
-  const hashStructMessageHex = sigUtil.TypedDataUtils.hashStruct(
-    primaryType as string,
-    message,
-    types,
-    sigUtil.SignTypedDataVersion.V4
-  ).toString("hex");
+    const hashStructMessageHex = sigUtil.TypedDataUtils.hashStruct(
+      primaryType as string,
+      message,
+      types,
+      sigUtil.SignTypedDataVersion.V4
+    ).toString("hex");
 
-  // The old Ledger Nano S (not S+) doesn't support signEIP712Message, so we have to fallback to signEIP712HashedMessage only if it fails
-  // https://github.com/LedgerHQ/ledger-live/blob/1de4de022b4e3abc02fcb823ae6ef1f9a64adba2/libs/ledgerjs/packages/hw-app-eth/README.md#signeip712message
-
-  const res = await transport.call("Eth", "signEIP712Message", bip32path, msg.typedData as EIP712Message).catch((e) => {
-    console.error(e);
+    // The old Ledger Nano S (not S+) doesn't support signEIP712Message, so we have to fallback to signEIP712HashedMessage
+    // https://github.com/LedgerHQ/ledger-live/blob/1de4de022b4e3abc02fcb823ae6ef1f9a64adba2/libs/ledgerjs/packages/hw-app-eth/README.md#signeip712message
     return transport.call("Eth", "signEIP712HashedMessage", bip32path, domainSeparatorHex, hashStructMessageHex);
-  });
+  })();
 
   handleError(res, transport, "Could not sign typed data with Ledger");
 
