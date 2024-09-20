@@ -166,20 +166,14 @@ describe("PhantomHDWallet", () => {
     expect(wallet.evmProvider.request).toHaveBeenCalled();
     expect(hash).toBe(null);
   });
-  it("ethVerifyMessage returns null as its not implemented", async () => {
-    wallet.evmProvider = {
-      _metamask: {
-        isUnlocked: () => true,
-      },
-      request: jest.fn().mockReturnValue("0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"),
-    };
+  it("ethVerifyMessage returns true for a valid signature", async () => {
     expect(
       await wallet.ethVerifyMessage({
-        address: "0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8",
-        message: "hello world",
+        address: "0x2068dD92B6690255553141Dfcf00dF308281f763",
+        message: "Hello World",
         signature:
-          "0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b",
+          "0x61f1dda82e9c3800e960894396c9ce8164fd1526fccb136c71b88442405f7d09721725629915d10bc7cecfca2818fe76bc5816ed96a1b0cebee9b03b052980131b",
       })
-    ).toEqual(null);
+    ).toEqual(true);
   });
 });
