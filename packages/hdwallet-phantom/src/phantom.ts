@@ -141,7 +141,6 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsTerraInfo = false;
 
   info: PhantomHDWalletInfo & core.HDWalletInfo;
-  ethAddress?: string | null;
   evmProvider: PhantomEvmProvider;
   bitcoinProvider: PhantomUtxoProvider;
 
@@ -318,17 +317,8 @@ export class PhantomHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   public async ethGetAddress(): Promise<string | null> {
-    if (this.ethAddress) {
-      return this.ethAddress;
-    }
     const address = await eth.ethGetAddress(this.evmProvider);
-    if (address) {
-      this.ethAddress = address;
-      return address;
-    } else {
-      this.ethAddress = null;
-      return null;
-    }
+    return address;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
