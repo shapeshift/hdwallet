@@ -2,6 +2,8 @@ import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
 
+import { PhantomUtxoProvider } from "./types";
+
 export type BtcAccount = {
   address: string;
   // Phantom supposedly supports more scriptTypes but in effect, doesn't (currently)
@@ -55,52 +57,22 @@ export async function bitcoinGetAddress(_msg: core.BTCGetAddress, provider: any)
   return paymentAddress;
 }
 
-async function addInput(
-  wallet: core.BTCWallet,
-  psbt: bitcoin.Psbt,
-  input: core.BTCSignTxInput,
-  coin: string,
-  network: bitcoin.networks.Network
-): Promise<void> {
-  const inputData: Omit<bitcoin.PsbtTxInput, "hash"> & {
-    nonWitnessUtxo?: Buffer;
-    witnessUtxo?: { script: Buffer; value: number };
-    hash: string | Buffer;
-  } = {
-    nonWitnessUtxo: input.hex ? Buffer.from(input.hex, "hex") : undefined,
-    hash: input.txid,
-    index: input.vout,
-  };
+async function addInput(psbt: bitcoin.Psbt, input: core.BTCSignTxInput): Promise<void> {
+  switch (input.scriptType) {
+    // Phantom supposedly supports more scriptTypes but in effect, doesn't (currently)
+    // https://github.com/orgs/phantom/discussions/173
+    case BTCInputScriptType.SpendWitness: {
+      psbt.addInput({
+        hash: input.txid,
+        index: input.vout,
+        nonWitnessUtxo: Buffer.from(input.hex, "hex"),
+      });
 
-  if (input.sequence !== undefined) {
-    inputData.sequence = input.sequence;
-  }
-
-  if (input.scriptType) {
-    switch (input.scriptType) {
-      // Phantom supposedly supports more scriptTypes but in effect, doesn't (currently)
-      // https://github.com/orgs/phantom/discussions/173
-      // case "p2pkh":
-      // inputData.nonWitnessUtxo = Buffer.from(input.hex, "hex");
-      // break;
-      // case "p2sh-p2wpkh":
-      case BTCInputScriptType.SpendWitness: {
-        const inputAddress = await wallet.btcGetAddress({ addressNList: input.addressNList, coin, showDisplay: false });
-
-        if (!inputAddress) throw new Error("Could not get address from wallet");
-
-        inputData.witnessUtxo = {
-          script: bitcoin.address.toOutputScript(inputAddress, network),
-          value: parseInt(input.amount),
-        };
-        break;
-      }
-      default:
-        throw new Error(`Unsupported script type: ${input.scriptType}`);
+      break;
     }
+    default:
+      throw new Error(`Unsupported script type: ${input.scriptType}`);
   }
-
-  psbt.addInput(inputData);
 }
 
 async function addOutput(
@@ -109,32 +81,28 @@ async function addOutput(
   output: core.BTCSignTxOutput,
   coin: string
 ): Promise<void> {
-  if ("address" in output && output.address) {
-    psbt.addOutput({
-      address: output.address,
-      value: parseInt(output.amount),
-    });
-  } else if ("addressNList" in output && output.addressNList) {
-    const outputAddress = await wallet.btcGetAddress({ addressNList: output.addressNList, coin, showDisplay: false });
+  if (!output.amount) throw new Error("Invalid output - missing amount.");
 
-    if (!outputAddress) throw new Error("Could not get address from wallet");
+  const address = await (async () => {
+    if (output.address) return output.address;
 
-    psbt.addOutput({
-      address: outputAddress,
-      value: parseInt(output.amount),
-    });
-  }
+    if (output.addressNList) {
+      const outputAddress = await wallet.btcGetAddress({ addressNList: output.addressNList, coin, showDisplay: false });
+      if (!outputAddress) throw new Error("Could not get address from wallet");
+      return outputAddress;
+    }
+  })();
+
+  if (!address) throw new Error("Invalid output - no address");
+
+  psbt.addOutput({ address, value: parseInt(output.amount) });
 }
 
 export async function bitcoinSignTx(
   wallet: core.BTCWallet,
   msg: core.BTCSignTx,
-  provider: any
+  provider: PhantomUtxoProvider
 ): Promise<core.BTCSignedTx | null> {
-  if (!msg.inputs.length || !msg.outputs.length) {
-    throw new Error("Invalid input: Empty inputs or outputs");
-  }
-
   const network = getNetwork(msg.coin);
 
   const psbt = new bitcoin.Psbt({ network });
@@ -145,7 +113,7 @@ export async function bitcoinSignTx(
   }
 
   for (const input of msg.inputs) {
-    await addInput(wallet, psbt, input, msg.coin, network);
+    await addInput(psbt, input);
   }
 
   for (const output of msg.outputs) {
@@ -155,10 +123,9 @@ export async function bitcoinSignTx(
   if (msg.opReturnData) {
     const data = Buffer.from(msg.opReturnData, "utf-8");
     const embed = bitcoin.payments.embed({ data: [data] });
-    psbt.addOutput({
-      script: embed.output!,
-      value: 0,
-    });
+    const script = embed.output;
+    if (!script) throw new Error("unable to build OP_RETURN script");
+    psbt.addOutput({ script, value: 0 });
   }
 
   const inputsToSign = await Promise.all(
@@ -169,6 +136,8 @@ export async function bitcoinSignTx(
         showDisplay: false,
       });
 
+      if (!address) throw new Error("Could not get address from wallet");
+
       return {
         address,
         signingIndexes: [index],
@@ -178,11 +147,16 @@ export async function bitcoinSignTx(
   );
 
   const signedPsbtHex = await provider.signPSBT(fromHexString(psbt.toHex()), { inputsToSign });
-
-  const signedPsbt = bitcoin.Psbt.fromHex(signedPsbtHex, { network });
+  const signedPsbt = bitcoin.Psbt.fromBuffer(Buffer.from(signedPsbtHex), { network });
 
   signedPsbt.finalizeAllInputs();
+
   const tx = signedPsbt.extractTransaction();
+
+  // If this is a THORChain transaction, validate the vout ordering
+  if (msg.vaultAddress && !core.validateVoutOrdering(msg, tx)) {
+    throw new Error("Improper vout ordering for BTC Thorchain transaction");
+  }
 
   const signatures = signedPsbt.data.inputs.map((input) =>
     input.partialSig ? input.partialSig[0].signature.toString("hex") : ""

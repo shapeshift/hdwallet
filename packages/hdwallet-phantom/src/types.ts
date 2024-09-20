@@ -16,4 +16,8 @@ export type PhantomUtxoProvider = providers.ExternalProvider & {
   ) => Promise<{
     signature: Uint8Array;
   }>;
+  signPSBT(
+    psbt: Uint8Array,
+    options: { inputsToSign: { sigHash?: number | undefined; address: string; signingIndexes: number[] }[] }
+  ): Promise<Uint8Array>;
 };
