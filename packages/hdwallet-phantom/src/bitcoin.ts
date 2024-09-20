@@ -103,13 +103,6 @@ async function addOutput(
       address: outputAddress,
       value: parseInt(output.amount),
     });
-  } else if ("opReturnData" in output && output.opReturnData) {
-    const data = Buffer.from(output.opReturnData.toString(), "hex");
-    const embed = bitcoin.payments.embed({ data: [data] });
-    psbt.addOutput({
-      script: embed.output!,
-      value: 0,
-    });
   }
 }
 
@@ -137,6 +130,15 @@ export async function bitcoinSignTx(
 
   for (const output of msg.outputs) {
     await addOutput(wallet, psbt, output, msg.coin);
+  }
+
+  if (msg.opReturnData) {
+    const data = Buffer.from(msg.opReturnData, "utf-8");
+    const embed = bitcoin.payments.embed({ data: [data] });
+    psbt.addOutput({
+      script: embed.output!,
+      value: 0,
+    });
   }
 
   const inputsToSign = await Promise.all(
