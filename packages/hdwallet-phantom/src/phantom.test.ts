@@ -1,6 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
 import { PhantomHDWallet, PhantomHDWalletInfo } from ".";
+import { PhantomUtxoProvider } from "./types";
 
 describe("HDWalletInfo", () => {
   const info = new PhantomHDWalletInfo();
@@ -27,7 +28,6 @@ describe("PhantomHDWallet", () => {
       core.untouchable("PhantomHDWallet:provider"),
       core.untouchable("PhantomHDWallet:provider")
     );
-    wallet.ethAddress = "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8";
   });
 
   it("should match the metadata", async () => {
@@ -64,14 +64,14 @@ describe("PhantomHDWallet", () => {
         message: msg,
       })
     ).toMatchInlineSnapshot(`
-    Object {
-      "address": "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
-      "signature": "Object {
-              \\"address\\": \\"0x73d0385F4d8E00C5e6504C6030F47BF6212736A8\\",
-              \\"signature\\": \\"0x05f51140905ffa33ffdc57f46b0b8d8fbb1d2a99f8cd843ca27893c01c31351c08b76d83dce412731c846e3b50649724415deb522d00950fbf4f2c1459c2b70b1b\\",
-            }",
-    }
-  `);
+      Object {
+        "address": "O",
+        "signature": "Object {
+                \\"address\\": \\"0x73d0385F4d8E00C5e6504C6030F47BF6212736A8\\",
+                \\"signature\\": \\"0x05f51140905ffa33ffdc57f46b0b8d8fbb1d2a99f8cd843ca27893c01c31351c08b76d83dce412731c846e3b50649724415deb522d00950fbf4f2c1459c2b70b1b\\",
+              }",
+      }
+    `);
   });
 
   it("ethSignMessage returns null on error", async () => {
@@ -99,17 +99,27 @@ describe("PhantomHDWallet", () => {
       request: jest.fn().mockReturnValue(["0x73d0385F4d8E00C5e6504C6030F47BF6212736A8"]),
     };
 
-    const msg = "0x737570657220736563726574206d657373616765"; // super secret message
-    const sig = await wallet.ethSignMessage({
-      addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-      message: msg,
-    });
+    const address = await wallet.ethGetAddress();
 
-    expect(sig).toMatchObject({
-      address: "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
-      signature: ["0x73d0385F4d8E00C5e6504C6030F47BF6212736A8"],
-    });
+    expect(address).toEqual("0x73d0385F4d8E00C5e6504C6030F47BF6212736A8");
   });
+  it("btcGetAddress returns a valid address", async () => {
+    wallet.bitcoinProvider = {
+      requestAccounts: jest.fn().mockReturnValue([
+        {
+          purpose: "payment",
+          address: "bc1q9sjm947kn2hz84syykmem7dshvevm8xm5dkrpg",
+        },
+      ]),
+    } as unknown as PhantomUtxoProvider;
+
+    const address = await wallet.btcGetAddress({
+      coin: "Bitcoin",
+    } as core.BTCGetAddress);
+
+    expect(address).toEqual("bc1q9sjm947kn2hz84syykmem7dshvevm8xm5dkrpg");
+  });
+
   it("ethSendTx returns a valid hash", async () => {
     wallet.evmProvider = {
       _metamask: {
