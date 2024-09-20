@@ -5,6 +5,8 @@ import TransportWebHID from "@ledgerhq/hw-transport-webhid";
 import getAppAndVersion from "@ledgerhq/live-common/lib/hw/getAppAndVersion";
 import getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
 import openApp from "@ledgerhq/live-common/lib/hw/openApp";
+// Blame Ledger here, enforcing resolutions isn't enough to fix the types inconsistencies
+import type LiveCommonTransport from "@ledgerhq/live-common/node_modules/@ledgerhq/hw-transport/lib/Transport";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 import {
@@ -80,19 +82,19 @@ export function translateCoinAndMethod<T extends LedgerTransportCoinType, U exte
         case "getAppAndVersion": {
           const out: LedgerTransportMethod<null, "getAppAndVersion"> = getAppAndVersion.bind(
             undefined,
-            transport as Transport
+            transport as LiveCommonTransport
           );
           return out as LedgerTransportMethod<T, U>;
         }
         case "getDeviceInfo": {
           const out: LedgerTransportMethod<null, "getDeviceInfo"> = getDeviceInfo.bind(
             undefined,
-            transport as Transport
+            transport as LiveCommonTransport
           );
           return out as LedgerTransportMethod<T, U>;
         }
         case "openApp": {
-          const out: LedgerTransportMethod<null, "openApp"> = openApp.bind(undefined, transport as Transport);
+          const out: LedgerTransportMethod<null, "openApp"> = openApp.bind(undefined, transport as LiveCommonTransport);
           return out as LedgerTransportMethod<T, U>;
         }
         default: {
@@ -110,7 +112,7 @@ export class LedgerWebHIDTransport extends ledger.LedgerTransport {
   device: HIDDevice;
 
   constructor(device: HIDDevice, transport: Transport, keyring: core.Keyring) {
-    super(transport, keyring);
+    super(transport as LiveCommonTransport, keyring);
     this.device = device;
   }
 
