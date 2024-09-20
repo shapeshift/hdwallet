@@ -27,7 +27,27 @@ const getNetwork = (coin: string): bitcoin.networks.Network => {
   }
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const btcGetAccountPaths = (msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> => {
+  const slip44 = core.slip44ByCoin(msg.coin);
+  if (slip44 === undefined) return [];
+
+  const bip84 = core.segwitNativeAccount(msg.coin, slip44, msg.accountIdx);
+
+  const coinPaths = {
+    bitcoin: [bip84],
+  } as Partial<Record<string, Array<core.BTCAccountPath>>>;
+
+  let paths: Array<core.BTCAccountPath> = coinPaths[msg.coin.toLowerCase()] || [];
+
+  if (msg.scriptType !== undefined) {
+    paths = paths.filter((path) => {
+      return path.scriptType === msg.scriptType;
+    });
+  }
+
+  return paths;
+};
+
 export async function bitcoinGetAddress(_msg: core.BTCGetAddress, provider: any): Promise<string> {
   const accounts = await provider.requestAccounts();
   const paymentAddress = accounts.find((account: BtcAccount) => account.purpose === "payment")?.address;

@@ -1,5 +1,6 @@
 import { Bytes } from "@ethersproject/bytes";
 import { TypedData } from "eip-712";
+import { ethers } from "ethers";
 
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
@@ -239,4 +240,17 @@ export function describeETHPath(path: BIP32Path): PathDescription {
     isKnown: true,
     isPrefork: false,
   };
+}
+
+export function buildMessage(message: ethers.utils.BytesLike): Uint8Array {
+  const messageBytes =
+    typeof message === "string" && !ethers.utils.isHexString(message)
+      ? ethers.utils.toUtf8Bytes(message)
+      : ethers.utils.arrayify(message);
+
+  return ethers.utils.concat([
+    ethers.utils.toUtf8Bytes("\x19Ethereum Signed Message:\n"),
+    ethers.utils.toUtf8Bytes(String(messageBytes.length)),
+    messageBytes,
+  ]);
 }

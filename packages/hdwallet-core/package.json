@@ -16,6 +16,7 @@
   "dependencies": {
     "@shapeshiftoss/proto-tx-builder": "^0.8.0",
     "eip-712": "^1.0.0",
+    "ethers": "5.7.2",
     "eventemitter2": "^5.0.1",
     "lodash": "^4.17.21",
     "rxjs": "^6.4.0",

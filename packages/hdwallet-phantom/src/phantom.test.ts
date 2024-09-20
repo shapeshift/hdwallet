@@ -1,28 +1,11 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import { PhantomHDWallet, PhantomHDWalletInfo } from ".";
+import { PhantomHDWallet } from ".";
 import { PhantomUtxoProvider } from "./types";
-
-describe("HDWalletInfo", () => {
-  const info = new PhantomHDWalletInfo();
-
-  it("should have correct metadata", async () => {
-    expect(info.getVendor()).toBe("Phantom");
-    expect(info.hasOnDevicePinEntry()).toBe(false);
-    expect(info.hasOnDevicePassphrase()).toBe(true);
-    expect(info.hasOnDeviceDisplay()).toBe(true);
-    expect(info.hasOnDeviceRecovery()).toBe(true);
-    expect(await info.ethSupportsNetwork(1)).toBe(true);
-    expect(await info.ethSupportsSecureTransfer()).toBe(false);
-    expect(info.ethSupportsNativeShapeShift()).toBe(false);
-    expect(await info.ethSupportsEIP1559()).toBe(true);
-    expect(await info.supportsOfflineSigning()).toBe(false);
-    expect(await info.supportsBroadcast()).toBe(true);
-  });
-});
 
 describe("PhantomHDWallet", () => {
   let wallet: PhantomHDWallet;
+
   beforeEach(() => {
     wallet = new PhantomHDWallet(
       core.untouchable("PhantomHDWallet:provider"),
@@ -40,9 +23,9 @@ describe("PhantomHDWallet", () => {
     expect(await wallet.ethSupportsSecureTransfer()).toBe(false);
     expect(wallet.ethSupportsNativeShapeShift()).toBe(false);
     expect(await wallet.ethSupportsEIP1559()).toBe(true);
-    expect(await wallet.supportsOfflineSigning()).toBe(false);
+    expect(wallet.supportsOfflineSigning()).toBe(false);
     expect(wallet.supportsBip44Accounts()).toBe(false);
-    expect(await wallet.supportsBroadcast()).toBe(true);
+    expect(wallet.supportsBroadcast()).toBe(true);
   });
 
   it("should test ethSignMessage", async () => {
