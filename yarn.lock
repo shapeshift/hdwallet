@@ -4646,18 +4646,6 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-core@1.54.2":
-  version "1.54.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.54.2.tgz#0bcc9fe56bd869b7942ffd36735190d5692bb97d"
-  integrity sha512-bJx0vgpudvq+k1ZRG5+xGx7w5w7sJDyDQcdHtoILhB9htgt36ILjsmCJSrpc+0LSIwP2P/LLw3cg88beqahVNw==
-  dependencies:
-    "@shapeshiftoss/proto-tx-builder" "^0.8.0"
-    eip-712 "^1.0.0"
-    eventemitter2 "^5.0.1"
-    lodash "^4.17.21"
-    rxjs "^6.4.0"
-    type-assertions "^1.1.0"
-
 "@shapeshiftoss/hdwallet-core@latest":
   version "1.55.2"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.55.2.tgz#1b153d3a1edaf4f38ea7295ff9363a76f02c2f43"
