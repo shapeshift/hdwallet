@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger",
-  "version": "1.55.5",
+  "version": "1.55.6",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -19,7 +19,7 @@
     "@ethereumjs/tx": "^3.3.0",
     "@ledgerhq/hw-app-cosmos": "^6.29.1",
     "@shapeshiftoss/bitcoinjs-lib": "5.2.0-shapeshift.2",
-    "@shapeshiftoss/hdwallet-core": "1.55.5",
+    "@shapeshiftoss/hdwallet-core": "1.55.6",
     "base64-js": "^1.5.1",
     "bchaddrjs": "^0.4.4",
     "bitcoinjs-message": "^2.0.0",
