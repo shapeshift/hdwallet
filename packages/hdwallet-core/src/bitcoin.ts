@@ -1,3 +1,4 @@
+import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as ta from "type-assertions";
 
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
@@ -487,4 +488,51 @@ export function segwitNativeAccount(coin: Coin, slip44: number, accountIdx: numb
     scriptType: BTCInputScriptType.SpendWitness,
     addressNList: [0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + accountIdx],
   };
+}
+
+export function validateVoutOrdering(msg: BTCSignTxNative, tx: bitcoin.Transaction): boolean {
+  // From THORChain specification:
+  /* ignoreTx checks if we can already ignore a tx according to preset rules
+
+         we expect array of "vout" for a BTC to have this format
+         OP_RETURN is mandatory only on inbound tx
+         vout:0 is our vault
+         vout:1 is any any change back to themselves
+         vout:2 is OP_RETURN (first 80 bytes)
+         vout:3 is OP_RETURN (next 80 bytes)
+
+         Rules to ignore a tx are:
+         - vout:0 doesn't have coins (value)
+         - vout:0 doesn't have address
+         - count vouts > 4
+         - count vouts with coins (value) > 2
+      */
+
+  // Check that vout:0 contains the vault address
+  if (bitcoin.address.fromOutputScript(tx.outs[0].script) != msg.vaultAddress) {
+    console.error("Vout:0 does not contain vault address.");
+    return false;
+  }
+
+  // TODO: Can we check and  make sure vout:1 is our address?
+
+  // Check and make sure vout:2 exists
+  if (tx.outs.length < 3) {
+    console.error("Not enough outputs found in transaction.", msg);
+    return false;
+  }
+  // Check and make sure vout:2 has OP_RETURN data
+  const opcode = bitcoin.script.decompile(tx.outs[2].script)?.[0];
+  if (Object.keys(bitcoin.script.OPS).find((k) => bitcoin.script.OPS[k] === opcode) != "OP_RETURN") {
+    console.error("OP_RETURN output not found for transaction.");
+    return false;
+  }
+
+  // Make sure vout:3 does not exist
+  if (tx.outs[3]) {
+    console.error("Illegal second op_return output found.");
+    return false;
+  }
+
+  return true;
 }

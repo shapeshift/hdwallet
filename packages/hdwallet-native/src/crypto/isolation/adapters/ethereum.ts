@@ -12,7 +12,6 @@ import {
   splitSignature,
 } from "ethers/lib/utils.js";
 
-import { buildMessage } from "../../../util";
 import { Isolation } from "../..";
 import { SecP256K1 } from "../core";
 
@@ -80,7 +79,7 @@ export class SignerAdapter {
   }
 
   async signMessage(messageData: BytesLike, addressNList: core.BIP32Path): Promise<string> {
-    const messageBuf = buildMessage(messageData);
+    const messageBuf = core.buildMessage(messageData);
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
     const rawSig = await SecP256K1.RecoverableSignature.signCanonically(nodeAdapter.node, "keccak256", messageBuf);
     return joinSignature(ethSigFromRecoverableSig(rawSig));

@@ -118,7 +118,7 @@
     "domain": {
       "name": "Seaport",
       "version": "1.5",
-      "chainId": 137,
+      "chainId": 1,
       "verifyingContract": "0x00000000000000ADc04C56Bf30aC9d3c0aAF14dC"
     },
     "message": {
