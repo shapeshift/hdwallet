@@ -5,7 +5,6 @@ import { PhantomEvmProvider, PhantomUtxoProvider } from "./types";
 
 declare global {
   interface Window {
-    ethereum?: PhantomEvmProvider;
     phantom?: {
       ethereum?: PhantomEvmProvider;
       bitcoin?: PhantomUtxoProvider;
