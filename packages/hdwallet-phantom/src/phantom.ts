@@ -164,7 +164,9 @@ export class PhantomHDWallet extends PhantomHDWalletInfo implements core.HDWalle
   readonly _supportsEthSwitchChain = false;
   readonly _supportsAvalanche = false;
   readonly _supportsOptimism = false;
-  readonly _supportsPolygon = true;
+  // Polygon is technically supported but is acting up on the Phantom side of things atm
+  // https://github.com/orgs/phantom/discussions/294
+  readonly _supportsPolygon = false;
   readonly _supportsGnosis = false;
   readonly _supportsArbitrum = false;
   readonly _supportsArbitrumNova = false;
