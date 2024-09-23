@@ -18,6 +18,7 @@
     "@shapeshiftoss/hdwallet-core": "1.55.8",
     "base64-js": "^1.5.1",
     "bitcoinjs-message": "^2.0.0",
+    "ethers": "5.7.2",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
