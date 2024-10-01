@@ -7,15 +7,19 @@ import _ from "lodash";
 
 import * as btc from "./bitcoin";
 import * as eth from "./ethereum";
-import { PhantomEvmProvider, PhantomUtxoProvider } from "./types";
+import { solanaSendTx, solanaSignTx } from "./solana";
+import { PhantomEvmProvider, PhantomSolanaProvider, PhantomUtxoProvider } from "./types";
 
 export function isPhantom(wallet: core.HDWallet): wallet is PhantomHDWallet {
   return _.isObject(wallet) && (wallet as any)._isPhantom;
 }
 
-export class PhantomHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
+export class PhantomHDWalletInfo
+  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo, core.SolanaWalletInfo
+{
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
+  readonly _supportsSolanaInfo = true;
 
   evmProvider: PhantomEvmProvider;
 
@@ -73,6 +77,8 @@ export class PhantomHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInf
       }
       case "ethereum":
         return core.describeETHPath(msg.path);
+      case "solana":
+        return core.solanaDescribePath(msg.path);
       default:
         throw new Error("Unsupported path");
     }
@@ -156,9 +162,23 @@ export class PhantomHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInf
   public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
     throw new Error("Method not implemented");
   }
+
+  /** Solana */
+
+  public solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> {
+    return core.solanaGetAccountPaths(msg);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public solanaNextAccountPath(msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
+    throw new Error("Method not implemented");
+  }
 }
 
-export class PhantomHDWallet extends PhantomHDWalletInfo implements core.HDWallet, core.BTCWallet, core.ETHWallet {
+export class PhantomHDWallet
+  extends PhantomHDWalletInfo
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.SolanaWallet
+{
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
   readonly _supportsEthSwitchChain = false;
@@ -172,16 +192,25 @@ export class PhantomHDWallet extends PhantomHDWalletInfo implements core.HDWalle
   readonly _supportsArbitrumNova = false;
   readonly _supportsBase = false;
   readonly _supportsBSC = false;
+  readonly _supportsSolana = true;
   readonly _isPhantom = true;
 
   evmProvider: PhantomEvmProvider;
   bitcoinProvider: PhantomUtxoProvider;
+  solanaProvider: PhantomSolanaProvider;
+
   ethAddress?: string | null;
 
-  constructor(evmProvider: PhantomEvmProvider, bitcoinProvider: PhantomUtxoProvider) {
+  constructor(
+    evmProvider: PhantomEvmProvider,
+    bitcoinProvider: PhantomUtxoProvider,
+    solanaProvider: PhantomSolanaProvider
+  ) {
     super(evmProvider);
+
     this.evmProvider = evmProvider;
     this.bitcoinProvider = bitcoinProvider;
+    this.solanaProvider = solanaProvider;
   }
 
   public async getDeviceID(): Promise<string> {
@@ -356,5 +385,22 @@ export class PhantomHDWallet extends PhantomHDWalletInfo implements core.HDWalle
   public async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean | null> {
     const signature = Base64.fromByteArray(core.fromHexString(msg.signature));
     return bitcoinMsg.verify(msg.message, msg.address, signature);
+  }
+
+  /** Solana */
+
+  public async solanaGetAddress(): Promise<string | null> {
+    const { publicKey } = await this.solanaProvider.connect();
+    return publicKey.toString();
+  }
+
+  public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
+    const address = await this.solanaGetAddress();
+    return address ? solanaSignTx(msg, this.solanaProvider, address) : null;
+  }
+
+  public async solanaSendTx(msg: core.SolanaSignTx): Promise<core.SolanaTxSignature | null> {
+    const address = await this.solanaGetAddress();
+    return address ? solanaSendTx(msg, this.solanaProvider, address) : null;
   }
 }

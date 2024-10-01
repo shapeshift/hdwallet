@@ -1,16 +1,14 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
 import { PhantomHDWallet } from "./phantom";
-import { PhantomEvmProvider, PhantomUtxoProvider } from "./types";
+import { PhantomEvmProvider, PhantomSolanaProvider, PhantomUtxoProvider } from "./types";
 
 declare global {
   interface Window {
     phantom?: {
       ethereum?: PhantomEvmProvider;
       bitcoin?: PhantomUtxoProvider;
-      // TODO: update with proper types once implemented
-      // https://github.com/anza-xyz/wallet-adapter/blob/3761cd8cc867da39da7c0b070bbf8779402cff36/packages/wallets/phantom/src/adapter.ts#L36
-      solana?: any;
+      solana?: PhantomSolanaProvider;
     };
   }
 }
@@ -33,8 +31,9 @@ export class PhantomAdapter {
   public async pairDevice(): Promise<PhantomHDWallet | undefined> {
     const evmProvider = window.phantom?.ethereum;
     const bitcoinProvider = window.phantom?.bitcoin;
+    const solanaProvider = window.phantom?.solana;
 
-    if (!evmProvider || !bitcoinProvider) {
+    if (!evmProvider || !bitcoinProvider || !solanaProvider) {
       window.open("https://phantom.app/", "_blank");
       console.error("Please install Phantom!");
       throw new Error("Phantom provider not found");
@@ -51,7 +50,7 @@ export class PhantomAdapter {
       console.error("Could not get Phantom accounts. ");
       throw error;
     }
-    const wallet = new PhantomHDWallet(evmProvider, bitcoinProvider);
+    const wallet = new PhantomHDWallet(evmProvider, bitcoinProvider, solanaProvider);
     await wallet.initialize();
     const deviceID = await wallet.getDeviceID();
     this.keyring.add(wallet, deviceID);
