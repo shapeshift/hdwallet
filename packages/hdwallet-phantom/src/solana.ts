@@ -30,7 +30,7 @@ export function buildTransaction(msg: core.SolanaSignTx, address: string): Versi
 
   const value = Number(msg.value);
   if (!isNaN(value) && value > 0 && msg.to) {
-    instructions.concat(
+    instructions.push(
       SystemProgram.transfer({
         fromPubkey: new PublicKey(address),
         toPubkey: new PublicKey(msg.to),
@@ -40,11 +40,11 @@ export function buildTransaction(msg: core.SolanaSignTx, address: string): Versi
   }
 
   if (msg.computeUnitLimit) {
-    instructions.concat(ComputeBudgetProgram.setComputeUnitLimit({ units: msg.computeUnitLimit }));
+    instructions.push(ComputeBudgetProgram.setComputeUnitLimit({ units: msg.computeUnitLimit }));
   }
 
   if (msg.computeUnitPrice) {
-    instructions.concat(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: msg.computeUnitPrice }));
+    instructions.push(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: msg.computeUnitPrice }));
   }
 
   const message = new TransactionMessage({

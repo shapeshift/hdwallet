@@ -46,7 +46,6 @@ import {
   cosmosTransferTx,
   cosmosUndelegateTx,
 } from "./json/cosmos/cosmosAminoTx.json";
-import * as solanaTxJson from "./json/solanaTx.json";
 import * as dashTxJson from "./json/dashTx.json";
 import * as dogeTxJson from "./json/dogeTx.json";
 import { eip712, txs } from "./json/ethereum/ethTx.json";
@@ -64,6 +63,7 @@ import {
   osmosisUndelegateTx,
 } from "./json/osmosis/osmosisAminoTx.json";
 import * as rippleTxJson from "./json/rippleTx.json";
+import * as solanaTxJson from "./json/solanaTx.json";
 import {
   thorchainBinanceBaseTx,
   thorchainBitcoinBaseTx,
