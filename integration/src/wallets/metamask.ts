@@ -1,12 +1,12 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as metamask from "@shapeshiftoss/hdwallet-metamask";
+import * as metamask from "@shapeshiftoss/hdwallet-shapeshift-multichain";
 
 export function name(): string {
   return "MetaMask";
 }
 
 export function createInfo(): core.HDWalletInfo {
-  return new metamask.MetaMaskHDWalletInfo();
+  return new metamask.MetaMaskShapeShiftMultiChainHDWalletInfo();
 }
 
 export async function createWallet(): Promise<core.HDWallet> {
@@ -33,16 +33,16 @@ export async function createWallet(): Promise<core.HDWallet> {
       }
     }),
   };
-  const wallet = new metamask.MetaMaskHDWallet(provider);
+  const wallet = new metamask.MetaMaskShapeShiftMultiChainHDWallet(provider);
   await wallet.initialize();
   return wallet;
 }
 
 export function selfTest(get: () => core.HDWallet): void {
-  let wallet: metamask.MetaMaskHDWallet;
+  let wallet: metamask.MetaMaskShapeShiftMultiChainHDWallet;
 
   beforeAll(async () => {
-    const w = get() as metamask.MetaMaskHDWallet;
+    const w = get() as metamask.MetaMaskShapeShiftMultiChainHDWallet;
 
     if (metamask.isMetaMask(w) && !core.supportsBTC(w) && core.supportsETH(w)) {
       wallet = w;

@@ -1,6 +1,4 @@
 import * as sigUtil from "@metamask/eth-sig-util";
-import * as coinbase from "@shapeshiftoss/hdwallet-coinbase";
-import { CoinbaseProviderConfig } from "@shapeshiftoss/hdwallet-coinbase";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { BTCSignTxInput, BTCSignTxOutput, EosTx, Thorchain } from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
@@ -9,16 +7,14 @@ import * as keepkeyWebUSB from "@shapeshiftoss/hdwallet-keepkey-webusb";
 import * as keplr from "@shapeshiftoss/hdwallet-keplr";
 import * as ledgerWebHID from "@shapeshiftoss/hdwallet-ledger-webhid";
 import * as ledgerWebUSB from "@shapeshiftoss/hdwallet-ledger-webusb";
-import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as phantom from "@shapeshiftoss/hdwallet-phantom";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
-import * as tallyHo from "@shapeshiftoss/hdwallet-tallyho";
+import * as metaMask from "@shapeshiftoss/hdwallet-shapeshift-multichain";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
 import { WalletConnectProviderConfig } from "@shapeshiftoss/hdwallet-walletconnect";
 import * as walletConnect from "@shapeshiftoss/hdwallet-walletconnect";
 import * as walletConnectv2 from "@shapeshiftoss/hdwallet-walletconnectv2";
-import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 import { EthereumProviderOptions } from "@walletconnect/ethereum-provider/dist/types/EthereumProvider";
 import { TypedData } from "eip-712";
 import $, { noop } from "jquery";
@@ -97,14 +93,6 @@ const walletConnectV2Options: EthereumProviderOptions = {
   showQrModal: true,
 };
 
-const coinbaseOptions: CoinbaseProviderConfig = {
-  appName: "ShapeShift Sandbox",
-  appLogoUrl: "https://shapeshift.com/favicon.ico",
-  defaultJsonRpcUrl: "https://avatars.githubusercontent.com/u/52928763?s=50&v=4",
-  defaultChainId: 1,
-  darkMode: false,
-};
-
 const testPublicWalletXpubs = [
   "xpub661MyMwAqRbcFLgDU7wpcEVubSF7NkswwmXBUkDiGUW6uopeUMys4AqKXNgpfZKRTLnpKQgffd6a2c3J8JxLkF1AQN17Pm9QYHEqEfo1Rsx", // all seed root key
   "xpub68Zyu13qjcQxDzLNfTYnUXtJuX2qJgnxP6osrcAvJGdo6bs9M2Adt2BunbwiYrZS5qpA1QKoMf3uqS2NHpbyZp4KMJxDrL58NTyvHXBeAv6", // all seed m/44'
@@ -120,17 +108,14 @@ const testPublicWalletXpubs = [
   "xpub6DDUPHpUo4pcy43iJeZjbSVWGav1SMMmuWdMHiGtkK8rhKmfbomtkwW6GKs1GGAKehT6QRocrmda3WWxXawpjmwaUHfFRXuKrXSapdckEYF", // all seed m/84'/0'/0'
 ].join(" ");
 
-const coinbaseAdapter = coinbase.CoinbaseAdapter.useKeyring(keyring, coinbaseOptions);
 const keepkeyAdapter = keepkeyWebUSB.WebUSBKeepKeyAdapter.useKeyring(keyring);
 const kkbridgeAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const kkemuAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const portisAdapter = portis.PortisAdapter.useKeyring(keyring, { portisAppId });
-const metaMaskAdapter = metaMask.MetaMaskAdapter.useKeyring(keyring);
+const metaMaskAdapter = metaMask.MetaMaskAdapter.useKeyring(keyring, "io.metamask");
 const phantomAdapter = phantom.PhantomAdapter.useKeyring(keyring);
-const tallyHoAdapter = tallyHo.TallyHoAdapter.useKeyring(keyring);
 const walletConnectAdapter = walletConnect.WalletConnectAdapter.useKeyring(keyring, walletConnectOptions);
 const walletConnectV2Adapter = walletConnectv2.WalletConnectV2Adapter.useKeyring(keyring, walletConnectV2Options);
-const xdefiAdapter = xdefi.XDEFIAdapter.useKeyring(keyring);
 const keplrAdapter = keplr.KeplrAdapter.useKeyring(keyring);
 const nativeAdapter = native.NativeAdapter.useKeyring(keyring);
 const trezorAdapter = trezorConnect.TrezorAdapter.useKeyring(keyring, {
@@ -160,11 +145,8 @@ const $portis = $("#portis");
 const $native = $("#native");
 const $metaMask = $("#metaMask");
 const $phantom = $("#phantom");
-const $coinbase = $("#coinbase");
-const $tallyHo = $("#tallyHo");
 const $walletConnect = $("#walletConnect");
 const $walletConnectV2 = $("#walletConnectV2");
-const $xdefi = $("#xdefi");
 const $keplr = $("#keplr");
 const $keyring = $("#keyring");
 
@@ -257,35 +239,9 @@ $phantom.on("click", async (e) => {
   }
 });
 
-$coinbase.on("click", async (e) => {
-  e.preventDefault();
-  wallet = await coinbaseAdapter.pairDevice();
-  window["wallet"] = wallet;
-  let deviceID = "nothing";
-  try {
-    deviceID = await wallet.getDeviceID();
-    $("#keyring select").val(deviceID);
-  } catch (error) {
-    console.error(error);
-  }
-});
-
 $keplr.on("click", async (e) => {
   e.preventDefault();
   wallet = await keplrAdapter.pairDevice();
-  window["wallet"] = wallet;
-  let deviceID = "nothing";
-  try {
-    deviceID = await wallet.getDeviceID();
-    $("#keyring select").val(deviceID);
-  } catch (error) {
-    console.error(error);
-  }
-});
-
-$tallyHo.on("click", async (e) => {
-  e.preventDefault();
-  wallet = await tallyHoAdapter.pairDevice();
   window["wallet"] = wallet;
   let deviceID = "nothing";
   try {
@@ -315,19 +271,6 @@ $walletConnectV2.on("click", async (e) => {
     wallet = await walletConnectV2Adapter.pairDevice();
     window["wallet"] = wallet;
     let deviceID = "nothing";
-    deviceID = await wallet.getDeviceID();
-    $("#keyring select").val(deviceID);
-  } catch (error) {
-    console.error(error);
-  }
-});
-
-$xdefi.on("click", async (e) => {
-  e.preventDefault();
-  wallet = await xdefiAdapter.pairDevice();
-  window["wallet"] = wallet;
-  let deviceID = "nothing";
-  try {
     deviceID = await wallet.getDeviceID();
     $("#keyring select").val(deviceID);
   } catch (error) {
@@ -426,21 +369,9 @@ async function deviceConnected(deviceId) {
   }
 
   try {
-    await tallyHoAdapter.initialize();
-  } catch (e) {
-    console.error("Could not initialize TallyHoAdapter", e);
-  }
-
-  try {
     await keplrAdapter.initialize();
   } catch (e) {
     console.error("Could not initialize KeplrAdapter", e);
-  }
-
-  try {
-    await coinbaseAdapter.initialize();
-  } catch (e) {
-    console.error("Could not initialize CoinbaseAdapter", e);
   }
 
   try {
