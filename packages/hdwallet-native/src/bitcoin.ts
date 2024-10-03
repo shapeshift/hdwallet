@@ -35,7 +35,6 @@ type InputData = UtxoData | ScriptData | BchInputData;
 
 export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   // eslint-disable-next-line @typescript-eslint/no-shadow
-  // @ts-ignore tsc cache is drunk, btcIsSameAccount has been removed, TODO(gomes): rm ts-ignore
   return class MixinNativeBTCWalletInfo extends Base implements core.BTCWalletInfo {
     readonly _supportsBTCInfo = true;
 
