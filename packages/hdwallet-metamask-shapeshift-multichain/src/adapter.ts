@@ -29,9 +29,11 @@ export class MetaMaskAdapter {
     if (!maybeEip6963Provider) throw new Error("EIP-6963 provider not found");
     const eip1193Provider = maybeEip6963Provider.provider;
 
-    const isMetaMaskImpersonator = maybeEip6963Provider.info.rdns !== "io.metamask";
+    // Checks if the EIP-6963 provider is *akschual* MetaMask
+    // This assumes that the wallet supports EIP-6963, which all major wallets do
+    const isMetaMask = maybeEip6963Provider.info.rdns === "io.metamask";
 
-    if (!isMetaMaskImpersonator && !shapeShiftSnapInstalled(SNAP_ID)) {
+    if (isMetaMask && !shapeShiftSnapInstalled(SNAP_ID)) {
       console.info("ShapeShift Multichain snap not found. Prompting user to install.");
       const result = await enableShapeShiftSnap(SNAP_ID);
       if (result.success === false) {
