@@ -110,6 +110,7 @@ export function litecoinTests(get: () => { wallet: core.HDWallet; info: core.HDW
       "btcIsSameAccount()",
       async () => {
         if (!wallet) return;
+        if (!(await wallet.btcSupportsCoin("Litecoin"))) return;
         [0, 1, 9].forEach((idx) => {
           const paths = wallet.btcGetAccountPaths({
             coin: "Litecoin",

@@ -120,13 +120,14 @@ export class PhantomHDWalletInfo
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
-    throw new Error("Method not implemented");
+    console.error("Method not implemented");
+    return undefined;
   }
 
   /** Bitcoin */
 
   public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
-    return coin === "bitcoin";
+    return coin.toLowerCase() === "bitcoin";
   }
 
   public async btcSupportsScriptType(coin: string, scriptType?: core.BTCInputScriptType | undefined): Promise<boolean> {
@@ -214,7 +215,8 @@ export class PhantomHDWallet
   }
 
   public async getDeviceID(): Promise<string> {
-    return "phantom:" + (await this.ethGetAddress());
+    const paths = this.ethGetAccountPaths({ coin: "Ethereum", accountIdx: 0 });
+    return "phantom:" + (await this.ethGetAddress({ addressNList: paths[0].addressNList }));
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -296,7 +298,8 @@ export class PhantomHDWallet
 
   /** Ethereum */
 
-  public async ethGetAddress(): Promise<string | null> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async ethGetAddress(_msg: core.ETHGetAddress): Promise<string | null> {
     if (this.ethAddress) {
       return this.ethAddress;
     }
@@ -312,21 +315,22 @@ export class PhantomHDWallet
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {
-    throw new Error("Method not implemented");
+    console.error("Method not implemented");
+    return null;
   }
 
   public async ethSendTx(msg: core.ETHSignTx): Promise<core.ETHTxHash | null> {
-    const address = await this.ethGetAddress();
+    const address = await this.ethGetAddress({ addressNList: msg.addressNList });
     return address ? eth.ethSendTx(msg, this.evmProvider, address) : null;
   }
 
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
-    const address = await this.ethGetAddress();
+    const address = await this.ethGetAddress({ addressNList: msg.addressNList });
     return address ? eth.ethSignMessage(msg, this.evmProvider, address) : null;
   }
 
   async ethSignTypedData(msg: core.ETHSignTypedData): Promise<core.ETHSignedTypedData | null> {
-    const address = await this.ethGetAddress();
+    const address = await this.ethGetAddress({ addressNList: msg.addressNList });
     return address ? eth.ethSignTypedData(msg, this.evmProvider, address) : null;
   }
 

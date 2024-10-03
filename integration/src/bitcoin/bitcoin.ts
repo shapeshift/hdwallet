@@ -1,6 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 import * as native from "@shapeshiftoss/hdwallet-native";
+import * as phantom from "@shapeshiftoss/hdwallet-phantom";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 
@@ -63,6 +64,14 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         if (!wallet || portis.isPortis(wallet)) return;
         expect(wallet.btcSupportsCoin("Bitcoin")).toBeTruthy();
         expect(await info.btcSupportsCoin("Bitcoin")).toBeTruthy();
+      },
+      TIMEOUT
+    );
+
+    test(
+      "btcSupportsCoin() - Testnet",
+      async () => {
+        if (!wallet || portis.isPortis(wallet) || phantom.isPhantom(wallet)) return;
         expect(wallet.btcSupportsCoin("Testnet")).toBeTruthy();
         expect(await info.btcSupportsCoin("Testnet")).toBeTruthy();
       },
@@ -70,7 +79,14 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     );
 
     test("getPublicKeys", async () => {
-      if (!wallet || ledger.isLedger(wallet) || trezor.isTrezor(wallet) || portis.isPortis(wallet)) return;
+      if (
+        !wallet ||
+        ledger.isLedger(wallet) ||
+        trezor.isTrezor(wallet) ||
+        portis.isPortis(wallet) ||
+        phantom.isPhantom(wallet)
+      )
+        return;
 
       /* FIXME: Expected failure (trezor does not use scriptType in deriving public keys
           and ledger's dependency bitcoinjs-lib/src/crypto.js throws a mysterious TypeError
@@ -214,7 +230,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test(
       "btcSignTx() - p2pkh",
       async () => {
-        if (!wallet || portis.isPortis(wallet)) return;
+        if (!wallet || portis.isPortis(wallet) || phantom.isPhantom(wallet)) return;
         if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
         const tx: core.BitcoinTx = {
           version: 1,
@@ -289,7 +305,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test(
       "btcSignTx() - thorchain swap",
       async () => {
-        if (!wallet || portis.isPortis(wallet)) return;
+        if (!wallet || portis.isPortis(wallet) || phantom.isPhantom(wallet)) return;
         if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
         if (trezor.isTrezor(wallet)) return; //TODO: Add trezor support for op return data passed at top level
         const tx: core.BitcoinTx = {
@@ -525,7 +541,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test(
       "btcIsSameAccount()",
       async () => {
-        if (!wallet) return;
+        if (!wallet || phantom.isPhantom(wallet)) return;
         [0, 1, 9].forEach((idx) => {
           const paths = wallet.btcGetAccountPaths({
             coin: "Bitcoin",

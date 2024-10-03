@@ -25,7 +25,7 @@ function toTransactionInstructions(instructions: core.SolanaTxInstruction[]): Tr
   );
 }
 
-export function buildTransaction(msg: core.SolanaSignTx, address: string): VersionedTransaction {
+function buildTransaction(msg: core.SolanaSignTx, address: string): VersionedTransaction {
   const instructions = toTransactionInstructions(msg.instructions ?? []);
 
   const value = Number(msg.value);
