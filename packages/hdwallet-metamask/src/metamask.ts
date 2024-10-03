@@ -293,8 +293,6 @@ export class MetaMaskHDWallet implements core.HDWallet, core.ETHWallet {
       // https://docs.metamask.io/guide/ethereum-provider.html#errors
       // Internal error, which in the case of wallet_switchEthereumChain call means the chain isn't currently added to the wallet
       if (error.code === -32603) {
-        // We only support Avalanche C-Chain currently. It is supported natively in XDEFI, and unsupported in Tally, both with no capabilities to add a new chain
-        // TODO(gomes): Find a better home for these. When that's done, we'll want to call ethSwitchChain with (params: AddEthereumChainParameter) instead
         try {
           await this.ethAddChain(params);
           return;

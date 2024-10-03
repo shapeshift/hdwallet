@@ -1,8 +1,6 @@
-import detectEthereumProvider from "@metamask/detect-provider";
-import MetaMaskOnboarding from "@metamask/onboarding";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { enableShapeShiftSnap, shapeShiftSnapInstalled } from "@shapeshiftoss/metamask-snaps-adapter";
-import { providers } from "ethers";
+import { createStore } from "mipd";
 
 import { SNAP_ID } from "./common";
 import { MetaMaskShapeShiftMultiChainHDWallet } from "./shapeshift-multichain";
@@ -72,15 +70,19 @@ const METAMASK_IMPERSONATORS = [
   "isVision",
 ];
 
+const store = createStore();
+
 export class MetaMaskAdapter {
   keyring: core.Keyring;
+  providerRdns: string;
 
-  private constructor(keyring: core.Keyring) {
+  private constructor(keyring: core.Keyring, providerRdns: string) {
     this.keyring = keyring;
+    this.providerRdns = providerRdns;
   }
 
-  public static useKeyring(keyring: core.Keyring) {
-    return new MetaMaskAdapter(keyring);
+  public static useKeyring(keyring: core.Keyring, providerRdns: string) {
+    return new MetaMaskAdapter(keyring, providerRdns);
   }
 
   public async initialize(): Promise<number> {
@@ -88,23 +90,13 @@ export class MetaMaskAdapter {
   }
 
   public async pairDevice(): Promise<MetaMaskShapeShiftMultiChainHDWallet | undefined> {
-    // TODO: remove casting, @metamask/detect-provider npm package hasn't been published with latest typings
-    // https://github.com/MetaMask/detect-provider/blame/5ce916fc24779c4b36741531a41d9c8b3cbb0a17/src/index.ts#L37
-    const provider = (await detectEthereumProvider({
-      mustBeMetaMask: true,
-      silent: false,
-      timeout: 3000,
-    })) as providers.ExternalProvider | null;
-    if (!provider) {
-      const onboarding = new MetaMaskOnboarding();
-      onboarding.startOnboarding();
-      console.error("Please install MetaMask!");
-      throw new Error("MetaMask provider not found");
-    }
+    const maybeEip6963Provider = store.findProvider({ rdns: this.providerRdns });
+    if (!maybeEip6963Provider) throw new Error("EIP-6963 provider not found");
+    const eip1193Provider = maybeEip6963Provider.provider;
 
     // Checking for the truthiness of the value isn't enough - some impersonators have the key present but undefined
     // This is weird, but welcome to the world of web3
-    const isMetaMaskImpersonator = METAMASK_IMPERSONATORS.some((impersonator) => impersonator in provider);
+    const isMetaMaskImpersonator = METAMASK_IMPERSONATORS.some((impersonator) => impersonator in eip1193Provider);
 
     if (!isMetaMaskImpersonator && !shapeShiftSnapInstalled(SNAP_ID)) {
       console.info("ShapeShift Multichain snap not found. Prompting user to install.");
@@ -114,8 +106,8 @@ export class MetaMaskAdapter {
       }
     }
     try {
-      await provider.request?.({ method: "eth_requestAccounts" }).catch(() =>
-        provider.request?.({
+      await eip1193Provider.request?.({ method: "eth_requestAccounts" }).catch(() =>
+        eip1193Provider.request?.({
           method: "wallet_requestPermissions",
           params: [{ eth_accounts: {} }],
         })
@@ -124,7 +116,7 @@ export class MetaMaskAdapter {
       console.error("Could not get MetaMask accounts. ");
       throw error;
     }
-    const wallet = new MetaMaskShapeShiftMultiChainHDWallet(provider);
+    const wallet = new MetaMaskShapeShiftMultiChainHDWallet(eip1193Provider);
     await wallet.initialize();
     const deviceID = await wallet.getDeviceID();
     this.keyring.add(wallet, deviceID);
