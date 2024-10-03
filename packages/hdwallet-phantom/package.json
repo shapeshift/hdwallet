@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-phantom",
-  "version": "1.55.9",
+  "version": "1.55.10",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@shapeshiftoss/bitcoinjs-lib": "5.2.0-shapeshift.2",
-    "@shapeshiftoss/hdwallet-core": "1.55.9",
+    "@shapeshiftoss/hdwallet-core": "1.55.10",
     "base64-js": "^1.5.1",
     "bitcoinjs-message": "^2.0.0",
     "ethers": "5.7.2",
