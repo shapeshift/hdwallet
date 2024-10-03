@@ -21,7 +21,8 @@
     "@shapeshiftoss/metamask-snaps-adapter": "^1.0.10",
     "@shapeshiftoss/metamask-snaps-types": "^1.0.10",
     "eth-rpc-errors": "^4.0.3",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "mipd": "^0.0.7"
   },
   "devDependencies": {
     "@types/express": "^4.17.17",
