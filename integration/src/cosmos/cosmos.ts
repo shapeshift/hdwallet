@@ -1,6 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+import * as metamask from "@shapeshiftoss/hdwallet-metamask-multichain";
 
 // Amino-encoded transactions
 import tx_unsigned_delegate_cosmos_amino from "./amino/tx01.mainnet.cosmos.delegate.json";
@@ -49,6 +50,8 @@ export function cosmosTests(get: () => { wallet: core.HDWallet; info: core.HDWal
 
     beforeEach(async () => {
       if (!wallet) return;
+      // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+      if (metamask.isMetaMask(wallet)) return;
       await wallet.wipe();
       await wallet.loadDevice({
         mnemonic: MNEMONIC12_NOPIN_NOPASSPHRASE,
@@ -61,6 +64,8 @@ export function cosmosTests(get: () => { wallet: core.HDWallet; info: core.HDWal
       "cosmosGetAccountPaths()",
       () => {
         if (!wallet) return;
+        // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+        if (metamask.isMetaMask(wallet)) return;
         const paths = wallet.cosmosGetAccountPaths({ accountIdx: 0 });
         expect(paths.length > 0).toBe(true);
         expect(paths[0].addressNList[0] > 0x80000000).toBe(true);
@@ -72,6 +77,8 @@ export function cosmosTests(get: () => { wallet: core.HDWallet; info: core.HDWal
       "cosmosGetAddress()",
       async () => {
         if (!wallet) return;
+        // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+        if (metamask.isMetaMask(wallet)) return;
         expect(
           await wallet.cosmosGetAddress({
             addressNList: core.bip32ToAddressNList("m/44'/118'/0'/0/0"),
@@ -131,6 +138,8 @@ export function cosmosTests(get: () => { wallet: core.HDWallet; info: core.HDWal
       ])(
         "%s",
         async (_, aminoTx, protoTx, signedAminoTx, signedProtoTx) => {
+          // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+          if (metamask.isMetaMask(wallet)) return;
           const tx = useAmino ? aminoTx : protoTx;
           const signedTx = useAmino ? signedAminoTx : signedProtoTx;
           if (!wallet || !tx) return;

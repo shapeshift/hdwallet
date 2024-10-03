@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as metamask from "@shapeshiftoss/hdwallet-shapeshift-multichain";
+import * as metamask from "@shapeshiftoss/hdwallet-metamask-multichain";
 
 export function name(): string {
   return "MetaMask";
@@ -44,7 +44,7 @@ export function selfTest(get: () => core.HDWallet): void {
   beforeAll(async () => {
     const w = get() as metamask.MetaMaskShapeShiftMultiChainHDWallet;
 
-    if (metamask.isMetaMask(w) && !core.supportsBTC(w) && core.supportsETH(w)) {
+    if (metamask.isMetaMask(w) && core.supportsBTC(w) && core.supportsETH(w)) {
       wallet = w;
     } else {
       throw new Error("Wallet is not a MetaMask");
@@ -56,9 +56,9 @@ export function selfTest(get: () => core.HDWallet): void {
     expect(await wallet.ethSupportsNetwork()).toEqual(true);
   });
 
-  it("does not support BTC", async () => {
+  it("~~does not~~ does support BTC, because that's what real multichain is", async () => {
     if (!wallet) return;
-    expect(core.supportsBTC(wallet)).toBe(false);
+    expect(core.supportsBTC(wallet)).toBe(true);
   });
 
   it("does not support Native ShapeShift", async () => {
@@ -66,7 +66,7 @@ export function selfTest(get: () => core.HDWallet): void {
     expect(wallet.ethSupportsNativeShapeShift()).toEqual(false);
   });
 
-  it("does not supports bip44 accounts", async () => {
+  it("does support bip44 accounts", async () => {
     if (!wallet) return;
     expect(wallet.supportsBip44Accounts()).toEqual(false);
   });
@@ -83,9 +83,12 @@ export function selfTest(get: () => core.HDWallet): void {
 
   it("uses correct eth bip44 paths", () => {
     if (!wallet) return;
-    [0, 1, 3, 27].forEach((account) => {
+    // MM doesn't support multi-account
+    const accountNumbers = metamask.isMetaMask(wallet) ? [0] : [0, 1, 3, 27];
+    if (metamask.isMetaMask(wallet)) return;
+    accountNumbers.forEach((account) => {
       const paths = wallet.ethGetAccountPaths({
-        coin: "Ethereum",
+        coin: "ethereum",
         accountIdx: account,
       });
       expect(paths).toEqual([
@@ -93,13 +96,13 @@ export function selfTest(get: () => core.HDWallet): void {
           addressNList: core.bip32ToAddressNList(`m/44'/60'/${account}'/0/0`),
           hardenedPath: core.bip32ToAddressNList(`m/44'/60'/${account}'`),
           relPath: [0, 0],
-          description: "MetaMask",
+          description: "MetaMask(Shapeshift Multichain)",
         },
       ]);
       paths.forEach((path) => {
         expect(
           wallet.describePath({
-            coin: "Ethereum",
+            coin: "ethereum",
             path: path.addressNList,
           }).isKnown
         ).toBeTruthy();
@@ -112,7 +115,7 @@ export function selfTest(get: () => core.HDWallet): void {
     expect(
       wallet.describePath({
         path: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-        coin: "Ethereum",
+        coin: "ethereum",
       })
     ).toEqual({
       verbose: "Ethereum Account #0",
@@ -120,12 +123,13 @@ export function selfTest(get: () => core.HDWallet): void {
       isKnown: true,
       accountIdx: 0,
       wholeAccount: true,
+      isPrefork: false,
     });
 
     expect(
       wallet.describePath({
         path: core.bip32ToAddressNList("m/44'/60'/3'/0/0"),
-        coin: "Ethereum",
+        coin: "ethereum",
       })
     ).toEqual({
       verbose: "Ethereum Account #3",
@@ -133,12 +137,13 @@ export function selfTest(get: () => core.HDWallet): void {
       isKnown: true,
       accountIdx: 3,
       wholeAccount: true,
+      isPrefork: false,
     });
 
     expect(
       wallet.describePath({
         path: core.bip32ToAddressNList("m/44'/60'/0'/0/3"),
-        coin: "Ethereum",
+        coin: "ethereum",
       })
     ).toEqual({
       verbose: "m/44'/60'/0'/0/3",

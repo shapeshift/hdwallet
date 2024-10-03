@@ -1,9 +1,9 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+import * as metamask from "@shapeshiftoss/hdwallet-metamask-multichain";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
-import * as metamask from "@shapeshiftoss/hdwallet-shapeshift-multichain";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 import * as walletconnect from "@shapeshiftoss/hdwallet-walletconnect";
 

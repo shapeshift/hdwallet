@@ -445,10 +445,6 @@ export class KeepKeyHDWalletInfo
     return Btc.btcGetAccountPaths(msg);
   }
 
-  public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
-    return Btc.btcIsSameAccount(msg);
-  }
-
   public async ethSupportsNetwork(chain_id: number): Promise<boolean> {
     return Eth.ethSupportsNetwork(chain_id);
   }
@@ -1223,15 +1219,6 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
 
   public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
     return this.info.btcGetAccountPaths(msg);
-  }
-
-  public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
-    // TODO: mixed-mode segwit was added in v6.0.2
-    // https://github.com/keepkey/keepkey-firmware/pull/81
-    // if (firmware_version.lt('6.0.2') && msg.length > 1)
-    //  return false
-
-    return this.info.btcIsSameAccount(msg);
   }
 
   public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {

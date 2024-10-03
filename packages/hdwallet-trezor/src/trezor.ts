@@ -150,10 +150,6 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     return Btc.btcGetAccountPaths(msg);
   }
 
-  public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
-    return Btc.btcIsSameAccount(msg);
-  }
-
   public async ethSupportsNetwork(chain_id: number): Promise<boolean> {
     return Eth.ethSupportsNetwork(chain_id);
   }
@@ -521,10 +517,6 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
     return Btc.btcGetAccountPaths(msg);
-  }
-
-  public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
-    return this.info.btcIsSameAccount(msg);
   }
 
   public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {

@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as metamask from "@shapeshiftoss/hdwallet-metamask-multichain";
 
 import { each } from "../utils";
 
@@ -32,6 +33,8 @@ export function litecoinTests(get: () => { wallet: core.HDWallet; info: core.HDW
       "btcGetAddress()",
       async () => {
         if (!wallet) return;
+        // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+        if (metamask.isMetaMask(wallet)) return;
         if (!(await wallet.btcSupportsCoin("Litecoin"))) return;
         await each(
           [
@@ -102,21 +105,6 @@ export function litecoinTests(get: () => { wallet: core.HDWallet; info: core.HDW
             expect(paths.length).toBeGreaterThan(0);
           }
         );
-      },
-      TIMEOUT
-    );
-
-    test(
-      "btcIsSameAccount()",
-      async () => {
-        if (!wallet) return;
-        [0, 1, 9].forEach((idx) => {
-          const paths = wallet.btcGetAccountPaths({
-            coin: "Litecoin",
-            accountIdx: idx,
-          });
-          expect(typeof wallet.btcIsSameAccount(paths) === typeof true).toBeTruthy();
-        });
       },
       TIMEOUT
     );

@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/hdwallet-shapeshift-multichain",
+  "name": "@shapeshiftoss/hdwallet-metamask-multichain",
   "version": "1.55.9",
   "license": "MIT",
   "publishConfig": {

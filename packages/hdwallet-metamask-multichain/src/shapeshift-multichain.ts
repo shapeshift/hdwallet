@@ -65,7 +65,8 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
   }
 
   public supportsBip44Accounts(): boolean {
-    return true;
+    // Multi-account not supported in MM/snap, the only BIP44 bits we derive is diff slip44s than 60 (meaning, we support EVM chains)
+    return false;
   }
 
   public supportsOfflineSigning(): boolean {
@@ -551,12 +552,7 @@ export class MetaMaskShapeShiftMultiChainHDWallet
     return utxo.utxoSupportsCoin(coin);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public btcIsSameAccount(msg: core.BTCAccountPath[]): boolean {
-    throw new Error("Method not implemented.");
-  }
-
-  /** BITCOIN CASH */
+ /** BITCOIN CASH */
 
   public async bitcoinCashSupportsSecureTransfer(): Promise<boolean> {
     return false;

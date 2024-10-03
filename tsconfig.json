@@ -43,7 +43,7 @@
     { "path": "./packages/hdwallet-ledger" },
     { "path": "./packages/hdwallet-ledger-webhid" },
     { "path": "./packages/hdwallet-ledger-webusb" },
-    { "path": "./packages/hdwallet-metamask-shapeshift-multichain" },
+    { "path": "./packages/hdwallet-metamask-multichain" },
     { "path": "./packages/hdwallet-native" },
     { "path": "./packages/hdwallet-portis" },
     { "path": "./packages/hdwallet-trezor" },

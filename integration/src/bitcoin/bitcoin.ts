@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+import * as metamask from "@shapeshiftoss/hdwallet-metamask-multichain";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
@@ -61,6 +62,8 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       "btcSupportsCoin()",
       async () => {
         if (!wallet || portis.isPortis(wallet)) return;
+        // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+        if (metamask.isMetaMask(wallet)) return;
         expect(wallet.btcSupportsCoin("Bitcoin")).toBeTruthy();
         expect(await info.btcSupportsCoin("Bitcoin")).toBeTruthy();
         expect(wallet.btcSupportsCoin("Testnet")).toBeTruthy();
@@ -71,6 +74,9 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
 
     test("getPublicKeys", async () => {
       if (!wallet || ledger.isLedger(wallet) || trezor.isTrezor(wallet) || portis.isPortis(wallet)) return;
+
+      // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+      if (metamask.isMetaMask(wallet)) return;
 
       /* FIXME: Expected failure (trezor does not use scriptType in deriving public keys
           and ledger's dependency bitcoinjs-lib/src/crypto.js throws a mysterious TypeError
@@ -194,10 +200,14 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
             const scriptType = args[3] as core.BTCInputScriptType;
             const expected = args[4] as string;
 
+            // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+            if (metamask.isMetaMask(wallet)) return;
+
             if (!(await wallet.btcSupportsCoin(coin))) return;
             expect(await info.btcSupportsCoin(coin)).toBeTruthy();
             if (!(await wallet.btcSupportsScriptType(coin, scriptType))) return;
             expect(await info.btcSupportsScriptType(coin, scriptType)).toBeTruthy();
+
             const res = await wallet.btcGetAddress({
               addressNList: core.bip32ToAddressNList(path),
               coin: coin,
@@ -215,6 +225,8 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       "btcSignTx() - p2pkh",
       async () => {
         if (!wallet || portis.isPortis(wallet)) return;
+        // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+        if (metamask.isMetaMask(wallet)) return;
         if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
         const tx: core.BitcoinTx = {
           version: 1,
@@ -290,6 +302,8 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       "btcSignTx() - thorchain swap",
       async () => {
         if (!wallet || portis.isPortis(wallet)) return;
+        // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+        if (metamask.isMetaMask(wallet)) return;
         if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
         if (trezor.isTrezor(wallet)) return; //TODO: Add trezor support for op return data passed at top level
         const tx: core.BitcoinTx = {
@@ -375,6 +389,8 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       "btcSignMessage()",
       async () => {
         if (!wallet) return;
+        // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+        if (metamask.isMetaMask(wallet)) return;
 
         // not implemented for native
         if (native.isNative(wallet)) {
@@ -408,6 +424,8 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       "btcVerifyMessage() - good",
       async () => {
         if (!wallet) return;
+        // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+        if (metamask.isMetaMask(wallet)) return;
 
         // not implemented for native
         if (native.isNative(wallet)) {
@@ -431,6 +449,8 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       "btcVerifyMessage() - bad",
       async () => {
         if (!wallet) return;
+        // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+        if (metamask.isMetaMask(wallet)) return;
 
         // not implemented for native
         if (native.isNative(wallet)) {
@@ -454,6 +474,8 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       "btcSupportsSecureTransfer()",
       async () => {
         if (!wallet) return;
+        // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+        if (metamask.isMetaMask(wallet)) return;
         expect(typeof (await wallet.btcSupportsSecureTransfer()) === typeof true).toBeTruthy();
         if (await wallet.btcSupportsSecureTransfer()) {
           // eslint-disable-next-line jest/no-conditional-expect
@@ -468,6 +490,8 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       "btcSupportsNativeShapeShift()",
       async () => {
         if (!wallet) return;
+        // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+        if (metamask.isMetaMask(wallet)) return;
         expect(typeof wallet.btcSupportsNativeShapeShift()).toBe("boolean");
         if (wallet.btcSupportsNativeShapeShift()) {
           // eslint-disable-next-line jest/no-conditional-expect
@@ -499,6 +523,8 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
             const accountIdx = args[1] as number;
             const scriptType = args[2] as core.BTCInputScriptType;
             if (!wallet) return;
+            // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+            if (metamask.isMetaMask(wallet)) return;
             if (!(await wallet.btcSupportsCoin(coin))) return;
             expect(await info.btcSupportsCoin(coin)).toBeTruthy();
             if (!(await wallet.btcSupportsScriptType(coin, scriptType))) return;
@@ -518,30 +544,6 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
               ).toHaveLength(0);
           }
         );
-      },
-      TIMEOUT
-    );
-
-    test(
-      "btcIsSameAccount()",
-      async () => {
-        if (!wallet) return;
-        [0, 1, 9].forEach((idx) => {
-          const paths = wallet.btcGetAccountPaths({
-            coin: "Bitcoin",
-            accountIdx: idx,
-          });
-          expect(typeof wallet.btcIsSameAccount(paths) === typeof true).toBeTruthy();
-          paths.forEach((path) => {
-            if (wallet.getVendor() === "Portis") {
-              // eslint-disable-next-line jest/no-conditional-expect
-              expect(wallet.btcNextAccountPath(path)).toBeUndefined();
-            } else {
-              // eslint-disable-next-line jest/no-conditional-expect
-              expect(wallet.btcNextAccountPath(path)).not.toBeUndefined();
-            }
-          });
-        });
       },
       TIMEOUT
     );

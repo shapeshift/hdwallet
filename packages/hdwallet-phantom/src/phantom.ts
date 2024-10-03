@@ -148,11 +148,6 @@ export class PhantomHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInf
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public btcIsSameAccount(msg: core.BTCAccountPath[]): boolean {
-    throw new Error("Method not implemented.");
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
     throw new Error("Method not implemented");
   }
