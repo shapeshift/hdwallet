@@ -7,6 +7,7 @@ import { MetaMaskShapeShiftMultiChainHDWallet } from "./shapeshift-multichain";
 
 // https://github.com/wevm/wagmi/blob/21245be51d7c6dff1c7b285226d0c89c4a9d8cac/packages/connectors/src/utils/getInjectedName.ts#L6-L56
 // This will need to be kept up-to-date with the latest list of impersonators
+// TODO(gomes): we shouldn't really need this anymore. We can now use rdns / name :tada:, *and* it will actually work
 const METAMASK_IMPERSONATORS = [
   "isBraveWallet",
   "isTokenary",
