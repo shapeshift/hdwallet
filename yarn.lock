@@ -4699,7 +4699,7 @@
     eth-rpc-errors "^4.0.3"
     lodash "^4.17.21"
 
-"@shapeshiftoss/hdwallet-core@1.55.9", "@shapeshiftoss/hdwallet-core@^1.55.1":
+"@shapeshiftoss/hdwallet-core@1.55.9":
   version "1.55.9"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.55.9.tgz#5e3fc8d583205cf45d846c46cdcbd87c1a649d67"
   integrity sha512-pRi/1mgxHx2rH9XdvVPENyADboOYWEvqwgQZ7WYp8OXAvjO4AmGHbx5nHmIK7k5QTHiw1bgZr78SHIHLeH05WQ==
@@ -4840,7 +4840,7 @@
     lodash "^4.17.21"
     mipd "^0.0.7"
 
-"@shapeshiftoss/hdwallet-native@1.55.9", "@shapeshiftoss/hdwallet-native@^1.55.1":
+"@shapeshiftoss/hdwallet-native@1.55.9":
   version "1.55.9"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.55.9.tgz#1cba270f62779522a83db27b2c6949a62824fb6c"
   integrity sha512-knOCPLXn98k3lQsvOgtv2HdG7RPo2Yw7RfOoqk0IztdWzvpjxLo0T8FnKmz1lhDLqJMPa61JQU+Eum+65BGZkg==
