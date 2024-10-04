@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-portis",
-  "version": "1.55.10",
+  "version": "1.55.10-mipd.3",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@portis/web3": "3.0.10",
-    "@shapeshiftoss/hdwallet-core": "1.55.10",
+    "@shapeshiftoss/hdwallet-core": "^1.55.10-mipd.3",
     "base64-js": "^1.5.1",
     "bip32": "^2.0.4",
     "bitcoinjs-lib": "^5.1.6",
@@ -26,5 +26,6 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.168"
-  }
+  },
+  "gitHead": "27297629e92051d6442f056b0da56dd8a915a0f2"
 }

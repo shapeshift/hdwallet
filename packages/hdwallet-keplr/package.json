@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keplr",
-  "version": "1.55.10",
+  "version": "1.55.10-mipd.3",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@shapeshiftoss/caip": "8.15.0",
-    "@shapeshiftoss/hdwallet-core": "1.55.10",
+    "@shapeshiftoss/hdwallet-core": "^1.55.10-mipd.3",
     "@shapeshiftoss/proto-tx-builder": "^0.8.0",
     "@shapeshiftoss/types": "3.1.3",
     "base64-js": "^1.5.1",
@@ -26,5 +26,6 @@
     "@cosmjs/stargate": "^0.28.13",
     "@keplr-wallet/types": "^0.12.35",
     "@types/lodash": "^4.14.168"
-  }
+  },
+  "gitHead": "27297629e92051d6442f056b0da56dd8a915a0f2"
 }

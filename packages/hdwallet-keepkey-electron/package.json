@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-electron",
-  "version": "1.55.10",
+  "version": "1.55.10-mipd.3",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,7 +14,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-keepkey": "1.55.10",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.55.10-mipd.3",
     "uuid": "^8.3.2"
   },
   "peerDependencies": {
@@ -23,5 +23,6 @@
   "devDependencies": {
     "@types/uuid": "^8.3.0",
     "electron": "^12.0.9"
-  }
+  },
+  "gitHead": "27297629e92051d6442f056b0da56dd8a915a0f2"
 }

@@ -3,7 +3,7 @@ import { enableShapeShiftSnap, shapeShiftSnapInstalled } from "@shapeshiftoss/me
 import { createStore } from "mipd";
 
 import { SNAP_ID } from "./common";
-import { MetaMaskShapeShiftMultiChainHDWallet } from "./shapeshift-multichain";
+import { MetaMaskMultiChainHDWallet } from "./shapeshift-multichain";
 
 const store = createStore();
 
@@ -24,7 +24,7 @@ export class MetaMaskAdapter {
     return Object.keys(this.keyring.wallets).length;
   }
 
-  public async pairDevice(): Promise<MetaMaskShapeShiftMultiChainHDWallet | undefined> {
+  public async pairDevice(): Promise<MetaMaskMultiChainHDWallet | undefined> {
     const maybeEip6963Provider = store.findProvider({ rdns: this.providerRdns });
     if (!maybeEip6963Provider) throw new Error("EIP-6963 provider not found");
     const eip1193Provider = maybeEip6963Provider.provider;
@@ -51,7 +51,7 @@ export class MetaMaskAdapter {
       console.error("Could not get MetaMask accounts. ");
       throw error;
     }
-    const wallet = new MetaMaskShapeShiftMultiChainHDWallet(eip1193Provider);
+    const wallet = new MetaMaskMultiChainHDWallet(eip1193Provider);
     await wallet.initialize();
     const deviceID = await wallet.getDeviceID();
     this.keyring.add(wallet, deviceID);

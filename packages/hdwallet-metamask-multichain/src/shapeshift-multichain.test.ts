@@ -1,9 +1,9 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import { MetaMaskShapeShiftMultiChainHDWallet, MetaMaskShapeShiftMultiChainHDWalletInfo } from ".";
+import { MetaMaskMultiChainHDWallet, MetaMaskMultiChainHDWalletInfo } from ".";
 
 describe("HDWalletInfo", () => {
-  const info = new MetaMaskShapeShiftMultiChainHDWalletInfo();
+  const info = new MetaMaskMultiChainHDWalletInfo();
 
   it("should have correct metadata", async () => {
     expect(info.getVendor()).toBe("MetaMask");
@@ -20,12 +20,10 @@ describe("HDWalletInfo", () => {
   });
 });
 
-describe("MetaMaskShapeShiftMultiChainHDWallet", () => {
-  let wallet: MetaMaskShapeShiftMultiChainHDWallet;
+describe("MetaMaskMultiChainHDWallet", () => {
+  let wallet: MetaMaskMultiChainHDWallet;
   beforeEach(() => {
-    wallet = new MetaMaskShapeShiftMultiChainHDWallet(
-      core.untouchable("MetaMaskShapeShiftMultiChainHDWallet:provider")
-    );
+    wallet = new MetaMaskMultiChainHDWallet(core.untouchable("MetaMaskMultiChainHDWallet:provider"));
     wallet.ethAddress = "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8";
   });
 

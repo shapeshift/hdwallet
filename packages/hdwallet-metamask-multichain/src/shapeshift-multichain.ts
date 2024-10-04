@@ -12,11 +12,11 @@ import * as Litecoin from "./litecoin";
 import * as Thorchain from "./thorchain";
 import * as utxo from "./utxo";
 
-export function isMetaMask(wallet: core.HDWallet): wallet is MetaMaskShapeShiftMultiChainHDWallet {
+export function isMetaMask(wallet: core.HDWallet): wallet is MetaMaskMultiChainHDWallet {
   return _.isObject(wallet) && (wallet as any)._isMetaMask;
 }
 
-export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
+export class MetaMaskMultiChainHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
   ethGetChainId?(): Promise<number | null> {
     throw new Error("Method not implemented.");
   }
@@ -267,7 +267,7 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
   }
 }
 
-export class MetaMaskShapeShiftMultiChainHDWallet
+export class MetaMaskMultiChainHDWallet
   implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet, core.ThorchainWallet
 {
   readonly _supportsETH = true;
@@ -301,7 +301,7 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   readonly _supportsThorchainInfo = true;
   readonly _supportsThorchain = true;
 
-  info: MetaMaskShapeShiftMultiChainHDWalletInfo & core.HDWalletInfo;
+  info: MetaMaskMultiChainHDWalletInfo & core.HDWalletInfo;
   bitcoinAddress?: string | null;
   bitcoinCashAddress?: string | null;
   cosmosAddress?: string | null;
@@ -313,7 +313,7 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   provider: any;
 
   constructor(provider: unknown) {
-    this.info = new MetaMaskShapeShiftMultiChainHDWalletInfo();
+    this.info = new MetaMaskMultiChainHDWalletInfo();
     this.provider = provider;
   }
 
@@ -552,7 +552,7 @@ export class MetaMaskShapeShiftMultiChainHDWallet
     return utxo.utxoSupportsCoin(coin);
   }
 
- /** BITCOIN CASH */
+  /** BITCOIN CASH */
 
   public async bitcoinCashSupportsSecureTransfer(): Promise<boolean> {
     return false;
