@@ -80,10 +80,10 @@ export class MetaMaskMultiChainHDWalletInfo implements core.HDWalletInfo, core.E
 
   public describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin) {
-      case "bitcoin":
-      case "bitcoincash":
-      case "dogecoin":
-      case "litecoin": {
+      case "Bitcoin":
+      case "Bitcoincash":
+      case "Dogecoin":
+      case "Litecoin": {
         const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
 
         if (!msg.scriptType) return unknown;
@@ -93,15 +93,14 @@ export class MetaMaskMultiChainHDWalletInfo implements core.HDWalletInfo, core.E
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
       }
 
-      case "atom":
+      case "Atom":
         return core.cosmosDescribePath(msg.path);
 
       case "Ethereum":
         return core.describeETHPath(msg.path);
 
-      case "rune":
-      case "trune":
-      case "thorchain":
+      case "Rune":
+      case "Thorchain":
         return core.thorchainDescribePath(msg.path);
 
       default:

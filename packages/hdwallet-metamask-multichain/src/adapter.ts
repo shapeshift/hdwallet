@@ -8,6 +8,8 @@ import { MetaMaskMultiChainHDWallet } from "./shapeshift-multichain";
 
 export const mipdstore = createStore();
 
+const METAMASK_RDNS = "io.metamask";
+
 export class MetaMaskAdapter {
   keyring: core.Keyring;
   providerRdns: string;
@@ -27,12 +29,13 @@ export class MetaMaskAdapter {
 
   public async pairDevice(): Promise<MetaMaskMultiChainHDWallet | undefined> {
     const maybeEip6963Provider = mipdstore.findProvider({ rdns: this.providerRdns });
-    if (!maybeEip6963Provider) {
+    if (!maybeEip6963Provider && this.providerRdns === METAMASK_RDNS) {
       const onboarding = new MetaMaskOnboarding();
       onboarding.startOnboarding();
       console.error("Please install MetaMask!");
       throw new Error("MetaMask provider not found");
     }
+    if (!maybeEip6963Provider) return;
     const eip1193Provider = maybeEip6963Provider.provider;
 
     // Checks if the EIP-6963 provider is *akschual* MetaMask

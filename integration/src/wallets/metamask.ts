@@ -87,29 +87,28 @@ export function selfTest(get: () => core.HDWallet): void {
 
   it("uses correct eth bip44 paths", () => {
     if (!wallet) return;
-    // MM doesn't support multi-account
-    const accountNumbers = metamask.isMetaMask(wallet) ? [0] : [0, 1, 3, 27];
-    accountNumbers.forEach((account) => {
-      const paths = wallet.ethGetAccountPaths({
-        coin: "Ethereum",
-        accountIdx: account,
-      });
-      expect(paths).toEqual([
-        {
-          addressNList: core.bip32ToAddressNList(`m/44'/60'/${account}'/0/0`),
-          hardenedPath: core.bip32ToAddressNList(`m/44'/60'/${account}'`),
-          relPath: [0, 0],
-          description: "MetaMask(Shapeshift Multichain)",
-        },
-      ]);
-      paths.forEach((path) => {
-        expect(
-          wallet.describePath({
-            coin: "Ethereum",
-            path: path.addressNList,
-          }).isKnown
-        ).toBeTruthy();
-      });
+    // MM doesn't support multi-account *externally*, the active account is exposes should be considered account 0,
+    // even if internally it may not be e.g for all intents and purposes, m/44'/60'/0'/0/1 for MetaMask should be considered m/44'/60'/0'/0/0
+    const accountNumber = 0;
+    const paths = wallet.ethGetAccountPaths({
+      coin: "Ethereum",
+      accountIdx: accountNumber,
+    });
+    expect(paths).toEqual([
+      {
+        addressNList: core.bip32ToAddressNList(`m/44'/60'/${accountNumber}'/0/0`),
+        hardenedPath: core.bip32ToAddressNList(`m/44'/60'/${accountNumber}'`),
+        relPath: [0, 0],
+        description: "MetaMask(Shapeshift Multichain)",
+      },
+    ]);
+    paths.forEach((path) => {
+      expect(
+        wallet.describePath({
+          coin: "Ethereum",
+          path: path.addressNList,
+        }).isKnown
+      ).toBeTruthy();
     });
   });
 
