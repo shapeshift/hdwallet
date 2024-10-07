@@ -34,7 +34,7 @@ export async function createWallet(): Promise<core.HDWallet> {
       }
     }),
   };
-  // @ts-ignore cache nuke, revert me
+  // @ts-expect-error cache nuke, revert me
   const wallet = new metamask.MetaMaskMultiChainHDWallet({
     provider,
     info: { rdns: "io.metamask" } as EIP6963ProviderInfo,
