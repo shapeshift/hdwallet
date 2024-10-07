@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as metamask from "@shapeshiftoss/hdwallet-metamask-multichain";
+import { EIP6963ProviderInfo } from "mipd";
 
 export function name(): string {
   return "MetaMask";
@@ -33,7 +34,11 @@ export async function createWallet(): Promise<core.HDWallet> {
       }
     }),
   };
-  const wallet = new metamask.MetaMaskMultiChainHDWallet(provider);
+  // @ts-ignore cache nuke, revert me
+  const wallet = new metamask.MetaMaskMultiChainHDWallet({
+    provider,
+    info: { rdns: "io.metamask" } as EIP6963ProviderInfo,
+  });
   await wallet.initialize();
   return wallet;
 }
