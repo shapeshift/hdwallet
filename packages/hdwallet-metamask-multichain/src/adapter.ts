@@ -1,3 +1,4 @@
+import MetaMaskOnboarding from "@metamask/onboarding";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { enableShapeShiftSnap, shapeShiftSnapInstalled } from "@shapeshiftoss/metamask-snaps-adapter";
 import { createStore } from "mipd";
@@ -26,7 +27,12 @@ export class MetaMaskAdapter {
 
   public async pairDevice(): Promise<MetaMaskMultiChainHDWallet | undefined> {
     const maybeEip6963Provider = mipdstore.findProvider({ rdns: this.providerRdns });
-    if (!maybeEip6963Provider) throw new Error("EIP-6963 provider not found");
+    if (!maybeEip6963Provider) {
+      const onboarding = new MetaMaskOnboarding();
+      onboarding.startOnboarding();
+      console.error("Please install MetaMask!");
+      throw new Error("MetaMask provider not found");
+    }
     const eip1193Provider = maybeEip6963Provider.provider;
 
     // Checks if the EIP-6963 provider is *akschual* MetaMask
