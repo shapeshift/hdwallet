@@ -60,7 +60,7 @@ export function selfTest(get: () => core.HDWallet): void {
     expect(await wallet.ethSupportsNetwork()).toEqual(true);
   });
 
-  it("~~does not~~ does support BTC, because that's what real multichain is", async () => {
+  it("supports Bitcoin", async () => {
     if (!wallet) return;
     expect(core.supportsBTC(wallet)).toBe(true);
   });
@@ -70,7 +70,7 @@ export function selfTest(get: () => core.HDWallet): void {
     expect(wallet.ethSupportsNativeShapeShift()).toEqual(false);
   });
 
-  it("does support bip44 accounts", async () => {
+  it("does not support bip44 accounts", async () => {
     if (!wallet) return;
     expect(wallet.supportsBip44Accounts()).toEqual(false);
   });

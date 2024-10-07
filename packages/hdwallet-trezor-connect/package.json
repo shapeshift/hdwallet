@@ -18,6 +18,5 @@
     "@shapeshiftoss/hdwallet-trezor": "1.55.10",
     "@trezor/rollout": "^1.2.0",
     "trezor-connect": "^8.2.1"
-  },
-  "gitHead": "27297629e92051d6442f056b0da56dd8a915a0f2"
+  }
 }

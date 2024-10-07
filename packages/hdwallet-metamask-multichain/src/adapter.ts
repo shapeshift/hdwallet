@@ -1,9 +1,11 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { enableShapeShiftSnap, shapeShiftSnapInstalled } from "@shapeshiftoss/metamask-snaps-adapter";
+import { createStore } from "mipd";
 
 import { SNAP_ID } from "./common";
-import { mipdstore } from "./mipdStore";
 import { MetaMaskMultiChainHDWallet } from "./shapeshift-multichain";
+
+export const mipdstore = createStore();
 
 export class MetaMaskAdapter {
   keyring: core.Keyring;
