@@ -2,7 +2,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { AddEthereumChainParameter } from "@shapeshiftoss/hdwallet-core";
 import { ethErrors, serializeError } from "eth-rpc-errors";
 import _ from "lodash";
-import { EIP1193Provider, EIP6963ProviderDetail } from "mipd";
+import { EIP6963ProviderDetail } from "mipd";
 
 import * as Btc from "./bitcoin";
 import * as BtcCash from "./bitcoincash";
@@ -10,7 +10,6 @@ import * as Cosmos from "./cosmos";
 import * as Doge from "./dogecoin";
 import * as Eth from "./ethereum";
 import * as Litecoin from "./litecoin";
-import { mipdstore } from "./mipdStore";
 import * as Thorchain from "./thorchain";
 import * as utxo from "./utxo";
 
