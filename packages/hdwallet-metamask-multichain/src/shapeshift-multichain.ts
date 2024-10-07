@@ -2,6 +2,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { AddEthereumChainParameter } from "@shapeshiftoss/hdwallet-core";
 import { ethErrors, serializeError } from "eth-rpc-errors";
 import _ from "lodash";
+import { EIP1193Provider, EIP6963ProviderDetail } from "mipd";
 
 import * as Btc from "./bitcoin";
 import * as BtcCash from "./bitcoincash";
@@ -9,6 +10,7 @@ import * as Cosmos from "./cosmos";
 import * as Doge from "./dogecoin";
 import * as Eth from "./ethereum";
 import * as Litecoin from "./litecoin";
+import { mipdstore } from "./mipdStore";
 import * as Thorchain from "./thorchain";
 import * as utxo from "./utxo";
 
@@ -307,14 +309,17 @@ export class MetaMaskMultiChainHDWallet
   cosmosAddress?: string | null;
   dogecoinAddress?: string | null;
   ethAddress?: string | null;
+  providerRdns: string;
   litecoinAddress?: string | null;
   osmosisAddress?: string | null;
   thorchainAddress?: string | null;
   provider: any;
 
-  constructor(provider: unknown) {
+  constructor(provider: EIP6963ProviderDetail) {
     this.info = new MetaMaskMultiChainHDWalletInfo();
-    this.provider = provider;
+
+    this.providerRdns = provider.info.rdns;
+    this.provider = provider.provider;
   }
 
   transport?: core.Transport | undefined;
