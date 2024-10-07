@@ -89,10 +89,9 @@ export function selfTest(get: () => core.HDWallet): void {
     if (!wallet) return;
     // MM doesn't support multi-account
     const accountNumbers = metamask.isMetaMask(wallet) ? [0] : [0, 1, 3, 27];
-    if (metamask.isMetaMask(wallet)) return;
     accountNumbers.forEach((account) => {
       const paths = wallet.ethGetAccountPaths({
-        coin: "ethereum",
+        coin: "Ethereum",
         accountIdx: account,
       });
       expect(paths).toEqual([
@@ -106,7 +105,7 @@ export function selfTest(get: () => core.HDWallet): void {
       paths.forEach((path) => {
         expect(
           wallet.describePath({
-            coin: "ethereum",
+            coin: "Ethereum",
             path: path.addressNList,
           }).isKnown
         ).toBeTruthy();
@@ -119,7 +118,7 @@ export function selfTest(get: () => core.HDWallet): void {
     expect(
       wallet.describePath({
         path: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-        coin: "ethereum",
+        coin: "Ethereum",
       })
     ).toEqual({
       verbose: "Ethereum Account #0",
@@ -133,7 +132,7 @@ export function selfTest(get: () => core.HDWallet): void {
     expect(
       wallet.describePath({
         path: core.bip32ToAddressNList("m/44'/60'/3'/0/0"),
-        coin: "ethereum",
+        coin: "Ethereum",
       })
     ).toEqual({
       verbose: "Ethereum Account #3",
@@ -147,7 +146,7 @@ export function selfTest(get: () => core.HDWallet): void {
     expect(
       wallet.describePath({
         path: core.bip32ToAddressNList("m/44'/60'/0'/0/3"),
-        coin: "ethereum",
+        coin: "Ethereum",
       })
     ).toEqual({
       verbose: "m/44'/60'/0'/0/3",

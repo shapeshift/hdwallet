@@ -96,7 +96,7 @@ export class MetaMaskMultiChainHDWalletInfo implements core.HDWalletInfo, core.E
       case "atom":
         return core.cosmosDescribePath(msg.path);
 
-      case "ethereum":
+      case "Ethereum":
         return core.describeETHPath(msg.path);
 
       case "rune":
