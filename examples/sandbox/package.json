@@ -20,7 +20,7 @@
     "@shapeshiftoss/hdwallet-ledger": "1.55.10",
     "@shapeshiftoss/hdwallet-ledger-webhid": "1.55.10",
     "@shapeshiftoss/hdwallet-ledger-webusb": "1.55.10",
-    "@shapeshiftoss/hdwallet-metamask-multichain": "1.55.10-mipd.1",
+    "@shapeshiftoss/hdwallet-metamask-multichain": "1.55.10",
     "@shapeshiftoss/hdwallet-native": "1.55.10",
     "@shapeshiftoss/hdwallet-phantom": "1.55.10",
     "@shapeshiftoss/hdwallet-portis": "1.55.10",
