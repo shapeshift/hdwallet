@@ -35,7 +35,10 @@ export class MetaMaskAdapter {
       console.error("Please install MetaMask!");
       throw new Error("MetaMask provider not found");
     }
-    if (!maybeEip6963Provider) return;
+    // If we were only dealing with *detected* rdns, this would never happen, however
+    // web contains a static list of rdns we want to display at all times to indicate support to users
+    // Meaning we may hit this without the wallet actually being installed
+    if (!maybeEip6963Provider) throw new Error("EIP-6963 provider not found");
     const eip1193Provider = maybeEip6963Provider.provider;
 
     // Checks if the EIP-6963 provider is *akschual* MetaMask
