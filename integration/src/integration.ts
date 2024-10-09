@@ -3,6 +3,7 @@ import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 import * as metamask from "@shapeshiftoss/hdwallet-metamask-multichain";
 import * as native from "@shapeshiftoss/hdwallet-native";
+import * as phantom from "@shapeshiftoss/hdwallet-phantom";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 import * as walletconnect from "@shapeshiftoss/hdwallet-walletconnect";
@@ -54,7 +55,8 @@ export function integration(suite: WalletSuite): void {
             (portis.isPortis(wallet) ? 1 : 0) +
             (native.isNative(wallet) ? 1 : 0) +
             (metamask.isMetaMask(wallet) ? 1 : 0) +
-            (walletconnect.isWalletConnect(wallet) ? 1 : 0)
+            (walletconnect.isWalletConnect(wallet) ? 1 : 0) +
+            (phantom.isPhantom(wallet) ? 1 : 0)
         ).toEqual(1);
       });
     });

@@ -1,6 +1,8 @@
+import { PublicKey, VersionedTransaction } from "@solana/web3.js";
 import { providers } from "ethers";
 
 import { BtcAccount } from "./bitcoin";
+import { SolanaAccount } from "./solana";
 
 export type PhantomEvmProvider = providers.ExternalProvider & {
   _metamask: {
@@ -20,4 +22,11 @@ export type PhantomUtxoProvider = providers.ExternalProvider & {
     psbt: Uint8Array,
     options: { inputsToSign: { sigHash?: number | undefined; address: string; signingIndexes: number[] }[] }
   ): Promise<Uint8Array>;
+};
+
+export type PhantomSolanaProvider = providers.ExternalProvider & {
+  publicKey?: PublicKey;
+  connect(): Promise<SolanaAccount>;
+  signTransaction(transaction: VersionedTransaction): Promise<VersionedTransaction>;
+  signAndSendTransaction(transaction: VersionedTransaction): Promise<{ signature: any }>;
 };

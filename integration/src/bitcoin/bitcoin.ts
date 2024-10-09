@@ -2,6 +2,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 import * as metamask from "@shapeshiftoss/hdwallet-metamask-multichain";
 import * as native from "@shapeshiftoss/hdwallet-native";
+import * as phantom from "@shapeshiftoss/hdwallet-phantom";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 
@@ -66,6 +67,14 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         if (metamask.isMetaMask(wallet)) return;
         expect(wallet.btcSupportsCoin("Bitcoin")).toBeTruthy();
         expect(await info.btcSupportsCoin("Bitcoin")).toBeTruthy();
+      },
+      TIMEOUT
+    );
+
+    test(
+      "btcSupportsCoin() - Testnet",
+      async () => {
+        if (!wallet || portis.isPortis(wallet) || phantom.isPhantom(wallet)) return;
         expect(wallet.btcSupportsCoin("Testnet")).toBeTruthy();
         expect(await info.btcSupportsCoin("Testnet")).toBeTruthy();
       },
@@ -73,7 +82,14 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     );
 
     test("getPublicKeys", async () => {
-      if (!wallet || ledger.isLedger(wallet) || trezor.isTrezor(wallet) || portis.isPortis(wallet)) return;
+      if (
+        !wallet ||
+        ledger.isLedger(wallet) ||
+        trezor.isTrezor(wallet) ||
+        portis.isPortis(wallet) ||
+        phantom.isPhantom(wallet)
+      )
+        return;
 
       // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
       if (metamask.isMetaMask(wallet)) return;
@@ -224,9 +240,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test(
       "btcSignTx() - p2pkh",
       async () => {
-        if (!wallet || portis.isPortis(wallet)) return;
-        // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
-        if (metamask.isMetaMask(wallet)) return;
+        if (!wallet || portis.isPortis(wallet) || phantom.isPhantom(wallet) || metamask.isMetaMask(wallet)) return;
         if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
         const tx: core.BitcoinTx = {
           version: 1,
@@ -301,9 +315,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test(
       "btcSignTx() - thorchain swap",
       async () => {
-        if (!wallet || portis.isPortis(wallet)) return;
-        // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
-        if (metamask.isMetaMask(wallet)) return;
+        if (!wallet || portis.isPortis(wallet) || phantom.isPhantom(wallet) || metamask.isMetaMask(wallet)) return;
         if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
         if (trezor.isTrezor(wallet)) return; //TODO: Add trezor support for op return data passed at top level
         const tx: core.BitcoinTx = {
