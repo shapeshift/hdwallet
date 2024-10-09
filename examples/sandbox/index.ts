@@ -157,7 +157,6 @@ const $native = $("#native");
 const $metaMask = $("#metaMask");
 const $phantom = $("#phantom");
 const $coinbase = $("#coinbase");
-const $tallyHo = $("#tallyHo");
 const $walletConnect = $("#walletConnect");
 const $walletConnectV2 = $("#walletConnectV2");
 const $keplr = $("#keplr");
