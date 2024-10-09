@@ -167,10 +167,8 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
 
         // MetaMask *does* support EIP-1559, though not through offline signing
         if (metamask.isMetaMask(wallet)) return;
-
-        if (!(await wallet.ethSupportsEIP1559())) {
-          return;
-        }
+        if (!(await wallet.ethSupportsEIP1559())) return;
+        if (!wallet.supportsOfflineSigning()) return;
 
         // for some reason MNEMONIC12_NOPIN_NOPASSPHRASE will not produce sigs that match on native an kk
         await wallet.wipe();

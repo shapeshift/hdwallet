@@ -63,6 +63,7 @@ import {
   osmosisUndelegateTx,
 } from "./json/osmosis/osmosisAminoTx.json";
 import * as rippleTxJson from "./json/rippleTx.json";
+import * as solanaTxJson from "./json/solanaTx.json";
 import {
   thorchainBinanceBaseTx,
   thorchainBitcoinBaseTx,
@@ -956,6 +957,51 @@ $rippleTx.on("click", async (e) => {
   } else {
     const label = await wallet.getLabel();
     $rippleResults.val(label + " does not support Ripple");
+  }
+});
+
+/*
+ * Solana
+ */
+const $solanaAddr = $("#solanaAddr");
+const $solanaTx = $("#solanaTx");
+const $solanaResults = $("#solanaResults");
+
+$solanaAddr.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $solanaResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsSolana(wallet)) {
+    const accountPaths = wallet.solanaGetAccountPaths({ accountIdx: 0 });
+    const { addressNList } = accountPaths[0];
+    const result = await wallet.solanaGetAddress({
+      addressNList,
+      showDisplay: true,
+    });
+    $solanaResults.val(result ?? "");
+  } else {
+    const label = await wallet.getLabel();
+    $solanaResults.val(label + " does not support Solana");
+  }
+});
+
+$solanaTx.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $solanaResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsSolana(wallet)) {
+    const res = await wallet.solanaSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/501'/0'/0/0`),
+      ...solanaTxJson.solanaUnsignedTx,
+    });
+    $solanaResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $solanaResults.val(label + " does not support Solana");
   }
 });
 

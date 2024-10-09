@@ -12,6 +12,7 @@ import { KavaWallet, KavaWalletInfo } from "./kava";
 import { OsmosisWallet, OsmosisWalletInfo } from "./osmosis";
 import { RippleWallet, RippleWalletInfo } from "./ripple";
 import { SecretWallet, SecretWalletInfo } from "./secret";
+import { SolanaWallet, SolanaWalletInfo } from "./solana";
 import { TerraWallet, TerraWalletInfo } from "./terra";
 import { ThorchainWallet, ThorchainWalletInfo } from "./thorchain";
 import { Transport } from "./transport";
@@ -246,6 +247,14 @@ export function supportsBinance(wallet: HDWallet): wallet is BinanceWallet {
 
 export function infoBinance(info: HDWalletInfo): info is BinanceWalletInfo {
   return isObject(info) && (info as any)._supportsBinanceInfo;
+}
+
+export function supportsSolana(wallet: HDWallet): wallet is SolanaWallet {
+  return isObject(wallet) && (wallet as any)._supportsSolana;
+}
+
+export function infoSolana(info: HDWalletInfo): info is SolanaWalletInfo {
+  return isObject(info) && (info as any)._supportsSolanaInfo;
 }
 
 export function supportsDebugLink(wallet: HDWallet): wallet is DebugLinkWallet {

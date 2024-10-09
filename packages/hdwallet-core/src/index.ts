@@ -15,6 +15,7 @@ export * from "./ripple";
 export * from "./secret";
 export * from "./terra";
 export * from "./thorchain";
+export * from "./solana";
 export * from "./transport";
 export * from "./utils";
 export * from "./wallet";

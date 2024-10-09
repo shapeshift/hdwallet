@@ -33,7 +33,7 @@ export function testnetTests(get: () => { wallet: core.HDWallet; info: core.HDWa
       async () => {
         if (!wallet || portis.isPortis(wallet)) return;
         if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
-        if (!wallet.btcSupportsCoin("Testnet")) return;
+        if (!(await wallet.btcSupportsCoin("Testnet"))) return;
         const inputs: core.BTCSignTxInputUnguarded[] = [
           {
             addressNList: core.bip32ToAddressNList("m/49'/1'/0'/1/0"),
@@ -76,7 +76,7 @@ export function testnetTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test("btcSignTx() - p2wpkh", async () => {
       if (!wallet || portis.isPortis(wallet)) return;
       if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
-      if (!wallet.btcSupportsCoin("Testnet")) return;
+      if (!(await wallet.btcSupportsCoin("Testnet"))) return;
       const tx: core.BitcoinTx = {
         version: core.untouchable("tx.version not provided by test"),
         locktime: core.untouchable("tx.locktime not provided by test"),
