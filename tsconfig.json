@@ -50,6 +50,8 @@
     { "path": "./packages/hdwallet-trezor-connect" },
     { "path": "./packages/hdwallet-walletconnect" },
     { "path": "./packages/hdwallet-walletconnectV2" },
-    { "path": "./packages/hdwallet-keplr" }
+    { "path": "./packages/hdwallet-keplr" },
+    { "path": "./packages/hdwallet-coinbase" },
+    { "path": "./packages/hdwallet-phantom" }
   ]
 }
