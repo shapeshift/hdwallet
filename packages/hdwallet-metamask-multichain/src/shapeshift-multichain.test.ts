@@ -1,9 +1,10 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { EIP6963ProviderInfo } from "mipd";
 
-import { MetaMaskHDWallet, MetaMaskHDWalletInfo } from ".";
+import { MetaMaskMultiChainHDWallet, MetaMaskMultiChainHDWalletInfo } from ".";
 
 describe("HDWalletInfo", () => {
-  const info = new MetaMaskHDWalletInfo();
+  const info = new MetaMaskMultiChainHDWalletInfo();
 
   it("should have correct metadata", async () => {
     expect(info.getVendor()).toBe("MetaMask");
@@ -20,11 +21,15 @@ describe("HDWalletInfo", () => {
   });
 });
 
-describe("MetaMaskHDWallet", () => {
-  let wallet: MetaMaskHDWallet;
+describe("MetaMaskMultiChainHDWallet", () => {
+  let wallet: MetaMaskMultiChainHDWallet;
   beforeEach(() => {
-    wallet = new MetaMaskHDWallet(core.untouchable("MetaMaskHDWallet:provider"));
+    wallet = new MetaMaskMultiChainHDWallet({
+      provider: core.untouchable("MetaMaskMultiChainHDWallet:provider"),
+      info: { rdns: "io.metamask" } as EIP6963ProviderInfo,
+    });
     wallet.ethAddress = "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8";
+    wallet.providerRdns = "io.metamask";
   });
 
   it("should match the metadata", async () => {

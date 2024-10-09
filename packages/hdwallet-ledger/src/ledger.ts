@@ -168,10 +168,6 @@ export class LedgerHDWalletInfo
     return btc.btcGetAccountPaths(msg);
   }
 
-  public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
-    return btc.btcIsSameAccount(msg);
-  }
-
   public async ethSupportsNetwork(chain_id: number): Promise<boolean> {
     return eth.ethSupportsNetwork(chain_id);
   }

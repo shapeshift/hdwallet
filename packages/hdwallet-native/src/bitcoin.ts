@@ -101,12 +101,6 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDW
       return paths;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
-      // TODO: support at some point
-      return false;
-    }
-
     btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
       const description = core.describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType);
 
