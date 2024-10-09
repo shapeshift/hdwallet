@@ -19,7 +19,6 @@
     "@shapeshiftoss/hdwallet-native": "1.55.11",
     "@shapeshiftoss/hdwallet-portis": "1.55.11",
     "@shapeshiftoss/hdwallet-trezor": "1.55.11",
-    "@shapeshiftoss/hdwallet-xdefi": "1.55.10",
     "fast-json-stable-stringify": "^2.1.0",
     "msw": "^0.27.1",
     "whatwg-fetch": "^3.6.2"
