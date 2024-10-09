@@ -39,11 +39,11 @@ function buildTransaction(msg: core.SolanaSignTx, address: string): VersionedTra
     );
   }
 
-  if (msg.computeUnitLimit) {
+  if (msg.computeUnitLimit !== undefined) {
     instructions.push(ComputeBudgetProgram.setComputeUnitLimit({ units: msg.computeUnitLimit }));
   }
 
-  if (msg.computeUnitPrice) {
+  if (msg.computeUnitPrice !== undefined) {
     instructions.push(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: msg.computeUnitPrice }));
   }
 

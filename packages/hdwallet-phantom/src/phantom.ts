@@ -215,8 +215,7 @@ export class PhantomHDWallet
   }
 
   public async getDeviceID(): Promise<string> {
-    const paths = this.ethGetAccountPaths({ coin: "Ethereum", accountIdx: 0 });
-    return "phantom:" + (await this.ethGetAddress({ addressNList: paths[0].addressNList }));
+    return "phantom:" + (await this.ethGetAddress({ addressNList: [] }));
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -303,7 +302,9 @@ export class PhantomHDWallet
     if (this.ethAddress) {
       return this.ethAddress;
     }
+
     const address = await eth.ethGetAddress(this.evmProvider);
+
     if (address) {
       this.ethAddress = address;
       return address;
@@ -320,17 +321,17 @@ export class PhantomHDWallet
   }
 
   public async ethSendTx(msg: core.ETHSignTx): Promise<core.ETHTxHash | null> {
-    const address = await this.ethGetAddress({ addressNList: msg.addressNList });
+    const address = await this.ethGetAddress({ addressNList: [] });
     return address ? eth.ethSendTx(msg, this.evmProvider, address) : null;
   }
 
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
-    const address = await this.ethGetAddress({ addressNList: msg.addressNList });
+    const address = await this.ethGetAddress({ addressNList: [] });
     return address ? eth.ethSignMessage(msg, this.evmProvider, address) : null;
   }
 
   async ethSignTypedData(msg: core.ETHSignTypedData): Promise<core.ETHSignedTypedData | null> {
-    const address = await this.ethGetAddress({ addressNList: msg.addressNList });
+    const address = await this.ethGetAddress({ addressNList: [] });
     return address ? eth.ethSignTypedData(msg, this.evmProvider, address) : null;
   }
 
