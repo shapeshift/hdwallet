@@ -74,7 +74,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test(
       "btcSupportsCoin() - Testnet",
       async () => {
-        if (!wallet || portis.isPortis(wallet) || phantom.isPhantom(wallet)) return;
+        if (!wallet || portis.isPortis(wallet) || phantom.isPhantom(wallet) || metamask.isMetaMask(wallet)) return;
         expect(wallet.btcSupportsCoin("Testnet")).toBeTruthy();
         expect(await info.btcSupportsCoin("Testnet")).toBeTruthy();
       },
