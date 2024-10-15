@@ -161,7 +161,6 @@ class NativeHDWalletInfo
       case "atom":
         return core.cosmosDescribePath(msg.path);
       case "rune":
-      case "trune":
       case "thorchain":
         return core.thorchainDescribePath(msg.path);
       case "secret":

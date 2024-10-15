@@ -88,12 +88,6 @@ export class PortisHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
     return btc.btcGetAccountPaths(msg);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
-    // TODO: Probably not correct
-    return false;
-  }
-
   public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
     return btc.btcNextAccountPath(msg);
   }
@@ -331,10 +325,6 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
 
   public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
     return this.info.btcGetAccountPaths(msg);
-  }
-
-  public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
-    return this.info.btcIsSameAccount(msg);
   }
 
   public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {

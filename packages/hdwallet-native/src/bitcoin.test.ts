@@ -158,10 +158,6 @@ describe("NativeBTCWalletInfo", () => {
     expect(await info.btcSupportsScriptType("foobar", "p2pkh" as any)).toBe(false);
   });
 
-  it("should not do anything when btcIsSameAccount is called", async () => {
-    expect(untouchable.call(info, "btcIsSameAccount", [])).toBe(false);
-  });
-
   it.each([
     [
       "an undefined scriptType",

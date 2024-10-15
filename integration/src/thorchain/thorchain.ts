@@ -1,6 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+import * as metamask from "@shapeshiftoss/hdwallet-metamask-multichain";
 
 import tx_unsigned_swap_amino from "./tx01.mainnet.thorchain.swap.amino.json";
 import tx_unsigned_swap from "./tx01.mainnet.thorchain.swap.json";
@@ -25,12 +26,16 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
   describe("Thorchain", () => {
     beforeAll(async () => {
       const { wallet: w } = get();
+      // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+      if (metamask.isMetaMask(wallet)) return;
       if (core.supportsThorchain(w)) wallet = w;
       useAmino = w instanceof keepkey.KeepKeyHDWallet || w instanceof ledger.LedgerHDWallet;
     });
 
     beforeEach(async () => {
       if (!wallet) return;
+      // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+      if (metamask.isMetaMask(wallet)) return;
       await wallet.wipe();
       await wallet.loadDevice({
         mnemonic: MNEMONIC12_NOPIN_NOPASSPHRASE,
@@ -43,6 +48,8 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
       "thorchainGetAccountPaths()",
       () => {
         if (!wallet) return;
+        // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+        if (metamask.isMetaMask(wallet)) return;
         const paths = wallet.thorchainGetAccountPaths({ accountIdx: 0 });
         expect(paths.length > 0).toBe(true);
         expect(paths[0].addressNList[0] > 0x80000000).toBe(true);
@@ -54,6 +61,8 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
       "describePath() thorchain",
       async () => {
         if (!wallet) return;
+        // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+        if (metamask.isMetaMask(wallet)) return;
 
         const out = wallet.describePath({
           path: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
@@ -92,6 +101,8 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
       "thorchainGetAddress()",
       async () => {
         if (!wallet) return;
+        // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+        if (metamask.isMetaMask(wallet)) return;
         expect(
           await wallet.thorchainGetAddress({
             addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
@@ -126,6 +137,8 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
           const signedTx = useAmino ? signedAminoTx : signedProtoTx;
 
           if (!wallet || !tx) return;
+          // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+          if (metamask.isMetaMask(wallet)) return;
 
           const input: core.ThorchainSignTx = {
             tx,
