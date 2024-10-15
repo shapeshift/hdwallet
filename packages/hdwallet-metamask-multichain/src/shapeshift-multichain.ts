@@ -865,7 +865,7 @@ export class MetaMaskMultiChainHDWallet
   }
 
   public async getDeviceID(): Promise<string> {
-    return this.providerRdns + (await this.ethGetAddress(this.provider));
+    return this.providerRdns + ":" + (await this.ethGetAddress(this.provider));
   }
 
   public async getFirmwareVersion(): Promise<string> {
