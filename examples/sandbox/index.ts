@@ -9,16 +9,14 @@ import * as keepkeyWebUSB from "@shapeshiftoss/hdwallet-keepkey-webusb";
 import * as keplr from "@shapeshiftoss/hdwallet-keplr";
 import * as ledgerWebHID from "@shapeshiftoss/hdwallet-ledger-webhid";
 import * as ledgerWebUSB from "@shapeshiftoss/hdwallet-ledger-webusb";
-import * as metaMask from "@shapeshiftoss/hdwallet-metamask";
+import * as metaMask from "@shapeshiftoss/hdwallet-metamask-multichain";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as phantom from "@shapeshiftoss/hdwallet-phantom";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
-import * as tallyHo from "@shapeshiftoss/hdwallet-tallyho";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
 import { WalletConnectProviderConfig } from "@shapeshiftoss/hdwallet-walletconnect";
 import * as walletConnect from "@shapeshiftoss/hdwallet-walletconnect";
 import * as walletConnectv2 from "@shapeshiftoss/hdwallet-walletconnectv2";
-import * as xdefi from "@shapeshiftoss/hdwallet-xdefi";
 import { EthereumProviderOptions } from "@walletconnect/ethereum-provider/dist/types/EthereumProvider";
 import { TypedData } from "eip-712";
 import $, { noop } from "jquery";
@@ -126,12 +124,10 @@ const keepkeyAdapter = keepkeyWebUSB.WebUSBKeepKeyAdapter.useKeyring(keyring);
 const kkbridgeAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const kkemuAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const portisAdapter = portis.PortisAdapter.useKeyring(keyring, { portisAppId });
-const metaMaskAdapter = metaMask.MetaMaskAdapter.useKeyring(keyring);
+const metaMaskAdapter = metaMask.MetaMaskAdapter.useKeyring(keyring, "io.metamask");
 const phantomAdapter = phantom.PhantomAdapter.useKeyring(keyring);
-const tallyHoAdapter = tallyHo.TallyHoAdapter.useKeyring(keyring);
 const walletConnectAdapter = walletConnect.WalletConnectAdapter.useKeyring(keyring, walletConnectOptions);
 const walletConnectV2Adapter = walletConnectv2.WalletConnectV2Adapter.useKeyring(keyring, walletConnectV2Options);
-const xdefiAdapter = xdefi.XDEFIAdapter.useKeyring(keyring);
 const keplrAdapter = keplr.KeplrAdapter.useKeyring(keyring);
 const nativeAdapter = native.NativeAdapter.useKeyring(keyring);
 const trezorAdapter = trezorConnect.TrezorAdapter.useKeyring(keyring, {
@@ -162,10 +158,8 @@ const $native = $("#native");
 const $metaMask = $("#metaMask");
 const $phantom = $("#phantom");
 const $coinbase = $("#coinbase");
-const $tallyHo = $("#tallyHo");
 const $walletConnect = $("#walletConnect");
 const $walletConnectV2 = $("#walletConnectV2");
-const $xdefi = $("#xdefi");
 const $keplr = $("#keplr");
 const $keyring = $("#keyring");
 
@@ -284,19 +278,6 @@ $keplr.on("click", async (e) => {
   }
 });
 
-$tallyHo.on("click", async (e) => {
-  e.preventDefault();
-  wallet = await tallyHoAdapter.pairDevice();
-  window["wallet"] = wallet;
-  let deviceID = "nothing";
-  try {
-    deviceID = await wallet.getDeviceID();
-    $("#keyring select").val(deviceID);
-  } catch (error) {
-    console.error(error);
-  }
-});
-
 $walletConnect.on("click", async (e) => {
   e.preventDefault();
   try {
@@ -316,19 +297,6 @@ $walletConnectV2.on("click", async (e) => {
     wallet = await walletConnectV2Adapter.pairDevice();
     window["wallet"] = wallet;
     let deviceID = "nothing";
-    deviceID = await wallet.getDeviceID();
-    $("#keyring select").val(deviceID);
-  } catch (error) {
-    console.error(error);
-  }
-});
-
-$xdefi.on("click", async (e) => {
-  e.preventDefault();
-  wallet = await xdefiAdapter.pairDevice();
-  window["wallet"] = wallet;
-  let deviceID = "nothing";
-  try {
     deviceID = await wallet.getDeviceID();
     $("#keyring select").val(deviceID);
   } catch (error) {
@@ -424,12 +392,6 @@ async function deviceConnected(deviceId) {
     await phantomAdapter.initialize();
   } catch (e) {
     console.error("Could not initialize PhantomAdapter", e);
-  }
-
-  try {
-    await tallyHoAdapter.initialize();
-  } catch (e) {
-    console.error("Could not initialize TallyHoAdapter", e);
   }
 
   try {

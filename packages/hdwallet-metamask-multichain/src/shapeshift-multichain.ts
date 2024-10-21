@@ -2,6 +2,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { AddEthereumChainParameter } from "@shapeshiftoss/hdwallet-core";
 import { ethErrors, serializeError } from "eth-rpc-errors";
 import _ from "lodash";
+import { EIP6963ProviderDetail } from "mipd";
 
 import * as Btc from "./bitcoin";
 import * as BtcCash from "./bitcoincash";
@@ -12,11 +13,11 @@ import * as Litecoin from "./litecoin";
 import * as Thorchain from "./thorchain";
 import * as utxo from "./utxo";
 
-export function isMetaMask(wallet: core.HDWallet): wallet is MetaMaskShapeShiftMultiChainHDWallet {
+export function isMetaMask(wallet: core.HDWallet): wallet is MetaMaskMultiChainHDWallet {
   return _.isObject(wallet) && (wallet as any)._isMetaMask;
 }
 
-export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
+export class MetaMaskMultiChainHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
   ethGetChainId?(): Promise<number | null> {
     throw new Error("Method not implemented.");
   }
@@ -65,7 +66,8 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
   }
 
   public supportsBip44Accounts(): boolean {
-    return true;
+    // Multi-account not supported in MM/snap, the only BIP44 bits we derive is diff slip44s than 60 (meaning, we support EVM chains)
+    return false;
   }
 
   public supportsOfflineSigning(): boolean {
@@ -78,10 +80,10 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
 
   public describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin) {
-      case "bitcoin":
-      case "bitcoincash":
-      case "dogecoin":
-      case "litecoin": {
+      case "Bitcoin":
+      case "Bitcoincash":
+      case "Dogecoin":
+      case "Litecoin": {
         const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
 
         if (!msg.scriptType) return unknown;
@@ -91,15 +93,14 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
         return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
       }
 
-      case "atom":
+      case "Atom":
         return core.cosmosDescribePath(msg.path);
 
-      case "ethereum":
+      case "Ethereum":
         return core.describeETHPath(msg.path);
 
-      case "rune":
-      case "trune":
-      case "thorchain":
+      case "Rune":
+      case "Thorchain":
         return core.thorchainDescribePath(msg.path);
 
       default:
@@ -266,7 +267,7 @@ export class MetaMaskShapeShiftMultiChainHDWalletInfo implements core.HDWalletIn
   }
 }
 
-export class MetaMaskShapeShiftMultiChainHDWallet
+export class MetaMaskMultiChainHDWallet
   implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.CosmosWallet, core.ThorchainWallet
 {
   readonly _supportsETH = true;
@@ -300,20 +301,23 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   readonly _supportsThorchainInfo = true;
   readonly _supportsThorchain = true;
 
-  info: MetaMaskShapeShiftMultiChainHDWalletInfo & core.HDWalletInfo;
+  info: MetaMaskMultiChainHDWalletInfo & core.HDWalletInfo;
   bitcoinAddress?: string | null;
   bitcoinCashAddress?: string | null;
   cosmosAddress?: string | null;
   dogecoinAddress?: string | null;
   ethAddress?: string | null;
+  providerRdns: string;
   litecoinAddress?: string | null;
   osmosisAddress?: string | null;
   thorchainAddress?: string | null;
   provider: any;
 
-  constructor(provider: unknown) {
-    this.info = new MetaMaskShapeShiftMultiChainHDWalletInfo();
-    this.provider = provider;
+  constructor(provider: EIP6963ProviderDetail) {
+    this.info = new MetaMaskMultiChainHDWalletInfo();
+
+    this.providerRdns = provider.info.rdns;
+    this.provider = provider.provider;
   }
 
   transport?: core.Transport | undefined;
@@ -551,11 +555,6 @@ export class MetaMaskShapeShiftMultiChainHDWallet
     return utxo.utxoSupportsCoin(coin);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public btcIsSameAccount(msg: core.BTCAccountPath[]): boolean {
-    throw new Error("Method not implemented.");
-  }
-
   /** BITCOIN CASH */
 
   public async bitcoinCashSupportsSecureTransfer(): Promise<boolean> {
@@ -701,8 +700,6 @@ export class MetaMaskShapeShiftMultiChainHDWallet
       // https://docs.metamask.io/guide/ethereum-provider.html#errors
       // Internal error, which in the case of wallet_switchEthereumChain call means the chain isn't currently added to the wallet
       if (error.code === -32603) {
-        // We only support Avalanche C-Chain currently. It is supported natively in XDEFI, and unsupported in Tally, both with no capabilities to add a new chain
-        // TODO(gomes): Find a better home for these. When that's done, we'll want to call ethSwitchChain with (params: AddEthereumChainParameter) instead
         try {
           await this.ethAddChain(params);
           return;
@@ -868,10 +865,10 @@ export class MetaMaskShapeShiftMultiChainHDWallet
   }
 
   public async getDeviceID(): Promise<string> {
-    return "metaMask:" + (await this.ethGetAddress(this.provider));
+    return this.providerRdns + ":" + (await this.ethGetAddress(this.provider));
   }
 
   public async getFirmwareVersion(): Promise<string> {
-    return "metaMask";
+    return this.providerRdns;
   }
 }

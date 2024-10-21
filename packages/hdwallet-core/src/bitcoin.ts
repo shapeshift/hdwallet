@@ -342,12 +342,6 @@ export interface BTCWalletInfo extends HDWalletInfo {
   btcGetAccountPaths(msg: BTCGetAccountPaths): Array<BTCAccountPath>;
 
   /**
-   * Does the device support spending from the combined accounts?
-   * The list is assumed to contain unique entries.
-   */
-  btcIsSameAccount(msg: Array<BTCAccountPath>): boolean;
-
-  /**
    * Returns the "next" account path, if any.
    */
   btcNextAccountPath(msg: BTCAccountPath): BTCAccountPath | undefined;

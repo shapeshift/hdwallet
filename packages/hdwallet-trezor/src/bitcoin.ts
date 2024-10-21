@@ -225,9 +225,3 @@ export function btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTC
 
   return paths;
 }
-
-export function btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
-  // Trezor does not support mixed-mode segwit, and only lets you spend from
-  // a single account (otherwise change is represented as an output).
-  return msg.length == 1;
-}

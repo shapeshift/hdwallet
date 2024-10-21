@@ -1,12 +1,13 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as metamask from "@shapeshiftoss/hdwallet-metamask";
+import * as metamask from "@shapeshiftoss/hdwallet-metamask-multichain";
+import { EIP6963ProviderInfo } from "mipd";
 
 export function name(): string {
   return "MetaMask";
 }
 
 export function createInfo(): core.HDWalletInfo {
-  return new metamask.MetaMaskHDWalletInfo();
+  return new metamask.MetaMaskMultiChainHDWalletInfo();
 }
 
 export async function createWallet(): Promise<core.HDWallet> {
@@ -33,18 +34,21 @@ export async function createWallet(): Promise<core.HDWallet> {
       }
     }),
   };
-  const wallet = new metamask.MetaMaskHDWallet(provider);
+  const wallet = new metamask.MetaMaskMultiChainHDWallet({
+    provider,
+    info: { rdns: "io.metamask" } as EIP6963ProviderInfo,
+  });
   await wallet.initialize();
   return wallet;
 }
 
 export function selfTest(get: () => core.HDWallet): void {
-  let wallet: metamask.MetaMaskHDWallet;
+  let wallet: metamask.MetaMaskMultiChainHDWallet;
 
   beforeAll(async () => {
-    const w = get() as metamask.MetaMaskHDWallet;
+    const w = get() as metamask.MetaMaskMultiChainHDWallet;
 
-    if (metamask.isMetaMask(w) && !core.supportsBTC(w) && core.supportsETH(w)) {
+    if (metamask.isMetaMask(w) && core.supportsBTC(w) && core.supportsETH(w)) {
       wallet = w;
     } else {
       throw new Error("Wallet is not a MetaMask");
@@ -56,9 +60,9 @@ export function selfTest(get: () => core.HDWallet): void {
     expect(await wallet.ethSupportsNetwork()).toEqual(true);
   });
 
-  it("does not support BTC", async () => {
+  it("supports Bitcoin", async () => {
     if (!wallet) return;
-    expect(core.supportsBTC(wallet)).toBe(false);
+    expect(core.supportsBTC(wallet)).toBe(true);
   });
 
   it("does not support Native ShapeShift", async () => {
@@ -66,7 +70,7 @@ export function selfTest(get: () => core.HDWallet): void {
     expect(wallet.ethSupportsNativeShapeShift()).toEqual(false);
   });
 
-  it("does not supports bip44 accounts", async () => {
+  it("does not support bip44 accounts", async () => {
     if (!wallet) return;
     expect(wallet.supportsBip44Accounts()).toEqual(false);
   });
@@ -83,27 +87,28 @@ export function selfTest(get: () => core.HDWallet): void {
 
   it("uses correct eth bip44 paths", () => {
     if (!wallet) return;
-    [0, 1, 3, 27].forEach((account) => {
-      const paths = wallet.ethGetAccountPaths({
-        coin: "Ethereum",
-        accountIdx: account,
-      });
-      expect(paths).toEqual([
-        {
-          addressNList: core.bip32ToAddressNList(`m/44'/60'/${account}'/0/0`),
-          hardenedPath: core.bip32ToAddressNList(`m/44'/60'/${account}'`),
-          relPath: [0, 0],
-          description: "MetaMask",
-        },
-      ]);
-      paths.forEach((path) => {
-        expect(
-          wallet.describePath({
-            coin: "Ethereum",
-            path: path.addressNList,
-          }).isKnown
-        ).toBeTruthy();
-      });
+    // MM doesn't support multi-account *externally*, the active account is exposes should be considered account 0,
+    // even if internally it may not be e.g for all intents and purposes, m/44'/60'/0'/0/1 for MetaMask should be considered m/44'/60'/0'/0/0
+    const accountNumber = 0;
+    const paths = wallet.ethGetAccountPaths({
+      coin: "Ethereum",
+      accountIdx: accountNumber,
+    });
+    expect(paths).toEqual([
+      {
+        addressNList: core.bip32ToAddressNList(`m/44'/60'/${accountNumber}'/0/0`),
+        hardenedPath: core.bip32ToAddressNList(`m/44'/60'/${accountNumber}'`),
+        relPath: [0, 0],
+        description: "MetaMask(Shapeshift Multichain)",
+      },
+    ]);
+    paths.forEach((path) => {
+      expect(
+        wallet.describePath({
+          coin: "Ethereum",
+          path: path.addressNList,
+        }).isKnown
+      ).toBeTruthy();
     });
   });
 
@@ -120,6 +125,7 @@ export function selfTest(get: () => core.HDWallet): void {
       isKnown: true,
       accountIdx: 0,
       wholeAccount: true,
+      isPrefork: false,
     });
 
     expect(
@@ -133,6 +139,7 @@ export function selfTest(get: () => core.HDWallet): void {
       isKnown: true,
       accountIdx: 3,
       wholeAccount: true,
+      isPrefork: false,
     });
 
     expect(
