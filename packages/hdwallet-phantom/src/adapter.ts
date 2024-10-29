@@ -39,17 +39,10 @@ export class PhantomAdapter {
       throw new Error("Phantom provider not found");
     }
 
-    try {
-      await evmProvider.request?.({ method: "eth_requestAccounts" }).catch(() =>
-        evmProvider.request?.({
-          method: "wallet_requestPermissions",
-          params: [{ eth_accounts: {} }],
-        })
-      );
-    } catch (error) {
-      console.error("Could not get Phantom accounts. ");
-      throw error;
-    }
+    // Assume Solana accounts are always present
+    // Note, we don't try and get EVM accounts below just yet - we only use the Solana account as a deviceID
+    await solanaProvider.connect();
+
     const wallet = new PhantomHDWallet(evmProvider, bitcoinProvider, solanaProvider);
     await wallet.initialize();
     const deviceID = await wallet.getDeviceID();

@@ -210,7 +210,7 @@ export class PhantomHDWallet
   }
 
   public async getDeviceID(): Promise<string> {
-    return "phantom:" + (await this.ethGetAddress({ addressNList: [] }));
+    return "phantom:" + (await this.solanaGetAddress());
   }
 
   async getFeatures(): Promise<Record<string, any>> {
