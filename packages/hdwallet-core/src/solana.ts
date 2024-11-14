@@ -21,9 +21,9 @@ export interface SolanaTxInstruction {
 export interface SolanaSignTx {
   addressNList: BIP32Path;
   /** to is the destination pubkey for the transfer */
-  to: string;
+  to?: string;
   /** value is the amount to transfer in micro lamports*/
-  value: string;
+  value?: string;
   /** blockHash is used for expiry determination */
   blockHash: string;
   /** computeUnitLimit is the maximum number of compute units allowed to be consumed by the transaction */
