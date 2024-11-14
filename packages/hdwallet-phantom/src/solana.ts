@@ -18,7 +18,9 @@ function toTransactionInstructions(instructions: core.SolanaTxInstruction[]): Tr
   return instructions.map(
     (instruction) =>
       new TransactionInstruction({
-        keys: instruction.keys.map((key) => Object.assign(key, { pubkey: new PublicKey(key.pubkey) })),
+        keys: instruction.keys.map((key) =>
+          Object.assign(key, { pubkey: new PublicKey(key.pubkey), isSigner: key.isSigner, isWritable: key.isWritable })
+        ),
         programId: new PublicKey(instruction.programId),
         data: instruction.data,
       })
