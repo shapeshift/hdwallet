@@ -51,7 +51,7 @@ function buildTransaction(msg: core.SolanaSignTx, address: string): VersionedTra
     payerKey: new PublicKey(address),
     instructions,
     recentBlockhash: msg.blockHash,
-  }).compileToV0Message();
+  }).compileToV0Message(msg.addressLookupTableAccounts);
 
   return new VersionedTransaction(message);
 }
