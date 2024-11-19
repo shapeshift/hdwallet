@@ -63,6 +63,7 @@
   "dependencies": {
     "@types/jest": "^26.0.23",
     "@types/node": "^20.5.7",
+    "@types/tiny-secp256k1": "^2.0.1",
     "patch-package": "^6.2.2",
     "postinstall-postinstall": "^2.1.0"
   },
