@@ -1,6 +1,6 @@
-import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bchAddr from "bchaddrjs";
+import * as bitcoin from "bitcoinjs-lib";
 
 import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";

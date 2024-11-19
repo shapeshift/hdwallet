@@ -1,4 +1,4 @@
-import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
+import * as bitcoin from "bitcoinjs-lib";
 import * as ta from "type-assertions";
 
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
