@@ -48,9 +48,6 @@ function buildTransaction(msg: core.SolanaSignTx, address: string): VersionedTra
     instructions.push(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: msg.computeUnitPrice }));
   }
 
-  // eslint-disable-next-line
-  console.log({ addressLookupTableAccountInfos: msg.addressLookupTableAccountInfos, newInstruc: instructions });
-
   const addressLookupTableAccounts = msg.addressLookupTableAccountInfos?.reduce((acc, accountInfo) => {
     if (accountInfo) {
       const addressLookupTableAccount = new AddressLookupTableAccount({
