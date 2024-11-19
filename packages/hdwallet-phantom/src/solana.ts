@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import {
+  AddressLookupTableAccount,
   ComputeBudgetProgram,
   PublicKey,
   SystemProgram,
@@ -47,11 +48,26 @@ function buildTransaction(msg: core.SolanaSignTx, address: string): VersionedTra
     instructions.push(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: msg.computeUnitPrice }));
   }
 
+  // eslint-disable-next-line
+  console.log({ addressLookupTableAccountInfos: msg.addressLookupTableAccountInfos, newInstruc: instructions });
+
+  const addressLookupTableAccounts = msg.addressLookupTableAccountInfos?.reduce((acc, accountInfo) => {
+    if (accountInfo) {
+      const addressLookupTableAccount = new AddressLookupTableAccount({
+        key: new PublicKey(accountInfo.key),
+        state: AddressLookupTableAccount.deserialize(new Uint8Array(accountInfo.data)),
+      });
+      acc.push(addressLookupTableAccount);
+    }
+
+    return acc;
+  }, new Array<AddressLookupTableAccount>());
+
   const message = new TransactionMessage({
     payerKey: new PublicKey(address),
     instructions,
     recentBlockhash: msg.blockHash,
-  }).compileToV0Message(msg.addressLookupTableAccounts);
+  }).compileToV0Message(addressLookupTableAccounts);
 
   return new VersionedTransaction(message);
 }

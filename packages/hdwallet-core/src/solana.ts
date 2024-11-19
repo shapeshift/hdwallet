@@ -1,5 +1,3 @@
-import { AddressLookupTableAccount } from "@solana/web3.js";
-
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
@@ -20,6 +18,11 @@ export interface SolanaTxInstruction {
   data?: Buffer;
 }
 
+export interface SolanaAddressLookupTableAccountInfo {
+  key: string;
+  data: Buffer;
+}
+
 export interface SolanaSignTx {
   addressNList: BIP32Path;
   /** to is the destination pubkey for the transfer */
@@ -35,7 +38,7 @@ export interface SolanaSignTx {
   /** instructions are additional instructions to construct the transaction with (exclude transfer, setComputeUnitLimit and setComputeUnitPrice) */
   instructions?: SolanaTxInstruction[];
   /** Address look up table accounts */
-  addressLookupTableAccounts?: AddressLookupTableAccount[];
+  addressLookupTableAccountInfos?: SolanaAddressLookupTableAccountInfo[];
 }
 
 export interface SolanaSignedTx {
