@@ -1,6 +1,9 @@
 import type { Network, networks, SignerAsync } from "bitcoinjs-lib";
+import { initEccLib } from "bitcoinjs-lib";
+import { TinySecp256k1Interface } from "bitcoinjs-lib/src/cjs/types";
 import { ECPairInterface } from "ecpair";
 import PLazy from "p-lazy";
+import * as ecc from "tiny-secp256k1";
 
 import { IsolationError, SecP256K1 } from "../core";
 import { assertType, ByteArray } from "../types";
@@ -24,6 +27,8 @@ export class ECPairAdapter implements SignerAsync, ECPairInterfaceAsync {
     this._isolatedKey = isolatedKey;
     this._publicKey = publicKey;
     this._network = network;
+    // instantiation of ecc lib required for taproot sends https://github.com/bitcoinjs/bitcoinjs-lib/issues/1889#issuecomment-1443792692
+    initEccLib(ecc as unknown as TinySecp256k1Interface);
   }
 
   /**
