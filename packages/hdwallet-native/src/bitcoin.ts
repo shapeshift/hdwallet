@@ -33,6 +33,8 @@ type BchInputData = {
 
 type InputData = UtxoData | ScriptData | BchInputData;
 
+const SIGHASH_BITCOINCASHBIP143 = 0x40;
+
 export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeBTCWalletInfo extends Base implements core.BTCWalletInfo {
@@ -193,13 +195,13 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
           case "p2sh-p2wpkh":
           case "p2sh":
           case "bech32":
-            scriptData.redeemScript = payment.redeem?.output;
+            scriptData.redeemScript = payment.redeem?.output ? Buffer.from(payment.redeem.output) : undefined;
             break;
         }
 
         const bchData: BchInputData = {};
         if (coin.toLowerCase() === "bitcoincash") {
-          bchData.sighashType = bitcoin.Transaction.SIGHASH_ALL | bitcoin.Transaction.SIGHASH_BITCOINCASHBIP143;
+          bchData.sighashType = bitcoin.Transaction.SIGHASH_ALL | SIGHASH_BITCOINCASHBIP143;
         }
 
         return {
@@ -269,7 +271,10 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
                 address = bchAddr.toLegacyAddress(address);
               }
 
-              psbt.addOutput({ address, value: Number(amount) });
+              // OP_RETURN_DATA output is not part of the outputs just yet, it gets added below in the `if (msg.opReturnData)` block
+              // So missing amount *is* a blatant disaster waiting to happen here
+              if (!amount) throw new Error("missing output amount for non OP_RETURN_DATA output");
+              psbt.addOutput({ address, value: BigInt(amount) });
             } catch (e) {
               throw new Error(`failed to add output: ${e}`);
             }
@@ -281,7 +286,8 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
           const embed = bitcoin.payments.embed({ data: [data] });
           const script = embed.output;
           if (!script) throw new Error("unable to build OP_RETURN script");
-          psbt.addOutput({ script, value: 0 });
+          // OP_RETURN_DATA outputs always have a value of 0
+          psbt.addOutput({ script, value: BigInt(0) });
         }
 
         await Promise.all(
@@ -308,10 +314,10 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
 
         const signatures = tx.ins.map((input) => {
           if (input.witness.length > 0) {
-            return input.witness[0].toString("hex");
+            return Buffer.from(input.witness[0]).toString("hex");
           } else {
             const sigLen = input.script[0];
-            return input.script.slice(1, sigLen).toString("hex");
+            return Buffer.from(input.script.slice(1, sigLen)).toString("hex");
           }
         });
 
