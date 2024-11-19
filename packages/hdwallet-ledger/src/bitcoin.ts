@@ -143,7 +143,7 @@ export async function btcSignTx(
 ): Promise<core.BTCSignedTx> {
   const supportsSecureTransfer = await wallet.btcSupportsSecureTransfer();
   const slip44 = core.mustBeDefined(core.slip44ByCoin(msg.coin));
-  const txBuilder = new bitcoin.TransactionBuilder(networksUtil[slip44].bitcoinjs as any);
+  const psbt = new bitcoin.Psbt({ network: networksUtil[slip44].bitcoinjs as bitcoin.Network });
   const indexes: number[] = [];
   const txs: Transaction[] = [];
   const associatedKeysets: string[] = [];
@@ -173,18 +173,23 @@ export async function btcSignTx(
     if (msg.coin === "BitcoinCash" && bchAddr.isCashAddress(outputAddress)) {
       outputAddress = bchAddr.toLegacyAddress(outputAddress);
     }
-    txBuilder.addOutput(outputAddress, Number(output.amount));
+    psbt.addOutput({ address: outputAddress, value: BigInt(output.amount) });
   }
 
   if (msg.opReturnData) {
     if (msg.opReturnData.length > 80) {
       throw new Error("OP_RETURN data must be less than 80 chars.");
     }
-    const ret = bitcoin.script.compile([bitcoin.opcodes.OP_RETURN, Buffer.from(msg.opReturnData)]);
-    txBuilder.addOutput(ret, 0);
+    const script = bitcoin.script.compile([bitcoin.opcodes.OP_RETURN, Buffer.from(msg.opReturnData)]);
+
+    psbt.addOutput({
+      script,
+      // OP_RETURN_DATA outputs always have a value of 0
+      value: BigInt(0),
+    });
   }
 
-  const unsignedHex = txBuilder.buildIncomplete().toHex();
+  const unsignedHex = psbt.toHex();
   const splitTxRes = await transport.call("Btc", "splitTransaction", unsignedHex);
   handleError(splitTxRes, transport, "splitTransaction failed");
   const outputScriptRes = await transport.call("Btc", "serializeTransactionOutputs", splitTxRes.payload);
