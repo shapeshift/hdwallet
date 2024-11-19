@@ -65,6 +65,7 @@ async function addInput(psbt: bitcoin.Psbt, input: core.BTCSignTxInput): Promise
       psbt.addInput({
         hash: input.txid,
         index: input.vout,
+        // @ts-expect-error this doesn't seem to be required anymore but...
         nonWitnessUtxo: Buffer.from(input.hex, "hex"),
       });
 
@@ -95,7 +96,7 @@ async function addOutput(
 
   if (!address) throw new Error("Invalid output - no address");
 
-  psbt.addOutput({ address, value: parseInt(output.amount) });
+  psbt.addOutput({ address, value: BigInt(output.amount) });
 }
 
 export async function bitcoinSignTx(
@@ -125,7 +126,8 @@ export async function bitcoinSignTx(
     const embed = bitcoin.payments.embed({ data: [data] });
     const script = embed.output;
     if (!script) throw new Error("unable to build OP_RETURN script");
-    psbt.addOutput({ script, value: 0 });
+    // OP_RETURN_DATA output is always 0 value
+    psbt.addOutput({ script, value: BigInt(0) });
   }
 
   const inputsToSign = await Promise.all(

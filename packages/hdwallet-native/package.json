@@ -14,7 +14,6 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "bitcoinjs-lib": "^7.0.0-rc.0",
     "@shapeshiftoss/fiosdk": "1.2.1-shapeshift.6",
     "@shapeshiftoss/hdwallet-core": "1.55.12",
     "@shapeshiftoss/proto-tx-builder": "^0.8.0",
@@ -24,8 +23,10 @@
     "bignumber.js": "^9.0.1",
     "bip32": "^2.0.5",
     "bip39": "^3.0.2",
+    "bitcoinjs-lib": "^7.0.0-rc.0",
     "bnb-javascript-sdk-nobroadcast": "^2.16.14",
     "crypto-js": "^4.0.0",
+    "ecpair": "^3.0.0-rc.0",
     "eip-712": "^1.0.0",
     "ethers": "5.7.2",
     "eventemitter2": "^5.0.1",
