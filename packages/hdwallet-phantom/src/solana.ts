@@ -48,17 +48,12 @@ function buildTransaction(msg: core.SolanaSignTx, address: string): VersionedTra
     instructions.push(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: msg.computeUnitPrice }));
   }
 
-  const addressLookupTableAccounts = msg.addressLookupTableAccountInfos?.reduce((acc, accountInfo) => {
-    if (accountInfo) {
-      const addressLookupTableAccount = new AddressLookupTableAccount({
-        key: new PublicKey(accountInfo.key),
-        state: AddressLookupTableAccount.deserialize(new Uint8Array(accountInfo.data)),
-      });
-      acc.push(addressLookupTableAccount);
-    }
-
-    return acc;
-  }, new Array<AddressLookupTableAccount>());
+  const addressLookupTableAccounts = msg.addressLookupTableAccountInfos?.map((accountInfo) => {
+    return new AddressLookupTableAccount({
+      key: new PublicKey(accountInfo.key),
+      state: AddressLookupTableAccount.deserialize(new Uint8Array(accountInfo.data)),
+    });
+  });
 
   const message = new TransactionMessage({
     payerKey: new PublicKey(address),
