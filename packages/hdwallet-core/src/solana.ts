@@ -18,6 +18,11 @@ export interface SolanaTxInstruction {
   data?: Buffer;
 }
 
+export interface SolanaAddressLookupTableAccountInfo {
+  key: string;
+  data: Buffer;
+}
+
 export interface SolanaSignTx {
   addressNList: BIP32Path;
   /** to is the destination pubkey for the transfer */
@@ -32,6 +37,8 @@ export interface SolanaSignTx {
   computeUnitPrice?: number;
   /** instructions are additional instructions to construct the transaction with (exclude transfer, setComputeUnitLimit and setComputeUnitPrice) */
   instructions?: SolanaTxInstruction[];
+  /** Address look up table accounts */
+  addressLookupTableAccountInfos?: SolanaAddressLookupTableAccountInfo[];
 }
 
 export interface SolanaSignedTx {
