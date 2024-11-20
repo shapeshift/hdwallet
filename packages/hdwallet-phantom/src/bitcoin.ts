@@ -65,7 +65,6 @@ async function addInput(psbt: bitcoin.Psbt, input: core.BTCSignTxInput): Promise
       psbt.addInput({
         hash: input.txid,
         index: input.vout,
-        // @ts-expect-error this doesn't seem to be required anymore but...
         nonWitnessUtxo: Buffer.from(input.hex, "hex"),
       });
 
@@ -161,7 +160,7 @@ export async function bitcoinSignTx(
   }
 
   const signatures = signedPsbt.data.inputs.map((input) =>
-    input.partialSig ? input.partialSig[0].signature.toString("hex") : ""
+    input.partialSig ? Buffer.from(input.partialSig[0].signature).toString("hex") : ""
   );
 
   return {
