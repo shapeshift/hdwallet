@@ -1,8 +1,10 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bnbSdk from "bnb-javascript-sdk-nobroadcast";
 import CryptoJS from "crypto-js";
-// TODO: figure out why @types/tiny-secp256k1 is not working here
-// @ts-expect-error of course it's KK ruining the show for everyone
+// TODO: figure out why @types/tiny-secp256k1 is not working here.
+// Also yes the ts-ignore instead of ts-expect-error directive is on purpose, lint expect the latter, but it will fail upstream CI with it
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore of course it's KK ruining the show for everyone
 import TinySecP256K1 from "tiny-secp256k1";
 
 export function decodeBnbTx(txBytes: Buffer, chainId: string) {
