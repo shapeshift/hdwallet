@@ -10,6 +10,7 @@
     "dev": "lerna run test --scope integration --parallel --include-filtered-dependencies"
   },
   "dependencies": {
+    "@bitcoinerlab/secp256k1": "^1.1.1",
     "@shapeshiftoss/hdwallet-core": "1.55.12",
     "@shapeshiftoss/hdwallet-keepkey": "1.55.12",
     "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "1.55.12",

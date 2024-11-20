@@ -1,6 +1,6 @@
+import ecc from "@bitcoinerlab/secp256k1";
 import * as bnbSdk from "bnb-javascript-sdk-nobroadcast";
 import * as crypto from "crypto";
-import tinyecc from "tiny-secp256k1";
 
 export function decodeBnbTx(txBytes: Buffer, chainId: string) {
   const txDecoded = bnbSdk.amino.decoder.unMarshalBinaryLengthPrefixed(txBytes, {
@@ -69,5 +69,5 @@ export function decodeBnbTx(txBytes: Buffer, chainId: string) {
 
 export function validateBnbTx(txBytes: Buffer, chainId: string) {
   const { signBytesHash, pubKey, signature } = decodeBnbTx(txBytes, chainId);
-  return tinyecc.verify(signBytesHash, pubKey, signature);
+  return ecc.verify(signBytesHash, pubKey, signature);
 }

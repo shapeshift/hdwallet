@@ -1,7 +1,7 @@
+import * as ecc from "@bitcoinerlab/secp256k1";
 import * as fio from "@shapeshiftoss/fiosdk";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bs58 from "bs58";
-import * as tinyecc from "tiny-secp256k1";
 
 import * as Isolation from "./crypto/isolation";
 import * as native from "./native";
@@ -231,7 +231,7 @@ describe("NativeFioWallet", () => {
       const msgHash = Buffer.from(Isolation.Core.Digest.Algorithms["sha256"](msgRaw));
       const pubKey = bs58.decode("FIO5NSKecB4CcMpUxtpHzG4u43SmcGMAjRbxyG38rE4HPegGpaHu9".slice(3)).slice(0, -4);
       const sigRaw = bs58.decode(sig!.signature.slice(7)).slice(1, -4);
-      expect(tinyecc.verify(msgHash, pubKey, sigRaw)).toBe(true);
+      expect(ecc.verify(msgHash, pubKey, sigRaw)).toBe(true);
     });
 
     it("should encrypt a request", async () => {

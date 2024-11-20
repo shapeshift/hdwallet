@@ -1,9 +1,9 @@
+import * as ecc from "@bitcoinerlab/secp256k1";
 import type { Network, networks, SignerAsync } from "bitcoinjs-lib";
 import { initEccLib } from "bitcoinjs-lib";
 import { TinySecp256k1Interface } from "bitcoinjs-lib/src/cjs/types";
 import { ECPairInterface } from "ecpair";
 import PLazy from "p-lazy";
-import * as ecc from "tiny-secp256k1";
 
 import { IsolationError, SecP256K1 } from "../core";
 import { assertType, ByteArray } from "../types";

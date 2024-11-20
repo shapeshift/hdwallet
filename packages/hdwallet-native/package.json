@@ -14,6 +14,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
+    "@bitcoinerlab/secp256k1": "^1.1.1",
     "@shapeshiftoss/fiosdk": "1.2.1-shapeshift.6",
     "@shapeshiftoss/hdwallet-core": "1.55.12",
     "@shapeshiftoss/proto-tx-builder": "^0.8.0",

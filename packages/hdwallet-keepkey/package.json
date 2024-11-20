@@ -15,6 +15,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
+    "@bitcoinerlab/secp256k1": "^1.1.1",
     "@ethereumjs/common": "^2.4.0",
     "@ethereumjs/tx": "^3.3.0",
     "@keepkey/device-protocol": "^7.12.2",

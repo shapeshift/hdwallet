@@ -1,7 +1,7 @@
+import * as ecc from "@bitcoinerlab/secp256k1";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Literal, Object as Obj, Static, Union } from "funtypes";
 import PLazy from "p-lazy";
-import * as tinyecc from "tiny-secp256k1";
 
 import { assertType, BigEndianInteger, ByteArray, checkType, safeBufferFrom, Uint32 } from "../../types";
 import * as Digest from "../digest";
@@ -10,7 +10,7 @@ import { ECDSAKey, ECDSARecoverableKey } from "./interfaces";
 const ethers = PLazy.from(() => import("ethers"));
 
 const _fieldElementBase = BigEndianInteger(32).withConstraint(
-  (x) => tinyecc.isPrivate(safeBufferFrom(x)) || `expected ${x} to be within the order of the curve`,
+  (x) => ecc.isPrivate(safeBufferFrom(x)) || `expected ${x} to be within the order of the curve`,
   { name: "FieldElement" }
 );
 export type FieldElement = Static<typeof _fieldElementBase>;
@@ -31,7 +31,7 @@ const _uncompressedPointBase = ByteArray(65)
     (p) => {
       if (!FieldElement.test(p.slice(33, 65))) return `expected ${p}.y to be within the order of the curve`;
       const pBuf = Buffer.from(p);
-      if (!ByteArray.equal(tinyecc.pointCompress(tinyecc.pointCompress(pBuf, true), false), pBuf))
+      if (!ByteArray.equal(ecc.pointCompress(ecc.pointCompress(pBuf, true), false), pBuf))
         return `expected ${p} to be on the curve`;
       return true;
     },
@@ -55,7 +55,7 @@ const _uncompressedPointStatic = {
     return p.length === 65 ? p : UncompressedPoint.fromCompressed(checkType(CompressedPoint, p));
   },
   fromCompressed: (p: CompressedPoint): UncompressedPoint => {
-    return checkType(UncompressedPoint, tinyecc.pointCompress(Buffer.from(p), false));
+    return checkType(UncompressedPoint, ecc.pointCompress(Buffer.from(p), false));
   },
   x: (p: UncompressedPoint): FieldElement => {
     return checkType(FieldElement, p.slice(1, 33));
@@ -185,7 +185,7 @@ const _signatureStatic = {
       digestAlgorithm === null
         ? checkType(ByteArray(32), message)
         : Digest.Algorithms[digestAlgorithm](checkType(ByteArray(), message));
-    return tinyecc.verify(Buffer.from(msgOrDigest), Buffer.from(publicKey), Buffer.from(x));
+    return ecc.verify(Buffer.from(msgOrDigest), Buffer.from(publicKey), Buffer.from(x));
   },
 };
 const _signature = Object.assign(_signatureBase, ByteArray, _signatureStatic);

@@ -1,5 +1,5 @@
+import * as ecc from "@bitcoinerlab/secp256k1";
 import * as bip32crypto from "bip32/src/crypto";
-import * as tinyecc from "tiny-secp256k1";
 import { TextEncoder } from "web-encoding";
 
 import { BIP32, Digest, SecP256K1 } from "../../core";
@@ -33,7 +33,7 @@ export class Node extends Revocable(class {}) implements BIP32.Node, SecP256K1.E
 
   async getPublicKey(): Promise<SecP256K1.CompressedPoint> {
     this.#publicKey =
-      this.#publicKey ?? checkType(SecP256K1.CompressedPoint, tinyecc.pointFromScalar(this.#privateKey, true));
+      this.#publicKey ?? checkType(SecP256K1.CompressedPoint, ecc.pointFromScalar(this.#privateKey, true));
     return this.#publicKey;
   }
 
@@ -93,7 +93,7 @@ export class Node extends Revocable(class {}) implements BIP32.Node, SecP256K1.E
       checkType(
         SecP256K1.Signature,
         (
-          tinyecc as typeof tinyecc & {
+          ecc as typeof ecc & {
             signWithEntropy: (message: Buffer, privateKey: Buffer, entropy?: Buffer) => Buffer;
           }
         ).signWithEntropy(Buffer.from(msgOrDigest), this.#privateKey, entropy)
@@ -118,7 +118,7 @@ export class Node extends Revocable(class {}) implements BIP32.Node, SecP256K1.E
     const I = bip32crypto.hmacSHA512(this.chainCode, serP);
     const IL = I.slice(0, 32);
     const IR = I.slice(32, 64);
-    const ki = tinyecc.privateAdd(this.#privateKey, IL);
+    const ki = ecc.privateAdd(this.#privateKey, IL);
     if (ki === null) throw new Error("ki is null; this should be cryptographically impossible");
     const out = await Node.create(ki, IR);
     this.addRevoker(() => out.revoke?.());
@@ -145,7 +145,7 @@ export class Node extends Revocable(class {}) implements BIP32.Node, SecP256K1.E
 
     const sharedFieldElement = checkType(
       SecP256K1.UncompressedPoint,
-      tinyecc.pointMultiply(Buffer.from(publicKey), this.#privateKey, false)
+      ecc.pointMultiply(Buffer.from(publicKey), this.#privateKey, false)
     );
     if (digestAlgorithm === null) return sharedFieldElement;
 
