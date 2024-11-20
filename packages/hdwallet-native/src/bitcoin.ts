@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { fromHexString } from "@shapeshiftoss/hdwallet-core";
 import * as bchAddr from "bchaddrjs";
 import * as bitcoin from "bitcoinjs-lib";
 
@@ -175,9 +176,10 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
 
         const isSegwit = !!scriptType && segwit.includes(scriptType);
         const nonWitnessUtxo = hex && Buffer.from(hex, "hex");
+
         const witnessUtxo = input.tx && {
-          script: Buffer.from(input.tx.vout[input.vout].scriptPubKey.hex, "hex"),
-          value: Number(amount),
+          script: fromHexString(input.tx.vout[input.vout].scriptPubKey.hex),
+          value: BigInt(amount!),
         };
         const utxoData = isSegwit && witnessUtxo ? { witnessUtxo } : { nonWitnessUtxo };
 

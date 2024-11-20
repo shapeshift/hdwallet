@@ -13,8 +13,6 @@ export class Node extends Revocable(class {}) implements BIP32.Node, SecP256K1.E
   readonly chainCode: Buffer & BIP32.ChainCode;
   #publicKey: SecP256K1.CompressedPoint | undefined;
   readonly explicitPath?: string;
-  // When running tests, this will keep us aware of any codepaths that don't pass in the preimage
-  static requirePreimage = typeof expect === "function";
 
   protected constructor(privateKey: Uint8Array, chainCode: Uint8Array, explicitPath?: string) {
     super();
@@ -80,8 +78,6 @@ export class Node extends Revocable(class {}) implements BIP32.Node, SecP256K1.E
   ): Promise<SecP256K1.RecoverableSignature> {
     counter === undefined || Uint32.assert(counter);
     digestAlgorithm === null || Digest.AlgorithmName(32).assert(digestAlgorithm);
-
-    if (Node.requirePreimage && digestAlgorithm === null) throw TypeError("preimage required");
 
     const msgOrDigest =
       digestAlgorithm === null
