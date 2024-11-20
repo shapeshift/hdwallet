@@ -38,7 +38,6 @@
     "p-lazy": "^3.1.0",
     "scrypt-js": "^3.0.1",
     "tendermint-tx-builder": "^1.0.9",
-    "tiny-secp256k1": "^2.2.3",
     "web-encoding": "^1.1.0"
   },
   "devDependencies": {
@@ -54,7 +53,6 @@
     "@types/elliptic": "^6.4.12",
     "@types/lodash": "^4.14.168",
     "@types/node-fetch": "^2.5.10",
-    "@types/tiny-secp256k1": "^2.0.1",
     "@types/wif": "^2.0.2",
     "bs58": "^4.0.1",
     "cosmjs-types": "^0.4.1",

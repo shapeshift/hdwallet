@@ -31,8 +31,7 @@
     "icepick": "^2.4.0",
     "lodash": "^4.17.21",
     "p-lazy": "^3.1.0",
-    "semver": "^7.3.8",
-    "tiny-secp256k1": "^2.2.3"
+    "semver": "^7.3.8"
   },
   "devDependencies": {
     "@cosmjs/amino": "^0.28.13",
@@ -44,7 +43,6 @@
     "@types/icepick": "^2.3.0",
     "@types/lodash": "^4.14.168",
     "@types/semver": "^6.2.2",
-    "@types/tiny-secp256k1": "^2.0.1",
     "typedoc": "^0.20.36"
   }
 }
