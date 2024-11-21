@@ -1,3 +1,4 @@
+import * as ecc from "@bitcoinerlab/secp256k1";
 import { CreateTransactionArg } from "@ledgerhq/hw-app-btc/lib/createTransaction";
 import { Transaction } from "@ledgerhq/hw-app-btc/lib/types";
 import * as core from "@shapeshiftoss/hdwallet-core";
@@ -5,6 +6,7 @@ import { BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
 import Base64 from "base64-js";
 import * as bchAddr from "bchaddrjs";
 import * as bitcoin from "bitcoinjs-lib";
+import { TinySecp256k1Interface } from "bitcoinjs-lib/src/cjs/types";
 import * as bitcoinMsg from "bitcoinjs-message";
 import _ from "lodash";
 
@@ -143,6 +145,8 @@ export async function btcSignTx(
 ): Promise<core.BTCSignedTx> {
   const supportsSecureTransfer = await wallet.btcSupportsSecureTransfer();
   const slip44 = core.mustBeDefined(core.slip44ByCoin(msg.coin));
+  // instantiation of ecc lib required for taproot sends https://github.com/bitcoinjs/bitcoinjs-lib/issues/1889#issuecomment-1443792692
+  bitcoin.initEccLib(ecc as unknown as TinySecp256k1Interface);
   const psbt = new bitcoin.Psbt({ network: networksUtil[slip44].bitcoinjs as bitcoin.Network });
   const indexes: number[] = [];
   const txs: Transaction[] = [];
