@@ -4700,10 +4700,34 @@
     web-encoding "^1.1.0"
     wif "^2.0.6"
 
-"@shapeshiftoss/hdwallet-core@1.55.13-alpha.10", "@shapeshiftoss/hdwallet-core@^1.55.13-alpha.10":
+"@shapeshiftoss/hdwallet-coinbase@^1.55.13-alpha.12":
+  version "1.55.13-alpha.12"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-coinbase/-/hdwallet-coinbase-1.55.13-alpha.12.tgz#e4523422ee8849738403b0daae7570fdfb6c1e33"
+  integrity sha512-Vn+2jNC+iGWps5wR/kY8leIP63TqtqlBj9YhdZs5a9SdU6LhU0q/5htk/Kuf3L+HzyPtV7danphW966N0Xe4ag==
+  dependencies:
+    "@coinbase/wallet-sdk" "^3.6.6"
+    "@shapeshiftoss/hdwallet-core" "^1.55.13-alpha.12"
+    eth-rpc-errors "^4.0.3"
+    lodash "^4.17.21"
+
+"@shapeshiftoss/hdwallet-core@1.55.13-alpha.10":
   version "1.55.13-alpha.10"
   resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.55.13-alpha.10.tgz#68accb19729c15897dfda53ad1d86d1e922c7554"
   integrity sha512-00asUyESTBH4qTEoYFAVEpci0VYe7Nmxpuyq0jRjjAkGNm8ROhVv5P7nKD5YkKHLxFerfDCo3NqAt1jmd8LzCw==
+  dependencies:
+    "@shapeshiftoss/proto-tx-builder" "^0.8.0"
+    bitcoinjs-lib "^7.0.0-rc.0"
+    eip-712 "^1.0.0"
+    ethers "5.7.2"
+    eventemitter2 "^5.0.1"
+    lodash "^4.17.21"
+    rxjs "^6.4.0"
+    type-assertions "^1.1.0"
+
+"@shapeshiftoss/hdwallet-core@1.55.13-alpha.12", "@shapeshiftoss/hdwallet-core@^1.55.13-alpha.10", "@shapeshiftoss/hdwallet-core@^1.55.13-alpha.12":
+  version "1.55.13-alpha.12"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.55.13-alpha.12.tgz#bde977e5521d55626faf430f54c637dc71e3c1a8"
+  integrity sha512-/7xltog7g4DLvOtMJZB0x0W7Z9zpBc0tt1aGfYCNDZXqlc8J1s4Wz5bMn0H+g99u/IlYhXRf3xKLn830flp/Lg==
   dependencies:
     "@shapeshiftoss/proto-tx-builder" "^0.8.0"
     bitcoinjs-lib "^7.0.0-rc.0"
@@ -4726,6 +4750,96 @@
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
 
+"@shapeshiftoss/hdwallet-keepkey-nodewebusb@^1.55.13-alpha.12":
+  version "1.55.13-alpha.12"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-keepkey-nodewebusb/-/hdwallet-keepkey-nodewebusb-1.55.13-alpha.12.tgz#b7546ed7f1fef1ac64734b588c42d19a16b89567"
+  integrity sha512-+5qm3t593RjVgS1IJTCX8mVRfQjGN0XGAFsa0paq/AVOGqRIXKuZi0TH9Kbt+w2SFzw3KU3z8m1tqtssL0gT0Q==
+  dependencies:
+    "@shapeshiftoss/hdwallet-core" "^1.55.13-alpha.12"
+    "@shapeshiftoss/hdwallet-keepkey" "^1.55.13-alpha.12"
+
+"@shapeshiftoss/hdwallet-keepkey-tcp@^1.55.13-alpha.12":
+  version "1.55.13-alpha.12"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-keepkey-tcp/-/hdwallet-keepkey-tcp-1.55.13-alpha.12.tgz#480a8b7070dbf6ac4491e8de9847b3008c462f8b"
+  integrity sha512-tX1n2FII229uNB5pHneXG7xgxjuW1oT4jNXUViuHVE5HG99D00/KCVIPUE7MdZMy49+h3yAfXZDCCxfkvM+zVA==
+  dependencies:
+    "@shapeshiftoss/hdwallet-core" "^1.55.13-alpha.12"
+    "@shapeshiftoss/hdwallet-keepkey" "^1.55.13-alpha.12"
+    axios "^0.21.1"
+
+"@shapeshiftoss/hdwallet-keepkey-webusb@^1.55.13-alpha.12":
+  version "1.55.13-alpha.12"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-keepkey-webusb/-/hdwallet-keepkey-webusb-1.55.13-alpha.12.tgz#f22f81f92808233a86dd4c79e790c6b2bbb5e692"
+  integrity sha512-VmeYyW8SNKGpd2FtYO5uQgZLEsaQp3hnLzE5ba7ktaEwHrSJiSlT81NyMIKrMD8vIYTl4XyZWH46/sZqR4FeQw==
+  dependencies:
+    "@shapeshiftoss/hdwallet-core" "^1.55.13-alpha.12"
+    "@shapeshiftoss/hdwallet-keepkey" "^1.55.13-alpha.12"
+
+"@shapeshiftoss/hdwallet-keepkey@^1.55.13-alpha.12":
+  version "1.55.13-alpha.12"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-keepkey/-/hdwallet-keepkey-1.55.13-alpha.12.tgz#92d6ececb71edcf4632fb37dba981fa1f29b66ee"
+  integrity sha512-eridWYFyJ1G5q4WBrQwfQzdT2Eju6kIjQe/EhdEataKEwUZpUIfOulezHMuNeLPSgRh2n7DcQKbXmq5mdFM5Aw==
+  dependencies:
+    "@bitcoinerlab/secp256k1" "^1.1.1"
+    "@ethereumjs/common" "^2.4.0"
+    "@ethereumjs/tx" "^3.3.0"
+    "@keepkey/device-protocol" "^7.12.2"
+    "@metamask/eth-sig-util" "^7.0.0"
+    "@shapeshiftoss/hdwallet-core" "^1.55.13-alpha.12"
+    "@shapeshiftoss/proto-tx-builder" "^0.8.0"
+    bignumber.js "^9.0.1"
+    bitcoinjs-lib "^7.0.0-rc.0"
+    bnb-javascript-sdk-nobroadcast "^2.16.14"
+    crypto-js "^4.0.0"
+    eip55 "^2.1.0"
+    google-protobuf "^3.15.8"
+    icepick "^2.4.0"
+    lodash "^4.17.21"
+    p-lazy "^3.1.0"
+    semver "^7.3.8"
+
+"@shapeshiftoss/hdwallet-keplr@^1.55.13-alpha.12":
+  version "1.55.13-alpha.12"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-keplr/-/hdwallet-keplr-1.55.13-alpha.12.tgz#b06c3284fab377beaf919cd69ea44285806cd7d3"
+  integrity sha512-IL5XGALF9trlWWd3G7L2qVHNS/Hyu3ZRiZd1U9WZdWNlVkNPEiV4/HyWohp2ZaUsHcXyFx4Xx1xNc432+opPqQ==
+  dependencies:
+    "@shapeshiftoss/caip" "8.15.0"
+    "@shapeshiftoss/hdwallet-core" "^1.55.13-alpha.12"
+    "@shapeshiftoss/proto-tx-builder" "^0.8.0"
+    "@shapeshiftoss/types" "3.1.3"
+    base64-js "^1.5.1"
+    lodash "^4.17.21"
+
+"@shapeshiftoss/hdwallet-ledger-webhid@^1.55.13-alpha.12":
+  version "1.55.13-alpha.12"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-ledger-webhid/-/hdwallet-ledger-webhid-1.55.13-alpha.12.tgz#8ae80b0c5c5e3436d500db88c35c898948fcfc8b"
+  integrity sha512-TSyy8rBAw46CLJ5vFQ2ybWxKCx7gTnJ0pL78K/67zYd28u98AK+AxLqrxhLZXh78XP46qoPXqPLyWPjJHRoQAA==
+  dependencies:
+    "@ledgerhq/hw-app-btc" "^10.4.1"
+    "@ledgerhq/hw-app-eth" "^6.38.0"
+    "@ledgerhq/hw-transport" "^6.31.2"
+    "@ledgerhq/hw-transport-webhid" "^6.29.2"
+    "@ledgerhq/live-common" "^21.8.2"
+    "@shapeshiftoss/hdwallet-core" "^1.55.13-alpha.12"
+    "@shapeshiftoss/hdwallet-ledger" "^1.55.13-alpha.12"
+    "@types/w3c-web-hid" "^1.0.2"
+
+"@shapeshiftoss/hdwallet-ledger-webusb@^1.55.13-alpha.12":
+  version "1.55.13-alpha.12"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-ledger-webusb/-/hdwallet-ledger-webusb-1.55.13-alpha.12.tgz#bb5946f19c33088cbf7aac7b78d481cd6c4c8577"
+  integrity sha512-ZuVRdUbmJPbYPkxMODT3gowS98bVqhGUaguEaoCPEZxMr6eQvglnMdETpgcC9p7cjan5v2Z8Xmntt2Glr+v3dg==
+  dependencies:
+    "@ledgerhq/hw-app-btc" "^10.4.1"
+    "@ledgerhq/hw-app-eth" "^6.38.0"
+    "@ledgerhq/hw-transport" "^6.31.2"
+    "@ledgerhq/hw-transport-webusb" "^6.29.2"
+    "@ledgerhq/live-common" "^21.8.2"
+    "@ledgerhq/logs" "^6.10.1"
+    "@shapeshiftoss/hdwallet-core" "1.55.13-alpha.10"
+    "@shapeshiftoss/hdwallet-ledger" "1.55.13-alpha.10"
+    "@types/w3c-web-usb" "^1.0.4"
+    p-queue "^7.4.1"
+
 "@shapeshiftoss/hdwallet-ledger@1.55.13-alpha.10":
   version "1.55.13-alpha.10"
   resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-ledger/-/hdwallet-ledger-1.55.13-alpha.10.tgz#ec98d496b8404fd16ee4b53df453c7e5911c80db"
@@ -4743,6 +4857,139 @@
     ethereumjs-tx "1.3.7"
     ethereumjs-util "^6.1.0"
     lodash "^4.17.21"
+
+"@shapeshiftoss/hdwallet-ledger@1.55.13-alpha.12", "@shapeshiftoss/hdwallet-ledger@^1.55.13-alpha.12":
+  version "1.55.13-alpha.12"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-ledger/-/hdwallet-ledger-1.55.13-alpha.12.tgz#b5132f6ab33c49394b6b0e66191f79730eaaaeff"
+  integrity sha512-QZTih81naRP5y5QTso+gdhFWsRiziII0ygC9kfpHk9YB56GpJv3FNVhW5CYgG3uOq/VqyN4VoQg6JIDXh81b1w==
+  dependencies:
+    "@ethereumjs/common" "^2.4.0"
+    "@ethereumjs/tx" "^3.3.0"
+    "@ledgerhq/hw-app-cosmos" "^6.29.1"
+    "@shapeshiftoss/hdwallet-core" "^1.55.13-alpha.12"
+    base64-js "^1.5.1"
+    bchaddrjs "^0.4.4"
+    bitcoinjs-lib "^7.0.0-rc.0"
+    bitcoinjs-message "^2.0.0"
+    bs58check "2.1.2"
+    ethereumjs-tx "1.3.7"
+    ethereumjs-util "^6.1.0"
+    lodash "^4.17.21"
+
+"@shapeshiftoss/hdwallet-metamask-multichain@^1.55.13-alpha.12":
+  version "1.55.13-alpha.12"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-metamask-multichain/-/hdwallet-metamask-multichain-1.55.13-alpha.12.tgz#b4f089dfaf7e320c0fe0414ccda6765d812f9fbd"
+  integrity sha512-1o4MRF5RV3bW6xhwZcwcuCn2D0y0TEToNqjhneWr0GA2o9rRPBPx98i/4+x1sgqKw/hY+HhSLzSEPf6IIVVaqA==
+  dependencies:
+    "@metamask/detect-provider" "^1.2.0"
+    "@metamask/onboarding" "^1.0.1"
+    "@shapeshiftoss/common-api" "^9.3.0"
+    "@shapeshiftoss/hdwallet-core" "^1.55.13-alpha.12"
+    "@shapeshiftoss/metamask-snaps-adapter" "^1.0.12"
+    "@shapeshiftoss/metamask-snaps-types" "^1.0.12"
+    eth-rpc-errors "^4.0.3"
+    lodash "^4.17.21"
+    mipd "^0.0.7"
+
+"@shapeshiftoss/hdwallet-native@^1.55.13-alpha.12":
+  version "1.55.13-alpha.12"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.55.13-alpha.12.tgz#88f4c594e2e310b7f4b8dca378baf59bb6c27aa0"
+  integrity sha512-YyV+5UVtNgCcAUCsldne6/g54kNlqUQ78cWngJCXDnPQAoRt2XqEI5aHtlP1vS6Id0dH7GRcJZCnErVNhLgKNw==
+  dependencies:
+    "@bitcoinerlab/secp256k1" "^1.1.1"
+    "@shapeshiftoss/fiosdk" "1.2.1-shapeshift.6"
+    "@shapeshiftoss/hdwallet-core" "^1.55.13-alpha.12"
+    "@shapeshiftoss/proto-tx-builder" "^0.8.0"
+    "@zxing/text-encoding" "^0.9.0"
+    bchaddrjs "^0.4.9"
+    bech32 "^1.1.4"
+    bignumber.js "^9.0.1"
+    bip32 "^2.0.5"
+    bip39 "^3.0.2"
+    bitcoinjs-lib "^7.0.0-rc.0"
+    bnb-javascript-sdk-nobroadcast "^2.16.14"
+    crypto-js "^4.0.0"
+    ecpair "^3.0.0-rc.0"
+    eip-712 "^1.0.0"
+    ethers "5.7.2"
+    eventemitter2 "^5.0.1"
+    funtypes "^3.0.1"
+    hash-wasm "^4.11.0"
+    lodash "^4.17.21"
+    node-fetch "^2.6.1"
+    p-lazy "^3.1.0"
+    scrypt-js "^3.0.1"
+    tendermint-tx-builder "^1.0.9"
+    web-encoding "^1.1.0"
+
+"@shapeshiftoss/hdwallet-phantom@^1.55.13-alpha.12":
+  version "1.55.13-alpha.12"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-phantom/-/hdwallet-phantom-1.55.13-alpha.12.tgz#961bd47f4824d8fb04422eba13f31bbf875c3144"
+  integrity sha512-CR+Uv5aWt8Cq3bHaqSDcB1FwrTfvk5cyDFT8I1HNaW15zdstEoyXbFoGtNc1fmr7V4T3l1MWLlrntKTlJ3IOnQ==
+  dependencies:
+    "@shapeshiftoss/hdwallet-core" "^1.55.13-alpha.12"
+    "@solana/web3.js" "^1.95.3"
+    base64-js "^1.5.1"
+    bitcoinjs-lib "^7.0.0-rc.0"
+    bitcoinjs-message "^2.0.0"
+    ethers "5.7.2"
+    lodash "^4.17.21"
+
+"@shapeshiftoss/hdwallet-portis@^1.55.13-alpha.12":
+  version "1.55.13-alpha.12"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-portis/-/hdwallet-portis-1.55.13-alpha.12.tgz#c0d5a28e9277a9ec3770b4fe199f95c8aee75671"
+  integrity sha512-O0hJw8VBsrZ9tXmJOGoFOezKQBeDjM6UFskfUQmaiXA4U4fQ2yuOR6qgt2lL41l/4Mk3CxVQhCCB8S51gs430Q==
+  dependencies:
+    "@portis/web3" "3.0.10"
+    "@shapeshiftoss/hdwallet-core" "^1.55.13-alpha.12"
+    base64-js "^1.5.1"
+    bip32 "^2.0.4"
+    bitcoinjs-lib "^7.0.0-rc.0"
+    bitcoinjs-message "^2.1.0"
+    lodash "^4.17.15"
+    p-lazy "^3.1.0"
+    web3 "^1.5.1"
+
+"@shapeshiftoss/hdwallet-trezor-connect@^1.55.13-alpha.12":
+  version "1.55.13-alpha.12"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-trezor-connect/-/hdwallet-trezor-connect-1.55.13-alpha.12.tgz#1ba39ec2893eccab1702ff981eff452ef530254f"
+  integrity sha512-4Yjq+i1chYRPMZK5uIvt9Zv55cmzA+P3GJGE9ByWGmfZeAOfBeRKztCAKUwh4wGLHmHcg9axOUnNBlj+U5basA==
+  dependencies:
+    "@shapeshiftoss/hdwallet-core" "^1.55.13-alpha.12"
+    "@shapeshiftoss/hdwallet-trezor" "^1.55.13-alpha.12"
+    "@trezor/rollout" "^1.2.0"
+    trezor-connect "^8.2.1"
+
+"@shapeshiftoss/hdwallet-trezor@^1.55.13-alpha.12":
+  version "1.55.13-alpha.12"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-trezor/-/hdwallet-trezor-1.55.13-alpha.12.tgz#ec7113713eb5c312d9c4387fba68a80121f39a31"
+  integrity sha512-xZSaYaCtfxqIxkQubKgJ2a64ElFZgwBFE+oUQw9sjAdE5cM6AWYmAlBrrVtuydGI/VyuPtR+7IJS2ri5Rzs0Mg==
+  dependencies:
+    "@ethereumjs/common" "^2.4.0"
+    "@ethereumjs/tx" "^3.3.0"
+    "@shapeshiftoss/hdwallet-core" "^1.55.13-alpha.12"
+    base64-js "^1.5.1"
+    lodash "^4.17.21"
+
+"@shapeshiftoss/hdwallet-walletconnect@^1.55.13-alpha.12":
+  version "1.55.13-alpha.12"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-walletconnect/-/hdwallet-walletconnect-1.55.13-alpha.12.tgz#6c945e7e0d82d90f18625d0e94ea41ec43b12069"
+  integrity sha512-suYGu1uUJaqRy1uRKNnSn3HHRf0lJ/R5lFhTx+dvKTHKH9eYf2+bVDFL4Iv4qHZPJYR9PwOnWjrVoP9Jkjrl9g==
+  dependencies:
+    "@shapeshiftoss/hdwallet-core" "^1.55.13-alpha.12"
+    "@walletconnect/qrcode-modal" "^1.7.8"
+    "@walletconnect/web3-provider" "^1.7.8"
+    ethers "^5.6.5"
+
+"@shapeshiftoss/hdwallet-walletconnectv2@^1.55.13-alpha.12":
+  version "1.55.13-alpha.12"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-walletconnectv2/-/hdwallet-walletconnectv2-1.55.13-alpha.12.tgz#6e3d47cd12d4174b00ea418d2a1b757d3a6a7250"
+  integrity sha512-IU9k08b33kMlO1sj479MuyxIeh3gm6I1/ppYrd3DZoPLljW5a031p3KKHillZgU12z+thuzDj2x3r9GR25f3Aw==
+  dependencies:
+    "@shapeshiftoss/hdwallet-core" "^1.55.13-alpha.12"
+    "@walletconnect/ethereum-provider" "^2.10.1"
+    "@walletconnect/modal" "^2.6.2"
+    ethers "^5.6.5"
 
 "@shapeshiftoss/logger@^1.1.2", "@shapeshiftoss/logger@^1.1.3":
   version "1.1.3"
