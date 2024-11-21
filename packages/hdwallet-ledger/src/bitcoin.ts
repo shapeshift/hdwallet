@@ -189,7 +189,7 @@ export async function btcSignTx(
     });
   }
 
-  const unsignedHex = psbt.extractTransaction(true).toHex();
+  const unsignedHex = Buffer.from(psbt.data.getTransaction()).toString("hex");
   const splitTxRes = await transport.call("Btc", "splitTransaction", unsignedHex);
   handleError(splitTxRes, transport, "splitTransaction failed");
   const outputScriptRes = await transport.call("Btc", "serializeTransactionOutputs", splitTxRes.payload);
