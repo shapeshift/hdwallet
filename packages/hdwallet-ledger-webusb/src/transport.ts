@@ -151,8 +151,6 @@ export class LedgerWebUsbTransport extends LedgerTransport {
     return core.mustBeDefined(this.device.serialNumber);
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore of course it's @ledgerhq types mismatches again
   public async call<T extends LedgerTransportCoinType, U extends LedgerTransportMethodName<T>>(
     coin: T,
     method: U,

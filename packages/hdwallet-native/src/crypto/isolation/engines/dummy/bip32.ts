@@ -1,4 +1,4 @@
-import * as ecc from "@bitcoinerlab/secp256k1";
+import ecc from "@bitcoinerlab/secp256k1";
 import { toArrayBuffer } from "@shapeshiftoss/hdwallet-core";
 import * as bip32crypto from "bip32/src/crypto";
 
