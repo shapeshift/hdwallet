@@ -189,7 +189,10 @@ export async function btcSignTx(
     });
   }
 
-  const unsignedHex = psbt.toHex();
+  psbt.finalizeAllInputs();
+
+  // disableFeeChecks: true since Ledger does own fee checks
+  const unsignedHex = psbt.extractTransaction(true).toHex();
   const splitTxRes = await transport.call("Btc", "splitTransaction", unsignedHex);
   handleError(splitTxRes, transport, "splitTransaction failed");
   const outputScriptRes = await transport.call("Btc", "serializeTransactionOutputs", splitTxRes.payload);
