@@ -6,7 +6,6 @@ import { BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
 import Base64 from "base64-js";
 import * as bchAddr from "bchaddrjs";
 import * as bitcoin from "bitcoinjs-lib";
-import { TinySecp256k1Interface } from "bitcoinjs-lib/src/cjs/types";
 import * as bitcoinMsg from "bitcoinjs-message";
 import _ from "lodash";
 
@@ -262,7 +261,7 @@ export function btcSupportsNativeShapeShift(): boolean {
 }
 
 export async function btcSignMessage(
-  wallet: core.BTCWallet,
+  _wallet: core.BTCWallet,
   transport: LedgerTransport,
   msg: core.BTCSignMessage
 ): Promise<core.BTCSignedMessage> {

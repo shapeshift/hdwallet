@@ -198,9 +198,15 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
             break;
         }
 
+        const sighashType =
+          coin.toLowerCase() === "bitcoincash"
+            ? bitcoin.Transaction.SIGHASH_ALL | SIGHASH_BITCOINCASHBIP143
+            : undefined;
+
         return {
           ...utxoData,
           ...scriptData,
+          sighashType,
         };
       });
     }
@@ -321,12 +327,12 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
+    async btcSignMessage(_msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
       throw new Error("function not implemented");
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
+    async btcVerifyMessage(_msg: core.BTCVerifyMessage): Promise<boolean> {
       throw new Error("function not implemented");
     }
   };
