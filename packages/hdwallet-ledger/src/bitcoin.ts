@@ -146,7 +146,7 @@ export async function btcSignTx(
   const supportsSecureTransfer = await wallet.btcSupportsSecureTransfer();
   const slip44 = core.mustBeDefined(core.slip44ByCoin(msg.coin));
   // instantiation of ecc lib required for taproot sends https://github.com/bitcoinjs/bitcoinjs-lib/issues/1889#issuecomment-1443792692
-  bitcoin.initEccLib(ecc as unknown as TinySecp256k1Interface);
+  bitcoin.initEccLib(ecc);
   const psbt = new bitcoin.Psbt({ network: networksUtil[slip44].bitcoinjs as bitcoin.Network });
   const indexes: number[] = [];
   const txs: Transaction[] = [];
@@ -186,11 +186,8 @@ export async function btcSignTx(
     }
     const script = bitcoin.script.compile([bitcoin.opcodes.OP_RETURN, Buffer.from(msg.opReturnData)]);
 
-    psbt.addOutput({
-      script,
-      // OP_RETURN_DATA outputs always have a value of 0
-      value: BigInt(0),
-    });
+    // OP_RETURN_DATA outputs always have a value of 0
+    psbt.addOutput({ script, value: BigInt(0) });
   }
 
   const unsignedHex = Buffer.from(psbt.data.getTransaction()).toString("hex");

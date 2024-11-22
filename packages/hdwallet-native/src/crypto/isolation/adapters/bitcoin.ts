@@ -28,7 +28,7 @@ export class ECPairAdapter implements SignerAsync, ECPairInterfaceAsync {
     this._publicKey = publicKey;
     this._network = network;
     // instantiation of ecc lib required for taproot sends https://github.com/bitcoinjs/bitcoinjs-lib/issues/1889#issuecomment-1443792692
-    initEccLib(ecc as unknown as TinySecp256k1Interface);
+    initEccLib(ecc);
   }
 
   /**

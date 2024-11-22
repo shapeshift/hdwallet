@@ -28,11 +28,7 @@ type ScriptData = {
   witnessScript?: Buffer;
 };
 
-type BchInputData = {
-  sighashType?: number;
-};
-
-type InputData = UtxoData | ScriptData | BchInputData;
+type InputData = UtxoData | ScriptData;
 
 const SIGHASH_BITCOINCASHBIP143 = 0x40;
 
@@ -177,10 +173,11 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
         const isSegwit = !!scriptType && segwit.includes(scriptType);
         const nonWitnessUtxo = hex && Buffer.from(hex, "hex");
 
-        const witnessUtxo = input.tx && {
-          script: fromHexString(input.tx.vout[input.vout].scriptPubKey.hex),
-          value: BigInt(amount!),
-        };
+        const witnessUtxo = input.tx &&
+          amount && {
+            script: fromHexString(input.tx.vout[input.vout].scriptPubKey.hex),
+            value: BigInt(amount),
+          };
         const utxoData = isSegwit && witnessUtxo ? { witnessUtxo } : { nonWitnessUtxo };
 
         if (!(utxoData.witnessUtxo || utxoData.nonWitnessUtxo)) {
@@ -201,14 +198,8 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
             break;
         }
 
-        const bchData: BchInputData = {};
-        if (coin.toLowerCase() === "bitcoincash") {
-          bchData.sighashType = bitcoin.Transaction.SIGHASH_ALL | SIGHASH_BITCOINCASHBIP143;
-        }
-
         return {
           ...utxoData,
-          ...bchData,
           ...scriptData,
         };
       });
@@ -252,6 +243,8 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
 
         await Promise.all(
           outputs.map(async (output) => {
+            if (!output.amount) throw new Error("missing amount for spend output");
+
             try {
               const { amount } = output;
 
@@ -273,9 +266,6 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
                 address = bchAddr.toLegacyAddress(address);
               }
 
-              // OP_RETURN_DATA output is not part of the outputs just yet, it gets added below in the `if (msg.opReturnData)` block
-              // So missing amount *is* a blatant disaster waiting to happen here
-              if (!amount) throw new Error("missing output amount for non OP_RETURN_DATA output");
               psbt.addOutput({ address, value: BigInt(amount) });
             } catch (e) {
               throw new Error(`failed to add output: ${e}`);
