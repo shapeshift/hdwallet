@@ -1,4 +1,4 @@
-import * as ecc from "@bitcoinerlab/secp256k1";
+import ecc from "@bitcoinerlab/secp256k1";
 import { CreateTransactionArg } from "@ledgerhq/hw-app-btc/lib/createTransaction";
 import { Transaction } from "@ledgerhq/hw-app-btc/lib/types";
 import * as core from "@shapeshiftoss/hdwallet-core";

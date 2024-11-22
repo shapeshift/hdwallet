@@ -1,4 +1,4 @@
-import * as ecc from "@bitcoinerlab/secp256k1";
+import ecc from "@bitcoinerlab/secp256k1";
 import type { Network, networks, SignerAsync } from "bitcoinjs-lib";
 import { initEccLib } from "bitcoinjs-lib";
 import { TinySecp256k1Interface } from "bitcoinjs-lib/src/cjs/types";

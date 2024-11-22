@@ -1,4 +1,4 @@
-import * as ecc from "@bitcoinerlab/secp256k1";
+import ecc from "@bitcoinerlab/secp256k1";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Literal, Object as Obj, Static, Union } from "funtypes";
 import PLazy from "p-lazy";
