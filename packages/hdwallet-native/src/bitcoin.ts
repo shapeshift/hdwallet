@@ -294,7 +294,15 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
               const { addressNList, scriptType } = input;
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin, scriptType);
-              await psbt.signInputAsync(idx, keyPair);
+
+              const allowedSigHashes =
+                coin.toLowerCase() === "bitcoincash"
+                  ? // Not only do we need to build an input with the FORKID sighash as sigHashType above in buildInput, but we also need to pass allowed sighashes for bitcoin-cash
+                    // https://github.com/bitcoincashorg/bitcoincash.org/blob/master/spec/replay-protected-sighash.md
+                    [bitcoin.Transaction.SIGHASH_ALL | SIGHASH_BITCOINCASHBIP143]
+                  : undefined;
+
+              await psbt.signInputAsync(idx, keyPair, allowedSigHashes);
             } catch (e) {
               throw new Error(`failed to sign input: ${e}`);
             }
