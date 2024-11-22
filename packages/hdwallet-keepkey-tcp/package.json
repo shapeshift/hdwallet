@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "1.56.0-alpha.1",
-    "@shapeshiftoss/hdwallet-keepkey": "1.56.0-alpha.1",
+    "@shapeshiftoss/hdwallet-core": "^1.56.0-alpha.1",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.56.0-alpha.1",
     "axios": "^0.21.1"
   }
 }
