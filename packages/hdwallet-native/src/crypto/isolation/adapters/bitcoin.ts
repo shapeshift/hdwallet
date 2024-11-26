@@ -1,6 +1,6 @@
 import ecc from "@bitcoinerlab/secp256k1";
-import type { Network, networks, SignerAsync } from "bitcoinjs-lib";
-import { initEccLib } from "bitcoinjs-lib";
+import type { Network, networks, SignerAsync } from "@shapeshiftoss/bitcoinjs-lib";
+import { initEccLib } from "@shapeshiftoss/bitcoinjs-lib";
 import { ECPairInterface } from "ecpair";
 import PLazy from "p-lazy";
 
@@ -12,7 +12,7 @@ export type ECPairInterfaceAsync = Omit<ECPairInterface, "sign" | "tweak" | "ver
 
 let networksInstance: typeof networks | undefined;
 const networksReady = PLazy.from(async () => {
-  networksInstance = (await import("bitcoinjs-lib")).networks;
+  networksInstance = (await import("@shapeshiftoss/bitcoinjs-lib")).networks;
 });
 
 export class ECPairAdapter implements SignerAsync, ECPairInterfaceAsync {

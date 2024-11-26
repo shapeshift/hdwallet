@@ -4645,6 +4645,19 @@
     varuint-bitcoin "^1.0.4"
     wif "^2.0.1"
 
+"@shapeshiftoss/bitcoinjs-lib@^7.0.0-shapeshift.0":
+  version "7.0.0-shapeshift.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/bitcoinjs-lib/-/bitcoinjs-lib-7.0.0-shapeshift.0.tgz#00a4cd26916037b843d3083a42d7cd265958f4df"
+  integrity sha512-geNWVi6PWngwTlhKVsbnGwKDBR6gaOta9Mgeu9t1QzxgCo7G7zkfCQPEXzcRylI495KnEY78T9xlZmsrQx4Fxw==
+  dependencies:
+    "@noble/hashes" "^1.2.0"
+    bech32 "^2.0.0"
+    bip174 "^3.0.0-rc.0"
+    bs58check "^4.0.0"
+    uint8array-tools "^0.0.9"
+    valibot "^0.38.0"
+    varuint-bitcoin "^2.0.0"
+
 "@shapeshiftoss/blockbook@^9.3.0":
   version "9.3.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-9.3.0.tgz#9c93afe9b87013fb70c96f4921000e5d6860020a"
@@ -7527,19 +7540,6 @@ bitcoinjs-lib@^5.2.0:
     typeforce "^1.11.3"
     varuint-bitcoin "^1.0.4"
     wif "^2.0.1"
-
-bitcoinjs-lib@^7.0.0-rc.0:
-  version "7.0.0-rc.0"
-  resolved "https://registry.yarnpkg.com/bitcoinjs-lib/-/bitcoinjs-lib-7.0.0-rc.0.tgz#841a7e3a00d4fd719ab7f85f691b2e0455494786"
-  integrity sha512-7CQgOIbREemKR/NT2uc3uO/fkEy+6CM0sLxboVVY6bv6DbZmPt3gg5Y/hhWgQFeZu5lfTbtVAv32MIxf7lMh4g==
-  dependencies:
-    "@noble/hashes" "^1.2.0"
-    bech32 "^2.0.0"
-    bip174 "^3.0.0-rc.0"
-    bs58check "^4.0.0"
-    uint8array-tools "^0.0.9"
-    valibot "^0.38.0"
-    varuint-bitcoin "^2.0.0"
 
 bitcoinjs-message@^2.0.0, bitcoinjs-message@^2.1.0:
   version "2.2.0"

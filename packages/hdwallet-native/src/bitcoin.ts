@@ -1,7 +1,7 @@
+import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { fromHexString } from "@shapeshiftoss/hdwallet-core";
 import * as bchAddr from "bchaddrjs";
-import * as bitcoin from "bitcoinjs-lib";
 
 import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
@@ -29,8 +29,6 @@ type ScriptData = {
 };
 
 type InputData = UtxoData | ScriptData;
-
-const SIGHASH_BITCOINCASHBIP143 = 0x40;
 
 export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -166,46 +164,18 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
 
     async buildInput(coin: core.Coin, input: core.BTCSignTxInputNative): Promise<InputData | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
-        const isBitcoinCash = coin.toLowerCase() === "bitcoincash";
         const { addressNList, amount, hex, scriptType } = input;
 
-        // BCH needs values for all inputs
-        if (isBitcoinCash && !amount) {
-          throw new Error("Bitcoin Cash inputs require value");
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin, scriptType);
 
         const isSegwit = !!scriptType && segwit.includes(scriptType);
         const nonWitnessUtxo = hex && Buffer.from(hex, "hex");
-
-        let witnessUtxo;
-        if (amount) {
-          let script;
-          if (input.tx) {
-            // If we have decoded tx info, use it directly
-            script = fromHexString(input.tx.vout[input.vout].scriptPubKey.hex);
-          } else if (hex) {
-            // Else if we have raw hex, parse it to get the script
-            const prevTx = bitcoin.Transaction.fromHex(hex);
-            script = prevTx.outs[input.vout].script;
-          }
-
-          if (script) {
-            witnessUtxo = {
-              script,
-              value: BigInt(amount),
-            };
-          }
-        }
-
-        const utxoData = (() => {
-          // Bitcoin Cash always requires witness UTXOs
-          if (isBitcoinCash && witnessUtxo) return { witnessUtxo };
-          if (isSegwit && witnessUtxo) return { witnessUtxo };
-          return { nonWitnessUtxo };
-        })();
+        const witnessUtxo = input.tx &&
+          amount && {
+            script: fromHexString(input.tx.vout[input.vout].scriptPubKey.hex),
+            value: BigInt(amount),
+          };
+        const utxoData = isSegwit && witnessUtxo ? { witnessUtxo } : { nonWitnessUtxo };
 
         if (!(utxoData.witnessUtxo || utxoData.nonWitnessUtxo)) {
           throw new Error(
@@ -225,15 +195,9 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
             break;
         }
 
-        const sighashType =
-          coin.toLowerCase() === "bitcoincash"
-            ? bitcoin.Transaction.SIGHASH_ALL | SIGHASH_BITCOINCASHBIP143
-            : undefined;
-
         return {
           ...utxoData,
           ...scriptData,
-          sighashType,
         };
       });
     }
@@ -253,7 +217,10 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const { coin, inputs, outputs, version, locktime } = msg;
 
-        const psbt = new bitcoin.Psbt({ network: getNetwork(coin) });
+        const psbt = new bitcoin.Psbt({
+          network: getNetwork(coin),
+          forkCoin: coin.toLowerCase() === "bitcoincash" ? "bch" : "none",
+        });
 
         psbt.setVersion(version ?? 1);
         locktime && psbt.setLocktime(locktime);
@@ -322,14 +289,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin, scriptType);
 
-              const allowedSigHashes =
-                coin.toLowerCase() === "bitcoincash"
-                  ? // Not only do we need to build an input with the FORKID sighash as sigHashType above in buildInput, but we also need to pass allowed sighashes for bitcoin-cash
-                    // https://github.com/bitcoincashorg/bitcoincash.org/blob/master/spec/replay-protected-sighash.md
-                    [bitcoin.Transaction.SIGHASH_ALL | SIGHASH_BITCOINCASHBIP143]
-                  : undefined;
-
-              await psbt.signInputAsync(idx, keyPair, allowedSigHashes);
+              await psbt.signInputAsync(idx, keyPair);
             } catch (e) {
               throw new Error(`failed to sign input: ${e}`);
             }

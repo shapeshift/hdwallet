@@ -1,13 +1,13 @@
 /** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
 module.exports = {
-  collectCoverage: true,
+  collectCoverage: false,
   collectCoverageFrom: ["<rootDir>/**/*.ts", "!<rootDir>/**/*.test.ts", "!**/dist/**"],
   coverageDirectory: "<rootDir>/../coverage",
   preset: "ts-jest",
   reporters: ["default", "jest-junit"],
   rootDir: "packages",
   testMatch: ["<rootDir>/**/*.test.ts"],
-  transformIgnorePatterns: ["node_modules/(?!(bitcoinjs-lib|valibot)/.*)"],
+  transformIgnorePatterns: ["node_modules/(?!(@shapeshiftoss/bitcoinjs-lib|valibot)/.*)"],
   moduleNameMapper: {
     "^@shapeshiftoss/hdwallet-(.*)": "<rootDir>/hdwallet-$1/src",
     "^valibot$": require.resolve("valibot"),

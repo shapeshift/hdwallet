@@ -1,11 +1,11 @@
 import ecc from "@bitcoinerlab/secp256k1";
 import { CreateTransactionArg } from "@ledgerhq/hw-app-btc/lib/createTransaction";
 import { Transaction } from "@ledgerhq/hw-app-btc/lib/types";
+import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
 import Base64 from "base64-js";
 import * as bchAddr from "bchaddrjs";
-import * as bitcoin from "bitcoinjs-lib";
 import * as bitcoinMsg from "bitcoinjs-message";
 import _ from "lodash";
 

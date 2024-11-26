@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
+    "@shapeshiftoss/bitcoinjs-lib": "^7.0.0-shapeshift.0",
     "@shapeshiftoss/proto-tx-builder": "^0.8.0",
-    "bitcoinjs-lib": "^7.0.0-rc.0",
     "eip-712": "^1.0.0",
     "ethers": "5.7.2",
     "eventemitter2": "^5.0.1",
