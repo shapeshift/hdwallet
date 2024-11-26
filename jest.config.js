@@ -7,8 +7,10 @@ module.exports = {
   reporters: ["default", "jest-junit"],
   rootDir: "packages",
   testMatch: ["<rootDir>/**/*.test.ts"],
+  transformIgnorePatterns: ["node_modules/(?!(@shapeshiftoss/bitcoinjs-lib|valibot)/.*)"],
   moduleNameMapper: {
     "^@shapeshiftoss/hdwallet-(.*)": "<rootDir>/hdwallet-$1/src",
+    "^valibot$": require.resolve("valibot"),
   },
   globals: {
     "ts-jest": {

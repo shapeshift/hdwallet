@@ -143,7 +143,7 @@ describe("NativeETHWallet", () => {
       data: "0xDEADBEEFDEADBEEFDEADBEEFDEADBEEF",
       chainId: 1,
     });
-    // This is the output from tiny-secp256k1.
+    // This is the output from secp256k1.
     expect(sig).toMatchInlineSnapshot(`
       Object {
         "r": "0x7f21bb5a857db55c888355b2e48325062268ad62686fba56a4e57118f5783dda",
@@ -177,7 +177,7 @@ describe("NativeETHWallet", () => {
       chainId: 1,
     });
     console.debug("SIG: ", sig);
-    // This is the output from tiny-secp256k1.
+    // This is the output from secp256k1.
     expect(sig).toMatchInlineSnapshot(`
       Object {
         "r": "0x7a2efa71aa876ede546fdfa83054050b6249a8076297451b2a711e6b0f460234",

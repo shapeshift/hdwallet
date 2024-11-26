@@ -1,5 +1,6 @@
 import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { fromHexString } from "@shapeshiftoss/hdwallet-core";
 import * as bchAddr from "bchaddrjs";
 
 import * as Isolation from "./crypto/isolation";
@@ -27,11 +28,7 @@ type ScriptData = {
   witnessScript?: Buffer;
 };
 
-type BchInputData = {
-  sighashType?: number;
-};
-
-type InputData = UtxoData | ScriptData | BchInputData;
+type InputData = UtxoData | ScriptData;
 
 export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -168,15 +165,16 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
     async buildInput(coin: core.Coin, input: core.BTCSignTxInputNative): Promise<InputData | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const { addressNList, amount, hex, scriptType } = input;
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
         const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin, scriptType);
 
         const isSegwit = !!scriptType && segwit.includes(scriptType);
         const nonWitnessUtxo = hex && Buffer.from(hex, "hex");
-        const witnessUtxo = input.tx && {
-          script: Buffer.from(input.tx.vout[input.vout].scriptPubKey.hex, "hex"),
-          value: Number(amount),
-        };
+        const witnessUtxo = input.tx &&
+          amount && {
+            script: fromHexString(input.tx.vout[input.vout].scriptPubKey.hex),
+            value: BigInt(amount),
+          };
         const utxoData = isSegwit && witnessUtxo ? { witnessUtxo } : { nonWitnessUtxo };
 
         if (!(utxoData.witnessUtxo || utxoData.nonWitnessUtxo)) {
@@ -193,18 +191,12 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
           case "p2sh-p2wpkh":
           case "p2sh":
           case "bech32":
-            scriptData.redeemScript = payment.redeem?.output;
+            scriptData.redeemScript = payment.redeem?.output ? Buffer.from(payment.redeem.output) : undefined;
             break;
-        }
-
-        const bchData: BchInputData = {};
-        if (coin.toLowerCase() === "bitcoincash") {
-          bchData.sighashType = bitcoin.Transaction.SIGHASH_ALL | bitcoin.Transaction.SIGHASH_BITCOINCASHBIP143;
         }
 
         return {
           ...utxoData,
-          ...bchData,
           ...scriptData,
         };
       });
@@ -225,7 +217,10 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const { coin, inputs, outputs, version, locktime } = msg;
 
-        const psbt = new bitcoin.Psbt({ network: getNetwork(coin) });
+        const psbt = new bitcoin.Psbt({
+          network: getNetwork(coin),
+          forkCoin: coin.toLowerCase() === "bitcoincash" ? "bch" : "none",
+        });
 
         psbt.setVersion(version ?? 1);
         locktime && psbt.setLocktime(locktime);
@@ -248,6 +243,8 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
 
         await Promise.all(
           outputs.map(async (output) => {
+            if (!output.amount) throw new Error("missing amount for spend output");
+
             try {
               const { amount } = output;
 
@@ -269,7 +266,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
                 address = bchAddr.toLegacyAddress(address);
               }
 
-              psbt.addOutput({ address, value: Number(amount) });
+              psbt.addOutput({ address, value: BigInt(amount) });
             } catch (e) {
               throw new Error(`failed to add output: ${e}`);
             }
@@ -281,7 +278,8 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
           const embed = bitcoin.payments.embed({ data: [data] });
           const script = embed.output;
           if (!script) throw new Error("unable to build OP_RETURN script");
-          psbt.addOutput({ script, value: 0 });
+          // OP_RETURN_DATA outputs always have a value of 0
+          psbt.addOutput({ script, value: BigInt(0) });
         }
 
         await Promise.all(
@@ -290,6 +288,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
               const { addressNList, scriptType } = input;
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin, scriptType);
+
               await psbt.signInputAsync(idx, keyPair);
             } catch (e) {
               throw new Error(`failed to sign input: ${e}`);
@@ -308,10 +307,10 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
 
         const signatures = tx.ins.map((input) => {
           if (input.witness.length > 0) {
-            return input.witness[0].toString("hex");
+            return Buffer.from(input.witness[0]).toString("hex");
           } else {
             const sigLen = input.script[0];
-            return input.script.slice(1, sigLen).toString("hex");
+            return Buffer.from(input.script.slice(1, sigLen)).toString("hex");
           }
         });
 
@@ -323,12 +322,12 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
+    async btcSignMessage(_msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
       throw new Error("function not implemented");
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
+    async btcVerifyMessage(_msg: core.BTCVerifyMessage): Promise<boolean> {
       throw new Error("function not implemented");
     }
   };

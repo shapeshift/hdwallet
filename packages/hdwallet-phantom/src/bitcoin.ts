@@ -95,7 +95,7 @@ async function addOutput(
 
   if (!address) throw new Error("Invalid output - no address");
 
-  psbt.addOutput({ address, value: parseInt(output.amount) });
+  psbt.addOutput({ address, value: BigInt(output.amount) });
 }
 
 export async function bitcoinSignTx(
@@ -125,7 +125,8 @@ export async function bitcoinSignTx(
     const embed = bitcoin.payments.embed({ data: [data] });
     const script = embed.output;
     if (!script) throw new Error("unable to build OP_RETURN script");
-    psbt.addOutput({ script, value: 0 });
+    // OP_RETURN_DATA output is always 0 value
+    psbt.addOutput({ script, value: BigInt(0) });
   }
 
   const inputsToSign = await Promise.all(
@@ -159,7 +160,7 @@ export async function bitcoinSignTx(
   }
 
   const signatures = signedPsbt.data.inputs.map((input) =>
-    input.partialSig ? input.partialSig[0].signature.toString("hex") : ""
+    input.partialSig ? Buffer.from(input.partialSig[0].signature).toString("hex") : ""
   );
 
   return {

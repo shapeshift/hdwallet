@@ -1,6 +1,6 @@
+import ecc from "@bitcoinerlab/secp256k1";
 import { toArrayBuffer } from "@shapeshiftoss/hdwallet-core";
 import * as bip32crypto from "bip32/src/crypto";
-import * as tinyecc from "tiny-secp256k1";
 
 import { BIP32, Digest, SecP256K1 } from "../../core";
 import { ByteArray, checkType, safeBufferFrom, Uint32 } from "../../types";
@@ -65,7 +65,7 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
       const I = bip32crypto.hmacSHA512(safeBufferFrom(this.xpubTree.chainCode), serP);
       const IL = I.slice(0, 32);
       const IR = I.slice(32, 64);
-      const Ki = tinyecc.pointAddScalar(safeBufferFrom(this.xpubTree.publicKey), IL);
+      const Ki = ecc.pointAddScalar(safeBufferFrom(this.xpubTree.publicKey), IL);
       if (Ki === null) throw new Error("Ki is null; this should be cryptographically impossible");
 
       const newChild = {

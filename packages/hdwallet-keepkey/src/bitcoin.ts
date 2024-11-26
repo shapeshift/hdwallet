@@ -123,14 +123,14 @@ function prepareSignTx(
           txid: Buffer.from(input.hash).reverse().toString("hex"),
           vout: input.index,
           scriptSig: {
-            hex: input.script.toString("hex"),
+            hex: Buffer.from(input.script).toString("hex"),
           },
           sequence: input.sequence,
         })),
         vout: tx.outs.map((output) => ({
           value: String(output.value),
           scriptPubKey: {
-            hex: output.script.toString("hex"),
+            hex: Buffer.from(output.script).toString("hex"),
           },
         })),
       };

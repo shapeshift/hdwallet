@@ -1,7 +1,7 @@
+import ecc from "@bitcoinerlab/secp256k1";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bnbSdk from "bnb-javascript-sdk-nobroadcast";
 import CryptoJS from "crypto-js";
-import TinySecP256K1 from "tiny-secp256k1";
 
 export function decodeBnbTx(txBytes: Buffer, chainId: string) {
   const txDecoded = bnbSdk.amino.decoder.unMarshalBinaryLengthPrefixed(txBytes, {
@@ -70,7 +70,7 @@ export function decodeBnbTx(txBytes: Buffer, chainId: string) {
 
 export function validateBnbTx(txBytes: Buffer, chainId: string) {
   const { signBytesHash, pubKey, signature } = decodeBnbTx(txBytes, chainId);
-  return TinySecP256K1.verify(Buffer.from(signBytesHash, "hex"), pubKey, signature);
+  return ecc.verify(Buffer.from(signBytesHash, "hex"), pubKey, signature);
 }
 
 export function encodeBnbTx(unsignedTx: core.BinanceTx, publicKey: Buffer, signature: Buffer) {

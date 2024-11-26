@@ -1,7 +1,7 @@
+import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import Base64 from "base64-js";
 import * as bip32 from "bip32";
-import * as bitcoin from "bitcoinjs-lib";
 import * as bitcoinMsg from "bitcoinjs-message";
 
 export function describeUTXOPath(

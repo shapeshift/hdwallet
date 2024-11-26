@@ -1,10 +1,14 @@
-import type { crypto as bcrypto, ECPairInterface, Network, networks, SignerAsync } from "@shapeshiftoss/bitcoinjs-lib";
+import ecc from "@bitcoinerlab/secp256k1";
+import type { Network, networks, SignerAsync } from "@shapeshiftoss/bitcoinjs-lib";
+import { initEccLib } from "@shapeshiftoss/bitcoinjs-lib";
+import { ECPairInterface } from "ecpair";
 import PLazy from "p-lazy";
 
 import { IsolationError, SecP256K1 } from "../core";
 import { assertType, ByteArray } from "../types";
 
-export type ECPairInterfaceAsync = Omit<ECPairInterface, "sign"> & Pick<SignerAsync, "sign">;
+export type ECPairInterfaceAsync = Omit<ECPairInterface, "sign" | "tweak" | "verifySchnorr" | "signSchnorr"> &
+  Pick<SignerAsync, "sign">;
 
 let networksInstance: typeof networks | undefined;
 const networksReady = PLazy.from(async () => {
@@ -22,6 +26,8 @@ export class ECPairAdapter implements SignerAsync, ECPairInterfaceAsync {
     this._isolatedKey = isolatedKey;
     this._publicKey = publicKey;
     this._network = network;
+    // instantiation of ecc lib required for taproot sends https://github.com/bitcoinjs/bitcoinjs-lib/issues/1889#issuecomment-1443792692
+    initEccLib(ecc);
   }
 
   /**
@@ -57,22 +63,12 @@ export class ECPairAdapter implements SignerAsync, ECPairInterfaceAsync {
     return isolatedKey.ecdhRaw.bind(isolatedKey);
   }
 
-  async sign(hash: bcrypto.NonDigest | bcrypto.Digest<"hash256">, lowR?: boolean): Promise<Buffer> {
-    assertType(ByteArray(), hash);
-
+  async sign(hash: Uint8Array, lowR?: boolean): Promise<Buffer> {
+    assertType(ByteArray(32), hash);
     lowR = lowR ?? this.lowR;
-    const sig = await (async () => {
-      if (!hash.algorithm) {
-        assertType(ByteArray(32), hash);
-        return !lowR
-          ? await this._isolatedKey.ecdsaSign(null, hash)
-          : await SecP256K1.Signature.signCanonically(this._isolatedKey, null, hash);
-      } else {
-        return !lowR
-          ? await this._isolatedKey.ecdsaSign(hash.algorithm, hash.preimage)
-          : await SecP256K1.Signature.signCanonically(this._isolatedKey, hash.algorithm, hash.preimage);
-      }
-    })();
+    const sig = !lowR
+      ? await this._isolatedKey.ecdsaSign(null, hash)
+      : await SecP256K1.Signature.signCanonically(this._isolatedKey, null, hash);
     return Buffer.from(sig);
   }
   get publicKey() {

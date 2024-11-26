@@ -55,7 +55,6 @@
     "typescript": "^5.2.2"
   },
   "resolutions": {
-    "bip174": "2.1.0",
     "@types/eventsource": "1.1.8",
     "@types/node": "20.5.7@ts4.7",
     "p-queue": "^6.6.2"
