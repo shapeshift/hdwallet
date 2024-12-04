@@ -4,6 +4,7 @@ import _ from "lodash";
 import * as btc from "./bitcoin";
 import * as cosmos from "./cosmos";
 import * as eth from "./ethereum";
+import * as solana from "./solana";
 import * as thorchain from "./thorchain";
 import { LedgerTransport } from "./transport";
 import { coinToLedgerAppName, handleError } from "./utils";
@@ -518,6 +519,11 @@ export class LedgerHDWallet
 
   public async ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
     await this.validateCurrentApp("Ethereum");
+    return eth.ethGetAddress(this.transport, msg);
+  }
+
+  public async solanaGetAddress(msg: core.SolanaGetAddress): Promise<string> {
+    await this.validateCurrentApp("Solana");
     return eth.ethGetAddress(this.transport, msg);
   }
 
