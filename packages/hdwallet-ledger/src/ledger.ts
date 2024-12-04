@@ -143,6 +143,7 @@ export class LedgerHDWalletInfo
   readonly _supportsETHInfo = true;
   readonly _supportsThorchainInfo = true;
   readonly _supportsCosmosInfo = true;
+  readonly _supportsSolanaInfo = true;
 
   public getVendor(): string {
     return "Ledger";
@@ -331,6 +332,7 @@ export class LedgerHDWallet
   readonly _supportsBase = true;
   readonly _supportsThorchain = true;
   readonly _supportsCosmos = true;
+  readonly _supportsSolana = true;
 
   _isLedger = true;
 
