@@ -10,7 +10,6 @@ const HARDENED = 0x80000000;
 // Using good ol' core.bip32ToAddressNList here = problems
 // https://help.phantom.com/hc/en-us/articles/12988493966227-What-derivation-paths-does-Phantom-wallet-support#h_01HFBRSYQKC73Z43HPKKW0C1SS
 // https://www.npmjs.com/package/@ledgerhq/hw-app-solana#getaddress
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const addressNListToSolanaDerivationPath = (addressNList: number[]): string => {
   const solanaComponents = addressNList.slice(0, 3);
 
@@ -20,8 +19,7 @@ const addressNListToSolanaDerivationPath = (addressNList: number[]): string => {
 };
 
 export async function solanaGetAddress(transport: LedgerTransport, msg: core.SolanaGetAddress): Promise<string> {
-  // debugging only, rm me
-  const bip32path = "44'/501'";
+  const bip32path = addressNListToSolanaDerivationPath(msg.addressNList);
   const res = await transport.call("Solana", "getAddress", bip32path, !!msg.showDisplay);
   handleError(res, transport, "Unable to obtain Solana address from device.");
 
