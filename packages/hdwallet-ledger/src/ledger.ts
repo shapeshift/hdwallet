@@ -524,7 +524,7 @@ export class LedgerHDWallet
 
   public async solanaGetAddress(msg: core.SolanaGetAddress): Promise<string> {
     await this.validateCurrentApp("Solana");
-    return eth.ethGetAddress(this.transport, msg);
+    return solana.solanaGetAddress(this.transport, msg);
   }
 
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
