@@ -6,16 +6,22 @@ import { handleError } from "./utils";
 
 const HARDENED = 0x80000000;
 
-// hw-app-solana uses a shorthand version of regular bip32, i.e purpose, coinType and account only - no change nor address_index
-// Do not use the regular core.addressNListToBIP32() method here, or problems
+// This ensures we generate a derivation compatible with both hw-app-solana (stripped m/) and Phantom (added hardened change component)
+// Using good ol' core.bip32ToAddressNList here = problems
+// https://help.phantom.com/hc/en-us/articles/12988493966227-What-derivation-paths-does-Phantom-wallet-support#h_01HFBRSYQKC73Z43HPKKW0C1SS
+// https://www.npmjs.com/package/@ledgerhq/hw-app-solana#getaddress
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const addressNListToSolanaDerivationPath = (addressNList: number[]): string => {
   const solanaComponents = addressNList.slice(0, 3);
 
-  return solanaComponents.map((num) => (num >= HARDENED ? `${num - HARDENED}'` : num)).join("/");
+  const basePath = solanaComponents.map((num) => (num >= HARDENED ? `${num - HARDENED}'` : num)).join("/");
+
+  return `${basePath}/0'`;
 };
 
 export async function solanaGetAddress(transport: LedgerTransport, msg: core.SolanaGetAddress): Promise<string> {
-  const bip32path = addressNListToSolanaDerivationPath(msg.addressNList);
+  // debugging only, rm me
+  const bip32path = "44'/501";
   const res = await transport.call("Solana", "getAddress", bip32path, !!msg.showDisplay);
   handleError(res, transport, "Unable to obtain Solana address from device.");
 
