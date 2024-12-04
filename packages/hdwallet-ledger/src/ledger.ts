@@ -529,7 +529,7 @@ export class LedgerHDWallet
 
   public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
     const address = await this.solanaGetAddress(msg);
-    return solana.solanaSignTx(this.transport, msg);
+    return solana.solanaSignTx(this.transport, msg, address);
   }
 
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
