@@ -94,10 +94,11 @@ export async function solanaSignTx(
   address: string
 ): Promise<core.SolanaSignedTx> {
   const transaction = buildTransaction(msg, address);
-  const serializedTransaction = Buffer.from(transaction.serialize());
+  const message = transaction.message.serialize();
+  const serializedMessage = Buffer.from(message);
 
   const bip32Path = addressNListToSolanaDerivationPath(msg.addressNList);
-  const res = await transport.call("Solana", "signTransaction", bip32Path, serializedTransaction);
+  const res = await transport.call("Solana", "signTransaction", bip32Path, serializedMessage);
   handleError(res, transport, "Unable to sign Solana transaction");
 
   const signature = res.payload.signature;
