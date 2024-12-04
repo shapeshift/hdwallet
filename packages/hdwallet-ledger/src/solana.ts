@@ -21,7 +21,7 @@ const addressNListToSolanaDerivationPath = (addressNList: number[]): string => {
 
 export async function solanaGetAddress(transport: LedgerTransport, msg: core.SolanaGetAddress): Promise<string> {
   // debugging only, rm me
-  const bip32path = "44'/501";
+  const bip32path = "44'/501'";
   const res = await transport.call("Solana", "getAddress", bip32path, !!msg.showDisplay);
   handleError(res, transport, "Unable to obtain Solana address from device.");
 
