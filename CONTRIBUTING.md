@@ -7,7 +7,7 @@
 
   Please see ShapeShift's [responsible disclosure program](https://corp.shapeshift.io/responsible-disclosure-program/).
 
-- When contributing to HDWallet, please discus the change you want to make via
+- When contributing to HDWallet, please discuss the change you want to make via
   a GitHub issue before making a change and submitting a PR.
 
 #### Submitting a Patch
