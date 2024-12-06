@@ -104,7 +104,7 @@ To compile and watch the browser bundle, run:
 yarn dev:sandbox
 ```
 
-This will launch an ssl webserver that runs at `https://localhost:1234`, with
+This will launch a ssl webserver that runs at `https://localhost:1234`, with
 a small demo app that shows how to use various HDWallet functionality.
 
 We use [Zeit Now](https://zeit.co/home) for continuous deployment of this
