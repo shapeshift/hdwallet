@@ -1,5 +1,9 @@
 ## Contributing to HDWallet
 
+#### :warning: Typo-Only Changes Not Accepted
+
+We do not accept issues or pull requests that only fix typos in comments, variables, or documentation. Such issues will be closed without review.
+
 #### Submitting an Issue
 
 - **Do not open a GitHub issue if the bug you found is a security
