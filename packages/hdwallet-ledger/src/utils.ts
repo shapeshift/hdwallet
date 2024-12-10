@@ -599,6 +599,7 @@ const appNameBySlip44: Record<number, string> = {
   60: "Ethereum",
   118: "Cosmos",
   145: "Bitcoin Cash",
+  501: "Solana",
   931: "THORChain",
 };
 

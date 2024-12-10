@@ -4,6 +4,7 @@ import _ from "lodash";
 import * as btc from "./bitcoin";
 import * as cosmos from "./cosmos";
 import * as eth from "./ethereum";
+import * as solana from "./solana";
 import * as thorchain from "./thorchain";
 import { LedgerTransport } from "./transport";
 import { coinToLedgerAppName, handleError } from "./utils";
@@ -137,12 +138,19 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
 }
 
 export class LedgerHDWalletInfo
-  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo, core.ThorchainWalletInfo, core.CosmosWalletInfo
+  implements
+    core.HDWalletInfo,
+    core.BTCWalletInfo,
+    core.ETHWalletInfo,
+    core.ThorchainWalletInfo,
+    core.CosmosWalletInfo,
+    core.SolanaWalletInfo
 {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
   readonly _supportsThorchainInfo = true;
   readonly _supportsCosmosInfo = true;
+  readonly _supportsSolanaInfo = true;
 
   public getVendor(): string {
     return "Ledger";
@@ -206,6 +214,15 @@ export class LedgerHDWalletInfo
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
     return undefined;
+  }
+
+  public solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> {
+    return core.solanaGetAccountPaths(msg);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public solanaNextAccountPath(msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
+    throw new Error("Method not implemented");
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -316,7 +333,7 @@ export class LedgerHDWalletInfo
 
 export class LedgerHDWallet
   extends LedgerHDWalletInfo
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.ThorchainWallet, core.CosmosWallet
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.ThorchainWallet, core.CosmosWallet, core.SolanaWallet
 {
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
@@ -331,6 +348,7 @@ export class LedgerHDWallet
   readonly _supportsBase = true;
   readonly _supportsThorchain = true;
   readonly _supportsCosmos = true;
+  readonly _supportsSolana = true;
 
   _isLedger = true;
 
@@ -547,6 +565,16 @@ export class LedgerHDWallet
 
   public cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx> {
     return cosmos.cosmosSignTx(this.transport, msg);
+  }
+
+  public async solanaGetAddress(msg: core.SolanaGetAddress): Promise<string> {
+    await this.validateCurrentApp("Solana");
+    return solana.solanaGetAddress(this.transport, msg);
+  }
+
+  public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
+    await this.validateCurrentApp("Solana");
+    return solana.solanaSignTx(this.transport, msg);
   }
 
   public disconnect(): Promise<void> {

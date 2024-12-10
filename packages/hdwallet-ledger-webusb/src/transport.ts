@@ -1,6 +1,7 @@
 import Btc from "@ledgerhq/hw-app-btc";
 import Cosmos from "@ledgerhq/hw-app-cosmos";
 import Eth from "@ledgerhq/hw-app-eth";
+import Solana from "@ledgerhq/hw-app-solana";
 import Transport from "@ledgerhq/hw-transport";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import getAppAndVersion from "@ledgerhq/live-common/lib/hw/getAppAndVersion";
@@ -101,6 +102,11 @@ export async function translateCoinAndMethod<T extends LedgerTransportCoinType, 
     case "Cosmos": {
       const cosmos = new Cosmos(transport as Transport);
       const methodInstance = cosmos[method as LedgerTransportMethodName<"Cosmos">].bind(cosmos);
+      return methodInstance as LedgerTransportMethod<T, U>;
+    }
+    case "Solana": {
+      const solana = new Solana(transport as Transport);
+      const methodInstance = solana[method as LedgerTransportMethodName<"Solana">].bind(solana);
       return methodInstance as LedgerTransportMethod<T, U>;
     }
     case null: {
