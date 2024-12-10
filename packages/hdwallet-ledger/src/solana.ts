@@ -1,17 +1,9 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import {
-  AddressLookupTableAccount,
-  ComputeBudgetProgram,
-  PublicKey,
-  SystemProgram,
-  TransactionInstruction,
-  TransactionMessage,
-  VersionedTransaction,
-} from "@solana/web3.js";
 import * as bs58 from "bs58";
 
 import { LedgerTransport } from "./transport";
 import { handleError } from "./utils";
+import { buildTransaction } from "@shapeshiftoss/hdwallet-core";
 
 const HARDENED = 0x80000000;
 
@@ -39,61 +31,12 @@ export async function solanaGetAddress(transport: LedgerTransport, msg: core.Sol
   return bs58.encode(addressBuffer);
 }
 
-function toTransactionInstructions(instructions: core.SolanaTxInstruction[]): TransactionInstruction[] {
-  return instructions.map(
-    (instruction) =>
-      new TransactionInstruction({
-        keys: instruction.keys.map((key) => Object.assign(key, { pubkey: new PublicKey(key.pubkey) })),
-        programId: new PublicKey(instruction.programId),
-        data: instruction.data,
-      })
-  );
-}
-
-function buildTransaction(msg: core.SolanaSignTx, address: string): VersionedTransaction {
-  const instructions = toTransactionInstructions(msg.instructions ?? []);
-
-  const value = Number(msg.value);
-  if (!isNaN(value) && value > 0 && msg.to) {
-    instructions.push(
-      SystemProgram.transfer({
-        fromPubkey: new PublicKey(address),
-        toPubkey: new PublicKey(msg.to),
-        lamports: value,
-      })
-    );
-  }
-
-  if (msg.computeUnitLimit !== undefined) {
-    instructions.push(ComputeBudgetProgram.setComputeUnitLimit({ units: msg.computeUnitLimit }));
-  }
-
-  if (msg.computeUnitPrice !== undefined) {
-    instructions.push(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: msg.computeUnitPrice }));
-  }
-
-  const addressLookupTableAccounts = msg.addressLookupTableAccountInfos?.map((accountInfo) => {
-    return new AddressLookupTableAccount({
-      key: new PublicKey(accountInfo.key),
-      state: AddressLookupTableAccount.deserialize(new Uint8Array(accountInfo.data)),
-    });
-  });
-
-  const message = new TransactionMessage({
-    payerKey: new PublicKey(address),
-    instructions,
-    recentBlockhash: msg.blockHash,
-  }).compileToV0Message(addressLookupTableAccounts);
-
-  return new VersionedTransaction(message);
-}
-
 export async function solanaSignTx(
   transport: LedgerTransport,
   msg: core.SolanaSignTx,
   address: string
 ): Promise<core.SolanaSignedTx> {
-  const transaction = buildTransaction(msg, address);
+  const transaction = core.buildTransaction(msg, address);
   const message = transaction.message.serialize();
   const serializedMessage = Buffer.from(message);
 
