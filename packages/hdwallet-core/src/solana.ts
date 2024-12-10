@@ -1,6 +1,17 @@
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
+import {
+  AddressLookupTableAccount,
+  ComputeBudgetProgram,
+  PublicKey,
+  SystemProgram,
+  TransactionInstruction,
+  TransactionMessage,
+  VersionedTransaction,
+} from "@solana/web3.js";
+
+
 export interface SolanaGetAddress {
   addressNList: BIP32Path;
   showDisplay?: boolean;
@@ -108,4 +119,54 @@ export function solanaDescribePath(path: BIP32Path): PathDescription {
 export function solanaGetAccountPaths(msg: SolanaGetAccountPaths): Array<SolanaAccountPath> {
   const slip44 = slip44ByCoin("Solana");
   return [{ addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0] }];
+}
+
+
+export function toTransactionInstructions(instructions: SolanaTxInstruction[]): TransactionInstruction[] {
+  return instructions.map(
+    (instruction) =>
+      new TransactionInstruction({
+        keys: instruction.keys.map((key) => Object.assign(key, { pubkey: new PublicKey(key.pubkey) })),
+        programId: new PublicKey(instruction.programId),
+        data: instruction.data,
+      })
+  );
+}
+
+export function buildTransaction(msg: SolanaSignTx, address: string): VersionedTransaction {
+  const instructions = toTransactionInstructions(msg.instructions ?? []);
+
+  const value = Number(msg.value);
+  if (!isNaN(value) && value > 0 && msg.to) {
+    instructions.push(
+      SystemProgram.transfer({
+        fromPubkey: new PublicKey(address),
+        toPubkey: new PublicKey(msg.to),
+        lamports: value,
+      })
+    );
+  }
+
+  if (msg.computeUnitLimit !== undefined) {
+    instructions.push(ComputeBudgetProgram.setComputeUnitLimit({ units: msg.computeUnitLimit }));
+  }
+
+  if (msg.computeUnitPrice !== undefined) {
+    instructions.push(ComputeBudgetProgram.setComputeUnitPrice({ microLamports: msg.computeUnitPrice }));
+  }
+
+  const addressLookupTableAccounts = msg.addressLookupTableAccountInfos?.map((accountInfo) => {
+    return new AddressLookupTableAccount({
+      key: new PublicKey(accountInfo.key),
+      state: AddressLookupTableAccount.deserialize(new Uint8Array(accountInfo.data)),
+    });
+  });
+
+  const message = new TransactionMessage({
+    payerKey: new PublicKey(address),
+    instructions,
+    recentBlockhash: msg.blockHash,
+  }).compileToV0Message(addressLookupTableAccounts);
+
+  return new VersionedTransaction(message);
 }
