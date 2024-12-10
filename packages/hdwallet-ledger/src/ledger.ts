@@ -522,16 +522,6 @@ export class LedgerHDWallet
     return eth.ethGetAddress(this.transport, msg);
   }
 
-  public async solanaGetAddress(msg: core.SolanaGetAddress): Promise<string> {
-    await this.validateCurrentApp("Solana");
-    return solana.solanaGetAddress(this.transport, msg);
-  }
-
-  public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
-    const address = await this.solanaGetAddress(msg);
-    return solana.solanaSignTx(this.transport, msg, address);
-  }
-
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
     await this.validateCurrentApp("Ethereum");
     return eth.ethSignMessage(this.transport, msg);
@@ -560,6 +550,16 @@ export class LedgerHDWallet
 
   public cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx> {
     return cosmos.cosmosSignTx(this.transport, msg);
+  }
+
+  public async solanaGetAddress(msg: core.SolanaGetAddress): Promise<string> {
+    await this.validateCurrentApp("Solana");
+    return solana.solanaGetAddress(this.transport, msg);
+  }
+
+  public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
+    const address = await this.solanaGetAddress(msg);
+    return solana.solanaSignTx(this.transport, msg, address);
   }
 
   public disconnect(): Promise<void> {
