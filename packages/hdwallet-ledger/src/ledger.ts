@@ -138,7 +138,13 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
 }
 
 export class LedgerHDWalletInfo
-  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo, core.ThorchainWalletInfo, core.CosmosWalletInfo
+  implements
+    core.HDWalletInfo,
+    core.BTCWalletInfo,
+    core.ETHWalletInfo,
+    core.ThorchainWalletInfo,
+    core.CosmosWalletInfo,
+    core.SolanaWalletInfo
 {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
@@ -208,6 +214,15 @@ export class LedgerHDWalletInfo
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
     return undefined;
+  }
+
+  public solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> {
+    return core.solanaGetAccountPaths(msg);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public solanaNextAccountPath(msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
+    throw new Error("Method not implemented");
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -318,7 +333,7 @@ export class LedgerHDWalletInfo
 
 export class LedgerHDWallet
   extends LedgerHDWalletInfo
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.ThorchainWallet, core.CosmosWallet
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.ThorchainWallet, core.CosmosWallet, core.SolanaWallet
 {
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
