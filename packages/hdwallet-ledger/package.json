@@ -20,6 +20,7 @@
     "@ledgerhq/hw-app-cosmos": "^6.29.1",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.0",
     "@shapeshiftoss/hdwallet-core": "1.57.0",
+    "@solana/web3.js": "1.95.8",
     "base64-js": "^1.5.1",
     "bchaddrjs": "^0.4.4",
     "bitcoinjs-message": "^2.0.0",

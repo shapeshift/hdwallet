@@ -182,6 +182,10 @@ export function relativePath(path: BIP32Path): BIP32Path {
   return path.filter((segment) => segment < 0x80000000);
 }
 
+export function ed25519Path(path: BIP32Path): BIP32Path {
+  return path.map((segment) => (segment < 0x80000000 ? segment + 0x80000000 : segment));
+}
+
 export function toArrayBuffer(x: ArrayBuffer | ArrayBufferView): ArrayBuffer {
   if (x instanceof ArrayBuffer) return x;
   return x.buffer.slice(x.byteOffset, x.byteOffset + x.byteLength);

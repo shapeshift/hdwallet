@@ -8,7 +8,7 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 
-import { addressNListToBIP32, hardenedPath, slip44ByCoin } from "./utils";
+import { addressNListToBIP32, ed25519Path, slip44ByCoin } from "./utils";
 import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
 export interface SolanaGetAddress {
@@ -99,11 +99,11 @@ export function solanaDescribePath(path: BIP32Path): PathDescription {
     isKnown: false,
   };
 
-  if (path.length != 5) return unknown;
+  if (path.length != 4) return unknown;
   if (path[0] != 0x80000000 + 44) return unknown;
   if (path[1] != 0x80000000 + slip44ByCoin("Solana")) return unknown;
   if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
-  if (path[3] !== 0 || path[4] !== 0) return unknown;
+  if (path[3] !== 0x80000000 + 0) return unknown;
 
   const index = path[2] & 0x7fffffff;
   return {
@@ -115,28 +115,16 @@ export function solanaDescribePath(path: BIP32Path): PathDescription {
   };
 }
 
+// The standard BIP44 derivation path for Solana is: m/44'/501'/<account>'/0'
+// https://github.com/solana-labs/solana/blob/master/clap-v3-utils/src/keygen/derivation_path.rs#L7
 export function solanaGetAccountPaths(msg: SolanaGetAccountPaths): Array<SolanaAccountPath> {
   const slip44 = slip44ByCoin("Solana");
-  return [{ addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0] }];
+  return [{ addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0x80000000 + 0] }];
 }
 
-// Solana uses the Ed25519 elliptic curve for cryptographic operations, which requires
-// all levels of the derivation path to be hardened. This ensures enhanced security by
-// isolating child keys from their parent keys, as Ed25519 does not support non-hardened
-// derivation.
-//
-// The standard BIP44 derivation path for Solana is:
-//   m/44'/501'/<account>'/0'
-// - 44': Purpose field, indicating compliance with the BIP44 standard.
-// - 501': Coin type for Solana, registered in SLIP-0044.
-// - <account>': A hardened account index to separate different accounts.
-// - 0': A fixed hardened change/index value for Solana's single-layer account model.
-//
-// https://github.com/solana-labs/solana/blob/master/clap-v3-utils/src/keygen/derivation_path.rs#L7
+// Solana uses the Ed25519 elliptic curve for cryptographic operations, which requires all levels of the derivation path to be hardened.
 export function solanaAddressNListToBIP32(addressNList: BIP32Path): string {
-  const hardenedBip32Path = addressNListToBIP32(hardenedPath(addressNList));
-
-  return `${hardenedBip32Path}/0'`;
+  return addressNListToBIP32(ed25519Path(addressNList));
 }
 
 function toTransactionInstructions(instructions: SolanaTxInstruction[]): TransactionInstruction[] {
