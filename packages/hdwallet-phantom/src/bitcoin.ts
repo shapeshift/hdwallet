@@ -1,3 +1,4 @@
+import ecc from "@bitcoinerlab/secp256k1";
 import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
@@ -103,6 +104,9 @@ export async function bitcoinSignTx(
   msg: core.BTCSignTx,
   provider: PhantomUtxoProvider
 ): Promise<core.BTCSignedTx | null> {
+  // instantiation of ecc lib required for taproot sends https://github.com/bitcoinjs/bitcoinjs-lib/issues/1889#issuecomment-1443792692
+  bitcoin.initEccLib(ecc);
+
   const network = getNetwork(msg.coin);
 
   const psbt = new bitcoin.Psbt({ network });
