@@ -7,7 +7,12 @@ import assert from "assert";
 import { thaw } from "icepick";
 
 import { Transport } from "./transport";
-import { toUTF8Array, translateInputScriptType, translateOutputScriptType } from "./utils";
+import {
+  PAYTOTAPROOT_PROTOBUF_SCRIPTTYPE,
+  toUTF8Array,
+  translateInputScriptType,
+  translateOutputScriptType,
+} from "./utils";
 
 // FIXME: load this from the device's coin table, or from some static features
 // table... instead of, you know, adding another God-forsaken coin table.
@@ -88,9 +93,6 @@ function prepareSignTx(
       newOutput.setAddressType(Types.OutputAddressType.SPEND);
       newOutput.setOpReturnData(output.opReturnData);
     } else {
-      // The below doesn't exist in the KeepKey protobuf enum, but is absolutely valid
-      // https://github.com/trezor/trezor-suite/blob/221fe9e7fcd29fc2ef5fa51ca2c22ba6a9369ef6/packages/protobuf/src/messages.ts#L127
-      const PAYTOTAPROOT_PROTOBUF_SCRIPTTYPE = 6 as Types.OutputScriptTypeMap[keyof Types.OutputScriptTypeMap];
       // BTCSignTxOutputSpend
       newOutput.setScriptType(
         output.address.startsWith("bc1p") ? PAYTOTAPROOT_PROTOBUF_SCRIPTTYPE : Types.OutputScriptType.PAYTOADDRESS

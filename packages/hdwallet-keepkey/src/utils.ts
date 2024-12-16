@@ -3,6 +3,10 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 
 export const SEGMENT_SIZE = 63;
 
+// The below doesn't exist in the KeepKey protobuf enum, but is absolutely valid
+// https://github.com/trezor/trezor-suite/blob/221fe9e7fcd29fc2ef5fa51ca2c22ba6a9369ef6/packages/protobuf/src/messages.ts#L127
+export const PAYTOTAPROOT_PROTOBUF_SCRIPTTYPE = 6 as Types.OutputScriptTypeMap[keyof Types.OutputScriptTypeMap];
+
 // Shim until this exists for jspb https://github.com/protocolbuffers/protobuf/issues/1591
 export function protoFieldToSetMethod(fieldName: string): string {
   return `set${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}`;
@@ -60,7 +64,7 @@ export function translateOutputScriptType(scriptType: core.BTCOutputScriptType):
     case core.BTCOutputScriptType.PayToWitness:
       return Types.OutputScriptType.PAYTOWITNESS;
     case core.BTCOutputScriptType.PayToTaproot:
-      return Types.OutputScriptType.PAYTOTAPROOT;
+      return PAYTOTAPROOT_PROTOBUF_SCRIPTTYPE;
   }
   throw new Error("unhandled OutputScriptType enum: " + scriptType);
 }
