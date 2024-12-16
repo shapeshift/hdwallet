@@ -90,7 +90,7 @@ function prepareSignTx(
     } else {
       // BTCSignTxOutputSpend
       newOutput.setScriptType(
-        output.address.startsWith("bc1p") ? Types.OutputScriptType.PAYTOADDRESS : Types.OutputScriptType.PAYTOTAPROOT
+        output.address.startsWith("bc1p") ? Types.OutputScriptType.PAYTOTAPROOT : Types.OutputScriptType.PAYTOADDRESS
       );
       assert(output.address !== undefined, "Output must have a valid BTC address.");
       newOutput.setAddress(output.address);
