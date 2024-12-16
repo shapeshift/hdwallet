@@ -60,7 +60,7 @@ export function translateOutputScriptType(scriptType: core.BTCOutputScriptType):
     case core.BTCOutputScriptType.PayToWitness:
       return Types.OutputScriptType.PAYTOWITNESS;
     case core.BTCOutputScriptType.PayToTaproot:
-      return "PAYTOTAPROOT";
+      return Types.OutputScriptType.PAYTOTAPROOT;
   }
   throw new Error("unhandled OutputScriptType enum: " + scriptType);
 }
