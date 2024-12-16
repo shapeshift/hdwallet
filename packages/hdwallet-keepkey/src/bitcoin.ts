@@ -1,3 +1,4 @@
+import ecc from "@bitcoinerlab/secp256k1";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
 import * as bitcoinjs from "@shapeshiftoss/bitcoinjs-lib";
@@ -6,7 +7,12 @@ import assert from "assert";
 import { thaw } from "icepick";
 
 import { Transport } from "./transport";
-import { toUTF8Array, translateInputScriptType, translateOutputScriptType } from "./utils";
+import {
+  PAYTOTAPROOT_PROTOBUF_SCRIPTTYPE,
+  toUTF8Array,
+  translateInputScriptType,
+  translateOutputScriptType,
+} from "./utils";
 
 // FIXME: load this from the device's coin table, or from some static features
 // table... instead of, you know, adding another God-forsaken coin table.
@@ -88,7 +94,9 @@ function prepareSignTx(
       newOutput.setOpReturnData(output.opReturnData);
     } else {
       // BTCSignTxOutputSpend
-      newOutput.setScriptType(Types.OutputScriptType.PAYTOADDRESS);
+      newOutput.setScriptType(
+        output.address.startsWith("bc1p") ? PAYTOTAPROOT_PROTOBUF_SCRIPTTYPE : Types.OutputScriptType.PAYTOADDRESS
+      );
       assert(output.address !== undefined, "Output must have a valid BTC address.");
       newOutput.setAddress(output.address);
       newOutput.setAddressType(Types.OutputAddressType.SPEND);
@@ -268,6 +276,8 @@ export async function btcSignTx(
   msgIn: core.BTCSignTxKK
 ): Promise<core.BTCSignedTx> {
   return transport.lockDuring(async () => {
+    // instantiation of ecc lib required for taproot sends https://github.com/bitcoinjs/bitcoinjs-lib/issues/1889#issuecomment-1443792692
+    bitcoinjs.initEccLib(ecc);
     // Make a copy of the input parameter so as to not mutate the caller's data.
     // Unfreezing a recursively-frozen object is nontrivial, so we leverage an existing package
     const msg = thaw(msgIn);
