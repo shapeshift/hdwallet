@@ -88,9 +88,12 @@ function prepareSignTx(
       newOutput.setAddressType(Types.OutputAddressType.SPEND);
       newOutput.setOpReturnData(output.opReturnData);
     } else {
+      // The below doesn't exist in the KeepKey protobuf enum, but is absolutely valid
+      // https://github.com/trezor/trezor-suite/blob/221fe9e7fcd29fc2ef5fa51ca2c22ba6a9369ef6/packages/protobuf/src/messages.ts#L127
+      const PAYTOTAPROOT_PROTOBUF_SCRIPTTYPE = 6 as Types.OutputScriptTypeMap[keyof Types.OutputScriptTypeMap];
       // BTCSignTxOutputSpend
       newOutput.setScriptType(
-        output.address.startsWith("bc1p") ? Types.OutputScriptType.PAYTOTAPROOT : Types.OutputScriptType.PAYTOADDRESS
+        output.address.startsWith("bc1p") ? PAYTOTAPROOT_PROTOBUF_SCRIPTTYPE : Types.OutputScriptType.PAYTOADDRESS
       );
       assert(output.address !== undefined, "Output must have a valid BTC address.");
       newOutput.setAddress(output.address);
