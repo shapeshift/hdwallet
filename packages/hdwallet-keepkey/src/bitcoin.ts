@@ -1,3 +1,4 @@
+import ecc from "@bitcoinerlab/secp256k1";
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
 import * as bitcoinjs from "@shapeshiftoss/bitcoinjs-lib";
@@ -268,6 +269,8 @@ export async function btcSignTx(
   msgIn: core.BTCSignTxKK
 ): Promise<core.BTCSignedTx> {
   return transport.lockDuring(async () => {
+    // instantiation of ecc lib required for taproot sends https://github.com/bitcoinjs/bitcoinjs-lib/issues/1889#issuecomment-1443792692
+    bitcoinjs.initEccLib(ecc);
     // Make a copy of the input parameter so as to not mutate the caller's data.
     // Unfreezing a recursively-frozen object is nontrivial, so we leverage an existing package
     const msg = thaw(msgIn);
