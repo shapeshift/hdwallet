@@ -15,6 +15,7 @@ import { MixinNativeKavaWallet, MixinNativeKavaWalletInfo } from "./kava";
 import { getNetwork } from "./networks";
 import { MixinNativeOsmosisWallet, MixinNativeOsmosisWalletInfo } from "./osmosis";
 import { MixinNativeSecretWallet, MixinNativeSecretWalletInfo } from "./secret";
+import { MixinNativeSolanaWallet, MixinNativeSolanaWalletInfo } from "./solana";
 import { MixinNativeTerraWallet, MixinNativeTerraWalletInfo } from "./terra";
 import { MixinNativeThorchainWallet, MixinNativeThorchainWalletInfo } from "./thorchain";
 
@@ -123,11 +124,13 @@ class NativeHDWalletInfo
       MixinNativeETHWalletInfo(
         MixinNativeCosmosWalletInfo(
           MixinNativeBinanceWalletInfo(
-            MixinNativeThorchainWalletInfo(
-              MixinNativeSecretWalletInfo(
-                MixinNativeTerraWalletInfo(
-                  MixinNativeKavaWalletInfo(
-                    MixinNativeArkeoWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase))
+            MixinNativeSolanaWalletInfo(
+              MixinNativeThorchainWalletInfo(
+                MixinNativeSecretWalletInfo(
+                  MixinNativeTerraWalletInfo(
+                    MixinNativeKavaWalletInfo(
+                      MixinNativeArkeoWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase))
+                    )
                   )
                 )
               )
@@ -163,6 +166,8 @@ class NativeHDWalletInfo
       case "rune":
       case "thorchain":
         return core.thorchainDescribePath(msg.path);
+      case "solana":
+        return core.solanaDescribePath(msg.path);
       case "secret":
       case "scrt":
       case "tscrt":
@@ -195,10 +200,12 @@ export class NativeHDWallet
       MixinNativeETHWallet(
         MixinNativeCosmosWallet(
           MixinNativeBinanceWallet(
-            MixinNativeThorchainWallet(
-              MixinNativeSecretWallet(
-                MixinNativeTerraWallet(
-                  MixinNativeKavaWallet(MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo)))
+            MixinNativeSolanaWallet(
+              MixinNativeThorchainWallet(
+                MixinNativeSecretWallet(
+                  MixinNativeTerraWallet(
+                    MixinNativeKavaWallet(MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo)))
+                  )
                 )
               )
             )
@@ -215,6 +222,7 @@ export class NativeHDWallet
     core.OsmosisWallet,
     core.FioWallet,
     core.ThorchainWallet,
+    core.SolanaWallet,
     core.SecretWallet,
     core.TerraWallet,
     core.KavaWallet,
@@ -236,6 +244,7 @@ export class NativeHDWallet
   readonly _supportsBinance = true;
   readonly _supportsFio = true;
   readonly _supportsThorchain = true;
+  readonly _supportsSolana = true;
   readonly _supportsSecret = true;
   readonly _supportsTerra = true;
   readonly _supportsKava = true;
@@ -370,6 +379,7 @@ export class NativeHDWallet
     this.#initialized = false;
     this.#masterKey = undefined;
 
+    super.solanaWipe();
     super.btcWipe();
     super.ethWipe();
     super.cosmosWipe();
