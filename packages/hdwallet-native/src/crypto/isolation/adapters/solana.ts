@@ -15,7 +15,7 @@ export class SolanaDirectAdapter {
 
   static async create(isolatedKey: SecP256K1.ECDSAKey): Promise<SolanaDirectAdapter> {
     const pubkey = await isolatedKey.getPublicKey();
-    const address = new PublicKey(pubkey).toBase58();
+    const address = new PublicKey(pubkey).toString();
     return new SolanaDirectAdapter(isolatedKey, pubkey, address);
   }
 
