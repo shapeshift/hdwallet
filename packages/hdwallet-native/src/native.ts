@@ -338,6 +338,7 @@ export class NativeHDWallet
           super.binanceInitializeWallet(masterKey),
           super.fioInitializeWallet(masterKey),
           super.thorchainInitializeWallet(masterKey),
+          super.solanaInitializeWallet(masterKey),
           super.secretInitializeWallet(masterKey),
           super.terraInitializeWallet(masterKey),
           super.kavaInitializeWallet(masterKey),
