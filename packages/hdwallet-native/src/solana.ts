@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
 import * as Isolation from "./crypto/isolation";
-import SignerAdapter from "./crypto/isolation/adapters/ethereum";
+import SignerAdapter from "./crypto/isolation/adapters/solana";
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
 
@@ -31,20 +31,18 @@ export function MixinNativeSolanaWallet<TBase extends core.Constructor<NativeHDW
     #masterKey: Isolation.Core.BIP32.Node | undefined;
 
     async solanaInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
-      const nodeAdapter = await Isolation.Adapters.BIP32.create(masterKey);
-
-      this.#solanaSigner = new SignerAdapter(nodeAdapter);
       this.#masterKey = masterKey;
     }
-
     solanaWipe() {
       this.#solanaSigner = undefined;
     }
 
+    // TODO(gomes): make getAddress in adapter work with addressNList to support multi-account
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async solanaGetAddress(msg: core.ETHGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#solanaSigner, () => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return this.#solanaSigner!.getAddress(msg.addressNList);
+        return this.#solanaSigner!.getAddress();
       });
     }
 
@@ -52,8 +50,10 @@ export function MixinNativeSolanaWallet<TBase extends core.Constructor<NativeHDW
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, "solana");
 
+        // Create the adapter for isolated signing
         const adapter = await Isolation.Adapters.SolanaDirect.create(keyPair.node);
 
+        // Get the address
         const address = await this.solanaGetAddress({
           addressNList: msg.addressNList,
           showDisplay: false,

@@ -1,4 +1,4 @@
-import { PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
+import { PublicKey, VersionedTransaction } from "@solana/web3.js";
 
 import { SecP256K1 } from "../core";
 
@@ -19,25 +19,21 @@ export class SolanaDirectAdapter {
     return new SolanaDirectAdapter(isolatedKey, pubkey, address);
   }
 
+  async getAddress(): Promise<string> {
+    return this.address;
+  }
+
   async signDirect(transaction: VersionedTransaction): Promise<VersionedTransaction> {
     const pubkey = new PublicKey(this._pubkey);
 
-    // Get the message to sign
-    const messageToSign =
-      transaction instanceof Transaction ? transaction.serializeMessage() : transaction.message.serialize();
+    const messageToSign = transaction.message.serialize();
 
-    // Sign using the isolated key
     const signature = await this._isolatedKey.ecdsaSign("sha256", messageToSign);
 
-    // Add the signature to the transaction
-    if (transaction instanceof Transaction) {
-      transaction.addSignature(pubkey, Buffer.from(signature));
-    } else {
-      transaction.addSignature(pubkey, new Uint8Array(signature));
-    }
+    transaction.addSignature(pubkey, new Uint8Array(signature));
 
     return transaction;
   }
 }
 
-export default SolanaDirectAdapter;
+export { SolanaDirectAdapter as default };
