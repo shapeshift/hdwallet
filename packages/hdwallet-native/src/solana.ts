@@ -39,7 +39,7 @@ export function MixinNativeSolanaWallet<TBase extends core.Constructor<NativeHDW
 
     // TODO(gomes): make getAddress in adapter work with addressNList to support multi-account
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async solanaGetAddress(msg: core.ETHGetAddress): Promise<string | null> {
+    async solanaGetAddress(msg: core.SolanaGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#solanaSigner, () => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return this.#solanaSigner!.getAddress();
