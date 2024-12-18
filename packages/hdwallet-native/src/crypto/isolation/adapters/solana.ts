@@ -1,39 +1,30 @@
+import * as core from "@shapeshiftoss/hdwallet-core";
 import { PublicKey, VersionedTransaction } from "@solana/web3.js";
 
+import { Isolation } from "../..";
 import { SecP256K1 } from "../core";
 
 export class SolanaDirectAdapter {
-  protected readonly _isolatedKey: SecP256K1.ECDSAKey;
-  protected readonly _pubkey: Uint8Array;
-  readonly address: string;
+  protected readonly nodeAdapter: Isolation.Adapters.BIP32;
 
-  protected constructor(isolatedKey: SecP256K1.ECDSAKey, pubkey: Uint8Array, address: string) {
-    this._isolatedKey = isolatedKey;
-    this._pubkey = pubkey;
-    this.address = address;
+  constructor(nodeAdapter: Isolation.Adapters.BIP32) {
+    this.nodeAdapter = nodeAdapter;
   }
 
-  static async create(isolatedKey: SecP256K1.ECDSAKey): Promise<SolanaDirectAdapter> {
-    const pubkey = await isolatedKey.getPublicKey();
-    const address = new PublicKey(pubkey).toBase58();
-    return new SolanaDirectAdapter(isolatedKey, pubkey, address);
+  async getAddress(addressNList: core.BIP32Path): Promise<string> {
+    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
+    return new PublicKey(SecP256K1.UncompressedPoint.from(nodeAdapter.getPublicKey())).toBase58();
   }
-
-  async getAddress(): Promise<string> {
-    return this.address;
-  }
-
-  async signDirect(transaction: VersionedTransaction): Promise<VersionedTransaction> {
-    const pubkey = new PublicKey(this._pubkey);
+  async signDirect(transaction: VersionedTransaction, addressNList: core.BIP32Path): Promise<VersionedTransaction> {
+    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
+    const pubkey = nodeAdapter.getPublicKey();
 
     const messageToSign = transaction.message.serialize();
+    const signature = await nodeAdapter.node.ecdsaSign("sha256", messageToSign);
 
-    const signature = await this._isolatedKey.ecdsaSign("sha256", messageToSign);
-
-    transaction.addSignature(pubkey, new Uint8Array(signature));
-
+    transaction.addSignature(new PublicKey(pubkey), new Uint8Array(signature));
     return transaction;
   }
 }
 
-export { SolanaDirectAdapter as default };
+export default SolanaDirectAdapter;
