@@ -5,3 +5,4 @@ export { default as FIO } from "./fio";
 export { default as Binance } from "./binance";
 export { default as Cosmos } from "./cosmos";
 export { default as CosmosDirect } from "./cosmosDirect";
+export { default as SolanaDirect } from "./solana";
