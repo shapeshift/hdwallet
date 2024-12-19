@@ -20,7 +20,7 @@ export class SolanaDirectAdapter {
   }
   async signDirect(transaction: VersionedTransaction, addressNList: core.BIP32Path): Promise<VersionedTransaction> {
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
-    const pubkey = nodeAdapter.getPublicKey();
+    const pubkey = await this.getAddress(addressNList);
 
     const messageToSign = transaction.message.serialize();
     const signature = await nodeAdapter.node.ecdsaSign("sha256", messageToSign);
