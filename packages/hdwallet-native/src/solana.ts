@@ -30,7 +30,10 @@ export function MixinNativeSolanaWallet<TBase extends core.Constructor<NativeHDW
     #masterKey: Isolation.Core.BIP32.Node | undefined;
 
     async solanaInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
+      const nodeAdapter = await Isolation.Adapters.BIP32.create(masterKey);
+
       this.#masterKey = masterKey;
+      this.#solanaSigner = new SignerAdapter(nodeAdapter);
     }
     solanaWipe() {
       this.#solanaSigner = undefined;
