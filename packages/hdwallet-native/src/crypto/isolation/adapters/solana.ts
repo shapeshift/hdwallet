@@ -13,7 +13,8 @@ export class SolanaDirectAdapter {
 
   async getAddress(addressNList: core.BIP32Path): Promise<string> {
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
-    return new PublicKey(SecP256K1.UncompressedPoint.from(nodeAdapter.getPublicKey())).toBase58();
+    const publicKeyBytes = Buffer.from(SecP256K1.CompressedPoint.from(nodeAdapter.getPublicKey()));
+    return new PublicKey(publicKeyBytes).toBase58();
   }
   async signDirect(transaction: VersionedTransaction, addressNList: core.BIP32Path): Promise<VersionedTransaction> {
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
