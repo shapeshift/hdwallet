@@ -334,7 +334,7 @@ export class NativeHDWallet
   async clearSession(): Promise<void> {}
 
   async initialize(): Promise<boolean | null> {
-    return this.needsMnemonic(!!this.#masterKey, async () => {
+    return this.needsMnemonic(!!this.#masterKey || !!this.#ed25519MasterKey, async () => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const masterKey = await this.#masterKey!;
       // Assume if we have a seckp256k1 masterKey, we have a ed25519 masterKey too
