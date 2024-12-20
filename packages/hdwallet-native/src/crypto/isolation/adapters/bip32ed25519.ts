@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
+import { Isolation } from "../..";
 import { BIP32, IsolationError } from "../core";
 import { Path } from "../core/bip32/types";
 import { Ed25519Node } from "../core/ed25519";
@@ -30,6 +31,11 @@ export class BIP32Ed25519Adapter {
       Path.assert(node.explicitPath);
       this._explicitPath = node.explicitPath;
     }
+  }
+
+  static async fromNode(node: Isolation.Core.BIP32.Node): Promise<BIP32Ed25519Adapter> {
+    const ed25519Node = await Ed25519Node.fromIsolatedNode(node);
+    return await BIP32Ed25519Adapter.create(ed25519Node);
   }
 
   static async create(

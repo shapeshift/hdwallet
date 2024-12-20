@@ -36,6 +36,19 @@ export class Ed25519Node extends Revocable(class {}) implements Ed25519Key {
       this.#chainCode.fill(0);
     });
   }
+  static async fromIsolatedNode(node: any): Promise<Ed25519Node> {
+    return new Proxy(node, {
+      get(target, prop) {
+        if (prop === "sign") {
+          return async (message: Uint8Array) => {
+            // Use the isolated node's signing capabilities
+            return target.sign(message);
+          };
+        }
+        return target[prop];
+      },
+    });
+  }
 
   static async create(privateKey: Uint8Array, chainCode: Uint8Array, explicitPath?: string): Promise<Ed25519Node> {
     const obj = new Ed25519Node(privateKey, chainCode, explicitPath);
