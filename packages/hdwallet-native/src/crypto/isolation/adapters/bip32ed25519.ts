@@ -116,13 +116,14 @@ export class BIP32Ed25519Adapter {
     if (/^m/.test(path) && this._parent) throw new Error("expected master, got child");
 
     const segments = path
+      .replace("m/", "") // Remove the 'm/' prefix from bip44, we're only interested in akschual parts not root m/ path
       .split("/")
       .filter(Boolean)
       .map((segment) => {
         const hardened = segment.endsWith("'");
         const index = parseInt(hardened ? segment.slice(0, -1) : segment);
-        // Ed25519 requires hardened derivation
-        return hardened ? index + 0x80000000 : index + 0x80000000;
+        // Ed25519 requires hardened derivation, so all indices should be hardened
+        return index + 0x80000000;
       });
 
     return segments.reduce(
