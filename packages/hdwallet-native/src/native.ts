@@ -435,6 +435,30 @@ export class NativeHDWallet
       })(msg?.mnemonic, msg?.masterKey)
     );
 
+    this.#ed25519MasterKey = Promise.resolve(
+      await (async (mnemonic, masterKey) => {
+        if (masterKey !== undefined) {
+          // If a master key is provided, we'll need a way to derive the Ed25519 key from it
+          // This might require additional logic depending on your key derivation method
+          throw new Error("TODO?");
+        } else if (mnemonic !== undefined) {
+          const isolatedMnemonic = await (async () => {
+            if (isMnemonicInterface(mnemonic)) return mnemonic;
+            if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
+              return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
+            }
+            throw new Error("Required property [mnemonic] is invalid");
+          })();
+          const seed = await isolatedMnemonic.toSeed();
+          seed.addRevoker?.(() => isolatedMnemonic.revoke?.());
+          const out = await seed.toEd25519MasterKey();
+          out.addRevoker?.(() => seed.revoke?.());
+          return out;
+        }
+        throw new Error("Either [mnemonic] or [masterKey] is required");
+      })(msg?.mnemonic, msg?.masterKey)
+    );
+
     if (typeof msg?.deviceId === "string") this.#deviceId = msg?.deviceId;
 
     this.#initialized = false;
