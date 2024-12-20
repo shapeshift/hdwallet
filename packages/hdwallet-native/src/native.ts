@@ -9,6 +9,7 @@ import { MixinNativeBinanceWallet, MixinNativeBinanceWalletInfo } from "./binanc
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeCosmosWallet, MixinNativeCosmosWalletInfo } from "./cosmos";
 import * as Isolation from "./crypto/isolation";
+import { Ed25519Node } from "./crypto/isolation/core/ed25519";
 import { MixinNativeETHWallet, MixinNativeETHWalletInfo } from "./ethereum";
 import { MixinNativeFioWallet, MixinNativeFioWalletInfo } from "./fio";
 import { MixinNativeKavaWallet, MixinNativeKavaWalletInfo } from "./kava";
@@ -254,6 +255,7 @@ export class NativeHDWallet
   #deviceId: string;
   #initialized = false;
   #masterKey: Promise<Isolation.Core.BIP32.Node> | undefined = undefined;
+  #ed25519MasterKey: Promise<Ed25519Node> | undefined = undefined;
 
   constructor({ mnemonic, deviceId, masterKey }: NativeAdapterArgs) {
     super();
@@ -265,6 +267,12 @@ export class NativeHDWallet
           typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
         const seed = await isolatedMnemonic.toSeed();
         return await seed.toMasterKey();
+      })();
+      this.#ed25519MasterKey = (async () => {
+        const isolatedMnemonic =
+          typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
+        const seed = await isolatedMnemonic.toSeed();
+        return await seed.toEd25519MasterKey();
       })();
     }
     this.#deviceId = deviceId;
@@ -329,6 +337,8 @@ export class NativeHDWallet
     return this.needsMnemonic(!!this.#masterKey, async () => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const masterKey = await this.#masterKey!;
+      // Assume if we have a seckp256k1 masterKey, we have a ed25519 masterKey too
+      const ed25519MasterKey = await this.#ed25519MasterKey!;
       try {
         await Promise.all([
           super.btcInitializeWallet(masterKey),
@@ -338,7 +348,7 @@ export class NativeHDWallet
           super.binanceInitializeWallet(masterKey),
           super.fioInitializeWallet(masterKey),
           super.thorchainInitializeWallet(masterKey),
-          super.solanaInitializeWallet(masterKey),
+          super.solanaInitializeWallet(ed25519MasterKey),
           super.secretInitializeWallet(masterKey),
           super.terraInitializeWallet(masterKey),
           super.kavaInitializeWallet(masterKey),

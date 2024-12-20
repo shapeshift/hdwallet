@@ -3,6 +3,7 @@ import * as bip32crypto from "bip32/src/crypto";
 import { TextEncoder } from "web-encoding";
 
 import { BIP32, Digest, SecP256K1 } from "../../core";
+import { Ed25519Node } from "../../core/ed25519";
 import { assertType, ByteArray, checkType, safeBufferFrom, Uint32 } from "../../types";
 import { Revocable, revocable } from "./revocable";
 
@@ -169,6 +170,18 @@ export class Seed extends Revocable(class {}) implements BIP32.Seed {
     const IL = I.slice(0, 32);
     const IR = I.slice(32, 64);
     const out = await Node.create(IL, IR);
+    this.addRevoker(() => out.revoke?.());
+    return out;
+  }
+
+  async toEd25519MasterKey(): Promise<Ed25519Node> {
+    // Use Ed25519-specific HMAC key
+    // https://github.com/trezor/trezor-crypto/blob/master/bip32.c#L56
+    const hmacKey = safeBufferFrom(new TextEncoder().encode("ed25519 seed"));
+    const I = safeBufferFrom(bip32crypto.hmacSHA512(hmacKey, this.#seed));
+    const IL = I.slice(0, 32);
+    const IR = I.slice(32, 64);
+    const out = await Ed25519Node.create(IL, IR);
     this.addRevoker(() => out.revoke?.());
     return out;
   }

@@ -1,8 +1,8 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import * as Isolation from "./crypto/isolation";
 import BIP32Ed25519Adapter from "./crypto/isolation/adapters/bip32ed25519";
 import { SolanaDirectAdapter } from "./crypto/isolation/adapters/solana";
+import { Ed25519Node } from "./crypto/isolation/core/ed25519";
 import { NativeHDWalletBase } from "./native";
 
 export function MixinNativeSolanaWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
@@ -28,7 +28,7 @@ export function MixinNativeSolanaWallet<TBase extends core.Constructor<NativeHDW
     readonly _supportsSolana = true;
     #solanaSigner: SolanaDirectAdapter | undefined;
 
-    async solanaInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
+    async solanaInitializeWallet(masterKey: Ed25519Node): Promise<void> {
       // Create an Ed25519 BIP32 adapter directly from our masterKey
       const ed25519Adapter = await BIP32Ed25519Adapter.fromNode(masterKey);
 
