@@ -73,23 +73,24 @@ export class Ed25519Node extends Revocable(class {}) implements Ed25519Key {
   }
 
   async derive(index: number): Promise<Ed25519Node> {
+    // Ensure hardened derivation
+    if (index < 0x80000000) {
+      index += 0x80000000;
+    }
+
     const indexBuffer = Buffer.alloc(4);
     indexBuffer.writeUInt32BE(index, 0);
 
-    const data = Buffer.concat([
-      Buffer.from([0x00]), // Hardened derivation prefix
-      this.#privateKey, // Private key
-      indexBuffer, // Index
-    ]);
+    const data = Buffer.concat([Buffer.from([0x00]), this.#privateKey, indexBuffer]);
 
     const hmac = createHmac("sha512", this.#chainCode);
     hmac.update(data);
     const I = hmac.digest();
 
-    const IL = I.slice(0, 32); // Private key
-    const IR = I.slice(32); // Chain code
+    const IL = I.slice(0, 32);
+    const IR = I.slice(32);
 
-    // ED25519 key clamping, whatever that means
+    // Apply clamping as per RFC 8032
     IL[0] &= 0xf8;
     IL[31] &= 0x7f;
     IL[31] |= 0x40;

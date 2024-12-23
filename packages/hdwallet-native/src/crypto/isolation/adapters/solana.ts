@@ -13,12 +13,10 @@ export class SolanaDirectAdapter {
   async getAddress(addressNList: core.BIP32Path): Promise<string> {
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
     const publicKeyBuffer = nodeAdapter.getPublicKey();
-    // Convert the public key to Solana format by reversing the bytes, something something Little vs. Big Endian
-    const solanaFormat = Buffer.from(publicKeyBuffer).reverse();
 
-    return new PublicKey(solanaFormat).toBase58();
+    // PublicKey constructor in Solana expects the key in big-endian format
+    return new PublicKey(publicKeyBuffer).toBase58();
   }
-
   async signDirect(transaction: VersionedTransaction, addressNList: core.BIP32Path): Promise<VersionedTransaction> {
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
     const pubkey = await this.getAddress(addressNList);
