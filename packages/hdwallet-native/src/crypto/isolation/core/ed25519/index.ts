@@ -12,7 +12,7 @@ export type Ed25519Key = {
 };
 
 export class Ed25519Node extends Revocable(class {}) {
-  readonly #privateKey: ByteArray; // Changed to privateKey
+  readonly #privateKey: ByteArray;
   readonly #chainCode: ByteArray;
   readonly explicitPath?: string;
 
@@ -29,7 +29,7 @@ export class Ed25519Node extends Revocable(class {}) {
   }
 
   async getPublicKey(): Promise<ByteArray> {
-    // Generate public key using noble-curves ed25519
+    // Generate public key from private key
     return Buffer.from(ed25519.getPublicKey(this.#privateKey));
   }
 
@@ -38,7 +38,6 @@ export class Ed25519Node extends Revocable(class {}) {
   }
 
   async sign(message: Uint8Array): Promise<ByteArray> {
-    // Sign using noble-curves ed25519
     return Buffer.from(ed25519.sign(message, this.#privateKey));
   }
 
@@ -51,7 +50,7 @@ export class Ed25519Node extends Revocable(class {}) {
     const indexBuffer = Buffer.alloc(4);
     indexBuffer.writeUInt32BE(index, 0);
 
-    // SLIP-0010 Ed25519 derivation
+    // SLIP-0010 for Ed25519
     const data = Buffer.concat([Buffer.from([0x00]), Buffer.from(this.#privateKey), indexBuffer]);
 
     const I = bip32crypto.hmacSHA512(Buffer.from(this.#chainCode), data);

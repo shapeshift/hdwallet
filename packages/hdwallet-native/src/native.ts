@@ -438,8 +438,6 @@ export class NativeHDWallet
     this.#ed25519MasterKey = Promise.resolve(
       await (async (mnemonic, masterKey) => {
         if (masterKey !== undefined) {
-          // If a master key is provided, we'll need a way to derive the Ed25519 key from it
-          // This might require additional logic depending on your key derivation method
           throw new Error("TODO?");
         } else if (mnemonic !== undefined) {
           const isolatedMnemonic = await (async () => {
