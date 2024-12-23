@@ -118,9 +118,8 @@ export class Seed implements BIP32.Seed {
   }
 
   toEd25519MasterKey(): Promise<Ed25519Node>;
-  async toEd25519MasterKey(hmacKey?: string | Uint8Array): Promise<Ed25519Node> {
-    if (hmacKey !== undefined) throw new Error("bad hmacKey type");
-
-    return Ed25519Node.create(this.xpubTree.publicKey, this.xpubTree.chainCode);
+  async toEd25519MasterKey(): Promise<Ed25519Node> {
+    const edKey = await Ed25519Node.create(this.xpubTree.publicKey, this.xpubTree.chainCode);
+    return edKey;
   }
 }
