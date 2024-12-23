@@ -3,6 +3,7 @@ import { toArrayBuffer } from "@shapeshiftoss/hdwallet-core";
 import * as bip32crypto from "bip32/src/crypto";
 
 import { BIP32, Digest, SecP256K1 } from "../../core";
+import { Ed25519Node } from "../../core/ed25519";
 import { ByteArray, checkType, safeBufferFrom, Uint32 } from "../../types";
 import { DummyEngineError, ParsedXpubTree } from "./types";
 
@@ -114,5 +115,11 @@ export class Seed implements BIP32.Seed {
     if (hmacKey !== undefined) throw new Error("bad hmacKey type");
 
     return await Node.create(this.xpubTree);
+  }
+
+  toEd25519MasterKey(): Promise<Ed25519Node>;
+  async toEd25519MasterKey(): Promise<Ed25519Node> {
+    const edKey = await Ed25519Node.create(this.xpubTree.publicKey, this.xpubTree.chainCode);
+    return edKey;
   }
 }

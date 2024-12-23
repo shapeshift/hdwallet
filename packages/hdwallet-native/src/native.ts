@@ -9,12 +9,14 @@ import { MixinNativeBinanceWallet, MixinNativeBinanceWalletInfo } from "./binanc
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeCosmosWallet, MixinNativeCosmosWalletInfo } from "./cosmos";
 import * as Isolation from "./crypto/isolation";
+import { Ed25519Node } from "./crypto/isolation/core/ed25519";
 import { MixinNativeETHWallet, MixinNativeETHWalletInfo } from "./ethereum";
 import { MixinNativeFioWallet, MixinNativeFioWalletInfo } from "./fio";
 import { MixinNativeKavaWallet, MixinNativeKavaWalletInfo } from "./kava";
 import { getNetwork } from "./networks";
 import { MixinNativeOsmosisWallet, MixinNativeOsmosisWalletInfo } from "./osmosis";
 import { MixinNativeSecretWallet, MixinNativeSecretWalletInfo } from "./secret";
+import { MixinNativeSolanaWallet, MixinNativeSolanaWalletInfo } from "./solana";
 import { MixinNativeTerraWallet, MixinNativeTerraWalletInfo } from "./terra";
 import { MixinNativeThorchainWallet, MixinNativeThorchainWalletInfo } from "./thorchain";
 
@@ -123,11 +125,13 @@ class NativeHDWalletInfo
       MixinNativeETHWalletInfo(
         MixinNativeCosmosWalletInfo(
           MixinNativeBinanceWalletInfo(
-            MixinNativeThorchainWalletInfo(
-              MixinNativeSecretWalletInfo(
-                MixinNativeTerraWalletInfo(
-                  MixinNativeKavaWalletInfo(
-                    MixinNativeArkeoWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase))
+            MixinNativeSolanaWalletInfo(
+              MixinNativeThorchainWalletInfo(
+                MixinNativeSecretWalletInfo(
+                  MixinNativeTerraWalletInfo(
+                    MixinNativeKavaWalletInfo(
+                      MixinNativeArkeoWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase))
+                    )
                   )
                 )
               )
@@ -163,6 +167,8 @@ class NativeHDWalletInfo
       case "rune":
       case "thorchain":
         return core.thorchainDescribePath(msg.path);
+      case "solana":
+        return core.solanaDescribePath(msg.path);
       case "secret":
       case "scrt":
       case "tscrt":
@@ -195,10 +201,12 @@ export class NativeHDWallet
       MixinNativeETHWallet(
         MixinNativeCosmosWallet(
           MixinNativeBinanceWallet(
-            MixinNativeThorchainWallet(
-              MixinNativeSecretWallet(
-                MixinNativeTerraWallet(
-                  MixinNativeKavaWallet(MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo)))
+            MixinNativeSolanaWallet(
+              MixinNativeThorchainWallet(
+                MixinNativeSecretWallet(
+                  MixinNativeTerraWallet(
+                    MixinNativeKavaWallet(MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo)))
+                  )
                 )
               )
             )
@@ -215,6 +223,7 @@ export class NativeHDWallet
     core.OsmosisWallet,
     core.FioWallet,
     core.ThorchainWallet,
+    core.SolanaWallet,
     core.SecretWallet,
     core.TerraWallet,
     core.KavaWallet,
@@ -236,6 +245,7 @@ export class NativeHDWallet
   readonly _supportsBinance = true;
   readonly _supportsFio = true;
   readonly _supportsThorchain = true;
+  readonly _supportsSolana = true;
   readonly _supportsSecret = true;
   readonly _supportsTerra = true;
   readonly _supportsKava = true;
@@ -245,6 +255,7 @@ export class NativeHDWallet
   #deviceId: string;
   #initialized = false;
   #masterKey: Promise<Isolation.Core.BIP32.Node> | undefined = undefined;
+  #ed25519MasterKey: Promise<Ed25519Node> | undefined = undefined;
 
   constructor({ mnemonic, deviceId, masterKey }: NativeAdapterArgs) {
     super();
@@ -256,6 +267,12 @@ export class NativeHDWallet
           typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
         const seed = await isolatedMnemonic.toSeed();
         return await seed.toMasterKey();
+      })();
+      this.#ed25519MasterKey = (async () => {
+        const isolatedMnemonic =
+          typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
+        const seed = await isolatedMnemonic.toSeed();
+        return await seed.toEd25519MasterKey();
       })();
     }
     this.#deviceId = deviceId;
@@ -317,9 +334,11 @@ export class NativeHDWallet
   async clearSession(): Promise<void> {}
 
   async initialize(): Promise<boolean | null> {
-    return this.needsMnemonic(!!this.#masterKey, async () => {
+    return this.needsMnemonic(!!this.#masterKey || !!this.#ed25519MasterKey, async () => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const masterKey = await this.#masterKey!;
+      // Assume if we have a seckp256k1 masterKey, we have a ed25519 masterKey too
+      const ed25519MasterKey = await this.#ed25519MasterKey!;
       try {
         await Promise.all([
           super.btcInitializeWallet(masterKey),
@@ -329,6 +348,7 @@ export class NativeHDWallet
           super.binanceInitializeWallet(masterKey),
           super.fioInitializeWallet(masterKey),
           super.thorchainInitializeWallet(masterKey),
+          super.solanaInitializeWallet(ed25519MasterKey),
           super.secretInitializeWallet(masterKey),
           super.terraInitializeWallet(masterKey),
           super.kavaInitializeWallet(masterKey),
@@ -370,6 +390,7 @@ export class NativeHDWallet
     this.#initialized = false;
     this.#masterKey = undefined;
 
+    super.solanaWipe();
     super.btcWipe();
     super.ethWipe();
     super.cosmosWipe();
@@ -407,6 +428,28 @@ export class NativeHDWallet
           const seed = await isolatedMnemonic.toSeed();
           seed.addRevoker?.(() => isolatedMnemonic.revoke?.());
           const out = await seed.toMasterKey();
+          out.addRevoker?.(() => seed.revoke?.());
+          return out;
+        }
+        throw new Error("Either [mnemonic] or [masterKey] is required");
+      })(msg?.mnemonic, msg?.masterKey)
+    );
+
+    this.#ed25519MasterKey = Promise.resolve(
+      await (async (mnemonic, masterKey) => {
+        if (masterKey !== undefined) {
+          throw new Error("TODO?");
+        } else if (mnemonic !== undefined) {
+          const isolatedMnemonic = await (async () => {
+            if (isMnemonicInterface(mnemonic)) return mnemonic;
+            if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
+              return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
+            }
+            throw new Error("Required property [mnemonic] is invalid");
+          })();
+          const seed = await isolatedMnemonic.toSeed();
+          seed.addRevoker?.(() => isolatedMnemonic.revoke?.());
+          const out = await seed.toEd25519MasterKey();
           out.addRevoker?.(() => seed.revoke?.());
           return out;
         }
