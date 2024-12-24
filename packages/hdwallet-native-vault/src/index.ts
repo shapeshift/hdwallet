@@ -19,6 +19,5 @@ Vault.registerValueWrapper("#mnemonic", async (x: unknown, addRevoker: (revoke: 
   return out;
 });
 
-// Register keystore handlers
-registerKeystoreTransformers(Vault);
+registerKeystoreTransformers();
 Vault.extensionRegistrationComplete();

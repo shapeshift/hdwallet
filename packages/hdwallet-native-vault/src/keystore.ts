@@ -1,8 +1,9 @@
-// src/keystore.ts
 import { blake2bFinal, blake2bInit, blake2bUpdate } from "blakejs";
 
 import { crypto, encoder } from "./util";
+import { Vault } from "./vault";
 
+// https://github.com/thorswap/SwapKit/blob/349a9212d8357cc35a8bab771728bbc8d6900ebc/packages/wallets/keystore/src/helpers.ts#L6
 export interface XChainKeystore {
   crypto: {
     cipher: string;
@@ -23,25 +24,22 @@ export interface XChainKeystore {
   meta: string;
 }
 
+// https://github.com/thorswap/SwapKit/blob/349a9212d8357cc35a8bab771728bbc8d6900ebc/packages/wallets/keystore/src/helpers.ts#L29-L42
 function blake256(data: Uint8Array): string {
   const context = blake2bInit(32);
   blake2bUpdate(context, data);
   return Buffer.from(blake2bFinal(context)).toString("hex");
 }
 
-/**
- * Decrypts a ThorSwap/XChain compatible keystore
- */
+// https://github.com/thorswap/SwapKit/blob/349a9212d8357cc35a8bab771728bbc8d6900ebc/packages/wallets/keystore/src/helpers.ts#L102
 export async function decryptFromKeystore(keystore: XChainKeystore, password: string): Promise<string> {
-  // eslint-disable-next-line no-debugger
-  debugger;
   if (keystore.version !== 1 || keystore.meta !== "xchain-keystore") {
     throw new Error("Invalid keystore format");
   }
 
   const { kdfparams } = keystore.crypto;
 
-  // Derive key using PBKDF2
+  // Derive key using PBKDF2 similar to SwapKit's `pbkdf2Async` call
   const passwordKey = await (
     await crypto
   ).subtle.importKey("raw", encoder.encode(password), "PBKDF2", false, ["deriveBits"]);
@@ -61,7 +59,6 @@ export async function decryptFromKeystore(keystore: XChainKeystore, password: st
     )
   );
 
-  // Verify MAC
   const ciphertext = Buffer.from(keystore.crypto.ciphertext, "hex");
   const mac = blake256(Buffer.concat([Buffer.from(derivedKey.subarray(16, 32)), ciphertext]));
 
@@ -69,7 +66,6 @@ export async function decryptFromKeystore(keystore: XChainKeystore, password: st
     throw new Error("Invalid password");
   }
 
-  // Import key for AES
   const aesKey = await (
     await crypto
   ).subtle.importKey(
@@ -83,7 +79,6 @@ export async function decryptFromKeystore(keystore: XChainKeystore, password: st
     ["decrypt"]
   );
 
-  // Decrypt using AES-CTR
   const iv = Buffer.from(keystore.crypto.cipherparams.iv, "hex");
   const counter = new Uint8Array(16);
   counter.set(iv);
@@ -103,10 +98,7 @@ export async function decryptFromKeystore(keystore: XChainKeystore, password: st
   return new TextDecoder().decode(decrypted);
 }
 
-// Register keystore value transformer
-export const registerKeystoreTransformers = (Vault: any) => {
-  // eslint-disable-next-line no-debugger
-  debugger;
+export const registerKeystoreTransformers = () => {
   Vault.registerValueTransformer("#keystore", async (value: unknown) => {
     if (!value || typeof value !== "string") return value;
 

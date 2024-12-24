@@ -180,11 +180,9 @@ export class Vault extends MapVault implements IVault {
     return this;
   }
 
-  async loadFromKeystore(keystoreStr: string, password: string): Promise<this> {
-    const keystore = JSON.parse(keystoreStr);
+  async loadFromKeystore(stringifiedKeystore: string, password: string) {
+    const keystore = JSON.parse(stringifiedKeystore);
     const mnemonic = await decryptFromKeystore(keystore, password);
-    // eslint-disable-next-line no-debugger
-    debugger;
     this.set("#mnemonic", mnemonic);
     return this;
   }
