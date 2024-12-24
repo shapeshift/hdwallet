@@ -2,6 +2,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as jose from "jose";
 import * as ta from "type-assertions";
 
+import { decryptFromKeystore } from "./keystore";
 import { MapVault } from "./mapVault";
 import { RawVault } from "./rawVault";
 import { ISealableVaultFactory, IVault, VaultPrepareParams } from "./types";
@@ -176,6 +177,13 @@ export class Vault extends MapVault implements IVault {
       this.clear();
       entries.forEach(([k, v]) => this.set(k, v));
     });
+    return this;
+  }
+
+  async loadFromKeystore(stringifiedKeystore: string, password: string) {
+    const keystore = JSON.parse(stringifiedKeystore);
+    const mnemonic = await decryptFromKeystore(keystore, password);
+    this.set("#mnemonic", mnemonic);
     return this;
   }
 
