@@ -1,11 +1,11 @@
-import { registerKeystoreTransformers } from "./keystore";
 import { createMnemonic, crypto, entropyToMnemonic, GENERATE_MNEMONIC } from "./util";
 import { Vault } from "./vault";
 
 export type { ISealableVaultFactory, IVault, IVaultFactory } from "./types";
 export { GENERATE_MNEMONIC } from "./util";
 export { Vault } from "./vault";
-export { type XChainKeystore, decryptFromKeystore } from "./keystore";
+export type { Keystore } from "./keystore";
+export { decryptFromKeystore } from "./keystore";
 
 Vault.registerValueTransformer("#mnemonic", async (x: unknown) => {
   if (x !== GENERATE_MNEMONIC) return x;
@@ -19,5 +19,4 @@ Vault.registerValueWrapper("#mnemonic", async (x: unknown, addRevoker: (revoke: 
   return out;
 });
 
-registerKeystoreTransformers();
 Vault.extensionRegistrationComplete();

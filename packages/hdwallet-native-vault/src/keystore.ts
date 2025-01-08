@@ -1,10 +1,11 @@
-import { blake2bFinal, blake2bInit, blake2bUpdate } from "blakejs";
+import { blake2bHex } from "blakejs";
+import crypto from "crypto";
 
-import { crypto, encoder } from "./util";
-import { Vault } from "./vault";
+import { crypto as asyncCrypto, decoder, encoder } from "./util";
 
-// https://github.com/thorswap/SwapKit/blob/349a9212d8357cc35a8bab771728bbc8d6900ebc/packages/wallets/keystore/src/helpers.ts#L6
-export interface XChainKeystore {
+// https://github.com/ethereum/go-ethereum/blob/033de2a05bdbea87b4efc5156511afe42c38fd55/accounts/keystore/key.go#L80
+// https://github.com/thorswap/SwapKit/blob/e5ff01b683f270e187d8c08d4e8a1c4e0af56f98/packages/wallets/keystore/src/helpers.ts#L6
+export interface Keystore {
   crypto: {
     cipher: string;
     ciphertext: string;
@@ -21,53 +22,50 @@ export interface XChainKeystore {
     mac: string;
   };
   version: number;
-  meta: string;
 }
 
-// https://github.com/thorswap/SwapKit/blob/349a9212d8357cc35a8bab771728bbc8d6900ebc/packages/wallets/keystore/src/helpers.ts#L29-L42
-function blake256(data: Uint8Array): string {
-  const context = blake2bInit(32);
-  blake2bUpdate(context, data);
-  return Buffer.from(blake2bFinal(context)).toString("hex");
-}
+// https://github.com/ethereum/go-ethereum/blob/033de2a05bdbea87b4efc5156511afe42c38fd55/accounts/keystore/passphrase.go#L200
+// https://github.com/thorswap/SwapKit/blob/e5ff01b683f270e187d8c08d4e8a1c4e0af56f98/packages/wallets/keystore/src/helpers.ts#L103
+export async function decryptFromKeystore(keystore: Keystore, password: string): Promise<string> {
+  const { cipher, cipherparams, ciphertext, kdf, kdfparams, mac } = keystore.crypto;
+  const { c, dklen, prf, salt } = kdfparams;
+  const { iv } = cipherparams;
 
-// https://github.com/thorswap/SwapKit/blob/349a9212d8357cc35a8bab771728bbc8d6900ebc/packages/wallets/keystore/src/helpers.ts#L102
-export async function decryptFromKeystore(keystore: XChainKeystore, password: string): Promise<string> {
-  if (keystore.version !== 1 || keystore.meta !== "xchain-keystore") {
-    throw new Error("Invalid keystore format");
-  }
+  if (kdf !== "pbkdf2") throw new Error(`Unsupported KDF: ${kdf}`);
+  if (prf !== "hmac-sha256") throw new Error(`Unsupported PBKDF2 PRF: ${prf}`);
+  if (cipher !== "aes-128-ctr") throw new Error(`Unsupported Cipher: ${cipher}`);
 
-  const { kdfparams } = keystore.crypto;
-
-  // Derive key using PBKDF2 similar to SwapKit's `pbkdf2Async` call
-  const passwordKey = await (
-    await crypto
+  const baseKey = await (
+    await asyncCrypto
   ).subtle.importKey("raw", encoder.encode(password), "PBKDF2", false, ["deriveBits"]);
 
   const derivedKey = new Uint8Array(
     await (
-      await crypto
+      await asyncCrypto
     ).subtle.deriveBits(
       {
         name: "PBKDF2",
-        salt: Buffer.from(kdfparams.salt, "hex"),
-        iterations: kdfparams.c,
+        salt: Buffer.from(salt, "hex"),
+        iterations: c,
         hash: "SHA-256",
       },
-      passwordKey,
-      kdfparams.dklen * 8
+      baseKey,
+      dklen * 8 // convert dklen from bytes to bits
     )
   );
 
-  const ciphertext = Buffer.from(keystore.crypto.ciphertext, "hex");
-  const mac = blake256(Buffer.concat([Buffer.from(derivedKey.subarray(16, 32)), ciphertext]));
+  const data = Buffer.concat([derivedKey.subarray(16, 32), Buffer.from(ciphertext, "hex")]);
 
-  if (mac !== keystore.crypto.mac) {
-    throw new Error("Invalid password");
-  }
+  // thorswap uses blake256
+  const macBlake256 = blake2bHex(data, undefined, 32);
+
+  // evm wallets use keccak256
+  const macKeccak256 = crypto.createHash("sha3-256").update(data).digest("hex");
+
+  if (macBlake256 !== mac || macKeccak256 !== mac) throw new Error("Invalid password");
 
   const aesKey = await (
-    await crypto
+    await asyncCrypto
   ).subtle.importKey(
     "raw",
     derivedKey.subarray(0, 16),
@@ -79,37 +77,17 @@ export async function decryptFromKeystore(keystore: XChainKeystore, password: st
     ["decrypt"]
   );
 
-  const iv = Buffer.from(keystore.crypto.cipherparams.iv, "hex");
-  const counter = new Uint8Array(16);
-  counter.set(iv);
-
   const decrypted = await (
-    await crypto
+    await asyncCrypto
   ).subtle.decrypt(
     {
       name: "AES-CTR",
-      counter,
+      counter: new Uint8Array(Buffer.from(iv, "hex")),
       length: 128,
     },
     aesKey,
-    ciphertext
+    Buffer.from(ciphertext, "hex")
   );
 
-  return new TextDecoder().decode(decrypted);
+  return decoder.decode(decrypted);
 }
-
-export const registerKeystoreTransformers = () => {
-  Vault.registerValueTransformer("#keystore", async (value: unknown) => {
-    if (!value || typeof value !== "string") return value;
-
-    try {
-      const keystore = JSON.parse(value) as XChainKeystore;
-      if (keystore.version !== 1 || keystore.meta !== "xchain-keystore") {
-        throw new Error("Invalid keystore format");
-      }
-      return keystore;
-    } catch {
-      return value;
-    }
-  });
-};
