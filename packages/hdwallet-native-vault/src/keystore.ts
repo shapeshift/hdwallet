@@ -2,10 +2,6 @@ import { blake2bHex } from "blakejs";
 
 import { crypto as asyncCrypto, decoder, encoder } from "./util";
 
-function toWordArray(x: Uint8Array): CryptoJS.lib.WordArray {
-  return CryptoJS.enc.Hex.parse(Buffer.from(x).toString("hex"));
-}
-
 // https://github.com/ethereum/go-ethereum/blob/033de2a05bdbea87b4efc5156511afe42c38fd55/accounts/keystore/key.go#L80
 // https://github.com/thorswap/SwapKit/blob/e5ff01b683f270e187d8c08d4e8a1c4e0af56f98/packages/wallets/keystore/src/helpers.ts#L6
 export interface Keystore {
@@ -63,9 +59,11 @@ export async function decryptFromKeystore(keystore: Keystore, password: string):
   const macBlake256 = blake2bHex(data, undefined, 32);
 
   // evm wallets use keccak256
-  const macKeccak256 = CryptoJS.enc.Hex.stringify(CryptoJS.SHA3(toWordArray(data), { outputLength: 256 }));
+  // TODO: evm wallets use keccak256 would be nice-to-have, though currently throwing at
+  // "sha3-256 is not supported (we accept pull requests)"
+  // const macKeccak256 = crypto.createHash("sha3-256").update(data).digest("hex");
 
-  if (macBlake256 !== mac || macKeccak256 !== mac) throw new Error("Invalid password");
+  if (macBlake256 !== mac) throw new Error("Invalid password");
 
   const aesKey = await (
     await asyncCrypto
