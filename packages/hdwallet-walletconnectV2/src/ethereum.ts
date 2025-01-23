@@ -35,7 +35,7 @@ const getUnsignedTxFromMessage = (msg: ETHSignTx & { from: string }) => {
         // Tagged as EIP-1559 Tx (2) explicitly to ensure compatibility accross wallets
         type: "0x2",
       }
-    : { ...utxBase, gasPrice: msg.gasPrice ? msg.gasPrice : undefined };
+    : { ...utxBase, gasPrice: msg.gasPrice };
 };
 
 export function describeETHPath(path: BIP32Path): PathDescription {
