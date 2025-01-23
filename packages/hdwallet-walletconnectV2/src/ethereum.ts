@@ -18,7 +18,10 @@ const getUnsignedTxFromMessage = (msg: ETHSignTx & { from: string }) => {
     to: msg.to,
     value: msg.value,
     data: msg.data,
-    chainId: msg.chainId,
+    // WARNING: Do *NOT* uncomment me. Diff. wallets may not handle me properly and this *WILL* make Tx broadcast fail for some.
+    // Assume the user is on the correct chain given the assertSwitchChain() call in chain-adapters
+    // If they weren't, and the chain switch failed, they can always switch manually in their wallet.
+    // chainId: msg.chainId,
     nonce: msg.nonce,
     gasLimit: msg.gasLimit,
   };
@@ -28,8 +31,11 @@ const getUnsignedTxFromMessage = (msg: ETHSignTx & { from: string }) => {
         ...utxBase,
         maxFeePerGas: msg.maxFeePerGas,
         maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
+        // See https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md#specification
+        // Tagged as EIP-1559 Tx (2) explicitly to ensure compatibility accross wallets
+        type: "0x2",
       }
-    : { ...utxBase, gasPrice: msg.gasPrice };
+    : { ...utxBase, gasPrice: msg.gasPrice ? msg.gasPrice : undefined };
 };
 
 export function describeETHPath(path: BIP32Path): PathDescription {
