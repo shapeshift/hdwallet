@@ -5,7 +5,6 @@ import { TextEncoder } from "web-encoding";
 
 import type { Seed as SeedType } from "../../core/bip32";
 import type { Mnemonic as Bip39Mnemonic } from "../../core/bip39";
-import { Ed25519Node } from "../../core/ed25519";
 import { Seed } from "./bip32";
 import { Revocable, revocable } from "./revocable";
 
@@ -42,9 +41,5 @@ export class Mnemonic extends Revocable(class {}) implements Bip39Mnemonic {
     );
     this.addRevoker(() => out.revoke?.());
     return out;
-  }
-  async toEd25519MasterKey(passphrase?: string): Promise<Ed25519Node> {
-    const seed = await this.toSeed(passphrase);
-    return seed.toEd25519MasterKey();
   }
 }

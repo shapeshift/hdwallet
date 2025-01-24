@@ -1,36 +1,31 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { PublicKey, VersionedTransaction } from "@solana/web3.js";
 
-import BIP32Ed25519Adapter from "./bip32ed25519";
+import { Isolation } from "../..";
 
-export class SolanaDirectAdapter {
-  protected readonly nodeAdapter: BIP32Ed25519Adapter;
+export class SolanaAdapter {
+  protected readonly nodeAdapter: Isolation.Adapters.Ed25519;
 
-  constructor(nodeAdapter: BIP32Ed25519Adapter) {
+  constructor(nodeAdapter: Isolation.Adapters.Ed25519) {
     this.nodeAdapter = nodeAdapter;
   }
 
   async getAddress(addressNList: core.BIP32Path): Promise<string> {
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
-    const publicKeyBuffer = await nodeAdapter.getPublicKey();
-
-    const bufferForHex = Buffer.from(publicKeyBuffer);
-
-    const pubKey = new PublicKey(bufferForHex);
-
-    return pubKey.toBase58();
+    const publicKey = await nodeAdapter.getPublicKey();
+    return new PublicKey(publicKey).toBase58();
   }
 
-  async signDirect(transaction: VersionedTransaction, addressNList: core.BIP32Path): Promise<VersionedTransaction> {
+  async signTransaction(
+    transaction: VersionedTransaction,
+    addressNList: core.BIP32Path
+  ): Promise<VersionedTransaction> {
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
-    const pubkey = await this.getAddress(addressNList);
-
-    const messageToSign = transaction.message.serialize();
-    const signature = await nodeAdapter.node.sign(messageToSign);
-
-    transaction.addSignature(new PublicKey(pubkey), signature);
+    const publicKeyBuffer = await nodeAdapter.getPublicKey();
+    const signature = await nodeAdapter.node.sign(transaction.message.serialize());
+    transaction.addSignature(new PublicKey(publicKeyBuffer), signature);
     return transaction;
   }
 }
 
-export default SolanaDirectAdapter;
+export default SolanaAdapter;

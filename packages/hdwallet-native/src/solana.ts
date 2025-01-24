@@ -1,17 +1,15 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import BIP32Ed25519Adapter from "./crypto/isolation/adapters/bip32ed25519";
-import { SolanaDirectAdapter } from "./crypto/isolation/adapters/solana";
-import { Ed25519Node } from "./crypto/isolation/core/ed25519";
+import { Isolation } from "./crypto";
+import { SolanaAdapter } from "./crypto/isolation/adapters/solana";
 import { NativeHDWalletBase } from "./native";
 
 export function MixinNativeSolanaWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
   // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeSolanaWalletInfo extends Base implements core.SolanaWalletInfo {
     readonly _supportsSolanaInfo = true;
-    _chainId = 1;
 
-    solanaGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.SolanaAccountPath> {
+    solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> {
       return core.solanaGetAccountPaths(msg);
     }
 
@@ -26,29 +24,27 @@ export function MixinNativeSolanaWallet<TBase extends core.Constructor<NativeHDW
   // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeSolanaWallet extends Base {
     readonly _supportsSolana = true;
-    #solanaSigner: SolanaDirectAdapter | undefined;
 
-    async solanaInitializeWallet(masterKey: Ed25519Node): Promise<void> {
-      // Create an Ed25519 BIP32 adapter directly from our masterKey
-      const ed25519Adapter = await BIP32Ed25519Adapter.fromNode(masterKey);
+    adapter: SolanaAdapter | undefined;
 
-      // Initialize the Solana adapter with the Ed25519 adapter
-      this.#solanaSigner = new SolanaDirectAdapter(ed25519Adapter);
+    async solanaInitializeWallet(masterKey: Isolation.Core.Ed25519.Node): Promise<void> {
+      const nodeAdapter = new Isolation.Adapters.Ed25519(masterKey);
+      this.adapter = new SolanaAdapter(nodeAdapter);
     }
 
     solanaWipe() {
-      this.#solanaSigner = undefined;
+      this.adapter = undefined;
     }
 
     async solanaGetAddress(msg: core.SolanaGetAddress): Promise<string | null> {
-      return this.needsMnemonic(!!this.#solanaSigner, () => {
+      return this.needsMnemonic(!!this.adapter, () => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return this.#solanaSigner!.getAddress(msg.addressNList);
+        return this.adapter!.getAddress(msg.addressNList);
       });
     }
 
     async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
-      return this.needsMnemonic(!!this.#solanaSigner, async () => {
+      return this.needsMnemonic(!!this.adapter, async () => {
         const address = await this.solanaGetAddress({
           addressNList: msg.addressNList,
           showDisplay: false,
@@ -57,12 +53,11 @@ export function MixinNativeSolanaWallet<TBase extends core.Constructor<NativeHDW
         if (!address) throw new Error("Failed to get Solana address");
 
         const transaction = core.solanaBuildTransaction(msg, address);
-        const signedTx = await this.#solanaSigner!.signDirect(transaction, msg.addressNList);
-        const serializedData = signedTx.serialize();
+        const signedTransaction = await this.adapter!.signTransaction(transaction, msg.addressNList);
 
         return {
-          serialized: Buffer.from(serializedData).toString("base64"),
-          signatures: signedTx.signatures.map((signature) => Buffer.from(signature).toString("base64")),
+          serialized: Buffer.from(signedTransaction.serialize()).toString("base64"),
+          signatures: signedTransaction.signatures.map((signature) => Buffer.from(signature).toString("base64")),
         };
       });
     }

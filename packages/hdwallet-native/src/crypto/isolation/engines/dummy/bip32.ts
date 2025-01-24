@@ -2,38 +2,37 @@ import ecc from "@bitcoinerlab/secp256k1";
 import { toArrayBuffer } from "@shapeshiftoss/hdwallet-core";
 import * as bip32crypto from "bip32/src/crypto";
 
-import { BIP32, Digest, SecP256K1 } from "../../core";
-import { Ed25519Node } from "../../core/ed25519";
+import { Core } from "../../../isolation";
 import { ByteArray, checkType, safeBufferFrom, Uint32 } from "../../types";
 import { DummyEngineError, ParsedXpubTree } from "./types";
 
 export * from "../../core/bip32";
 
-export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K1.ECDHKey {
+export class Node implements Core.BIP32.Node, Core.SecP256K1.ECDSARecoverableKey, Core.SecP256K1.ECDHKey {
   readonly xpubTree: ParsedXpubTree;
 
   protected constructor(xpubTree: ParsedXpubTree) {
     this.xpubTree = xpubTree;
   }
 
-  static async create(xpubTree: ParsedXpubTree): Promise<BIP32.Node> {
+  static async create(xpubTree: ParsedXpubTree): Promise<Core.BIP32.Node> {
     return new Node(xpubTree);
   }
 
-  async getPublicKey(): Promise<SecP256K1.CompressedPoint> {
+  async getPublicKey(): Promise<Core.SecP256K1.CompressedPoint> {
     return this.xpubTree.publicKey;
   }
 
-  async getChainCode(): Promise<BIP32.ChainCode> {
+  async getChainCode(): Promise<Core.BIP32.ChainCode> {
     return this.xpubTree.chainCode;
   }
 
-  async ecdsaSign(digestAlgorithm: null, msg: ByteArray<32>, counter?: Uint32): Promise<SecP256K1.Signature>;
+  async ecdsaSign(digestAlgorithm: null, msg: ByteArray<32>, counter?: Uint32): Promise<Core.SecP256K1.Signature>;
   async ecdsaSign(
-    digestAlgorithm: Digest.AlgorithmName<32>,
+    digestAlgorithm: Core.Digest.AlgorithmName<32>,
     msg: Uint8Array,
     counter?: Uint32
-  ): Promise<SecP256K1.Signature>;
+  ): Promise<Core.SecP256K1.Signature>;
   async ecdsaSign(): Promise<never> {
     throw new DummyEngineError();
   }
@@ -42,12 +41,12 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
     digestAlgorithm: null,
     msg: ByteArray<32>,
     counter?: Uint32
-  ): Promise<SecP256K1.RecoverableSignature>;
+  ): Promise<Core.SecP256K1.RecoverableSignature>;
   async ecdsaSignRecoverable(
-    digestAlgorithm: Digest.AlgorithmName<32>,
+    digestAlgorithm: Core.Digest.AlgorithmName<32>,
     msg: Uint8Array,
     counter?: Uint32
-  ): Promise<SecP256K1.RecoverableSignature>;
+  ): Promise<Core.SecP256K1.RecoverableSignature>;
   async ecdsaSignRecoverable(): Promise<never> {
     throw new DummyEngineError();
   }
@@ -74,9 +73,9 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
         depth: this.xpubTree.depth + 1,
         parentFp: this.xpubTree.fingerprint,
         childNum: index,
-        chainCode: checkType(BIP32.ChainCode, IR),
-        publicKey: checkType(SecP256K1.CompressedPoint, Ki),
-        fingerprint: new DataView(toArrayBuffer(Digest.Algorithms.hash160(Ki))).getUint32(0),
+        chainCode: checkType(Core.BIP32.ChainCode, IR),
+        publicKey: checkType(Core.SecP256K1.CompressedPoint, Ki),
+        fingerprint: new DataView(toArrayBuffer(Core.Digest.Algorithms.hash160(Ki))).getUint32(0),
         children: new Map(),
       };
 
@@ -87,39 +86,36 @@ export class Node implements BIP32.Node, SecP256K1.ECDSARecoverableKey, SecP256K
     return out as this;
   }
 
-  async ecdh(publicKey: SecP256K1.CurvePoint, digestAlgorithm?: Digest.AlgorithmName<32>): Promise<ByteArray<32>>;
+  async ecdh(
+    publicKey: Core.SecP256K1.CurvePoint,
+    digestAlgorithm?: Core.Digest.AlgorithmName<32>
+  ): Promise<ByteArray<32>>;
   async ecdh(): Promise<never> {
     throw new DummyEngineError();
   }
 
-  async ecdhRaw(publicKey: SecP256K1.CurvePoint): Promise<SecP256K1.UncompressedPoint>;
+  async ecdhRaw(publicKey: Core.SecP256K1.CurvePoint): Promise<Core.SecP256K1.UncompressedPoint>;
   async ecdhRaw(): Promise<never> {
     throw new DummyEngineError();
   }
 }
 
-export class Seed implements BIP32.Seed {
+export class Seed implements Core.BIP32.Seed {
   readonly xpubTree: ParsedXpubTree;
 
   protected constructor(xpubTree: ParsedXpubTree) {
     this.xpubTree = xpubTree;
   }
 
-  static async create(xpubTree: ParsedXpubTree): Promise<BIP32.Seed> {
+  static async create(xpubTree: ParsedXpubTree): Promise<Core.BIP32.Seed> {
     return new Seed(xpubTree);
   }
 
-  toMasterKey(): Promise<BIP32.Node>;
-  toMasterKey(hmacKey: string | Uint8Array): never;
-  async toMasterKey(hmacKey?: string | Uint8Array): Promise<BIP32.Node> {
-    if (hmacKey !== undefined) throw new Error("bad hmacKey type");
-
-    return await Node.create(this.xpubTree);
+  async toSecp256k1MasterKey(): Promise<Core.BIP32.Node> {
+    return Node.create(this.xpubTree);
   }
 
-  toEd25519MasterKey(): Promise<Ed25519Node>;
-  async toEd25519MasterKey(): Promise<Ed25519Node> {
-    const edKey = await Ed25519Node.create(this.xpubTree.publicKey, this.xpubTree.chainCode);
-    return edKey;
+  async toEd25519MasterKey(): Promise<Core.Ed25519.Node> {
+    throw new DummyEngineError();
   }
 }
