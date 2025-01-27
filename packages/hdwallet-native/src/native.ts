@@ -293,7 +293,7 @@ export class NativeHDWallet
         msg.map(async (getPublicKey) => {
           const { addressNList, coin, curve, scriptType } = getPublicKey;
 
-          switch (getPublicKey.curve) {
+          switch (curve.toLowerCase()) {
             case "secp256k1": {
               // TODO: return the xpub that's actually asked for, not the key of the hardened path
               // It's done this way for hilarious historical reasons and will break ETH if fixed
