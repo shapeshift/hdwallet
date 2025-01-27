@@ -11,7 +11,7 @@ export class SolanaAdapter {
   }
 
   async getAddress(addressNList: core.BIP32Path): Promise<string> {
-    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
+    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToHardenedBIP32(addressNList));
     const publicKey = await nodeAdapter.getPublicKey();
     return new PublicKey(publicKey).toBase58();
   }
@@ -20,7 +20,7 @@ export class SolanaAdapter {
     transaction: VersionedTransaction,
     addressNList: core.BIP32Path
   ): Promise<VersionedTransaction> {
-    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
+    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToHardenedBIP32(addressNList));
     const publicKeyBuffer = await nodeAdapter.getPublicKey();
     const signature = await nodeAdapter.node.sign(transaction.message.serialize());
     transaction.addSignature(new PublicKey(publicKeyBuffer), signature);
