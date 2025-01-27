@@ -9,7 +9,7 @@ describe("getKeyPair", () => {
       "all all all all all all all all all all all all"
     );
     const seed = await mnemonic.toSeed();
-    masterKey = await seed.toMasterKey();
+    masterKey = await seed.toSecp256k1MasterKey();
   });
 
   it("should produce the key pair at m/1337/0", async () => {

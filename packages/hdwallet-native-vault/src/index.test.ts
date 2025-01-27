@@ -106,7 +106,7 @@ function testVaultImpl(name: string, Vault: ISealableVaultFactory<IVault>) {
       expect(
         await mnemonic
           .toSeed()
-          .then((x) => x.toMasterKey())
+          .then((x) => x.toSecp256k1MasterKey())
           .then((x) => x.getPublicKey())
           .then((x) => Buffer.from(x).toString("hex"))
       ).toMatchInlineSnapshot(`"03e3b30e8c21923752a408242e069941fedbaef7db7161f7e2c5f3fdafe7e25ddc"`);
@@ -121,7 +121,7 @@ function testVaultImpl(name: string, Vault: ISealableVaultFactory<IVault>) {
       expect(
         await mnemonic
           .toSeed()
-          .then((x) => x.toMasterKey())
+          .then((x) => x.toSecp256k1MasterKey())
           .then((x) => x.getPublicKey())
           .then((x) => Buffer.from(x).toString("hex"))
       ).toMatchInlineSnapshot(`"03e3b30e8c21923752a408242e069941fedbaef7db7161f7e2c5f3fdafe7e25ddc"`);
@@ -187,7 +187,7 @@ function testVaultImpl(name: string, Vault: ISealableVaultFactory<IVault>) {
       expect(
         await mnemonic
           .toSeed()
-          .then((x) => x.toMasterKey())
+          .then((x) => x.toSecp256k1MasterKey())
           .then((x) => x.getPublicKey())
           .then((x) => Buffer.from(x).toString("hex"))
       ).toMatchInlineSnapshot(`"02576bde4c55b05886e56eeeeff304006352f935b6dfc1c409f7eae521dbc5558e"`);
@@ -206,7 +206,7 @@ function testVaultImpl(name: string, Vault: ISealableVaultFactory<IVault>) {
       expect(
         await mnemonic
           .toSeed()
-          .then((x) => x.toMasterKey())
+          .then((x) => x.toSecp256k1MasterKey())
           .then((x) => x.getPublicKey())
           .then((x) => Buffer.from(x).toString("hex"))
       ).toMatchInlineSnapshot(`"02576bde4c55b05886e56eeeeff304006352f935b6dfc1c409f7eae521dbc5558e"`);

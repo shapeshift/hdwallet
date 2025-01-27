@@ -8,11 +8,13 @@ export type NativeAdapterArgs = {
 } & (
   | {
       mnemonic?: string | Isolation.Core.BIP39.Mnemonic;
-      masterKey?: never;
+      secp256k1MasterKey?: never;
+      ed25519MasterKey?: never;
     }
   | {
       mnemonic?: never;
-      masterKey?: Isolation.Core.BIP32.Node;
+      secp256k1MasterKey?: Isolation.Core.BIP32.Node;
+      ed25519MasterKey?: Isolation.Core.Ed25519.Node;
     }
 );
 

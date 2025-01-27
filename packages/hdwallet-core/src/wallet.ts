@@ -23,7 +23,7 @@ export interface GetPublicKey {
   addressNList: BIP32Path;
   showDisplay?: boolean;
   scriptType?: BTCInputScriptType; // Defaults to BTCInputScriptType.SpendAddress
-  curve: string;
+  curve: "secp256k1" | "ed25519";
   coin: Coin;
 }
 
