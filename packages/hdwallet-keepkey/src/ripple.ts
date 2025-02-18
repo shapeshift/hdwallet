@@ -1,7 +1,7 @@
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as RippleMessages from "@keepkey/device-protocol/lib/messages-ripple_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import cloneDeep from "lodash/clonedeep";
+import cloneDeep from "lodash/cloneDeep";
 
 import { Transport } from "./transport";
 
