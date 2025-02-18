@@ -2,7 +2,6 @@ import * as native from "@shapeshiftoss/hdwallet-native";
 import * as bip39 from "bip39";
 import PLazy from "p-lazy";
 import * as uuid from "uuid";
-import { TextDecoder, TextEncoder } from "web-encoding";
 
 import { AsyncCrypto } from "./types";
 
