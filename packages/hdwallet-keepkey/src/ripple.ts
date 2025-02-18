@@ -1,7 +1,7 @@
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as RippleMessages from "@keepkey/device-protocol/lib/messages-ripple_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import _ from "lodash";
+import cloneDeep from "lodash/clonedeep";
 
 import { Transport } from "./transport";
 
@@ -53,7 +53,7 @@ export async function rippleSignTx(transport: Transport, msg: core.RippleSignTx)
 
     const signedTx = resp.proto as RippleMessages.RippleSignedTx;
 
-    const signed = _.cloneDeep(msg.tx);
+    const signed = cloneDeep(msg.tx);
 
     signed.value.signatures = [
       {

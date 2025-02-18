@@ -7,7 +7,7 @@ import { BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
 import Base64 from "base64-js";
 import * as bchAddr from "bchaddrjs";
 import * as bitcoinMsg from "bitcoinjs-message";
-import _ from "lodash";
+import zip from "lodash/zip";
 
 import { currencies } from "./currencies";
 import { LedgerTransport } from "./transport";
@@ -222,7 +222,7 @@ export async function btcSignTx(
   }
 
   if (txs.length !== indexes.length) throw new Error("tx/index array length mismatch");
-  const inputs = _.zip(txs, indexes, [], []) as Array<[Transaction, number, undefined, undefined]>;
+  const inputs = zip(txs, indexes, [], []) as Array<[Transaction, number, undefined, undefined]>;
 
   const txArgs: CreateTransactionArg = {
     inputs,

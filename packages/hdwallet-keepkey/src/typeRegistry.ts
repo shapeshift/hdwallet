@@ -7,17 +7,17 @@ import * as RippleMessages from "@keepkey/device-protocol/lib/messages-ripple_pb
 import * as ThorchainMessages from "@keepkey/device-protocol/lib/messages-thorchain_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as jspb from "google-protobuf";
-import _ from "lodash";
+import omit from "lodash/omit";
 
 // Conflict between typedef and actual js export
 
 const AllMessages = ([] as Array<[string, core.Constructor<jspb.Message>]>)
-  .concat(Object.entries(_.omit(Messages, "MessageType", "MessageTypeMap")))
+  .concat(Object.entries(omit(Messages, "MessageType", "MessageTypeMap")))
   .concat(Object.entries(CosmosMessages))
   .concat(Object.entries(BinanceMessages))
   .concat(Object.entries(RippleMessages))
   .concat(Object.entries(NanoMessages))
-  .concat(Object.entries(_.omit(EosMessages, "EosPublicKeyKind", "EosPublicKeyKindMap")))
+  .concat(Object.entries(omit(EosMessages, "EosPublicKeyKind", "EosPublicKeyKindMap")))
   .concat(Object.entries(ThorchainMessages));
 
 const upperCasedMessageClasses = AllMessages.reduce((registry, entry: [string, core.Constructor<jspb.Message>]) => {
