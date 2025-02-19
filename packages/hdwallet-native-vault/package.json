@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-native-vault",
-  "version": "1.59.1",
+  "version": "1.59.2",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,15 +15,14 @@
   },
   "dependencies": {
     "@bitcoinerlab/secp256k1": "^1.1.1",
-    "@shapeshiftoss/hdwallet-native": "1.59.1",
+    "@shapeshiftoss/hdwallet-native": "1.59.2",
     "bip39": "^3.0.4",
     "hash-wasm": "^4.11.0",
     "idb-keyval": "^6.0.3",
     "jose": "^4.3.5",
     "p-lazy": "^3.1.0",
     "type-assertions": "^1.1.0",
-    "uuid": "^8.3.2",
-    "web-encoding": "^1.1.0"
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "fake-indexeddb": "^3.1.7"

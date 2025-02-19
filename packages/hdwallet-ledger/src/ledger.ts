@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import _ from "lodash";
+import isObject from "lodash/isObject";
 
 import * as btc from "./bitcoin";
 import * as cosmos from "./cosmos";
@@ -10,7 +10,7 @@ import { LedgerTransport } from "./transport";
 import { coinToLedgerAppName, handleError } from "./utils";
 
 export function isLedger(wallet: core.HDWallet): wallet is LedgerHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isLedger;
+  return isObject(wallet) && (wallet as any)._isLedger;
 }
 
 function describeETHPath(path: core.BIP32Path): core.PathDescription {

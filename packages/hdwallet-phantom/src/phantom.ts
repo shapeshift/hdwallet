@@ -3,7 +3,7 @@ import { BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
 import Base64 from "base64-js";
 import * as bitcoinMsg from "bitcoinjs-message";
 import { keccak256, recoverAddress } from "ethers/lib/utils.js";
-import _ from "lodash";
+import isObject from "lodash/isObject";
 
 import * as btc from "./bitcoin";
 import * as eth from "./ethereum";
@@ -11,7 +11,7 @@ import { solanaSendTx, solanaSignTx } from "./solana";
 import { PhantomEvmProvider, PhantomSolanaProvider, PhantomUtxoProvider } from "./types";
 
 export function isPhantom(wallet: core.HDWallet): wallet is PhantomHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isPhantom;
+  return isObject(wallet) && (wallet as any)._isPhantom;
 }
 
 export class PhantomHDWalletInfo

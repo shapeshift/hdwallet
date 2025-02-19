@@ -11,7 +11,6 @@ import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeCosmosWallet, MixinNativeCosmosWalletInfo } from "./cosmos";
 import * as Isolation from "./crypto/isolation";
 import { MixinNativeETHWallet, MixinNativeETHWalletInfo } from "./ethereum";
-import { MixinNativeFioWallet, MixinNativeFioWalletInfo } from "./fio";
 import { MixinNativeKavaWallet, MixinNativeKavaWalletInfo } from "./kava";
 import { getNetwork } from "./networks";
 import { MixinNativeOsmosisWallet, MixinNativeOsmosisWalletInfo } from "./osmosis";
@@ -123,17 +122,15 @@ export class NativeHDWalletBase extends NativeHDWalletInfoBase {
 
 class NativeHDWalletInfo
   extends MixinNativeBTCWalletInfo(
-    MixinNativeFioWalletInfo(
-      MixinNativeETHWalletInfo(
-        MixinNativeCosmosWalletInfo(
-          MixinNativeBinanceWalletInfo(
-            MixinNativeSolanaWalletInfo(
-              MixinNativeThorchainWalletInfo(
-                MixinNativeSecretWalletInfo(
-                  MixinNativeTerraWalletInfo(
-                    MixinNativeKavaWalletInfo(
-                      MixinNativeArkeoWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase))
-                    )
+    MixinNativeETHWalletInfo(
+      MixinNativeCosmosWalletInfo(
+        MixinNativeBinanceWalletInfo(
+          MixinNativeSolanaWalletInfo(
+            MixinNativeThorchainWalletInfo(
+              MixinNativeSecretWalletInfo(
+                MixinNativeTerraWalletInfo(
+                  MixinNativeKavaWalletInfo(
+                    MixinNativeArkeoWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase))
                   )
                 )
               )
@@ -187,8 +184,6 @@ class NativeHDWalletInfo
       case "osmosis":
       case "osmo":
         return core.osmosisDescribePath(msg.path);
-      case "fio":
-        return core.fioDescribePath(msg.path);
       case "arkeo":
         return core.arkeoDescribePath(msg.path);
       default:
@@ -199,16 +194,14 @@ class NativeHDWalletInfo
 
 export class NativeHDWallet
   extends MixinNativeBTCWallet(
-    MixinNativeFioWallet(
-      MixinNativeETHWallet(
-        MixinNativeCosmosWallet(
-          MixinNativeBinanceWallet(
-            MixinNativeSolanaWallet(
-              MixinNativeThorchainWallet(
-                MixinNativeSecretWallet(
-                  MixinNativeTerraWallet(
-                    MixinNativeKavaWallet(MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo)))
-                  )
+    MixinNativeETHWallet(
+      MixinNativeCosmosWallet(
+        MixinNativeBinanceWallet(
+          MixinNativeSolanaWallet(
+            MixinNativeThorchainWallet(
+              MixinNativeSecretWallet(
+                MixinNativeTerraWallet(
+                  MixinNativeKavaWallet(MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo)))
                 )
               )
             )
@@ -223,7 +216,6 @@ export class NativeHDWallet
     core.ETHWallet,
     core.CosmosWallet,
     core.OsmosisWallet,
-    core.FioWallet,
     core.ThorchainWallet,
     core.SolanaWallet,
     core.SecretWallet,
@@ -346,7 +338,6 @@ export class NativeHDWallet
           super.cosmosInitializeWallet(secp256k1MasterKey),
           super.osmosisInitializeWallet(secp256k1MasterKey),
           super.binanceInitializeWallet(secp256k1MasterKey),
-          super.fioInitializeWallet(secp256k1MasterKey),
           super.thorchainInitializeWallet(secp256k1MasterKey),
           super.secretInitializeWallet(secp256k1MasterKey),
           super.terraInitializeWallet(secp256k1MasterKey),
@@ -399,7 +390,6 @@ export class NativeHDWallet
     super.cosmosWipe();
     super.osmosisWipe();
     super.binanceWipe();
-    super.fioWipe();
     super.thorchainWipe();
     super.secretWipe();
     super.terraWipe();

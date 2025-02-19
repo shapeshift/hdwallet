@@ -13,7 +13,6 @@ import { btcTests } from "./bitcoin";
 import { cosmosTests } from "./cosmos";
 import { eosTests } from "./eos";
 import { ethTests } from "./ethereum";
-import { fioTests } from "./fio";
 import { kavaTests } from "./kava";
 import { osmosisTests } from "./osmosis";
 import { rippleTests } from "./ripple";
@@ -83,16 +82,6 @@ export function integration(suite: WalletSuite): void {
       });
 
       eosTests(() => ({ wallet, info }));
-    });
-
-    describe("FioWallet", () => {
-      let wallet2: core.HDWallet;
-      beforeAll(async () => {
-        wallet = await suite.createWallet("Fio");
-        wallet2 = await suite.createWallet("Fio");
-      });
-
-      fioTests(() => ({ wallet, info, wallet2 }));
     });
 
     describe("CosmosWallet", () => {

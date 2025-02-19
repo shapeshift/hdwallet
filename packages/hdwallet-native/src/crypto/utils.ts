@@ -1,5 +1,3 @@
-import { TextDecoder, TextEncoder } from "web-encoding";
-
 export function fromUtf8ToArray(str: string): Uint8Array {
   return new TextEncoder().encode(str);
 }
