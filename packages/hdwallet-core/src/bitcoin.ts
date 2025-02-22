@@ -257,6 +257,7 @@ export enum BTCOutputScriptType {
   Bech32 = "bech32",
   PayToWitness = "p2wpkh",
   PayToP2SHWitness = "p2sh-p2wpkh",
+  PayToTaproot = "p2tr",
 }
 
 export enum BTCOutputAddressType {
