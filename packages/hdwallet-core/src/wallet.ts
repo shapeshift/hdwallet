@@ -7,7 +7,6 @@ import { CosmosWallet, CosmosWalletInfo } from "./cosmos";
 import { DebugLinkWallet } from "./debuglink";
 import { EosWallet, EosWalletInfo } from "./eos";
 import { ETHWallet, ETHWalletInfo } from "./ethereum";
-import { FioWallet, FioWalletInfo } from "./fio";
 import { KavaWallet, KavaWalletInfo } from "./kava";
 import { OsmosisWallet, OsmosisWalletInfo } from "./osmosis";
 import { RippleWallet, RippleWalletInfo } from "./ripple";
@@ -23,7 +22,7 @@ export interface GetPublicKey {
   addressNList: BIP32Path;
   showDisplay?: boolean;
   scriptType?: BTCInputScriptType; // Defaults to BTCInputScriptType.SpendAddress
-  curve: string;
+  curve: "secp256k1" | "ed25519";
   coin: Coin;
 }
 
@@ -199,14 +198,6 @@ export function supportsEos(wallet: HDWallet): wallet is EosWallet {
 
 export function infoEos(info: HDWalletInfo): info is EosWalletInfo {
   return isObject(info) && (info as any)._supportsEosInfo;
-}
-
-export function supportsFio(wallet: HDWallet): wallet is FioWallet {
-  return isObject(wallet) && (wallet as any)._supportsFio;
-}
-
-export function infoFio(info: HDWalletInfo): info is FioWalletInfo {
-  return isObject(info) && (info as any)._supportsFioInfo;
 }
 
 export function supportsSecret(wallet: HDWallet): wallet is SecretWallet {

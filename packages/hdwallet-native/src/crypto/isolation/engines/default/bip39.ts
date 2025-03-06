@@ -1,7 +1,6 @@
 /// <reference types="bip32/types/crypto" />
 
 import { createSHA512, pbkdf2 } from "hash-wasm";
-import { TextEncoder } from "web-encoding";
 
 import type { Seed as SeedType } from "../../core/bip32";
 import type { Mnemonic as Bip39Mnemonic } from "../../core/bip39";

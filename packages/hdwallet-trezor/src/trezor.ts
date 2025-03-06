@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import _ from "lodash";
+import isObject from "lodash/isObject";
 
 import * as Btc from "./bitcoin";
 import * as Eth from "./ethereum";
@@ -7,7 +7,7 @@ import { TrezorTransport } from "./transport";
 import { handleError } from "./utils";
 
 export function isTrezor(wallet: core.HDWallet): wallet is TrezorHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isTrezor;
+  return isObject(wallet) && (wallet as any)._isTrezor;
 }
 
 function describeETHPath(path: core.BIP32Path): core.PathDescription {

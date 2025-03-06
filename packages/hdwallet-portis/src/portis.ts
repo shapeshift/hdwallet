@@ -1,6 +1,6 @@
 import Portis from "@portis/web3";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import _ from "lodash";
+import isObject from "lodash/isObject";
 import PLazy from "p-lazy";
 import type Web3 from "web3";
 
@@ -10,7 +10,7 @@ import * as eth from "./ethereum";
 const web3 = PLazy.from(async () => (await import("web3")).default);
 
 export function isPortis(wallet: core.HDWallet): wallet is PortisHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isPortis;
+  return isObject(wallet) && (wallet as any)._isPortis;
 }
 
 type HasNonTrivialConstructor<T> = T extends { new (): any } ? never : T;

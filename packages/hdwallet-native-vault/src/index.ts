@@ -4,6 +4,8 @@ import { Vault } from "./vault";
 export type { ISealableVaultFactory, IVault, IVaultFactory } from "./types";
 export { GENERATE_MNEMONIC } from "./util";
 export { Vault } from "./vault";
+export type { Keystore } from "./keystore";
+export { decryptFromKeystore } from "./keystore";
 
 Vault.registerValueTransformer("#mnemonic", async (x: unknown) => {
   if (x !== GENERATE_MNEMONIC) return x;
@@ -16,4 +18,5 @@ Vault.registerValueWrapper("#mnemonic", async (x: unknown, addRevoker: (revoke: 
   addRevoker(() => out.revoke?.());
   return out;
 });
+
 Vault.extensionRegistrationComplete();

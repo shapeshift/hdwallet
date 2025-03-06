@@ -97,6 +97,11 @@ export function addressNListToBIP32(address: number[]): string {
   return `m/${address.map((num) => (num >= HARDENED ? `${num - HARDENED}'` : num)).join("/")}`;
 }
 
+// force hardened bip32 path for ed25519 derivation
+export function addressNListToHardenedBIP32(address: number[]): string {
+  return `m/${address.map((num) => (num >= HARDENED ? `${num - HARDENED}'` : `${num}'`)).join("/")}`;
+}
+
 export function takeFirstOfManyEvents(
   eventEmitter: eventemitter2.EventEmitter2,
   events: string[]
@@ -142,7 +147,7 @@ export const slip44Table = Object.freeze({
   Binance: 714,
   Ripple: 144,
   Eos: 194,
-  Fio: 235,
+  // Fio: 235, Fio support removed in this commit. Blame me if you need it back.
   Thorchain: 931,
   Rune: 931,
   Cardano: 1815,

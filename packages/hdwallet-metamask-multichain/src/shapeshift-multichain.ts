@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { AddEthereumChainParameter } from "@shapeshiftoss/hdwallet-core";
 import { ethErrors, serializeError } from "eth-rpc-errors";
-import _ from "lodash";
+import isObject from "lodash/isObject";
 import { EIP6963ProviderDetail } from "mipd";
 
 import * as Btc from "./bitcoin";
@@ -14,7 +14,7 @@ import * as Thorchain from "./thorchain";
 import * as utxo from "./utxo";
 
 export function isMetaMask(wallet: core.HDWallet): wallet is MetaMaskMultiChainHDWallet {
-  return _.isObject(wallet) && (wallet as any)._isMetaMask;
+  return isObject(wallet) && (wallet as any)._isMetaMask;
 }
 
 export class MetaMaskMultiChainHDWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
@@ -37,7 +37,6 @@ export class MetaMaskMultiChainHDWalletInfo implements core.HDWalletInfo, core.E
   readonly _supportsBinanceInfo = false;
   readonly _supportsRippleInfo = false;
   readonly _supportsEosInfo = false;
-  readonly _supportsFioInfo = false;
   readonly _supportsThorchainInfo = true;
 
   public getVendor(): string {
@@ -296,8 +295,6 @@ export class MetaMaskMultiChainHDWallet
   readonly _supportsRipple = false;
   readonly _supportsEosInfo = false;
   readonly _supportsEos = false;
-  readonly _supportsFioInfo = false;
-  readonly _supportsFio = false;
   readonly _supportsThorchainInfo = true;
   readonly _supportsThorchain = true;
 

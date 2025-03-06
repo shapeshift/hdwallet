@@ -53,6 +53,15 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
   // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeETHWallet extends Base {
     readonly _supportsETH = true;
+    readonly _supportsAvalanche = true;
+    readonly _supportsOptimism = true;
+    readonly _supportsBSC = true;
+    readonly _supportsPolygon = true;
+    readonly _supportsGnosis = true;
+    readonly _supportsArbitrum = true;
+    readonly _supportsArbitrumNova = true;
+    readonly _supportsBase = true;
+    readonly _supportsEthSwitchChain = false;
 
     #ethSigner: SignerAdapter | undefined;
 

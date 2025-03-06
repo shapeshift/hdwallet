@@ -12,7 +12,6 @@ export class CoinbaseHDWalletInfo implements core.HDWalletInfo, core.ETHWalletIn
   readonly _supportsBinanceInfo = false;
   readonly _supportsRippleInfo = false;
   readonly _supportsEosInfo = false;
-  readonly _supportsFioInfo = false;
   readonly _supportsThorchainInfo = false;
   readonly _supportsSecretInfo = false;
   readonly _supportsKavaInfo = false;
@@ -120,8 +119,6 @@ export class CoinbaseHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsRipple = false;
   readonly _supportsEosInfo = false;
   readonly _supportsEos = false;
-  readonly _supportsFioInfo = false;
-  readonly _supportsFio = false;
   readonly _supportsThorchainInfo = false;
   readonly _supportsThorchain = false;
   readonly _supportsSecretInfo = false;
