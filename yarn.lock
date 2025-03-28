@@ -315,7 +315,7 @@
     "@noble/hashes" "^1.1.5"
     "@noble/secp256k1" "^1.7.1"
 
-"@bithighlander/bitcoin-cash-js-lib@5.2.1":
+"@bithighlander/bitcoin-cash-js-lib@^5.2.1":
   version "5.2.1"
   resolved "https://registry.yarnpkg.com/@bithighlander/bitcoin-cash-js-lib/-/bitcoin-cash-js-lib-5.2.1.tgz#3153dec5774b0574a2347f6ca75cf3d7399af1b2"
   integrity sha512-FaqmntBmeiLxwwCuc6n7kZCUi3ZT1b75tWxpduV3Rdw3pOx17cuptsBuay30YX4v/gnXvPkjO8AF0XsO4kn6IQ==
