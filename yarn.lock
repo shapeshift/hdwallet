@@ -315,7 +315,7 @@
     "@noble/hashes" "^1.1.5"
     "@noble/secp256k1" "^1.7.1"
 
-"@bithighlander/bitcoin-cash-js-lib@^5.2.1":
+"@bithighlander/bitcoin-cash-js-lib@5.2.1":
   version "5.2.1"
   resolved "https://registry.yarnpkg.com/@bithighlander/bitcoin-cash-js-lib/-/bitcoin-cash-js-lib-5.2.1.tgz#3153dec5774b0574a2347f6ca75cf3d7399af1b2"
   integrity sha512-FaqmntBmeiLxwwCuc6n7kZCUi3ZT1b75tWxpduV3Rdw3pOx17cuptsBuay30YX4v/gnXvPkjO8AF0XsO4kn6IQ==
@@ -2084,7 +2084,7 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@keepkey/device-protocol@^7.12.2":
+"@keepkey/device-protocol@7.13.2":
   version "7.13.2"
   resolved "https://registry.yarnpkg.com/@keepkey/device-protocol/-/device-protocol-7.13.2.tgz#09e2bff457403952559484d767a17584ceaebe28"
   integrity sha512-x/FjztrWVTzBn9ptxV9Y1fVtYx8mOr9jIbPOB6hFuqi9UdRkrnaabluMiSKXM7/JTRMouSzwmZ/cnDAbmpD31A==
@@ -7636,7 +7636,7 @@ bn.js@^5.0.0, bn.js@^5.1.0, bn.js@^5.1.1, bn.js@^5.1.2, bn.js@^5.2.0, bn.js@^5.2
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-5.2.1.tgz#0bc527a6a0d18d0aa8d5b0538ce4a77dccfa7b70"
   integrity sha512-eXRvHzWyYPBuB4NBy0cmYQjGitUrtqwbvlzP3G6VFnNRbsZQIxQ10PbKKHt8gZ/HW/D/747aDl+QkDqg3KQLMQ==
 
-bnb-javascript-sdk-nobroadcast@^2.16.14:
+bnb-javascript-sdk-nobroadcast@2.16.15:
   version "2.16.15"
   resolved "https://registry.yarnpkg.com/bnb-javascript-sdk-nobroadcast/-/bnb-javascript-sdk-nobroadcast-2.16.15.tgz#712723911081fbde48251d59e6074fac5dd24044"
   integrity sha512-+vZOmPszzQcNVxx4ZpUJtGs0FEdzAQdbDvBZEHDwU9Epzh6I2xEe+Kehf0T2ombbtJRtzcwlEVYCdcvvv0SPIg==
@@ -18259,7 +18259,7 @@ temp-dir@^1.0.0:
   resolved "https://registry.yarnpkg.com/temp-dir/-/temp-dir-1.0.0.tgz#0a7c0ea26d3a39afa7e0ebea9c1fc0bc4daa011d"
   integrity sha512-xZFXEGbG7SNC3itwBzI3RYjq/cEhBkx2hJuKGIUOcEULmkQExXiHat2z/qkISYsuR+IKumhEfKKbV5qXmhICFQ==
 
-tendermint-tx-builder@^1.0.9:
+tendermint-tx-builder@1.0.16:
   version "1.0.16"
   resolved "https://registry.yarnpkg.com/tendermint-tx-builder/-/tendermint-tx-builder-1.0.16.tgz#85271682b655771c85e6148b5590226d9af946fd"
   integrity sha512-QooHyd5BeyoqruneSzmDUUpyD1/U877mEDMLPRk/e2SvobZuALJWijQReny0hqTkukseQpIZNKMD4ypMa1pCaQ==
