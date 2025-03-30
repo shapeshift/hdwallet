@@ -4769,7 +4769,7 @@
     eth-rpc-errors "^4.0.3"
     patch-package "^6.2.2"
 
-"@shapeshiftoss/proto-tx-builder@^0.8.0":
+"@shapeshiftoss/proto-tx-builder@0.8.0", "@shapeshiftoss/proto-tx-builder@^0.8.0":
   version "0.8.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.8.0.tgz#12523e76e6ae2c794e8ad5439dedf65d30c78185"
   integrity sha512-EccA6oN9CyESa7F0EHdA/ysB3PLMaTZwsJNXHDOSmvwYhoYVw+YVxuvk91ECLLubEgTUHove1pOy2hccZ4yR8A==
