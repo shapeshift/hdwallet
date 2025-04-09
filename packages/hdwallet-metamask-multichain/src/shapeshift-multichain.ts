@@ -708,7 +708,7 @@ export class MetaMaskMultiChainHDWallet
           }
 
           if (!(addChainError.data as any)?.originalError) {
-            throw addChainError
+            throw addChainError;
           }
 
           throw (addChainError.data as any).originalError as {
