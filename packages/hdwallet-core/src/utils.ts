@@ -150,6 +150,7 @@ export const slip44Table = Object.freeze({
   // Fio: 235, Fio support removed in this commit. Blame me if you need it back.
   Thorchain: 931,
   Rune: 931,
+  Mayachain: 931,
   Cardano: 1815,
   Secret: 529,
   Terra: 330,
