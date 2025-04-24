@@ -64,8 +64,6 @@ export function mayachainTests(get: () => { wallet: core.HDWallet; info: core.HD
           coin: "Mayachain",
         });
 
-        console.log({ out });
-
         // This is strange, and probably wrong, behavior... but it's what happens.
         if (wallet.getVendor() === "KeepKey") {
           // eslint-disable-next-line jest/no-conditional-expect
