@@ -14,6 +14,7 @@ import { cosmosTests } from "./cosmos";
 import { eosTests } from "./eos";
 import { ethTests } from "./ethereum";
 import { kavaTests } from "./kava";
+import { mayachainTests } from "./mayachain";
 import { osmosisTests } from "./osmosis";
 import { rippleTests } from "./ripple";
 import { secretTests } from "./secret";
@@ -121,6 +122,14 @@ export function integration(suite: WalletSuite): void {
       });
 
       thorchainTests(() => ({ wallet, info }));
+    });
+
+    describe("MayachainWallet", () => {
+      beforeAll(async () => {
+        wallet = await suite.createWallet("Mayachain");
+      });
+
+      mayachainTests(() => ({ wallet, info }));
     });
 
     describe("SecretWallet", () => {
