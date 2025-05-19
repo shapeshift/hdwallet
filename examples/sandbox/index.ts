@@ -49,6 +49,7 @@ import * as dogeTxJson from "./json/dogeTx.json";
 import { eip712, txs } from "./json/ethereum/ethTx.json";
 import { openSeaListNFTMessage } from "./json/ethereum/OpenSea-ethSignTypedDataV4.json";
 import * as ltcTxJson from "./json/ltcTx.json";
+import { mayachainUnsignedTx } from "./json/mayachainTx.json";
 import {
   osmosisDelegateTx,
   osmosisIBCTransferTx,
@@ -1795,6 +1796,57 @@ $thorchainArkeoAddClaim.on("click", async (e) => {
   } else {
     const label = await wallet.getLabel();
     $thorchainArkeoResults.val(label + " does not support THORChain");
+  }
+});
+
+/*
+ * Mayachain
+ */
+const $mayachainAddr = $("#mayachainAddr");
+const $mayachainTx = $("#mayachainTx");
+const $mayachainNativeResults = $("#mayachainNativeResults");
+
+$mayachainAddr.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $mayachainNativeResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsMayachain(wallet)) {
+    const { addressNList } = wallet.mayachainGetAccountPaths({ accountIdx: 0 })[0];
+    const result = await wallet.mayachainGetAddress({
+      addressNList,
+      showDisplay: false,
+    });
+    await wallet.mayachainGetAddress({
+      addressNList,
+      showDisplay: true,
+    });
+    $mayachainNativeResults.val(result);
+  } else {
+    const label = await wallet.getLabel();
+    $mayachainNativeResults.val(label + " does not support Mayachain");
+  }
+});
+
+$mayachainTx.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $mayachainNativeResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsMayachain(wallet)) {
+    const res = await wallet.mayachainSignTx({
+      addressNList: core.bip32ToAddressNList(`m/44'/931'/0'/0/0`),
+      chain_id: "mayachain-mainnet-v1",
+      account_number: "10409",
+      sequence: "3",
+      tx: mayachainUnsignedTx,
+    });
+    $mayachainNativeResults.val(JSON.stringify(res));
+  } else {
+    const label = await wallet.getLabel();
+    $mayachainNativeResults.val(label + " does not support Mayachain");
   }
 });
 

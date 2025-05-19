@@ -163,17 +163,18 @@ const networks: Networks = {
 
 //TODO: all below are missing network data
 for (const coin of [
+  "arkeo",
+  "binance",
   "bitcoincash",
-  "thorchain",
-  "secret",
-  "terra",
-  "kava",
   "cardano",
   "cosmos",
-  "osmosis",
-  "binance",
   "ethereum",
-  "arkeo",
+  "kava",
+  "mayachain",
+  "osmosis",
+  "secret",
+  "terra",
+  "thorchain",
 ])
   networks[coin] = networks.bitcoin;
 
