@@ -707,6 +707,10 @@ export class MetaMaskMultiChainHDWallet
             throw ethErrors.provider.userRejectedRequest();
           }
 
+          if (!(addChainError.data as any)?.originalError) {
+            throw addChainError;
+          }
+
           throw (addChainError.data as any).originalError as {
             code: number;
             message: string;
