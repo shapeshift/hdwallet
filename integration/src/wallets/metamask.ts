@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as metamask from "@shapeshiftoss/hdwallet-metamask-multichain";
-import { EIP6963ProviderInfo } from "mipd";
+import { EIP1193Provider, EIP6963ProviderInfo } from "mipd";
 
 export function name(): string {
   return "MetaMask";
@@ -33,7 +33,7 @@ export async function createWallet(): Promise<core.HDWallet> {
           throw new Error(`ethereum: Unkown method ${method}`);
       }
     }),
-  };
+  } as unknown as EIP1193Provider;
   const wallet = new metamask.MetaMaskMultiChainHDWallet({
     provider,
     info: { rdns: "io.metamask" } as EIP6963ProviderInfo,

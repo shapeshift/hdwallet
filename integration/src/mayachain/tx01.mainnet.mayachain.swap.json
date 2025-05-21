@@ -9,16 +9,16 @@
   "memo": "",
   "msg": [
     {
-      "type": "thorchain/MsgSend",
+      "type": "thorchain/MsgDeposit",
       "value": {
-        "amount": [
+        "coins": [
           {
-            "amount": "1",
-            "denom": "cacao"
+            "asset": "MAYA.CACAO",
+            "amount": "1"
           }
         ],
-        "from_address": "maya1ls33ayg26kmltw7jjy55p32ghjna09zp7z4etj",
-        "to_address": "maya1ls33ayg26kmltw7jjy55p32ghjna09zp7z4etj"
+        "memo": "SWAP:ARB.ETH:0xf5a14a3118cd30fdf9a84f587eb33024e15efbcd:1",
+        "signer": "maya1ls33ayg26kmltw7jjy55p32ghjna09zp7z4etj"
       }
     }
   ],

@@ -267,6 +267,52 @@ export class MockTransport extends ledger.LedgerTransport {
         }
       );
 
+      // Mayachain
+      this.memoize(
+        "Thorchain",
+        "getAddress",
+        JSON.parse(`[[${core.bip32ToAddressNList("m/44'/931'/0'/0/0")}], "maya"]`),
+        JSON.parse(
+          `{"success":true,"coin":"Rune","method":"getAddressAndPubkey","payload":{"address":"maya1ls33ayg26kmltw7jjy55p32ghjna09zp7z4etj","publicKey":"031519713b8b42bdc367112d33132cf14cedf928ac5771d444ba459b9497117ba3"}}`
+        )
+      );
+
+      this.memoize(
+        "Thorchain",
+        "sign",
+        JSON.parse(
+          '[[2147483692,2147484579,2147483648,0,0],"{\\"account_number\\":\\"10409\\",\\"chain_id\\":\\"mayachain-mainnet-v1\\",\\"fee\\":{\\"amount\\":[],\\"gas\\":\\"2000000\\"},\\"memo\\":\\"\\",\\"msgs\\":[{\\"type\\":\\"thorchain/MsgSend\\",\\"value\\":{\\"amount\\":[{\\"amount\\":\\"1\\",\\"denom\\":\\"cacao\\"}],\\"from_address\\":\\"maya1ls33ayg26kmltw7jjy55p32ghjna09zp7z4etj\\",\\"to_address\\":\\"maya1ls33ayg26kmltw7jjy55p32ghjna09zp7z4etj\\"}}],\\"sequence\\":\\"3\\"}"]'
+        ),
+        {
+          success: true,
+          coin: "Rune",
+          method: "sign",
+          payload: {
+            signature: getRawSig(
+              "ebZ9miVlT1hF7JpolPtO0B3qo9N9Sra/FjYE+F53dYICSPOSgj6KOsh6i82QIV3AvHw0PNNPZGjyFsAiTnjhcQ=="
+            ),
+          },
+        }
+      );
+
+      this.memoize(
+        "Thorchain",
+        "sign",
+        JSON.parse(
+          '[[2147483692,2147484579,2147483648,0,0],"{\\"account_number\\":\\"10409\\",\\"chain_id\\":\\"mayachain-mainnet-v1\\",\\"fee\\":{\\"amount\\":[],\\"gas\\":\\"2000000\\"},\\"memo\\":\\"\\",\\"msgs\\":[{\\"type\\":\\"thorchain/MsgDeposit\\",\\"value\\":{\\"coins\\":[{\\"amount\\":\\"1\\",\\"asset\\":\\"MAYA.CACAO\\"}],\\"memo\\":\\"SWAP:ARB.ETH:0xf5a14a3118cd30fdf9a84f587eb33024e15efbcd:1\\",\\"signer\\":\\"maya1ls33ayg26kmltw7jjy55p32ghjna09zp7z4etj\\"}}],\\"sequence\\":\\"3\\"}"]'
+        ),
+        {
+          success: true,
+          coin: "Rune",
+          method: "sign",
+          payload: {
+            signature: getRawSig(
+              "ebZ9miVlT1hF7JpolPtO0B3qo9N9Sra/FjYE+F53dYICSPOSgj6KOsh6i82QIV3AvHw0PNNPZGjyFsAiTnjhcQ=="
+            ),
+          },
+        }
+      );
+
       // Cosmos
       this.memoize(
         "Cosmos",
