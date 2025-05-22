@@ -4889,6 +4889,21 @@
     uuid "^8.3.2"
     ws "^8.8.0"
 
+"@shapeshiftoss/hdwallet-core@1.60.0", "@shapeshiftoss/hdwallet-core@^1.55.1":
+  version "1.60.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.60.0.tgz#7ec7517ef376a62193bcc1153695a7c5d6d15cf3"
+  integrity sha512-ilLnNuXhROR4mUa7pbzCEEyN5NFRCizGWPJMjhfICwF4Yq9ckzhxI26L1fmuOfQ8oLAEAZwXvuQiop2myF3dAQ==
+  dependencies:
+    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.0"
+    "@shapeshiftoss/proto-tx-builder" "0.8.0"
+    "@solana/web3.js" "1.95.8"
+    eip-712 "^1.0.0"
+    ethers "5.7.2"
+    eventemitter2 "^5.0.1"
+    lodash "^4.17.21"
+    rxjs "^6.4.0"
+    type-assertions "^1.1.0"
+
 "@shapeshiftoss/hdwallet-core@latest":
   version "1.56.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.56.0.tgz#6c14a2dc7eb394d1a927999f549c15eb8bd42421"
@@ -4902,6 +4917,36 @@
     lodash "^4.17.21"
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
+
+"@shapeshiftoss/hdwallet-native@^1.55.1":
+  version "1.60.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.60.0.tgz#250b6a9b930a6e35279156029f31d3ae7e4d07e7"
+  integrity sha512-PJrpMPQto+/ZFFn1p9Xgu8xSrH5Mrkvt9MLmS/ehsKzpVLVEIcb7wzO4RvT3rkqQyE2OacNpUZgIEtW36c1jKQ==
+  dependencies:
+    "@bitcoinerlab/secp256k1" "^1.1.1"
+    "@noble/curves" "^1.4.0"
+    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.0"
+    "@shapeshiftoss/hdwallet-core" "1.60.0"
+    "@shapeshiftoss/proto-tx-builder" "0.8.0"
+    "@zxing/text-encoding" "^0.9.0"
+    bchaddrjs "^0.4.9"
+    bech32 "^1.1.4"
+    bignumber.js "^9.0.1"
+    bip32 "^2.0.5"
+    bip39 "^3.0.2"
+    bnb-javascript-sdk-nobroadcast "2.16.15"
+    crypto-js "^4.0.0"
+    ecpair "^3.0.0-rc.0"
+    eip-712 "^1.0.0"
+    ethers "5.7.2"
+    eventemitter2 "^5.0.1"
+    funtypes "^3.0.1"
+    hash-wasm "^4.11.0"
+    lodash "^4.17.21"
+    node-fetch "^2.6.1"
+    p-lazy "^3.1.0"
+    scrypt-js "^3.0.1"
+    tendermint-tx-builder "1.0.16"
 
 "@shapeshiftoss/logger@^1.1.2", "@shapeshiftoss/logger@^1.1.3":
   version "1.1.3"
@@ -4953,10 +4998,10 @@
     eth-rpc-errors "^4.0.3"
     patch-package "^6.2.2"
 
-"@shapeshiftoss/proto-tx-builder@0.9.0":
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.9.0.tgz#fea775399882a00c8f2dd3cf32c7ae0dfb47067c"
-  integrity sha512-jR5ddEuwEJ1S030B0gVX/7jokAy/6uME8QvdBWsfphzsoeRtEoPQ0BO1hLH1YGnZwHDK0LdDTX/M0LMOL6aa1Q==
+"@shapeshiftoss/proto-tx-builder@0.8.0", "@shapeshiftoss/proto-tx-builder@^0.8.0":
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.8.0.tgz#12523e76e6ae2c794e8ad5439dedf65d30c78185"
+  integrity sha512-EccA6oN9CyESa7F0EHdA/ysB3PLMaTZwsJNXHDOSmvwYhoYVw+YVxuvk91ECLLubEgTUHove1pOy2hccZ4yR8A==
   dependencies:
     "@cosmjs/amino" "^0.29.4"
     "@cosmjs/crypto" "0.29.4"
@@ -4968,10 +5013,10 @@
     google-protobuf "^3.17.0"
     osmojs "^0.37.0"
 
-"@shapeshiftoss/proto-tx-builder@^0.8.0":
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.8.0.tgz#12523e76e6ae2c794e8ad5439dedf65d30c78185"
-  integrity sha512-EccA6oN9CyESa7F0EHdA/ysB3PLMaTZwsJNXHDOSmvwYhoYVw+YVxuvk91ECLLubEgTUHove1pOy2hccZ4yR8A==
+"@shapeshiftoss/proto-tx-builder@0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.9.0.tgz#fea775399882a00c8f2dd3cf32c7ae0dfb47067c"
+  integrity sha512-jR5ddEuwEJ1S030B0gVX/7jokAy/6uME8QvdBWsfphzsoeRtEoPQ0BO1hLH1YGnZwHDK0LdDTX/M0LMOL6aa1Q==
   dependencies:
     "@cosmjs/amino" "^0.29.4"
     "@cosmjs/crypto" "0.29.4"
