@@ -9,7 +9,7 @@
   "memo": "",
   "msg": [
     {
-      "type": "thorchain/MsgSend",
+      "type": "mayachain/MsgSend",
       "value": {
         "amount": [
           {

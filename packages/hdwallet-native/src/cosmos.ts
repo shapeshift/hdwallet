@@ -93,7 +93,7 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
           chainId: ATOM_CHAIN,
         };
 
-        return (await protoTxBuilder).sign(adapter.address, msg.tx as StdTx, adapter, signerData);
+        return (await protoTxBuilder).sign(adapter.address, msg.tx as StdTx, adapter, signerData, "cosmos");
       });
     }
   };

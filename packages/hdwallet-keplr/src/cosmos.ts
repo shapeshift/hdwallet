@@ -76,7 +76,7 @@ export async function cosmosSignTx(provider: any, msg: CosmosSignTx): Promise<Co
     chainId: msg.chain_id,
   };
 
-  return await sign(address, msg.tx as StdTx, offlineSigner, signerData);
+  return await sign(address, msg.tx as StdTx, offlineSigner, signerData, "cosmos");
 }
 
 /**

@@ -9,7 +9,7 @@
   "memo": "",
   "msg": [
     {
-      "type": "thorchain/MsgDeposit",
+      "type": "mayachain/MsgDeposit",
       "value": {
         "coins": [
           {

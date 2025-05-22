@@ -55,7 +55,7 @@ describe("NativeMayachainWallet", () => {
       tx: {
         msg: [
           {
-            type: "thorchain/MsgSend",
+            type: "mayachain/MsgSend",
             value: {
               from_address: "maya1ujumx36gj3jv33gcw49dfafdddza3kdcdxedts",
               to_address: "maya14hqwsy4qpwzsdk2l3h3q82eghg4ctaa385ck8c",

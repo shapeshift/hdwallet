@@ -22,7 +22,7 @@
     "@metamask/eth-sig-util": "^7.0.0",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.0",
     "@shapeshiftoss/hdwallet-core": "1.61.0",
-    "@shapeshiftoss/proto-tx-builder": "0.9.0",
+    "@shapeshiftoss/proto-tx-builder": "0.10.0",
     "bignumber.js": "^9.0.1",
     "bnb-javascript-sdk-nobroadcast": "2.16.15",
     "crypto-js": "^4.0.0",

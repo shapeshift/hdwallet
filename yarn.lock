@@ -4953,10 +4953,10 @@
     eth-rpc-errors "^4.0.3"
     patch-package "^6.2.2"
 
-"@shapeshiftoss/proto-tx-builder@0.9.0":
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.9.0.tgz#fea775399882a00c8f2dd3cf32c7ae0dfb47067c"
-  integrity sha512-jR5ddEuwEJ1S030B0gVX/7jokAy/6uME8QvdBWsfphzsoeRtEoPQ0BO1hLH1YGnZwHDK0LdDTX/M0LMOL6aa1Q==
+"@shapeshiftoss/proto-tx-builder@0.10.0":
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.10.0.tgz#ef5426db826458f52161c1cbda104ea1773ee2a3"
+  integrity sha512-qsRHgYrosKjQ/uG+/WsbSt1e46/CPDraCmm1BhMeRo24HNzei7BVHVMBT5/kKEW6Wz1vXtR9GknZVfZ8hbBj9w==
   dependencies:
     "@cosmjs/amino" "^0.29.4"
     "@cosmjs/crypto" "0.29.4"

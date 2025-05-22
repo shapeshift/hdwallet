@@ -7,7 +7,7 @@
     "memo": "test",
     "msg": [
       {
-        "type": "thorchain/MsgSend",
+        "type": "mayachain/MsgSend",
         "value": {
           "amount": [
             {
