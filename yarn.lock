@@ -4953,7 +4953,22 @@
     eth-rpc-errors "^4.0.3"
     patch-package "^6.2.2"
 
-"@shapeshiftoss/proto-tx-builder@0.8.0", "@shapeshiftoss/proto-tx-builder@^0.8.0":
+"@shapeshiftoss/proto-tx-builder@0.10.0":
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.10.0.tgz#ef5426db826458f52161c1cbda104ea1773ee2a3"
+  integrity sha512-qsRHgYrosKjQ/uG+/WsbSt1e46/CPDraCmm1BhMeRo24HNzei7BVHVMBT5/kKEW6Wz1vXtR9GknZVfZ8hbBj9w==
+  dependencies:
+    "@cosmjs/amino" "^0.29.4"
+    "@cosmjs/crypto" "0.29.4"
+    "@cosmjs/encoding" "^0.29.4"
+    "@cosmjs/proto-signing" "^0.29.4"
+    "@cosmjs/stargate" "^0.29.4"
+    bn.js "^5.2.1"
+    cosmjs-types "^0.5.1"
+    google-protobuf "^3.17.0"
+    osmojs "^0.37.0"
+
+"@shapeshiftoss/proto-tx-builder@^0.8.0":
   version "0.8.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/proto-tx-builder/-/proto-tx-builder-0.8.0.tgz#12523e76e6ae2c794e8ad5439dedf65d30c78185"
   integrity sha512-EccA6oN9CyESa7F0EHdA/ysB3PLMaTZwsJNXHDOSmvwYhoYVw+YVxuvk91ECLLubEgTUHove1pOy2hccZ4yR8A==

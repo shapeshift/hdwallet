@@ -210,6 +210,6 @@ export async function cosmosSignTx(transport: Transport, msg: core.CosmosSignTx)
       chainId: msg.chain_id,
     };
 
-    return (await protoTxBuilder).sign(address, msg.tx as StdTx, offlineSigner, signerData);
+    return (await protoTxBuilder).sign(address, msg.tx as StdTx, offlineSigner, signerData, "cosmos");
   });
 }

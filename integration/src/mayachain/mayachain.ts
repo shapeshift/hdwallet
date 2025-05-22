@@ -3,7 +3,11 @@ import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 import * as metamask from "@shapeshiftoss/hdwallet-metamask-multichain";
 
+import tx_unsigned_swap from "./tx01.mainnet.mayachain.swap.json";
+import tx_signed_swap_amino from "./tx01.mainnet.mayachain.swap.signed.amino.json";
+import tx_signed_swap from "./tx01.mainnet.mayachain.swap.signed.json";
 import tx_unsigned_transfer from "./tx01.mainnet.mayachain.transfer.json";
+import tx_signed_transfer_amino from "./tx01.mainnet.mayachain.transfer.signed.amino.json";
 import tx_signed_transfer from "./tx01.mainnet.mayachain.transfer.signed.json";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
@@ -15,7 +19,6 @@ const TIMEOUT = 60 * 1000;
  */
 export function mayachainTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
   let wallet: core.MayachainWallet & core.HDWallet;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let useAmino: boolean;
 
   describe("Mayachain", () => {
@@ -110,10 +113,13 @@ export function mayachainTests(get: () => { wallet: core.HDWallet; info: core.HD
     );
 
     describe("mayachainSignTx()", () => {
-      it.each([["should correctly sign a transfer tx", tx_unsigned_transfer, tx_signed_transfer]])(
+      it.each([
+        ["should correctly sign a transfer tx", tx_unsigned_transfer, tx_signed_transfer, tx_signed_transfer_amino],
+        ["should correctly sign a swap tx", tx_unsigned_swap, tx_signed_swap, tx_signed_swap_amino],
+      ])(
         "%s",
-        async (_, tx, signedProtoTx) => {
-          const signedTx = signedProtoTx;
+        async (_, tx, signedProtoTx, signedAminoTx) => {
+          const signedTx = useAmino ? signedAminoTx : signedProtoTx;
 
           if (!wallet || !tx) return;
           // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't

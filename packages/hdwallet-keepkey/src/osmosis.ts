@@ -261,6 +261,6 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
       accountNumber: Number(msg.account_number),
       chainId: msg.chain_id,
     };
-    return (await protoTxBuilder).sign(address, sortTxFields(msg.tx) as StdTx, offlineSigner, signerData);
+    return (await protoTxBuilder).sign(address, sortTxFields(msg.tx) as StdTx, offlineSigner, signerData, "osmo");
   });
 }

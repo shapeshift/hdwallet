@@ -4,6 +4,7 @@ import isObject from "lodash/isObject";
 import * as btc from "./bitcoin";
 import * as cosmos from "./cosmos";
 import * as eth from "./ethereum";
+import * as mayachain from "./mayachain";
 import * as solana from "./solana";
 import * as thorchain from "./thorchain";
 import { LedgerTransport } from "./transport";
@@ -149,6 +150,7 @@ export class LedgerHDWalletInfo
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
   readonly _supportsThorchainInfo = true;
+  readonly _supportsMayachainInfo = true;
   readonly _supportsCosmosInfo = true;
   readonly _supportsSolanaInfo = true;
 
@@ -203,6 +205,16 @@ export class LedgerHDWalletInfo
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
+    return undefined;
+  }
+
+  public mayachainGetAccountPaths(msg: core.MayachainGetAccountPaths): Array<core.MayachainAccountPath> {
+    const slip44 = core.slip44ByCoin("Mayachain");
+    return [{ addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0] }];
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public mayachainNextAccountPath(msg: core.MayachainAccountPath): core.MayachainAccountPath | undefined {
     return undefined;
   }
 
@@ -264,6 +276,8 @@ export class LedgerHDWalletInfo
         return describeETHPath(msg.path);
       case "Thorchain":
         return core.thorchainDescribePath(msg.path);
+      case "Mayachain":
+        return core.mayachainDescribePath(msg.path);
       default:
         return describeUTXOPath(msg.path, msg.coin, msg.scriptType);
     }
@@ -347,6 +361,7 @@ export class LedgerHDWallet
   readonly _supportsArbitrumNova = true;
   readonly _supportsBase = true;
   readonly _supportsThorchain = true;
+  readonly _supportsMayachain = true;
   readonly _supportsCosmos = true;
   readonly _supportsSolana = true;
 
@@ -557,6 +572,14 @@ export class LedgerHDWallet
 
   public thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx> {
     return thorchain.thorchainSignTx(this.transport, msg);
+  }
+
+  public mayachainGetAddress(msg: core.MayachainGetAddress): Promise<string> {
+    return mayachain.mayachainGetAddress(this.transport, msg);
+  }
+
+  public mayachainSignTx(msg: core.MayachainSignTx): Promise<core.MayachainSignedTx> {
+    return mayachain.mayachainSignTx(this.transport, msg);
   }
 
   public cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string> {
