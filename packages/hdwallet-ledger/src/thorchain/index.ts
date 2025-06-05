@@ -15,7 +15,7 @@ export const thorchainGetAddress = async (
   transport: LedgerTransport,
   msg: core.ThorchainGetAddress
 ): Promise<string> => {
-  const res = await transport.call("Thorchain", "getAddress", msg.addressNList, "thor");
+  const res = await transport.call("Thorchain", "getAddress", msg.addressNList, "thor", msg.showDisplay);
 
   handleError(res, transport, "Unable to obtain address and public key from device.");
 
@@ -26,7 +26,7 @@ export const thorchainSignTx = async (
   transport: LedgerTransport,
   msg: core.ThorchainSignTx
 ): Promise<core.ThorchainSignedTx> => {
-  const getAddressResponse = await transport.call("Thorchain", "getAddress", msg.addressNList, "thor");
+  const getAddressResponse = await transport.call("Thorchain", "getAddress", msg.addressNList, "thor", false);
 
   handleError(getAddressResponse, transport, "Unable to obtain address and public key from device.");
 

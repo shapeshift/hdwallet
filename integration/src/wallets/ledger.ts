@@ -15,7 +15,17 @@ export class MockTransport extends ledger.LedgerTransport {
 
   constructor(keyring: core.Keyring, type: string) {
     super(core.untouchable("actual ledger transport unavailable"), keyring);
-    this.currentApp = type;
+
+    this.currentApp = (() => {
+      switch (type.toLowerCase()) {
+        case "thorchain":
+        case "mayachain":
+          return "THORChain";
+        default:
+          return type;
+      }
+    })();
+
     this.populate();
   }
 
@@ -225,7 +235,7 @@ export class MockTransport extends ledger.LedgerTransport {
       this.memoize(
         "Thorchain",
         "getAddress",
-        JSON.parse(`[[${core.bip32ToAddressNList("m/44'/931'/0'/0/0")}], "thor"]`),
+        JSON.parse(`[[${core.bip32ToAddressNList("m/44'/931'/0'/0/0")}], "thor", false]`),
         JSON.parse(
           `{"success":true,"coin":"Rune","method":"getAddressAndPubkey","payload":{"address":"thor1ls33ayg26kmltw7jjy55p32ghjna09zp74t4az","publicKey":"031519713b8b42bdc367112d33132cf14cedf928ac5771d444ba459b9497117ba3"}}`
         )
@@ -271,7 +281,7 @@ export class MockTransport extends ledger.LedgerTransport {
       this.memoize(
         "Thorchain",
         "getAddress",
-        JSON.parse(`[[${core.bip32ToAddressNList("m/44'/931'/0'/0/0")}], "maya"]`),
+        JSON.parse(`[[${core.bip32ToAddressNList("m/44'/931'/0'/0/0")}], "maya", false]`),
         JSON.parse(
           `{"success":true,"coin":"Rune","method":"getAddressAndPubkey","payload":{"address":"maya1ls33ayg26kmltw7jjy55p32ghjna09zp7z4etj","publicKey":"031519713b8b42bdc367112d33132cf14cedf928ac5771d444ba459b9497117ba3"}}`
         )
@@ -317,7 +327,7 @@ export class MockTransport extends ledger.LedgerTransport {
       this.memoize(
         "Cosmos",
         "getAddress",
-        JSON.parse(`["m/44'/118'/0'/0/0", "cosmos"]`),
+        JSON.parse(`["m/44'/118'/0'/0/0", "cosmos", false]`),
         JSON.parse(
           '{"success":true,"coin":"Cosmos","method":"getAddress","payload":{"address":"cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj","publicKey":"03bee3af30e53a73f38abc5a2fcdac426d7b04eb72a8ebd3b01992e2d206e24ad8"}}'
         )
