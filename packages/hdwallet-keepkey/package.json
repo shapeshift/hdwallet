@@ -18,7 +18,7 @@
     "@bitcoinerlab/secp256k1": "^1.1.1",
     "@ethereumjs/common": "^2.4.0",
     "@ethereumjs/tx": "^3.3.0",
-    "@keepkey/device-protocol": "7.13.2",
+    "@keepkey/device-protocol": "7.13.4",
     "@metamask/eth-sig-util": "^7.0.0",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.0",
     "@shapeshiftoss/hdwallet-core": "1.61.1-alpha.0",

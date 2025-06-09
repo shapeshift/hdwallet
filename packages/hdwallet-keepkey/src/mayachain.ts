@@ -59,12 +59,11 @@ export async function mayachainSignTx(
     signTx.setAddressNList(msg.addressNList);
     signTx.setAccountNumber(msg.account_number);
     signTx.setChainId(msg.chain_id);
-    signTx.setFeeAmount(parseInt(msg.tx.fee.amount[0]?.amount || "0"));
+    signTx.setFeeAmount(parseInt(msg.tx.fee.amount[0].amount));
     signTx.setGas(parseInt(msg.tx.fee.gas));
     signTx.setSequence(msg.sequence);
 
     if (msg.tx.memo !== undefined) signTx.setMemo(msg.tx.memo);
-
     signTx.setMsgCount(1);
 
     let resp = await transport.call(Messages.MessageType.MESSAGETYPE_MAYACHAINSIGNTX, signTx, {
@@ -92,6 +91,7 @@ export async function mayachainSignTx(
           send.setFromAddress(m.value.from_address);
           send.setToAddress(m.value.to_address);
           send.setAmount(m.value.amount[0].amount);
+          send.setDenom(denom);
 
           msgAck.setSend(send);
 
