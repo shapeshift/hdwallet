@@ -9,6 +9,7 @@ import * as Btc from "./bitcoin";
 import * as Cosmos from "./cosmos";
 import * as Eos from "./eos";
 import * as Eth from "./ethereum";
+import * as Mayachain from "./mayachain";
 import * as Osmosis from "./osmosis";
 import * as Ripple from "./ripple";
 import * as Thorchain from "./thorchain";
@@ -18,37 +19,6 @@ import { protoFieldToSetMethod, translateInputScriptType } from "./utils";
 
 export function isKeepKey(wallet: core.HDWallet): wallet is KeepKeyHDWallet {
   return isObject(wallet) && (wallet as any)._isKeepKey;
-}
-
-function describeETHPath(path: core.BIP32Path): core.PathDescription {
-  const pathStr = core.addressNListToBIP32(path);
-  const unknown: core.PathDescription = {
-    verbose: pathStr,
-    coin: "Ethereum",
-    isKnown: false,
-  };
-
-  if (path.length != 5) return unknown;
-
-  if (path[0] != 0x80000000 + 44) return unknown;
-
-  if (path[1] != 0x80000000 + core.slip44ByCoin("Ethereum")) return unknown;
-
-  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
-
-  if (path[3] != 0) return unknown;
-
-  if (path[4] != 0) return unknown;
-
-  const index = path[2] & 0x7fffffff;
-  return {
-    verbose: `Ethereum Account #${index}`,
-    accountIdx: index,
-    wholeAccount: true,
-    coin: "Ethereum",
-    isKnown: true,
-    isPrefork: false,
-  };
 }
 
 function describeUTXOPath(
@@ -167,123 +137,6 @@ function describeUTXOPath(
   }
 }
 
-function describeCosmosPath(path: core.BIP32Path): core.PathDescription {
-  const pathStr = core.addressNListToBIP32(path);
-  const unknown: core.PathDescription = {
-    verbose: pathStr,
-    coin: "Atom",
-    isKnown: false,
-  };
-
-  if (path.length != 5) {
-    return unknown;
-  }
-
-  if (path[0] != 0x80000000 + 44) {
-    return unknown;
-  }
-
-  if (path[1] != 0x80000000 + core.slip44ByCoin("Atom")) {
-    return unknown;
-  }
-
-  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
-    return unknown;
-  }
-
-  if (path[3] !== 0 || path[4] !== 0) {
-    return unknown;
-  }
-
-  const index = path[2] & 0x7fffffff;
-  return {
-    verbose: `Cosmos Account #${index}`,
-    accountIdx: index,
-    wholeAccount: true,
-    coin: "Atom",
-    isKnown: true,
-    isPrefork: false,
-  };
-}
-
-function describeOsmosisPath(path: core.BIP32Path): core.PathDescription {
-  const pathStr = core.addressNListToBIP32(path);
-  const unknown: core.PathDescription = {
-    verbose: pathStr,
-    coin: "Osmo",
-    isKnown: false,
-  };
-
-  if (path.length != 5) {
-    return unknown;
-  }
-
-  if (path[0] != 0x80000000 + 44) {
-    return unknown;
-  }
-
-  if (path[1] != 0x80000000 + core.slip44ByCoin("Osmo")) {
-    return unknown;
-  }
-
-  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
-    return unknown;
-  }
-
-  if (path[3] !== 0 || path[4] !== 0) {
-    return unknown;
-  }
-
-  const index = path[2] & 0x7fffffff;
-  return {
-    verbose: `Osmosis Account #${index}`,
-    accountIdx: index,
-    wholeAccount: true,
-    coin: "Osmo",
-    isKnown: true,
-    isPrefork: false,
-  };
-}
-
-function describeThorchainPath(path: core.BIP32Path): core.PathDescription {
-  const pathStr = core.addressNListToBIP32(path);
-  const unknown: core.PathDescription = {
-    verbose: pathStr,
-    coin: "Rune",
-    isKnown: false,
-  };
-
-  if (path.length != 5) {
-    return unknown;
-  }
-
-  if (path[0] != 0x80000000 + 44) {
-    return unknown;
-  }
-
-  if (path[1] != 0x80000000 + core.slip44ByCoin("Rune")) {
-    return unknown;
-  }
-
-  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
-    return unknown;
-  }
-
-  if (path[3] !== 0 || path[4] !== 0) {
-    return unknown;
-  }
-
-  const index = path[2] & 0x7fffffff;
-  return {
-    verbose: `THORChain Account #${index}`,
-    accountIdx: index,
-    wholeAccount: true,
-    coin: "Rune",
-    isKnown: true,
-    isPrefork: false,
-  };
-}
-
 function describeEosPath(path: core.BIP32Path): core.PathDescription {
   const pathStr = core.addressNListToBIP32(path);
   const unknown: core.PathDescription = {
@@ -362,55 +215,18 @@ function describeRipplePath(path: core.BIP32Path): core.PathDescription {
   };
 }
 
-function describeBinancePath(path: core.BIP32Path): core.PathDescription {
-  const pathStr = core.addressNListToBIP32(path);
-  const unknown: core.PathDescription = {
-    verbose: pathStr,
-    coin: "Binance",
-    isKnown: false,
-  };
-
-  if (path.length != 5) {
-    return unknown;
-  }
-
-  if (path[0] != 0x80000000 + 44) {
-    return unknown;
-  }
-
-  if (path[1] != 0x80000000 + core.slip44ByCoin("Binance")) {
-    return unknown;
-  }
-
-  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
-    return unknown;
-  }
-
-  if (path[3] !== 0 || path[4] !== 0) {
-    return unknown;
-  }
-
-  const index = path[2] & 0x7fffffff;
-  return {
-    verbose: `Binance Account #${index}`,
-    accountIdx: index,
-    wholeAccount: true,
-    coin: "Binance",
-    isKnown: true,
-    isPrefork: false,
-  };
-}
-
 export class KeepKeyHDWalletInfo
   implements
     core.HDWalletInfo,
     core.BTCWalletInfo,
     core.ETHWalletInfo,
     core.CosmosWalletInfo,
+    core.OsmosisWalletInfo,
     core.BinanceWalletInfo,
     core.RippleWalletInfo,
     core.EosWalletInfo,
-    core.ThorchainWalletInfo
+    core.ThorchainWalletInfo,
+    core.MayachainWalletInfo
 {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
@@ -420,6 +236,7 @@ export class KeepKeyHDWalletInfo
   readonly _supportsBinanceInfo = true;
   readonly _supportsEosInfo = true;
   readonly _supportsThorchainInfo = true;
+  readonly _supportsMayachainInfo = true;
 
   public getVendor(): string {
     return "KeepKey";
@@ -458,6 +275,9 @@ export class KeepKeyHDWalletInfo
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {
+    // EIP1559 support starts in v7.2.1
+    // return semver.gte(await this.getFirmwareVersion(), "v7.2.1");
+
     // disable EIP1559 support until edge case fail states are fixed across all evm chains
     return false;
   }
@@ -476,6 +296,10 @@ export class KeepKeyHDWalletInfo
 
   public thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
     return Thorchain.thorchainGetAccountPaths(msg);
+  }
+
+  public mayachainGetAccountPaths(msg: core.MayachainGetAccountPaths): Array<core.MayachainAccountPath> {
+    return Mayachain.mayachainGetAccountPaths(msg);
   }
 
   public rippleGetAccountPaths(msg: core.RippleGetAccountPaths): Array<core.RippleAccountPath> {
@@ -526,17 +350,21 @@ export class KeepKeyHDWalletInfo
   public describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin) {
       case "Ethereum":
-        return describeETHPath(msg.path);
+        return core.describeETHPath(msg.path);
       case "Atom":
-        return describeCosmosPath(msg.path);
+        return core.cosmosDescribePath(msg.path);
       case "Osmo":
-        return describeOsmosisPath(msg.path);
+        return core.osmosisDescribePath(msg.path);
       case "Binance":
-        return describeBinancePath(msg.path);
+        return core.binanceDescribePath(msg.path);
       case "Ripple":
         return describeRipplePath(msg.path);
       case "Eos":
         return describeEosPath(msg.path);
+      case "Thorchain":
+        return core.thorchainDescribePath(msg.path);
+      case "Mayachain":
+        return core.mayachainDescribePath(msg.path);
       default:
         return describeUTXOPath(msg.path, msg.coin, msg.scriptType);
     }
@@ -567,7 +395,7 @@ export class KeepKeyHDWalletInfo
 
   public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
     const addressNList = msg.hardenedPath.concat(msg.relPath);
-    const description = describeETHPath(addressNList);
+    const description = core.describeETHPath(addressNList);
     if (!description.isKnown) {
       return undefined;
     }
@@ -586,7 +414,7 @@ export class KeepKeyHDWalletInfo
   }
 
   public cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
-    const description = describeCosmosPath(msg.addressNList);
+    const description = core.cosmosDescribePath(msg.addressNList);
     if (!description.isKnown) {
       return undefined;
     }
@@ -601,7 +429,7 @@ export class KeepKeyHDWalletInfo
   }
 
   public osmosisNextAccountPath(msg: core.OsmosisAccountPath): core.OsmosisAccountPath | undefined {
-    const description = describeOsmosisPath(msg.addressNList);
+    const description = core.osmosisDescribePath(msg.addressNList);
     if (!description.isKnown) {
       return undefined;
     }
@@ -616,10 +444,23 @@ export class KeepKeyHDWalletInfo
   }
 
   public thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
-    const description = describeThorchainPath(msg.addressNList);
-    if (!description.isKnown) {
-      return undefined;
-    }
+    const description = core.thorchainDescribePath(msg.addressNList);
+
+    if (!description.isKnown) return undefined;
+
+    const addressNList = msg.addressNList;
+    addressNList[2] += 1;
+
+    return {
+      ...msg,
+      addressNList,
+    };
+  }
+
+  public mayachainNextAccountPath(msg: core.MayachainAccountPath): core.MayachainAccountPath | undefined {
+    const description = core.mayachainDescribePath(msg.addressNList);
+
+    if (!description.isKnown) return undefined;
 
     const addressNList = msg.addressNList;
     addressNList[2] += 1;
@@ -645,7 +486,7 @@ export class KeepKeyHDWalletInfo
   }
 
   public binanceNextAccountPath(msg: core.BinanceAccountPath): core.BinanceAccountPath | undefined {
-    const description = describeBinancePath(msg.addressNList);
+    const description = core.binanceDescribePath(msg.addressNList);
     if (!description.isKnown) {
       return undefined;
     }
@@ -675,14 +516,20 @@ export class KeepKeyHDWalletInfo
   }
 }
 
-export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.DebugLinkWallet {
-  readonly _supportsETHInfo = true;
-  readonly _supportsBTCInfo = true;
-  readonly _supportsCosmosInfo = true;
-  readonly _supportsOsmosisInfo = true;
-  readonly _supportsRippleInfo = true;
-  readonly _supportsBinanceInfo = true;
-  readonly _supportsEosInfo = true;
+export class KeepKeyHDWallet
+  extends KeepKeyHDWalletInfo
+  implements
+    core.HDWallet,
+    core.BTCWallet,
+    core.ETHWallet,
+    core.CosmosWallet,
+    core.BinanceWallet,
+    core.RippleWallet,
+    core.EosWallet,
+    core.ThorchainWallet,
+    core.MayachainWallet,
+    core.DebugLinkWallet
+{
   readonly _supportsDebugLink: boolean;
   readonly _isKeepKey = true;
   readonly _supportsETH = true;
@@ -701,14 +548,8 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   _supportsRipple = true;
   _supportsBinance = true;
   _supportsEos = true;
-  readonly _supportsThorchainInfo = true;
   readonly _supportsThorchain = true;
-  readonly _supportsSecretInfo = false;
-  readonly _supportsSecret = false;
-  readonly _supportsKava = false;
-  readonly _supportsKavaInfo = false;
-  readonly _supportsTerra = false;
-  readonly _supportsTerraInfo = false;
+  readonly _supportsMayachain = true;
 
   transport: Transport;
   features?: Messages.Features.AsObject;
@@ -717,6 +558,8 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
   featuresCache?: Messages.Features.AsObject;
 
   constructor(transport: Transport) {
+    super();
+
     this.transport = transport;
     this._supportsDebugLink = transport.debugLink;
     this.info = new KeepKeyHDWalletInfo();
@@ -734,10 +577,6 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
 
     // Grabbing the one from the transport seems to be a reasonable fallback.
     return await this.transport.getDeviceID();
-  }
-
-  public getVendor(): string {
-    return "KeepKey";
   }
 
   public async getModel(): Promise<string> {
@@ -852,39 +691,6 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
       noWait: true,
       debugLink: true,
     });
-  }
-
-  public hasOnDevicePinEntry(): boolean {
-    return false;
-  }
-
-  public hasOnDevicePassphrase(): boolean {
-    return false;
-  }
-
-  public hasOnDeviceDisplay(): boolean {
-    return true;
-  }
-
-  public hasOnDeviceRecovery(): boolean {
-    return false;
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
-    return true;
-  }
-
-  public supportsBip44Accounts(): boolean {
-    return this.info.supportsBip44Accounts();
-  }
-
-  public supportsOfflineSigning(): boolean {
-    return true;
-  }
-
-  public supportsBroadcast(): boolean {
-    return false;
   }
 
   public async sendPin(pin: string): Promise<void> {
@@ -1175,14 +981,6 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     this.cacheFeatures(undefined);
   }
 
-  public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
-    return this.info.btcSupportsCoin(coin);
-  }
-
-  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
-    return this.info.btcSupportsScriptType(coin, scriptType);
-  }
-
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
     return Btc.btcGetAddress(this, this.transport, msg);
   }
@@ -1191,32 +989,12 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     return Btc.btcSignTx(this, this.transport, msg);
   }
 
-  public async btcSupportsSecureTransfer(): Promise<boolean> {
-    return this.info.btcSupportsSecureTransfer();
-  }
-
-  public btcSupportsNativeShapeShift(): boolean {
-    return this.info.btcSupportsNativeShapeShift();
-  }
-
-  public async ethSupportsEIP1559(): Promise<boolean> {
-    // EIP1559 support starts in v7.2.1
-    // return semver.gte(await this.getFirmwareVersion(), "v7.2.1");
-
-    // disable EIP1559 support until edge case fail states are fixed across all evm chains
-    return false;
-  }
-
   public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
     return Btc.btcSignMessage(this, this.transport, msg);
   }
 
   public async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
     return Btc.btcVerifyMessage(this, this.transport, msg);
-  }
-
-  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
-    return this.info.btcGetAccountPaths(msg);
   }
 
   public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
@@ -1239,36 +1017,12 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     return Eth.ethVerifyMessage(this.transport, msg);
   }
 
-  public async ethSupportsNetwork(chain_id: number): Promise<boolean> {
-    return this.info.ethSupportsNetwork(chain_id);
-  }
-
-  public async ethSupportsSecureTransfer(): Promise<boolean> {
-    return this.info.ethSupportsSecureTransfer();
-  }
-
-  public ethSupportsNativeShapeShift(): boolean {
-    return this.info.ethSupportsNativeShapeShift();
-  }
-
-  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
-    return this.info.ethGetAccountPaths(msg);
-  }
-
-  public rippleGetAccountPaths(msg: core.RippleGetAccountPaths): Array<core.RippleAccountPath> {
-    return this.info.rippleGetAccountPaths(msg);
-  }
-
   public rippleGetAddress(msg: core.RippleGetAddress): Promise<string> {
     return Ripple.rippleGetAddress(this.transport, msg);
   }
 
   public rippleSignTx(msg: core.RippleSignTx): Promise<core.RippleSignedTx> {
     return Ripple.rippleSignTx(this.transport, msg);
-  }
-
-  public cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
-    return this.info.cosmosGetAccountPaths(msg);
   }
 
   public cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string> {
@@ -1279,20 +1033,12 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     return Cosmos.cosmosSignTx(this.transport, msg);
   }
 
-  public osmosisGetAccountPaths(msg: core.OsmosisGetAccountPaths): Array<core.OsmosisAccountPath> {
-    return this.info.osmosisGetAccountPaths(msg);
-  }
-
   public osmosisGetAddress(msg: core.OsmosisGetAddress): Promise<string> {
     return Osmosis.osmosisGetAddress(this.transport, msg);
   }
 
   public osmosisSignTx(msg: core.OsmosisSignTx): Promise<core.OsmosisSignedTx> {
     return Osmosis.osmosisSignTx(this.transport, msg);
-  }
-
-  public thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
-    return this.info.thorchainGetAccountPaths(msg);
   }
 
   public thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string | null> {
@@ -1303,8 +1049,12 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     return Thorchain.thorchainSignTx(this.transport, msg);
   }
 
-  public binanceGetAccountPaths(msg: core.BinanceGetAccountPaths): Array<core.BinanceAccountPath> {
-    return this.info.binanceGetAccountPaths(msg);
+  public mayachainGetAddress(msg: core.MayachainGetAddress): Promise<string | null> {
+    return Mayachain.mayachainGetAddress(this.transport, msg);
+  }
+
+  public mayachainSignTx(msg: core.MayachainSignTx): Promise<core.MayachainSignedTx> {
+    return Mayachain.mayachainSignTx(this.transport, msg);
   }
 
   public binanceGetAddress(msg: core.BinanceGetAddress): Promise<string> {
@@ -1315,10 +1065,6 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     return Binance.binanceSignTx(this.transport, msg);
   }
 
-  public eosGetAccountPaths(msg: core.EosGetAccountPaths): Array<core.EosAccountPath> {
-    return this.info.eosGetAccountPaths(msg);
-  }
-
   public eosGetPublicKey(msg: core.EosGetPublicKey): Promise<string> {
     return Eos.eosGetPublicKey(this.transport, msg);
   }
@@ -1327,40 +1073,8 @@ export class KeepKeyHDWallet implements core.HDWallet, core.BTCWallet, core.ETHW
     return Eos.eosSignTx(this.transport, msg);
   }
 
-  public describePath(msg: core.DescribePath): core.PathDescription {
-    return this.info.describePath(msg);
-  }
-
   public disconnect(): Promise<void> {
     return this.transport.disconnect();
-  }
-
-  public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    return this.info.btcNextAccountPath(msg);
-  }
-
-  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
-    return this.info.ethNextAccountPath(msg);
-  }
-
-  public eosNextAccountPath(msg: core.EosAccountPath): core.EosAccountPath | undefined {
-    return this.info.eosNextAccountPath(msg);
-  }
-
-  public cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
-    return this.info.cosmosNextAccountPath(msg);
-  }
-
-  public osmosisNextAccountPath(msg: core.OsmosisAccountPath): core.OsmosisAccountPath | undefined {
-    return this.info.osmosisNextAccountPath(msg);
-  }
-
-  public rippleNextAccountPath(msg: core.RippleAccountPath): core.RippleAccountPath | undefined {
-    return this.info.rippleNextAccountPath(msg);
-  }
-
-  public binanceNextAccountPath(msg: core.BinanceAccountPath): core.BinanceAccountPath | undefined {
-    return this.info.binanceNextAccountPath(msg);
   }
 }
 

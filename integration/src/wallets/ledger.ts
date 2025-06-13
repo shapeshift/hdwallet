@@ -15,7 +15,17 @@ export class MockTransport extends ledger.LedgerTransport {
 
   constructor(keyring: core.Keyring, type: string) {
     super(core.untouchable("actual ledger transport unavailable"), keyring);
-    this.currentApp = type;
+
+    this.currentApp = (() => {
+      switch (type.toLowerCase()) {
+        case "thorchain":
+        case "mayachain":
+          return "THORChain";
+        default:
+          return type;
+      }
+    })();
+
     this.populate();
   }
 
@@ -225,7 +235,7 @@ export class MockTransport extends ledger.LedgerTransport {
       this.memoize(
         "Thorchain",
         "getAddress",
-        JSON.parse(`[[${core.bip32ToAddressNList("m/44'/931'/0'/0/0")}], "thor"]`),
+        JSON.parse(`[[${core.bip32ToAddressNList("m/44'/931'/0'/0/0")}], "thor", false]`),
         JSON.parse(
           `{"success":true,"coin":"Rune","method":"getAddressAndPubkey","payload":{"address":"thor1ls33ayg26kmltw7jjy55p32ghjna09zp74t4az","publicKey":"031519713b8b42bdc367112d33132cf14cedf928ac5771d444ba459b9497117ba3"}}`
         )
@@ -271,7 +281,7 @@ export class MockTransport extends ledger.LedgerTransport {
       this.memoize(
         "Thorchain",
         "getAddress",
-        JSON.parse(`[[${core.bip32ToAddressNList("m/44'/931'/0'/0/0")}], "maya"]`),
+        JSON.parse(`[[${core.bip32ToAddressNList("m/44'/931'/0'/0/0")}], "maya", false]`),
         JSON.parse(
           `{"success":true,"coin":"Rune","method":"getAddressAndPubkey","payload":{"address":"maya1ls33ayg26kmltw7jjy55p32ghjna09zp7z4etj","publicKey":"031519713b8b42bdc367112d33132cf14cedf928ac5771d444ba459b9497117ba3"}}`
         )
@@ -281,7 +291,7 @@ export class MockTransport extends ledger.LedgerTransport {
         "Thorchain",
         "sign",
         JSON.parse(
-          '[[2147483692,2147484579,2147483648,0,0],"{\\"account_number\\":\\"10409\\",\\"chain_id\\":\\"mayachain-mainnet-v1\\",\\"fee\\":{\\"amount\\":[],\\"gas\\":\\"2000000\\"},\\"memo\\":\\"\\",\\"msgs\\":[{\\"type\\":\\"mayachain/MsgSend\\",\\"value\\":{\\"amount\\":[{\\"amount\\":\\"1\\",\\"denom\\":\\"cacao\\"}],\\"from_address\\":\\"maya1ls33ayg26kmltw7jjy55p32ghjna09zp7z4etj\\",\\"to_address\\":\\"maya1ls33ayg26kmltw7jjy55p32ghjna09zp7z4etj\\"}}],\\"sequence\\":\\"3\\"}"]'
+          '[[2147483692,2147484579,2147483648,0,0],"{\\"account_number\\":\\"10409\\",\\"chain_id\\":\\"mayachain-mainnet-v1\\",\\"fee\\":{\\"amount\\":[{\\"amount\\":\\"0\\",\\"denom\\":\\"cacao\\"}],\\"gas\\":\\"2000000\\"},\\"memo\\":\\"\\",\\"msgs\\":[{\\"type\\":\\"mayachain/MsgSend\\",\\"value\\":{\\"amount\\":[{\\"amount\\":\\"1\\",\\"denom\\":\\"cacao\\"}],\\"from_address\\":\\"maya1ls33ayg26kmltw7jjy55p32ghjna09zp7z4etj\\",\\"to_address\\":\\"maya1ls33ayg26kmltw7jjy55p32ghjna09zp7z4etj\\"}}],\\"sequence\\":\\"3\\"}"]'
         ),
         {
           success: true,
@@ -289,7 +299,7 @@ export class MockTransport extends ledger.LedgerTransport {
           method: "sign",
           payload: {
             signature: getRawSig(
-              "ebZ9miVlT1hF7JpolPtO0B3qo9N9Sra/FjYE+F53dYICSPOSgj6KOsh6i82QIV3AvHw0PNNPZGjyFsAiTnjhcQ=="
+              "VIQrk2TN64j5xzwMxBGBFRaIb51AqXI/WUo1qHGCAhQYh7VIc9orq6G3Sqr5kjitLxwY37yMe34gQ7fqzODwgw=="
             ),
           },
         }
@@ -299,7 +309,7 @@ export class MockTransport extends ledger.LedgerTransport {
         "Thorchain",
         "sign",
         JSON.parse(
-          '[[2147483692,2147484579,2147483648,0,0],"{\\"account_number\\":\\"10409\\",\\"chain_id\\":\\"mayachain-mainnet-v1\\",\\"fee\\":{\\"amount\\":[],\\"gas\\":\\"2000000\\"},\\"memo\\":\\"\\",\\"msgs\\":[{\\"type\\":\\"mayachain/MsgDeposit\\",\\"value\\":{\\"coins\\":[{\\"amount\\":\\"1\\",\\"asset\\":\\"MAYA.CACAO\\"}],\\"memo\\":\\"SWAP:ARB.ETH:0xf5a14a3118cd30fdf9a84f587eb33024e15efbcd:1\\",\\"signer\\":\\"maya1ls33ayg26kmltw7jjy55p32ghjna09zp7z4etj\\"}}],\\"sequence\\":\\"3\\"}"]'
+          '[[2147483692,2147484579,2147483648,0,0],"{\\"account_number\\":\\"10409\\",\\"chain_id\\":\\"mayachain-mainnet-v1\\",\\"fee\\":{\\"amount\\":[{\\"amount\\":\\"0\\",\\"denom\\":\\"cacao\\"}],\\"gas\\":\\"2000000\\"},\\"memo\\":\\"\\",\\"msgs\\":[{\\"type\\":\\"mayachain/MsgDeposit\\",\\"value\\":{\\"coins\\":[{\\"amount\\":\\"1\\",\\"asset\\":\\"MAYA.CACAO\\"}],\\"memo\\":\\"SWAP:ARB.ETH:0xf5a14a3118cd30fdf9a84f587eb33024e15efbcd:1\\",\\"signer\\":\\"maya1ls33ayg26kmltw7jjy55p32ghjna09zp7z4etj\\"}}],\\"sequence\\":\\"3\\"}"]'
         ),
         {
           success: true,
@@ -307,7 +317,7 @@ export class MockTransport extends ledger.LedgerTransport {
           method: "sign",
           payload: {
             signature: getRawSig(
-              "ebZ9miVlT1hF7JpolPtO0B3qo9N9Sra/FjYE+F53dYICSPOSgj6KOsh6i82QIV3AvHw0PNNPZGjyFsAiTnjhcQ=="
+              "mF6zvA2XDlubta7bDRwkGitmhVWQ4tTJLraf/bwk5KoHz/DuGJcXG3JG1iS/3vaLd0SmPqMbcxLjFmAWATH3zA=="
             ),
           },
         }
@@ -317,7 +327,7 @@ export class MockTransport extends ledger.LedgerTransport {
       this.memoize(
         "Cosmos",
         "getAddress",
-        JSON.parse(`["m/44'/118'/0'/0/0", "cosmos"]`),
+        JSON.parse(`["m/44'/118'/0'/0/0", "cosmos", false]`),
         JSON.parse(
           '{"success":true,"coin":"Cosmos","method":"getAddress","payload":{"address":"cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj","publicKey":"03bee3af30e53a73f38abc5a2fcdac426d7b04eb72a8ebd3b01992e2d206e24ad8"}}'
         )

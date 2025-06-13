@@ -13,7 +13,7 @@ export const mayachainGetAddress = async (
   transport: LedgerTransport,
   msg: core.MayachainGetAddress
 ): Promise<string> => {
-  const res = await transport.call("Thorchain", "getAddress", msg.addressNList, "maya");
+  const res = await transport.call("Thorchain", "getAddress", msg.addressNList, "maya", msg.showDisplay);
 
   handleError(res, transport, "Unable to obtain address and public key from device.");
 
@@ -24,7 +24,7 @@ export const mayachainSignTx = async (
   transport: LedgerTransport,
   msg: core.MayachainSignTx
 ): Promise<core.MayachainSignedTx> => {
-  const getAddressResponse = await transport.call("Thorchain", "getAddress", msg.addressNList, "maya");
+  const getAddressResponse = await transport.call("Thorchain", "getAddress", msg.addressNList, "maya", false);
 
   handleError(getAddressResponse, transport, "Unable to obtain address and public key from device.");
 

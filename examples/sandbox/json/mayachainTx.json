@@ -1,10 +1,15 @@
 {
   "mayachainUnsignedTx": {
     "fee": {
-      "amount": [],
+      "amount": [
+        {
+          "amount": "0",
+          "denom": "cacao"
+        }
+      ],
       "gas": "2000000"
     },
-    "memo": "test",
+    "memo": "",
     "msg": [
       {
         "type": "mayachain/MsgSend",

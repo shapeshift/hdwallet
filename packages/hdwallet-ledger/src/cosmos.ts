@@ -14,7 +14,7 @@ const ATOM_CHAIN = "cosmoshub-4";
 
 export const cosmosGetAddress = async (transport: LedgerTransport, msg: core.CosmosGetAddress): Promise<string> => {
   const bip32path = core.addressNListToBIP32(msg.addressNList);
-  const res = await transport.call("Cosmos", "getAddress", bip32path, "cosmos");
+  const res = await transport.call("Cosmos", "getAddress", bip32path, "cosmos", msg.showDisplay);
 
   handleError(res, transport, "Unable to obtain address from device.");
 
@@ -26,7 +26,7 @@ export const cosmosSignTx = async (
   msg: core.CosmosSignTx
 ): Promise<core.CosmosSignedTx> => {
   const bip32path = core.addressNListToBIP32(msg.addressNList);
-  const getAddressResponse = await transport.call("Cosmos", "getAddress", bip32path, "cosmos");
+  const getAddressResponse = await transport.call("Cosmos", "getAddress", bip32path, "cosmos", false);
 
   handleError(getAddressResponse, transport, "Unable to obtain address and public key from device.");
 

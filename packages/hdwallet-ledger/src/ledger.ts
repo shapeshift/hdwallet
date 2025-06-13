@@ -144,6 +144,7 @@ export class LedgerHDWalletInfo
     core.BTCWalletInfo,
     core.ETHWalletInfo,
     core.ThorchainWalletInfo,
+    core.MayachainWalletInfo,
     core.CosmosWalletInfo,
     core.SolanaWalletInfo
 {
@@ -274,10 +275,14 @@ export class LedgerHDWalletInfo
     switch (msg.coin) {
       case "Ethereum":
         return describeETHPath(msg.path);
+      case "Atom":
+        return core.cosmosDescribePath(msg.path);
       case "Thorchain":
         return core.thorchainDescribePath(msg.path);
       case "Mayachain":
         return core.mayachainDescribePath(msg.path);
+      case "Solana":
+        return core.solanaDescribePath(msg.path);
       default:
         return describeUTXOPath(msg.path, msg.coin, msg.scriptType);
     }
@@ -347,7 +352,14 @@ export class LedgerHDWalletInfo
 
 export class LedgerHDWallet
   extends LedgerHDWalletInfo
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.ThorchainWallet, core.CosmosWallet, core.SolanaWallet
+  implements
+    core.HDWallet,
+    core.BTCWallet,
+    core.ETHWallet,
+    core.ThorchainWallet,
+    core.MayachainWallet,
+    core.CosmosWallet,
+    core.SolanaWallet
 {
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
@@ -566,27 +578,33 @@ export class LedgerHDWallet
     return eth.ethVerifyMessage(msg);
   }
 
-  public thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string> {
+  public async thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string> {
+    await this.validateCurrentApp("Thorchain");
     return thorchain.thorchainGetAddress(this.transport, msg);
   }
 
-  public thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx> {
+  public async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx> {
+    await this.validateCurrentApp("Thorchain");
     return thorchain.thorchainSignTx(this.transport, msg);
   }
 
-  public mayachainGetAddress(msg: core.MayachainGetAddress): Promise<string> {
+  public async mayachainGetAddress(msg: core.MayachainGetAddress): Promise<string> {
+    await this.validateCurrentApp("Thorchain");
     return mayachain.mayachainGetAddress(this.transport, msg);
   }
 
-  public mayachainSignTx(msg: core.MayachainSignTx): Promise<core.MayachainSignedTx> {
+  public async mayachainSignTx(msg: core.MayachainSignTx): Promise<core.MayachainSignedTx> {
+    await this.validateCurrentApp("Thorchain");
     return mayachain.mayachainSignTx(this.transport, msg);
   }
 
-  public cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string> {
+  public async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string> {
+    await this.validateCurrentApp("Atom");
     return cosmos.cosmosGetAddress(this.transport, msg);
   }
 
-  public cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx> {
+  public async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx> {
+    await this.validateCurrentApp("Atom");
     return cosmos.cosmosSignTx(this.transport, msg);
   }
 

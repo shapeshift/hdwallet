@@ -3,7 +3,12 @@
   "chain_id": "mayachain-mainnet-v1",
   "sequence": "3",
   "fee": {
-    "amount": [],
+    "amount": [
+        {
+          "amount": "0",
+          "denom": "cacao"
+        }
+    ],
     "gas": "2000000"
   },
   "memo": "",

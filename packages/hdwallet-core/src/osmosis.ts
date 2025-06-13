@@ -103,7 +103,7 @@ export function osmosisDescribePath(path: BIP32Path): PathDescription {
   const pathStr = addressNListToBIP32(path);
   const unknown: PathDescription = {
     verbose: pathStr,
-    coin: "Atom",
+    coin: "Osmo",
     isKnown: false,
   };
 
