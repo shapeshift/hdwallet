@@ -9,7 +9,7 @@ interface WCState {
   connected?: boolean;
   chainId: number;
   accounts: string[];
-  address: Address;
+  address: Address | null;
 }
 
 export function isWalletConnect(wallet: core.HDWallet): wallet is WalletConnectHDWallet {
@@ -386,7 +386,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
     this.setState({ connected: true, chainId, accounts, address });
   }
 
-  private onSessionUpdate(accounts: string[], chainId: number) {
+  private onSessionUpdate(accounts: Address[], chainId: number) {
     const [address] = accounts;
     this.setState({ accounts, address, chainId });
   }
@@ -397,7 +397,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
    * Resets state.
    */
   private onDisconnect() {
-    this.setState({ connected: false, chainId: 1, accounts: [], address: "" });
+    this.setState({ connected: false, chainId: 1, accounts: [], address: null });
   }
 
   private setState(config: WCState) {
