@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { ETHSignTx } from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 import * as metamask from "@shapeshiftoss/hdwallet-metamask-multichain";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
@@ -61,7 +62,8 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
             addressNList: account1,
             showDisplay: false,
           });
-          const res = await wallet.ethSignTx({
+
+          const txToSign = {
             addressNList: account0,
             nonce: "0x01",
             gasPrice: "0x14",
@@ -70,8 +72,10 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
             to: core.mustBeDefined(account1Addr),
             toAddressNList: account1,
             chainId: 1,
-            data: "" as core.Hex,
-          });
+            data: "",
+          };
+
+          const res = await wallet.ethSignTx(txToSign as ETHSignTx);
           // eslint-disable-next-line jest/no-conditional-expect
           expect(res).toEqual({
             r: "0x2482a45ee0d2851d3ab76a693edd7a393e8bc99422f7857be78a883bc1d60a5b",
@@ -124,17 +128,17 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
 
         const txToSign = {
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-          nonce: "0x01" as const,
-          gasPrice: "0x1dcd65000" as const,
-          gasLimit: "0x5622" as const,
-          value: "0x2c68af0bb14000" as const,
-          to: "0x12eC06288EDD7Ae2CC41A843fE089237fC7354F0" as const,
+          nonce: "0x01",
+          gasPrice: "0x1dcd65000",
+          gasLimit: "0x5622",
+          value: "0x2c68af0bb14000",
+          to: "0x12eC06288EDD7Ae2CC41A843fE089237fC7354F0",
           chainId: 1,
-          data: "" as core.Hex,
+          data: "",
         };
 
         if (wallet.supportsOfflineSigning()) {
-          const res = await wallet.ethSignTx(txToSign);
+          const res = await wallet.ethSignTx(txToSign as ETHSignTx);
 
           // eslint-disable-next-line jest/no-conditional-expect
           expect(res).toEqual({
@@ -145,7 +149,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
               "0xf86b018501dcd650008256229412ec06288edd7ae2cc41a843fe089237fc7354f0872c68af0bb140008026a063db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0aa028297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b",
           });
         } else if (wallet.supportsBroadcast() && wallet.ethSendTx) {
-          const res = await wallet.ethSendTx(txToSign);
+          const res = await wallet.ethSendTx(txToSign as ETHSignTx);
 
           // eslint-disable-next-line jest/no-conditional-expect
           expect(res).toMatchInlineSnapshot(`
@@ -178,7 +182,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
           skipChecksum: true,
         });
 
-        const res = await wallet.ethSignTx({
+        const txToSign = {
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
           nonce: "0x0",
           gasLimit: "0x5ac3",
@@ -187,8 +191,10 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
           value: "0x1550f7dca70000", // 0.006 eth
           to: "0xfc0cc6e85dff3d75e3985e0cb83b090cfd498dd1",
           chainId: 1,
-          data: "" as core.Hex,
-        });
+          data: "",
+        };
+
+        const res = await wallet.ethSignTx(txToSign as ETHSignTx);
         expect(res).toEqual({
           r: "0x122269dc9cffc02962cdaa5af54913ac3e7293c3dd2a8ba7e38da2bc638f92df",
           s: "0x36334d475fc12eb62681fb2cb10f177101d5cf4c3a735c94460d92bfa2389cc8",
@@ -207,20 +213,21 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
 
         const txToSign = {
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-          nonce: "0x01" as core.Hex,
-          gasPrice: "0x14" as const,
-          gasLimit: "0x14" as core.Hex,
-          value: "0x00" as const,
-          to: "0x41e5560054824ea6b0732e656e3ad64e20e94e45" as core.Hex,
+          nonce: "0x01",
+          gasPrice: "0x14",
+          gasLimit: "0x14",
+          value: "0x00",
+          to: "0x41e5560054824ea6b0732e656e3ad64e20e94e45",
           chainId: 1,
-          data: ("0x" +
+          data:
+            "0x" +
             "a9059cbb000000000000000000000000" +
             "1d8ce9022f6284c3a5c317f8f34620107214e545" +
-            "00000000000000000000000000000000000000000000000000000002540be400") as core.Hex,
+            "00000000000000000000000000000000000000000000000000000002540be400",
         };
 
         if (wallet.supportsOfflineSigning()) {
-          const res = await wallet.ethSignTx(txToSign);
+          const res = await wallet.ethSignTx(txToSign as ETHSignTx);
 
           // eslint-disable-next-line jest/no-conditional-expect
           expect(res).toEqual({
@@ -231,7 +238,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
               "0xf8a20114149441e5560054824ea6b0732e656e3ad64e20e94e4580b844a9059cbb0000000000000000000000001d8ce9022f6284c3a5c317f8f34620107214e54500000000000000000000000000000000000000000000000000000002540be40025a01238fd332545415f09a01470350a5a20abc784dbf875cf58f7460560e66c597fa010efa4dd6fdb381c317db8f815252c2ac0d2a883bd364901dee3dec5b7d3660a",
           });
         } else if (wallet.supportsBroadcast() && wallet.ethSendTx) {
-          const res = await wallet.ethSendTx(txToSign);
+          const res = await wallet.ethSendTx(txToSign as ETHSignTx);
 
           // eslint-disable-next-line jest/no-conditional-expect
           expect(res).toMatchInlineSnapshot(`
@@ -256,19 +263,20 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
 
         const txToSign = {
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-          nonce: "0x01" as const,
-          gasPrice: "0x1dcd65000" as const,
-          gasLimit: "0x5622" as const,
-          value: "0x00" as const,
-          to: "0xDAFEA492D9c6733ae3d56b7Ed1ADB60692c98Bc5" as const,
+          nonce: "0x01",
+          gasPrice: "0x1dcd65000",
+          gasLimit: "0x5622",
+          value: "0x00",
+          to: "0xDAFEA492D9c6733ae3d56b7Ed1ADB60692c98Bc5",
           chainId: 43114,
-          data: ("0x" +
+          data:
+            "0x" +
             "a9059cbb000000000000000000000000" +
             "1d8ce9022f6284c3a5c317f8f34620107214e545" +
-            "00000000000000000000000000000000000000000000000000000002540be400") as core.Hex,
+            "00000000000000000000000000000000000000000000000000000002540be400",
         };
         if (wallet.supportsOfflineSigning()) {
-          const res = await wallet.ethSignTx(txToSign);
+          const res = await wallet.ethSignTx(txToSign as ETHSignTx);
 
           // eslint-disable-next-line jest/no-conditional-expect
           expect(res).toEqual({
@@ -279,7 +287,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
               "0xf8ac018501dcd6500082562294dafea492d9c6733ae3d56b7ed1adb60692c98bc580b844a9059cbb0000000000000000000000001d8ce9022f6284c3a5c317f8f34620107214e54500000000000000000000000000000000000000000000000000000002540be400830150f8a0119c4c0d4b6301aaa363f738680a6c0836b9c7331faf34d8485f683541d63040a06618ceebe49b2cb2789a9012b2bad6c1c291a15ea2fdfe060f73e7d42db786c5",
           });
         } else if (wallet.supportsBroadcast() && wallet.ethSendTx) {
-          const res = await wallet.ethSendTx(txToSign);
+          const res = await wallet.ethSendTx(txToSign as ETHSignTx);
 
           // eslint-disable-next-line jest/no-conditional-expect
           expect(res).toMatchInlineSnapshot(`
@@ -302,13 +310,14 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
 
         const txToSign = {
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-          nonce: "0xab" as const,
-          gasPrice: "0x55ae82600" as const,
-          gasLimit: "0x5140e" as const,
-          value: "0x00" as const,
-          to: "0xdef1c0ded9bec7f1a1670819833240f027b25eff" as const,
+          nonce: "0xab",
+          gasPrice: "0x55ae82600",
+          gasLimit: "0x5140e",
+          value: "0x00",
+          to: "0xdef1c0ded9bec7f1a1670819833240f027b25eff",
           chainId: 1,
-          data: ("0x" +
+          data:
+            "0x" +
             "415565b0" +
             "000000000000000000000000dac17f958d2ee523a2206206994597c13d831ec7" +
             "000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" +
@@ -356,11 +365,11 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
             "0000000000000000000000000000000000000000000000000000000000000000" +
             "869584cd000000000000000000000000c770eefad204b5180df6a14ee197d99d" +
             "808ee52d0000000000000000000000000000000000000000000000da413736cc" +
-            "60c8dd4e") as core.Hex,
+            "60c8dd4e",
         };
 
         if (wallet.supportsOfflineSigning()) {
-          const res = await wallet.ethSignTx(txToSign);
+          const res = await wallet.ethSignTx(txToSign as ETHSignTx);
 
           // eslint-disable-next-line jest/no-conditional-expect
           expect(res).toEqual({
@@ -371,7 +380,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
               "0xf9063081ab85055ae826008305140e94def1c0ded9bec7f1a1670819833240f027b25eff80b905c8415565b0000000000000000000000000dac17f958d2ee523a2206206994597c13d831ec7000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb480000000000000000000000000000000000000000000000000000000c5c360b9c0000000000000000000000000000000000000000000000000000000c58cb06ec00000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000003600000000000000000000000000000000000000000000000000000000000000013000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000002c000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dac17f958d2ee523a2206206994597c13d831ec7000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb4800000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000000000280000000000000000000000000000000000000000000000000000000000000028000000000000000000000000000000000000000000000000000000000000002600000000000000000000000000000000000000000000000000000000c5c360b9c0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000a446f646f0000000000000000000000000000000000000000000000000000000000000000000000000000000c5c360b9c0000000000000000000000000000000000000000000000000000000c58cb06ec00000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000060000000000000000000000000533da777aedce766ceae696bf90f8541a4ba80eb000000000000000000000000c9f93163c99695c6526b799ebca2207fdf7d61ad0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000003000000000000000000000000dac17f958d2ee523a2206206994597c13d831ec7000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee0000000000000000000000000000000000000000000000000000000000000000869584cd000000000000000000000000c770eefad204b5180df6a14ee197d99d808ee52d0000000000000000000000000000000000000000000000da413736cc60c8dd4e25a05ea245ddd00fdf3958d6223255e37dcb0c61fa62cfa9cfb25e507da16ec8d96aa06c428730776958b80fd2b2201600420bb49059f9b34ee3b960cdcce45d4a1e09",
           });
         } else if (wallet.supportsBroadcast() && wallet.ethSendTx) {
-          const res = await wallet.ethSendTx(txToSign);
+          const res = await wallet.ethSendTx(txToSign as ETHSignTx);
 
           // eslint-disable-next-line jest/no-conditional-expect
           expect(res).toMatchInlineSnapshot(`
