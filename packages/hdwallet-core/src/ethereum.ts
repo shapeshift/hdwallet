@@ -1,6 +1,7 @@
 import { Bytes } from "@ethersproject/bytes";
 import { TypedData } from "eip-712";
 import { ethers } from "ethers";
+import { Address, Hex } from "viem";
 
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
@@ -46,17 +47,17 @@ export type ETHSignTx = {
   /** bip32 path to sign the transaction from */
   addressNList: BIP32Path;
   /** big-endian hex, prefixed with '0x' */
-  nonce: string;
+  nonce: Hex;
   /** big-endian hex, prefixed with '0x' */
-  gasLimit: string;
+  gasLimit: Hex;
   /** address, with '0x' prefix */
-  to: string;
+  to: Address;
   /** bip32 path for destination (device must `ethSupportsSecureTransfer()`) */
   toAddressNList?: BIP32Path;
   /** big-endian hex, prefixed with '0x' */
-  value: string;
+  value: Hex;
   /** prefixed with '0x' */
-  data: string;
+  data: Hex;
   /** mainnet: 1, ropsten: 3, kovan: 42 */
   chainId: number;
   /**
