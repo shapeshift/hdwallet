@@ -1,7 +1,6 @@
 import { Bytes } from "@ethersproject/bytes";
 import { TypedData } from "eip-712";
 import { ethers } from "ethers";
-import { Address, Hex } from "viem";
 
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
@@ -12,6 +11,9 @@ export interface SerializedEthereumRpcError {
   message: string;
   stack?: string;
 }
+
+type Address = `0x${string}`;
+type Hex = `0x${string}`;
 
 export enum ETHTransactionType {
   ETH_TX_TYPE_LEGACY = 0,
