@@ -153,7 +153,7 @@ export async function ethSignTx(transport: Transport, msg: core.ETHSignTx): Prom
   });
 }
 
-export async function ethGetAddress(transport: Transport, msg: core.ETHGetAddress): Promise<string> {
+export async function ethGetAddress(transport: Transport, msg: core.ETHGetAddress): Promise<core.Address> {
   const getAddr = new Ethereum.EthereumGetAddress();
   getAddr.setAddressNList(msg.addressNList);
   getAddr.setShowDisplay(msg.showDisplay !== false);
@@ -168,7 +168,7 @@ export async function ethGetAddress(transport: Transport, msg: core.ETHGetAddres
   else if (ethAddress.hasAddress()) address = "0x" + core.toHexString(ethAddress.getAddress_asU8());
   else throw new Error("Unable to obtain ETH address from device.");
 
-  return address;
+  return address as core.Address;
 }
 
 export async function ethSignMessage(transport: Transport, msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {

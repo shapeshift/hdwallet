@@ -12,8 +12,8 @@ export interface SerializedEthereumRpcError {
   stack?: string;
 }
 
-type Address = `0x${string}`;
-type Hex = `0x${string}`;
+export type Address = `0x${string}`;
+export type Hex = `0x${string}`;
 
 export enum ETHTransactionType {
   ETH_TX_TYPE_LEGACY = 0,
@@ -206,7 +206,7 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
   readonly _supportsBase: boolean;
   readonly _supportsBSC: boolean;
 
-  ethGetAddress(msg: ETHGetAddress): Promise<string | null>;
+  ethGetAddress(msg: ETHGetAddress): Promise<Address | null>;
   ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx | null>;
   ethSendTx?(msg: ETHSignTx): Promise<ETHTxHash | null>;
   ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage | null>;

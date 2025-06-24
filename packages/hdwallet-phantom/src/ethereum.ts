@@ -95,7 +95,7 @@ export async function ethSignTypedData(
   }
 }
 
-export async function ethGetAddress(phantom: PhantomEvmProvider): Promise<string | null> {
+export async function ethGetAddress(phantom: PhantomEvmProvider): Promise<core.Address | null> {
   if (!(phantom && phantom.request)) {
     return null;
   }

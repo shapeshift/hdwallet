@@ -3,6 +3,7 @@ import { Transaction } from "@ethereumjs/tx";
 import type { EIP712Message } from "@ledgerhq/types-live";
 import * as sigUtil from "@metamask/eth-sig-util";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { Address } from "@shapeshiftoss/hdwallet-core";
 import EthereumTx from "ethereumjs-tx";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -17,12 +18,12 @@ export async function ethSupportsNetwork(chain_id: number): Promise<boolean> {
   return chain_id === 1;
 }
 
-export async function ethGetAddress(transport: LedgerTransport, msg: core.ETHGetAddress): Promise<string> {
+export async function ethGetAddress(transport: LedgerTransport, msg: core.ETHGetAddress): Promise<Address> {
   const bip32path = core.addressNListToBIP32(msg.addressNList);
   const res = await transport.call("Eth", "getAddress", bip32path, !!msg.showDisplay);
   handleError(res, transport, "Unable to obtain ETH address from device.");
 
-  return res.payload.address;
+  return res.payload.address as Address;
 }
 
 // Adapted from https://github.com/LedgerHQ/ledger-wallet-webtool

@@ -559,7 +559,7 @@ export class LedgerHDWallet
     return eth.ethSignTx(this.transport, msg);
   }
 
-  public async ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
+  public async ethGetAddress(msg: core.ETHGetAddress): Promise<core.Address> {
     await this.validateCurrentApp("Ethereum");
     return eth.ethGetAddress(this.transport, msg);
   }

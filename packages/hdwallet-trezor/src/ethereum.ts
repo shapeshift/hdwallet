@@ -1,6 +1,7 @@
 import Common from "@ethereumjs/common";
 import { Transaction } from "@ethereumjs/tx";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { Address } from "@shapeshiftoss/hdwallet-core";
 import { isHexString } from "ethers/lib/utils";
 
 import { TrezorTransport } from "./transport";
@@ -11,7 +12,7 @@ export async function ethSupportsNetwork(chain_id: number): Promise<boolean> {
   return true;
 }
 
-export async function ethGetAddress(transport: TrezorTransport, msg: core.ETHGetAddress): Promise<string> {
+export async function ethGetAddress(transport: TrezorTransport, msg: core.ETHGetAddress): Promise<Address> {
   const res = await transport.call("ethereumGetAddress", {
     path: core.addressNListToBIP32(msg.addressNList),
     showOnTrezor: !!msg.showDisplay,

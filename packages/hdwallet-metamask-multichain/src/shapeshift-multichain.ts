@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { AddEthereumChainParameter } from "@shapeshiftoss/hdwallet-core";
+import { AddEthereumChainParameter, Address } from "@shapeshiftoss/hdwallet-core";
 import { ethErrors, serializeError } from "eth-rpc-errors";
 import isObject from "lodash/isObject";
 import { EIP6963ProviderDetail } from "mipd";
@@ -303,7 +303,7 @@ export class MetaMaskMultiChainHDWallet
   bitcoinCashAddress?: string | null;
   cosmosAddress?: string | null;
   dogecoinAddress?: string | null;
-  ethAddress?: string | null;
+  ethAddress?: Address | null;
   providerRdns: string;
   litecoinAddress?: string | null;
   osmosisAddress?: string | null;
@@ -753,7 +753,7 @@ export class MetaMaskMultiChainHDWallet
 
   // TODO: Respect msg.addressNList!
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async ethGetAddress(msg: core.ETHGetAddress): Promise<string | null> {
+  public async ethGetAddress(msg: core.ETHGetAddress): Promise<core.Address | null> {
     if (this.ethAddress) {
       return this.ethAddress;
     }
