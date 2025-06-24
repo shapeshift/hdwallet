@@ -70,7 +70,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
             to: core.mustBeDefined(account1Addr),
             toAddressNList: account1,
             chainId: 1,
-            data: "",
+            data: "" as core.Hex,
           });
           // eslint-disable-next-line jest/no-conditional-expect
           expect(res).toEqual({
@@ -124,13 +124,13 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
 
         const txToSign = {
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-          nonce: "0x01",
-          gasPrice: "0x1dcd65000",
-          gasLimit: "0x5622",
-          value: "0x2c68af0bb14000",
-          to: "0x12eC06288EDD7Ae2CC41A843fE089237fC7354F0",
+          nonce: "0x01" as const,
+          gasPrice: "0x1dcd65000" as const,
+          gasLimit: "0x5622" as const,
+          value: "0x2c68af0bb14000" as const,
+          to: "0x12eC06288EDD7Ae2CC41A843fE089237fC7354F0" as const,
           chainId: 1,
-          data: "",
+          data: "" as core.Hex,
         };
 
         if (wallet.supportsOfflineSigning()) {
@@ -187,7 +187,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
           value: "0x1550f7dca70000", // 0.006 eth
           to: "0xfc0cc6e85dff3d75e3985e0cb83b090cfd498dd1",
           chainId: 1,
-          data: "",
+          data: "" as core.Hex,
         });
         expect(res).toEqual({
           r: "0x122269dc9cffc02962cdaa5af54913ac3e7293c3dd2a8ba7e38da2bc638f92df",
@@ -207,17 +207,16 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
 
         const txToSign = {
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-          nonce: "0x01",
-          gasPrice: "0x14",
-          gasLimit: "0x14",
-          value: "0x00",
-          to: "0x41e5560054824ea6b0732e656e3ad64e20e94e45",
+          nonce: "0x01" as core.Hex,
+          gasPrice: "0x14" as const,
+          gasLimit: "0x14" as core.Hex,
+          value: "0x00" as const,
+          to: "0x41e5560054824ea6b0732e656e3ad64e20e94e45" as core.Hex,
           chainId: 1,
-          data:
-            "0x" +
+          data: ("0x" +
             "a9059cbb000000000000000000000000" +
             "1d8ce9022f6284c3a5c317f8f34620107214e545" +
-            "00000000000000000000000000000000000000000000000000000002540be400",
+            "00000000000000000000000000000000000000000000000000000002540be400") as core.Hex,
         };
 
         if (wallet.supportsOfflineSigning()) {
@@ -257,17 +256,16 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
 
         const txToSign = {
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-          nonce: "0x01",
-          gasPrice: "0x1dcd65000",
-          gasLimit: "0x5622",
-          value: "0x00",
-          to: "0xDAFEA492D9c6733ae3d56b7Ed1ADB60692c98Bc5",
+          nonce: "0x01" as const,
+          gasPrice: "0x1dcd65000" as const,
+          gasLimit: "0x5622" as const,
+          value: "0x00" as const,
+          to: "0xDAFEA492D9c6733ae3d56b7Ed1ADB60692c98Bc5" as const,
           chainId: 43114,
-          data:
-            "0x" +
+          data: ("0x" +
             "a9059cbb000000000000000000000000" +
             "1d8ce9022f6284c3a5c317f8f34620107214e545" +
-            "00000000000000000000000000000000000000000000000000000002540be400",
+            "00000000000000000000000000000000000000000000000000000002540be400") as core.Hex,
         };
         if (wallet.supportsOfflineSigning()) {
           const res = await wallet.ethSignTx(txToSign);
@@ -304,14 +302,13 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
 
         const txToSign = {
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
-          nonce: "0xab",
-          gasPrice: "0x55ae82600",
-          gasLimit: "0x5140e",
-          value: "0x00",
-          to: "0xdef1c0ded9bec7f1a1670819833240f027b25eff",
+          nonce: "0xab" as const,
+          gasPrice: "0x55ae82600" as const,
+          gasLimit: "0x5140e" as const,
+          value: "0x00" as const,
+          to: "0xdef1c0ded9bec7f1a1670819833240f027b25eff" as const,
           chainId: 1,
-          data:
-            "0x" +
+          data: ("0x" +
             "415565b0" +
             "000000000000000000000000dac17f958d2ee523a2206206994597c13d831ec7" +
             "000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" +
@@ -359,7 +356,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
             "0000000000000000000000000000000000000000000000000000000000000000" +
             "869584cd000000000000000000000000c770eefad204b5180df6a14ee197d99d" +
             "808ee52d0000000000000000000000000000000000000000000000da413736cc" +
-            "60c8dd4e",
+            "60c8dd4e") as core.Hex,
         };
 
         if (wallet.supportsOfflineSigning()) {
