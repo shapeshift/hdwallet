@@ -68,16 +68,16 @@ export type ETHSignTx = {
 } & (
   | {
       /** big-endian hex, prefixed with '0x' */
-      gasPrice: string;
+      gasPrice: Hex;
       maxFeePerGas?: never;
       maxPriorityFeePerGas?: never;
     }
   | {
       gasPrice?: never;
       /** EIP-1559 - The maximum total fee per gas the sender is willing to pay. <=256 bit unsigned big endian (in wei) */
-      maxFeePerGas?: string;
+      maxFeePerGas?: Hex;
       /** EIP-1559 - Maximum fee per gas the sender is willing to pay to miners. <=256 bit unsigned big endian (in wei) */
-      maxPriorityFeePerGas?: string;
+      maxPriorityFeePerGas?: Hex;
     }
 );
 
