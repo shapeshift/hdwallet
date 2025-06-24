@@ -9,7 +9,7 @@ interface WCState {
   connected?: boolean;
   chainId: number;
   accounts: string[];
-  address: string;
+  address: Address;
 }
 
 export function isWalletConnect(wallet: core.HDWallet): wallet is WalletConnectHDWallet {
