@@ -1,6 +1,6 @@
 import { CoinbaseWalletProvider } from "@coinbase/wallet-sdk";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { AddEthereumChainParameter } from "@shapeshiftoss/hdwallet-core";
+import { AddEthereumChainParameter, Address } from "@shapeshiftoss/hdwallet-core";
 import { ethErrors, serializeError } from "eth-rpc-errors";
 
 import * as eth from "./ethereum";
@@ -129,7 +129,7 @@ export class CoinbaseHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsTerraInfo = false;
 
   info: CoinbaseHDWalletInfo & core.HDWalletInfo;
-  ethAddress?: string | null;
+  ethAddress?: Address | null;
   provider: CoinbaseWalletProvider | null;
 
   constructor(provider: unknown) {
@@ -342,7 +342,7 @@ export class CoinbaseHDWallet implements core.HDWallet, core.ETHWallet {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async ethGetAddress(msg: core.ETHGetAddress): Promise<string | null> {
+  public async ethGetAddress(msg: core.ETHGetAddress): Promise<Address | null> {
     if (this.ethAddress) {
       return this.ethAddress;
     }

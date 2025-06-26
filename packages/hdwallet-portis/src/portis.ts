@@ -1,4 +1,5 @@
 import Portis from "@portis/web3";
+import { Address } from "@shapeshiftoss/hdwallet-core";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import isObject from "lodash/isObject";
 import PLazy from "p-lazy";
@@ -138,7 +139,7 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
   portis: Portis;
   web3: Promise<Web3>;
   info: PortisHDWalletInfo & core.HDWalletInfo;
-  ethAddress?: string;
+  ethAddress?: Address;
 
   // used as a mutex to ensure calls to portis.getExtendedPublicKey cannot happen before a previous call has resolved
   protected portisCallInProgress: Promise<void> = Promise.resolve();
@@ -368,7 +369,7 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
     return this.info.ethGetAccountPaths(msg);
   }
 
-  public async ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
+  public async ethGetAddress(msg: core.ETHGetAddress): Promise<core.Address> {
     if (msg.showDisplay === true) {
       this.portis.showPortis();
     }
@@ -383,10 +384,10 @@ export class PortisHDWallet implements core.HDWallet, core.ETHWallet, core.BTCWa
     return "portis";
   }
 
-  public async _ethGetAddress(): Promise<string> {
+  public async _ethGetAddress(): Promise<core.Address> {
     if (this.ethAddress) return this.ethAddress;
 
-    const out: string = (await (await this.web3).eth.getAccounts())[0];
+    const out = (await (await this.web3).eth.getAccounts())[0] as Address;
     this.ethAddress = out;
     return out;
   }

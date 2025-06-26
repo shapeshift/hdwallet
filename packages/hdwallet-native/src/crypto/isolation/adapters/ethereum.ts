@@ -39,9 +39,9 @@ export class SignerAdapter {
     throw new Error("changing providers on a SignerAdapter is unsupported");
   }
 
-  async getAddress(addressNList: core.BIP32Path): Promise<string> {
+  async getAddress(addressNList: core.BIP32Path): Promise<core.Address> {
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
-    return computeAddress(SecP256K1.UncompressedPoint.from(nodeAdapter.getPublicKey()));
+    return computeAddress(SecP256K1.UncompressedPoint.from(nodeAdapter.getPublicKey())) as core.Address;
   }
 
   async signDigest(digest: BytesLike, addressNList: core.BIP32Path): Promise<Signature> {

@@ -19,7 +19,7 @@ export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHA
   ];
 }
 
-export async function ethGetAddress(ethereum: any): Promise<string | null> {
+export async function ethGetAddress(ethereum: any): Promise<core.Address | null> {
   if (!(ethereum && ethereum.request)) {
     return null;
   }

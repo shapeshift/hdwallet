@@ -1,4 +1,5 @@
 import type {
+  Address,
   Coin,
   DescribePath,
   ETHAccountPath,
@@ -152,7 +153,7 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
   connected = false;
   chainId: number | undefined;
   accounts: string[] = [];
-  ethAddress: string | undefined;
+  ethAddress: Address | undefined;
 
   constructor(provider: EthereumProvider) {
     this.provider = provider;
@@ -308,7 +309,7 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
     return this.info.ethNextAccountPath();
   }
 
-  public async ethGetAddress(): Promise<string | null> {
+  public async ethGetAddress(): Promise<Address | null> {
     if (this.ethAddress) {
       return this.ethAddress;
     }

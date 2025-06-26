@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
+import { Address, BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
 import Base64 from "base64-js";
 import * as bitcoinMsg from "bitcoinjs-message";
 import { keccak256, recoverAddress } from "ethers/lib/utils.js";
@@ -195,7 +195,7 @@ export class PhantomHDWallet
   bitcoinProvider: PhantomUtxoProvider;
   solanaProvider: PhantomSolanaProvider;
 
-  ethAddress?: string | null;
+  ethAddress?: Address | null;
 
   constructor(
     evmProvider: PhantomEvmProvider,
@@ -293,7 +293,7 @@ export class PhantomHDWallet
   /** Ethereum */
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async ethGetAddress(_msg: core.ETHGetAddress): Promise<string | null> {
+  public async ethGetAddress(_msg: core.ETHGetAddress): Promise<core.Address | null> {
     if (this.ethAddress) {
       return this.ethAddress;
     }

@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { Address } from "@shapeshiftoss/hdwallet-core";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import isObject from "lodash/isObject";
 
@@ -8,7 +9,7 @@ interface WCState {
   connected?: boolean;
   chainId: number;
   accounts: string[];
-  address: string;
+  address: Address | null;
 }
 
 export function isWalletConnect(wallet: core.HDWallet): wallet is WalletConnectHDWallet {
@@ -131,7 +132,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
   connected = false;
   chainId = -1;
   accounts: string[] = [];
-  ethAddress = "";
+  ethAddress: Address | null = null;
 
   constructor(provider: WalletConnectProvider) {
     this.provider = provider;
@@ -324,7 +325,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
     return this.info.ethNextAccountPath(msg);
   }
 
-  public async ethGetAddress(): Promise<string | null> {
+  public async ethGetAddress(): Promise<Address | null> {
     if (this.ethAddress) {
       return this.ethAddress;
     }
@@ -333,7 +334,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
       this.ethAddress = address;
       return address;
     } else {
-      this.ethAddress = "";
+      this.ethAddress = null;
       return null;
     }
   }
@@ -385,7 +386,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
     this.setState({ connected: true, chainId, accounts, address });
   }
 
-  private onSessionUpdate(accounts: string[], chainId: number) {
+  private onSessionUpdate(accounts: Address[], chainId: number) {
     const [address] = accounts;
     this.setState({ accounts, address, chainId });
   }
@@ -396,7 +397,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
    * Resets state.
    */
   private onDisconnect() {
-    this.setState({ connected: false, chainId: 1, accounts: [], address: "" });
+    this.setState({ connected: false, chainId: 1, accounts: [], address: null });
   }
 
   private setState(config: WCState) {

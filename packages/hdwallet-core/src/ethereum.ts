@@ -12,6 +12,9 @@ export interface SerializedEthereumRpcError {
   stack?: string;
 }
 
+export type Address = `0x${string}`;
+export type Hex = `0x${string}`;
+
 export enum ETHTransactionType {
   ETH_TX_TYPE_LEGACY = 0,
   ETH_TX_TYPE_EIP_2930 = 1,
@@ -46,17 +49,17 @@ export type ETHSignTx = {
   /** bip32 path to sign the transaction from */
   addressNList: BIP32Path;
   /** big-endian hex, prefixed with '0x' */
-  nonce: string;
+  nonce: Hex;
   /** big-endian hex, prefixed with '0x' */
-  gasLimit: string;
+  gasLimit: Hex;
   /** address, with '0x' prefix */
-  to: string;
+  to: Address;
   /** bip32 path for destination (device must `ethSupportsSecureTransfer()`) */
   toAddressNList?: BIP32Path;
   /** big-endian hex, prefixed with '0x' */
-  value: string;
+  value: Hex;
   /** prefixed with '0x' */
-  data: string;
+  data: Hex;
   /** mainnet: 1, ropsten: 3, kovan: 42 */
   chainId: number;
   /**
@@ -65,16 +68,16 @@ export type ETHSignTx = {
 } & (
   | {
       /** big-endian hex, prefixed with '0x' */
-      gasPrice: string;
+      gasPrice: Hex;
       maxFeePerGas?: never;
       maxPriorityFeePerGas?: never;
     }
   | {
       gasPrice?: never;
       /** EIP-1559 - The maximum total fee per gas the sender is willing to pay. <=256 bit unsigned big endian (in wei) */
-      maxFeePerGas?: string;
+      maxFeePerGas?: Hex;
       /** EIP-1559 - Maximum fee per gas the sender is willing to pay to miners. <=256 bit unsigned big endian (in wei) */
-      maxPriorityFeePerGas?: string;
+      maxPriorityFeePerGas?: Hex;
     }
 );
 
@@ -203,7 +206,7 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
   readonly _supportsBase: boolean;
   readonly _supportsBSC: boolean;
 
-  ethGetAddress(msg: ETHGetAddress): Promise<string | null>;
+  ethGetAddress(msg: ETHGetAddress): Promise<Address | null>;
   ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx | null>;
   ethSendTx?(msg: ETHSignTx): Promise<ETHTxHash | null>;
   ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage | null>;

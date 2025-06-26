@@ -1,6 +1,7 @@
 import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as Types from "@keepkey/device-protocol/lib/types_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { Address } from "@shapeshiftoss/hdwallet-core";
 import isObject from "lodash/isObject";
 import semver from "semver";
 
@@ -1001,7 +1002,7 @@ export class KeepKeyHDWallet
     return Eth.ethSignTx(this.transport, msg);
   }
 
-  public async ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
+  public async ethGetAddress(msg: core.ETHGetAddress): Promise<Address> {
     return Eth.ethGetAddress(this.transport, msg);
   }
 

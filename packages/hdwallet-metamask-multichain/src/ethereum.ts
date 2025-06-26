@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { ETHSignedMessage } from "@shapeshiftoss/hdwallet-core";
+import { Address } from "@shapeshiftoss/hdwallet-core";
 import { isHexString } from "ethers/lib/utils";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -109,7 +110,7 @@ export async function ethSignTypedData(
   }
 }
 
-export async function ethGetAddress(ethereum: any): Promise<string | null> {
+export async function ethGetAddress(ethereum: any): Promise<Address | null> {
   if (!(ethereum && ethereum.request)) {
     return null;
   }

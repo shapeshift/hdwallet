@@ -523,7 +523,7 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return Eth.ethSignTx(this, this.transport, msg);
   }
 
-  public async ethGetAddress(msg: core.ETHGetAddress): Promise<string> {
+  public async ethGetAddress(msg: core.ETHGetAddress): Promise<core.Address> {
     return Eth.ethGetAddress(this.transport, msg);
   }
 

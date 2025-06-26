@@ -1,4 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { Address } from "@shapeshiftoss/hdwallet-core";
 import type { Bytes } from "ethers";
 import { isHexString } from "ethers/lib/utils";
 
@@ -33,14 +34,14 @@ export function describeETHPath(path: core.BIP32Path): core.PathDescription {
 }
 
 export async function ethSignTx(
-  args: core.ETHSignTx & { from: string },
+  args: core.ETHSignTx & { from: Address | null },
   provider: any
 ): Promise<core.ETHSignedTx | null> {
   return await provider.wc.signTransaction(args);
 }
 
 export async function ethSendTx(
-  args: core.ETHSignTx & { from: string },
+  args: core.ETHSignTx & { from: Address | null },
   provider: any
 ): Promise<core.ETHTxHash | null> {
   const txHash: string = await provider.wc.sendTransaction(args);
@@ -52,14 +53,14 @@ export async function ethSendTx(
 }
 
 export async function ethSignMessage(
-  args: { data: string | Bytes; fromAddress: string },
+  args: { data: string | Bytes; fromAddress: Address | null },
   provider: any
 ): Promise<core.ETHSignedMessage | null> {
   if (!isHexString(args.data)) throw new Error("data is not an hex string");
   return await provider.wc.signMessage([args.data, args.fromAddress]);
 }
 
-export async function ethGetAddress(provider: any): Promise<string | null> {
+export async function ethGetAddress(provider: any): Promise<Address | null> {
   try {
     if (!(provider && provider.request && provider.connected)) {
       throw new Error("No WalletConnect provider available.");

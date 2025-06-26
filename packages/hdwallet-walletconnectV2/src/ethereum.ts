@@ -1,4 +1,5 @@
 import type {
+  Address,
   BIP32Path,
   ETHSignedMessage,
   ETHSignedTx,
@@ -127,12 +128,12 @@ export async function ethSignTypedData(
   }
 }
 
-export async function ethGetAddress(provider: EthereumProvider): Promise<string | null> {
+export async function ethGetAddress(provider: EthereumProvider): Promise<Address | null> {
   try {
     if (!(provider && provider.connected)) {
       throw new Error("No WalletConnectV2 provider available.");
     }
-    const ethAccounts: string[] = await provider.request({
+    const ethAccounts: Address[] = await provider.request({
       method: "eth_accounts",
     });
     return ethAccounts[0];

@@ -75,7 +75,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
       this.#ethSigner = undefined;
     }
 
-    async ethGetAddress(msg: core.ETHGetAddress): Promise<string | null> {
+    async ethGetAddress(msg: core.ETHGetAddress): Promise<core.Address | null> {
       if (msg.addressNList.length < 5) {
         throw new Error(`path not supported length: ${msg.addressNList.length}`);
       }
