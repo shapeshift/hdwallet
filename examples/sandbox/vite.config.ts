@@ -20,6 +20,7 @@ const config: UserConfig = {
   ],
   build: {
     commonjsOptions: {
+      include: [/node_modules/, /packages\/hdwallet-.+\/dist\/.*\.js$/],
       transformMixedEsModules: true,
     },
     target: "esnext",
