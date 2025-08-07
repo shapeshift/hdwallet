@@ -6,6 +6,7 @@ import type getAppAndVersion from "@ledgerhq/live-common/lib/hw/getAppAndVersion
 import type getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
 import type openApp from "@ledgerhq/live-common/lib/hw/openApp";
 // Blame Ledger here, enforcing resolutions isn't enough to fix the types inconsistencies
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore another comment on this line pikachusurprise.gif - CI is drunk WRT this, but that works locally
 import type Transport from "@ledgerhq/live-common/node_modules/@ledgerhq/hw-transport/lib/Transport";
 import * as core from "@shapeshiftoss/hdwallet-core";
