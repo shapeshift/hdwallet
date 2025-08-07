@@ -31,8 +31,8 @@
     "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@ledgerhq/hw-app-btc": "^10.4.1",
-    "@ledgerhq/hw-app-eth": "^6.38.0",
+    "@ledgerhq/hw-app-btc": "^10.10.0",
+    "@ledgerhq/hw-app-eth": "^6.45.13",
     "@ledgerhq/hw-transport": "^6.31.8",
     "@ledgerhq/live-common": "^21.8.2",
     "@types/bchaddrjs": "^0.4.0",
