@@ -57,9 +57,7 @@
   "resolutions": {
     "@types/eventsource": "1.1.8",
     "@types/node": "20.5.7@ts4.7",
-    "p-queue": "^6.6.2",
-    "@ledgerhq/logs": "6.13.0",
-    "@ledgerhq/hw-transport": "6.31.8"
+    "p-queue": "^6.6.2"
   },
   "dependencies": {
     "@types/jest": "^26.0.23",
