@@ -18,7 +18,7 @@
     "@ledgerhq/hw-app-eth": "^6.45.13",
     "@ledgerhq/hw-app-solana": "^7.5.1",
     "@ledgerhq/hw-transport": "6.31.8",
-    "@ledgerhq/hw-transport-webusb": "^6.29.8",
+    "@ledgerhq/hw-transport-webusb": "6.29.8",
     "@ledgerhq/live-common": "^21.8.2",
     "@ledgerhq/logs": "6.13.0",
     "@shapeshiftoss/hdwallet-core": "1.62.2",
