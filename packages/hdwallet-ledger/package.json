@@ -33,7 +33,7 @@
   "devDependencies": {
     "@ledgerhq/hw-app-btc": "^10.4.1",
     "@ledgerhq/hw-app-eth": "^6.38.0",
-    "@ledgerhq/hw-transport": "^6.31.2",
+    "@ledgerhq/hw-transport": "^6.31.8",
     "@ledgerhq/live-common": "^21.8.2",
     "@types/bchaddrjs": "^0.4.0",
     "@types/bs58check": "^2.1.0",
