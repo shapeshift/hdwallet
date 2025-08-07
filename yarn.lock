@@ -2183,16 +2183,6 @@
     rxjs "^7.8.1"
     semver "^7.3.5"
 
-"@ledgerhq/devices@^8.4.4":
-  version "8.4.4"
-  resolved "https://registry.yarnpkg.com/@ledgerhq/devices/-/devices-8.4.4.tgz#0d195c1650fe57da2fad7f0d9074a0190947cd6f"
-  integrity sha512-sz/ryhe/R687RHtevIE9RlKaV8kkKykUV4k29e7GAVwzHX1gqG+O75cu1NCJUHLbp3eABV5FdvZejqRUlLis9A==
-  dependencies:
-    "@ledgerhq/errors" "^6.19.1"
-    "@ledgerhq/logs" "^6.12.0"
-    rxjs "^7.8.1"
-    semver "^7.3.5"
-
 "@ledgerhq/domain-service@^1.2.38":
   version "1.2.38"
   resolved "https://registry.yarnpkg.com/@ledgerhq/domain-service/-/domain-service-1.2.38.tgz#b21ce81a907e6995262bd388e0d394c8cd309f9c"
@@ -2220,11 +2210,6 @@
   version "6.18.0"
   resolved "https://registry.yarnpkg.com/@ledgerhq/errors/-/errors-6.18.0.tgz#d55d6a57430d7a86532a9033ce0b45103264c620"
   integrity sha512-L3jQWAGyooxRDk/MRlW2v4Ji9+kloBtdmz9wBkHaj2j0n+05rweJSV3GHw9oye1BYMbVFqFffmT4H3hlXlCasw==
-
-"@ledgerhq/errors@^6.19.1":
-  version "6.19.1"
-  resolved "https://registry.yarnpkg.com/@ledgerhq/errors/-/errors-6.19.1.tgz#d9ac45ad4ff839e468b8f63766e665537aaede58"
-  integrity sha512-75yK7Nnit/Gp7gdrJAz0ipp31CCgncRp+evWt6QawQEtQKYEDfGo10QywgrrBBixeRxwnMy1DP6g2oCWRf1bjw==
 
 "@ledgerhq/errors@^6.23.0":
   version "6.23.0"
@@ -2299,13 +2284,13 @@
     "@ledgerhq/hw-transport" "^6.24.1"
     bip32-path "^0.4.2"
 
-"@ledgerhq/hw-app-cosmos@^6.29.1":
-  version "6.30.2"
-  resolved "https://registry.yarnpkg.com/@ledgerhq/hw-app-cosmos/-/hw-app-cosmos-6.30.2.tgz#f7b0a3865a5ce679309a7e9a7e581799e1e14135"
-  integrity sha512-LN2YadjtylrzPAsYJzZt9Nm4YYbZZt6HaEfL1ALTlrlc4K0c+tXYUZaQ4Ksfo61muLXRGGA5MB11YK6sD+7t6w==
+"@ledgerhq/hw-app-cosmos@^6.32.4":
+  version "6.32.4"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/hw-app-cosmos/-/hw-app-cosmos-6.32.4.tgz#657863c6aabb53ab723058d2305fe62298b4a5b5"
+  integrity sha512-hlVqVYMcubEkNN/NV9o5HvViIIJpU9oaPCcHctJUJFAe7kI7EFZ0dF2OOrgHOVvVUkHXfpYjdnNRSVSgZBhuSQ==
   dependencies:
-    "@ledgerhq/errors" "^6.18.0"
-    "@ledgerhq/hw-transport" "^6.31.2"
+    "@ledgerhq/errors" "^6.23.0"
+    "@ledgerhq/hw-transport" "^6.31.8"
     bip32-path "^0.4.2"
 
 "@ledgerhq/hw-app-eth@6.27.0":
@@ -2369,13 +2354,13 @@
     "@ledgerhq/logs" "^6.10.1"
     bip32-path "^0.4.2"
 
-"@ledgerhq/hw-app-solana@^7.2.4":
-  version "7.2.4"
-  resolved "https://registry.yarnpkg.com/@ledgerhq/hw-app-solana/-/hw-app-solana-7.2.4.tgz#616cee8439d150e845ac99a654976ffdca921cf4"
-  integrity sha512-1k6XdTFNUJyk9GpXtymPRYq+OdMPIkPZ681ZkrMdSquTJV7W0LgK2oq1BacOVaVe6yDZKEqdR10RUTalhX1Mjg==
+"@ledgerhq/hw-app-solana@^7.5.1":
+  version "7.5.1"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/hw-app-solana/-/hw-app-solana-7.5.1.tgz#af59723e6f578dac00e648d816ec162d8fb4b4bf"
+  integrity sha512-MfN1XMGILbhE/VL15xtQGfJ3pzD93rP/JaJGipg56pabP02ogphm5Wyv7udYkJoGiGIixPt8zfhFzdtbMiLZNQ==
   dependencies:
-    "@ledgerhq/errors" "^6.19.1"
-    "@ledgerhq/hw-transport" "^6.31.4"
+    "@ledgerhq/errors" "^6.23.0"
+    "@ledgerhq/hw-transport" "^6.31.8"
     bip32-path "^0.4.2"
 
 "@ledgerhq/hw-app-str@6.24.1":
@@ -2486,16 +2471,6 @@
   dependencies:
     "@ledgerhq/devices" "^8.4.2"
     "@ledgerhq/errors" "^6.18.0"
-    "@ledgerhq/logs" "^6.12.0"
-    events "^3.3.0"
-
-"@ledgerhq/hw-transport@^6.31.4":
-  version "6.31.4"
-  resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport/-/hw-transport-6.31.4.tgz#9b23a6de4a4caaa5c24b149c2dea8adde46f0eb1"
-  integrity sha512-6c1ir/cXWJm5dCWdq55NPgCJ3UuKuuxRvf//Xs36Bq9BwkV2YaRQhZITAkads83l07NAdR16hkTWqqpwFMaI6A==
-  dependencies:
-    "@ledgerhq/devices" "^8.4.4"
-    "@ledgerhq/errors" "^6.19.1"
     "@ledgerhq/logs" "^6.12.0"
     events "^3.3.0"
 
