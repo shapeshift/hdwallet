@@ -8,6 +8,7 @@ import getAppAndVersion from "@ledgerhq/live-common/lib/hw/getAppAndVersion";
 import getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
 import openApp from "@ledgerhq/live-common/lib/hw/openApp";
 // Blame Ledger here, enforcing resolutions isn't enough to fix the types inconsistencies
+// @ts-ignore another comment on this line pikachusurprise.gif - CI is drunk WRT this, but that works locally
 import type LiveCommonTransport from "@ledgerhq/live-common/node_modules/@ledgerhq/hw-transport/lib/Transport";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { LedgerTransport, Thorchain } from "@shapeshiftoss/hdwallet-ledger";
