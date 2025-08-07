@@ -2,15 +2,9 @@ import Btc from "@ledgerhq/hw-app-btc";
 import Eth from "@ledgerhq/hw-app-eth";
 import Transport from "@ledgerhq/hw-transport";
 import TransportWebHID from "@ledgerhq/hw-transport-webhid";
-import getAppAndVersion from "@ledgerhq/live-common/lib/hw/getAppAndVersion";
-import getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
-import openApp from "@ledgerhq/live-common/lib/hw/openApp";
-// Blame Ledger here, enforcing resolutions isn't enough to fix the types inconsistencies
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore another comment on this line pikachusurprise.gif - CI is drunk WRT this, but that works locally
-import type LiveCommonTransport from "@ledgerhq/live-common/node_modules/@ledgerhq/hw-transport/lib/Transport";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
+import { getAppAndVersion, getDeviceInfo, openApp } from "@shapeshiftoss/hdwallet-ledger/src/hw";
 import {
   LedgerResponse,
   LedgerTransportCoinType,
@@ -84,19 +78,19 @@ export function translateCoinAndMethod<T extends LedgerTransportCoinType, U exte
         case "getAppAndVersion": {
           const out: LedgerTransportMethod<null, "getAppAndVersion"> = getAppAndVersion.bind(
             undefined,
-            transport as LiveCommonTransport
+            transport as Transport
           );
           return out as LedgerTransportMethod<T, U>;
         }
         case "getDeviceInfo": {
           const out: LedgerTransportMethod<null, "getDeviceInfo"> = getDeviceInfo.bind(
             undefined,
-            transport as LiveCommonTransport
+            transport as Transport
           );
           return out as LedgerTransportMethod<T, U>;
         }
         case "openApp": {
-          const out: LedgerTransportMethod<null, "openApp"> = openApp.bind(undefined, transport as LiveCommonTransport);
+          const out: LedgerTransportMethod<null, "openApp"> = openApp.bind(undefined, transport as Transport);
           return out as LedgerTransportMethod<T, U>;
         }
         default: {
@@ -114,7 +108,7 @@ export class LedgerWebHIDTransport extends ledger.LedgerTransport {
   device: HIDDevice;
 
   constructor(device: HIDDevice, transport: Transport, keyring: core.Keyring) {
-    super(transport as LiveCommonTransport, keyring);
+    super(transport as Transport, keyring);
     this.device = device;
   }
 

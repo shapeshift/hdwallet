@@ -19,7 +19,6 @@
     "@ledgerhq/hw-app-solana": "^7.5.1",
     "@ledgerhq/hw-transport": "6.31.8",
     "@ledgerhq/hw-transport-webusb": "6.29.8",
-    "@ledgerhq/live-common": "^21.8.2",
     "@ledgerhq/logs": "6.13.0",
     "@shapeshiftoss/hdwallet-core": "1.62.2",
     "@shapeshiftoss/hdwallet-ledger": "1.62.2",
@@ -27,7 +26,6 @@
     "p-queue": "^7.4.1"
   },
   "devDependencies": {
-    "@types/ledgerhq__hw-transport": "^4.21.3",
     "@types/w3c-web-usb": "^1.0.6"
   }
 }

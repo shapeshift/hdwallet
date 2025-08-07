@@ -2,15 +2,12 @@ import type Btc from "@ledgerhq/hw-app-btc";
 import type Cosmos from "@ledgerhq/hw-app-cosmos";
 import type Eth from "@ledgerhq/hw-app-eth";
 import Solana from "@ledgerhq/hw-app-solana";
-import type getAppAndVersion from "@ledgerhq/live-common/lib/hw/getAppAndVersion";
-import type getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
-import type openApp from "@ledgerhq/live-common/lib/hw/openApp";
-// Blame Ledger here, enforcing resolutions isn't enough to fix the types inconsistencies
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore another comment on this line pikachusurprise.gif - CI is drunk WRT this, but that works locally
-import type Transport from "@ledgerhq/live-common/node_modules/@ledgerhq/hw-transport/lib/Transport";
+import type Transport from "@ledgerhq/hw-transport";
 import * as core from "@shapeshiftoss/hdwallet-core";
 
+import type { getAppAndVersion } from "./hw/getAppAndVersion";
+import type { getDeviceInfo } from "./hw/getDeviceInfo";
+import type { openApp } from "./hw/openApp";
 import { Thorchain } from "./thorchain";
 
 type MethodsOnly<T> = {

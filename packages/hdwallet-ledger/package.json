@@ -17,11 +17,11 @@
   "dependencies": {
     "@ethereumjs/common": "^2.4.0",
     "@ethereumjs/tx": "^3.3.0",
+    "@ledgerhq/device-core": "^0.5.4",
     "@ledgerhq/hw-app-cosmos": "^6.32.4",
     "@ledgerhq/hw-app-btc": "^10.10.0",
     "@ledgerhq/hw-app-eth": "^6.45.13",
     "@ledgerhq/hw-transport": "6.31.8",
-    "@ledgerhq/live-common": "^21.8.2",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.0",
     "@shapeshiftoss/hdwallet-core": "1.62.2",
     "@solana/web3.js": "1.95.8",
