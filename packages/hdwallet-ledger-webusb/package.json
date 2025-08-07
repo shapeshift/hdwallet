@@ -17,7 +17,7 @@
     "@ledgerhq/hw-app-btc": "^10.10.0",
     "@ledgerhq/hw-app-eth": "^6.45.13",
     "@ledgerhq/hw-app-solana": "^7.5.1",
-    "@ledgerhq/hw-transport": "^6.31.8",
+    "@ledgerhq/hw-transport": "6.31.8",
     "@ledgerhq/hw-transport-webusb": "^6.29.8",
     "@ledgerhq/live-common": "^21.8.2",
     "@ledgerhq/logs": "6.13.0",
@@ -29,8 +29,5 @@
   "devDependencies": {
     "@types/ledgerhq__hw-transport": "^4.21.3",
     "@types/w3c-web-usb": "^1.0.6"
-  },
-  "resolutions": {
-    "@ledgerhq/logs": "6.13.0"
   }
 }
