@@ -29,5 +29,8 @@
   "devDependencies": {
     "@types/ledgerhq__hw-transport": "^4.21.3",
     "@types/w3c-web-usb": "^1.0.6"
+  },
+  "resolutions": {
+    "@ledgerhq/logs": "6.13.0"
   }
 }
