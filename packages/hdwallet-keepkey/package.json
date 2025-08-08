@@ -16,8 +16,8 @@
   },
   "dependencies": {
     "@bitcoinerlab/secp256k1": "^1.1.1",
-    "@ethereumjs/common": "2.6.5",
-    "@ethereumjs/tx": "3.5.2",
+    "@ethereumjs/common": "3.2.0",
+    "@ethereumjs/tx": "4.2.0",
     "@keepkey/device-protocol": "7.13.4",
     "@metamask/eth-sig-util": "^7.0.0",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.0",

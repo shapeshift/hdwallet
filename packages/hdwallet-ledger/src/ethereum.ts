@@ -1,5 +1,5 @@
 import { Transaction } from "@ethereumjs/tx";
-import Common from "@ethereumjs/common";
+import { Common } from "@ethereumjs/common";
 import type { EIP712Message } from "@ledgerhq/types-live";
 import * as sigUtil from "@metamask/eth-sig-util";
 import * as core from "@shapeshiftoss/hdwallet-core";
