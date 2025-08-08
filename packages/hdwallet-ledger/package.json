@@ -15,7 +15,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@ethereumjs/tx": "^3.3.0",
+    "@ethereumjs/common": "2.6.5",
+    "@ethereumjs/tx": "3.5.2",
     "@ledgerhq/device-core": "^0.5.4",
     "@ledgerhq/hw-app-btc": "^10.10.0",
     "@ledgerhq/hw-app-cosmos": "^6.32.4",
