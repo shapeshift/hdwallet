@@ -2,7 +2,6 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as keepkeyNodeWebUSB from "@shapeshiftoss/hdwallet-keepkey-nodewebusb";
 import * as keepkeyTcp from "@shapeshiftoss/hdwallet-keepkey-tcp";
-import AxiosHTTPAdapter from "axios/lib/adapters/http";
 
 const TIMEOUT = 60 * 1000;
 
@@ -16,7 +15,6 @@ async function getBridge(keyring: core.Keyring) {
     const wallet = await tcpAdapter.pairRawDevice(
       {
         baseURL: "http://localhost:1646",
-        adapter: AxiosHTTPAdapter,
       },
       true
     );
@@ -44,7 +42,6 @@ async function getEmulator(keyring: core.Keyring) {
     const wallet = await tcpAdapter.pairRawDevice(
       {
         baseURL: "http://localhost:5000",
-        adapter: AxiosHTTPAdapter,
       },
       true
     );

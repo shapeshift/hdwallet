@@ -4,14 +4,9 @@ import Eth from "@ledgerhq/hw-app-eth";
 import Solana from "@ledgerhq/hw-app-solana";
 import Transport from "@ledgerhq/hw-transport";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
-import getAppAndVersion from "@ledgerhq/live-common/lib/hw/getAppAndVersion";
-import getDeviceInfo from "@ledgerhq/live-common/lib/hw/getDeviceInfo";
-import openApp from "@ledgerhq/live-common/lib/hw/openApp";
-// Blame Ledger here, enforcing resolutions isn't enough to fix the types inconsistencies
-import type LiveCommonTransport from "@ledgerhq/live-common/node_modules/@ledgerhq/hw-transport/lib/Transport";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { LedgerTransport, Thorchain } from "@shapeshiftoss/hdwallet-ledger";
-import {
+import { getAppAndVersion, getDeviceInfo, LedgerTransport, openApp, Thorchain } from "@shapeshiftoss/hdwallet-ledger";
+import type {
   LedgerResponse,
   LedgerTransportCoinType,
   LedgerTransportMethod,
@@ -119,19 +114,19 @@ export async function translateCoinAndMethod<T extends LedgerTransportCoinType, 
         case "getAppAndVersion": {
           const out: LedgerTransportMethod<null, "getAppAndVersion"> = getAppAndVersion.bind(
             undefined,
-            transport as LiveCommonTransport
+            transport as Transport
           );
           return out as LedgerTransportMethod<T, U>;
         }
         case "getDeviceInfo": {
           const out: LedgerTransportMethod<null, "getDeviceInfo"> = getDeviceInfo.bind(
             undefined,
-            transport as LiveCommonTransport
+            transport as Transport
           );
           return out as LedgerTransportMethod<T, U>;
         }
         case "openApp": {
-          const out: LedgerTransportMethod<null, "openApp"> = openApp.bind(undefined, transport as LiveCommonTransport);
+          const out: LedgerTransportMethod<null, "openApp"> = openApp.bind(undefined, transport as Transport);
           return out as LedgerTransportMethod<T, U>;
         }
         default: {
@@ -149,7 +144,7 @@ export class LedgerWebUsbTransport extends LedgerTransport {
   device: USBDevice;
 
   constructor(device: USBDevice, transport: TransportWebUSB, keyring: core.Keyring) {
-    super(transport as LiveCommonTransport, keyring);
+    super(transport as Transport, keyring);
     this.device = device;
   }
 
