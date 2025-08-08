@@ -8,6 +8,7 @@ module.exports = {
   testMatch: ["<rootDir>/**/*.test.ts"],
   transformIgnorePatterns: ["node_modules/(?!(@shapeshiftoss/bitcoinjs-lib|valibot)/)"],
   moduleNameMapper: {
+    "^@ledgerhq/live-network/(.*)$": "@ledgerhq/live-network/lib/$1.js",
     "^@shapeshiftoss/hdwallet-(.*)": "<rootDir>/../../packages/hdwallet-$1/src",
     "^valibot$": require.resolve("valibot"),
     "^axios$": require.resolve("axios"),
