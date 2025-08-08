@@ -5,9 +5,8 @@ import Solana from "@ledgerhq/hw-app-solana";
 import Transport from "@ledgerhq/hw-transport";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { LedgerTransport, Thorchain } from "@shapeshiftoss/hdwallet-ledger";
-import { getAppAndVersion, getDeviceInfo, openApp } from "@shapeshiftoss/hdwallet-ledger/src/hw";
-import {
+import { getAppAndVersion, getDeviceInfo, LedgerTransport, openApp, Thorchain } from "@shapeshiftoss/hdwallet-ledger";
+import type {
   LedgerResponse,
   LedgerTransportCoinType,
   LedgerTransportMethod,

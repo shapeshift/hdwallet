@@ -4,8 +4,7 @@ import Transport from "@ledgerhq/hw-transport";
 import TransportWebHID from "@ledgerhq/hw-transport-webhid";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
-import { getAppAndVersion, getDeviceInfo, openApp } from "@shapeshiftoss/hdwallet-ledger/src/hw";
-import {
+import type {
   LedgerResponse,
   LedgerTransportCoinType,
   LedgerTransportMethod,
@@ -76,21 +75,21 @@ export function translateCoinAndMethod<T extends LedgerTransportCoinType, U exte
           return out as LedgerTransportMethod<T, U>;
         }
         case "getAppAndVersion": {
-          const out: LedgerTransportMethod<null, "getAppAndVersion"> = getAppAndVersion.bind(
+          const out: LedgerTransportMethod<null, "getAppAndVersion"> = ledger.getAppAndVersion.bind(
             undefined,
             transport as Transport
           );
           return out as LedgerTransportMethod<T, U>;
         }
         case "getDeviceInfo": {
-          const out: LedgerTransportMethod<null, "getDeviceInfo"> = getDeviceInfo.bind(
+          const out: LedgerTransportMethod<null, "getDeviceInfo"> = ledger.getDeviceInfo.bind(
             undefined,
             transport as Transport
           );
           return out as LedgerTransportMethod<T, U>;
         }
         case "openApp": {
-          const out: LedgerTransportMethod<null, "openApp"> = openApp.bind(undefined, transport as Transport);
+          const out: LedgerTransportMethod<null, "openApp"> = ledger.openApp.bind(undefined, transport as Transport);
           return out as LedgerTransportMethod<T, U>;
         }
         default: {
