@@ -56,12 +56,11 @@
   },
   "resolutions": {
     "@types/eventsource": "1.1.8",
-    "@types/node": "20.5.7@ts4.7",
     "p-queue": "^6.6.2"
   },
   "dependencies": {
     "@types/jest": "^26.0.23",
-    "@types/node": "^20.5.7",
+    "@types/node": "^22.13.14",
     "patch-package": "^6.2.2",
     "postinstall-postinstall": "^2.1.0"
   },
