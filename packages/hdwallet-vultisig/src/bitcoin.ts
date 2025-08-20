@@ -37,60 +37,42 @@ export const btcGetAccountPaths = (msg: core.BTCGetAccountPaths): Array<core.BTC
   const slip44 = core.slip44ByCoin(msg.coin);
   if (slip44 === undefined) return [];
 
-  const coinPaths = {
-    Bitcoin: [
-      {
-        coin: msg.coin,
-        scriptType: core.BTCInputScriptType.SpendWitness, // BIP84: m/84'/0'/0'/0/0
-        addressNList: [0x80000000 + 84, 0x80000000 + 0, 0x80000000 + msg.accountIdx, 0, 0],
-      },
-    ],
-    Litecoin: [
-      {
-        coin: msg.coin,
-        scriptType: core.BTCInputScriptType.SpendWitness, // BIP84: m/84'/2'/0'/0/0
-        addressNList: [0x80000000 + 84, 0x80000000 + 2, 0x80000000 + msg.accountIdx, 0, 0],
-      },
-    ],
-    Dash: [
-      {
-        coin: msg.coin,
-        scriptType: core.BTCInputScriptType.SpendAddress, // BIP44: m/44'/5'/0'/0/0
-        addressNList: [0x80000000 + 44, 0x80000000 + 5, 0x80000000 + msg.accountIdx, 0, 0],
-      },
-    ],
-    Dogecoin: [
-      {
-        coin: msg.coin,
-        scriptType: core.BTCInputScriptType.SpendAddress, // BIP44: m/44'/3'/0'/0/0
-        addressNList: [0x80000000 + 44, 0x80000000 + 3, 0x80000000 + msg.accountIdx, 0, 0],
-      },
-    ],
-    BitcoinCash: [
-      {
-        coin: msg.coin,
-        scriptType: core.BTCInputScriptType.SpendAddress, // BIP44: m/44'/145'/0'/0/0
-        addressNList: [0x80000000 + 44, 0x80000000 + 145, 0x80000000 + msg.accountIdx, 0, 0],
-      },
-    ],
-    Zcash: [
-      {
-        coin: msg.coin,
-        scriptType: core.BTCInputScriptType.SpendAddress, // BIP44: m/44'/133'/0'/0/0
-        addressNList: [0x80000000 + 44, 0x80000000 + 133, 0x80000000 + msg.accountIdx, 0, 0],
-      },
-    ],
-  } as Partial<Record<string, Array<core.BTCAccountPath>>>;
+  // Determinar el scriptType y purpose basado en la moneda
+  let scriptType: core.BTCInputScriptType;
+  let purpose: number;
 
-  let paths: Array<core.BTCAccountPath> = coinPaths[msg.coin] || [];
-
-  if (msg.scriptType !== undefined) {
-    paths = paths.filter((path) => {
-      return path.scriptType === msg.scriptType;
-    });
+  switch (msg.coin) {
+    case "Bitcoin":
+    case "Litecoin":
+      scriptType = core.BTCInputScriptType.SpendWitness; // BIP84
+      purpose = 84;
+      break;
+    case "Dash":
+    case "Dogecoin":
+    case "BitcoinCash":
+    case "Zcash":
+      scriptType = core.BTCInputScriptType.SpendAddress; // BIP44
+      purpose = 44;
+      break;
+    default:
+      return [];
   }
 
-  return paths;
+  // Construir el path usando slip44 y purpose dinámicamente
+  const addressNList = [0x80000000 + purpose, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0];
+
+  const path: core.BTCAccountPath = {
+    coin: msg.coin,
+    scriptType,
+    addressNList,
+  };
+
+  // Filtrar por scriptType si se especifica
+  if (msg.scriptType !== undefined && path.scriptType !== msg.scriptType) {
+    return [];
+  }
+
+  return [path];
 };
 
 export async function bitcoinSignTx(

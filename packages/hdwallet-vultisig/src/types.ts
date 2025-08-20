@@ -20,11 +20,7 @@ type VultisigRequestPayload<M extends VultisigRequestMethod> = {
   params: VultisigRequestParams[M];
 };
 
-export type VultisigEvmProvider = providers.ExternalProvider & {
-  _metamask: {
-    isUnlocked: () => boolean;
-  };
-};
+export type VultisigEvmProvider = providers.ExternalProvider;
 
 export type VultisigUtxoProvider = providers.ExternalProvider & {
   request<M extends VultisigRequestMethod>(payload: VultisigRequestPayload<M>): Promise<VultisigRequestReturn[M]>;

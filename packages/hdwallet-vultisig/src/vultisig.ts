@@ -106,9 +106,8 @@ export class VultisigHDWalletInfo
 
   /** Ethereum */
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async ethSupportsNetwork(_chainId: number): Promise<boolean> {
-    return true; // complete
+  public async ethSupportsNetwork(chainId = 1): Promise<boolean> {
+    return chainId === 1;
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
@@ -136,8 +135,8 @@ export class VultisigHDWalletInfo
   /** Bitcoin */
 
   public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
-    const supportedCoins = ["Bitcoin", "Litecoin", "Dash", "Dogecoin", "BitcoinCash", "Zcash"];
-    return supportedCoins.includes(coin);
+    const supportedCoins = ["bitcoin", "litecoin", "dash", "dogecoin", "bitcoincash", "zcash"];
+    return supportedCoins.includes(coin.toLowerCase());
   }
 
   public async btcSupportsScriptType(coin: string, scriptType?: core.BTCInputScriptType | undefined): Promise<boolean> {
@@ -344,7 +343,6 @@ export class VultisigHDWallet
           case "BitcoinCash":
           case "Zcash":
           case "Dash": {
-
             const pubKey = await this.btcGetAddress({ coin, scriptType } as core.BTCGetAddress);
             return { xpub: pubKey } as core.PublicKey;
           }
@@ -492,7 +490,6 @@ export class VultisigHDWallet
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage | null> {
-    // vultisig doesnt support this for btc
     throw new Error("not supported");
   }
 
