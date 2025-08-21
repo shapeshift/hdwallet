@@ -37,7 +37,6 @@ export const btcGetAccountPaths = (msg: core.BTCGetAccountPaths): Array<core.BTC
   const slip44 = core.slip44ByCoin(msg.coin);
   if (slip44 === undefined) return [];
 
-  // Determinar el scriptType y purpose basado en la moneda
   let scriptType: core.BTCInputScriptType;
   let purpose: number;
 
@@ -58,7 +57,6 @@ export const btcGetAccountPaths = (msg: core.BTCGetAccountPaths): Array<core.BTC
       return [];
   }
 
-  // Construir el path usando slip44 y purpose dinámicamente
   const addressNList = [0x80000000 + purpose, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0];
 
   const path: core.BTCAccountPath = {
@@ -67,7 +65,6 @@ export const btcGetAccountPaths = (msg: core.BTCGetAccountPaths): Array<core.BTC
     addressNList,
   };
 
-  // Filtrar por scriptType si se especifica
   if (msg.scriptType !== undefined && path.scriptType !== msg.scriptType) {
     return [];
   }
@@ -93,7 +90,6 @@ export async function bitcoinSignTx(
 
     if (!fromAddress) throw new Error("Could not get from address from wallet");
 
-    // TODO: hippo: Invalid logic does not substract own address (it's a work around for now)
     const toOutput = msg.outputs.find((o) => !o.isChange);
     const toAddress =
       toOutput?.address ||
@@ -104,7 +100,9 @@ export async function bitcoinSignTx(
       })) ||
       fromAddress;
 
-    const totalAmount = msg.outputs.reduce((sum, o) => sum + BigInt(o.amount ?? 0), BigInt(0));
+    const totalAmount = msg.outputs
+      .filter((o) => !o.isChange)
+      .reduce((sum, o) => sum + BigInt(o.amount ?? 0), BigInt(0));
 
     const vultisigRequest: VultisigBitcoinRequest = {
       asset: {

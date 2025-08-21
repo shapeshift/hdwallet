@@ -6,6 +6,7 @@ import { SolanaAccount } from "./solana";
 
 type VultisigRequestParams = {
   get_accounts: [];
+  request_accounts: [];
 };
 
 type VultisigRequestReturn = {
@@ -33,4 +34,4 @@ export type VultisigSolanaProvider = providers.ExternalProvider & {
   signAndSendTransaction(transaction: VersionedTransaction): Promise<{ signature: any }>;
 };
 
-export type VultisigBftProvider = any; // TODO: Keplr
+export type VultisigBftProvider = any;

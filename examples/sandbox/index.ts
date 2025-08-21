@@ -2951,6 +2951,13 @@ $btcTx.on("click", async (e) => {
         amount: String(10000 - 1000),
         isChange: false,
       },
+      {
+        address: "bc1qns39r46v44p7rp8kddqq6jcpuwmlytghjfu9hx",
+        addressType: core.BTCOutputAddressType.Spend,
+        scriptType: core.BTCOutputScriptType.PayToAddress,
+        amount: String(10000 - 1000),
+        isChange: true,
+      },
     ];
 
     const res = await wallet.btcSignTx({

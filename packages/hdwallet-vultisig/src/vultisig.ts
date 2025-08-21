@@ -135,18 +135,18 @@ export class VultisigHDWalletInfo
   /** Bitcoin */
 
   public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
-    const supportedCoins = ["bitcoin", "litecoin", "dash", "dogecoin", "bitcoincash", "zcash"];
-    return supportedCoins.includes(coin.toLowerCase());
+    const vultisigSupportedCoins = ["bitcoin", "litecoin", "dash", "dogecoin", "bitcoincash", "zcash"];
+    return vultisigSupportedCoins.includes(coin.toLowerCase());
   }
 
   public async btcSupportsScriptType(coin: string, scriptType?: core.BTCInputScriptType | undefined): Promise<boolean> {
     if (!this.btcSupportsCoin(coin)) return false;
 
-    switch (scriptType) {
+    switch (scriptType?.toLowerCase()) {
       case core.BTCInputScriptType.SpendAddress:
-        return ["Dash", "Dogecoin", "BitcoinCash", "Zcash"].includes(coin);
+        return ["dash", "dogecoin", "bitcoincash", "zcash"].includes(coin.toLowerCase());
       case core.BTCInputScriptType.SpendWitness:
-        return ["Bitcoin", "Litecoin"].includes(coin);
+        return ["bitcoin", "litecoin"].includes(coin.toLowerCase());
       default:
         return false;
     }
@@ -217,8 +217,8 @@ export class VultisigHDWallet
   readonly _supportsBSC = true;
   readonly _supportsSolana = true;
   readonly _supportsThorchain = true;
-  readonly _isVultisig = true;
   readonly _supportsCosmos = true;
+  readonly _isVultisig = true;
 
   evmProvider: VultisigEvmProvider;
   bitcoinProvider: VultisigUtxoProvider;
@@ -343,6 +343,8 @@ export class VultisigHDWallet
           case "BitcoinCash":
           case "Zcash":
           case "Dash": {
+            // Note this is a pubKey, not an xpub, however vultisig does not support utxo derivation,
+            // so this functions as an account (xpub) for all intents and purposes
             const pubKey = await this.btcGetAddress({ coin, scriptType } as core.BTCGetAddress);
             return { xpub: pubKey } as core.PublicKey;
           }
@@ -418,43 +420,43 @@ export class VultisigHDWallet
     const value = await (async () => {
       switch (msg.coin.toLowerCase()) {
         case "bitcoin": {
-          const accounts = await this.bitcoinProvider.request<"get_accounts">({
-            method: "get_accounts",
+          const accounts = await this.bitcoinProvider.request<"request_accounts">({
+            method: "request_accounts",
             params: [],
           });
           return accounts.length > 0 ? accounts[0] : null;
         }
         case "litecoin": {
-          const accounts = await this.litecoinProvider.request<"get_accounts">({
-            method: "get_accounts",
+          const accounts = await this.litecoinProvider.request<"request_accounts">({
+            method: "request_accounts",
             params: [],
           });
           return accounts.length > 0 ? accounts[0] : null;
         }
         case "dogecoin": {
-          const accounts = await this.dogecoinProvider.request<"get_accounts">({
-            method: "get_accounts",
+          const accounts = await this.dogecoinProvider.request<"request_accounts">({
+            method: "request_accounts",
             params: [],
           });
           return accounts.length > 0 ? accounts[0] : null;
         }
         case "bitcoincash": {
-          const accounts = await this.bitcoincashProvider.request<"get_accounts">({
-            method: "get_accounts",
+          const accounts = await this.bitcoincashProvider.request<"request_accounts">({
+            method: "request_accounts",
             params: [],
           });
           return accounts.length > 0 ? accounts[0] : null;
         }
         case "zcash": {
-          const accounts = await this.zcashProvider.request<"get_accounts">({
-            method: "get_accounts",
+          const accounts = await this.zcashProvider.request<"request_accounts">({
+            method: "request_accounts",
             params: [],
           });
           return accounts.length > 0 ? accounts[0] : null;
         }
         case "dash": {
-          const accounts = await this.dashProvider.request<"get_accounts">({
-            method: "get_accounts",
+          const accounts = await this.dashProvider.request<"request_accounts">({
+            method: "request_accounts",
             params: [],
           });
           return accounts.length > 0 ? accounts[0] : null;

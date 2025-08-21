@@ -39,9 +39,6 @@ describe("VultisigHDWallet", () => {
   describe("Ethereum", () => {
     it("ethGetAddress returns a valid address", async () => {
       wallet.evmProvider = {
-        _metamask: {
-          isUnlocked: () => true,
-        },
         request: jest.fn().mockReturnValue(["0x73d0385F4d8E00C5e6504C6030F47BF6212736A8"]),
       };
 
@@ -52,9 +49,6 @@ describe("VultisigHDWallet", () => {
 
     it("ethSendTx returns a valid hash", async () => {
       wallet.evmProvider = {
-        _metamask: {
-          isUnlocked: () => true,
-        },
         request: jest.fn().mockReturnValue("0x123"),
       };
 
@@ -74,9 +68,6 @@ describe("VultisigHDWallet", () => {
 
     it("ethSendTx returns a valid hash if maxFeePerGas is present in msg", async () => {
       wallet.evmProvider = {
-        _metamask: {
-          isUnlocked: () => true,
-        },
         request: jest.fn().mockReturnValue("0x123"),
       };
 
@@ -96,9 +87,6 @@ describe("VultisigHDWallet", () => {
 
     it("ethSendTx returns null on error", async () => {
       wallet.evmProvider = {
-        _metamask: {
-          isUnlocked: () => true,
-        },
         request: jest.fn().mockRejectedValue(new Error("An Error has occurred")),
       };
 
@@ -118,9 +106,6 @@ describe("VultisigHDWallet", () => {
 
     it("should test ethSignMessage", async () => {
       wallet.evmProvider = {
-        _metamask: {
-          isUnlocked: () => true,
-        },
         request: jest.fn().mockReturnValue(
           `Object {
           "address": "0x73d0385F4d8E00C5e6504C6030F47BF6212736A8",
@@ -147,9 +132,6 @@ describe("VultisigHDWallet", () => {
 
     it("ethSignMessage returns null on error", async () => {
       wallet.evmProvider = {
-        _metamask: {
-          isUnlocked: () => true,
-        },
         request: jest.fn().mockRejectedValue(new Error("An Error has occurred")),
       };
 
@@ -186,6 +168,8 @@ describe("VultisigHDWallet", () => {
 
       expect(address).toEqual("bc1q9sjm947kn2hz84syykmem7dshvevm8xm5dkrpg");
     });
+
+    // TODO: hippo: Add tests for getAddress over non-supported script types
 
     describe("btcGetAccountPaths", () => {
       it("should return correct paths for Bitcoin (BIP84)", () => {
@@ -393,4 +377,6 @@ describe("VultisigHDWallet", () => {
       expect(address).toEqual("DsYwEVzeSNMkU5PVwjwtZ8EDRQxaR6paXfFAdhMQxmaV");
     });
   });
+
+  // TODO: hippo: Missing tests for Thorchain and Cosmos
 });
