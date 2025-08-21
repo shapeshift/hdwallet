@@ -24,6 +24,7 @@
     "@shapeshiftoss/hdwallet-metamask-multichain": "1.62.3",
     "@shapeshiftoss/hdwallet-native": "1.62.3",
     "@shapeshiftoss/hdwallet-phantom": "1.62.3",
+    "@shapeshiftoss/hdwallet-vultisig": "1.62.3",
     "@shapeshiftoss/hdwallet-portis": "1.62.3",
     "@shapeshiftoss/hdwallet-trezor": "1.62.3",
     "@shapeshiftoss/hdwallet-trezor-connect": "1.62.3",
