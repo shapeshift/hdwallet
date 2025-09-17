@@ -25,6 +25,19 @@ export type VultisigEvmProvider = providers.ExternalProvider;
 
 export type VultisigUtxoProvider = providers.ExternalProvider & {
   request<M extends VultisigRequestMethod>(payload: VultisigRequestPayload<M>): Promise<VultisigRequestReturn[M]>;
+  signPSBT(
+    psbt: Uint8Array,
+    {
+      inputsToSign,
+    }: {
+      inputsToSign: {
+        address: string;
+        signingIndexes: number[];
+        sigHash?: number;
+      }[];
+    },
+    broadcast: boolean
+  ): Promise<Uint8Array>;
 };
 
 export type VultisigSolanaProvider = providers.ExternalProvider & {
