@@ -1,4 +1,4 @@
-import { Common } from "@ethereumjs/common";
+import Common from "@ethereumjs/common";
 import { Transaction } from "@ethereumjs/tx";
 import type { EIP712Message } from "@ledgerhq/types-live";
 import * as sigUtil from "@metamask/eth-sig-util";

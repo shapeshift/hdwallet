@@ -1,4 +1,4 @@
-import { Common } from "@ethereumjs/common";
+import Common from "@ethereumjs/common";
 import { Transaction } from "@ethereumjs/tx";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Address } from "@shapeshiftoss/hdwallet-core";

@@ -1,5 +1,5 @@
 {
-  "name": "@shapeshiftoss/hdwallet-native-vault",
+  "name": "@shapeshiftoss/hdwallet-gridplus",
   "version": "1.62.4-alpha.52",
   "license": "MIT",
   "publishConfig": {
@@ -10,22 +10,20 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc --build",
+    "build:docs": "typedoc --out docs --target es6 --theme minimal --mode file src",
     "clean": "rm -rf dist node_modules tsconfig.tsbuildinfo",
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@bitcoinerlab/secp256k1": "^1.1.1",
-    "@shapeshiftoss/hdwallet-native": "^1.62.4-alpha.52",
-    "bip39": "^3.0.4",
-    "hash-wasm": "^4.11.0",
-    "idb-keyval": "^6.0.3",
-    "jose": "^4.3.5",
-    "p-lazy": "^3.1.0",
-    "type-assertions": "^1.1.0",
-    "uuid": "^8.3.2"
+    "@ethereumjs/common": "^2.4.0",
+    "@ethereumjs/tx": "^3.3.0",
+    "@metamask/eth-sig-util": "^7.0.0",
+    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.52",
+    "gridplus-sdk": "^3.2.0",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "fake-indexeddb": "^3.1.7"
+    "typedoc": "^0.20.36"
   },
   "gitHead": "8620043a9e97238632ff3d046c958887ea5c2682"
 }
