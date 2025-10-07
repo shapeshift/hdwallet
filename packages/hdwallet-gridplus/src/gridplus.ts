@@ -31,8 +31,8 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
   readonly _supportsArbitrumNova = false;
   readonly _supportsBase = true;
   readonly _supportsBSC = true;
-  readonly _supportsSolana = false;
-  readonly _supportsSolanaInfo = false;
+  readonly _supportsSolana = true;
+  readonly _supportsSolanaInfo = true;
 
   info: GridPlusWalletInfo & core.HDWalletInfo;
   transport: GridPlusTransport;
