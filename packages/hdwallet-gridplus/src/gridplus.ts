@@ -3,7 +3,19 @@ import { FeeMarketEIP1559Transaction, Transaction } from "@ethereumjs/tx";
 import { SignTypedDataVersion, TypedDataUtils } from "@metamask/eth-sig-util";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import bs58 from "bs58";
-import { Client, Constants, Utils, fetchSolanaAddresses } from "gridplus-sdk";
+import {
+  Client,
+  Constants,
+  Utils,
+  fetchSolanaAddresses,
+  fetchBtcLegacyAddresses,
+  fetchBtcSegwitAddresses,
+  fetchBtcWrappedSegwitAddresses,
+  signSolanaTx,
+  signBtcLegacyTx,
+  signBtcSegwitTx,
+  signBtcWrappedSegwitTx,
+} from "gridplus-sdk";
 import isObject from "lodash/isObject";
 import { encode } from "rlp";
 
@@ -13,7 +25,7 @@ export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
   return isObject(wallet) && (wallet as any)._isGridPlus;
 }
 
-export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.SolanaWallet {
+export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.SolanaWallet, core.BTCWallet {
   readonly _isGridPlus = true;
   private addressCache = new Map<string, core.Address | string>();
   private callCounter = 0;
@@ -34,6 +46,8 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
   readonly _supportsBSC = true;
   readonly _supportsSolana = true;
   readonly _supportsSolanaInfo = true;
+  readonly _supportsBTC = true;
+  readonly _supportsBTCInfo = true;
 
   info: GridPlusWalletInfo & core.HDWalletInfo;
   transport: GridPlusTransport;
@@ -431,7 +445,40 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
   }
 
   public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
-    throw new Error("GridPlus Solana transaction signing not implemented yet");
+    if (!this.client) {
+      throw new Error("Device not connected");
+    }
+
+    try {
+      const address = await this.solanaGetAddress({
+        addressNList: msg.addressNList,
+        showDisplay: false,
+      });
+
+      if (!address) throw new Error("Failed to get Solana address");
+
+      const transaction = core.solanaBuildTransaction(msg, address);
+      const serialized = transaction.serialize({
+        requireAllSignatures: false,
+        verifySignatures: false,
+      });
+
+      // Use GridPlus SDK's signSolanaTx wrapper
+      const signData = await signSolanaTx(Buffer.from(serialized), {
+        signerPath: msg.addressNList,
+      });
+
+      if (!signData || !signData.sig) {
+        throw new Error("No signature returned from device");
+      }
+
+      return {
+        serialized: Buffer.from(serialized).toString("base64"),
+        signatures: [Buffer.from(signData.sig).toString("base64")],
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 
   public solanaNextAccountPath(msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
@@ -752,10 +799,193 @@ export class GridPlusWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
     // Increment account index for next account
     const newAddressNList = [...msg.addressNList];
     newAddressNList[2] += 1; // Increment account index
-    
+
     return {
       addressNList: newAddressNList,
     };
+  }
+
+  // Bitcoin Wallet Methods
+  public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
+    // Support Bitcoin and Dogecoin
+    return ["Bitcoin", "Dogecoin", "Testnet"].includes(coin);
+  }
+
+  public async btcSupportsScriptType(coin: core.Coin, scriptType?: core.BTCInputScriptType): Promise<boolean> {
+    const supported = {
+      Bitcoin: [
+        core.BTCInputScriptType.SpendAddress,      // p2pkh
+        core.BTCInputScriptType.SpendP2SHWitness,  // p2sh-p2wpkh
+        core.BTCInputScriptType.SpendWitness,      // p2wpkh
+      ],
+      Dogecoin: [core.BTCInputScriptType.SpendAddress],  // p2pkh only
+      Testnet: [
+        core.BTCInputScriptType.SpendAddress,
+        core.BTCInputScriptType.SpendP2SHWitness,
+        core.BTCInputScriptType.SpendWitness,
+      ],
+    } as Partial<Record<core.Coin, Array<core.BTCInputScriptType>>>;
+
+    const scriptTypes = supported[coin];
+    return !!scriptTypes && !!scriptType && scriptTypes.includes(scriptType);
+  }
+
+  public async btcSupportsSecureTransfer(): Promise<boolean> {
+    return false;
+  }
+
+  public btcSupportsNativeShapeShift(): boolean {
+    return false;
+  }
+
+  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
+    const slip44 = core.slip44ByCoin(msg.coin);
+    const scriptTypes: core.BTCInputScriptType[] = [];
+
+    if (msg.coin === "Dogecoin") {
+      scriptTypes.push(core.BTCInputScriptType.SpendAddress);
+    } else {
+      scriptTypes.push(
+        core.BTCInputScriptType.SpendAddress,
+        core.BTCInputScriptType.SpendP2SHWitness,
+        core.BTCInputScriptType.SpendWitness
+      );
+    }
+
+    return scriptTypes.map(scriptType => {
+      const purpose = this.scriptTypeToPurpose(scriptType);
+      return {
+        coin: msg.coin,
+        scriptType,
+        addressNList: [0x80000000 + purpose, 0x80000000 + slip44, 0x80000000 + (msg.accountIdx || 0), 0, 0],
+      };
+    });
+  }
+
+  public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
+    if (msg.length === 0) return false;
+    const first = msg[0];
+    return msg.every(
+      path =>
+        path.addressNList[0] === first.addressNList[0] &&
+        path.addressNList[1] === first.addressNList[1] &&
+        path.addressNList[2] === first.addressNList[2]
+    );
+  }
+
+  public async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
+    const pathKey = JSON.stringify(msg.addressNList);
+    const cached = this.addressCache.get(pathKey);
+    if (cached) return cached as string;
+
+    const scriptType = msg.scriptType || core.BTCInputScriptType.SpendAddress;
+    const accountIdx = msg.addressNList[2] - 0x80000000;
+
+    // Choose fetch function based on script type
+    const fetchFn =
+      scriptType === core.BTCInputScriptType.SpendWitness
+        ? fetchBtcSegwitAddresses
+        : scriptType === core.BTCInputScriptType.SpendP2SHWitness
+        ? fetchBtcWrappedSegwitAddresses
+        : fetchBtcLegacyAddresses;
+
+    const addresses = await fetchFn({ n: 10, startPathIndex: accountIdx });
+
+    if (!addresses || !addresses.length) {
+      throw new Error("No addresses returned from device");
+    }
+
+    // Cache all 10 addresses
+    const purpose = this.scriptTypeToPurpose(scriptType);
+    const slip44 = core.slip44ByCoin(msg.coin);
+    for (let i = 0; i < addresses.length; i++) {
+      const cacheKey = JSON.stringify([
+        0x80000000 + purpose,
+        0x80000000 + slip44,
+        0x80000000 + (accountIdx + i),
+        0,
+        0,
+      ]);
+      this.addressCache.set(cacheKey, addresses[i]);
+    }
+
+    return (this.addressCache.get(pathKey) as string) || null;
+  }
+
+  public async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
+    if (!this.client) {
+      throw new Error("Device not connected");
+    }
+
+    const scriptType = msg.inputs[0]?.scriptType || core.BTCInputScriptType.SpendAddress;
+
+    // Choose sign function based on script type
+    const signFn =
+      scriptType === core.BTCInputScriptType.SpendWitness
+        ? signBtcSegwitTx
+        : scriptType === core.BTCInputScriptType.SpendP2SHWitness
+        ? signBtcWrappedSegwitTx
+        : signBtcLegacyTx;
+
+    // Build payload for GridPlus SDK
+    // This is simplified - a full implementation would need to build proper PSBT
+    const payload = {
+      prevOuts: msg.inputs.map(input => ({
+        txHash: (input as any).txid,
+        value: parseInt(input.amount || "0"),
+        index: input.vout,
+      })),
+      recipient: msg.outputs[0]?.address || "",
+      value: parseInt(msg.outputs[0]?.amount || "0"),
+      fee: 0, // Calculate from inputs/outputs
+      changePath: msg.outputs.find(o => o.isChange)?.addressNList,
+    };
+
+    try {
+      const signData = await signFn(payload as any);
+
+      if (!signData || !signData.tx) {
+        throw new Error("No signed transaction returned from device");
+      }
+
+      return {
+        signatures: [signData.sig?.toString("hex") || ""],
+        serializedTx: signData.tx.toString("hex"),
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage | null> {
+    throw new Error("GridPlus BTC message signing not yet implemented");
+  }
+
+  public async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean | null> {
+    throw new Error("GridPlus BTC message verification not yet implemented");
+  }
+
+  public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
+    const newAddressNList = [...msg.addressNList];
+    newAddressNList[2] += 1;
+
+    return {
+      ...msg,
+      addressNList: newAddressNList,
+    };
+  }
+
+  private scriptTypeToPurpose(scriptType: core.BTCInputScriptType): number {
+    switch (scriptType) {
+      case core.BTCInputScriptType.SpendAddress:
+        return 44;
+      case core.BTCInputScriptType.SpendP2SHWitness:
+        return 49;
+      case core.BTCInputScriptType.SpendWitness:
+        return 84;
+      default:
+        return 44;
+    }
   }
 
 }
