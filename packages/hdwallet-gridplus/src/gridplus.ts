@@ -1,6 +1,8 @@
 import type { StdTx } from "@cosmjs/amino";
+import type { DirectSignResponse, OfflineDirectSigner } from "@cosmjs/proto-signing";
 import type { SignerData } from "@cosmjs/stargate";
 import { pointCompress } from "@bitcoinerlab/secp256k1";
+import type { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import Common from "@ethereumjs/common";
 import { FeeMarketEIP1559Transaction, Transaction } from "@ethereumjs/tx";
 import { SignTypedDataVersion, TypedDataUtils } from "@metamask/eth-sig-util";
@@ -29,6 +31,7 @@ import PLazy from "p-lazy";
 import { encode } from "rlp";
 
 const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
+const cosmJsProtoSigning = PLazy.from(() => import("@cosmjs/proto-signing"));
 
 import { GridPlusTransport } from "./transport";
 
@@ -677,8 +680,11 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       const transaction = core.solanaBuildTransaction(msg, address);
       const serialized = transaction.serialize();
 
-      // Use GridPlus SDK's signSolanaTx wrapper
-      const signData = await signSolanaTx(Buffer.from(serialized));
+      // Use GridPlus SDK's signSolanaTx wrapper with custom signer path
+      // The SDK's default SOLANA_DERIVATION is hardcoded, so we pass our path in overrides
+      const signData = await signSolanaTx(Buffer.from(serialized), {
+        signerPath: msg.addressNList,
+      } as any);
 
       if (!signData || (!signData.sigs || signData.sigs.length === 0)) {
         throw new Error("No signature returned from device");
@@ -987,10 +993,15 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       throw new Error("No public key returned from device");
     }
 
-    // pubkeys[0] is a Buffer of the compressed public key
-    const pubkeyHex = Buffer.isBuffer(pubkeys[0])
-      ? pubkeys[0].toString("hex")
-      : pubkeys[0];
+    // pubkeys[0] may be uncompressed (65 bytes) or compressed (33 bytes)
+    const pubkeyBuffer = Buffer.isBuffer(pubkeys[0])
+      ? pubkeys[0]
+      : Buffer.from(pubkeys[0], "hex");
+
+    // Compress if needed (65 bytes = uncompressed, 33 bytes = already compressed)
+    const pubkeyHex = pubkeyBuffer.length === 65
+      ? Buffer.from(pointCompress(pubkeyBuffer, true)).toString("hex")
+      : pubkeyBuffer.toString("hex");
 
     // Derive address client-side using the coin's network parameters
     const scriptType = msg.scriptType || core.BTCInputScriptType.SpendAddress;
@@ -1160,21 +1171,20 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       // Capture client reference for use in closure
       const client = this.client;
 
-      // Create a signer adapter for GridPlus
-      const signer = {
-        address,
+      // Create a signer adapter for GridPlus with Direct signing (Proto)
+      const signer: OfflineDirectSigner = {
         getAccounts: async () => [{
           address,
           pubkey,
           algo: "secp256k1" as const,
         }],
-        signAmino: async (signerAddress: string, signDoc: any) => {
+        signDirect: async (signerAddress: string, signDoc: SignDoc): Promise<DirectSignResponse> => {
           if (signerAddress !== address) {
             throw new Error("Signer address mismatch");
           }
 
-          // Serialize the sign doc for signing
-          const signBytes = Buffer.from(JSON.stringify(signDoc), "utf8");
+          // Use CosmJS to create the sign bytes from the SignDoc
+          const signBytes = (await cosmJsProtoSigning).makeSignBytes(signDoc);
           const hash = CryptoJS.SHA256(CryptoJS.lib.WordArray.create(signBytes as any));
           const hashBuffer = Buffer.from(hash.toString(CryptoJS.enc.Hex), "hex");
 
@@ -1195,11 +1205,11 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
             throw new Error("No signature returned from device");
           }
 
-          const { r, s, v } = signedResult.sig;
+          const { r, s } = signedResult.sig;
           const rHex = Buffer.isBuffer(r) ? r : Buffer.from(r);
           const sHex = Buffer.isBuffer(s) ? s : Buffer.from(s);
 
-          // Combine r and s for DER signature
+          // Combine r and s for signature
           const signature = Buffer.concat([rHex, sHex]);
 
           return {
@@ -1313,21 +1323,20 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       // Capture client reference for use in closure
       const client = this.client;
 
-      // Create a signer adapter for GridPlus
-      const signer = {
-        address,
+      // Create a signer adapter for GridPlus with Direct signing (Proto)
+      const signer: OfflineDirectSigner = {
         getAccounts: async () => [{
           address,
           pubkey,
           algo: "secp256k1" as const,
         }],
-        signAmino: async (signerAddress: string, signDoc: any) => {
+        signDirect: async (signerAddress: string, signDoc: SignDoc): Promise<DirectSignResponse> => {
           if (signerAddress !== address) {
             throw new Error("Signer address mismatch");
           }
 
-          // Serialize the sign doc for signing
-          const signBytes = Buffer.from(JSON.stringify(signDoc), "utf8");
+          // Use CosmJS to create the sign bytes from the SignDoc
+          const signBytes = (await cosmJsProtoSigning).makeSignBytes(signDoc);
           const hash = CryptoJS.SHA256(CryptoJS.lib.WordArray.create(signBytes as any));
           const hashBuffer = Buffer.from(hash.toString(CryptoJS.enc.Hex), "hex");
 
@@ -1348,11 +1357,11 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
             throw new Error("No signature returned from device");
           }
 
-          const { r, s, v } = signedResult.sig;
+          const { r, s } = signedResult.sig;
           const rHex = Buffer.isBuffer(r) ? r : Buffer.from(r);
           const sHex = Buffer.isBuffer(s) ? s : Buffer.from(s);
 
-          // Combine r and s for DER signature
+          // Combine r and s for signature
           const signature = Buffer.concat([rHex, sHex]);
 
           return {
@@ -1465,21 +1474,20 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       // Capture client reference for use in closure
       const client = this.client;
 
-      // Create a signer adapter for GridPlus
-      const signer = {
-        address,
+      // Create a signer adapter for GridPlus with Direct signing (Proto)
+      const signer: OfflineDirectSigner = {
         getAccounts: async () => [{
           address,
           pubkey,
           algo: "secp256k1" as const,
         }],
-        signAmino: async (signerAddress: string, signDoc: any) => {
+        signDirect: async (signerAddress: string, signDoc: SignDoc): Promise<DirectSignResponse> => {
           if (signerAddress !== address) {
             throw new Error("Signer address mismatch");
           }
 
-          // Serialize the sign doc for signing
-          const signBytes = Buffer.from(JSON.stringify(signDoc), "utf8");
+          // Use CosmJS to create the sign bytes from the SignDoc
+          const signBytes = (await cosmJsProtoSigning).makeSignBytes(signDoc);
           const hash = CryptoJS.SHA256(CryptoJS.lib.WordArray.create(signBytes as any));
           const hashBuffer = Buffer.from(hash.toString(CryptoJS.enc.Hex), "hex");
 
@@ -1488,21 +1496,19 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
             data: {
               payload: hashBuffer,
               curveType: Constants.SIGNING.CURVES.SECP256K1,
-              hashType: Constants.SIGNING.HASHES.NONE,  // Already hashed
+              hashType: Constants.SIGNING.HASHES.NONE, // Already hashed
               encodingType: Constants.SIGNING.ENCODINGS.NONE,
               signerPath: msg.addressNList,
-            },
+            }
           };
 
-          const sig = await client.sign(signData);
+          const signedResult = await client.sign(signData);
 
-          if (!sig?.sig) {
+          if (!signedResult?.sig) {
             throw new Error("No signature returned from device");
           }
 
-          const { r, s, v } = sig.sig;
-
-          // Convert signature to DER format
+          const { r, s } = signedResult.sig;
           const rBuf = Buffer.from(r);
           const sBuf = Buffer.from(s);
 
@@ -1510,7 +1516,7 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
           const rPadded = rBuf.length < 32 ? Buffer.concat([Buffer.alloc(32 - rBuf.length), rBuf]) : rBuf;
           const sPadded = sBuf.length < 32 ? Buffer.concat([Buffer.alloc(32 - sBuf.length), sBuf]) : sBuf;
 
-          const signature = Buffer.concat([rPadded, sPadded]).toString("base64");
+          const signature = Buffer.concat([rPadded, sPadded]);
 
           return {
             signed: signDoc,
@@ -1519,7 +1525,7 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
                 type: "tendermint/PubKeySecp256k1",
                 value: pubkey.toString("base64"),
               },
-              signature,
+              signature: signature.toString("base64"),
             },
           };
         },
