@@ -574,10 +574,9 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       // addressNList[2] contains the hardened account index
       const accountIdx = msg.addressNList[2] - 0x80000000;
 
-      // Use SDK's fetchSolanaAddresses wrapper (fetches 10 addresses by default)
-      // This works better than direct client.getAddresses for Solana
+      // Fetch only the requested account (Solana has one address per account)
       const solanaAddresses = await fetchSolanaAddresses({
-        n: 10,  // Fetch 10 addresses at once for better performance
+        n: 1,  // Only fetch the requested account
         startPathIndex: accountIdx
       });
 
@@ -585,24 +584,16 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         throw new Error("No address returned from device");
       }
 
-      // Cache all 10 addresses to avoid re-fetching
-      for (let i = 0; i < solanaAddresses.length; i++) {
-        const addressBuffer = solanaAddresses[i];
-        if (Buffer.isBuffer(addressBuffer)) {
-          const address = bs58.encode(addressBuffer);
-          // Create cache key matching msg.addressNList format: [44', 501', accountIdx', 0']
-          const cacheKey = JSON.stringify([0x80000000 + 44, 0x80000000 + 501, 0x80000000 + (accountIdx + i), 0x80000000]);
-          this.addressCache.set(cacheKey, address);
-        }
+      // Encode and cache the address
+      const addressBuffer = solanaAddresses[0];
+      if (!Buffer.isBuffer(addressBuffer)) {
+        throw new Error("Invalid address format from device");
       }
 
-      // Return the requested address from cache
-      const requestedAddress = this.addressCache.get(pathKey);
-      if (!requestedAddress) {
-        throw new Error("Failed to cache Solana address");
-      }
+      const address = bs58.encode(addressBuffer);
+      this.addressCache.set(pathKey, address);
 
-      return requestedAddress;
+      return address;
     } catch (error) {
       throw error;
     }
