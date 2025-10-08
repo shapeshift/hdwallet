@@ -195,11 +195,31 @@ export class GridPlusTransport extends core.Transport {
       pairingCode,
       hasClient: !!this.client,
       connected: this.connected,
+      deviceId: this.deviceId,
     });
 
     if (!this.client) {
       console.error('[GridPlus Transport] Client not initialized');
       throw new Error("Client not initialized. Call setup() first.");
+    }
+
+    if (!this.deviceId) {
+      console.error('[GridPlus Transport] Device ID not set');
+      throw new Error("Device ID is required for pairing");
+    }
+
+    // Retry connect() to ensure ephemeral keys are established
+    // This is needed when previous connect() failed with "Device Locked"
+    console.log('[GridPlus Transport] Retrying client.connect() before pairing...');
+    try {
+      await this.client.connect(this.deviceId);
+      console.log('[GridPlus Transport] client.connect() retry succeeded');
+    } catch (error) {
+      console.log('[GridPlus Transport] client.connect() retry failed (may be expected):', {
+        error,
+        message: error instanceof Error ? error.message : String(error),
+      });
+      // Continue anyway - pair() might still work if device is now unlocked
     }
 
     try {
