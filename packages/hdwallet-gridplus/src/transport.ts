@@ -120,6 +120,43 @@ export class GridPlusTransport extends core.Transport {
     }
   }
 
+  // Setup transport for reconnection without calling client.connect()
+  // This avoids triggering device pairing screen when already paired
+  public async setupWithoutConnect(deviceId: string, password?: string, existingPrivKey?: string): Promise<void> {
+    this.deviceId = deviceId;
+    this.password = password || "shapeshift-default";
+    this.privKey = existingPrivKey!;
+
+    // Create Client without calling connect()
+    if (!this.client) {
+      await setup({
+        name: this.name || "ShapeShift",
+        deviceId,
+        password: this.password,
+        getStoredClient: async () => localStorage.getItem('gridplus-client') || '',
+        setStoredClient: async (client) => {
+          if (client) localStorage.setItem('gridplus-client', client);
+        },
+      });
+
+      this.client = new Client({
+        name: this.name || "ShapeShift",
+        baseUrl: 'https://signing.gridpl.us',
+        privKey: this.privKey,
+        deviceId,
+        setStoredClient: async (client: string | null) => {
+          try {
+            if (client) localStorage.setItem('gridplus-client', client);
+          } catch (e) {
+            // Ignore localStorage errors
+          }
+        }
+      });
+    }
+
+    this.connected = true; // We're already paired, skip connect()
+  }
+
   public async pair(pairingCode: string): Promise<boolean> {
     if (!this.client) {
       throw new Error("Client not initialized. Call setup() first.");
