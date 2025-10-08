@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-tcp",
-  "version": "1.62.4-alpha.70",
+  "version": "1.62.4-alpha.71",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.70",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.62.4-alpha.70",
+    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.71",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.62.4-alpha.71",
     "axios": "^0.21.1"
   },
   "gitHead": "87873b4fa36c2604a37b88b2f55450b0c7de86dd"

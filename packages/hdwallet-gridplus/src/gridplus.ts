@@ -1,5 +1,6 @@
 import type { StdTx } from "@cosmjs/amino";
 import type { SignerData } from "@cosmjs/stargate";
+import { pointCompress } from "@bitcoinerlab/secp256k1";
 import Common from "@ethereumjs/common";
 import { FeeMarketEIP1559Transaction, Transaction } from "@ethereumjs/tx";
 import { SignTypedDataVersion, TypedDataUtils } from "@metamask/eth-sig-util";
@@ -1067,9 +1068,11 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         throw new Error("No address returned from device");
       }
 
-      // addresses[0] is Buffer, convert to hex string for createCosmosAddress
-      const pubkeyHex = Buffer.isBuffer(addresses[0]) ? addresses[0].toString("hex") : addresses[0];
-      const cosmosAddress = this.createCosmosAddress(pubkeyHex, "cosmos");
+      // GridPlus SDK returns uncompressed 65-byte pubkeys, but Cosmos needs compressed 33-byte pubkeys
+      const pubkeyBuffer = Buffer.isBuffer(addresses[0]) ? addresses[0] : Buffer.from(addresses[0], "hex");
+      const compressedPubkey = pointCompress(pubkeyBuffer, true);
+      const compressedHex = Buffer.from(compressedPubkey).toString("hex");
+      const cosmosAddress = this.createCosmosAddress(compressedHex, "cosmos");
       this.addressCache.set(pathKey, cosmosAddress);
 
       return cosmosAddress;
@@ -1099,7 +1102,10 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         throw new Error("No public key returned from device");
       }
 
-      const pubkey = Buffer.from(pubkeys[0], "hex");
+      // GridPlus SDK returns uncompressed 65-byte pubkeys, but Cosmos needs compressed 33-byte pubkeys
+      const pubkeyBuffer = Buffer.isBuffer(pubkeys[0]) ? pubkeys[0] : Buffer.from(pubkeys[0], "hex");
+      const compressedPubkey = pointCompress(pubkeyBuffer, true);
+      const pubkey = Buffer.from(compressedPubkey);
 
       // Capture client reference for use in closure
       const client = this.client;
@@ -1213,10 +1219,12 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         throw new Error("No address returned from device");
       }
 
-      // addresses[0] is Buffer, convert to hex string for createCosmosAddress
-      const pubkeyHex = Buffer.isBuffer(addresses[0]) ? addresses[0].toString("hex") : addresses[0];
+      // GridPlus SDK returns uncompressed 65-byte pubkeys, but THORChain needs compressed 33-byte pubkeys
+      const pubkeyBuffer = Buffer.isBuffer(addresses[0]) ? addresses[0] : Buffer.from(addresses[0], "hex");
+      const compressedPubkey = pointCompress(pubkeyBuffer, true);
+      const compressedHex = Buffer.from(compressedPubkey).toString("hex");
       const prefix = msg.testnet ? "tthor" : "thor";
-      const thorAddress = this.createCosmosAddress(pubkeyHex, prefix);
+      const thorAddress = this.createCosmosAddress(compressedHex, prefix);
       this.addressCache.set(pathKey, thorAddress);
 
       return thorAddress;
@@ -1246,7 +1254,10 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         throw new Error("No public key returned from device");
       }
 
-      const pubkey = Buffer.from(pubkeys[0], "hex");
+      // GridPlus SDK returns uncompressed 65-byte pubkeys, but THORChain needs compressed 33-byte pubkeys
+      const pubkeyBuffer = Buffer.isBuffer(pubkeys[0]) ? pubkeys[0] : Buffer.from(pubkeys[0], "hex");
+      const compressedPubkey = pointCompress(pubkeyBuffer, true);
+      const pubkey = Buffer.from(compressedPubkey);
 
       // Capture client reference for use in closure
       const client = this.client;
@@ -1360,9 +1371,11 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         throw new Error("No address returned from device");
       }
 
-      // addresses[0] is Buffer, convert to hex string for createCosmosAddress
-      const pubkeyHex = Buffer.isBuffer(addresses[0]) ? addresses[0].toString("hex") : addresses[0];
-      const mayaAddress = this.createCosmosAddress(pubkeyHex, "maya");
+      // GridPlus SDK returns uncompressed 65-byte pubkeys, but MAYAChain needs compressed 33-byte pubkeys
+      const pubkeyBuffer = Buffer.isBuffer(addresses[0]) ? addresses[0] : Buffer.from(addresses[0], "hex");
+      const compressedPubkey = pointCompress(pubkeyBuffer, true);
+      const compressedHex = Buffer.from(compressedPubkey).toString("hex");
+      const mayaAddress = this.createCosmosAddress(compressedHex, "maya");
       this.addressCache.set(pathKey, mayaAddress);
 
       return mayaAddress;
@@ -1392,7 +1405,10 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         throw new Error("No public key returned from device");
       }
 
-      const pubkey = Buffer.from(pubkeys[0], "hex");
+      // GridPlus SDK returns uncompressed 65-byte pubkeys, but MAYAChain needs compressed 33-byte pubkeys
+      const pubkeyBuffer = Buffer.isBuffer(pubkeys[0]) ? pubkeys[0] : Buffer.from(pubkeys[0], "hex");
+      const compressedPubkey = pointCompress(pubkeyBuffer, true);
+      const pubkey = Buffer.from(compressedPubkey);
 
       // Capture client reference for use in closure
       const client = this.client;
