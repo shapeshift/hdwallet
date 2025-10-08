@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { Client } from "gridplus-sdk";
+import { Client, setup } from "gridplus-sdk";
 import { randomBytes } from "crypto";
 
 export interface GridPlusTransportConfig {
@@ -69,40 +69,26 @@ export class GridPlusTransport extends core.Transport {
 
     // Create Client with localStorage state management
     if (!this.client) {
-      // Initialize SDK global state for wrapper functions (fetchSolanaAddresses, etc.)
-      // Must be done BEFORE creating Client so it can use the state functions
-      const sdk = require('gridplus-sdk');
-      if (sdk.setLoadClient && sdk.setSaveClient) {
-        // Set up getStoredClient function for SDK wrapper functions
-        sdk.setLoadClient(async () => {
-          try {
-            const stored = localStorage.getItem('gridplus-client');
-            if (stored) {
-              return new Client({ stateData: stored });
-            }
-          } catch (e) {
-            // Ignore
-          }
-          return null;
-        });
+      // Initialize SDK global state using setup()
+      // This sets up loadClient/saveClient for wrapper functions like fetchSolanaAddresses
+      await setup({
+        name: this.name || "ShapeShift",
+        deviceId,
+        password: this.password,
+        getStoredClient: async () => {
+          return localStorage.getItem('gridplus-client') || '';
+        },
+        setStoredClient: async (client) => {
+          if (client) localStorage.setItem('gridplus-client', client);
+        },
+      });
 
-        // Set up setStoredClient function for SDK wrapper functions
-        sdk.setSaveClient(async (clientData: string | null) => {
-          try {
-            if (clientData) {
-              localStorage.setItem('gridplus-client', clientData);
-            }
-          } catch (e) {
-            // Ignore localStorage errors
-          }
-        });
-      }
-
-      // Create the Client (will use SDK state functions if set)
+      // Create the Client with same config
       this.client = new Client({
         name: this.name || "ShapeShift",
         baseUrl: 'https://signing.gridpl.us',
         privKey: this.privKey,
+        deviceId,
         setStoredClient: async (client: string | null) => {
           try {
             if (client) {

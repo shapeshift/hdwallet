@@ -2,6 +2,7 @@ import Common from "@ethereumjs/common";
 import { FeeMarketEIP1559Transaction, Transaction } from "@ethereumjs/tx";
 import { SignTypedDataVersion, TypedDataUtils } from "@metamask/eth-sig-util";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import bs58 from "bs58";
 import { Client, Constants, Utils, fetchSolanaAddresses } from "gridplus-sdk";
 import isObject from "lodash/isObject";
 import { encode } from "rlp";
@@ -391,27 +392,23 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
       // Use SDK's fetchSolanaAddresses wrapper (fetches 10 addresses by default)
       // This works better than direct client.getAddresses for Solana
-      const addresses = await fetchSolanaAddresses({
+      const solanaAddresses = await fetchSolanaAddresses({
         n: 10,  // Fetch 10 addresses at once for better performance
         startPathIndex: accountIdx
       });
 
-      if (!addresses || !addresses.length) {
+      if (!solanaAddresses || !solanaAddresses.length) {
         throw new Error("No address returned from device");
       }
 
-      // Return the first address (accountIdx + 0)
-      const solanaAddress = addresses[0];
-
-      // Validate it's a proper Solana address (should be base58, not 0x)
-      if (!solanaAddress || typeof solanaAddress !== 'string') {
+      // SDK returns Buffer objects that need to be converted to base58
+      const addressBuffer = solanaAddresses[0];
+      if (!addressBuffer || !Buffer.isBuffer(addressBuffer)) {
         throw new Error("Invalid Solana address format returned from device");
       }
 
-      if (solanaAddress.startsWith('0x')) {
-        throw new Error("Received EVM address format instead of Solana base58 address");
-      }
-
+      // Convert the 32-byte public key buffer to base58 Solana address
+      const solanaAddress = bs58.encode(addressBuffer);
       return solanaAddress;
     } catch (error) {
       throw error;
