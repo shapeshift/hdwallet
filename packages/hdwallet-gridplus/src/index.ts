@@ -1,3 +1,3 @@
 export * from "./adapter";
-export * from "./gridplus";
+export { GridPlusHDWallet, GridPlusWalletInfo, isGridPlus } from "./gridplus";
 export * from "./transport";

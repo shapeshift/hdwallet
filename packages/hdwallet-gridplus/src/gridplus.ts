@@ -243,11 +243,15 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
           throw new Error(`Unsupported curve: ${curve}`);
         }
 
+        console.log(`GridPlus getPublicKeys: fetching for path=${path}, curve=${curve}, flag=${flag}`);
+
         const addresses = await fetchAddressesByDerivationPath(path, {
           n: 1,
           startPathIndex: 0,
           flag,
         });
+
+        console.log(`GridPlus getPublicKeys: received addresses=`, addresses);
 
         if (!addresses || addresses.length === 0) {
           throw new Error("No public key returned from device");
@@ -256,9 +260,11 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         // addresses[0] contains either xpub string (for SECP256K1_XPUB) or pubkey hex (for ED25519_PUB)
         const xpub = typeof addresses[0] === "string" ? addresses[0] : Buffer.from(addresses[0]).toString("hex");
 
+        console.log(`GridPlus getPublicKeys: returning xpub=${xpub}`);
         publicKeys.push({ xpub });
       } catch (error) {
-        console.error(`Error getting public key for path ${path}:`, error);
+        console.error(`GridPlus getPublicKeys ERROR for path ${path}, curve=${curve}:`, error);
+        console.error(`GridPlus getPublicKeys ERROR stack:`, error instanceof Error ? error.stack : 'no stack');
         publicKeys.push(null);
       }
     }
@@ -950,7 +956,7 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
     try {
       // Get secp256k1 pubkey using GridPlus SDK
-      const path = core.addressNListToBIP32(msg.addressNList);
+      const path = core.addressNListToBIP32(msg.addressNList).replace(/^m\//, "");
       const addresses = await fetchAddressesByDerivationPath(path, {
         n: 1,
         startPathIndex: 0,
@@ -1095,7 +1101,7 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
     try {
       // Get secp256k1 pubkey using GridPlus SDK
-      const path = core.addressNListToBIP32(msg.addressNList);
+      const path = core.addressNListToBIP32(msg.addressNList).replace(/^m\//, "");
       const addresses = await fetchAddressesByDerivationPath(path, {
         n: 1,
         startPathIndex: 0,
