@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { Client, setup } from "gridplus-sdk";
+import { Client, setup, getClient, pair as sdkPair } from "gridplus-sdk";
 import { randomBytes } from "crypto";
 
 export interface GridPlusTransportConfig {
@@ -78,17 +78,14 @@ export class GridPlusTransport extends core.Transport {
       console.log('[GridPlus Transport] Reusing transport privKey:', `${this.privKey.slice(0, 8)}...`);
     }
 
-    // Create Client with localStorage state management
+    // Initialize SDK and get client instance
     if (!this.client) {
-      console.log('[GridPlus Transport] Creating new Client...');
+      console.log('[GridPlus Transport] Calling SDK setup()...');
 
-      // Initialize SDK global state using setup()
-      // This sets up loadClient/saveClient for wrapper functions like fetchSolanaAddresses
+      // Call SDK setup() which creates client and connects to device
+      // Returns boolean indicating if device is paired
       try {
-        const storedClient = localStorage.getItem('gridplus-client') || '';
-        console.log('[GridPlus Transport] localStorage gridplus-client:', storedClient ? `${storedClient.slice(0, 50)}...` : 'empty');
-
-        await setup({
+        const isPaired = await setup({
           name: this.name || "ShapeShift",
           deviceId,
           password: this.password,
@@ -99,68 +96,62 @@ export class GridPlusTransport extends core.Transport {
             if (client) localStorage.setItem('gridplus-client', client);
           },
         });
-        console.log('[GridPlus Transport] SDK setup() completed');
-      } catch (e) {
-        console.error('[GridPlus Transport] SDK setup() failed:', e);
-        throw e;
-      }
+        console.log('[GridPlus Transport] SDK setup() completed:', { isPaired });
 
-      // Create the Client with same config
-      this.client = new Client({
-        name: this.name || "ShapeShift",
-        baseUrl: 'https://signing.gridpl.us',
-        privKey: this.privKey,
-        deviceId,
-        setStoredClient: async (client: string | null) => {
-          try {
-            if (client) localStorage.setItem('gridplus-client', client);
-          } catch (e) {
-            // Ignore localStorage errors
-          }
+        // Get the SDK's client instance (don't create our own!)
+        this.client = await getClient();
+
+        if (!this.client) {
+          throw new Error('Failed to get client from SDK after setup()');
         }
-      });
-      console.log('[GridPlus Transport] Client instance created');
+
+        console.log('[GridPlus Transport] Retrieved SDK client instance');
+        this.connected = true;
+
+        return { isPaired, privKey: this.privKey };
+      } catch (error) {
+        console.error('[GridPlus Transport] SDK setup() error:', {
+          error,
+          message: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+        });
+
+        // Handle "Device Locked" error - treat as unpaired
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        if (errorMessage.toLowerCase().includes('device locked')) {
+          console.log('[GridPlus Transport] Device locked - getting client anyway');
+
+          // Even though connect failed, we can still get the client for pairing
+          this.client = await getClient();
+
+          if (!this.client) {
+            throw new Error('Failed to get client after device locked error');
+          }
+
+          this.connected = true;
+          return { isPaired: false, privKey: this.privKey };
+        }
+
+        throw error;
+      }
     } else {
       console.log('[GridPlus Transport] Reusing existing Client');
-    }
-
-    // Connect to device (Frame-style)
-    try {
-      console.log('[GridPlus Transport] Calling client.connect()...');
-      const isPaired = await this.client.connect(deviceId);
-      console.log('[GridPlus Transport] client.connect() completed:', { isPaired });
-      this.connected = true; // We're connected to the client, regardless of pairing status
-      return { isPaired, privKey: this.privKey };
-    } catch (error) {
-      console.error('[GridPlus Transport] client.connect() error:', {
-        error,
-        message: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
-      });
-
-      // Frame approach: If it's just a "Device Locked" error during initial connect,
-      // don't throw - treat it as "unpaired" state
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      if (errorMessage.toLowerCase().includes('device locked')) {
-        console.log('[GridPlus Transport] Device locked - treating as unpaired');
-        this.connected = true; // We are connected to client, just not paired
-        return { isPaired: false, privKey: this.privKey }; // Return false for unpaired, don't throw
-      }
-
-      // For other errors, still throw
-      console.error('[GridPlus Transport] Rethrowing error');
-      throw error;
+      this.connected = true;
+      // Client already exists, assume paired
+      return { isPaired: true, privKey: this.privKey };
     }
   }
 
-  // Setup transport for reconnection without calling client.connect()
-  // This avoids triggering device pairing screen when already paired
+  // Setup transport for reconnection using stored client state
+  // SDK's getStoredClient will return existing client state, avoiding new pairing
   public async setupWithoutConnect(deviceId: string, password?: string, existingPrivKey?: string): Promise<void> {
+    console.log('[GridPlus Transport] setupWithoutConnect() called');
     this.deviceId = deviceId;
     this.password = password || "shapeshift-default";
     this.privKey = existingPrivKey!;
 
-    // Create Client without calling connect()
+    // SDK will load existing client state from localStorage via getStoredClient
+    // No need to call connect() again - stored state preserves pairing
     if (!this.client) {
       await setup({
         name: this.name || "ShapeShift",
@@ -172,22 +163,16 @@ export class GridPlusTransport extends core.Transport {
         },
       });
 
-      this.client = new Client({
-        name: this.name || "ShapeShift",
-        baseUrl: 'https://signing.gridpl.us',
-        privKey: this.privKey,
-        deviceId,
-        setStoredClient: async (client: string | null) => {
-          try {
-            if (client) localStorage.setItem('gridplus-client', client);
-          } catch (e) {
-            // Ignore localStorage errors
-          }
-        }
-      });
+      this.client = await getClient();
+
+      if (!this.client) {
+        throw new Error('Failed to get client in setupWithoutConnect');
+      }
+
+      console.log('[GridPlus Transport] Retrieved SDK client for reconnect');
     }
 
-    this.connected = true; // We're already paired, skip connect()
+    this.connected = true;
   }
 
   public async pair(pairingCode: string): Promise<boolean> {
@@ -203,33 +188,15 @@ export class GridPlusTransport extends core.Transport {
       throw new Error("Client not initialized. Call setup() first.");
     }
 
-    if (!this.deviceId) {
-      console.error('[GridPlus Transport] Device ID not set');
-      throw new Error("Device ID is required for pairing");
-    }
-
-    // Retry connect() to ensure ephemeral keys are established
-    // This is needed when previous connect() failed with "Device Locked"
-    console.log('[GridPlus Transport] Retrying client.connect() before pairing...');
+    // Use SDK's pair() wrapper function which handles the client properly
     try {
-      await this.client.connect(this.deviceId);
-      console.log('[GridPlus Transport] client.connect() retry succeeded');
-    } catch (error) {
-      console.log('[GridPlus Transport] client.connect() retry failed (may be expected):', {
-        error,
-        message: error instanceof Error ? error.message : String(error),
-      });
-      // Continue anyway - pair() might still work if device is now unlocked
-    }
-
-    try {
-      console.log('[GridPlus Transport] Calling client.pair()...');
-      const result = await this.client.pair(pairingCode);
-      console.log('[GridPlus Transport] client.pair() result:', result);
+      console.log('[GridPlus Transport] Calling SDK pair() wrapper...');
+      const result = await sdkPair(pairingCode);
+      console.log('[GridPlus Transport] SDK pair() result:', result);
       this.connected = !!result;
       return !!result;
     } catch (error) {
-      console.error('[GridPlus Transport] client.pair() error:', {
+      console.error('[GridPlus Transport] SDK pair() error:', {
         error,
         message: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
