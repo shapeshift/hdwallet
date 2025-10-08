@@ -30,5 +30,5 @@
     "@types/ledgerhq__hw-transport": "^4.21.3",
     "@types/w3c-web-usb": "^1.0.6"
   },
-  "gitHead": "905eeac32da83b3b14961f0dc5fcd7a146103a28"
+  "gitHead": "87873b4fa36c2604a37b88b2f55450b0c7de86dd"
 }
