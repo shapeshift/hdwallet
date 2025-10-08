@@ -159,10 +159,6 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     };
   }
 
-  public async getPublicKeys(): Promise<core.PublicKey[]> {
-    throw new Error("GridPlus public key retrieval not implemented yet");
-  }
-
   public hasOnDevicePinEntry(): boolean {
     return true;
   }
@@ -213,6 +209,54 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
   public async getDeviceID(): Promise<string> {
     return await this.transport.getDeviceID();
+  }
+
+  public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
+    if (!this.client) {
+      throw new Error("Device not connected");
+    }
+
+    const publicKeys: Array<core.PublicKey | null> = [];
+
+    for (const getPublicKey of msg) {
+      const { addressNList, curve } = getPublicKey;
+      const path = core.addressNListToBIP32(addressNList);
+
+      try {
+        let flag: number;
+
+        // Determine the appropriate flag based on curve type
+        if (curve === "secp256k1") {
+          // For UTXO chains (Bitcoin, Dogecoin), we need the xpub
+          flag = Constants.GET_ADDR_FLAGS.SECP256K1_XPUB;
+        } else if (curve === "ed25519") {
+          // For Solana/ed25519 chains, we need the public key
+          flag = Constants.GET_ADDR_FLAGS.ED25519_PUB;
+        } else {
+          throw new Error(`Unsupported curve: ${curve}`);
+        }
+
+        const addresses = await fetchAddressesByDerivationPath(path, {
+          n: 1,
+          startPathIndex: 0,
+          flag,
+        });
+
+        if (!addresses || addresses.length === 0) {
+          throw new Error("No public key returned from device");
+        }
+
+        // addresses[0] contains either xpub string (for SECP256K1_XPUB) or pubkey hex (for ED25519_PUB)
+        const xpub = typeof addresses[0] === "string" ? addresses[0] : Buffer.from(addresses[0]).toString("hex");
+
+        publicKeys.push({ xpub });
+      } catch (error) {
+        console.error(`Error getting public key for path ${path}:`, error);
+        publicKeys.push(null);
+      }
+    }
+
+    return publicKeys;
   }
 
   public getPrivKey(): string | undefined {
