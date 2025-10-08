@@ -15,7 +15,7 @@ export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
 
 export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.SolanaWallet {
   readonly _isGridPlus = true;
-  private addressCache = new Map<string, core.Address>();
+  private addressCache = new Map<string, core.Address | string>();
   private callCounter = 0;
   private instanceId = Math.random().toString(36).substr(2, 9);
   private pendingRequests = new Map<string, Promise<core.Address | null>>();
@@ -276,7 +276,7 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
     // Return cached address if available (per-account caching)
     if (cachedAddress) {
-      return cachedAddress;
+      return cachedAddress as core.Address;
     }
 
     // Check if there's already a pending request for this exact path

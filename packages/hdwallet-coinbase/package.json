@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-coinbase",
-  "version": "1.62.4-alpha.57",
+  "version": "1.62.4-alpha.58",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,12 +15,12 @@
   },
   "dependencies": {
     "@coinbase/wallet-sdk": "^3.6.6",
-    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.57",
+    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.58",
     "eth-rpc-errors": "^4.0.3",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.168"
   },
-  "gitHead": "8620043a9e97238632ff3d046c958887ea5c2682"
+  "gitHead": "9040257fc5b99e5bf963e9c3066b8301f08fcac8"
 }

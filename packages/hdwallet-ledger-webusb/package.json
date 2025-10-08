@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger-webusb",
-  "version": "1.62.4-alpha.57",
+  "version": "1.62.4-alpha.58",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -21,8 +21,8 @@
     "@ledgerhq/hw-transport-webusb": "^6.29.2",
     "@ledgerhq/live-common": "^21.8.2",
     "@ledgerhq/logs": "^6.10.1",
-    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.57",
-    "@shapeshiftoss/hdwallet-ledger": "^1.62.4-alpha.57",
+    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.58",
+    "@shapeshiftoss/hdwallet-ledger": "^1.62.4-alpha.58",
     "@types/w3c-web-usb": "^1.0.4",
     "p-queue": "^7.4.1"
   },
@@ -30,5 +30,5 @@
     "@types/ledgerhq__hw-transport": "^4.21.3",
     "@types/w3c-web-usb": "^1.0.6"
   },
-  "gitHead": "8620043a9e97238632ff3d046c958887ea5c2682"
+  "gitHead": "9040257fc5b99e5bf963e9c3066b8301f08fcac8"
 }
