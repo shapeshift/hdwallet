@@ -1,9 +1,12 @@
+import type { StdTx } from "@cosmjs/amino";
+import type { SignerData } from "@cosmjs/stargate";
 import Common from "@ethereumjs/common";
 import { FeeMarketEIP1559Transaction, Transaction } from "@ethereumjs/tx";
 import { SignTypedDataVersion, TypedDataUtils } from "@metamask/eth-sig-util";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bech32 from "bech32";
 import bs58 from "bs58";
+import bs58check from "bs58check";
 import CryptoJS from "crypto-js";
 import {
   Client,
@@ -20,7 +23,10 @@ import {
   signBtcWrappedSegwitTx,
 } from "gridplus-sdk";
 import isObject from "lodash/isObject";
+import PLazy from "p-lazy";
 import { encode } from "rlp";
+
+const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
 
 import { GridPlusTransport } from "./transport";
 
@@ -220,7 +226,8 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
     for (const getPublicKey of msg) {
       const { addressNList, curve } = getPublicKey;
-      const path = core.addressNListToBIP32(addressNList);
+      // fetchAddressesByDerivationPath expects path without "m/" prefix
+      const path = core.addressNListToBIP32(addressNList).replace(/^m\//, "");
 
       try {
         let flag: number;
@@ -965,7 +972,97 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
   }
 
   public async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
-    throw new Error("GridPlus Cosmos signing not yet implemented");
+    if (!this.client) {
+      throw new Error("Device not connected");
+    }
+
+    try {
+      // Get the address for this path
+      const address = await this.cosmosGetAddress({ addressNList: msg.addressNList });
+      if (!address) throw new Error("Failed to get Cosmos address");
+
+      // Get the public key
+      const path = core.addressNListToBIP32(msg.addressNList).replace(/^m\//, "");
+      const pubkeys = await fetchAddressesByDerivationPath(path, {
+        n: 1,
+        startPathIndex: 0,
+        flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
+      });
+
+      if (!pubkeys || pubkeys.length === 0) {
+        throw new Error("No public key returned from device");
+      }
+
+      const pubkey = Buffer.from(pubkeys[0], "hex");
+
+      // Capture client reference for use in closure
+      const client = this.client;
+
+      // Create a signer adapter for GridPlus
+      const signer = {
+        address,
+        getAccounts: async () => [{
+          address,
+          pubkey,
+          algo: "secp256k1" as const,
+        }],
+        signAmino: async (signerAddress: string, signDoc: any) => {
+          if (signerAddress !== address) {
+            throw new Error("Signer address mismatch");
+          }
+
+          // Serialize the sign doc for signing
+          const signBytes = Buffer.from(JSON.stringify(signDoc), "utf8");
+          const hash = CryptoJS.SHA256(CryptoJS.lib.WordArray.create(signBytes as any));
+          const hashBuffer = Buffer.from(hash.toString(CryptoJS.enc.Hex), "hex");
+
+          // Sign using GridPlus SDK general signing
+          const signData = {
+            data: {
+              payload: hashBuffer,
+              curveType: Constants.SIGNING.CURVES.SECP256K1,
+              hashType: Constants.SIGNING.HASHES.NONE, // Already hashed
+              encodingType: Constants.SIGNING.ENCODINGS.NONE,
+              signerPath: msg.addressNList,
+            }
+          };
+
+          const signedResult = await client.sign(signData);
+
+          if (!signedResult?.sig) {
+            throw new Error("No signature returned from device");
+          }
+
+          const { r, s, v } = signedResult.sig;
+          const rHex = Buffer.isBuffer(r) ? r : Buffer.from(r);
+          const sHex = Buffer.isBuffer(s) ? s : Buffer.from(s);
+
+          // Combine r and s for DER signature
+          const signature = Buffer.concat([rHex, sHex]);
+
+          return {
+            signed: signDoc,
+            signature: {
+              pub_key: {
+                type: "tendermint/PubKeySecp256k1",
+                value: pubkey.toString("base64"),
+              },
+              signature: signature.toString("base64"),
+            },
+          };
+        },
+      };
+
+      const signerData: SignerData = {
+        sequence: Number(msg.sequence),
+        accountNumber: Number(msg.account_number),
+        chainId: msg.chain_id,
+      };
+
+      return (await protoTxBuilder).sign(address, msg.tx as StdTx, signer, signerData, "cosmos");
+    } catch (error) {
+      throw error;
+    }
   }
 
   public cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
@@ -1021,7 +1118,97 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
   }
 
   public async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {
-    throw new Error("GridPlus THORChain signing not yet implemented");
+    if (!this.client) {
+      throw new Error("Device not connected");
+    }
+
+    try {
+      // Get the address for this path
+      const address = await this.thorchainGetAddress({ addressNList: msg.addressNList, testnet: msg.testnet });
+      if (!address) throw new Error("Failed to get THORChain address");
+
+      // Get the public key
+      const path = core.addressNListToBIP32(msg.addressNList).replace(/^m\//, "");
+      const pubkeys = await fetchAddressesByDerivationPath(path, {
+        n: 1,
+        startPathIndex: 0,
+        flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
+      });
+
+      if (!pubkeys || pubkeys.length === 0) {
+        throw new Error("No public key returned from device");
+      }
+
+      const pubkey = Buffer.from(pubkeys[0], "hex");
+
+      // Capture client reference for use in closure
+      const client = this.client;
+
+      // Create a signer adapter for GridPlus
+      const signer = {
+        address,
+        getAccounts: async () => [{
+          address,
+          pubkey,
+          algo: "secp256k1" as const,
+        }],
+        signAmino: async (signerAddress: string, signDoc: any) => {
+          if (signerAddress !== address) {
+            throw new Error("Signer address mismatch");
+          }
+
+          // Serialize the sign doc for signing
+          const signBytes = Buffer.from(JSON.stringify(signDoc), "utf8");
+          const hash = CryptoJS.SHA256(CryptoJS.lib.WordArray.create(signBytes as any));
+          const hashBuffer = Buffer.from(hash.toString(CryptoJS.enc.Hex), "hex");
+
+          // Sign using GridPlus SDK general signing
+          const signData = {
+            data: {
+              payload: hashBuffer,
+              curveType: Constants.SIGNING.CURVES.SECP256K1,
+              hashType: Constants.SIGNING.HASHES.NONE, // Already hashed
+              encodingType: Constants.SIGNING.ENCODINGS.NONE,
+              signerPath: msg.addressNList,
+            }
+          };
+
+          const signedResult = await client.sign(signData);
+
+          if (!signedResult?.sig) {
+            throw new Error("No signature returned from device");
+          }
+
+          const { r, s, v } = signedResult.sig;
+          const rHex = Buffer.isBuffer(r) ? r : Buffer.from(r);
+          const sHex = Buffer.isBuffer(s) ? s : Buffer.from(s);
+
+          // Combine r and s for DER signature
+          const signature = Buffer.concat([rHex, sHex]);
+
+          return {
+            signed: signDoc,
+            signature: {
+              pub_key: {
+                type: "tendermint/PubKeySecp256k1",
+                value: pubkey.toString("base64"),
+              },
+              signature: signature.toString("base64"),
+            },
+          };
+        },
+      };
+
+      const signerData: SignerData = {
+        sequence: Number(msg.sequence),
+        accountNumber: Number(msg.account_number),
+        chainId: msg.chain_id,
+      };
+
+      return (await protoTxBuilder).sign(address, msg.tx as StdTx, signer, signerData, "thorchain");
+    } catch (error) {
+      throw error;
+    }
   }
 
   public thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
