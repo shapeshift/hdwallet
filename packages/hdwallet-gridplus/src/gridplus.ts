@@ -120,6 +120,78 @@ function scriptTypeToAccountType(scriptType: core.BTCInputScriptType | undefined
   }
 }
 
+/**
+ * Network parameters for UTXO coins
+ */
+const UTXO_NETWORK_PARAMS: Record<string, { pubKeyHash: number; scriptHash: number; bech32?: string }> = {
+  Bitcoin: { pubKeyHash: 0x00, scriptHash: 0x05, bech32: "bc" },
+  Dogecoin: { pubKeyHash: 0x1e, scriptHash: 0x16 },
+  Litecoin: { pubKeyHash: 0x30, scriptHash: 0x32, bech32: "ltc" },
+  BitcoinCash: { pubKeyHash: 0x00, scriptHash: 0x05 },
+};
+
+/**
+ * Derive a UTXO address from a compressed public key
+ * @param pubkeyHex - Compressed public key as hex string (33 bytes, starting with 02 or 03)
+ * @param coin - Coin name (Bitcoin, Dogecoin, Litecoin, etc.)
+ * @param scriptType - Script type (p2pkh, p2wpkh, p2sh-p2wpkh)
+ * @returns The derived address
+ */
+function deriveAddressFromPubkey(
+  pubkeyHex: string,
+  coin: string,
+  scriptType: core.BTCInputScriptType = core.BTCInputScriptType.SpendAddress
+): string {
+  const network = UTXO_NETWORK_PARAMS[coin] || UTXO_NETWORK_PARAMS.Bitcoin;
+  const pubkeyBuffer = Buffer.from(pubkeyHex, "hex");
+
+  if (pubkeyBuffer.length !== 33) {
+    throw new Error(`Invalid compressed public key length: ${pubkeyBuffer.length} bytes`);
+  }
+
+  // Hash160 = RIPEMD160(SHA256(pubkey))
+  const sha256Hash = CryptoJS.SHA256(CryptoJS.enc.Hex.parse(pubkeyHex));
+  const hash160 = CryptoJS.RIPEMD160(sha256Hash).toString();
+  const hash160Buffer = Buffer.from(hash160, "hex");
+
+  switch (scriptType) {
+    case core.BTCInputScriptType.SpendAddress: {
+      // P2PKH: <pubKeyHash version byte> + hash160 + checksum
+      const payload = Buffer.concat([Buffer.from([network.pubKeyHash]), hash160Buffer]);
+      return bs58Encode(payload);
+    }
+
+    case core.BTCInputScriptType.SpendWitness: {
+      // P2WPKH (bech32): witness version 0 + hash160
+      if (!network.bech32) {
+        throw new Error(`Bech32 not supported for ${coin}`);
+      }
+      const words = bech32.toWords(hash160Buffer);
+      words.unshift(0); // witness version 0
+      return bech32.encode(network.bech32, words);
+    }
+
+    case core.BTCInputScriptType.SpendP2SHWitness: {
+      // P2SH-P2WPKH: scriptHash of witness program
+      // Witness program: OP_0 (0x00) + length (0x14) + hash160
+      const witnessProgram = Buffer.concat([Buffer.from([0x00, 0x14]), hash160Buffer]);
+
+      // Hash160 of witness program
+      const wpHex = witnessProgram.toString("hex");
+      const wpSha256 = CryptoJS.SHA256(CryptoJS.enc.Hex.parse(wpHex));
+      const wpHash160 = CryptoJS.RIPEMD160(wpSha256).toString();
+      const wpHash160Buffer = Buffer.from(wpHash160, "hex");
+
+      // Encode with scriptHash version byte
+      const payload = Buffer.concat([Buffer.from([network.scriptHash]), wpHash160Buffer]);
+      return bs58Encode(payload);
+    }
+
+    default:
+      throw new Error(`Unsupported script type: ${scriptType}`);
+  }
+}
+
 export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.SolanaWallet, core.BTCWallet, core.CosmosWallet, core.ThorchainWallet, core.MayachainWallet {
   readonly _isGridPlus = true;
   private addressCache = new Map<string, core.Address | string>();
@@ -824,8 +896,8 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
   // Bitcoin Wallet Methods
   public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
-    // Support Bitcoin and Dogecoin
-    return ["Bitcoin", "Dogecoin", "Testnet"].includes(coin);
+    // Support Bitcoin, Dogecoin, Litecoin
+    return ["Bitcoin", "Dogecoin", "Litecoin", "Testnet"].includes(coin);
   }
 
   public async btcSupportsScriptType(coin: core.Coin, scriptType?: core.BTCInputScriptType): Promise<boolean> {
@@ -836,6 +908,11 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         core.BTCInputScriptType.SpendWitness,      // p2wpkh
       ],
       Dogecoin: [core.BTCInputScriptType.SpendAddress],  // p2pkh only
+      Litecoin: [
+        core.BTCInputScriptType.SpendAddress,      // p2pkh
+        core.BTCInputScriptType.SpendP2SHWitness,  // p2sh-p2wpkh
+        core.BTCInputScriptType.SpendWitness,      // p2wpkh
+      ],
       Testnet: [
         core.BTCInputScriptType.SpendAddress,
         core.BTCInputScriptType.SpendP2SHWitness,
@@ -897,20 +974,30 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     const cached = this.addressCache.get(pathKey);
     if (cached) return cached as string;
 
-    // Use fetchAddresses with the full path to support all UTXO coins (BTC, DOGE, LTC, BCH, etc.)
-    const addresses = await fetchAddresses({
+    // Get compressed public key from device (works for all UTXO coins)
+    // Using SECP256K1_PUB flag bypasses Lattice's address formatting,
+    // which only supports Bitcoin/Ethereum/Solana
+    const pubkeys = await fetchAddresses({
       startPath: msg.addressNList,
       n: 1,
+      flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
     });
 
-    if (!addresses || !addresses.length) {
-      throw new Error("No addresses returned from device");
+    if (!pubkeys || !pubkeys.length) {
+      throw new Error("No public key returned from device");
     }
 
-    // Cache the address
-    const address = addresses[0];
-    this.addressCache.set(pathKey, address);
+    // pubkeys[0] is a Buffer of the compressed public key
+    const pubkeyHex = Buffer.isBuffer(pubkeys[0])
+      ? pubkeys[0].toString("hex")
+      : pubkeys[0];
 
+    // Derive address client-side using the coin's network parameters
+    const scriptType = msg.scriptType || core.BTCInputScriptType.SpendAddress;
+    const address = deriveAddressFromPubkey(pubkeyHex, msg.coin, scriptType);
+
+    // Cache and return
+    this.addressCache.set(pathKey, address);
     return address;
   }
 
