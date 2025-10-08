@@ -2,7 +2,7 @@ import Common from "@ethereumjs/common";
 import { FeeMarketEIP1559Transaction, Transaction } from "@ethereumjs/tx";
 import { SignTypedDataVersion, TypedDataUtils } from "@metamask/eth-sig-util";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { Client, Constants, Utils } from "gridplus-sdk";
+import { Client, Constants, Utils, fetchSolanaAddresses } from "gridplus-sdk";
 import isObject from "lodash/isObject";
 import { encode } from "rlp";
 
@@ -385,27 +385,23 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     }
 
     try {
-      // Use direct client.getAddresses with ED25519 flag for Solana
-      const addresses = await this.client.getAddresses({
-        startPath: msg.addressNList,
-        n: 1,
-        flag: Constants.GET_ADDR_FLAGS.ED25519_PUB,
-        iterIdx: 0  // Explicitly set iteration index
+      // Extract account index from path: m/44'/501'/accountIdx'/0'
+      // addressNList[2] contains the hardened account index
+      const accountIdx = msg.addressNList[2] - 0x80000000;
+
+      // Use SDK's fetchSolanaAddresses wrapper (fetches 10 addresses by default)
+      // This works better than direct client.getAddresses for Solana
+      const addresses = await fetchSolanaAddresses({
+        n: 10,  // Fetch 10 addresses at once for better performance
+        startPathIndex: accountIdx
       });
 
       if (!addresses || !addresses.length) {
         throw new Error("No address returned from device");
       }
 
-      const rawSolanaAddress = addresses[0];
-      let solanaAddress: string;
-
-      // Handle response format (should be string for ED25519/Solana)
-      if (Buffer.isBuffer(rawSolanaAddress)) {
-        solanaAddress = rawSolanaAddress.toString();
-      } else {
-        solanaAddress = rawSolanaAddress.toString();
-      }
+      // Return the first address (accountIdx + 0)
+      const solanaAddress = addresses[0];
 
       // Validate it's a proper Solana address (should be base58, not 0x)
       if (!solanaAddress || typeof solanaAddress !== 'string') {

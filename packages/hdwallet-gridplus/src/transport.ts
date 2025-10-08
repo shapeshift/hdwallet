@@ -67,12 +67,51 @@ export class GridPlusTransport extends core.Transport {
       this.privKey = randomBytes(32).toString('hex');
     }
 
-    // Create Client exactly like Frame (with baseUrl!)
+    // Create Client with localStorage state management
     if (!this.client) {
+      // Initialize SDK global state for wrapper functions (fetchSolanaAddresses, etc.)
+      // Must be done BEFORE creating Client so it can use the state functions
+      const sdk = require('gridplus-sdk');
+      if (sdk.setLoadClient && sdk.setSaveClient) {
+        // Set up getStoredClient function for SDK wrapper functions
+        sdk.setLoadClient(async () => {
+          try {
+            const stored = localStorage.getItem('gridplus-client');
+            if (stored) {
+              return new Client({ stateData: stored });
+            }
+          } catch (e) {
+            // Ignore
+          }
+          return null;
+        });
+
+        // Set up setStoredClient function for SDK wrapper functions
+        sdk.setSaveClient(async (clientData: string | null) => {
+          try {
+            if (clientData) {
+              localStorage.setItem('gridplus-client', clientData);
+            }
+          } catch (e) {
+            // Ignore localStorage errors
+          }
+        });
+      }
+
+      // Create the Client (will use SDK state functions if set)
       this.client = new Client({
         name: this.name || "ShapeShift",
         baseUrl: 'https://signing.gridpl.us',
-        privKey: this.privKey
+        privKey: this.privKey,
+        setStoredClient: async (client: string | null) => {
+          try {
+            if (client) {
+              localStorage.setItem('gridplus-client', client);
+            }
+          } catch (e) {
+            // Ignore localStorage errors
+          }
+        }
       });
     }
 
