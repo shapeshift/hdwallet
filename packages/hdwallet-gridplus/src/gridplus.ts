@@ -1019,7 +1019,8 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       throw new Error("Device not connected");
     }
 
-    const pathKey = JSON.stringify(msg.addressNList);
+    // Include prefix in cache key to avoid collision with THORChain/MAYAChain (same slip44)
+    const pathKey = JSON.stringify({ path: msg.addressNList, prefix: "cosmos" });
     const cached = this.addressCache.get(pathKey);
     if (cached) return cached as string;
 
@@ -1170,7 +1171,9 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       throw new Error("Device not connected");
     }
 
-    const pathKey = JSON.stringify(msg.addressNList);
+    const prefix = msg.testnet ? "tthor" : "thor";
+    // Include prefix in cache key to avoid collision with MAYAChain (same slip44: 931)
+    const pathKey = JSON.stringify({ path: msg.addressNList, prefix });
     const cached = this.addressCache.get(pathKey);
     if (cached) return cached as string;
 
@@ -1192,7 +1195,6 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       const pubkeyBuffer = Buffer.isBuffer(addresses[0]) ? addresses[0] : Buffer.from(addresses[0], "hex");
       const compressedPubkey = pointCompress(pubkeyBuffer, true);
       const compressedHex = Buffer.from(compressedPubkey).toString("hex");
-      const prefix = msg.testnet ? "tthor" : "thor";
       const thorAddress = this.createCosmosAddress(compressedHex, prefix);
       this.addressCache.set(pathKey, thorAddress);
 
@@ -1322,7 +1324,8 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       throw new Error("Device not connected");
     }
 
-    const pathKey = JSON.stringify(msg.addressNList);
+    // Include prefix in cache key to avoid collision with THORChain (same slip44: 931)
+    const pathKey = JSON.stringify({ path: msg.addressNList, prefix: "maya" });
     const cached = this.addressCache.get(pathKey);
     if (cached) return cached as string;
 
