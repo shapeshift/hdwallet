@@ -377,9 +377,15 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       throw new Error("Device not connected");
     }
 
+    // Check cache first
+    const pathKey = JSON.stringify(msg.addressNList);
+    const cachedAddress = this.addressCache.get(pathKey);
+    if (cachedAddress) {
+      return cachedAddress;
+    }
+
     // Check firmware version supports ED25519
     const fwVersion = this.client.getFwVersion();
-    console.log('GridPlus firmware version:', fwVersion);
 
     if (fwVersion.major === 0 && fwVersion.minor < 14) {
       throw new Error(`Solana requires firmware >= 0.14.0, current: ${fwVersion.major}.${fwVersion.minor}.${fwVersion.fix}`);
@@ -401,15 +407,24 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         throw new Error("No address returned from device");
       }
 
-      // SDK returns Buffer objects that need to be converted to base58
-      const addressBuffer = solanaAddresses[0];
-      if (!addressBuffer || !Buffer.isBuffer(addressBuffer)) {
-        throw new Error("Invalid Solana address format returned from device");
+      // Cache all 10 addresses to avoid re-fetching
+      for (let i = 0; i < solanaAddresses.length; i++) {
+        const addressBuffer = solanaAddresses[i];
+        if (Buffer.isBuffer(addressBuffer)) {
+          const address = bs58.encode(addressBuffer);
+          // Create cache key for this account index
+          const cacheKey = JSON.stringify([0x80000000 + 44, 0x80000000 + 501, 0x80000000 + (accountIdx + i), 0x80000000 + 0]);
+          this.addressCache.set(cacheKey, address);
+        }
       }
 
-      // Convert the 32-byte public key buffer to base58 Solana address
-      const solanaAddress = bs58.encode(addressBuffer);
-      return solanaAddress;
+      // Return the requested address from cache
+      const requestedAddress = this.addressCache.get(pathKey);
+      if (!requestedAddress) {
+        throw new Error("Failed to cache Solana address");
+      }
+
+      return requestedAddress;
     } catch (error) {
       throw error;
     }
