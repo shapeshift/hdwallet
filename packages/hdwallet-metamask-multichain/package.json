@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-metamask-multichain",
-  "version": "1.62.4-alpha.74",
+  "version": "1.62.4-alpha.75",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -17,7 +17,7 @@
     "@metamask/detect-provider": "^1.2.0",
     "@metamask/onboarding": "^1.0.1",
     "@shapeshiftoss/common-api": "^9.3.0",
-    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.74",
+    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.75",
     "@shapeshiftoss/metamask-snaps-adapter": "^1.0.12",
     "@shapeshiftoss/metamask-snaps-types": "^1.0.12",
     "eth-rpc-errors": "^4.0.3",
@@ -28,5 +28,5 @@
     "@types/express": "^4.17.17",
     "@types/lodash": "^4.14.168"
   },
-  "gitHead": "87873b4fa36c2604a37b88b2f55450b0c7de86dd"
+  "gitHead": "54bc98a5dddeb8542e068b7c4b13bf38e71a41a2"
 }
