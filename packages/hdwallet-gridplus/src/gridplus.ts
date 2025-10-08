@@ -6,12 +6,13 @@ import { SignTypedDataVersion, TypedDataUtils } from "@metamask/eth-sig-util";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bech32 from "bech32";
 import bs58 from "bs58";
-import bs58check from "bs58check";
+import { decode as bs58Decode, encode as bs58Encode } from "bs58check";
 import CryptoJS from "crypto-js";
 import {
   Client,
   Constants,
   Utils,
+  fetchAddresses,
   fetchSolanaAddresses,
   fetchBtcLegacyAddresses,
   fetchBtcSegwitAddresses,
@@ -32,6 +33,90 @@ import { GridPlusTransport } from "./transport";
 
 export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
   return isObject(wallet) && (wallet as any)._isGridPlus;
+}
+
+// UTXO account types for xpub conversion
+enum UtxoAccountType {
+  P2pkh = "P2pkh",
+  SegwitNative = "SegwitNative",
+  SegwitP2sh = "SegwitP2sh",
+}
+
+// xpub version prefixes
+enum PublicKeyType {
+  xpub = "0488b21e",
+  ypub = "049d7cb2",
+  zpub = "04b24746",
+  dgub = "02facafd",
+  Ltub = "019da462",
+  Mtub = "01b26ef6",
+}
+
+const accountTypeToVersion = (() => {
+  const Litecoin = {
+    [UtxoAccountType.P2pkh]: Buffer.from(PublicKeyType.Ltub, "hex"),
+    [UtxoAccountType.SegwitP2sh]: Buffer.from(PublicKeyType.Mtub, "hex"),
+    [UtxoAccountType.SegwitNative]: Buffer.from(PublicKeyType.zpub, "hex"),
+  };
+
+  const Dogecoin = {
+    [UtxoAccountType.P2pkh]: Buffer.from(PublicKeyType.dgub, "hex"),
+  };
+
+  const Bitcoin = {
+    [UtxoAccountType.P2pkh]: Buffer.from(PublicKeyType.xpub, "hex"),
+    [UtxoAccountType.SegwitP2sh]: Buffer.from(PublicKeyType.ypub, "hex"),
+    [UtxoAccountType.SegwitNative]: Buffer.from(PublicKeyType.zpub, "hex"),
+  };
+
+  return (coin: string, type: UtxoAccountType) => {
+    switch (coin) {
+      case "Litecoin":
+        return Litecoin[type];
+      case "Bitcoin":
+        return Bitcoin[type];
+      case "Dogecoin":
+        if (type !== UtxoAccountType.P2pkh) throw new Error("Unsupported account type");
+        return Dogecoin[type];
+      default:
+        return Bitcoin[type];
+    }
+  };
+})();
+
+const convertVersions = ["Ltub", "xpub", "dgub"];
+
+/**
+ * Convert xpub version bytes for different coins (e.g., xpub → dgub for Dogecoin)
+ * GridPlus returns Bitcoin-format xpubs, but some coins like Dogecoin need different prefixes
+ */
+function convertXpubVersion(xpub: string, accountType: UtxoAccountType | undefined, coin: string): string {
+  if (!accountType) return xpub;
+  if (!convertVersions.includes(xpub.substring(0, 4))) {
+    return xpub;
+  }
+
+  const payload = bs58Decode(xpub);
+  const version = payload.slice(0, 4);
+  const desiredVersion = accountTypeToVersion(coin, accountType);
+  if (version.compare(desiredVersion) !== 0) {
+    const key = payload.slice(4);
+    return bs58Encode(Buffer.concat([desiredVersion, key]));
+  }
+  return xpub;
+}
+
+function scriptTypeToAccountType(scriptType: core.BTCInputScriptType | undefined): UtxoAccountType | undefined {
+  switch (scriptType) {
+    case core.BTCInputScriptType.SpendAddress:
+      return UtxoAccountType.P2pkh;
+    case core.BTCInputScriptType.SpendWitness:
+      return UtxoAccountType.SegwitNative;
+    case core.BTCInputScriptType.SpendP2SHWitness:
+      return UtxoAccountType.SegwitP2sh;
+    default:
+      return undefined;
+  }
 }
 
 export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.SolanaWallet, core.BTCWallet, core.CosmosWallet, core.ThorchainWallet {
@@ -225,7 +310,7 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     const publicKeys: Array<core.PublicKey | null> = [];
 
     for (const getPublicKey of msg) {
-      const { addressNList, curve } = getPublicKey;
+      const { addressNList, curve, coin, scriptType } = getPublicKey;
       // fetchAddressesByDerivationPath expects path without "m/" prefix
       const path = core.addressNListToBIP32(addressNList).replace(/^m\//, "");
 
@@ -243,7 +328,7 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
           throw new Error(`Unsupported curve: ${curve}`);
         }
 
-        console.log(`GridPlus getPublicKeys: fetching for path=${path}, curve=${curve}, flag=${flag}`);
+        console.log(`GridPlus getPublicKeys: fetching for path=${path}, curve=${curve}, flag=${flag}, coin=${coin}`);
 
         const addresses = await fetchAddressesByDerivationPath(path, {
           n: 1,
@@ -258,12 +343,18 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         }
 
         // addresses[0] contains either xpub string (for SECP256K1_XPUB) or pubkey hex (for ED25519_PUB)
-        const xpub = typeof addresses[0] === "string" ? addresses[0] : Buffer.from(addresses[0]).toString("hex");
+        let xpub = typeof addresses[0] === "string" ? addresses[0] : Buffer.from(addresses[0]).toString("hex");
+
+        // Convert xpub format for Dogecoin/Litecoin (GridPlus returns Bitcoin xpub format)
+        if (coin && curve === "secp256k1") {
+          const accountType = scriptTypeToAccountType(scriptType);
+          xpub = convertXpubVersion(xpub, accountType, coin);
+        }
 
         console.log(`GridPlus getPublicKeys: returning xpub=${xpub}`);
         publicKeys.push({ xpub });
       } catch (error) {
-        console.error(`GridPlus getPublicKeys ERROR for path ${path}, curve=${curve}:`, error);
+        console.error(`GridPlus getPublicKeys ERROR for path ${path}, curve=${curve}, coin=${coin}:`, error);
         console.error(`GridPlus getPublicKeys ERROR stack:`, error instanceof Error ? error.stack : 'no stack');
         publicKeys.push(null);
       }
@@ -393,51 +484,57 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
   private async performAddressRequest(msg: core.ETHGetAddress, callId: string): Promise<core.Address | null> {
     try {
-      // Use direct client.getAddresses call (like Frame does) with default flag 0 for EVM
-      const addresses = await this.client!.getAddresses({
-        startPath: msg.addressNList,
-        n: 1,
-        flag: 0 // EVM default - returns 0x addresses
+      // Extract address index from EVM path: m/44'/60'/0'/0/X
+      // addressNList = [44', 60', 0', 0, X]
+      const addressIndex = msg.addressNList[4] || 0;
+      const startPath = [...msg.addressNList.slice(0, 4), addressIndex];
+
+      // Use fetchAddresses SDK wrapper to get 10 addresses at once (like Solana/BTC)
+      const addresses = await fetchAddresses({
+        startPath,
+        n: 10, // Fetch 10 sequential addresses for better performance
       });
 
       if (!addresses || !addresses.length) {
         throw new Error("No address returned from device");
       }
 
-      const rawAddress = addresses[0];
-      let address: string;
+      // Cache all 10 addresses to avoid re-fetching
+      for (let i = 0; i < addresses.length; i++) {
+        const rawAddress = addresses[i];
+        let address: string;
 
-      // Handle response format (could be Buffer or string)
-      if (Buffer.isBuffer(rawAddress)) {
-        address = '0x' + rawAddress.toString('hex');
-      } else {
-        address = rawAddress.toString();
+        // Handle response format (could be Buffer or string)
+        if (Buffer.isBuffer(rawAddress)) {
+          address = '0x' + rawAddress.toString('hex');
+        } else {
+          address = rawAddress.toString();
+        }
+
+        // Ensure address starts with 0x for EVM
+        if (!address.startsWith('0x')) {
+          address = '0x' + address;
+        }
+
+        // Validate Ethereum address format (should be 42 chars with 0x prefix)
+        if (address.length !== 42) {
+          throw new Error(`Invalid Ethereum address length: ${address}`);
+        }
+
+        // Create cache key for this address index
+        const cacheKey = JSON.stringify([...msg.addressNList.slice(0, 4), addressIndex + i]);
+        this.addressCache.set(cacheKey, address.toLowerCase());
       }
 
-      // Validate the address format
-      if (!address || typeof address !== 'string') {
-        throw new Error("Invalid address format returned from device");
-      }
-
-      // Ensure address starts with 0x for EVM
-      if (!address.startsWith('0x')) {
-        address = '0x' + address;
-      }
-
-      // Validate Ethereum address format (should be 42 chars with 0x prefix)
-      if (address.length !== 42) {
-        throw new Error(`Invalid Ethereum address length: ${address}`);
-      }
-
-      // Cache the address for future calls (per account path)
+      // Return the requested address from cache
       const pathKey = JSON.stringify(msg.addressNList);
-      // TODO: remove highlander-based-development
-      // @ts-ignore
-      this.addressCache.set(pathKey, address);
+      const requestedAddress = this.addressCache.get(pathKey);
+      if (!requestedAddress) {
+        throw new Error("Failed to cache EVM address");
+      }
 
-      // TODO: remove highlander-based-development
-      // @ts-ignore
-      return address;
+      // core.Address for ETH is just a string type `0x${string}`
+      return requestedAddress as core.Address;
     } catch (error) {
       throw error;
     }
@@ -490,8 +587,8 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         const addressBuffer = solanaAddresses[i];
         if (Buffer.isBuffer(addressBuffer)) {
           const address = bs58.encode(addressBuffer);
-          // Create cache key for this account index
-          const cacheKey = JSON.stringify([0x80000000 + 44, 0x80000000 + 501, 0x80000000 + (accountIdx + i), 0x80000000 + 0]);
+          // Create cache key matching msg.addressNList format: [44', 501', accountIdx', 0']
+          const cacheKey = JSON.stringify([0x80000000 + 44, 0x80000000 + 501, 0x80000000 + (accountIdx + i), 0x80000000]);
           this.addressCache.set(cacheKey, address);
         }
       }
@@ -967,8 +1064,9 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         throw new Error("No address returned from device");
       }
 
-      // addresses[0] is the hex-encoded secp256k1 public key
-      const cosmosAddress = this.createCosmosAddress(addresses[0], "cosmos");
+      // addresses[0] is Buffer, convert to hex string for createCosmosAddress
+      const pubkeyHex = Buffer.isBuffer(addresses[0]) ? addresses[0].toString("hex") : addresses[0];
+      const cosmosAddress = this.createCosmosAddress(pubkeyHex, "cosmos");
       this.addressCache.set(pathKey, cosmosAddress);
 
       return cosmosAddress;
@@ -1112,9 +1210,10 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         throw new Error("No address returned from device");
       }
 
-      // addresses[0] is the hex-encoded secp256k1 public key
+      // addresses[0] is Buffer, convert to hex string for createCosmosAddress
+      const pubkeyHex = Buffer.isBuffer(addresses[0]) ? addresses[0].toString("hex") : addresses[0];
       const prefix = msg.testnet ? "tthor" : "thor";
-      const thorAddress = this.createCosmosAddress(addresses[0], prefix);
+      const thorAddress = this.createCosmosAddress(pubkeyHex, prefix);
       this.addressCache.set(pathKey, thorAddress);
 
       return thorAddress;
