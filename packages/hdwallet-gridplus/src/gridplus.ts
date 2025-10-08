@@ -119,7 +119,7 @@ function scriptTypeToAccountType(scriptType: core.BTCInputScriptType | undefined
   }
 }
 
-export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.SolanaWallet, core.BTCWallet, core.CosmosWallet, core.ThorchainWallet {
+export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.SolanaWallet, core.BTCWallet, core.CosmosWallet, core.ThorchainWallet, core.MayachainWallet {
   readonly _isGridPlus = true;
   private addressCache = new Map<string, core.Address | string>();
   private callCounter = 0;
@@ -146,6 +146,8 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
   readonly _supportsCosmosInfo = true;
   readonly _supportsThorchain = true;
   readonly _supportsThorchainInfo = true;
+  readonly _supportsMayachain = true;
+  readonly _supportsMayachainInfo = true;
 
   info: GridPlusWalletInfo & core.HDWalletInfo;
   transport: GridPlusTransport;
@@ -1053,10 +1055,14 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
     try {
       // Get secp256k1 pubkey using GridPlus SDK
-      const path = core.addressNListToBIP32(msg.addressNList).replace(/^m\//, "");
-      const addresses = await fetchAddressesByDerivationPath(path, {
+      // Extract address index from last element of path (remove hardening bit if present)
+      const addressIndex = msg.addressNList[msg.addressNList.length - 1] & 0x7FFFFFFF;
+      // Build base path without final index (fetchAddressesByDerivationPath appends the index)
+      const basePath = core.addressNListToBIP32(msg.addressNList.slice(0, -1)).replace(/^m\//, "");
+
+      const addresses = await fetchAddressesByDerivationPath(basePath, {
         n: 1,
-        startPathIndex: 0,
+        startPathIndex: addressIndex,
         flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
       });
 
@@ -1199,10 +1205,14 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
     try {
       // Get secp256k1 pubkey using GridPlus SDK
-      const path = core.addressNListToBIP32(msg.addressNList).replace(/^m\//, "");
-      const addresses = await fetchAddressesByDerivationPath(path, {
+      // Extract address index from last element of path (remove hardening bit if present)
+      const addressIndex = msg.addressNList[msg.addressNList.length - 1] & 0x7FFFFFFF;
+      // Build base path without final index (fetchAddressesByDerivationPath appends the index)
+      const basePath = core.addressNListToBIP32(msg.addressNList.slice(0, -1)).replace(/^m\//, "");
+
+      const addresses = await fetchAddressesByDerivationPath(basePath, {
         n: 1,
-        startPathIndex: 0,
+        startPathIndex: addressIndex,
         flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
       });
 
@@ -1332,9 +1342,172 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       addressNList: newAddressNList,
     };
   }
+
+  // ============ MAYAchain Support ============
+
+  public async mayachainGetAddress(msg: core.MayachainGetAddress): Promise<string | null> {
+    if (!this.client) {
+      throw new Error("Device not connected");
+    }
+
+    const pathKey = JSON.stringify(msg.addressNList);
+    const cached = this.addressCache.get(pathKey);
+    if (cached) return cached as string;
+
+    try {
+      // Get secp256k1 pubkey using GridPlus SDK
+      // Extract address index from last element of path (remove hardening bit if present)
+      const addressIndex = msg.addressNList[msg.addressNList.length - 1] & 0x7FFFFFFF;
+      // Build base path without final index (fetchAddressesByDerivationPath appends the index)
+      const basePath = core.addressNListToBIP32(msg.addressNList.slice(0, -1)).replace(/^m\//, "");
+
+      const addresses = await fetchAddressesByDerivationPath(basePath, {
+        n: 1,
+        startPathIndex: addressIndex,
+        flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
+      });
+
+      if (!addresses || addresses.length === 0) {
+        throw new Error("No address returned from device");
+      }
+
+      // addresses[0] is Buffer, convert to hex string for createCosmosAddress
+      const pubkeyHex = Buffer.isBuffer(addresses[0]) ? addresses[0].toString("hex") : addresses[0];
+      const mayaAddress = this.createCosmosAddress(pubkeyHex, "maya");
+      this.addressCache.set(pathKey, mayaAddress);
+
+      return mayaAddress;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async mayachainSignTx(msg: core.MayachainSignTx): Promise<core.MayachainSignedTx | null> {
+    if (!this.client) {
+      throw new Error("Device not connected");
+    }
+
+    try {
+      // Get the address for this path
+      const address = await this.mayachainGetAddress({ addressNList: msg.addressNList });
+      if (!address) throw new Error("Failed to get MAYAchain address");
+
+      // Get the public key
+      const addressIndex = msg.addressNList[msg.addressNList.length - 1] & 0x7FFFFFFF;
+      const basePath = core.addressNListToBIP32(msg.addressNList.slice(0, -1)).replace(/^m\//, "");
+      const pubkeys = await fetchAddressesByDerivationPath(basePath, {
+        n: 1,
+        startPathIndex: addressIndex,
+        flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
+      });
+
+      if (!pubkeys || pubkeys.length === 0) {
+        throw new Error("No public key returned from device");
+      }
+
+      const pubkey = Buffer.from(pubkeys[0], "hex");
+
+      // Capture client reference for use in closure
+      const client = this.client;
+
+      // Create a signer adapter for GridPlus
+      const signer = {
+        address,
+        getAccounts: async () => [{
+          address,
+          pubkey,
+          algo: "secp256k1" as const,
+        }],
+        signAmino: async (signerAddress: string, signDoc: any) => {
+          if (signerAddress !== address) {
+            throw new Error("Signer address mismatch");
+          }
+
+          // Serialize the sign doc for signing
+          const signBytes = Buffer.from(JSON.stringify(signDoc), "utf8");
+          const hash = CryptoJS.SHA256(CryptoJS.lib.WordArray.create(signBytes as any));
+          const hashBuffer = Buffer.from(hash.toString(CryptoJS.enc.Hex), "hex");
+
+          // Sign using GridPlus SDK general signing
+          const signData = {
+            data: {
+              payload: hashBuffer,
+              curveType: Constants.SIGNING.CURVES.SECP256K1,
+              hashType: Constants.SIGNING.HASHES.NONE,  // Already hashed
+              encodingType: Constants.SIGNING.ENCODINGS.NONE,
+              signerPath: msg.addressNList,
+            },
+          };
+
+          const sig = await client.sign(signData);
+
+          if (!sig?.sig) {
+            throw new Error("No signature returned from device");
+          }
+
+          const { r, s, v } = sig.sig;
+
+          // Convert signature to DER format
+          const rBuf = Buffer.from(r);
+          const sBuf = Buffer.from(s);
+
+          // Ensure 32-byte values
+          const rPadded = rBuf.length < 32 ? Buffer.concat([Buffer.alloc(32 - rBuf.length), rBuf]) : rBuf;
+          const sPadded = sBuf.length < 32 ? Buffer.concat([Buffer.alloc(32 - sBuf.length), sBuf]) : sBuf;
+
+          const signature = Buffer.concat([rPadded, sPadded]).toString("base64");
+
+          return {
+            signed: signDoc,
+            signature: {
+              pub_key: {
+                type: "tendermint/PubKeySecp256k1",
+                value: pubkey.toString("base64"),
+              },
+              signature,
+            },
+          };
+        },
+      };
+
+      // Build and sign transaction using proto-tx-builder
+      const signedTx = await (await import("@shapeshiftoss/proto-tx-builder")).sign(
+        address,
+        msg.tx as any,
+        signer,
+        {
+          sequence: Number(msg.sequence),
+          accountNumber: Number(msg.account_number),
+          chainId: msg.chain_id,
+        },
+        "maya",
+      );
+
+      return signedTx as core.MayachainSignedTx;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public mayachainGetAccountPaths(msg: core.MayachainGetAccountPaths): Array<core.MayachainAccountPath> {
+    const slip44 = core.slip44ByCoin("Mayachain");
+    return [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
+      },
+    ];
+  }
+
+  public mayachainNextAccountPath(msg: core.MayachainAccountPath): core.MayachainAccountPath | undefined {
+    const newAddressNList = [...msg.addressNList];
+    newAddressNList[2] += 1;
+    return {
+      addressNList: newAddressNList,
+    };
+  }
 }
 
-export class GridPlusWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo, core.CosmosWalletInfo, core.ThorchainWalletInfo {
+export class GridPlusWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo, core.CosmosWalletInfo, core.ThorchainWalletInfo, core.MayachainWalletInfo {
   readonly _supportsGridPlusInfo = true;
   readonly _supportsETHInfo = true;
   readonly _supportsAvalanche = true;
@@ -1348,6 +1521,7 @@ export class GridPlusWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
   readonly _supportsSolanaInfo = false;
   readonly _supportsCosmosInfo = true;
   readonly _supportsThorchainInfo = true;
+  readonly _supportsMayachainInfo = true;
 
   public getVendor(): string {
     return "GridPlus";
@@ -1487,6 +1661,23 @@ export class GridPlusWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
   }
 
   public thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
+    const newAddressNList = [...msg.addressNList];
+    newAddressNList[2] += 1;
+    return {
+      addressNList: newAddressNList,
+    };
+  }
+
+  public mayachainGetAccountPaths(msg: core.MayachainGetAccountPaths): Array<core.MayachainAccountPath> {
+    const slip44 = core.slip44ByCoin("Mayachain");
+    return [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
+      },
+    ];
+  }
+
+  public mayachainNextAccountPath(msg: core.MayachainAccountPath): core.MayachainAccountPath | undefined {
     const newAddressNList = [...msg.addressNList];
     newAddressNList[2] += 1;
     return {
