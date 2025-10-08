@@ -2,7 +2,9 @@ import Common from "@ethereumjs/common";
 import { FeeMarketEIP1559Transaction, Transaction } from "@ethereumjs/tx";
 import { SignTypedDataVersion, TypedDataUtils } from "@metamask/eth-sig-util";
 import * as core from "@shapeshiftoss/hdwallet-core";
+import * as bech32 from "bech32";
 import bs58 from "bs58";
+import CryptoJS from "crypto-js";
 import {
   Client,
   Constants,
@@ -11,6 +13,7 @@ import {
   fetchBtcLegacyAddresses,
   fetchBtcSegwitAddresses,
   fetchBtcWrappedSegwitAddresses,
+  fetchAddressesByDerivationPath,
   signSolanaTx,
   signBtcLegacyTx,
   signBtcSegwitTx,
@@ -25,7 +28,7 @@ export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
   return isObject(wallet) && (wallet as any)._isGridPlus;
 }
 
-export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.SolanaWallet, core.BTCWallet {
+export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.SolanaWallet, core.BTCWallet, core.CosmosWallet, core.ThorchainWallet {
   readonly _isGridPlus = true;
   private addressCache = new Map<string, core.Address | string>();
   private callCounter = 0;
@@ -48,6 +51,10 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
   readonly _supportsSolanaInfo = true;
   readonly _supportsBTC = true;
   readonly _supportsBTCInfo = true;
+  readonly _supportsCosmos = true;
+  readonly _supportsCosmosInfo = true;
+  readonly _supportsThorchain = true;
+  readonly _supportsThorchainInfo = true;
 
   info: GridPlusWalletInfo & core.HDWalletInfo;
   transport: GridPlusTransport;
@@ -866,9 +873,132 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         return 44;
     }
   }
+
+  // ============ Cosmos Support ============
+
+  private bech32ify(address: ArrayLike<number>, prefix: string): string {
+    const words = bech32.toWords(address);
+    return bech32.encode(prefix, words);
+  }
+
+  private createCosmosAddress(publicKey: string, prefix: string): string {
+    const message = CryptoJS.SHA256(CryptoJS.enc.Hex.parse(publicKey));
+    const hash = CryptoJS.RIPEMD160(message as any).toString();
+    const address = Buffer.from(hash, `hex`);
+    return this.bech32ify(address, prefix);
+  }
+
+  public async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string | null> {
+    if (!this.client) {
+      throw new Error("Device not connected");
+    }
+
+    const pathKey = JSON.stringify(msg.addressNList);
+    const cached = this.addressCache.get(pathKey);
+    if (cached) return cached as string;
+
+    try {
+      // Get secp256k1 pubkey using GridPlus SDK
+      const path = core.addressNListToBIP32(msg.addressNList);
+      const addresses = await fetchAddressesByDerivationPath(path, {
+        n: 1,
+        startPathIndex: 0,
+        flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
+      });
+
+      if (!addresses || addresses.length === 0) {
+        throw new Error("No address returned from device");
+      }
+
+      // addresses[0] is the hex-encoded secp256k1 public key
+      const cosmosAddress = this.createCosmosAddress(addresses[0], "cosmos");
+      this.addressCache.set(pathKey, cosmosAddress);
+
+      return cosmosAddress;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
+    throw new Error("GridPlus Cosmos signing not yet implemented");
+  }
+
+  public cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
+    const slip44 = core.slip44ByCoin("Atom");
+    return [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
+      },
+    ];
+  }
+
+  public cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
+    const newAddressNList = [...msg.addressNList];
+    newAddressNList[2] += 1;
+    return {
+      addressNList: newAddressNList,
+    };
+  }
+
+  // ============ THORChain Support ============
+
+  public async thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string | null> {
+    if (!this.client) {
+      throw new Error("Device not connected");
+    }
+
+    const pathKey = JSON.stringify(msg.addressNList);
+    const cached = this.addressCache.get(pathKey);
+    if (cached) return cached as string;
+
+    try {
+      // Get secp256k1 pubkey using GridPlus SDK
+      const path = core.addressNListToBIP32(msg.addressNList);
+      const addresses = await fetchAddressesByDerivationPath(path, {
+        n: 1,
+        startPathIndex: 0,
+        flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
+      });
+
+      if (!addresses || addresses.length === 0) {
+        throw new Error("No address returned from device");
+      }
+
+      // addresses[0] is the hex-encoded secp256k1 public key
+      const prefix = msg.testnet ? "tthor" : "thor";
+      const thorAddress = this.createCosmosAddress(addresses[0], prefix);
+      this.addressCache.set(pathKey, thorAddress);
+
+      return thorAddress;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {
+    throw new Error("GridPlus THORChain signing not yet implemented");
+  }
+
+  public thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
+    const slip44 = core.slip44ByCoin("Rune");
+    return [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
+      },
+    ];
+  }
+
+  public thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
+    const newAddressNList = [...msg.addressNList];
+    newAddressNList[2] += 1;
+    return {
+      addressNList: newAddressNList,
+    };
+  }
 }
 
-export class GridPlusWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo {
+export class GridPlusWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo, core.CosmosWalletInfo, core.ThorchainWalletInfo {
   readonly _supportsGridPlusInfo = true;
   readonly _supportsETHInfo = true;
   readonly _supportsAvalanche = true;
@@ -880,6 +1010,8 @@ export class GridPlusWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
   readonly _supportsBase = true;
   readonly _supportsBSC = true;
   readonly _supportsSolanaInfo = false;
+  readonly _supportsCosmosInfo = true;
+  readonly _supportsThorchainInfo = true;
 
   public getVendor(): string {
     return "GridPlus";
@@ -985,6 +1117,42 @@ export class GridPlusWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
     const newAddressNList = [...msg.addressNList];
     newAddressNList[2] += 1; // Increment account index
 
+    return {
+      addressNList: newAddressNList,
+    };
+  }
+
+  // Cosmos Wallet Info Methods
+  public cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
+    const slip44 = core.slip44ByCoin("Atom");
+    return [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
+      },
+    ];
+  }
+
+  public cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
+    const newAddressNList = [...msg.addressNList];
+    newAddressNList[2] += 1;
+    return {
+      addressNList: newAddressNList,
+    };
+  }
+
+  // THORChain Wallet Info Methods
+  public thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
+    const slip44 = core.slip44ByCoin("Rune");
+    return [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
+      },
+    ];
+  }
+
+  public thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
+    const newAddressNList = [...msg.addressNList];
+    newAddressNList[2] += 1;
     return {
       addressNList: newAddressNList,
     };
