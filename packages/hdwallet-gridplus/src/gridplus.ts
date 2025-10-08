@@ -897,18 +897,11 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     const cached = this.addressCache.get(pathKey);
     if (cached) return cached as string;
 
-    const scriptType = msg.scriptType || core.BTCInputScriptType.SpendAddress;
-    const accountIdx = msg.addressNList[2] - 0x80000000;
-
-    // Choose fetch function based on script type
-    const fetchFn =
-      scriptType === core.BTCInputScriptType.SpendWitness
-        ? fetchBtcSegwitAddresses
-        : scriptType === core.BTCInputScriptType.SpendP2SHWitness
-        ? fetchBtcWrappedSegwitAddresses
-        : fetchBtcLegacyAddresses;
-
-    const addresses = await fetchFn({ n: 1, startPathIndex: accountIdx });
+    // Use fetchAddresses with the full path to support all UTXO coins (BTC, DOGE, LTC, BCH, etc.)
+    const addresses = await fetchAddresses({
+      startPath: msg.addressNList,
+      n: 1,
+    });
 
     if (!addresses || !addresses.length) {
       throw new Error("No addresses returned from device");
