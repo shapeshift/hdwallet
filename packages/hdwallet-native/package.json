@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-native",
-  "version": "1.62.4-alpha.58",
+  "version": "1.62.4-alpha.59",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -17,7 +17,7 @@
     "@bitcoinerlab/secp256k1": "^1.1.1",
     "@noble/curves": "^1.4.0",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.0",
-    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.58",
+    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.59",
     "@shapeshiftoss/proto-tx-builder": "0.10.0",
     "@zxing/text-encoding": "^0.9.0",
     "bchaddrjs": "^0.4.9",
@@ -57,5 +57,5 @@
     "cosmjs-types": "^0.4.1",
     "msw": "^0.27.1"
   },
-  "gitHead": "9040257fc5b99e5bf963e9c3066b8301f08fcac8"
+  "gitHead": "905eeac32da83b3b14961f0dc5fcd7a146103a28"
 }

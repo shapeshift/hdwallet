@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-trezor",
-  "version": "1.62.4-alpha.58",
+  "version": "1.62.4-alpha.59",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -17,7 +17,7 @@
   "dependencies": {
     "@ethereumjs/common": "^2.4.0",
     "@ethereumjs/tx": "^3.3.0",
-    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.58",
+    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.59",
     "base64-js": "^1.5.1",
     "lodash": "^4.17.21"
   },
@@ -25,5 +25,5 @@
     "@types/lodash": "^4.14.168",
     "typedoc": "^0.20.36"
   },
-  "gitHead": "9040257fc5b99e5bf963e9c3066b8301f08fcac8"
+  "gitHead": "905eeac32da83b3b14961f0dc5fcd7a146103a28"
 }

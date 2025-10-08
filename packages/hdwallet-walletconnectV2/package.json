@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-walletconnectv2",
-  "version": "1.62.4-alpha.58",
+  "version": "1.62.4-alpha.59",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,10 +15,10 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.58",
+    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.59",
     "@walletconnect/ethereum-provider": "^2.20.2",
     "@walletconnect/modal": "^2.6.2",
     "ethers": "^5.6.5"
   },
-  "gitHead": "9040257fc5b99e5bf963e9c3066b8301f08fcac8"
+  "gitHead": "905eeac32da83b3b14961f0dc5fcd7a146103a28"
 }

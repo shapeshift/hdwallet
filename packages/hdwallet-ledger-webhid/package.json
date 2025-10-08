@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger-webhid",
-  "version": "1.62.4-alpha.58",
+  "version": "1.62.4-alpha.59",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -19,12 +19,12 @@
     "@ledgerhq/hw-transport": "^6.31.2",
     "@ledgerhq/hw-transport-webhid": "^6.29.2",
     "@ledgerhq/live-common": "^21.8.2",
-    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.58",
-    "@shapeshiftoss/hdwallet-ledger": "^1.62.4-alpha.58",
+    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.59",
+    "@shapeshiftoss/hdwallet-ledger": "^1.62.4-alpha.59",
     "@types/w3c-web-hid": "^1.0.2"
   },
   "devDependencies": {
     "@types/ledgerhq__hw-transport": "^4.21.3"
   },
-  "gitHead": "9040257fc5b99e5bf963e9c3066b8301f08fcac8"
+  "gitHead": "905eeac32da83b3b14961f0dc5fcd7a146103a28"
 }
