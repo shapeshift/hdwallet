@@ -492,52 +492,42 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       const addressIndex = msg.addressNList[4] || 0;
       const startPath = [...msg.addressNList.slice(0, 4), addressIndex];
 
-      // Use fetchAddresses SDK wrapper to get 4 addresses at once (like Solana/BTC)
+      // Fetch only the requested address
       const addresses = await fetchAddresses({
         startPath,
-        n: 4, // Fetch 4 sequential addresses for better performance
+        n: 1,
       });
 
       if (!addresses || !addresses.length) {
         throw new Error("No address returned from device");
       }
 
-      // Cache all 4 addresses to avoid re-fetching
-      for (let i = 0; i < addresses.length; i++) {
-        const rawAddress = addresses[i];
-        let address: string;
+      const rawAddress = addresses[0];
+      let address: string;
 
-        // Handle response format (could be Buffer or string)
-        if (Buffer.isBuffer(rawAddress)) {
-          address = '0x' + rawAddress.toString('hex');
-        } else {
-          address = rawAddress.toString();
-        }
-
-        // Ensure address starts with 0x for EVM
-        if (!address.startsWith('0x')) {
-          address = '0x' + address;
-        }
-
-        // Validate Ethereum address format (should be 42 chars with 0x prefix)
-        if (address.length !== 42) {
-          throw new Error(`Invalid Ethereum address length: ${address}`);
-        }
-
-        // Create cache key for this address index
-        const cacheKey = JSON.stringify([...msg.addressNList.slice(0, 4), addressIndex + i]);
-        this.addressCache.set(cacheKey, address.toLowerCase());
+      // Handle response format (could be Buffer or string)
+      if (Buffer.isBuffer(rawAddress)) {
+        address = '0x' + rawAddress.toString('hex');
+      } else {
+        address = rawAddress.toString();
       }
 
-      // Return the requested address from cache
+      // Ensure address starts with 0x for EVM
+      if (!address.startsWith('0x')) {
+        address = '0x' + address;
+      }
+
+      // Validate Ethereum address format (should be 42 chars with 0x prefix)
+      if (address.length !== 42) {
+        throw new Error(`Invalid Ethereum address length: ${address}`);
+      }
+
+      // Cache the address
       const pathKey = JSON.stringify(msg.addressNList);
-      const requestedAddress = this.addressCache.get(pathKey);
-      if (!requestedAddress) {
-        throw new Error("Failed to cache EVM address");
-      }
+      this.addressCache.set(pathKey, address.toLowerCase());
 
       // core.Address for ETH is just a string type `0x${string}`
-      return requestedAddress as core.Address;
+      return address.toLowerCase() as core.Address;
     } catch (error) {
       throw error;
     }
@@ -918,29 +908,17 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         ? fetchBtcWrappedSegwitAddresses
         : fetchBtcLegacyAddresses;
 
-    const addresses = await fetchFn({ n: 4, startPathIndex: accountIdx });
+    const addresses = await fetchFn({ n: 1, startPathIndex: accountIdx });
 
     if (!addresses || !addresses.length) {
       throw new Error("No addresses returned from device");
     }
 
-    // Cache all 4 addresses
-    const purpose = this.scriptTypeToPurpose(scriptType);
-    const slip44 = core.slip44ByCoin(msg.coin);
-    if (!slip44) throw new Error(`Unsupported coin: ${msg.coin}`);
+    // Cache the address
+    const address = addresses[0];
+    this.addressCache.set(pathKey, address);
 
-    for (let i = 0; i < addresses.length; i++) {
-      const cacheKey = JSON.stringify([
-        0x80000000 + purpose,
-        0x80000000 + slip44,
-        0x80000000 + (accountIdx + i),
-        0,
-        0,
-      ]);
-      this.addressCache.set(cacheKey, addresses[i]);
-    }
-
-    return (this.addressCache.get(pathKey) as string) || null;
+    return address;
   }
 
   public async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
