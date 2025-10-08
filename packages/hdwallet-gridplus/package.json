@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-gridplus",
-  "version": "1.62.4-alpha.65",
+  "version": "1.62.4-alpha.66",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
