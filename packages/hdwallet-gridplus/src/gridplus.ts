@@ -1055,14 +1055,11 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
     try {
       // Get secp256k1 pubkey using GridPlus SDK
-      // Extract address index from last element of path (remove hardening bit if present)
-      const addressIndex = msg.addressNList[msg.addressNList.length - 1] & 0x7FFFFFFF;
-      // Build base path without final index (fetchAddressesByDerivationPath appends the index)
-      const basePath = core.addressNListToBIP32(msg.addressNList.slice(0, -1)).replace(/^m\//, "");
+      // Use FULL path - Cosmos uses standard BIP44: m/44'/118'/0'/0/0 (5 levels)
+      const path = core.addressNListToBIP32(msg.addressNList).replace(/^m\//, "");
 
-      const addresses = await fetchAddressesByDerivationPath(basePath, {
+      const addresses = await fetchAddressesByDerivationPath(path, {
         n: 1,
-        startPathIndex: addressIndex,
         flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
       });
 
@@ -1095,7 +1092,6 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       const path = core.addressNListToBIP32(msg.addressNList).replace(/^m\//, "");
       const pubkeys = await fetchAddressesByDerivationPath(path, {
         n: 1,
-        startPathIndex: 0,
         flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
       });
 
@@ -1205,14 +1201,11 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
     try {
       // Get secp256k1 pubkey using GridPlus SDK
-      // Extract address index from last element of path (remove hardening bit if present)
-      const addressIndex = msg.addressNList[msg.addressNList.length - 1] & 0x7FFFFFFF;
-      // Build base path without final index (fetchAddressesByDerivationPath appends the index)
-      const basePath = core.addressNListToBIP32(msg.addressNList.slice(0, -1)).replace(/^m\//, "");
+      // Use FULL path - THORChain uses standard BIP44: m/44'/931'/0'/0/0 (5 levels)
+      const path = core.addressNListToBIP32(msg.addressNList).replace(/^m\//, "");
 
-      const addresses = await fetchAddressesByDerivationPath(basePath, {
+      const addresses = await fetchAddressesByDerivationPath(path, {
         n: 1,
-        startPathIndex: addressIndex,
         flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
       });
 
@@ -1246,7 +1239,6 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       const path = core.addressNListToBIP32(msg.addressNList).replace(/^m\//, "");
       const pubkeys = await fetchAddressesByDerivationPath(path, {
         n: 1,
-        startPathIndex: 0,
         flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
       });
 
@@ -1356,14 +1348,11 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
     try {
       // Get secp256k1 pubkey using GridPlus SDK
-      // Extract address index from last element of path (remove hardening bit if present)
-      const addressIndex = msg.addressNList[msg.addressNList.length - 1] & 0x7FFFFFFF;
-      // Build base path without final index (fetchAddressesByDerivationPath appends the index)
-      const basePath = core.addressNListToBIP32(msg.addressNList.slice(0, -1)).replace(/^m\//, "");
+      // Use FULL path - MAYAChain uses standard BIP44: m/44'/931'/0'/0/0 (5 levels)
+      const path = core.addressNListToBIP32(msg.addressNList).replace(/^m\//, "");
 
-      const addresses = await fetchAddressesByDerivationPath(basePath, {
+      const addresses = await fetchAddressesByDerivationPath(path, {
         n: 1,
-        startPathIndex: addressIndex,
         flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
       });
 
@@ -1393,11 +1382,9 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       if (!address) throw new Error("Failed to get MAYAchain address");
 
       // Get the public key
-      const addressIndex = msg.addressNList[msg.addressNList.length - 1] & 0x7FFFFFFF;
-      const basePath = core.addressNListToBIP32(msg.addressNList.slice(0, -1)).replace(/^m\//, "");
-      const pubkeys = await fetchAddressesByDerivationPath(basePath, {
+      const path = core.addressNListToBIP32(msg.addressNList).replace(/^m\//, "");
+      const pubkeys = await fetchAddressesByDerivationPath(path, {
         n: 1,
-        startPathIndex: addressIndex,
         flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
       });
 
