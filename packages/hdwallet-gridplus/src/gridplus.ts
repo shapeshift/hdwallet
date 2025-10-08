@@ -376,12 +376,21 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       throw new Error("Device not connected");
     }
 
+    // Check firmware version supports ED25519
+    const fwVersion = this.client.getFwVersion();
+    console.log('GridPlus firmware version:', fwVersion);
+
+    if (fwVersion.major === 0 && fwVersion.minor < 14) {
+      throw new Error(`Solana requires firmware >= 0.14.0, current: ${fwVersion.major}.${fwVersion.minor}.${fwVersion.fix}`);
+    }
+
     try {
       // Use direct client.getAddresses with ED25519 flag for Solana
       const addresses = await this.client.getAddresses({
         startPath: msg.addressNList,
         n: 1,
-        flag: Constants.GET_ADDR_FLAGS.ED25519_PUB
+        flag: Constants.GET_ADDR_FLAGS.ED25519_PUB,
+        iterIdx: 0  // Explicitly set iteration index
       });
 
       if (!addresses || !addresses.length) {
