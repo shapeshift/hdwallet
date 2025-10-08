@@ -492,17 +492,17 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       const addressIndex = msg.addressNList[4] || 0;
       const startPath = [...msg.addressNList.slice(0, 4), addressIndex];
 
-      // Use fetchAddresses SDK wrapper to get 10 addresses at once (like Solana/BTC)
+      // Use fetchAddresses SDK wrapper to get 4 addresses at once (like Solana/BTC)
       const addresses = await fetchAddresses({
         startPath,
-        n: 10, // Fetch 10 sequential addresses for better performance
+        n: 4, // Fetch 4 sequential addresses for better performance
       });
 
       if (!addresses || !addresses.length) {
         throw new Error("No address returned from device");
       }
 
-      // Cache all 10 addresses to avoid re-fetching
+      // Cache all 4 addresses to avoid re-fetching
       for (let i = 0; i < addresses.length; i++) {
         const rawAddress = addresses[i];
         let address: string;
@@ -918,13 +918,13 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         ? fetchBtcWrappedSegwitAddresses
         : fetchBtcLegacyAddresses;
 
-    const addresses = await fetchFn({ n: 10, startPathIndex: accountIdx });
+    const addresses = await fetchFn({ n: 4, startPathIndex: accountIdx });
 
     if (!addresses || !addresses.length) {
       throw new Error("No addresses returned from device");
     }
 
-    // Cache all 10 addresses
+    // Cache all 4 addresses
     const purpose = this.scriptTypeToPurpose(scriptType);
     const slip44 = core.slip44ByCoin(msg.coin);
     if (!slip44) throw new Error(`Unsupported coin: ${msg.coin}`);
