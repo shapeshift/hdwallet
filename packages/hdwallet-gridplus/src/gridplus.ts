@@ -1034,6 +1034,7 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         txHash: (input as any).txid,
         value: parseInt(input.amount || "0"),
         index: input.vout,
+        signerPath: input.addressNList,
       })),
       recipient: msg.outputs[0]?.address || "",
       value: parseInt(msg.outputs[0]?.amount || "0"),
