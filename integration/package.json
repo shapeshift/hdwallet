@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/integration",
-  "version": "1.62.4-alpha.82",
+  "version": "1.62.4-alpha.83",
   "main": "index.js",
   "license": "MIT",
   "private": true,

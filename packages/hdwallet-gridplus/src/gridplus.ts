@@ -611,8 +611,9 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
   // Solana Wallet Methods
   public solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> {
-    // Use proper hardened derivation path: m/44'/501'/accountIdx'/0'
-    return [{ addressNList: [0x80000000 + 44, 0x80000000 + 501, 0x80000000 + msg.accountIdx, 0x80000000 + 0] }];
+    // Solana requires 5-level derivation path: m/44'/501'/account'/0'/0'
+    // All indices must be hardened for ED25519
+    return [{ addressNList: [0x80000000 + 44, 0x80000000 + 501, 0x80000000 + msg.accountIdx, 0x80000000 + 0, 0x80000000 + 0] }];
   }
 
   public async solanaGetAddress(msg: core.SolanaGetAddress): Promise<string | null> {
@@ -1026,6 +1027,12 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
     // Build payload for GridPlus SDK
     // This is simplified - a full implementation would need to build proper PSBT
+
+    // Calculate fee: total inputs - total outputs
+    const totalInputValue = msg.inputs.reduce((sum, input) => sum + parseInt(input.amount || "0"), 0);
+    const totalOutputValue = msg.outputs.reduce((sum, output) => sum + parseInt(output.amount || "0"), 0);
+    const fee = totalInputValue - totalOutputValue;
+
     const payload = {
       prevOuts: msg.inputs.map(input => ({
         txHash: (input as any).txid,
@@ -1035,7 +1042,7 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       })),
       recipient: msg.outputs[0]?.address || "",
       value: parseInt(msg.outputs[0]?.amount || "0"),
-      fee: 0, // Calculate from inputs/outputs
+      fee: fee,
       changePath: msg.outputs.find(o => o.isChange)?.addressNList,
     };
 
