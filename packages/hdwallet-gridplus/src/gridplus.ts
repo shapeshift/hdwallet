@@ -1,12 +1,3 @@
-// CRITICAL FIX: Add process.nextTick polyfill at the top of the file for browser compatibility
-// The GridPlus SDK uses cbor.encode() which relies on Node.js streams that call process.nextTick
-// This doesn't exist in browsers, so we polyfill it before any SDK usage
-if (typeof process === 'undefined' || !process.nextTick) {
-  (globalThis as any).process = (globalThis as any).process || { env: {} };
-  (globalThis as any).process.nextTick = (fn: Function) => setTimeout(fn, 0);
-  console.log('[GridPlus] Added process.nextTick polyfill for browser compatibility');
-}
-
 import type { StdTx } from "@cosmjs/amino";
 import type { DirectSignResponse, OfflineDirectSigner } from "@cosmjs/proto-signing";
 import type { SignerData } from "@cosmjs/stargate";
@@ -415,15 +406,11 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
           throw new Error(`Unsupported curve: ${curve}`);
         }
 
-        console.log(`GridPlus getPublicKeys: fetching for path=${path}, curve=${curve}, flag=${flag}, coin=${coin}`);
-
         const addresses = await fetchAddressesByDerivationPath(path, {
           n: 1,
           startPathIndex: 0,
           flag,
         });
-
-        console.log(`GridPlus getPublicKeys: received addresses=`, addresses);
 
         if (!addresses || addresses.length === 0) {
           throw new Error("No public key returned from device");
@@ -438,11 +425,8 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
           xpub = convertXpubVersion(xpub, accountType, coin);
         }
 
-        console.log(`GridPlus getPublicKeys: returning xpub=${xpub}`);
         publicKeys.push({ xpub });
       } catch (error) {
-        console.error(`GridPlus getPublicKeys ERROR for path ${path}, curve=${curve}, coin=${coin}:`, error);
-        console.error(`GridPlus getPublicKeys ERROR stack:`, error instanceof Error ? error.stack : 'no stack');
         publicKeys.push(null);
       }
     }
@@ -485,6 +469,10 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
   public async ethSupportsEIP1559(): Promise<boolean> {
     return true; // Modern EVM support
   }
+
+  // GridPlus doesn't have ethGetChainId method since it's stateless
+  // This causes assertSwitchChain to return early, avoiding chain mismatch errors
+  // The actual chain is determined by the dApp context, not the wallet
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     const slip44 = core.slip44ByCoin(msg.coin);
@@ -1082,7 +1070,96 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
   // TODO: remove highlander-based-development
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
-    throw new Error("GridPlus ethSignMessage not implemented yet");
+    try {
+      if (!this.client) {
+        throw new Error("Device not connected");
+      }
+
+      // Check if client has the sign method
+      if (typeof this.client.sign !== 'function') {
+        throw new Error("GridPlus client missing required sign method");
+      }
+
+      // Get the address for this path
+      const addressResult = await this.ethGetAddress({
+        addressNList: msg.addressNList,
+        showDisplay: false,
+      });
+
+      // For personal_sign, the message needs to be hex-encoded
+      // If it's not already hex, convert it
+      let hexMessage: string;
+      if (msg.message.startsWith('0x')) {
+        hexMessage = msg.message;
+      } else {
+        // Convert string to hex
+        const buffer = Buffer.from(msg.message, 'utf8');
+        hexMessage = '0x' + buffer.toString('hex');
+      }
+
+      // Use GridPlus SDK's ETH_MSG currency with signPersonal protocol
+      // This handles the Ethereum message prefix automatically
+      const signingOptions = {
+        currency: 'ETH_MSG' as any,  // ETH_MSG currency for message signing
+        data: {
+          protocol: 'signPersonal' as any,  // Use signPersonal protocol for personal_sign
+          payload: hexMessage,               // Hex-encoded message
+          signerPath: msg.addressNList,
+        }
+      };
+
+      // TODO: remove highlander-based-development
+      // @ts-ignore - GridPlus SDK external typing
+      const signedResult = await this.client.sign(signingOptions);
+
+      if (!signedResult?.sig) {
+        throw new Error("No signature returned from device");
+      }
+
+      const { r, s, v } = signedResult.sig;
+
+      // Format signature components - same as EIP-712
+      let rHex: string;
+      let sHex: string;
+
+      if (Buffer.isBuffer(r)) {
+        rHex = "0x" + r.toString('hex');
+      } else if (typeof r === 'string') {
+        if ((r as string).startsWith('0x')) {
+          rHex = r;
+        } else {
+          rHex = "0x" + r;
+        }
+      } else {
+        throw new Error(`Unexpected r format: ${typeof r}`);
+      }
+
+      if (Buffer.isBuffer(s)) {
+        sHex = "0x" + s.toString('hex');
+      } else if (typeof s === 'string') {
+        if ((s as string).startsWith('0x')) {
+          sHex = s;
+        } else {
+          sHex = "0x" + s;
+        }
+      } else {
+        throw new Error(`Unexpected s format: ${typeof s}`);
+      }
+
+      // v is returned by device for personal_sign
+      const vBuf = Buffer.isBuffer(v) ? v : (typeof v === 'number' ? Buffer.from([v]) : Buffer.from(v));
+      const vValue = vBuf.readUInt8(0);
+      const vHex = "0x" + vValue.toString(16);
+
+      const signature = rHex + sHex.slice(2) + vHex.slice(2);
+
+      return {
+        address: addressResult as string,
+        signature: signature,
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 
   // TODO: remove highlander-based-development
