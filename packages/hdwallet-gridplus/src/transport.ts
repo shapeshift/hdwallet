@@ -82,20 +82,49 @@ export class GridPlusTransport extends core.Transport {
     if (!this.client) {
       console.log('[GridPlus Transport] Calling SDK setup()...');
 
+      // Check if we have stored client data for reconnection optimization
+      const storedClient = localStorage.getItem('gridplus-client');
+      const hasStoredClient = !!storedClient;
+
+      console.log('[GridPlus Transport] Reconnection check:', {
+        hasStoredClient,
+        hasExistingPrivKey: !!existingPrivKey,
+        willOptimizeReconnection: hasStoredClient && !!existingPrivKey,
+      });
+
       // Call SDK setup() which creates client and connects to device
       // Returns boolean indicating if device is paired
       try {
-        const isPaired = await setup({
-          name: this.name || "ShapeShift",
-          deviceId,
-          password: this.password,
-          getStoredClient: async () => {
-            return localStorage.getItem('gridplus-client') || '';
-          },
-          setStoredClient: async (client) => {
-            if (client) localStorage.setItem('gridplus-client', client);
-          },
-        });
+        let isPaired: boolean;
+
+        // Optimize reconnection: if we have both stored client and existingPrivKey,
+        // call setup() WITHOUT deviceId/password/name so SDK loads from localStorage
+        // This avoids unnecessary device communication
+        if (hasStoredClient && existingPrivKey) {
+          console.log('[GridPlus Transport] Using optimized reconnection (loading from localStorage)');
+          isPaired = await setup({
+            getStoredClient: async () => {
+              return localStorage.getItem('gridplus-client') || '';
+            },
+            setStoredClient: async (client) => {
+              if (client) localStorage.setItem('gridplus-client', client);
+            },
+          });
+        } else {
+          console.log('[GridPlus Transport] Using standard connection (creating new client)');
+          isPaired = await setup({
+            name: this.name || "ShapeShift",
+            deviceId,
+            password: this.password,
+            getStoredClient: async () => {
+              return localStorage.getItem('gridplus-client') || '';
+            },
+            setStoredClient: async (client) => {
+              if (client) localStorage.setItem('gridplus-client', client);
+            },
+          });
+        }
+
         console.log('[GridPlus Transport] SDK setup() completed:', { isPaired });
 
         // Get the SDK's client instance (don't create our own!)
