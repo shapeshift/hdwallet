@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-core",
-  "version": "1.62.4-alpha.81",
+  "version": "1.62.4-alpha.82",
   "license": "MIT",
   "publishConfig": {
     "access": "public"

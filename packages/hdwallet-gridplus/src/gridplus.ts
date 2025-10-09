@@ -838,24 +838,17 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         throw new Error("Device not connected");
       }
 
-      // Hash the EIP-712 data ourselves (like KeepKey does)
-      // This avoids the browser polyfill issues with SDK's internal CBOR encoding
-      const digest = TypedDataUtils.eip712Hash(
-        msg.typedData as any,  // Type assertion for @metamask/eth-sig-util compatibility
-        SignTypedDataVersion.V4
-      );
-
-      // Use general signing with the pre-hashed digest (like transaction signing)
-      // NO currency field = general signing mode (avoids legacy ETH_MSG pathway)
+      // Use ETH_MSG protocol with eip712 (like Frame does)
+      // Pass raw typed data and let device hash it with KECCAK256
       const signingData = {
+        currency: 'ETH_MSG' as const,
         data: {
-          payload: Buffer.from(digest),  // Raw 32-byte hash
+          protocol: 'eip712' as const,
+          payload: msg.typedData,  // Raw typed data, not pre-hashed
           curveType: Constants.SIGNING.CURVES.SECP256K1,
-          hashType: Constants.SIGNING.HASHES.NONE,  // Already hashed!
-          encodingType: Constants.SIGNING.ENCODINGS.NONE,  // Raw hash, not a transaction
+          hashType: Constants.SIGNING.HASHES.KECCAK256,  // Let device hash with KECCAK256
           signerPath: msg.addressNList,
         }
-        // NO currency field - this enables general signing mode
       };
 
       // TODO: remove highlander-based-development
