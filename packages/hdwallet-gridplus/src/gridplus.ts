@@ -682,8 +682,12 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
       // Use GridPlus SDK's signSolanaTx wrapper with custom signer path
       // The SDK's default SOLANA_DERIVATION is hardcoded, so we pass our path in overrides
+      // ED25519 requires ALL path indices to be hardened (>= 0x80000000)
+      const hardenedPath = msg.addressNList.map(index =>
+        index >= 0x80000000 ? index : index + 0x80000000
+      );
       const signData = await signSolanaTx(Buffer.from(serialized), {
-        signerPath: msg.addressNList,
+        signerPath: hardenedPath,
       } as any);
 
       if (!signData || (!signData.sigs || signData.sigs.length === 0)) {
