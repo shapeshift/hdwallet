@@ -1190,15 +1190,14 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
           // Use CosmJS to create the sign bytes from the SignDoc
           const signBytes = (await cosmJsProtoSigning).makeSignBytes(signDoc);
-          const hash = CryptoJS.SHA256(CryptoJS.lib.WordArray.create(signBytes as any));
-          const hashBuffer = Buffer.from(hash.toString(CryptoJS.enc.Hex), "hex");
 
           // Sign using GridPlus SDK general signing
+          // Pass unhashed signBytes and let device hash with SHA256
           const signData = {
             data: {
-              payload: hashBuffer,
+              payload: signBytes,
               curveType: Constants.SIGNING.CURVES.SECP256K1,
-              hashType: Constants.SIGNING.HASHES.NONE, // Already hashed
+              hashType: Constants.SIGNING.HASHES.SHA256,
               encodingType: Constants.SIGNING.ENCODINGS.NONE,
               signerPath: msg.addressNList,
             }
@@ -1342,15 +1341,14 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
           // Use CosmJS to create the sign bytes from the SignDoc
           const signBytes = (await cosmJsProtoSigning).makeSignBytes(signDoc);
-          const hash = CryptoJS.SHA256(CryptoJS.lib.WordArray.create(signBytes as any));
-          const hashBuffer = Buffer.from(hash.toString(CryptoJS.enc.Hex), "hex");
 
           // Sign using GridPlus SDK general signing
+          // Pass unhashed signBytes and let device hash with SHA256
           const signData = {
             data: {
-              payload: hashBuffer,
+              payload: signBytes,
               curveType: Constants.SIGNING.CURVES.SECP256K1,
-              hashType: Constants.SIGNING.HASHES.NONE, // Already hashed
+              hashType: Constants.SIGNING.HASHES.SHA256,
               encodingType: Constants.SIGNING.ENCODINGS.NONE,
               signerPath: msg.addressNList,
             }
@@ -1493,15 +1491,14 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
           // Use CosmJS to create the sign bytes from the SignDoc
           const signBytes = (await cosmJsProtoSigning).makeSignBytes(signDoc);
-          const hash = CryptoJS.SHA256(CryptoJS.lib.WordArray.create(signBytes as any));
-          const hashBuffer = Buffer.from(hash.toString(CryptoJS.enc.Hex), "hex");
 
           // Sign using GridPlus SDK general signing
+          // Pass unhashed signBytes and let device hash with SHA256
           const signData = {
             data: {
-              payload: hashBuffer,
+              payload: signBytes,
               curveType: Constants.SIGNING.CURVES.SECP256K1,
-              hashType: Constants.SIGNING.HASHES.NONE, // Already hashed
+              hashType: Constants.SIGNING.HASHES.SHA256,
               encodingType: Constants.SIGNING.ENCODINGS.NONE,
               signerPath: msg.addressNList,
             }
