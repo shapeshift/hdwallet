@@ -15,8 +15,6 @@ export class GridPlusAdapter {
     return new GridPlusAdapter(keyring);
   }
 
-
-  // Frame-style: First establish connection and check pairing status
   public async connectDevice(deviceId: string, password?: string, existingPrivKey?: string): Promise<{ transport: GridPlusTransport, isPaired: boolean, privKey: string }> {
     // Get or create transport for this device
     let transport = this.activeTransports.get(deviceId);
@@ -34,15 +32,10 @@ export class GridPlusAdapter {
       const { isPaired, privKey } = await transport.setup(deviceId, password, existingPrivKey);
       return { transport, isPaired, privKey };
     } catch (error) {
-      console.error('[GridPlus Adapter] transport.setup() error:', {
-        error,
-        message: error instanceof Error ? error.message : String(error),
-      });
       throw error;
     }
   }
 
-  // Frame-style: Pair an already connected device
   public async pairConnectedDevice(deviceId: string, pairingCode: string): Promise<GridPlusHDWallet> {
     const transport = this.activeTransports.get(deviceId);
     if (!transport) {
@@ -69,11 +62,6 @@ export class GridPlusAdapter {
 
       return wallet;
     } catch (error) {
-      console.error('[GridPlus Adapter] pairConnectedDevice() error:', {
-        error,
-        message: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
-      });
       throw new Error(`GridPlus pairing failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }

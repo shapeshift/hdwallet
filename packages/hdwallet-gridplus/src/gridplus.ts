@@ -614,28 +614,18 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
   }
 
   public async solanaGetAddress(msg: core.SolanaGetAddress): Promise<string | null> {
-    console.log('[GridPlus Solana] ===== SOLANA GET ADDRESS START (alpha.100) =====');
-    console.log('[GridPlus Solana] msg.addressNList (original):', msg.addressNList);
-    console.log('[GridPlus Solana] addressNList as BIP32:', core.addressNListToBIP32(msg.addressNList));
-
     // CRITICAL FIX: Solana ED25519 requires ALL indices to be hardened
     // The chain adapter might send unhardened indices, so we need to fix them
     const correctedPath = msg.addressNList.map((idx, i) => {
       if (idx >= 0x80000000) {
         return idx; // Already hardened
       } else {
-        console.log(`[GridPlus Solana] WARNING: Index ${i} is unhardened (${idx}), hardening it to ${idx + 0x80000000}`);
         return idx + 0x80000000;
       }
     });
 
     // Verify all indices are now hardened
     const allHardened = correctedPath.every(idx => idx >= 0x80000000);
-    console.log('[GridPlus Solana] All indices hardened?', allHardened);
-    correctedPath.forEach((idx, i) => {
-      const value = idx - 0x80000000;
-      console.log(`[GridPlus Solana]   [${i}]: ${idx} (0x${idx.toString(16)}) = ${value}'`);
-    });
 
     if (!allHardened) {
       throw new Error("Failed to harden all Solana path indices for ED25519");
@@ -649,7 +639,6 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     const pathKey = JSON.stringify(correctedPath);
     const cachedAddress = this.addressCache.get(pathKey);
     if (cachedAddress) {
-      console.log('[GridPlus Solana] Returning cached address:', cachedAddress);
       return cachedAddress;
     }
 
@@ -665,19 +654,10 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       // The SDK's fetchSolanaAddresses has a buggy hardcoded base path that doesn't work correctly
       // We need to pass the exact derivation path we want - with all indices hardened!
       const path = core.addressNListToBIP32(correctedPath).replace(/^m\//, "");
-      console.log('[GridPlus Solana] Using fetchAddressesByDerivationPath with path:', path);
 
       const addresses = await fetchAddressesByDerivationPath(path, {
         n: 1,
         flag: Constants.GET_ADDR_FLAGS.ED25519_PUB,
-      });
-
-      console.log('[GridPlus Solana] fetchAddressesByDerivationPath returned:', {
-        count: addresses?.length,
-        type: typeof addresses?.[0],
-        isBuffer: Buffer.isBuffer(addresses?.[0]),
-        length: Buffer.isBuffer(addresses?.[0]) ? (addresses[0] as Buffer).length :
-                typeof addresses?.[0] === 'string' ? addresses[0].length : undefined
       });
 
       if (!addresses || addresses.length === 0) {
@@ -689,30 +669,19 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         ? addresses[0]
         : Buffer.from(addresses[0], "hex");
 
-      console.log('[GridPlus Solana] ED25519 pubkey (hex):', pubkeyBuffer.toString('hex'));
-      console.log('[GridPlus Solana] ED25519 pubkey length:', pubkeyBuffer.length, 'bytes');
-
       // Encode as base58 for Solana address format
       const address = bs58.encode(pubkeyBuffer);
-      console.log('[GridPlus Solana] Final Solana address:', address);
-      console.log('[GridPlus Solana] ===== SOLANA GET ADDRESS SUCCESS =====');
 
       // Cache and return
       this.addressCache.set(pathKey, address);
 
       return address;
     } catch (error) {
-      console.error('[GridPlus Solana] Error in solanaGetAddress:', error);
       throw error;
     }
   }
 
   public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
-    console.log('[GridPlus Solana] ===== SOLANA SIGN TX START (alpha.100) =====');
-    console.log('[GridPlus Solana] msg.addressNList (original):', msg.addressNList);
-    console.log('[GridPlus Solana] addressNList length:', msg.addressNList.length);
-    console.log('[GridPlus Solana] addressNList as BIP32:', core.addressNListToBIP32(msg.addressNList));
-
     if (!this.client) {
       throw new Error("Device not connected");
     }
@@ -728,9 +697,6 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       return idx + 0x80000000;
     });
 
-    console.log('[GridPlus Solana] Corrected path:', correctedPath);
-    console.log('[GridPlus Solana] Corrected BIP32:', core.addressNListToBIP32(correctedPath));
-
     // Verify all indices are now hardened
     const allHardened = correctedPath.every(idx => idx >= 0x80000000);
     if (!allHardened) {
@@ -743,16 +709,12 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         showDisplay: false,
       });
 
-      console.log('[GridPlus Solana] Got address:', address);
-
       if (!address) throw new Error("Failed to get Solana address");
 
       const transaction = core.solanaBuildTransaction(msg, address);
       // Sign the message portion of the transaction
       // GridPlus SDK expects the message bytes, not the full serialized transaction
       const messageBytes = transaction.message.serialize();
-
-      console.log('[GridPlus Solana] Transaction message serialized, length:', messageBytes.length);
 
       // Sign directly using client.sign() instead of signSolanaTx wrapper
       // This bypasses the SDK's hardcoded SOLANA_DERIVATION and gives us full control
@@ -767,57 +729,29 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         }
       };
 
-      console.log('[GridPlus Solana] Signing request:', JSON.stringify({
-        ...signingRequest,
-        data: {
-          ...signingRequest.data,
-          payload: `<Buffer ${messageBytes.length} bytes>`,
-          signerPath: signingRequest.data.signerPath,
-          curveType: signingRequest.data.curveType,
-          hashType: signingRequest.data.hashType,
-          encodingType: signingRequest.data.encodingType,
-        }
-      }));
-
-      console.log('[GridPlus Solana] Calling client.sign()...');
       const signData = await this.client.sign(signingRequest);
-      console.log('[GridPlus Solana] Sign response received:', {
-        hasSig: !!signData?.sig,
-        hasSigs: !!signData?.sigs,
-        sigsLength: signData?.sigs?.length
-      });
 
       if (!signData || !signData.sig) {
-        console.error('[GridPlus Solana] ERROR: No signature returned from device');
-        console.error('[GridPlus Solana] signData:', signData);
         throw new Error("No signature returned from device");
       }
 
       // ED25519 signatures return {r: Buffer(32), s: Buffer(32)}
       // Combine into 64-byte signature for Solana
       const signature = Buffer.concat([signData.sig.r, signData.sig.s]);
-      console.log('[GridPlus Solana] Signature length:', signature.length, 'bytes');
 
       // CRITICAL FIX: Add the signature to the transaction before serializing
       // This attaches the signature to the transaction object so the full signed transaction
       // is returned, not just the message
       transaction.addSignature(new PublicKey(address), signature);
-      console.log('[GridPlus Solana] Added signature to transaction');
 
       // Now serialize the complete signed transaction (message + signatures)
       const serializedTx = transaction.serialize();
-      console.log('[GridPlus Solana] Serialized complete transaction, length:', serializedTx.length, 'bytes');
 
-      console.log('[GridPlus Solana] ===== SOLANA SIGN TX SUCCESS =====');
       return {
         serialized: Buffer.from(serializedTx).toString("base64"),
         signatures: transaction.signatures.map((sig) => Buffer.from(sig).toString("base64")),
       };
     } catch (error) {
-      console.error('[GridPlus Solana] ===== SOLANA SIGN TX ERROR =====');
-      console.error('[GridPlus Solana] Error:', error);
-      console.error('[GridPlus Solana] Error message:', (error as Error).message);
-      console.error('[GridPlus Solana] Error stack:', (error as Error).stack);
       throw error;
     }
   }
@@ -952,11 +886,6 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
   // TODO: remove highlander-based-development
   // @ts-ignore
   public async ethSignTypedData(msg: core.ETHSignTypedData): Promise<core.ETHSignedTypedData> {
-    console.log('[GridPlus EIP-712] ===== EIP-712 SIGN START (alpha.100) =====');
-    console.log('[GridPlus EIP-712] msg.addressNList:', msg.addressNList);
-    console.log('[GridPlus EIP-712] addressNList as BIP32:', core.addressNListToBIP32(msg.addressNList));
-    console.log('[GridPlus EIP-712] typedData:', JSON.stringify(msg.typedData, null, 2));
-
     try {
       if (!this.client) {
         throw new Error("Device not connected");
@@ -967,15 +896,12 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       if (!fwConstants.eip712Supported) {
         throw new Error("EIP-712 signing not supported by firmware version");
       }
-      console.log('[GridPlus EIP-712] Firmware supports EIP-712: true');
 
       // Get the address for this path
       const addressResult = await this.ethGetAddress({
         addressNList: msg.addressNList,
         showDisplay: false,
       });
-
-      console.log('[GridPlus EIP-712] Got address:', addressResult);
 
       // Use GridPlus SDK's built-in EIP-712 support with protocol parameter
       // Pass the FULL typed data structure (not pre-hashed)
@@ -989,28 +915,15 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         }
       };
 
-      console.log('[GridPlus EIP-712] Signing with native EIP-712 protocol...');
       // TODO: remove highlander-based-development
       // @ts-ignore - GridPlus SDK external typing
       const signedResult = await this.client.sign(signingOptions);
 
-      console.log('[GridPlus EIP-712] Sign response received:', {
-        hasSig: !!signedResult?.sig,
-        sigKeys: signedResult?.sig ? Object.keys(signedResult.sig) : []
-      });
-
       if (!signedResult?.sig) {
-        console.error('[GridPlus EIP-712] ERROR: No signature returned from device');
-        console.error('[GridPlus EIP-712] signedResult:', signedResult);
         throw new Error("No signature returned from device");
       }
 
       const { r, s, v } = signedResult.sig;
-      console.log('[GridPlus EIP-712] Signature components:', {
-        r: r ? (Buffer.isBuffer(r) ? `<Buffer ${r.length} bytes>` : r) : null,
-        s: s ? (Buffer.isBuffer(s) ? `<Buffer ${s.length} bytes>` : s) : null,
-        v: v ? (Buffer.isBuffer(v) ? `<Buffer ${v.length} bytes>` : v) : null
-      });
 
       // Format signature components - r and s come as hex strings from the device
       // DO NOT double-encode them!
@@ -1050,9 +963,6 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
       const signature = rHex + sHex.slice(2) + vHex.slice(2);
 
-      console.log('[GridPlus EIP-712] Final signature:', signature);
-      console.log('[GridPlus EIP-712] ===== EIP-712 SIGN SUCCESS =====');
-
       return {
         // TODO: remove highlander-based-development
         // @ts-ignore
@@ -1060,10 +970,6 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         signature: signature,
       };
     } catch (error) {
-      console.error('[GridPlus EIP-712] ===== EIP-712 SIGN ERROR =====');
-      console.error('[GridPlus EIP-712] Error:', error);
-      console.error('[GridPlus EIP-712] Error message:', (error as Error).message);
-      console.error('[GridPlus EIP-712] Error stack:', (error as Error).stack);
       throw error;
     }
   }

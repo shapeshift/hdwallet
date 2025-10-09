@@ -1,22 +1,6 @@
 # Change Log
 
 All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [1.62.4-alpha.77](https://github.com/shapeshift/hdwallet/compare/v1.62.4-alpha.75...v1.62.4-alpha.77) (2025-10-08)
-
-
-### Bug Fixes
-
-* use fetchAddresses for all UTXO coins in btcGetAddress ([d35fd23](https://github.com/shapeshift/hdwallet/commit/d35fd231afa61c3c81cd5e48a7f2ec982652c38c))
-
-
-
-
-
-# Change Log
-
-All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).

@@ -24,36 +24,11 @@ export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHA
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function ethSignTx(msg: core.ETHSignTx, ethereum: any, from: string): Promise<core.ETHSignedTx | null> {
-  console.log("🟨 [MetaMask] ethSignTx called - UNSUPPORTED", {
-    msgKeys: Object.keys(msg),
-    from,
-    timestamp: new Date().toISOString()
-  });
   console.error("Method ethSignTx unsupported for MetaMask wallet!");
   return null;
 }
 
 export async function ethSendTx(msg: core.ETHSignTx, ethereum: any, from: string): Promise<core.ETHTxHash | null> {
-  console.log("🟨 [MetaMask] ethSendTx START", {
-    msgKeys: Object.keys(msg),
-    from,
-    timestamp: new Date().toISOString()
-  });
-
-  // Log input transaction details
-  console.log("🟨 [MetaMask] INPUT TRANSACTION:", {
-    to: msg.to,
-    value: msg.value,
-    data: msg.data ? `${msg.data.slice(0, 20)}...` : null,
-    nonce: msg.nonce,
-    gasLimit: msg.gasLimit,
-    maxFeePerGas: msg.maxFeePerGas,
-    maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
-    gasPrice: msg.gasPrice,
-    chainId: msg.chainId,
-    from
-  });
-
   try {
     const utxBase = {
       from: from,
@@ -69,16 +44,6 @@ export async function ethSendTx(msg: core.ETHSignTx, ethereum: any, from: string
       gas: msg.gasLimit,
     };
 
-    console.log("🟨 [MetaMask] BASE TRANSACTION OBJECT:", {
-      from: utxBase.from,
-      to: utxBase.to,
-      value: utxBase.value,
-      data: utxBase.data ? `${utxBase.data.slice(0, 20)}...` : null,
-      chainId: utxBase.chainId,
-      nonce: utxBase.nonce,
-      gas: utxBase.gas
-    });
-
     const utx = msg.maxFeePerGas
       ? {
           ...utxBase,
@@ -87,35 +52,16 @@ export async function ethSendTx(msg: core.ETHSignTx, ethereum: any, from: string
         }
       : { ...utxBase, gasPrice: msg.gasPrice };
 
-    console.log("🟨 [MetaMask] FINAL TRANSACTION TO SEND:", {
-      from: utx.from,
-      to: utx.to,
-      value: utx.value,
-      data: utx.data ? `${utx.data.slice(0, 20)}...` : null,
-      chainId: utx.chainId,
-      nonce: utx.nonce,
-      gas: utx.gas,
-      maxFeePerGas: (utx as any).maxFeePerGas,
-      maxPriorityFeePerGas: (utx as any).maxPriorityFeePerGas,
-      gasPrice: (utx as any).gasPrice
-    });
-
-    console.log("🟨 [MetaMask] CALLING ethereum.request(eth_sendTransaction)...");
     const signedTx = await ethereum.request({
       method: "eth_sendTransaction",
       params: [utx],
-    });
-
-    console.log("🟨 [MetaMask] ethSendTx RESULT:", {
-      hash: signedTx,
-      timestamp: new Date().toISOString()
     });
 
     return {
       hash: signedTx,
     } as core.ETHTxHash;
   } catch (error) {
-    console.error("🟨 [MetaMask] ethSendTx ERROR:", error);
+    console.error(error);
     return null;
   }
 }

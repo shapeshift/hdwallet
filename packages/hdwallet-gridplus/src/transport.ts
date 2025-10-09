@@ -115,12 +115,6 @@ export class GridPlusTransport extends core.Transport {
 
         return { isPaired, privKey: this.privKey };
       } catch (error) {
-        console.error('[GridPlus Transport] SDK setup() error:', {
-          error,
-          message: error instanceof Error ? error.message : String(error),
-          stack: error instanceof Error ? error.stack : undefined,
-        });
-
         // Handle "Device Locked" error - treat as unpaired
         const errorMessage = error instanceof Error ? error.message : String(error);
         if (errorMessage.toLowerCase().includes('device locked')) {
@@ -199,11 +193,6 @@ export class GridPlusTransport extends core.Transport {
       this.connected = !!result;
       return !!result;
     } catch (error) {
-      console.error('[GridPlus Transport] SDK pair() error:', {
-        error,
-        message: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
-      });
       throw error;
     }
   }
