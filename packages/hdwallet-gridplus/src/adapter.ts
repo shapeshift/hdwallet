@@ -66,37 +66,15 @@ export class GridPlusAdapter {
     }
   }
 
-  // Legacy method for backward compatibility - but now using two-step approach
+  // Legacy method for backward compatibility - now simplified
   public async pairDevice(deviceId: string, password?: string, pairingCode?: string, existingSessionId?: string): Promise<GridPlusHDWallet> {
-    // If we have an existing sessionId, skip connectDevice() and use setupWithoutConnect().
-    // This avoids triggering the pairing screen on device for reconnections by loading
-    // directly from localStorage without passing deviceId to GridPlus SDK's setup().
-    if (existingSessionId) {
-      const existingWallet = this.keyring.get<GridPlusHDWallet>(deviceId);
-      if (existingWallet) {
-        return existingWallet;
-      }
-
-      let transport = this.activeTransports.get(deviceId);
-      if (!transport) {
-        transport = new GridPlusTransport({
-          deviceId,
-          password: password || "shapeshift-default",
-          name: "ShapeShift"
-        });
-        this.activeTransports.set(deviceId, transport);
-
-        await transport.setupWithoutConnect(deviceId, password, existingSessionId);
-      }
-
-      const wallet = new GridPlusHDWallet(transport);
-      await wallet.initialize();
-      this.keyring.add(wallet, deviceId);
-      this.activeTransports.delete(deviceId);
-      return wallet;
+    const existingWallet = this.keyring.get<GridPlusHDWallet>(deviceId);
+    if (existingWallet) {
+      // Reinitialize to clear cached addresses when reconnecting (e.g., SafeCard swap)
+      await existingWallet.initialize();
+      return existingWallet;
     }
 
-    // Original flow for new connections
     const { isPaired } = await this.connectDevice(deviceId, password, existingSessionId);
 
     if (!isPaired) {

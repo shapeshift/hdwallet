@@ -15,12 +15,10 @@ import {
   Client,
   Constants,
   Utils,
-  fetchAddresses,
   fetchSolanaAddresses,
   fetchBtcLegacyAddresses,
   fetchBtcSegwitAddresses,
   fetchBtcWrappedSegwitAddresses,
-  fetchAddressesByDerivationPath,
   signBtcLegacyTx,
   signBtcSegwitTx,
   signBtcWrappedSegwitTx,
@@ -277,6 +275,10 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     if (typeof this.client.getAddresses !== 'function') {
       throw new Error("GridPlus client missing required getAddresses method");
     }
+
+    // Clear cached addresses when initializing with a new client
+    // This ensures different SafeCards get fresh addresses instead of cached ones
+    this.addressCache.clear();
   }
 
   public async ping(msg: core.Ping): Promise<core.Pong> {
@@ -389,8 +391,6 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
     for (const getPublicKey of msg) {
       const { addressNList, curve, coin, scriptType } = getPublicKey;
-      // fetchAddressesByDerivationPath expects path without "m/" prefix
-      const path = core.addressNListToBIP32(addressNList).replace(/^m\//, "");
 
       try {
         let flag: number;
@@ -406,9 +406,9 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
           throw new Error(`Unsupported curve: ${curve}`);
         }
 
-        const addresses = await fetchAddressesByDerivationPath(path, {
+        const addresses = await this.client!.getAddresses({
+          startPath: addressNList,
           n: 1,
-          startPathIndex: 0,
           flag,
         });
 
@@ -564,8 +564,8 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       const addressIndex = msg.addressNList[4] || 0;
       const startPath = [...msg.addressNList.slice(0, 4), addressIndex];
 
-      // Fetch only the requested address
-      const addresses = await fetchAddresses({
+      // Fetch only the requested address using client instance
+      const addresses = await this.client!.getAddresses({
         startPath,
         n: 1,
       });
@@ -650,12 +650,10 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     }
 
     try {
-      // CRITICAL FIX: Use fetchAddressesByDerivationPath instead of fetchSolanaAddresses
-      // The SDK's fetchSolanaAddresses has a buggy hardcoded base path that doesn't work correctly
-      // We need to pass the exact derivation path we want - with all indices hardened!
-      const path = core.addressNListToBIP32(correctedPath).replace(/^m\//, "");
-
-      const addresses = await fetchAddressesByDerivationPath(path, {
+      // Use client instance directly instead of global SDK functions
+      // This ensures we always query the device with the current client state
+      const addresses = await this.client!.getAddresses({
+        startPath: correctedPath,
         n: 1,
         flag: Constants.GET_ADDR_FLAGS.ED25519_PUB,
       });
@@ -1156,7 +1154,7 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     // Get compressed public key from device (works for all UTXO coins)
     // Using SECP256K1_PUB flag bypasses Lattice's address formatting,
     // which only supports Bitcoin/Ethereum/Solana
-    const pubkeys = await fetchAddresses({
+    const pubkeys = await this.client!.getAddresses({
       startPath: msg.addressNList,
       n: 1,
       flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
@@ -1296,11 +1294,10 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     if (cached) return cached as string;
 
     try {
-      // Get secp256k1 pubkey using GridPlus SDK
+      // Get secp256k1 pubkey using GridPlus client instance
       // Use FULL path - Cosmos uses standard BIP44: m/44'/118'/0'/0/0 (5 levels)
-      const path = core.addressNListToBIP32(msg.addressNList).replace(/^m\//, "");
-
-      const addresses = await fetchAddressesByDerivationPath(path, {
+      const addresses = await this.client!.getAddresses({
+        startPath: msg.addressNList,
         n: 1,
         flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
       });
@@ -1332,9 +1329,9 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       const address = await this.cosmosGetAddress({ addressNList: msg.addressNList });
       if (!address) throw new Error("Failed to get Cosmos address");
 
-      // Get the public key
-      const path = core.addressNListToBIP32(msg.addressNList).replace(/^m\//, "");
-      const pubkeys = await fetchAddressesByDerivationPath(path, {
+      // Get the public key using client instance
+      const pubkeys = await this.client!.getAddresses({
+        startPath: msg.addressNList,
         n: 1,
         flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
       });
@@ -1447,11 +1444,10 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     if (cached) return cached as string;
 
     try {
-      // Get secp256k1 pubkey using GridPlus SDK
+      // Get secp256k1 pubkey using GridPlus client instance
       // Use FULL path - THORChain uses standard BIP44: m/44'/931'/0'/0/0 (5 levels)
-      const path = core.addressNListToBIP32(msg.addressNList).replace(/^m\//, "");
-
-      const addresses = await fetchAddressesByDerivationPath(path, {
+      const addresses = await this.client!.getAddresses({
+        startPath: msg.addressNList,
         n: 1,
         flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
       });
@@ -1483,9 +1479,9 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       const address = await this.thorchainGetAddress({ addressNList: msg.addressNList, testnet: msg.testnet });
       if (!address) throw new Error("Failed to get THORChain address");
 
-      // Get the public key
-      const path = core.addressNListToBIP32(msg.addressNList).replace(/^m\//, "");
-      const pubkeys = await fetchAddressesByDerivationPath(path, {
+      // Get the public key using client instance
+      const pubkeys = await this.client!.getAddresses({
+        startPath: msg.addressNList,
         n: 1,
         flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
       });
@@ -1597,11 +1593,10 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     if (cached) return cached as string;
 
     try {
-      // Get secp256k1 pubkey using GridPlus SDK
+      // Get secp256k1 pubkey using GridPlus client instance
       // Use FULL path - MAYAChain uses standard BIP44: m/44'/931'/0'/0/0 (5 levels)
-      const path = core.addressNListToBIP32(msg.addressNList).replace(/^m\//, "");
-
-      const addresses = await fetchAddressesByDerivationPath(path, {
+      const addresses = await this.client!.getAddresses({
+        startPath: msg.addressNList,
         n: 1,
         flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
       });
@@ -1633,9 +1628,9 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       const address = await this.mayachainGetAddress({ addressNList: msg.addressNList });
       if (!address) throw new Error("Failed to get MAYAchain address");
 
-      // Get the public key
-      const path = core.addressNListToBIP32(msg.addressNList).replace(/^m\//, "");
-      const pubkeys = await fetchAddressesByDerivationPath(path, {
+      // Get the public key using client instance
+      const pubkeys = await this.client!.getAddresses({
+        startPath: msg.addressNList,
         n: 1,
         flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
       });

@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { Client, setup, getClient, pair as sdkPair } from "gridplus-sdk";
+import { Client } from "gridplus-sdk";
 import { randomBytes } from "crypto";
 
 export interface GridPlusTransportConfig {
@@ -70,64 +70,24 @@ export class GridPlusTransport extends core.Transport {
       this.sessionId = randomBytes(32).toString('hex');
     }
 
-    // Initialize SDK and get client instance
+    // Create Client instance directly (Frame pattern) - no localStorage!
+    // This ensures we always get fresh activeWallets from device
     if (!this.client) {
-      // Check if we have stored client data for reconnection optimization
-      const storedClient = localStorage.getItem('gridplus-client');
-      const hasStoredClient = !!storedClient;
+      this.client = new Client({
+        name: this.name || "ShapeShift",
+        baseUrl: "https://signing.gridpl.us",
+        privKey: Buffer.from(this.sessionId, 'hex')
+      });
 
-      // Call SDK setup() which creates client and connects to device
-      // Returns boolean indicating if device is paired
       try {
-        let isPaired: boolean;
-
-        // Optimize reconnection: if we have both stored client and existingSessionId,
-        // call setup() WITHOUT deviceId/password/name so SDK loads from localStorage.
-        // This avoids unnecessary device communication and prevents triggering pairing screen.
-        if (hasStoredClient && existingSessionId) {
-          isPaired = await setup({
-            getStoredClient: async () => {
-              return localStorage.getItem('gridplus-client') || '';
-            },
-            setStoredClient: async (client) => {
-              if (client) localStorage.setItem('gridplus-client', client);
-            },
-          });
-        } else {
-          isPaired = await setup({
-            name: this.name || "ShapeShift",
-            deviceId,
-            password: this.password,
-            getStoredClient: async () => {
-              return localStorage.getItem('gridplus-client') || '';
-            },
-            setStoredClient: async (client) => {
-              if (client) localStorage.setItem('gridplus-client', client);
-            },
-          });
-        }
-
-        // Get the SDK's client instance (don't create our own!)
-        this.client = await getClient();
-
-        if (!this.client) {
-          throw new Error('Failed to get client from SDK after setup()');
-        }
-
+        // Connect to device - returns true if paired, false if needs pairing
+        const isPaired = await this.client.connect(deviceId);
         this.connected = true;
-
         return { isPaired, sessionId: this.sessionId };
       } catch (error) {
         // Handle "Device Locked" error - treat as unpaired
         const errorMessage = error instanceof Error ? error.message : String(error);
         if (errorMessage.toLowerCase().includes('device locked')) {
-          // Even though connect failed, we can still get the client for pairing
-          this.client = await getClient();
-
-          if (!this.client) {
-            throw new Error('Failed to get client after device locked error');
-          }
-
           this.connected = true;
           return { isPaired: false, sessionId: this.sessionId };
         }
@@ -135,64 +95,22 @@ export class GridPlusTransport extends core.Transport {
         throw error;
       }
     } else {
+      // Client already exists, reconnect to get fresh state
+      const isPaired = await this.client.connect(deviceId);
       this.connected = true;
-      // Client already exists, assume paired
-      return { isPaired: true, sessionId: this.sessionId };
+      return { isPaired, sessionId: this.sessionId };
     }
   }
 
-  // Setup transport for reconnection using stored client state
-  // SDK's getStoredClient will return existing client state, avoiding new pairing
-  public async setupWithoutConnect(deviceId: string, password?: string, existingSessionId?: string): Promise<void> {
-    this.deviceId = deviceId;
-    this.password = password || "shapeshift-default";
-    this.sessionId = existingSessionId!;
-
-    // SDK will load existing client state from localStorage via getStoredClient
-    // No need to call connect() again - stored state preserves pairing
-    if (!this.client) {
-      const storedClient = localStorage.getItem('gridplus-client');
-
-      if (storedClient) {
-        // Optimized reconnection: load from localStorage without device communication
-        // Calling setup() WITHOUT deviceId/password/name avoids triggering pairing screen
-        await setup({
-          getStoredClient: async () => storedClient,
-          setStoredClient: async (client) => {
-            if (client) localStorage.setItem('gridplus-client', client);
-          },
-        });
-      } else {
-        // Fallback: no stored client, need device communication
-        await setup({
-          name: this.name || "ShapeShift",
-          deviceId,
-          password: this.password,
-          getStoredClient: async () => '',
-          setStoredClient: async (client) => {
-            if (client) localStorage.setItem('gridplus-client', client);
-          },
-        });
-      }
-
-      this.client = await getClient();
-
-      if (!this.client) {
-        throw new Error('Failed to get client in setupWithoutConnect');
-      }
-    }
-
-    this.connected = true;
-  }
 
   public async pair(pairingCode: string): Promise<boolean> {
     if (!this.client) {
       throw new Error("Client not initialized. Call setup() first.");
     }
 
-    // Use SDK's pair() wrapper function which handles the client properly
+    // Use client instance method for pairing
     try {
-      const result = await sdkPair(pairingCode);
+      const result = await this.client.pair(pairingCode);
       this.connected = !!result;
       return !!result;
     } catch (error) {
