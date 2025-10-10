@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { Client, setup, getClient, pair as sdkPair } from "gridplus-sdk";
 import { randomBytes } from "crypto";
+import { Client, getClient, pair as sdkPair, setup } from "gridplus-sdk";
 
 export interface GridPlusTransportConfig {
   deviceId?: string;
@@ -59,7 +59,11 @@ export class GridPlusTransport extends core.Transport {
     return this.connected;
   }
 
-  public async setup(deviceId: string, password?: string, existingSessionId?: string): Promise<{ isPaired: boolean; sessionId: string }> {
+  public async setup(
+    deviceId: string,
+    password?: string,
+    existingSessionId?: string
+  ): Promise<{ isPaired: boolean; sessionId: string }> {
     this.deviceId = deviceId;
     this.password = password || "shapeshift-default";
 
@@ -67,13 +71,13 @@ export class GridPlusTransport extends core.Transport {
     if (existingSessionId) {
       this.sessionId = existingSessionId;
     } else if (!this.sessionId) {
-      this.sessionId = randomBytes(32).toString('hex');
+      this.sessionId = randomBytes(32).toString("hex");
     }
 
     // Initialize SDK and get client instance
     if (!this.client) {
       // Check if we have stored client data for reconnection optimization
-      const storedClient = localStorage.getItem('gridplus-client');
+      const storedClient = localStorage.getItem("gridplus-client");
       const hasStoredClient = !!storedClient;
 
       // Call SDK setup() which creates client and connects to device
@@ -87,10 +91,10 @@ export class GridPlusTransport extends core.Transport {
         if (hasStoredClient && existingSessionId) {
           isPaired = await setup({
             getStoredClient: async () => {
-              return localStorage.getItem('gridplus-client') || '';
+              return localStorage.getItem("gridplus-client") || "";
             },
             setStoredClient: async (client) => {
-              if (client) localStorage.setItem('gridplus-client', client);
+              if (client) localStorage.setItem("gridplus-client", client);
             },
           });
         } else {
@@ -99,10 +103,10 @@ export class GridPlusTransport extends core.Transport {
             deviceId,
             password: this.password,
             getStoredClient: async () => {
-              return localStorage.getItem('gridplus-client') || '';
+              return localStorage.getItem("gridplus-client") || "";
             },
             setStoredClient: async (client) => {
-              if (client) localStorage.setItem('gridplus-client', client);
+              if (client) localStorage.setItem("gridplus-client", client);
             },
           });
         }
@@ -111,7 +115,7 @@ export class GridPlusTransport extends core.Transport {
         this.client = await getClient();
 
         if (!this.client) {
-          throw new Error('Failed to get client from SDK after setup()');
+          throw new Error("Failed to get client from SDK after setup()");
         }
 
         this.connected = true;
@@ -120,12 +124,12 @@ export class GridPlusTransport extends core.Transport {
       } catch (error) {
         // Handle "Device Locked" error - treat as unpaired
         const errorMessage = error instanceof Error ? error.message : String(error);
-        if (errorMessage.toLowerCase().includes('device locked')) {
+        if (errorMessage.toLowerCase().includes("device locked")) {
           // Even though connect failed, we can still get the client for pairing
           this.client = await getClient();
 
           if (!this.client) {
-            throw new Error('Failed to get client after device locked error');
+            throw new Error("Failed to get client after device locked error");
           }
 
           this.connected = true;
@@ -151,7 +155,7 @@ export class GridPlusTransport extends core.Transport {
     // SDK will load existing client state from localStorage via getStoredClient
     // No need to call connect() again - stored state preserves pairing
     if (!this.client) {
-      const storedClient = localStorage.getItem('gridplus-client');
+      const storedClient = localStorage.getItem("gridplus-client");
 
       if (storedClient) {
         // Optimized reconnection: load from localStorage without device communication
@@ -159,7 +163,7 @@ export class GridPlusTransport extends core.Transport {
         await setup({
           getStoredClient: async () => storedClient,
           setStoredClient: async (client) => {
-            if (client) localStorage.setItem('gridplus-client', client);
+            if (client) localStorage.setItem("gridplus-client", client);
           },
         });
       } else {
@@ -168,9 +172,9 @@ export class GridPlusTransport extends core.Transport {
           name: this.name || "ShapeShift",
           deviceId,
           password: this.password,
-          getStoredClient: async () => '',
+          getStoredClient: async () => "",
           setStoredClient: async (client) => {
-            if (client) localStorage.setItem('gridplus-client', client);
+            if (client) localStorage.setItem("gridplus-client", client);
           },
         });
       }
@@ -178,7 +182,7 @@ export class GridPlusTransport extends core.Transport {
       this.client = await getClient();
 
       if (!this.client) {
-        throw new Error('Failed to get client in setupWithoutConnect');
+        throw new Error("Failed to get client in setupWithoutConnect");
       }
     }
 
