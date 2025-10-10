@@ -434,8 +434,8 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     return publicKeys;
   }
 
-  public getPrivKey(): string | undefined {
-    return this.transport.getPrivKey();
+  public getSessionId(): string | undefined {
+    return this.transport.getSessionId();
   }
 
   public async disconnect(): Promise<void> {

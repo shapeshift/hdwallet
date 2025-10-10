@@ -14,7 +14,10 @@ export class GridPlusTransport extends core.Transport {
   public name?: string;
   public connected: boolean = false;
   private client?: Client;
-  private privKey?: string;
+  // Session identifier used to track reconnections. When present, we can skip
+  // passing deviceId to SDK setup() which avoids triggering the pairing screen
+  // on the device and enables faster reconnection from localStorage.
+  private sessionId?: string;
 
   constructor(config: GridPlusTransportConfig = {}) {
     super(new core.Keyring());
@@ -56,15 +59,15 @@ export class GridPlusTransport extends core.Transport {
     return this.connected;
   }
 
-  public async setup(deviceId: string, password?: string, existingPrivKey?: string): Promise<{ isPaired: boolean; privKey: string }> {
+  public async setup(deviceId: string, password?: string, existingSessionId?: string): Promise<{ isPaired: boolean; sessionId: string }> {
     this.deviceId = deviceId;
     this.password = password || "shapeshift-default";
 
-    // Use existing privKey if provided, otherwise generate new one
-    if (existingPrivKey) {
-      this.privKey = existingPrivKey;
-    } else if (!this.privKey) {
-      this.privKey = randomBytes(32).toString('hex');
+    // Use existing sessionId if provided, otherwise generate new one
+    if (existingSessionId) {
+      this.sessionId = existingSessionId;
+    } else if (!this.sessionId) {
+      this.sessionId = randomBytes(32).toString('hex');
     }
 
     // Initialize SDK and get client instance
@@ -78,10 +81,10 @@ export class GridPlusTransport extends core.Transport {
       try {
         let isPaired: boolean;
 
-        // Optimize reconnection: if we have both stored client and existingPrivKey,
-        // call setup() WITHOUT deviceId/password/name so SDK loads from localStorage
-        // This avoids unnecessary device communication
-        if (hasStoredClient && existingPrivKey) {
+        // Optimize reconnection: if we have both stored client and existingSessionId,
+        // call setup() WITHOUT deviceId/password/name so SDK loads from localStorage.
+        // This avoids unnecessary device communication and prevents triggering pairing screen.
+        if (hasStoredClient && existingSessionId) {
           isPaired = await setup({
             getStoredClient: async () => {
               return localStorage.getItem('gridplus-client') || '';
@@ -113,7 +116,7 @@ export class GridPlusTransport extends core.Transport {
 
         this.connected = true;
 
-        return { isPaired, privKey: this.privKey };
+        return { isPaired, sessionId: this.sessionId };
       } catch (error) {
         // Handle "Device Locked" error - treat as unpaired
         const errorMessage = error instanceof Error ? error.message : String(error);
@@ -126,7 +129,7 @@ export class GridPlusTransport extends core.Transport {
           }
 
           this.connected = true;
-          return { isPaired: false, privKey: this.privKey };
+          return { isPaired: false, sessionId: this.sessionId };
         }
 
         throw error;
@@ -134,16 +137,16 @@ export class GridPlusTransport extends core.Transport {
     } else {
       this.connected = true;
       // Client already exists, assume paired
-      return { isPaired: true, privKey: this.privKey };
+      return { isPaired: true, sessionId: this.sessionId };
     }
   }
 
   // Setup transport for reconnection using stored client state
   // SDK's getStoredClient will return existing client state, avoiding new pairing
-  public async setupWithoutConnect(deviceId: string, password?: string, existingPrivKey?: string): Promise<void> {
+  public async setupWithoutConnect(deviceId: string, password?: string, existingSessionId?: string): Promise<void> {
     this.deviceId = deviceId;
     this.password = password || "shapeshift-default";
-    this.privKey = existingPrivKey!;
+    this.sessionId = existingSessionId!;
 
     // SDK will load existing client state from localStorage via getStoredClient
     // No need to call connect() again - stored state preserves pairing
@@ -201,8 +204,8 @@ export class GridPlusTransport extends core.Transport {
     return this.client;
   }
 
-  public getPrivKey(): string | undefined {
-    return this.privKey;
+  public getSessionId(): string | undefined {
+    return this.sessionId;
   }
 
   public async call(...args: any[]): Promise<any> {

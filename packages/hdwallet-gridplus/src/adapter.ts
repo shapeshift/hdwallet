@@ -15,7 +15,7 @@ export class GridPlusAdapter {
     return new GridPlusAdapter(keyring);
   }
 
-  public async connectDevice(deviceId: string, password?: string, existingPrivKey?: string): Promise<{ transport: GridPlusTransport, isPaired: boolean, privKey: string }> {
+  public async connectDevice(deviceId: string, password?: string, existingSessionId?: string): Promise<{ transport: GridPlusTransport, isPaired: boolean, sessionId: string }> {
     // Get or create transport for this device
     let transport = this.activeTransports.get(deviceId);
     if (!transport) {
@@ -27,10 +27,10 @@ export class GridPlusAdapter {
       this.activeTransports.set(deviceId, transport);
     }
 
-    // Attempt connection with optional existing privKey
+    // Attempt connection with optional existing sessionId
     try {
-      const { isPaired, privKey } = await transport.setup(deviceId, password, existingPrivKey);
-      return { transport, isPaired, privKey };
+      const { isPaired, sessionId } = await transport.setup(deviceId, password, existingSessionId);
+      return { transport, isPaired, sessionId };
     } catch (error) {
       throw error;
     }
@@ -67,10 +67,11 @@ export class GridPlusAdapter {
   }
 
   // Legacy method for backward compatibility - but now using two-step approach
-  public async pairDevice(deviceId: string, password?: string, pairingCode?: string, existingPrivKey?: string): Promise<GridPlusHDWallet> {
-    // If we have an existing privKey, skip connectDevice() and use setupWithoutConnect()
-    // This avoids triggering the pairing screen on device for reconnections
-    if (existingPrivKey) {
+  public async pairDevice(deviceId: string, password?: string, pairingCode?: string, existingSessionId?: string): Promise<GridPlusHDWallet> {
+    // If we have an existing sessionId, skip connectDevice() and use setupWithoutConnect().
+    // This avoids triggering the pairing screen on device for reconnections by loading
+    // directly from localStorage without passing deviceId to GridPlus SDK's setup().
+    if (existingSessionId) {
       const existingWallet = this.keyring.get<GridPlusHDWallet>(deviceId);
       if (existingWallet) {
         return existingWallet;
@@ -85,7 +86,7 @@ export class GridPlusAdapter {
         });
         this.activeTransports.set(deviceId, transport);
 
-        await transport.setupWithoutConnect(deviceId, password, existingPrivKey);
+        await transport.setupWithoutConnect(deviceId, password, existingSessionId);
       }
 
       const wallet = new GridPlusHDWallet(transport);
@@ -96,7 +97,7 @@ export class GridPlusAdapter {
     }
 
     // Original flow for new connections
-    const { isPaired } = await this.connectDevice(deviceId, password, existingPrivKey);
+    const { isPaired } = await this.connectDevice(deviceId, password, existingSessionId);
 
     if (!isPaired) {
       if (pairingCode) {
