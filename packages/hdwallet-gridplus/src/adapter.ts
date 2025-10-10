@@ -15,18 +15,14 @@ export class GridPlusAdapter {
     return new GridPlusAdapter(keyring);
   }
 
-  public async connectDevice(
-    deviceId: string,
-    password?: string,
-    existingSessionId?: string
-  ): Promise<{ transport: GridPlusTransport; isPaired: boolean; sessionId: string }> {
+  public async connectDevice(deviceId: string, password?: string, existingSessionId?: string): Promise<{ transport: GridPlusTransport, isPaired: boolean, sessionId: string }> {
     // Get or create transport for this device
     let transport = this.activeTransports.get(deviceId);
     if (!transport) {
       transport = new GridPlusTransport({
         deviceId,
         password: password || "shapeshift-default",
-        name: "ShapeShift",
+        name: "ShapeShift"
       });
       this.activeTransports.set(deviceId, transport);
     }
@@ -66,17 +62,12 @@ export class GridPlusAdapter {
 
       return wallet;
     } catch (error) {
-      throw new Error(`GridPlus pairing failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+      throw new Error(`GridPlus pairing failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
   // Legacy method for backward compatibility - but now using two-step approach
-  public async pairDevice(
-    deviceId: string,
-    password?: string,
-    pairingCode?: string,
-    existingSessionId?: string
-  ): Promise<GridPlusHDWallet> {
+  public async pairDevice(deviceId: string, password?: string, pairingCode?: string, existingSessionId?: string): Promise<GridPlusHDWallet> {
     // If we have an existing sessionId, skip connectDevice() and use setupWithoutConnect().
     // This avoids triggering the pairing screen on device for reconnections by loading
     // directly from localStorage without passing deviceId to GridPlus SDK's setup().
@@ -91,7 +82,7 @@ export class GridPlusAdapter {
         transport = new GridPlusTransport({
           deviceId,
           password: password || "shapeshift-default",
-          name: "ShapeShift",
+          name: "ShapeShift"
         });
         this.activeTransports.set(deviceId, transport);
 

@@ -1,31 +1,31 @@
-import { pointCompress, recover } from "@bitcoinerlab/secp256k1";
 import type { StdTx } from "@cosmjs/amino";
 import type { DirectSignResponse, OfflineDirectSigner } from "@cosmjs/proto-signing";
 import type { SignerData } from "@cosmjs/stargate";
+import { pointCompress, recover } from "@bitcoinerlab/secp256k1";
+import type { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import Common from "@ethereumjs/common";
 import { FeeMarketEIP1559Transaction, Transaction } from "@ethereumjs/tx";
-import { SignTypedDataVersion, TypedDataUtils } from "@metamask/eth-sig-util";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { PublicKey } from "@solana/web3.js";
 import * as bech32 from "bech32";
 import bs58 from "bs58";
+import { PublicKey } from "@solana/web3.js";
 import { decode as bs58Decode, encode as bs58Encode } from "bs58check";
-import type { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import CryptoJS from "crypto-js";
 import {
   Client,
   Constants,
+  Utils,
   fetchAddresses,
-  fetchAddressesByDerivationPath,
+  fetchSolanaAddresses,
   fetchBtcLegacyAddresses,
   fetchBtcSegwitAddresses,
   fetchBtcWrappedSegwitAddresses,
-  fetchSolanaAddresses,
+  fetchAddressesByDerivationPath,
   signBtcLegacyTx,
   signBtcSegwitTx,
   signBtcWrappedSegwitTx,
-  Utils,
 } from "gridplus-sdk";
+import { SignTypedDataVersion, TypedDataUtils } from "@metamask/eth-sig-util";
 import isObject from "lodash/isObject";
 import PLazy from "p-lazy";
 import { encode } from "rlp";
@@ -195,16 +195,7 @@ function deriveAddressFromPubkey(
   }
 }
 
-export class GridPlusHDWallet
-  implements
-    core.HDWallet,
-    core.ETHWallet,
-    core.SolanaWallet,
-    core.BTCWallet,
-    core.CosmosWallet,
-    core.ThorchainWallet,
-    core.MayachainWallet
-{
+export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.SolanaWallet, core.BTCWallet, core.CosmosWallet, core.ThorchainWallet, core.MayachainWallet {
   readonly _isGridPlus = true;
   private addressCache = new Map<string, core.Address | string>();
   private callCounter = 0;
@@ -283,7 +274,7 @@ export class GridPlusHDWallet
     }
 
     // Validate that the client has the expected methods
-    if (typeof this.client.getAddresses !== "function") {
+    if (typeof this.client.getAddresses !== 'function') {
       throw new Error("GridPlus client missing required getAddresses method");
     }
   }
@@ -297,7 +288,7 @@ export class GridPlusHDWallet
   }
 
   public async sendPassphrase(): Promise<void> {
-    // Placeholder for passphrase functionality
+    // Placeholder for passphrase functionality  
   }
 
   public async sendCharacter(): Promise<void> {
@@ -455,13 +446,13 @@ export class GridPlusHDWallet
   public async ethSupportsNetwork(chainId: number): Promise<boolean> {
     // Support major EVM networks
     const supportedChains = [
-      1, // Ethereum mainnet
-      137, // Polygon
-      10, // Optimism
+      1,     // Ethereum mainnet
+      137,   // Polygon
+      10,    // Optimism
       42161, // Arbitrum
-      8453, // Base
-      56, // BSC
-      100, // Gnosis
+      8453,  // Base
+      56,    // BSC
+      100,   // Gnosis
       43114, // Avalanche
     ];
     return supportedChains.includes(chainId);
@@ -511,7 +502,7 @@ export class GridPlusHDWallet
 
     const newAddressNList = [...addressNList];
     newAddressNList[2] += 1; // Increment account index
-
+    
     return {
       addressNList: newAddressNList,
       hardenedPath: [newAddressNList[0], newAddressNList[1], newAddressNList[2]],
@@ -548,7 +539,7 @@ export class GridPlusHDWallet
     }
 
     // Additional validation
-    if (typeof this.client.getAddresses !== "function") {
+    if (typeof this.client.getAddresses !== 'function') {
       throw new Error("GridPlus client does not have getAddresses method");
     }
 
@@ -588,14 +579,14 @@ export class GridPlusHDWallet
 
       // Handle response format (could be Buffer or string)
       if (Buffer.isBuffer(rawAddress)) {
-        address = "0x" + rawAddress.toString("hex");
+        address = '0x' + rawAddress.toString('hex');
       } else {
         address = rawAddress.toString();
       }
 
       // Ensure address starts with 0x for EVM
-      if (!address.startsWith("0x")) {
-        address = "0x" + address;
+      if (!address.startsWith('0x')) {
+        address = '0x' + address;
       }
 
       // Validate Ethereum address format (should be 42 chars with 0x prefix)
@@ -613,6 +604,7 @@ export class GridPlusHDWallet
       throw error;
     }
   }
+
 
   // Solana Wallet Methods
   public solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> {
@@ -633,7 +625,7 @@ export class GridPlusHDWallet
     });
 
     // Verify all indices are now hardened
-    const allHardened = correctedPath.every((idx) => idx >= 0x80000000);
+    const allHardened = correctedPath.every(idx => idx >= 0x80000000);
 
     if (!allHardened) {
       throw new Error("Failed to harden all Solana path indices for ED25519");
@@ -654,9 +646,7 @@ export class GridPlusHDWallet
     const fwVersion = this.client.getFwVersion();
 
     if (fwVersion.major === 0 && fwVersion.minor < 14) {
-      throw new Error(
-        `Solana requires firmware >= 0.14.0, current: ${fwVersion.major}.${fwVersion.minor}.${fwVersion.fix}`
-      );
+      throw new Error(`Solana requires firmware >= 0.14.0, current: ${fwVersion.major}.${fwVersion.minor}.${fwVersion.fix}`);
     }
 
     try {
@@ -675,7 +665,9 @@ export class GridPlusHDWallet
       }
 
       // The result is the ED25519 public key
-      const pubkeyBuffer = Buffer.isBuffer(addresses[0]) ? addresses[0] : Buffer.from(addresses[0], "hex");
+      const pubkeyBuffer = Buffer.isBuffer(addresses[0])
+        ? addresses[0]
+        : Buffer.from(addresses[0], "hex");
 
       // Encode as base58 for Solana address format
       const address = bs58.encode(pubkeyBuffer);
@@ -698,7 +690,7 @@ export class GridPlusHDWallet
     // The chain adapter sometimes sends m/44'/501'/0'/0 (last index unhardened)
     // but GridPlus SDK requires m/44'/501'/0'/0' (all hardened)
     // Fix any unhardened indices by hardening them
-    const correctedPath = msg.addressNList.map((idx) => {
+    const correctedPath = msg.addressNList.map(idx => {
       // If index is already hardened (>= 0x80000000), keep it
       if (idx >= 0x80000000) return idx;
       // Otherwise, harden it by adding 0x80000000
@@ -706,7 +698,7 @@ export class GridPlusHDWallet
     });
 
     // Verify all indices are now hardened
-    const allHardened = correctedPath.every((idx) => idx >= 0x80000000);
+    const allHardened = correctedPath.every(idx => idx >= 0x80000000);
     if (!allHardened) {
       throw new Error("Failed to harden all Solana path indices - this should never happen");
     }
@@ -734,7 +726,7 @@ export class GridPlusHDWallet
           hashType: Constants.SIGNING.HASHES.NONE,
           encodingType: Constants.SIGNING.ENCODINGS.SOLANA,
           payload: Buffer.from(messageBytes),
-        },
+        }
       };
 
       const signData = await this.client.sign(signingRequest);
@@ -768,7 +760,7 @@ export class GridPlusHDWallet
     // Increment account index for next account
     const newAddressNList = [...msg.addressNList];
     newAddressNList[2] += 1; // Increment account index
-
+    
     return {
       addressNList: newAddressNList,
     };
@@ -795,28 +787,27 @@ export class GridPlusHDWallet
       // Serialize unsigned transaction for signing using ethereumjs/tx
       // For EIP-1559 transactions, we need to specify the 'london' hardfork to enable EIP-1559 support
       const common = msg.maxFeePerGas
-        ? Common.custom({ chainId: msg.chainId }, { hardfork: "london" })
+        ? Common.custom({ chainId: msg.chainId }, { hardfork: 'london' })
         : Common.custom({ chainId: msg.chainId });
       const unsignedTx = msg.maxFeePerGas
-        ? FeeMarketEIP1559Transaction.fromTxData(
-            {
-              ...unsignedTxBase,
-              maxFeePerGas: msg.maxFeePerGas,
-              maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
-            },
-            { common }
-          )
+        ? FeeMarketEIP1559Transaction.fromTxData({
+            ...unsignedTxBase,
+            maxFeePerGas: msg.maxFeePerGas,
+            maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
+          }, { common })
         : Transaction.fromTxData({ ...unsignedTxBase, gasPrice: msg.gasPrice }, { common });
 
       // Get the payload for GridPlus general signing
       // For EIP-1559 (type 2): use raw Buffer from getMessageToSign
       // For legacy: RLP-encode the message first
       const payload = msg.maxFeePerGas
-        ? unsignedTx.getMessageToSign(false) // EIP-1559: raw Buffer
-        : encode(unsignedTx.getMessageToSign(false)); // Legacy: RLP-encoded Buffer
+        ? unsignedTx.getMessageToSign(false)  // EIP-1559: raw Buffer
+        : encode(unsignedTx.getMessageToSign(false));  // Legacy: RLP-encoded Buffer
 
       // Fetch calldata decoder for clear signing on device
-      const callDataDecoder = msg.to ? await Utils.fetchCalldataDecoder(msg.data, msg.to, msg.chainId) : undefined;
+      const callDataDecoder = msg.to
+        ? await Utils.fetchCalldataDecoder(msg.data, msg.to, msg.chainId)
+        : undefined;
 
       // Use GridPlus general signing (no currency field = general signing mode)
       // General signing requires fw >= v0.15.0
@@ -827,8 +818,8 @@ export class GridPlusHDWallet
           hashType: Constants.SIGNING.HASHES.KECCAK256,
           encodingType: Constants.SIGNING.ENCODINGS.EVM,
           signerPath: msg.addressNList,
-          decoder: callDataDecoder?.def,
-        },
+          decoder: callDataDecoder?.def
+        }
         // NO currency field - this enables general signing mode
       };
 
@@ -844,40 +835,34 @@ export class GridPlusHDWallet
 
       // Process signature components
       try {
-        const rHex = "0x" + (Buffer.isBuffer(r) ? r.toString("hex") : core.toHexString(r));
-        const sHex = "0x" + (Buffer.isBuffer(s) ? s.toString("hex") : core.toHexString(s));
+        const rHex = "0x" + (Buffer.isBuffer(r) ? r.toString('hex') : core.toHexString(r));
+        const sHex = "0x" + (Buffer.isBuffer(s) ? s.toString('hex') : core.toHexString(s));
 
         // For general signing, v is returned as Buffer/number and can be used directly
         // @ethereumjs/tx will handle the proper v value format for EIP-1559 vs legacy
-        const vHex = "0x" + (Buffer.isBuffer(v) ? v.toString("hex") : core.toHexString(v));
+        const vHex = "0x" + (Buffer.isBuffer(v) ? v.toString('hex') : core.toHexString(v));
 
         // Create signed transaction using ethereumjs/tx
         // This library properly handles EIP-1559 vs legacy transaction formats
         const signedTx = msg.maxFeePerGas
-          ? FeeMarketEIP1559Transaction.fromTxData(
-              {
-                ...unsignedTxBase,
-                maxFeePerGas: msg.maxFeePerGas,
-                maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
-                r: rHex,
-                s: sHex,
-                v: vHex,
-              },
-              { common }
-            )
-          : Transaction.fromTxData(
-              {
-                ...unsignedTxBase,
-                gasPrice: msg.gasPrice,
-                r: rHex,
-                s: sHex,
-                v: vHex,
-              },
-              { common }
-            );
+          ? FeeMarketEIP1559Transaction.fromTxData({
+              ...unsignedTxBase,
+              maxFeePerGas: msg.maxFeePerGas,
+              maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
+              r: rHex,
+              s: sHex,
+              v: vHex,
+            }, { common })
+          : Transaction.fromTxData({
+              ...unsignedTxBase,
+              gasPrice: msg.gasPrice,
+              r: rHex,
+              s: sHex,
+              v: vHex,
+            }, { common });
 
         // Serialize the signed transaction
-        const finalSerializedTx = `0x${signedTx.serialize().toString("hex")}`;
+        const finalSerializedTx = `0x${signedTx.serialize().toString('hex')}`;
 
         // Return v as the raw value from GridPlus (not converted)
         const vRaw = Buffer.isBuffer(v) ? v.readUInt8(0) : v;
@@ -922,12 +907,12 @@ export class GridPlusHDWallet
       // Pass the FULL typed data structure (not pre-hashed)
       // The SDK/firmware will handle hashing and signing internally
       const signingOptions = {
-        currency: "ETH_MSG" as any, // ETH_MSG currency for message signing
+        currency: 'ETH_MSG' as any,  // ETH_MSG currency for message signing
         data: {
-          protocol: "eip712" as any, // Specify EIP-712 protocol
-          payload: msg.typedData, // Pass full typed data structure
+          protocol: 'eip712' as any,  // Specify EIP-712 protocol
+          payload: msg.typedData,      // Pass full typed data structure
           signerPath: msg.addressNList,
-        },
+        }
       };
 
       // TODO: remove highlander-based-development
@@ -946,10 +931,10 @@ export class GridPlusHDWallet
       let sHex: string;
 
       if (Buffer.isBuffer(r)) {
-        rHex = "0x" + r.toString("hex");
-      } else if (typeof r === "string") {
+        rHex = "0x" + r.toString('hex');
+      } else if (typeof r === 'string') {
         // r is a string (TypeScript knows this now)
-        if ((r as string).startsWith("0x")) {
+        if ((r as string).startsWith('0x')) {
           rHex = r; // Already hex with 0x prefix
         } else {
           rHex = "0x" + r; // Hex without 0x prefix
@@ -959,10 +944,10 @@ export class GridPlusHDWallet
       }
 
       if (Buffer.isBuffer(s)) {
-        sHex = "0x" + s.toString("hex");
-      } else if (typeof s === "string") {
+        sHex = "0x" + s.toString('hex');
+      } else if (typeof s === 'string') {
         // s is a string (TypeScript knows this now)
-        if ((s as string).startsWith("0x")) {
+        if ((s as string).startsWith('0x')) {
           sHex = s; // Already hex with 0x prefix
         } else {
           sHex = "0x" + s; // Hex without 0x prefix
@@ -972,7 +957,7 @@ export class GridPlusHDWallet
       }
 
       // v is returned by device for EIP-712
-      const vBuf = Buffer.isBuffer(v) ? v : typeof v === "number" ? Buffer.from([v]) : Buffer.from(v);
+      const vBuf = Buffer.isBuffer(v) ? v : (typeof v === 'number' ? Buffer.from([v]) : Buffer.from(v));
       const vValue = vBuf.readUInt8(0);
       const vHex = "0x" + vValue.toString(16);
 
@@ -997,7 +982,7 @@ export class GridPlusHDWallet
       }
 
       // Check if client has the sign method
-      if (typeof this.client.sign !== "function") {
+      if (typeof this.client.sign !== 'function') {
         throw new Error("GridPlus client missing required sign method");
       }
 
@@ -1010,23 +995,23 @@ export class GridPlusHDWallet
       // For personal_sign, the message needs to be hex-encoded
       // If it's not already hex, convert it
       let hexMessage: string;
-      if (msg.message.startsWith("0x")) {
+      if (msg.message.startsWith('0x')) {
         hexMessage = msg.message;
       } else {
         // Convert string to hex
-        const buffer = Buffer.from(msg.message, "utf8");
-        hexMessage = "0x" + buffer.toString("hex");
+        const buffer = Buffer.from(msg.message, 'utf8');
+        hexMessage = '0x' + buffer.toString('hex');
       }
 
       // Use GridPlus SDK's ETH_MSG currency with signPersonal protocol
       // This handles the Ethereum message prefix automatically
       const signingOptions = {
-        currency: "ETH_MSG" as any, // ETH_MSG currency for message signing
+        currency: 'ETH_MSG' as any,  // ETH_MSG currency for message signing
         data: {
-          protocol: "signPersonal" as any, // Use signPersonal protocol for personal_sign
-          payload: hexMessage, // Hex-encoded message
+          protocol: 'signPersonal' as any,  // Use signPersonal protocol for personal_sign
+          payload: hexMessage,               // Hex-encoded message
           signerPath: msg.addressNList,
-        },
+        }
       };
 
       // TODO: remove highlander-based-development
@@ -1044,9 +1029,9 @@ export class GridPlusHDWallet
       let sHex: string;
 
       if (Buffer.isBuffer(r)) {
-        rHex = "0x" + r.toString("hex");
-      } else if (typeof r === "string") {
-        if ((r as string).startsWith("0x")) {
+        rHex = "0x" + r.toString('hex');
+      } else if (typeof r === 'string') {
+        if ((r as string).startsWith('0x')) {
           rHex = r;
         } else {
           rHex = "0x" + r;
@@ -1056,9 +1041,9 @@ export class GridPlusHDWallet
       }
 
       if (Buffer.isBuffer(s)) {
-        sHex = "0x" + s.toString("hex");
-      } else if (typeof s === "string") {
-        if ((s as string).startsWith("0x")) {
+        sHex = "0x" + s.toString('hex');
+      } else if (typeof s === 'string') {
+        if ((s as string).startsWith('0x')) {
           sHex = s;
         } else {
           sHex = "0x" + s;
@@ -1068,7 +1053,7 @@ export class GridPlusHDWallet
       }
 
       // v is returned by device for personal_sign
-      const vBuf = Buffer.isBuffer(v) ? v : typeof v === "number" ? Buffer.from([v]) : Buffer.from(v);
+      const vBuf = Buffer.isBuffer(v) ? v : (typeof v === 'number' ? Buffer.from([v]) : Buffer.from(v));
       const vValue = vBuf.readUInt8(0);
       const vHex = "0x" + vValue.toString(16);
 
@@ -1097,15 +1082,15 @@ export class GridPlusHDWallet
   public async btcSupportsScriptType(coin: core.Coin, scriptType?: core.BTCInputScriptType): Promise<boolean> {
     const supported = {
       Bitcoin: [
-        core.BTCInputScriptType.SpendAddress, // p2pkh
-        core.BTCInputScriptType.SpendP2SHWitness, // p2sh-p2wpkh
-        core.BTCInputScriptType.SpendWitness, // p2wpkh
+        core.BTCInputScriptType.SpendAddress,      // p2pkh
+        core.BTCInputScriptType.SpendP2SHWitness,  // p2sh-p2wpkh
+        core.BTCInputScriptType.SpendWitness,      // p2wpkh
       ],
-      Dogecoin: [core.BTCInputScriptType.SpendAddress], // p2pkh only
+      Dogecoin: [core.BTCInputScriptType.SpendAddress],  // p2pkh only
       Litecoin: [
-        core.BTCInputScriptType.SpendAddress, // p2pkh
-        core.BTCInputScriptType.SpendP2SHWitness, // p2sh-p2wpkh
-        core.BTCInputScriptType.SpendWitness, // p2wpkh
+        core.BTCInputScriptType.SpendAddress,      // p2pkh
+        core.BTCInputScriptType.SpendP2SHWitness,  // p2sh-p2wpkh
+        core.BTCInputScriptType.SpendWitness,      // p2wpkh
       ],
       Testnet: [
         core.BTCInputScriptType.SpendAddress,
@@ -1142,7 +1127,7 @@ export class GridPlusHDWallet
       );
     }
 
-    return scriptTypes.map((scriptType) => {
+    return scriptTypes.map(scriptType => {
       const purpose = this.scriptTypeToPurpose(scriptType);
       return {
         coin: msg.coin,
@@ -1156,7 +1141,7 @@ export class GridPlusHDWallet
     if (msg.length === 0) return false;
     const first = msg[0];
     return msg.every(
-      (path) =>
+      path =>
         path.addressNList[0] === first.addressNList[0] &&
         path.addressNList[1] === first.addressNList[1] &&
         path.addressNList[2] === first.addressNList[2]
@@ -1182,13 +1167,14 @@ export class GridPlusHDWallet
     }
 
     // pubkeys[0] may be uncompressed (65 bytes) or compressed (33 bytes)
-    const pubkeyBuffer = Buffer.isBuffer(pubkeys[0]) ? pubkeys[0] : Buffer.from(pubkeys[0], "hex");
+    const pubkeyBuffer = Buffer.isBuffer(pubkeys[0])
+      ? pubkeys[0]
+      : Buffer.from(pubkeys[0], "hex");
 
     // Compress if needed (65 bytes = uncompressed, 33 bytes = already compressed)
-    const pubkeyHex =
-      pubkeyBuffer.length === 65
-        ? Buffer.from(pointCompress(pubkeyBuffer, true)).toString("hex")
-        : pubkeyBuffer.toString("hex");
+    const pubkeyHex = pubkeyBuffer.length === 65
+      ? Buffer.from(pointCompress(pubkeyBuffer, true)).toString("hex")
+      : pubkeyBuffer.toString("hex");
 
     // Derive address client-side using the coin's network parameters
     const scriptType = msg.scriptType || core.BTCInputScriptType.SpendAddress;
@@ -1223,7 +1209,7 @@ export class GridPlusHDWallet
     const fee = totalInputValue - totalOutputValue;
 
     const payload = {
-      prevOuts: msg.inputs.map((input) => ({
+      prevOuts: msg.inputs.map(input => ({
         txHash: (input as any).txid,
         value: parseInt(input.amount || "0"),
         index: input.vout,
@@ -1232,7 +1218,7 @@ export class GridPlusHDWallet
       recipient: msg.outputs[0]?.address || "",
       value: parseInt(msg.outputs[0]?.amount || "0"),
       fee: fee,
-      changePath: msg.outputs.find((o) => o.isChange)?.addressNList,
+      changePath: msg.outputs.find(o => o.isChange)?.addressNList,
     };
 
     try {
@@ -1243,7 +1229,7 @@ export class GridPlusHDWallet
       }
 
       // For BTC, signatures are in sig object (r, s) or sigs array
-      const signatures = signData.sigs ? signData.sigs.map((s) => s.toString("hex")) : [];
+      const signatures = signData.sigs ? signData.sigs.map(s => s.toString("hex")) : [];
 
       return {
         signatures,
@@ -1367,13 +1353,11 @@ export class GridPlusHDWallet
 
       // Create a signer adapter for GridPlus with Direct signing (Proto)
       const signer: OfflineDirectSigner = {
-        getAccounts: async () => [
-          {
-            address,
-            pubkey,
-            algo: "secp256k1" as const,
-          },
-        ],
+        getAccounts: async () => [{
+          address,
+          pubkey,
+          algo: "secp256k1" as const,
+        }],
         signDirect: async (signerAddress: string, signDoc: SignDoc): Promise<DirectSignResponse> => {
           if (signerAddress !== address) {
             throw new Error("Signer address mismatch");
@@ -1391,7 +1375,7 @@ export class GridPlusHDWallet
               hashType: Constants.SIGNING.HASHES.SHA256,
               encodingType: Constants.SIGNING.ENCODINGS.NONE,
               signerPath: msg.addressNList,
-            },
+            }
           };
 
           const signedResult = await client.sign(signData);
@@ -1520,13 +1504,11 @@ export class GridPlusHDWallet
 
       // Create a signer adapter for GridPlus with Direct signing (Proto)
       const signer: OfflineDirectSigner = {
-        getAccounts: async () => [
-          {
-            address,
-            pubkey,
-            algo: "secp256k1" as const,
-          },
-        ],
+        getAccounts: async () => [{
+          address,
+          pubkey,
+          algo: "secp256k1" as const,
+        }],
         signDirect: async (signerAddress: string, signDoc: SignDoc): Promise<DirectSignResponse> => {
           if (signerAddress !== address) {
             throw new Error("Signer address mismatch");
@@ -1544,7 +1526,7 @@ export class GridPlusHDWallet
               hashType: Constants.SIGNING.HASHES.SHA256,
               encodingType: Constants.SIGNING.ENCODINGS.NONE,
               signerPath: msg.addressNList,
-            },
+            }
           };
 
           const signedResult = await client.sign(signData);
@@ -1672,13 +1654,11 @@ export class GridPlusHDWallet
 
       // Create a signer adapter for GridPlus with Direct signing (Proto)
       const signer: OfflineDirectSigner = {
-        getAccounts: async () => [
-          {
-            address,
-            pubkey,
-            algo: "secp256k1" as const,
-          },
-        ],
+        getAccounts: async () => [{
+          address,
+          pubkey,
+          algo: "secp256k1" as const,
+        }],
         signDirect: async (signerAddress: string, signDoc: SignDoc): Promise<DirectSignResponse> => {
           if (signerAddress !== address) {
             throw new Error("Signer address mismatch");
@@ -1696,7 +1676,7 @@ export class GridPlusHDWallet
               hashType: Constants.SIGNING.HASHES.SHA256,
               encodingType: Constants.SIGNING.ENCODINGS.NONE,
               signerPath: msg.addressNList,
-            },
+            }
           };
 
           const signedResult = await client.sign(signData);
@@ -1729,9 +1709,7 @@ export class GridPlusHDWallet
       };
 
       // Build and sign transaction using proto-tx-builder
-      const signedTx = await (
-        await import("@shapeshiftoss/proto-tx-builder")
-      ).sign(
+      const signedTx = await (await import("@shapeshiftoss/proto-tx-builder")).sign(
         address,
         msg.tx as any,
         signer,
@@ -1740,7 +1718,7 @@ export class GridPlusHDWallet
           accountNumber: Number(msg.account_number),
           chainId: msg.chain_id,
         },
-        "maya"
+        "maya",
       );
 
       return signedTx as core.MayachainSignedTx;
@@ -1767,14 +1745,7 @@ export class GridPlusHDWallet
   }
 }
 
-export class GridPlusWalletInfo
-  implements
-    core.HDWalletInfo,
-    core.ETHWalletInfo,
-    core.CosmosWalletInfo,
-    core.ThorchainWalletInfo,
-    core.MayachainWalletInfo
-{
+export class GridPlusWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo, core.CosmosWalletInfo, core.ThorchainWalletInfo, core.MayachainWalletInfo {
   readonly _supportsGridPlusInfo = true;
   readonly _supportsETHInfo = true;
   readonly _supportsAvalanche = true;
@@ -1829,7 +1800,7 @@ export class GridPlusWalletInfo
   public describePath(): core.PathDescription {
     return {
       verbose: "GridPlus path description not implemented",
-      coin: "Unknown",
+      coin: "Unknown", 
       isKnown: false,
     };
   }
@@ -1855,7 +1826,7 @@ export class GridPlusWalletInfo
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     const slip44 = core.slip44ByCoin(msg.coin);
     if (slip44 === undefined) return [];
-
+    
     return [
       {
         addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
@@ -1875,7 +1846,7 @@ export class GridPlusWalletInfo
 
     const newAddressNList = [...addressNList];
     newAddressNList[2] += 1;
-
+    
     return {
       addressNList: newAddressNList,
       hardenedPath: [newAddressNList[0], newAddressNList[1], newAddressNList[2]],
@@ -1951,4 +1922,5 @@ export class GridPlusWalletInfo
       addressNList: newAddressNList,
     };
   }
+
 }
