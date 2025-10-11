@@ -15,13 +15,6 @@ import {
   Client,
   Constants,
   Utils,
-  fetchSolanaAddresses,
-  fetchBtcLegacyAddresses,
-  fetchBtcSegwitAddresses,
-  fetchBtcWrappedSegwitAddresses,
-  signBtcLegacyTx,
-  signBtcSegwitTx,
-  signBtcWrappedSegwitTx,
 } from "gridplus-sdk";
 import { SignTypedDataVersion, TypedDataUtils } from "@metamask/eth-sig-util";
 import isObject from "lodash/isObject";
@@ -195,7 +188,9 @@ function deriveAddressFromPubkey(
 
 export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.SolanaWallet, core.BTCWallet, core.CosmosWallet, core.ThorchainWallet, core.MayachainWallet {
   readonly _isGridPlus = true;
-  private addressCache = new Map<string, core.Address | string>();
+  private addressCache = new Map<string, Map<string, core.Address | string>>();
+  private activeWalletId?: string;
+  private walletId?: string;
   private callCounter = 0;
   private instanceId = Math.random().toString(36).substr(2, 9);
   private pendingRequests = new Map<string, Promise<core.Address | null>>();
@@ -232,6 +227,19 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     this.info = new GridPlusWalletInfo();
   }
 
+  public setActiveWalletId(walletId: string): void {
+    this.activeWalletId = walletId;
+    this.walletId = walletId;
+  }
+
+  private getWalletCache(): Map<string, core.Address | string> {
+    const walletId = this.activeWalletId || 'default';
+    if (!this.addressCache.has(walletId)) {
+      this.addressCache.set(walletId, new Map());
+    }
+    return this.addressCache.get(walletId)!;
+  }
+
   async getFeatures(): Promise<Record<string, any>> {
     return {
       vendor: "GridPlus",
@@ -252,8 +260,14 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     if (this.client) {
       await this.transport.disconnect();
       this.client = undefined;
-      // Clear cached addresses when session ends
-      this.addressCache.clear();
+      // Clear only the active wallet's cache
+      if (this.activeWalletId) {
+        const walletCache = this.getWalletCache();
+        walletCache.clear();
+      } else {
+        // Fallback: clear all caches if no active wallet
+        this.addressCache.clear();
+      }
       // Clear pending requests
       this.pendingRequests.clear();
     }
@@ -276,9 +290,12 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       throw new Error("GridPlus client missing required getAddresses method");
     }
 
-    // Clear cached addresses when initializing with a new client
+    // Clear the active wallet's cache when initializing
     // This ensures different SafeCards get fresh addresses instead of cached ones
-    this.addressCache.clear();
+    if (this.activeWalletId) {
+      const walletCache = this.getWalletCache();
+      walletCache.clear();
+    }
   }
 
   public async ping(msg: core.Ping): Promise<core.Pong> {
@@ -379,7 +396,7 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
   }
 
   public async getDeviceID(): Promise<string> {
-    return await this.transport.getDeviceID();
+    return this.walletId || await this.transport.getDeviceID();
   }
 
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
@@ -516,9 +533,9 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
     // Create cache key from derivation path
     const pathKey = JSON.stringify(msg.addressNList);
-    const cachedAddress = this.addressCache.get(pathKey);
-
-    // Return cached address if available (per-account caching)
+    // Check wallet-specific cache
+    const walletCache = this.getWalletCache();
+    const cachedAddress = walletCache.get(pathKey);
     if (cachedAddress) {
       return cachedAddress as core.Address;
     }
@@ -594,9 +611,13 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         throw new Error(`Invalid Ethereum address length: ${address}`);
       }
 
-      // Cache the address
+      // Cache the address in wallet-specific cache
       const pathKey = JSON.stringify(msg.addressNList);
-      this.addressCache.set(pathKey, address.toLowerCase());
+      const walletCache = this.getWalletCache();
+      walletCache.set(pathKey, address.toLowerCase());
+
+      // Log derived address (minimal - first 8 chars only)
+      console.log('[GridPlus ETH] Derived:', address.slice(0, 8) + '...');
 
       // core.Address for ETH is just a string type `0x${string}`
       return address.toLowerCase() as core.Address;
@@ -637,9 +658,10 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
     // Check cache first - use corrected path as key
     const pathKey = JSON.stringify(correctedPath);
-    const cachedAddress = this.addressCache.get(pathKey);
+    const walletCache = this.getWalletCache();
+    const cachedAddress = walletCache.get(pathKey);
     if (cachedAddress) {
-      return cachedAddress;
+      return cachedAddress as string;
     }
 
     // Check firmware version supports ED25519
@@ -670,8 +692,11 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       // Encode as base58 for Solana address format
       const address = bs58.encode(pubkeyBuffer);
 
-      // Cache and return
-      this.addressCache.set(pathKey, address);
+      // Cache in wallet-specific cache
+      walletCache.set(pathKey, address);
+
+      // Log derived address
+      console.log('[GridPlus SOL] Derived:', address.slice(0, 8) + '...');
 
       return address;
     } catch (error) {
@@ -1148,7 +1173,8 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
     const pathKey = JSON.stringify(msg.addressNList);
-    const cached = this.addressCache.get(pathKey);
+    const walletCache = this.getWalletCache();
+    const cached = walletCache.get(pathKey);
     if (cached) return cached as string;
 
     // Get compressed public key from device (works for all UTXO coins)
@@ -1178,8 +1204,12 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     const scriptType = msg.scriptType || core.BTCInputScriptType.SpendAddress;
     const address = deriveAddressFromPubkey(pubkeyHex, msg.coin, scriptType);
 
-    // Cache and return
-    this.addressCache.set(pathKey, address);
+    // Cache in wallet-specific cache
+    walletCache.set(pathKey, address);
+
+    // Log derived address
+    console.log('[GridPlus BTC] Derived:', address.slice(0, 8) + '...');
+
     return address;
   }
 
@@ -1188,24 +1218,24 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       throw new Error("Device not connected");
     }
 
-    const scriptType = msg.inputs[0]?.scriptType || core.BTCInputScriptType.SpendAddress;
-
-    // Choose sign function based on script type
-    const signFn =
-      scriptType === core.BTCInputScriptType.SpendWitness
-        ? signBtcSegwitTx
-        : scriptType === core.BTCInputScriptType.SpendP2SHWitness
-        ? signBtcWrappedSegwitTx
-        : signBtcLegacyTx;
-
-    // Build payload for GridPlus SDK
-    // This is simplified - a full implementation would need to build proper PSBT
+    // All UTXO coins (Bitcoin, Dogecoin, Litecoin, BitcoinCash) use Bitcoin-compatible transaction formats.
+    // The 'BTC' currency parameter is just SDK routing - the device signs Bitcoin-formatted transactions.
+    // Address derivation already handles all coins via client-side derivation with proper network parameters.
 
     // Calculate fee: total inputs - total outputs
     const totalInputValue = msg.inputs.reduce((sum, input) => sum + parseInt(input.amount || "0"), 0);
     const totalOutputValue = msg.outputs.reduce((sum, output) => sum + parseInt(output.amount || "0"), 0);
     const fee = totalInputValue - totalOutputValue;
 
+    // Find change output and its path
+    const changeOutput = msg.outputs.find(o => o.isChange);
+    const changePath = changeOutput?.addressNList;
+
+    if (!changePath || changePath.length !== 5) {
+      throw new Error("Change path must be provided and have exactly 5 indices");
+    }
+
+    // Build payload for GridPlus SDK
     const payload = {
       prevOuts: msg.inputs.map(input => ({
         txHash: (input as any).txid,
@@ -1216,18 +1246,22 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       recipient: msg.outputs[0]?.address || "",
       value: parseInt(msg.outputs[0]?.amount || "0"),
       fee: fee,
-      changePath: msg.outputs.find(o => o.isChange)?.addressNList,
+      changePath: changePath,
     };
 
     try {
-      const signData = await signFn(payload as any);
+      // Call client.sign() directly (NOT the high-level wrappers that use loadClient())
+      const signData = await this.client.sign({
+        data: payload,
+        currency: 'BTC' as any,
+      });
 
       if (!signData || !signData.tx) {
         throw new Error("No signed transaction returned from device");
       }
 
-      // For BTC, signatures are in sig object (r, s) or sigs array
-      const signatures = signData.sigs ? signData.sigs.map(s => s.toString("hex")) : [];
+      // For BTC, signatures are in sigs array
+      const signatures = signData.sigs ? signData.sigs.map((s: Buffer) => s.toString("hex")) : [];
 
       return {
         signatures,
@@ -1290,7 +1324,8 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
     // Include prefix in cache key to avoid collision with THORChain/MAYAChain (same slip44)
     const pathKey = JSON.stringify({ path: msg.addressNList, prefix: "cosmos" });
-    const cached = this.addressCache.get(pathKey);
+    const walletCache = this.getWalletCache();
+    const cached = walletCache.get(pathKey);
     if (cached) return cached as string;
 
     try {
@@ -1311,7 +1346,9 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       const compressedPubkey = pointCompress(pubkeyBuffer, true);
       const compressedHex = Buffer.from(compressedPubkey).toString("hex");
       const cosmosAddress = this.createCosmosAddress(compressedHex, "cosmos");
-      this.addressCache.set(pathKey, cosmosAddress);
+      walletCache.set(pathKey, cosmosAddress);
+
+      console.log('[GridPlus COSMOS] Derived:', cosmosAddress.slice(0, 12) + '...');
 
       return cosmosAddress;
     } catch (error) {
@@ -1440,7 +1477,8 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     const prefix = msg.testnet ? "tthor" : "thor";
     // Include prefix in cache key to avoid collision with MAYAChain (same slip44: 931)
     const pathKey = JSON.stringify({ path: msg.addressNList, prefix });
-    const cached = this.addressCache.get(pathKey);
+    const walletCache = this.getWalletCache();
+    const cached = walletCache.get(pathKey);
     if (cached) return cached as string;
 
     try {
@@ -1461,7 +1499,9 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       const compressedPubkey = pointCompress(pubkeyBuffer, true);
       const compressedHex = Buffer.from(compressedPubkey).toString("hex");
       const thorAddress = this.createCosmosAddress(compressedHex, prefix);
-      this.addressCache.set(pathKey, thorAddress);
+      walletCache.set(pathKey, thorAddress);
+
+      console.log('[GridPlus THOR] Derived:', thorAddress.slice(0, 12) + '...');
 
       return thorAddress;
     } catch (error) {
@@ -1589,7 +1629,8 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
     // Include prefix in cache key to avoid collision with THORChain (same slip44: 931)
     const pathKey = JSON.stringify({ path: msg.addressNList, prefix: "maya" });
-    const cached = this.addressCache.get(pathKey);
+    const walletCache = this.getWalletCache();
+    const cached = walletCache.get(pathKey);
     if (cached) return cached as string;
 
     try {
@@ -1610,7 +1651,9 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       const compressedPubkey = pointCompress(pubkeyBuffer, true);
       const compressedHex = Buffer.from(compressedPubkey).toString("hex");
       const mayaAddress = this.createCosmosAddress(compressedHex, "maya");
-      this.addressCache.set(pathKey, mayaAddress);
+      walletCache.set(pathKey, mayaAddress);
+
+      console.log('[GridPlus MAYA] Derived:', mayaAddress.slice(0, 12) + '...');
 
       return mayaAddress;
     } catch (error) {

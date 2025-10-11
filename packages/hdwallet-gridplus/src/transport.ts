@@ -76,7 +76,10 @@ export class GridPlusTransport extends core.Transport {
       this.client = new Client({
         name: this.name || "ShapeShift",
         baseUrl: "https://signing.gridpl.us",
-        privKey: Buffer.from(this.sessionId, 'hex')
+        privKey: Buffer.from(this.sessionId, 'hex'),
+        retryCount: 3,
+        timeout: 60000,
+        skipRetryOnWrongWallet: true
       });
 
       try {
@@ -95,7 +98,9 @@ export class GridPlusTransport extends core.Transport {
         throw error;
       }
     } else {
-      // Client already exists, reconnect to get fresh state
+      // Client already exists, reset active wallets to clear stale state before reconnecting
+      // This is critical when switching between SafeCards - ensures fresh wallet state from device
+      this.client.resetActiveWallets();
       const isPaired = await this.client.connect(deviceId);
       this.connected = true;
       return { isPaired, sessionId: this.sessionId };
