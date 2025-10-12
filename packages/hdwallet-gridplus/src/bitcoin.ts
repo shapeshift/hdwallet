@@ -16,7 +16,7 @@ export const btcGetAccountPaths = (msg: core.BTCGetAccountPaths): Array<core.BTC
 
   const scriptTypes: core.BTCInputScriptType[] = [];
 
-  if (msg.coin === "Dogecoin") {
+  if (msg.coin === "Dogecoin" || msg.coin === "BitcoinCash") {
     scriptTypes.push(core.BTCInputScriptType.SpendAddress);
   } else {
     scriptTypes.push(
