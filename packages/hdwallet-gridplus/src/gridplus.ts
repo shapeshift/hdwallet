@@ -1512,14 +1512,21 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
               ))
             ));
 
-            // scriptCode for P2WPKH: OP_DUP OP_HASH160 <20-byte-hash> OP_EQUALVERIFY OP_CHECKSIG
-            const scriptCode = bitcoin.script.compile([
-              bitcoin.opcodes.OP_DUP,
-              bitcoin.opcodes.OP_HASH160,
-              scriptPubKey.slice(2), // Remove OP_0 and length byte
-              bitcoin.opcodes.OP_EQUALVERIFY,
-              bitcoin.opcodes.OP_CHECKSIG
-            ]);
+            // scriptCode depends on input type
+            let scriptCode: Buffer;
+            if (isSegwit) {
+              // P2WPKH: Build scriptCode from hash extracted from witness program
+              scriptCode = Buffer.from(bitcoin.script.compile([
+                bitcoin.opcodes.OP_DUP,
+                bitcoin.opcodes.OP_HASH160,
+                scriptPubKey.slice(2), // Remove OP_0 and length byte to get hash
+                bitcoin.opcodes.OP_EQUALVERIFY,
+                bitcoin.opcodes.OP_CHECKSIG
+              ]));
+            } else {
+              // P2PKH (BitcoinCash): scriptCode IS the scriptPubKey
+              scriptCode = Buffer.from(scriptPubKey);
+            }
 
             const value = parseInt(input.amount || "0");
             const valueBuffer = Buffer.alloc(8);
