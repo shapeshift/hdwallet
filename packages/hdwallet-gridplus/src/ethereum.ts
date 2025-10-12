@@ -303,3 +303,48 @@ export const ethSupportsSecureTransfer = (): boolean => false;
 export const ethSupportsNativeShapeShift = (): boolean => false;
 
 export const ethSupportsEIP1559 = (): boolean => true;
+
+export async function ethGetAddress(client: Client, msg: core.ETHGetAddress): Promise<core.Address | null> {
+  try {
+    // Extract address index from EVM path: m/44'/60'/0'/0/X
+    // addressNList = [44', 60', 0', 0, X]
+    const addressIndex = msg.addressNList[4] || 0;
+    const startPath = [...msg.addressNList.slice(0, 4), addressIndex];
+
+    // Fetch only the requested address using client instance
+    const addresses = await client.getAddresses({
+      startPath,
+      n: 1,
+    });
+
+    if (!addresses.length) {
+      throw new Error("No address returned from device");
+    }
+
+    const rawAddress = addresses[0];
+    let address: string;
+
+    // Handle response format (could be Buffer or string)
+    if (Buffer.isBuffer(rawAddress)) {
+      // Device returns raw address bytes without 0x prefix - add it for EVM compatibility
+      address = '0x' + rawAddress.toString('hex');
+    } else {
+      address = rawAddress.toString();
+    }
+
+    // Device may return address without 0x prefix - ensure it's present for EVM compatibility
+    if (!address.startsWith('0x')) {
+      address = '0x' + address;
+    }
+
+    // Validate Ethereum address format (should be 42 chars with 0x prefix)
+    if (address.length !== 42) {
+      throw new Error(`Invalid Ethereum address length: ${address}`);
+    }
+
+    // core.Address for ETH is just a string type `0x${string}`
+    return address.toLowerCase() as core.Address;
+  } catch (error) {
+    throw error;
+  }
+}
