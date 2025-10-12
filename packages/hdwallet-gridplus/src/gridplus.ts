@@ -16,6 +16,7 @@ import {
   Constants,
   Utils,
 } from "gridplus-sdk";
+import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import { SignTypedDataVersion, TypedDataUtils } from "@metamask/eth-sig-util";
 import isObject from "lodash/isObject";
 import PLazy from "p-lazy";
@@ -1231,12 +1232,26 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     const changeOutput = msg.outputs.find(o => o.isChange);
     const changePath = changeOutput?.addressNList;
 
-    if (!changePath || changePath.length !== 5) {
-      throw new Error("Change path must be provided and have exactly 5 indices");
-    }
+    // Log BEFORE building payload to see what we're working with
+    console.log('[GridPlus BTC Sign] ===== START =====');
+    console.log('[GridPlus BTC Sign] msg.coin:', msg.coin);
+    console.log('[GridPlus BTC Sign] Inputs:', msg.inputs.length);
+    console.log('[GridPlus BTC Sign] Outputs:', msg.outputs.length);
+    console.log('[GridPlus BTC Sign] Outputs structure:', JSON.stringify(msg.outputs.map(o => ({
+      address: o.address,
+      amount: o.amount,
+      isChange: o.isChange,
+      addressNList: o.addressNList
+    })), null, 2));
+    console.log('[GridPlus BTC Sign] Total input value:', totalInputValue);
+    console.log('[GridPlus BTC Sign] Total output value:', totalOutputValue);
+    console.log('[GridPlus BTC Sign] Fee:', fee);
+    console.log('[GridPlus BTC Sign] Change output found:', !!changeOutput);
+    console.log('[GridPlus BTC Sign] Change path:', changePath);
+    console.log('[GridPlus BTC Sign] Change path length:', changePath?.length);
 
-    // Build payload for GridPlus SDK
-    const payload = {
+    // Build base payload for GridPlus SDK
+    const payload: any = {
       prevOuts: msg.inputs.map(input => ({
         txHash: (input as any).txid,
         value: parseInt(input.amount || "0"),
@@ -1246,27 +1261,424 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       recipient: msg.outputs[0]?.address || "",
       value: parseInt(msg.outputs[0]?.amount || "0"),
       fee: fee,
-      changePath: changePath,
     };
 
+    // SDK requires changePath even when there's no change output
+    // Use actual change path if available, otherwise use dummy path (first change address)
+    // The dummy path satisfies SDK validation but won't be used since there's no change output
+    const finalChangePath = changePath && changePath.length === 5
+      ? changePath
+      : [
+          msg.inputs[0].addressNList[0], // purpose (44', 49', or 84')
+          msg.inputs[0].addressNList[1], // coin type
+          msg.inputs[0].addressNList[2], // account
+          1,                               // change chain (1 = change, 0 = receive)
+          0                                // address index
+        ];
+
+    payload.changePath = finalChangePath;
+
+    console.log('[GridPlus BTC Sign] Payload:', JSON.stringify(payload, null, 2));
+
     try {
-      // Call client.sign() directly (NOT the high-level wrappers that use loadClient())
-      const signData = await this.client.sign({
-        data: payload,
-        currency: 'BTC' as any,
-      });
+      if (msg.coin === "Bitcoin" || msg.coin === "Testnet") {
+        const signData = await this.client.sign({
+          currency: 'BTC' as any,
+          data: payload,
+        });
 
-      if (!signData || !signData.tx) {
-        throw new Error("No signed transaction returned from device");
+        if (!signData || !signData.tx) {
+          throw new Error("No signed transaction returned from device");
+        }
+
+        const signatures = signData.sigs ? signData.sigs.map((s: Buffer) => s.toString("hex")) : [];
+
+        return {
+          signatures,
+          serializedTx: signData.tx,
+        };
+      } else {
+        console.log(`[GridPlus BTC Sign] Using general signing mode for ${msg.coin} (no device-side transaction decoding)`);
+
+        const network = UTXO_NETWORK_PARAMS[msg.coin];
+        if (!network) {
+          throw new Error(`Unsupported UTXO coin: ${msg.coin}`);
+        }
+
+        const tx = new bitcoin.Transaction();
+
+        for (const input of msg.inputs) {
+          const txHashBuffer = Buffer.from((input as any).txid, 'hex').reverse();
+          tx.addInput(txHashBuffer, input.vout);
+        }
+
+        for (let outputIdx = 0; outputIdx < msg.outputs.length; outputIdx++) {
+          const output = msg.outputs[outputIdx];
+          let address: string;
+
+          console.log(`[GridPlus BTC Sign] [INITIAL TX] ===== OUTPUT ${outputIdx} ADDRESS DERIVATION =====`);
+
+          if (output.address) {
+            address = output.address;
+            console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} type: recipient (has address)`);
+            console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} address:`, address);
+          } else if (output.addressNList) {
+            console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} type: change (has addressNList)`);
+            console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} path:`, output.addressNList);
+
+            // Derive address for change output
+            const pubkey = await this.client!.getAddresses({
+              startPath: output.addressNList,
+              n: 1,
+              flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
+            });
+
+            if (!pubkey || !pubkey.length) {
+              throw new Error(`No public key for output`);
+            }
+
+            const pubkeyBuffer = Buffer.isBuffer(pubkey[0]) ? pubkey[0] : Buffer.from(pubkey[0], "hex");
+            console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} raw pubkey length:`, pubkeyBuffer.length);
+            console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} raw pubkey (hex):`, pubkeyBuffer.toString('hex'));
+
+            const pubkeyHex = pubkeyBuffer.length === 65
+              ? Buffer.from(pointCompress(pubkeyBuffer, true)).toString("hex")
+              : pubkeyBuffer.toString("hex");
+            console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} compressed pubkey (hex):`, pubkeyHex);
+
+            const scriptType = (output.scriptType as unknown as core.BTCInputScriptType) || core.BTCInputScriptType.SpendAddress;
+            address = deriveAddressFromPubkey(pubkeyHex, msg.coin, scriptType);
+            console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} derived address:`, address);
+          } else {
+            throw new Error("Output must have either address or addressNList");
+          }
+
+          const decoded = bs58Decode(address);
+          console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} base58-decoded length:`, decoded.length);
+          console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} base58-decoded (hex):`, decoded.toString('hex'));
+
+          const hash160 = decoded.slice(1);
+          console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} hash160 length:`, hash160.length);
+          console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} hash160 (hex):`, hash160.toString('hex'));
+
+          const scriptPubKey = bitcoin.script.compile([
+            bitcoin.opcodes.OP_DUP,
+            bitcoin.opcodes.OP_HASH160,
+            hash160,
+            bitcoin.opcodes.OP_EQUALVERIFY,
+            bitcoin.opcodes.OP_CHECKSIG
+          ]);
+          console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} scriptPubKey length:`, scriptPubKey.length);
+          console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} scriptPubKey (hex):`, Buffer.from(scriptPubKey).toString('hex'));
+
+          tx.addOutput(scriptPubKey, BigInt(output.amount));
+        }
+
+        // DEBUG: Log the initial transaction (BEFORE signing) that will be used to create signing preimages
+        const initialTxHex = tx.toHex();
+        console.log('[GridPlus BTC Sign] ===== INITIAL TRANSACTION (BEFORE SIGNING) =====');
+        console.log('[GridPlus BTC Sign] Initial TX hex:', initialTxHex);
+        console.log('[GridPlus BTC Sign] Initial TX length:', initialTxHex.length);
+        console.log('[GridPlus BTC Sign] Initial TX outputs:', tx.outs.length);
+        for (let i = 0; i < tx.outs.length; i++) {
+          console.log(`[GridPlus BTC Sign] Initial TX output ${i} value:`, tx.outs[i].value.toString());
+          console.log(`[GridPlus BTC Sign] Initial TX output ${i} scriptPubKey:`, Buffer.from(tx.outs[i].script).toString('hex'));
+        }
+
+        const signatures: string[] = [];
+
+        for (let i = 0; i < msg.inputs.length; i++) {
+          const input = msg.inputs[i];
+
+          if (!input.hex) {
+            throw new Error(`Input ${i} missing hex field (raw previous transaction)`);
+          }
+
+          const prevTx = bitcoin.Transaction.fromHex(input.hex);
+          const prevOutput = prevTx.outs[input.vout];
+          const scriptPubKey = prevOutput.script;
+
+          // Reconstruct the UNHASHED serialization that Bitcoin uses for signing
+          // This mirrors what hashForSignature() does internally, but WITHOUT the final hash256()
+          // We pass this unhashed data to GridPlus with SHA256 hashType so the device performs the hash
+
+          // Clone transaction and prepare for signing (following Bitcoin's SIGHASH_ALL logic)
+          const txTmp = tx.clone();
+
+          // Remove OP_CODESEPARATOR from scriptPubKey (Bitcoin standard)
+          const decompiled = bitcoin.script.decompile(scriptPubKey);
+          if (!decompiled) {
+            throw new Error(`Failed to decompile scriptPubKey for input ${i}`);
+          }
+          const ourScript = bitcoin.script.compile(
+            decompiled.filter(x => x !== bitcoin.opcodes.OP_CODESEPARATOR)
+          );
+
+          // For SIGHASH_ALL: blank all input scripts except the one being signed
+          txTmp.ins.forEach((txInput, idx) => {
+            txInput.script = idx === i ? ourScript : Buffer.alloc(0);
+          });
+
+          // Serialize transaction + append SIGHASH_ALL (4 bytes)
+          const txBuffer = txTmp.toBuffer();
+          const hashTypeBuffer = Buffer.alloc(4);
+          hashTypeBuffer.writeUInt32LE(bitcoin.Transaction.SIGHASH_ALL, 0);
+          const signaturePreimage = Buffer.concat([txBuffer, hashTypeBuffer]);
+
+          console.log(`[GridPlus BTC Sign] ===== INPUT ${i} DEBUG =====`);
+          console.log(`[GridPlus BTC Sign] Path:`, input.addressNList);
+          console.log(`[GridPlus BTC Sign] signaturePreimage type:`, signaturePreimage.constructor.name);
+          console.log(`[GridPlus BTC Sign] signaturePreimage length:`, signaturePreimage.length);
+          console.log(`[GridPlus BTC Sign] signaturePreimage (first 32 bytes):`, signaturePreimage.slice(0, 32).toString('hex'));
+          console.log(`[GridPlus BTC Sign] signaturePreimage (last 8 bytes):`, signaturePreimage.slice(-8).toString('hex'));
+
+          console.log(`[GridPlus BTC Sign] payload Buffer type:`, signaturePreimage.constructor.name);
+          console.log(`[GridPlus BTC Sign] payload Buffer length:`, signaturePreimage.length);
+          console.log(`[GridPlus BTC Sign] payload JSON serialization:`, JSON.stringify(signaturePreimage).slice(0, 100));
+
+          console.log(`[GridPlus BTC Sign] scriptPubKey (hex):`, Buffer.from(scriptPubKey).toString('hex'));
+          console.log(`[GridPlus BTC Sign] prevTx hash:`, (input as any).txid);
+          console.log(`[GridPlus BTC Sign] prevTx vout:`, input.vout);
+
+          // Bitcoin/Dogecoin/Litecoin require double SHA256 for transaction signatures.
+          // Strategy: Hash once ourselves, then let device hash again (SHA256 + SHA256 = double SHA256)
+          // This avoids using hashType.NONE which causes "Invalid Request" errors.
+          console.log(`[GridPlus BTC Sign] ===== HASHING STRATEGY FOR INPUT ${i} =====`);
+          console.log(`[GridPlus BTC Sign] Step 1: Hash preimage once ourselves`);
+          const hash1 = CryptoJS.SHA256(CryptoJS.lib.WordArray.create(signaturePreimage));
+          const singleHashedBuffer = Buffer.from(hash1.toString(CryptoJS.enc.Hex), 'hex');
+          console.log(`[GridPlus BTC Sign] Hash1 (our SHA256):`, singleHashedBuffer.toString('hex'));
+
+          console.log(`[GridPlus BTC Sign] Step 2: Device will hash again (hashType: SHA256)`);
+          const expectedDoubleHash = CryptoJS.SHA256(hash1);
+          console.log(`[GridPlus BTC Sign] Expected Hash2 (device SHA256):`, expectedDoubleHash.toString(CryptoJS.enc.Hex));
+          console.log(`[GridPlus BTC Sign] This achieves double SHA256: SHA256(SHA256(preimage))`);
+
+          const signData = {
+            data: {
+              payload: singleHashedBuffer,
+              curveType: Constants.SIGNING.CURVES.SECP256K1,
+              hashType: Constants.SIGNING.HASHES.SHA256,  // Device will hash again → double SHA256
+              encodingType: Constants.SIGNING.ENCODINGS.NONE,
+              signerPath: input.addressNList,
+            }
+          };
+
+          console.log(`[GridPlus BTC Sign] signData structure:`, JSON.stringify({
+            ...signData,
+            data: {
+              ...signData.data,
+              payload: `<Buffer ${signData.data.payload.length} bytes>`,
+            }
+          }, null, 2));
+
+          let signedResult;
+          try {
+            signedResult = await this.client.sign(signData);
+          } catch (error) {
+            console.error(`[GridPlus BTC Sign] Error from device:`, error);
+            console.error(`[GridPlus BTC Sign] Error message:`, (error as any).message);
+            console.error(`[GridPlus BTC Sign] Error stack:`, (error as any).stack);
+            throw new Error(`Device signing failed for input ${i}: ${(error as any).message}`);
+          }
+
+          if (!signedResult?.sig) {
+            throw new Error(`No signature returned from device for input ${i}`);
+          }
+
+          const { r, s } = signedResult.sig;
+          const rBuf = Buffer.isBuffer(r) ? r : Buffer.from(r);
+          const sBuf = Buffer.isBuffer(s) ? s : Buffer.from(s);
+
+          function encodeDerSignature(r: Buffer, s: Buffer, hashType: number): Buffer {
+            function encodeDerInteger(x: Buffer): Buffer {
+              if (x[0] & 0x80) {
+                return Buffer.concat([Buffer.from([0x00]), x]);
+              }
+              return x;
+            }
+
+            const rEncoded = encodeDerInteger(r);
+            const sEncoded = encodeDerInteger(s);
+
+            const derSignature = Buffer.concat([
+              Buffer.from([0x30]),
+              Buffer.from([rEncoded.length + sEncoded.length + 4]),
+              Buffer.from([0x02]),
+              Buffer.from([rEncoded.length]),
+              rEncoded,
+              Buffer.from([0x02]),
+              Buffer.from([sEncoded.length]),
+              sEncoded,
+              Buffer.from([hashType])
+            ]);
+
+            return derSignature;
+          }
+
+          const derSig = encodeDerSignature(rBuf, sBuf, bitcoin.Transaction.SIGHASH_ALL);
+          signatures.push(derSig.toString("hex"));
+        }
+
+        // Reconstruct a clean transaction from scratch with all signatures
+        // This ensures proper scriptSig encoding using bitcoinjs-lib
+        const finalTx = new bitcoin.Transaction();
+        finalTx.version = tx.version;
+        finalTx.locktime = tx.locktime;
+
+        // Add inputs with proper scriptSigs
+        for (let i = 0; i < msg.inputs.length; i++) {
+          const input = msg.inputs[i];
+          const txHashBuffer = Buffer.from((input as any).txid, 'hex').reverse();
+          finalTx.addInput(txHashBuffer, input.vout);
+
+          // Get the signature we collected earlier
+          const derSig = Buffer.from(signatures[i], 'hex');
+
+          // Get pubkey for this input
+          const pubkey = await this.client!.getAddresses({
+            startPath: input.addressNList,
+            n: 1,
+            flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
+          });
+
+          if (!pubkey || !pubkey.length) {
+            throw new Error(`No public key for input ${i}`);
+          }
+
+          const pubkeyBuffer = Buffer.isBuffer(pubkey[0]) ? pubkey[0] : Buffer.from(pubkey[0], "hex");
+          const compressedPubkey = pubkeyBuffer.length === 65
+            ? Buffer.from(pointCompress(pubkeyBuffer, true))
+            : pubkeyBuffer;
+
+          // Use bitcoinjs-lib's script.compile for proper encoding
+          const scriptSig = bitcoin.script.compile([
+            derSig,
+            compressedPubkey,
+          ]);
+
+          finalTx.ins[i].script = scriptSig;
+        }
+
+        // Add outputs - handle both address and addressNList
+        for (let outputIdx = 0; outputIdx < msg.outputs.length; outputIdx++) {
+          const output = msg.outputs[outputIdx];
+          let address: string;
+
+          console.log(`[GridPlus BTC Sign] [FINAL TX] ===== OUTPUT ${outputIdx} ADDRESS DERIVATION =====`);
+
+          if (output.address) {
+            // Output already has address
+            address = output.address;
+            console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} type: recipient (has address)`);
+            console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} address:`, address);
+          } else if (output.addressNList) {
+            console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} type: change (has addressNList)`);
+            console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} path:`, output.addressNList);
+
+            // Derive address from addressNList (for change outputs)
+            const pubkey = await this.client!.getAddresses({
+              startPath: output.addressNList,
+              n: 1,
+              flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
+            });
+
+            if (!pubkey || !pubkey.length) {
+              throw new Error(`No public key for output`);
+            }
+
+            const pubkeyBuffer = Buffer.isBuffer(pubkey[0]) ? pubkey[0] : Buffer.from(pubkey[0], "hex");
+            console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} raw pubkey length:`, pubkeyBuffer.length);
+            console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} raw pubkey (hex):`, pubkeyBuffer.toString('hex'));
+
+            const pubkeyHex = pubkeyBuffer.length === 65
+              ? Buffer.from(pointCompress(pubkeyBuffer, true)).toString("hex")
+              : pubkeyBuffer.toString("hex");
+            console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} compressed pubkey (hex):`, pubkeyHex);
+
+            const scriptType = (output.scriptType as unknown as core.BTCInputScriptType) || core.BTCInputScriptType.SpendAddress;
+            address = deriveAddressFromPubkey(pubkeyHex, msg.coin, scriptType);
+            console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} derived address:`, address);
+          } else {
+            throw new Error("Output must have either address or addressNList");
+          }
+
+          const decoded = bs58Decode(address);
+          console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} base58-decoded length:`, decoded.length);
+          console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} base58-decoded (hex):`, decoded.toString('hex'));
+
+          const hash160 = decoded.slice(1);
+          console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} hash160 length:`, hash160.length);
+          console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} hash160 (hex):`, hash160.toString('hex'));
+
+          const scriptPubKey = bitcoin.script.compile([
+            bitcoin.opcodes.OP_DUP,
+            bitcoin.opcodes.OP_HASH160,
+            hash160,
+            bitcoin.opcodes.OP_EQUALVERIFY,
+            bitcoin.opcodes.OP_CHECKSIG
+          ]);
+          console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} scriptPubKey length:`, scriptPubKey.length);
+          console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} scriptPubKey (hex):`, Buffer.from(scriptPubKey).toString('hex'));
+
+          finalTx.addOutput(scriptPubKey, BigInt(output.amount));
+        }
+
+        const serializedTx = finalTx.toHex();
+
+        // DEBUG LOGGING - comprehensive transaction details
+        console.log(`[GridPlus BTC Sign] ===== FINAL TRANSACTION (AFTER SIGNING) =====`);
+        console.log(`[GridPlus BTC Sign] Final TX hex:`, serializedTx);
+        console.log(`[GridPlus BTC Sign] Final TX length:`, serializedTx.length);
+        console.log(`[GridPlus BTC Sign] Number of inputs:`, finalTx.ins.length);
+        console.log(`[GridPlus BTC Sign] Number of outputs:`, finalTx.outs.length);
+        for (let i = 0; i < finalTx.ins.length; i++) {
+          console.log(`[GridPlus BTC Sign] Input ${i} scriptSig length:`, finalTx.ins[i].script.length);
+          console.log(`[GridPlus BTC Sign] Input ${i} scriptSig (hex):`, Buffer.from(finalTx.ins[i].script).toString('hex'));
+        }
+        for (let i = 0; i < finalTx.outs.length; i++) {
+          console.log(`[GridPlus BTC Sign] Final TX output ${i} value:`, finalTx.outs[i].value.toString());
+          console.log(`[GridPlus BTC Sign] Final TX output ${i} scriptPubKey:`, Buffer.from(finalTx.outs[i].script).toString('hex'));
+        }
+
+        // COMPARISON: Compare initial vs final transaction outputs (excluding signatures)
+        console.log(`[GridPlus BTC Sign] ===== TRANSACTION COMPARISON =====`);
+        console.log(`[GridPlus BTC Sign] Initial TX version:`, tx.version, ', Final TX version:', finalTx.version);
+        console.log(`[GridPlus BTC Sign] Initial TX locktime:`, tx.locktime, ', Final TX locktime:', finalTx.locktime);
+        console.log(`[GridPlus BTC Sign] Initial TX outputs:`, tx.outs.length, ', Final TX outputs:', finalTx.outs.length);
+
+        let outputsMismatch = false;
+        for (let i = 0; i < Math.min(tx.outs.length, finalTx.outs.length); i++) {
+          const initialValue = tx.outs[i].value.toString();
+          const finalValue = finalTx.outs[i].value.toString();
+          const initialScript = Buffer.from(tx.outs[i].script).toString('hex');
+          const finalScript = Buffer.from(finalTx.outs[i].script).toString('hex');
+
+          if (initialValue !== finalValue) {
+            console.log(`[GridPlus BTC Sign] ⚠️  Output ${i} VALUE MISMATCH: initial=${initialValue}, final=${finalValue}`);
+            outputsMismatch = true;
+          }
+          if (initialScript !== finalScript) {
+            console.log(`[GridPlus BTC Sign] ⚠️  Output ${i} SCRIPT MISMATCH:`);
+            console.log(`[GridPlus BTC Sign]   Initial:`, initialScript);
+            console.log(`[GridPlus BTC Sign]   Final:`, finalScript);
+            outputsMismatch = true;
+          }
+        }
+
+        if (!outputsMismatch) {
+          console.log(`[GridPlus BTC Sign] ✅ All outputs match between initial and final transactions`);
+        } else {
+          console.log(`[GridPlus BTC Sign] ❌ OUTPUT MISMATCH DETECTED - This explains the signature verification failure!`);
+        }
+
+        console.log(`[GridPlus BTC Sign] General signing complete. Signatures: ${signatures.length}`);
+
+        return {
+          signatures,
+          serializedTx,
+        };
       }
-
-      // For BTC, signatures are in sigs array
-      const signatures = signData.sigs ? signData.sigs.map((s: Buffer) => s.toString("hex")) : [];
-
-      return {
-        signatures,
-        serializedTx: signData.tx,
-      };
     } catch (error) {
       throw error;
     }
