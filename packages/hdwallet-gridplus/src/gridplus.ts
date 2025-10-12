@@ -29,6 +29,7 @@ const cosmJsProtoSigning = PLazy.from(() => import("@cosmjs/proto-signing"));
 import { GridPlusTransport } from "./transport";
 import { UTXO_NETWORK_PARAMS } from "./constants";
 import { convertXpubVersion, scriptTypeToAccountType, deriveAddressFromPubkey } from "./utils";
+import * as eth from "./ethereum";
 
 export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
   return isObject(wallet) && (wallet as any)._isGridPlus;
@@ -90,10 +91,9 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
   }
 
   public async clearSession(): Promise<void> {
-    if (this.client) {
-      await this.transport.disconnect();
-      this.client = undefined;
-    }
+    if (!this.client) return;
+    await this.transport.disconnect();
+    this.client = undefined;
   }
 
   public async isInitialized(): Promise<boolean> {
@@ -271,69 +271,28 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     await this.clearSession();
   }
 
-  // ETH Wallet Methods
   public async ethSupportsNetwork(chainId: number): Promise<boolean> {
-    // Support major EVM networks
-    const supportedChains = [
-      1,     // Ethereum mainnet
-      137,   // Polygon
-      10,    // Optimism
-      42161, // Arbitrum
-      8453,  // Base
-      56,    // BSC
-      100,   // Gnosis
-      43114, // Avalanche
-    ];
-    return supportedChains.includes(chainId);
+    return eth.ethSupportsNetwork(chainId);
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
-    return false;
+    return eth.ethSupportsSecureTransfer();
   }
 
   public ethSupportsNativeShapeShift(): boolean {
-    return false;
+    return eth.ethSupportsNativeShapeShift();
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {
-    return true;
+    return eth.ethSupportsEIP1559();
   }
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
-    const slip44 = core.slip44ByCoin(msg.coin);
-
-    if (slip44 === undefined) {
-      return [];
-    }
-
-    const addressNList = [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0];
-    const hardenedPath = [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx];
-    return [
-      {
-        addressNList,
-        hardenedPath,
-        relPath: [0, 0],
-        description: `GridPlus-${msg.coin}-${msg.accountIdx}`, // Make description unique per coin/account
-      },
-    ];
+    return eth.ethGetAccountPaths(msg);
   }
 
   public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
-    const addressNList = msg.hardenedPath.concat(msg.relPath);
-    const description = core.describeETHPath(addressNList);
-    if (!description.isKnown || description.accountIdx === undefined) {
-      return undefined;
-    }
-
-    const newAddressNList = [...addressNList];
-    newAddressNList[2] += 1; // Increment account index
-    
-    return {
-      addressNList: newAddressNList,
-      hardenedPath: [newAddressNList[0], newAddressNList[1], newAddressNList[2]],
-      relPath: [0, 0],
-      description: "GridPlus",
-    };
+    return eth.ethNextAccountPath(msg);
   }
 
   public async ethGetAddress(msg: core.ETHGetAddress): Promise<core.Address | null> {
@@ -393,16 +352,12 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     }
   }
 
-
-  // Solana Wallet Methods
   public solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> {
-    // Solana uses 4-level derivation path: m/44'/501'/account'/0'
-    // All indices must be hardened for ED25519 (matches SDK's SOLANA_DERIVATION)
     return [{ addressNList: [0x80000000 + 44, 0x80000000 + 501, 0x80000000 + msg.accountIdx, 0x80000000 + 0] }];
   }
 
   public async solanaGetAddress(msg: core.SolanaGetAddress): Promise<string | null> {
-    // CRITICAL FIX: Solana ED25519 requires ALL indices to be hardened
+    // Solana ED25519 requires ALL indices to be hardened
     // The chain adapter might send unhardened indices, so we need to fix them
     const correctedPath = msg.addressNList.map((idx, i) => {
       if (idx >= 0x80000000) {
@@ -462,7 +417,7 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       throw new Error("Device not connected");
     }
 
-    // CRITICAL FIX: Solana requires ALL 4 path indices to be hardened for ED25519
+    // Solana requires ALL 4 path indices to be hardened for ED25519
     // The chain adapter sometimes sends m/44'/501'/0'/0 (last index unhardened)
     // but GridPlus SDK requires m/44'/501'/0'/0' (all hardened)
     // Fix any unhardened indices by hardening them
@@ -515,7 +470,7 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       // Combine into 64-byte signature for Solana
       const signature = Buffer.concat([signData.sig.r, signData.sig.s]);
 
-      // CRITICAL FIX: Add the signature to the transaction before serializing
+      // Add the signature to the transaction before serializing
       // This attaches the signature to the transaction object so the full signed transaction
       // is returned, not just the message
       transaction.addSignature(new PublicKey(address), signature);
@@ -542,314 +497,31 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     };
   }
 
-  // TODO: remove highlander-based-development
-  // @ts-ignore
   public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
-    try {
-      if (!this.client) {
-        throw new Error("Device not connected");
-      }
-
-      // Prepare unsigned transaction data (common fields)
-      const unsignedTxBase = {
-        to: msg.to,
-        value: msg.value,
-        data: msg.data,
-        nonce: msg.nonce,
-        gasLimit: msg.gasLimit,
-        chainId: msg.chainId,
-      };
-
-      // Serialize unsigned transaction for signing using ethereumjs/tx
-      // For EIP-1559 transactions, we need to specify the 'london' hardfork to enable EIP-1559 support
-      const common = msg.maxFeePerGas
-        ? Common.custom({ chainId: msg.chainId }, { hardfork: 'london' })
-        : Common.custom({ chainId: msg.chainId });
-      const unsignedTx = msg.maxFeePerGas
-        ? FeeMarketEIP1559Transaction.fromTxData({
-            ...unsignedTxBase,
-            maxFeePerGas: msg.maxFeePerGas,
-            maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
-          }, { common })
-        : Transaction.fromTxData({ ...unsignedTxBase, gasPrice: msg.gasPrice }, { common });
-
-      // Get the payload for GridPlus general signing
-      // For EIP-1559 (type 2): use raw Buffer from getMessageToSign
-      // For legacy: RLP-encode the message first
-      const payload = msg.maxFeePerGas
-        ? unsignedTx.getMessageToSign(false)  // EIP-1559: raw Buffer
-        : encode(unsignedTx.getMessageToSign(false));  // Legacy: RLP-encoded Buffer
-
-      // Fetch calldata decoder for clear signing on device
-      const callDataDecoder = msg.to
-        ? await Utils.fetchCalldataDecoder(msg.data, msg.to, msg.chainId)
-        : undefined;
-
-      // Use GridPlus general signing (no currency field = general signing mode)
-      // General signing requires fw >= v0.15.0
-      const signingData = {
-        data: {
-          payload,
-          curveType: Constants.SIGNING.CURVES.SECP256K1,
-          hashType: Constants.SIGNING.HASHES.KECCAK256,
-          encodingType: Constants.SIGNING.ENCODINGS.EVM,
-          signerPath: msg.addressNList,
-          decoder: callDataDecoder?.def
-        }
-        // NO currency field - this enables general signing mode
-      };
-
-      // TODO: remove highlander-based-development
-      // @ts-ignore - GridPlus SDK external typing
-      const signedResult = await this.client.sign(signingData);
-
-      if (!signedResult?.sig) {
-        throw new Error("No signature returned from device");
-      }
-
-      const { r, s, v } = signedResult.sig;
-
-      // Process signature components
-      try {
-        const rHex = "0x" + (Buffer.isBuffer(r) ? r.toString('hex') : core.toHexString(r));
-        const sHex = "0x" + (Buffer.isBuffer(s) ? s.toString('hex') : core.toHexString(s));
-
-        // For general signing, v is returned as Buffer/number and can be used directly
-        // @ethereumjs/tx will handle the proper v value format for EIP-1559 vs legacy
-        const vHex = "0x" + (Buffer.isBuffer(v) ? v.toString('hex') : core.toHexString(v));
-
-        // Create signed transaction using ethereumjs/tx
-        // This library properly handles EIP-1559 vs legacy transaction formats
-        const signedTx = msg.maxFeePerGas
-          ? FeeMarketEIP1559Transaction.fromTxData({
-              ...unsignedTxBase,
-              maxFeePerGas: msg.maxFeePerGas,
-              maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
-              r: rHex,
-              s: sHex,
-              v: vHex,
-            }, { common })
-          : Transaction.fromTxData({
-              ...unsignedTxBase,
-              gasPrice: msg.gasPrice,
-              r: rHex,
-              s: sHex,
-              v: vHex,
-            }, { common });
-
-        // Serialize the signed transaction
-        const finalSerializedTx = `0x${signedTx.serialize().toString('hex')}`;
-
-        // Return v as the raw value from GridPlus (not converted)
-        const vRaw = Buffer.isBuffer(v) ? v.readUInt8(0) : v;
-
-        const result = {
-          r: rHex,
-          s: sHex,
-          v: vRaw,
-          serialized: finalSerializedTx,
-        };
-
-        return result;
-      } catch (error) {
-        throw error;
-      }
-    } catch (error) {
-      throw error;
+    if (!this.client) {
+      throw new Error("Device not connected");
     }
+    return eth.ethSignTx(this.client!, msg);
   }
 
-  // TODO: remove highlander-based-development
-  // @ts-ignore
   public async ethSignTypedData(msg: core.ETHSignTypedData): Promise<core.ETHSignedTypedData> {
-    try {
-      if (!this.client) {
-        throw new Error("Device not connected");
-      }
-
-      // Check firmware supports EIP-712
-      const fwConstants = this.client.getFwConstants();
-      if (!fwConstants.eip712Supported) {
-        throw new Error("EIP-712 signing not supported by firmware version");
-      }
-
-      // Get the address for this path
-      const addressResult = await this.ethGetAddress({
-        addressNList: msg.addressNList,
-        showDisplay: false,
-      });
-
-      // Use GridPlus SDK's built-in EIP-712 support with protocol parameter
-      // Pass the FULL typed data structure (not pre-hashed)
-      // The SDK/firmware will handle hashing and signing internally
-      const signingOptions = {
-        currency: 'ETH_MSG' as any,  // ETH_MSG currency for message signing
-        data: {
-          protocol: 'eip712' as any,  // Specify EIP-712 protocol
-          payload: msg.typedData,      // Pass full typed data structure
-          signerPath: msg.addressNList,
-        }
-      };
-
-      // TODO: remove highlander-based-development
-      // @ts-ignore - GridPlus SDK external typing
-      const signedResult = await this.client.sign(signingOptions);
-
-      if (!signedResult?.sig) {
-        throw new Error("No signature returned from device");
-      }
-
-      const { r, s, v } = signedResult.sig;
-
-      // Format signature components - r and s come as hex strings from the device
-      // DO NOT double-encode them!
-      let rHex: string;
-      let sHex: string;
-
-      if (Buffer.isBuffer(r)) {
-        rHex = "0x" + r.toString('hex');
-      } else if (typeof r === 'string') {
-        // r is a string (TypeScript knows this now)
-        if ((r as string).startsWith('0x')) {
-          rHex = r; // Already hex with 0x prefix
-        } else {
-          rHex = "0x" + r; // Hex without 0x prefix
-        }
-      } else {
-        throw new Error(`Unexpected r format: ${typeof r}`);
-      }
-
-      if (Buffer.isBuffer(s)) {
-        sHex = "0x" + s.toString('hex');
-      } else if (typeof s === 'string') {
-        // s is a string (TypeScript knows this now)
-        if ((s as string).startsWith('0x')) {
-          sHex = s; // Already hex with 0x prefix
-        } else {
-          sHex = "0x" + s; // Hex without 0x prefix
-        }
-      } else {
-        throw new Error(`Unexpected s format: ${typeof s}`);
-      }
-
-      // v is returned by device for EIP-712
-      const vBuf = Buffer.isBuffer(v) ? v : (typeof v === 'number' ? Buffer.from([v]) : Buffer.from(v));
-      const vValue = vBuf.readUInt8(0);
-      const vHex = "0x" + vValue.toString(16);
-
-      const signature = rHex + sHex.slice(2) + vHex.slice(2);
-
-      return {
-        // TODO: remove highlander-based-development
-        // @ts-ignore
-        address: addressResult,
-        signature: signature,
-      };
-    } catch (error) {
-      throw error;
+    if (!this.client) {
+      throw new Error("Device not connected");
     }
+    return eth.ethSignTypedData(this.client!, this.ethGetAddress.bind(this), msg);
   }
 
-  // TODO: remove highlander-based-development
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
-    try {
-      if (!this.client) {
-        throw new Error("Device not connected");
-      }
-
-      // Check if client has the sign method
-      if (typeof this.client.sign !== 'function') {
-        throw new Error("GridPlus client missing required sign method");
-      }
-
-      // Get the address for this path
-      const addressResult = await this.ethGetAddress({
-        addressNList: msg.addressNList,
-        showDisplay: false,
-      });
-
-      // For personal_sign, the message needs to be hex-encoded
-      // If it's not already hex, convert it
-      let hexMessage: string;
-      if (msg.message.startsWith('0x')) {
-        hexMessage = msg.message;
-      } else {
-        // Convert string to hex
-        const buffer = Buffer.from(msg.message, 'utf8');
-        hexMessage = '0x' + buffer.toString('hex');
-      }
-
-      // Use GridPlus SDK's ETH_MSG currency with signPersonal protocol
-      // This handles the Ethereum message prefix automatically
-      const signingOptions = {
-        currency: 'ETH_MSG' as any,  // ETH_MSG currency for message signing
-        data: {
-          protocol: 'signPersonal' as any,  // Use signPersonal protocol for personal_sign
-          payload: hexMessage,               // Hex-encoded message
-          signerPath: msg.addressNList,
-        }
-      };
-
-      // TODO: remove highlander-based-development
-      // @ts-ignore - GridPlus SDK external typing
-      const signedResult = await this.client.sign(signingOptions);
-
-      if (!signedResult?.sig) {
-        throw new Error("No signature returned from device");
-      }
-
-      const { r, s, v } = signedResult.sig;
-
-      // Format signature components - same as EIP-712
-      let rHex: string;
-      let sHex: string;
-
-      if (Buffer.isBuffer(r)) {
-        rHex = "0x" + r.toString('hex');
-      } else if (typeof r === 'string') {
-        if ((r as string).startsWith('0x')) {
-          rHex = r;
-        } else {
-          rHex = "0x" + r;
-        }
-      } else {
-        throw new Error(`Unexpected r format: ${typeof r}`);
-      }
-
-      if (Buffer.isBuffer(s)) {
-        sHex = "0x" + s.toString('hex');
-      } else if (typeof s === 'string') {
-        if ((s as string).startsWith('0x')) {
-          sHex = s;
-        } else {
-          sHex = "0x" + s;
-        }
-      } else {
-        throw new Error(`Unexpected s format: ${typeof s}`);
-      }
-
-      // v is returned by device for personal_sign
-      const vBuf = Buffer.isBuffer(v) ? v : (typeof v === 'number' ? Buffer.from([v]) : Buffer.from(v));
-      const vValue = vBuf.readUInt8(0);
-      const vHex = "0x" + vValue.toString(16);
-
-      const signature = rHex + sHex.slice(2) + vHex.slice(2);
-
-      return {
-        address: addressResult as string,
-        signature: signature,
-      };
-    } catch (error) {
-      throw error;
+    if (!this.client) {
+      throw new Error("Device not connected");
     }
+    return eth.ethSignMessage(this.client!, this.ethGetAddress.bind(this), msg);
   }
 
-  // TODO: remove highlander-based-development
   public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
-    throw new Error("GridPlus ethVerifyMessage not implemented yet");
+    return eth.ethVerifyMessage(msg);
   }
 
-  // Bitcoin Wallet Methods
   public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
     // Support Bitcoin, Dogecoin, Litecoin
     return ["Bitcoin", "Dogecoin", "Litecoin", "Testnet"].includes(coin);
@@ -1529,8 +1201,6 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     }
   }
 
-  // ============ Cosmos Support ============
-
   private bech32ify(address: ArrayLike<number>, prefix: string): string {
     const words = bech32.toWords(address);
     return bech32.encode(prefix, words);
@@ -1684,8 +1354,6 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     };
   }
 
-  // ============ THORChain Support ============
-
   public async thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string | null> {
     if (!this.client) {
       throw new Error("Device not connected");
@@ -1828,8 +1496,6 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
       addressNList: newAddressNList,
     };
   }
-
-  // ============ MAYAchain Support ============
 
   public async mayachainGetAddress(msg: core.MayachainGetAddress): Promise<string | null> {
     if (!this.client) {
