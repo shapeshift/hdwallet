@@ -14,17 +14,17 @@ export const btcGetAccountPaths = (msg: core.BTCGetAccountPaths): Array<core.BTC
   const slip44 = core.slip44ByCoin(msg.coin);
   if (!slip44) throw new Error(`Unsupported coin: ${msg.coin}`);
 
-  const scriptTypes: core.BTCInputScriptType[] = [];
-
-  if (msg.coin === "Dogecoin" || msg.coin === "BitcoinCash") {
-    scriptTypes.push(core.BTCInputScriptType.SpendAddress);
-  } else {
-    scriptTypes.push(
-      core.BTCInputScriptType.SpendAddress,
-      core.BTCInputScriptType.SpendP2SHWitness,
-      core.BTCInputScriptType.SpendWitness
-    );
-  }
+  const scriptTypes: core.BTCInputScriptType[] = (() => {
+    if (msg.coin === "Dogecoin" || msg.coin === "BitcoinCash") {
+      return [core.BTCInputScriptType.SpendAddress];
+    } else {
+      return [
+        core.BTCInputScriptType.SpendAddress,
+        core.BTCInputScriptType.SpendP2SHWitness,
+        core.BTCInputScriptType.SpendWitness
+      ];
+    }
+  })();
 
   return scriptTypes.map(scriptType => {
     const purpose = scriptTypeToPurpose(scriptType);
@@ -37,9 +37,9 @@ export const btcGetAccountPaths = (msg: core.BTCGetAccountPaths): Array<core.BTC
 };
 
 export async function btcGetAddress(client: Client, msg: core.BTCGetAddress): Promise<string | null> {
-  // Get compressed public key from device (works for all UTXO coins)
+  // Get compressed public key from device (works for all UTXOs)
   // Using SECP256K1_PUB flag bypasses Lattice's address formatting,
-  // which only supports Bitcoin/Ethereum/Solana
+  // which only supports Bitcoin/EVM chains/Solana
   const pubkeys = await client.getAddresses({
     startPath: msg.addressNList,
     n: 1,
@@ -68,7 +68,7 @@ export async function btcGetAddress(client: Client, msg: core.BTCGetAddress): Pr
 }
 
 export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
-  // All UTXO coins (Bitcoin, Dogecoin, Litecoin, BitcoinCash) use Bitcoin-compatible transaction formats.
+  // All UTXOs (Bitcoin, Dogecoin, Litecoin, Bitcoin Cash) use Bitcoin-compatible transaction formats.
   // The 'BTC' currency parameter is just SDK routing - the device signs Bitcoin-formatted transactions.
   // Address derivation already handles all coins via client-side derivation with proper network parameters.
 
@@ -116,7 +116,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
 
 
   try {
-    if (msg.coin === "Bitcoin" || msg.coin === "Testnet") {
+    if (msg.coin === "Bitcoin") {
       const signData = await client.sign({
         currency: 'BTC',
         data: payload,
@@ -179,6 +179,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
         }
 
         const { hash160, scriptPubKey } = (() => {
+          // Native SegWit (bech32): ltc1 for Litecoin, bc1 for Bitcoin
           if (address.startsWith('ltc1') || address.startsWith('bc1')) {
             const decoded = bech32.decode(address);
             const hash160 = Buffer.from(bech32.fromWords(decoded.words.slice(1)));
@@ -190,6 +191,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
             return { hash160, scriptPubKey };
           }
 
+          // Bitcoin Cash CashAddr format: bitcoincash: prefix or q for mainnet
           if (address.startsWith('bitcoincash:') || address.startsWith('q')) {
             const legacyAddress = bchAddr.toLegacyAddress(address);
 
@@ -246,14 +248,15 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
         // Build signature preimage based on input type
         let signaturePreimage: Buffer;
         const hashType = msg.coin === 'BitcoinCash'
-          ? bitcoin.Transaction.SIGHASH_ALL | 0x40  // SIGHASH_FORKID for BitcoinCash
+          ? bitcoin.Transaction.SIGHASH_ALL | 0x40  // SIGHASH_FORKID for Bitcoin Cash
           : bitcoin.Transaction.SIGHASH_ALL;
 
-        // BitcoinCash requires BIP143 for both P2PKH and P2WPKH
+        // BIP143 signing for SegWit inputs (all coins) and Bitcoin Cash P2PKH
+        // See: https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
         const useBIP143 = isSegwit || msg.coin === 'BitcoinCash';
 
         if (useBIP143) {
-          // BIP143 signing (used for SegWit and BitcoinCash)
+          // BIP143 signing (used for SegWit and Bitcoin Cash)
           const hashPrevouts = CryptoJS.SHA256(CryptoJS.SHA256(
             CryptoJS.lib.WordArray.create(Buffer.concat(
               msg.inputs.map(inp => Buffer.concat([
@@ -298,7 +301,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
               bitcoin.opcodes.OP_CHECKSIG
             ]));
           } else {
-            // P2PKH (BitcoinCash): scriptCode IS the scriptPubKey
+            // P2PKH (Bitcoin Cash): scriptCode IS the scriptPubKey
             scriptCode = Buffer.from(scriptPubKey);
           }
 
@@ -330,13 +333,13 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
           if (!decompiled) {
             throw new Error(`Failed to decompile scriptPubKey for input ${i}`);
           }
-          const ourScript = bitcoin.script.compile(
+          const scriptPubKeyForSigning = bitcoin.script.compile(
             decompiled.filter(x => x !== bitcoin.opcodes.OP_CODESEPARATOR)
           );
 
           // For SIGHASH_ALL: blank all input scripts except the one being signed
           txTmp.ins.forEach((txInput, idx) => {
-            txInput.script = idx === i ? ourScript : Buffer.alloc(0);
+            txInput.script = idx === i ? scriptPubKeyForSigning : Buffer.alloc(0);
           });
 
           // Serialize transaction + append hashType (4 bytes)
@@ -346,7 +349,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
           signaturePreimage = Buffer.concat([txBuffer, hashTypeBuffer]);
         }
 
-        // Bitcoin/Dogecoin/Litecoin require double SHA256 for transaction signatures.
+        // UTXOs require double SHA256 for transaction signatures.
         // Strategy: Hash once ourselves, then let device hash again (SHA256 + SHA256 = double SHA256)
         // This avoids using hashType.NONE which causes "Invalid Request" errors.
         const hash1 = CryptoJS.SHA256(CryptoJS.lib.WordArray.create(signaturePreimage));
@@ -405,7 +408,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
 
         // Use the same hashType that was used for the signature preimage
         const sigHashType = msg.coin === 'BitcoinCash'
-          ? bitcoin.Transaction.SIGHASH_ALL | 0x40  // SIGHASH_FORKID
+          ? bitcoin.Transaction.SIGHASH_ALL | 0x40  // SIGHASH_FORKID for Bitcoin Cash
           : bitcoin.Transaction.SIGHASH_ALL;
         const derSig = encodeDerSignature(rBuf, sBuf, sigHashType);
         signatures.push(derSig.toString("hex"));
@@ -498,6 +501,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
         }
 
         const { hash160, scriptPubKey } = (() => {
+          // Native SegWit (bech32): ltc1 for Litecoin, bc1 for Bitcoin
           if (address.startsWith('ltc1') || address.startsWith('bc1')) {
             const decoded = bech32.decode(address);
             const hash160 = Buffer.from(bech32.fromWords(decoded.words.slice(1)));
@@ -509,6 +513,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
             return { hash160, scriptPubKey };
           }
 
+          // Bitcoin Cash CashAddr format: bitcoincash: prefix or q for mainnet
           if (address.startsWith('bitcoincash:') || address.startsWith('q')) {
             const legacyAddress = bchAddr.toLegacyAddress(address);
 

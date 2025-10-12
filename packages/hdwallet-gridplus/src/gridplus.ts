@@ -245,7 +245,7 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
           flag,
         });
 
-        if (!addresses || addresses.length === 0) {
+        if (!addresses.length) {
           throw new Error("No public key returned from device");
         }
 
@@ -334,12 +334,13 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
 
       // Handle response format (could be Buffer or string)
       if (Buffer.isBuffer(rawAddress)) {
+        // Device returns raw address bytes without 0x prefix - add it for EVM compatibility
         address = '0x' + rawAddress.toString('hex');
       } else {
         address = rawAddress.toString();
       }
 
-      // Ensure address starts with 0x for EVM
+      // Device may return address without 0x prefix - ensure it's present for EVM compatibility
       if (!address.startsWith('0x')) {
         address = '0x' + address;
       }

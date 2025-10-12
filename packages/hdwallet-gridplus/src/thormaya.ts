@@ -26,7 +26,7 @@ export async function thorchainGetAddress(
       flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
     });
 
-    if (!addresses || addresses.length === 0) {
+    if (!addresses.length) {
       throw new Error("No address returned from device");
     }
 
@@ -59,7 +59,7 @@ export async function thorchainSignTx(
       flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
     });
 
-    if (!pubkeys || pubkeys.length === 0) {
+    if (!pubkeys.length) {
       throw new Error("No public key returned from device");
     }
 
@@ -160,7 +160,7 @@ export async function mayachainGetAddress(client: Client, msg: core.MayachainGet
       flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
     });
 
-    if (!addresses || addresses.length === 0) {
+    if (!addresses.length) {
       throw new Error("No address returned from device");
     }
 
@@ -193,7 +193,7 @@ export async function mayachainSignTx(
       flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
     });
 
-    if (!pubkeys || pubkeys.length === 0) {
+    if (!pubkeys.length) {
       throw new Error("No public key returned from device");
     }
 

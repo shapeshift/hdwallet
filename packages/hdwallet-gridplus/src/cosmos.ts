@@ -34,7 +34,7 @@ export async function cosmosGetAddress(client: Client, msg: core.CosmosGetAddres
       flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
     });
 
-    if (!addresses || addresses.length === 0) {
+    if (!addresses.length) {
       throw new Error("No address returned from device");
     }
 
@@ -67,7 +67,7 @@ export async function cosmosSignTx(
       flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
     });
 
-    if (!pubkeys || pubkeys.length === 0) {
+    if (!pubkeys.length) {
       throw new Error("No public key returned from device");
     }
 

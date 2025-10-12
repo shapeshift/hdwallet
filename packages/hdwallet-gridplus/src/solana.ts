@@ -7,6 +7,9 @@ export const solanaGetAccountPaths = (msg: core.SolanaGetAccountPaths): Array<co
   [{ addressNList: [0x80000000 + 44, 0x80000000 + 501, 0x80000000 + msg.accountIdx, 0x80000000 + 0] }];
 
 export async function solanaGetAddress(client: Client, msg: core.SolanaGetAddress): Promise<string | null> {
+  // Solana requires all path indices to be hardened (BIP32 hardened derivation)
+  // Hardening is indicated by setting the highest bit (0x80000000)
+  // If an index is already >= 0x80000000, it's already hardened; otherwise add 0x80000000
   const correctedPath = msg.addressNList.map((idx) => {
     if (idx >= 0x80000000) {
       return idx;
@@ -34,7 +37,7 @@ export async function solanaGetAddress(client: Client, msg: core.SolanaGetAddres
       flag: Constants.GET_ADDR_FLAGS.ED25519_PUB,
     });
 
-    if (!addresses || addresses.length === 0) {
+    if (!addresses.length) {
       throw new Error("No address returned from device");
     }
 
@@ -55,6 +58,7 @@ export async function solanaSignTx(
   addressGetter: (msg: core.SolanaGetAddress) => Promise<string | null>,
   msg: core.SolanaSignTx
 ): Promise<core.SolanaSignedTx | null> {
+  // Ensure all path indices are hardened for Solana (see solanaGetAddress for explanation)
   const correctedPath = msg.addressNList.map(idx => {
     if (idx >= 0x80000000) return idx;
     return idx + 0x80000000;
