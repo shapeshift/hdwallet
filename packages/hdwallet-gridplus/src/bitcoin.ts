@@ -10,7 +10,7 @@ import CryptoJS from "crypto-js";
 import { UTXO_NETWORK_PARAMS } from "./constants";
 import { deriveAddressFromPubkey } from "./utils";
 
-export function btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
+export const btcGetAccountPaths = (msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> => {
   const slip44 = core.slip44ByCoin(msg.coin);
   if (!slip44) throw new Error(`Unsupported coin: ${msg.coin}`);
 
@@ -34,7 +34,7 @@ export function btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTC
       addressNList: [0x80000000 + purpose, 0x80000000 + slip44, 0x80000000 + (msg.accountIdx || 0), 0, 0],
     };
   });
-}
+};
 
 export async function btcGetAddress(client: Client, msg: core.BTCGetAddress): Promise<string | null> {
   // Get compressed public key from device (works for all UTXO coins)
@@ -555,7 +555,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
   }
 }
 
-export function btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
+export const btcNextAccountPath = (msg: core.BTCAccountPath): core.BTCAccountPath | undefined => {
   const newAddressNList = [...msg.addressNList];
   newAddressNList[2] += 1;
 
@@ -563,7 +563,7 @@ export function btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPat
     ...msg,
     addressNList: newAddressNList,
   };
-}
+};
 
 const scriptTypeToPurpose = (scriptType: core.BTCInputScriptType): number => {
   switch (scriptType) {

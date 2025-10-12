@@ -6,7 +6,7 @@ import { encode } from "rlp";
 
 export const ethSupportsNetwork = (ethNetworkId: number): boolean => true;
 
-export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
+export const ethGetAccountPaths = (msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> => {
   const slip44 = core.slip44ByCoin(msg.coin);
 
   if (slip44 === undefined) {
@@ -23,9 +23,9 @@ export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHA
       description: `GridPlus-${msg.coin}-${msg.accountIdx}`,
     },
   ];
-}
+};
 
-export function ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
+export const ethNextAccountPath = (msg: core.ETHAccountPath): core.ETHAccountPath | undefined => {
   const addressNList = msg.hardenedPath.concat(msg.relPath);
   const description = core.describeETHPath(addressNList);
   if (!description.isKnown || description.accountIdx === undefined) {
@@ -41,7 +41,7 @@ export function ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPat
     relPath: [0, 0],
     description: "GridPlus",
   };
-}
+};
 
 export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
   try {
