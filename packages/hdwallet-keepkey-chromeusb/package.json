@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-chromeusb",
-  "version": "1.62.4-alpha.84",
+  "version": "1.62.4-alpha.182",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.84",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.62.4-alpha.84"
+    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.182",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.62.4-alpha.182"
   },
-  "gitHead": "0d821fdf3e3578baa6a10a96fadb9fcc8fe8b4fd"
+  "gitHead": "a7e19917f5533b61687095651723ea422fa73d6f"
 }
