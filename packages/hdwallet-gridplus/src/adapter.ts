@@ -16,17 +16,18 @@ export class GridPlusAdapter {
   }
 
   public async connectDevice(deviceId: string, password?: string, existingSessionId?: string): Promise<{ transport: GridPlusTransport, isPaired: boolean, sessionId: string }> {
-    // Get or create transport for this device
-    let transport = this.activeTransports.get(deviceId);
-    if (!transport) {
-      transport = new GridPlusTransport({
+    const transport = (() => {
+      const existing = this.activeTransports.get(deviceId);
+      if (existing) return existing;
+
+      const newTransport = new GridPlusTransport({
         deviceId,
         password: password || "shapeshift-default"
       });
-      this.activeTransports.set(deviceId, transport);
-    }
+      this.activeTransports.set(deviceId, newTransport);
+      return newTransport;
+    })();
 
-    // Attempt connection with optional existing sessionId
     try {
       const { isPaired, sessionId } = await transport.setup(deviceId, password, existingSessionId);
       return { transport, isPaired, sessionId };
@@ -48,18 +49,10 @@ export class GridPlusAdapter {
         throw new Error("Pairing failed. Please check the 8-character code displayed on your Lattice device.");
       }
 
-      // Create the wallet
       const wallet = new GridPlusHDWallet(transport);
-
-      // Set the walletId for cache isolation
       wallet.setActiveWalletId(deviceId);
-
       await wallet.initialize();
-
-      // Add to keyring
       this.keyring.add(wallet, deviceId);
-
-      // Clean up transport from active list since pairing is complete
       this.activeTransports.delete(deviceId);
 
       return wallet;
@@ -68,15 +61,11 @@ export class GridPlusAdapter {
     }
   }
 
-  // Legacy method for backward compatibility - now simplified
   public async pairDevice(deviceId: string, password?: string, pairingCode?: string, existingSessionId?: string): Promise<GridPlusHDWallet> {
     const existingWallet = this.keyring.get<GridPlusHDWallet>(deviceId);
     if (existingWallet) {
-      // Reset Client activeWallets state and fetch fresh UIDs from currently inserted SafeCard
       await existingWallet.transport.setup(deviceId, password, existingSessionId);
-      // Ensure the wallet has the correct active walletId set
       existingWallet.setActiveWalletId(deviceId);
-      // Reinitialize to clear cached addresses when reconnecting (e.g., SafeCard swap)
       await existingWallet.initialize();
       return existingWallet;
     }
@@ -91,10 +80,8 @@ export class GridPlusAdapter {
       }
     }
 
-    // Already paired - create wallet directly
     const transport = this.activeTransports.get(deviceId)!;
     const wallet = new GridPlusHDWallet(transport);
-    // Set the walletId for cache isolation
     wallet.setActiveWalletId(deviceId);
     await wallet.initialize();
     this.keyring.add(wallet, deviceId);
