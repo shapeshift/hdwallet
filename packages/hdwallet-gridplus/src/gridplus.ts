@@ -7,6 +7,7 @@ import Common from "@ethereumjs/common";
 import { FeeMarketEIP1559Transaction, Transaction } from "@ethereumjs/tx";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bech32 from "bech32";
+import * as bchAddr from "bchaddrjs";
 import bs58 from "bs58";
 import { PublicKey } from "@solana/web3.js";
 import { decode as bs58Decode, encode as bs58Encode } from "bs58check";
@@ -1353,21 +1354,63 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
             throw new Error("Output must have either address or addressNList");
           }
 
-          const decoded = bs58Decode(address);
-          console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} base58-decoded length:`, decoded.length);
-          console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} base58-decoded (hex):`, decoded.toString('hex'));
+          const { hash160, scriptPubKey } = (() => {
+            if (address.startsWith('ltc1') || address.startsWith('bc1')) {
+              console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} detected format: bech32 (SegWit)`);
+              const decoded = bech32.decode(address);
+              console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} bech32 prefix:`, decoded.prefix);
+              const hash160 = Buffer.from(bech32.fromWords(decoded.words.slice(1)));
+              console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} hash160 (hex):`, hash160.toString('hex'));
+              console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} hash160 length:`, hash160.length);
 
-          const hash160 = decoded.slice(1);
-          console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} hash160 length:`, hash160.length);
-          console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} hash160 (hex):`, hash160.toString('hex'));
+              const scriptPubKey = bitcoin.script.compile([
+                bitcoin.opcodes.OP_0,
+                hash160
+              ]);
+              return { hash160, scriptPubKey };
+            }
 
-          const scriptPubKey = bitcoin.script.compile([
-            bitcoin.opcodes.OP_DUP,
-            bitcoin.opcodes.OP_HASH160,
-            hash160,
-            bitcoin.opcodes.OP_EQUALVERIFY,
-            bitcoin.opcodes.OP_CHECKSIG
-          ]);
+            if (address.startsWith('bitcoincash:') || address.startsWith('q')) {
+              console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} detected format: CashAddr (BitcoinCash)`);
+              const legacyAddress = bchAddr.toLegacyAddress(address);
+              console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} legacy address:`, legacyAddress);
+
+              const decoded = bs58Decode(legacyAddress);
+              console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} base58-decoded length:`, decoded.length);
+              console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} base58-decoded (hex):`, decoded.toString('hex'));
+
+              const hash160 = decoded.slice(1);
+              console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} hash160 (hex):`, hash160.toString('hex'));
+              console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} hash160 length:`, hash160.length);
+
+              const scriptPubKey = bitcoin.script.compile([
+                bitcoin.opcodes.OP_DUP,
+                bitcoin.opcodes.OP_HASH160,
+                hash160,
+                bitcoin.opcodes.OP_EQUALVERIFY,
+                bitcoin.opcodes.OP_CHECKSIG
+              ]);
+              return { hash160, scriptPubKey };
+            }
+
+            console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} detected format: base58 (P2PKH)`);
+            const decoded = bs58Decode(address);
+            console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} base58-decoded length:`, decoded.length);
+            console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} base58-decoded (hex):`, decoded.toString('hex'));
+
+            const hash160 = decoded.slice(1);
+            console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} hash160 (hex):`, hash160.toString('hex'));
+            console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} hash160 length:`, hash160.length);
+
+            const scriptPubKey = bitcoin.script.compile([
+              bitcoin.opcodes.OP_DUP,
+              bitcoin.opcodes.OP_HASH160,
+              hash160,
+              bitcoin.opcodes.OP_EQUALVERIFY,
+              bitcoin.opcodes.OP_CHECKSIG
+            ]);
+            return { hash160, scriptPubKey };
+          })();
           console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} scriptPubKey length:`, scriptPubKey.length);
           console.log(`[GridPlus BTC Sign] [INITIAL TX] Output ${outputIdx} scriptPubKey (hex):`, Buffer.from(scriptPubKey).toString('hex'));
 
@@ -1398,32 +1441,130 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
           const prevOutput = prevTx.outs[input.vout];
           const scriptPubKey = prevOutput.script;
 
-          // Reconstruct the UNHASHED serialization that Bitcoin uses for signing
-          // This mirrors what hashForSignature() does internally, but WITHOUT the final hash256()
-          // We pass this unhashed data to GridPlus with SHA256 hashType so the device performs the hash
+          // Detect input type from scriptPubKey
+          // P2WPKH (SegWit): 0x00 0x14 <20-byte-hash>
+          const isSegwit = scriptPubKey.length === 22 &&
+                           scriptPubKey[0] === 0x00 &&
+                           scriptPubKey[1] === 0x14;
+          console.log(`[GridPlus BTC Sign] Input ${i} type: ${isSegwit ? 'P2WPKH (SegWit)' : 'P2PKH (Legacy)'}`);
+          console.log(`[GridPlus BTC Sign] Input ${i} scriptPubKey:`, Buffer.from(scriptPubKey).toString('hex'));
 
-          // Clone transaction and prepare for signing (following Bitcoin's SIGHASH_ALL logic)
-          const txTmp = tx.clone();
+          // Build signature preimage based on input type
+          let signaturePreimage: Buffer;
+          const hashType = msg.coin === 'BitcoinCash'
+            ? bitcoin.Transaction.SIGHASH_ALL | 0x40  // SIGHASH_FORKID for BitcoinCash
+            : bitcoin.Transaction.SIGHASH_ALL;
 
-          // Remove OP_CODESEPARATOR from scriptPubKey (Bitcoin standard)
-          const decompiled = bitcoin.script.decompile(scriptPubKey);
-          if (!decompiled) {
-            throw new Error(`Failed to decompile scriptPubKey for input ${i}`);
+          // BitcoinCash requires BIP143 for both P2PKH and P2WPKH
+          const useBIP143 = isSegwit || msg.coin === 'BitcoinCash';
+
+          if (useBIP143) {
+            // BIP143 signing (used for SegWit and BitcoinCash)
+            if (isSegwit) {
+              console.log(`[GridPlus BTC Sign] Input ${i} using BIP143 SegWit signing`);
+            } else {
+              console.log(`[GridPlus BTC Sign] Input ${i} using BIP143 signing (BitcoinCash P2PKH)`);
+            }
+            // bitcoinjs-lib's hashForWitnessV0 computes the full double-sha256 hash
+            // We need the unhashed preimage, so we'll manually construct it
+
+            // BIP143 preimage structure:
+            // 1. nVersion (4 bytes)
+            // 2. hashPrevouts (32 bytes)
+            // 3. hashSequence (32 bytes)
+            // 4. outpoint (36 bytes)
+            // 5. scriptCode (variable)
+            // 6. value (8 bytes)
+            // 7. nSequence (4 bytes)
+            // 8. hashOutputs (32 bytes)
+            // 9. nLocktime (4 bytes)
+            // 10. nHashType (4 bytes)
+
+            const hashPrevouts = CryptoJS.SHA256(CryptoJS.SHA256(
+              CryptoJS.lib.WordArray.create(Buffer.concat(
+                msg.inputs.map(inp => Buffer.concat([
+                  Buffer.from((inp as any).txid, 'hex').reverse(),
+                  Buffer.from([inp.vout, 0, 0, 0])
+                ]))
+              ))
+            ));
+
+            const hashSequence = CryptoJS.SHA256(CryptoJS.SHA256(
+              CryptoJS.lib.WordArray.create(Buffer.concat(
+                msg.inputs.map(() => Buffer.from([0xff, 0xff, 0xff, 0xff]))
+              ))
+            ));
+
+            const hashOutputs = CryptoJS.SHA256(CryptoJS.SHA256(
+              CryptoJS.lib.WordArray.create(Buffer.concat(
+                tx.outs.map(out => {
+                  // Convert bigint to number for small UTXO values
+                  const valueNum = typeof out.value === 'bigint' ? Number(out.value) : out.value;
+                  const valueBuffer = Buffer.alloc(8);
+                  valueBuffer.writeUInt32LE(valueNum & 0xffffffff, 0);
+                  valueBuffer.writeUInt32LE(Math.floor(valueNum / 0x100000000), 4);
+                  return Buffer.concat([
+                    valueBuffer,
+                    Buffer.from([out.script.length]),
+                    out.script
+                  ]);
+                })
+              ))
+            ));
+
+            // scriptCode for P2WPKH: OP_DUP OP_HASH160 <20-byte-hash> OP_EQUALVERIFY OP_CHECKSIG
+            const scriptCode = bitcoin.script.compile([
+              bitcoin.opcodes.OP_DUP,
+              bitcoin.opcodes.OP_HASH160,
+              scriptPubKey.slice(2), // Remove OP_0 and length byte
+              bitcoin.opcodes.OP_EQUALVERIFY,
+              bitcoin.opcodes.OP_CHECKSIG
+            ]);
+
+            const value = parseInt(input.amount || "0");
+            const valueBuffer = Buffer.alloc(8);
+            valueBuffer.writeUInt32LE(value & 0xffffffff, 0);
+            valueBuffer.writeUInt32LE(Math.floor(value / 0x100000000), 4);
+
+            signaturePreimage = Buffer.concat([
+              Buffer.from([tx.version, 0, 0, 0]),
+              Buffer.from(hashPrevouts.toString(CryptoJS.enc.Hex), 'hex'),
+              Buffer.from(hashSequence.toString(CryptoJS.enc.Hex), 'hex'),
+              Buffer.from((input as any).txid, 'hex').reverse(),
+              Buffer.from([input.vout, 0, 0, 0]),
+              Buffer.from([scriptCode.length]),
+              scriptCode,
+              valueBuffer,
+              Buffer.from([0xff, 0xff, 0xff, 0xff]), // sequence
+              Buffer.from(hashOutputs.toString(CryptoJS.enc.Hex), 'hex'),
+              Buffer.from([tx.locktime, 0, 0, 0]),
+              Buffer.from([hashType, 0, 0, 0])
+            ]);
+          } else {
+            // Legacy signing
+            console.log(`[GridPlus BTC Sign] Input ${i} using legacy P2PKH signing`);
+            const txTmp = tx.clone();
+
+            // Remove OP_CODESEPARATOR from scriptPubKey (Bitcoin standard)
+            const decompiled = bitcoin.script.decompile(scriptPubKey);
+            if (!decompiled) {
+              throw new Error(`Failed to decompile scriptPubKey for input ${i}`);
+            }
+            const ourScript = bitcoin.script.compile(
+              decompiled.filter(x => x !== bitcoin.opcodes.OP_CODESEPARATOR)
+            );
+
+            // For SIGHASH_ALL: blank all input scripts except the one being signed
+            txTmp.ins.forEach((txInput, idx) => {
+              txInput.script = idx === i ? ourScript : Buffer.alloc(0);
+            });
+
+            // Serialize transaction + append hashType (4 bytes)
+            const txBuffer = txTmp.toBuffer();
+            const hashTypeBuffer = Buffer.alloc(4);
+            hashTypeBuffer.writeUInt32LE(hashType, 0);
+            signaturePreimage = Buffer.concat([txBuffer, hashTypeBuffer]);
           }
-          const ourScript = bitcoin.script.compile(
-            decompiled.filter(x => x !== bitcoin.opcodes.OP_CODESEPARATOR)
-          );
-
-          // For SIGHASH_ALL: blank all input scripts except the one being signed
-          txTmp.ins.forEach((txInput, idx) => {
-            txInput.script = idx === i ? ourScript : Buffer.alloc(0);
-          });
-
-          // Serialize transaction + append SIGHASH_ALL (4 bytes)
-          const txBuffer = txTmp.toBuffer();
-          const hashTypeBuffer = Buffer.alloc(4);
-          hashTypeBuffer.writeUInt32LE(bitcoin.Transaction.SIGHASH_ALL, 0);
-          const signaturePreimage = Buffer.concat([txBuffer, hashTypeBuffer]);
 
           console.log(`[GridPlus BTC Sign] ===== INPUT ${i} DEBUG =====`);
           console.log(`[GridPlus BTC Sign] Path:`, input.addressNList);
@@ -1516,7 +1657,11 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
             return derSignature;
           }
 
-          const derSig = encodeDerSignature(rBuf, sBuf, bitcoin.Transaction.SIGHASH_ALL);
+          // Use the same hashType that was used for the signature preimage
+          const sigHashType = msg.coin === 'BitcoinCash'
+            ? bitcoin.Transaction.SIGHASH_ALL | 0x40  // SIGHASH_FORKID
+            : bitcoin.Transaction.SIGHASH_ALL;
+          const derSig = encodeDerSignature(rBuf, sBuf, sigHashType);
           signatures.push(derSig.toString("hex"));
         }
 
@@ -1551,13 +1696,28 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
             ? Buffer.from(pointCompress(pubkeyBuffer, true))
             : pubkeyBuffer;
 
-          // Use bitcoinjs-lib's script.compile for proper encoding
-          const scriptSig = bitcoin.script.compile([
-            derSig,
-            compressedPubkey,
-          ]);
+          // Detect input type to determine if we need SegWit or legacy encoding
+          const prevTx = bitcoin.Transaction.fromHex(input.hex);
+          const prevOutput = prevTx.outs[input.vout];
+          const isSegwit = prevOutput.script.length === 22 &&
+                           prevOutput.script[0] === 0x00 &&
+                           prevOutput.script[1] === 0x14;
 
-          finalTx.ins[i].script = scriptSig;
+          if (isSegwit) {
+            // SegWit: empty scriptSig, signature + pubkey in witness
+            finalTx.ins[i].script = Buffer.alloc(0);
+            finalTx.ins[i].witness = [derSig, compressedPubkey];
+            console.log(`[GridPlus BTC Sign] Input ${i} witness[0] (sig):`, derSig.toString('hex').slice(0, 40) + '...');
+            console.log(`[GridPlus BTC Sign] Input ${i} witness[1] (pubkey):`, compressedPubkey.toString('hex'));
+          } else {
+            // Legacy: signature + pubkey in scriptSig
+            const scriptSig = bitcoin.script.compile([
+              derSig,
+              compressedPubkey,
+            ]);
+            finalTx.ins[i].script = scriptSig;
+            console.log(`[GridPlus BTC Sign] Input ${i} scriptSig:`, Buffer.from(scriptSig).toString('hex').slice(0, 40) + '...');
+          }
         }
 
         // Add outputs - handle both address and addressNList
@@ -1603,21 +1763,63 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
             throw new Error("Output must have either address or addressNList");
           }
 
-          const decoded = bs58Decode(address);
-          console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} base58-decoded length:`, decoded.length);
-          console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} base58-decoded (hex):`, decoded.toString('hex'));
+          const { hash160, scriptPubKey } = (() => {
+            if (address.startsWith('ltc1') || address.startsWith('bc1')) {
+              console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} detected format: bech32 (SegWit)`);
+              const decoded = bech32.decode(address);
+              console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} bech32 prefix:`, decoded.prefix);
+              const hash160 = Buffer.from(bech32.fromWords(decoded.words.slice(1)));
+              console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} hash160 (hex):`, hash160.toString('hex'));
+              console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} hash160 length:`, hash160.length);
 
-          const hash160 = decoded.slice(1);
-          console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} hash160 length:`, hash160.length);
-          console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} hash160 (hex):`, hash160.toString('hex'));
+              const scriptPubKey = bitcoin.script.compile([
+                bitcoin.opcodes.OP_0,
+                hash160
+              ]);
+              return { hash160, scriptPubKey };
+            }
 
-          const scriptPubKey = bitcoin.script.compile([
-            bitcoin.opcodes.OP_DUP,
-            bitcoin.opcodes.OP_HASH160,
-            hash160,
-            bitcoin.opcodes.OP_EQUALVERIFY,
-            bitcoin.opcodes.OP_CHECKSIG
-          ]);
+            if (address.startsWith('bitcoincash:') || address.startsWith('q')) {
+              console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} detected format: CashAddr (BitcoinCash)`);
+              const legacyAddress = bchAddr.toLegacyAddress(address);
+              console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} legacy address:`, legacyAddress);
+
+              const decoded = bs58Decode(legacyAddress);
+              console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} base58-decoded length:`, decoded.length);
+              console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} base58-decoded (hex):`, decoded.toString('hex'));
+
+              const hash160 = decoded.slice(1);
+              console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} hash160 (hex):`, hash160.toString('hex'));
+              console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} hash160 length:`, hash160.length);
+
+              const scriptPubKey = bitcoin.script.compile([
+                bitcoin.opcodes.OP_DUP,
+                bitcoin.opcodes.OP_HASH160,
+                hash160,
+                bitcoin.opcodes.OP_EQUALVERIFY,
+                bitcoin.opcodes.OP_CHECKSIG
+              ]);
+              return { hash160, scriptPubKey };
+            }
+
+            console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} detected format: base58 (P2PKH)`);
+            const decoded = bs58Decode(address);
+            console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} base58-decoded length:`, decoded.length);
+            console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} base58-decoded (hex):`, decoded.toString('hex'));
+
+            const hash160 = decoded.slice(1);
+            console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} hash160 (hex):`, hash160.toString('hex'));
+            console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} hash160 length:`, hash160.length);
+
+            const scriptPubKey = bitcoin.script.compile([
+              bitcoin.opcodes.OP_DUP,
+              bitcoin.opcodes.OP_HASH160,
+              hash160,
+              bitcoin.opcodes.OP_EQUALVERIFY,
+              bitcoin.opcodes.OP_CHECKSIG
+            ]);
+            return { hash160, scriptPubKey };
+          })();
           console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} scriptPubKey length:`, scriptPubKey.length);
           console.log(`[GridPlus BTC Sign] [FINAL TX] Output ${outputIdx} scriptPubKey (hex):`, Buffer.from(scriptPubKey).toString('hex'));
 
