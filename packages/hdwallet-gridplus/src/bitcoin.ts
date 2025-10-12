@@ -81,19 +81,6 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
   const changeOutput = msg.outputs.find(o => o.isChange);
   const changePath = changeOutput?.addressNList;
 
-  // Build base payload for GridPlus SDK
-  const payload: any = {
-    prevOuts: msg.inputs.map(input => ({
-      txHash: (input as any).txid,
-      value: parseInt(input.amount || "0"),
-      index: input.vout,
-      signerPath: input.addressNList,
-    })),
-    recipient: msg.outputs[0]?.address || "",
-    value: parseInt(msg.outputs[0]?.amount || "0"),
-    fee: fee,
-  };
-
   // SDK requires changePath even when there's no change output
   // Use actual change path if available, otherwise use dummy path (first change address)
   // The dummy path satisfies SDK validation but won't be used since there's no change output
@@ -107,13 +94,31 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
         0                                // address index
       ];
 
-  payload.changePath = finalChangePath;
+  // Build base payload for GridPlus SDK
+  const payload: {
+    prevOuts: Array<{txHash: string, value: number, index: number, signerPath: number[]}>,
+    recipient: string,
+    value: number,
+    fee: number,
+    changePath: number[]
+  } = {
+    prevOuts: msg.inputs.map(input => ({
+      txHash: input.txid,
+      value: parseInt(input.amount || "0"),
+      index: input.vout,
+      signerPath: input.addressNList,
+    })),
+    recipient: msg.outputs[0]?.address || "",
+    value: parseInt(msg.outputs[0]?.amount || "0"),
+    fee: fee,
+    changePath: finalChangePath,
+  };
 
 
   try {
     if (msg.coin === "Bitcoin" || msg.coin === "Testnet") {
       const signData = await client.sign({
-        currency: 'BTC' as any,
+        currency: 'BTC',
         data: payload,
       });
 
@@ -137,7 +142,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
       const tx = new bitcoin.Transaction();
 
       for (const input of msg.inputs) {
-        const txHashBuffer = Buffer.from((input as any).txid, 'hex').reverse();
+        const txHashBuffer = Buffer.from(input.txid, 'hex').reverse();
         tx.addInput(txHashBuffer, input.vout);
       }
 
@@ -252,7 +257,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
           const hashPrevouts = CryptoJS.SHA256(CryptoJS.SHA256(
             CryptoJS.lib.WordArray.create(Buffer.concat(
               msg.inputs.map(inp => Buffer.concat([
-                Buffer.from((inp as any).txid, 'hex').reverse(),
+                Buffer.from(inp.txid, 'hex').reverse(),
                 Buffer.from([inp.vout, 0, 0, 0])
               ]))
             ))
@@ -306,7 +311,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
             Buffer.from([tx.version, 0, 0, 0]),
             Buffer.from(hashPrevouts.toString(CryptoJS.enc.Hex), 'hex'),
             Buffer.from(hashSequence.toString(CryptoJS.enc.Hex), 'hex'),
-            Buffer.from((input as any).txid, 'hex').reverse(),
+            Buffer.from(input.txid, 'hex').reverse(),
             Buffer.from([input.vout, 0, 0, 0]),
             Buffer.from([scriptCode.length]),
             scriptCode,
@@ -415,7 +420,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
       // Add inputs with proper scriptSigs
       for (let i = 0; i < msg.inputs.length; i++) {
         const input = msg.inputs[i];
-        const txHashBuffer = Buffer.from((input as any).txid, 'hex').reverse();
+        const txHashBuffer = Buffer.from(input.txid, 'hex').reverse();
         finalTx.addInput(txHashBuffer, input.vout);
 
         // Get the signature we collected earlier

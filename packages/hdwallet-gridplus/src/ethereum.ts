@@ -5,28 +5,6 @@ import { Client, Constants, Utils } from "gridplus-sdk";
 import { encode } from "rlp";
 
 export function ethSupportsNetwork(chainId: number): boolean {
-  const supportedChains = [
-    1,     // Ethereum mainnet
-    137,   // Polygon
-    10,    // Optimism
-    42161, // Arbitrum
-    8453,  // Base
-    56,    // BSC
-    100,   // Gnosis
-    43114, // Avalanche
-  ];
-  return supportedChains.includes(chainId);
-}
-
-export function ethSupportsSecureTransfer(): boolean {
-  return false;
-}
-
-export function ethSupportsNativeShapeShift(): boolean {
-  return false;
-}
-
-export function ethSupportsEIP1559(): boolean {
   return true;
 }
 
@@ -180,9 +158,9 @@ export async function ethSignTypedData(
     });
 
     const signingOptions = {
-      currency: 'ETH_MSG' as any,
+      currency: 'ETH_MSG',
       data: {
-        protocol: 'eip712' as any,
+        protocol: 'eip712',
         payload: msg.typedData,
         signerPath: msg.addressNList,
       }
@@ -267,9 +245,9 @@ export async function ethSignMessage(
     }
 
     const signingOptions = {
-      currency: 'ETH_MSG' as any,
+      currency: 'ETH_MSG',
       data: {
-        protocol: 'signPersonal' as any,
+        protocol: 'signPersonal',
         payload: hexMessage,
         signerPath: msg.addressNList,
       }
@@ -330,4 +308,16 @@ export async function ethSignMessage(
 // TODO: remove highlander-based-development
 export function ethVerifyMessage(msg: core.ETHVerifyMessage): boolean {
   throw new Error("GridPlus ethVerifyMessage not implemented yet");
+}
+
+export function ethSupportsSecureTransfer(): boolean {
+  return false;
+}
+
+export function ethSupportsNativeShapeShift(): boolean {
+  return false;
+}
+
+export function ethSupportsEIP1559(): boolean {
+  return true;
 }

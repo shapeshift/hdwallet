@@ -11,7 +11,6 @@ import { createCosmosAddress } from "./cosmos";
 const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
 const cosmJsProtoSigning = PLazy.from(() => import("@cosmjs/proto-signing"));
 
-// ThorChain functions
 export async function thorchainGetAddress(
   client: Client,
   msg: core.ThorchainGetAddress
@@ -151,7 +150,6 @@ export function thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.T
   };
 }
 
-// MayaChain functions
 export async function mayachainGetAddress(client: Client, msg: core.MayachainGetAddress): Promise<string | null> {
   try {
     // Get secp256k1 pubkey using GridPlus client instance
