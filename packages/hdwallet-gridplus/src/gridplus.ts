@@ -354,8 +354,8 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
   }
 
   public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
-    // Support Bitcoin, Dogecoin, Litecoin
-    return ["Bitcoin", "Dogecoin", "Litecoin", "Testnet"].includes(coin);
+    // Validates supported UTXO coins - used by bitcoin.ts for coin-specific logic
+    return ["Bitcoin", "Dogecoin", "Litecoin", "BitcoinCash"].includes(coin);
   }
 
   public async btcSupportsScriptType(coin: core.Coin, scriptType?: core.BTCInputScriptType): Promise<boolean> {
@@ -371,11 +371,7 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
         core.BTCInputScriptType.SpendP2SHWitness,  // p2sh-p2wpkh
         core.BTCInputScriptType.SpendWitness,      // p2wpkh
       ],
-      Testnet: [
-        core.BTCInputScriptType.SpendAddress,
-        core.BTCInputScriptType.SpendP2SHWitness,
-        core.BTCInputScriptType.SpendWitness,
-      ],
+      BitcoinCash: [core.BTCInputScriptType.SpendAddress],  // p2pkh only
     } as Partial<Record<core.Coin, Array<core.BTCInputScriptType>>>;
 
     const scriptTypes = supported[coin];
@@ -394,17 +390,6 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     return btc.btcGetAccountPaths(msg);
   }
 
-  public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
-    if (msg.length === 0) return false;
-    const first = msg[0];
-    return msg.every(
-      path =>
-        path.addressNList[0] === first.addressNList[0] &&
-        path.addressNList[1] === first.addressNList[1] &&
-        path.addressNList[2] === first.addressNList[2]
-    );
-  }
-
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
     if (!this.client) {
       throw new Error("Device not connected");
@@ -419,16 +404,16 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     return btc.btcSignTx(this.client!, msg);
   }
 
+  public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
+    return btc.btcNextAccountPath(msg);
+  }
+
   public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage | null> {
     throw new Error("GridPlus BTC message signing not yet implemented");
   }
 
   public async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean | null> {
     throw new Error("GridPlus BTC message verification not yet implemented");
-  }
-
-  public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    return btc.btcNextAccountPath(msg);
   }
 
   private bech32ify(address: ArrayLike<number>, prefix: string): string {
