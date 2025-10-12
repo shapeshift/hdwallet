@@ -30,6 +30,7 @@ import { GridPlusTransport } from "./transport";
 import { UTXO_NETWORK_PARAMS } from "./constants";
 import { convertXpubVersion, scriptTypeToAccountType, deriveAddressFromPubkey } from "./utils";
 import * as eth from "./ethereum";
+import * as solana from "./solana";
 
 export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
   return isObject(wallet) && (wallet as any)._isGridPlus;
@@ -353,148 +354,25 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
   }
 
   public solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> {
-    return [{ addressNList: [0x80000000 + 44, 0x80000000 + 501, 0x80000000 + msg.accountIdx, 0x80000000 + 0] }];
+    return solana.solanaGetAccountPaths(msg);
   }
 
   public async solanaGetAddress(msg: core.SolanaGetAddress): Promise<string | null> {
-    // Solana ED25519 requires ALL indices to be hardened
-    // The chain adapter might send unhardened indices, so we need to fix them
-    const correctedPath = msg.addressNList.map((idx, i) => {
-      if (idx >= 0x80000000) {
-        return idx; // Already hardened
-      } else {
-        return idx + 0x80000000;
-      }
-    });
-
-    // Verify all indices are now hardened
-    const allHardened = correctedPath.every(idx => idx >= 0x80000000);
-
-    if (!allHardened) {
-      throw new Error("Failed to harden all Solana path indices for ED25519");
-    }
-
     if (!this.client) {
       throw new Error("Device not connected");
     }
-
-    // Check firmware version supports ED25519
-    const fwVersion = this.client.getFwVersion();
-
-    if (fwVersion.major === 0 && fwVersion.minor < 14) {
-      throw new Error(`Solana requires firmware >= 0.14.0, current: ${fwVersion.major}.${fwVersion.minor}.${fwVersion.fix}`);
-    }
-
-    try {
-      // Use client instance directly instead of global SDK functions
-      // This ensures we always query the device with the current client state
-      const addresses = await this.client!.getAddresses({
-        startPath: correctedPath,
-        n: 1,
-        flag: Constants.GET_ADDR_FLAGS.ED25519_PUB,
-      });
-
-      if (!addresses || addresses.length === 0) {
-        throw new Error("No address returned from device");
-      }
-
-      // The result is the ED25519 public key
-      const pubkeyBuffer = Buffer.isBuffer(addresses[0])
-        ? addresses[0]
-        : Buffer.from(addresses[0], "hex");
-
-      // Encode as base58 for Solana address format
-      const address = bs58.encode(pubkeyBuffer);
-
-      return address;
-    } catch (error) {
-      throw error;
-    }
+    return solana.solanaGetAddress(this.client!, msg);
   }
 
   public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
     if (!this.client) {
       throw new Error("Device not connected");
     }
-
-    // Solana requires ALL 4 path indices to be hardened for ED25519
-    // The chain adapter sometimes sends m/44'/501'/0'/0 (last index unhardened)
-    // but GridPlus SDK requires m/44'/501'/0'/0' (all hardened)
-    // Fix any unhardened indices by hardening them
-    const correctedPath = msg.addressNList.map(idx => {
-      // If index is already hardened (>= 0x80000000), keep it
-      if (idx >= 0x80000000) return idx;
-      // Otherwise, harden it by adding 0x80000000
-      return idx + 0x80000000;
-    });
-
-    // Verify all indices are now hardened
-    const allHardened = correctedPath.every(idx => idx >= 0x80000000);
-    if (!allHardened) {
-      throw new Error("Failed to harden all Solana path indices - this should never happen");
-    }
-
-    try {
-      const address = await this.solanaGetAddress({
-        addressNList: correctedPath,
-        showDisplay: false,
-      });
-
-      if (!address) throw new Error("Failed to get Solana address");
-
-      const transaction = core.solanaBuildTransaction(msg, address);
-      // Sign the message portion of the transaction
-      // GridPlus SDK expects the message bytes, not the full serialized transaction
-      const messageBytes = transaction.message.serialize();
-
-      // Sign directly using client.sign() instead of signSolanaTx wrapper
-      // This bypasses the SDK's hardcoded SOLANA_DERIVATION and gives us full control
-      // Use the corrected path with all indices hardened
-      const signingRequest = {
-        data: {
-          signerPath: correctedPath,
-          curveType: Constants.SIGNING.CURVES.ED25519,
-          hashType: Constants.SIGNING.HASHES.NONE,
-          encodingType: Constants.SIGNING.ENCODINGS.SOLANA,
-          payload: Buffer.from(messageBytes),
-        }
-      };
-
-      const signData = await this.client.sign(signingRequest);
-
-      if (!signData || !signData.sig) {
-        throw new Error("No signature returned from device");
-      }
-
-      // ED25519 signatures return {r: Buffer(32), s: Buffer(32)}
-      // Combine into 64-byte signature for Solana
-      const signature = Buffer.concat([signData.sig.r, signData.sig.s]);
-
-      // Add the signature to the transaction before serializing
-      // This attaches the signature to the transaction object so the full signed transaction
-      // is returned, not just the message
-      transaction.addSignature(new PublicKey(address), signature);
-
-      // Now serialize the complete signed transaction (message + signatures)
-      const serializedTx = transaction.serialize();
-
-      return {
-        serialized: Buffer.from(serializedTx).toString("base64"),
-        signatures: transaction.signatures.map((sig) => Buffer.from(sig).toString("base64")),
-      };
-    } catch (error) {
-      throw error;
-    }
+    return solana.solanaSignTx(this.client!, this.solanaGetAddress.bind(this), msg);
   }
 
   public solanaNextAccountPath(msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
-    // Increment account index for next account
-    const newAddressNList = [...msg.addressNList];
-    newAddressNList[2] += 1; // Increment account index
-    
-    return {
-      addressNList: newAddressNList,
-    };
+    return solana.solanaNextAccountPath(msg);
   }
 
   public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
