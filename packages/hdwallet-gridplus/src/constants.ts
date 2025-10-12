@@ -1,8 +1,5 @@
-export enum UtxoAccountType {
-  P2pkh = "P2pkh",
-  SegwitNative = "SegwitNative",
-  SegwitP2sh = "SegwitP2sh",
-}
+import { UtxoAccountType } from "@shapeshiftoss/types";
+export { UtxoAccountType };
 
 export enum PublicKeyType {
   xpub = "0488b21e",
