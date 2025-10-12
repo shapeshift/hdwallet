@@ -64,8 +64,11 @@ export class GridPlusAdapter {
   public async pairDevice(deviceId: string, password?: string, pairingCode?: string, existingSessionId?: string): Promise<GridPlusHDWallet> {
     const existingWallet = this.keyring.get<GridPlusHDWallet>(deviceId);
     if (existingWallet) {
+      // Reset Client activeWallets state and fetch fresh UIDs from currently inserted SafeCard
       await existingWallet.transport.setup(deviceId, password, existingSessionId);
+      // Ensure the wallet has the correct active walletId set
       existingWallet.setActiveWalletId(deviceId);
+      // Reinitialize to clear cached addresses when reconnecting (e.g., SafeCard swap)
       await existingWallet.initialize();
       return existingWallet;
     }
@@ -80,6 +83,7 @@ export class GridPlusAdapter {
       }
     }
 
+    // Already paired - create wallet directly
     const transport = this.activeTransports.get(deviceId)!;
     const wallet = new GridPlusHDWallet(transport);
     wallet.setActiveWalletId(deviceId);
