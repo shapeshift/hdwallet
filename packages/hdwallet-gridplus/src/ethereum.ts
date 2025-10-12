@@ -45,8 +45,6 @@ export function ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPat
   };
 }
 
-// TODO: remove highlander-based-development
-// @ts-ignore
 export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
   try {
     const unsignedTxBase = {
@@ -88,8 +86,6 @@ export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<co
       }
     };
 
-    // TODO: remove highlander-based-development
-    // @ts-ignore
     const signedResult = await client.sign(signingData);
 
     if (!signedResult?.sig) {
@@ -139,8 +135,6 @@ export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<co
   }
 }
 
-// TODO: remove highlander-based-development
-// @ts-ignore
 export async function ethSignTypedData(
   client: Client,
   addressGetter: (msg: core.ETHGetAddress) => Promise<core.Address | null>,
@@ -166,15 +160,15 @@ export async function ethSignTypedData(
       }
     };
 
-    // TODO: remove highlander-based-development
-    // @ts-ignore
-    const signedResult = await client.sign(signingOptions);
+    // GridPlus SDK types don't properly support ETH_MSG currency, but runtime does
+    const signedResult = await client.sign(signingOptions as any);
 
     if (!signedResult?.sig) {
       throw new Error("No signature returned from device");
     }
 
-    const { r, s, v } = signedResult.sig;
+    // Type assertion needed because GridPlus SDK incorrectly types ETH_MSG signatures
+    const { r, s, v } = signedResult.sig as { r: string | Buffer, s: string | Buffer, v: number | Buffer };
 
     let rHex: string;
     let sHex: string;
@@ -182,7 +176,7 @@ export async function ethSignTypedData(
     if (Buffer.isBuffer(r)) {
       rHex = "0x" + r.toString('hex');
     } else if (typeof r === 'string') {
-      if ((r as string).startsWith('0x')) {
+      if (r.startsWith('0x')) {
         rHex = r;
       } else {
         rHex = "0x" + r;
@@ -194,7 +188,7 @@ export async function ethSignTypedData(
     if (Buffer.isBuffer(s)) {
       sHex = "0x" + s.toString('hex');
     } else if (typeof s === 'string') {
-      if ((s as string).startsWith('0x')) {
+      if (s.startsWith('0x')) {
         sHex = s;
       } else {
         sHex = "0x" + s;
@@ -210,9 +204,7 @@ export async function ethSignTypedData(
     const signature = rHex + sHex.slice(2) + vHex.slice(2);
 
     return {
-      // TODO: remove highlander-based-development
-      // @ts-ignore
-      address: addressResult,
+      address: addressResult!,
       signature: signature,
     };
   } catch (error) {
@@ -220,7 +212,6 @@ export async function ethSignTypedData(
   }
 }
 
-// TODO: remove highlander-based-development
 export async function ethSignMessage(
   client: Client,
   addressGetter: (msg: core.ETHGetAddress) => Promise<core.Address | null>,
@@ -253,15 +244,15 @@ export async function ethSignMessage(
       }
     };
 
-    // TODO: remove highlander-based-development
-    // @ts-ignore
-    const signedResult = await client.sign(signingOptions);
+    // GridPlus SDK types don't properly support ETH_MSG currency, but runtime does
+    const signedResult = await client.sign(signingOptions as any);
 
     if (!signedResult?.sig) {
       throw new Error("No signature returned from device");
     }
 
-    const { r, s, v } = signedResult.sig;
+    // Type assertion needed because GridPlus SDK incorrectly types ETH_MSG signatures
+    const { r, s, v } = signedResult.sig as { r: string | Buffer, s: string | Buffer, v: number | Buffer };
 
     let rHex: string;
     let sHex: string;
@@ -269,7 +260,7 @@ export async function ethSignMessage(
     if (Buffer.isBuffer(r)) {
       rHex = "0x" + r.toString('hex');
     } else if (typeof r === 'string') {
-      if ((r as string).startsWith('0x')) {
+      if (r.startsWith('0x')) {
         rHex = r;
       } else {
         rHex = "0x" + r;
@@ -281,7 +272,7 @@ export async function ethSignMessage(
     if (Buffer.isBuffer(s)) {
       sHex = "0x" + s.toString('hex');
     } else if (typeof s === 'string') {
-      if ((s as string).startsWith('0x')) {
+      if (s.startsWith('0x')) {
         sHex = s;
       } else {
         sHex = "0x" + s;
@@ -297,7 +288,7 @@ export async function ethSignMessage(
     const signature = rHex + sHex.slice(2) + vHex.slice(2);
 
     return {
-      address: addressResult as string,
+      address: addressResult!,
       signature: signature,
     };
   } catch (error) {
@@ -305,7 +296,6 @@ export async function ethSignMessage(
   }
 }
 
-// TODO: remove highlander-based-development
 export function ethVerifyMessage(msg: core.ETHVerifyMessage): boolean {
   throw new Error("GridPlus ethVerifyMessage not implemented yet");
 }

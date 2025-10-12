@@ -34,7 +34,6 @@ export class GridPlusTransport extends core.Transport {
 
     const { isPaired } = await this.setup(this.deviceId, this.password);
 
-    // For HDWallet interface compliance, connect() should not return a value
     if (!isPaired) {
       throw new Error("Device is not paired");
     }
@@ -110,7 +109,6 @@ export class GridPlusTransport extends core.Transport {
       throw new Error("Client not initialized. Call setup() first.");
     }
 
-    // Use client instance method for pairing
     try {
       const result = await this.client.pair(pairingCode);
       this.connected = !!result;
