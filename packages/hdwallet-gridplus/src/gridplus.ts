@@ -17,7 +17,7 @@ import {
   Constants,
   Utils,
 } from "gridplus-sdk";
-import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
+import * as bitcoinjs from "@shapeshiftoss/bitcoinjs-lib";
 import { SignTypedDataVersion, TypedDataUtils } from "@metamask/eth-sig-util";
 import isObject from "lodash/isObject";
 import PLazy from "p-lazy";
@@ -31,6 +31,9 @@ import { UTXO_NETWORK_PARAMS } from "./constants";
 import { convertXpubVersion, scriptTypeToAccountType, deriveAddressFromPubkey } from "./utils";
 import * as eth from "./ethereum";
 import * as solana from "./solana";
+import * as btc from "./bitcoin";
+import * as cosmos from "./cosmos";
+import * as thormaya from "./thormaya";
 
 export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
   return isObject(wallet) && (wallet as any)._isGridPlus;
@@ -438,29 +441,7 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
   }
 
   public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
-    const slip44 = core.slip44ByCoin(msg.coin);
-    if (!slip44) throw new Error(`Unsupported coin: ${msg.coin}`);
-
-    const scriptTypes: core.BTCInputScriptType[] = [];
-
-    if (msg.coin === "Dogecoin") {
-      scriptTypes.push(core.BTCInputScriptType.SpendAddress);
-    } else {
-      scriptTypes.push(
-        core.BTCInputScriptType.SpendAddress,
-        core.BTCInputScriptType.SpendP2SHWitness,
-        core.BTCInputScriptType.SpendWitness
-      );
-    }
-
-    return scriptTypes.map(scriptType => {
-      const purpose = this.scriptTypeToPurpose(scriptType);
-      return {
-        coin: msg.coin,
-        scriptType,
-        addressNList: [0x80000000 + purpose, 0x80000000 + slip44, 0x80000000 + (msg.accountIdx || 0), 0, 0],
-      };
-    });
+    return btc.btcGetAccountPaths(msg);
   }
 
   public btcIsSameAccount(msg: Array<core.BTCAccountPath>): boolean {
@@ -475,577 +456,17 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
   }
 
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
-    // Get compressed public key from device (works for all UTXO coins)
-    // Using SECP256K1_PUB flag bypasses Lattice's address formatting,
-    // which only supports Bitcoin/Ethereum/Solana
-    const pubkeys = await this.client!.getAddresses({
-      startPath: msg.addressNList,
-      n: 1,
-      flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
-    });
-
-    if (!pubkeys || !pubkeys.length) {
-      throw new Error("No public key returned from device");
+    if (!this.client) {
+      throw new Error("Device not connected");
     }
-
-    // pubkeys[0] may be uncompressed (65 bytes) or compressed (33 bytes)
-    const pubkeyBuffer = Buffer.isBuffer(pubkeys[0])
-      ? pubkeys[0]
-      : Buffer.from(pubkeys[0], "hex");
-
-    // Compress if needed (65 bytes = uncompressed, 33 bytes = already compressed)
-    const pubkeyHex = pubkeyBuffer.length === 65
-      ? Buffer.from(pointCompress(pubkeyBuffer, true)).toString("hex")
-      : pubkeyBuffer.toString("hex");
-
-    // Derive address client-side using the coin's network parameters
-    const scriptType = msg.scriptType || core.BTCInputScriptType.SpendAddress;
-    const address = deriveAddressFromPubkey(pubkeyHex, msg.coin, scriptType);
-
-    return address;
+    return btc.btcGetAddress(this.client!, msg);
   }
 
   public async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
     if (!this.client) {
       throw new Error("Device not connected");
     }
-
-    // All UTXO coins (Bitcoin, Dogecoin, Litecoin, BitcoinCash) use Bitcoin-compatible transaction formats.
-    // The 'BTC' currency parameter is just SDK routing - the device signs Bitcoin-formatted transactions.
-    // Address derivation already handles all coins via client-side derivation with proper network parameters.
-
-    // Calculate fee: total inputs - total outputs
-    const totalInputValue = msg.inputs.reduce((sum, input) => sum + parseInt(input.amount || "0"), 0);
-    const totalOutputValue = msg.outputs.reduce((sum, output) => sum + parseInt(output.amount || "0"), 0);
-    const fee = totalInputValue - totalOutputValue;
-
-    // Find change output and its path
-    const changeOutput = msg.outputs.find(o => o.isChange);
-    const changePath = changeOutput?.addressNList;
-
-    // Build base payload for GridPlus SDK
-    const payload: any = {
-      prevOuts: msg.inputs.map(input => ({
-        txHash: (input as any).txid,
-        value: parseInt(input.amount || "0"),
-        index: input.vout,
-        signerPath: input.addressNList,
-      })),
-      recipient: msg.outputs[0]?.address || "",
-      value: parseInt(msg.outputs[0]?.amount || "0"),
-      fee: fee,
-    };
-
-    // SDK requires changePath even when there's no change output
-    // Use actual change path if available, otherwise use dummy path (first change address)
-    // The dummy path satisfies SDK validation but won't be used since there's no change output
-    const finalChangePath = changePath && changePath.length === 5
-      ? changePath
-      : [
-          msg.inputs[0].addressNList[0], // purpose (44', 49', or 84')
-          msg.inputs[0].addressNList[1], // coin type
-          msg.inputs[0].addressNList[2], // account
-          1,                               // change chain (1 = change, 0 = receive)
-          0                                // address index
-        ];
-
-    payload.changePath = finalChangePath;
-
-
-    try {
-      if (msg.coin === "Bitcoin" || msg.coin === "Testnet") {
-        const signData = await this.client.sign({
-          currency: 'BTC' as any,
-          data: payload,
-        });
-
-        if (!signData || !signData.tx) {
-          throw new Error("No signed transaction returned from device");
-        }
-
-        const signatures = signData.sigs ? signData.sigs.map((s: Buffer) => s.toString("hex")) : [];
-
-        return {
-          signatures,
-          serializedTx: signData.tx,
-        };
-      } else {
-
-        const network = UTXO_NETWORK_PARAMS[msg.coin];
-        if (!network) {
-          throw new Error(`Unsupported UTXO coin: ${msg.coin}`);
-        }
-
-        const tx = new bitcoin.Transaction();
-
-        for (const input of msg.inputs) {
-          const txHashBuffer = Buffer.from((input as any).txid, 'hex').reverse();
-          tx.addInput(txHashBuffer, input.vout);
-        }
-
-        for (let outputIdx = 0; outputIdx < msg.outputs.length; outputIdx++) {
-          const output = msg.outputs[outputIdx];
-          let address: string;
-
-
-          if (output.address) {
-            address = output.address;
-          } else if (output.addressNList) {
-
-            // Derive address for change output
-            const pubkey = await this.client!.getAddresses({
-              startPath: output.addressNList,
-              n: 1,
-              flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
-            });
-
-            if (!pubkey || !pubkey.length) {
-              throw new Error(`No public key for output`);
-            }
-
-            const pubkeyBuffer = Buffer.isBuffer(pubkey[0]) ? pubkey[0] : Buffer.from(pubkey[0], "hex");
-
-            const pubkeyHex = pubkeyBuffer.length === 65
-              ? Buffer.from(pointCompress(pubkeyBuffer, true)).toString("hex")
-              : pubkeyBuffer.toString("hex");
-
-            const scriptType = (output.scriptType as unknown as core.BTCInputScriptType) || core.BTCInputScriptType.SpendAddress;
-            address = deriveAddressFromPubkey(pubkeyHex, msg.coin, scriptType);
-          } else {
-            throw new Error("Output must have either address or addressNList");
-          }
-
-          const { hash160, scriptPubKey } = (() => {
-            if (address.startsWith('ltc1') || address.startsWith('bc1')) {
-              const decoded = bech32.decode(address);
-              const hash160 = Buffer.from(bech32.fromWords(decoded.words.slice(1)));
-
-              const scriptPubKey = bitcoin.script.compile([
-                bitcoin.opcodes.OP_0,
-                hash160
-              ]);
-              return { hash160, scriptPubKey };
-            }
-
-            if (address.startsWith('bitcoincash:') || address.startsWith('q')) {
-              const legacyAddress = bchAddr.toLegacyAddress(address);
-
-              const decoded = bs58Decode(legacyAddress);
-
-              const hash160 = decoded.slice(1);
-
-              const scriptPubKey = bitcoin.script.compile([
-                bitcoin.opcodes.OP_DUP,
-                bitcoin.opcodes.OP_HASH160,
-                hash160,
-                bitcoin.opcodes.OP_EQUALVERIFY,
-                bitcoin.opcodes.OP_CHECKSIG
-              ]);
-              return { hash160, scriptPubKey };
-            }
-
-            const decoded = bs58Decode(address);
-
-            const hash160 = decoded.slice(1);
-
-            const scriptPubKey = bitcoin.script.compile([
-              bitcoin.opcodes.OP_DUP,
-              bitcoin.opcodes.OP_HASH160,
-              hash160,
-              bitcoin.opcodes.OP_EQUALVERIFY,
-              bitcoin.opcodes.OP_CHECKSIG
-            ]);
-            return { hash160, scriptPubKey };
-          })();
-
-          tx.addOutput(scriptPubKey, BigInt(output.amount));
-        }
-
-        // DEBUG: Log the initial transaction (BEFORE signing) that will be used to create signing preimages
-        const initialTxHex = tx.toHex();
-        for (let i = 0; i < tx.outs.length; i++) {
-        }
-
-        const signatures: string[] = [];
-
-        for (let i = 0; i < msg.inputs.length; i++) {
-          const input = msg.inputs[i];
-
-          if (!input.hex) {
-            throw new Error(`Input ${i} missing hex field (raw previous transaction)`);
-          }
-
-          const prevTx = bitcoin.Transaction.fromHex(input.hex);
-          const prevOutput = prevTx.outs[input.vout];
-          const scriptPubKey = prevOutput.script;
-
-          // Detect input type from scriptPubKey
-          // P2WPKH (SegWit): 0x00 0x14 <20-byte-hash>
-          const isSegwit = scriptPubKey.length === 22 &&
-                           scriptPubKey[0] === 0x00 &&
-                           scriptPubKey[1] === 0x14;
-
-          // Build signature preimage based on input type
-          let signaturePreimage: Buffer;
-          const hashType = msg.coin === 'BitcoinCash'
-            ? bitcoin.Transaction.SIGHASH_ALL | 0x40  // SIGHASH_FORKID for BitcoinCash
-            : bitcoin.Transaction.SIGHASH_ALL;
-
-          // BitcoinCash requires BIP143 for both P2PKH and P2WPKH
-          const useBIP143 = isSegwit || msg.coin === 'BitcoinCash';
-
-          if (useBIP143) {
-            // BIP143 signing (used for SegWit and BitcoinCash)
-            if (isSegwit) {
-            } else {
-            }
-            // bitcoinjs-lib's hashForWitnessV0 computes the full double-sha256 hash
-            // We need the unhashed preimage, so we'll manually construct it
-
-            // BIP143 preimage structure:
-            // 1. nVersion (4 bytes)
-            // 2. hashPrevouts (32 bytes)
-            // 3. hashSequence (32 bytes)
-            // 4. outpoint (36 bytes)
-            // 5. scriptCode (variable)
-            // 6. value (8 bytes)
-            // 7. nSequence (4 bytes)
-            // 8. hashOutputs (32 bytes)
-            // 9. nLocktime (4 bytes)
-            // 10. nHashType (4 bytes)
-
-            const hashPrevouts = CryptoJS.SHA256(CryptoJS.SHA256(
-              CryptoJS.lib.WordArray.create(Buffer.concat(
-                msg.inputs.map(inp => Buffer.concat([
-                  Buffer.from((inp as any).txid, 'hex').reverse(),
-                  Buffer.from([inp.vout, 0, 0, 0])
-                ]))
-              ))
-            ));
-
-            const hashSequence = CryptoJS.SHA256(CryptoJS.SHA256(
-              CryptoJS.lib.WordArray.create(Buffer.concat(
-                msg.inputs.map(() => Buffer.from([0xff, 0xff, 0xff, 0xff]))
-              ))
-            ));
-
-            const hashOutputs = CryptoJS.SHA256(CryptoJS.SHA256(
-              CryptoJS.lib.WordArray.create(Buffer.concat(
-                tx.outs.map(out => {
-                  // Convert bigint to number for small UTXO values
-                  const valueNum = typeof out.value === 'bigint' ? Number(out.value) : out.value;
-                  const valueBuffer = Buffer.alloc(8);
-                  valueBuffer.writeUInt32LE(valueNum & 0xffffffff, 0);
-                  valueBuffer.writeUInt32LE(Math.floor(valueNum / 0x100000000), 4);
-                  return Buffer.concat([
-                    valueBuffer,
-                    Buffer.from([out.script.length]),
-                    out.script
-                  ]);
-                })
-              ))
-            ));
-
-            // scriptCode depends on input type
-            let scriptCode: Buffer;
-            if (isSegwit) {
-              // P2WPKH: Build scriptCode from hash extracted from witness program
-              scriptCode = Buffer.from(bitcoin.script.compile([
-                bitcoin.opcodes.OP_DUP,
-                bitcoin.opcodes.OP_HASH160,
-                scriptPubKey.slice(2), // Remove OP_0 and length byte to get hash
-                bitcoin.opcodes.OP_EQUALVERIFY,
-                bitcoin.opcodes.OP_CHECKSIG
-              ]));
-            } else {
-              // P2PKH (BitcoinCash): scriptCode IS the scriptPubKey
-              scriptCode = Buffer.from(scriptPubKey);
-            }
-
-            const value = parseInt(input.amount || "0");
-            const valueBuffer = Buffer.alloc(8);
-            valueBuffer.writeUInt32LE(value & 0xffffffff, 0);
-            valueBuffer.writeUInt32LE(Math.floor(value / 0x100000000), 4);
-
-            signaturePreimage = Buffer.concat([
-              Buffer.from([tx.version, 0, 0, 0]),
-              Buffer.from(hashPrevouts.toString(CryptoJS.enc.Hex), 'hex'),
-              Buffer.from(hashSequence.toString(CryptoJS.enc.Hex), 'hex'),
-              Buffer.from((input as any).txid, 'hex').reverse(),
-              Buffer.from([input.vout, 0, 0, 0]),
-              Buffer.from([scriptCode.length]),
-              scriptCode,
-              valueBuffer,
-              Buffer.from([0xff, 0xff, 0xff, 0xff]), // sequence
-              Buffer.from(hashOutputs.toString(CryptoJS.enc.Hex), 'hex'),
-              Buffer.from([tx.locktime, 0, 0, 0]),
-              Buffer.from([hashType, 0, 0, 0])
-            ]);
-          } else {
-            // Legacy signing
-            const txTmp = tx.clone();
-
-            // Remove OP_CODESEPARATOR from scriptPubKey (Bitcoin standard)
-            const decompiled = bitcoin.script.decompile(scriptPubKey);
-            if (!decompiled) {
-              throw new Error(`Failed to decompile scriptPubKey for input ${i}`);
-            }
-            const ourScript = bitcoin.script.compile(
-              decompiled.filter(x => x !== bitcoin.opcodes.OP_CODESEPARATOR)
-            );
-
-            // For SIGHASH_ALL: blank all input scripts except the one being signed
-            txTmp.ins.forEach((txInput, idx) => {
-              txInput.script = idx === i ? ourScript : Buffer.alloc(0);
-            });
-
-            // Serialize transaction + append hashType (4 bytes)
-            const txBuffer = txTmp.toBuffer();
-            const hashTypeBuffer = Buffer.alloc(4);
-            hashTypeBuffer.writeUInt32LE(hashType, 0);
-            signaturePreimage = Buffer.concat([txBuffer, hashTypeBuffer]);
-          }
-
-
-
-
-          // Bitcoin/Dogecoin/Litecoin require double SHA256 for transaction signatures.
-          // Strategy: Hash once ourselves, then let device hash again (SHA256 + SHA256 = double SHA256)
-          // This avoids using hashType.NONE which causes "Invalid Request" errors.
-          const hash1 = CryptoJS.SHA256(CryptoJS.lib.WordArray.create(signaturePreimage));
-          const singleHashedBuffer = Buffer.from(hash1.toString(CryptoJS.enc.Hex), 'hex');
-
-          const expectedDoubleHash = CryptoJS.SHA256(hash1);
-
-          const signData = {
-            data: {
-              payload: singleHashedBuffer,
-              curveType: Constants.SIGNING.CURVES.SECP256K1,
-              hashType: Constants.SIGNING.HASHES.SHA256,  // Device will hash again → double SHA256
-              encodingType: Constants.SIGNING.ENCODINGS.NONE,
-              signerPath: input.addressNList,
-            }
-          };
-
-          let signedResult;
-          try {
-            signedResult = await this.client.sign(signData);
-          } catch (error) {
-            throw new Error(`Device signing failed for input ${i}: ${(error as any).message}`);
-          }
-
-          if (!signedResult?.sig) {
-            throw new Error(`No signature returned from device for input ${i}`);
-          }
-
-          const { r, s } = signedResult.sig;
-          const rBuf = Buffer.isBuffer(r) ? r : Buffer.from(r);
-          const sBuf = Buffer.isBuffer(s) ? s : Buffer.from(s);
-
-          function encodeDerSignature(r: Buffer, s: Buffer, hashType: number): Buffer {
-            function encodeDerInteger(x: Buffer): Buffer {
-              if (x[0] & 0x80) {
-                return Buffer.concat([Buffer.from([0x00]), x]);
-              }
-              return x;
-            }
-
-            const rEncoded = encodeDerInteger(r);
-            const sEncoded = encodeDerInteger(s);
-
-            const derSignature = Buffer.concat([
-              Buffer.from([0x30]),
-              Buffer.from([rEncoded.length + sEncoded.length + 4]),
-              Buffer.from([0x02]),
-              Buffer.from([rEncoded.length]),
-              rEncoded,
-              Buffer.from([0x02]),
-              Buffer.from([sEncoded.length]),
-              sEncoded,
-              Buffer.from([hashType])
-            ]);
-
-            return derSignature;
-          }
-
-          // Use the same hashType that was used for the signature preimage
-          const sigHashType = msg.coin === 'BitcoinCash'
-            ? bitcoin.Transaction.SIGHASH_ALL | 0x40  // SIGHASH_FORKID
-            : bitcoin.Transaction.SIGHASH_ALL;
-          const derSig = encodeDerSignature(rBuf, sBuf, sigHashType);
-          signatures.push(derSig.toString("hex"));
-        }
-
-        // Reconstruct a clean transaction from scratch with all signatures
-        // This ensures proper scriptSig encoding using bitcoinjs-lib
-        const finalTx = new bitcoin.Transaction();
-        finalTx.version = tx.version;
-        finalTx.locktime = tx.locktime;
-
-        // Add inputs with proper scriptSigs
-        for (let i = 0; i < msg.inputs.length; i++) {
-          const input = msg.inputs[i];
-          const txHashBuffer = Buffer.from((input as any).txid, 'hex').reverse();
-          finalTx.addInput(txHashBuffer, input.vout);
-
-          // Get the signature we collected earlier
-          const derSig = Buffer.from(signatures[i], 'hex');
-
-          // Get pubkey for this input
-          const pubkey = await this.client!.getAddresses({
-            startPath: input.addressNList,
-            n: 1,
-            flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
-          });
-
-          if (!pubkey || !pubkey.length) {
-            throw new Error(`No public key for input ${i}`);
-          }
-
-          const pubkeyBuffer = Buffer.isBuffer(pubkey[0]) ? pubkey[0] : Buffer.from(pubkey[0], "hex");
-          const compressedPubkey = pubkeyBuffer.length === 65
-            ? Buffer.from(pointCompress(pubkeyBuffer, true))
-            : pubkeyBuffer;
-
-          // Detect input type to determine if we need SegWit or legacy encoding
-          const prevTx = bitcoin.Transaction.fromHex(input.hex);
-          const prevOutput = prevTx.outs[input.vout];
-          const isSegwit = prevOutput.script.length === 22 &&
-                           prevOutput.script[0] === 0x00 &&
-                           prevOutput.script[1] === 0x14;
-
-          if (isSegwit) {
-            // SegWit: empty scriptSig, signature + pubkey in witness
-            finalTx.ins[i].script = Buffer.alloc(0);
-            finalTx.ins[i].witness = [derSig, compressedPubkey];
-          } else {
-            // Legacy: signature + pubkey in scriptSig
-            const scriptSig = bitcoin.script.compile([
-              derSig,
-              compressedPubkey,
-            ]);
-            finalTx.ins[i].script = scriptSig;
-          }
-        }
-
-        // Add outputs - handle both address and addressNList
-        for (let outputIdx = 0; outputIdx < msg.outputs.length; outputIdx++) {
-          const output = msg.outputs[outputIdx];
-          let address: string;
-
-
-          if (output.address) {
-            // Output already has address
-            address = output.address;
-          } else if (output.addressNList) {
-
-            // Derive address from addressNList (for change outputs)
-            const pubkey = await this.client!.getAddresses({
-              startPath: output.addressNList,
-              n: 1,
-              flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
-            });
-
-            if (!pubkey || !pubkey.length) {
-              throw new Error(`No public key for output`);
-            }
-
-            const pubkeyBuffer = Buffer.isBuffer(pubkey[0]) ? pubkey[0] : Buffer.from(pubkey[0], "hex");
-
-            const pubkeyHex = pubkeyBuffer.length === 65
-              ? Buffer.from(pointCompress(pubkeyBuffer, true)).toString("hex")
-              : pubkeyBuffer.toString("hex");
-
-            const scriptType = (output.scriptType as unknown as core.BTCInputScriptType) || core.BTCInputScriptType.SpendAddress;
-            address = deriveAddressFromPubkey(pubkeyHex, msg.coin, scriptType);
-          } else {
-            throw new Error("Output must have either address or addressNList");
-          }
-
-          const { hash160, scriptPubKey } = (() => {
-            if (address.startsWith('ltc1') || address.startsWith('bc1')) {
-              const decoded = bech32.decode(address);
-              const hash160 = Buffer.from(bech32.fromWords(decoded.words.slice(1)));
-
-              const scriptPubKey = bitcoin.script.compile([
-                bitcoin.opcodes.OP_0,
-                hash160
-              ]);
-              return { hash160, scriptPubKey };
-            }
-
-            if (address.startsWith('bitcoincash:') || address.startsWith('q')) {
-              const legacyAddress = bchAddr.toLegacyAddress(address);
-
-              const decoded = bs58Decode(legacyAddress);
-
-              const hash160 = decoded.slice(1);
-
-              const scriptPubKey = bitcoin.script.compile([
-                bitcoin.opcodes.OP_DUP,
-                bitcoin.opcodes.OP_HASH160,
-                hash160,
-                bitcoin.opcodes.OP_EQUALVERIFY,
-                bitcoin.opcodes.OP_CHECKSIG
-              ]);
-              return { hash160, scriptPubKey };
-            }
-
-            const decoded = bs58Decode(address);
-
-            const hash160 = decoded.slice(1);
-
-            const scriptPubKey = bitcoin.script.compile([
-              bitcoin.opcodes.OP_DUP,
-              bitcoin.opcodes.OP_HASH160,
-              hash160,
-              bitcoin.opcodes.OP_EQUALVERIFY,
-              bitcoin.opcodes.OP_CHECKSIG
-            ]);
-            return { hash160, scriptPubKey };
-          })();
-
-          finalTx.addOutput(scriptPubKey, BigInt(output.amount));
-        }
-
-        const serializedTx = finalTx.toHex();
-
-        // DEBUG LOGGING - comprehensive transaction details
-        for (let i = 0; i < finalTx.ins.length; i++) {
-        }
-        for (let i = 0; i < finalTx.outs.length; i++) {
-        }
-
-        // COMPARISON: Compare initial vs final transaction outputs (excluding signatures)
-
-        let outputsMismatch = false;
-        for (let i = 0; i < Math.min(tx.outs.length, finalTx.outs.length); i++) {
-          const initialValue = tx.outs[i].value.toString();
-          const finalValue = finalTx.outs[i].value.toString();
-          const initialScript = Buffer.from(tx.outs[i].script).toString('hex');
-          const finalScript = Buffer.from(finalTx.outs[i].script).toString('hex');
-
-          if (initialValue !== finalValue) {
-            outputsMismatch = true;
-          }
-          if (initialScript !== finalScript) {
-            outputsMismatch = true;
-          }
-        }
-
-        if (!outputsMismatch) {
-        } else {
-        }
-
-
-        return {
-          signatures,
-          serializedTx,
-        };
-      }
-    } catch (error) {
-      throw error;
-    }
+    return btc.btcSignTx(this.client!, msg);
   }
 
   public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage | null> {
@@ -1057,473 +478,81 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
   }
 
   public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    const newAddressNList = [...msg.addressNList];
-    newAddressNList[2] += 1;
-
-    return {
-      ...msg,
-      addressNList: newAddressNList,
-    };
-  }
-
-  private scriptTypeToPurpose(scriptType: core.BTCInputScriptType): number {
-    switch (scriptType) {
-      case core.BTCInputScriptType.SpendAddress:
-        return 44;
-      case core.BTCInputScriptType.SpendP2SHWitness:
-        return 49;
-      case core.BTCInputScriptType.SpendWitness:
-        return 84;
-      default:
-        return 44;
-    }
+    return btc.btcNextAccountPath(msg);
   }
 
   private bech32ify(address: ArrayLike<number>, prefix: string): string {
-    const words = bech32.toWords(address);
-    return bech32.encode(prefix, words);
+    return cosmos.bech32ify(address, prefix);
   }
 
   private createCosmosAddress(publicKey: string, prefix: string): string {
-    const message = CryptoJS.SHA256(CryptoJS.enc.Hex.parse(publicKey));
-    const hash = CryptoJS.RIPEMD160(message as any).toString();
-    const address = Buffer.from(hash, `hex`);
-    return this.bech32ify(address, prefix);
+    return cosmos.createCosmosAddress(publicKey, prefix);
   }
 
   public async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string | null> {
     if (!this.client) {
       throw new Error("Device not connected");
     }
-
-    try {
-      // Get secp256k1 pubkey using GridPlus client instance
-      // Use FULL path - Cosmos uses standard BIP44: m/44'/118'/0'/0/0 (5 levels)
-      const addresses = await this.client!.getAddresses({
-        startPath: msg.addressNList,
-        n: 1,
-        flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
-      });
-
-      if (!addresses || addresses.length === 0) {
-        throw new Error("No address returned from device");
-      }
-
-      // GridPlus SDK returns uncompressed 65-byte pubkeys, but Cosmos needs compressed 33-byte pubkeys
-      const pubkeyBuffer = Buffer.isBuffer(addresses[0]) ? addresses[0] : Buffer.from(addresses[0], "hex");
-      const compressedPubkey = pointCompress(pubkeyBuffer, true);
-      const compressedHex = Buffer.from(compressedPubkey).toString("hex");
-      const cosmosAddress = this.createCosmosAddress(compressedHex, "cosmos");
-
-      return cosmosAddress;
-    } catch (error) {
-      throw error;
-    }
+    return cosmos.cosmosGetAddress(this.client!, msg);
   }
 
   public async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
     if (!this.client) {
       throw new Error("Device not connected");
     }
-
-    try {
-      // Get the address for this path
-      const address = await this.cosmosGetAddress({ addressNList: msg.addressNList });
-      if (!address) throw new Error("Failed to get Cosmos address");
-
-      // Get the public key using client instance
-      const pubkeys = await this.client!.getAddresses({
-        startPath: msg.addressNList,
-        n: 1,
-        flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
-      });
-
-      if (!pubkeys || pubkeys.length === 0) {
-        throw new Error("No public key returned from device");
-      }
-
-      // GridPlus SDK returns uncompressed 65-byte pubkeys, but Cosmos needs compressed 33-byte pubkeys
-      const pubkeyBuffer = Buffer.isBuffer(pubkeys[0]) ? pubkeys[0] : Buffer.from(pubkeys[0], "hex");
-      const compressedPubkey = pointCompress(pubkeyBuffer, true);
-      const pubkey = Buffer.from(compressedPubkey);
-
-      // Capture client reference for use in closure
-      const client = this.client;
-
-      // Create a signer adapter for GridPlus with Direct signing (Proto)
-      const signer: OfflineDirectSigner = {
-        getAccounts: async () => [{
-          address,
-          pubkey,
-          algo: "secp256k1" as const,
-        }],
-        signDirect: async (signerAddress: string, signDoc: SignDoc): Promise<DirectSignResponse> => {
-          if (signerAddress !== address) {
-            throw new Error("Signer address mismatch");
-          }
-
-          // Use CosmJS to create the sign bytes from the SignDoc
-          const signBytes = (await cosmJsProtoSigning).makeSignBytes(signDoc);
-
-          // Sign using GridPlus SDK general signing
-          // Pass unhashed signBytes and let device hash with SHA256
-          const signData = {
-            data: {
-              payload: signBytes,
-              curveType: Constants.SIGNING.CURVES.SECP256K1,
-              hashType: Constants.SIGNING.HASHES.SHA256,
-              encodingType: Constants.SIGNING.ENCODINGS.NONE,
-              signerPath: msg.addressNList,
-            }
-          };
-
-          const signedResult = await client.sign(signData);
-
-          if (!signedResult?.sig) {
-            throw new Error("No signature returned from device");
-          }
-
-          const { r, s } = signedResult.sig;
-          const rHex = Buffer.isBuffer(r) ? r : Buffer.from(r);
-          const sHex = Buffer.isBuffer(s) ? s : Buffer.from(s);
-
-          // Combine r and s for signature
-          const signature = Buffer.concat([rHex, sHex]);
-
-          return {
-            signed: signDoc,
-            signature: {
-              pub_key: {
-                type: "tendermint/PubKeySecp256k1",
-                value: pubkey.toString("base64"),
-              },
-              signature: signature.toString("base64"),
-            },
-          };
-        },
-      };
-
-      const signerData: SignerData = {
-        sequence: Number(msg.sequence),
-        accountNumber: Number(msg.account_number),
-        chainId: msg.chain_id,
-      };
-
-      return (await protoTxBuilder).sign(address, msg.tx as StdTx, signer, signerData, "cosmos");
-    } catch (error) {
-      throw error;
-    }
+    return cosmos.cosmosSignTx(this.client!, this.cosmosGetAddress.bind(this), msg);
   }
 
   public cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
-    const slip44 = core.slip44ByCoin("Atom");
-    return [
-      {
-        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
-      },
-    ];
+    return cosmos.cosmosGetAccountPaths(msg);
   }
 
   public cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
-    const newAddressNList = [...msg.addressNList];
-    newAddressNList[2] += 1;
-    return {
-      addressNList: newAddressNList,
-    };
+    return cosmos.cosmosNextAccountPath(msg);
   }
 
   public async thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string | null> {
     if (!this.client) {
       throw new Error("Device not connected");
     }
-
-    const prefix = msg.testnet ? "tthor" : "thor";
-
-    try {
-      // Get secp256k1 pubkey using GridPlus client instance
-      // Use FULL path - THORChain uses standard BIP44: m/44'/931'/0'/0/0 (5 levels)
-      const addresses = await this.client!.getAddresses({
-        startPath: msg.addressNList,
-        n: 1,
-        flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
-      });
-
-      if (!addresses || addresses.length === 0) {
-        throw new Error("No address returned from device");
-      }
-
-      // GridPlus SDK returns uncompressed 65-byte pubkeys, but THORChain needs compressed 33-byte pubkeys
-      const pubkeyBuffer = Buffer.isBuffer(addresses[0]) ? addresses[0] : Buffer.from(addresses[0], "hex");
-      const compressedPubkey = pointCompress(pubkeyBuffer, true);
-      const compressedHex = Buffer.from(compressedPubkey).toString("hex");
-      const thorAddress = this.createCosmosAddress(compressedHex, prefix);
-
-      return thorAddress;
-    } catch (error) {
-      throw error;
-    }
+    return thormaya.thorchainGetAddress(this.client!, msg);
   }
 
   public async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {
     if (!this.client) {
       throw new Error("Device not connected");
     }
-
-    try {
-      // Get the address for this path
-      const address = await this.thorchainGetAddress({ addressNList: msg.addressNList, testnet: msg.testnet });
-      if (!address) throw new Error("Failed to get THORChain address");
-
-      // Get the public key using client instance
-      const pubkeys = await this.client!.getAddresses({
-        startPath: msg.addressNList,
-        n: 1,
-        flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
-      });
-
-      if (!pubkeys || pubkeys.length === 0) {
-        throw new Error("No public key returned from device");
-      }
-
-      // GridPlus SDK returns uncompressed 65-byte pubkeys, but THORChain needs compressed 33-byte pubkeys
-      const pubkeyBuffer = Buffer.isBuffer(pubkeys[0]) ? pubkeys[0] : Buffer.from(pubkeys[0], "hex");
-      const compressedPubkey = pointCompress(pubkeyBuffer, true);
-      const pubkey = Buffer.from(compressedPubkey);
-
-      // Capture client reference for use in closure
-      const client = this.client;
-
-      // Create a signer adapter for GridPlus with Direct signing (Proto)
-      const signer: OfflineDirectSigner = {
-        getAccounts: async () => [{
-          address,
-          pubkey,
-          algo: "secp256k1" as const,
-        }],
-        signDirect: async (signerAddress: string, signDoc: SignDoc): Promise<DirectSignResponse> => {
-          if (signerAddress !== address) {
-            throw new Error("Signer address mismatch");
-          }
-
-          // Use CosmJS to create the sign bytes from the SignDoc
-          const signBytes = (await cosmJsProtoSigning).makeSignBytes(signDoc);
-
-          // Sign using GridPlus SDK general signing
-          // Pass unhashed signBytes and let device hash with SHA256
-          const signData = {
-            data: {
-              payload: signBytes,
-              curveType: Constants.SIGNING.CURVES.SECP256K1,
-              hashType: Constants.SIGNING.HASHES.SHA256,
-              encodingType: Constants.SIGNING.ENCODINGS.NONE,
-              signerPath: msg.addressNList,
-            }
-          };
-
-          const signedResult = await client.sign(signData);
-
-          if (!signedResult?.sig) {
-            throw new Error("No signature returned from device");
-          }
-
-          const { r, s } = signedResult.sig;
-          const rHex = Buffer.isBuffer(r) ? r : Buffer.from(r);
-          const sHex = Buffer.isBuffer(s) ? s : Buffer.from(s);
-
-          // Combine r and s for signature
-          const signature = Buffer.concat([rHex, sHex]);
-
-          return {
-            signed: signDoc,
-            signature: {
-              pub_key: {
-                type: "tendermint/PubKeySecp256k1",
-                value: pubkey.toString("base64"),
-              },
-              signature: signature.toString("base64"),
-            },
-          };
-        },
-      };
-
-      const signerData: SignerData = {
-        sequence: Number(msg.sequence),
-        accountNumber: Number(msg.account_number),
-        chainId: msg.chain_id,
-      };
-
-      return (await protoTxBuilder).sign(address, msg.tx as StdTx, signer, signerData, "thorchain");
-    } catch (error) {
-      throw error;
-    }
+    return thormaya.thorchainSignTx(this.client!, this.thorchainGetAddress.bind(this), msg);
   }
 
   public thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
-    const slip44 = core.slip44ByCoin("Rune");
-    return [
-      {
-        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
-      },
-    ];
+    return thormaya.thorchainGetAccountPaths(msg);
   }
 
   public thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
-    const newAddressNList = [...msg.addressNList];
-    newAddressNList[2] += 1;
-    return {
-      addressNList: newAddressNList,
-    };
+    return thormaya.thorchainNextAccountPath(msg);
   }
 
   public async mayachainGetAddress(msg: core.MayachainGetAddress): Promise<string | null> {
     if (!this.client) {
       throw new Error("Device not connected");
     }
-
-    try {
-      // Get secp256k1 pubkey using GridPlus client instance
-      // Use FULL path - MAYAChain uses standard BIP44: m/44'/931'/0'/0/0 (5 levels)
-      const addresses = await this.client!.getAddresses({
-        startPath: msg.addressNList,
-        n: 1,
-        flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
-      });
-
-      if (!addresses || addresses.length === 0) {
-        throw new Error("No address returned from device");
-      }
-
-      // GridPlus SDK returns uncompressed 65-byte pubkeys, but MAYAChain needs compressed 33-byte pubkeys
-      const pubkeyBuffer = Buffer.isBuffer(addresses[0]) ? addresses[0] : Buffer.from(addresses[0], "hex");
-      const compressedPubkey = pointCompress(pubkeyBuffer, true);
-      const compressedHex = Buffer.from(compressedPubkey).toString("hex");
-      const mayaAddress = this.createCosmosAddress(compressedHex, "maya");
-
-      return mayaAddress;
-    } catch (error) {
-      throw error;
-    }
+    return thormaya.mayachainGetAddress(this.client!, msg);
   }
 
   public async mayachainSignTx(msg: core.MayachainSignTx): Promise<core.MayachainSignedTx | null> {
     if (!this.client) {
       throw new Error("Device not connected");
     }
-
-    try {
-      // Get the address for this path
-      const address = await this.mayachainGetAddress({ addressNList: msg.addressNList });
-      if (!address) throw new Error("Failed to get MAYAchain address");
-
-      // Get the public key using client instance
-      const pubkeys = await this.client!.getAddresses({
-        startPath: msg.addressNList,
-        n: 1,
-        flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
-      });
-
-      if (!pubkeys || pubkeys.length === 0) {
-        throw new Error("No public key returned from device");
-      }
-
-      // GridPlus SDK returns uncompressed 65-byte pubkeys, but MAYAChain needs compressed 33-byte pubkeys
-      const pubkeyBuffer = Buffer.isBuffer(pubkeys[0]) ? pubkeys[0] : Buffer.from(pubkeys[0], "hex");
-      const compressedPubkey = pointCompress(pubkeyBuffer, true);
-      const pubkey = Buffer.from(compressedPubkey);
-
-      // Capture client reference for use in closure
-      const client = this.client;
-
-      // Create a signer adapter for GridPlus with Direct signing (Proto)
-      const signer: OfflineDirectSigner = {
-        getAccounts: async () => [{
-          address,
-          pubkey,
-          algo: "secp256k1" as const,
-        }],
-        signDirect: async (signerAddress: string, signDoc: SignDoc): Promise<DirectSignResponse> => {
-          if (signerAddress !== address) {
-            throw new Error("Signer address mismatch");
-          }
-
-          // Use CosmJS to create the sign bytes from the SignDoc
-          const signBytes = (await cosmJsProtoSigning).makeSignBytes(signDoc);
-
-          // Sign using GridPlus SDK general signing
-          // Pass unhashed signBytes and let device hash with SHA256
-          const signData = {
-            data: {
-              payload: signBytes,
-              curveType: Constants.SIGNING.CURVES.SECP256K1,
-              hashType: Constants.SIGNING.HASHES.SHA256,
-              encodingType: Constants.SIGNING.ENCODINGS.NONE,
-              signerPath: msg.addressNList,
-            }
-          };
-
-          const signedResult = await client.sign(signData);
-
-          if (!signedResult?.sig) {
-            throw new Error("No signature returned from device");
-          }
-
-          const { r, s } = signedResult.sig;
-          const rBuf = Buffer.from(r);
-          const sBuf = Buffer.from(s);
-
-          // Ensure 32-byte values
-          const rPadded = rBuf.length < 32 ? Buffer.concat([Buffer.alloc(32 - rBuf.length), rBuf]) : rBuf;
-          const sPadded = sBuf.length < 32 ? Buffer.concat([Buffer.alloc(32 - sBuf.length), sBuf]) : sBuf;
-
-          const signature = Buffer.concat([rPadded, sPadded]);
-
-          return {
-            signed: signDoc,
-            signature: {
-              pub_key: {
-                type: "tendermint/PubKeySecp256k1",
-                value: pubkey.toString("base64"),
-              },
-              signature: signature.toString("base64"),
-            },
-          };
-        },
-      };
-
-      // Build and sign transaction using proto-tx-builder
-      const signedTx = await (await import("@shapeshiftoss/proto-tx-builder")).sign(
-        address,
-        msg.tx as any,
-        signer,
-        {
-          sequence: Number(msg.sequence),
-          accountNumber: Number(msg.account_number),
-          chainId: msg.chain_id,
-        },
-        "maya",
-      );
-
-      return signedTx as core.MayachainSignedTx;
-    } catch (error) {
-      throw error;
-    }
+    return thormaya.mayachainSignTx(this.client!, this.mayachainGetAddress.bind(this), msg);
   }
 
   public mayachainGetAccountPaths(msg: core.MayachainGetAccountPaths): Array<core.MayachainAccountPath> {
-    const slip44 = core.slip44ByCoin("Mayachain");
-    return [
-      {
-        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
-      },
-    ];
+    return thormaya.mayachainGetAccountPaths(msg);
   }
 
   public mayachainNextAccountPath(msg: core.MayachainAccountPath): core.MayachainAccountPath | undefined {
-    const newAddressNList = [...msg.addressNList];
-    newAddressNList[2] += 1;
-    return {
-      addressNList: newAddressNList,
-    };
+    return thormaya.mayachainNextAccountPath(msg);
   }
 }
 
