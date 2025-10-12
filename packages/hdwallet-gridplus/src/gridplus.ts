@@ -1230,13 +1230,6 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     const changeOutput = msg.outputs.find(o => o.isChange);
     const changePath = changeOutput?.addressNList;
 
-    // Log BEFORE building payload to see what we're working with
-      address: o.address,
-      amount: o.amount,
-      isChange: o.isChange,
-      addressNList: o.addressNList
-    })), null, 2));
-
     // Build base payload for GridPlus SDK
     const payload: any = {
       prevOuts: msg.inputs.map(input => ({
@@ -1541,20 +1534,10 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
             }
           };
 
-            ...signData,
-            data: {
-              ...signData.data,
-              payload: `<Buffer ${signData.data.payload.length} bytes>`,
-            }
-          }, null, 2));
-
           let signedResult;
           try {
             signedResult = await this.client.sign(signData);
           } catch (error) {
-            console.error(`[GridPlus BTC Sign] Error from device:`, error);
-            console.error(`[GridPlus BTC Sign] Error message:`, (error as any).message);
-            console.error(`[GridPlus BTC Sign] Error stack:`, (error as any).stack);
             throw new Error(`Device signing failed for input ${i}: ${(error as any).message}`);
           }
 

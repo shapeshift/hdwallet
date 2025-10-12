@@ -21,8 +21,7 @@ export class GridPlusAdapter {
     if (!transport) {
       transport = new GridPlusTransport({
         deviceId,
-        password: password || "shapeshift-default",
-        name: "ShapeShift"
+        password: password || "shapeshift-default"
       });
       this.activeTransports.set(deviceId, transport);
     }

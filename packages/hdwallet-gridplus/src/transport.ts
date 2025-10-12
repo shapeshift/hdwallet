@@ -2,16 +2,14 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { Client } from "gridplus-sdk";
 import { randomBytes } from "crypto";
 
-export interface GridPlusTransportConfig {
-  deviceId?: string;
+export type GridPlusTransportConfig = {
+  deviceId: string;
   password?: string;
-  name?: string;
 }
 
 export class GridPlusTransport extends core.Transport {
   public deviceId?: string;
   public password?: string;
-  public name?: string;
   public connected: boolean = false;
   private client?: Client;
   // Session identifier used to track reconnections. When present, we can skip
@@ -19,11 +17,10 @@ export class GridPlusTransport extends core.Transport {
   // on the device and enables faster reconnection from localStorage.
   private sessionId?: string;
 
-  constructor(config: GridPlusTransportConfig = {}) {
+  constructor(config: GridPlusTransportConfig) {
     super(new core.Keyring());
     this.deviceId = config.deviceId;
     this.password = config.password;
-    this.name = config.name || "ShapeShift";
   }
 
   public getDeviceID(): Promise<string> {
@@ -74,7 +71,7 @@ export class GridPlusTransport extends core.Transport {
     // This ensures we always get fresh activeWallets from device
     if (!this.client) {
       this.client = new Client({
-        name: this.name || "ShapeShift",
+        name: "ShapeShift",
         baseUrl: "https://signing.gridpl.us",
         privKey: Buffer.from(this.sessionId, 'hex'),
         retryCount: 3,
