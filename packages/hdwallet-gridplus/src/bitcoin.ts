@@ -366,7 +366,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
         try {
           signedResult = await client.sign(signData);
         } catch (error) {
-          throw new Error(`Device signing failed for input ${i}: ${(error as any).message}`);
+          throw new Error(`Device signing failed for input ${i}: ${(error as Error).message}`);
         }
 
         if (!signedResult?.sig) {
@@ -565,7 +565,7 @@ export function btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPat
   };
 }
 
-function scriptTypeToPurpose(scriptType: core.BTCInputScriptType): number {
+const scriptTypeToPurpose = (scriptType: core.BTCInputScriptType): number => {
   switch (scriptType) {
     case core.BTCInputScriptType.SpendAddress:
       return 44;
@@ -576,4 +576,4 @@ function scriptTypeToPurpose(scriptType: core.BTCInputScriptType): number {
     default:
       return 44;
   }
-}
+};

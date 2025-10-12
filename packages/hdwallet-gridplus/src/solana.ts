@@ -3,9 +3,8 @@ import bs58 from "bs58";
 import { PublicKey } from "@solana/web3.js";
 import { Client, Constants } from "gridplus-sdk";
 
-export function solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> {
-  return [{ addressNList: [0x80000000 + 44, 0x80000000 + 501, 0x80000000 + msg.accountIdx, 0x80000000 + 0] }];
-}
+export const solanaGetAccountPaths = (msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> =>
+  [{ addressNList: [0x80000000 + 44, 0x80000000 + 501, 0x80000000 + msg.accountIdx, 0x80000000 + 0] }];
 
 export async function solanaGetAddress(client: Client, msg: core.SolanaGetAddress): Promise<string | null> {
   const correctedPath = msg.addressNList.map((idx) => {
@@ -108,11 +107,11 @@ export async function solanaSignTx(
   }
 }
 
-export function solanaNextAccountPath(msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
+export const solanaNextAccountPath = (msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined => {
   const newAddressNList = [...msg.addressNList];
   newAddressNList[2] += 1;
 
   return {
     addressNList: newAddressNList,
   };
-}
+};

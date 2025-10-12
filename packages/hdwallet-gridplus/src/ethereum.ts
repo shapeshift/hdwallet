@@ -4,9 +4,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { Client, Constants, Utils } from "gridplus-sdk";
 import { encode } from "rlp";
 
-export function ethSupportsNetwork(chainId: number): boolean {
-  return true;
-}
+export const ethSupportsNetwork = (ethNetworkId: number): boolean => true;
 
 export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
   const slip44 = core.slip44ByCoin(msg.coin);
@@ -161,7 +159,7 @@ export async function ethSignTypedData(
     };
 
     // GridPlus SDK types don't properly support ETH_MSG currency, but runtime does
-    const signedResult = await client.sign(signingOptions as any);
+    const signedResult = await client.sign(signingOptions as Parameters<typeof client.sign>[0]);
 
     if (!signedResult?.sig) {
       throw new Error("No signature returned from device");
@@ -245,7 +243,7 @@ export async function ethSignMessage(
     };
 
     // GridPlus SDK types don't properly support ETH_MSG currency, but runtime does
-    const signedResult = await client.sign(signingOptions as any);
+    const signedResult = await client.sign(signingOptions as Parameters<typeof client.sign>[0]);
 
     if (!signedResult?.sig) {
       throw new Error("No signature returned from device");
@@ -296,18 +294,12 @@ export async function ethSignMessage(
   }
 }
 
-export function ethVerifyMessage(msg: core.ETHVerifyMessage): boolean {
+export const ethVerifyMessage = (msg: core.ETHVerifyMessage): boolean => {
   throw new Error("GridPlus ethVerifyMessage not implemented yet");
-}
+};
 
-export function ethSupportsSecureTransfer(): boolean {
-  return false;
-}
+export const ethSupportsSecureTransfer = (): boolean => false;
 
-export function ethSupportsNativeShapeShift(): boolean {
-  return false;
-}
+export const ethSupportsNativeShapeShift = (): boolean => false;
 
-export function ethSupportsEIP1559(): boolean {
-  return true;
-}
+export const ethSupportsEIP1559 = (): boolean => true;

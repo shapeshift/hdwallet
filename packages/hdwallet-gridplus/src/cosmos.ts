@@ -12,17 +12,17 @@ import PLazy from "p-lazy";
 const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
 const cosmJsProtoSigning = PLazy.from(() => import("@cosmjs/proto-signing"));
 
-export function bech32ify(address: ArrayLike<number>, prefix: string): string {
+export const bech32ify = (address: ArrayLike<number>, prefix: string): string => {
   const words = bech32.toWords(address);
   return bech32.encode(prefix, words);
-}
+};
 
-export function createCosmosAddress(publicKey: string, prefix: string): string {
+export const createCosmosAddress = (publicKey: string, prefix: string): string => {
   const message = CryptoJS.SHA256(CryptoJS.enc.Hex.parse(publicKey));
-  const hash = CryptoJS.RIPEMD160(message as any).toString();
+  const hash = CryptoJS.RIPEMD160(message as CryptoJS.lib.WordArray).toString();
   const address = Buffer.from(hash, `hex`);
   return bech32ify(address, prefix);
-}
+};
 
 export async function cosmosGetAddress(client: Client, msg: core.CosmosGetAddress): Promise<string | null> {
   try {
@@ -141,19 +141,19 @@ export async function cosmosSignTx(
   }
 }
 
-export function cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
+export const cosmosGetAccountPaths = (msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> => {
   const slip44 = core.slip44ByCoin("Atom");
   return [
     {
       addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
     },
   ];
-}
+};
 
-export function cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
+export const cosmosNextAccountPath = (msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined => {
   const newAddressNList = [...msg.addressNList];
   newAddressNList[2] += 1;
   return {
     addressNList: newAddressNList,
   };
-}
+};

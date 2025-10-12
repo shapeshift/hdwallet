@@ -133,22 +133,22 @@ export async function thorchainSignTx(
   }
 }
 
-export function thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
+export const thorchainGetAccountPaths = (msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> => {
   const slip44 = core.slip44ByCoin("Rune");
   return [
     {
       addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
     },
   ];
-}
+};
 
-export function thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
+export const thorchainNextAccountPath = (msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined => {
   const newAddressNList = [...msg.addressNList];
   newAddressNList[2] += 1;
   return {
     addressNList: newAddressNList,
   };
-}
+};
 
 export async function mayachainGetAddress(client: Client, msg: core.MayachainGetAddress): Promise<string | null> {
   try {
@@ -261,7 +261,7 @@ export async function mayachainSignTx(
     // Build and sign transaction using proto-tx-builder
     const signedTx = await (await import("@shapeshiftoss/proto-tx-builder")).sign(
       address,
-      msg.tx as any,
+      msg.tx as StdTx,
       signer,
       {
         sequence: Number(msg.sequence),
@@ -277,19 +277,19 @@ export async function mayachainSignTx(
   }
 }
 
-export function mayachainGetAccountPaths(msg: core.MayachainGetAccountPaths): Array<core.MayachainAccountPath> {
+export const mayachainGetAccountPaths = (msg: core.MayachainGetAccountPaths): Array<core.MayachainAccountPath> => {
   const slip44 = core.slip44ByCoin("Mayachain");
   return [
     {
       addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
     },
   ];
-}
+};
 
-export function mayachainNextAccountPath(msg: core.MayachainAccountPath): core.MayachainAccountPath | undefined {
+export const mayachainNextAccountPath = (msg: core.MayachainAccountPath): core.MayachainAccountPath | undefined => {
   const newAddressNList = [...msg.addressNList];
   newAddressNList[2] += 1;
   return {
     addressNList: newAddressNList,
   };
-}
+};
