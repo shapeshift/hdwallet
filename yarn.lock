@@ -1382,7 +1382,7 @@
   resolved "https://registry.yarnpkg.com/@esm2cjs/p-timeout/-/p-timeout-5.1.0.tgz#644d155ed345f158589f364612b11955c9a626fc"
   integrity sha512-QW2sTVKgqiK1nirBD8Sq39izyYj3IINfzwtxn/rpcFjMan7qXovQG3X2SzTsLKxw/phftc2M9Qh4lPtBfb2Bzg==
 
-"@ethereumjs/common@2.6.5", "@ethereumjs/common@3.2.0", "@ethereumjs/common@^2.4.0", "@ethereumjs/common@^2.6.2", "@ethereumjs/common@^2.6.4", "@ethereumjs/common@^3.2.0", "@ethereumjs/common@^4.4.0":
+"@ethereumjs/common@2.6.5", "@ethereumjs/common@^2.4.0", "@ethereumjs/common@^2.6.2", "@ethereumjs/common@^2.6.4", "@ethereumjs/common@^3.2.0", "@ethereumjs/common@^4.4.0":
   version "2.6.5"
   resolved "http://127.0.0.1:4873/@ethereumjs/common/-/common-2.6.5.tgz#0a75a22a046272579d91919cb12d84f2756e8d30"
   integrity sha512-lRyVQOeCDaIVtgfbowla32pzeDv2Obr8oR8Put5RdUBNRGr1VGPGQNGP6elWIpgK3YdpzqTOh4GyUGOureVeeA==
@@ -1408,7 +1408,7 @@
     "@ethereumjs/common" "^2.6.4"
     ethereumjs-util "^7.1.5"
 
-"@ethereumjs/tx@4.2.0", "@ethereumjs/tx@^4.1.2", "@ethereumjs/tx@^4.2.0":
+"@ethereumjs/tx@^4.1.2", "@ethereumjs/tx@^4.2.0":
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/@ethereumjs/tx/-/tx-4.2.0.tgz#5988ae15daf5a3b3c815493bc6b495e76009e853"
   integrity sha512-1nc6VO4jtFd172BbSnTnDQVr9IYBFl1y4xPzZdtkrkKIncBCkdbgfdRV+MiTkJYAtTxvV12GRZLqBFT1PNK6Yw==
@@ -5223,21 +5223,6 @@
     "@shapeshiftoss/hdwallet-core" "1.62.4-alpha.53"
     eth-rpc-errors "^4.0.3"
     lodash "^4.17.21"
-
-"@shapeshiftoss/hdwallet-core@1.62.4-alpha.181":
-  version "1.62.4-alpha.181"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.62.4-alpha.181.tgz#59f66cb47c14d11e5d7f459dfca0425861a5bd6c"
-  integrity sha512-YxSP+Q63aSCJNAPaMVVPp1HQYCl5MtDe4WEszegs8oN03Gz8sHtItxPPv2bwhY7dqNskKNX9LUpTYtwPz+6RvQ==
-  dependencies:
-    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.0"
-    "@shapeshiftoss/proto-tx-builder" "0.10.0"
-    "@solana/web3.js" "1.95.8"
-    eip-712 "^1.0.0"
-    ethers "5.7.2"
-    eventemitter2 "^5.0.1"
-    lodash "^4.17.21"
-    rxjs "^6.4.0"
-    type-assertions "^1.1.0"
 
 "@shapeshiftoss/hdwallet-core@1.62.4-alpha.53":
   version "1.62.4-alpha.53"
