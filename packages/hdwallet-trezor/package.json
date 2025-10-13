@@ -15,8 +15,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@ethereumjs/common": "3.2.0",
-    "@ethereumjs/tx": "4.2.0",
+    "@ethereumjs/common": "^2.4.0",
+    "@ethereumjs/tx": "^3.3.0",
     "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.182",
     "base64-js": "^1.5.1",
     "lodash": "^4.17.21"
