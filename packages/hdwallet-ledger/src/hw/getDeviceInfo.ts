@@ -78,7 +78,7 @@ export const getDeviceInfo = async (transport: Transport): Promise<DeviceInfo> =
     throw new DeviceOnDashboardExpected();
   }
 
-  const res = await getVersion(transport).catch((e: unknown) => {
+  const res = await getVersion(transport).catch((e) => {
     tracer.trace(`Error from getVersion: ${e}`, { error: e });
     if (e instanceof TransportStatusError) {
       if (e.statusCode === 0x6d06 || e.statusCode === 0x6d07) {
