@@ -135,7 +135,8 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
   }
 
   public async cancel(): Promise<void> {
-    await this.clearSession();
+    // GridPlus has no pending device interactions to cancel
+    // Wallet persists in keyring - do not disconnect
   }
 
   public async wipe(): Promise<void> {
