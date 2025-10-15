@@ -114,7 +114,6 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
     changePath: finalChangePath,
   };
 
-
   try {
     if (msg.coin === "Bitcoin") {
       const signData = await client.sign({
@@ -194,11 +193,21 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
           // Bitcoin Cash CashAddr format: bitcoincash: prefix or q for mainnet
           if (address.startsWith('bitcoincash:') || address.startsWith('q')) {
             const legacyAddress = bchAddr.toLegacyAddress(address);
-
             const decoded = bs58Decode(legacyAddress);
-
+            const versionByte = decoded[0];
             const hash160 = decoded.slice(1);
 
+            // Check if P2SH (Bitcoin Cash uses 0x05 for P2SH)
+            if (versionByte === network.scriptHash) {
+              const scriptPubKey = bitcoin.script.compile([
+                bitcoin.opcodes.OP_HASH160,
+                hash160,
+                bitcoin.opcodes.OP_EQUAL
+              ]);
+              return { hash160, scriptPubKey };
+            }
+
+            // P2PKH
             const scriptPubKey = bitcoin.script.compile([
               bitcoin.opcodes.OP_DUP,
               bitcoin.opcodes.OP_HASH160,
@@ -209,10 +218,22 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
             return { hash160, scriptPubKey };
           }
 
+          // Other Base58 addresses (P2PKH or P2SH)
           const decoded = bs58Decode(address);
-
+          const versionByte = decoded[0];
           const hash160 = decoded.slice(1);
 
+          // Check if P2SH by comparing version byte with network's scriptHash
+          if (versionByte === network.scriptHash) {
+            const scriptPubKey = bitcoin.script.compile([
+              bitcoin.opcodes.OP_HASH160,
+              hash160,
+              bitcoin.opcodes.OP_EQUAL
+            ]);
+            return { hash160, scriptPubKey };
+          }
+
+          // P2PKH (Legacy)
           const scriptPubKey = bitcoin.script.compile([
             bitcoin.opcodes.OP_DUP,
             bitcoin.opcodes.OP_HASH160,
@@ -516,11 +537,21 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
           // Bitcoin Cash CashAddr format: bitcoincash: prefix or q for mainnet
           if (address.startsWith('bitcoincash:') || address.startsWith('q')) {
             const legacyAddress = bchAddr.toLegacyAddress(address);
-
             const decoded = bs58Decode(legacyAddress);
-
+            const versionByte = decoded[0];
             const hash160 = decoded.slice(1);
 
+            // Check if P2SH (Bitcoin Cash uses 0x05 for P2SH)
+            if (versionByte === network.scriptHash) {
+              const scriptPubKey = bitcoin.script.compile([
+                bitcoin.opcodes.OP_HASH160,
+                hash160,
+                bitcoin.opcodes.OP_EQUAL
+              ]);
+              return { hash160, scriptPubKey };
+            }
+
+            // P2PKH
             const scriptPubKey = bitcoin.script.compile([
               bitcoin.opcodes.OP_DUP,
               bitcoin.opcodes.OP_HASH160,
@@ -531,10 +562,22 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
             return { hash160, scriptPubKey };
           }
 
+          // Other Base58 addresses (P2PKH or P2SH)
           const decoded = bs58Decode(address);
-
+          const versionByte = decoded[0];
           const hash160 = decoded.slice(1);
 
+          // Check if P2SH by comparing version byte with network's scriptHash
+          if (versionByte === network.scriptHash) {
+            const scriptPubKey = bitcoin.script.compile([
+              bitcoin.opcodes.OP_HASH160,
+              hash160,
+              bitcoin.opcodes.OP_EQUAL
+            ]);
+            return { hash160, scriptPubKey };
+          }
+
+          // P2PKH (Legacy)
           const scriptPubKey = bitcoin.script.compile([
             bitcoin.opcodes.OP_DUP,
             bitcoin.opcodes.OP_HASH160,
