@@ -10,6 +10,12 @@ import { Client, Constants } from "gridplus-sdk";
 import { UTXO_NETWORK_PARAMS } from "./constants";
 import { deriveAddressFromPubkey } from "./utils";
 
+const u32le = (n: number): Buffer => {
+  const b = Buffer.alloc(4);
+  b.writeUInt32LE(n >>> 0, 0);
+  return b;
+};
+
 const scriptTypeToPurpose = (scriptType: core.BTCInputScriptType): number => {
   switch (scriptType) {
     case core.BTCInputScriptType.SpendAddress:
@@ -359,9 +365,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
           CryptoJS.SHA256(
             CryptoJS.lib.WordArray.create(
               Buffer.concat(
-                msg.inputs.map((inp) =>
-                  Buffer.concat([Buffer.from(inp.txid, "hex").reverse(), Buffer.from([inp.vout, 0, 0, 0])])
-                )
+                msg.inputs.map((inp) => Buffer.concat([Buffer.from(inp.txid, "hex").reverse(), u32le(inp.vout)]))
               )
             )
           )
@@ -414,18 +418,18 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
         valueBuffer.writeBigUInt64LE(value);
 
         signaturePreimage = Buffer.concat([
-          Buffer.from([tx.version, 0, 0, 0]),
+          u32le(tx.version),
           Buffer.from(hashPrevouts.toString(CryptoJS.enc.Hex), "hex"),
           Buffer.from(hashSequence.toString(CryptoJS.enc.Hex), "hex"),
           Buffer.from(input.txid, "hex").reverse(),
-          Buffer.from([input.vout, 0, 0, 0]),
+          u32le(input.vout),
           Buffer.from([scriptCode.length]),
           scriptCode,
           valueBuffer,
           Buffer.from([0xff, 0xff, 0xff, 0xff]), // sequence
           Buffer.from(hashOutputs.toString(CryptoJS.enc.Hex), "hex"),
-          Buffer.from([tx.locktime, 0, 0, 0]),
-          Buffer.from([hashType, 0, 0, 0]),
+          u32le(tx.locktime),
+          u32le(hashType),
         ]);
       } else {
         // Legacy signing
