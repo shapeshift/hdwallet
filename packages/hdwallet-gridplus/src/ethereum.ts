@@ -4,7 +4,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { Client, Constants, Utils } from "gridplus-sdk";
 import { encode } from "rlp";
 
-export const ethSupportsNetwork = (): boolean => true;
+export const ethSupportsNetwork = (_chainId: number): boolean => true;
 
 export const ethGetAccountPaths = (msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> => {
   const slip44 = core.slip44ByCoin(msg.coin);
@@ -283,7 +283,7 @@ export async function ethSignMessage(
   };
 }
 
-export const ethVerifyMessage = (): boolean => {
+export const ethVerifyMessage = (_msg: core.ETHVerifyMessage): boolean => {
   throw new Error("GridPlus ethVerifyMessage not implemented yet");
 };
 

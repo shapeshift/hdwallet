@@ -330,11 +330,9 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
             CryptoJS.lib.WordArray.create(
               Buffer.concat(
                 tx.outs.map((out) => {
-                  // Convert bigint to number for small UTXO values
-                  const valueNum = typeof out.value === "bigint" ? Number(out.value) : out.value;
                   const valueBuffer = Buffer.alloc(8);
-                  valueBuffer.writeUInt32LE(valueNum & 0xffffffff, 0);
-                  valueBuffer.writeUInt32LE(Math.floor(valueNum / 0x100000000), 4);
+                  const value = typeof out.value === "bigint" ? out.value : BigInt(out.value);
+                  valueBuffer.writeBigUInt64LE(value);
                   return Buffer.concat([valueBuffer, Buffer.from([out.script.length]), out.script]);
                 })
               )
@@ -360,10 +358,12 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
           scriptCode = Buffer.from(scriptPubKey);
         }
 
-        const value = parseInt(input.amount || "0");
+        if (!input.amount) {
+          throw new Error(`Input ${i} missing amount field (required for BIP143 signing)`);
+        }
         const valueBuffer = Buffer.alloc(8);
-        valueBuffer.writeUInt32LE(value & 0xffffffff, 0);
-        valueBuffer.writeUInt32LE(Math.floor(value / 0x100000000), 4);
+        const value = BigInt(input.amount);
+        valueBuffer.writeBigUInt64LE(value);
 
         signaturePreimage = Buffer.concat([
           Buffer.from([tx.version, 0, 0, 0]),
