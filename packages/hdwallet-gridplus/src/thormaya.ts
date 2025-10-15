@@ -11,10 +11,7 @@ import { createCosmosAddress } from "./cosmos";
 const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
 const cosmJsProtoSigning = PLazy.from(() => import("@cosmjs/proto-signing"));
 
-export async function thorchainGetAddress(
-  client: Client,
-  msg: core.ThorchainGetAddress
-): Promise<string | null> {
+export async function thorchainGetAddress(client: Client, msg: core.ThorchainGetAddress): Promise<string | null> {
   const prefix = msg.testnet ? "tthor" : "thor";
 
   try {
@@ -70,11 +67,13 @@ export async function thorchainSignTx(
 
     // Create a signer adapter for GridPlus with Direct signing (Proto)
     const signer: OfflineDirectSigner = {
-      getAccounts: async () => [{
-        address,
-        pubkey,
-        algo: "secp256k1" as const,
-      }],
+      getAccounts: async () => [
+        {
+          address,
+          pubkey,
+          algo: "secp256k1" as const,
+        },
+      ],
       signDirect: async (signerAddress: string, signDoc: SignDoc): Promise<DirectSignResponse> => {
         if (signerAddress !== address) {
           throw new Error("Signer address mismatch");
@@ -92,7 +91,7 @@ export async function thorchainSignTx(
             hashType: Constants.SIGNING.HASHES.SHA256,
             encodingType: Constants.SIGNING.ENCODINGS.NONE,
             signerPath: msg.addressNList,
-          }
+          },
         };
 
         const signedResult = await client.sign(signData);
@@ -204,11 +203,13 @@ export async function mayachainSignTx(
 
     // Create a signer adapter for GridPlus with Direct signing (Proto)
     const signer: OfflineDirectSigner = {
-      getAccounts: async () => [{
-        address,
-        pubkey,
-        algo: "secp256k1" as const,
-      }],
+      getAccounts: async () => [
+        {
+          address,
+          pubkey,
+          algo: "secp256k1" as const,
+        },
+      ],
       signDirect: async (signerAddress: string, signDoc: SignDoc): Promise<DirectSignResponse> => {
         if (signerAddress !== address) {
           throw new Error("Signer address mismatch");
@@ -226,7 +227,7 @@ export async function mayachainSignTx(
             hashType: Constants.SIGNING.HASHES.SHA256,
             encodingType: Constants.SIGNING.ENCODINGS.NONE,
             signerPath: msg.addressNList,
-          }
+          },
         };
 
         const signedResult = await client.sign(signData);
@@ -259,7 +260,9 @@ export async function mayachainSignTx(
     };
 
     // Build and sign transaction using proto-tx-builder
-    const signedTx = await (await import("@shapeshiftoss/proto-tx-builder")).sign(
+    const signedTx = await (
+      await import("@shapeshiftoss/proto-tx-builder")
+    ).sign(
       address,
       msg.tx as StdTx,
       signer,
@@ -268,7 +271,7 @@ export async function mayachainSignTx(
         accountNumber: Number(msg.account_number),
         chainId: msg.chain_id,
       },
-      "maya",
+      "maya"
     );
 
     return signedTx as core.MayachainSignedTx;

@@ -15,14 +15,18 @@ export class GridPlusAdapter {
     return new GridPlusAdapter(keyring);
   }
 
-  public async connectDevice(deviceId: string, password?: string, existingSessionId?: string): Promise<{ transport: GridPlusTransport, isPaired: boolean, sessionId: string }> {
+  public async connectDevice(
+    deviceId: string,
+    password?: string,
+    existingSessionId?: string
+  ): Promise<{ transport: GridPlusTransport; isPaired: boolean; sessionId: string }> {
     const transport = (() => {
       const existing = this.activeTransports.get(deviceId);
       if (existing) return existing;
 
       const newTransport = new GridPlusTransport({
         deviceId,
-        password: password || "shapeshift-default"
+        password: password || "shapeshift-default",
       });
       this.activeTransports.set(deviceId, newTransport);
       return newTransport;
@@ -57,11 +61,16 @@ export class GridPlusAdapter {
 
       return wallet;
     } catch (error) {
-      throw new Error(`GridPlus pairing failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(`GridPlus pairing failed: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   }
 
-  public async pairDevice(deviceId: string, password?: string, pairingCode?: string, existingSessionId?: string): Promise<GridPlusHDWallet> {
+  public async pairDevice(
+    deviceId: string,
+    password?: string,
+    pairingCode?: string,
+    existingSessionId?: string
+  ): Promise<GridPlusHDWallet> {
     const existingWallet = this.keyring.get<GridPlusHDWallet>(deviceId);
     if (existingWallet) {
       // Reset Client activeWallets state and fetch fresh UIDs from currently inserted SafeCard

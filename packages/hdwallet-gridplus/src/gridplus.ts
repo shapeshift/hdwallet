@@ -1,45 +1,29 @@
-import type { StdTx } from "@cosmjs/amino";
-import type { DirectSignResponse, OfflineDirectSigner } from "@cosmjs/proto-signing";
-import type { SignerData } from "@cosmjs/stargate";
-import { pointCompress, recover } from "@bitcoinerlab/secp256k1";
-import type { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import Common from "@ethereumjs/common";
-import { FeeMarketEIP1559Transaction, Transaction } from "@ethereumjs/tx";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as bech32 from "bech32";
-import * as bchAddr from "bchaddrjs";
-import bs58 from "bs58";
-import { PublicKey } from "@solana/web3.js";
-import { decode as bs58Decode, encode as bs58Encode } from "bs58check";
-import CryptoJS from "crypto-js";
-import {
-  Client,
-  Constants,
-  Utils,
-} from "gridplus-sdk";
-import * as bitcoinjs from "@shapeshiftoss/bitcoinjs-lib";
-import { SignTypedDataVersion, TypedDataUtils } from "@metamask/eth-sig-util";
+import { Client, Constants } from "gridplus-sdk";
 import isObject from "lodash/isObject";
-import PLazy from "p-lazy";
-import { encode } from "rlp";
 
-const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
-const cosmJsProtoSigning = PLazy.from(() => import("@cosmjs/proto-signing"));
-
-import { GridPlusTransport } from "./transport";
-import { UTXO_NETWORK_PARAMS } from "./constants";
-import { convertXpubVersion, scriptTypeToAccountType, deriveAddressFromPubkey } from "./utils";
-import * as eth from "./ethereum";
-import * as solana from "./solana";
 import * as btc from "./bitcoin";
 import * as cosmos from "./cosmos";
+import * as eth from "./ethereum";
+import * as solana from "./solana";
 import * as thormaya from "./thormaya";
+import { GridPlusTransport } from "./transport";
+import { convertXpubVersion, scriptTypeToAccountType } from "./utils";
 
 export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
   return isObject(wallet) && (wallet as any)._isGridPlus;
 }
 
-export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.SolanaWallet, core.BTCWallet, core.CosmosWallet, core.ThorchainWallet, core.MayachainWallet {
+export class GridPlusHDWallet
+  implements
+    core.HDWallet,
+    core.ETHWallet,
+    core.SolanaWallet,
+    core.BTCWallet,
+    core.CosmosWallet,
+    core.ThorchainWallet,
+    core.MayachainWallet
+{
   readonly _isGridPlus = true;
   private activeWalletId?: string;
 
@@ -113,7 +97,7 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     }
 
     // Validate that the client has the expected methods
-    if (typeof this.client.getAddresses !== 'function') {
+    if (typeof this.client.getAddresses !== "function") {
       throw new Error("GridPlus client missing required getAddresses method");
     }
   }
@@ -122,17 +106,13 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
     return { msg: msg.msg };
   }
 
-  public async sendPin(): Promise<void> {
-  }
+  public async sendPin(): Promise<void> {}
 
-  public async sendPassphrase(): Promise<void> {
-  }
+  public async sendPassphrase(): Promise<void> {}
 
-  public async sendCharacter(): Promise<void> {
-  }
+  public async sendCharacter(): Promise<void> {}
 
-  public async sendWord(): Promise<void> {
-  }
+  public async sendWord(): Promise<void> {}
 
   public async cancel(): Promise<void> {
     // GridPlus has no pending device interactions to cancel
@@ -213,7 +193,7 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
   }
 
   public async getDeviceID(): Promise<string> {
-    return this.activeWalletId || await this.transport.getDeviceID();
+    return this.activeWalletId || (await this.transport.getDeviceID());
   }
 
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
@@ -362,17 +342,17 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
   public async btcSupportsScriptType(coin: core.Coin, scriptType?: core.BTCInputScriptType): Promise<boolean> {
     const supported = {
       Bitcoin: [
-        core.BTCInputScriptType.SpendAddress,      // p2pkh
-        core.BTCInputScriptType.SpendP2SHWitness,  // p2sh-p2wpkh
-        core.BTCInputScriptType.SpendWitness,      // p2wpkh
+        core.BTCInputScriptType.SpendAddress, // p2pkh
+        core.BTCInputScriptType.SpendP2SHWitness, // p2sh-p2wpkh
+        core.BTCInputScriptType.SpendWitness, // p2wpkh
       ],
-      Dogecoin: [core.BTCInputScriptType.SpendAddress],  // p2pkh only
+      Dogecoin: [core.BTCInputScriptType.SpendAddress], // p2pkh only
       Litecoin: [
-        core.BTCInputScriptType.SpendAddress,      // p2pkh
-        core.BTCInputScriptType.SpendP2SHWitness,  // p2sh-p2wpkh
-        core.BTCInputScriptType.SpendWitness,      // p2wpkh
+        core.BTCInputScriptType.SpendAddress, // p2pkh
+        core.BTCInputScriptType.SpendP2SHWitness, // p2sh-p2wpkh
+        core.BTCInputScriptType.SpendWitness, // p2wpkh
       ],
-      BitcoinCash: [core.BTCInputScriptType.SpendAddress],  // p2pkh only
+      BitcoinCash: [core.BTCInputScriptType.SpendAddress], // p2pkh only
     } as Partial<Record<core.Coin, Array<core.BTCInputScriptType>>>;
 
     const scriptTypes = supported[coin];
@@ -492,7 +472,14 @@ export class GridPlusHDWallet implements core.HDWallet, core.ETHWallet, core.Sol
   }
 }
 
-export class GridPlusWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo, core.CosmosWalletInfo, core.ThorchainWalletInfo, core.MayachainWalletInfo {
+export class GridPlusWalletInfo
+  implements
+    core.HDWalletInfo,
+    core.ETHWalletInfo,
+    core.CosmosWalletInfo,
+    core.ThorchainWalletInfo,
+    core.MayachainWalletInfo
+{
   readonly _supportsGridPlusInfo = true;
   readonly _supportsETHInfo = true;
   readonly _supportsAvalanche = true;
@@ -547,7 +534,7 @@ export class GridPlusWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
   public describePath(): core.PathDescription {
     return {
       verbose: "GridPlus path description not implemented",
-      coin: "Unknown", 
+      coin: "Unknown",
       isKnown: false,
     };
   }
@@ -573,7 +560,7 @@ export class GridPlusWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     const slip44 = core.slip44ByCoin(msg.coin);
     if (slip44 === undefined) return [];
-    
+
     return [
       {
         addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
@@ -593,7 +580,7 @@ export class GridPlusWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
 
     const newAddressNList = [...addressNList];
     newAddressNList[2] += 1;
-    
+
     return {
       addressNList: newAddressNList,
       hardenedPath: [newAddressNList[0], newAddressNList[1], newAddressNList[2]],
@@ -669,5 +656,4 @@ export class GridPlusWalletInfo implements core.HDWalletInfo, core.ETHWalletInfo
       addressNList: newAddressNList,
     };
   }
-
 }

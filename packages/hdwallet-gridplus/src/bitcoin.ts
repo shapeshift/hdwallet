@@ -10,6 +10,19 @@ import CryptoJS from "crypto-js";
 import { UTXO_NETWORK_PARAMS } from "./constants";
 import { deriveAddressFromPubkey } from "./utils";
 
+const scriptTypeToPurpose = (scriptType: core.BTCInputScriptType): number => {
+  switch (scriptType) {
+    case core.BTCInputScriptType.SpendAddress:
+      return 44;
+    case core.BTCInputScriptType.SpendP2SHWitness:
+      return 49;
+    case core.BTCInputScriptType.SpendWitness:
+      return 84;
+    default:
+      return 44;
+  }
+};
+
 export const btcGetAccountPaths = (msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> => {
   const slip44 = core.slip44ByCoin(msg.coin);
   if (!slip44) throw new Error(`Unsupported coin: ${msg.coin}`);
@@ -21,12 +34,12 @@ export const btcGetAccountPaths = (msg: core.BTCGetAccountPaths): Array<core.BTC
       return [
         core.BTCInputScriptType.SpendAddress,
         core.BTCInputScriptType.SpendP2SHWitness,
-        core.BTCInputScriptType.SpendWitness
+        core.BTCInputScriptType.SpendWitness,
       ];
     }
   })();
 
-  return scriptTypes.map(scriptType => {
+  return scriptTypes.map((scriptType) => {
     const purpose = scriptTypeToPurpose(scriptType);
     return {
       coin: msg.coin,
@@ -51,14 +64,13 @@ export async function btcGetAddress(client: Client, msg: core.BTCGetAddress): Pr
   }
 
   // pubkeys[0] may be uncompressed (65 bytes) or compressed (33 bytes)
-  const pubkeyBuffer = Buffer.isBuffer(pubkeys[0])
-    ? pubkeys[0]
-    : Buffer.from(pubkeys[0], "hex");
+  const pubkeyBuffer = Buffer.isBuffer(pubkeys[0]) ? pubkeys[0] : Buffer.from(pubkeys[0], "hex");
 
   // Compress if needed (65 bytes = uncompressed, 33 bytes = already compressed)
-  const pubkeyHex = pubkeyBuffer.length === 65
-    ? Buffer.from(pointCompress(pubkeyBuffer, true)).toString("hex")
-    : pubkeyBuffer.toString("hex");
+  const pubkeyHex =
+    pubkeyBuffer.length === 65
+      ? Buffer.from(pointCompress(pubkeyBuffer, true)).toString("hex")
+      : pubkeyBuffer.toString("hex");
 
   // Derive address client-side using the coin's network parameters
   const scriptType = msg.scriptType || core.BTCInputScriptType.SpendAddress;
@@ -78,31 +90,32 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
   const fee = totalInputValue - totalOutputValue;
 
   // Find change output and its path
-  const changeOutput = msg.outputs.find(o => o.isChange);
+  const changeOutput = msg.outputs.find((o) => o.isChange);
   const changePath = changeOutput?.addressNList;
 
   // SDK requires changePath even when there's no change output
   // Use actual change path if available, otherwise use dummy path (first change address)
   // The dummy path satisfies SDK validation but won't be used since there's no change output
-  const finalChangePath = changePath && changePath.length === 5
-    ? changePath
-    : [
-        msg.inputs[0].addressNList[0], // purpose (44', 49', or 84')
-        msg.inputs[0].addressNList[1], // coin type
-        msg.inputs[0].addressNList[2], // account
-        1,                               // change chain (1 = change, 0 = receive)
-        0                                // address index
-      ];
+  const finalChangePath =
+    changePath && changePath.length === 5
+      ? changePath
+      : [
+          msg.inputs[0].addressNList[0], // purpose (44', 49', or 84')
+          msg.inputs[0].addressNList[1], // coin type
+          msg.inputs[0].addressNList[2], // account
+          1, // change chain (1 = change, 0 = receive)
+          0, // address index
+        ];
 
   // Build base payload for GridPlus SDK
   const payload: {
-    prevOuts: Array<{txHash: string, value: number, index: number, signerPath: number[]}>,
-    recipient: string,
-    value: number,
-    fee: number,
-    changePath: number[]
+    prevOuts: Array<{ txHash: string; value: number; index: number; signerPath: number[] }>;
+    recipient: string;
+    value: number;
+    fee: number;
+    changePath: number[];
   } = {
-    prevOuts: msg.inputs.map(input => ({
+    prevOuts: msg.inputs.map((input) => ({
       txHash: input.txid,
       value: parseInt(input.amount || "0"),
       index: input.vout,
@@ -117,7 +130,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
   try {
     if (msg.coin === "Bitcoin") {
       const signData = await client.sign({
-        currency: 'BTC',
+        currency: "BTC",
         data: payload,
       });
 
@@ -132,7 +145,6 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
         serializedTx: signData.tx,
       };
     } else {
-
       const network = UTXO_NETWORK_PARAMS[msg.coin];
       if (!network) {
         throw new Error(`Unsupported UTXO coin: ${msg.coin}`);
@@ -141,7 +153,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
       const tx = new bitcoin.Transaction();
 
       for (const input of msg.inputs) {
-        const txHashBuffer = Buffer.from(input.txid, 'hex').reverse();
+        const txHashBuffer = Buffer.from(input.txid, "hex").reverse();
         tx.addInput(txHashBuffer, input.vout);
       }
 
@@ -149,11 +161,9 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
         const output = msg.outputs[outputIdx];
         let address: string;
 
-
         if (output.address) {
           address = output.address;
         } else if (output.addressNList) {
-
           // Derive address for change output
           const pubkey = await client.getAddresses({
             startPath: output.addressNList,
@@ -167,31 +177,30 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
 
           const pubkeyBuffer = Buffer.isBuffer(pubkey[0]) ? pubkey[0] : Buffer.from(pubkey[0], "hex");
 
-          const pubkeyHex = pubkeyBuffer.length === 65
-            ? Buffer.from(pointCompress(pubkeyBuffer, true)).toString("hex")
-            : pubkeyBuffer.toString("hex");
+          const pubkeyHex =
+            pubkeyBuffer.length === 65
+              ? Buffer.from(pointCompress(pubkeyBuffer, true)).toString("hex")
+              : pubkeyBuffer.toString("hex");
 
-          const scriptType = (output.scriptType as unknown as core.BTCInputScriptType) || core.BTCInputScriptType.SpendAddress;
+          const scriptType =
+            (output.scriptType as unknown as core.BTCInputScriptType) || core.BTCInputScriptType.SpendAddress;
           address = deriveAddressFromPubkey(pubkeyHex, msg.coin, scriptType);
         } else {
           throw new Error("Output must have either address or addressNList");
         }
 
-        const { hash160, scriptPubKey } = (() => {
+        const { scriptPubKey } = (() => {
           // Native SegWit (bech32): ltc1 for Litecoin, bc1 for Bitcoin
-          if (address.startsWith('ltc1') || address.startsWith('bc1')) {
+          if (address.startsWith("ltc1") || address.startsWith("bc1")) {
             const decoded = bech32.decode(address);
             const hash160 = Buffer.from(bech32.fromWords(decoded.words.slice(1)));
 
-            const scriptPubKey = bitcoin.script.compile([
-              bitcoin.opcodes.OP_0,
-              hash160
-            ]);
-            return { hash160, scriptPubKey };
+            const scriptPubKey = bitcoin.script.compile([bitcoin.opcodes.OP_0, hash160]);
+            return { scriptPubKey };
           }
 
           // Bitcoin Cash CashAddr format: bitcoincash: prefix or q for mainnet
-          if (address.startsWith('bitcoincash:') || address.startsWith('q')) {
+          if (address.startsWith("bitcoincash:") || address.startsWith("q")) {
             const legacyAddress = bchAddr.toLegacyAddress(address);
             const decoded = bs58Decode(legacyAddress);
             const versionByte = decoded[0];
@@ -202,9 +211,9 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
               const scriptPubKey = bitcoin.script.compile([
                 bitcoin.opcodes.OP_HASH160,
                 hash160,
-                bitcoin.opcodes.OP_EQUAL
+                bitcoin.opcodes.OP_EQUAL,
               ]);
-              return { hash160, scriptPubKey };
+              return { scriptPubKey };
             }
 
             // P2PKH
@@ -213,9 +222,9 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
               bitcoin.opcodes.OP_HASH160,
               hash160,
               bitcoin.opcodes.OP_EQUALVERIFY,
-              bitcoin.opcodes.OP_CHECKSIG
+              bitcoin.opcodes.OP_CHECKSIG,
             ]);
-            return { hash160, scriptPubKey };
+            return { scriptPubKey };
           }
 
           // Other Base58 addresses (P2PKH or P2SH)
@@ -228,9 +237,9 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
             const scriptPubKey = bitcoin.script.compile([
               bitcoin.opcodes.OP_HASH160,
               hash160,
-              bitcoin.opcodes.OP_EQUAL
+              bitcoin.opcodes.OP_EQUAL,
             ]);
-            return { hash160, scriptPubKey };
+            return { scriptPubKey };
           }
 
           // P2PKH (Legacy)
@@ -239,9 +248,9 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
             bitcoin.opcodes.OP_HASH160,
             hash160,
             bitcoin.opcodes.OP_EQUALVERIFY,
-            bitcoin.opcodes.OP_CHECKSIG
+            bitcoin.opcodes.OP_CHECKSIG,
           ]);
-          return { hash160, scriptPubKey };
+          return { scriptPubKey };
         })();
 
         tx.addOutput(scriptPubKey, BigInt(output.amount));
@@ -262,65 +271,69 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
 
         // Detect input type from scriptPubKey
         // P2WPKH (SegWit): 0x00 0x14 <20-byte-hash>
-        const isSegwit = scriptPubKey.length === 22 &&
-                         scriptPubKey[0] === 0x00 &&
-                         scriptPubKey[1] === 0x14;
+        const isSegwit = scriptPubKey.length === 22 && scriptPubKey[0] === 0x00 && scriptPubKey[1] === 0x14;
 
         // Build signature preimage based on input type
         let signaturePreimage: Buffer;
-        const hashType = msg.coin === 'BitcoinCash'
-          ? bitcoin.Transaction.SIGHASH_ALL | 0x40  // SIGHASH_FORKID for Bitcoin Cash
-          : bitcoin.Transaction.SIGHASH_ALL;
+        const hashType =
+          msg.coin === "BitcoinCash"
+            ? bitcoin.Transaction.SIGHASH_ALL | 0x40 // SIGHASH_FORKID for Bitcoin Cash
+            : bitcoin.Transaction.SIGHASH_ALL;
 
         // BIP143 signing for SegWit inputs (all coins) and Bitcoin Cash P2PKH
         // See: https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
-        const useBIP143 = isSegwit || msg.coin === 'BitcoinCash';
+        const useBIP143 = isSegwit || msg.coin === "BitcoinCash";
 
         if (useBIP143) {
           // BIP143 signing (used for SegWit and Bitcoin Cash)
-          const hashPrevouts = CryptoJS.SHA256(CryptoJS.SHA256(
-            CryptoJS.lib.WordArray.create(Buffer.concat(
-              msg.inputs.map(inp => Buffer.concat([
-                Buffer.from(inp.txid, 'hex').reverse(),
-                Buffer.from([inp.vout, 0, 0, 0])
-              ]))
-            ))
-          ));
+          const hashPrevouts = CryptoJS.SHA256(
+            CryptoJS.SHA256(
+              CryptoJS.lib.WordArray.create(
+                Buffer.concat(
+                  msg.inputs.map((inp) =>
+                    Buffer.concat([Buffer.from(inp.txid, "hex").reverse(), Buffer.from([inp.vout, 0, 0, 0])])
+                  )
+                )
+              )
+            )
+          );
 
-          const hashSequence = CryptoJS.SHA256(CryptoJS.SHA256(
-            CryptoJS.lib.WordArray.create(Buffer.concat(
-              msg.inputs.map(() => Buffer.from([0xff, 0xff, 0xff, 0xff]))
-            ))
-          ));
+          const hashSequence = CryptoJS.SHA256(
+            CryptoJS.SHA256(
+              CryptoJS.lib.WordArray.create(Buffer.concat(msg.inputs.map(() => Buffer.from([0xff, 0xff, 0xff, 0xff]))))
+            )
+          );
 
-          const hashOutputs = CryptoJS.SHA256(CryptoJS.SHA256(
-            CryptoJS.lib.WordArray.create(Buffer.concat(
-              tx.outs.map(out => {
-                // Convert bigint to number for small UTXO values
-                const valueNum = typeof out.value === 'bigint' ? Number(out.value) : out.value;
-                const valueBuffer = Buffer.alloc(8);
-                valueBuffer.writeUInt32LE(valueNum & 0xffffffff, 0);
-                valueBuffer.writeUInt32LE(Math.floor(valueNum / 0x100000000), 4);
-                return Buffer.concat([
-                  valueBuffer,
-                  Buffer.from([out.script.length]),
-                  out.script
-                ]);
-              })
-            ))
-          ));
+          const hashOutputs = CryptoJS.SHA256(
+            CryptoJS.SHA256(
+              CryptoJS.lib.WordArray.create(
+                Buffer.concat(
+                  tx.outs.map((out) => {
+                    // Convert bigint to number for small UTXO values
+                    const valueNum = typeof out.value === "bigint" ? Number(out.value) : out.value;
+                    const valueBuffer = Buffer.alloc(8);
+                    valueBuffer.writeUInt32LE(valueNum & 0xffffffff, 0);
+                    valueBuffer.writeUInt32LE(Math.floor(valueNum / 0x100000000), 4);
+                    return Buffer.concat([valueBuffer, Buffer.from([out.script.length]), out.script]);
+                  })
+                )
+              )
+            )
+          );
 
           // scriptCode depends on input type
           let scriptCode: Buffer;
           if (isSegwit) {
             // P2WPKH: Build scriptCode from hash extracted from witness program
-            scriptCode = Buffer.from(bitcoin.script.compile([
-              bitcoin.opcodes.OP_DUP,
-              bitcoin.opcodes.OP_HASH160,
-              scriptPubKey.slice(2), // Remove OP_0 and length byte to get hash
-              bitcoin.opcodes.OP_EQUALVERIFY,
-              bitcoin.opcodes.OP_CHECKSIG
-            ]));
+            scriptCode = Buffer.from(
+              bitcoin.script.compile([
+                bitcoin.opcodes.OP_DUP,
+                bitcoin.opcodes.OP_HASH160,
+                scriptPubKey.slice(2), // Remove OP_0 and length byte to get hash
+                bitcoin.opcodes.OP_EQUALVERIFY,
+                bitcoin.opcodes.OP_CHECKSIG,
+              ])
+            );
           } else {
             // P2PKH (Bitcoin Cash): scriptCode IS the scriptPubKey
             scriptCode = Buffer.from(scriptPubKey);
@@ -333,17 +346,17 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
 
           signaturePreimage = Buffer.concat([
             Buffer.from([tx.version, 0, 0, 0]),
-            Buffer.from(hashPrevouts.toString(CryptoJS.enc.Hex), 'hex'),
-            Buffer.from(hashSequence.toString(CryptoJS.enc.Hex), 'hex'),
-            Buffer.from(input.txid, 'hex').reverse(),
+            Buffer.from(hashPrevouts.toString(CryptoJS.enc.Hex), "hex"),
+            Buffer.from(hashSequence.toString(CryptoJS.enc.Hex), "hex"),
+            Buffer.from(input.txid, "hex").reverse(),
             Buffer.from([input.vout, 0, 0, 0]),
             Buffer.from([scriptCode.length]),
             scriptCode,
             valueBuffer,
             Buffer.from([0xff, 0xff, 0xff, 0xff]), // sequence
-            Buffer.from(hashOutputs.toString(CryptoJS.enc.Hex), 'hex'),
+            Buffer.from(hashOutputs.toString(CryptoJS.enc.Hex), "hex"),
             Buffer.from([tx.locktime, 0, 0, 0]),
-            Buffer.from([hashType, 0, 0, 0])
+            Buffer.from([hashType, 0, 0, 0]),
           ]);
         } else {
           // Legacy signing
@@ -355,7 +368,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
             throw new Error(`Failed to decompile scriptPubKey for input ${i}`);
           }
           const scriptPubKeyForSigning = bitcoin.script.compile(
-            decompiled.filter(x => x !== bitcoin.opcodes.OP_CODESEPARATOR)
+            decompiled.filter((x) => x !== bitcoin.opcodes.OP_CODESEPARATOR)
           );
 
           // For SIGHASH_ALL: blank all input scripts except the one being signed
@@ -374,16 +387,16 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
         // Strategy: Hash once ourselves, then let device hash again (SHA256 + SHA256 = double SHA256)
         // This avoids using hashType.NONE which causes "Invalid Request" errors.
         const hash1 = CryptoJS.SHA256(CryptoJS.lib.WordArray.create(signaturePreimage));
-        const singleHashedBuffer = Buffer.from(hash1.toString(CryptoJS.enc.Hex), 'hex');
+        const singleHashedBuffer = Buffer.from(hash1.toString(CryptoJS.enc.Hex), "hex");
 
         const signData = {
           data: {
             payload: singleHashedBuffer,
             curveType: Constants.SIGNING.CURVES.SECP256K1,
-            hashType: Constants.SIGNING.HASHES.SHA256,  // Device will hash again → double SHA256
+            hashType: Constants.SIGNING.HASHES.SHA256, // Device will hash again → double SHA256
             encodingType: Constants.SIGNING.ENCODINGS.NONE,
             signerPath: input.addressNList,
-          }
+          },
         };
 
         let signedResult;
@@ -421,16 +434,17 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
             Buffer.from([0x02]),
             Buffer.from([sEncoded.length]),
             sEncoded,
-            Buffer.from([hashType])
+            Buffer.from([hashType]),
           ]);
 
           return derSignature;
         }
 
         // Use the same hashType that was used for the signature preimage
-        const sigHashType = msg.coin === 'BitcoinCash'
-          ? bitcoin.Transaction.SIGHASH_ALL | 0x40  // SIGHASH_FORKID for Bitcoin Cash
-          : bitcoin.Transaction.SIGHASH_ALL;
+        const sigHashType =
+          msg.coin === "BitcoinCash"
+            ? bitcoin.Transaction.SIGHASH_ALL | 0x40 // SIGHASH_FORKID for Bitcoin Cash
+            : bitcoin.Transaction.SIGHASH_ALL;
         const derSig = encodeDerSignature(rBuf, sBuf, sigHashType);
         signatures.push(derSig.toString("hex"));
       }
@@ -444,11 +458,11 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
       // Add inputs with proper scriptSigs
       for (let i = 0; i < msg.inputs.length; i++) {
         const input = msg.inputs[i];
-        const txHashBuffer = Buffer.from(input.txid, 'hex').reverse();
+        const txHashBuffer = Buffer.from(input.txid, "hex").reverse();
         finalTx.addInput(txHashBuffer, input.vout);
 
         // Get the signature we collected earlier
-        const derSig = Buffer.from(signatures[i], 'hex');
+        const derSig = Buffer.from(signatures[i], "hex");
 
         // Get pubkey for this input
         const pubkey = await client.getAddresses({
@@ -462,16 +476,14 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
         }
 
         const pubkeyBuffer = Buffer.isBuffer(pubkey[0]) ? pubkey[0] : Buffer.from(pubkey[0], "hex");
-        const compressedPubkey = pubkeyBuffer.length === 65
-          ? Buffer.from(pointCompress(pubkeyBuffer, true))
-          : pubkeyBuffer;
+        const compressedPubkey =
+          pubkeyBuffer.length === 65 ? Buffer.from(pointCompress(pubkeyBuffer, true)) : pubkeyBuffer;
 
         // Detect input type to determine if we need SegWit or legacy encoding
         const prevTx = bitcoin.Transaction.fromHex(input.hex);
         const prevOutput = prevTx.outs[input.vout];
-        const isSegwit = prevOutput.script.length === 22 &&
-                         prevOutput.script[0] === 0x00 &&
-                         prevOutput.script[1] === 0x14;
+        const isSegwit =
+          prevOutput.script.length === 22 && prevOutput.script[0] === 0x00 && prevOutput.script[1] === 0x14;
 
         if (isSegwit) {
           // SegWit: empty scriptSig, signature + pubkey in witness
@@ -479,10 +491,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
           finalTx.ins[i].witness = [derSig, compressedPubkey];
         } else {
           // Legacy: signature + pubkey in scriptSig
-          const scriptSig = bitcoin.script.compile([
-            derSig,
-            compressedPubkey,
-          ]);
+          const scriptSig = bitcoin.script.compile([derSig, compressedPubkey]);
           finalTx.ins[i].script = scriptSig;
         }
       }
@@ -492,12 +501,10 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
         const output = msg.outputs[outputIdx];
         let address: string;
 
-
         if (output.address) {
           // Output already has address
           address = output.address;
         } else if (output.addressNList) {
-
           // Derive address from addressNList (for change outputs)
           const pubkey = await client.getAddresses({
             startPath: output.addressNList,
@@ -511,31 +518,30 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
 
           const pubkeyBuffer = Buffer.isBuffer(pubkey[0]) ? pubkey[0] : Buffer.from(pubkey[0], "hex");
 
-          const pubkeyHex = pubkeyBuffer.length === 65
-            ? Buffer.from(pointCompress(pubkeyBuffer, true)).toString("hex")
-            : pubkeyBuffer.toString("hex");
+          const pubkeyHex =
+            pubkeyBuffer.length === 65
+              ? Buffer.from(pointCompress(pubkeyBuffer, true)).toString("hex")
+              : pubkeyBuffer.toString("hex");
 
-          const scriptType = (output.scriptType as unknown as core.BTCInputScriptType) || core.BTCInputScriptType.SpendAddress;
+          const scriptType =
+            (output.scriptType as unknown as core.BTCInputScriptType) || core.BTCInputScriptType.SpendAddress;
           address = deriveAddressFromPubkey(pubkeyHex, msg.coin, scriptType);
         } else {
           throw new Error("Output must have either address or addressNList");
         }
 
-        const { hash160, scriptPubKey } = (() => {
+        const { scriptPubKey } = (() => {
           // Native SegWit (bech32): ltc1 for Litecoin, bc1 for Bitcoin
-          if (address.startsWith('ltc1') || address.startsWith('bc1')) {
+          if (address.startsWith("ltc1") || address.startsWith("bc1")) {
             const decoded = bech32.decode(address);
             const hash160 = Buffer.from(bech32.fromWords(decoded.words.slice(1)));
 
-            const scriptPubKey = bitcoin.script.compile([
-              bitcoin.opcodes.OP_0,
-              hash160
-            ]);
-            return { hash160, scriptPubKey };
+            const scriptPubKey = bitcoin.script.compile([bitcoin.opcodes.OP_0, hash160]);
+            return { scriptPubKey };
           }
 
           // Bitcoin Cash CashAddr format: bitcoincash: prefix or q for mainnet
-          if (address.startsWith('bitcoincash:') || address.startsWith('q')) {
+          if (address.startsWith("bitcoincash:") || address.startsWith("q")) {
             const legacyAddress = bchAddr.toLegacyAddress(address);
             const decoded = bs58Decode(legacyAddress);
             const versionByte = decoded[0];
@@ -546,9 +552,9 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
               const scriptPubKey = bitcoin.script.compile([
                 bitcoin.opcodes.OP_HASH160,
                 hash160,
-                bitcoin.opcodes.OP_EQUAL
+                bitcoin.opcodes.OP_EQUAL,
               ]);
-              return { hash160, scriptPubKey };
+              return { scriptPubKey };
             }
 
             // P2PKH
@@ -557,9 +563,9 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
               bitcoin.opcodes.OP_HASH160,
               hash160,
               bitcoin.opcodes.OP_EQUALVERIFY,
-              bitcoin.opcodes.OP_CHECKSIG
+              bitcoin.opcodes.OP_CHECKSIG,
             ]);
-            return { hash160, scriptPubKey };
+            return { scriptPubKey };
           }
 
           // Other Base58 addresses (P2PKH or P2SH)
@@ -572,9 +578,9 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
             const scriptPubKey = bitcoin.script.compile([
               bitcoin.opcodes.OP_HASH160,
               hash160,
-              bitcoin.opcodes.OP_EQUAL
+              bitcoin.opcodes.OP_EQUAL,
             ]);
-            return { hash160, scriptPubKey };
+            return { scriptPubKey };
           }
 
           // P2PKH (Legacy)
@@ -583,9 +589,9 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
             bitcoin.opcodes.OP_HASH160,
             hash160,
             bitcoin.opcodes.OP_EQUALVERIFY,
-            bitcoin.opcodes.OP_CHECKSIG
+            bitcoin.opcodes.OP_CHECKSIG,
           ]);
-          return { hash160, scriptPubKey };
+          return { scriptPubKey };
         })();
 
         finalTx.addOutput(scriptPubKey, BigInt(output.amount));
@@ -611,17 +617,4 @@ export const btcNextAccountPath = (msg: core.BTCAccountPath): core.BTCAccountPat
     ...msg,
     addressNList: newAddressNList,
   };
-};
-
-const scriptTypeToPurpose = (scriptType: core.BTCInputScriptType): number => {
-  switch (scriptType) {
-    case core.BTCInputScriptType.SpendAddress:
-      return 44;
-    case core.BTCInputScriptType.SpendP2SHWitness:
-      return 49;
-    case core.BTCInputScriptType.SpendWitness:
-      return 84;
-    default:
-      return 44;
-  }
 };

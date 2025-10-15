@@ -78,11 +78,13 @@ export async function cosmosSignTx(
 
     // Create a signer adapter for GridPlus with Direct signing (Proto)
     const signer: OfflineDirectSigner = {
-      getAccounts: async () => [{
-        address,
-        pubkey,
-        algo: "secp256k1" as const,
-      }],
+      getAccounts: async () => [
+        {
+          address,
+          pubkey,
+          algo: "secp256k1" as const,
+        },
+      ],
       signDirect: async (signerAddress: string, signDoc: SignDoc): Promise<DirectSignResponse> => {
         if (signerAddress !== address) {
           throw new Error("Signer address mismatch");
@@ -100,7 +102,7 @@ export async function cosmosSignTx(
             hashType: Constants.SIGNING.HASHES.SHA256,
             encodingType: Constants.SIGNING.ENCODINGS.NONE,
             signerPath: msg.addressNList,
-          }
+          },
         };
 
         const signedResult = await client.sign(signData);

@@ -5,7 +5,7 @@ import { randomBytes } from "crypto";
 export type GridPlusTransportConfig = {
   deviceId: string;
   password?: string;
-}
+};
 
 export class GridPlusTransport extends core.Transport {
   public deviceId?: string;
@@ -55,7 +55,11 @@ export class GridPlusTransport extends core.Transport {
     return this.connected;
   }
 
-  public async setup(deviceId: string, password?: string, existingSessionId?: string): Promise<{ isPaired: boolean; sessionId: string }> {
+  public async setup(
+    deviceId: string,
+    password?: string,
+    existingSessionId?: string
+  ): Promise<{ isPaired: boolean; sessionId: string }> {
     this.deviceId = deviceId;
     this.password = password || "shapeshift-default";
 
@@ -63,7 +67,7 @@ export class GridPlusTransport extends core.Transport {
     if (existingSessionId) {
       this.sessionId = existingSessionId;
     } else if (!this.sessionId) {
-      this.sessionId = randomBytes(32).toString('hex');
+      this.sessionId = randomBytes(32).toString("hex");
     }
 
     // Create Client instance directly (Frame pattern) - no localStorage!
@@ -72,10 +76,10 @@ export class GridPlusTransport extends core.Transport {
       this.client = new Client({
         name: "ShapeShift",
         baseUrl: "https://signing.gridpl.us",
-        privKey: Buffer.from(this.sessionId, 'hex'),
+        privKey: Buffer.from(this.sessionId, "hex"),
         retryCount: 3,
         timeout: 60000,
-        skipRetryOnWrongWallet: true
+        skipRetryOnWrongWallet: true,
       });
 
       try {
@@ -86,7 +90,7 @@ export class GridPlusTransport extends core.Transport {
       } catch (error) {
         // Handle "Device Locked" error - treat as unpaired
         const errorMessage = error instanceof Error ? error.message : String(error);
-        if (errorMessage.toLowerCase().includes('device locked')) {
+        if (errorMessage.toLowerCase().includes("device locked")) {
           this.connected = true;
           return { isPaired: false, sessionId: this.sessionId };
         }
@@ -102,7 +106,6 @@ export class GridPlusTransport extends core.Transport {
       return { isPaired, sessionId: this.sessionId };
     }
   }
-
 
   public async pair(pairingCode: string): Promise<boolean> {
     if (!this.client) {
