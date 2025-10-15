@@ -344,9 +344,17 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
       const prevOutput = prevTx.outs[input.vout];
       const scriptPubKey = prevOutput.script;
 
-      // Detect input type from scriptPubKey
-      // P2WPKH (SegWit): 0x00 0x14 <20-byte-hash>
-      const isSegwit = scriptPubKey.length === 22 && scriptPubKey[0] === 0x00 && scriptPubKey[1] === 0x14;
+      // Detect input type:
+      // - Segwit Native (P2WPKH): 0x00 0x14 <20-byte-hash> (22 bytes)
+      // - Segwit (P2SH-P2WPKH): OP_HASH160 <20-byte-hash> OP_EQUAL (23 bytes), detected via BIP49 path
+      // - Legacy (P2PKH): OP_DUP OP_HASH160 <20-byte-hash> OP_EQUALVERIFY OP_CHECKSIG (25 bytes)
+      const isSegwitNative = scriptPubKey.length === 22 && scriptPubKey[0] === 0x00 && scriptPubKey[1] === 0x14;
+
+      // Detect Segwit (wrapped SegWit) from BIP49 derivation path (m/49'/...)
+      const purpose = input.addressNList[0] & ~0x80000000; // Remove hardening bit
+      const isSegwit = purpose === 49;
+
+      const isAnySegwit = isSegwitNative || isSegwit;
 
       // Build signature preimage based on input type
       let signaturePreimage: Buffer;
@@ -355,9 +363,9 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
           ? bitcoin.Transaction.SIGHASH_ALL | 0x40 // SIGHASH_FORKID for Bitcoin Cash
           : bitcoin.Transaction.SIGHASH_ALL;
 
-      // BIP143 signing for SegWit inputs (all coins) and Bitcoin Cash P2PKH
+      // BIP143 signing for SegWit inputs (Segwit Native + Segwit) and Bitcoin Cash P2PKH
       // See: https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
-      const useBIP143 = isSegwit || msg.coin === "BitcoinCash";
+      const useBIP143 = isAnySegwit || msg.coin === "BitcoinCash";
 
       if (useBIP143) {
         // BIP143 signing (used for SegWit and Bitcoin Cash)
@@ -394,13 +402,42 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
 
         // scriptCode depends on input type
         let scriptCode: Buffer;
-        if (isSegwit) {
-          // P2WPKH: Build scriptCode from hash extracted from witness program
+        if (isSegwitNative) {
+          // Segwit Native (P2WPKH): Build scriptCode from hash extracted from witness program
           scriptCode = Buffer.from(
             bitcoin.script.compile([
               bitcoin.opcodes.OP_DUP,
               bitcoin.opcodes.OP_HASH160,
               scriptPubKey.slice(2), // Remove OP_0 and length byte to get hash
+              bitcoin.opcodes.OP_EQUALVERIFY,
+              bitcoin.opcodes.OP_CHECKSIG,
+            ])
+          );
+        } else if (isSegwit) {
+          // Segwit (P2SH-P2WPKH): Build scriptCode from pubkey hash (same format as Segwit Native)
+          // Need to derive pubkey hash from the input's public key
+          const pubkey = await client.getAddresses({
+            startPath: input.addressNList,
+            n: 1,
+            flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
+          });
+
+          if (!pubkey || !pubkey.length) {
+            throw new Error(`No public key for input ${i}`);
+          }
+
+          const pubkeyBuffer = Buffer.isBuffer(pubkey[0]) ? pubkey[0] : Buffer.from(pubkey[0], "hex");
+          const compressedPubkey =
+            pubkeyBuffer.length === 65 ? Buffer.from(pointCompress(pubkeyBuffer, true)) : pubkeyBuffer;
+
+          // Hash160 = RIPEMD160(SHA256(pubkey))
+          const pubkeyHash = bitcoin.crypto.hash160(compressedPubkey);
+
+          scriptCode = Buffer.from(
+            bitcoin.script.compile([
+              bitcoin.opcodes.OP_DUP,
+              bitcoin.opcodes.OP_HASH160,
+              pubkeyHash,
               bitcoin.opcodes.OP_EQUALVERIFY,
               bitcoin.opcodes.OP_CHECKSIG,
             ])
@@ -529,12 +566,26 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
       // Detect input type to determine if we need SegWit or legacy encoding
       const prevTx = bitcoin.Transaction.fromHex(input.hex);
       const prevOutput = prevTx.outs[input.vout];
-      const isSegwit =
+      const isSegwitNative =
         prevOutput.script.length === 22 && prevOutput.script[0] === 0x00 && prevOutput.script[1] === 0x14;
 
-      if (isSegwit) {
-        // SegWit: empty scriptSig, signature + pubkey in witness
+      // Detect Segwit (wrapped SegWit) from BIP49 derivation path (m/49'/...)
+      const purpose = input.addressNList[0] & ~0x80000000; // Remove hardening bit
+      const isSegwit = purpose === 49;
+
+      if (isSegwitNative) {
+        // Segwit Native (P2WPKH): empty scriptSig, signature + pubkey in witness
         finalTx.ins[i].script = Buffer.alloc(0);
+        finalTx.ins[i].witness = [derSig, compressedPubkey];
+      } else if (isSegwit) {
+        // Segwit (P2SH-P2WPKH): redeemScript in scriptSig, signature + pubkey in witness
+        // redeemScript format: OP_0 OP_PUSH20 <hash160(pubkey)>
+        const pubkeyHash = bitcoin.crypto.hash160(compressedPubkey);
+        const redeemScript = bitcoin.script.compile([bitcoin.opcodes.OP_0, pubkeyHash]);
+
+        // scriptSig contains the redeemScript
+        finalTx.ins[i].script = bitcoin.script.compile([redeemScript]);
+        // Witness contains signature + pubkey
         finalTx.ins[i].witness = [derSig, compressedPubkey];
       } else {
         // Legacy: signature + pubkey in scriptSig
