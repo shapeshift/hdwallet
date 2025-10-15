@@ -4,6 +4,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { Client, Constants, Utils } from "gridplus-sdk";
 import { encode } from "rlp";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const ethSupportsNetwork = (_chainId: number): boolean => true;
 
 export const ethGetAccountPaths = (msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> => {
@@ -283,6 +284,7 @@ export async function ethSignMessage(
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const ethVerifyMessage = (_msg: core.ETHVerifyMessage): boolean => {
   throw new Error("GridPlus ethVerifyMessage not implemented yet");
 };

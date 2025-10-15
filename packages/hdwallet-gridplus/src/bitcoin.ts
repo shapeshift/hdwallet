@@ -133,6 +133,49 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
           0, // address index
         ];
 
+  // Find the spend output (first non-change output)
+  // This ensures we don't accidentally use a change output as recipient
+  const spendOutput = msg.outputs.find((o) => !o.isChange) || msg.outputs[0];
+
+  if (!spendOutput.amount) {
+    throw new Error("missing amount for spend output");
+  }
+
+  // Determine spend address and value
+  let toAddress: string;
+  if (spendOutput.address) {
+    // Output already has address
+    toAddress = spendOutput.address;
+  } else if (spendOutput.addressNList) {
+    // Output only has addressNList - derive address from device
+    const pubkey = await client.getAddresses({
+      startPath: spendOutput.addressNList,
+      n: 1,
+      flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
+    });
+
+    if (!pubkey || !pubkey.length) {
+      throw new Error("No public key for spend output");
+    }
+
+    const pubkeyBuffer = Buffer.isBuffer(pubkey[0]) ? pubkey[0] : Buffer.from(pubkey[0], "hex");
+    const pubkeyHex =
+      pubkeyBuffer.length === 65
+        ? Buffer.from(pointCompress(pubkeyBuffer, true)).toString("hex")
+        : pubkeyBuffer.toString("hex");
+
+    const scriptType =
+      (spendOutput.scriptType as unknown as core.BTCInputScriptType) || core.BTCInputScriptType.SpendAddress;
+    toAddress = deriveAddressFromPubkey(pubkeyHex, msg.coin, scriptType);
+  } else {
+    throw new Error("Spend output must have either address or addressNList");
+  }
+
+  const toValue = parseInt(spendOutput.amount, 10);
+  if (isNaN(toValue)) {
+    throw new Error(`Invalid amount for spend output: ${spendOutput.amount}`);
+  }
+
   // Build base payload for GridPlus SDK
   const payload: {
     prevOuts: Array<{ txHash: string; value: number; index: number; signerPath: number[] }>;
@@ -143,12 +186,12 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
   } = {
     prevOuts: msg.inputs.map((input) => ({
       txHash: input.txid,
-      value: parseInt(input.amount || "0"),
+      value: parseInt(input.amount || "0", 10),
       index: input.vout,
       signerPath: input.addressNList,
     })),
-    recipient: msg.outputs[0]?.address || "",
-    value: parseInt(msg.outputs[0]?.amount || "0"),
+    recipient: toAddress,
+    value: toValue,
     fee: fee,
     changePath: finalChangePath,
   };
