@@ -171,12 +171,17 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
     throw new Error("Spend output must have either address or addressNList");
   }
 
+  // Using parseInt instead of BigInt because GridPlus SDK payload requires `value: number`
+  // This is safe for Bitcoin amounts: max UTXO is 21M BTC (2.1 trillion satoshis) which is
+  // well under JavaScript's MAX_SAFE_INTEGER (9,007,199,254,740,991). SDK's internal
+  // writeUInt64LE converts to string for hex encoding, supporting the full 64-bit range.
   const toValue = parseInt(spendOutput.amount, 10);
   if (isNaN(toValue)) {
     throw new Error(`Invalid amount for spend output: ${spendOutput.amount}`);
   }
 
   // Build base payload for GridPlus SDK
+  // Note: Input values also use parseInt for same reason as toValue above (SDK constraint + safe range)
   const payload: {
     prevOuts: Array<{ txHash: string; value: number; index: number; signerPath: number[] }>;
     recipient: string;
