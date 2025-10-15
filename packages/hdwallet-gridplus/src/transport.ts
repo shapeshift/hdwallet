@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { Client } from "gridplus-sdk";
 import { randomBytes } from "crypto";
+import { Client } from "gridplus-sdk";
 
 export type GridPlusTransportConfig = {
   deviceId: string;
@@ -112,13 +112,9 @@ export class GridPlusTransport extends core.Transport {
       throw new Error("Client not initialized. Call setup() first.");
     }
 
-    try {
-      const result = await this.client.pair(pairingCode);
-      this.connected = !!result;
-      return !!result;
-    } catch (error) {
-      throw error;
-    }
+    const result = await this.client.pair(pairingCode);
+    this.connected = !!result;
+    return !!result;
   }
 
   public getClient(): Client | undefined {
@@ -129,7 +125,7 @@ export class GridPlusTransport extends core.Transport {
     return this.sessionId;
   }
 
-  public async call(...args: any[]): Promise<any> {
+  public async call(): Promise<any> {
     throw new Error("GridPlus transport call not implemented");
   }
 }

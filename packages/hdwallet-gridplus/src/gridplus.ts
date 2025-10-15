@@ -10,6 +10,192 @@ import * as thormaya from "./thormaya";
 import { GridPlusTransport } from "./transport";
 import { convertXpubVersion, scriptTypeToAccountType } from "./utils";
 
+export class GridPlusWalletInfo
+  implements
+    core.HDWalletInfo,
+    core.ETHWalletInfo,
+    core.CosmosWalletInfo,
+    core.ThorchainWalletInfo,
+    core.MayachainWalletInfo
+{
+  readonly _supportsGridPlusInfo = true;
+  readonly _supportsETHInfo = true;
+  readonly _supportsAvalanche = true;
+  readonly _supportsOptimism = true;
+  readonly _supportsPolygon = true;
+  readonly _supportsGnosis = true;
+  readonly _supportsArbitrum = true;
+  readonly _supportsArbitrumNova = false;
+  readonly _supportsBase = true;
+  readonly _supportsBSC = true;
+  readonly _supportsSolanaInfo = false;
+  readonly _supportsCosmosInfo = true;
+  readonly _supportsThorchainInfo = true;
+  readonly _supportsMayachainInfo = true;
+
+  public getVendor(): string {
+    return "GridPlus";
+  }
+
+  public hasOnDevicePinEntry(): boolean {
+    return true;
+  }
+
+  public hasOnDevicePassphrase(): boolean {
+    return true;
+  }
+
+  public hasOnDeviceDisplay(): boolean {
+    return true;
+  }
+
+  public hasOnDeviceRecovery(): boolean {
+    return false;
+  }
+
+  public hasNativeShapeShift(): boolean {
+    return false;
+  }
+
+  public supportsBip44Accounts(): boolean {
+    return true;
+  }
+
+  public supportsOfflineSigning(): boolean {
+    return true;
+  }
+
+  public supportsBroadcast(): boolean {
+    return false;
+  }
+
+  public describePath(): core.PathDescription {
+    return {
+      verbose: "GridPlus path description not implemented",
+      coin: "Unknown",
+      isKnown: false,
+    };
+  }
+
+  // ETH Wallet Info Methods
+  public async ethSupportsNetwork(chainId: number): Promise<boolean> {
+    const supportedChains = [1, 137, 10, 42161, 8453, 56, 100, 43114];
+    return supportedChains.includes(chainId);
+  }
+
+  public async ethSupportsSecureTransfer(): Promise<boolean> {
+    return false;
+  }
+
+  public ethSupportsNativeShapeShift(): boolean {
+    return false;
+  }
+
+  public async ethSupportsEIP1559(): Promise<boolean> {
+    return true;
+  }
+
+  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
+    const slip44 = core.slip44ByCoin(msg.coin);
+    if (slip44 === undefined) return [];
+
+    return [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
+        hardenedPath: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
+        relPath: [0, 0],
+        description: "GridPlus",
+      },
+    ];
+  }
+
+  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
+    const addressNList = msg.hardenedPath.concat(msg.relPath);
+    const description = core.describeETHPath(addressNList);
+    if (!description.isKnown || description.accountIdx === undefined) {
+      return undefined;
+    }
+
+    const newAddressNList = [...addressNList];
+    newAddressNList[2] += 1;
+
+    return {
+      addressNList: newAddressNList,
+      hardenedPath: [newAddressNList[0], newAddressNList[1], newAddressNList[2]],
+      relPath: [0, 0],
+      description: "GridPlus",
+    };
+  }
+
+  // Solana Wallet Info Methods
+  public solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> {
+    return [{ addressNList: [0x80000000 + 44, 0x80000000 + 501, 0x80000000 + msg.accountIdx, 0x80000000 + 0] }];
+  }
+
+  public solanaNextAccountPath(msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
+    // Increment account index for next account
+    const newAddressNList = [...msg.addressNList];
+    newAddressNList[2] += 1; // Increment account index
+
+    return {
+      addressNList: newAddressNList,
+    };
+  }
+
+  // Cosmos Wallet Info Methods
+  public cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
+    const slip44 = core.slip44ByCoin("Atom");
+    return [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
+      },
+    ];
+  }
+
+  public cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
+    const newAddressNList = [...msg.addressNList];
+    newAddressNList[2] += 1;
+    return {
+      addressNList: newAddressNList,
+    };
+  }
+
+  // THORChain Wallet Info Methods
+  public thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
+    const slip44 = core.slip44ByCoin("Rune");
+    return [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
+      },
+    ];
+  }
+
+  public thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
+    const newAddressNList = [...msg.addressNList];
+    newAddressNList[2] += 1;
+    return {
+      addressNList: newAddressNList,
+    };
+  }
+
+  public mayachainGetAccountPaths(msg: core.MayachainGetAccountPaths): Array<core.MayachainAccountPath> {
+    const slip44 = core.slip44ByCoin("Mayachain");
+    return [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
+      },
+    ];
+  }
+
+  public mayachainNextAccountPath(msg: core.MayachainAccountPath): core.MayachainAccountPath | undefined {
+    const newAddressNList = [...msg.addressNList];
+    newAddressNList[2] += 1;
+    return {
+      addressNList: newAddressNList,
+    };
+  }
+}
+
 export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
   return isObject(wallet) && (wallet as any)._isGridPlus;
 }
@@ -160,7 +346,7 @@ export class GridPlusHDWallet
     return false;
   }
 
-  public hasNativeShapeShift(srcCoin: string, dstCoin: string): boolean {
+  public hasNativeShapeShift(): boolean {
     return false;
   }
 
@@ -389,11 +575,11 @@ export class GridPlusHDWallet
     return btc.btcNextAccountPath(msg);
   }
 
-  public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage | null> {
+  public async btcSignMessage(): Promise<core.BTCSignedMessage | null> {
     throw new Error("GridPlus BTC message signing not yet implemented");
   }
 
-  public async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean | null> {
+  public async btcVerifyMessage(): Promise<boolean | null> {
     throw new Error("GridPlus BTC message verification not yet implemented");
   }
 
@@ -469,191 +655,5 @@ export class GridPlusHDWallet
 
   public mayachainNextAccountPath(msg: core.MayachainAccountPath): core.MayachainAccountPath | undefined {
     return thormaya.mayachainNextAccountPath(msg);
-  }
-}
-
-export class GridPlusWalletInfo
-  implements
-    core.HDWalletInfo,
-    core.ETHWalletInfo,
-    core.CosmosWalletInfo,
-    core.ThorchainWalletInfo,
-    core.MayachainWalletInfo
-{
-  readonly _supportsGridPlusInfo = true;
-  readonly _supportsETHInfo = true;
-  readonly _supportsAvalanche = true;
-  readonly _supportsOptimism = true;
-  readonly _supportsPolygon = true;
-  readonly _supportsGnosis = true;
-  readonly _supportsArbitrum = true;
-  readonly _supportsArbitrumNova = false;
-  readonly _supportsBase = true;
-  readonly _supportsBSC = true;
-  readonly _supportsSolanaInfo = false;
-  readonly _supportsCosmosInfo = true;
-  readonly _supportsThorchainInfo = true;
-  readonly _supportsMayachainInfo = true;
-
-  public getVendor(): string {
-    return "GridPlus";
-  }
-
-  public hasOnDevicePinEntry(): boolean {
-    return true;
-  }
-
-  public hasOnDevicePassphrase(): boolean {
-    return true;
-  }
-
-  public hasOnDeviceDisplay(): boolean {
-    return true;
-  }
-
-  public hasOnDeviceRecovery(): boolean {
-    return false;
-  }
-
-  public hasNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public supportsBip44Accounts(): boolean {
-    return true;
-  }
-
-  public supportsOfflineSigning(): boolean {
-    return true;
-  }
-
-  public supportsBroadcast(): boolean {
-    return false;
-  }
-
-  public describePath(): core.PathDescription {
-    return {
-      verbose: "GridPlus path description not implemented",
-      coin: "Unknown",
-      isKnown: false,
-    };
-  }
-
-  // ETH Wallet Info Methods
-  public async ethSupportsNetwork(chainId: number): Promise<boolean> {
-    const supportedChains = [1, 137, 10, 42161, 8453, 56, 100, 43114];
-    return supportedChains.includes(chainId);
-  }
-
-  public async ethSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public ethSupportsNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public async ethSupportsEIP1559(): Promise<boolean> {
-    return true;
-  }
-
-  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
-    const slip44 = core.slip44ByCoin(msg.coin);
-    if (slip44 === undefined) return [];
-
-    return [
-      {
-        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
-        hardenedPath: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
-        relPath: [0, 0],
-        description: "GridPlus",
-      },
-    ];
-  }
-
-  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
-    const addressNList = msg.hardenedPath.concat(msg.relPath);
-    const description = core.describeETHPath(addressNList);
-    if (!description.isKnown || description.accountIdx === undefined) {
-      return undefined;
-    }
-
-    const newAddressNList = [...addressNList];
-    newAddressNList[2] += 1;
-
-    return {
-      addressNList: newAddressNList,
-      hardenedPath: [newAddressNList[0], newAddressNList[1], newAddressNList[2]],
-      relPath: [0, 0],
-      description: "GridPlus",
-    };
-  }
-
-  // Solana Wallet Info Methods
-  public solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> {
-    return [{ addressNList: [0x80000000 + 44, 0x80000000 + 501, 0x80000000 + msg.accountIdx, 0x80000000 + 0] }];
-  }
-
-  public solanaNextAccountPath(msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
-    // Increment account index for next account
-    const newAddressNList = [...msg.addressNList];
-    newAddressNList[2] += 1; // Increment account index
-
-    return {
-      addressNList: newAddressNList,
-    };
-  }
-
-  // Cosmos Wallet Info Methods
-  public cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
-    const slip44 = core.slip44ByCoin("Atom");
-    return [
-      {
-        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
-      },
-    ];
-  }
-
-  public cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
-    const newAddressNList = [...msg.addressNList];
-    newAddressNList[2] += 1;
-    return {
-      addressNList: newAddressNList,
-    };
-  }
-
-  // THORChain Wallet Info Methods
-  public thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
-    const slip44 = core.slip44ByCoin("Rune");
-    return [
-      {
-        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
-      },
-    ];
-  }
-
-  public thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
-    const newAddressNList = [...msg.addressNList];
-    newAddressNList[2] += 1;
-    return {
-      addressNList: newAddressNList,
-    };
-  }
-
-  public mayachainGetAccountPaths(msg: core.MayachainGetAccountPaths): Array<core.MayachainAccountPath> {
-    const slip44 = core.slip44ByCoin("Mayachain");
-    return [
-      {
-        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
-      },
-    ];
-  }
-
-  public mayachainNextAccountPath(msg: core.MayachainAccountPath): core.MayachainAccountPath | undefined {
-    const newAddressNList = [...msg.addressNList];
-    newAddressNList[2] += 1;
-    return {
-      addressNList: newAddressNList,
-    };
   }
 }

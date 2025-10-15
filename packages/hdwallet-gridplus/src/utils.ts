@@ -1,8 +1,9 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bech32 from "bech32";
-import { encode as bs58Encode, decode as bs58Decode } from "bs58check";
+import { decode as bs58Decode, encode as bs58Encode } from "bs58check";
 import CryptoJS from "crypto-js";
-import { UtxoAccountType, accountTypeToVersion, convertVersions, UTXO_NETWORK_PARAMS } from "./constants";
+
+import { accountTypeToVersion, convertVersions, UTXO_NETWORK_PARAMS, UtxoAccountType } from "./constants";
 
 /**
  * Convert xpub version bytes for different coins (e.g., xpub → dgub for Dogecoin)

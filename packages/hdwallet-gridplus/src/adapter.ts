@@ -32,12 +32,8 @@ export class GridPlusAdapter {
       return newTransport;
     })();
 
-    try {
-      const { isPaired, sessionId } = await transport.setup(deviceId, password, existingSessionId);
-      return { transport, isPaired, sessionId };
-    } catch (error) {
-      throw error;
-    }
+    const { isPaired, sessionId } = await transport.setup(deviceId, password, existingSessionId);
+    return { transport, isPaired, sessionId };
   }
 
   public async pairConnectedDevice(deviceId: string, pairingCode: string): Promise<GridPlusHDWallet> {

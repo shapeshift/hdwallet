@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import bs58 from "bs58";
 import { PublicKey } from "@solana/web3.js";
+import bs58 from "bs58";
 import { Client, Constants } from "gridplus-sdk";
 
 export const solanaGetAccountPaths = (msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> => [
@@ -33,25 +33,21 @@ export async function solanaGetAddress(client: Client, msg: core.SolanaGetAddres
     );
   }
 
-  try {
-    const addresses = await client.getAddresses({
-      startPath: correctedPath,
-      n: 1,
-      flag: Constants.GET_ADDR_FLAGS.ED25519_PUB,
-    });
+  const addresses = await client.getAddresses({
+    startPath: correctedPath,
+    n: 1,
+    flag: Constants.GET_ADDR_FLAGS.ED25519_PUB,
+  });
 
-    if (!addresses.length) {
-      throw new Error("No address returned from device");
-    }
-
-    const pubkeyBuffer = Buffer.isBuffer(addresses[0]) ? addresses[0] : Buffer.from(addresses[0], "hex");
-
-    const address = bs58.encode(pubkeyBuffer);
-
-    return address;
-  } catch (error) {
-    throw error;
+  if (!addresses.length) {
+    throw new Error("No address returned from device");
   }
+
+  const pubkeyBuffer = Buffer.isBuffer(addresses[0]) ? addresses[0] : Buffer.from(addresses[0], "hex");
+
+  const address = bs58.encode(pubkeyBuffer);
+
+  return address;
 }
 
 export async function solanaSignTx(
@@ -70,46 +66,42 @@ export async function solanaSignTx(
     throw new Error("Failed to harden all Solana path indices - this should never happen");
   }
 
-  try {
-    const address = await addressGetter({
-      addressNList: correctedPath,
-      showDisplay: false,
-    });
+  const address = await addressGetter({
+    addressNList: correctedPath,
+    showDisplay: false,
+  });
 
-    if (!address) throw new Error("Failed to get Solana address");
+  if (!address) throw new Error("Failed to get Solana address");
 
-    const transaction = core.solanaBuildTransaction(msg, address);
-    const messageBytes = transaction.message.serialize();
+  const transaction = core.solanaBuildTransaction(msg, address);
+  const messageBytes = transaction.message.serialize();
 
-    const signingRequest = {
-      data: {
-        signerPath: correctedPath,
-        curveType: Constants.SIGNING.CURVES.ED25519,
-        hashType: Constants.SIGNING.HASHES.NONE,
-        encodingType: Constants.SIGNING.ENCODINGS.SOLANA,
-        payload: Buffer.from(messageBytes),
-      },
-    };
+  const signingRequest = {
+    data: {
+      signerPath: correctedPath,
+      curveType: Constants.SIGNING.CURVES.ED25519,
+      hashType: Constants.SIGNING.HASHES.NONE,
+      encodingType: Constants.SIGNING.ENCODINGS.SOLANA,
+      payload: Buffer.from(messageBytes),
+    },
+  };
 
-    const signData = await client.sign(signingRequest);
+  const signData = await client.sign(signingRequest);
 
-    if (!signData || !signData.sig) {
-      throw new Error("No signature returned from device");
-    }
-
-    const signature = Buffer.concat([signData.sig.r, signData.sig.s]);
-
-    transaction.addSignature(new PublicKey(address), signature);
-
-    const serializedTx = transaction.serialize();
-
-    return {
-      serialized: Buffer.from(serializedTx).toString("base64"),
-      signatures: transaction.signatures.map((sig) => Buffer.from(sig).toString("base64")),
-    };
-  } catch (error) {
-    throw error;
+  if (!signData || !signData.sig) {
+    throw new Error("No signature returned from device");
   }
+
+  const signature = Buffer.concat([signData.sig.r, signData.sig.s]);
+
+  transaction.addSignature(new PublicKey(address), signature);
+
+  const serializedTx = transaction.serialize();
+
+  return {
+    serialized: Buffer.from(serializedTx).toString("base64"),
+    signatures: transaction.signatures.map((sig) => Buffer.from(sig).toString("base64")),
+  };
 }
 
 export const solanaNextAccountPath = (msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined => {
