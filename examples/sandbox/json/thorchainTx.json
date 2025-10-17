@@ -19,9 +19,7 @@
               "amount": "10000",
               "denom": "rune"
             }
-          ],
-          "from_address": "thor1nxkfj7v5qdjxdtx8quqauldv4mstvfyn6engn2",
-          "to_address": "thor1nxkfj7v5qdjxdtx8quqauldv4mstvfyn6engn2"
+          ]
         }
       }
     ],
