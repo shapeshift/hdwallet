@@ -76,12 +76,8 @@ export class VultisigHDWalletInfo
 
   public describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin.toLowerCase()) {
-      case "bitcoin":
-      case "litecoin":
-      case "dogecoin":
-      case "bitcoincash":
-      case "zcash":
-      case "dash": {
+      case "bitcoin": {
+        // case "zcash": // case "bitcoincash": // case "dogecoin": // case "litecoin":
         const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
 
         if (!msg.scriptType) return unknown;
@@ -135,7 +131,8 @@ export class VultisigHDWalletInfo
   /** Bitcoin */
 
   public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
-    const vultisigSupportedCoins = ["bitcoin", "litecoin", "dash", "dogecoin", "bitcoincash", "zcash"];
+    // const vultisigSupportedCoins = ["bitcoin", "litecoin", "dogecoin", "bitcoincash", "zcash"];
+    const vultisigSupportedCoins = ["bitcoin"]; // Just BTC for first part of integration, we will enable it progressively
     return vultisigSupportedCoins.includes(coin.toLowerCase());
   }
 
@@ -337,12 +334,8 @@ export class VultisigHDWallet
         }
 
         switch (coin) {
-          case "Bitcoin":
-          case "Litecoin":
-          case "Dogecoin":
-          case "BitcoinCash":
-          case "Zcash":
-          case "Dash": {
+          case "Bitcoin": {
+            // case "Dogecoin": // case "Litecoin": // case "BitcoinCash": // case "Zcash": // case "Dash":
             // Note this is a pubKey, not an xpub, however vultisig does not support utxo derivation,
             // so this functions as an account (xpub) for all intents and purposes
             const pubKey = await this.btcGetAddress({ coin, scriptType } as core.BTCGetAddress);
@@ -351,7 +344,7 @@ export class VultisigHDWallet
           default:
             break;
         }
-        return null;
+        throw new Error("Vultisig does not support");
       })
     );
   }
@@ -426,43 +419,43 @@ export class VultisigHDWallet
           });
           return accounts.length > 0 ? accounts[0] : null;
         }
-        case "litecoin": {
-          const accounts = await this.litecoinProvider.request<"request_accounts">({
-            method: "request_accounts",
-            params: [],
-          });
-          return accounts.length > 0 ? accounts[0] : null;
-        }
-        case "dogecoin": {
-          const accounts = await this.dogecoinProvider.request<"request_accounts">({
-            method: "request_accounts",
-            params: [],
-          });
-          return accounts.length > 0 ? accounts[0] : null;
-        }
-        case "bitcoincash": {
-          const accounts = await this.bitcoincashProvider.request<"request_accounts">({
-            method: "request_accounts",
-            params: [],
-          });
-          return accounts.length > 0 ? accounts[0] : null;
-        }
-        case "zcash": {
-          const accounts = await this.zcashProvider.request<"request_accounts">({
-            method: "request_accounts",
-            params: [],
-          });
-          return accounts.length > 0 ? accounts[0] : null;
-        }
-        case "dash": {
-          const accounts = await this.dashProvider.request<"request_accounts">({
-            method: "request_accounts",
-            params: [],
-          });
-          return accounts.length > 0 ? accounts[0] : null;
-        }
+        // case "litecoin": {
+        //   const accounts = await this.litecoinProvider.request<"request_accounts">({
+        //     method: "request_accounts",
+        //     params: [],
+        //   });
+        //   return accounts.length > 0 ? accounts[0] : null;
+        // }
+        // case "dogecoin": {
+        //   const accounts = await this.dogecoinProvider.request<"request_accounts">({
+        //     method: "request_accounts",
+        //     params: [],
+        //   });
+        //   return accounts.length > 0 ? accounts[0] : null;
+        // }
+        // case "bitcoincash": {
+        //   const accounts = await this.bitcoincashProvider.request<"request_accounts">({
+        //     method: "request_accounts",
+        //     params: [],
+        //   });
+        //   return accounts.length > 0 ? accounts[0] : null;
+        // }
+        // case "zcash": {
+        //   const accounts = await this.zcashProvider.request<"request_accounts">({
+        //     method: "request_accounts",
+        //     params: [],
+        //   });
+        //   return accounts.length > 0 ? accounts[0] : null;
+        // }
+        // case "dash": {
+        //   const accounts = await this.dashProvider.request<"request_accounts">({
+        //     method: "request_accounts",
+        //     params: [],
+        //   });
+        //   return accounts.length > 0 ? accounts[0] : null;
+        // }
         default:
-          return null;
+          throw new Error("Vultisig does not support");
       }
     })();
     if (!value || typeof value !== "string") return null;
@@ -475,18 +468,18 @@ export class VultisigHDWallet
     switch (coin) {
       case "Bitcoin":
         return btc.bitcoinSignTx(this, msg, this.bitcoinProvider);
-      case "Litecoin":
-        return btc.bitcoinSignTx(this, msg, this.litecoinProvider);
-      case "Dogecoin":
-        return btc.bitcoinSignTx(this, msg, this.dogecoinProvider);
-      case "Bitcoincash":
-        return btc.bitcoinSignTx(this, msg, this.bitcoincashProvider);
-      case "Zcash":
-        return btc.bitcoinSignTx(this, msg, this.zcashProvider);
-      case "Dash":
-        return btc.bitcoinSignTx(this, msg, this.dashProvider);
+      // case "Litecoin":
+      //   return btc.bitcoinSignTx(this, msg, this.litecoinProvider);
+      // case "Dogecoin":
+      //   return btc.bitcoinSignTx(this, msg, this.dogecoinProvider);
+      // case "Bitcoincash":
+      //   return btc.bitcoinSignTx(this, msg, this.bitcoincashProvider);
+      // case "Zcash":
+      //   return btc.bitcoinSignTx(this, msg, this.zcashProvider);
+      // case "Dash":
+      //   return btc.bitcoinSignTx(this, msg, this.dashProvider);
       default:
-        return null;
+        throw new Error("Vultisig does not support");
     }
   }
 

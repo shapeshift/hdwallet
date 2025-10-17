@@ -4,22 +4,6 @@ import { BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
 
 import { VultisigUtxoProvider } from "./types";
 
-interface VultisigBitcoinRequest {
-  asset: {
-    chain: string;
-    ticker: string;
-    symbol: string;
-  };
-  from: string;
-  to: string;
-  amount: {
-    amount: string;
-    decimals: number;
-  };
-  data: string;
-  skipBroadcast?: boolean;
-}
-
 const getNetwork = (coin: string): bitcoin.networks.Network => {
   switch (coin.toLowerCase()) {
     case "bitcoin":
@@ -30,16 +14,15 @@ const getNetwork = (coin: string): bitcoin.networks.Network => {
 };
 
 export function translateCoin(coin: core.Coin): string {
-  return core.mustBeDefined(
-    {
-      Bitcoin: "btc",
-      Litecoin: "ltc",
-      Zcash: "zec",
-      BitcoinCash: "bch",
-      Dash: "dash",
-      Dogecoin: "doge",
-    }[coin]
-  );
+  const coinMap: Record<core.Coin, string> = {
+    Bitcoin: "btc",
+    // Litecoin: "ltc",
+    // Zcash: "zec",
+    // BitcoinCash: "bch",
+    // Dash: "dash",
+    // Dogecoin: "doge",
+  };
+  return core.mustBeDefined(coinMap[coin]);
 }
 
 export type BtcAccount = string;
@@ -57,7 +40,7 @@ export const btcGetAccountPaths = (msg: core.BTCGetAccountPaths): Array<core.BTC
       scriptType = core.BTCInputScriptType.SpendWitness; // BIP84
       purpose = 84;
       break;
-    case "Dash":
+    // case "Dash":
     case "Dogecoin":
     case "BitcoinCash":
     case "Zcash":
@@ -137,128 +120,68 @@ export async function bitcoinSignTx(
   provider: VultisigUtxoProvider
 ): Promise<core.BTCSignedTx | null> {
   try {
-    const coin = translateCoin(msg.coin);
+    const network = getNetwork(msg.coin);
+    const psbt = new bitcoin.Psbt({ network });
 
-    if (coin === "btc") {
-      const network = getNetwork(msg.coin);
-      const psbt = new bitcoin.Psbt({ network });
-
-      psbt.setVersion(msg.version ?? 2);
-      if (msg.locktime) {
-        psbt.setLocktime(msg.locktime);
-      }
-
-      for (const input of msg.inputs) {
-        await addInput(psbt, input);
-      }
-
-      for (const output of msg.outputs) {
-        await addOutput(wallet, psbt, output, msg.coin);
-      }
-
-      if (msg.opReturnData) {
-        const data = Buffer.from(msg.opReturnData, "utf-8");
-        const embed = bitcoin.payments.embed({ data: [data] });
-        const script = embed.output;
-        if (!script) throw new Error("unable to build OP_RETURN script");
-        // OP_RETURN_DATA output is always 0 value
-        psbt.addOutput({ script, value: BigInt(0) });
-      }
-
-      const inputsToSign = await Promise.all(
-        msg.inputs.map(async (input, index) => {
-          const address = await wallet.btcGetAddress({
-            addressNList: input.addressNList,
-            coin: msg.coin,
-            showDisplay: false,
-          });
-
-          if (!address) throw new Error("Could not get address from wallet");
-
-          return {
-            address,
-            signingIndexes: [index],
-            sigHash: bitcoin.Transaction.SIGHASH_ALL,
-          };
-        })
-      );
-
-      const signedPsbtHex = await provider.signPSBT(fromHexString(psbt.toHex()), { inputsToSign }, false);
-      const signedPsbt = bitcoin.Psbt.fromBuffer(Buffer.from(signedPsbtHex), { network });
-
-      signedPsbt.finalizeAllInputs();
-
-      const tx = signedPsbt.extractTransaction();
-
-      // If this is a THORChain transaction, validate the vout ordering
-      if (msg.vaultAddress && !core.validateVoutOrdering(msg, tx)) {
-        throw new Error("Improper vout ordering for BTC Thorchain transaction");
-      }
-
-      const signatures = signedPsbt.data.inputs.map((input) =>
-        input.partialSig ? Buffer.from(input.partialSig[0].signature).toString("hex") : ""
-      );
-
-      return {
-        signatures,
-        serializedTx: tx.toHex(),
-      };
+    psbt.setVersion(msg.version ?? 2);
+    if (msg.locktime) {
+      psbt.setLocktime(msg.locktime);
     }
 
-    if (!coin) throw new Error("Unsupported coin");
+    for (const input of msg.inputs) {
+      await addInput(psbt, input);
+    }
 
-    const fromAddress = await wallet.btcGetAddress({
-      addressNList: msg.inputs[0].addressNList,
-      coin: msg.coin,
-      showDisplay: false,
-    });
+    for (const output of msg.outputs) {
+      await addOutput(wallet, psbt, output, msg.coin);
+    }
 
-    if (!fromAddress) throw new Error("Could not get from address from wallet");
+    if (msg.opReturnData) {
+      const data = Buffer.from(msg.opReturnData, "utf-8");
+      const embed = bitcoin.payments.embed({ data: [data] });
+      const script = embed.output;
+      if (!script) throw new Error("unable to build OP_RETURN script");
+      // OP_RETURN_DATA output is always 0 value
+      psbt.addOutput({ script, value: BigInt(0) });
+    }
 
-    const toOutput = msg.outputs.find((o) => !o.isChange);
-    const toAddress =
-      toOutput?.address ||
-      (await wallet.btcGetAddress({
-        addressNList: toOutput?.addressNList || msg.inputs[0].addressNList,
-        coin: msg.coin,
-        showDisplay: false,
-      })) ||
-      fromAddress;
+    const inputsToSign = await Promise.all(
+      msg.inputs.map(async (input, index) => {
+        const address = await wallet.btcGetAddress({
+          addressNList: input.addressNList,
+          coin: msg.coin,
+          showDisplay: false,
+        });
 
-    const totalAmount = msg.outputs
-      .filter((o) => !o.isChange)
-      .reduce((sum, o) => sum + BigInt(o.amount ?? 0), BigInt(0));
+        if (!address) throw new Error("Could not get address from wallet");
 
-    const vultisigRequest: VultisigBitcoinRequest = {
-      asset: {
-        chain: coin,
-        ticker: coin,
-        symbol: coin,
-      },
-      from: fromAddress,
-      to: toAddress || fromAddress,
-      amount: {
-        amount: totalAmount.toString(),
-        decimals: 8,
-      },
-      data: msg.opReturnData || "",
-      skipBroadcast: true,
-    };
+        return {
+          address,
+          signingIndexes: [index],
+          sigHash: bitcoin.Transaction.SIGHASH_ALL,
+        };
+      })
+    );
 
-    const result = await provider.request({
-      method: "send_transaction",
-      params: [vultisigRequest],
-    });
+    const signedPsbtHex = await provider.signPSBT(fromHexString(psbt.toHex()), { inputsToSign }, false);
+    const signedPsbt = bitcoin.Psbt.fromBuffer(Buffer.from(signedPsbtHex), { network });
 
-    const byteArray = Object.values(result.encoded) as any;
+    signedPsbt.finalizeAllInputs();
 
-    const buffer = Buffer.from(byteArray);
+    const tx = signedPsbt.extractTransaction();
 
-    const serializedTx = buffer.toString("hex");
+    // If this is a THORChain transaction, validate the vout ordering
+    if (msg.vaultAddress && !core.validateVoutOrdering(msg, tx)) {
+      throw new Error("Improper vout ordering for BTC Thorchain transaction");
+    }
+
+    const signatures = signedPsbt.data.inputs.map((input) =>
+      input.partialSig ? Buffer.from(input.partialSig[0].signature).toString("hex") : ""
+    );
 
     return {
-      signatures: [],
-      serializedTx: serializedTx || "",
+      signatures,
+      serializedTx: tx.toHex(),
     };
   } catch (error) {
     console.error("Error signing with Vultisig:", error);
