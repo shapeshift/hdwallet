@@ -31,39 +31,21 @@ export const btcGetAccountPaths = (msg: core.BTCGetAccountPaths): Array<core.BTC
   const slip44 = core.slip44ByCoin(msg.coin);
   if (slip44 === undefined) return [];
 
-  let scriptType: core.BTCInputScriptType;
-  let purpose: number;
+  const bip84 = core.segwitNativeAccount(msg.coin, slip44, msg.accountIdx);
 
-  switch (msg.coin) {
-    case "Bitcoin":
-    case "Litecoin":
-      scriptType = core.BTCInputScriptType.SpendWitness; // BIP84
-      purpose = 84;
-      break;
-    // case "Dash":
-    case "Dogecoin":
-    case "BitcoinCash":
-    case "Zcash":
-      scriptType = core.BTCInputScriptType.SpendAddress; // BIP44
-      purpose = 44;
-      break;
-    default:
-      return [];
+  const coinPaths = {
+    bitcoin: [bip84],
+  } as Partial<Record<string, Array<core.BTCAccountPath>>>;
+
+  let paths: Array<core.BTCAccountPath> = coinPaths[msg.coin.toLowerCase()] || [];
+
+  if (msg.scriptType !== undefined) {
+    paths = paths.filter((path) => {
+      return path.scriptType === msg.scriptType;
+    });
   }
 
-  const addressNList = [0x80000000 + purpose, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0];
-
-  const path: core.BTCAccountPath = {
-    coin: msg.coin,
-    scriptType,
-    addressNList,
-  };
-
-  if (msg.scriptType !== undefined && path.scriptType !== msg.scriptType) {
-    return [];
-  }
-
-  return [path];
+  return paths;
 };
 
 const fromHexString = (hexString: string) => {
