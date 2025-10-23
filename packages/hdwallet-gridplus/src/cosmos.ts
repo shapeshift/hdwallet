@@ -27,6 +27,14 @@ export const createCosmosAddress = (publicKey: string, prefix: string): string =
 export async function cosmosGetAddress(client: Client, msg: core.CosmosGetAddress): Promise<string | null> {
   // Get secp256k1 pubkey using GridPlus client instance
   // Use FULL path - Cosmos uses standard BIP44: m/44'/118'/0'/0/0 (5 levels)
+
+  // TODO: testing only for @kaladinlight, revert me
+  // EXPERIMENTAL: Test no-flag vs SECP256K1_PUB flag
+  const addressesNoFlag = await client.getAddresses({
+    startPath: msg.addressNList,
+    n: 1,
+  });
+
   const addresses = await client.getAddresses({
     startPath: msg.addressNList,
     n: 1,
@@ -42,6 +50,22 @@ export async function cosmosGetAddress(client: Client, msg: core.CosmosGetAddres
   const compressedPubkey = pointCompress(pubkeyBuffer, true);
   const compressedHex = Buffer.from(compressedPubkey).toString("hex");
   const cosmosAddress = createCosmosAddress(compressedHex, "cosmos");
+
+  // EXPERIMENTAL LOGGING
+  console.log("=== GridPlus cosmosGetAddress Flag Comparison ===");
+  console.log("Path:", msg.addressNList);
+  console.log("No flag result:", {
+    type: Buffer.isBuffer(addressesNoFlag[0]) ? "Buffer" : typeof addressesNoFlag[0],
+    raw: addressesNoFlag[0],
+    asHex: Buffer.isBuffer(addressesNoFlag[0]) ? addressesNoFlag[0].toString("hex") : addressesNoFlag[0],
+  });
+  console.log("SECP256K1_PUB flag result:", {
+    type: Buffer.isBuffer(addresses[0]) ? "Buffer" : typeof addresses[0],
+    raw: addresses[0],
+    asHex: Buffer.isBuffer(addresses[0]) ? addresses[0].toString("hex") : addresses[0],
+  });
+  console.log("Final derived address:", cosmosAddress);
+  console.log("==================================================");
 
   return cosmosAddress;
 }

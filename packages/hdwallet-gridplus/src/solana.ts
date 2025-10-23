@@ -29,6 +29,13 @@ export async function solanaGetAddress(client: Client, msg: core.SolanaGetAddres
     );
   }
 
+  // TODO: testing only for @kaladinlight, revert me
+  // EXPERIMENTAL: Test no-flag vs ED25519_PUB flag
+  const addressesNoFlag = await client.getAddresses({
+    startPath: correctedPath,
+    n: 1,
+  });
+
   const addresses = await client.getAddresses({
     startPath: correctedPath,
     n: 1,
@@ -42,6 +49,22 @@ export async function solanaGetAddress(client: Client, msg: core.SolanaGetAddres
   const pubkeyBuffer = Buffer.isBuffer(addresses[0]) ? addresses[0] : Buffer.from(addresses[0], "hex");
 
   const address = bs58.encode(pubkeyBuffer);
+
+  // EXPERIMENTAL LOGGING
+  console.log("=== GridPlus solanaGetAddress Flag Comparison ===");
+  console.log("Path:", correctedPath);
+  console.log("No flag result:", {
+    type: Buffer.isBuffer(addressesNoFlag[0]) ? "Buffer" : typeof addressesNoFlag[0],
+    raw: addressesNoFlag[0],
+    asHex: Buffer.isBuffer(addressesNoFlag[0]) ? addressesNoFlag[0].toString("hex") : addressesNoFlag[0],
+  });
+  console.log("ED25519_PUB flag result:", {
+    type: Buffer.isBuffer(addresses[0]) ? "Buffer" : typeof addresses[0],
+    raw: addresses[0],
+    asHex: Buffer.isBuffer(addresses[0]) ? addresses[0].toString("hex") : addresses[0],
+  });
+  console.log("Final derived address:", address);
+  console.log("==================================================");
 
   return address;
 }

@@ -85,6 +85,14 @@ export async function btcGetAddress(client: Client, msg: core.BTCGetAddress): Pr
   // Get compressed public key from device (works for all UTXOs)
   // Using SECP256K1_PUB flag bypasses Lattice's address formatting,
   // which only supports Bitcoin/EVM chains/Solana
+
+  // TODO: testing only for @kaladinlight, revert me
+  // EXPERIMENTAL: Test no-flag vs SECP256K1_PUB flag
+  const pubkeysNoFlag = await client.getAddresses({
+    startPath: msg.addressNList,
+    n: 1,
+  });
+
   const pubkeys = await client.getAddresses({
     startPath: msg.addressNList,
     n: 1,
@@ -107,6 +115,24 @@ export async function btcGetAddress(client: Client, msg: core.BTCGetAddress): Pr
   // Derive address client-side using the coin's network parameters
   const scriptType = msg.scriptType || core.BTCInputScriptType.SpendAddress;
   const address = deriveAddressFromPubkey(pubkeyHex, msg.coin, scriptType);
+
+  // EXPERIMENTAL LOGGING
+  console.log("=== GridPlus btcGetAddress Flag Comparison ===");
+  console.log("Path:", msg.addressNList);
+  console.log("Coin:", msg.coin);
+  console.log("ScriptType:", scriptType);
+  console.log("No flag result:", {
+    type: Buffer.isBuffer(pubkeysNoFlag[0]) ? "Buffer" : typeof pubkeysNoFlag[0],
+    raw: pubkeysNoFlag[0],
+    asHex: Buffer.isBuffer(pubkeysNoFlag[0]) ? pubkeysNoFlag[0].toString("hex") : pubkeysNoFlag[0],
+  });
+  console.log("SECP256K1_PUB flag result:", {
+    type: Buffer.isBuffer(pubkeys[0]) ? "Buffer" : typeof pubkeys[0],
+    raw: pubkeys[0],
+    asHex: Buffer.isBuffer(pubkeys[0]) ? pubkeys[0].toString("hex") : pubkeys[0],
+  });
+  console.log("Final derived address:", address);
+  console.log("===============================================");
 
   return address;
 }
