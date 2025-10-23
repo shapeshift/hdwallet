@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey",
-  "version": "1.62.4-alpha.190",
+  "version": "1.62.4-alpha.214",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -16,12 +16,12 @@
   },
   "dependencies": {
     "@bitcoinerlab/secp256k1": "^1.1.1",
-    "@ethereumjs/common": "^2.4.0",
-    "@ethereumjs/tx": "^3.3.0",
+    "@ethereumjs/common": "3.2.0",
+    "@ethereumjs/tx": "4.2.0",
     "@keepkey/device-protocol": "7.13.4",
     "@metamask/eth-sig-util": "^7.0.0",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.0",
-    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.190",
+    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.214",
     "@shapeshiftoss/proto-tx-builder": "0.10.0",
     "bignumber.js": "^9.0.1",
     "bnb-javascript-sdk-nobroadcast": "2.16.15",
@@ -45,5 +45,5 @@
     "@types/semver": "^6.2.2",
     "typedoc": "^0.20.36"
   },
-  "gitHead": "a7e19917f5533b61687095651723ea422fa73d6f"
+  "gitHead": "53e4b5e3dff9cdeaf083ff306e4b896030bea9ad"
 }
