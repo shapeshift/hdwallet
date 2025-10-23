@@ -5,7 +5,6 @@ import * as bchAddr from "bchaddrjs";
 
 import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
-import { getNetwork } from "./networks";
 import * as util from "./util";
 
 const supportedCoins = ["bitcoin", "dash", "digibyte", "dogecoin", "litecoin", "bitcoincash", "testnet"];
@@ -218,7 +217,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
         const { coin, inputs, outputs, version, locktime } = msg;
 
         const psbt = new bitcoin.Psbt({
-          network: getNetwork(coin),
+          network: core.getNetwork(coin, core.BTCOutputScriptType.PayToMultisig),
           forkCoin: coin.toLowerCase() === "bitcoincash" ? "bch" : "none",
         });
 

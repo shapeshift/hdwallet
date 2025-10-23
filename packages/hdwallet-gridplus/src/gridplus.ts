@@ -9,7 +9,6 @@ import * as mayachain from "./mayachain";
 import * as solana from "./solana";
 import * as thorchain from "./thorchain";
 import { GridPlusTransport } from "./transport";
-import { convertXpubVersion, scriptTypeToAccountType } from "./utils";
 
 export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
   return isObject(wallet) && (wallet as any)._isGridPlus;
@@ -445,8 +444,8 @@ export class GridPlusHDWallet
 
         // Convert xpub format for Dogecoin/Litecoin (GridPlus returns Bitcoin xpub format)
         if (coin && curve === "secp256k1") {
-          const accountType = scriptTypeToAccountType(scriptType);
-          xpub = convertXpubVersion(xpub, accountType, coin);
+          const accountType = scriptType ? core.scriptTypeToAccountType[scriptType] : undefined;
+          xpub = core.convertXpubVersion(xpub, accountType, coin);
         }
 
         publicKeys.push({ xpub });

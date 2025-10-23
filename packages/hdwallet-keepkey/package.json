@@ -44,6 +44,5 @@
     "@types/lodash": "^4.14.168",
     "@types/semver": "^6.2.2",
     "typedoc": "^0.20.36"
-  },
-  "gitHead": "4a77cbfb47998365e56d854a08bab81fff460dbe"
+  }
 }

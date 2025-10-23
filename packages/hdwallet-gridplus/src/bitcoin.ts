@@ -7,8 +7,33 @@ import { decode as bs58Decode } from "bs58check";
 import CryptoJS from "crypto-js";
 import { Client, Constants } from "gridplus-sdk";
 
-import { UTXO_NETWORK_PARAMS } from "./constants";
-import { deriveAddressFromPubkey } from "./utils";
+export function createPayment(pubkey: Buffer, network: bitcoin.Network, scriptType: core.BTCScriptType) {
+  switch (scriptType) {
+    case "p2sh":
+      return bitcoin.payments.p2sh({ pubkey, network });
+    case "p2pkh":
+      return bitcoin.payments.p2pkh({ pubkey, network });
+    case "p2wpkh":
+    case "bech32":
+      return bitcoin.payments.p2wpkh({ pubkey, network });
+    case "p2sh-p2wpkh":
+      return bitcoin.payments.p2sh({
+        redeem: bitcoin.payments.p2wpkh({ pubkey, network }),
+        network,
+      });
+    default:
+      throw new Error(`Unsupported script type: ${scriptType}`);
+  }
+}
+
+export function deriveAddressFromPubkey(
+  pubkey: Buffer,
+  coin: string,
+  scriptType: core.BTCScriptType = core.BTCInputScriptType.SpendAddress
+): string | undefined {
+  const network = core.getNetwork(coin, scriptType);
+  return createPayment(pubkey, network, scriptType).address;
+}
 
 const u32le = (n: number): Buffer => {
   const b = Buffer.alloc(4);
@@ -81,32 +106,23 @@ export const btcGetAccountPaths = (msg: core.BTCGetAccountPaths): Array<core.BTC
   });
 };
 
+const getPublicKey = async (client: Client, addressNList: core.BIP32Path) => {
+  // returned as secp256k1 public key
+  const pubkey = (
+    await client.getAddresses({ startPath: addressNList, n: 1, flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB })
+  )[0];
+
+  if (!pubkey) throw new Error("No public key returned from device");
+  if (!(pubkey instanceof Buffer)) throw new Error("Invalid public key returned from device");
+
+  return pubkey;
+};
+
 export async function btcGetAddress(client: Client, msg: core.BTCGetAddress): Promise<string | null> {
-  // Get compressed public key from device (works for all UTXOs)
-  // Using SECP256K1_PUB flag bypasses Lattice's address formatting,
-  // which only supports Bitcoin/EVM chains/Solana
-  const pubkeys = await client.getAddresses({
-    startPath: msg.addressNList,
-    n: 1,
-    flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
-  });
+  const pubkey = await getPublicKey(client, msg.addressNList);
 
-  if (!pubkeys || !pubkeys.length) {
-    throw new Error("No public key returned from device");
-  }
-
-  // pubkeys[0] may be uncompressed (65 bytes) or compressed (33 bytes)
-  const pubkeyBuffer = Buffer.isBuffer(pubkeys[0]) ? pubkeys[0] : Buffer.from(pubkeys[0], "hex");
-
-  // Compress if needed (65 bytes = uncompressed, 33 bytes = already compressed)
-  const pubkeyHex =
-    pubkeyBuffer.length === 65
-      ? Buffer.from(pointCompress(pubkeyBuffer, true)).toString("hex")
-      : pubkeyBuffer.toString("hex");
-
-  // Derive address client-side using the coin's network parameters
-  const scriptType = msg.scriptType || core.BTCInputScriptType.SpendAddress;
-  const address = deriveAddressFromPubkey(pubkeyHex, msg.coin, scriptType);
+  const address = deriveAddressFromPubkey(pubkey, msg.coin, msg.scriptType);
+  if (!address) return null;
 
   return address;
 }
@@ -139,6 +155,8 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
           0, // address index
         ];
 
+  /** I WANT ARBITRARY OUTPUT BUILD */
+
   // Find the spend output (first non-change output)
   // This ensures we don't accidentally use a change output as recipient
   const spendOutput = msg.outputs.find((o) => !o.isChange) || msg.outputs[0];
@@ -153,26 +171,14 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
     // Output already has address
     toAddress = spendOutput.address;
   } else if (spendOutput.addressNList) {
-    // Output only has addressNList - derive address from device
-    const pubkey = await client.getAddresses({
-      startPath: spendOutput.addressNList,
-      n: 1,
-      flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
+    const address = await btcGetAddress(client, {
+      addressNList: spendOutput.addressNList,
+      coin: msg.coin,
+      scriptType: spendOutput.scriptType as any,
     });
+    if (!address) throw new Error("No public key for spend output");
 
-    if (!pubkey || !pubkey.length) {
-      throw new Error("No public key for spend output");
-    }
-
-    const pubkeyBuffer = Buffer.isBuffer(pubkey[0]) ? pubkey[0] : Buffer.from(pubkey[0], "hex");
-    const pubkeyHex =
-      pubkeyBuffer.length === 65
-        ? Buffer.from(pointCompress(pubkeyBuffer, true)).toString("hex")
-        : pubkeyBuffer.toString("hex");
-
-    const scriptType =
-      (spendOutput.scriptType as unknown as core.BTCInputScriptType) || core.BTCInputScriptType.SpendAddress;
-    toAddress = deriveAddressFromPubkey(pubkeyHex, msg.coin, scriptType);
+    toAddress = address;
   } else {
     throw new Error("Spend output must have either address or addressNList");
   }
@@ -186,31 +192,23 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
     throw new Error(`Invalid amount for spend output: ${spendOutput.amount}`);
   }
 
-  // Build base payload for GridPlus SDK
-  // Note: Input values also use parseInt for same reason as toValue above (SDK constraint + safe range)
-  const payload: {
-    prevOuts: Array<{ txHash: string; value: number; index: number; signerPath: number[] }>;
-    recipient: string;
-    value: number;
-    fee: number;
-    changePath: number[];
-  } = {
-    prevOuts: msg.inputs.map((input) => ({
-      txHash: input.txid,
-      value: parseInt(input.amount || "0", 10),
-      index: input.vout,
-      signerPath: input.addressNList,
-    })),
-    recipient: toAddress,
-    value: toValue,
-    fee: fee,
-    changePath: finalChangePath,
-  };
+  /** I WANT ARBITRARY OUTPUT BUILD END */
 
   if (msg.coin === "Bitcoin") {
     const signData = await client.sign({
       currency: "BTC",
-      data: payload,
+      data: {
+        prevOuts: msg.inputs.map((input) => ({
+          txHash: input.txid,
+          value: parseInt(input.amount || "0", 10),
+          index: input.vout,
+          signerPath: input.addressNList,
+        })),
+        recipient: toAddress,
+        value: toValue,
+        fee: fee,
+        changePath: finalChangePath,
+      },
     });
 
     if (!signData || !signData.tx) {
@@ -224,111 +222,72 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
       serializedTx: signData.tx,
     };
   } else {
-    const network = UTXO_NETWORK_PARAMS[msg.coin];
-    if (!network) {
-      throw new Error(`Unsupported UTXO coin: ${msg.coin}`);
-    }
+    const psbt = new bitcoin.Psbt({
+      network: core.getNetwork(msg.coin, core.BTCOutputScriptType.PayToMultisig),
+      forkCoin: msg.coin.toLowerCase() === "bitcoincash" ? "bch" : "none",
+    });
 
-    const tx = new bitcoin.Transaction();
+    psbt.setVersion(msg.version ?? 1);
+    msg.locktime && psbt.setLocktime(msg.locktime);
 
     for (const input of msg.inputs) {
-      const txHashBuffer = Buffer.from(input.txid, "hex").reverse();
-      tx.addInput(txHashBuffer, input.vout);
+      if (!input.hex) throw new Error("Invalid input (missing hex)");
+
+      const pubkey = await getPublicKey(client, input.addressNList);
+      const network = core.getNetwork(msg.coin, input.scriptType);
+
+      psbt.addInput({
+        hash: input.txid,
+        index: input.vout,
+        nonWitnessUtxo: Buffer.from(input.hex, "hex"),
+        redeemScript: createPayment(pubkey, network, input.scriptType)?.redeem?.output,
+      });
     }
 
-    for (let outputIdx = 0; outputIdx < msg.outputs.length; outputIdx++) {
-      const output = msg.outputs[outputIdx];
-      let address: string;
+    for (const output of msg.outputs) {
+      if (!output.amount) throw new Error("Invalid output (missing amount)");
 
-      if (output.address) {
-        address = output.address;
-      } else if (output.addressNList) {
-        // Derive address for change output
-        const pubkey = await client.getAddresses({
-          startPath: output.addressNList,
-          n: 1,
-          flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
-        });
-
-        if (!pubkey || !pubkey.length) {
-          throw new Error(`No public key for output`);
+      const address = await (async () => {
+        if (!output.address && !output.addressNList) {
+          throw new Error("Invalid output (missing address or addressNList)");
         }
 
-        const pubkeyBuffer = Buffer.isBuffer(pubkey[0]) ? pubkey[0] : Buffer.from(pubkey[0], "hex");
+        const addr =
+          output.address ??
+          (await btcGetAddress(client, {
+            addressNList: output.addressNList,
+            coin: msg.coin,
+            scriptType: output.scriptType as any,
+          }));
 
-        const pubkeyHex =
-          pubkeyBuffer.length === 65
-            ? Buffer.from(pointCompress(pubkeyBuffer, true)).toString("hex")
-            : pubkeyBuffer.toString("hex");
+        if (!addr) throw new Error("No public key for spend output");
 
-        const scriptType =
-          (output.scriptType as unknown as core.BTCInputScriptType) || core.BTCInputScriptType.SpendAddress;
-        address = deriveAddressFromPubkey(pubkeyHex, msg.coin, scriptType);
-      } else {
-        throw new Error("Output must have either address or addressNList");
-      }
-
-      const { scriptPubKey: outputScriptPubKey } = (() => {
-        // Native SegWit (bech32): ltc1 for Litecoin, bc1 for Bitcoin
-        if (address.startsWith("ltc1") || address.startsWith("bc1")) {
-          const decoded = bech32.decode(address);
-          const hash160 = Buffer.from(bech32.fromWords(decoded.words.slice(1)));
-
-          const scriptPubKey = bitcoin.script.compile([bitcoin.opcodes.OP_0, hash160]);
-          return { scriptPubKey };
-        }
-
-        // Bitcoin Cash CashAddr format: bitcoincash: prefix or q for mainnet
-        if (address.startsWith("bitcoincash:") || address.startsWith("q")) {
-          const legacyAddress = bchAddr.toLegacyAddress(address);
-          const decoded = bs58Decode(legacyAddress);
-          const versionByte = decoded[0];
-          const hash160 = decoded.slice(1);
-
-          // Check if P2SH (Bitcoin Cash uses 0x05 for P2SH)
-          if (versionByte === network.scriptHash) {
-            const scriptPubKey = bitcoin.script.compile([
-              bitcoin.opcodes.OP_HASH160,
-              hash160,
-              bitcoin.opcodes.OP_EQUAL,
-            ]);
-            return { scriptPubKey };
-          }
-
-          // P2PKH
-          const scriptPubKey = bitcoin.script.compile([
-            bitcoin.opcodes.OP_DUP,
-            bitcoin.opcodes.OP_HASH160,
-            hash160,
-            bitcoin.opcodes.OP_EQUALVERIFY,
-            bitcoin.opcodes.OP_CHECKSIG,
-          ]);
-          return { scriptPubKey };
-        }
-
-        // Other Base58 addresses (P2PKH or P2SH)
-        const decoded = bs58Decode(address);
-        const versionByte = decoded[0];
-        const hash160 = decoded.slice(1);
-
-        // Check if P2SH by comparing version byte with network's scriptHash
-        if (versionByte === network.scriptHash) {
-          const scriptPubKey = bitcoin.script.compile([bitcoin.opcodes.OP_HASH160, hash160, bitcoin.opcodes.OP_EQUAL]);
-          return { scriptPubKey };
-        }
-
-        // P2PKH (Legacy)
-        const scriptPubKey = bitcoin.script.compile([
-          bitcoin.opcodes.OP_DUP,
-          bitcoin.opcodes.OP_HASH160,
-          hash160,
-          bitcoin.opcodes.OP_EQUALVERIFY,
-          bitcoin.opcodes.OP_CHECKSIG,
-        ]);
-        return { scriptPubKey };
+        return msg.coin.toLowerCase() === "bitcoincash" ? bchAddr.toLegacyAddress(addr) : addr;
       })();
 
-      tx.addOutput(outputScriptPubKey, BigInt(output.amount));
+      psbt.addOutput({ address, value: BigInt(output.amount) });
+    }
+
+    if (msg.opReturnData) {
+      const data = Buffer.from(msg.opReturnData, "utf-8");
+      const script = bitcoin.payments.embed({ data: [data] }).output;
+      if (!script) throw new Error("unable to build OP_RETURN script");
+      // OP_RETURN_DATA outputs always have a value of 0
+      psbt.addOutput({ script, value: BigInt(0) });
+    }
+
+    for (const input of msg.inputs) {
+      // get sighash 
+
+      const { sig } = await client.sign({
+        data: {
+          payload: "",
+          curveType: Constants.SIGNING.CURVES.SECP256K1,
+          hashType: Constants.SIGNING.HASHES.NONE,
+          encodingType: Constants.SIGNING.ENCODINGS.NONE,
+          signerPath: input.addressNList,
+        },
+      });
     }
 
     const signatures: string[] = [];
