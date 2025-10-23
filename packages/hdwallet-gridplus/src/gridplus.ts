@@ -37,11 +37,11 @@ export class GridPlusWalletInfo
   }
 
   hasOnDevicePinEntry(): boolean {
-    return true;
+    return false;
   }
 
   hasOnDevicePassphrase(): boolean {
-    return true;
+    return false;
   }
 
   hasOnDeviceDisplay(): boolean {
@@ -315,12 +315,8 @@ export class GridPlusHDWallet
   async getFeatures(): Promise<Record<string, any>> {
     return {
       vendor: "GridPlus",
-      majorVersion: 1,
-      minorVersion: 0,
-      patchVersion: 0,
       deviceId: this.transport.deviceId,
       model: "Lattice1",
-      firmwareVariant: "regular",
     };
   }
 
