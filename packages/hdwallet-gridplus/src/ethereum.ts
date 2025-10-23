@@ -10,7 +10,16 @@ export async function ethGetAddress(client: Client, msg: core.ETHGetAddress): Pr
   const addressIndex = msg.addressNList[4] || 0;
   const startPath = [...msg.addressNList.slice(0, 4), addressIndex];
 
-  // Fetch only the requested address using client instance
+  // TODO: testing only for @kaladinlight, revert me
+  // EXPERIMENTAL: Test different flags to see what GridPlus SDK returns
+  // Try SECP256K1_XPUB flag alongside default (no flag)
+  const addressesWithXpubFlag = await client.getAddresses({
+    startPath,
+    n: 1,
+    flag: Constants.GET_ADDR_FLAGS.SECP256K1_XPUB,
+  });
+
+  // Fetch only the requested address using client instance (current working method)
   const addresses = await client.getAddresses({
     startPath,
     n: 1,
@@ -21,6 +30,8 @@ export async function ethGetAddress(client: Client, msg: core.ETHGetAddress): Pr
   }
 
   const rawAddress = addresses[0];
+  const rawAddressWithXpubFlag = addressesWithXpubFlag[0];
+
   let address: string;
 
   // Handle response format (could be Buffer or string)
@@ -40,6 +51,22 @@ export async function ethGetAddress(client: Client, msg: core.ETHGetAddress): Pr
   if (address.length !== 42) {
     throw new Error(`Invalid Ethereum address length: ${address}`);
   }
+
+  // EXPERIMENTAL LOGGING: Compare what different flags return
+  console.log("=== GridPlus ethGetAddress Flag Comparison ===");
+  console.log("Path:", startPath);
+  console.log("No flag result:", {
+    type: Buffer.isBuffer(rawAddress) ? "Buffer" : typeof rawAddress,
+    raw: rawAddress,
+    asHex: Buffer.isBuffer(rawAddress) ? rawAddress.toString("hex") : rawAddress,
+  });
+  console.log("SECP256K1_XPUB flag result:", {
+    type: Buffer.isBuffer(rawAddressWithXpubFlag) ? "Buffer" : typeof rawAddressWithXpubFlag,
+    raw: rawAddressWithXpubFlag,
+    asString: Buffer.isBuffer(rawAddressWithXpubFlag) ? rawAddressWithXpubFlag.toString("hex") : rawAddressWithXpubFlag,
+  });
+  console.log("Final derived address:", address.toLowerCase());
+  console.log("==============================================");
 
   // core.Address for ETH is just a string type `0x${string}`
   return address.toLowerCase() as core.Address;
