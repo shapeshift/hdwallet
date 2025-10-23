@@ -5,9 +5,6 @@
     "rootDir": "src"
   },
   "include": ["src/**/*"],
-  "references": [
-    {
-      "path": "../hdwallet-core"
-    }
-  ]
+  "exclude": ["node_modules", "dist"],
+  "references": [{ "path": "../hdwallet-core" }]
 }

@@ -3,10 +3,6 @@ import { PublicKey } from "@solana/web3.js";
 import bs58 from "bs58";
 import { Client, Constants } from "gridplus-sdk";
 
-export const solanaGetAccountPaths = (msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> => [
-  { addressNList: [0x80000000 + 44, 0x80000000 + 501, 0x80000000 + msg.accountIdx, 0x80000000 + 0] },
-];
-
 export async function solanaGetAddress(client: Client, msg: core.SolanaGetAddress): Promise<string | null> {
   // Solana requires all path indices to be hardened (BIP32 hardened derivation)
   // Hardening is indicated by setting the highest bit (0x80000000)
@@ -50,11 +46,7 @@ export async function solanaGetAddress(client: Client, msg: core.SolanaGetAddres
   return address;
 }
 
-export async function solanaSignTx(
-  client: Client,
-  addressGetter: (msg: core.SolanaGetAddress) => Promise<string | null>,
-  msg: core.SolanaSignTx
-): Promise<core.SolanaSignedTx | null> {
+export async function solanaSignTx(client: Client, msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
   // Ensure all path indices are hardened for Solana (see solanaGetAddress for explanation)
   const correctedPath = msg.addressNList.map((idx) => {
     if (idx >= 0x80000000) return idx;
@@ -66,7 +58,7 @@ export async function solanaSignTx(
     throw new Error("Failed to harden all Solana path indices - this should never happen");
   }
 
-  const address = await addressGetter({
+  const address = await solanaGetAddress(client, {
     addressNList: correctedPath,
     showDisplay: false,
   });
@@ -103,12 +95,3 @@ export async function solanaSignTx(
     signatures: transaction.signatures.map((sig) => Buffer.from(sig).toString("base64")),
   };
 }
-
-export const solanaNextAccountPath = (msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined => {
-  const newAddressNList = [...msg.addressNList];
-  newAddressNList[2] += 1;
-
-  return {
-    addressNList: newAddressNList,
-  };
-};

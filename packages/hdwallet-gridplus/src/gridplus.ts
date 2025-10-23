@@ -5,71 +5,70 @@ import isObject from "lodash/isObject";
 import * as btc from "./bitcoin";
 import * as cosmos from "./cosmos";
 import * as eth from "./ethereum";
+import * as mayachain from "./mayachain";
 import * as solana from "./solana";
-import * as thormaya from "./thormaya";
+import * as thorchain from "./thorchain";
 import { GridPlusTransport } from "./transport";
 import { convertXpubVersion, scriptTypeToAccountType } from "./utils";
+
+export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
+  return isObject(wallet) && (wallet as any)._isGridPlus;
+}
 
 export class GridPlusWalletInfo
   implements
     core.HDWalletInfo,
-    core.ETHWalletInfo,
+    core.BTCWalletInfo,
     core.CosmosWalletInfo,
-    core.ThorchainWalletInfo,
-    core.MayachainWalletInfo
+    core.ETHWalletInfo,
+    core.MayachainWalletInfo,
+    core.SolanaWalletInfo,
+    core.ThorchainWalletInfo
 {
-  readonly _supportsGridPlusInfo = true;
-  readonly _supportsETHInfo = true;
-  readonly _supportsAvalanche = true;
-  readonly _supportsOptimism = true;
-  readonly _supportsPolygon = true;
-  readonly _supportsGnosis = true;
-  readonly _supportsArbitrum = true;
-  readonly _supportsArbitrumNova = false;
-  readonly _supportsBase = true;
-  readonly _supportsBSC = true;
-  readonly _supportsSolanaInfo = false;
+  readonly _supportsBTCInfo = true;
   readonly _supportsCosmosInfo = true;
-  readonly _supportsThorchainInfo = true;
+  readonly _supportsETHInfo = true;
   readonly _supportsMayachainInfo = true;
+  readonly _supportsSolanaInfo = false;
+  readonly _supportsThorchainInfo = true;
 
-  public getVendor(): string {
+  getVendor(): string {
     return "GridPlus";
   }
 
-  public hasOnDevicePinEntry(): boolean {
+  hasOnDevicePinEntry(): boolean {
     return true;
   }
 
-  public hasOnDevicePassphrase(): boolean {
+  hasOnDevicePassphrase(): boolean {
     return true;
   }
 
-  public hasOnDeviceDisplay(): boolean {
+  hasOnDeviceDisplay(): boolean {
     return true;
   }
 
-  public hasOnDeviceRecovery(): boolean {
+  hasOnDeviceRecovery(): boolean {
     return false;
   }
 
-  public hasNativeShapeShift(): boolean {
+  hasNativeShapeShift(): boolean {
     return false;
   }
 
-  public supportsBip44Accounts(): boolean {
+  supportsBip44Accounts(): boolean {
     return true;
   }
 
-  public supportsOfflineSigning(): boolean {
+  supportsOfflineSigning(): boolean {
     return true;
   }
 
-  public supportsBroadcast(): boolean {
+  supportsBroadcast(): boolean {
     return false;
   }
 
-  public describePath(): core.PathDescription {
+  describePath(): core.PathDescription {
     return {
       verbose: "GridPlus path description not implemented",
       coin: "Unknown",
@@ -77,25 +76,99 @@ export class GridPlusWalletInfo
     };
   }
 
-  // ETH Wallet Info Methods
-  public async ethSupportsNetwork(chainId: number): Promise<boolean> {
+  /**
+   * Bitcoin Wallet Info
+   */
+  async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
+    const supportedCoins = ["Bitcoin", "BitcoinCash", "Litecoin", "Dogecoin"];
+    return supportedCoins.includes(coin);
+  }
+
+  async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
+    switch (scriptType) {
+      case core.BTCInputScriptType.SpendAddress:
+        return ["Bitcoin", "BitcoinCash", "Litecoin", "Dogecoin"].includes(coin);
+      case core.BTCInputScriptType.SpendP2SHWitness:
+        return ["Bitcoin", "BitcoinCash", "Litecoin"].includes(coin);
+      case core.BTCInputScriptType.SpendWitness:
+        return ["Bitcoin", "BitcoinCash", "Litecoin"].includes(coin);
+      default:
+        return false;
+    }
+  }
+
+  async btcSupportsSecureTransfer(): Promise<boolean> {
+    return false;
+  }
+
+  btcSupportsNativeShapeShift(): boolean {
+    return false;
+  }
+
+  btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
+    const slip44 = core.slip44ByCoin(msg.coin);
+    if (slip44 === undefined) return [];
+
+    const bip44 = core.legacyAccount(msg.coin, slip44, msg.accountIdx);
+    const bip49 = core.segwitAccount(msg.coin, slip44, msg.accountIdx);
+    const bip84 = core.segwitNativeAccount(msg.coin, slip44, msg.accountIdx);
+
+    const coinPaths: Record<string, Array<core.BTCAccountPath>> = {
+      bitcoin: [bip44, bip49, bip84],
+      bitcoincash: [bip44, bip49, bip84],
+      dogecoin: [bip44],
+      litecoin: [bip44, bip49, bip84],
+    };
+
+    const paths = coinPaths[msg.coin.toLowerCase()] || [];
+
+    if (msg.scriptType !== undefined) {
+      return paths.filter((path) => path.scriptType === msg.scriptType);
+    }
+
+    return paths;
+  }
+
+  btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
+    const description = core.describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType);
+
+    if (!description.isKnown) return undefined;
+
+    const addressNList = msg.addressNList;
+
+    if (
+      (addressNList[0] === 0x80000000 + 44 && msg.scriptType == core.BTCInputScriptType.SpendAddress) ||
+      (addressNList[0] === 0x80000000 + 49 && msg.scriptType == core.BTCInputScriptType.SpendP2SHWitness) ||
+      (addressNList[0] === 0x80000000 + 84 && msg.scriptType == core.BTCInputScriptType.SpendWitness)
+    ) {
+      addressNList[2] += 1;
+      return { ...msg, addressNList };
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Ethereum Wallet Info
+   */
+  async ethSupportsNetwork(chainId: number): Promise<boolean> {
     const supportedChains = [1, 137, 10, 42161, 8453, 56, 100, 43114];
     return supportedChains.includes(chainId);
   }
 
-  public async ethSupportsSecureTransfer(): Promise<boolean> {
+  async ethSupportsSecureTransfer(): Promise<boolean> {
     return false;
   }
 
-  public ethSupportsNativeShapeShift(): boolean {
+  ethSupportsNativeShapeShift(): boolean {
     return false;
   }
 
-  public async ethSupportsEIP1559(): Promise<boolean> {
+  async ethSupportsEIP1559(): Promise<boolean> {
     return true;
   }
 
-  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
+  ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     const slip44 = core.slip44ByCoin(msg.coin);
     if (slip44 === undefined) return [];
 
@@ -109,7 +182,7 @@ export class GridPlusWalletInfo
     ];
   }
 
-  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
+  ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
     const addressNList = msg.hardenedPath.concat(msg.relPath);
     const description = core.describeETHPath(addressNList);
     if (!description.isKnown || description.accountIdx === undefined) {
@@ -128,11 +201,11 @@ export class GridPlusWalletInfo
   }
 
   // Solana Wallet Info Methods
-  public solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> {
+  solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> {
     return [{ addressNList: [0x80000000 + 44, 0x80000000 + 501, 0x80000000 + msg.accountIdx, 0x80000000 + 0] }];
   }
 
-  public solanaNextAccountPath(msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
+  solanaNextAccountPath(msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
     // Increment account index for next account
     const newAddressNList = [...msg.addressNList];
     newAddressNList[2] += 1; // Increment account index
@@ -143,7 +216,7 @@ export class GridPlusWalletInfo
   }
 
   // Cosmos Wallet Info Methods
-  public cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
+  cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
     const slip44 = core.slip44ByCoin("Atom");
     return [
       {
@@ -152,7 +225,7 @@ export class GridPlusWalletInfo
     ];
   }
 
-  public cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
+  cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
     const newAddressNList = [...msg.addressNList];
     newAddressNList[2] += 1;
     return {
@@ -161,7 +234,7 @@ export class GridPlusWalletInfo
   }
 
   // THORChain Wallet Info Methods
-  public thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
+  thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
     const slip44 = core.slip44ByCoin("Rune");
     return [
       {
@@ -170,7 +243,7 @@ export class GridPlusWalletInfo
     ];
   }
 
-  public thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
+  thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
     const newAddressNList = [...msg.addressNList];
     newAddressNList[2] += 1;
     return {
@@ -178,7 +251,7 @@ export class GridPlusWalletInfo
     };
   }
 
-  public mayachainGetAccountPaths(msg: core.MayachainGetAccountPaths): Array<core.MayachainAccountPath> {
+  mayachainGetAccountPaths(msg: core.MayachainGetAccountPaths): Array<core.MayachainAccountPath> {
     const slip44 = core.slip44ByCoin("Mayachain");
     return [
       {
@@ -187,7 +260,7 @@ export class GridPlusWalletInfo
     ];
   }
 
-  public mayachainNextAccountPath(msg: core.MayachainAccountPath): core.MayachainAccountPath | undefined {
+  mayachainNextAccountPath(msg: core.MayachainAccountPath): core.MayachainAccountPath | undefined {
     const newAddressNList = [...msg.addressNList];
     newAddressNList[2] += 1;
     return {
@@ -196,11 +269,8 @@ export class GridPlusWalletInfo
   }
 }
 
-export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
-  return isObject(wallet) && (wallet as any)._isGridPlus;
-}
-
 export class GridPlusHDWallet
+  extends GridPlusWalletInfo
   implements
     core.HDWallet,
     core.ETHWallet,
@@ -210,38 +280,32 @@ export class GridPlusHDWallet
     core.ThorchainWallet,
     core.MayachainWallet
 {
-  readonly _isGridPlus = true;
-  private activeWalletId?: string;
-
-  readonly _supportsETH = true;
-  readonly _supportsETHInfo = true;
-  readonly _supportsEthSwitchChain = false;
-  readonly _supportsAvalanche = true;
-  readonly _supportsOptimism = true;
-  readonly _supportsPolygon = true;
-  readonly _supportsGnosis = true;
   readonly _supportsArbitrum = true;
   readonly _supportsArbitrumNova = false;
-  readonly _supportsBase = true;
+  readonly _supportsAvalanche = true;
   readonly _supportsBSC = true;
-  readonly _supportsSolana = true;
-  readonly _supportsSolanaInfo = true;
   readonly _supportsBTC = true;
-  readonly _supportsBTCInfo = true;
+  readonly _supportsBase = true;
   readonly _supportsCosmos = true;
-  readonly _supportsCosmosInfo = true;
-  readonly _supportsThorchain = true;
-  readonly _supportsThorchainInfo = true;
+  readonly _supportsETH = true;
+  readonly _supportsEthSwitchChain = false;
+  readonly _supportsGnosis = true;
   readonly _supportsMayachain = true;
-  readonly _supportsMayachainInfo = true;
+  readonly _supportsOptimism = true;
+  readonly _supportsPolygon = true;
+  readonly _supportsSolana = true;
+  readonly _supportsThorchain = true;
 
-  info: GridPlusWalletInfo & core.HDWalletInfo;
+  readonly _isGridPlus = true;
+
+  private activeWalletId?: string;
+
   transport: GridPlusTransport;
   client?: Client;
 
   constructor(transport: GridPlusTransport) {
+    super();
     this.transport = transport;
-    this.info = new GridPlusWalletInfo();
   }
 
   public setActiveWalletId(walletId: string): void {
@@ -330,42 +394,6 @@ export class GridPlusHDWallet
     };
   }
 
-  public hasOnDevicePinEntry(): boolean {
-    return true;
-  }
-
-  public hasOnDevicePassphrase(): boolean {
-    return true;
-  }
-
-  public hasOnDeviceDisplay(): boolean {
-    return true;
-  }
-
-  public hasOnDeviceRecovery(): boolean {
-    return false;
-  }
-
-  public hasNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public supportsBip44Accounts(): boolean {
-    return true;
-  }
-
-  public supportsOfflineSigning(): boolean {
-    return true;
-  }
-
-  public supportsBroadcast(): boolean {
-    return false;
-  }
-
-  public getVendor(): string {
-    return "GridPlus";
-  }
-
   public async getModel(): Promise<string> {
     return "Lattice1";
   }
@@ -442,137 +470,14 @@ export class GridPlusHDWallet
     await this.clearSession();
   }
 
-  public async ethSupportsNetwork(chainId: number): Promise<boolean> {
-    return eth.ethSupportsNetwork(chainId);
-  }
-
-  public async ethSupportsSecureTransfer(): Promise<boolean> {
-    return eth.ethSupportsSecureTransfer();
-  }
-
-  public ethSupportsNativeShapeShift(): boolean {
-    return eth.ethSupportsNativeShapeShift();
-  }
-
-  public async ethSupportsEIP1559(): Promise<boolean> {
-    return eth.ethSupportsEIP1559();
-  }
-
-  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
-    return eth.ethGetAccountPaths(msg);
-  }
-
-  public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
-    return eth.ethNextAccountPath(msg);
-  }
-
-  public async ethGetAddress(msg: core.ETHGetAddress): Promise<core.Address | null> {
-    if (!this.client) {
-      throw new Error("Device not connected");
-    }
-    return eth.ethGetAddress(this.client, msg);
-  }
-
-  public solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> {
-    return solana.solanaGetAccountPaths(msg);
-  }
-
-  public async solanaGetAddress(msg: core.SolanaGetAddress): Promise<string | null> {
-    if (!this.client) {
-      throw new Error("Device not connected");
-    }
-    return solana.solanaGetAddress(this.client!, msg);
-  }
-
-  public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
-    if (!this.client) {
-      throw new Error("Device not connected");
-    }
-    return solana.solanaSignTx(this.client!, this.solanaGetAddress.bind(this), msg);
-  }
-
-  public solanaNextAccountPath(msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
-    return solana.solanaNextAccountPath(msg);
-  }
-
-  public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
-    if (!this.client) {
-      throw new Error("Device not connected");
-    }
-    return eth.ethSignTx(this.client!, msg);
-  }
-
-  public async ethSignTypedData(msg: core.ETHSignTypedData): Promise<core.ETHSignedTypedData> {
-    if (!this.client) {
-      throw new Error("Device not connected");
-    }
-    return eth.ethSignTypedData(this.client!, this.ethGetAddress.bind(this), msg);
-  }
-
-  public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
-    if (!this.client) {
-      throw new Error("Device not connected");
-    }
-    return eth.ethSignMessage(this.client!, this.ethGetAddress.bind(this), msg);
-  }
-
-  public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
-    return eth.ethVerifyMessage(msg);
-  }
-
-  public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
-    // Validates supported UTXO coins - used by bitcoin.ts for coin-specific logic
-    return ["Bitcoin", "Dogecoin", "Litecoin", "BitcoinCash"].includes(coin);
-  }
-
-  public async btcSupportsScriptType(coin: core.Coin, scriptType?: core.BTCInputScriptType): Promise<boolean> {
-    const supported = {
-      Bitcoin: [
-        core.BTCInputScriptType.SpendAddress, // p2pkh
-        core.BTCInputScriptType.SpendP2SHWitness, // p2sh-p2wpkh
-        core.BTCInputScriptType.SpendWitness, // p2wpkh
-      ],
-      Dogecoin: [core.BTCInputScriptType.SpendAddress], // p2pkh only
-      Litecoin: [
-        core.BTCInputScriptType.SpendAddress, // p2pkh
-        core.BTCInputScriptType.SpendP2SHWitness, // p2sh-p2wpkh
-        core.BTCInputScriptType.SpendWitness, // p2wpkh
-      ],
-      BitcoinCash: [core.BTCInputScriptType.SpendAddress], // p2pkh only
-    } as Partial<Record<core.Coin, Array<core.BTCInputScriptType>>>;
-
-    const scriptTypes = supported[coin];
-    return !!scriptTypes && !!scriptType && scriptTypes.includes(scriptType);
-  }
-
-  public async btcSupportsSecureTransfer(): Promise<boolean> {
-    return false;
-  }
-
-  public btcSupportsNativeShapeShift(): boolean {
-    return false;
-  }
-
-  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
-    return btc.btcGetAccountPaths(msg);
-  }
-
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
-    if (!this.client) {
-      throw new Error("Device not connected");
-    }
+    if (!this.client) throw new Error("Device not connected");
     return btc.btcGetAddress(this.client!, msg);
   }
 
   public async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
-    if (!this.client) {
-      throw new Error("Device not connected");
-    }
-    return btc.btcSignTx(this.client!, msg);
-  }
-
-  public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    return btc.btcNextAccountPath(msg);
+    if (!this.client) throw new Error("Device not connected");
+    return btc.btcSignTx(this.client, msg);
   }
 
   public async btcSignMessage(): Promise<core.BTCSignedMessage | null> {
@@ -583,77 +488,67 @@ export class GridPlusHDWallet
     throw new Error("GridPlus BTC message verification not yet implemented");
   }
 
-  private bech32ify(address: ArrayLike<number>, prefix: string): string {
-    return cosmos.bech32ify(address, prefix);
+  public async ethGetAddress(msg: core.ETHGetAddress): Promise<core.Address | null> {
+    if (!this.client) throw new Error("Device not connected");
+    return eth.ethGetAddress(this.client, msg);
   }
 
-  private createCosmosAddress(publicKey: string, prefix: string): string {
-    return cosmos.createCosmosAddress(publicKey, prefix);
+  public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
+    if (!this.client) throw new Error("Device not connected");
+    return eth.ethSignTx(this.client, msg);
+  }
+
+  public async ethSignTypedData(msg: core.ETHSignTypedData): Promise<core.ETHSignedTypedData> {
+    if (!this.client) throw new Error("Device not connected");
+    return eth.ethSignTypedData(this.client, msg);
+  }
+
+  public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
+    if (!this.client) throw new Error("Device not connected");
+    return eth.ethSignMessage(this.client, msg);
+  }
+
+  public async ethVerifyMessage(): Promise<boolean> {
+    throw new Error("GridPlus ETH message verification not implemented yet");
+  }
+
+  public async solanaGetAddress(msg: core.SolanaGetAddress): Promise<string | null> {
+    if (!this.client) throw new Error("Device not connected");
+    return solana.solanaGetAddress(this.client, msg);
+  }
+
+  public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
+    if (!this.client) throw new Error("Device not connected");
+    return solana.solanaSignTx(this.client, this.solanaGetAddress.bind(this), msg);
   }
 
   public async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string | null> {
-    if (!this.client) {
-      throw new Error("Device not connected");
-    }
-    return cosmos.cosmosGetAddress(this.client!, msg);
+    if (!this.client) throw new Error("Device not connected");
+    return cosmos.cosmosGetAddress(this.client, msg);
   }
 
   public async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
-    if (!this.client) {
-      throw new Error("Device not connected");
-    }
-    return cosmos.cosmosSignTx(this.client!, this.cosmosGetAddress.bind(this), msg);
-  }
-
-  public cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
-    return cosmos.cosmosGetAccountPaths(msg);
-  }
-
-  public cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
-    return cosmos.cosmosNextAccountPath(msg);
+    if (!this.client) throw new Error("Device not connected");
+    return cosmos.cosmosSignTx(this.client, msg);
   }
 
   public async thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string | null> {
-    if (!this.client) {
-      throw new Error("Device not connected");
-    }
-    return thormaya.thorchainGetAddress(this.client!, msg);
+    if (!this.client) throw new Error("Device not connected");
+    return thorchain.thorchainGetAddress(this.client, msg);
   }
 
   public async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {
-    if (!this.client) {
-      throw new Error("Device not connected");
-    }
-    return thormaya.thorchainSignTx(this.client!, this.thorchainGetAddress.bind(this), msg);
-  }
-
-  public thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Array<core.ThorchainAccountPath> {
-    return thormaya.thorchainGetAccountPaths(msg);
-  }
-
-  public thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
-    return thormaya.thorchainNextAccountPath(msg);
+    if (!this.client) throw new Error("Device not connected");
+    return thorchain.thorchainSignTx(this.client, msg);
   }
 
   public async mayachainGetAddress(msg: core.MayachainGetAddress): Promise<string | null> {
-    if (!this.client) {
-      throw new Error("Device not connected");
-    }
-    return thormaya.mayachainGetAddress(this.client!, msg);
+    if (!this.client) throw new Error("Device not connected");
+    return mayachain.mayachainGetAddress(this.client, msg);
   }
 
   public async mayachainSignTx(msg: core.MayachainSignTx): Promise<core.MayachainSignedTx | null> {
-    if (!this.client) {
-      throw new Error("Device not connected");
-    }
-    return thormaya.mayachainSignTx(this.client!, this.mayachainGetAddress.bind(this), msg);
-  }
-
-  public mayachainGetAccountPaths(msg: core.MayachainGetAccountPaths): Array<core.MayachainAccountPath> {
-    return thormaya.mayachainGetAccountPaths(msg);
-  }
-
-  public mayachainNextAccountPath(msg: core.MayachainAccountPath): core.MayachainAccountPath | undefined {
-    return thormaya.mayachainNextAccountPath(msg);
+    if (!this.client) throw new Error("Device not connected");
+    return mayachain.mayachainSignTx(this.client, msg);
   }
 }

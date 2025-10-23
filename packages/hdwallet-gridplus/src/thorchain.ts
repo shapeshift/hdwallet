@@ -3,30 +3,20 @@ import type { StdTx } from "@cosmjs/amino";
 import type { DirectSignResponse, OfflineDirectSigner } from "@cosmjs/proto-signing";
 import type { SignerData } from "@cosmjs/stargate";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as bech32 from "bech32";
 import type { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import CryptoJS from "crypto-js";
 import { Client, Constants } from "gridplus-sdk";
 import PLazy from "p-lazy";
+
+import { createCosmosAddress } from "./cosmos";
 
 const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
 const cosmJsProtoSigning = PLazy.from(() => import("@cosmjs/proto-signing"));
 
-export const bech32ify = (address: ArrayLike<number>, prefix: string): string => {
-  const words = bech32.toWords(address);
-  return bech32.encode(prefix, words);
-};
+export async function thorchainGetAddress(client: Client, msg: core.ThorchainGetAddress): Promise<string | null> {
+  const prefix = msg.testnet ? "tthor" : "thor";
 
-export const createCosmosAddress = (publicKey: string, prefix: string): string => {
-  const message = CryptoJS.SHA256(CryptoJS.enc.Hex.parse(publicKey));
-  const hash = CryptoJS.RIPEMD160(message as CryptoJS.lib.WordArray).toString();
-  const address = Buffer.from(hash, `hex`);
-  return bech32ify(address, prefix);
-};
-
-export async function cosmosGetAddress(client: Client, msg: core.CosmosGetAddress): Promise<string | null> {
   // Get secp256k1 pubkey using GridPlus client instance
-  // Use FULL path - Cosmos uses standard BIP44: m/44'/118'/0'/0/0 (5 levels)
+  // Use FULL path - THORChain uses standard BIP44: m/44'/931'/0'/0/0 (5 levels)
   const addresses = await client.getAddresses({
     startPath: msg.addressNList,
     n: 1,
@@ -37,19 +27,22 @@ export async function cosmosGetAddress(client: Client, msg: core.CosmosGetAddres
     throw new Error("No address returned from device");
   }
 
-  // GridPlus SDK returns uncompressed 65-byte pubkeys, but Cosmos needs compressed 33-byte pubkeys
+  // GridPlus SDK returns uncompressed 65-byte pubkeys, but THORChain needs compressed 33-byte pubkeys
   const pubkeyBuffer = Buffer.isBuffer(addresses[0]) ? addresses[0] : Buffer.from(addresses[0], "hex");
   const compressedPubkey = pointCompress(pubkeyBuffer, true);
   const compressedHex = Buffer.from(compressedPubkey).toString("hex");
-  const cosmosAddress = createCosmosAddress(compressedHex, "cosmos");
+  const thorAddress = createCosmosAddress(compressedHex, prefix);
 
-  return cosmosAddress;
+  return thorAddress;
 }
 
-export async function cosmosSignTx(client: Client, msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
+export async function thorchainSignTx(
+  client: Client,
+  msg: core.ThorchainSignTx
+): Promise<core.ThorchainSignedTx | null> {
   // Get the address for this path
-  const address = await cosmosGetAddress(client, { addressNList: msg.addressNList });
-  if (!address) throw new Error("Failed to get Cosmos address");
+  const address = await thorchainGetAddress(client, { addressNList: msg.addressNList, testnet: msg.testnet });
+  if (!address) throw new Error("Failed to get THORChain address");
 
   // Get the public key using client instance
   const pubkeys = await client.getAddresses({
@@ -62,7 +55,7 @@ export async function cosmosSignTx(client: Client, msg: core.CosmosSignTx): Prom
     throw new Error("No public key returned from device");
   }
 
-  // GridPlus SDK returns uncompressed 65-byte pubkeys, but Cosmos needs compressed 33-byte pubkeys
+  // GridPlus SDK returns uncompressed 65-byte pubkeys, but THORChain needs compressed 33-byte pubkeys
   const pubkeyBuffer = Buffer.isBuffer(pubkeys[0]) ? pubkeys[0] : Buffer.from(pubkeys[0], "hex");
   const compressedPubkey = pointCompress(pubkeyBuffer, true);
   const pubkey = Buffer.from(compressedPubkey);
@@ -128,5 +121,5 @@ export async function cosmosSignTx(client: Client, msg: core.CosmosSignTx): Prom
     chainId: msg.chain_id,
   };
 
-  return (await protoTxBuilder).sign(address, msg.tx as StdTx, signer, signerData, "cosmos");
+  return (await protoTxBuilder).sign(address, msg.tx as StdTx, signer, signerData, "thorchain");
 }
