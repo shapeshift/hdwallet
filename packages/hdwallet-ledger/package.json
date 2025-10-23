@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger",
-  "version": "1.62.4-alpha.190",
+  "version": "1.62.4-alpha.214",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,8 +15,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@ethereumjs/common": "^2.4.0",
-    "@ethereumjs/tx": "^3.3.0",
+    "@ethereumjs/common": "3.2.0",
+    "@ethereumjs/tx": "4.2.0",
     "@ledgerhq/device-core": "^0.5.4",
     "@ledgerhq/hw-app-btc": "^10.10.0",
     "@ledgerhq/hw-app-cosmos": "^6.32.4",
@@ -25,7 +25,7 @@
     "@ledgerhq/hw-transport": "6.31.8",
     "@ledgerhq/logs": "6.13.0",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.0",
-    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.190",
+    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.214",
     "@solana/web3.js": "1.95.8",
     "base64-js": "^1.5.1",
     "bchaddrjs": "^0.4.4",
@@ -44,5 +44,5 @@
     "@types/ripemd160": "^2.0.2",
     "typedoc": "^0.20.36"
   },
-  "gitHead": "a7e19917f5533b61687095651723ea422fa73d6f"
+  "gitHead": "53e4b5e3dff9cdeaf083ff306e4b896030bea9ad"
 }

@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-core",
-  "version": "1.62.4-alpha.190",
+  "version": "1.62.4-alpha.214",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -28,5 +28,5 @@
     "@types/google-protobuf": "^3.15.1",
     "@types/lodash": "^4.14.168"
   },
-  "gitHead": "a7e19917f5533b61687095651723ea422fa73d6f"
+  "gitHead": "53e4b5e3dff9cdeaf083ff306e4b896030bea9ad"
 }
