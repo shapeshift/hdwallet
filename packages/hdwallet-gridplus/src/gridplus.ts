@@ -515,7 +515,7 @@ export class GridPlusHDWallet
 
   public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
     if (!this.client) throw new Error("Device not connected");
-    return solana.solanaSignTx(this.client, this.solanaGetAddress.bind(this), msg);
+    return solana.solanaSignTx(this.client, msg);
   }
 
   public async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string | null> {

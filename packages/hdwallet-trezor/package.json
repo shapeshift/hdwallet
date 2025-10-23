@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-trezor",
-  "version": "1.62.4-alpha.214",
+  "version": "1.62.4-alpha.215",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -11,13 +11,13 @@
   "scripts": {
     "build": "tsc --build",
     "build:docs": "typedoc --out docs --target es6 --theme minimal --mode file src",
-    "clean": "rm -rf dist node_modules tsconfig.tsbuildinfo",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
     "@ethereumjs/common": "3.2.0",
     "@ethereumjs/tx": "4.2.0",
-    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.214",
+    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.215",
     "base64-js": "^1.5.1",
     "lodash": "^4.17.21"
   },
@@ -25,5 +25,5 @@
     "@types/lodash": "^4.14.168",
     "typedoc": "^0.20.36"
   },
-  "gitHead": "53e4b5e3dff9cdeaf083ff306e4b896030bea9ad"
+  "gitHead": "4a77cbfb47998365e56d854a08bab81fff460dbe"
 }
