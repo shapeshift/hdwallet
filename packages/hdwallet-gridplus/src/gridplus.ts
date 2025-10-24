@@ -399,7 +399,9 @@ export class GridPlusHDWallet
   }
 
   public async getFirmwareVersion(): Promise<string> {
-    return "1.0.0";
+    if (!this.client) throw new Error("Device not connected");
+    const { major, minor, fix } = this.client.getFwVersion();
+    return `${major}.${minor}.${fix}`;
   }
 
   public async getDeviceID(): Promise<string> {
@@ -407,9 +409,7 @@ export class GridPlusHDWallet
   }
 
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
-    if (!this.client) {
-      throw new Error("Device not connected");
-    }
+    if (!this.client) throw new Error("Device not connected");
 
     const publicKeys: Array<core.PublicKey | null> = [];
 
@@ -508,13 +508,25 @@ export class GridPlusHDWallet
     throw new Error("GridPlus ETH message verification not implemented yet");
   }
 
-  public async solanaGetAddress(msg: core.SolanaGetAddress): Promise<string | null> {
+  private assertSolanaFwSupport(): asserts this is this & { client: Client } {
     if (!this.client) throw new Error("Device not connected");
+
+    const fwVersion = this.client.getFwVersion();
+
+    if (fwVersion.major === 0 && fwVersion.minor < 14) {
+      throw new Error(
+        `Solana requires firmware >= 0.14.0, current: ${fwVersion.major}.${fwVersion.minor}.${fwVersion.fix}`
+      );
+    }
+  }
+
+  public async solanaGetAddress(msg: core.SolanaGetAddress): Promise<string | null> {
+    this.assertSolanaFwSupport();
     return solana.solanaGetAddress(this.client, msg);
   }
 
   public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
-    if (!this.client) throw new Error("Device not connected");
+    this.assertSolanaFwSupport();
     return solana.solanaSignTx(this.client, msg);
   }
 
