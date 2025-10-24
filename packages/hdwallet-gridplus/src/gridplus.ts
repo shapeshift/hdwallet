@@ -29,7 +29,7 @@ export class GridPlusWalletInfo
   readonly _supportsCosmosInfo = true;
   readonly _supportsETHInfo = true;
   readonly _supportsMayachainInfo = true;
-  readonly _supportsSolanaInfo = false;
+  readonly _supportsSolanaInfo = true;
   readonly _supportsThorchainInfo = true;
 
   getVendor(): string {
