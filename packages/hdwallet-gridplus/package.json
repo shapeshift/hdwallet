@@ -16,8 +16,8 @@
   },
   "dependencies": {
     "@bitcoinerlab/secp256k1": "^1.1.1",
-    "@ethereumjs/common": "2.6.5",
-    "@ethereumjs/tx": "3.5.2",
+    "@ethereumjs/common": "4.4.0",
+    "@ethereumjs/tx": "5.4.0",
     "@metamask/eth-sig-util": "^7.0.0",
     "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.215",
     "bech32": "^1.1.4",

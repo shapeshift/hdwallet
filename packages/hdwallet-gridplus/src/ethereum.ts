@@ -1,305 +1,124 @@
-import Common from "@ethereumjs/common";
-import { FeeMarketEIP1559Transaction, Transaction } from "@ethereumjs/tx";
+import { Common, Hardfork } from "@ethereumjs/common";
+import { TransactionFactory, TypedTxData } from "@ethereumjs/tx";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Client, Constants, Utils } from "gridplus-sdk";
-import { encode } from "rlp";
 
 export async function ethGetAddress(client: Client, msg: core.ETHGetAddress): Promise<core.Address | null> {
-  // Extract address index from EVM path: m/44'/60'/0'/0/X
-  // addressNList = [44', 60', 0', 0, X]
-  const addressIndex = msg.addressNList[4] || 0;
-  const startPath = [...msg.addressNList.slice(0, 4), addressIndex];
+  const address = (await client.getAddresses({ startPath: msg.addressNList, n: 1 }))[0];
 
-  // TODO: testing only for @kaladinlight, revert me
-  // EXPERIMENTAL: Test different flags to see what GridPlus SDK returns
-  // Try SECP256K1_XPUB flag alongside default (no flag)
-  const addressesWithXpubFlag = await client.getAddresses({
-    startPath,
-    n: 1,
-    flag: Constants.GET_ADDR_FLAGS.SECP256K1_XPUB,
-  });
+  if (!address) throw new Error("No address returned from device");
+  if (typeof address !== "string") throw new Error("Invalid address");
 
-  // Fetch only the requested address using client instance (current working method)
-  const addresses = await client.getAddresses({
-    startPath,
-    n: 1,
-  });
-
-  if (!addresses.length) {
-    throw new Error("No address returned from device");
-  }
-
-  const rawAddress = addresses[0];
-  const rawAddressWithXpubFlag = addressesWithXpubFlag[0];
-
-  let address: string;
-
-  // Handle response format (could be Buffer or string)
-  if (Buffer.isBuffer(rawAddress)) {
-    // Device returns raw address bytes without 0x prefix - add it for EVM compatibility
-    address = "0x" + rawAddress.toString("hex");
-  } else {
-    address = rawAddress.toString();
-  }
-
-  // Device may return address without 0x prefix - ensure it's present for EVM compatibility
-  if (!address.startsWith("0x")) {
-    address = "0x" + address;
-  }
-
-  // Validate Ethereum address format (should be 42 chars with 0x prefix)
-  if (address.length !== 42) {
-    throw new Error(`Invalid Ethereum address length: ${address}`);
-  }
-
-  // EXPERIMENTAL LOGGING: Compare what different flags return
-  console.log("=== GridPlus ethGetAddress Flag Comparison ===");
-  console.log("Path:", startPath);
-  console.log("No flag result:", {
-    type: Buffer.isBuffer(rawAddress) ? "Buffer" : typeof rawAddress,
-    raw: rawAddress,
-    asHex: Buffer.isBuffer(rawAddress) ? rawAddress.toString("hex") : rawAddress,
-  });
-  console.log("SECP256K1_XPUB flag result:", {
-    type: Buffer.isBuffer(rawAddressWithXpubFlag) ? "Buffer" : typeof rawAddressWithXpubFlag,
-    raw: rawAddressWithXpubFlag,
-    asString: Buffer.isBuffer(rawAddressWithXpubFlag) ? rawAddressWithXpubFlag.toString("hex") : rawAddressWithXpubFlag,
-  });
-  console.log("Final derived address:", address.toLowerCase());
-  console.log("==============================================");
-
-  // core.Address for ETH is just a string type `0x${string}`
-  return address.toLowerCase() as core.Address;
+  return address as core.Address;
 }
 
 export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
-  const unsignedTxBase = {
+  const txData: TypedTxData = {
     to: msg.to,
     value: msg.value,
     data: msg.data,
     nonce: msg.nonce,
     gasLimit: msg.gasLimit,
     chainId: msg.chainId,
-  };
-
-  const common = msg.maxFeePerGas
-    ? Common.custom({ chainId: msg.chainId }, { hardfork: "london" })
-    : Common.custom({ chainId: msg.chainId });
-  const unsignedTx = msg.maxFeePerGas
-    ? FeeMarketEIP1559Transaction.fromTxData(
-        {
-          ...unsignedTxBase,
+    ...(msg.maxFeePerGas && msg.maxPriorityFeePerGas
+      ? {
           maxFeePerGas: msg.maxFeePerGas,
           maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
-        },
-        { common }
-      )
-    : Transaction.fromTxData({ ...unsignedTxBase, gasPrice: msg.gasPrice }, { common });
+        }
+      : {
+          gasPrice: msg.gasPrice,
+        }),
+  };
 
-  const payload = msg.maxFeePerGas ? unsignedTx.getMessageToSign(false) : encode(unsignedTx.getMessageToSign(false));
+  const common = new Common({ chain: msg.chainId, hardfork: Hardfork.London });
 
-  const callDataDecoder = msg.to ? await Utils.fetchCalldataDecoder(msg.data, msg.to, msg.chainId) : undefined;
+  const unsignedTx = TransactionFactory.fromTxData(txData, { common });
+  const payload = unsignedTx.getMessageToSign();
 
-  const signingData = {
+  const fwVersion = client.getFwVersion();
+  const supportsDecoderRecursion = fwVersion.major > 0 || fwVersion.minor >= 16;
+
+  const { def } = await Utils.fetchCalldataDecoder(msg.data, msg.to, msg.chainId, supportsDecoderRecursion);
+
+  const signData = await client.sign({
     data: {
       payload,
       curveType: Constants.SIGNING.CURVES.SECP256K1,
       hashType: Constants.SIGNING.HASHES.KECCAK256,
       encodingType: Constants.SIGNING.ENCODINGS.EVM,
       signerPath: msg.addressNList,
-      decoder: callDataDecoder?.def,
+      decoder: Buffer.from(def),
     },
-  };
+  });
 
-  const signedResult = await client.sign(signingData);
+  if (!signData?.sig) throw new Error("No signature returned from device");
 
-  if (!signedResult?.sig) {
-    throw new Error("No signature returned from device");
-  }
+  const { r, s, v } = signData.sig;
 
-  const { r, s, v } = signedResult.sig;
+  if (!Buffer.isBuffer(r)) throw new Error("Invalid signature (r)");
+  if (!Buffer.isBuffer(s)) throw new Error("Invalid signature (s)");
+  if (!Buffer.isBuffer(v)) throw new Error("Invalid signature (v)");
 
-  const rHex = "0x" + (Buffer.isBuffer(r) ? r.toString("hex") : core.toHexString(r));
-  const sHex = "0x" + (Buffer.isBuffer(s) ? s.toString("hex") : core.toHexString(s));
-  const vHex = "0x" + (Buffer.isBuffer(v) ? v.toString("hex") : core.toHexString(v));
+  const signedTx = TransactionFactory.fromTxData({ ...txData, r, s, v }, { common });
+  const serialized = `0x${Buffer.from(signedTx.serialize()).toString("hex")}`;
 
-  const signedTx = msg.maxFeePerGas
-    ? FeeMarketEIP1559Transaction.fromTxData(
-        {
-          ...unsignedTxBase,
-          maxFeePerGas: msg.maxFeePerGas,
-          maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
-          r: rHex,
-          s: sHex,
-          v: vHex,
-        },
-        { common }
-      )
-    : Transaction.fromTxData(
-        {
-          ...unsignedTxBase,
-          gasPrice: msg.gasPrice,
-          r: rHex,
-          s: sHex,
-          v: vHex,
-        },
-        { common }
-      );
-
-  const finalSerializedTx = `0x${signedTx.serialize().toString("hex")}`;
-  const vRaw = Buffer.isBuffer(v) ? v.readUInt8(0) : v;
-
-  const result = {
-    r: rHex,
-    s: sHex,
-    v: vRaw,
-    serialized: finalSerializedTx,
-  };
-
-  return result;
+  return { r: `0x${r.toString("hex")}`, s: `0x${s.toString("hex")}`, v: v.readUIntBE(0, v.length), serialized };
 }
 
 export async function ethSignTypedData(client: Client, msg: core.ETHSignTypedData): Promise<core.ETHSignedTypedData> {
-  const fwConstants = client.getFwConstants();
-  if (!fwConstants.eip712Supported) {
-    throw new Error("EIP-712 signing not supported by firmware version");
-  }
+  const address = await ethGetAddress(client, { addressNList: msg.addressNList });
+  if (!address) throw new Error("Failed to get Ethereum address");
 
-  const addressResult = await ethGetAddress(client, {
-    addressNList: msg.addressNList,
-    showDisplay: false,
-  });
-
-  const signingOptions = {
+  const signData = await client.sign({
     currency: "ETH_MSG",
     data: {
       protocol: "eip712",
+      curveType: Constants.SIGNING.CURVES.SECP256K1,
+      hashType: Constants.SIGNING.HASHES.KECCAK256,
       payload: msg.typedData,
       signerPath: msg.addressNList,
     },
-  };
+  });
 
-  // GridPlus SDK types don't properly support ETH_MSG currency, but runtime does
-  const signedResult = await client.sign(signingOptions as Parameters<typeof client.sign>[0]);
-
-  if (!signedResult?.sig) {
-    throw new Error("No signature returned from device");
-  }
+  if (!signData?.sig) throw new Error("No signature returned from device");
 
   // Type assertion needed because GridPlus SDK incorrectly types ETH_MSG signatures
-  const { r, s, v } = signedResult.sig as { r: string | Buffer; s: string | Buffer; v: number | Buffer };
+  const { r, s, v } = signData.sig as unknown as { r: `0x${string}`; s: `0x${string}`; v: number };
 
-  let rHex: string;
-  let sHex: string;
+  if (typeof r !== "string" || !r.startsWith("0x")) throw new Error("Invalid signature (r)");
+  if (typeof s !== "string" || !s.startsWith("0x")) throw new Error("Invalid signature (s)");
+  if (typeof v !== "number") throw new Error("Invalid signature (v)");
 
-  if (Buffer.isBuffer(r)) {
-    rHex = "0x" + r.toString("hex");
-  } else if (typeof r === "string") {
-    if (r.startsWith("0x")) {
-      rHex = r;
-    } else {
-      rHex = "0x" + r;
-    }
-  } else {
-    throw new Error(`Unexpected r format: ${typeof r}`);
-  }
+  const signature = `0x${r.slice(2)}${s.slice(2)}${v.toString(16).padStart(2, "0")}`;
 
-  if (Buffer.isBuffer(s)) {
-    sHex = "0x" + s.toString("hex");
-  } else if (typeof s === "string") {
-    if (s.startsWith("0x")) {
-      sHex = s;
-    } else {
-      sHex = "0x" + s;
-    }
-  } else {
-    throw new Error(`Unexpected s format: ${typeof s}`);
-  }
-
-  const vBuf = Buffer.isBuffer(v) ? v : typeof v === "number" ? Buffer.from([v]) : Buffer.from(v);
-  const vValue = vBuf.readUInt8(0);
-  const vHex = "0x" + vValue.toString(16);
-
-  const signature = rHex + sHex.slice(2) + vHex.slice(2);
-
-  return {
-    address: addressResult!,
-    signature: signature,
-  };
+  return { address, signature };
 }
 
 export async function ethSignMessage(client: Client, msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
-  if (typeof client.sign !== "function") {
-    throw new Error("GridPlus client missing required sign method");
-  }
+  const address = await ethGetAddress(client, { addressNList: msg.addressNList });
+  if (!address) throw new Error("Failed to get Ethereum address");
 
-  const addressResult = await ethGetAddress(client, {
-    addressNList: msg.addressNList,
-    showDisplay: false,
-  });
-
-  let hexMessage: string;
-  if (msg.message.startsWith("0x")) {
-    hexMessage = msg.message;
-  } else {
-    const buffer = Buffer.from(msg.message, "utf8");
-    hexMessage = "0x" + buffer.toString("hex");
-  }
-
-  const signingOptions = {
+  const signData = await client.sign({
     currency: "ETH_MSG",
     data: {
       protocol: "signPersonal",
-      payload: hexMessage,
+      curveType: Constants.SIGNING.CURVES.SECP256K1,
+      hashType: Constants.SIGNING.HASHES.KECCAK256,
+      payload: msg.message,
       signerPath: msg.addressNList,
     },
-  };
+  });
 
-  // GridPlus SDK types don't properly support ETH_MSG currency, but runtime does
-  const signedResult = await client.sign(signingOptions as Parameters<typeof client.sign>[0]);
-
-  if (!signedResult?.sig) {
-    throw new Error("No signature returned from device");
-  }
+  if (!signData?.sig) throw new Error("No signature returned from device");
 
   // Type assertion needed because GridPlus SDK incorrectly types ETH_MSG signatures
-  const { r, s, v } = signedResult.sig as { r: string | Buffer; s: string | Buffer; v: number | Buffer };
+  const { r, s, v } = signData.sig as unknown as { r: `0x${string}`; s: `0x${string}`; v: number };
 
-  let rHex: string;
-  let sHex: string;
+  if (typeof r !== "string" || !r.startsWith("0x")) throw new Error("Invalid signature (r)");
+  if (typeof s !== "string" || !s.startsWith("0x")) throw new Error("Invalid signature (s)");
+  if (typeof v !== "number") throw new Error("Invalid signature (v)");
 
-  if (Buffer.isBuffer(r)) {
-    rHex = "0x" + r.toString("hex");
-  } else if (typeof r === "string") {
-    if (r.startsWith("0x")) {
-      rHex = r;
-    } else {
-      rHex = "0x" + r;
-    }
-  } else {
-    throw new Error(`Unexpected r format: ${typeof r}`);
-  }
+  const signature = `0x${r.slice(2)}${s.slice(2)}${v.toString(16).padStart(2, "0")}`;
 
-  if (Buffer.isBuffer(s)) {
-    sHex = "0x" + s.toString("hex");
-  } else if (typeof s === "string") {
-    if (s.startsWith("0x")) {
-      sHex = s;
-    } else {
-      sHex = "0x" + s;
-    }
-  } else {
-    throw new Error(`Unexpected s format: ${typeof s}`);
-  }
-
-  const vBuf = Buffer.isBuffer(v) ? v : typeof v === "number" ? Buffer.from([v]) : Buffer.from(v);
-  const vValue = vBuf.readUInt8(0);
-  const vHex = "0x" + vValue.toString(16);
-
-  const signature = rHex + sHex.slice(2) + vHex.slice(2);
-
-  return {
-    address: addressResult!,
-    signature: signature,
-  };
+  return { address, signature };
 }
