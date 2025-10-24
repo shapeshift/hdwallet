@@ -55,8 +55,20 @@ export async function cosmosSignTx(client: Client, msg: core.CosmosSignTx): Prom
 
       const { r, s } = signedResult.sig;
 
+      console.log("=== COSMOS SIGNATURE DEBUG ===");
+      console.log("r type:", typeof r, "isBuffer:", Buffer.isBuffer(r));
+      console.log("r value:", r);
+      console.log("r length:", Buffer.isBuffer(r) ? r.length : (r as any)?.length);
+      console.log("s type:", typeof s, "isBuffer:", Buffer.isBuffer(s));
+      console.log("s value:", s);
+      console.log("s length:", Buffer.isBuffer(s) ? s.length : (s as any)?.length);
+
       const rBuf = Buffer.isBuffer(r) ? r : Buffer.from(r);
       const sBuf = Buffer.isBuffer(s) ? s : Buffer.from(s);
+
+      console.log("rBuf length:", rBuf.length);
+      console.log("sBuf length:", sBuf.length);
+      console.log("=== END COSMOS SIGNATURE DEBUG ===");
 
       const signature = Buffer.concat([rBuf, sBuf]);
 
