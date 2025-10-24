@@ -12,13 +12,13 @@ const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"
 const cosmJsProtoSigning = PLazy.from(() => import("@cosmjs/proto-signing"));
 
 export async function cosmosGetAddress(client: Client, msg: core.CosmosGetAddress): Promise<string | null> {
-  const pubkey = (
+  const xpub = (
     await client.getAddresses({ startPath: msg.addressNList, n: 1, flag: Constants.GET_ADDR_FLAGS.SECP256K1_XPUB })
   )[0];
 
-  if (!pubkey) throw new Error("No address returned from device");
+  if (!xpub) throw new Error("No address returned from device");
 
-  return createBech32Address(getCompressedPubkey(pubkey), "cosmos");
+  return createBech32Address(getCompressedPubkey(xpub), "cosmos");
 }
 
 export async function cosmosSignTx(client: Client, msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
@@ -41,7 +41,7 @@ export async function cosmosSignTx(client: Client, msg: core.CosmosSignTx): Prom
       const signBytes = (await cosmJsProtoSigning).makeSignBytes(signDoc);
 
       // Sign using GridPlus SDK general signing
-      const signedResult = await client.sign({
+      const signData = await client.sign({
         data: {
           payload: signBytes,
           curveType: Constants.SIGNING.CURVES.SECP256K1,
@@ -51,14 +51,10 @@ export async function cosmosSignTx(client: Client, msg: core.CosmosSignTx): Prom
         },
       });
 
-      if (!signedResult?.sig) throw new Error("No signature returned from device");
+      if (!signData?.sig) throw new Error("No signature returned from device");
 
-      const { r, s } = signedResult.sig;
-
-      const rBuf = Buffer.isBuffer(r) ? r : Buffer.from(r);
-      const sBuf = Buffer.isBuffer(s) ? s : Buffer.from(s);
-
-      const signature = Buffer.concat([rBuf, sBuf]);
+      const { r, s } = signData.sig;
+      const signature = Buffer.concat([r, s]);
 
       return {
         signed: signDoc,

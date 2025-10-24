@@ -12,20 +12,20 @@ const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"
 const cosmJsProtoSigning = PLazy.from(() => import("@cosmjs/proto-signing"));
 
 export async function thorchainGetAddress(client: Client, msg: core.ThorchainGetAddress): Promise<string | null> {
-  const pubkey = (
+  const xpub = (
     await client.getAddresses({ startPath: msg.addressNList, n: 1, flag: Constants.GET_ADDR_FLAGS.SECP256K1_XPUB })
   )[0];
 
-  if (!pubkey) throw new Error("No address returned from device");
+  if (!xpub) throw new Error("No address returned from device");
 
-  return createBech32Address(getCompressedPubkey(pubkey), "thor");
+  return createBech32Address(getCompressedPubkey(xpub), "thor");
 }
 
 export async function thorchainSignTx(
   client: Client,
   msg: core.ThorchainSignTx
 ): Promise<core.ThorchainSignedTx | null> {
-  const address = await thorchainGetAddress(client, { addressNList: msg.addressNList, testnet: msg.testnet });
+  const address = await thorchainGetAddress(client, { addressNList: msg.addressNList });
   if (!address) throw new Error("Failed to get THORChain address");
 
   const xpub = (
@@ -45,7 +45,7 @@ export async function thorchainSignTx(
       const signBytes = (await cosmJsProtoSigning).makeSignBytes(signDoc);
 
       // Sign using GridPlus SDK general signing
-      const signedResult = await client.sign({
+      const signData = await client.sign({
         data: {
           payload: signBytes,
           curveType: Constants.SIGNING.CURVES.SECP256K1,
@@ -55,14 +55,10 @@ export async function thorchainSignTx(
         },
       });
 
-      if (!signedResult?.sig) throw new Error("No signature returned from device");
+      if (!signData?.sig) throw new Error("No signature returned from device");
 
-      const { r, s } = signedResult.sig;
-
-      const rBuf = Buffer.isBuffer(r) ? r : Buffer.from(r);
-      const sBuf = Buffer.isBuffer(s) ? s : Buffer.from(s);
-
-      const signature = Buffer.concat([rBuf, sBuf]);
+      const { r, s } = signData.sig;
+      const signature = Buffer.concat([r, s]);
 
       return {
         signed: signDoc,
