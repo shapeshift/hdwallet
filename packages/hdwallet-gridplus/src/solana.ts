@@ -34,6 +34,10 @@ export async function solanaSignTx(client: Client, msg: core.SolanaSignTx): Prom
   if (!signData?.sig) throw new Error("No signature returned from device");
 
   const { r, s } = signData.sig;
+
+  if (!Buffer.isBuffer(r)) throw new Error("Invalid signature (r)");
+  if (!Buffer.isBuffer(s)) throw new Error("Invalid signature (s)");
+
   const signature = Buffer.concat([r, s]);
 
   transaction.addSignature(new PublicKey(address), signature);
