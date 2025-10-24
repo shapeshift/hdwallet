@@ -1,92 +1,47 @@
-import { pointCompress } from "@bitcoinerlab/secp256k1";
 import type { StdTx } from "@cosmjs/amino";
 import type { DirectSignResponse, OfflineDirectSigner } from "@cosmjs/proto-signing";
 import type { SignerData } from "@cosmjs/stargate";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import * as bech32 from "bech32";
 import type { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import CryptoJS from "crypto-js";
 import { Client, Constants } from "gridplus-sdk";
 import PLazy from "p-lazy";
+
+import { createBech32Address, getCompressedPubkey } from "./utils";
 
 const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
 const cosmJsProtoSigning = PLazy.from(() => import("@cosmjs/proto-signing"));
 
-export const bech32ify = (address: ArrayLike<number>, prefix: string): string => {
-  const words = bech32.toWords(address);
-  return bech32.encode(prefix, words);
-};
-
-export const createCosmosAddress = (publicKey: string, prefix: string): string => {
-  const message = CryptoJS.SHA256(CryptoJS.enc.Hex.parse(publicKey));
-  const hash = CryptoJS.RIPEMD160(message as CryptoJS.lib.WordArray).toString();
-  const address = Buffer.from(hash, `hex`);
-  return bech32ify(address, prefix);
-};
-
 export async function cosmosGetAddress(client: Client, msg: core.CosmosGetAddress): Promise<string | null> {
-  // Get secp256k1 pubkey using GridPlus client instance
-  // Use FULL path - Cosmos uses standard BIP44: m/44'/118'/0'/0/0 (5 levels)
-  const addresses = await client.getAddresses({
-    startPath: msg.addressNList,
-    n: 1,
-    flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
-  });
+  const pubkey = (
+    await client.getAddresses({ startPath: msg.addressNList, n: 1, flag: Constants.GET_ADDR_FLAGS.SECP256K1_XPUB })
+  )[0];
 
-  if (!addresses.length) {
-    throw new Error("No address returned from device");
-  }
+  if (!pubkey) throw new Error("No address returned from device");
 
-  // GridPlus SDK returns uncompressed 65-byte pubkeys, but Cosmos needs compressed 33-byte pubkeys
-  const pubkeyBuffer = Buffer.isBuffer(addresses[0]) ? addresses[0] : Buffer.from(addresses[0], "hex");
-  const compressedPubkey = pointCompress(pubkeyBuffer, true);
-  const compressedHex = Buffer.from(compressedPubkey).toString("hex");
-  const cosmosAddress = createCosmosAddress(compressedHex, "cosmos");
-
-  return cosmosAddress;
+  return createBech32Address(getCompressedPubkey(pubkey), "cosmos");
 }
 
 export async function cosmosSignTx(client: Client, msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
-  // Get the address for this path
   const address = await cosmosGetAddress(client, { addressNList: msg.addressNList });
   if (!address) throw new Error("Failed to get Cosmos address");
 
-  // Get the public key using client instance
-  const pubkeys = await client.getAddresses({
-    startPath: msg.addressNList,
-    n: 1,
-    flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
-  });
+  const xpub = (
+    await client.getAddresses({ startPath: msg.addressNList, n: 1, flag: Constants.GET_ADDR_FLAGS.SECP256K1_XPUB })
+  )[0];
 
-  if (!pubkeys.length) {
-    throw new Error("No public key returned from device");
-  }
+  if (!xpub) throw new Error("No xpub returned from device");
 
-  // GridPlus SDK returns uncompressed 65-byte pubkeys, but Cosmos needs compressed 33-byte pubkeys
-  const pubkeyBuffer = Buffer.isBuffer(pubkeys[0]) ? pubkeys[0] : Buffer.from(pubkeys[0], "hex");
-  const compressedPubkey = pointCompress(pubkeyBuffer, true);
-  const pubkey = Buffer.from(compressedPubkey);
+  const pubkey = getCompressedPubkey(xpub);
 
-  // Create a signer adapter for GridPlus with Direct signing (Proto)
   const signer: OfflineDirectSigner = {
-    getAccounts: async () => [
-      {
-        address,
-        pubkey,
-        algo: "secp256k1" as const,
-      },
-    ],
+    getAccounts: async () => [{ address, pubkey, algo: "secp256k1" }],
     signDirect: async (signerAddress: string, signDoc: SignDoc): Promise<DirectSignResponse> => {
-      if (signerAddress !== address) {
-        throw new Error("Signer address mismatch");
-      }
+      if (signerAddress !== address) throw new Error("Signer address mismatch");
 
-      // Use CosmJS to create the sign bytes from the SignDoc
       const signBytes = (await cosmJsProtoSigning).makeSignBytes(signDoc);
 
       // Sign using GridPlus SDK general signing
-      // Pass unhashed signBytes and let device hash with SHA256
-      const signData = {
+      const signedResult = await client.sign({
         data: {
           payload: signBytes,
           curveType: Constants.SIGNING.CURVES.SECP256K1,
@@ -94,20 +49,16 @@ export async function cosmosSignTx(client: Client, msg: core.CosmosSignTx): Prom
           encodingType: Constants.SIGNING.ENCODINGS.NONE,
           signerPath: msg.addressNList,
         },
-      };
+      });
 
-      const signedResult = await client.sign(signData);
-
-      if (!signedResult?.sig) {
-        throw new Error("No signature returned from device");
-      }
+      if (!signedResult?.sig) throw new Error("No signature returned from device");
 
       const { r, s } = signedResult.sig;
-      const rHex = Buffer.isBuffer(r) ? r : Buffer.from(r);
-      const sHex = Buffer.isBuffer(s) ? s : Buffer.from(s);
 
-      // Combine r and s for signature
-      const signature = Buffer.concat([rHex, sHex]);
+      const rBuf = Buffer.isBuffer(r) ? r : Buffer.from(r);
+      const sBuf = Buffer.isBuffer(s) ? s : Buffer.from(s);
+
+      const signature = Buffer.concat([rBuf, sBuf]);
 
       return {
         signed: signDoc,

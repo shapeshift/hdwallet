@@ -1,81 +1,50 @@
-import { pointCompress } from "@bitcoinerlab/secp256k1";
 import type { StdTx } from "@cosmjs/amino";
 import type { DirectSignResponse, OfflineDirectSigner } from "@cosmjs/proto-signing";
+import type { SignerData } from "@cosmjs/stargate";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import type { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { Client, Constants } from "gridplus-sdk";
 import PLazy from "p-lazy";
 
-import { createCosmosAddress } from "./cosmos";
+import { createBech32Address, getCompressedPubkey } from "./utils";
 
+const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
 const cosmJsProtoSigning = PLazy.from(() => import("@cosmjs/proto-signing"));
 
 export async function mayachainGetAddress(client: Client, msg: core.MayachainGetAddress): Promise<string | null> {
-  // Get secp256k1 pubkey using GridPlus client instance
-  // Use FULL path - MAYAChain uses standard BIP44: m/44'/931'/0'/0/0 (5 levels)
-  const addresses = await client.getAddresses({
-    startPath: msg.addressNList,
-    n: 1,
-    flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
-  });
+  const pubkey = (
+    await client.getAddresses({ startPath: msg.addressNList, n: 1, flag: Constants.GET_ADDR_FLAGS.SECP256K1_XPUB })
+  )[0];
 
-  if (!addresses.length) {
-    throw new Error("No address returned from device");
-  }
+  if (!pubkey) throw new Error("No address returned from device");
 
-  // GridPlus SDK returns uncompressed 65-byte pubkeys, but MAYAChain needs compressed 33-byte pubkeys
-  const pubkeyBuffer = Buffer.isBuffer(addresses[0]) ? addresses[0] : Buffer.from(addresses[0], "hex");
-  const compressedPubkey = pointCompress(pubkeyBuffer, true);
-  const compressedHex = Buffer.from(compressedPubkey).toString("hex");
-  const mayaAddress = createCosmosAddress(compressedHex, "maya");
-
-  return mayaAddress;
+  return createBech32Address(getCompressedPubkey(pubkey), "maya");
 }
 
 export async function mayachainSignTx(
   client: Client,
   msg: core.MayachainSignTx
 ): Promise<core.MayachainSignedTx | null> {
-  // Get the address for this path
   const address = await mayachainGetAddress(client, { addressNList: msg.addressNList });
-  if (!address) throw new Error("Failed to get MAYAchain address");
+  if (!address) throw new Error("Failed to get MAYAChain address");
 
-  // Get the public key using client instance
-  const pubkeys = await client.getAddresses({
-    startPath: msg.addressNList,
-    n: 1,
-    flag: Constants.GET_ADDR_FLAGS.SECP256K1_PUB,
-  });
+  const xpub = (
+    await client.getAddresses({ startPath: msg.addressNList, n: 1, flag: Constants.GET_ADDR_FLAGS.SECP256K1_XPUB })
+  )[0];
 
-  if (!pubkeys.length) {
-    throw new Error("No public key returned from device");
-  }
+  if (!xpub) throw new Error("No xpub returned from device");
 
-  // GridPlus SDK returns uncompressed 65-byte pubkeys, but MAYAChain needs compressed 33-byte pubkeys
-  const pubkeyBuffer = Buffer.isBuffer(pubkeys[0]) ? pubkeys[0] : Buffer.from(pubkeys[0], "hex");
-  const compressedPubkey = pointCompress(pubkeyBuffer, true);
-  const pubkey = Buffer.from(compressedPubkey);
+  const pubkey = getCompressedPubkey(xpub);
 
-  // Create a signer adapter for GridPlus with Direct signing (Proto)
   const signer: OfflineDirectSigner = {
-    getAccounts: async () => [
-      {
-        address,
-        pubkey,
-        algo: "secp256k1" as const,
-      },
-    ],
+    getAccounts: async () => [{ address, pubkey, algo: "secp256k1" }],
     signDirect: async (signerAddress: string, signDoc: SignDoc): Promise<DirectSignResponse> => {
-      if (signerAddress !== address) {
-        throw new Error("Signer address mismatch");
-      }
+      if (signerAddress !== address) throw new Error("Signer address mismatch");
 
-      // Use CosmJS to create the sign bytes from the SignDoc
       const signBytes = (await cosmJsProtoSigning).makeSignBytes(signDoc);
 
       // Sign using GridPlus SDK general signing
-      // Pass unhashed signBytes and let device hash with SHA256
-      const signData = {
+      const signedResult = await client.sign({
         data: {
           payload: signBytes,
           curveType: Constants.SIGNING.CURVES.SECP256K1,
@@ -83,23 +52,16 @@ export async function mayachainSignTx(
           encodingType: Constants.SIGNING.ENCODINGS.NONE,
           signerPath: msg.addressNList,
         },
-      };
+      });
 
-      const signedResult = await client.sign(signData);
-
-      if (!signedResult?.sig) {
-        throw new Error("No signature returned from device");
-      }
+      if (!signedResult?.sig) throw new Error("No signature returned from device");
 
       const { r, s } = signedResult.sig;
-      const rBuf = Buffer.from(r);
-      const sBuf = Buffer.from(s);
 
-      // Ensure 32-byte values
-      const rPadded = rBuf.length < 32 ? Buffer.concat([Buffer.alloc(32 - rBuf.length), rBuf]) : rBuf;
-      const sPadded = sBuf.length < 32 ? Buffer.concat([Buffer.alloc(32 - sBuf.length), sBuf]) : sBuf;
+      const rBuf = Buffer.isBuffer(r) ? r : Buffer.from(r);
+      const sBuf = Buffer.isBuffer(s) ? s : Buffer.from(s);
 
-      const signature = Buffer.concat([rPadded, sPadded]);
+      const signature = Buffer.concat([rBuf, sBuf]);
 
       return {
         signed: signDoc,
@@ -114,37 +76,11 @@ export async function mayachainSignTx(
     },
   };
 
-  // Build and sign transaction using proto-tx-builder
-  const signedTx = await (
-    await import("@shapeshiftoss/proto-tx-builder")
-  ).sign(
-    address,
-    msg.tx as StdTx,
-    signer,
-    {
-      sequence: Number(msg.sequence),
-      accountNumber: Number(msg.account_number),
-      chainId: msg.chain_id,
-    },
-    "maya"
-  );
-
-  return signedTx as core.MayachainSignedTx;
-}
-
-export const mayachainGetAccountPaths = (msg: core.MayachainGetAccountPaths): Array<core.MayachainAccountPath> => {
-  const slip44 = core.slip44ByCoin("Mayachain");
-  return [
-    {
-      addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
-    },
-  ];
-};
-
-export const mayachainNextAccountPath = (msg: core.MayachainAccountPath): core.MayachainAccountPath | undefined => {
-  const newAddressNList = [...msg.addressNList];
-  newAddressNList[2] += 1;
-  return {
-    addressNList: newAddressNList,
+  const signerData: SignerData = {
+    sequence: Number(msg.sequence),
+    accountNumber: Number(msg.account_number),
+    chainId: msg.chain_id,
   };
-};
+
+  return (await protoTxBuilder).sign(address, msg.tx as StdTx, signer, signerData, "maya");
+}
