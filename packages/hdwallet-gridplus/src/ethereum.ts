@@ -1,5 +1,6 @@
 import { Common, Hardfork } from "@ethereumjs/common";
 import { TransactionFactory, TypedTxData } from "@ethereumjs/tx";
+import { RLP } from "@ethereumjs/rlp";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Client, Constants, Utils } from "gridplus-sdk";
 
@@ -13,6 +14,8 @@ export async function ethGetAddress(client: Client, msg: core.ETHGetAddress): Pr
 }
 
 export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
+  const isEIP1559 = msg.maxFeePerGas && msg.maxPriorityFeePerGas
+
   const txData: TypedTxData = {
     to: msg.to,
     value: msg.value,
@@ -20,7 +23,7 @@ export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<co
     nonce: msg.nonce,
     gasLimit: msg.gasLimit,
     chainId: msg.chainId,
-    ...(msg.maxFeePerGas && msg.maxPriorityFeePerGas
+    ...(isEIP1559
       ? {
           maxFeePerGas: msg.maxFeePerGas,
           maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
@@ -33,7 +36,7 @@ export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<co
   const common = Common.custom({ chainId: msg.chainId }, { hardfork: Hardfork.London });
 
   const unsignedTx = TransactionFactory.fromTxData(txData, { common });
-  const payload = unsignedTx.getMessageToSign();
+  const payload = isEIP1559 ? unsignedTx.getMessageToSign() : RLP.encode(unsignedTx.getMessageToSign());
 
   const fwVersion = client.getFwVersion();
   const supportsDecoderRecursion = fwVersion.major > 0 || fwVersion.minor >= 16;
