@@ -38,7 +38,11 @@ export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<co
   const fwVersion = client.getFwVersion();
   const supportsDecoderRecursion = fwVersion.major > 0 || fwVersion.minor >= 16;
 
-  const { def } = await Utils.fetchCalldataDecoder(msg.data, msg.to, msg.chainId, supportsDecoderRecursion);
+  const { def } = await (() => {
+    if (!msg.data) return { def: null };
+    if (msg.data.startsWith("0x") && Buffer.from(msg.data.slice(2), "hex").length < 4) return { def: null };
+    return Utils.fetchCalldataDecoder(msg.data, msg.to, msg.chainId, supportsDecoderRecursion);
+  })();
 
   const signData = await client.sign({
     data: {
