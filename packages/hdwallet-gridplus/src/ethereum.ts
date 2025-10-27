@@ -47,7 +47,7 @@ export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<co
       hashType: Constants.SIGNING.HASHES.KECCAK256,
       encodingType: Constants.SIGNING.ENCODINGS.EVM,
       signerPath: msg.addressNList,
-      decoder: Buffer.from(def),
+      decoder: def ? Buffer.from(def) : undefined,
     },
   });
 
