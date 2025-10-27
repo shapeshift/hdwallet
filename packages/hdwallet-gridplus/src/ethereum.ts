@@ -83,13 +83,13 @@ export async function ethSignTypedData(client: Client, msg: core.ETHSignTypedDat
   if (!signData?.sig) throw new Error("No signature returned from device");
 
   // Type assertion needed because GridPlus SDK incorrectly types ETH_MSG signatures
-  const { r, s, v } = signData.sig as unknown as { r: `0x${string}`; s: `0x${string}`; v: number };
+  const { r, s, v } = signData.sig as unknown as { r: string; s: string; v: Buffer };
 
-  if (typeof r !== "string" || !r.startsWith("0x")) throw new Error("Invalid signature (r)");
-  if (typeof s !== "string" || !s.startsWith("0x")) throw new Error("Invalid signature (s)");
-  if (typeof v !== "number") throw new Error("Invalid signature (v)");
+  if (typeof r !== "string") throw new Error("Invalid signature (r)");
+  if (typeof s !== "string") throw new Error("Invalid signature (s)");
+  if (!Buffer.isBuffer(v)) throw new Error("Invalid signature (v)");
 
-  const signature = `0x${r.slice(2)}${s.slice(2)}${v.toString(16).padStart(2, "0")}`;
+  const signature = `0x${r}${s}${v.toString("hex")}`;
 
   return { address, signature };
 }
@@ -112,13 +112,13 @@ export async function ethSignMessage(client: Client, msg: core.ETHSignMessage): 
   if (!signData?.sig) throw new Error("No signature returned from device");
 
   // Type assertion needed because GridPlus SDK incorrectly types ETH_MSG signatures
-  const { r, s, v } = signData.sig as unknown as { r: `0x${string}`; s: `0x${string}`; v: number };
+  const { r, s, v } = signData.sig as unknown as { r: string; s: string; v: Buffer };
 
-  if (typeof r !== "string" || !r.startsWith("0x")) throw new Error("Invalid signature (r)");
-  if (typeof s !== "string" || !s.startsWith("0x")) throw new Error("Invalid signature (s)");
-  if (typeof v !== "number") throw new Error("Invalid signature (v)");
+  if (typeof r !== "string") throw new Error("Invalid signature (r)");
+  if (typeof s !== "string") throw new Error("Invalid signature (s)");
+  if (!Buffer.isBuffer(v)) throw new Error("Invalid signature (v)");
 
-  const signature = `0x${r.slice(2)}${s.slice(2)}${v.toString(16).padStart(2, "0")}`;
+  const signature = `0x${r}${s}${v.toString("hex")}`;
 
   return { address, signature };
 }
