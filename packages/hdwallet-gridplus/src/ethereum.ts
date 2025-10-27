@@ -2,6 +2,7 @@ import { Common, Hardfork } from "@ethereumjs/common";
 import { TransactionFactory, TypedTxData } from "@ethereumjs/tx";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Client, Constants, Utils } from "gridplus-sdk";
+import { encode } from "rlp";
 
 export async function ethGetAddress(client: Client, msg: core.ETHGetAddress): Promise<core.Address | null> {
   const address = (await client.getAddresses({ startPath: msg.addressNList, n: 1 }))[0];
@@ -13,6 +14,8 @@ export async function ethGetAddress(client: Client, msg: core.ETHGetAddress): Pr
 }
 
 export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
+  const isEIP1559 = Boolean(msg.maxFeePerGas && msg.maxPriorityFeePerGas);
+
   const txData: TypedTxData = {
     to: msg.to,
     value: msg.value,
@@ -20,7 +23,9 @@ export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<co
     nonce: msg.nonce,
     gasLimit: msg.gasLimit,
     chainId: msg.chainId,
-    ...(msg.maxFeePerGas && msg.maxPriorityFeePerGas
+    // Add explicit type field for TransactionFactory to correctly detect transaction type
+    type: isEIP1559 ? 2 : 0,
+    ...(isEIP1559
       ? {
           maxFeePerGas: msg.maxFeePerGas,
           maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
@@ -30,19 +35,30 @@ export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<co
         }),
   };
 
-  const common = Common.custom({ chainId: msg.chainId }, { hardfork: Hardfork.London });
+  const common = isEIP1559
+    ? Common.custom({ chainId: msg.chainId }, { hardfork: Hardfork.London })
+    : Common.custom({ chainId: msg.chainId });
 
+  // Use TransactionFactory with explicit type field (Kevin's approach)
   const unsignedTx = TransactionFactory.fromTxData(txData, { common });
-  const payload = unsignedTx.getMessageToSign();
+
+  // Handle payload encoding based on transaction type
+  // Legacy transactions return an array that needs RLP encoding
+  // EIP-1559 transactions return a pre-encoded buffer
+  const rawPayload = unsignedTx.getMessageToSign();
+  const payload = Array.isArray(rawPayload) ? encode(rawPayload) : rawPayload;
 
   const fwVersion = client.getFwVersion();
   const supportsDecoderRecursion = fwVersion.major > 0 || fwVersion.minor >= 16;
 
-  const { def } = await (() => {
-    if (!msg.data) return { def: null };
-    if (msg.data.startsWith("0x") && Buffer.from(msg.data.slice(2), "hex").length < 4) return { def: null };
+  const decoderResult = await (() => {
+    if (!msg.data || (msg.data.startsWith("0x") && Buffer.from(msg.data.slice(2), "hex").length < 4)) {
+      return { def: null };
+    }
     return Utils.fetchCalldataDecoder(msg.data, msg.to, msg.chainId, supportsDecoderRecursion);
   })();
+
+  const { def } = decoderResult;
 
   const signData = await client.sign({
     data: {
@@ -51,7 +67,7 @@ export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<co
       hashType: Constants.SIGNING.HASHES.KECCAK256,
       encodingType: Constants.SIGNING.ENCODINGS.EVM,
       signerPath: msg.addressNList,
-      decoder: def ? Buffer.from(def) : undefined,
+      decoder: def,
     },
   });
 
@@ -63,7 +79,29 @@ export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<co
   if (!Buffer.isBuffer(s)) throw new Error("Invalid signature (s)");
   if (!Buffer.isBuffer(v)) throw new Error("Invalid signature (v)");
 
-  const signedTx = TransactionFactory.fromTxData({ ...txData, r, s, v }, { common });
+  // Reconstruct signed transaction using TransactionFactory with explicit type field
+  const signedTxData = {
+    to: msg.to,
+    value: msg.value,
+    data: msg.data,
+    nonce: msg.nonce,
+    gasLimit: msg.gasLimit,
+    chainId: msg.chainId,
+    type: isEIP1559 ? 2 : 0,
+    r,
+    s,
+    v,
+    ...(isEIP1559
+      ? {
+          maxFeePerGas: msg.maxFeePerGas,
+          maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
+        }
+      : {
+          gasPrice: msg.gasPrice,
+        }),
+  };
+
+  const signedTx = TransactionFactory.fromTxData(signedTxData, { common });
   const serialized = `0x${Buffer.from(signedTx.serialize()).toString("hex")}`;
 
   return { r: `0x${r.toString("hex")}`, s: `0x${s.toString("hex")}`, v: v.readUIntBE(0, v.length), serialized };
