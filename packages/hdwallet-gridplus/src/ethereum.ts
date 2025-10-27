@@ -1,8 +1,9 @@
 import { Common, Hardfork } from "@ethereumjs/common";
-import { TransactionFactory, TypedTxData } from "@ethereumjs/tx";
+import { TransactionFactory, TransactionType, TypedTxData } from "@ethereumjs/tx";
 import { RLP } from "@ethereumjs/rlp";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Client, Constants, Utils } from "gridplus-sdk";
+import { encode } from "rlp";
 
 export async function ethGetAddress(client: Client, msg: core.ETHGetAddress): Promise<core.Address | null> {
   const address = (await client.getAddresses({ startPath: msg.addressNList, n: 1 }))[0];
@@ -14,7 +15,7 @@ export async function ethGetAddress(client: Client, msg: core.ETHGetAddress): Pr
 }
 
 export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
-  const isEIP1559 = msg.maxFeePerGas && msg.maxPriorityFeePerGas
+  const isEIP1559 = Boolean(msg.maxFeePerGas && msg.maxPriorityFeePerGas);
 
   const txData: TypedTxData = {
     to: msg.to,
@@ -23,29 +24,31 @@ export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<co
     nonce: msg.nonce,
     gasLimit: msg.gasLimit,
     chainId: msg.chainId,
-    ...(isEIP1559
-      ? {
-          maxFeePerGas: msg.maxFeePerGas,
-          maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
-        }
-      : {
-          gasPrice: msg.gasPrice,
-        }),
+    type: isEIP1559 ? TransactionType.FeeMarketEIP1559 : TransactionType.Legacy,
+    maxFeePerGas: msg.maxFeePerGas,
+    maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
+    gasPrice: msg.gasPrice,
   };
 
-  const common = Common.custom({ chainId: msg.chainId }, { hardfork: Hardfork.London });
+  const common = isEIP1559
+    ? Common.custom({ chainId: msg.chainId }, { hardfork: Hardfork.London })
+    : Common.custom({ chainId: msg.chainId });
 
+  // Use TransactionFactory with explicit type field (Kevin's approach)
   const unsignedTx = TransactionFactory.fromTxData(txData, { common });
   const payload = isEIP1559 ? unsignedTx.getMessageToSign() : RLP.encode(unsignedTx.getMessageToSign());
 
   const fwVersion = client.getFwVersion();
   const supportsDecoderRecursion = fwVersion.major > 0 || fwVersion.minor >= 16;
 
-  const { def } = await (() => {
-    if (!msg.data) return { def: null };
-    if (msg.data.startsWith("0x") && Buffer.from(msg.data.slice(2), "hex").length < 4) return { def: null };
+  const decoderResult = await (() => {
+    if (!msg.data || (msg.data.startsWith("0x") && Buffer.from(msg.data.slice(2), "hex").length < 4)) {
+      return { def: undefined };
+    }
     return Utils.fetchCalldataDecoder(msg.data, msg.to, msg.chainId, supportsDecoderRecursion);
   })();
+
+  const { def } = decoderResult;
 
   const signData = await client.sign({
     data: {
