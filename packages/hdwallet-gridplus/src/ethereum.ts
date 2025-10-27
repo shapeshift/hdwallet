@@ -30,7 +30,7 @@ export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<co
         }),
   };
 
-  const common = new Common({ chain: msg.chainId, hardfork: Hardfork.London });
+  const common = Common.custom({ chainId: msg.chainId }, { hardfork: Hardfork.London });
 
   const unsignedTx = TransactionFactory.fromTxData(txData, { common });
   const payload = unsignedTx.getMessageToSign();
