@@ -8,7 +8,7 @@ import { NativeHDWalletBase } from "./native";
 import { getNetwork } from "./networks";
 import * as util from "./util";
 
-const supportedCoins = ["bitcoin", "dash", "digibyte", "dogecoin", "litecoin", "bitcoincash", "testnet"];
+const supportedCoins = ["bitcoin", "dash", "digibyte", "dogecoin", "litecoin", "bitcoincash", "zcash", "testnet"];
 
 const segwit = ["p2wpkh", "p2sh-p2wpkh", "bech32"];
 
@@ -84,6 +84,7 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDW
         digibyte: [bip44, bip49, bip84],
         dogecoin: [bip44],
         litecoin: [bip44, bip49, bip84],
+        zcash: [bip44],
         testnet: [bip44, bip49, bip84],
       } as Partial<Record<string, Array<core.BTCAccountPath>>>;
 
@@ -217,12 +218,28 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const { coin, inputs, outputs, version, locktime } = msg;
 
-        const psbt = new bitcoin.Psbt({
-          network: getNetwork(coin),
-          forkCoin: coin.toLowerCase() === "bitcoincash" ? "bch" : "none",
-        });
+        const forkCoin = (() => {
+          switch (coin.toLowerCase()) {
+            case "bitcoincash":
+              return "bch";
+            case "zcash":
+              return "zec";
+            default:
+              return "none";
+          }
+        })();
 
-        psbt.setVersion(version ?? 1);
+        const psbt = new bitcoin.Psbt({ network: getNetwork(coin), forkCoin });
+
+        // zcash sapling support
+        if (coin.toLowerCase() === "zcash") {
+          if (version !== undefined && version !== 4) throw new Error(`Unsupported version: ${version}`);
+          psbt.setVersion(version ?? 4);
+          psbt.setVersionGroupId(parseInt("0x892F2085"));
+        } else {
+          psbt.setVersion(version ?? 1);
+        }
+
         locktime && psbt.setLocktime(locktime);
 
         await Promise.all(

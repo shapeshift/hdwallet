@@ -19,6 +19,7 @@ const config: UserConfig = {
     }),
   ],
   build: {
+    sourcemap: true,
     commonjsOptions: {
       include: [/node_modules/, /packages\/hdwallet-.+\/dist\/.*\.js$/],
       transformMixedEsModules: true,
