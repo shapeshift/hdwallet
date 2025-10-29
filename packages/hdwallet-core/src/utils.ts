@@ -141,6 +141,7 @@ export const slip44Table = Object.freeze({
   DigiByte: 20,
   Dogecoin: 3,
   BitcoinSV: 236,
+  Zcash: 133,
   Atom: 118,
   Osmo: 118,
   Arkeo: 118,

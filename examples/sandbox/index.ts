@@ -673,6 +673,15 @@ $getXpubs.each(function () {
         scriptType: core.BTCInputScriptType.SpendAddress,
       },
     ];
+    const zcashGetPublicKeysInput = [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + 133, 0x80000000 + 0],
+        curve: "secp256k1",
+        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+        coin: "Zcash",
+        scriptType: core.BTCInputScriptType.SpendAddress,
+      },
+    ];
     const hardenedPathGetPublicKeysInput = [
       {
         addressNList: hardenedPath,
@@ -687,6 +696,7 @@ $getXpubs.each(function () {
       ...ltcGetPublicKeysInput,
       ...bchGetPublicKeysInput,
       ...dogeGetPublicKeysInput,
+      ...zcashGetPublicKeysInput,
       ...hardenedPathGetPublicKeysInput,
     ];
 
@@ -3607,3 +3617,84 @@ $btcTxSegWitNative.on("click", async (e) => {
   // set mnemonic back to alcohol abuse
   await wallet.loadDevice({ mnemonic });
 });
+
+/**
+ * Zcash
+ */
+
+const $zecAddr = $("#zecAddr");
+const $zecTx = $("#zecTx");
+const $zecResults = $("#zecResults");
+
+const zecBip44 = {
+  scriptType: core.BTCInputScriptType.SpendAddress,
+  addressNList: [0x80000000 + 44, 0x80000000 + 133, 0x80000000 + 0],
+};
+
+$zecAddr.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $zecResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsBTC(wallet)) {
+    const res = await wallet.btcGetAddress({
+      addressNList: zecBip44.addressNList.concat([0, 0]),
+      coin: "Zcash",
+      scriptType: zecBip44.scriptType,
+      showDisplay: true,
+    });
+    $zecResults.val(res);
+  } else {
+    const label = await wallet.getLabel();
+    $zecResults.val(label + " does not support Zcash");
+  }
+});
+
+//$zecTx.on("click", async (e) => {
+//  e.preventDefault();
+//  if (!wallet) {
+//    $zecResults.val("No wallet?");
+//    return;
+//  }
+//  if (core.supportsBTC(wallet)) {
+//    const txid = "4ab8c81585bf61ddcba03f4b2f4958b3800d68b02874f4955e258775cb3e7068";
+//    const hex =
+//      "01000000048831c8a8c7f06e5f4ecccb789cc9de0fc843208797652ff9edf6edaa64d02789010000006a473044022070e25a73ceebaf5b3a35d5e4930ebba77957a2fe485b9dcbaf982a7c63d4baab02206e75dcc4258db29a2803d6a14112d3d81f93ec23f9b2a61bfe8102d764d7c6390121031b49bb2c43daac784377bcca83c41f781007626e6e8b66cda9f57fed11494359feffffff52a8a6ac8ea9b436069c160caae68b2eb0a5b713a7b838179833af5a339e48e9000000006a47304402206b3aa1a4656d4859b87512a5fb50c73f0f6e05d45fa027850a3e1eb4f927675402201fb1c52d85380727d28bea7a21d434bed2d57d3a120082c6c69d578b4f3da07c0121033034cf66b3b153a81713b3ddbcdffd92c34c46510353cf01b237fcfbcf1348bdfeffffff35f6938fd9d9077d913bd6cfc546cbadb17d4db6ccb67d87a1f89e562d6bed8e000000006b483045022100a0e8a73fc2358a206a73a78582fd7ebba2fb08487aca78aaa89cbf7f9805da0102207704f4f27ff6297b11acd74f8e3f28d924c4006ac0d37dd37bbdba1ef8f401ae0121038ac65cabea63b92d3aabd3f17591c23bbec73b87220a3f0325fe2de9e62107e3feffffff07cd534960ea57fdb4195d3de7dae1feb1e630a022c08baca2f2423f4d190a27010000006a47304402203c89ade05e93ee9cb9bfa0703be55a76abd40330108a5e5272bcd0c8338c35df022042d8cb34275e87df1b77f19e9dde5da553b98bca67c1c332a53392b32d55ba580121038291eee31aa046a00938dda548c0c948f57bf5dc6e534abbe0d5078a6ce083a0feffffff02b8adfa31000000001976a9146ef1cda5c24d47934853aeccce14163e3a18be1388ac02bd9348080000001976a914d3f096cbc84bd6daf7e7fe2700c32548ca2f23f188acadd31600";
+//
+//    const inputs = [
+//      {
+//        addressNList: zecBip44.addressNList.concat([0, 0]),
+//        scriptType: core.BTCInputScriptType.SpendAddress,
+//        amount: String(35577380098),
+//        vout: 1,
+//        txid: txid,
+//        segwit: false,
+//        tx: zecTxJson,
+//        hex,
+//      },
+//    ];
+//
+//    const outputs = [
+//      {
+//        address: "DMEHVGRsELY5zyYbfgta3pAhedKGeaDeJd",
+//        addressType: core.BTCOutputAddressType.Spend,
+//        scriptType: core.BTCOutputScriptType.PayToAddress,
+//        amount: String(35577380098),
+//        isChange: false,
+//      },
+//    ];
+//
+//    const res = await wallet.btcSignTx({
+//      coin: "Dogecoin",
+//      inputs,
+//      outputs,
+//      version: 1,
+//      locktime: 0,
+//    });
+//    $zecResults.val(res.serializedTx); // TODO: Fails for Ledger: "TransportStatusError: Ledger device: Invalid data received (0x6a80)"
+//  } else {
+//    const label = await wallet.getLabel();
+//    $zecResults.val(label + " does not support Litecoin");
+//  }
+//});
