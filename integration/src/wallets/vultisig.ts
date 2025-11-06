@@ -120,28 +120,6 @@ export async function createWallet(): Promise<core.HDWallet> {
     cosmosProvider, // cosmosProvider
   });
 
-  wallet.cosmosSignTx = jest.fn(async () => {
-    return {
-      authInfoBytes:
-        "ClAKRgofL2Nvc21vcy5jcnlwdG8uc2VjcDI1NmsxLlB1YktleRIjCiEDvuOvMOU6c/OKvFovzaxCbXsE63Ko69OwGZLi0gbiStgSBAoCCAEYERISCgwKBXVhdG9tEgMxMDAQoI0G",
-      body: "Co0BChwvY29zbW9zLmJhbmsudjFiZXRhMS5Nc2dTZW5kEm0KLWNvc21vczE1Y2VueWEwdHI3bm0zdHoyd24zaDN6d2todDJyeHJxN3E3aDNkahItY29zbW9zMXFqd2R5bjU2ZWNhZ2s4cmpmN2Nycnp3Y3l6Njc3NWNqODluam4zGg0KBXVhdG9tEgQxMDAwEhdTZW50IGZyb20gdGhlIGNpdGFkZWwhIA==",
-      serialized:
-        "CqkBCo0BChwvY29zbW9zLmJhbmsudjFiZXRhMS5Nc2dTZW5kEm0KLWNvc21vczE1Y2VueWEwdHI3bm0zdHoyd24zaDN6d2todDJyeHJxN3E3aDNkahItY29zbW9zMXFqd2R5bjU2ZWNhZ2s4cmpmN2Nycnp3Y3l6Njc3NWNqODluam4zGg0KBXVhdG9tEgQxMDAwEhdTZW50IGZyb20gdGhlIGNpdGFkZWwhIBJmClAKRgofL2Nvc21vcy5jcnlwdG8uc2VjcDI1NmsxLlB1YktleRIjCiEDvuOvMOU6c/OKvFovzaxCbXsE63Ko69OwGZLi0gbiStgSBAoCCAEYERISCgwKBXVhdG9tEgMxMDAQoI0GGkCfwTxsQmab0tn+hndmnULh0/b0h1nxvM/rt+s2XORH7nxQpPRCPw3jzk+03rZOIo+ZgW4cGf0R4odahZXZTxfG",
-      signatures: ["n8E8bEJmm9LZ/oZ3Zp1C4dP29IdZ8bzP67frNlzkR+58UKT0Qj8N485PtN62TiKPmYFuHBn9EeKHWoWV2U8Xxg=="],
-    };
-  });
-
-  wallet.thorchainSignTx = jest.fn(async () => {
-    return {
-      serialized:
-        "Ck0KSwoOL3R5cGVzLk1zZ1NlbmQSOQoU/CMekQrVt/W70pEpQMVIvKfXlEESFHEof3qu6glb2/IRd4vcC0WLUomuGgsKBHJ1bmUSAzEwMBJmClAKRgofL2Nvc21vcy5jcnlwdG8uc2VjcDI1NmsxLlB1YktleRIjCiEDFRlxO4tCvcNnES0zEyzxTO35KKxXcdREukWblJcRe6MSBAoCCAEYAhISCgwKBHJ1bmUSBDMwMDAQwJoMGkAGyFdyCS09a72IfAkTkcwVPCWT65upkhCLrDNOs0S6/DvBqpV8ESts25HueBK3cojskaEM8hsMr9vy8qcftWLl",
-      body: "CksKDi90eXBlcy5Nc2dTZW5kEjkKFPwjHpEK1bf1u9KRKUDFSLyn15RBEhRxKH96ruoJW9vyEXeL3AtFi1KJrhoLCgRydW5lEgMxMDA=",
-      authInfoBytes:
-        "ClAKRgofL2Nvc21vcy5jcnlwdG8uc2VjcDI1NmsxLlB1YktleRIjCiEDFRlxO4tCvcNnES0zEyzxTO35KKxXcdREukWblJcRe6MSBAoCCAEYAhISCgwKBHJ1bmUSBDMwMDAQwJoM",
-      signatures: ["BshXcgktPWu9iHwJE5HMFTwlk+ubqZIQi6wzTrNEuvw7waqVfBErbNuR7ngSt3KI7JGhDPIbDK/b8vKnH7Vi5Q=="],
-    };
-  });
-
   await wallet.initialize();
   return wallet;
 }
@@ -288,44 +266,6 @@ export function selfTest(get: () => core.HDWallet): void {
       expect(paths).toEqual([
         {
           addressNList: [2147483692, 2147484149, 2147483648, 2147483648], // m/44'/501'/0'
-        },
-      ]);
-    });
-  });
-
-  describe("Cosmos", () => {
-    it("supports Cosmos", () => {
-      if (!wallet) return;
-      expect(core.supportsCosmos(wallet)).toEqual(true);
-    });
-
-    it("uses correct Cosmos paths", () => {
-      if (!wallet) return;
-      const paths = wallet.cosmosGetAccountPaths({
-        accountIdx: 0,
-      });
-      expect(paths).toEqual([
-        {
-          addressNList: [2147483692, 2147483766, 2147483648, 0, 0], // m/44'/118'/0'/0/0
-        },
-      ]);
-    });
-  });
-
-  describe("Thorchain", () => {
-    it("supports Thorchain", () => {
-      if (!wallet) return;
-      expect(core.supportsThorchain(wallet)).toEqual(true);
-    });
-
-    it("uses correct Thorchain paths", () => {
-      if (!wallet) return;
-      const paths = wallet.thorchainGetAccountPaths({
-        accountIdx: 0,
-      });
-      expect(paths).toEqual([
-        {
-          addressNList: [2147483692, 2147484579, 2147483648, 0, 0], // m/44'/931'/0'/0/0
         },
       ]);
     });

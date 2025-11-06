@@ -131,7 +131,6 @@ export class VultisigHDWalletInfo
   /** Bitcoin */
 
   public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
-    // const vultisigSupportedCoins = ["bitcoin", "litecoin", "dogecoin", "bitcoincash", "zcash"];
     const vultisigSupportedCoins = ["bitcoin"]; // Just BTC for first part of integration, we will enable it progressively
     return vultisigSupportedCoins.includes(coin.toLowerCase());
   }
@@ -141,9 +140,9 @@ export class VultisigHDWalletInfo
 
     switch (scriptType?.toLowerCase()) {
       case core.BTCInputScriptType.SpendAddress:
-        return ["dash", "dogecoin", "bitcoincash", "zcash"].includes(coin.toLowerCase());
+        return ["bitcoin"].includes(coin.toLowerCase());
       case core.BTCInputScriptType.SpendWitness:
-        return ["bitcoin", "litecoin"].includes(coin.toLowerCase());
+        return ["bitcoin"].includes(coin.toLowerCase());
       default:
         return false;
     }
