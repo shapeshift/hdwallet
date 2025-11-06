@@ -10,7 +10,7 @@ import * as cosmos from "./cosmos";
 import * as eth from "./ethereum";
 import { solanaSendTx, solanaSignTx } from "./solana";
 import * as thorchain from "./thorchain";
-import { VultisigBftProvider, VultisigEvmProvider, VultisigSolanaProvider, VultisigUtxoProvider } from "./types";
+import { VultisigEvmProvider, VultisigOfflineProvider, VultisigSolanaProvider, VultisigUtxoProvider } from "./types";
 
 export function isVultisig(wallet: core.HDWallet): wallet is VultisigHDWallet {
   return isObject(wallet) && (wallet as any)._isVultisig;
@@ -219,47 +219,32 @@ export class VultisigHDWallet
 
   evmProvider: VultisigEvmProvider;
   bitcoinProvider: VultisigUtxoProvider;
-  litecoinProvider: VultisigUtxoProvider;
-  dogecoinProvider: VultisigUtxoProvider;
-  bitcoincashProvider: VultisigUtxoProvider;
-  zcashProvider: VultisigUtxoProvider;
-  dashProvider: VultisigUtxoProvider;
   solanaProvider: VultisigSolanaProvider;
-  thorchainProvider: VultisigBftProvider;
-  cosmosProvider: VultisigBftProvider;
+  thorchainProvider: VultisigOfflineProvider;
+  cosmosProvider: VultisigOfflineProvider;
 
   ethAddress?: Address | null;
 
-  constructor(
-    evmProvider: VultisigEvmProvider,
-    bitcoinProvider: VultisigUtxoProvider,
-    litecoinProvider: VultisigUtxoProvider,
-    dogecoinProvider: VultisigUtxoProvider,
-    bitcoincashProvider: VultisigUtxoProvider,
-    zcashProvider: VultisigUtxoProvider,
-    dashProvider: VultisigUtxoProvider,
-    solanaProvider: VultisigSolanaProvider,
-    thorchainProvider: VultisigBftProvider,
-    cosmosProvider: VultisigBftProvider
-  ) {
-    super(evmProvider);
+  constructor(providers: {
+    evmProvider: VultisigEvmProvider;
+    bitcoinProvider: VultisigUtxoProvider;
+    solanaProvider: VultisigSolanaProvider;
+    thorchainProvider: VultisigOfflineProvider;
+    cosmosProvider: VultisigOfflineProvider;
+  }) {
+    super(providers.evmProvider);
 
-    this.evmProvider = evmProvider;
-    this.bitcoinProvider = bitcoinProvider;
-    this.litecoinProvider = litecoinProvider;
-    this.dogecoinProvider = dogecoinProvider;
-    this.bitcoincashProvider = bitcoincashProvider;
-    this.zcashProvider = zcashProvider;
-    this.dashProvider = dashProvider;
-    this.solanaProvider = solanaProvider;
-    this.thorchainProvider = thorchainProvider;
-    this.cosmosProvider = cosmosProvider;
+    this.evmProvider = providers.evmProvider;
+    this.bitcoinProvider = providers.bitcoinProvider;
+    this.solanaProvider = providers.solanaProvider;
+    this.thorchainProvider = providers.thorchainProvider;
+    this.cosmosProvider = providers.cosmosProvider;
   }
 
   transport?: core.Transport | undefined;
 
   public async getDeviceID(): Promise<string> {
-    return "vultisig:" + (await this.solanaGetAddress());
+    return "vultisig:" + (await this.getVault());
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -335,7 +320,6 @@ export class VultisigHDWallet
 
         switch (coin) {
           case "Bitcoin": {
-            // case "Dogecoin": // case "Litecoin": // case "BitcoinCash": // case "Zcash": // case "Dash":
             // Note this is a pubKey, not an xpub, however vultisig does not support utxo derivation,
             // so this functions as an account (xpub) for all intents and purposes
             const pubKey = await this.btcGetAddress({ coin, scriptType } as core.BTCGetAddress);
@@ -353,10 +337,6 @@ export class VultisigHDWallet
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async ethGetAddress(_msg: core.ETHGetAddress): Promise<core.Address | null> {
-    if (this.ethAddress) {
-      return this.ethAddress;
-    }
-
     const address = await eth.ethGetAddress(this.evmProvider);
 
     if (address) {
@@ -410,74 +390,14 @@ export class VultisigHDWallet
   /** Bitcoin */
 
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
-    const value = await (async () => {
-      switch (msg.coin.toLowerCase()) {
-        case "bitcoin": {
-          const accounts = await this.bitcoinProvider.request<"request_accounts">({
-            method: "request_accounts",
-            params: [],
-          });
-          return accounts.length > 0 ? accounts[0] : null;
-        }
-        // case "litecoin": {
-        //   const accounts = await this.litecoinProvider.request<"request_accounts">({
-        //     method: "request_accounts",
-        //     params: [],
-        //   });
-        //   return accounts.length > 0 ? accounts[0] : null;
-        // }
-        // case "dogecoin": {
-        //   const accounts = await this.dogecoinProvider.request<"request_accounts">({
-        //     method: "request_accounts",
-        //     params: [],
-        //   });
-        //   return accounts.length > 0 ? accounts[0] : null;
-        // }
-        // case "bitcoincash": {
-        //   const accounts = await this.bitcoincashProvider.request<"request_accounts">({
-        //     method: "request_accounts",
-        //     params: [],
-        //   });
-        //   return accounts.length > 0 ? accounts[0] : null;
-        // }
-        // case "zcash": {
-        //   const accounts = await this.zcashProvider.request<"request_accounts">({
-        //     method: "request_accounts",
-        //     params: [],
-        //   });
-        //   return accounts.length > 0 ? accounts[0] : null;
-        // }
-        // case "dash": {
-        //   const accounts = await this.dashProvider.request<"request_accounts">({
-        //     method: "request_accounts",
-        //     params: [],
-        //   });
-        //   return accounts.length > 0 ? accounts[0] : null;
-        // }
-        default:
-          throw new Error("Vultisig does not support");
-      }
-    })();
-    if (!value || typeof value !== "string") return null;
-
-    return value;
+    return btc.btcGetAddress(this.bitcoinProvider, msg);
   }
 
   public async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
     const { coin } = msg;
     switch (coin) {
       case "Bitcoin":
-        return btc.bitcoinSignTx(this, msg, this.bitcoinProvider);
-      // case "Litecoin":
-      //   return btc.bitcoinSignTx(this, msg, this.litecoinProvider);
-      // case "Dogecoin":
-      //   return btc.bitcoinSignTx(this, msg, this.dogecoinProvider);
-      // case "Bitcoincash":
-      //   return btc.bitcoinSignTx(this, msg, this.bitcoincashProvider);
-      // case "Zcash":
-      //   return btc.bitcoinSignTx(this, msg, this.zcashProvider);
-      // case "Dash":
-      //   return btc.bitcoinSignTx(this, msg, this.dashProvider);
+        return btc.bitcoinSignTx(msg, this.bitcoinProvider);
       default:
         throw new Error("Vultisig does not support");
     }
@@ -491,6 +411,13 @@ export class VultisigHDWallet
   public async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean | null> {
     const signature = Base64.fromByteArray(core.fromHexString(msg.signature));
     return bitcoinMsg.verify(msg.message, msg.address, signature);
+  }
+
+  /** get vault */
+
+  public async getVault(): Promise<string | null> {
+    const vault = await window.vultisig?.getVault();
+    return vault?.uid || null;
   }
 
   /** Solana */

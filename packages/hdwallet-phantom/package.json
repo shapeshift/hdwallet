@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-phantom",
-  "version": "1.62.3",
+  "version": "1.62.3-alpha",
   "license": "MIT",
   "publishConfig": {
     "access": "public"

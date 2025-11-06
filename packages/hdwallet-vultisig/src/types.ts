@@ -1,29 +1,30 @@
+import { OfflineSigner } from "@cosmjs/proto-signing";
 import { PublicKey, VersionedTransaction } from "@solana/web3.js";
+import { TransactionSignature } from "@solana/web3.js";
 import { providers } from "ethers";
 
-import { BtcAccount } from "./bitcoin";
 import { SolanaAccount } from "./solana";
 
-type VultisigRequestParams = {
+export type VultisigRequestParams = {
   get_accounts: [];
   request_accounts: [];
 };
 
 type VultisigRequestReturn = {
-  get_accounts: Promise<BtcAccount[] | string[]>;
-  request_accounts: Promise<BtcAccount[]>;
+  get_accounts: Promise<string[]>;
+  request_accounts: Promise<string[]>;
 };
 
 type VultisigRequestMethod = keyof VultisigRequestParams;
 
-type VultisigRequestPayload<M extends VultisigRequestMethod> = {
+export type VultisigRequestPayload<M extends VultisigRequestMethod> = {
   method: M;
   params: VultisigRequestParams[M];
 };
 
 export type VultisigEvmProvider = providers.ExternalProvider;
 
-export type VultisigUtxoProvider = providers.ExternalProvider & {
+export type VultisigUtxoProvider = {
   request<M extends VultisigRequestMethod>(payload: VultisigRequestPayload<M>): Promise<VultisigRequestReturn[M]>;
   signPSBT(
     psbt: Uint8Array,
@@ -44,7 +45,18 @@ export type VultisigSolanaProvider = providers.ExternalProvider & {
   publicKey?: PublicKey;
   connect(): Promise<SolanaAccount>;
   signTransaction(transaction: VersionedTransaction): Promise<VersionedTransaction>;
-  signAndSendTransaction(transaction: VersionedTransaction): Promise<{ signature: any }>;
+  signAndSendTransaction(transaction: VersionedTransaction): Promise<{ signature: TransactionSignature }>;
 };
 
-export type VultisigBftProvider = any;
+export type VultisigOfflineProvider = providers.ExternalProvider & {
+  getOfflineSigner(chainId: string): OfflineSigner;
+};
+
+export type VultisigGetVault = {
+  hexChainCode: string;
+  isFastVault: boolean;
+  name: string;
+  publicKeyEcdsa: string;
+  publicKeyEddsa: string;
+  uid: string;
+};

@@ -7,18 +7,7 @@ describe("VultisigHDWallet", () => {
   let wallet: VultisigHDWallet;
 
   beforeEach(() => {
-    wallet = new VultisigHDWallet(
-      core.untouchable("VultisigHDWallet:provider"),
-      core.untouchable("VultisigHDWallet:provider"),
-      core.untouchable("VultisigHDWallet:provider"),
-      core.untouchable("VultisigHDWallet:provider"),
-      core.untouchable("VultisigHDWallet:provider"),
-      core.untouchable("VultisigHDWallet:provider"),
-      core.untouchable("VultisigHDWallet:provider"),
-      core.untouchable("VultisigHDWallet:provider"),
-      core.untouchable("VultisigHDWallet:provider"),
-      core.untouchable("VultisigHDWallet:provider")
-    );
+    wallet = new VultisigHDWallet(core.untouchable("VultisigHDWallet:provider"));
   });
 
   it("should match the metadata", async () => {

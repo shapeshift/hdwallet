@@ -1,8 +1,10 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as vultisig from "@shapeshiftoss/hdwallet-vultisig";
 import {
-  VultisigBftProvider,
   VultisigEvmProvider,
+  VultisigOfflineProvider,
+  VultisigRequestParams,
+  VultisigRequestPayload,
   VultisigSolanaProvider,
   VultisigUtxoProvider,
 } from "@shapeshiftoss/hdwallet-vultisig/src/types";
@@ -15,7 +17,7 @@ const ethereumProvider = {
   request: jest.fn(({ method, params }: any) => {
     switch (method) {
       case "eth_accounts":
-        return ["0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"];
+        return Promise.resolve(["0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"]);
       case "personal_sign": {
         const [message] = params;
         if (message === "48656c6c6f20576f726c64" || message === "0x48656c6c6f20576f726c64")
@@ -30,39 +32,30 @@ const ethereumProvider = {
         throw new Error(`ethereum: Unknown method ${method}`);
     }
   }),
-} as unknown as VultisigEvmProvider;
+} as VultisigEvmProvider;
 
-const createUtxoProvider = (coin: string) =>
+const createUtxoProvider = (coin: string): VultisigUtxoProvider =>
   ({
-    request: jest.fn(({ method }: any) => {
+    request: jest.fn(({ method }: VultisigRequestPayload<keyof VultisigRequestParams>) => {
       switch (method) {
         case "request_accounts":
           switch (coin.toLowerCase()) {
             case "bitcoin":
               return Promise.resolve(["1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM"]);
-            case "litecoin":
-              return Promise.resolve(["ltc1qf6pwfkw4wd0fetq2pfrwzlfknskjg6nyvt6ngv"]);
-            case "dash":
-              return Promise.resolve(["XxKhGNv6ECbqVswm9KYcLPQnyWgZ86jJ6Q"]);
             default:
               return Promise.resolve(["1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM"]);
           }
-        case "send_transaction": {
-          const mockTx =
-            "010000000182488650ef25a58fef6788bd71b8212038d7f2bbe4750bc7bcb44701e85ef6d5000000006b4830450221009a0b7be0d4ed3146ee262b42202841834698bb3ee39c24e7437df208b8b7077102202b79ab1e7736219387dffe8d615bbdba87e11477104b867ef47afed1a5ede7810121023230848585885f63803a0a8aecdd6538792d5c539215c91698e315bf0253b43dffffffff0160cc0500000000001976a914de9b2a8da088824e8fe51debea566617d851537888ac00000000";
-          return Promise.resolve({
-            encoded: Buffer.from(mockTx, "hex"),
-          });
-        }
-        case "get_address":
-          return Promise.resolve("1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM");
-        case "get_public_key":
-          return Promise.resolve("02a0434d9e47f3c86235477c7b1ae6ae5d3442d49b1943c2b752a68e2a47e247c7");
         default:
           throw new Error(`utxo: Unknown method ${method}`);
       }
     }),
-  } as unknown as VultisigUtxoProvider);
+    signPSBT: jest.fn(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      (psbt: Uint8Array, { inputsToSign }: { inputsToSign: { address: string; signingIndexes: number[] }[] }) => {
+        return Promise.resolve(psbt);
+      }
+    ),
+  } as VultisigUtxoProvider);
 
 const solanaProvider = {
   publicKey: undefined,
@@ -91,7 +84,7 @@ const cosmosProvider = {
       )
     ),
   })),
-} as unknown as VultisigBftProvider;
+} as unknown as VultisigOfflineProvider;
 
 const thorchainProvider = {
   getOfflineSigner: jest.fn(() => ({
@@ -112,25 +105,20 @@ const thorchainProvider = {
       )
     ),
   })),
-} as unknown as VultisigBftProvider;
+} as unknown as VultisigOfflineProvider;
 
 export function createInfo(): core.HDWalletInfo {
   return new vultisig.VultisigHDWalletInfo(ethereumProvider);
 }
 
 export async function createWallet(): Promise<core.HDWallet> {
-  const wallet = new vultisig.VultisigHDWallet(
-    ethereumProvider,
-    createUtxoProvider("bitcoin"), // bitcoinProvider
-    createUtxoProvider("litecoin"), // litecoinProvider
-    createUtxoProvider("dogecoin"), // dogecoinProvider
-    createUtxoProvider("bitcoincash"), // bitcoincashProvider
-    createUtxoProvider("zcash"), // zcashProvider
-    createUtxoProvider("dash"), // dashProvider
+  const wallet = new vultisig.VultisigHDWallet({
+    evmProvider: ethereumProvider,
+    bitcoinProvider: createUtxoProvider("bitcoin"), // bitcoinProvider
     solanaProvider,
     thorchainProvider, // thorchainProvider
-    cosmosProvider // cosmosProvider
-  );
+    cosmosProvider, // cosmosProvider
+  });
 
   wallet.cosmosSignTx = jest.fn(async () => {
     return {
@@ -241,29 +229,12 @@ export function selfTest(get: () => core.HDWallet): void {
     it("supports correct coins", async () => {
       if (!wallet) return;
       expect(await wallet.btcSupportsCoin("Bitcoin")).toEqual(true);
-      expect(await wallet.btcSupportsCoin("Litecoin")).toEqual(true);
-      expect(await wallet.btcSupportsCoin("Dash")).toEqual(true);
-      expect(await wallet.btcSupportsCoin("Dogecoin")).toEqual(true);
-      expect(await wallet.btcSupportsCoin("BitcoinCash")).toEqual(true);
-      expect(await wallet.btcSupportsCoin("Zcash")).toEqual(true);
       expect(await wallet.btcSupportsCoin("UnsupportedCoin")).toEqual(false);
     });
 
     it("supports correct script types", async () => {
       if (!wallet) return;
-      // Bitcoin y Litecoin soportan SpendWitness (BIP84)
       expect(await wallet.btcSupportsScriptType("Bitcoin", core.BTCInputScriptType.SpendWitness)).toEqual(true);
-      expect(await wallet.btcSupportsScriptType("Litecoin", core.BTCInputScriptType.SpendWitness)).toEqual(true);
-
-      // Dash, Dogecoin, BitcoinCash, Zcash soportan SpendAddress (BIP44)
-      expect(await wallet.btcSupportsScriptType("Dash", core.BTCInputScriptType.SpendAddress)).toEqual(true);
-      expect(await wallet.btcSupportsScriptType("Dogecoin", core.BTCInputScriptType.SpendAddress)).toEqual(true);
-      expect(await wallet.btcSupportsScriptType("BitcoinCash", core.BTCInputScriptType.SpendAddress)).toEqual(true);
-      expect(await wallet.btcSupportsScriptType("Zcash", core.BTCInputScriptType.SpendAddress)).toEqual(true);
-
-      // Script types no soportados
-      expect(await wallet.btcSupportsScriptType("Bitcoin", core.BTCInputScriptType.SpendAddress)).toEqual(false);
-      expect(await wallet.btcSupportsScriptType("Dash", core.BTCInputScriptType.SpendWitness)).toEqual(false);
     });
 
     it("uses correct paths for Bitcoin (BIP84)", () => {
@@ -281,36 +252,6 @@ export function selfTest(get: () => core.HDWallet): void {
       ]);
     });
 
-    it("uses correct paths for Litecoin (BIP84)", () => {
-      if (!wallet) return;
-      const paths = wallet.btcGetAccountPaths({
-        coin: "Litecoin",
-        accountIdx: 0,
-      });
-      expect(paths).toEqual([
-        {
-          addressNList: [2147483732, 2147483650, 2147483648, 0, 0], // m/84'/2'/0'/0/0
-          scriptType: core.BTCInputScriptType.SpendWitness,
-          coin: "Litecoin",
-        },
-      ]);
-    });
-
-    it("uses correct paths for Dash (BIP44)", () => {
-      if (!wallet) return;
-      const paths = wallet.btcGetAccountPaths({
-        coin: "Dash",
-        accountIdx: 1,
-      });
-      expect(paths).toEqual([
-        {
-          addressNList: [2147483692, 2147483653, 2147483649, 0, 0], // m/44'/5'/1'/0/0
-          scriptType: core.BTCInputScriptType.SpendAddress,
-          coin: "Dash",
-        },
-      ]);
-    });
-
     it("can describe Bitcoin paths", () => {
       if (!wallet) return;
       expect(
@@ -324,27 +265,6 @@ export function selfTest(get: () => core.HDWallet): void {
         coin: "Bitcoin",
         isKnown: true,
         scriptType: core.BTCInputScriptType.SpendWitness,
-        accountIdx: 0,
-        addressIdx: 0,
-        wholeAccount: false,
-        isChange: false,
-        isPrefork: false,
-      });
-    });
-
-    it("can describe Dash paths", () => {
-      if (!wallet) return;
-      expect(
-        wallet.describePath({
-          path: core.bip32ToAddressNList("m/44'/5'/0'/0/0"),
-          coin: "Dash",
-          scriptType: core.BTCInputScriptType.SpendAddress,
-        })
-      ).toEqual({
-        verbose: "Dash Account #0, Address #0",
-        coin: "Dash",
-        isKnown: true,
-        scriptType: core.BTCInputScriptType.SpendAddress,
         accountIdx: 0,
         addressIdx: 0,
         wholeAccount: false,

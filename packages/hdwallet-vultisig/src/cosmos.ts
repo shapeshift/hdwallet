@@ -10,6 +10,8 @@ import {
 } from "@shapeshiftoss/hdwallet-core";
 import { sign } from "@shapeshiftoss/proto-tx-builder";
 
+import { VultisigOfflineProvider } from "./types";
+
 export function cosmosGetAccountPaths(msg: CosmosGetAccountPaths): Array<CosmosAccountPath> {
   return [
     {
@@ -18,13 +20,13 @@ export function cosmosGetAccountPaths(msg: CosmosGetAccountPaths): Array<CosmosA
   ];
 }
 
-export async function cosmosGetAddress(provider: any): Promise<string | undefined> {
+export async function cosmosGetAddress(provider: VultisigOfflineProvider): Promise<string | undefined> {
   const offlineSigner = provider.getOfflineSigner(CHAIN_REFERENCE.CosmosHubMainnet);
-  const cosmosAddress = (await offlineSigner?.getAccounts())?.[0]?.address;
-  return cosmosAddress;
+  const accounts = await offlineSigner.getAccounts();
+  return accounts[0].address;
 }
 
-export async function cosmosSignTx(provider: any, msg: CosmosSignTx): Promise<CosmosSignedTx> {
+export async function cosmosSignTx(provider: VultisigOfflineProvider, msg: CosmosSignTx): Promise<CosmosSignedTx> {
   const offlineSigner = provider.getOfflineSigner(CHAIN_REFERENCE.CosmosHubMainnet);
 
   const address = await cosmosGetAddress(provider);

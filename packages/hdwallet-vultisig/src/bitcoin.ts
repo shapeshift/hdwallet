@@ -13,19 +13,24 @@ const getNetwork = (coin: string): bitcoin.networks.Network => {
   }
 };
 
-export function translateCoin(coin: core.Coin): string {
-  const coinMap: Record<core.Coin, string> = {
-    Bitcoin: "btc",
-    // Litecoin: "ltc",
-    // Zcash: "zec",
-    // BitcoinCash: "bch",
-    // Dash: "dash",
-    // Dogecoin: "doge",
-  };
-  return core.mustBeDefined(coinMap[coin]);
-}
+export async function btcGetAddress(provider: VultisigUtxoProvider, msg: core.BTCGetAddress): Promise<string | null> {
+  const value = await (async () => {
+    switch (msg.coin.toLowerCase()) {
+      case "bitcoin": {
+        const accounts = await provider.request<"request_accounts">({
+          method: "request_accounts",
+          params: [],
+        });
+        return accounts.length > 0 ? accounts[0] : null;
+      }
+      default:
+        throw new Error("Vultisig does not support");
+    }
+  })();
+  if (!value || typeof value !== "string") return null;
 
-export type BtcAccount = string;
+  return value;
+}
 
 export const btcGetAccountPaths = (msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> => {
   const slip44 = core.slip44ByCoin(msg.coin);
@@ -48,17 +53,8 @@ export const btcGetAccountPaths = (msg: core.BTCGetAccountPaths): Array<core.BTC
   return paths;
 };
 
-const fromHexString = (hexString: string) => {
-  const bytes = hexString.match(/.{1,2}/g);
-  if (!bytes) throw new Error("Invalid hex string");
-
-  return Uint8Array.from(bytes.map((byte) => parseInt(byte, 16)));
-};
-
 async function addInput(psbt: bitcoin.Psbt, input: core.BTCSignTxInput): Promise<void> {
   switch (input.scriptType) {
-    // Phantom supposedly supports more scriptTypes but in effect, doesn't (currently)
-    // https://github.com/orgs/phantom/discussions/173
     case BTCInputScriptType.SpendWitness: {
       psbt.addInput({
         hash: input.txid,
@@ -74,7 +70,7 @@ async function addInput(psbt: bitcoin.Psbt, input: core.BTCSignTxInput): Promise
 }
 
 async function addOutput(
-  wallet: core.BTCWallet,
+  provider: VultisigUtxoProvider,
   psbt: bitcoin.Psbt,
   output: core.BTCSignTxOutput,
   coin: string
@@ -85,7 +81,11 @@ async function addOutput(
     if (output.address) return output.address;
 
     if (output.addressNList) {
-      const outputAddress = await wallet.btcGetAddress({ addressNList: output.addressNList, coin, showDisplay: false });
+      const outputAddress = await btcGetAddress(provider, {
+        addressNList: output.addressNList,
+        coin,
+        showDisplay: false,
+      });
       if (!outputAddress) throw new Error("Could not get address from wallet");
       return outputAddress;
     }
@@ -97,7 +97,6 @@ async function addOutput(
 }
 
 export async function bitcoinSignTx(
-  wallet: core.BTCWallet,
   msg: core.BTCSignTx,
   provider: VultisigUtxoProvider
 ): Promise<core.BTCSignedTx | null> {
@@ -115,7 +114,7 @@ export async function bitcoinSignTx(
     }
 
     for (const output of msg.outputs) {
-      await addOutput(wallet, psbt, output, msg.coin);
+      await addOutput(provider, psbt, output, msg.coin);
     }
 
     if (msg.opReturnData) {
@@ -129,7 +128,7 @@ export async function bitcoinSignTx(
 
     const inputsToSign = await Promise.all(
       msg.inputs.map(async (input, index) => {
-        const address = await wallet.btcGetAddress({
+        const address = await btcGetAddress(provider, {
           addressNList: input.addressNList,
           coin: msg.coin,
           showDisplay: false,
@@ -145,7 +144,7 @@ export async function bitcoinSignTx(
       })
     );
 
-    const signedPsbtHex = await provider.signPSBT(fromHexString(psbt.toHex()), { inputsToSign }, false);
+    const signedPsbtHex = await provider.signPSBT(psbt.toBuffer(), { inputsToSign }, false);
     const signedPsbt = bitcoin.Psbt.fromBuffer(Buffer.from(signedPsbtHex), { network });
 
     signedPsbt.finalizeAllInputs();
