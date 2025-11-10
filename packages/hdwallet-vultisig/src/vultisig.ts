@@ -31,11 +31,7 @@ export class VultisigHDWalletInfo
   readonly _supportsThorchainInfo = true;
   readonly _supportsCosmosInfo = true;
 
-  evmProvider: VultisigEvmProvider;
-
-  constructor(evmProvider: VultisigEvmProvider) {
-    this.evmProvider = evmProvider;
-  }
+  constructor() {}
 
   public getVendor(): string {
     return "Vultisig";
@@ -231,7 +227,7 @@ export class VultisigHDWallet
     thorchainProvider: VultisigOfflineProvider;
     cosmosProvider: VultisigOfflineProvider;
   }) {
-    super(providers.evmProvider);
+    super();
 
     this.evmProvider = providers.evmProvider;
     this.bitcoinProvider = providers.bitcoinProvider;

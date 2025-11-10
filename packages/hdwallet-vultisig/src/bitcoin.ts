@@ -144,8 +144,8 @@ export async function bitcoinSignTx(
       })
     );
 
-    const signedPsbtHex = await provider.signPSBT(psbt.toBuffer(), { inputsToSign }, false);
-    const signedPsbt = bitcoin.Psbt.fromBuffer(Buffer.from(signedPsbtHex), { network });
+    const signedPsbtBuffer = await provider.signPSBT(psbt.toBuffer(), { inputsToSign }, false);
+    const signedPsbt = bitcoin.Psbt.fromBuffer(signedPsbtBuffer, { network });
 
     signedPsbt.finalizeAllInputs();
 
