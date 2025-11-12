@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
-import TrezorConnect, { DEVICE, DEVICE_EVENT, TRANSPORT_EVENT, UI } from "@trezor/connect";
+import TrezorConnect, { DEVICE, DEVICE_EVENT, TRANSPORT_EVENT, UI } from "@trezor/connect-web";
 
 import { POPUP, TrezorConnectTransport, TrezorDevice } from "./transport";
 

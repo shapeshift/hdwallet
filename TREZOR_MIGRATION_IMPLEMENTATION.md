@@ -42,7 +42,7 @@ This document provides step-by-step implementation instructions for migrating Sh
 {
   "dependencies": {
 -   "trezor-connect": "^8.2.1",
-+   "@trezor/connect": "^9.6.4",
++   "@trezor/connect-web": "^9.6.4",
     "@trezor/rollout": "^1.0.2"
   }
 }
@@ -52,10 +52,10 @@ This document provides step-by-step implementation instructions for migrating Sh
 ```bash
 cd packages/hdwallet-trezor-connect
 yarn remove trezor-connect
-yarn add @trezor/connect@^9.6.4
+yarn add @trezor/connect-web@^9.6.4
 ```
 
-**Note**: `@trezor/connect` is the direct successor to `trezor-connect` and supports both Node.js and browser environments via separate entry points. Browser bundlers will automatically use the browser entry point.
+**Note**: `@trezor/connect-web` is specifically designed for browser/web environments. While v8 `trezor-connect` was universal, v9 split into environment-specific packages. `@trezor/connect` is Node.js-only and will throw errors in browsers.
 
 ### Step 1.2: Update Imports
 
@@ -63,14 +63,14 @@ yarn add @trezor/connect@^9.6.4
 
 ```typescript
 - import TrezorConnect, { DEVICE, DEVICE_EVENT, TRANSPORT_EVENT, UI } from "trezor-connect";
-+ import TrezorConnect, { DEVICE, DEVICE_EVENT, TRANSPORT_EVENT, UI } from "@trezor/connect";
++ import TrezorConnect, { DEVICE, DEVICE_EVENT, TRANSPORT_EVENT, UI } from "@trezor/connect-web";
 ```
 
 **File**: `/packages/hdwallet-trezor-connect/src/transport.ts`
 
 ```typescript
 - import TrezorConnect, { DEVICE_EVENT, UI_EVENT } from "trezor-connect";
-+ import TrezorConnect, { DEVICE_EVENT, UI_EVENT } from "@trezor/connect";
++ import TrezorConnect, { DEVICE_EVENT, UI_EVENT } from "@trezor/connect-web";
 ```
 
 ### Step 1.3: Update Type Declarations
@@ -79,7 +79,7 @@ yarn add @trezor/connect@^9.6.4
 
 ```typescript
 - declare module "trezor-connect" {
-+ declare module "@trezor/connect" {
++ declare module "@trezor/connect-web" {
   // Update any custom type extensions
 }
 ```

@@ -37,44 +37,43 @@ ShapeShift's Trezor implementation currently uses Trezor Connect v8, which was *
 3. `@trezor/connect-webextension` - Browser extension specific
 4. `@trezor/connect-mobile` - React Native/mobile
 
-### Decision: Use @trezor/connect
+### Decision: Use @trezor/connect-web
 
 **Rationale:**
-- **Direct successor** to `trezor-connect` (maintains universal design)
-- **Browser support** via `index-browser.ts` entry point (confirmed via GitHub)
-- **Used by Frame wallet** (Electron app using v9.4.7)
-- **Maintains compatibility** with hdwallet's existing architecture
-- **Future-proof** - works in Node.js, browsers, and other environments
+- **Specifically designed for browser environments** (web applications)
+- **Direct successor to v8 for web use cases** - v8's universal package split into environment-specific packages in v9
+- **@trezor/connect is Node.js only** - explicitly throws `Method_InvalidPackage` error when used in browsers
+- **Frame wallet uses different context** (Electron main process, not browser)
+- **Confirmed by runtime testing** - @trezor/connect fails with "This package is not suitable to work with browser. Use @trezor/connect-web package instead"
 
-**Technical Verification:**
-```json
-{
-  "main": "src/index.ts",           // Node.js entry
-  "browser": "./src/index-browser.ts" // Browser entry
-}
+**Critical Distinction:**
+```
+v8: trezor-connect (universal - Node.js + browser)
+v9: Split into environment-specific packages:
+    - @trezor/connect → Node.js/Electron main process ONLY
+    - @trezor/connect-web → Browsers/web apps (what we need!)
 ```
 
-Package includes browser polyfills (`node-libs-browser`) and separate asset handlers for different environments, confirming multi-platform support.
-
-**Why Not @trezor/connect-web?**
-- More specialized/optimized for pure web contexts
-- hdwallet's historical use of universal `trezor-connect` suggests `@trezor/connect` is the natural upgrade path
-- `@trezor/connect` provides same functionality with broader compatibility
+**Why Not @trezor/connect?**
+- **Hard error in browser**: Throws `Method_InvalidPackage: "This package is not suitable to work with browser"`
+- Browser field in package.json maps to fallback stubs that only throw errors
+- Designed exclusively for Node.js runtime environments
+- Frame wallet can use it because Electron main process has Node.js privileges
 
 ### Implementation Impact
 
 **Package.json change:**
 ```diff
 - "trezor-connect": "^8.2.1"
-+ "@trezor/connect": "^9.6.4"
++ "@trezor/connect-web": "^9.6.4"
 ```
 
 **Import statements (unchanged API):**
 ```typescript
-import TrezorConnect from '@trezor/connect';
+import TrezorConnect from '@trezor/connect-web';
 ```
 
-Browser bundlers (Webpack/Vite) will automatically use the browser entry point.
+The web package is specifically built for browser environments and will work correctly with bundlers like Webpack/Vite.
 
 ## Current State Analysis
 
@@ -401,10 +400,10 @@ await new Promise(resolve => setTimeout(resolve, 1000))
 - [Brave Migration PR](https://github.com/brave/brave-browser/pull/21861)
 
 ### Package Versions
-- **Recommended**: `@trezor/connect@^9.6.4` (latest stable)
-- Frame Uses: `@trezor/connect@9.4.7`
-- Brave Uses: `@trezor/connect@9.1.11`
-- Alternative (web-specialized): `@trezor/connect-web@9.6.3`
+- **Recommended for browser/web**: `@trezor/connect-web@^9.6.4` (latest stable)
+- **For Node.js/Electron main**: `@trezor/connect@^9.6.4`
+- Frame Uses: `@trezor/connect@9.4.7` (Electron main process context)
+- Brave Uses: `@trezor/connect@9.1.11` (browser extension context)
 
 ### Testing Resources
 - [Trezor Emulator](https://github.com/trezor/trezor-firmware/tree/master/core/emulator)
