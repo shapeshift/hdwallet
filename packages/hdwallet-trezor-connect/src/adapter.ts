@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
-import TrezorConnect, { DEVICE, DEVICE_EVENT, TRANSPORT_EVENT, UI } from "trezor-connect";
+import TrezorConnect, { DEVICE, DEVICE_EVENT, TRANSPORT_EVENT, UI } from "@trezor/connect";
 
 import { POPUP, TrezorConnectTransport, TrezorDevice } from "./transport";
 
@@ -11,6 +11,7 @@ export type TrezorConnectArgs = {
   manifest: {
     appUrl: string;
     email: string;
+    appName?: string;
   };
 };
 
@@ -44,6 +45,10 @@ export class TrezorAdapter {
     // https://github.com/szymonlesisz/trezor-connect-electron-boilerplate/blob/master/src/electron.js
     await TrezorConnect.init({
       ...args,
+      manifest: {
+        ...args.manifest,
+        appName: args.manifest.appName || "ShapeShift",
+      },
       popup: POPUP,
       lazyLoad: false,
     });
