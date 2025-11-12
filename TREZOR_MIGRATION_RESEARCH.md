@@ -2,13 +2,14 @@
 
 ## Table of Contents
 1. [Executive Summary](#executive-summary)
-2. [Current State Analysis](#current-state-analysis)
-3. [Trezor Connect v9 Changes](#trezor-connect-v9-changes)
-4. [Reference Implementations](#reference-implementations)
-5. [Technical Requirements](#technical-requirements)
-6. [Known Issues & Workarounds](#known-issues--workarounds)
-7. [Risk Assessment](#risk-assessment)
-8. [Resources & References](#resources--references)
+2. [Package Architecture Decision](#package-architecture-decision)
+3. [Current State Analysis](#current-state-analysis)
+4. [Trezor Connect v9 Changes](#trezor-connect-v9-changes)
+5. [Reference Implementations](#reference-implementations)
+6. [Technical Requirements](#technical-requirements)
+7. [Known Issues & Workarounds](#known-issues--workarounds)
+8. [Risk Assessment](#risk-assessment)
+9. [Resources & References](#resources--references)
 
 ## Executive Summary
 
@@ -19,6 +20,61 @@ ShapeShift's Trezor implementation currently uses Trezor Connect v8, which was *
 - **Opportunity**: v9 brings Taproot support, improved TypeScript types, and better Suite integration
 - **Complexity**: Medium-High due to 4-5 years of technical drift and lack of recent testing
 - **Timeline**: 6-8 weeks for complete migration and web integration
+- **Package Choice**: Use `@trezor/connect` as the direct successor to `trezor-connect`
+
+## Package Architecture Decision
+
+### v8 to v9 Package Evolution
+
+**Historical Context:**
+- v8 used single package: `trezor-connect` (universal for Node.js and browsers)
+- hdwallet-trezor-connect was built against this universal package
+- Package deprecated and infrastructure shut down January 2024
+
+**v9 Package Options:**
+1. `@trezor/connect` - Universal package (Node.js + browsers)
+2. `@trezor/connect-web` - Web-specialized optimization
+3. `@trezor/connect-webextension` - Browser extension specific
+4. `@trezor/connect-mobile` - React Native/mobile
+
+### Decision: Use @trezor/connect
+
+**Rationale:**
+- **Direct successor** to `trezor-connect` (maintains universal design)
+- **Browser support** via `index-browser.ts` entry point (confirmed via GitHub)
+- **Used by Frame wallet** (Electron app using v9.4.7)
+- **Maintains compatibility** with hdwallet's existing architecture
+- **Future-proof** - works in Node.js, browsers, and other environments
+
+**Technical Verification:**
+```json
+{
+  "main": "src/index.ts",           // Node.js entry
+  "browser": "./src/index-browser.ts" // Browser entry
+}
+```
+
+Package includes browser polyfills (`node-libs-browser`) and separate asset handlers for different environments, confirming multi-platform support.
+
+**Why Not @trezor/connect-web?**
+- More specialized/optimized for pure web contexts
+- hdwallet's historical use of universal `trezor-connect` suggests `@trezor/connect` is the natural upgrade path
+- `@trezor/connect` provides same functionality with broader compatibility
+
+### Implementation Impact
+
+**Package.json change:**
+```diff
+- "trezor-connect": "^8.2.1"
++ "@trezor/connect": "^9.6.4"
+```
+
+**Import statements (unchanged API):**
+```typescript
+import TrezorConnect from '@trezor/connect';
+```
+
+Browser bundlers (Webpack/Vite) will automatically use the browser entry point.
 
 ## Current State Analysis
 
@@ -222,10 +278,11 @@ Brave's migration (PR #21861) shows minimal code changes:
 # Simple package swap
 npm uninstall trezor-connect
 npm install @trezor/connect@9.1.11 --save-exact
-npm install @trezor/connect-web@9.1.11 --save-exact
 ```
 
 Only required updating imports - API remained compatible.
+
+**Note**: While Brave installed both packages, the standard migration path for universal packages like hdwallet is to use `@trezor/connect` only.
 
 ## Technical Requirements
 
@@ -344,9 +401,10 @@ await new Promise(resolve => setTimeout(resolve, 1000))
 - [Brave Migration PR](https://github.com/brave/brave-browser/pull/21861)
 
 ### Package Versions
-- Latest Stable: `@trezor/connect-web@9.6.3`
+- **Recommended**: `@trezor/connect@^9.6.4` (latest stable)
 - Frame Uses: `@trezor/connect@9.4.7`
 - Brave Uses: `@trezor/connect@9.1.11`
+- Alternative (web-specialized): `@trezor/connect-web@9.6.3`
 
 ### Testing Resources
 - [Trezor Emulator](https://github.com/trezor/trezor-firmware/tree/master/core/emulator)
