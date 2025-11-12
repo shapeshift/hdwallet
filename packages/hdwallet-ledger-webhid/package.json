@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger-webhid",
-  "version": "1.62.4-alpha.trezor.1",
+  "version": "1.62.4-alpha.trezor.4",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -18,8 +18,9 @@
     "@ledgerhq/hw-app-eth": "^6.45.13",
     "@ledgerhq/hw-transport": "6.31.8",
     "@ledgerhq/hw-transport-webhid": "^6.30.4",
-    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.trezor.1",
-    "@shapeshiftoss/hdwallet-ledger": "^1.62.4-alpha.trezor.1",
+    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.trezor.4",
+    "@shapeshiftoss/hdwallet-ledger": "^1.62.4-alpha.trezor.4",
     "@types/w3c-web-hid": "^1.0.2"
-  }
+  },
+  "gitHead": "185b3bfacc56b3cdc9bfc359fd0eb9f31b1bd7a3"
 }

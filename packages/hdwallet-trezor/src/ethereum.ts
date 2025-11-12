@@ -101,6 +101,24 @@ export function ethSupportsEIP1559(): boolean {
   return false;
 }
 
+export async function ethSignTypedData(
+  transport: TrezorTransport,
+  msg: core.ETHSignTypedData
+): Promise<core.ETHSignedTypedData> {
+  const res = await transport.call("ethereumSignTypedData", {
+    path: core.addressNListToBIP32(msg.addressNList),
+    data: msg.typedData,
+    metamask_v4_compat: true,
+  });
+
+  handleError(transport, res, "Could not sign typed data with Trezor");
+
+  return {
+    address: res.payload.address,
+    signature: res.payload.signature,
+  };
+}
+
 export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
   const slip44 = core.slip44ByCoin(msg.coin);
   if (slip44 === undefined) return [];
