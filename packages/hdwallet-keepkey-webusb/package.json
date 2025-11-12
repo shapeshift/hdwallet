@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-webusb",
-  "version": "1.62.4-alpha.trezor.4",
+  "version": "1.62.3",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,11 +14,10 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.trezor.4",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.62.4-alpha.trezor.4"
+    "@shapeshiftoss/hdwallet-core": "1.62.3",
+    "@shapeshiftoss/hdwallet-keepkey": "1.62.3"
   },
   "devDependencies": {
     "@types/w3c-web-usb": "^1.0.4"
-  },
-  "gitHead": "185b3bfacc56b3cdc9bfc359fd0eb9f31b1bd7a3"
+  }
 }
