@@ -5,6 +5,8 @@ import { TrezorTransport } from "./transport";
 import { handleError } from "./utils";
 
 export async function solanaGetAddress(transport: TrezorTransport, msg: core.SolanaGetAddress): Promise<string> {
+  if (msg.pubKey) return msg.pubKey;
+
   const res = await transport.call("solanaGetAddress", {
     path: core.solanaAddressNListToBIP32(msg.addressNList),
     showOnTrezor: !!msg.showDisplay,

@@ -14,6 +14,7 @@ import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 export interface SolanaGetAddress {
   addressNList: BIP32Path;
   showDisplay?: boolean;
+  pubKey?: string;
 }
 
 export interface SolanaAccount {
