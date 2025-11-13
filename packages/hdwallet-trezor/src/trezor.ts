@@ -123,7 +123,9 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
   }
 }
 
-export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo, core.SolanaWalletInfo {
+export class TrezorHDWalletInfo
+  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo, core.SolanaWalletInfo
+{
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
   readonly _supportsSolanaInfo = true;
@@ -176,7 +178,7 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
     return core.solanaGetAccountPaths(msg);
   }
 
-  public solanaNextAccountPath(msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
+  public solanaNextAccountPath(): core.SolanaAccountPath | undefined {
     return undefined;
   }
 
@@ -599,7 +601,7 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return core.solanaGetAccountPaths(msg);
   }
 
-  public solanaNextAccountPath(msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
+  public solanaNextAccountPath(): core.SolanaAccountPath | undefined {
     return undefined;
   }
 }
