@@ -541,6 +541,10 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return Eth.ethGetAddress(this.transport, msg);
   }
 
+  public async ethGetAddresses(msgs: core.ETHGetAddress[]): Promise<string[]> {
+    return Eth.ethGetAddresses(this.transport, msgs);
+  }
+
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
     return Eth.ethSignMessage(this.transport, msg);
   }
@@ -591,6 +595,10 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   public async solanaGetAddress(msg: core.SolanaGetAddress): Promise<string | null> {
     return Sol.solanaGetAddress(this.transport, msg);
+  }
+
+  public async solanaGetAddresses(msgs: core.SolanaGetAddress[]): Promise<string[]> {
+    return Sol.solanaGetAddresses(this.transport, msgs);
   }
 
   public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {

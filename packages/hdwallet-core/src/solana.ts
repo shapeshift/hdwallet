@@ -88,6 +88,7 @@ export interface SolanaWallet extends SolanaWalletInfo, HDWallet {
   readonly _supportsSolana: boolean;
 
   solanaGetAddress(msg: SolanaGetAddress): Promise<string | null>;
+  solanaGetAddresses?(msgs: SolanaGetAddress[]): Promise<string[]>;
   solanaSignTx(msg: SolanaSignTx): Promise<SolanaSignedTx | null>;
   solanaSendTx?(msg: SolanaSignTx): Promise<SolanaTxSignature | null>;
 }
