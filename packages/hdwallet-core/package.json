@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-core",
-  "version": "1.62.4",
+  "version": "1.62.6-trezor.3",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
