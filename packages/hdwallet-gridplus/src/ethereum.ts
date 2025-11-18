@@ -3,7 +3,6 @@ import { TransactionFactory, TransactionType, TypedTxData } from "@ethereumjs/tx
 import { RLP } from "@ethereumjs/rlp";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Client, Constants, Utils } from "gridplus-sdk";
-import { encode } from "rlp";
 
 export async function ethGetAddress(client: Client, msg: core.ETHGetAddress): Promise<core.Address | null> {
   const address = (await client.getAddresses({ startPath: msg.addressNList, n: 1 }))[0];
@@ -34,7 +33,6 @@ export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<co
     ? Common.custom({ chainId: msg.chainId }, { hardfork: Hardfork.London })
     : Common.custom({ chainId: msg.chainId });
 
-  // Use TransactionFactory with explicit type field (Kevin's approach)
   const unsignedTx = TransactionFactory.fromTxData(txData, { common });
   const payload = isEIP1559 ? unsignedTx.getMessageToSign() : RLP.encode(unsignedTx.getMessageToSign());
 

@@ -20,17 +20,14 @@ export class GridPlusAdapter {
     password?: string,
     existingSessionId?: string
   ): Promise<{ transport: GridPlusTransport; isPaired: boolean; sessionId: string }> {
-    const transport = (() => {
-      const existing = this.activeTransports.get(deviceId);
-      if (existing) return existing;
-
-      const newTransport = new GridPlusTransport({
+    const transport =
+      this.activeTransports.get(deviceId) ??
+      new GridPlusTransport({
         deviceId,
         password: password || "shapeshift-default",
       });
-      this.activeTransports.set(deviceId, newTransport);
-      return newTransport;
-    })();
+
+    this.activeTransports.set(deviceId, transport);
 
     const { isPaired, sessionId } = await transport.setup(deviceId, password, existingSessionId);
     return { transport, isPaired, sessionId };
@@ -68,6 +65,7 @@ export class GridPlusAdapter {
     existingSessionId?: string
   ): Promise<GridPlusHDWallet> {
     const existingWallet = this.keyring.get<GridPlusHDWallet>(deviceId);
+    console.log({ existingWallet });
     if (existingWallet) {
       // Reset Client activeWallets state and fetch fresh UIDs from currently inserted SafeCard
       await existingWallet.transport.setup(deviceId, password, existingSessionId);
@@ -78,19 +76,26 @@ export class GridPlusAdapter {
       return existingWallet;
     }
 
-    const { isPaired } = await this.connectDevice(deviceId, password, existingSessionId);
+    const { isPaired, transport } = await this.connectDevice(deviceId, password, existingSessionId);
+
+    console.log({ isPaired, transport });
 
     if (!isPaired) {
       if (pairingCode) {
         return await this.pairConnectedDevice(deviceId, pairingCode);
       } else {
-        throw new Error("PAIRING_REQUIRED");
+        // EMIT PAIRING CODE EVENT
+        const wallet = new GridPlusHDWallet(transport);
+        wallet.setActiveWalletId(deviceId);
+        this.keyring.add(wallet, deviceId);
+        this.activeTransports.delete(deviceId);
+        return wallet;
       }
     }
 
     // Already paired - create wallet directly
-    const transport = this.activeTransports.get(deviceId)!;
-    const wallet = new GridPlusHDWallet(transport);
+    const transport1 = this.activeTransports.get(deviceId)!;
+    const wallet = new GridPlusHDWallet(transport1);
     wallet.setActiveWalletId(deviceId);
     await wallet.initialize();
     this.keyring.add(wallet, deviceId);

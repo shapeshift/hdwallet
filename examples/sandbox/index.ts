@@ -3,6 +3,7 @@ import * as coinbase from "@shapeshiftoss/hdwallet-coinbase";
 import { CoinbaseProviderConfig } from "@shapeshiftoss/hdwallet-coinbase";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { BTCSignTxInput, BTCSignTxOutput, EosTx, Thorchain } from "@shapeshiftoss/hdwallet-core";
+import * as gridplus from "@shapeshiftoss/hdwallet-gridplus";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as keepkeyTcp from "@shapeshiftoss/hdwallet-keepkey-tcp";
 import * as keepkeyWebUSB from "@shapeshiftoss/hdwallet-keepkey-webusb";
@@ -131,6 +132,7 @@ const walletConnectAdapter = walletConnect.WalletConnectAdapter.useKeyring(keyri
 const walletConnectV2Adapter = walletConnectv2.WalletConnectV2Adapter.useKeyring(keyring, walletConnectV2Options);
 const keplrAdapter = keplr.KeplrAdapter.useKeyring(keyring);
 const nativeAdapter = native.NativeAdapter.useKeyring(keyring);
+const gridplusAdapter = gridplus.GridPlusAdapter.useKeyring(keyring);
 const trezorAdapter = trezorConnect.TrezorAdapter.useKeyring(keyring, {
   debug: false,
   manifest: {
@@ -156,6 +158,7 @@ const $ledgerwebusb = $("#ledgerwebusb");
 const $ledgerwebhid = $("#ledgerwebhid");
 const $portis = $("#portis");
 const $native = $("#native");
+const $gridplus = $("#gridplus");
 const $metaMask = $("#metaMask");
 const $phantom = $("#phantom");
 const $coinbase = $("#coinbase");
@@ -225,6 +228,33 @@ $native.on("click", async (e) => {
   wallet = await nativeAdapter.pairDevice("testid");
   window["wallet"] = wallet;
   $("#keyring select").val(await wallet.getDeviceID());
+});
+
+$gridplus.on("click", async (e) => {
+  e.preventDefault();
+
+  let deviceId = ''
+
+  document.getElementById("#deviceIdModal").className = "modal opened";
+  window["deviceIdEntered"] = async function () {
+    const input = document.getElementById("#deviceIdInput") as HTMLInputElement;
+    deviceId = input.value
+    document.getElementById("#deviceIdModal").className = "modal";
+    wallet = await gridplusAdapter.pairDevice(deviceId);
+    console.log('deviceId', wallet)
+    window["wallet"] = wallet;
+    $("#keyring select").val(await wallet.getDeviceID());
+    document.getElementById("#pairingCodeModal").className = "modal opened";
+  };
+
+  window["pairingCodeEntered"] = async function () {
+    const input = document.getElementById("#pairingCodeInput") as HTMLInputElement;
+    document.getElementById("#pairingCodeModal").className = "modal";
+    wallet = await gridplusAdapter.pairDevice(deviceId, undefined, input.value);
+    console.log('pairingCode', wallet)
+    window["wallet"] = wallet;
+    $("#keyring select").val(await wallet.getDeviceID());
+  };
 });
 
 $metaMask.on("click", async (e) => {
