@@ -3841,10 +3841,10 @@
     uuid "^8.3.2"
     ws "^8.8.0"
 
-"@shapeshiftoss/hdwallet-core@^1.55.1", "@shapeshiftoss/hdwallet-core@^1.62.5":
-  version "1.62.5"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.62.5.tgz#b1db5ea4b18e658cd548664d2944d925c1ee21eb"
-  integrity sha512-S7uqTVEtYqZ1/w1PgOmIvW1UtBiWjNXGBp6o+G5/83+XDnUkGZltOhJC6H0tknXhVvjK4GdQvU6OwaeK5PKDrQ==
+"@shapeshiftoss/hdwallet-core@1.62.3", "@shapeshiftoss/hdwallet-core@^1.55.1":
+  version "1.62.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.62.3.tgz#62927bbcc322ad012443f5578851638a201ec4b5"
+  integrity sha512-WAPADCeEC7PObAVFmC0k6Ls9YT33EoPTudXkuh3zkUYhh8e/lWKWRXoIOFS515D8xBakGuHsqxAUTBhSrGNSUQ==
   dependencies:
     "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.0"
     "@shapeshiftoss/proto-tx-builder" "0.10.0"
@@ -3871,14 +3871,14 @@
     type-assertions "^1.1.0"
 
 "@shapeshiftoss/hdwallet-native@^1.55.1":
-  version "1.62.5"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.62.5.tgz#6153b050a278bbeac739a2f1a83fbbf6a4fe15df"
-  integrity sha512-se49hIpHoLzdikIVY1lNEy6wiJRmdvRgV69HDfNAKTmeZjpbxvlngT6PJH7FyFKH9p8ic6+dvWkdxoyWqrcIBA==
+  version "1.62.3"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.62.3.tgz#3e24144e61b989d01ff8d498beb9e464d75eab2d"
+  integrity sha512-tF9/NAcLkDZ9LtSSvjJsmGuFXFcr57NTHDlvb6+IQ+8bCp4kUUDETcf8V8dF5I4h9m7IEDH9K+rI0PBgtG1OPw==
   dependencies:
     "@bitcoinerlab/secp256k1" "^1.1.1"
     "@noble/curves" "^1.4.0"
     "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.0"
-    "@shapeshiftoss/hdwallet-core" "^1.62.5"
+    "@shapeshiftoss/hdwallet-core" "1.62.3"
     "@shapeshiftoss/proto-tx-builder" "0.10.0"
     "@zxing/text-encoding" "^0.9.0"
     bchaddrjs "^0.4.9"
