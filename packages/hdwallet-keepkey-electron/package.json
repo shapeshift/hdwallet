@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-electron",
-  "version": "1.62.4-vultisig.13",
+  "version": "1.62.4-vultisig.14",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,7 +14,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-keepkey": "^1.62.4-vultisig.13",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.62.4-vultisig.14",
     "uuid": "^8.3.2"
   },
   "peerDependencies": {
