@@ -20,6 +20,7 @@
     "@shapeshiftoss/hdwallet-native": "1.62.4",
     "@shapeshiftoss/hdwallet-portis": "1.62.4",
     "@shapeshiftoss/hdwallet-trezor": "1.62.4",
+    "@shapeshiftoss/hdwallet-vultisig": "1.62.4",
     "fast-json-stable-stringify": "^2.1.0",
     "msw": "^0.27.1",
     "whatwg-fetch": "^3.6.2"

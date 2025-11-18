@@ -108,7 +108,7 @@ const thorchainProvider = {
 } as unknown as VultisigOfflineProvider;
 
 export function createInfo(): core.HDWalletInfo {
-  return new vultisig.VultisigHDWalletInfo(ethereumProvider);
+  return new vultisig.VultisigHDWalletInfo();
 }
 
 export async function createWallet(): Promise<core.HDWallet> {
