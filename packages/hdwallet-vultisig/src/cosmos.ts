@@ -24,7 +24,7 @@ export function cosmosGetAccountPaths(msg: CosmosGetAccountPaths): Array<CosmosA
 export async function cosmosGetAddress(provider: VultisigOfflineProvider): Promise<string | undefined> {
   const offlineSigner = provider.getOfflineSigner(ATOM_CHAIN);
   const accounts = await offlineSigner.getAccounts();
-  return accounts[0].address;
+  return accounts[0]?.address;
 }
 
 export async function cosmosSignTx(provider: VultisigOfflineProvider, msg: CosmosSignTx): Promise<CosmosSignedTx> {
