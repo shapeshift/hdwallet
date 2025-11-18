@@ -114,10 +114,11 @@ export function createInfo(): core.HDWalletInfo {
 export async function createWallet(): Promise<core.HDWallet> {
   const wallet = new vultisig.VultisigHDWallet({
     evmProvider: ethereumProvider,
-    bitcoinProvider: createUtxoProvider("bitcoin"), // bitcoinProvider
+    bitcoinProvider: createUtxoProvider("bitcoin"),
+    dogecoinProvider: createUtxoProvider("dogecoin"),
     solanaProvider,
-    thorchainProvider, // thorchainProvider
-    cosmosProvider, // cosmosProvider
+    thorchainProvider,
+    cosmosProvider,
   });
 
   await wallet.initialize();

@@ -15,6 +15,7 @@ declare global {
       getVault: () => Promise<VultisigGetVault>;
       ethereum?: VultisigEvmProvider;
       bitcoin?: VultisigUtxoProvider;
+      dogecoin?: VultisigUtxoProvider;
       solana?: VultisigSolanaProvider;
       keplr?: VultisigOfflineProvider;
     };
@@ -39,11 +40,12 @@ export class VultisigAdapter {
   public async pairDevice(): Promise<VultisigHDWallet | undefined> {
     const evmProvider = window.vultisig?.ethereum;
     const bitcoinProvider = window.vultisig?.bitcoin;
+    const dogecoinProvider = window.vultisig?.dogecoin;
     const solanaProvider = window.vultisig?.solana;
     const thorchainProvider = window.vultisig?.keplr;
     const cosmosProvider = window.vultisig?.keplr;
 
-    if (!evmProvider || !bitcoinProvider || !solanaProvider || !thorchainProvider || !cosmosProvider) {
+    if (!evmProvider || !bitcoinProvider || !dogecoinProvider || !solanaProvider || !thorchainProvider || !cosmosProvider) {
       window.open("https://vultisig.com/", "_blank");
       console.error("Please install Vultisig!");
       throw new Error("Vultisig provider not found");
@@ -58,6 +60,7 @@ export class VultisigAdapter {
     const wallet = new VultisigHDWallet({
       evmProvider,
       bitcoinProvider,
+      dogecoinProvider,
       solanaProvider,
       thorchainProvider,
       cosmosProvider,

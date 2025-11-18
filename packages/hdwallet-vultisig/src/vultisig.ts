@@ -214,6 +214,7 @@ export class VultisigHDWallet
 
   evmProvider: VultisigEvmProvider;
   bitcoinProvider: VultisigUtxoProvider;
+  dogecoinProvider: VultisigUtxoProvider;
   solanaProvider: VultisigSolanaProvider;
   thorchainProvider: VultisigOfflineProvider;
   cosmosProvider: VultisigOfflineProvider;
@@ -223,6 +224,7 @@ export class VultisigHDWallet
   constructor(providers: {
     evmProvider: VultisigEvmProvider;
     bitcoinProvider: VultisigUtxoProvider;
+    dogecoinProvider: VultisigUtxoProvider;
     solanaProvider: VultisigSolanaProvider;
     thorchainProvider: VultisigOfflineProvider;
     cosmosProvider: VultisigOfflineProvider;
@@ -231,6 +233,7 @@ export class VultisigHDWallet
 
     this.evmProvider = providers.evmProvider;
     this.bitcoinProvider = providers.bitcoinProvider;
+    this.dogecoinProvider = providers.dogecoinProvider;
     this.solanaProvider = providers.solanaProvider;
     this.thorchainProvider = providers.thorchainProvider;
     this.cosmosProvider = providers.cosmosProvider;
@@ -393,6 +396,8 @@ export class VultisigHDWallet
     switch (coin) {
       case "Bitcoin":
         return btc.bitcoinSignTx(msg, this.bitcoinProvider);
+      case "Dogecoin":
+        return btc.bitcoinSignTx(msg, this.dogecoinProvider);
       default:
         throw new Error("Vultisig does not support");
     }
