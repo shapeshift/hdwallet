@@ -317,7 +317,8 @@ export class VultisigHDWallet
         }
 
         switch (coin) {
-          case "Bitcoin": {
+          case "Bitcoin":
+          case "Dogecoin": {
             // Note this is a pubKey, not an xpub, however vultisig does not support utxo derivation,
             // so this functions as an account (xpub) for all intents and purposes
             const pubKey = await this.btcGetAddress({ coin, scriptType } as core.BTCGetAddress);
