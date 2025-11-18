@@ -4,10 +4,21 @@ import { BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
 
 import { VultisigUtxoProvider } from "./types";
 
+const dogecoinNetwork: bitcoin.networks.Network = {
+  messagePrefix: '\x19Dogecoin Signed Message:\n',
+  bech32: 'doge',
+  bip32: { public: 0x02facafd, private: 0x02fac398 },
+  pubKeyHash: 0x1e,
+  scriptHash: 0x16,
+  wif: 0x9e,
+};
+
 const getNetwork = (coin: string): bitcoin.networks.Network => {
   switch (coin.toLowerCase()) {
     case "bitcoin":
       return bitcoin.networks.bitcoin;
+    case "dogecoin":
+      return dogecoinNetwork;
     default:
       throw new Error(`Unsupported coin: ${coin}`);
   }
