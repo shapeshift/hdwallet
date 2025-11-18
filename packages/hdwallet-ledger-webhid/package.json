@@ -18,8 +18,8 @@
     "@ledgerhq/hw-app-eth": "^6.45.13",
     "@ledgerhq/hw-transport": "6.31.8",
     "@ledgerhq/hw-transport-webhid": "^6.30.4",
-    "@shapeshiftoss/hdwallet-core": "^1.62.3",
-    "@shapeshiftoss/hdwallet-ledger": "^1.62.3",
+    "@shapeshiftoss/hdwallet-core": "1.62.3",
+    "@shapeshiftoss/hdwallet-ledger": "1.62.3",
     "@types/w3c-web-hid": "^1.0.2"
   }
 }
