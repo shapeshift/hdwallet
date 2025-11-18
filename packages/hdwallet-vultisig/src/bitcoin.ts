@@ -75,7 +75,14 @@ async function addInput(psbt: bitcoin.Psbt, input: core.BTCSignTxInput): Promise
         index: input.vout,
         nonWitnessUtxo: Buffer.from(input.hex, "hex"),
       });
-
+      break;
+    }
+    case BTCInputScriptType.SpendAddress: {
+      psbt.addInput({
+        hash: input.txid,
+        index: input.vout,
+        nonWitnessUtxo: Buffer.from(input.hex, "hex"),
+      });
       break;
     }
     default:
