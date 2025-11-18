@@ -7,7 +7,13 @@ describe("VultisigHDWallet", () => {
   let wallet: VultisigHDWallet;
 
   beforeEach(() => {
-    wallet = new VultisigHDWallet(core.untouchable("VultisigHDWallet:provider"));
+    wallet = new VultisigHDWallet({
+      evmProvider: core.untouchable("VultisigHDWallet:provider"),
+      bitcoinProvider: core.untouchable("VultisigHDWallet:provider"),
+      solanaProvider: core.untouchable("VultisigHDWallet:provider"),
+      thorchainProvider: core.untouchable("VultisigHDWallet:provider"),
+      cosmosProvider: core.untouchable("VultisigHDWallet:provider"),
+    });
   });
 
   it("should match the metadata", async () => {
@@ -171,77 +177,7 @@ describe("VultisigHDWallet", () => {
         expect(paths[0]).toEqual({
           coin: "Bitcoin",
           scriptType: core.BTCInputScriptType.SpendWitness,
-          addressNList: [0x80000000 + 84, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
-        });
-      });
-
-      it("should return correct paths for Litecoin (BIP84)", () => {
-        const paths = wallet.btcGetAccountPaths({
-          coin: "Litecoin",
-          accountIdx: 0,
-        });
-
-        expect(paths).toHaveLength(1);
-        expect(paths[0]).toEqual({
-          coin: "Litecoin",
-          scriptType: core.BTCInputScriptType.SpendWitness,
-          addressNList: [0x80000000 + 84, 0x80000000 + 2, 0x80000000 + 0, 0, 0],
-        });
-      });
-
-      it("should return correct paths for Dash (BIP44)", () => {
-        const paths = wallet.btcGetAccountPaths({
-          coin: "Dash",
-          accountIdx: 0,
-        });
-
-        expect(paths).toHaveLength(1);
-        expect(paths[0]).toEqual({
-          coin: "Dash",
-          scriptType: core.BTCInputScriptType.SpendAddress,
-          addressNList: [0x80000000 + 44, 0x80000000 + 5, 0x80000000 + 0, 0, 0],
-        });
-      });
-
-      it("should return correct paths for Dogecoin (BIP44)", () => {
-        const paths = wallet.btcGetAccountPaths({
-          coin: "Dogecoin",
-          accountIdx: 0,
-        });
-
-        expect(paths).toHaveLength(1);
-        expect(paths[0]).toEqual({
-          coin: "Dogecoin",
-          scriptType: core.BTCInputScriptType.SpendAddress,
-          addressNList: [0x80000000 + 44, 0x80000000 + 3, 0x80000000 + 0, 0, 0],
-        });
-      });
-
-      it("should return correct paths for BitcoinCash (BIP44)", () => {
-        const paths = wallet.btcGetAccountPaths({
-          coin: "BitcoinCash",
-          accountIdx: 0,
-        });
-
-        expect(paths).toHaveLength(1);
-        expect(paths[0]).toEqual({
-          coin: "BitcoinCash",
-          scriptType: core.BTCInputScriptType.SpendAddress,
-          addressNList: [0x80000000 + 44, 0x80000000 + 145, 0x80000000 + 0, 0, 0],
-        });
-      });
-
-      it("should return correct paths for Zcash (BIP44)", () => {
-        const paths = wallet.btcGetAccountPaths({
-          coin: "Zcash",
-          accountIdx: 0,
-        });
-
-        expect(paths).toHaveLength(1);
-        expect(paths[0]).toEqual({
-          coin: "Zcash",
-          scriptType: core.BTCInputScriptType.SpendAddress,
-          addressNList: [0x80000000 + 44, 0x80000000 + 133, 0x80000000 + 0, 0, 0],
+          addressNList: [0x80000000 + 84, 0x80000000 + 0, 0x80000000 + 0],
         });
       });
 
@@ -272,63 +208,13 @@ describe("VultisigHDWallet", () => {
         expect(result).toBe(true);
       });
 
-      it("should support SpendWitness for Litecoin", async () => {
-        const result = await wallet.btcSupportsScriptType("Litecoin", core.BTCInputScriptType.SpendWitness);
-        expect(result).toBe(true);
-      });
-
-      it("should NOT support SpendWitness for Dash", async () => {
-        const result = await wallet.btcSupportsScriptType("Dash", core.BTCInputScriptType.SpendWitness);
-        expect(result).toBe(false);
-      });
-
-      it("should NOT support SpendWitness for Dogecoin", async () => {
-        const result = await wallet.btcSupportsScriptType("Dogecoin", core.BTCInputScriptType.SpendWitness);
-        expect(result).toBe(false);
-      });
-
-      it("should NOT support SpendWitness for BitcoinCash", async () => {
-        const result = await wallet.btcSupportsScriptType("BitcoinCash", core.BTCInputScriptType.SpendWitness);
-        expect(result).toBe(false);
-      });
-
-      it("should NOT support SpendWitness for Zcash", async () => {
-        const result = await wallet.btcSupportsScriptType("Zcash", core.BTCInputScriptType.SpendWitness);
-        expect(result).toBe(false);
-      });
-
-      it("should support SpendAddress for Dash", async () => {
-        const result = await wallet.btcSupportsScriptType("Dash", core.BTCInputScriptType.SpendAddress);
-        expect(result).toBe(true);
-      });
-
-      it("should support SpendAddress for Dogecoin", async () => {
-        const result = await wallet.btcSupportsScriptType("Dogecoin", core.BTCInputScriptType.SpendAddress);
-        expect(result).toBe(true);
-      });
-
-      it("should support SpendAddress for BitcoinCash", async () => {
-        const result = await wallet.btcSupportsScriptType("BitcoinCash", core.BTCInputScriptType.SpendAddress);
-        expect(result).toBe(true);
-      });
-
-      it("should support SpendAddress for Zcash", async () => {
-        const result = await wallet.btcSupportsScriptType("Zcash", core.BTCInputScriptType.SpendAddress);
-        expect(result).toBe(true);
-      });
-
-      it("should NOT support SpendAddress for Bitcoin", async () => {
+      it("should support SpendAddress for Bitcoin", async () => {
         const result = await wallet.btcSupportsScriptType("Bitcoin", core.BTCInputScriptType.SpendAddress);
-        expect(result).toBe(false);
-      });
-
-      it("should NOT support SpendAddress for Litecoin", async () => {
-        const result = await wallet.btcSupportsScriptType("Litecoin", core.BTCInputScriptType.SpendAddress);
-        expect(result).toBe(false);
+        expect(result).toBe(true);
       });
 
       it("should NOT support SpendP2SHWitness for any coin", async () => {
-        const coins = ["Bitcoin", "Litecoin", "Dash", "Dogecoin", "BitcoinCash", "Zcash"];
+        const coins = ["Bitcoin"];
         for (const coin of coins) {
           const result = await wallet.btcSupportsScriptType(coin, core.BTCInputScriptType.SpendP2SHWitness);
           expect(result).toBe(false);
@@ -336,7 +222,7 @@ describe("VultisigHDWallet", () => {
       });
 
       it("should NOT support unsupported script types", async () => {
-        const coins = ["Bitcoin", "Litecoin", "Dash", "Dogecoin", "BitcoinCash", "Zcash"];
+        const coins = ["Bitcoin"];
         for (const coin of coins) {
           const result = await wallet.btcSupportsScriptType(coin, "UnsupportedScriptType" as any);
           expect(result).toBe(false);

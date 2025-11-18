@@ -3855,45 +3855,6 @@
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
 
-"@shapeshiftoss/hdwallet-keplr@1.62.3":
-  version "1.62.3"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-keplr/-/hdwallet-keplr-1.62.3.tgz#c9129ff48718d13f01f11387efec276cdaeef422"
-  integrity sha512-qvjuBMPDPPSBDtkbin2L3JEhazVgWl37bg79Gxns7wHiVxBmDkTlWrbdRqz3Vri0SaWZs/rhbFGLqgtpw2EL+A==
-  dependencies:
-    "@shapeshiftoss/caip" "8.15.0"
-    "@shapeshiftoss/hdwallet-core" "1.62.3"
-    "@shapeshiftoss/proto-tx-builder" "0.10.0"
-    "@shapeshiftoss/types" "3.1.3"
-    base64-js "^1.5.1"
-    lodash "^4.17.21"
-
-"@shapeshiftoss/hdwallet-phantom@1.62.3":
-  version "1.62.3"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-phantom/-/hdwallet-phantom-1.62.3.tgz#b729f8f8b0d7ae72e6b1024a5be747d67a3c282d"
-  integrity sha512-W3SrP4ZEZx/TwMs0ubxnjPEhYgoFaegZr7qTrls5D4ChK3TjK7571lwycfs5dZudKMBNYdpsBQOo9JvezkWFAw==
-  dependencies:
-    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.0"
-    "@shapeshiftoss/hdwallet-core" "1.62.3"
-    "@solana/web3.js" "1.95.8"
-    base64-js "^1.5.1"
-    bitcoinjs-message "^2.0.0"
-    ethers "5.7.2"
-    lodash "^4.17.21"
-
-"@shapeshiftoss/hdwallet-vultisig@1.62.3":
-  version "1.62.3-alpha"
-  dependencies:
-    "@cosmjs/amino" "^0.28.13"
-    "@cosmjs/stargate" "^0.28.13"
-    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.0"
-    "@shapeshiftoss/caip" "8.15.0"
-    "@shapeshiftoss/hdwallet-core" "1.62.3"
-    "@solana/web3.js" "1.95.8"
-    base64-js "^1.5.1"
-    bitcoinjs-message "^2.0.0"
-    ethers "5.7.2"
-    lodash "^4.17.21"
-
 "@shapeshiftoss/logger@^1.1.2", "@shapeshiftoss/logger@^1.1.3":
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/logger/-/logger-1.1.3.tgz#ff05765775351c8adc99cf747f14b5619311e023"

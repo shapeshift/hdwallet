@@ -1,6 +1,5 @@
 import { StdTx } from "@cosmjs/amino";
 import { SignerData } from "@cosmjs/stargate";
-import { CHAIN_REFERENCE } from "@shapeshiftoss/caip";
 import {
   CosmosAccountPath,
   CosmosGetAccountPaths,
@@ -12,6 +11,8 @@ import { sign } from "@shapeshiftoss/proto-tx-builder";
 
 import { VultisigOfflineProvider } from "./types";
 
+const ATOM_CHAIN = "cosmoshub-4";
+
 export function cosmosGetAccountPaths(msg: CosmosGetAccountPaths): Array<CosmosAccountPath> {
   return [
     {
@@ -21,13 +22,13 @@ export function cosmosGetAccountPaths(msg: CosmosGetAccountPaths): Array<CosmosA
 }
 
 export async function cosmosGetAddress(provider: VultisigOfflineProvider): Promise<string | undefined> {
-  const offlineSigner = provider.getOfflineSigner(CHAIN_REFERENCE.CosmosHubMainnet);
+  const offlineSigner = provider.getOfflineSigner(ATOM_CHAIN);
   const accounts = await offlineSigner.getAccounts();
   return accounts[0].address;
 }
 
 export async function cosmosSignTx(provider: VultisigOfflineProvider, msg: CosmosSignTx): Promise<CosmosSignedTx> {
-  const offlineSigner = provider.getOfflineSigner(CHAIN_REFERENCE.CosmosHubMainnet);
+  const offlineSigner = provider.getOfflineSigner(ATOM_CHAIN);
 
   const address = await cosmosGetAddress(provider);
   if (!address) throw new Error("failed to get address");

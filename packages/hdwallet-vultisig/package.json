@@ -16,7 +16,6 @@
   "dependencies": {
     "@cosmjs/amino": "^0.28.13",
     "@cosmjs/stargate": "^0.28.13",
-    "@shapeshiftoss/caip": "8.15.0",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.0",
     "@shapeshiftoss/hdwallet-core": "1.62.3",
     "@solana/web3.js": "1.95.8",

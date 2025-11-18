@@ -31,7 +31,7 @@ export async function ethSendTx(
       value: msg.value,
       chainId: msg.chainId,
       data: msg.data,
-      gasLimit: msg.gasLimit,
+      gas: msg.gasLimit,
     };
 
     const utx = msg.maxFeePerGas
