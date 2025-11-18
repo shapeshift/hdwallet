@@ -16,7 +16,8 @@ const getNetwork = (coin: string): bitcoin.networks.Network => {
 export async function btcGetAddress(provider: VultisigUtxoProvider, msg: core.BTCGetAddress): Promise<string | null> {
   const value = await (async () => {
     switch (msg.coin.toLowerCase()) {
-      case "bitcoin": {
+      case "bitcoin":
+      case "dogecoin": {
         const accounts = await provider.request<"request_accounts">({
           method: "request_accounts",
           params: [],
@@ -37,9 +38,11 @@ export const btcGetAccountPaths = (msg: core.BTCGetAccountPaths): Array<core.BTC
   if (slip44 === undefined) return [];
 
   const bip84 = core.segwitNativeAccount(msg.coin, slip44, msg.accountIdx);
+  const bip44 = core.legacyAccount(msg.coin, slip44, msg.accountIdx);
 
   const coinPaths = {
     bitcoin: [bip84],
+    dogecoin: [bip44],
   } as Partial<Record<string, Array<core.BTCAccountPath>>>;
 
   let paths: Array<core.BTCAccountPath> = coinPaths[msg.coin.toLowerCase()] || [];
