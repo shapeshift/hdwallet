@@ -49,6 +49,12 @@ export class VultisigAdapter {
       throw new Error("Vultisig provider not found");
     }
 
+    // Request authorization before accessing vault
+    if (!evmProvider.request) {
+      throw new Error("Vultisig EVM provider missing request method");
+    }
+    await evmProvider.request({ method: "eth_requestAccounts", params: [] });
+
     const wallet = new VultisigHDWallet({
       evmProvider,
       bitcoinProvider,
@@ -57,16 +63,7 @@ export class VultisigAdapter {
       cosmosProvider,
     });
     await wallet.initialize();
-
-    let deviceID: string;
-    try {
-      deviceID = await wallet.getDeviceID();
-    } catch (error) {
-      // If getVault fails (unauthorized/locked), use a fallback deviceID
-      console.warn("Vultisig getVault failed, using fallback deviceID:", error);
-      deviceID = "vultisig:default";
-    }
-
+    const deviceID = await wallet.getDeviceID();
     this.keyring.add(wallet, deviceID);
     this.keyring.emit(["Vultisig", deviceID, core.Events.CONNECT], deviceID);
 
