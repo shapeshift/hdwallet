@@ -1,3 +1,4 @@
+import ecc from "@bitcoinerlab/secp256k1";
 import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
@@ -122,6 +123,9 @@ export async function bitcoinSignTx(
   provider: VultisigUtxoProvider
 ): Promise<core.BTCSignedTx | null> {
   try {
+    // Instantiation of ecc lib required for proper PSBT operations
+    bitcoin.initEccLib(ecc);
+
     const network = getNetwork(msg.coin);
     const psbt = new bitcoin.Psbt({ network });
 
