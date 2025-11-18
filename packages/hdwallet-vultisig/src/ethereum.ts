@@ -29,6 +29,7 @@ export async function ethSendTx(
       from: from,
       to: msg.to,
       value: msg.value,
+      nonce: msg.nonce,
       chainId: msg.chainId,
       data: msg.data,
       gas: msg.gasLimit,
