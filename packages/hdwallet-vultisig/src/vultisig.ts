@@ -25,7 +25,8 @@ export class VultisigHDWalletInfo
     core.ThorchainWalletInfo,
     core.CosmosWalletInfo
 {
-  readonly _supportsBTCInfo = true;
+  // TODO(gomes): turn me back once signPSBT is fixed upstream
+  readonly _supportsBTCInfo = false;
   readonly _supportsETHInfo = true;
   readonly _supportsSolanaInfo = true;
   readonly _supportsThorchainInfo = true;
@@ -127,7 +128,7 @@ export class VultisigHDWalletInfo
   /** Bitcoin */
 
   public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
-    const vultisigSupportedCoins = ["bitcoin", "dogecoin"];
+    const vultisigSupportedCoins = ["bitcoin"]; // Just BTC for first part of integration, we will enable it progressively
     return vultisigSupportedCoins.includes(coin.toLowerCase());
   }
 
@@ -137,7 +138,7 @@ export class VultisigHDWalletInfo
     const c = coin.toLowerCase();
     switch (scriptType) {
       case core.BTCInputScriptType.SpendAddress:
-        return ["dogecoin"].includes(c);
+        return ["bitcoin"].includes(c);
       case core.BTCInputScriptType.SpendWitness:
         return ["bitcoin"].includes(c);
       default:
@@ -197,7 +198,8 @@ export class VultisigHDWallet
   extends VultisigHDWalletInfo
   implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.SolanaWallet, core.ThorchainWallet, core.CosmosWallet
 {
-  readonly _supportsBTC = true;
+  // TODO(gomes): turn me back once signPSBT is fixed upstream
+  readonly _supportsBTC = false;
   readonly _supportsETH = true;
   readonly _supportsEthSwitchChain = true;
   readonly _supportsAvalanche = true;
@@ -215,7 +217,6 @@ export class VultisigHDWallet
 
   evmProvider: VultisigEvmProvider;
   bitcoinProvider: VultisigUtxoProvider;
-  dogecoinProvider: VultisigUtxoProvider;
   solanaProvider: VultisigSolanaProvider;
   thorchainProvider: VultisigOfflineProvider;
   cosmosProvider: VultisigOfflineProvider;
@@ -225,7 +226,6 @@ export class VultisigHDWallet
   constructor(providers: {
     evmProvider: VultisigEvmProvider;
     bitcoinProvider: VultisigUtxoProvider;
-    dogecoinProvider: VultisigUtxoProvider;
     solanaProvider: VultisigSolanaProvider;
     thorchainProvider: VultisigOfflineProvider;
     cosmosProvider: VultisigOfflineProvider;
@@ -234,7 +234,6 @@ export class VultisigHDWallet
 
     this.evmProvider = providers.evmProvider;
     this.bitcoinProvider = providers.bitcoinProvider;
-    this.dogecoinProvider = providers.dogecoinProvider;
     this.solanaProvider = providers.solanaProvider;
     this.thorchainProvider = providers.thorchainProvider;
     this.cosmosProvider = providers.cosmosProvider;
@@ -318,8 +317,7 @@ export class VultisigHDWallet
         }
 
         switch (coin) {
-          case "Bitcoin":
-          case "Dogecoin": {
+          case "Bitcoin": {
             // Note this is a pubKey, not an xpub, however vultisig does not support utxo derivation,
             // so this functions as an account (xpub) for all intents and purposes
             const pubKey = await this.btcGetAddress({ coin, scriptType } as core.BTCGetAddress);
@@ -390,14 +388,7 @@ export class VultisigHDWallet
   /** Bitcoin */
 
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
-    switch (msg.coin) {
-      case "Bitcoin":
-        return btc.btcGetAddress(this.bitcoinProvider, msg);
-      case "Dogecoin":
-        return btc.btcGetAddress(this.dogecoinProvider, msg);
-      default:
-        return null;
-    }
+    return btc.btcGetAddress(this.bitcoinProvider, msg);
   }
 
   public async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
@@ -405,8 +396,6 @@ export class VultisigHDWallet
     switch (coin) {
       case "Bitcoin":
         return btc.bitcoinSignTx(msg, this.bitcoinProvider);
-      case "Dogecoin":
-        return btc.bitcoinSignTx(msg, this.dogecoinProvider);
       default:
         throw new Error("Vultisig does not support");
     }

@@ -1,25 +1,13 @@
-import ecc from "@bitcoinerlab/secp256k1";
 import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
 
 import { VultisigUtxoProvider } from "./types";
 
-const dogecoinNetwork: bitcoin.networks.Network = {
-  messagePrefix: '\x19Dogecoin Signed Message:\n',
-  bech32: 'doge',
-  bip32: { public: 0x02facafd, private: 0x02fac398 },
-  pubKeyHash: 0x1e,
-  scriptHash: 0x16,
-  wif: 0x9e,
-};
-
 const getNetwork = (coin: string): bitcoin.networks.Network => {
   switch (coin.toLowerCase()) {
     case "bitcoin":
       return bitcoin.networks.bitcoin;
-    case "dogecoin":
-      return dogecoinNetwork;
     default:
       throw new Error(`Unsupported coin: ${coin}`);
   }
@@ -28,8 +16,7 @@ const getNetwork = (coin: string): bitcoin.networks.Network => {
 export async function btcGetAddress(provider: VultisigUtxoProvider, msg: core.BTCGetAddress): Promise<string | null> {
   const value = await (async () => {
     switch (msg.coin.toLowerCase()) {
-      case "bitcoin":
-      case "dogecoin": {
+      case "bitcoin": {
         const accounts = await provider.request<"request_accounts">({
           method: "request_accounts",
           params: [],
@@ -50,11 +37,9 @@ export const btcGetAccountPaths = (msg: core.BTCGetAccountPaths): Array<core.BTC
   if (slip44 === undefined) return [];
 
   const bip84 = core.segwitNativeAccount(msg.coin, slip44, msg.accountIdx);
-  const bip44 = core.legacyAccount(msg.coin, slip44, msg.accountIdx);
 
   const coinPaths = {
     bitcoin: [bip84],
-    dogecoin: [bip44],
   } as Partial<Record<string, Array<core.BTCAccountPath>>>;
 
   let paths: Array<core.BTCAccountPath> = coinPaths[msg.coin.toLowerCase()] || [];
@@ -76,14 +61,7 @@ async function addInput(psbt: bitcoin.Psbt, input: core.BTCSignTxInput): Promise
         index: input.vout,
         nonWitnessUtxo: Buffer.from(input.hex, "hex"),
       });
-      break;
-    }
-    case BTCInputScriptType.SpendAddress: {
-      psbt.addInput({
-        hash: input.txid,
-        index: input.vout,
-        nonWitnessUtxo: Buffer.from(input.hex, "hex"),
-      });
+
       break;
     }
     default:
@@ -123,9 +101,6 @@ export async function bitcoinSignTx(
   provider: VultisigUtxoProvider
 ): Promise<core.BTCSignedTx | null> {
   try {
-    // Instantiation of ecc lib required for proper PSBT operations
-    bitcoin.initEccLib(ecc);
-
     const network = getNetwork(msg.coin);
     const psbt = new bitcoin.Psbt({ network });
 
@@ -169,24 +144,7 @@ export async function bitcoinSignTx(
       })
     );
 
-    const psbtBuffer = psbt.toBuffer();
-    console.log('[VULTISIG PSBT DEBUG]', {
-      coin: msg.coin,
-      network: network,
-      psbtBase64: Buffer.from(psbtBuffer).toString('base64'),
-      psbtHex: Buffer.from(psbtBuffer).toString('hex'),
-      inputsToSign,
-      inputCount: msg.inputs.length,
-      outputCount: msg.outputs.length,
-    });
-
-    const signedPsbtBuffer = await provider.signPSBT(psbtBuffer, { inputsToSign }, false);
-    console.log('[VULTISIG PSBT DEBUG] Signed PSBT returned:', {
-      coin: msg.coin,
-      signedLength: signedPsbtBuffer?.length,
-      signedBase64: signedPsbtBuffer ? Buffer.from(signedPsbtBuffer).toString('base64').substring(0, 100) + '...' : null,
-    });
-
+    const signedPsbtBuffer = await provider.signPSBT(psbt.toBuffer(), { inputsToSign }, false);
     const signedPsbt = bitcoin.Psbt.fromBuffer(signedPsbtBuffer, { network });
 
     signedPsbt.finalizeAllInputs();

@@ -85,7 +85,7 @@ export async function ethSignTypedData(
   try {
     const signedMsg = await vultisig.request?.({
       method: "eth_signTypedData_v4",
-      params: [address, msg.typedData],
+      params: [address, JSON.stringify(msg.typedData)],
     });
 
     return {
