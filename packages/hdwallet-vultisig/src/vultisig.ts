@@ -399,7 +399,14 @@ export class VultisigHDWallet
   /** Bitcoin */
 
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
-    return btc.btcGetAddress(this.bitcoinProvider, msg);
+    switch (msg.coin) {
+      case "Bitcoin":
+        return btc.btcGetAddress(this.bitcoinProvider, msg);
+      case "Dogecoin":
+        return btc.btcGetAddress(this.dogecoinProvider, msg);
+      default:
+        return null;
+    }
   }
 
   public async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
