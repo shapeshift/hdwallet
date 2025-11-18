@@ -165,7 +165,24 @@ export async function bitcoinSignTx(
       })
     );
 
-    const signedPsbtBuffer = await provider.signPSBT(psbt.toBuffer(), { inputsToSign }, false);
+    const psbtBuffer = psbt.toBuffer();
+    console.log('[VULTISIG PSBT DEBUG]', {
+      coin: msg.coin,
+      network: network,
+      psbtBase64: Buffer.from(psbtBuffer).toString('base64'),
+      psbtHex: Buffer.from(psbtBuffer).toString('hex'),
+      inputsToSign,
+      inputCount: msg.inputs.length,
+      outputCount: msg.outputs.length,
+    });
+
+    const signedPsbtBuffer = await provider.signPSBT(psbtBuffer, { inputsToSign }, false);
+    console.log('[VULTISIG PSBT DEBUG] Signed PSBT returned:', {
+      coin: msg.coin,
+      signedLength: signedPsbtBuffer?.length,
+      signedBase64: signedPsbtBuffer ? Buffer.from(signedPsbtBuffer).toString('base64').substring(0, 100) + '...' : null,
+    });
+
     const signedPsbt = bitcoin.Psbt.fromBuffer(signedPsbtBuffer, { network });
 
     signedPsbt.finalizeAllInputs();
