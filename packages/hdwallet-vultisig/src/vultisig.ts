@@ -305,13 +305,19 @@ export class VultisigHDWallet
   public async disconnect(): Promise<void> {}
 
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
+    console.log('[VULTISIG getPublicKeys] Called with:', msg.map(m => ({ coin: m.coin, scriptType: m.scriptType })));
+
     return await Promise.all(
       msg.map(async (getPublicKey) => {
         const { coin, scriptType } = getPublicKey;
 
+        console.log('[VULTISIG getPublicKeys] Processing:', { coin, scriptType });
+
         if (scriptType !== undefined) {
           const isSupported = await this.btcSupportsScriptType(coin, scriptType);
+          console.log('[VULTISIG getPublicKeys] Script type check:', { coin, scriptType, isSupported });
           if (!isSupported) {
+            console.log('[VULTISIG getPublicKeys] Returning null - script type not supported');
             return null;
           }
         }
@@ -321,12 +327,15 @@ export class VultisigHDWallet
           case "Dogecoin": {
             // Note this is a pubKey, not an xpub, however vultisig does not support utxo derivation,
             // so this functions as an account (xpub) for all intents and purposes
+            console.log('[VULTISIG getPublicKeys] Calling btcGetAddress for:', coin);
             const pubKey = await this.btcGetAddress({ coin, scriptType } as core.BTCGetAddress);
+            console.log('[VULTISIG getPublicKeys] Got pubKey:', { coin, pubKey });
             return { xpub: pubKey } as core.PublicKey;
           }
           default:
             break;
         }
+        console.error('[VULTISIG getPublicKeys] Coin not supported:', coin);
         throw new Error("Vultisig does not support");
       })
     );
