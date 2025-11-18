@@ -52,6 +52,7 @@
     { "path": "./packages/hdwallet-walletconnectV2" },
     { "path": "./packages/hdwallet-keplr" },
     { "path": "./packages/hdwallet-coinbase" },
-    { "path": "./packages/hdwallet-phantom" }
+    { "path": "./packages/hdwallet-phantom" },
+    { "path": "./packages/hdwallet-vultisig" }
   ]
 }
