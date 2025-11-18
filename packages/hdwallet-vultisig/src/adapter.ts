@@ -57,7 +57,16 @@ export class VultisigAdapter {
       cosmosProvider,
     });
     await wallet.initialize();
-    const deviceID = await wallet.getDeviceID();
+
+    let deviceID: string;
+    try {
+      deviceID = await wallet.getDeviceID();
+    } catch (error) {
+      // If getVault fails (unauthorized/locked), use a fallback deviceID
+      console.warn("Vultisig getVault failed, using fallback deviceID:", error);
+      deviceID = "vultisig:default";
+    }
+
     this.keyring.add(wallet, deviceID);
     this.keyring.emit(["Vultisig", deviceID, core.Events.CONNECT], deviceID);
 
