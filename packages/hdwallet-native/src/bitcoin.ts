@@ -1,6 +1,5 @@
 import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { fromHexString } from "@shapeshiftoss/hdwallet-core";
 import * as bchAddr from "bchaddrjs";
 
 import * as Isolation from "./crypto/isolation";
@@ -138,29 +137,6 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
       this.#masterKey = undefined;
     }
 
-    createPayment(pubkey: Buffer, scriptType?: BTCScriptType, network?: bitcoin.Network): bitcoin.Payment {
-      switch (scriptType) {
-        case "p2sh":
-          return bitcoin.payments.p2sh({ pubkey, network });
-        case "p2pkh":
-          return bitcoin.payments.p2pkh({ pubkey, network });
-        case "p2wpkh":
-          return bitcoin.payments.p2wpkh({ pubkey, network });
-        case "p2sh-p2wpkh":
-          return bitcoin.payments.p2sh({
-            redeem: bitcoin.payments.p2wpkh({ pubkey, network }),
-            network,
-          });
-        case "bech32":
-          return bitcoin.payments.p2wsh({
-            redeem: bitcoin.payments.p2wsh({ pubkey, network }),
-            network,
-          });
-        default:
-          throw new Error(`no implementation for script type: ${scriptType}`);
-      }
-    }
-
     async buildInput(coin: core.Coin, input: core.BTCSignTxInputNative): Promise<InputData | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const { addressNList, amount, hex, scriptType } = input;
@@ -171,7 +147,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
         const nonWitnessUtxo = hex && Buffer.from(hex, "hex");
         const witnessUtxo = input.tx &&
           amount && {
-            script: fromHexString(input.tx.vout[input.vout].scriptPubKey.hex),
+            script: core.fromHexString(input.tx.vout[input.vout].scriptPubKey.hex),
             value: BigInt(amount),
           };
         const utxoData = isSegwit && witnessUtxo ? { witnessUtxo } : { nonWitnessUtxo };
@@ -183,7 +159,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
         }
 
         const { publicKey, network } = keyPair;
-        const payment = this.createPayment(publicKey, scriptType, network);
+        const payment = core.createPayment(publicKey, network, scriptType);
 
         const scriptData: ScriptData = {};
         switch (scriptType) {
@@ -204,9 +180,10 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
     async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const { addressNList, coin, scriptType } = msg;
+        if (!scriptType) throw new Error("Missing required scriptType value");
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin, scriptType);
-        const { address } = this.createPayment(keyPair.publicKey, scriptType, keyPair.network);
+        const { address } = core.createPayment(keyPair.publicKey, keyPair.network, scriptType);
         if (!address) return null;
         return coin.toLowerCase() === "bitcoincash" ? bchAddr.toCashAddress(address) : address;
       });
@@ -254,7 +231,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 const keyPair = await util.getKeyPair(this.#masterKey!, output.addressNList, coin, output.scriptType);
                 const { publicKey, network } = keyPair;
-                const payment = this.createPayment(publicKey, output.scriptType, network);
+                const payment = core.createPayment(publicKey, network, output.scriptType);
                 if (!payment.address) throw new Error("could not get payment address");
                 address = payment.address;
               } else {
