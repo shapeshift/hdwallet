@@ -8,7 +8,6 @@ import * as eth from "./ethereum";
 import * as mayachain from "./mayachain";
 import * as solana from "./solana";
 import * as thorchain from "./thorchain";
-import { GridPlusTransport } from "./transport";
 
 export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
   return isObject(wallet) && (wallet as any)._isGridPlus;
@@ -272,12 +271,12 @@ export class GridPlusHDWallet
   extends GridPlusWalletInfo
   implements
     core.HDWallet,
-    core.ETHWallet,
-    core.SolanaWallet,
     core.BTCWallet,
     core.CosmosWallet,
-    core.ThorchainWallet,
-    core.MayachainWallet
+    core.ETHWallet,
+    core.MayachainWallet,
+    core.SolanaWallet,
+    core.ThorchainWallet
 {
   readonly _supportsArbitrum = true;
   readonly _supportsArbitrumNova = false;
@@ -295,119 +294,77 @@ export class GridPlusHDWallet
   readonly _supportsSolana = true;
   readonly _supportsThorchain = true;
 
-  readonly _isGridPlus = true;
+  client: Client | undefined;
 
-  private activeWalletId?: string;
-
-  transport: GridPlusTransport;
-  client?: Client;
-
-  constructor(transport: GridPlusTransport) {
+  constructor(client: Client) {
     super();
-    this.transport = transport;
+    this.client = client;
   }
 
-  public setActiveWalletId(walletId: string): void {
-    this.activeWalletId = walletId;
+  async cancel(): Promise<void> {}
+  async clearSession(): Promise<void> {}
+  async initialize(): Promise<void> {}
+  async loadDevice(): Promise<void> {}
+  async recover(): Promise<void> {}
+  async reset(): Promise<void> {}
+  async sendCharacter(): Promise<void> {}
+  async sendPassphrase(): Promise<void> {}
+  async sendPin(): Promise<void> {}
+  async sendWord(): Promise<void> {}
+  async wipe(): Promise<void> {}
+
+  async getDeviceID(): Promise<string> {
+    if (!this.client) throw new Error("Device not connected");
+    return this.client.getDeviceId();
   }
 
   async getFeatures(): Promise<Record<string, any>> {
+    if (!this.client) throw new Error("Device not connected");
+
     return {
       vendor: "GridPlus",
-      deviceId: this.transport.deviceId,
+      deviceId: this.client.getDeviceId(),
       model: "Lattice1",
     };
   }
 
-  public async isLocked(): Promise<boolean> {
-    return !this.transport.isConnected();
-  }
-
-  public async clearSession(): Promise<void> {
-    if (!this.client) return;
-    await this.transport.disconnect();
-    this.client = undefined;
-  }
-
-  public async isInitialized(): Promise<boolean> {
-    return !!this.client;
-  }
-
-  public async initialize(): Promise<void> {
-    // Get the GridPlus client from transport after successful pairing
-    this.client = this.transport.getClient();
-
-    if (!this.client) {
-      throw new Error("GridPlus client not available - device may not be paired");
-    }
-
-    // Validate that the client has the expected methods
-    if (typeof this.client.getAddresses !== "function") {
-      throw new Error("GridPlus client missing required getAddresses method");
-    }
-  }
-
-  public async ping(msg: core.Ping): Promise<core.Pong> {
-    return { msg: msg.msg };
-  }
-
-  public async sendPin(): Promise<void> {}
-
-  public async sendPassphrase(): Promise<void> {}
-
-  public async sendCharacter(): Promise<void> {}
-
-  public async sendWord(): Promise<void> {}
-
-  public async cancel(): Promise<void> {
-    // GridPlus has no pending device interactions to cancel
-    // Wallet persists in keyring - do not disconnect
-  }
-
-  public async wipe(): Promise<void> {
-    throw new Error("GridPlus does not support wiping");
-  }
-
-  public async reset(): Promise<void> {
-    await this.clearSession();
-    await this.initialize();
-  }
-
-  public async recover(): Promise<void> {
-    throw new Error("GridPlus does not support recovery mode");
-  }
-
-  public async loadDevice(): Promise<void> {
-    throw new Error("GridPlus does not support device loading");
-  }
-
-  public describePath(): core.PathDescription {
-    return {
-      verbose: "GridPlus does not support path descriptions yet",
-      coin: "Unknown",
-      isKnown: false,
-    };
-  }
-
-  public async getModel(): Promise<string> {
-    return "Lattice1";
-  }
-
-  public async getLabel(): Promise<string> {
-    return "GridPlus Lattice1";
-  }
-
-  public async getFirmwareVersion(): Promise<string> {
+  async getFirmwareVersion(): Promise<string> {
     if (!this.client) throw new Error("Device not connected");
     const { major, minor, fix } = this.client.getFwVersion();
     return `${major}.${minor}.${fix}`;
   }
 
-  public async getDeviceID(): Promise<string> {
-    return this.activeWalletId || (await this.transport.getDeviceID());
+  async getModel(): Promise<string> {
+    return "Lattice1";
   }
 
-  public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
+  async getLabel(): Promise<string> {
+    return "GridPlus Lattice1";
+  }
+
+  async isInitialized(): Promise<boolean> {
+    return Boolean(this.client);
+  }
+
+  async isLocked(): Promise<boolean> {
+    if (!this.client) throw new Error("Device not connected");
+    return false;
+  }
+
+  async ping(msg: core.Ping): Promise<core.Pong> {
+    return { msg: msg.msg };
+  }
+
+  async disconnect(): Promise<void> {
+    this.client = undefined;
+  }
+
+  getSessionId(): string | undefined {
+    if (!this.client) throw new Error("Device not connected");
+    return JSON.parse(this.client.getStateData())["privKey"];
+  }
+
+  async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
     if (!this.client) throw new Error("Device not connected");
 
     const publicKeys: Array<core.PublicKey | null> = [];
@@ -416,18 +373,18 @@ export class GridPlusHDWallet
       const { addressNList, curve, coin, scriptType } = getPublicKey;
 
       try {
-        let flag: number;
-
-        // Determine the appropriate flag based on curve type
-        if (curve === "secp256k1") {
-          // For UTXO chains (Bitcoin, Dogecoin), we need the xpub
-          flag = Constants.GET_ADDR_FLAGS.SECP256K1_XPUB;
-        } else if (curve === "ed25519") {
-          // For Solana/ed25519 chains, we need the public key
-          flag = Constants.GET_ADDR_FLAGS.ED25519_PUB;
-        } else {
-          throw new Error(`Unsupported curve: ${curve}`);
-        }
+        const flag = (() => {
+          switch (curve) {
+            // For UTXO chains (Bitcoin, Dogecoin), we need the xpub
+            case "secp256k1":
+              return Constants.GET_ADDR_FLAGS.SECP256K1_XPUB;
+            // For Solana/ed25519 chains, we need the public key
+            case "ed25519":
+              return Constants.GET_ADDR_FLAGS.ED25519_PUB;
+            default:
+              throw new Error(`Unsupported curve: ${curve}`);
+          }
+        })();
 
         const addresses = await this.client!.getAddresses({
           startPath: addressNList,
@@ -435,9 +392,7 @@ export class GridPlusHDWallet
           flag,
         });
 
-        if (!addresses.length) {
-          throw new Error("No public key returned from device");
-        }
+        if (!addresses.length) throw new Error("No public key returned from device");
 
         // addresses[0] contains either xpub string (for SECP256K1_XPUB) or pubkey hex (for ED25519_PUB)
         let xpub = typeof addresses[0] === "string" ? addresses[0] : Buffer.from(addresses[0]).toString("hex");
@@ -457,53 +412,45 @@ export class GridPlusHDWallet
     return publicKeys;
   }
 
-  public getSessionId(): string | undefined {
-    return this.transport.getSessionId();
-  }
-
-  public async disconnect(): Promise<void> {
-    await this.clearSession();
-  }
-
-  public async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
+  async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
     if (!this.client) throw new Error("Device not connected");
     return btc.btcGetAddress(this.client!, msg);
   }
 
-  public async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
+  async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
     if (!this.client) throw new Error("Device not connected");
     return btc.btcSignTx(this.client, msg);
   }
 
-  public async btcSignMessage(): Promise<core.BTCSignedMessage | null> {
+  async btcSignMessage(): Promise<core.BTCSignedMessage | null> {
     throw new Error("GridPlus BTC message signing not yet implemented");
   }
 
-  public async btcVerifyMessage(): Promise<boolean | null> {
+  async btcVerifyMessage(): Promise<boolean | null> {
     throw new Error("GridPlus BTC message verification not yet implemented");
   }
 
-  public async ethGetAddress(msg: core.ETHGetAddress): Promise<core.Address | null> {
+  async ethGetAddress(msg: core.ETHGetAddress): Promise<core.Address | null> {
     if (!this.client) throw new Error("Device not connected");
     return eth.ethGetAddress(this.client, msg);
   }
 
-  public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
+  async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
     if (!this.client) throw new Error("Device not connected");
     return eth.ethSignTx(this.client, msg);
   }
 
-  public async ethSignTypedData(msg: core.ETHSignTypedData): Promise<core.ETHSignedTypedData> {
+  async ethSignTypedData(msg: core.ETHSignTypedData): Promise<core.ETHSignedTypedData> {
     if (!this.client) throw new Error("Device not connected");
     return eth.ethSignTypedData(this.client, msg);
   }
 
-  public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
+  async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
     if (!this.client) throw new Error("Device not connected");
     return eth.ethSignMessage(this.client, msg);
   }
 
-  public async ethVerifyMessage(): Promise<boolean> {
+  async ethVerifyMessage(): Promise<boolean> {
     throw new Error("GridPlus ETH message verification not implemented yet");
   }
 
@@ -519,42 +466,42 @@ export class GridPlusHDWallet
     }
   }
 
-  public async solanaGetAddress(msg: core.SolanaGetAddress): Promise<string | null> {
+  async solanaGetAddress(msg: core.SolanaGetAddress): Promise<string | null> {
     this.assertSolanaFwSupport();
     return solana.solanaGetAddress(this.client, msg);
   }
 
-  public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
+  async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
     this.assertSolanaFwSupport();
     return solana.solanaSignTx(this.client, msg);
   }
 
-  public async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string | null> {
+  async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string | null> {
     if (!this.client) throw new Error("Device not connected");
     return cosmos.cosmosGetAddress(this.client, msg);
   }
 
-  public async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
+  async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
     if (!this.client) throw new Error("Device not connected");
     return cosmos.cosmosSignTx(this.client, msg);
   }
 
-  public async thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string | null> {
+  async thorchainGetAddress(msg: core.ThorchainGetAddress): Promise<string | null> {
     if (!this.client) throw new Error("Device not connected");
     return thorchain.thorchainGetAddress(this.client, msg);
   }
 
-  public async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {
+  async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {
     if (!this.client) throw new Error("Device not connected");
     return thorchain.thorchainSignTx(this.client, msg);
   }
 
-  public async mayachainGetAddress(msg: core.MayachainGetAddress): Promise<string | null> {
+  async mayachainGetAddress(msg: core.MayachainGetAddress): Promise<string | null> {
     if (!this.client) throw new Error("Device not connected");
     return mayachain.mayachainGetAddress(this.client, msg);
   }
 
-  public async mayachainSignTx(msg: core.MayachainSignTx): Promise<core.MayachainSignedTx | null> {
+  async mayachainSignTx(msg: core.MayachainSignTx): Promise<core.MayachainSignedTx | null> {
     if (!this.client) throw new Error("Device not connected");
     return mayachain.mayachainSignTx(this.client, msg);
   }
