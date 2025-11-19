@@ -65,6 +65,7 @@ const solanaProvider = {
   getAccounts: jest.fn(() => Promise.resolve([{ address: "mock-solana-address" }])),
 } as unknown as VultisigSolanaProvider;
 
+// TODO(gomes): fixme - tests work in practice but mocks are broken
 const cosmosProvider = {
   getOfflineSigner: jest.fn(() => ({
     getAccounts: jest.fn(() =>
@@ -86,6 +87,7 @@ const cosmosProvider = {
   })),
 } as unknown as VultisigOfflineProvider;
 
+// TODO(gomes): fixme - tests work in practice but mocks are broken
 const thorchainProvider = {
   getOfflineSigner: jest.fn(() => ({
     getAccounts: jest.fn(() =>
@@ -129,7 +131,7 @@ export function selfTest(get: () => core.HDWallet): void {
 
   beforeAll(async () => {
     const w = get() as vultisig.VultisigHDWallet;
-    if (vultisig.isVultisig(w) && core.supportsBTC(w) && core.supportsETH(w)) {
+    if (vultisig.isVultisig(w) && core.supportsETH(w)) {
       wallet = w;
     } else {
       throw new Error("Wallet is not Vultisig");
@@ -143,7 +145,8 @@ export function selfTest(get: () => core.HDWallet): void {
 
   it("supports Bitcoin", async () => {
     if (!wallet) return;
-    expect(core.supportsBTC(wallet)).toEqual(true);
+    // TODO(gomes): change back to true once signPSBT is fixed upstream
+    expect(core.supportsBTC(wallet)).toEqual(false);
   });
 
   it("does not support Secure Transfer", async () => {
@@ -223,7 +226,7 @@ export function selfTest(get: () => core.HDWallet): void {
       });
       expect(paths).toEqual([
         {
-          addressNList: [2147483732, 2147483648, 2147483651, 0, 0], // m/84'/0'/3'/0/0
+          addressNList: [2147483732, 2147483648, 2147483651], // m/84'/0'/3'
           scriptType: core.BTCInputScriptType.SpendWitness,
           coin: "Bitcoin",
         },
