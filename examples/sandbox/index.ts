@@ -14,6 +14,7 @@ import * as native from "@shapeshiftoss/hdwallet-native";
 import * as phantom from "@shapeshiftoss/hdwallet-phantom";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
+import * as vultisig from "@shapeshiftoss/hdwallet-vultisig";
 import { WalletConnectProviderConfig } from "@shapeshiftoss/hdwallet-walletconnect";
 import * as walletConnect from "@shapeshiftoss/hdwallet-walletconnect";
 import * as walletConnectv2 from "@shapeshiftoss/hdwallet-walletconnectv2";
@@ -127,6 +128,7 @@ const kkemuAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const portisAdapter = portis.PortisAdapter.useKeyring(keyring, { portisAppId });
 const metaMaskAdapter = metaMask.MetaMaskAdapter.useKeyring(keyring, "io.metamask");
 const phantomAdapter = phantom.PhantomAdapter.useKeyring(keyring);
+const vultisigAdapter = vultisig.VultisigAdapter.useKeyring(keyring);
 const walletConnectAdapter = walletConnect.WalletConnectAdapter.useKeyring(keyring, walletConnectOptions);
 const walletConnectV2Adapter = walletConnectv2.WalletConnectV2Adapter.useKeyring(keyring, walletConnectV2Options);
 const keplrAdapter = keplr.KeplrAdapter.useKeyring(keyring);
@@ -158,6 +160,7 @@ const $portis = $("#portis");
 const $native = $("#native");
 const $metaMask = $("#metaMask");
 const $phantom = $("#phantom");
+const $vultisig = $("#vultisig");
 const $coinbase = $("#coinbase");
 const $walletConnect = $("#walletConnect");
 const $walletConnectV2 = $("#walletConnectV2");
@@ -243,6 +246,19 @@ $metaMask.on("click", async (e) => {
 $phantom.on("click", async (e) => {
   e.preventDefault();
   wallet = await phantomAdapter.pairDevice();
+  window["wallet"] = wallet;
+  let deviceID = "nothing";
+  try {
+    deviceID = await wallet.getDeviceID();
+    $("#keyring select").val(deviceID);
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+$vultisig.on("click", async (e) => {
+  e.preventDefault();
+  wallet = await vultisigAdapter.pairDevice();
   window["wallet"] = wallet;
   let deviceID = "nothing";
   try {
@@ -393,6 +409,12 @@ async function deviceConnected(deviceId) {
     await phantomAdapter.initialize();
   } catch (e) {
     console.error("Could not initialize PhantomAdapter", e);
+  }
+
+  try {
+    await vultisigAdapter.initialize();
+  } catch (e) {
+    console.error("Could not initialize VultisigAdapter", e);
   }
 
   try {

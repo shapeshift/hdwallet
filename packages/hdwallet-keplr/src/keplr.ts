@@ -1,4 +1,4 @@
-import { Window as KeplrWindow } from "@keplr-wallet/types";
+import { Keplr, Window as KeplrWindow } from "@keplr-wallet/types";
 import { CHAIN_REFERENCE, ChainReference } from "@shapeshiftoss/caip";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import isObject from "lodash/isObject";
@@ -133,7 +133,7 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
   info: KeplrHDWalletInfo & core.HDWalletInfo;
 
   initialized = false;
-  provider: any = {};
+  provider: Keplr = {} as Keplr;
   supportedNetworks: ChainReference[] = [CHAIN_REFERENCE.CosmosHubMainnet];
 
   constructor() {
@@ -145,7 +145,7 @@ export class KeplrHDWallet implements core.HDWallet, core.CosmosWallet, core.Osm
   }
 
   public async isLocked(): Promise<boolean> {
-    return this.provider.isLocked();
+    return false; // Keplr is not exposing isLocked and call getKey is triggering the popup
   }
 
   public getVendor(): string {

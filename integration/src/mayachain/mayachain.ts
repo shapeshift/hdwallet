@@ -2,6 +2,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as keepkey from "@shapeshiftoss/hdwallet-keepkey";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 import * as metamask from "@shapeshiftoss/hdwallet-metamask-multichain";
+import * as vultisig from "@shapeshiftoss/hdwallet-vultisig";
 
 import tx_unsigned_swap from "./tx01.mainnet.mayachain.swap.json";
 import tx_signed_swap_amino from "./tx01.mainnet.mayachain.swap.signed.amino.json";
@@ -85,8 +86,9 @@ export function mayachainTests(get: () => { wallet: core.HDWallet; info: core.HD
       "mayachainGetAddress()",
       async () => {
         if (!wallet) return;
-        // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+        // Non-EVM things are a pain to test with snaps/vultisig on test env, this wasn't tested before and still isn't
         if (metamask.isMetaMask(wallet)) return;
+        if (vultisig.isVultisig(wallet)) return;
 
         const actual = await wallet.mayachainGetAddress({
           addressNList: core.bip32ToAddressNList("m/44'/931'/0'/0/0"),
@@ -108,8 +110,9 @@ export function mayachainTests(get: () => { wallet: core.HDWallet; info: core.HD
           const signedTx = useAmino ? signedAminoTx : signedProtoTx;
 
           if (!wallet || !tx) return;
-          // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
+          // Non-EVM things are a pain to test with snaps/vultisig on test env, this wasn't tested before and still isn't
           if (metamask.isMetaMask(wallet)) return;
+          if (vultisig.isVultisig(wallet)) return;
 
           const input: core.MayachainSignTx = {
             tx,
