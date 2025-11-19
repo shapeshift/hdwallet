@@ -8,6 +8,7 @@ import isObject from "lodash/isObject";
 import * as btc from "./bitcoin";
 import * as cosmos from "./cosmos";
 import * as eth from "./ethereum";
+import * as mayachain from "./mayachain";
 import { solanaSendTx, solanaSignTx } from "./solana";
 import * as thorchain from "./thorchain";
 import { VultisigEvmProvider, VultisigOfflineProvider, VultisigSolanaProvider, VultisigUtxoProvider } from "./types";
@@ -189,12 +190,12 @@ export class VultisigHDWalletInfo
   }
 
   public mayachainGetAccountPaths(msg: core.MayachainGetAccountPaths): Array<core.MayachainAccountPath> {
-    throw new Error("Method not implemented - will be added in next commit.");
+    return mayachain.mayachainGetAccountPaths(msg);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public mayachainNextAccountPath(msg: core.MayachainAccountPath): core.MayachainAccountPath | undefined {
-    throw new Error("Method not implemented - will be added in next commit.");
+    throw new Error("Method not implemented.");
   }
 
   public cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
@@ -466,11 +467,12 @@ export class VultisigHDWallet
   /** Mayachain */
 
   public async mayachainGetAddress(): Promise<string | null> {
-    throw new Error("Method not implemented - will be added in next commit.");
+    const address = await mayachain.mayachainGetAddress(this.mayachainProvider);
+    return address || null;
   }
 
   public async mayachainSignTx(msg: core.MayachainSignTx): Promise<core.MayachainSignedTx | null> {
-    throw new Error("Method not implemented - will be added in next commit.");
+    return mayachain.mayachainSignTx(this.mayachainProvider, msg);
   }
 
   /** Cosmos */
