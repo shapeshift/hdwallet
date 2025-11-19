@@ -41,9 +41,10 @@ export class VultisigAdapter {
     const bitcoinProvider = window.vultisig?.bitcoin;
     const solanaProvider = window.vultisig?.solana;
     const thorchainProvider = window.vultisig?.keplr;
+    const mayachainProvider = window.vultisig?.keplr;
     const cosmosProvider = window.vultisig?.keplr;
 
-    if (!evmProvider || !bitcoinProvider || !solanaProvider || !thorchainProvider || !cosmosProvider) {
+    if (!evmProvider || !bitcoinProvider || !solanaProvider || !thorchainProvider || !mayachainProvider || !cosmosProvider) {
       window.open("https://vultisig.com/", "_blank");
       console.error("Please install Vultisig!");
       throw new Error("Vultisig provider not found");
@@ -60,6 +61,7 @@ export class VultisigAdapter {
       bitcoinProvider,
       solanaProvider,
       thorchainProvider,
+      mayachainProvider,
       cosmosProvider,
     });
     await wallet.initialize();
