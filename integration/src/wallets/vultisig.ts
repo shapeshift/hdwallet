@@ -65,7 +65,6 @@ const solanaProvider = {
   getAccounts: jest.fn(() => Promise.resolve([{ address: "mock-solana-address" }])),
 } as unknown as VultisigSolanaProvider;
 
-// TODO(gomes): fixme - tests work in practice but mocks are broken
 const cosmosProvider = {
   getOfflineSigner: jest.fn(() => ({
     getAccounts: jest.fn(() =>
@@ -87,7 +86,6 @@ const cosmosProvider = {
   })),
 } as unknown as VultisigOfflineProvider;
 
-// TODO(gomes): fixme - tests work in practice but mocks are broken
 const thorchainProvider = {
   getOfflineSigner: jest.fn(() => ({
     getAccounts: jest.fn(() =>
