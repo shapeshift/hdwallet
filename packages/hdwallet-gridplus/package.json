@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-gridplus",
-  "version": "1.62.4-alpha.215",
+  "version": "1.62.3",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -19,7 +19,7 @@
     "@ethereumjs/common": "4.4.0",
     "@ethereumjs/tx": "5.4.0",
     "@metamask/eth-sig-util": "^7.0.0",
-    "@shapeshiftoss/hdwallet-core": "^1.62.4-alpha.215",
+    "@shapeshiftoss/hdwallet-core": "1.62.3",
     "bech32": "^1.1.4",
     "bs58": "^5.0.0",
     "crypto-js": "^4.2.0",
@@ -33,6 +33,5 @@
   "nohoist": [
     "@ethereumjs/common",
     "@ethereumjs/tx"
-  ],
-  "gitHead": "4a77cbfb47998365e56d854a08bab81fff460dbe"
+  ]
 }
