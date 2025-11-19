@@ -8,7 +8,6 @@ import * as eth from "./ethereum";
 import * as mayachain from "./mayachain";
 import * as solana from "./solana";
 import * as thorchain from "./thorchain";
-import { GridPlusTransport } from "./transport";
 import { convertXpubVersion, scriptTypeToAccountType } from "./utils";
 
 export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
@@ -296,98 +295,44 @@ export class GridPlusHDWallet
   readonly _supportsSolana = true;
   readonly _supportsThorchain = true;
 
-  readonly _isGridPlus = true;
+  client: Client | undefined;
 
-  private activeWalletId?: string;
-
-  transport: GridPlusTransport;
-  client?: Client;
-
-  constructor(transport: GridPlusTransport) {
+  constructor(client: Client) {
     super();
-    this.transport = transport;
+    this.client = client;
   }
 
-  public setActiveWalletId(walletId: string): void {
-    this.activeWalletId = walletId;
+  public async cancel(): Promise<void> {}
+  public async clearSession(): Promise<void> {}
+  public async initialize(): Promise<void> {}
+  public async loadDevice(): Promise<void> {}
+  public async recover(): Promise<void> {}
+  public async reset(): Promise<void> {}
+  public async sendCharacter(): Promise<void> {}
+  public async sendPassphrase(): Promise<void> {}
+  public async sendPin(): Promise<void> {}
+  public async sendWord(): Promise<void> {}
+  public async wipe(): Promise<void> {}
+
+  public async getDeviceID(): Promise<string> {
+    if (!this.client) throw new Error("Device not connected");
+    return this.client.getDeviceId();
   }
 
   async getFeatures(): Promise<Record<string, any>> {
+    if (!this.client) throw new Error("Device not connected");
+
     return {
       vendor: "GridPlus",
-      deviceId: this.transport.deviceId,
+      deviceId: this.client.getDeviceId(),
       model: "Lattice1",
     };
   }
 
-  public async isLocked(): Promise<boolean> {
-    return !this.transport.isConnected();
-  }
-
-  public async clearSession(): Promise<void> {
-    if (!this.client) return;
-    await this.transport.disconnect();
-    this.client = undefined;
-  }
-
-  public async isInitialized(): Promise<boolean> {
-    return !!this.client;
-  }
-
-  public async initialize(): Promise<void> {
-    // Get the GridPlus client from transport after successful pairing
-    this.client = this.transport.getClient();
-
-    if (!this.client) {
-      throw new Error("GridPlus client not available - device may not be paired");
-    }
-
-    // Validate that the client has the expected methods
-    if (typeof this.client.getAddresses !== "function") {
-      throw new Error("GridPlus client missing required getAddresses method");
-    }
-  }
-
-  public async ping(msg: core.Ping): Promise<core.Pong> {
-    return { msg: msg.msg };
-  }
-
-  public async sendPin(): Promise<void> {}
-
-  public async sendPassphrase(): Promise<void> {}
-
-  public async sendCharacter(): Promise<void> {}
-
-  public async sendWord(): Promise<void> {}
-
-  public async cancel(): Promise<void> {
-    // GridPlus has no pending device interactions to cancel
-    // Wallet persists in keyring - do not disconnect
-  }
-
-  public async wipe(): Promise<void> {
-    throw new Error("GridPlus does not support wiping");
-  }
-
-  public async reset(): Promise<void> {
-    await this.clearSession();
-    await this.initialize();
-  }
-
-  public async recover(): Promise<void> {
-    throw new Error("GridPlus does not support recovery mode");
-  }
-
-  public async loadDevice(): Promise<void> {
-    throw new Error("GridPlus does not support device loading");
-  }
-
-  public describePath(): core.PathDescription {
-    return {
-      verbose: "GridPlus does not support path descriptions yet",
-      coin: "Unknown",
-      isKnown: false,
-    };
+  public async getFirmwareVersion(): Promise<string> {
+    if (!this.client) throw new Error("Device not connected");
+    const { major, minor, fix } = this.client.getFwVersion();
+    return `${major}.${minor}.${fix}`;
   }
 
   public async getModel(): Promise<string> {
@@ -398,14 +343,26 @@ export class GridPlusHDWallet
     return "GridPlus Lattice1";
   }
 
-  public async getFirmwareVersion(): Promise<string> {
-    if (!this.client) throw new Error("Device not connected");
-    const { major, minor, fix } = this.client.getFwVersion();
-    return `${major}.${minor}.${fix}`;
+  public async isInitialized(): Promise<boolean> {
+    return Boolean(this.client);
   }
 
-  public async getDeviceID(): Promise<string> {
-    return this.activeWalletId || (await this.transport.getDeviceID());
+  public async isLocked(): Promise<boolean> {
+    if (!this.client) throw new Error("Device not connected");
+    return false;
+  }
+
+  public async ping(msg: core.Ping): Promise<core.Pong> {
+    return { msg: msg.msg };
+  }
+
+  public async disconnect(): Promise<void> {
+    this.client = undefined;
+  }
+
+  public getSessionId(): string | undefined {
+    if (!this.client) throw new Error("Device not connected");
+    return JSON.parse(this.client.getStateData())["privKey"];
   }
 
   public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
@@ -456,14 +413,6 @@ export class GridPlusHDWallet
     }
 
     return publicKeys;
-  }
-
-  public getSessionId(): string | undefined {
-    return this.transport.getSessionId();
-  }
-
-  public async disconnect(): Promise<void> {
-    await this.clearSession();
   }
 
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {

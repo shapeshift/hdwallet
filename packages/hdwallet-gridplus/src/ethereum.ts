@@ -1,6 +1,6 @@
 import { Common, Hardfork } from "@ethereumjs/common";
-import { TransactionFactory, TransactionType, TypedTxData } from "@ethereumjs/tx";
 import { RLP } from "@ethereumjs/rlp";
+import { TransactionFactory, TransactionType, TypedTxData } from "@ethereumjs/tx";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Client, Constants, Utils } from "gridplus-sdk";
 
@@ -29,11 +29,9 @@ export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<co
     gasPrice: msg.gasPrice,
   };
 
-  const common = isEIP1559
-    ? Common.custom({ chainId: msg.chainId }, { hardfork: Hardfork.London })
-    : Common.custom({ chainId: msg.chainId });
-
+  const common = Common.custom({ chainId: msg.chainId }, { hardfork: Hardfork.London });
   const unsignedTx = TransactionFactory.fromTxData(txData, { common });
+
   const payload = isEIP1559 ? unsignedTx.getMessageToSign() : RLP.encode(unsignedTx.getMessageToSign());
 
   const fwVersion = client.getFwVersion();

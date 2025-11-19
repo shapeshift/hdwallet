@@ -240,18 +240,20 @@ $gridplus.on("click", async (e) => {
     const input = document.getElementById("#deviceIdInput") as HTMLInputElement;
     deviceId = input.value
     document.getElementById("#deviceIdModal").className = "modal";
-    wallet = await gridplusAdapter.pairDevice(deviceId);
-    console.log('deviceId', wallet)
-    window["wallet"] = wallet;
-    $("#keyring select").val(await wallet.getDeviceID());
-    document.getElementById("#pairingCodeModal").className = "modal opened";
+    const { wallet: maybeWallet, sessionId } = await gridplusAdapter.connectDevice(deviceId);
+    if (maybeWallet) {
+      wallet = maybeWallet
+      window["wallet"] = wallet;
+      $("#keyring select").val(await wallet.getDeviceID());
+    } else {
+      document.getElementById("#pairingCodeModal").className = "modal opened";
+    }
   };
 
   window["pairingCodeEntered"] = async function () {
     const input = document.getElementById("#pairingCodeInput") as HTMLInputElement;
     document.getElementById("#pairingCodeModal").className = "modal";
-    wallet = await gridplusAdapter.pairDevice(deviceId, undefined, input.value);
-    console.log('pairingCode', wallet)
+    wallet = await gridplusAdapter.pairDevice(input.value);
     window["wallet"] = wallet;
     $("#keyring select").val(await wallet.getDeviceID());
   };
