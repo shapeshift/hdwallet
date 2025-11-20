@@ -5,6 +5,7 @@ import * as native from "@shapeshiftoss/hdwallet-native";
 import * as phantom from "@shapeshiftoss/hdwallet-phantom";
 import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
+import * as vultisig from "@shapeshiftoss/hdwallet-vultisig";
 
 import { each } from "../utils";
 
@@ -74,7 +75,14 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test(
       "btcSupportsCoin() - Testnet",
       async () => {
-        if (!wallet || portis.isPortis(wallet) || phantom.isPhantom(wallet) || metamask.isMetaMask(wallet)) return;
+        if (
+          !wallet ||
+          portis.isPortis(wallet) ||
+          phantom.isPhantom(wallet) ||
+          metamask.isMetaMask(wallet) ||
+          vultisig.isVultisig(wallet)
+        )
+          return;
         expect(wallet.btcSupportsCoin("Testnet")).toBeTruthy();
         expect(await info.btcSupportsCoin("Testnet")).toBeTruthy();
       },
@@ -87,7 +95,8 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         ledger.isLedger(wallet) ||
         trezor.isTrezor(wallet) ||
         portis.isPortis(wallet) ||
-        phantom.isPhantom(wallet)
+        phantom.isPhantom(wallet) ||
+        vultisig.isVultisig(wallet)
       )
         return;
 
@@ -406,6 +415,11 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
 
         // not implemented for native
         if (native.isNative(wallet)) {
+          return;
+        }
+
+        // not implemented for vultisig
+        if (vultisig.isVultisig(wallet)) {
           return;
         }
 

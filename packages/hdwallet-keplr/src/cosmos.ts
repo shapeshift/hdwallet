@@ -1,5 +1,6 @@
 import { StdTx } from "@cosmjs/amino";
 import { SignerData } from "@cosmjs/stargate";
+import { Keplr } from "@keplr-wallet/types";
 import { CHAIN_REFERENCE } from "@shapeshiftoss/caip";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import {
@@ -58,13 +59,13 @@ export function cosmosGetAccountPaths(msg: CosmosGetAccountPaths): Array<CosmosA
   ];
 }
 
-export async function cosmosGetAddress(provider: any): Promise<string | undefined> {
+export async function cosmosGetAddress(provider: Keplr): Promise<string | undefined> {
   const offlineSigner = provider.getOfflineSigner(CHAIN_REFERENCE.CosmosHubMainnet);
-  const cosmosAddress = (await offlineSigner?.getAccounts())?.[0]?.address;
-  return cosmosAddress;
+  const accounts = await offlineSigner.getAccounts();
+  return accounts[0].address;
 }
 
-export async function cosmosSignTx(provider: any, msg: CosmosSignTx): Promise<CosmosSignedTx> {
+export async function cosmosSignTx(provider: Keplr, msg: CosmosSignTx): Promise<CosmosSignedTx> {
   const offlineSigner = provider.getOfflineSigner(CHAIN_REFERENCE.CosmosHubMainnet);
 
   const address = await cosmosGetAddress(provider);

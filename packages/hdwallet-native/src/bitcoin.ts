@@ -10,8 +10,6 @@ const supportedCoins = ["bitcoin", "dash", "digibyte", "dogecoin", "litecoin", "
 
 const segwit = ["p2wpkh", "p2sh-p2wpkh", "bech32"];
 
-export type BTCScriptType = core.BTCInputScriptType | core.BTCOutputScriptType;
-
 type NonWitnessUtxo = Buffer;
 
 type WitnessUtxo = {
