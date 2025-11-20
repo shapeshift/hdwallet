@@ -40,7 +40,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
     forkCoin: msg.coin.toLowerCase() === "bitcoincash" ? "bch" : "none",
   });
 
-  psbt.setVersion(msg.version ?? 1);
+  psbt.setVersion(msg.version ?? 2);
   msg.locktime && psbt.setLocktime(msg.locktime);
 
   for (const input of msg.inputs) {
