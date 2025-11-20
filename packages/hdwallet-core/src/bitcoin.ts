@@ -534,8 +534,6 @@ export function validateVoutOrdering(msg: BTCSignTxNative, tx: bitcoin.Transacti
 
 export function createPayment(pubkey: Buffer, network: bitcoin.Network, scriptType: BTCScriptType): bitcoin.Payment {
   switch (scriptType) {
-    case "p2sh":
-      return bitcoin.payments.p2sh({ pubkey, network });
     case "p2pkh":
       return bitcoin.payments.p2pkh({ pubkey, network });
     case "p2wpkh":
