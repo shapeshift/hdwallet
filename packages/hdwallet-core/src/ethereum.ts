@@ -207,6 +207,7 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
   readonly _supportsBSC: boolean;
 
   ethGetAddress(msg: ETHGetAddress): Promise<Address | null>;
+  ethGetAddresses?(msgs: ETHGetAddress[]): Promise<string[]>;
   ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx | null>;
   ethSendTx?(msg: ETHSignTx): Promise<ETHTxHash | null>;
   ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage | null>;
