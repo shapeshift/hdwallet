@@ -3,6 +3,7 @@ import isObject from "lodash/isObject";
 
 import * as Btc from "./bitcoin";
 import * as Eth from "./ethereum";
+import * as Sol from "./solana";
 import { TrezorTransport } from "./transport";
 import { handleError } from "./utils";
 
@@ -122,9 +123,12 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
   }
 }
 
-export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo {
+export class TrezorHDWalletInfo
+  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo, core.SolanaWalletInfo
+{
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
+  readonly _supportsSolanaInfo = true;
 
   public getVendor(): string {
     return "Trezor";
@@ -168,6 +172,15 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
 
   public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
     return Eth.ethGetAccountPaths(msg);
+  }
+
+  public solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> {
+    return core.solanaGetAccountPaths(msg);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public solanaNextAccountPath(_msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
+    throw new Error("Method not implemented");
   }
 
   public hasOnDevicePinEntry(): boolean {
@@ -257,22 +270,24 @@ export class TrezorHDWalletInfo implements core.HDWalletInfo, core.BTCWalletInfo
   }
 }
 
-export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet {
+export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.SolanaWallet {
   readonly _supportsETHInfo = true;
   readonly _supportsBTCInfo = true;
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
   readonly _supportsEthSwitchChain = true;
   readonly _supportsAvalanche = true;
-  readonly _supportsOptimism = false;
-  readonly _supportsBSC = false;
-  readonly _supportsPolygon = false;
-  readonly _supportsGnosis = false;
+  readonly _supportsOptimism = true;
+  readonly _supportsBSC = true;
+  readonly _supportsPolygon = true;
+  readonly _supportsGnosis = true;
   readonly _supportsArbitrum = true;
   readonly _supportsArbitrumNova = true;
   readonly _supportsBase = true;
   readonly _supportsKavaInfo = true;
   readonly _supportsTerraInfo = true;
+  readonly _supportsSolana = true;
+  readonly _supportsSolanaInfo = true;
   readonly _isTrezor = true;
 
   transport: TrezorTransport;
@@ -535,6 +550,10 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return Eth.ethVerifyMessage(this.transport, msg);
   }
 
+  public async ethSignTypedData(msg: core.ETHSignTypedData): Promise<core.ETHSignedTypedData> {
+    return Eth.ethSignTypedData(this.transport, msg);
+  }
+
   public async ethSupportsNetwork(chain_id: number): Promise<boolean> {
     return this.info.ethSupportsNetwork(chain_id);
   }
@@ -569,6 +588,23 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
 
   public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
     return this.info.ethNextAccountPath(msg);
+  }
+
+  public async solanaGetAddress(msg: core.SolanaGetAddress): Promise<string | null> {
+    return Sol.solanaGetAddress(this.transport, msg);
+  }
+
+  public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
+    return Sol.solanaSignTx(this.transport, msg);
+  }
+
+  public solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> {
+    return core.solanaGetAccountPaths(msg);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public solanaNextAccountPath(_msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
+    throw new Error("Method not implemented");
   }
 }
 
