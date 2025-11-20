@@ -37,7 +37,6 @@
 !/integration/src/
 !/integration/src/**
 !/integration/tsconfig.json
-!/integration/yarn.lock
 !/jest.config.js
 !/lerna.json
 !/package.json

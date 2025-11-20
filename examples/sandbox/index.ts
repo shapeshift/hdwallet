@@ -236,16 +236,16 @@ $native.on("click", async (e) => {
 $gridplus.on("click", async (e) => {
   e.preventDefault();
 
-  let deviceId = ''
+  let deviceId = "";
 
   document.getElementById("#deviceIdModal").className = "modal opened";
   window["deviceIdEntered"] = async function () {
     const input = document.getElementById("#deviceIdInput") as HTMLInputElement;
-    deviceId = input.value
+    deviceId = input.value;
     document.getElementById("#deviceIdModal").className = "modal";
-    const { wallet: maybeWallet, sessionId } = await gridplusAdapter.connectDevice(deviceId);
+    const { wallet: maybeWallet } = await gridplusAdapter.connectDevice(deviceId);
     if (maybeWallet) {
-      wallet = maybeWallet
+      wallet = maybeWallet;
       window["wallet"] = wallet;
       $("#keyring select").val(await wallet.getDeviceID());
     } else {
