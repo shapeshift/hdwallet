@@ -1,5 +1,5 @@
 diff --git a/node_modules/@shapeshiftoss/bitcoinjs-lib/src/cjs/psbt.cjs b/node_modules/@shapeshiftoss/bitcoinjs-lib/src/cjs/psbt.cjs
-index bcad894..f2a047a 100644
+index bcad894..c3c84b2 100644
 --- a/node_modules/@shapeshiftoss/bitcoinjs-lib/src/cjs/psbt.cjs
 +++ b/node_modules/@shapeshiftoss/bitcoinjs-lib/src/cjs/psbt.cjs
 @@ -459,14 +459,14 @@ class Psbt {
@@ -20,9 +20,12 @@ index bcad894..f2a047a 100644
      const input = this.data.inputs[inputIndex];
      if ((0, bip371_js_1.isTaprootInput)(input))
        return this.validateSignaturesOfTaprootInput(
-@@ -476,7 +476,7 @@ class Psbt {
+@@ -474,9 +474,9 @@ class Psbt {
+         validator,
+         pubkey,
        );
-     return this._validateSignaturesOfInput(inputIndex, validator, pubkey);
+-    return this._validateSignaturesOfInput(inputIndex, validator, pubkey);
++    return this._validateSignaturesOfInput(inputIndex, validator, pubkey, singleHash);
    }
 -  _validateSignaturesOfInput(inputIndex, validator, pubkey) {
 +  _validateSignaturesOfInput(inputIndex, validator, pubkey, singleHash) {
