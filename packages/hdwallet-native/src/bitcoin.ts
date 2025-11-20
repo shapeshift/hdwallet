@@ -43,7 +43,6 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDW
       if (!this.btcSupportsCoinSync(coin)) return false;
 
       switch (scriptType) {
-        case core.BTCInputScriptType.SpendMultisig:
         case core.BTCInputScriptType.SpendAddress:
         case core.BTCInputScriptType.SpendWitness:
         case core.BTCInputScriptType.Bech32:
