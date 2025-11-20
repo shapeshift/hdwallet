@@ -17,6 +17,6 @@
     "@shapeshiftoss/hdwallet-core": "1.62.8",
     "@shapeshiftoss/hdwallet-trezor": "1.62.8",
     "@trezor/rollout": "^1.2.0",
-    "trezor-connect": "^8.2.1"
+    "@trezor/connect-web": "^9.6.4"
   }
 }
