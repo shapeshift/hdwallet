@@ -25,8 +25,7 @@ export class VultisigHDWalletInfo
     core.ThorchainWalletInfo,
     core.CosmosWalletInfo
 {
-  // TODO(gomes): turn me back once signPSBT is fixed upstream
-  readonly _supportsBTCInfo = false;
+  readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
   readonly _supportsSolanaInfo = true;
   readonly _supportsThorchainInfo = true;
@@ -198,8 +197,7 @@ export class VultisigHDWallet
   extends VultisigHDWalletInfo
   implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.SolanaWallet, core.ThorchainWallet, core.CosmosWallet
 {
-  // TODO(gomes): turn me back once signPSBT is fixed upstream
-  readonly _supportsBTC = false;
+  readonly _supportsBTC = true;
   readonly _supportsETH = true;
   readonly _supportsEthSwitchChain = true;
   readonly _supportsAvalanche = true;
