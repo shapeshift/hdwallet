@@ -14,6 +14,7 @@ import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 export interface SolanaGetAddress {
   addressNList: BIP32Path;
   showDisplay?: boolean;
+  pubKey?: string;
 }
 
 export interface SolanaAccount {
@@ -87,6 +88,7 @@ export interface SolanaWallet extends SolanaWalletInfo, HDWallet {
   readonly _supportsSolana: boolean;
 
   solanaGetAddress(msg: SolanaGetAddress): Promise<string | null>;
+  solanaGetAddresses?(msgs: SolanaGetAddress[]): Promise<string[]>;
   solanaSignTx(msg: SolanaSignTx): Promise<SolanaSignedTx | null>;
   solanaSendTx?(msg: SolanaSignTx): Promise<SolanaTxSignature | null>;
 }

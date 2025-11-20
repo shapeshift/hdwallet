@@ -1012,7 +1012,7 @@ $solanaTx.on("click", async (e) => {
   }
   if (core.supportsSolana(wallet)) {
     const res = await wallet.solanaSignTx({
-      addressNList: core.bip32ToAddressNList(`m/44'/501'/0'/0/0`),
+      addressNList: core.bip32ToAddressNList(`m/44'/501'/0'/0'`),
       ...solanaTxJson.solanaUnsignedTx,
     });
     $solanaResults.val(JSON.stringify(res));
