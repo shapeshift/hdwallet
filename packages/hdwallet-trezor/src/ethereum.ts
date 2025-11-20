@@ -27,6 +27,24 @@ export async function ethGetAddress(transport: TrezorTransport, msg: core.ETHGet
   return res.payload.address;
 }
 
+export async function ethGetAddresses(transport: TrezorTransport, msgs: core.ETHGetAddress[]): Promise<string[]> {
+  if (!msgs.length) return [];
+
+  // Build bundle request for Trezor Connect
+  const bundle = msgs.map((msg) => ({
+    path: core.addressNListToBIP32(msg.addressNList),
+    showOnTrezor: false, // Never show on device for batch requests
+  }));
+
+  // Single popup for all addresses via Trezor Connect bundle parameter
+  const res = await transport.call("ethereumGetAddress", { bundle });
+
+  handleError(transport, res, "Could not get ETH addresses from Trezor");
+
+  // Response payload is array when using bundle
+  return (res.payload as Array<{ address: string }>).map((item) => item.address);
+}
+
 export async function ethSupportsSecureTransfer(): Promise<boolean> {
   return false;
 }
