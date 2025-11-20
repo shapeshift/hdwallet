@@ -178,8 +178,9 @@ export class TrezorHDWalletInfo
     return core.solanaGetAccountPaths(msg);
   }
 
-  public solanaNextAccountPath(): core.SolanaAccountPath | undefined {
-    return undefined;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public solanaNextAccountPath(_msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
+    throw new Error("Method not implemented");
   }
 
   public hasOnDevicePinEntry(): boolean {
@@ -609,8 +610,9 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
     return core.solanaGetAccountPaths(msg);
   }
 
-  public solanaNextAccountPath(): core.SolanaAccountPath | undefined {
-    return undefined;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public solanaNextAccountPath(_msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
+    throw new Error("Method not implemented");
   }
 }
 
