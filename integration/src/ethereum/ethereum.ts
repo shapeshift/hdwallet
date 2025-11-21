@@ -2,7 +2,6 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { ETHSignTx } from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 import * as metamask from "@shapeshiftoss/hdwallet-metamask-multichain";
-import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as trezor from "@shapeshiftoss/hdwallet-trezor";
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
@@ -259,7 +258,6 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
 
         if (ledger.isLedger(wallet)) return; // FIXME: just test kk and native for now
         if (trezor.isTrezor(wallet)) return; // FIXME: just test kk and native for now
-        if (portis.isPortis(wallet)) return; // FIXME: just test kk and native for now
 
         const txToSign = {
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),
@@ -306,7 +304,6 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
         if (!wallet) return;
         if (ledger.isLedger(wallet)) return; // FIXME: just test kk for now
         if (trezor.isTrezor(wallet)) return; // FIXME: just test kk for now
-        if (portis.isPortis(wallet)) return; // FIXME: just test kk for now
 
         const txToSign = {
           addressNList: core.bip32ToAddressNList("m/44'/60'/0'/0/0"),

@@ -40,7 +40,6 @@ export function MixinNativeArkeoWalletInfo<TBase extends core.Constructor<core.H
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     arkeoNextAccountPath(msg: core.ArkeoAccountPath): core.ArkeoAccountPath | undefined {
-      // Only support one account for now (like portis).
       return undefined;
     }
   };

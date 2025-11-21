@@ -17,7 +17,6 @@ export function cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<co
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function cosmosNextAccountPath(msg: core.CosmosAccountPath): core.CosmosAccountPath | undefined {
-  // Only support one account for now (like portis).
   return undefined;
 }
 

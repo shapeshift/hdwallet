@@ -17,7 +17,6 @@ export function thorchainGetAccountPaths(msg: core.ThorchainGetAccountPaths): Ar
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
-  // Only support one account for now (like portis).
   return undefined;
 }
 

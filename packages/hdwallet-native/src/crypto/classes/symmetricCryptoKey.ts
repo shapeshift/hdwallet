@@ -1,6 +1,3 @@
-/*
- Copied from portis: packages/portis-crypto/src/models/symmetricCryptoKey.ts
- */
 import { fromBufferToB64 } from "../utils";
 import { EncryptionType } from "./encryptionType";
 

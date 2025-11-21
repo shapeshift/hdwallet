@@ -1,7 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as ledger from "@shapeshiftoss/hdwallet-ledger";
 import * as metamask from "@shapeshiftoss/hdwallet-metamask-multichain";
-import * as portis from "@shapeshiftoss/hdwallet-portis";
 
 const MNEMONIC12_ALLALL = "all all all all all all all all all all all all";
 
@@ -32,7 +31,7 @@ export function testnetTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     test(
       "btcSignTx() - p2sh-p2wpkh",
       async () => {
-        if (!wallet || portis.isPortis(wallet)) return;
+        if (!wallet) return;
         // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
         if (metamask.isMetaMask(wallet)) return;
         if (ledger.isLedger(wallet)) return; // FIXME: Expected failure
@@ -77,7 +76,7 @@ export function testnetTests(get: () => { wallet: core.HDWallet; info: core.HDWa
     );
 
     test("btcSignTx() - p2wpkh", async () => {
-      if (!wallet || portis.isPortis(wallet)) return;
+      if (!wallet) return;
       // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
       if (metamask.isMetaMask(wallet)) return;
       if (ledger.isLedger(wallet)) return; // FIXME: Expected failure

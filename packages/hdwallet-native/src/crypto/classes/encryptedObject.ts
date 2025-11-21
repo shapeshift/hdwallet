@@ -1,6 +1,3 @@
-/*
- Copied from portis: packages/portis-crypto/src/models/encryptedObject.ts
- */
 import { CipherString } from "./cipherString";
 import { SymmetricCryptoKey } from "./symmetricCryptoKey";
 

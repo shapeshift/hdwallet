@@ -34,7 +34,6 @@ export function MixinNativeSecretWalletInfo<TBase extends core.Constructor<core.
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     secretNextAccountPath(msg: core.SecretAccountPath): core.SecretAccountPath | undefined {
-      // Only support one account for now (like portis).
       return undefined;
     }
   };

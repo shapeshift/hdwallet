@@ -38,7 +38,6 @@ export function MixinNativeThorchainWalletInfo<TBase extends core.Constructor<co
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     thorchainNextAccountPath(msg: core.ThorchainAccountPath): core.ThorchainAccountPath | undefined {
-      // Only support one account for now (like portis).
       return undefined;
     }
   };
