@@ -13,7 +13,6 @@ import * as Isolation from "./crypto/isolation";
 import { MixinNativeETHWallet, MixinNativeETHWalletInfo } from "./ethereum";
 import { MixinNativeKavaWallet, MixinNativeKavaWalletInfo } from "./kava";
 import { MixinNativeMayachainWallet, MixinNativeMayachainWalletInfo } from "./mayachain";
-import { getNetwork } from "./networks";
 import { MixinNativeOsmosisWallet, MixinNativeOsmosisWalletInfo } from "./osmosis";
 import { MixinNativeSecretWallet, MixinNativeSecretWalletInfo } from "./secret";
 import { MixinNativeSolanaWallet, MixinNativeSolanaWalletInfo } from "./solana";
@@ -312,7 +311,7 @@ export class NativeHDWallet
               // TODO: return the xpub that's actually asked for, not the key of the hardened path
               // It's done this way for hilarious historical reasons and will break ETH if fixed
               const hardenedPath = core.hardenedPath(addressNList);
-              const network = getNetwork(coin, scriptType);
+              const network = core.getNetwork(coin, scriptType ?? core.BTCOutputScriptType.PayToMultisig);
 
               let node = await Isolation.Adapters.BIP32.create(secp256k1MasterKey, network);
               if (hardenedPath.length > 0) node = await node.derivePath(core.addressNListToBIP32(hardenedPath));

@@ -1,7 +1,8 @@
 import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
-import * as core from "@shapeshiftoss/hdwallet-core";
 
-import { BTCScriptType } from "./bitcoin";
+import { BTCInputScriptType, BTCOutputScriptType } from "./bitcoin";
+
+export type BTCScriptType = BTCInputScriptType | BTCOutputScriptType;
 
 type BIP32 = {
   bip32: {
@@ -10,7 +11,7 @@ type BIP32 = {
   };
 };
 
-type BIP32ByScriptType = Partial<Record<core.BTCOutputScriptType, BIP32>>;
+type BIP32ByScriptType = Partial<Record<BTCOutputScriptType, BIP32>>;
 
 const bip32BTC: BIP32ByScriptType = {
   p2sh: {
@@ -178,17 +179,14 @@ for (const coin of [
 ])
   networks[coin] = networks.bitcoin;
 
-export function getNetwork(coin: string, scriptType?: BTCScriptType): bitcoin.Network {
+export function getNetwork(coin: string, scriptType: BTCScriptType): bitcoin.Network {
   coin = coin.toLowerCase();
-  scriptType = scriptType || core.BTCOutputScriptType.PayToMultisig;
 
   if (!(coin in networks)) throw new Error(`${coin} network not supported`);
   const network = networks[coin];
 
-  const bip32 = network[scriptType as core.BTCOutputScriptType];
-  if (!bip32) {
-    throw new Error(`${scriptType} not supported for ${coin} network`);
-  }
+  const bip32 = network[scriptType as BTCOutputScriptType];
+  if (!bip32) throw new Error(`${scriptType} not supported for ${coin} network`);
 
   return {
     ...network.base,

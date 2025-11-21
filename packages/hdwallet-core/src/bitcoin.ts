@@ -1,6 +1,7 @@
 import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as ta from "type-assertions";
 
+import { BTCScriptType } from "./networks";
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { BIP32Path, Coin, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
@@ -529,4 +530,21 @@ export function validateVoutOrdering(msg: BTCSignTxNative, tx: bitcoin.Transacti
   }
 
   return true;
+}
+
+export function createPayment(pubkey: Buffer, network: bitcoin.Network, scriptType: BTCScriptType): bitcoin.Payment {
+  switch (scriptType) {
+    case "p2pkh":
+      return bitcoin.payments.p2pkh({ pubkey, network });
+    case "p2wpkh":
+    case "bech32":
+      return bitcoin.payments.p2wpkh({ pubkey, network });
+    case "p2sh-p2wpkh":
+      return bitcoin.payments.p2sh({
+        redeem: bitcoin.payments.p2wpkh({ pubkey, network }),
+        network,
+      });
+    default:
+      throw new Error(`Unsupported script type: ${scriptType}`);
+  }
 }
