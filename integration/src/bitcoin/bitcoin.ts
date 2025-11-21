@@ -113,6 +113,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
             coin: "Bitcoin",
             addressNList: core.bip32ToAddressNList(`m/44'/0'/0'`),
             curve: "secp256k1",
+            scriptType: core.BTCScriptType.Legacy,
           },
           {
             coin: "Bitcoin",
