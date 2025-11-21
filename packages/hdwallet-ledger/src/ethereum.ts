@@ -37,7 +37,7 @@ export async function ethGetPublicKeys(
     const { addressNList, coin } = getPublicKey;
     let { scriptType } = getPublicKey;
 
-    if (!scriptType) scriptType = core.BTCInputScriptType.SpendAddress;
+    if (!scriptType) scriptType = core.BTCScriptType.Legacy;
 
     // Only get public keys for ETH account paths
     if (!addressNList.includes(0x80000000 + 44, 0) || !addressNList.includes(0x80000000 + 60, 1)) {

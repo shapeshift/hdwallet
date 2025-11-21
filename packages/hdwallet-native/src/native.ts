@@ -311,7 +311,7 @@ export class NativeHDWallet
               // TODO: return the xpub that's actually asked for, not the key of the hardened path
               // It's done this way for hilarious historical reasons and will break ETH if fixed
               const hardenedPath = core.hardenedPath(addressNList);
-              const network = core.getNetwork(coin, scriptType ?? core.BTCOutputScriptType.PayToMultisig);
+              const network = core.getNetwork(coin, scriptType);
 
               let node = await Isolation.Adapters.BIP32.create(secp256k1MasterKey, network);
               if (hardenedPath.length > 0) node = await node.derivePath(core.addressNListToBIP32(hardenedPath));

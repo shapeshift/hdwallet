@@ -1,7 +1,7 @@
 import ecc from "@bitcoinerlab/secp256k1";
 import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
+import { BTCScriptType } from "@shapeshiftoss/hdwallet-core";
 
 import { PhantomUtxoProvider } from "./types";
 
@@ -9,7 +9,7 @@ export type BtcAccount = {
   address: string;
   // Phantom supposedly supports more scriptTypes but in effect, doesn't (currently)
   // https://github.com/orgs/phantom/discussions/173
-  addressType: BTCInputScriptType.SpendWitness;
+  addressType: BTCScriptType.SegwitNative;
   publicKey: string;
   purpose: "payment" | "ordinals";
 };
@@ -55,7 +55,7 @@ async function addInput(psbt: bitcoin.Psbt, input: core.BTCSignTxInput): Promise
   switch (input.scriptType) {
     // Phantom supposedly supports more scriptTypes but in effect, doesn't (currently)
     // https://github.com/orgs/phantom/discussions/173
-    case BTCInputScriptType.SpendWitness: {
+    case BTCScriptType.SegwitNative: {
       psbt.addInput({
         hash: input.txid,
         index: input.vout,
@@ -81,7 +81,12 @@ async function addOutput(
     if (output.address) return output.address;
 
     if (output.addressNList) {
-      const outputAddress = await wallet.btcGetAddress({ addressNList: output.addressNList, coin, showDisplay: false });
+      const outputAddress = await wallet.btcGetAddress({
+        addressNList: output.addressNList,
+        coin,
+        scriptType: output.scriptType,
+        showDisplay: false,
+      });
       if (!outputAddress) throw new Error("Could not get address from wallet");
       return outputAddress;
     }
@@ -131,6 +136,7 @@ export async function bitcoinSignTx(
       const address = await wallet.btcGetAddress({
         addressNList: input.addressNList,
         coin: msg.coin,
+        scriptType: input.scriptType,
         showDisplay: false,
       });
 

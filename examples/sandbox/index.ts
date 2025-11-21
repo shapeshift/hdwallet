@@ -668,19 +668,19 @@ $getXpubs.each(function () {
         coin: "Bitcoin",
         addressNList: [2147483732, 2147483648, 2147483648],
         curve: "secp256k1",
-        scriptType: core.BTCInputScriptType.SpendWitness,
+        scriptType: core.BTCScriptType.SegwitNative,
       },
       {
         coin: "Bitcoin",
         addressNList: [2147483697, 2147483648, 2147483648],
         curve: "secp256k1",
-        scriptType: core.BTCInputScriptType.SpendP2SHWitness,
+        scriptType: core.BTCScriptType.Segwit,
       },
       {
         coin: "Bitcoin",
         addressNList: [2147483692, 2147483648, 2147483648],
         curve: "secp256k1",
-        scriptType: core.BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCScriptType.Legacy,
       },
     ];
     const bchGetPublicKeysInput = [
@@ -689,7 +689,7 @@ $getXpubs.each(function () {
         curve: "secp256k1",
         showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
         coin: "BitcoinCash",
-        scriptType: core.BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCScriptType.Legacy,
       },
     ];
     const ltcGetPublicKeysInput = [
@@ -699,7 +699,7 @@ $getXpubs.each(function () {
         curve: "secp256k1",
         showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
         coin: "Litecoin",
-        scriptType: core.BTCInputScriptType.SpendWitness,
+        scriptType: core.BTCScriptType.SegwitNative,
       },
       // SegwitP2sh
       {
@@ -707,7 +707,7 @@ $getXpubs.each(function () {
         curve: "secp256k1",
         showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
         coin: "Litecoin",
-        scriptType: core.BTCInputScriptType.SpendP2SHWitness,
+        scriptType: core.BTCScriptType.Segwit,
       },
       // P2Pksh
       {
@@ -715,7 +715,7 @@ $getXpubs.each(function () {
         curve: "secp256k1",
         showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
         coin: "Litecoin",
-        scriptType: core.BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCScriptType.Legacy,
       },
     ];
     const dogeGetPublicKeysInput = [
@@ -724,7 +724,7 @@ $getXpubs.each(function () {
         curve: "secp256k1",
         showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
         coin: "Dogecoin",
-        scriptType: core.BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCScriptType.Legacy,
       },
     ];
     const hardenedPathGetPublicKeysInput = [
@@ -1381,7 +1381,7 @@ $thorchainSignSwap.on("click", async (e) => {
         const inputs = [
           {
             addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
-            scriptType: core.BTCInputScriptType.SpendAddress as const,
+            scriptType: core.BTCScriptType.Legacy as const,
             amount: String(10000),
             vout: 1,
             txid: txid,
@@ -1533,7 +1533,7 @@ $thorchainSignAddLiquidity.on("click", async (e) => {
         const inputs = [
           {
             addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
-            scriptType: core.BTCInputScriptType.SpendAddress,
+            scriptType: core.BTCScriptType.Legacy,
             amount: String(10000),
             vout: 1,
             txid: txid,
@@ -2941,7 +2941,7 @@ $btcAddr.on("click", async (e) => {
     const res = await wallet.btcGetAddress({
       addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
       coin: "Bitcoin",
-      scriptType: core.BTCInputScriptType.SpendAddress,
+      scriptType: core.BTCScriptType.Legacy,
       showDisplay: true,
     });
     $btcResults.val(res);
@@ -2966,7 +2966,7 @@ $btcTx.on("click", async (e) => {
     const inputs = [
       {
         addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
-        scriptType: core.BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCScriptType.Legacy,
         amount: String(10000),
         vout: 1,
         txid: txid,
@@ -2979,7 +2979,7 @@ $btcTx.on("click", async (e) => {
       {
         address: "1MJ2tj2ThBE62zXbBYA5ZaN3fdve5CPAz1",
         addressType: core.BTCOutputAddressType.Spend,
-        scriptType: core.BTCOutputScriptType.PayToAddress,
+        scriptType: core.BTCScriptType.Legacy,
         amount: String(10000 - 1000),
         isChange: false,
       },
@@ -3010,7 +3010,7 @@ $btcSign.on("click", async (e) => {
     const res = await wallet.btcSignMessage({
       addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
       coin: "Bitcoin",
-      scriptType: core.BTCInputScriptType.SpendAddress,
+      scriptType: core.BTCScriptType.Legacy,
       message: "Hello World",
     });
     $btcResults.val(res.address + " " + res.signature);
@@ -3053,7 +3053,7 @@ const $ltcSign = $("#ltcSign");
 const $ltcResults = $("#ltcResults");
 
 const ltcBip44 = {
-  scriptType: core.BTCInputScriptType.SpendAddress,
+  scriptType: core.BTCScriptType.Legacy,
   addressNList: [0x80000000 + 44, 0x80000000 + 2, 0x80000000 + 0, 0, 0],
 };
 
@@ -3091,7 +3091,7 @@ $ltcTx.on("click", async (e) => {
     const inputs = [
       {
         addressNList: ltcBip44.addressNList,
-        scriptType: core.BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCScriptType.Legacy,
         amount: String(2160258),
         vout: 0,
         txid,
@@ -3105,7 +3105,7 @@ $ltcTx.on("click", async (e) => {
       {
         address: "LLe4PciAJgMMJSAtQQ5nkC13t6SSMmERJ3",
         addressType: core.BTCOutputAddressType.Spend,
-        scriptType: core.BTCOutputScriptType.PayToAddress,
+        scriptType: core.BTCScriptType.Legacy,
         amount: String(261614),
         isChange: false,
       },
@@ -3135,7 +3135,7 @@ $ltcSign.on("click", async (e) => {
     const res = await wallet.btcSignMessage({
       addressNList: ltcBip44.addressNList,
       coin: "Litecoin",
-      scriptType: core.BTCInputScriptType.SpendAddress,
+      scriptType: core.BTCScriptType.Legacy,
       message: "Hello World",
     });
     $ltcResults.val(res.address + " " + res.signature);
@@ -3159,7 +3159,7 @@ const $dogeTx = $("#dogeTx");
 const $dogeResults = $("#dogeResults");
 
 const dogeBip44 = {
-  scriptType: core.BTCInputScriptType.SpendAddress,
+  scriptType: core.BTCScriptType.Legacy,
   addressNList: [0x80000000 + 44, 0x80000000 + 3, 0x80000000 + 0],
 };
 $dogeAddr.on("click", async (e) => {
@@ -3196,7 +3196,7 @@ $dogeTx.on("click", async (e) => {
     const inputs = [
       {
         addressNList: dogeBip44.addressNList.concat([0, 0]),
-        scriptType: core.BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCScriptType.Legacy,
         amount: String(35577380098),
         vout: 1,
         txid: txid,
@@ -3210,7 +3210,7 @@ $dogeTx.on("click", async (e) => {
       {
         address: "DMEHVGRsELY5zyYbfgta3pAhedKGeaDeJd",
         addressType: core.BTCOutputAddressType.Spend,
-        scriptType: core.BTCOutputScriptType.PayToAddress,
+        scriptType: core.BTCScriptType.Legacy,
         amount: String(35577380098),
         isChange: false,
       },
@@ -3242,7 +3242,7 @@ const $bchTx = $("#bchTx");
 const $bchResults = $("#bchResults");
 
 const bchBip44 = {
-  scriptType: core.BTCInputScriptType.SpendAddress,
+  scriptType: core.BTCScriptType.Legacy,
   addressNList: [0x80000000 + 44, 0x80000000 + 145, 0x80000000 + 0],
 };
 
@@ -3280,7 +3280,7 @@ $bchTx.on("click", async (e) => {
     const inputs = [
       {
         addressNList: bchBip44.addressNList.concat([0, 0]),
-        scriptType: core.BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCScriptType.Legacy,
         amount: String(13813640),
         vout: 0,
         txid: txid,
@@ -3291,11 +3291,9 @@ $bchTx.on("click", async (e) => {
 
     const outputs = [
       {
-        address: (await wallet.btcSupportsScriptType("BitcoinCash", core.BTCInputScriptType.CashAddr))
-          ? "bitcoincash:qq5mg2xtp9y5pvvgy7m4k2af5a7s5suulueyywgvnf"
-          : "14oWXZFPhgP9DA3ggPzhHpUUaikDSjAuMC",
+        address: "bitcoincash:qq5mg2xtp9y5pvvgy7m4k2af5a7s5suulueyywgvnf",
         addressType: core.BTCOutputAddressType.Spend,
-        scriptType: core.BTCOutputScriptType.PayToAddress,
+        scriptType: core.BTCScriptType.Legacy,
         amount: String(13813640),
         isChange: false,
       },
@@ -3327,7 +3325,7 @@ const $dashTx = $("#dashTx");
 const $dashResults = $("#dashResults");
 
 const dashBip44 = {
-  scriptType: core.BTCInputScriptType.SpendAddress,
+  scriptType: core.BTCScriptType.Legacy,
   addressNList: [0x80000000 + 44, 0x80000000 + 5, 0x80000000 + 0],
 };
 
@@ -3365,7 +3363,7 @@ $dashTx.on("click", async (e) => {
     const inputs = [
       {
         addressNList: dashBip44.addressNList.concat([0, 0]),
-        scriptType: core.BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCScriptType.Legacy,
         amount: String(4954359),
         vout: 0,
         txid: txid,
@@ -3379,7 +3377,7 @@ $dashTx.on("click", async (e) => {
       {
         address: "XexybzTUtH9V9eY4UJN2aCcBT3utan5C8N",
         addressType: core.BTCOutputAddressType.Spend,
-        scriptType: core.BTCOutputScriptType.PayToAddress,
+        scriptType: core.BTCScriptType.Legacy,
         amount: String(4000000),
         isChange: false,
       },
@@ -3410,7 +3408,7 @@ const $dgbTx = $("#dgbTx");
 const $dgbResults = $("#dgbResults");
 
 const dgbBip44 = {
-  scriptType: core.BTCInputScriptType.SpendAddress,
+  scriptType: core.BTCScriptType.Legacy,
   addressNList: [0x80000000 + 44, 0x80000000 + 20, 0x80000000 + 0],
 };
 
@@ -3450,7 +3448,7 @@ $dgbTx.on("click", async (e) => {
     const inputs = [
       {
         addressNList: dgbBip44.addressNList.concat([0, 0]),
-        scriptType: core.BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCScriptType.Legacy,
         amount: String(480000000),
         vout: 15,
         txid: "be150359df4123b379f1f12de978bfced92644645da17b97c7613879f4306a90",
@@ -3459,7 +3457,7 @@ $dgbTx.on("click", async (e) => {
       },
       {
         addressNList: dgbBip44.addressNList.concat([0, 0]),
-        scriptType: core.BTCInputScriptType.SpendAddress,
+        scriptType: core.BTCScriptType.Legacy,
         amount: String(10000000),
         vout: 0,
         txid: "528ec23eaf123282e9bce297ebb3edfb05e8b4d5875cbc9c271a98d72a202340",
@@ -3472,14 +3470,14 @@ $dgbTx.on("click", async (e) => {
       {
         address: "SWpe93hQL2pLUDLy7swsDPWQJGCHSsgmun",
         addressType: null,
-        scriptType: core.BTCOutputScriptType.PayToMultisig,
+        scriptType: core.BTCScriptType.LegacyMultisig,
         amount: String(400000000),
         isChange: false,
       },
       {
         address: "DNLcBry65dHehGExGYjBkM8kxDYr7mZ3BT",
         addressType: null,
-        scriptType: core.BTCOutputScriptType.PayToAddress,
+        scriptType: core.BTCScriptType.Legacy,
         relpath: "1/9",
         amount: String(90000000),
         isChange: true,
@@ -3528,7 +3526,7 @@ $btcAddrSegWit.on("click", async (e) => {
     const res = await wallet.btcGetAddress({
       addressNList: [0x80000000 + 49, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
       coin: "Bitcoin",
-      scriptType: core.BTCInputScriptType.SpendP2SHWitness,
+      scriptType: core.BTCScriptType.Segwit,
       showDisplay: true,
     });
 
@@ -3551,7 +3549,7 @@ $btcAddrSegWitNative.on("click", async (e) => {
     const res = await wallet.btcGetAddress({
       addressNList: [0x80000000 + 84, 0x80000000 + 0, 0x80000000 + 0, 0, 0],
       coin: "Bitcoin",
-      scriptType: core.BTCInputScriptType.SpendWitness,
+      scriptType: core.BTCScriptType.SegwitNative,
       showDisplay: true,
     });
     $btcResultsSegWit.val(res);
@@ -3578,7 +3576,7 @@ $btcTxSegWit.on("click", async (e) => {
         amount: String(100000),
         vout: 0,
         txid: txid,
-        scriptType: core.BTCInputScriptType.SpendP2SHWitness,
+        scriptType: core.BTCScriptType.Segwit,
         tx: btcSegWitTxJson,
         hex,
       },
@@ -3588,7 +3586,7 @@ $btcTxSegWit.on("click", async (e) => {
       {
         address: "3Eq3agTHEhMCC8sZHnJJcCcZFB7BBSJKWr",
         addressType: core.BTCOutputAddressType.Spend,
-        scriptType: core.BTCOutputScriptType.PayToAddress,
+        scriptType: core.BTCScriptType.Legacy,
         amount: String(89869),
         isChange: false,
       },
@@ -3630,7 +3628,7 @@ $btcTxSegWitNative.on("click", async (e) => {
         amount: String(9426),
         vout: 0,
         txid: txid,
-        scriptType: core.BTCInputScriptType.SpendWitness,
+        scriptType: core.BTCScriptType.SegwitNative,
         tx: btcBech32TxJson,
         hex,
       },
@@ -3640,7 +3638,7 @@ $btcTxSegWitNative.on("click", async (e) => {
       {
         address: "bc1qc5dgazasye0yrzdavnw6wau5up8td8gdqh7t6m",
         addressType: core.BTCOutputAddressType.Spend,
-        scriptType: core.BTCOutputScriptType.PayToAddress,
+        scriptType: core.BTCScriptType.Legacy,
         amount: String(1337),
         isChange: false,
       },
