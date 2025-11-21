@@ -1,6 +1,6 @@
 import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
+import { BTCScriptType } from "@shapeshiftoss/hdwallet-core";
 
 import { VultisigUtxoProvider } from "./types";
 
@@ -55,7 +55,7 @@ export const btcGetAccountPaths = (msg: core.BTCGetAccountPaths): Array<core.BTC
 
 async function addInput(psbt: bitcoin.Psbt, input: core.BTCSignTxInput): Promise<void> {
   switch (input.scriptType) {
-    case BTCInputScriptType.SpendWitness: {
+    case BTCScriptType.SegwitNative: {
       psbt.addInput({
         hash: input.txid,
         index: input.vout,
@@ -84,6 +84,7 @@ async function addOutput(
       const outputAddress = await btcGetAddress(provider, {
         addressNList: output.addressNList,
         coin,
+        scriptType: output.scriptType,
         showDisplay: false,
       });
       if (!outputAddress) throw new Error("Could not get address from wallet");
@@ -131,6 +132,7 @@ export async function bitcoinSignTx(
         const address = await btcGetAddress(provider, {
           addressNList: input.addressNList,
           coin: msg.coin,
+          scriptType: input.scriptType,
           showDisplay: false,
         });
 

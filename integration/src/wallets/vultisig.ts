@@ -213,7 +213,7 @@ export function selfTest(get: () => core.HDWallet): void {
 
     it("supports correct script types", async () => {
       if (!wallet) return;
-      expect(await wallet.btcSupportsScriptType("Bitcoin", core.BTCInputScriptType.SpendWitness)).toEqual(true);
+      expect(await wallet.btcSupportsScriptType("Bitcoin", core.BTCScriptType.SegwitNative)).toEqual(true);
     });
 
     it("uses correct paths for Bitcoin (BIP84)", () => {
@@ -225,7 +225,7 @@ export function selfTest(get: () => core.HDWallet): void {
       expect(paths).toEqual([
         {
           addressNList: [2147483732, 2147483648, 2147483651], // m/84'/0'/3'
-          scriptType: core.BTCInputScriptType.SpendWitness,
+          scriptType: core.BTCScriptType.SegwitNative,
           coin: "Bitcoin",
         },
       ]);
@@ -237,13 +237,13 @@ export function selfTest(get: () => core.HDWallet): void {
         wallet.describePath({
           path: core.bip32ToAddressNList("m/84'/0'/0'/0/0"),
           coin: "Bitcoin",
-          scriptType: core.BTCInputScriptType.SpendWitness,
+          scriptType: core.BTCScriptType.SegwitNative,
         })
       ).toEqual({
-        verbose: "Bitcoin Account #0, Address #0 (Segwit)",
+        verbose: "Bitcoin Account #0, Address #0 (Segwit Native)",
         coin: "Bitcoin",
         isKnown: true,
-        scriptType: core.BTCInputScriptType.SpendWitness,
+        scriptType: core.BTCScriptType.SegwitNative,
         accountIdx: 0,
         addressIdx: 0,
         wholeAccount: false,

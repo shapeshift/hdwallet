@@ -38,25 +38,13 @@ export function litecoinTests(get: () => { wallet: core.HDWallet; info: core.HDW
         if (!(await wallet.btcSupportsCoin("Litecoin"))) return;
         await each(
           [
-            [
-              "Show",
-              "Litecoin",
-              "m/44'/2'/0'/0/0",
-              core.BTCInputScriptType.SpendAddress,
-              "LYXTv5RdsPYKC4qGmb6x6SuKoFMxUdSjLQ",
-            ],
-            [
-              "Tell",
-              "Litecoin",
-              "m/49'/2'/0'/0/0",
-              core.BTCInputScriptType.SpendP2SHWitness,
-              "MFoQRU1KQq365Sy3cXhix3ygycEU4YWB1V",
-            ],
+            ["Show", "Litecoin", "m/44'/2'/0'/0/0", core.BTCScriptType.Legacy, "LYXTv5RdsPYKC4qGmb6x6SuKoFMxUdSjLQ"],
+            ["Tell", "Litecoin", "m/49'/2'/0'/0/0", core.BTCScriptType.Segwit, "MFoQRU1KQq365Sy3cXhix3ygycEU4YWB1V"],
             [
               "Tell",
               "Litecoin",
               "m/84'/2'/0'/0/0",
-              core.BTCInputScriptType.SpendWitness,
+              core.BTCScriptType.SegwitNative,
               "ltc1qf6pwfkw4wd0fetq2pfrwzlfknskjg6nyvt6ngv",
             ],
           ],
@@ -64,7 +52,7 @@ export function litecoinTests(get: () => { wallet: core.HDWallet; info: core.HDW
             const mode = args[0] as string;
             const coin = args[1] as core.Coin;
             const path = args[2] as string;
-            const scriptType = args[3] as core.BTCInputScriptType;
+            const scriptType = args[3] as core.BTCScriptType;
             const expected = args[4] as string;
 
             if (!(await wallet.btcSupportsScriptType(coin, scriptType))) return;
@@ -86,14 +74,14 @@ export function litecoinTests(get: () => { wallet: core.HDWallet; info: core.HDW
       async () => {
         await each(
           [
-            ["Litecoin", 1, core.BTCInputScriptType.SpendAddress],
-            ["Litecoin", 1, core.BTCInputScriptType.SpendP2SHWitness],
-            ["Litecoin", 1, core.BTCInputScriptType.SpendWitness],
+            ["Litecoin", 1, core.BTCScriptType.Legacy],
+            ["Litecoin", 1, core.BTCScriptType.Segwit],
+            ["Litecoin", 1, core.BTCScriptType.SegwitNative],
           ],
           async (args) => {
             const coin = args[0] as core.Coin;
             const accountIdx = args[1] as number;
-            const scriptType = args[2] as core.BTCInputScriptType;
+            const scriptType = args[2] as core.BTCScriptType;
             if (!wallet) return;
             if (!(await wallet.btcSupportsCoin(coin))) return;
             if (!(await wallet.btcSupportsScriptType(coin, scriptType))) return;

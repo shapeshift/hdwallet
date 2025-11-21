@@ -1,6 +1,6 @@
 import { decode, encode } from "bs58check";
 
-import { BTCInputScriptType } from "./bitcoin";
+import { BTCScriptType } from "./bitcoin";
 
 enum UtxoAccountType {
   SegwitNative = "SegwitNative",
@@ -8,14 +8,11 @@ enum UtxoAccountType {
   P2pkh = "P2pkh",
 }
 
-export const scriptTypeToAccountType: Record<BTCInputScriptType, UtxoAccountType | undefined> = Object.freeze({
-  [BTCInputScriptType.SpendAddress]: UtxoAccountType.P2pkh,
-  [BTCInputScriptType.SpendP2SHWitness]: UtxoAccountType.SegwitP2sh,
-  [BTCInputScriptType.SpendWitness]: UtxoAccountType.SegwitNative,
-  [BTCInputScriptType.SpendMultisig]: undefined,
-  [BTCInputScriptType.Bech32]: undefined,
-  [BTCInputScriptType.CashAddr]: undefined,
-  [BTCInputScriptType.External]: undefined,
+export const scriptTypeToAccountType: Record<BTCScriptType, UtxoAccountType | undefined> = Object.freeze({
+  [BTCScriptType.Legacy]: UtxoAccountType.P2pkh,
+  [BTCScriptType.Segwit]: UtxoAccountType.SegwitP2sh,
+  [BTCScriptType.SegwitNative]: UtxoAccountType.SegwitNative,
+  [BTCScriptType.LegacyMultisig]: undefined,
 });
 
 /**

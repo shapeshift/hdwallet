@@ -172,7 +172,7 @@ describe("VultisigHDWallet", () => {
         expect(paths).toHaveLength(1);
         expect(paths[0]).toEqual({
           coin: "Bitcoin",
-          scriptType: core.BTCInputScriptType.SpendWitness,
+          scriptType: core.BTCScriptType.SegwitNative,
           addressNList: [0x80000000 + 84, 0x80000000 + 0, 0x80000000 + 0],
         });
       });
@@ -181,11 +181,11 @@ describe("VultisigHDWallet", () => {
         const paths = wallet.btcGetAccountPaths({
           coin: "Bitcoin",
           accountIdx: 0,
-          scriptType: core.BTCInputScriptType.SpendWitness,
+          scriptType: core.BTCScriptType.SegwitNative,
         });
 
         expect(paths).toHaveLength(1);
-        expect(paths[0].scriptType).toBe(core.BTCInputScriptType.SpendWitness);
+        expect(paths[0].scriptType).toBe(core.BTCScriptType.SegwitNative);
       });
 
       it("should return empty array for unsupported coin", () => {
@@ -200,19 +200,19 @@ describe("VultisigHDWallet", () => {
 
     describe("btcSupportsScriptType", () => {
       it("should support SpendWitness for Bitcoin", async () => {
-        const result = await wallet.btcSupportsScriptType("Bitcoin", core.BTCInputScriptType.SpendWitness);
+        const result = await wallet.btcSupportsScriptType("Bitcoin", core.BTCScriptType.SegwitNative);
         expect(result).toBe(true);
       });
 
       it("should support SpendAddress for Bitcoin", async () => {
-        const result = await wallet.btcSupportsScriptType("Bitcoin", core.BTCInputScriptType.SpendAddress);
+        const result = await wallet.btcSupportsScriptType("Bitcoin", core.BTCScriptType.Legacy);
         expect(result).toBe(true);
       });
 
       it("should NOT support SpendP2SHWitness for any coin", async () => {
         const coins = ["Bitcoin"];
         for (const coin of coins) {
-          const result = await wallet.btcSupportsScriptType(coin, core.BTCInputScriptType.SpendP2SHWitness);
+          const result = await wallet.btcSupportsScriptType(coin, core.BTCScriptType.Segwit);
           expect(result).toBe(false);
         }
       });
@@ -226,10 +226,7 @@ describe("VultisigHDWallet", () => {
       });
 
       it("should return false for unsupported coin", async () => {
-        const result = await wallet.btcSupportsScriptType(
-          "UnsupportedCoin" as any,
-          core.BTCInputScriptType.SpendWitness
-        );
+        const result = await wallet.btcSupportsScriptType("UnsupportedCoin" as any, core.BTCScriptType.SegwitNative);
         expect(result).toBe(false);
       });
     });

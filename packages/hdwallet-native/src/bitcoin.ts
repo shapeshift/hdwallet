@@ -7,8 +7,7 @@ import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
 
 const supportedCoins = ["bitcoin", "dash", "digibyte", "dogecoin", "litecoin", "bitcoincash", "testnet"];
-
-const segwit = ["p2wpkh", "p2sh-p2wpkh", "bech32"];
+const segwit = ["p2wpkh", "p2sh-p2wpkh"];
 
 type NonWitnessUtxo = Buffer;
 
@@ -39,21 +38,20 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDW
       return this.btcSupportsCoinSync(coin);
     }
 
-    btcSupportsScriptTypeSync(coin: core.Coin, scriptType?: core.BTCInputScriptType): boolean {
+    btcSupportsScriptTypeSync(coin: core.Coin, scriptType?: core.BTCScriptType): boolean {
       if (!this.btcSupportsCoinSync(coin)) return false;
 
       switch (scriptType) {
-        case core.BTCInputScriptType.SpendAddress:
-        case core.BTCInputScriptType.SpendWitness:
-        case core.BTCInputScriptType.Bech32:
-        case core.BTCInputScriptType.SpendP2SHWitness:
+        case core.BTCScriptType.Legacy:
+        case core.BTCScriptType.SegwitNative:
+        case core.BTCScriptType.Segwit:
           return true;
         default:
           return false;
       }
     }
 
-    async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
+    async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCScriptType): Promise<boolean> {
       return this.btcSupportsScriptTypeSync(coin, scriptType);
     }
 
@@ -103,9 +101,9 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDW
       const addressNList = msg.addressNList;
 
       if (
-        (addressNList[0] === 0x80000000 + 44 && msg.scriptType == core.BTCInputScriptType.SpendAddress) ||
-        (addressNList[0] === 0x80000000 + 49 && msg.scriptType == core.BTCInputScriptType.SpendP2SHWitness) ||
-        (addressNList[0] === 0x80000000 + 84 && msg.scriptType == core.BTCInputScriptType.SpendWitness)
+        (addressNList[0] === 0x80000000 + 44 && msg.scriptType == core.BTCScriptType.Legacy) ||
+        (addressNList[0] === 0x80000000 + 49 && msg.scriptType == core.BTCScriptType.Segwit) ||
+        (addressNList[0] === 0x80000000 + 84 && msg.scriptType == core.BTCScriptType.SegwitNative)
       ) {
         addressNList[2] += 1;
         return {
@@ -162,7 +160,6 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
         switch (scriptType) {
           case "p2sh-p2wpkh":
           case "p2sh":
-          case "bech32":
             scriptData.redeemScript = payment.redeem?.output ? Buffer.from(payment.redeem.output) : undefined;
             break;
         }
@@ -191,7 +188,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
         const { coin, inputs, outputs, version, locktime } = msg;
 
         const psbt = new bitcoin.Psbt({
-          network: core.getNetwork(coin, core.BTCOutputScriptType.PayToMultisig),
+          network: core.getNetwork(coin),
           forkCoin: coin.toLowerCase() === "bitcoincash" ? "bch" : "none",
         });
 
