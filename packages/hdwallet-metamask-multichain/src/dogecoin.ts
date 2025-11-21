@@ -15,7 +15,6 @@ export function dogecoinGetAccountPaths(msg: core.BTCGetAccountPaths): Array<cor
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function dogecoinNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-  // Only support one account for now (like portis).
   return undefined;
 }
 

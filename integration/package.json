@@ -18,7 +18,6 @@
     "@shapeshiftoss/hdwallet-ledger": "1.62.9",
     "@shapeshiftoss/hdwallet-metamask-multichain": "1.62.9",
     "@shapeshiftoss/hdwallet-native": "1.62.9",
-    "@shapeshiftoss/hdwallet-portis": "1.62.9",
     "@shapeshiftoss/hdwallet-trezor": "1.62.9",
     "@shapeshiftoss/hdwallet-vultisig": "1.62.9",
     "fast-json-stable-stringify": "^2.1.0",
