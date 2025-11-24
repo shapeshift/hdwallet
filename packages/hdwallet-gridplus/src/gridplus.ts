@@ -362,7 +362,7 @@ export class GridPlusHDWallet
     this.client = undefined;
   }
 
-  async getActiveWallet(): Promise<string | undefined> {
+  async getActiveWalletId(): Promise<string | undefined> {
     if (!this.client) throw new Error("Device not connected");
 
     const { external, internal } = await this.client.fetchActiveWallet();
