@@ -54,7 +54,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
 
         if (!address) throw new Error("No address returned from device");
 
-        return address
+        return address;
       }
 
       throw new Error("Invalid output (no address or addressNList specified).");
@@ -183,6 +183,8 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
     psbt.finalizeAllInputs();
 
     const tx = psbt.extractTransaction(true);
+
+    console.log({ msg, tx, psbt });
 
     const signatures = psbt.data.inputs.map((input) =>
       input.partialSig ? Buffer.from(input.partialSig[0].signature).toString("hex") : ""
