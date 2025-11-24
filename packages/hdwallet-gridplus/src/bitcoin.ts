@@ -184,14 +184,9 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
 
     const tx = psbt.extractTransaction(true);
 
-    const signatures = tx.ins.map((input) => {
-      if (input.witness.length > 0) {
-        return Buffer.from(input.witness[0]).toString("hex");
-      } else {
-        const sigLen = input.script[0];
-        return Buffer.from(input.script.slice(1, sigLen)).toString("hex");
-      }
-    });
+    const signatures = psbt.data.inputs.map((input) =>
+      input.partialSig ? Buffer.from(input.partialSig[0].signature).toString("hex") : ""
+    );
 
     return { signatures, serializedTx: tx.toHex() };
   }
