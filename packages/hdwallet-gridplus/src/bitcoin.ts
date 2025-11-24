@@ -184,8 +184,6 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
 
     const tx = psbt.extractTransaction(true);
 
-    console.log({ msg, tx, psbt });
-
     const signatures = psbt.data.inputs.map((input) =>
       input.partialSig ? Buffer.from(input.partialSig[0].signature).toString("hex") : ""
     );
