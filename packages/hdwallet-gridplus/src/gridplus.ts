@@ -9,6 +9,8 @@ import * as mayachain from "./mayachain";
 import * as solana from "./solana";
 import * as thorchain from "./thorchain";
 
+const ZERO_BUFFER = Buffer.alloc(32)
+
 export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
   return isObject(wallet) && (wallet as any)._isGridPlus;
 }
@@ -349,7 +351,6 @@ export class GridPlusHDWallet
   }
 
   async isLocked(): Promise<boolean> {
-    if (!this.client) throw new Error("Device not connected");
     return false;
   }
 
@@ -361,9 +362,13 @@ export class GridPlusHDWallet
     this.client = undefined;
   }
 
-  getSessionId(): string | undefined {
+  async getActiveWallet(): Promise<string | undefined> {
     if (!this.client) throw new Error("Device not connected");
-    return JSON.parse(this.client.getStateData())["privKey"];
+
+    const { external, internal } = await this.client.fetchActiveWallet();
+
+    if (!external.uid.equals(ZERO_BUFFER)) return external.uid.toString("hex")
+    if (!internal.uid.equals(ZERO_BUFFER)) return internal.uid.toString("hex")
   }
 
   async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {

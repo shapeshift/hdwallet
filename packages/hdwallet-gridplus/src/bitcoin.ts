@@ -53,6 +53,8 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
         });
 
         if (!address) throw new Error("No address returned from device");
+
+        return address
       }
 
       throw new Error("Invalid output (no address or addressNList specified).");
