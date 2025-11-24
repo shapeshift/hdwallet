@@ -243,9 +243,8 @@ $gridplus.on("click", async (e) => {
     const input = document.getElementById("#deviceIdInput") as HTMLInputElement;
     deviceId = input.value;
     document.getElementById("#deviceIdModal").className = "modal";
-    const { wallet: maybeWallet } = await gridplusAdapter.connectDevice(deviceId);
-    if (maybeWallet) {
-      wallet = maybeWallet;
+    wallet = await gridplusAdapter.connectDevice(deviceId);
+    if (wallet) {
       window["wallet"] = wallet;
       $("#keyring select").val(await wallet.getDeviceID());
     } else {

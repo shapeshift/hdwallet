@@ -9,7 +9,7 @@ import * as mayachain from "./mayachain";
 import * as solana from "./solana";
 import * as thorchain from "./thorchain";
 
-const ZERO_BUFFER = Buffer.alloc(32)
+const ZERO_BUFFER = Buffer.alloc(32);
 
 export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
   return isObject(wallet) && (wallet as any)._isGridPlus;
@@ -367,8 +367,8 @@ export class GridPlusHDWallet
 
     const { external, internal } = await this.client.fetchActiveWallet();
 
-    if (!external.uid.equals(ZERO_BUFFER)) return external.uid.toString("hex")
-    if (!internal.uid.equals(ZERO_BUFFER)) return internal.uid.toString("hex")
+    if (!external.uid.equals(ZERO_BUFFER)) return external.uid.toString("hex");
+    if (!internal.uid.equals(ZERO_BUFFER)) return internal.uid.toString("hex");
   }
 
   async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
