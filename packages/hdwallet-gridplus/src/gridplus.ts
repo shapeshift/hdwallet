@@ -294,6 +294,8 @@ export class GridPlusHDWallet
   readonly _supportsSolana = true;
   readonly _supportsThorchain = true;
 
+  readonly _isGridPlus = true;
+
   client: Client | undefined;
 
   constructor(client: Client) {
