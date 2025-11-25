@@ -2,7 +2,6 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import cloneDeep from "lodash/cloneDeep";
 
 import * as native from "./native";
-import * as Networks from "./networks";
 
 const MNEMONIC = "all all all all all all all all all all all all";
 
@@ -148,7 +147,7 @@ describe("NativeBTCWalletInfo", () => {
     expect(await info.btcSupportsCoin("bitcoin")).toBe(true);
     expect(await info.btcSupportsCoin("bitcoincash")).toBe(true);
     expect(await info.btcSupportsScriptType("bitcoin", "p2pkh" as any)).toBe(true);
-    expect(await info.btcSupportsScriptType("bitcoin", "p2sh" as any)).toBe(true);
+    expect(await info.btcSupportsScriptType("bitcoin", "p2sh" as any)).toBe(false);
     expect(await info.btcSupportsScriptType("bitcoin", "p2wpkh" as any)).toBe(true);
     expect(await info.btcSupportsScriptType("bitcoin", "p2sh-p2wpkh" as any)).toBe(true);
     expect(await info.btcSupportsScriptType("bitcoin", "bech32" as any)).toBe(true);
@@ -356,18 +355,18 @@ describe("NativeBTCWallet", () => {
         scriptType: "p2sh" as any,
         addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
       })
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`"Not enough data"`);
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`"Unsupported script type: p2sh"`);
   });
 
   it("should not generate addresses for bad script types", async () => {
-    const mock = jest.spyOn(Networks, "getNetwork").mockReturnValue(Networks.getNetwork("bitcoin", "p2pkh" as any));
+    const mock = jest.spyOn(core, "getNetwork").mockReturnValue(core.getNetwork("bitcoin", "p2pkh" as any));
     await expect(
       wallet.btcGetAddress({
         coin: "Bitcoin",
         scriptType: "foobar" as any,
         addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
       })
-    ).rejects.toThrowError("no implementation for script type");
+    ).rejects.toThrowError("Unsupported script type: foobar");
     mock.mockRestore();
   });
 

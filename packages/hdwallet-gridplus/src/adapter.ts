@@ -1,11 +1,16 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { createHash } from "crypto";
+import { Client } from "gridplus-sdk";
 
 import { GridPlusHDWallet } from "./gridplus";
-import { GridPlusTransport } from "./transport";
+
+const name = "ShapeShift";
+const baseUrl = "https://signing.gridpl.us";
 
 export class GridPlusAdapter {
   keyring: core.Keyring;
-  private activeTransports: Map<string, GridPlusTransport> = new Map();
+
+  private client?: Client;
 
   constructor(keyring: core.Keyring) {
     this.keyring = keyring;
@@ -15,95 +20,32 @@ export class GridPlusAdapter {
     return new GridPlusAdapter(keyring);
   }
 
-  public async connectDevice(
-    deviceId: string,
-    password?: string,
-    existingSessionId?: string
-  ): Promise<{ transport: GridPlusTransport; isPaired: boolean; sessionId: string }> {
-    const transport = (() => {
-      const existing = this.activeTransports.get(deviceId);
-      if (existing) return existing;
+  public async connectDevice(deviceId: string, password = ""): Promise<GridPlusHDWallet | undefined> {
+    const privKey = createHash("sha256")
+      .update(deviceId + password + name)
+      .digest();
 
-      const newTransport = new GridPlusTransport({
-        deviceId,
-        password: password || "shapeshift-default",
-      });
-      this.activeTransports.set(deviceId, newTransport);
-      return newTransport;
-    })();
+    if (!this.client) {
+      this.client = new Client({ name, baseUrl, privKey, deviceId });
+    } else {
+      // Client already exists, reset active wallets to clear stale state before reconnecting
+      // This is critical when switching between SafeCards - ensures fresh wallet state from device
+      this.client.resetActiveWallets();
+    }
 
-    const { isPaired, sessionId } = await transport.setup(deviceId, password, existingSessionId);
-    return { transport, isPaired, sessionId };
+    const isPaired = await this.client.connect(deviceId);
+    if (isPaired) return new GridPlusHDWallet(this.client);
   }
 
-  public async pairConnectedDevice(deviceId: string, pairingCode: string): Promise<GridPlusHDWallet> {
-    const transport = this.activeTransports.get(deviceId);
-    if (!transport) {
-      throw new Error("Device not connected. Call connectDevice first.");
-    }
+  public async pairDevice(pairingCode: string): Promise<GridPlusHDWallet> {
+    if (!this.client) throw new Error("No client connected. Call connectDevice first.");
 
-    try {
-      const pairingSuccess = await transport.pair(pairingCode);
+    const success = await this.client.pair(pairingCode);
+    if (!success) throw new Error("Failed to pair.");
 
-      if (!pairingSuccess) {
-        throw new Error("Pairing failed. Please check the 8-character code displayed on your Lattice device.");
-      }
+    const wallet = new GridPlusHDWallet(this.client);
+    this.keyring.add(wallet, this.client.getDeviceId());
 
-      const wallet = new GridPlusHDWallet(transport);
-      wallet.setActiveWalletId(deviceId);
-      await wallet.initialize();
-      this.keyring.add(wallet, deviceId);
-      this.activeTransports.delete(deviceId);
-
-      return wallet;
-    } catch (error) {
-      throw new Error(`GridPlus pairing failed: ${error instanceof Error ? error.message : "Unknown error"}`);
-    }
-  }
-
-  public async pairDevice(
-    deviceId: string,
-    password?: string,
-    pairingCode?: string,
-    existingSessionId?: string
-  ): Promise<GridPlusHDWallet> {
-    const existingWallet = this.keyring.get<GridPlusHDWallet>(deviceId);
-    if (existingWallet) {
-      // Reset Client activeWallets state and fetch fresh UIDs from currently inserted SafeCard
-      await existingWallet.transport.setup(deviceId, password, existingSessionId);
-      // Ensure the wallet has the correct active walletId set
-      existingWallet.setActiveWalletId(deviceId);
-      // Reinitialize to clear cached addresses when reconnecting (e.g., SafeCard swap)
-      await existingWallet.initialize();
-      return existingWallet;
-    }
-
-    const { isPaired } = await this.connectDevice(deviceId, password, existingSessionId);
-
-    if (!isPaired) {
-      if (pairingCode) {
-        return await this.pairConnectedDevice(deviceId, pairingCode);
-      } else {
-        throw new Error("PAIRING_REQUIRED");
-      }
-    }
-
-    // Already paired - create wallet directly
-    const transport = this.activeTransports.get(deviceId)!;
-    const wallet = new GridPlusHDWallet(transport);
-    wallet.setActiveWalletId(deviceId);
-    await wallet.initialize();
-    this.keyring.add(wallet, deviceId);
-    this.activeTransports.delete(deviceId);
     return wallet;
-  }
-
-  public async initialize(deviceId: string, password?: string): Promise<number> {
-    await this.pairDevice(deviceId, password);
-    return Object.keys(this.keyring.wallets).length;
-  }
-
-  public get(deviceId: string): GridPlusHDWallet {
-    return core.mustBeDefined(this.keyring.get<GridPlusHDWallet>(deviceId));
   }
 }

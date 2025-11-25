@@ -3,7 +3,7 @@ import { CreateTransactionArg } from "@ledgerhq/hw-app-btc/lib/createTransaction
 import { Transaction } from "@ledgerhq/hw-app-btc/lib/types";
 import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
+import { BTCInputScriptType, convertXpubVersion, scriptTypeToAccountType } from "@shapeshiftoss/hdwallet-core";
 import Base64 from "base64-js";
 import * as bchAddr from "bchaddrjs";
 import * as bitcoinMsg from "bitcoinjs-message";
@@ -12,7 +12,6 @@ import zip from "lodash/zip";
 import { currencies } from "./currencies";
 import { LedgerTransport } from "./transport";
 import { handleError, networksUtil, translateScriptType } from "./utils";
-import { convertXpubVersion, scriptTypeToAccountType } from "./utxoUtils";
 
 export const supportedCoins = ["Testnet", "Bitcoin", "BitcoinCash", "Litecoin", "Dash", "DigiByte", "Dogecoin"];
 

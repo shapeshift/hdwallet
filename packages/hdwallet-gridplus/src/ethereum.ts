@@ -1,8 +1,8 @@
 import { Common, Hardfork } from "@ethereumjs/common";
-import { TransactionFactory, TypedTxData } from "@ethereumjs/tx";
+import { RLP } from "@ethereumjs/rlp";
+import { TransactionFactory, TransactionType, TypedTxData } from "@ethereumjs/tx";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Client, Constants, Utils } from "gridplus-sdk";
-import { encode } from "rlp";
 
 export async function ethGetAddress(client: Client, msg: core.ETHGetAddress): Promise<core.Address | null> {
   const address = (await client.getAddresses({ startPath: msg.addressNList, n: 1 }))[0];
@@ -23,37 +23,23 @@ export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<co
     nonce: msg.nonce,
     gasLimit: msg.gasLimit,
     chainId: msg.chainId,
-    // Add explicit type field for TransactionFactory to correctly detect transaction type
-    type: isEIP1559 ? 2 : 0,
-    ...(isEIP1559
-      ? {
-          maxFeePerGas: msg.maxFeePerGas,
-          maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
-        }
-      : {
-          gasPrice: msg.gasPrice,
-        }),
+    type: isEIP1559 ? TransactionType.FeeMarketEIP1559 : TransactionType.Legacy,
+    maxFeePerGas: msg.maxFeePerGas,
+    maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
+    gasPrice: msg.gasPrice,
   };
 
-  const common = isEIP1559
-    ? Common.custom({ chainId: msg.chainId }, { hardfork: Hardfork.London })
-    : Common.custom({ chainId: msg.chainId });
-
-  // Use TransactionFactory with explicit type field (Kevin's approach)
+  const common = Common.custom({ chainId: msg.chainId }, { hardfork: Hardfork.London });
   const unsignedTx = TransactionFactory.fromTxData(txData, { common });
 
-  // Handle payload encoding based on transaction type
-  // Legacy transactions return an array that needs RLP encoding
-  // EIP-1559 transactions return a pre-encoded buffer
-  const rawPayload = unsignedTx.getMessageToSign();
-  const payload = Array.isArray(rawPayload) ? encode(rawPayload) : rawPayload;
+  const payload = isEIP1559 ? unsignedTx.getMessageToSign() : RLP.encode(unsignedTx.getMessageToSign());
 
   const fwVersion = client.getFwVersion();
   const supportsDecoderRecursion = fwVersion.major > 0 || fwVersion.minor >= 16;
 
   const decoderResult = await (() => {
     if (!msg.data || (msg.data.startsWith("0x") && Buffer.from(msg.data.slice(2), "hex").length < 4)) {
-      return { def: null };
+      return { def: undefined };
     }
     return Utils.fetchCalldataDecoder(msg.data, msg.to, msg.chainId, supportsDecoderRecursion);
   })();
@@ -67,7 +53,7 @@ export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<co
       hashType: Constants.SIGNING.HASHES.KECCAK256,
       encodingType: Constants.SIGNING.ENCODINGS.EVM,
       signerPath: msg.addressNList,
-      decoder: def,
+      decoder: def ? Buffer.from(def) : undefined,
     },
   });
 
@@ -79,29 +65,7 @@ export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<co
   if (!Buffer.isBuffer(s)) throw new Error("Invalid signature (s)");
   if (!Buffer.isBuffer(v)) throw new Error("Invalid signature (v)");
 
-  // Reconstruct signed transaction using TransactionFactory with explicit type field
-  const signedTxData = {
-    to: msg.to,
-    value: msg.value,
-    data: msg.data,
-    nonce: msg.nonce,
-    gasLimit: msg.gasLimit,
-    chainId: msg.chainId,
-    type: isEIP1559 ? 2 : 0,
-    r,
-    s,
-    v,
-    ...(isEIP1559
-      ? {
-          maxFeePerGas: msg.maxFeePerGas,
-          maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
-        }
-      : {
-          gasPrice: msg.gasPrice,
-        }),
-  };
-
-  const signedTx = TransactionFactory.fromTxData(signedTxData, { common });
+  const signedTx = TransactionFactory.fromTxData({ ...txData, r, s, v }, { common });
   const serialized = `0x${Buffer.from(signedTx.serialize()).toString("hex")}`;
 
   return { r: `0x${r.toString("hex")}`, s: `0x${s.toString("hex")}`, v: v.readUIntBE(0, v.length), serialized };
