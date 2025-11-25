@@ -15,7 +15,6 @@ export function bitcoinGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function bitcoinNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-  // Only support one account for now (like portis).
   return undefined;
 }
 

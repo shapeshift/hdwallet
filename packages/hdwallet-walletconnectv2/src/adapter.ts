@@ -1,6 +1,5 @@
 import { Events, Keyring } from "@shapeshiftoss/hdwallet-core";
-import { EthereumProvider } from "@walletconnect/ethereum-provider";
-import { EthereumProviderOptions } from "@walletconnect/ethereum-provider/dist/types/EthereumProvider";
+import { EthereumProvider, EthereumProviderOptions } from "@walletconnect/ethereum-provider";
 
 import { WalletConnectV2HDWallet } from "./walletconnectV2";
 

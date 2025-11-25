@@ -13,13 +13,10 @@ import * as ledgerWebUSB from "@shapeshiftoss/hdwallet-ledger-webusb";
 import * as metaMask from "@shapeshiftoss/hdwallet-metamask-multichain";
 import * as native from "@shapeshiftoss/hdwallet-native";
 import * as phantom from "@shapeshiftoss/hdwallet-phantom";
-import * as portis from "@shapeshiftoss/hdwallet-portis";
 import * as trezorConnect from "@shapeshiftoss/hdwallet-trezor-connect";
 import * as vultisig from "@shapeshiftoss/hdwallet-vultisig";
-import { WalletConnectProviderConfig } from "@shapeshiftoss/hdwallet-walletconnect";
-import * as walletConnect from "@shapeshiftoss/hdwallet-walletconnect";
 import * as walletConnectv2 from "@shapeshiftoss/hdwallet-walletconnectv2";
-import { EthereumProviderOptions } from "@walletconnect/ethereum-provider/dist/types/EthereumProvider";
+import { EthereumProviderOptions } from "@walletconnect/ethereum-provider";
 import { TypedData } from "eip-712";
 import $, { noop } from "jquery";
 import Web3 from "web3";
@@ -76,13 +73,8 @@ import {
 
 const keyring = new core.Keyring();
 
-const portisAppId = "ff763d3d-9e34-45a1-81d1-caa39b9c64f9";
 const mnemonic = "alcohol woman abuse must during monitor noble actual mixed trade anger aisle";
-const walletConnectOptions: WalletConnectProviderConfig = {
-  rpc: {
-    1: "https://mainnet.infura.io/v3/d734c7eebcdf400185d7eb67322a7e57",
-  },
-};
+
 const walletConnectV2Options: EthereumProviderOptions = {
   projectId: "5abef0455c768644c2bc866f1520374f",
   chains: [1],
@@ -126,11 +118,9 @@ const coinbaseAdapter = coinbase.CoinbaseAdapter.useKeyring(keyring, coinbaseOpt
 const keepkeyAdapter = keepkeyWebUSB.WebUSBKeepKeyAdapter.useKeyring(keyring);
 const kkbridgeAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
 const kkemuAdapter = keepkeyTcp.TCPKeepKeyAdapter.useKeyring(keyring);
-const portisAdapter = portis.PortisAdapter.useKeyring(keyring, { portisAppId });
 const metaMaskAdapter = metaMask.MetaMaskAdapter.useKeyring(keyring, "io.metamask");
 const phantomAdapter = phantom.PhantomAdapter.useKeyring(keyring);
 const vultisigAdapter = vultisig.VultisigAdapter.useKeyring(keyring);
-const walletConnectAdapter = walletConnect.WalletConnectAdapter.useKeyring(keyring, walletConnectOptions);
 const walletConnectV2Adapter = walletConnectv2.WalletConnectV2Adapter.useKeyring(keyring, walletConnectV2Options);
 const keplrAdapter = keplr.KeplrAdapter.useKeyring(keyring);
 const nativeAdapter = native.NativeAdapter.useKeyring(keyring);
@@ -158,14 +148,12 @@ const $kkemu = $("#kkemu");
 const $trezor = $("#trezor");
 const $ledgerwebusb = $("#ledgerwebusb");
 const $ledgerwebhid = $("#ledgerwebhid");
-const $portis = $("#portis");
 const $native = $("#native");
 const $gridplus = $("#gridplus");
 const $metaMask = $("#metaMask");
 const $phantom = $("#phantom");
 const $vultisig = $("#vultisig");
 const $coinbase = $("#coinbase");
-const $walletConnect = $("#walletConnect");
 const $walletConnectV2 = $("#walletConnectV2");
 const $keplr = $("#keplr");
 const $keyring = $("#keyring");
@@ -210,20 +198,6 @@ $ledgerwebhid.on("click", async (e) => {
   wallet = await ledgerWebHIDAdapter.pairDevice();
   window["wallet"] = wallet;
   $("#keyring select").val(await wallet.getDeviceID());
-});
-
-$portis.on("click", async (e) => {
-  e.preventDefault();
-  wallet = await portisAdapter.pairDevice();
-  window["wallet"] = wallet;
-
-  let deviceId = "nothing";
-  try {
-    deviceId = await wallet.getDeviceID();
-  } catch (error) {
-    console.error(error);
-  }
-  $("#keyring select").val(deviceId);
 });
 
 $native.on("click", async (e) => {
@@ -326,19 +300,6 @@ $keplr.on("click", async (e) => {
   }
 });
 
-$walletConnect.on("click", async (e) => {
-  e.preventDefault();
-  try {
-    wallet = await walletConnectAdapter.pairDevice();
-    window["wallet"] = wallet;
-    let deviceID = "nothing";
-    deviceID = await wallet.getDeviceID();
-    $("#keyring select").val(deviceID);
-  } catch (error) {
-    console.error(error);
-  }
-});
-
 $walletConnectV2.on("click", async (e) => {
   e.preventDefault();
   try {
@@ -419,12 +380,6 @@ async function deviceConnected(deviceId) {
   }
 
   try {
-    await portisAdapter.initialize();
-  } catch (e) {
-    console.error("Could not initialize PortisAdapter", e);
-  }
-
-  try {
     await nativeAdapter.initialize();
   } catch (e) {
     console.error("Could not initialize NativeAdapter", e);
@@ -458,12 +413,6 @@ async function deviceConnected(deviceId) {
     await coinbaseAdapter.initialize();
   } catch (e) {
     console.error("Could not initialize CoinbaseAdapter", e);
-  }
-
-  try {
-    await walletConnectAdapter.initialize();
-  } catch (e) {
-    console.error("Could not initialize WalletConnectAdapter", e);
   }
 
   try {
@@ -731,7 +680,7 @@ $getXpubs.each(function () {
         addressNList: hardenedPath,
         curve: "secp256k1",
         showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
-        coin: portis.isPortis(wallet) ? "Bitcoin" : "Ethereum",
+        coin: "Ethereum",
       },
     ];
 

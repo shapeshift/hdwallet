@@ -1,6 +1,3 @@
-/*
- Copied from portis: packages/portis-crypto/src/models/cipherString.ts
- */
 import { fromB64ToArray, fromBufferToB64 } from "../utils";
 import { EncryptedObject } from "./encryptedObject";
 import { EncryptionType } from "./encryptionType";
