@@ -20,15 +20,10 @@ export class GridPlusAdapter {
     return new GridPlusAdapter(keyring);
   }
 
-  public async connectDevice(
-    deviceId: string,
-    password = ""
-  ): Promise<{ wallet?: GridPlusHDWallet; sessionId: string }> {
+  public async connectDevice(deviceId: string, password = ""): Promise<GridPlusHDWallet | undefined> {
     const privKey = createHash("sha256")
       .update(deviceId + password + name)
       .digest();
-
-    const sessionId = privKey.toString("hex");
 
     if (!this.client) {
       this.client = new Client({ name, baseUrl, privKey, deviceId });
@@ -39,9 +34,7 @@ export class GridPlusAdapter {
     }
 
     const isPaired = await this.client.connect(deviceId);
-    if (isPaired) return { wallet: new GridPlusHDWallet(this.client), sessionId };
-
-    return { sessionId: privKey.toString("hex") };
+    if (isPaired) return new GridPlusHDWallet(this.client);
   }
 
   public async pairDevice(pairingCode: string): Promise<GridPlusHDWallet> {
