@@ -114,6 +114,7 @@
       <button id="ledgerwebusb">Pair Ledger (webUSB)</button>
       <button id="ledgerwebhid">Pair Ledger (webHID)</button>
       <button id="native">Pair Native</button>
+      <button id="gridplus">Pair GridPlus</button>
       <button id="metaMask">Pair MetaMask</button>
       <button id="phantom">Pair Phantom</button>
       <button id="vultisig">Pair Vultisig</button>
@@ -444,6 +445,40 @@
         <div class="modal-footer">
           <button class="button button-outline" onclick="mnemonicEntered()">Load mnemonic</button>
           <button class="button button-outline" onclick="useTestWallet()">Use test wallet</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="#deviceIdModal" class="modal" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Device ID Required</h3>
+          <p>Enter your device id</p>
+        </div>
+        <div class="modal-body">
+          <form>
+            <input id="#deviceIdInput" type="text" />
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="button button-outline" onclick="deviceIdEntered()">Pair</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="#pairingCodeModal" class="modal" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Pairing Code Required</h3>
+          <p>Enter your pairing code</p>
+        </div>
+        <div class="modal-body">
+          <form>
+            <input id="#pairingCodeInput" type="text" />
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="button button-outline" onclick="pairingCodeEntered()">Pair</button>
         </div>
       </div>
     </div>

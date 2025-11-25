@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger",
-  "version": "1.62.9",
+  "version": "1.62.11",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -11,8 +11,8 @@
   "scripts": {
     "build": "tsc --build",
     "build:docs": "typedoc --out docs --target es6 --theme minimal --mode file src",
-    "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "prepublishOnly": "yarn clean && yarn build"
+    "clean": "rm -rf dist node_modules",
+    "prepublishOnly": "rm -rf dist && yarn build"
   },
   "dependencies": {
     "@ethereumjs/common": "3.2.0",
@@ -25,7 +25,7 @@
     "@ledgerhq/hw-transport": "6.31.8",
     "@ledgerhq/logs": "6.13.0",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.0",
-    "@shapeshiftoss/hdwallet-core": "1.62.9",
+    "@shapeshiftoss/hdwallet-core": "1.62.11",
     "@solana/web3.js": "1.95.8",
     "base64-js": "^1.5.1",
     "bchaddrjs": "^0.4.4",

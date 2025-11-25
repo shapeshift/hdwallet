@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-nodehid",
-  "version": "1.62.9",
+  "version": "1.62.11",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -10,11 +10,11 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc --build",
-    "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "prepublishOnly": "yarn clean && yarn build"
+    "clean": "rm -rf dist node_modules",
+    "prepublishOnly": "rm -rf dist && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-keepkey": "1.62.9"
+    "@shapeshiftoss/hdwallet-keepkey": "1.62.11"
   },
   "peerDependencies": {
     "node-hid": "^2.1.1"

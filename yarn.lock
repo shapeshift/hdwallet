@@ -875,6 +875,11 @@
     "@ethereumjs/util" "^10.1.0"
     eventemitter3 "^5.0.1"
 
+"@ethereumjs/rlp@5.0.2", "@ethereumjs/rlp@^5.0.2":
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/@ethereumjs/rlp/-/rlp-5.0.2.tgz#c89bd82f2f3bec248ab2d517ae25f5bbc4aac842"
+  integrity sha512-DziebCdg4JpGlEqEdGgXmjqcFoJi+JGulUXwEjsZGAscAQ7MyD/7LE/GVCP29vEQxKc7AAwjT3A2ywHp2xfoCA==
+
 "@ethereumjs/rlp@^10.1.0":
   version "10.1.0"
   resolved "https://registry.yarnpkg.com/@ethereumjs/rlp/-/rlp-10.1.0.tgz#fe681ed0fd2f55ed8623c0d445353d1411703b5d"
@@ -884,11 +889,6 @@
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/@ethereumjs/rlp/-/rlp-4.0.1.tgz#626fabfd9081baab3d0a3074b0c7ecaf674aaa41"
   integrity sha512-tqsQiBQDQdmPWE1xkkBq4rlSW5QZpLOUJ5RJh2/9fug+q9tnUhuZoVLk7s0scUIKTOzEtR72DFBXI4WiZcMpvw==
-
-"@ethereumjs/rlp@^5.0.2":
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/@ethereumjs/rlp/-/rlp-5.0.2.tgz#c89bd82f2f3bec248ab2d517ae25f5bbc4aac842"
-  integrity sha512-DziebCdg4JpGlEqEdGgXmjqcFoJi+JGulUXwEjsZGAscAQ7MyD/7LE/GVCP29vEQxKc7AAwjT3A2ywHp2xfoCA==
 
 "@ethereumjs/tx@3.5.2":
   version "3.5.2"
@@ -3965,21 +3965,6 @@
     tsoa "^4.1.0"
     uuid "^8.3.2"
     ws "^8.8.0"
-
-"@shapeshiftoss/hdwallet-core@1.62.3":
-  version "1.62.3"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.62.3.tgz#62927bbcc322ad012443f5578851638a201ec4b5"
-  integrity sha512-WAPADCeEC7PObAVFmC0k6Ls9YT33EoPTudXkuh3zkUYhh8e/lWKWRXoIOFS515D8xBakGuHsqxAUTBhSrGNSUQ==
-  dependencies:
-    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.0"
-    "@shapeshiftoss/proto-tx-builder" "0.10.0"
-    "@solana/web3.js" "1.95.8"
-    eip-712 "^1.0.0"
-    ethers "5.7.2"
-    eventemitter2 "^5.0.1"
-    lodash "^4.17.21"
-    rxjs "^6.4.0"
-    type-assertions "^1.1.0"
 
 "@shapeshiftoss/hdwallet-core@latest":
   version "1.56.0"
