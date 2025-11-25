@@ -3999,21 +3999,6 @@
     uuid "^8.3.2"
     ws "^8.8.0"
 
-"@shapeshiftoss/hdwallet-core@1.62.10-alpha.2":
-  version "1.62.10-alpha.2"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.62.10-alpha.2.tgz#ca0fc27c07d33ab118500d6a1a4c65121109ff31"
-  integrity sha512-ua+IYwyrUE9sgP/Htl40kq8k7c6unZDriq6TUt5dVc66Cq7XmmwIlQaMFnCKRi6zuDMZKpBzIL7QhiIln6tL8w==
-  dependencies:
-    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.0"
-    "@shapeshiftoss/proto-tx-builder" "0.10.0"
-    "@solana/web3.js" "1.95.8"
-    eip-712 "^1.0.0"
-    ethers "5.7.2"
-    eventemitter2 "^5.0.1"
-    lodash "^4.17.21"
-    rxjs "^6.4.0"
-    type-assertions "^1.1.0"
-
 "@shapeshiftoss/hdwallet-core@latest":
   version "1.56.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.56.0.tgz#6c14a2dc7eb394d1a927999f549c15eb8bd42421"
