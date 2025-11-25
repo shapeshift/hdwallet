@@ -9,7 +9,7 @@ type BTCTrezorSignTxOutput = {
   address?: string;
   address_n?: core.BIP32Path | string;
   script_type?: string;
-  op_return_data?: Buffer;
+  op_return_data?: string;
 };
 
 function translateCoin(coin: core.Coin): string {
@@ -133,8 +133,8 @@ export async function btcSignTx(
     }
     outputs.push({
       amount: "0",
-      op_return_data: Buffer.from(msg.opReturnData),
-      script_type: "3", // Trezor firmware uses enumerated type with value of 3 for "PAYTOOPRETURN"
+      op_return_data: Buffer.from(msg.opReturnData).toString("hex"),
+      script_type: "PAYTOOPRETURN",
     });
   }
 
