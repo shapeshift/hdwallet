@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-sandbox",
-  "version": "1.62.13",
+  "version": "1.62.14-tron-adapter-fix.0",
   "license": "MIT",
   "private": true,
   "browserslist": "> 0.5%, last 2 versions, not dead",

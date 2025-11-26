@@ -28,7 +28,7 @@ export function MixinNativeTronWallet<TBase extends core.Constructor<NativeHDWal
     tronAdapter: TronAdapter | undefined;
 
     async tronInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
-      const nodeAdapter = new Isolation.Adapters.BIP32(masterKey, "secp256k1");
+      const nodeAdapter = await Isolation.Adapters.BIP32.create(masterKey);
       this.tronAdapter = new TronAdapter(nodeAdapter);
     }
 
