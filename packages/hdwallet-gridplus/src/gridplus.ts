@@ -475,7 +475,8 @@ export class GridPlusHDWallet
 
   async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
     if (!this.client) throw new Error("Device not connected");
-    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
+    if (!this.expectedActiveWalletId) throw new Error("Expected SafeCard ID not set - this should not happen");
+    await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
     return btc.btcSignTx(this.client, msg);
   }
 
@@ -494,19 +495,22 @@ export class GridPlusHDWallet
 
   async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
     if (!this.client) throw new Error("Device not connected");
-    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
+    if (!this.expectedActiveWalletId) throw new Error("Expected SafeCard ID not set - this should not happen");
+    await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
     return eth.ethSignTx(this.client, msg);
   }
 
   async ethSignTypedData(msg: core.ETHSignTypedData): Promise<core.ETHSignedTypedData> {
     if (!this.client) throw new Error("Device not connected");
-    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
+    if (!this.expectedActiveWalletId) throw new Error("Expected SafeCard ID not set - this should not happen");
+    await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
     return eth.ethSignTypedData(this.client, msg);
   }
 
   async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
     if (!this.client) throw new Error("Device not connected");
-    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
+    if (!this.expectedActiveWalletId) throw new Error("Expected SafeCard ID not set - this should not happen");
+    await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
     return eth.ethSignMessage(this.client, msg);
   }
 
@@ -533,7 +537,8 @@ export class GridPlusHDWallet
 
   async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
     this.assertSolanaFwSupport();
-    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
+    if (!this.expectedActiveWalletId) throw new Error("Expected SafeCard ID not set - this should not happen");
+    await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
     return solana.solanaSignTx(this.client, msg);
   }
 
@@ -544,7 +549,8 @@ export class GridPlusHDWallet
 
   async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
     if (!this.client) throw new Error("Device not connected");
-    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
+    if (!this.expectedActiveWalletId) throw new Error("Expected SafeCard ID not set - this should not happen");
+    await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
     return cosmos.cosmosSignTx(this.client, msg);
   }
 
@@ -555,7 +561,8 @@ export class GridPlusHDWallet
 
   async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {
     if (!this.client) throw new Error("Device not connected");
-    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
+    if (!this.expectedActiveWalletId) throw new Error("Expected SafeCard ID not set - this should not happen");
+    await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
     return thorchain.thorchainSignTx(this.client, msg);
   }
 
@@ -566,7 +573,8 @@ export class GridPlusHDWallet
 
   async mayachainSignTx(msg: core.MayachainSignTx): Promise<core.MayachainSignedTx | null> {
     if (!this.client) throw new Error("Device not connected");
-    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
+    if (!this.expectedActiveWalletId) throw new Error("Expected SafeCard ID not set - this should not happen");
+    await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
     return mayachain.mayachainSignTx(this.client, msg);
   }
 }
