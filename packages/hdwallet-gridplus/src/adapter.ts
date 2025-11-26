@@ -4,6 +4,8 @@ import { Client } from "gridplus-sdk";
 
 import { GridPlusHDWallet } from "./gridplus";
 
+type SafeCardType = 'external' | 'internal';
+
 const name = "ShapeShift";
 const baseUrl = "https://signing.gridpl.us";
 
@@ -24,7 +26,7 @@ export class GridPlusAdapter {
     deviceId: string,
     password = "",
     expectedActiveWalletId?: string,
-    expectedType?: 'external' | 'internal'
+    expectedType?: WalletType
   ): Promise<GridPlusHDWallet | undefined> {
     const privKey = createHash("sha256")
       .update(deviceId + password + name)
@@ -52,7 +54,7 @@ export class GridPlusAdapter {
   public async pairDevice(pairingCode: string): Promise<{
     wallet: GridPlusHDWallet;
     activeWalletId: string;
-    type: 'external' | 'internal';
+    type: WalletType;
   }> {
     if (!this.client) throw new Error("No client connected. Call connectDevice first.");
 

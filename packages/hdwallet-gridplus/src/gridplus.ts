@@ -9,6 +9,8 @@ import * as mayachain from "./mayachain";
 import * as solana from "./solana";
 import * as thorchain from "./thorchain";
 
+type SafeCardType = 'external' | 'internal';
+
 const isEmptyWallet = (uid?: Buffer): boolean => !uid || uid.every(b => b === 0);
 
 export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
@@ -300,14 +302,14 @@ export class GridPlusHDWallet
 
   client: Client | undefined;
   private expectedActiveWalletId?: string;
-  private expectedType?: 'external' | 'internal';
+  private expectedType?: WalletType;
 
   constructor(client: Client) {
     super();
     this.client = client;
   }
 
-  public setExpectedActiveWalletId(activeWalletId: string, type?: 'external' | 'internal'): void {
+  public setExpectedActiveWalletId(activeWalletId: string, type?: WalletType): void {
     this.expectedActiveWalletId = activeWalletId;
     this.expectedType = type;
   }
@@ -385,10 +387,10 @@ export class GridPlusHDWallet
    */
   public async validateActiveWallet(
     expectedActiveWalletId?: string,
-    expectedType?: 'external' | 'internal'
+    expectedType?: WalletType
   ): Promise<{
     activeWalletId: string;
-    type: 'external' | 'internal';
+    type: WalletType;
     walletName?: string;
   }> {
     if (!this.client) {
@@ -398,7 +400,7 @@ export class GridPlusHDWallet
     const activeWallets = await this.client.fetchActiveWallet();
 
     // Determine active wallet type (external SafeCard takes priority)
-    const type: 'external' | 'internal' = (() => {
+    const type: WalletType = (() => {
       if (!isEmptyWallet(activeWallets.external?.uid)) return 'external';
       if (!isEmptyWallet(activeWallets.internal?.uid)) return 'internal';
 
