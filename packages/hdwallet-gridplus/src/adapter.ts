@@ -4,7 +4,7 @@ import { Client } from "gridplus-sdk";
 
 import { GridPlusHDWallet } from "./gridplus";
 
-type SafeCardType = 'external' | 'internal';
+type SafeCardType = "external" | "internal";
 
 const name = "ShapeShift";
 const baseUrl = "https://signing.gridpl.us";
@@ -45,8 +45,7 @@ export class GridPlusAdapter {
 
     const wallet = new GridPlusHDWallet(this.client);
 
-    if (expectedActiveWalletId)
-      await wallet.validateActiveWallet(expectedActiveWalletId, expectedType);
+    if (expectedActiveWalletId) await wallet.validateActiveWallet(expectedActiveWalletId, expectedType);
 
     return wallet;
   }
@@ -68,7 +67,7 @@ export class GridPlusAdapter {
     if (!activeWallet) throw new Error("No active wallet found on device");
 
     const activeWalletId = activeWallet.uid.toString("hex");
-    const type = activeWallet.external ? 'external' : 'internal';
+    const type = activeWallet.external ? "external" : "internal";
 
     return {
       wallet,

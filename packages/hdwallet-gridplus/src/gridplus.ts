@@ -10,9 +10,9 @@ import * as mayachain from "./mayachain";
 import * as solana from "./solana";
 import * as thorchain from "./thorchain";
 
-type SafeCardType = 'external' | 'internal';
+type SafeCardType = "external" | "internal";
 
-const isEmptyWallet = (uid?: Buffer): boolean => !uid || `0x${uid.toString('hex')}` === zeroHash;
+const isEmptyWallet = (uid?: Buffer): boolean => !uid || `0x${uid.toString("hex")}` === zeroHash;
 
 export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
   return isObject(wallet) && (wallet as any)._isGridPlus;
@@ -401,8 +401,8 @@ export class GridPlusHDWallet
 
     // Determine active wallet type (external SafeCard takes priority)
     const type: SafeCardType = (() => {
-      if (!isEmptyWallet(activeWallets.external?.uid)) return 'external';
-      if (!isEmptyWallet(activeWallets.internal?.uid)) return 'internal';
+      if (!isEmptyWallet(activeWallets.external?.uid)) return "external";
+      if (!isEmptyWallet(activeWallets.internal?.uid)) return "internal";
 
       throw new Error("No active wallet found on device");
     })();
@@ -412,7 +412,7 @@ export class GridPlusHDWallet
 
     // Validate against expected activeWalletId if provided
     if (expectedActiveWalletId && activeWalletId !== expectedActiveWalletId) {
-      if (expectedType === 'internal') {
+      if (expectedType === "internal") {
         throw new Error("Remove inserted SafeCard to access internal GridPlus wallet");
       }
       throw new Error("Active SafeCard doesn't match expected SafeCard");
