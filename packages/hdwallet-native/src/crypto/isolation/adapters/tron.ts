@@ -29,7 +29,7 @@ export class TronAdapter {
     const publicKey = SecP256K1.UncompressedPoint.from(nodeAdapter.getPublicKey());
 
     // Remove the 0x04 prefix from uncompressed public key
-    const publicKeyBytes = publicKey.slice(2);
+    const publicKeyBytes = publicKey.slice(1);
 
     // Hash with Keccak256
     const hash = keccak256("0x" + Buffer.from(publicKeyBytes).toString("hex"));
