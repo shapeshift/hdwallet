@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-vultisig",
-  "version": "1.62.14-tron-adapter-fix.1",
+  "version": "1.62.14-tron-adapter-fix.2",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -10,14 +10,14 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc --build",
-    "clean": "rm -rf dist node_modules",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
     "@cosmjs/amino": "^0.28.13",
     "@cosmjs/stargate": "^0.28.13",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.0",
-    "@shapeshiftoss/hdwallet-core": "^1.62.14-tron-adapter-fix.1",
+    "@shapeshiftoss/hdwallet-core": "^1.62.14-tron-adapter-fix.2",
     "@solana/web3.js": "1.95.8",
     "base64-js": "^1.5.1",
     "bitcoinjs-message": "^2.0.0",
@@ -26,5 +26,6 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.168"
-  }
+  },
+  "gitHead": "6fc3d0bdbe3f51b4d67ab6a5fe1f067ebbddd579"
 }

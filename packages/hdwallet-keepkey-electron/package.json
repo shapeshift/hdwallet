@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-electron",
-  "version": "1.62.14-tron-adapter-fix.1",
+  "version": "1.62.14-tron-adapter-fix.2",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -10,11 +10,11 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc --build",
-    "clean": "rm -rf dist node_modules",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-keepkey": "^1.62.14-tron-adapter-fix.1",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.62.14-tron-adapter-fix.2",
     "uuid": "^8.3.2"
   },
   "peerDependencies": {
@@ -23,5 +23,6 @@
   "devDependencies": {
     "@types/uuid": "^8.3.0",
     "electron": "^12.0.9"
-  }
+  },
+  "gitHead": "6fc3d0bdbe3f51b4d67ab6a5fe1f067ebbddd579"
 }

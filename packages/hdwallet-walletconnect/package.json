@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-walletconnect",
-  "version": "1.62.14-tron-adapter-fix.1",
+  "version": "1.62.14-tron-adapter-fix.2",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -10,14 +10,15 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc --build",
-    "clean": "rm -rf dist node_modules",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "dev": "yarn tsc --build --watch",
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.14-tron-adapter-fix.1",
+    "@shapeshiftoss/hdwallet-core": "^1.62.14-tron-adapter-fix.2",
     "@walletconnect/qrcode-modal": "^1.7.8",
     "@walletconnect/web3-provider": "^1.7.8",
     "ethers": "^5.6.5"
-  }
+  },
+  "gitHead": "6fc3d0bdbe3f51b4d67ab6a5fe1f067ebbddd579"
 }
