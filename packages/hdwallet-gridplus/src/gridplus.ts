@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Client, Constants } from "gridplus-sdk";
 import isObject from "lodash/isObject";
@@ -9,7 +10,8 @@ import * as mayachain from "./mayachain";
 import * as solana from "./solana";
 import * as thorchain from "./thorchain";
 
-const ZERO_BUFFER = Buffer.alloc(32);
+// 32-byte zero buffer for wallet comparison
+const ZERO_BUFFER = Buffer.alloc(32, 0);
 
 export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
   return isObject(wallet) && (wallet as any)._isGridPlus;
@@ -299,10 +301,15 @@ export class GridPlusHDWallet
   readonly _isGridPlus = true;
 
   client: Client | undefined;
+  private expectedWalletUid?: string;
 
   constructor(client: Client) {
     super();
     this.client = client;
+  }
+
+  public setExpectedWalletUid(walletUid: string): void {
+    this.expectedWalletUid = walletUid;
   }
 
   async cancel(): Promise<void> {}
@@ -371,6 +378,107 @@ export class GridPlusHDWallet
     if (!internal.uid.equals(ZERO_BUFFER)) return internal.uid.toString("hex");
   }
 
+  /**
+   * Validate that the currently active wallet matches expectations
+   * Fetches fresh wallet info from device and logs details
+   */
+  public async validateActiveWallet(expectedUid?: string): Promise<{
+    uid: string;
+    isExternal: boolean;
+    walletName?: string;
+    isValid: boolean;
+  }> {
+    if (!this.client) {
+      throw new Error("Device not connected");
+    }
+
+    console.log("[GridPlus validateActiveWallet] Starting validation...");
+    console.log("[GridPlus validateActiveWallet] Expected UID:", expectedUid);
+
+    // Fetch fresh wallet info from device
+    console.log("[GridPlus validateActiveWallet] Fetching active wallet from device...");
+    const activeWallets = await this.client.fetchActiveWallet();
+    console.log("[GridPlus validateActiveWallet] fetchActiveWallet response:", activeWallets);
+
+    // Check internal wallet
+    const internalUid = activeWallets.internal?.uid;
+    const internalUidHex = internalUid?.toString("hex");
+    const isInternalEmpty = internalUid?.equals(ZERO_BUFFER);
+
+    console.log("[GridPlus validateActiveWallet] Internal wallet:");
+    console.log("  - UID (Buffer):", internalUid);
+    console.log("  - UID (hex):", internalUidHex);
+    console.log("  - Is empty:", isInternalEmpty);
+    console.log("  - Name:", activeWallets.internal?.name);
+
+    // Check external wallet (SafeCard)
+    const externalUid = activeWallets.external?.uid;
+    const externalUidHex = externalUid?.toString("hex");
+    const isExternalEmpty = externalUid?.equals(ZERO_BUFFER);
+
+    console.log("[GridPlus validateActiveWallet] External wallet (SafeCard):");
+    console.log("  - UID (Buffer):", externalUid);
+    console.log("  - UID (hex):", externalUidHex);
+    console.log("  - Is empty:", isExternalEmpty);
+    console.log("  - Name:", activeWallets.external?.name);
+
+    // Determine which wallet is active (external takes priority)
+    const { activeUid, isExternal, walletName } = (() => {
+      if (externalUid && !isExternalEmpty) {
+        // SafeCard is inserted and active
+        console.log("[GridPlus validateActiveWallet] Active wallet: External (SafeCard)");
+        return {
+          activeUid: externalUidHex!,
+          isExternal: true,
+          walletName: activeWallets.external?.name?.toString() || undefined,
+        };
+      } else if (internalUid && !isInternalEmpty) {
+        // Using internal wallet
+        console.log("[GridPlus validateActiveWallet] Active wallet: Internal");
+        return {
+          activeUid: internalUidHex!,
+          isExternal: false,
+          walletName: activeWallets.internal?.name?.toString() || undefined,
+        };
+      } else {
+        console.log("[GridPlus validateActiveWallet] ERROR: No active wallet found!");
+        throw new Error("No active wallet found on device");
+      }
+    })();
+
+    console.log("[GridPlus validateActiveWallet] Active wallet determined:");
+    console.log("  - UID:", activeUid);
+    console.log("  - Type:", isExternal ? "External (SafeCard)" : "Internal");
+    console.log("  - Name:", walletName);
+
+    // Validate against expected UID if provided
+    const isValid = expectedUid ? activeUid === expectedUid : true;
+
+    if (expectedUid) {
+      console.log("[GridPlus validateActiveWallet] Validation result:");
+      console.log("  - Expected:", expectedUid);
+      console.log("  - Actual:", activeUid);
+      console.log("  - Match:", isValid);
+
+      if (!isValid) {
+        console.log("[GridPlus validateActiveWallet] WARNING: UID mismatch!");
+        console.log("  This could indicate:");
+        console.log("  - SafeCard was swapped");
+        console.log("  - Device was re-paired");
+        console.log("  - Internal/External wallet switch");
+      }
+    }
+
+    console.log("[GridPlus validateActiveWallet] Validation complete");
+
+    return {
+      uid: activeUid,
+      isExternal,
+      walletName,
+      isValid,
+    };
+  }
+
   async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
     if (!this.client) throw new Error("Device not connected");
 
@@ -426,6 +534,7 @@ export class GridPlusHDWallet
 
   async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
     if (!this.client) throw new Error("Device not connected");
+    await this.validateBeforeSigning();
     return btc.btcSignTx(this.client, msg);
   }
 
@@ -444,16 +553,19 @@ export class GridPlusHDWallet
 
   async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
     if (!this.client) throw new Error("Device not connected");
+    await this.validateBeforeSigning();
     return eth.ethSignTx(this.client, msg);
   }
 
   async ethSignTypedData(msg: core.ETHSignTypedData): Promise<core.ETHSignedTypedData> {
     if (!this.client) throw new Error("Device not connected");
+    await this.validateBeforeSigning();
     return eth.ethSignTypedData(this.client, msg);
   }
 
   async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
     if (!this.client) throw new Error("Device not connected");
+    await this.validateBeforeSigning();
     return eth.ethSignMessage(this.client, msg);
   }
 
@@ -480,6 +592,7 @@ export class GridPlusHDWallet
 
   async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
     this.assertSolanaFwSupport();
+    await this.validateBeforeSigning();
     return solana.solanaSignTx(this.client, msg);
   }
 
@@ -490,6 +603,7 @@ export class GridPlusHDWallet
 
   async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
     if (!this.client) throw new Error("Device not connected");
+    await this.validateBeforeSigning();
     return cosmos.cosmosSignTx(this.client, msg);
   }
 
@@ -500,6 +614,7 @@ export class GridPlusHDWallet
 
   async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {
     if (!this.client) throw new Error("Device not connected");
+    await this.validateBeforeSigning();
     return thorchain.thorchainSignTx(this.client, msg);
   }
 
@@ -510,6 +625,34 @@ export class GridPlusHDWallet
 
   async mayachainSignTx(msg: core.MayachainSignTx): Promise<core.MayachainSignedTx | null> {
     if (!this.client) throw new Error("Device not connected");
+    await this.validateBeforeSigning();
     return mayachain.mayachainSignTx(this.client, msg);
+  }
+
+  /**
+   * Private method to validate wallet UID before signing operations (JIT validation)
+   * This prevents signing with the wrong SafeCard after connection
+   */
+  private async validateBeforeSigning(): Promise<void> {
+    // Only validate if expectedWalletUid is set (after connection)
+    if (!this.expectedWalletUid) {
+      console.log("[GridPlus validateBeforeSigning] No expectedWalletUid set, skipping JIT validation");
+      return;
+    }
+
+    console.log("[GridPlus validateBeforeSigning] Running JIT validation before signing...");
+    console.log("[GridPlus validateBeforeSigning] Expected UID:", this.expectedWalletUid);
+
+    const validation = await this.validateActiveWallet(this.expectedWalletUid);
+
+    if (!validation.isValid) {
+      const errorMsg = `Cannot sign: Wallet UID mismatch! Expected ${this.expectedWalletUid.slice(
+        -8
+      )}, but found ${validation.uid.slice(-8)}. Please insert the correct SafeCard.`;
+      console.error("[GridPlus validateBeforeSigning] " + errorMsg);
+      throw new Error(errorMsg);
+    }
+
+    console.log("[GridPlus validateBeforeSigning] JIT validation passed, proceeding with signing");
   }
 }

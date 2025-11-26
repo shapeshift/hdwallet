@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { createHash } from "crypto";
 import { Client } from "gridplus-sdk";
@@ -20,7 +21,11 @@ export class GridPlusAdapter {
     return new GridPlusAdapter(keyring);
   }
 
-  public async connectDevice(deviceId: string, password = ""): Promise<GridPlusHDWallet | undefined> {
+  public async connectDevice(
+    deviceId: string,
+    password = "",
+    expectedWalletUid?: string
+  ): Promise<GridPlusHDWallet | undefined> {
     const privKey = createHash("sha256")
       .update(deviceId + password + name)
       .digest();
@@ -34,10 +39,32 @@ export class GridPlusAdapter {
     }
 
     const isPaired = await this.client.connect(deviceId);
-    if (isPaired) return new GridPlusHDWallet(this.client);
+    if (!isPaired) return undefined;
+
+    const wallet = new GridPlusHDWallet(this.client);
+
+    // Validate wallet UID if expected (reconnection scenario)
+    if (expectedWalletUid) {
+      console.log("[GridPlus Adapter] Validating reconnection, expecting UID:", expectedWalletUid);
+      const validation = await wallet.validateActiveWallet(expectedWalletUid);
+      if (!validation.isValid) {
+        const errorMsg = `Wallet UID mismatch! Expected ${expectedWalletUid.slice(
+          -8
+        )}, but found ${validation.uid.slice(-8)}. Please insert the correct SafeCard.`;
+        console.error("[GridPlus Adapter] " + errorMsg);
+        throw new Error(errorMsg);
+      }
+      console.log("[GridPlus Adapter] Wallet validation successful, UID matches");
+    }
+
+    return wallet;
   }
 
-  public async pairDevice(pairingCode: string): Promise<GridPlusHDWallet> {
+  public async pairDevice(pairingCode: string): Promise<{
+    wallet: GridPlusHDWallet;
+    walletUid: string;
+    isExternal: boolean;
+  }> {
     if (!this.client) throw new Error("No client connected. Call connectDevice first.");
 
     const success = await this.client.pair(pairingCode);
@@ -46,6 +73,17 @@ export class GridPlusAdapter {
     const wallet = new GridPlusHDWallet(this.client);
     this.keyring.add(wallet, this.client.getDeviceId());
 
-    return wallet;
+    // Validate and capture wallet info after pairing
+    console.log("[GridPlus Adapter] Device paired, validating active wallet...");
+    const validation = await wallet.validateActiveWallet();
+    console.log("[GridPlus Adapter] Pairing validation complete");
+    console.log("[GridPlus Adapter] Wallet UID will be used as primary identifier:", validation.uid);
+    console.log("[GridPlus Adapter] Wallet type:", validation.isExternal ? "SafeCard" : "Internal");
+
+    return {
+      wallet,
+      walletUid: validation.uid,
+      isExternal: validation.isExternal,
+    };
   }
 }
