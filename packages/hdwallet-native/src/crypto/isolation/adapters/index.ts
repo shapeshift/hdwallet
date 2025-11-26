@@ -6,3 +6,4 @@ export { default as Binance } from "./binance";
 export { default as Cosmos } from "./cosmos";
 export { default as CosmosDirect } from "./cosmosDirect";
 export { default as Solana } from "./solana";
+export { default as Tron } from "./tron";

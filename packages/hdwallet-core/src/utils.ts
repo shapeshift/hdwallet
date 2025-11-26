@@ -156,6 +156,7 @@ export const slip44Table = Object.freeze({
   Terra: 330,
   Kava: 459,
   Solana: 501,
+  Tron: 195,
   // EVM chains all use the same SLIP44
   Ethereum: 60,
   Avalanche: 60,
