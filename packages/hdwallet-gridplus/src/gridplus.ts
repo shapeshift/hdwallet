@@ -12,7 +12,7 @@ import * as thorchain from "./thorchain";
 
 type SafeCardType = "external" | "internal";
 
-const isEmptyWallet = (uid?: Buffer): boolean => !uid || `0x${uid.toString("hex")}` === zeroHash;
+const isZeroSafecardUid = (uid?: Buffer): boolean => !uid || `0x${uid.toString("hex")}` === zeroHash;
 
 export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
   return isObject(wallet) && (wallet as any)._isGridPlus;
@@ -377,14 +377,13 @@ export class GridPlusHDWallet
 
     const { external, internal } = await this.client.fetchActiveWallet();
 
-    if (!isEmptyWallet(external.uid)) return external.uid.toString("hex");
-    if (!isEmptyWallet(internal.uid)) return internal.uid.toString("hex");
+    if (!isZeroSafecardUid(external.uid)) return external.uid.toString("hex");
+    if (!isZeroSafecardUid(internal.uid)) return internal.uid.toString("hex");
   }
 
   /**
    * Validate that the currently active wallet matches expectations
-   * Fetches fresh wallet info from device and logs details
-   * Throws if expectedUid is provided and doesn't match
+   * Throws if expectedActiveWalletId is provided and doesn't match
    */
   public async validateActiveWallet(
     expectedActiveWalletId?: string,
@@ -401,8 +400,8 @@ export class GridPlusHDWallet
 
     // Determine active wallet type (external SafeCard takes priority)
     const type: SafeCardType = (() => {
-      if (!isEmptyWallet(activeWallets.external?.uid)) return "external";
-      if (!isEmptyWallet(activeWallets.internal?.uid)) return "internal";
+      if (!isZeroSafecardUid(activeWallets.external?.uid)) return "external";
+      if (!isZeroSafecardUid(activeWallets.internal?.uid)) return "internal";
 
       throw new Error("No active wallet found on device");
     })();
