@@ -1,6 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Client, Constants } from "gridplus-sdk";
 import isObject from "lodash/isObject";
+import { zeroHash } from "viem";
 
 import * as btc from "./bitcoin";
 import * as cosmos from "./cosmos";
@@ -11,7 +12,7 @@ import * as thorchain from "./thorchain";
 
 type SafeCardType = 'external' | 'internal';
 
-const isEmptyWallet = (uid?: Buffer): boolean => !uid || uid.every(b => b === 0);
+const isEmptyWallet = (uid?: Buffer): boolean => !uid || `0x${uid.toString('hex')}` === zeroHash;
 
 export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
   return isObject(wallet) && (wallet as any)._isGridPlus;
