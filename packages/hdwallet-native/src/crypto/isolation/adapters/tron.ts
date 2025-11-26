@@ -32,7 +32,7 @@ export class TronAdapter {
     const publicKeyBytes = publicKey.slice(2);
 
     // Hash with Keccak256
-    const hash = keccak256("0x" + publicKeyBytes);
+    const hash = keccak256("0x" + Buffer.from(publicKeyBytes).toString("hex"));
 
     // Take last 20 bytes and prepend 0x41 (TRON prefix)
     const addressBytes = Buffer.concat([Buffer.from([TRON_ADDRESS_PREFIX]), Buffer.from(hash.slice(-40), "hex")]);

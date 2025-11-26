@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-trezor-connect",
-  "version": "1.62.14-tron-adapter-fix.2",
+  "version": "1.62.14-tron-adapter-fix.3",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.14-tron-adapter-fix.2",
-    "@shapeshiftoss/hdwallet-trezor": "^1.62.14-tron-adapter-fix.2",
+    "@shapeshiftoss/hdwallet-core": "^1.62.14-tron-adapter-fix.3",
+    "@shapeshiftoss/hdwallet-trezor": "^1.62.14-tron-adapter-fix.3",
     "@trezor/connect-web": "^9.6.4"
   },
   "gitHead": "0791b70935872dc7817a00305b587c88600543fc"

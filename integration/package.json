@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/integration",
-  "version": "1.62.14-tron-adapter-fix.2",
+  "version": "1.62.14-tron-adapter-fix.3",
   "main": "index.js",
   "license": "MIT",
   "private": true,
