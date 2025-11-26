@@ -23,7 +23,7 @@ export class GridPlusAdapter {
   public async connectDevice(
     deviceId: string,
     password = "",
-    expectedWalletUid?: string
+    expectedActiveWalletId?: string
   ): Promise<GridPlusHDWallet | undefined> {
     const privKey = createHash("sha256")
       .update(deviceId + password + name)
@@ -42,8 +42,8 @@ export class GridPlusAdapter {
 
     const wallet = new GridPlusHDWallet(this.client);
 
-    if (expectedWalletUid) {
-      await wallet.validateActiveWallet(expectedWalletUid);
+    if (expectedActiveWalletId) {
+      await wallet.validateActiveWallet(expectedActiveWalletId);
     }
 
     return wallet;
@@ -51,7 +51,7 @@ export class GridPlusAdapter {
 
   public async pairDevice(pairingCode: string): Promise<{
     wallet: GridPlusHDWallet;
-    walletUid: string;
+    activeWalletId: string;
     type: 'external' | 'internal';
   }> {
     if (!this.client) throw new Error("No client connected. Call connectDevice first.");
@@ -66,12 +66,12 @@ export class GridPlusAdapter {
     const activeWallet = this.client.getActiveWallet();
     if (!activeWallet) throw new Error("No active wallet found on device");
 
-    const uid = activeWallet.uid.toString("hex");
+    const activeWalletId = activeWallet.uid.toString("hex");
     const type: 'external' | 'internal' = activeWallet.external ? 'external' : 'internal';
 
     return {
       wallet,
-      walletUid: uid,
+      activeWalletId,
       type,
     };
   }

@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-core",
-  "version": "1.62.13-gridplus-validation.11",
+  "version": "1.62.13-gridplus-validation.12",
   "license": "MIT",
   "publishConfig": {
     "access": "public"

@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-trezor-connect",
-  "version": "1.62.13-gridplus-validation.11",
+  "version": "1.62.13-gridplus-validation.12",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,8 +14,8 @@
     "prepublishOnly": "rm -rf dist && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.13-gridplus-validation.11",
-    "@shapeshiftoss/hdwallet-trezor": "^1.62.13-gridplus-validation.11",
+    "@shapeshiftoss/hdwallet-core": "^1.62.13-gridplus-validation.12",
+    "@shapeshiftoss/hdwallet-trezor": "^1.62.13-gridplus-validation.12",
     "@trezor/connect-web": "^9.6.4"
   }
 }
