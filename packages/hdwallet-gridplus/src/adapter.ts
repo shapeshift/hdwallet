@@ -24,12 +24,11 @@ export class GridPlusAdapter {
 
   public async connectDevice(
     deviceId: string,
-    password = "",
     expectedActiveWalletId?: string,
     expectedType?: SafeCardType
   ): Promise<GridPlusHDWallet | undefined> {
     const privKey = createHash("sha256")
-      .update(deviceId + password + name)
+      .update(deviceId + name)
       .digest();
 
     if (!this.client) {
