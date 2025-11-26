@@ -66,7 +66,7 @@ export class GridPlusAdapter {
     if (!activeWallet) throw new Error("No active wallet found on device");
 
     const activeWalletId = activeWallet.uid.toString("hex");
-    const type: 'external' | 'internal' = activeWallet.external ? 'external' : 'internal';
+    const type = activeWallet.external ? 'external' : 'internal';
 
     return {
       wallet,
