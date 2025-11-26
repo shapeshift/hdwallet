@@ -25,26 +25,26 @@ export function MixinNativeTronWallet<TBase extends core.Constructor<NativeHDWal
   return class MixinNativeTronWallet extends Base {
     readonly _supportsTron = true;
 
-    adapter: TronAdapter | undefined;
+    tronAdapter: TronAdapter | undefined;
 
     async tronInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
       const nodeAdapter = new Isolation.Adapters.BIP32(masterKey, "secp256k1");
-      this.adapter = new TronAdapter(nodeAdapter);
+      this.tronAdapter = new TronAdapter(nodeAdapter);
     }
 
     tronWipe() {
-      this.adapter = undefined;
+      this.tronAdapter = undefined;
     }
 
     async tronGetAddress(msg: core.TronGetAddress): Promise<string | null> {
-      return this.needsMnemonic(!!this.adapter, () => {
+      return this.needsMnemonic(!!this.tronAdapter, () => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return this.adapter!.getAddress(msg.addressNList);
+        return this.tronAdapter!.getAddress(msg.addressNList);
       });
     }
 
     async tronSignTx(msg: core.TronSignTx): Promise<core.TronSignedTx | null> {
-      return this.needsMnemonic(!!this.adapter, async () => {
+      return this.needsMnemonic(!!this.tronAdapter, async () => {
         const address = await this.tronGetAddress({
           addressNList: msg.addressNList,
           showDisplay: false,
@@ -52,7 +52,7 @@ export function MixinNativeTronWallet<TBase extends core.Constructor<NativeHDWal
 
         if (!address) throw new Error("Failed to get TRON address");
 
-        const signature = await this.adapter!.signTransaction(msg.rawDataHex, msg.addressNList);
+        const signature = await this.tronAdapter!.signTransaction(msg.rawDataHex, msg.addressNList);
 
         // Serialized transaction = rawDataHex + signature
         const serialized = msg.rawDataHex + signature;
