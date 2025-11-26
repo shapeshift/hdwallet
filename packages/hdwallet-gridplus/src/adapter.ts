@@ -31,6 +31,8 @@ export class GridPlusAdapter {
 
     if (!this.client) {
       this.client = new Client({ name, baseUrl, privKey, deviceId });
+    } else {
+      this.client.resetActiveWallets();
     }
 
     const isPaired = await this.client.connect(deviceId);
@@ -38,6 +40,7 @@ export class GridPlusAdapter {
 
     const wallet = new GridPlusHDWallet(this.client);
 
+    // Only validate if we have an expected ID (reconnection scenario)
     if (expectedActiveWalletId) {
       await wallet.validateActiveWallet(expectedActiveWalletId);
     }
