@@ -1,6 +1,6 @@
 {
   "lerna": "5.2.0",
-  "version": "1.62.14-tron-adapter-fix.3",
+  "version": "1.62.14-tron-adapter-fix.4",
   "npmClient": "yarn",
   "useWorkspaces": true,
   "command": {
