@@ -381,12 +381,12 @@ export class GridPlusHDWallet
   /**
    * Validate that the currently active wallet matches expectations
    * Fetches fresh wallet info from device and logs details
+   * Throws if expectedUid is provided and doesn't match
    */
   public async validateActiveWallet(expectedUid?: string): Promise<{
     uid: string;
     isExternal: boolean;
     walletName?: string;
-    isValid: boolean;
   }> {
     if (!this.client) {
       throw new Error("Device not connected");
@@ -452,21 +452,15 @@ export class GridPlusHDWallet
     console.log("  - Name:", walletName);
 
     // Validate against expected UID if provided
-    const isValid = expectedUid ? activeUid === expectedUid : true;
-
-    if (expectedUid) {
-      console.log("[GridPlus validateActiveWallet] Validation result:");
+    if (expectedUid && activeUid !== expectedUid) {
+      console.log("[GridPlus validateActiveWallet] Validation FAILED:");
       console.log("  - Expected:", expectedUid);
       console.log("  - Actual:", activeUid);
-      console.log("  - Match:", isValid);
+      throw new Error("Active SafeCard doesn't match expected SafeCard");
+    }
 
-      if (!isValid) {
-        console.log("[GridPlus validateActiveWallet] WARNING: UID mismatch!");
-        console.log("  This could indicate:");
-        console.log("  - SafeCard was swapped");
-        console.log("  - Device was re-paired");
-        console.log("  - Internal/External wallet switch");
-      }
+    if (expectedUid) {
+      console.log("[GridPlus validateActiveWallet] Validation passed - UID matches");
     }
 
     console.log("[GridPlus validateActiveWallet] Validation complete");
@@ -475,7 +469,6 @@ export class GridPlusHDWallet
       uid: activeUid,
       isExternal,
       walletName,
-      isValid,
     };
   }
 
@@ -534,7 +527,7 @@ export class GridPlusHDWallet
 
   async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
     if (!this.client) throw new Error("Device not connected");
-    await this.validateBeforeSigning();
+    if (this.expectedWalletUid) await this.validateActiveWallet(this.expectedWalletUid);
     return btc.btcSignTx(this.client, msg);
   }
 
@@ -553,19 +546,19 @@ export class GridPlusHDWallet
 
   async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
     if (!this.client) throw new Error("Device not connected");
-    await this.validateBeforeSigning();
+    if (this.expectedWalletUid) await this.validateActiveWallet(this.expectedWalletUid);
     return eth.ethSignTx(this.client, msg);
   }
 
   async ethSignTypedData(msg: core.ETHSignTypedData): Promise<core.ETHSignedTypedData> {
     if (!this.client) throw new Error("Device not connected");
-    await this.validateBeforeSigning();
+    if (this.expectedWalletUid) await this.validateActiveWallet(this.expectedWalletUid);
     return eth.ethSignTypedData(this.client, msg);
   }
 
   async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
     if (!this.client) throw new Error("Device not connected");
-    await this.validateBeforeSigning();
+    if (this.expectedWalletUid) await this.validateActiveWallet(this.expectedWalletUid);
     return eth.ethSignMessage(this.client, msg);
   }
 
@@ -592,7 +585,7 @@ export class GridPlusHDWallet
 
   async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
     this.assertSolanaFwSupport();
-    await this.validateBeforeSigning();
+    if (this.expectedWalletUid) await this.validateActiveWallet(this.expectedWalletUid);
     return solana.solanaSignTx(this.client, msg);
   }
 
@@ -603,7 +596,7 @@ export class GridPlusHDWallet
 
   async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
     if (!this.client) throw new Error("Device not connected");
-    await this.validateBeforeSigning();
+    if (this.expectedWalletUid) await this.validateActiveWallet(this.expectedWalletUid);
     return cosmos.cosmosSignTx(this.client, msg);
   }
 
@@ -614,7 +607,7 @@ export class GridPlusHDWallet
 
   async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {
     if (!this.client) throw new Error("Device not connected");
-    await this.validateBeforeSigning();
+    if (this.expectedWalletUid) await this.validateActiveWallet(this.expectedWalletUid);
     return thorchain.thorchainSignTx(this.client, msg);
   }
 
@@ -625,34 +618,7 @@ export class GridPlusHDWallet
 
   async mayachainSignTx(msg: core.MayachainSignTx): Promise<core.MayachainSignedTx | null> {
     if (!this.client) throw new Error("Device not connected");
-    await this.validateBeforeSigning();
+    if (this.expectedWalletUid) await this.validateActiveWallet(this.expectedWalletUid);
     return mayachain.mayachainSignTx(this.client, msg);
-  }
-
-  /**
-   * Private method to validate wallet UID before signing operations (JIT validation)
-   * This prevents signing with the wrong SafeCard after connection
-   */
-  private async validateBeforeSigning(): Promise<void> {
-    // Only validate if expectedWalletUid is set (after connection)
-    if (!this.expectedWalletUid) {
-      console.log("[GridPlus validateBeforeSigning] No expectedWalletUid set, skipping JIT validation");
-      return;
-    }
-
-    console.log("[GridPlus validateBeforeSigning] Running JIT validation before signing...");
-    console.log("[GridPlus validateBeforeSigning] Expected UID:", this.expectedWalletUid);
-
-    const validation = await this.validateActiveWallet(this.expectedWalletUid);
-
-    if (!validation.isValid) {
-      const errorMsg = `Cannot sign: Wallet UID mismatch! Expected ${this.expectedWalletUid.slice(
-        -8
-      )}, but found ${validation.uid.slice(-8)}. Please insert the correct SafeCard.`;
-      console.error("[GridPlus validateBeforeSigning] " + errorMsg);
-      throw new Error(errorMsg);
-    }
-
-    console.log("[GridPlus validateBeforeSigning] JIT validation passed, proceeding with signing");
   }
 }

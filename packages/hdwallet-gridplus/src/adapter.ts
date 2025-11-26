@@ -46,14 +46,7 @@ export class GridPlusAdapter {
     // Validate wallet UID if expected (reconnection scenario)
     if (expectedWalletUid) {
       console.log("[GridPlus Adapter] Validating reconnection, expecting UID:", expectedWalletUid);
-      const validation = await wallet.validateActiveWallet(expectedWalletUid);
-      if (!validation.isValid) {
-        const errorMsg = `Wallet UID mismatch! Expected ${expectedWalletUid.slice(
-          -8
-        )}, but found ${validation.uid.slice(-8)}. Please insert the correct SafeCard.`;
-        console.error("[GridPlus Adapter] " + errorMsg);
-        throw new Error(errorMsg);
-      }
+      await wallet.validateActiveWallet(expectedWalletUid);
       console.log("[GridPlus Adapter] Wallet validation successful, UID matches");
     }
 
