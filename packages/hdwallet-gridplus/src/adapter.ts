@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { createHash } from "crypto";
 import { Client } from "gridplus-sdk";
@@ -43,11 +42,8 @@ export class GridPlusAdapter {
 
     const wallet = new GridPlusHDWallet(this.client);
 
-    // Validate wallet UID if expected (reconnection scenario)
     if (expectedWalletUid) {
-      console.log("[GridPlus Adapter] Validating reconnection, expecting UID:", expectedWalletUid);
       await wallet.validateActiveWallet(expectedWalletUid);
-      console.log("[GridPlus Adapter] Wallet validation successful, UID matches");
     }
 
     return wallet;
@@ -56,7 +52,7 @@ export class GridPlusAdapter {
   public async pairDevice(pairingCode: string): Promise<{
     wallet: GridPlusHDWallet;
     walletUid: string;
-    isInternal: boolean;
+    type: 'external' | 'internal';
   }> {
     if (!this.client) throw new Error("No client connected. Call connectDevice first.");
 
@@ -66,17 +62,12 @@ export class GridPlusAdapter {
     const wallet = new GridPlusHDWallet(this.client);
     this.keyring.add(wallet, this.client.getDeviceId());
 
-    // Validate and capture wallet info after pairing
-    console.log("[GridPlus Adapter] Device paired, validating active wallet...");
     const validation = await wallet.validateActiveWallet();
-    console.log("[GridPlus Adapter] Pairing validation complete");
-    console.log("[GridPlus Adapter] Wallet UID will be used as primary identifier:", validation.uid);
-    console.log("[GridPlus Adapter] Wallet type:", validation.isInternal ? "Internal" : "SafeCard");
 
     return {
       wallet,
       walletUid: validation.uid,
-      isInternal: validation.isInternal,
+      type: validation.type,
     };
   }
 }

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Client, Constants } from "gridplus-sdk";
 import isObject from "lodash/isObject";
@@ -385,91 +384,36 @@ export class GridPlusHDWallet
    */
   public async validateActiveWallet(expectedUid?: string): Promise<{
     uid: string;
-    isInternal: boolean;
+    type: 'external' | 'internal';
     walletName?: string;
   }> {
     if (!this.client) {
       throw new Error("Device not connected");
     }
 
-    console.log("[GridPlus validateActiveWallet] Starting validation...");
-    console.log("[GridPlus validateActiveWallet] Expected UID:", expectedUid);
-
-    // Fetch fresh wallet info from device
-    console.log("[GridPlus validateActiveWallet] Fetching active wallet from device...");
     const activeWallets = await this.client.fetchActiveWallet();
-    console.log("[GridPlus validateActiveWallet] fetchActiveWallet response:", activeWallets);
 
-    // Check internal wallet
-    const internalUid = activeWallets.internal?.uid;
-    const internalUidHex = internalUid?.toString("hex");
-    const isInternalEmpty = internalUid?.equals(ZERO_BUFFER);
+    // Determine active wallet type (external SafeCard takes priority)
+    const type: 'external' | 'internal' = (() => {
+      const externalUid = activeWallets.external?.uid;
+      if (externalUid && !externalUid.equals(ZERO_BUFFER)) return 'external';
 
-    console.log("[GridPlus validateActiveWallet] Internal wallet:");
-    console.log("  - UID (Buffer):", internalUid);
-    console.log("  - UID (hex):", internalUidHex);
-    console.log("  - Is empty:", isInternalEmpty);
-    console.log("  - Name:", activeWallets.internal?.name);
+      const internalUid = activeWallets.internal?.uid;
+      if (internalUid && !internalUid.equals(ZERO_BUFFER)) return 'internal';
 
-    // Check external wallet (SafeCard)
-    const externalUid = activeWallets.external?.uid;
-    const externalUidHex = externalUid?.toString("hex");
-    const isExternalEmpty = externalUid?.equals(ZERO_BUFFER);
-
-    console.log("[GridPlus validateActiveWallet] External wallet (SafeCard):");
-    console.log("  - UID (Buffer):", externalUid);
-    console.log("  - UID (hex):", externalUidHex);
-    console.log("  - Is empty:", isExternalEmpty);
-    console.log("  - Name:", activeWallets.external?.name);
-
-    // Determine which wallet is active (external SafeCard takes priority)
-    const { activeUid, isInternal, walletName } = (() => {
-      if (externalUid && !isExternalEmpty) {
-        // SafeCard is inserted and active (base case)
-        console.log("[GridPlus validateActiveWallet] Active wallet: SafeCard");
-        return {
-          activeUid: externalUidHex!,
-          isInternal: false,
-          walletName: activeWallets.external?.name?.toString() || undefined,
-        };
-      } else if (internalUid && !isInternalEmpty) {
-        // Using internal wallet (edge case)
-        console.log("[GridPlus validateActiveWallet] Active wallet: Internal");
-        return {
-          activeUid: internalUidHex!,
-          isInternal: true,
-          walletName: activeWallets.internal?.name?.toString() || undefined,
-        };
-      } else {
-        console.log("[GridPlus validateActiveWallet] ERROR: No active wallet found!");
-        throw new Error("No active wallet found on device");
-      }
+      throw new Error("No active wallet found on device");
     })();
 
-    console.log("[GridPlus validateActiveWallet] Active wallet determined:");
-    console.log("  - UID:", activeUid);
-    console.log("  - Type:", isInternal ? "Internal" : "SafeCard");
-    console.log("  - Name:", walletName);
+    const activeWallet = activeWallets[type];
+    const uid = activeWallet.uid.toString("hex");
+    const walletName = activeWallet.name?.toString() || undefined;
 
     // Validate against expected UID if provided
-    if (expectedUid && activeUid !== expectedUid) {
-      console.log("[GridPlus validateActiveWallet] Validation FAILED:");
-      console.log("  - Expected:", expectedUid);
-      console.log("  - Actual:", activeUid);
+    if (expectedUid && uid !== expectedUid) {
       throw new Error("Active SafeCard doesn't match expected SafeCard");
     }
 
-    if (expectedUid) {
-      console.log("[GridPlus validateActiveWallet] Validation passed - UID matches");
-    }
-
-    console.log("[GridPlus validateActiveWallet] Validation complete");
-
-    return {
-      uid: activeUid,
-      isInternal,
-      walletName,
-    };
+    return { uid, type, walletName };
   }
 
   async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
