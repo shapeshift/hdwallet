@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { Client, Constants } from "gridplus-sdk";
 import isObject from "lodash/isObject";
@@ -302,6 +303,7 @@ export class GridPlusHDWallet
   readonly _isGridPlus = true;
 
   private activeWalletId?: string;
+  private expectedWalletUid?: string;
 
   transport: GridPlusTransport;
   client?: Client;
@@ -313,6 +315,10 @@ export class GridPlusHDWallet
 
   public setActiveWalletId(walletId: string): void {
     this.activeWalletId = walletId;
+  }
+
+  public setExpectedWalletUid(walletUid: string): void {
+    this.expectedWalletUid = walletUid;
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -568,19 +574,19 @@ export class GridPlusHDWallet
    * This is the device's firmware UID, not session-based
    */
   public getActiveWalletId(): string {
-    console.log('[GridPlus] getActiveWalletId called');
-    console.log('[GridPlus] Current activeWalletId:', this.activeWalletId);
-    console.log('[GridPlus] Client connected:', !!this.client);
+    console.log("[GridPlus] getActiveWalletId called");
+    console.log("[GridPlus] Current activeWalletId:", this.activeWalletId);
+    console.log("[GridPlus] Client connected:", !!this.client);
 
     if (this.client) {
       const activeWallet = this.client.getActiveWallet();
-      console.log('[GridPlus] Client activeWallet:', activeWallet);
-      console.log('[GridPlus] Client activeWallet.uid:', activeWallet?.uid);
-      console.log('[GridPlus] Client activeWallet.uid as hex:', activeWallet?.uid?.toString('hex'));
+      console.log("[GridPlus] Client activeWallet:", activeWallet);
+      console.log("[GridPlus] Client activeWallet.uid:", activeWallet?.uid);
+      console.log("[GridPlus] Client activeWallet.uid as hex:", activeWallet?.uid?.toString("hex"));
     }
 
-    console.log('[GridPlus] Returning activeWalletId:', this.activeWalletId || '');
-    return this.activeWalletId || '';
+    console.log("[GridPlus] Returning activeWalletId:", this.activeWalletId || "");
+    return this.activeWalletId || "";
   }
 
   /**
@@ -597,38 +603,38 @@ export class GridPlusHDWallet
       throw new Error("Device not connected");
     }
 
-    console.log('[GridPlus validateActiveWallet] Starting validation...');
-    console.log('[GridPlus validateActiveWallet] Expected UID:', expectedUid);
-    console.log('[GridPlus validateActiveWallet] Current activeWalletId:', this.activeWalletId);
+    console.log("[GridPlus validateActiveWallet] Starting validation...");
+    console.log("[GridPlus validateActiveWallet] Expected UID:", expectedUid);
+    console.log("[GridPlus validateActiveWallet] Current activeWalletId:", this.activeWalletId);
 
     // Fetch fresh wallet info from device
-    console.log('[GridPlus validateActiveWallet] Fetching active wallet from device...');
+    console.log("[GridPlus validateActiveWallet] Fetching active wallet from device...");
     const activeWallets = await this.client.fetchActiveWallet();
-    console.log('[GridPlus validateActiveWallet] fetchActiveWallet response:', activeWallets);
+    console.log("[GridPlus validateActiveWallet] fetchActiveWallet response:", activeWallets);
 
     // Check internal wallet
     const internalUid = activeWallets.internal?.uid;
-    const internalUidHex = internalUid?.toString('hex');
+    const internalUidHex = internalUid?.toString("hex");
     const isInternalEmpty = internalUid?.equals(ZERO_BUFFER);
 
-    console.log('[GridPlus validateActiveWallet] Internal wallet:');
-    console.log('  - UID (Buffer):', internalUid);
-    console.log('  - UID (hex):', internalUidHex);
-    console.log('  - Is empty:', isInternalEmpty);
-    console.log('  - Name:', activeWallets.internal?.name);
-    console.log('  - Has seed:', (activeWallets.internal as any)?.hasSeed);
+    console.log("[GridPlus validateActiveWallet] Internal wallet:");
+    console.log("  - UID (Buffer):", internalUid);
+    console.log("  - UID (hex):", internalUidHex);
+    console.log("  - Is empty:", isInternalEmpty);
+    console.log("  - Name:", activeWallets.internal?.name);
+    console.log("  - Has seed:", (activeWallets.internal as any)?.hasSeed);
 
     // Check external wallet (SafeCard)
     const externalUid = activeWallets.external?.uid;
-    const externalUidHex = externalUid?.toString('hex');
+    const externalUidHex = externalUid?.toString("hex");
     const isExternalEmpty = externalUid?.equals(ZERO_BUFFER);
 
-    console.log('[GridPlus validateActiveWallet] External wallet (SafeCard):');
-    console.log('  - UID (Buffer):', externalUid);
-    console.log('  - UID (hex):', externalUidHex);
-    console.log('  - Is empty:', isExternalEmpty);
-    console.log('  - Name:', activeWallets.external?.name);
-    console.log('  - Has seed:', (activeWallets.external as any)?.hasSeed);
+    console.log("[GridPlus validateActiveWallet] External wallet (SafeCard):");
+    console.log("  - UID (Buffer):", externalUid);
+    console.log("  - UID (hex):", externalUidHex);
+    console.log("  - Is empty:", isExternalEmpty);
+    console.log("  - Name:", activeWallets.external?.name);
+    console.log("  - Has seed:", (activeWallets.external as any)?.hasSeed);
 
     // Determine which wallet is active
     let activeUid: string;
@@ -640,48 +646,48 @@ export class GridPlusHDWallet
       activeUid = externalUidHex!;
       isExternal = true;
       walletName = activeWallets.external?.name?.toString() || undefined;
-      console.log('[GridPlus validateActiveWallet] Active wallet: External (SafeCard)');
+      console.log("[GridPlus validateActiveWallet] Active wallet: External (SafeCard)");
     } else if (internalUid && !isInternalEmpty) {
       // Using internal wallet
       activeUid = internalUidHex!;
       isExternal = false;
       walletName = activeWallets.internal?.name?.toString() || undefined;
-      console.log('[GridPlus validateActiveWallet] Active wallet: Internal');
+      console.log("[GridPlus validateActiveWallet] Active wallet: Internal");
     } else {
-      console.log('[GridPlus validateActiveWallet] ERROR: No active wallet found!');
+      console.log("[GridPlus validateActiveWallet] ERROR: No active wallet found!");
       throw new Error("No active wallet found on device");
     }
 
-    console.log('[GridPlus validateActiveWallet] Active wallet determined:');
-    console.log('  - UID:', activeUid);
-    console.log('  - Type:', isExternal ? 'External (SafeCard)' : 'Internal');
-    console.log('  - Name:', walletName);
+    console.log("[GridPlus validateActiveWallet] Active wallet determined:");
+    console.log("  - UID:", activeUid);
+    console.log("  - Type:", isExternal ? "External (SafeCard)" : "Internal");
+    console.log("  - Name:", walletName);
 
     // Validate against expected UID if provided
     let isValid = true;
     if (expectedUid) {
       isValid = activeUid === expectedUid;
-      console.log('[GridPlus validateActiveWallet] Validation result:');
-      console.log('  - Expected:', expectedUid);
-      console.log('  - Actual:', activeUid);
-      console.log('  - Match:', isValid);
+      console.log("[GridPlus validateActiveWallet] Validation result:");
+      console.log("  - Expected:", expectedUid);
+      console.log("  - Actual:", activeUid);
+      console.log("  - Match:", isValid);
 
       if (!isValid) {
-        console.log('[GridPlus validateActiveWallet] WARNING: UID mismatch!');
-        console.log('  This could indicate:');
-        console.log('  - SafeCard was swapped');
-        console.log('  - Device was re-paired');
-        console.log('  - Internal/External wallet switch');
+        console.log("[GridPlus validateActiveWallet] WARNING: UID mismatch!");
+        console.log("  This could indicate:");
+        console.log("  - SafeCard was swapped");
+        console.log("  - Device was re-paired");
+        console.log("  - Internal/External wallet switch");
       }
     }
 
-    console.log('[GridPlus validateActiveWallet] Validation complete');
+    console.log("[GridPlus validateActiveWallet] Validation complete");
 
     return {
       uid: activeUid,
       isExternal,
       walletName,
-      isValid
+      isValid,
     };
   }
 }

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import * as core from "@shapeshiftoss/hdwallet-core";
 
 import { GridPlusHDWallet } from "./gridplus";
@@ -36,7 +37,10 @@ export class GridPlusAdapter {
     return { transport, isPaired, sessionId };
   }
 
-  public async pairConnectedDevice(deviceId: string, pairingCode: string): Promise<{
+  public async pairConnectedDevice(
+    deviceId: string,
+    pairingCode: string
+  ): Promise<{
     wallet: GridPlusHDWallet;
     walletUid: string;
     isExternal: boolean;
@@ -58,12 +62,12 @@ export class GridPlusAdapter {
       await wallet.initialize();
 
       // Validate and capture wallet info after pairing and initialization
-      console.log('[GridPlus Adapter] Device paired and initialized, validating active wallet...');
+      console.log("[GridPlus Adapter] Device paired and initialized, validating active wallet...");
 
       const validation = await wallet.validateActiveWallet();
-      console.log('[GridPlus Adapter] Pairing validation complete');
-      console.log('[GridPlus Adapter] Wallet UID will be used as primary identifier:', validation.uid);
-      console.log('[GridPlus Adapter] Wallet type:', validation.isExternal ? 'SafeCard' : 'Internal');
+      console.log("[GridPlus Adapter] Pairing validation complete");
+      console.log("[GridPlus Adapter] Wallet UID will be used as primary identifier:", validation.uid);
+      console.log("[GridPlus Adapter] Wallet type:", validation.isExternal ? "SafeCard" : "Internal");
 
       this.keyring.add(wallet, deviceId);
       this.activeTransports.delete(deviceId);
@@ -96,14 +100,16 @@ export class GridPlusAdapter {
 
       // Validate wallet UID if expected
       if (expectedWalletUid) {
-        console.log('[GridPlus Adapter] Validating reconnection, expecting UID:', expectedWalletUid);
+        console.log("[GridPlus Adapter] Validating reconnection, expecting UID:", expectedWalletUid);
         const validation = await existingWallet.validateActiveWallet(expectedWalletUid);
         if (!validation.isValid) {
-          const errorMsg = `Wallet UID mismatch! Expected ${expectedWalletUid.slice(-8)}, but found ${validation.uid.slice(-8)}. Please insert the correct SafeCard.`;
-          console.error('[GridPlus Adapter] ' + errorMsg);
+          const errorMsg = `Wallet UID mismatch! Expected ${expectedWalletUid.slice(
+            -8
+          )}, but found ${validation.uid.slice(-8)}. Please insert the correct SafeCard.`;
+          console.error("[GridPlus Adapter] " + errorMsg);
           throw new Error(errorMsg);
         }
-        console.log('[GridPlus Adapter] Wallet validation successful, UID matches');
+        console.log("[GridPlus Adapter] Wallet validation successful, UID matches");
       }
 
       return existingWallet;
@@ -128,14 +134,16 @@ export class GridPlusAdapter {
 
     // Validate wallet UID if expected (even for new wallet creation)
     if (expectedWalletUid) {
-      console.log('[GridPlus Adapter] Validating new wallet connection, expecting UID:', expectedWalletUid);
+      console.log("[GridPlus Adapter] Validating new wallet connection, expecting UID:", expectedWalletUid);
       const validation = await wallet.validateActiveWallet(expectedWalletUid);
       if (!validation.isValid) {
-        const errorMsg = `Wallet UID mismatch! Expected ${expectedWalletUid.slice(-8)}, but found ${validation.uid.slice(-8)}. Please insert the correct SafeCard.`;
-        console.error('[GridPlus Adapter] ' + errorMsg);
+        const errorMsg = `Wallet UID mismatch! Expected ${expectedWalletUid.slice(
+          -8
+        )}, but found ${validation.uid.slice(-8)}. Please insert the correct SafeCard.`;
+        console.error("[GridPlus Adapter] " + errorMsg);
         throw new Error(errorMsg);
       }
-      console.log('[GridPlus Adapter] Wallet validation successful, UID matches');
+      console.log("[GridPlus Adapter] Wallet validation successful, UID matches");
     }
 
     this.keyring.add(wallet, deviceId);
