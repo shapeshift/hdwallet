@@ -11,7 +11,7 @@
   "scripts": {
     "build": "tsc --build",
     "clean": "rm -rf dist node_modules",
-    "prepublishOnly": "echo skipping build"
+    "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
     "@shapeshiftoss/hdwallet-keepkey": "^1.62.14-tron-adapter-fix.0"

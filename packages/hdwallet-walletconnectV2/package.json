@@ -12,7 +12,7 @@
     "build": "tsc --build",
     "clean": "rm -rf dist node_modules",
     "dev": "yarn tsc --build --watch",
-    "prepublishOnly": "echo skipping build"
+    "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
     "@shapeshiftoss/hdwallet-core": "^1.62.14-tron-adapter-fix.0",
