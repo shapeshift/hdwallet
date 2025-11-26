@@ -9,10 +9,7 @@ import * as mayachain from "./mayachain";
 import * as solana from "./solana";
 import * as thorchain from "./thorchain";
 
-// 32-byte zero buffer for wallet comparison
-const ZERO_BUFFER = Buffer.alloc(32, 0);
-
-const isEmptyWallet = (uid?: Buffer): boolean => !uid || uid.equals(ZERO_BUFFER);
+const isEmptyWallet = (uid?: Buffer): boolean => !uid || uid.every(b => b === 0);
 
 export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
   return isObject(wallet) && (wallet as any)._isGridPlus;
