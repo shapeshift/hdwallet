@@ -43,10 +43,8 @@ export class GridPlusAdapter {
 
     const wallet = new GridPlusHDWallet(this.client);
 
-    // Only validate if we have an expected ID (reconnection scenario)
-    if (expectedActiveWalletId) {
+    if (expectedActiveWalletId)
       await wallet.validateActiveWallet(expectedActiveWalletId, expectedType);
-    }
 
     return wallet;
   }
@@ -64,7 +62,6 @@ export class GridPlusAdapter {
     const wallet = new GridPlusHDWallet(this.client);
     this.keyring.add(wallet, this.client.getDeviceId());
 
-    // SDK's pair() already called fetchActiveWallet() internally, cache should be populated
     const activeWallet = this.client.getActiveWallet();
     if (!activeWallet) throw new Error("No active wallet found on device");
 
