@@ -31,10 +31,6 @@ export class GridPlusAdapter {
 
     if (!this.client) {
       this.client = new Client({ name, baseUrl, privKey, deviceId });
-    } else {
-      // Client already exists, reset active wallets to clear stale state before reconnecting
-      // This is critical when switching between SafeCards - ensures fresh wallet state from device
-      this.client.resetActiveWallets();
     }
 
     const isPaired = await this.client.connect(deviceId);
@@ -62,7 +58,7 @@ export class GridPlusAdapter {
     const wallet = new GridPlusHDWallet(this.client);
     this.keyring.add(wallet, this.client.getDeviceId());
 
-    // Use cached active wallet data (SDK already fetched it during pair())
+    // SDK's pair() already called fetchActiveWallet() internally, cache should be populated
     const activeWallet = this.client.getActiveWallet();
     if (!activeWallet) throw new Error("No active wallet found on device");
 
