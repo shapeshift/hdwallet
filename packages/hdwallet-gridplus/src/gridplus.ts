@@ -392,9 +392,7 @@ export class GridPlusHDWallet
     activeWalletId: string;
     type: SafeCardType;
   }> {
-    if (!this.client) {
-      throw new Error("Device not connected");
-    }
+    if (!this.client) throw new Error("Device not connected");
 
     const activeWallets = await this.client.fetchActiveWallet();
 
