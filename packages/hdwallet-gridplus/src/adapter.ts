@@ -26,7 +26,7 @@ export class GridPlusAdapter {
     deviceId: string,
     password = "",
     expectedActiveWalletId?: string,
-    expectedType?: WalletType
+    expectedType?: SafeCardType
   ): Promise<GridPlusHDWallet | undefined> {
     const privKey = createHash("sha256")
       .update(deviceId + password + name)
@@ -54,7 +54,7 @@ export class GridPlusAdapter {
   public async pairDevice(pairingCode: string): Promise<{
     wallet: GridPlusHDWallet;
     activeWalletId: string;
-    type: WalletType;
+    type: SafeCardType;
   }> {
     if (!this.client) throw new Error("No client connected. Call connectDevice first.");
 

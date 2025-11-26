@@ -302,14 +302,14 @@ export class GridPlusHDWallet
 
   client: Client | undefined;
   private expectedActiveWalletId?: string;
-  private expectedType?: WalletType;
+  private expectedType?: SafeCardType;
 
   constructor(client: Client) {
     super();
     this.client = client;
   }
 
-  public setExpectedActiveWalletId(activeWalletId: string, type?: WalletType): void {
+  public setExpectedActiveWalletId(activeWalletId: string, type?: SafeCardType): void {
     this.expectedActiveWalletId = activeWalletId;
     this.expectedType = type;
   }
@@ -387,11 +387,10 @@ export class GridPlusHDWallet
    */
   public async validateActiveWallet(
     expectedActiveWalletId?: string,
-    expectedType?: WalletType
+    expectedType?: SafeCardType
   ): Promise<{
     activeWalletId: string;
-    type: WalletType;
-    walletName?: string;
+    type: SafeCardType;
   }> {
     if (!this.client) {
       throw new Error("Device not connected");
@@ -400,7 +399,7 @@ export class GridPlusHDWallet
     const activeWallets = await this.client.fetchActiveWallet();
 
     // Determine active wallet type (external SafeCard takes priority)
-    const type: WalletType = (() => {
+    const type: SafeCardType = (() => {
       if (!isEmptyWallet(activeWallets.external?.uid)) return 'external';
       if (!isEmptyWallet(activeWallets.internal?.uid)) return 'internal';
 
@@ -409,7 +408,6 @@ export class GridPlusHDWallet
 
     const activeWallet = activeWallets[type];
     const activeWalletId = activeWallet.uid.toString("hex");
-    const walletName = activeWallet.name?.toString() || undefined;
 
     // Validate against expected activeWalletId if provided
     if (expectedActiveWalletId && activeWalletId !== expectedActiveWalletId) {
@@ -419,7 +417,7 @@ export class GridPlusHDWallet
       throw new Error("Active SafeCard doesn't match expected SafeCard");
     }
 
-    return { activeWalletId, type, walletName };
+    return { activeWalletId, type };
   }
 
   async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
