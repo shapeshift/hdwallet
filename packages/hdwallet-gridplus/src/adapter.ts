@@ -62,12 +62,17 @@ export class GridPlusAdapter {
     const wallet = new GridPlusHDWallet(this.client);
     this.keyring.add(wallet, this.client.getDeviceId());
 
-    const validation = await wallet.validateActiveWallet();
+    // Use cached active wallet data (SDK already fetched it during pair())
+    const activeWallet = this.client.getActiveWallet();
+    if (!activeWallet) throw new Error("No active wallet found on device");
+
+    const uid = activeWallet.uid.toString("hex");
+    const type: 'external' | 'internal' = activeWallet.external ? 'external' : 'internal';
 
     return {
       wallet,
-      walletUid: validation.uid,
-      type: validation.type,
+      walletUid: uid,
+      type,
     };
   }
 }
