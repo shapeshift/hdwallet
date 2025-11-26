@@ -383,7 +383,10 @@ export class GridPlusHDWallet
    * Fetches fresh wallet info from device and logs details
    * Throws if expectedUid is provided and doesn't match
    */
-  public async validateActiveWallet(expectedActiveWalletId?: string): Promise<{
+  public async validateActiveWallet(
+    expectedActiveWalletId?: string,
+    expectedType?: 'external' | 'internal'
+  ): Promise<{
     activeWalletId: string;
     type: 'external' | 'internal';
     walletName?: string;
@@ -408,7 +411,7 @@ export class GridPlusHDWallet
 
     // Validate against expected activeWalletId if provided
     if (expectedActiveWalletId && activeWalletId !== expectedActiveWalletId) {
-      if (this.expectedType === 'internal') {
+      if (expectedType === 'internal') {
         throw new Error("Remove inserted SafeCard to access internal GridPlus wallet");
       }
       throw new Error("Active SafeCard doesn't match expected SafeCard");
@@ -472,7 +475,7 @@ export class GridPlusHDWallet
 
   async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
     if (!this.client) throw new Error("Device not connected");
-    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId);
+    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
     return btc.btcSignTx(this.client, msg);
   }
 
@@ -491,19 +494,19 @@ export class GridPlusHDWallet
 
   async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
     if (!this.client) throw new Error("Device not connected");
-    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId);
+    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
     return eth.ethSignTx(this.client, msg);
   }
 
   async ethSignTypedData(msg: core.ETHSignTypedData): Promise<core.ETHSignedTypedData> {
     if (!this.client) throw new Error("Device not connected");
-    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId);
+    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
     return eth.ethSignTypedData(this.client, msg);
   }
 
   async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
     if (!this.client) throw new Error("Device not connected");
-    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId);
+    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
     return eth.ethSignMessage(this.client, msg);
   }
 
@@ -530,7 +533,7 @@ export class GridPlusHDWallet
 
   async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
     this.assertSolanaFwSupport();
-    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId);
+    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
     return solana.solanaSignTx(this.client, msg);
   }
 
@@ -541,7 +544,7 @@ export class GridPlusHDWallet
 
   async cosmosSignTx(msg: core.CosmosSignTx): Promise<core.CosmosSignedTx | null> {
     if (!this.client) throw new Error("Device not connected");
-    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId);
+    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
     return cosmos.cosmosSignTx(this.client, msg);
   }
 
@@ -552,7 +555,7 @@ export class GridPlusHDWallet
 
   async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {
     if (!this.client) throw new Error("Device not connected");
-    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId);
+    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
     return thorchain.thorchainSignTx(this.client, msg);
   }
 
@@ -563,7 +566,7 @@ export class GridPlusHDWallet
 
   async mayachainSignTx(msg: core.MayachainSignTx): Promise<core.MayachainSignedTx | null> {
     if (!this.client) throw new Error("Device not connected");
-    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId);
+    if (this.expectedActiveWalletId) await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType);
     return mayachain.mayachainSignTx(this.client, msg);
   }
 }

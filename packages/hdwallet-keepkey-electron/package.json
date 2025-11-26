@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-electron",
-  "version": "1.62.13-gridplus-validation.15",
+  "version": "1.62.13-gridplus-validation.16",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,7 +14,7 @@
     "prepublishOnly": "rm -rf dist && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-keepkey": "^1.62.13-gridplus-validation.15",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.62.13-gridplus-validation.16",
     "uuid": "^8.3.2"
   },
   "peerDependencies": {

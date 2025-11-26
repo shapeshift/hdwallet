@@ -23,7 +23,8 @@ export class GridPlusAdapter {
   public async connectDevice(
     deviceId: string,
     password = "",
-    expectedActiveWalletId?: string
+    expectedActiveWalletId?: string,
+    expectedType?: 'external' | 'internal'
   ): Promise<GridPlusHDWallet | undefined> {
     const privKey = createHash("sha256")
       .update(deviceId + password + name)
@@ -42,7 +43,7 @@ export class GridPlusAdapter {
 
     // Only validate if we have an expected ID (reconnection scenario)
     if (expectedActiveWalletId) {
-      await wallet.validateActiveWallet(expectedActiveWalletId);
+      await wallet.validateActiveWallet(expectedActiveWalletId, expectedType);
     }
 
     return wallet;
