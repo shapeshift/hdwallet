@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/integration",
-  "version": "1.62.13-gridplus-validation.5",
+  "version": "1.62.13-gridplus-validation.6",
   "main": "index.js",
   "license": "MIT",
   "private": true,
