@@ -385,7 +385,7 @@ export class GridPlusHDWallet
    */
   public async validateActiveWallet(expectedUid?: string): Promise<{
     uid: string;
-    isExternal: boolean;
+    isInternal: boolean;
     walletName?: string;
   }> {
     if (!this.client) {
@@ -422,22 +422,22 @@ export class GridPlusHDWallet
     console.log("  - Is empty:", isExternalEmpty);
     console.log("  - Name:", activeWallets.external?.name);
 
-    // Determine which wallet is active (external takes priority)
-    const { activeUid, isExternal, walletName } = (() => {
+    // Determine which wallet is active (external SafeCard takes priority)
+    const { activeUid, isInternal, walletName } = (() => {
       if (externalUid && !isExternalEmpty) {
-        // SafeCard is inserted and active
-        console.log("[GridPlus validateActiveWallet] Active wallet: External (SafeCard)");
+        // SafeCard is inserted and active (base case)
+        console.log("[GridPlus validateActiveWallet] Active wallet: SafeCard");
         return {
           activeUid: externalUidHex!,
-          isExternal: true,
+          isInternal: false,
           walletName: activeWallets.external?.name?.toString() || undefined,
         };
       } else if (internalUid && !isInternalEmpty) {
-        // Using internal wallet
+        // Using internal wallet (edge case)
         console.log("[GridPlus validateActiveWallet] Active wallet: Internal");
         return {
           activeUid: internalUidHex!,
-          isExternal: false,
+          isInternal: true,
           walletName: activeWallets.internal?.name?.toString() || undefined,
         };
       } else {
@@ -448,7 +448,7 @@ export class GridPlusHDWallet
 
     console.log("[GridPlus validateActiveWallet] Active wallet determined:");
     console.log("  - UID:", activeUid);
-    console.log("  - Type:", isExternal ? "External (SafeCard)" : "Internal");
+    console.log("  - Type:", isInternal ? "Internal" : "SafeCard");
     console.log("  - Name:", walletName);
 
     // Validate against expected UID if provided
@@ -467,7 +467,7 @@ export class GridPlusHDWallet
 
     return {
       uid: activeUid,
-      isExternal,
+      isInternal,
       walletName,
     };
   }

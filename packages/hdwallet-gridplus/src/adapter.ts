@@ -56,7 +56,7 @@ export class GridPlusAdapter {
   public async pairDevice(pairingCode: string): Promise<{
     wallet: GridPlusHDWallet;
     walletUid: string;
-    isExternal: boolean;
+    isInternal: boolean;
   }> {
     if (!this.client) throw new Error("No client connected. Call connectDevice first.");
 
@@ -71,12 +71,12 @@ export class GridPlusAdapter {
     const validation = await wallet.validateActiveWallet();
     console.log("[GridPlus Adapter] Pairing validation complete");
     console.log("[GridPlus Adapter] Wallet UID will be used as primary identifier:", validation.uid);
-    console.log("[GridPlus Adapter] Wallet type:", validation.isExternal ? "SafeCard" : "Internal");
+    console.log("[GridPlus Adapter] Wallet type:", validation.isInternal ? "Internal" : "SafeCard");
 
     return {
       wallet,
       walletUid: validation.uid,
-      isExternal: validation.isExternal,
+      isInternal: validation.isInternal,
     };
   }
 }
