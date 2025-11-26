@@ -33,6 +33,8 @@ export class GridPlusAdapter {
     if (!this.client) {
       this.client = new Client({ name, baseUrl, privKey, deviceId });
     } else {
+      // Client already exists, reset active wallets to clear stale state before reconnecting
+      // This is critical when switching between SafeCards - ensures fresh wallet state from device
       this.client.resetActiveWallets();
     }
 
