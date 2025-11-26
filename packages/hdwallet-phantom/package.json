@@ -11,7 +11,7 @@
   "scripts": {
     "build": "tsc --build",
     "clean": "rm -rf dist node_modules",
-    "prepublishOnly": "rm -rf dist && yarn build"
+    "prepublishOnly": "echo skipping build"
   },
   "dependencies": {
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.0",

@@ -11,7 +11,7 @@
   "scripts": {
     "build": "tsc --build",
     "clean": "rm -rf dist node_modules",
-    "prepublishOnly": "rm -rf dist && yarn build"
+    "prepublishOnly": "echo skipping build"
   },
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",

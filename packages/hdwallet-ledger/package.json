@@ -12,7 +12,7 @@
     "build": "tsc --build",
     "build:docs": "typedoc --out docs --target es6 --theme minimal --mode file src",
     "clean": "rm -rf dist node_modules",
-    "prepublishOnly": "rm -rf dist && yarn build"
+    "prepublishOnly": "echo skipping build"
   },
   "dependencies": {
     "@ethereumjs/common": "3.2.0",
