@@ -301,14 +301,16 @@ export class GridPlusHDWallet
 
   client: Client | undefined;
   private expectedActiveWalletId?: string;
+  private expectedType?: 'external' | 'internal';
 
   constructor(client: Client) {
     super();
     this.client = client;
   }
 
-  public setExpectedActiveWalletId(activeWalletId: string): void {
+  public setExpectedActiveWalletId(activeWalletId: string, type?: 'external' | 'internal'): void {
     this.expectedActiveWalletId = activeWalletId;
+    this.expectedType = type;
   }
 
   async cancel(): Promise<void> {}
@@ -410,6 +412,9 @@ export class GridPlusHDWallet
 
     // Validate against expected activeWalletId if provided
     if (expectedActiveWalletId && activeWalletId !== expectedActiveWalletId) {
+      if (this.expectedType === 'internal') {
+        throw new Error("Remove inserted SafeCard to access internal GridPlus wallet");
+      }
       throw new Error("Active SafeCard doesn't match expected SafeCard");
     }
 
