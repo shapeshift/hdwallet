@@ -1,5 +1,5 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
 import { keccak256 } from "@ethersproject/keccak256";
+import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bs58check from "bs58check";
 
 import { Isolation } from "../..";
