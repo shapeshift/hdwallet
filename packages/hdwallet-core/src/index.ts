@@ -18,6 +18,7 @@ export * from "./terra";
 export * from "./thorchain";
 export * from "./solana";
 export * from "./transport";
+export * from "./tron";
 export * from "./utils";
 export * from "./utxoUtils";
 export * from "./wallet";

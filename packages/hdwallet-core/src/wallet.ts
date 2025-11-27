@@ -16,6 +16,7 @@ import { SolanaWallet, SolanaWalletInfo } from "./solana";
 import { TerraWallet, TerraWalletInfo } from "./terra";
 import { ThorchainWallet, ThorchainWalletInfo } from "./thorchain";
 import { Transport } from "./transport";
+import { TronWallet, TronWalletInfo } from "./tron";
 
 export type BIP32Path = Array<number>;
 
@@ -255,6 +256,14 @@ export function supportsSolana(wallet: HDWallet): wallet is SolanaWallet {
 
 export function infoSolana(info: HDWalletInfo): info is SolanaWalletInfo {
   return isObject(info) && (info as any)._supportsSolanaInfo;
+}
+
+export function supportsTron(wallet: HDWallet): wallet is TronWallet {
+  return isObject(wallet) && (wallet as any)._supportsTron;
+}
+
+export function infoTron(info: HDWalletInfo): info is TronWalletInfo {
+  return isObject(info) && (info as any)._supportsTronInfo;
 }
 
 export function supportsDebugLink(wallet: HDWallet): wallet is DebugLinkWallet {
