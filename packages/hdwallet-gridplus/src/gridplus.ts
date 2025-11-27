@@ -10,7 +10,7 @@ import * as mayachain from "./mayachain";
 import * as solana from "./solana";
 import * as thorchain from "./thorchain";
 
-type SafeCardType = "external" | "internal";
+export type SafeCardType = "external" | "internal";
 
 const isSafecardConnected = (uid?: Buffer): boolean => !!uid && `0x${uid.toString("hex")}` !== zeroHash;
 

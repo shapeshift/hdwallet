@@ -2,9 +2,7 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { createHash } from "crypto";
 import { Client } from "gridplus-sdk";
 
-import { GridPlusHDWallet } from "./gridplus";
-
-type SafeCardType = "external" | "internal";
+import { GridPlusHDWallet, SafeCardType } from "./gridplus";
 
 const name = "ShapeShift";
 const baseUrl = "https://signing.gridpl.us";
