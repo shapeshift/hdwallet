@@ -4,6 +4,8 @@ import bs58 from "bs58";
 import { Client, Constants } from "gridplus-sdk";
 
 export async function solanaGetAddress(client: Client, msg: core.SolanaGetAddress): Promise<string | null> {
+  if (msg.pubKey) return msg.pubKey;
+
   const startPath = core.ed25519Path(msg.addressNList);
 
   const pubkey = (await client.getAddresses({ startPath, n: 1, flag: Constants.GET_ADDR_FLAGS.ED25519_PUB }))[0];
@@ -15,7 +17,7 @@ export async function solanaGetAddress(client: Client, msg: core.SolanaGetAddres
 }
 
 export async function solanaSignTx(client: Client, msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
-  const address = await solanaGetAddress(client, { addressNList: msg.addressNList });
+  const address = await solanaGetAddress(client, { addressNList: msg.addressNList, pubKey: msg.pubKey });
   if (!address) throw new Error("Failed to get Solana address");
 
   const transaction = core.solanaBuildTransaction(msg, address);
