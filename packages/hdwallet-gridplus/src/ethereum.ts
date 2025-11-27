@@ -16,27 +16,18 @@ export async function ethGetAddress(client: Client, msg: core.ETHGetAddress): Pr
 export async function ethSignTx(client: Client, msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
   const isEIP1559 = Boolean(msg.maxFeePerGas && msg.maxPriorityFeePerGas);
 
-  const baseTxData = {
+  const txData: TypedTxData = {
     to: msg.to,
     value: msg.value,
     data: msg.data,
     nonce: msg.nonce,
     gasLimit: msg.gasLimit,
     chainId: msg.chainId,
+    type: isEIP1559 ? TransactionType.FeeMarketEIP1559 : TransactionType.Legacy,
+    maxFeePerGas: msg.maxFeePerGas,
+    maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
+    gasPrice: msg.gasPrice,
   };
-
-  const txData: TypedTxData = isEIP1559
-    ? {
-        ...baseTxData,
-        type: TransactionType.FeeMarketEIP1559,
-        maxFeePerGas: msg.maxFeePerGas,
-        maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
-      }
-    : {
-        ...baseTxData,
-        type: TransactionType.Legacy,
-        gasPrice: msg.gasPrice,
-      };
 
   const common = Common.custom({ chainId: msg.chainId }, { hardfork: Hardfork.London });
   const unsignedTx = TransactionFactory.fromTxData(txData, { common });
