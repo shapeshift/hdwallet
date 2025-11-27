@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-native-vault",
-  "version": "1.62.14-tron-adapter-fix.4",
+  "version": "1.62.11",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -10,12 +10,12 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc --build",
-    "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "prepublishOnly": "yarn clean && yarn build"
+    "clean": "rm -rf dist node_modules",
+    "prepublishOnly": "rm -rf dist && yarn build"
   },
   "dependencies": {
     "@bitcoinerlab/secp256k1": "^1.1.1",
-    "@shapeshiftoss/hdwallet-native": "^1.62.14-tron-adapter-fix.4",
+    "@shapeshiftoss/hdwallet-native": "1.62.11",
     "bip39": "^3.0.4",
     "hash-wasm": "^4.11.0",
     "idb-keyval": "^6.0.3",
@@ -26,6 +26,5 @@
   },
   "devDependencies": {
     "fake-indexeddb": "^3.1.7"
-  },
-  "gitHead": "0791b70935872dc7817a00305b587c88600543fc"
+  }
 }
