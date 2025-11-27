@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import Base64 from "base64-js";
+import * as bchAddr from "bchaddrjs";
 
 import { TrezorTransport } from "./transport";
 import { handleError } from "./utils";
@@ -118,7 +119,7 @@ export async function btcSignTx(
 
     if (output.address) {
       return {
-        address: output.address,
+        address: msg.coin === "BitcoinCash" ? bchAddr.toCashAddress(output.address) : output.address,
         amount: output.amount,
         script_type: translateOutputScriptType(core.BTCOutputScriptType.PayToAddress),
       };
