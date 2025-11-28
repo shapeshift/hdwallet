@@ -255,7 +255,8 @@ $gridplus.on("click", async (e) => {
   window["pairingCodeEntered"] = async function () {
     const input = document.getElementById("#pairingCodeInput") as HTMLInputElement;
     document.getElementById("#pairingCodeModal").className = "modal";
-    wallet = await gridplusAdapter.pairDevice(input.value);
+    const { wallet: gridplusWallet } = await gridplusAdapter.pairDevice(input.value);
+    wallet = gridplusWallet;
     window["wallet"] = wallet;
     $("#keyring select").val(await wallet.getDeviceID());
   };
