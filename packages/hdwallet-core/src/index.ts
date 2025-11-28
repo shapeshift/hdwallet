@@ -17,6 +17,7 @@ export * from "./secret";
 export * from "./terra";
 export * from "./thorchain";
 export * from "./solana";
+export * from "./sui";
 export * from "./transport";
 export * from "./tron";
 export * from "./utils";
