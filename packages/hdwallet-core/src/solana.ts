@@ -50,6 +50,8 @@ export interface SolanaSignTx {
   instructions?: SolanaTxInstruction[];
   /** Address look up table accounts */
   addressLookupTableAccountInfos?: SolanaAddressLookupTableAccountInfo[];
+  /** pubKey is the sender's public key - when provided, skips address derivation */
+  pubKey?: string;
 }
 
 export interface SolanaSignedTx {
