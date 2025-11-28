@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-core",
-  "version": "1.62.16-bro-seriously-fml.1",
+  "version": "1.62.15",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -27,6 +27,5 @@
   "devDependencies": {
     "@types/google-protobuf": "^3.15.1",
     "@types/lodash": "^4.14.168"
-  },
-  "gitHead": "f26738bfac4557366a0962669d7a99257b5deb4d"
+  }
 }

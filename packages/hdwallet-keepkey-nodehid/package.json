@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-nodehid",
-  "version": "1.62.16-bro-seriously-fml.1",
+  "version": "1.62.15",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,13 +14,12 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-keepkey": "^1.62.16-bro-seriously-fml.1"
+    "@shapeshiftoss/hdwallet-keepkey": "1.62.15"
   },
   "peerDependencies": {
     "node-hid": "^2.1.1"
   },
   "devDependencies": {
     "@types/node-hid": "^1.3.1"
-  },
-  "gitHead": "f26738bfac4557366a0962669d7a99257b5deb4d"
+  }
 }

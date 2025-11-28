@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger-webusb",
-  "version": "1.62.16-bro-seriously-fml.1",
+  "version": "1.62.15",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -20,13 +20,12 @@
     "@ledgerhq/hw-app-solana": "^7.5.1",
     "@ledgerhq/hw-transport": "6.31.8",
     "@ledgerhq/hw-transport-webusb": "6.29.8",
-    "@shapeshiftoss/hdwallet-core": "^1.62.16-bro-seriously-fml.1",
-    "@shapeshiftoss/hdwallet-ledger": "^1.62.16-bro-seriously-fml.1",
+    "@shapeshiftoss/hdwallet-core": "1.62.15",
+    "@shapeshiftoss/hdwallet-ledger": "1.62.15",
     "@types/w3c-web-usb": "^1.0.4",
     "p-queue": "^7.4.1"
   },
   "devDependencies": {
     "@types/w3c-web-usb": "^1.0.6"
-  },
-  "gitHead": "f26738bfac4557366a0962669d7a99257b5deb4d"
+  }
 }

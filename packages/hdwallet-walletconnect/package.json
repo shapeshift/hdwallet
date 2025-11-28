@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-walletconnect",
-  "version": "1.62.16-bro-seriously-fml.1",
+  "version": "1.62.15",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,10 +15,9 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.16-bro-seriously-fml.1",
+    "@shapeshiftoss/hdwallet-core": "1.62.15",
     "@walletconnect/qrcode-modal": "^1.7.8",
     "@walletconnect/web3-provider": "^1.7.8",
     "ethers": "^5.6.5"
-  },
-  "gitHead": "f26738bfac4557366a0962669d7a99257b5deb4d"
+  }
 }

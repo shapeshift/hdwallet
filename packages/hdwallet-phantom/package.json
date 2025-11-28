@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-phantom",
-  "version": "1.62.16-bro-seriously-fml.1",
+  "version": "1.62.15",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.0",
-    "@shapeshiftoss/hdwallet-core": "^1.62.16-bro-seriously-fml.1",
+    "@shapeshiftoss/hdwallet-core": "1.62.15",
     "@solana/web3.js": "1.95.8",
     "base64-js": "^1.5.1",
     "bitcoinjs-message": "^2.0.0",
@@ -24,6 +24,5 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.168"
-  },
-  "gitHead": "f26738bfac4557366a0962669d7a99257b5deb4d"
+  }
 }
