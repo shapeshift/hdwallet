@@ -10,9 +10,9 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc --build",
-    "clean": "rm -rf dist node_modules",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
     "dev": "yarn tsc --build --watch",
-    "prepublishOnly": "rm -rf dist && yarn build"
+    "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
     "@shapeshiftoss/hdwallet-core": "1.62.14",

@@ -11,8 +11,8 @@
   "scripts": {
     "build": "tsc --build",
     "build:docs": "typedoc --out docs --target es6 --theme minimal --mode file src",
-    "clean": "rm -rf dist node_modules",
-    "prepublishOnly": "rm -rf dist && yarn build"
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
     "@bitcoinerlab/secp256k1": "^1.1.1",
