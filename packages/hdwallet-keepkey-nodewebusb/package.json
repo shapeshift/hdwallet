@@ -22,5 +22,6 @@
   },
   "devDependencies": {
     "usb": "^2.3.1"
-  }
+  },
+  "gitHead": "50218b2f0a08b4438eb3856fc9a0fd601ab56e95"
 }

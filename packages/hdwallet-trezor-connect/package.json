@@ -17,5 +17,6 @@
     "@shapeshiftoss/hdwallet-core": "^1.62.16-bro-seriously-fml.0",
     "@shapeshiftoss/hdwallet-trezor": "^1.62.16-bro-seriously-fml.0",
     "@trezor/connect-web": "^9.6.4"
-  }
+  },
+  "gitHead": "50218b2f0a08b4438eb3856fc9a0fd601ab56e95"
 }

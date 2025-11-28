@@ -17,5 +17,6 @@
     "@shapeshiftoss/hdwallet-core": "^1.62.16-bro-seriously-fml.0",
     "@shapeshiftoss/hdwallet-keepkey": "^1.62.16-bro-seriously-fml.0",
     "axios": "^0.21.1"
-  }
+  },
+  "gitHead": "50218b2f0a08b4438eb3856fc9a0fd601ab56e95"
 }
