@@ -38,7 +38,7 @@ describe("NativeHDWalletInfo", () => {
         msg: {
           coin: "bitcoin",
           path: [44 + 0x80000000, 0 + 0x80000000, 0 + 0x80000000, 0, 0],
-          scriptType: core.BTCInputScriptType.SpendAddress,
+          scriptType: core.BTCScriptType.Legacy,
         },
         out: { coin: "bitcoin", verbose: "m/44'/0'/0'/0/0", isKnown: false },
       },
@@ -46,7 +46,7 @@ describe("NativeHDWalletInfo", () => {
         msg: {
           coin: "Bitcoin",
           path: [44 + 0x80000000, 0 + 0x80000000, 0 + 0x80000000],
-          scriptType: core.BTCInputScriptType.SpendAddress,
+          scriptType: core.BTCScriptType.Legacy,
         },
         out: { coin: "Bitcoin", verbose: "Bitcoin Account #0 (Legacy)", isKnown: true, wholeAccount: true },
       },
@@ -54,13 +54,13 @@ describe("NativeHDWalletInfo", () => {
         msg: {
           coin: "Bitcoin",
           path: [44 + 0x80000000, 0 + 0x80000000, 0 + 0x80000000, 0, 0],
-          scriptType: core.BTCInputScriptType.SpendAddress,
+          scriptType: core.BTCScriptType.Legacy,
         },
         out: { coin: "Bitcoin", verbose: "Bitcoin Account #0, Address #0 (Legacy)", isKnown: true },
       },
       {
-        msg: { coin: "dash", path: [1, 2, 3], scriptType: core.BTCInputScriptType.SpendWitness },
-        out: { coin: "dash", verbose: "m/1/2/3", scriptType: core.BTCInputScriptType.SpendWitness, isKnown: false },
+        msg: { coin: "dash", path: [1, 2, 3], scriptType: core.BTCScriptType.SegwitNative },
+        out: { coin: "dash", verbose: "m/1/2/3", scriptType: core.BTCScriptType.SegwitNative, isKnown: false },
       },
       {
         msg: { coin: "bitcoincash", path: [1, 2, 3] },
@@ -259,7 +259,7 @@ describe("NativeHDWallet", () => {
         await wallet.btcGetAddress({
           coin: "bitcoin",
           addressNList: [44 + 0x80000000, 0 + 0x80000000],
-          scriptType: core.BTCInputScriptType.SpendAddress,
+          scriptType: core.BTCScriptType.Legacy,
         })
       ).toStrictEqual("1Hvzdx2kSLHT93aTnEeDNDSo4DS1Wn3CML");
     });
@@ -287,7 +287,7 @@ describe("NativeHDWallet", () => {
         await wallet.btcGetAddress({
           coin: "bitcoin",
           addressNList: [44 + 0x80000000, 0 + 0x80000000, 0 + 0x80000000, 0, 0],
-          scriptType: core.BTCInputScriptType.SpendAddress,
+          scriptType: core.BTCScriptType.Legacy,
         })
       ).toStrictEqual("1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM");
     });

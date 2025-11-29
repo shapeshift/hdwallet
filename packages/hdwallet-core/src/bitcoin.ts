@@ -1,7 +1,6 @@
 import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as ta from "type-assertions";
 
-import { BTCScriptType } from "./networks";
 import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { BIP32Path, Coin, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
@@ -20,7 +19,7 @@ type GuardedUnion<T> = GuardedUnionInner<T, T>;
 export type BTCGetAddress = {
   coin: Coin;
   addressNList: BIP32Path;
-  scriptType?: BTCInputScriptType; // Defaults to BTCInputScriptType.SpendAddress
+  scriptType: BTCScriptType;
   showDisplay?: boolean;
 };
 
@@ -78,7 +77,7 @@ type BTCSignTxInputNativeBase = BTCSignTxInputBase & {
 };
 
 type BTCSignTxInputNativeSegwitBase = BTCSignTxInputNativeBase & {
-  scriptType: BTCInputScriptType.SpendWitness | BTCInputScriptType.SpendP2SHWitness;
+  scriptType: BTCScriptType.SegwitNative | BTCScriptType.Segwit;
 };
 
 type BTCSignTxInputNativeSegwitWithHex = BTCSignTxInputNativeSegwitBase & {
@@ -94,7 +93,7 @@ type BTCSignTxInputNativeSegwitWithTx = BTCSignTxInputNativeSegwitBase & {
 type BTCSignTxInputNativeSegwit = BTCSignTxInputNativeSegwitWithHex | BTCSignTxInputNativeSegwitWithTx;
 
 type BTCSignTxInputNativeNonSegwit = BTCSignTxInputNativeBase & {
-  scriptType: Exclude<BTCInputScriptType, BTCSignTxInputNativeSegwit["scriptType"]>;
+  scriptType: Exclude<BTCScriptType, BTCSignTxInputNativeSegwit["scriptType"]>;
   hex: string;
 };
 
@@ -108,12 +107,12 @@ type BTCSignTxInputKKBase = BTCSignTxInputBase & {
 };
 
 type BTCSignTxInputKKSegwit = BTCSignTxInputKKBase & {
-  scriptType: BTCInputScriptType.SpendWitness | BTCInputScriptType.SpendP2SHWitness | BTCInputScriptType.External;
+  scriptType: BTCScriptType.SegwitNative | BTCScriptType.Segwit;
   hex?: string;
 };
 
 type BTCSignTxInputKKNonSegwit = BTCSignTxInputKKBase & {
-  scriptType: Exclude<BTCInputScriptType, BTCSignTxInputKKSegwit["scriptType"]>;
+  scriptType: Exclude<BTCScriptType, BTCSignTxInputKKSegwit["scriptType"]>;
 } & (
     | {
         tx: BitcoinTx;
@@ -129,12 +128,12 @@ export type BTCSignTxInputKK = GuardedUnion<BTCSignTxInputKKUnguarded>;
 export type BTCSignTxInputTrezor = BTCSignTxInputBase & {
   txid: string;
   amount: string;
-  scriptType: BTCInputScriptType;
+  scriptType: BTCScriptType;
 };
 
 export type BTCSignTxInputLedger = BTCSignTxInputBase & {
   addressNList: BIP32Path;
-  scriptType: BTCInputScriptType;
+  scriptType: BTCScriptType;
   hex: string;
 };
 
@@ -147,7 +146,7 @@ export type BTCSignTxInputUnguarded = BTCSignTxInputNativeUnguarded &
 // Stick to this common subset of input fields to avoid type hell.
 export type BTCSignTxInputSafe = {
   addressNList: BIP32Path;
-  scriptType: BTCInputScriptType;
+  scriptType: BTCScriptType;
   hex: string;
   txid: string;
   amount: string;
@@ -169,21 +168,21 @@ export type BTCSignTxOutputSpendP2PKH = {
   addressType?: BTCOutputAddressType.Spend;
   amount: string;
   address: string;
-  scriptType: BTCOutputScriptType.PayToAddress;
+  scriptType: BTCScriptType.Legacy;
 };
 
 export type BTCSignTxOutputSpendP2SH = {
   addressType?: BTCOutputAddressType.Spend;
   amount: string;
   address: string;
-  scriptType: BTCOutputScriptType.PayToMultisig | BTCOutputScriptType.PayToP2SHWitness;
+  scriptType: BTCScriptType.LegacyMultisig | BTCScriptType.Segwit;
 };
 
 export type BTCSignTxOutputSpendP2WPKH = {
   addressType?: BTCOutputAddressType.Spend;
   amount: string;
   address: string;
-  scriptType: BTCOutputScriptType.PayToWitness;
+  scriptType: BTCScriptType.SegwitNative;
 };
 
 export type BTCSignTxOutputTransfer = {
@@ -191,7 +190,7 @@ export type BTCSignTxOutputTransfer = {
   amount: string;
   /** bip32 path for destination (device must `btcSupportsSecureTransfer()`) */
   addressNList: BIP32Path;
-  scriptType: BTCOutputScriptType;
+  scriptType: BTCScriptType;
 };
 
 export type BTCSignTxOutputChange = {
@@ -199,7 +198,7 @@ export type BTCSignTxOutputChange = {
   amount: string;
   /** bip32 path for destination (device must `btcSupportsSecureTransfer()`) */
   addressNList: BIP32Path;
-  scriptType: BTCOutputScriptType;
+  scriptType: BTCScriptType;
   isChange: true;
 };
 
@@ -241,23 +240,11 @@ export interface BTCSignedTx {
   serializedTx: string;
 }
 
-// Bech32 info https://en.bitcoin.it/wiki/BIP_0173
-export enum BTCInputScriptType {
-  CashAddr = "cashaddr", // for Bitcoin Cash
-  Bech32 = "bech32",
-  SpendAddress = "p2pkh",
-  SpendMultisig = "p2sh",
-  External = "external",
-  SpendWitness = "p2wpkh",
-  SpendP2SHWitness = "p2sh-p2wpkh",
-}
-
-export enum BTCOutputScriptType {
-  PayToAddress = "p2pkh",
-  PayToMultisig = "p2sh",
-  Bech32 = "bech32",
-  PayToWitness = "p2wpkh",
-  PayToP2SHWitness = "p2sh-p2wpkh",
+export enum BTCScriptType {
+  Legacy = "p2pkh",
+  LegacyMultisig = "p2sh",
+  Segwit = "p2sh-p2wpkh",
+  SegwitNative = "p2wpkh",
 }
 
 export enum BTCOutputAddressType {
@@ -269,7 +256,7 @@ export enum BTCOutputAddressType {
 export interface BTCSignMessage {
   addressNList: BIP32Path;
   coin: Coin;
-  scriptType?: BTCInputScriptType;
+  scriptType?: BTCScriptType;
   message: string;
 }
 
@@ -288,12 +275,12 @@ export interface BTCVerifyMessage {
 export interface BTCGetAccountPaths {
   coin: Coin;
   accountIdx: number;
-  scriptType?: BTCInputScriptType;
+  scriptType?: BTCScriptType;
 }
 
 export interface BTCAccountPath {
   coin: Coin;
-  scriptType: BTCInputScriptType;
+  scriptType: BTCScriptType;
   addressNList: BIP32Path;
 }
 
@@ -309,7 +296,7 @@ export interface BTCWalletInfo extends HDWalletInfo {
    * Does the device support the given script type for the given coin?
    * Assumes that `btcSupportsCoin(coin)` for the given coin.
    */
-  btcSupportsScriptType(coin: Coin, scriptType?: BTCInputScriptType): Promise<boolean>;
+  btcSupportsScriptType(coin: Coin, scriptType?: BTCScriptType): Promise<boolean>;
 
   /**
    * Does the device support internal transfers without the user needing to
@@ -357,7 +344,7 @@ export interface BTCWallet extends BTCWalletInfo, HDWallet {
   btcVerifyMessage(msg: BTCVerifyMessage): Promise<boolean | null>;
 }
 
-export function unknownUTXOPath(path: BIP32Path, coin: Coin, scriptType?: BTCInputScriptType): PathDescription {
+export function unknownUTXOPath(path: BIP32Path, coin: Coin, scriptType?: BTCScriptType): PathDescription {
   return {
     verbose: addressNListToBIP32(path),
     coin,
@@ -366,30 +353,27 @@ export function unknownUTXOPath(path: BIP32Path, coin: Coin, scriptType?: BTCInp
   };
 }
 
-export function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInputScriptType): PathDescription {
+export function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCScriptType): PathDescription {
   const unknown = unknownUTXOPath(path, coin, scriptType);
 
   if (path.length !== 3 && path.length !== 5) return unknown;
-
   if ((path[0] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
 
   const purpose = path[0] & 0x7fffffff;
-
   if (![44, 49, 84].includes(purpose)) return unknown;
 
-  if (purpose === 44 && scriptType !== BTCInputScriptType.SpendAddress) return unknown;
-
-  if (purpose === 49 && scriptType !== BTCInputScriptType.SpendP2SHWitness) return unknown;
+  if (purpose === 44 && scriptType !== BTCScriptType.Legacy) return unknown;
+  if (purpose === 49 && scriptType !== BTCScriptType.Segwit) return unknown;
+  if (purpose === 84 && scriptType !== BTCScriptType.SegwitNative) return unknown;
 
   const wholeAccount = path.length === 3;
 
   const script = (
     {
-      [BTCInputScriptType.SpendAddress]: ["Legacy"],
-      [BTCInputScriptType.SpendP2SHWitness]: [],
-      [BTCInputScriptType.SpendWitness]: ["Segwit"],
-      [BTCInputScriptType.Bech32]: ["Segwit Native"],
-    } as Partial<Record<BTCInputScriptType, string[]>>
+      [BTCScriptType.Legacy]: ["Legacy"],
+      [BTCScriptType.Segwit]: ["Segwit"],
+      [BTCScriptType.SegwitNative]: ["Segwit Native"],
+    } as Partial<Record<BTCScriptType, string[]>>
   )[scriptType];
 
   let isPrefork = false;
@@ -464,7 +448,7 @@ export function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInp
 export function legacyAccount(coin: Coin, slip44: number, accountIdx: number): BTCAccountPath {
   return {
     coin,
-    scriptType: BTCInputScriptType.SpendAddress,
+    scriptType: BTCScriptType.Legacy,
     addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + accountIdx],
   };
 }
@@ -472,7 +456,7 @@ export function legacyAccount(coin: Coin, slip44: number, accountIdx: number): B
 export function segwitAccount(coin: Coin, slip44: number, accountIdx: number): BTCAccountPath {
   return {
     coin,
-    scriptType: BTCInputScriptType.SpendP2SHWitness,
+    scriptType: BTCScriptType.Segwit,
     addressNList: [0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + accountIdx],
   };
 }
@@ -480,7 +464,7 @@ export function segwitAccount(coin: Coin, slip44: number, accountIdx: number): B
 export function segwitNativeAccount(coin: Coin, slip44: number, accountIdx: number): BTCAccountPath {
   return {
     coin,
-    scriptType: BTCInputScriptType.SpendWitness,
+    scriptType: BTCScriptType.SegwitNative,
     addressNList: [0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + accountIdx],
   };
 }
@@ -537,7 +521,6 @@ export function createPayment(pubkey: Buffer, network: bitcoin.Network, scriptTy
     case "p2pkh":
       return bitcoin.payments.p2pkh({ pubkey, network });
     case "p2wpkh":
-    case "bech32":
       return bitcoin.payments.p2wpkh({ pubkey, network });
     case "p2sh-p2wpkh":
       return bitcoin.payments.p2sh({

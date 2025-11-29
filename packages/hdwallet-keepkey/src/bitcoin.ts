@@ -18,7 +18,7 @@ const segwitCoins = ["Bitcoin", "Testnet", "BitcoinGold", "Litecoin"];
 function legacyAccount(coin: core.Coin, slip44: number, accountIdx: number): core.BTCAccountPath {
   return {
     coin,
-    scriptType: core.BTCInputScriptType.SpendAddress,
+    scriptType: core.BTCScriptType.Legacy,
     addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + accountIdx],
   };
 }
@@ -26,7 +26,7 @@ function legacyAccount(coin: core.Coin, slip44: number, accountIdx: number): cor
 function segwitAccount(coin: core.Coin, slip44: number, accountIdx: number): core.BTCAccountPath {
   return {
     coin,
-    scriptType: core.BTCInputScriptType.SpendP2SHWitness,
+    scriptType: core.BTCScriptType.Segwit,
     addressNList: [0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + accountIdx],
   };
 }
@@ -34,7 +34,7 @@ function segwitAccount(coin: core.Coin, slip44: number, accountIdx: number): cor
 function segwitNativeAccount(coin: core.Coin, slip44: number, accountIdx: number): core.BTCAccountPath {
   return {
     coin,
-    scriptType: core.BTCInputScriptType.SpendWitness,
+    scriptType: core.BTCScriptType.SegwitNative,
     addressNList: [0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + accountIdx],
   };
 }
@@ -105,11 +105,7 @@ function prepareSignTx(
   inputs.forEach((inputTx) => {
     if (inputTx.txid in txmap) return;
 
-    if (
-      inputTx.scriptType === core.BTCInputScriptType.SpendP2SHWitness ||
-      inputTx.scriptType === core.BTCInputScriptType.SpendWitness ||
-      inputTx.scriptType === core.BTCInputScriptType.External
-    )
+    if (inputTx.scriptType === core.BTCScriptType.Segwit || inputTx.scriptType === core.BTCScriptType.SegwitNative)
       return;
 
     const prevTx = ((): core.BitcoinTx => {
@@ -232,10 +228,10 @@ export async function btcSupportsCoin(coin: core.Coin): Promise<boolean> {
   return supportedCoins.includes(coin);
 }
 
-export async function btcSupportsScriptType(coin: core.Coin, scriptType?: core.BTCInputScriptType): Promise<boolean> {
+export async function btcSupportsScriptType(coin: core.Coin, scriptType?: core.BTCScriptType): Promise<boolean> {
   if (!supportedCoins.includes(coin)) return false;
-  if (!segwitCoins.includes(coin) && scriptType === core.BTCInputScriptType.SpendP2SHWitness) return false;
-  if (!segwitCoins.includes(coin) && scriptType === core.BTCInputScriptType.SpendWitness) return false;
+  if (!segwitCoins.includes(coin) && scriptType === core.BTCScriptType.Segwit) return false;
+  if (!segwitCoins.includes(coin) && scriptType === core.BTCScriptType.SegwitNative) return false;
   return true;
 }
 
@@ -250,7 +246,7 @@ export async function btcGetAddress(
   addr.setAddressNList(msg.addressNList);
   addr.setCoinName(msg.coin);
   addr.setShowDisplay(msg.showDisplay || false);
-  addr.setScriptType(translateInputScriptType(msg.scriptType || core.BTCInputScriptType.SpendAddress));
+  addr.setScriptType(translateInputScriptType(msg.scriptType || core.BTCScriptType.Legacy));
 
   const response = await transport.call(Messages.MessageType.MESSAGETYPE_GETADDRESS, addr, {
     msgTimeout: core.LONG_TIMEOUT,
@@ -485,7 +481,7 @@ export async function btcSignMessage(
   sign.setAddressNList(msg.addressNList);
   sign.setMessage(toUTF8Array(msg.message));
   sign.setCoinName(msg.coin || "Bitcoin");
-  sign.setScriptType(translateInputScriptType(msg.scriptType ?? core.BTCInputScriptType.SpendAddress));
+  sign.setScriptType(translateInputScriptType(msg.scriptType ?? core.BTCScriptType.Legacy));
   const event = await transport.call(Messages.MessageType.MESSAGETYPE_SIGNMESSAGE, sign, {
     msgTimeout: core.LONG_TIMEOUT,
   });

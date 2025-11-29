@@ -1,4 +1,3 @@
-import type { AddressFormat } from "@ledgerhq/hw-app-btc";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import bs58check from "bs58check";
 
@@ -57,16 +56,6 @@ export function handleError<T extends LedgerResponse<any, any>>(
   }
 }
 
-export function translateScriptType(scriptType: core.BTCInputScriptType): AddressFormat {
-  const scriptTypeMap: Partial<Record<core.BTCInputScriptType, AddressFormat>> = {
-    [core.BTCInputScriptType.SpendAddress]: "legacy",
-    [core.BTCInputScriptType.CashAddr]: "cashaddr",
-    [core.BTCInputScriptType.SpendWitness]: "bech32",
-    [core.BTCInputScriptType.SpendP2SHWitness]: "p2sh",
-  };
-  return core.mustBeDefined(scriptTypeMap[scriptType]);
-}
-
 export const compressPublicKey = (publicKey: Uint8Array) => {
   if ([0x02, 0x03].includes(publicKey[0]) && publicKey.length === 33) return Buffer.from(publicKey);
   if (!(publicKey[0] === 0x04 && publicKey.length === 65)) throw new Error("Invalid public key format");
@@ -104,7 +93,7 @@ type NetworkMagic = {
     bech32?: string;
     bip32: {
       private?: number;
-      public: Partial<Record<core.BTCInputScriptType, number>>;
+      public: Partial<Record<core.BTCScriptType, number>>;
     };
     messagePrefix: string;
     pubKeyHash?: number;

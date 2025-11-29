@@ -1,5 +1,5 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import { Address, BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
+import { Address, BTCScriptType } from "@shapeshiftoss/hdwallet-core";
 import Base64 from "base64-js";
 import * as bitcoinMsg from "bitcoinjs-message";
 import { keccak256, recoverAddress } from "ethers/lib/utils.js";
@@ -130,11 +130,11 @@ export class PhantomHDWalletInfo
     return coin.toLowerCase() === "bitcoin";
   }
 
-  public async btcSupportsScriptType(coin: string, scriptType?: core.BTCInputScriptType | undefined): Promise<boolean> {
+  public async btcSupportsScriptType(coin: string, scriptType?: core.BTCScriptType | undefined): Promise<boolean> {
     if (!this.btcSupportsCoin(coin)) return false;
 
     switch (scriptType) {
-      case core.BTCInputScriptType.SpendWitness:
+      case core.BTCScriptType.SegwitNative:
         return true;
       default:
         return false;
@@ -278,7 +278,7 @@ export class PhantomHDWallet
         const { coin, scriptType } = getPublicKey;
 
         // Only p2wpkh effectively supported for now
-        if (coin === "Bitcoin" && scriptType === BTCInputScriptType.SpendWitness) {
+        if (coin === "Bitcoin" && scriptType === BTCScriptType.SegwitNative) {
           // Note this is a pubKey, not an xpub, however phantom does not support utxo derivation,
           // so this functions as an account (xpub) for all intents and purposes
           const pubKey = await this.btcGetAddress({ coin: "Bitcoin" } as core.BTCGetAddress);

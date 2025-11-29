@@ -87,13 +87,13 @@ export class GridPlusWalletInfo
     return supportedCoins.includes(coin);
   }
 
-  async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
+  async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCScriptType): Promise<boolean> {
     switch (scriptType) {
-      case core.BTCInputScriptType.SpendAddress:
+      case core.BTCScriptType.Legacy:
         return ["Bitcoin", "BitcoinCash", "Litecoin", "Dogecoin"].includes(coin);
-      case core.BTCInputScriptType.SpendP2SHWitness:
+      case core.BTCScriptType.Segwit:
         return ["Bitcoin", "BitcoinCash", "Litecoin"].includes(coin);
-      case core.BTCInputScriptType.SpendWitness:
+      case core.BTCScriptType.SegwitNative:
         return ["Bitcoin", "BitcoinCash", "Litecoin"].includes(coin);
       default:
         return false;
@@ -140,9 +140,9 @@ export class GridPlusWalletInfo
     const addressNList = msg.addressNList;
 
     if (
-      (addressNList[0] === 0x80000000 + 44 && msg.scriptType == core.BTCInputScriptType.SpendAddress) ||
-      (addressNList[0] === 0x80000000 + 49 && msg.scriptType == core.BTCInputScriptType.SpendP2SHWitness) ||
-      (addressNList[0] === 0x80000000 + 84 && msg.scriptType == core.BTCInputScriptType.SpendWitness)
+      (addressNList[0] === 0x80000000 + 44 && msg.scriptType == core.BTCScriptType.Legacy) ||
+      (addressNList[0] === 0x80000000 + 49 && msg.scriptType == core.BTCScriptType.Segwit) ||
+      (addressNList[0] === 0x80000000 + 84 && msg.scriptType == core.BTCScriptType.SegwitNative)
     ) {
       addressNList[2] += 1;
       return { ...msg, addressNList };
