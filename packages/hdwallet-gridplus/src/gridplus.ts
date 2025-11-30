@@ -289,6 +289,7 @@ export class GridPlusHDWallet
   readonly _supportsBSC = true;
   readonly _supportsBTC = true;
   readonly _supportsBase = true;
+  readonly _supportsMonad = false;
   readonly _supportsCosmos = true;
   readonly _supportsETH = true;
   readonly _supportsEthSwitchChain = false;
