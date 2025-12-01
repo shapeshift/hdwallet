@@ -44,13 +44,7 @@ export function tronNextAccountPath(msg: core.TronAccountPath): core.TronAccount
     addressNList[4] === 0
   ) {
     return {
-      addressNList: [
-        0x80000000 + 44,
-        0x80000000 + core.slip44ByCoin("Tron"),
-        addressNList[2] + 1,
-        0,
-        0,
-      ],
+      addressNList: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin("Tron"), addressNList[2] + 1, 0, 0],
     };
   }
   return undefined;

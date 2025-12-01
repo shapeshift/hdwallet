@@ -7,8 +7,8 @@ import * as eth from "./ethereum";
 import * as mayachain from "./mayachain";
 import * as solana from "./solana";
 import * as thorchain from "./thorchain";
-import * as tron from "./tron";
 import { LedgerTransport } from "./transport";
+import * as tron from "./tron";
 import { coinToLedgerAppName, handleError } from "./utils";
 
 export function isLedger(wallet: core.HDWallet): wallet is LedgerHDWallet {
