@@ -14,7 +14,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-keepkey": "^1.62.17"
+    "@shapeshiftoss/hdwallet-keepkey": "1.62.17"
   },
   "peerDependencies": {
     "node-hid": "^2.1.1"
