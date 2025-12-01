@@ -27,7 +27,6 @@ describe("NativeHDWallet SUI", () => {
 
     expect(address).toBeTruthy();
     expect(address).toMatch(/^0x[0-9a-f]{64}$/);
-    console.log("SUI Address:", address);
   });
 
   it("should generate different addresses for different account indices", async () => {
@@ -40,8 +39,6 @@ describe("NativeHDWallet SUI", () => {
     });
 
     expect(address0).not.toBe(address1);
-    console.log("Account 0:", address0);
-    console.log("Account 1:", address1);
   });
 
   it("should sign a transaction", async () => {
@@ -59,8 +56,6 @@ describe("NativeHDWallet SUI", () => {
     expect(signedTx?.publicKey).toBeTruthy();
     expect(signedTx?.signature).toMatch(/^[0-9a-f]+$/);
     expect(signedTx?.publicKey).toMatch(/^[0-9a-f]{64}$/);
-    console.log("Signature:", signedTx?.signature);
-    console.log("Public Key:", signedTx?.publicKey);
   });
 
   it("should describe SUI path correctly", async () => {

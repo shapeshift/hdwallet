@@ -5,6 +5,7 @@ import { SuiAdapter } from "./crypto/isolation/adapters/sui";
 import { NativeHDWalletBase } from "./native";
 
 export function MixinNativeSuiWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeSuiWalletInfo extends Base implements core.SuiWalletInfo {
     readonly _supportsSuiInfo = true;
 
@@ -12,13 +13,15 @@ export function MixinNativeSuiWalletInfo<TBase extends core.Constructor<core.HDW
       return core.suiGetAccountPaths(msg);
     }
 
-    suiNextAccountPath(msg: core.SuiAccountPath): core.SuiAccountPath | undefined {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    suiNextAccountPath(_msg: core.SuiAccountPath): core.SuiAccountPath | undefined {
       throw new Error("Method not implemented");
     }
   };
 }
 
 export function MixinNativeSuiWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeSuiWallet extends Base {
     readonly _supportsSui = true;
 

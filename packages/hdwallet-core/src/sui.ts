@@ -1,4 +1,4 @@
-import { addressNListToBIP32, addressNListToHardenedBIP32, slip44ByCoin } from "./utils";
+import { addressNListToBIP32, slip44ByCoin } from "./utils";
 import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
 export interface SuiGetAddress {
@@ -80,13 +80,7 @@ export function suiGetAccountPaths(msg: SuiGetAccountPaths): Array<SuiAccountPat
   const slip44 = slip44ByCoin("Sui");
   return [
     {
-      addressNList: [
-        0x80000000 + 44,
-        0x80000000 + slip44,
-        0x80000000 + msg.accountIdx,
-        0x80000000 + 0,
-        0x80000000 + 0,
-      ],
+      addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0x80000000 + 0, 0x80000000 + 0],
     },
   ];
 }
