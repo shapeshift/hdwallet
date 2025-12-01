@@ -54,7 +54,7 @@ export class SuiAdapter {
    * 1. Receive intent message bytes (already includes intent prefix + tx bytes)
    * 2. Hash with BLAKE2b-256
    * 3. Sign hash with Ed25519 private key
-   * 4. Return signature as base64 string
+   * 4. Return signature as hex string
    */
   async signTransaction(intentMessageBytes: Uint8Array, addressNList: core.BIP32Path): Promise<string> {
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToHardenedBIP32(addressNList));
