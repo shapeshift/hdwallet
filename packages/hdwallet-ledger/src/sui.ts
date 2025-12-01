@@ -9,7 +9,12 @@ export async function suiGetAddress(transport: LedgerTransport, msg: core.SuiGet
   const res = await transport.call("Sui", "getPublicKey", bip32path, !!msg.showDisplay);
   handleError(res, transport, "Unable to obtain Sui address from device.");
 
-  return res.payload.address;
+  // Convert Uint8Array to hex string with 0x prefix
+  const addressBytes = res.payload.address instanceof Uint8Array
+    ? res.payload.address
+    : new Uint8Array(res.payload.address);
+
+  return "0x" + Buffer.from(addressBytes).toString("hex");
 }
 
 export async function suiSignTx(transport: LedgerTransport, msg: core.SuiSignTx): Promise<core.SuiSignedTx> {
@@ -18,7 +23,11 @@ export async function suiSignTx(transport: LedgerTransport, msg: core.SuiSignTx)
   const res = await transport.call("Sui", "signTransaction", bip32path, Buffer.from(msg.intentMessageBytes));
   handleError(res, transport, "Unable to sign Sui transaction.");
 
-  const signature = res.payload.signature;
+  // Convert Uint8Array signature to hex string
+  const signatureBytes = res.payload.signature instanceof Uint8Array
+    ? res.payload.signature
+    : new Uint8Array(res.payload.signature);
+  const signature = Buffer.from(signatureBytes).toString("hex");
 
   const publicKey = await suiGetPublicKey(transport, msg.addressNList);
 
@@ -33,7 +42,12 @@ async function suiGetPublicKey(transport: LedgerTransport, addressNList: core.BI
   const res = await transport.call("Sui", "getPublicKey", bip32path, false);
   handleError(res, transport, "Unable to obtain Sui public key from device.");
 
-  return res.payload.publicKey;
+  // Convert Uint8Array public key to hex string
+  const publicKeyBytes = res.payload.publicKey instanceof Uint8Array
+    ? res.payload.publicKey
+    : new Uint8Array(res.payload.publicKey);
+
+  return Buffer.from(publicKeyBytes).toString("hex");
 }
 
 export function suiGetAccountPaths(msg: core.SuiGetAccountPaths): Array<core.SuiAccountPath> {

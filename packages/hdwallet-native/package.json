@@ -56,5 +56,6 @@
     "bs58": "^4.0.1",
     "cosmjs-types": "^0.4.1",
     "msw": "^0.27.1"
-  }
+  },
+  "gitHead": "5617b1f8d86dfdc0abf38802f65bf77d957dbc34"
 }

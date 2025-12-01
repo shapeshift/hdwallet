@@ -23,5 +23,6 @@
   "devDependencies": {
     "@types/uuid": "^8.3.0",
     "electron": "^12.0.9"
-  }
+  },
+  "gitHead": "5617b1f8d86dfdc0abf38802f65bf77d957dbc34"
 }

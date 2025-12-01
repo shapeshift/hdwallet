@@ -45,5 +45,6 @@
     "@types/ethereumjs-util": "^6.1.0",
     "@types/ripemd160": "^2.0.2",
     "typedoc": "^0.20.36"
-  }
+  },
+  "gitHead": "5617b1f8d86dfdc0abf38802f65bf77d957dbc34"
 }

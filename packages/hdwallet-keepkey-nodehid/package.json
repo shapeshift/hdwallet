@@ -21,5 +21,6 @@
   },
   "devDependencies": {
     "@types/node-hid": "^1.3.1"
-  }
+  },
+  "gitHead": "5617b1f8d86dfdc0abf38802f65bf77d957dbc34"
 }
