@@ -1,5 +1,8 @@
 import Btc from "@ledgerhq/hw-app-btc";
+import Cosmos from "@ledgerhq/hw-app-cosmos";
 import Eth from "@ledgerhq/hw-app-eth";
+import Solana from "@ledgerhq/hw-app-solana";
+import Trx from "@ledgerhq/hw-app-trx";
 import Transport from "@ledgerhq/hw-transport";
 import TransportWebHID from "@ledgerhq/hw-transport-webhid";
 import * as core from "@shapeshiftoss/hdwallet-core";
@@ -65,6 +68,26 @@ export function translateCoinAndMethod<T extends LedgerTransportCoinType, U exte
     case "Eth": {
       const eth = new Eth(transport as Transport);
       const methodInstance = eth[method as LedgerTransportMethodName<"Eth">].bind(eth);
+      return methodInstance as LedgerTransportMethod<T, U>;
+    }
+    case "Thorchain": {
+      const thorchain = new ledger.Thorchain(transport as Transport);
+      const methodInstance = thorchain[method as LedgerTransportMethodName<"Thorchain">].bind(thorchain);
+      return methodInstance as LedgerTransportMethod<T, U>;
+    }
+    case "Cosmos": {
+      const cosmos = new Cosmos(transport as Transport);
+      const methodInstance = cosmos[method as LedgerTransportMethodName<"Cosmos">].bind(cosmos);
+      return methodInstance as LedgerTransportMethod<T, U>;
+    }
+    case "Solana": {
+      const solana = new Solana(transport as Transport);
+      const methodInstance = solana[method as LedgerTransportMethodName<"Solana">].bind(solana);
+      return methodInstance as LedgerTransportMethod<T, U>;
+    }
+    case "Tron": {
+      const trx = new Trx(transport as Transport);
+      const methodInstance = trx[method as LedgerTransportMethodName<"Tron">].bind(trx);
       return methodInstance as LedgerTransportMethod<T, U>;
     }
     case null: {
