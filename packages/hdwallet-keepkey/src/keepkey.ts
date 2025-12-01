@@ -543,6 +543,7 @@ export class KeepKeyHDWallet
   readonly _supportsArbitrum = true;
   readonly _supportsArbitrumNova = false;
   readonly _supportsBase = true;
+  readonly _supportsMonad = false;
   readonly _supportsBTC = true;
   _supportsCosmos = true;
   _supportsOsmosis = true;

@@ -187,6 +187,7 @@ export class PhantomHDWallet
   readonly _supportsArbitrum = false;
   readonly _supportsArbitrumNova = false;
   readonly _supportsBase = true;
+  readonly _supportsMonad = false;
   readonly _supportsBSC = false;
   readonly _supportsSolana = true;
   readonly _isPhantom = true;
