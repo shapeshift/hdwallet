@@ -24,6 +24,7 @@
     "@ledgerhq/hw-app-solana": "^7.5.1",
     "@ledgerhq/hw-app-trx": "^6.31.9",
     "@ledgerhq/hw-transport": "6.31.8",
+    "@mysten/ledgerjs-hw-app-sui": "^0.7.0",
     "@ledgerhq/logs": "6.13.0",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.0",
     "@shapeshiftoss/hdwallet-core": "1.62.18",
