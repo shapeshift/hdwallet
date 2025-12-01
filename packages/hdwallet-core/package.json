@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-core",
-  "version": "1.62.18-tron-ledger.0",
+  "version": "1.62.18-tron-ledger.1",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
