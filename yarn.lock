@@ -1688,6 +1688,16 @@
     rxjs "^7.8.1"
     semver "^7.3.5"
 
+"@ledgerhq/devices@8.7.0":
+  version "8.7.0"
+  resolved "https://registry.npmjs.org/@ledgerhq/devices/-/devices-8.7.0.tgz#39e011c484c4251c92769f92cf8c23b8a0b4ce39"
+  integrity sha512-3pSOULPUhClk2oOxa6UnoyXW8+05FK7r6cpq2WiTey4kyIUjmIraO7AX9lhz9IU73dGVtBMdU+NCPPO2RYJaTQ==
+  dependencies:
+    "@ledgerhq/errors" "^6.27.0"
+    "@ledgerhq/logs" "^6.13.0"
+    rxjs "^7.8.1"
+    semver "^7.3.5"
+
 "@ledgerhq/domain-service@^1.2.38":
   version "1.2.38"
   resolved "https://registry.yarnpkg.com/@ledgerhq/domain-service/-/domain-service-1.2.38.tgz#b21ce81a907e6995262bd388e0d394c8cd309f9c"
@@ -1705,6 +1715,11 @@
   version "6.23.0"
   resolved "https://registry.yarnpkg.com/@ledgerhq/errors/-/errors-6.23.0.tgz#fae7b61095ce4c033394d16085b5f14ca9f9d738"
   integrity sha512-bM7tPYShPThtBy1Y+9D28iquOeP5W5s4p7KKD/cUQoaVaPibrtC7Mm4u+IeSlH4WGvFJkTmv0vmZJajuZtM79A==
+
+"@ledgerhq/errors@^6.27.0":
+  version "6.27.0"
+  resolved "https://registry.npmjs.org/@ledgerhq/errors/-/errors-6.27.0.tgz#3acc978ed1dbbdd8049dcedccccf4a96968f583a"
+  integrity sha512-EE2hATONHdNP3YWFe3rZwwpSEzI5oN+q/xTjOulnjHZo84TLjungegEJ54A/Pzld0woulkkeVA27FbW5SAO1aA==
 
 "@ledgerhq/evm-tools@^1.7.1":
   version "1.7.1"
@@ -1774,6 +1789,13 @@
     "@ledgerhq/hw-transport" "^6.31.8"
     bip32-path "^0.4.2"
 
+"@ledgerhq/hw-app-trx@^6.31.9":
+  version "6.31.9"
+  resolved "https://registry.npmjs.org/@ledgerhq/hw-app-trx/-/hw-app-trx-6.31.9.tgz#8d73d1baa9b28a1f1d30f1a330c53f49204d362d"
+  integrity sha512-lqtmOFm7f9XwbdHiA7qBiuhCppfKTHWu+8w06IS5seMxcLSCMvHvxsog91rWAijlD4qP1AzJTQFGnrE+bRvAjw==
+  dependencies:
+    "@ledgerhq/hw-transport" "6.31.13"
+
 "@ledgerhq/hw-transport-mocker@^6.29.8":
   version "6.29.8"
   resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport-mocker/-/hw-transport-mocker-6.29.8.tgz#7188e0fe8dfa5df5451ce3b55c192c89007ccdea"
@@ -1802,6 +1824,16 @@
     "@ledgerhq/errors" "^6.23.0"
     "@ledgerhq/hw-transport" "^6.31.8"
     "@ledgerhq/logs" "^6.13.0"
+
+"@ledgerhq/hw-transport@6.31.13":
+  version "6.31.13"
+  resolved "https://registry.npmjs.org/@ledgerhq/hw-transport/-/hw-transport-6.31.13.tgz#87e4a53bdcca257eeea6cbcc7a662c449a0cfa92"
+  integrity sha512-MrJRDk74wY980ofiFPRpTHQBbRw1wDuKbdag1zqlO1xtJglymwwY03K2kvBNvkm1RTSCPUp/nAoNG+WThZuuew==
+  dependencies:
+    "@ledgerhq/devices" "8.7.0"
+    "@ledgerhq/errors" "^6.27.0"
+    "@ledgerhq/logs" "^6.13.0"
+    events "^3.3.0"
 
 "@ledgerhq/hw-transport@6.31.8", "@ledgerhq/hw-transport@^6.31.8":
   version "6.31.8"
