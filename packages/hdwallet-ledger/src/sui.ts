@@ -3,9 +3,10 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { LedgerTransport } from "./transport";
 import { handleError } from "./utils";
 
-// ledger expects m/ prefix to be stripped
+// Ledger expects m/ prefix to be stripped AND all segments to be hardened for Ed25519
 function addressNListToBIP32Path(addressNList: core.BIP32Path): string {
-  return core.addressNListToBIP32(addressNList).slice(2);
+  // Use addressNListToHardenedBIP32 to ensure all segments are hardened, then strip m/
+  return core.addressNListToHardenedBIP32(addressNList).slice(2);
 }
 
 export async function suiGetAddress(transport: LedgerTransport, msg: core.SuiGetAddress): Promise<string> {
