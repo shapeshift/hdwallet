@@ -4,8 +4,8 @@ import Eth from "@ledgerhq/hw-app-eth";
 import Solana from "@ledgerhq/hw-app-solana";
 import Trx from "@ledgerhq/hw-app-trx";
 import Transport from "@ledgerhq/hw-transport";
-import Sui from "@mysten/ledgerjs-hw-app-sui";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
+import Sui from "@mysten/ledgerjs-hw-app-sui";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { getAppAndVersion, getDeviceInfo, LedgerTransport, openApp, Thorchain } from "@shapeshiftoss/hdwallet-ledger";
 import type {
