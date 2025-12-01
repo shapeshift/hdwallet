@@ -11,48 +11,89 @@ function addressNListToBIP32Path(addressNList: core.BIP32Path): string {
 export async function suiGetAddress(transport: LedgerTransport, msg: core.SuiGetAddress): Promise<string> {
   const bip32path = addressNListToBIP32Path(msg.addressNList);
 
-  const res = await transport.call("Sui", "getPublicKey", bip32path, !!msg.showDisplay);
-  handleError(res, transport, "Unable to obtain Sui address from device.");
+  console.log("[Sui Ledger] suiGetAddress called with:", {
+    addressNList: msg.addressNList,
+    bip32path,
+    showDisplay: !!msg.showDisplay,
+  });
 
-  // Convert Uint8Array to hex string with 0x prefix
-  const addressBytes = res.payload.address instanceof Uint8Array
-    ? res.payload.address
-    : new Uint8Array(res.payload.address);
+  try {
+    const res = await transport.call("Sui", "getPublicKey", bip32path, !!msg.showDisplay);
+    console.log("[Sui Ledger] getPublicKey response:", res);
+    handleError(res, transport, "Unable to obtain Sui address from device.");
 
-  return "0x" + Buffer.from(addressBytes).toString("hex");
+    // Convert Uint8Array to hex string with 0x prefix
+    const addressBytes = res.payload.address instanceof Uint8Array
+      ? res.payload.address
+      : new Uint8Array(res.payload.address);
+
+    const address = "0x" + Buffer.from(addressBytes).toString("hex");
+    console.log("[Sui Ledger] Derived address:", address);
+    return address;
+  } catch (error) {
+    console.error("[Sui Ledger] suiGetAddress error:", error);
+    throw error;
+  }
 }
 
 export async function suiSignTx(transport: LedgerTransport, msg: core.SuiSignTx): Promise<core.SuiSignedTx> {
   const bip32path = addressNListToBIP32Path(msg.addressNList);
 
-  const res = await transport.call("Sui", "signTransaction", bip32path, Buffer.from(msg.intentMessageBytes));
-  handleError(res, transport, "Unable to sign Sui transaction.");
+  console.log("[Sui Ledger] suiSignTx called with:", {
+    addressNList: msg.addressNList,
+    bip32path,
+    intentMessageBytesLength: msg.intentMessageBytes.length,
+  });
 
-  // Convert Uint8Array signature to hex string
-  const signatureBytes = res.payload.signature instanceof Uint8Array
-    ? res.payload.signature
-    : new Uint8Array(res.payload.signature);
-  const signature = Buffer.from(signatureBytes).toString("hex");
+  try {
+    const res = await transport.call("Sui", "signTransaction", bip32path, Buffer.from(msg.intentMessageBytes));
+    console.log("[Sui Ledger] signTransaction response:", res);
+    handleError(res, transport, "Unable to sign Sui transaction.");
 
-  const publicKey = await suiGetPublicKey(transport, msg.addressNList);
+    // Convert Uint8Array signature to hex string
+    const signatureBytes = res.payload.signature instanceof Uint8Array
+      ? res.payload.signature
+      : new Uint8Array(res.payload.signature);
+    const signature = Buffer.from(signatureBytes).toString("hex");
 
-  return {
-    signature,
-    publicKey,
-  };
+    const publicKey = await suiGetPublicKey(transport, msg.addressNList);
+
+    console.log("[Sui Ledger] Signed tx:", { signature, publicKey });
+    return {
+      signature,
+      publicKey,
+    };
+  } catch (error) {
+    console.error("[Sui Ledger] suiSignTx error:", error);
+    throw error;
+  }
 }
 
 async function suiGetPublicKey(transport: LedgerTransport, addressNList: core.BIP32Path): Promise<string> {
   const bip32path = addressNListToBIP32Path(addressNList);
-  const res = await transport.call("Sui", "getPublicKey", bip32path, false);
-  handleError(res, transport, "Unable to obtain Sui public key from device.");
 
-  // Convert Uint8Array public key to hex string
-  const publicKeyBytes = res.payload.publicKey instanceof Uint8Array
-    ? res.payload.publicKey
-    : new Uint8Array(res.payload.publicKey);
+  console.log("[Sui Ledger] suiGetPublicKey called with:", {
+    addressNList,
+    bip32path,
+  });
 
-  return Buffer.from(publicKeyBytes).toString("hex");
+  try {
+    const res = await transport.call("Sui", "getPublicKey", bip32path, false);
+    console.log("[Sui Ledger] getPublicKey (for pubkey) response:", res);
+    handleError(res, transport, "Unable to obtain Sui public key from device.");
+
+    // Convert Uint8Array public key to hex string
+    const publicKeyBytes = res.payload.publicKey instanceof Uint8Array
+      ? res.payload.publicKey
+      : new Uint8Array(res.payload.publicKey);
+
+    const publicKey = Buffer.from(publicKeyBytes).toString("hex");
+    console.log("[Sui Ledger] Public key:", publicKey);
+    return publicKey;
+  } catch (error) {
+    console.error("[Sui Ledger] suiGetPublicKey error:", error);
+    throw error;
+  }
 }
 
 export function suiGetAccountPaths(msg: core.SuiGetAccountPaths): Array<core.SuiAccountPath> {
