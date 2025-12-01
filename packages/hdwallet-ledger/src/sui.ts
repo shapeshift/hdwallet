@@ -3,8 +3,13 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { LedgerTransport } from "./transport";
 import { handleError } from "./utils";
 
+// ledger expects m/ prefix to be stripped
+function addressNListToBIP32Path(addressNList: core.BIP32Path): string {
+  return core.addressNListToBIP32(addressNList).slice(2);
+}
+
 export async function suiGetAddress(transport: LedgerTransport, msg: core.SuiGetAddress): Promise<string> {
-  const bip32path = core.addressNListToBIP32(msg.addressNList);
+  const bip32path = addressNListToBIP32Path(msg.addressNList);
 
   const res = await transport.call("Sui", "getPublicKey", bip32path, !!msg.showDisplay);
   handleError(res, transport, "Unable to obtain Sui address from device.");
@@ -18,7 +23,7 @@ export async function suiGetAddress(transport: LedgerTransport, msg: core.SuiGet
 }
 
 export async function suiSignTx(transport: LedgerTransport, msg: core.SuiSignTx): Promise<core.SuiSignedTx> {
-  const bip32path = core.addressNListToBIP32(msg.addressNList);
+  const bip32path = addressNListToBIP32Path(msg.addressNList);
 
   const res = await transport.call("Sui", "signTransaction", bip32path, Buffer.from(msg.intentMessageBytes));
   handleError(res, transport, "Unable to sign Sui transaction.");
@@ -38,7 +43,7 @@ export async function suiSignTx(transport: LedgerTransport, msg: core.SuiSignTx)
 }
 
 async function suiGetPublicKey(transport: LedgerTransport, addressNList: core.BIP32Path): Promise<string> {
-  const bip32path = core.addressNListToBIP32(addressNList);
+  const bip32path = addressNListToBIP32Path(addressNList);
   const res = await transport.call("Sui", "getPublicKey", bip32path, false);
   handleError(res, transport, "Unable to obtain Sui public key from device.");
 
