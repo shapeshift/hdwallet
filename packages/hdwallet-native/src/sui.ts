@@ -41,13 +41,6 @@ export function MixinNativeSuiWallet<TBase extends core.Constructor<NativeHDWall
 
     async suiSignTx(msg: core.SuiSignTx): Promise<core.SuiSignedTx | null> {
       return this.needsMnemonic(!!this.suiAdapter, async () => {
-        const address = await this.suiGetAddress({
-          addressNList: msg.addressNList,
-          showDisplay: false,
-        });
-
-        if (!address) throw new Error("Failed to get SUI address");
-
         const signature = await this.suiAdapter!.signTransaction(msg.intentMessageBytes, msg.addressNList);
         const publicKey = await this.suiAdapter!.getPublicKey(msg.addressNList);
 
