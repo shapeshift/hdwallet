@@ -8,7 +8,7 @@ import { getCompressedPubkey } from "./utils";
 export function deriveAddressFromPubkey(
   pubkey: Buffer,
   coin: string,
-  scriptType: core.BTCScriptType = core.BTCInputScriptType.SpendAddress
+  scriptType: core.BTCScriptType
 ): string | undefined {
   const network = core.getNetwork(coin, scriptType);
   return core.createPayment(pubkey, network, scriptType).address;
@@ -49,7 +49,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
         const address = await btcGetAddress(client, {
           addressNList: spendOutput.addressNList,
           coin: msg.coin,
-          scriptType: spendOutput.scriptType as unknown as core.BTCInputScriptType,
+          scriptType: spendOutput.scriptType,
         });
 
         if (!address) throw new Error("No address returned from device");
@@ -94,7 +94,7 @@ export async function btcSignTx(client: Client, msg: core.BTCSignTx): Promise<co
     return { signatures: sigs.map((s) => s.toString("hex")), serializedTx: tx };
   } else {
     const psbt = new bitcoin.Psbt({
-      network: core.getNetwork(msg.coin, core.BTCOutputScriptType.PayToMultisig),
+      network: core.getNetwork(msg.coin),
       forkCoin: msg.coin.toLowerCase() === "bitcoincash" ? "bch" : "none",
     });
 

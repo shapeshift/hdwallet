@@ -2,7 +2,7 @@ import isObject from "lodash/isObject";
 
 import { ArkeoWallet, ArkeoWalletInfo } from "./arkeo";
 import { BinanceWallet, BinanceWalletInfo } from "./binance";
-import { BTCInputScriptType, BTCWallet, BTCWalletInfo } from "./bitcoin";
+import { BTCScriptType, BTCWallet, BTCWalletInfo } from "./bitcoin";
 import { CosmosWallet, CosmosWalletInfo } from "./cosmos";
 import { DebugLinkWallet } from "./debuglink";
 import { EosWallet, EosWalletInfo } from "./eos";
@@ -24,7 +24,7 @@ export type BIP32Path = Array<number>;
 export interface GetPublicKey {
   addressNList: BIP32Path;
   showDisplay?: boolean;
-  scriptType?: BTCInputScriptType; // Defaults to BTCInputScriptType.SpendAddress
+  scriptType: BTCScriptType;
   curve: "secp256k1" | "ed25519";
   coin: Coin;
 }
@@ -81,14 +81,14 @@ export interface LoadDevice {
 export interface DescribePath {
   path: BIP32Path;
   coin: Coin;
-  scriptType?: BTCInputScriptType;
+  scriptType?: BTCScriptType;
 }
 
 export interface PathDescription {
   isKnown: boolean;
   verbose: string;
   coin: Coin;
-  scriptType?: BTCInputScriptType;
+  scriptType?: BTCScriptType;
   accountIdx?: number;
   addressIdx?: number;
   isChange?: boolean;

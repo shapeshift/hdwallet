@@ -545,7 +545,7 @@ export class MetaMaskMultiChainHDWallet
     throw new Error("Method not implemented.");
   }
 
-  public async btcSupportsScriptType(coin: string, scriptType?: core.BTCInputScriptType | undefined): Promise<boolean> {
+  public async btcSupportsScriptType(coin: string, scriptType?: core.BTCScriptType | undefined): Promise<boolean> {
     return utxo.utxoSupportsScriptType(coin, scriptType);
   }
 

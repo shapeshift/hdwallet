@@ -113,42 +113,43 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
             coin: "Bitcoin",
             addressNList: core.bip32ToAddressNList(`m/44'/0'/0'`),
             curve: "secp256k1",
+            scriptType: core.BTCScriptType.Legacy,
           },
           {
             coin: "Bitcoin",
             addressNList: core.bip32ToAddressNList(`m/49'/0'/0'`),
             curve: "secp256k1",
-            scriptType: core.BTCInputScriptType.SpendAddress,
+            scriptType: core.BTCScriptType.Legacy,
           },
           {
             coin: "Bitcoin",
             addressNList: core.bip32ToAddressNList(`m/49'/0'/0'`),
             curve: "secp256k1",
-            scriptType: core.BTCInputScriptType.SpendP2SHWitness,
+            scriptType: core.BTCScriptType.Segwit,
           },
           {
             coin: "Bitcoin",
             addressNList: core.bip32ToAddressNList(`m/49'/0'/0'`),
             curve: "secp256k1",
-            scriptType: core.BTCInputScriptType.SpendAddress,
+            scriptType: core.BTCScriptType.Legacy,
           },
           {
             coin: "Bitcoin",
             addressNList: core.bip32ToAddressNList(`m/84'/0'/0'`),
             curve: "secp256k1",
-            scriptType: core.BTCInputScriptType.SpendWitness,
+            scriptType: core.BTCScriptType.SegwitNative,
           },
           {
             coin: "Bitcoin",
             addressNList: core.bip32ToAddressNList(`m/0'/0'/0'`),
             curve: "secp256k1",
-            scriptType: core.BTCInputScriptType.SpendAddress,
+            scriptType: core.BTCScriptType.Legacy,
           },
           {
             coin: "Litecoin",
             addressNList: core.bip32ToAddressNList(`m/0'/0'/0'`),
             curve: "secp256k1",
-            scriptType: core.BTCInputScriptType.SpendAddress,
+            scriptType: core.BTCScriptType.Legacy,
           },
         ])
       ).toEqual([
@@ -182,47 +183,17 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         if (!wallet || portis.isPortis(wallet)) return;
         await each(
           [
-            [
-              "Show",
-              "Bitcoin",
-              "m/44'/0'/0'/0/0",
-              core.BTCInputScriptType.SpendAddress,
-              "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM",
-            ],
-            [
-              "Show",
-              "Bitcoin",
-              "m/49'/0'/0'/0/0",
-              core.BTCInputScriptType.SpendP2SHWitness,
-              "3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX",
-            ],
-            [
-              "Tell",
-              "Bitcoin",
-              "m/49'/0'/0'/0/0",
-              core.BTCInputScriptType.SpendP2SHWitness,
-              "3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX",
-            ],
-            [
-              "Tell",
-              "Litecoin",
-              "m/49'/2'/0'/0/0",
-              core.BTCInputScriptType.SpendP2SHWitness,
-              "MFoQRU1KQq365Sy3cXhix3ygycEU4YWB1V",
-            ],
-            [
-              "Tell",
-              "Dash",
-              "m/44'/5'/0'/0/0",
-              core.BTCInputScriptType.SpendAddress,
-              "XxKhGNv6ECbqVswm9KYcLPQnyWgZ86jJ6Q",
-            ],
+            ["Show", "Bitcoin", "m/44'/0'/0'/0/0", core.BTCScriptType.Legacy, "1FH6ehAd5ZFXCM1cLGzHxK1s4dGdq1JusM"],
+            ["Show", "Bitcoin", "m/49'/0'/0'/0/0", core.BTCScriptType.Segwit, "3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX"],
+            ["Tell", "Bitcoin", "m/49'/0'/0'/0/0", core.BTCScriptType.Segwit, "3AnYTd2FGxJLNKL1AzxfW3FJMntp9D2KKX"],
+            ["Tell", "Litecoin", "m/49'/2'/0'/0/0", core.BTCScriptType.Segwit, "MFoQRU1KQq365Sy3cXhix3ygycEU4YWB1V"],
+            ["Tell", "Dash", "m/44'/5'/0'/0/0", core.BTCScriptType.Legacy, "XxKhGNv6ECbqVswm9KYcLPQnyWgZ86jJ6Q"],
           ],
           async (args) => {
             const mode = args[0] as string;
             const coin = args[1] as core.Coin;
             const path = args[2] as string;
-            const scriptType = args[3] as core.BTCInputScriptType;
+            const scriptType = args[3] as core.BTCScriptType;
             const expected = args[4] as string;
 
             // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
@@ -284,7 +255,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         const inputs: core.BTCSignTxInputUnguarded[] = [
           {
             addressNList: core.bip32ToAddressNList("m/0"),
-            scriptType: core.BTCInputScriptType.SpendAddress,
+            scriptType: core.BTCScriptType.Legacy,
             amount: String(390000),
             vout: 0,
             txid: "d5f65ee80147b4bcc70b75e4bbf2d7382021b871bd8867ef8fa525ef50864882",
@@ -296,7 +267,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           {
             address: "1MJ2tj2ThBE62zXbBYA5ZaN3fdve5CPAz1",
             addressType: core.BTCOutputAddressType.Spend,
-            // scriptType: core.BTCOutputScriptType.PayToAddress,
+            // scriptType: core.BTCScriptType.Legacy,
             amount: String(390000 - 10000),
             isChange: false,
           },
@@ -360,7 +331,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         const inputs: core.BTCSignTxInputUnguarded[] = [
           {
             addressNList: core.bip32ToAddressNList("m/0"),
-            scriptType: core.BTCInputScriptType.SpendAddress,
+            scriptType: core.BTCScriptType.Legacy,
             amount: String(390000),
             vout: 0,
             txid: "d5f65ee80147b4bcc70b75e4bbf2d7382021b871bd8867ef8fa525ef50864882",
@@ -378,7 +349,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
           {
             addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
             addressType: core.BTCOutputAddressType.Change,
-            scriptType: core.BTCOutputScriptType.PayToAddress,
+            scriptType: core.BTCScriptType.Legacy,
             amount: String(9000),
             isChange: true,
           },
@@ -426,7 +397,7 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         const res = wallet.btcSignMessage({
           addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
           coin: "Bitcoin",
-          scriptType: core.BTCInputScriptType.SpendAddress,
+          scriptType: core.BTCScriptType.Legacy,
           message: "Hello World",
         });
 
@@ -534,20 +505,20 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         await each(
           [
             ["Bitcoin", 0, undefined],
-            ["Bitcoin", 1, core.BTCInputScriptType.SpendAddress],
-            ["Bitcoin", 3, core.BTCInputScriptType.SpendP2SHWitness],
-            ["Bitcoin", 2, core.BTCInputScriptType.SpendWitness],
-            ["Litecoin", 1, core.BTCInputScriptType.SpendAddress],
-            ["Litecoin", 1, core.BTCInputScriptType.SpendP2SHWitness],
-            ["Dash", 0, core.BTCInputScriptType.SpendAddress],
-            ["Dogecoin", 0, core.BTCInputScriptType.SpendAddress],
-            ["BitcoinCash", 0, core.BTCInputScriptType.SpendAddress],
-            ["BitcoinGold", 0, core.BTCInputScriptType.SpendAddress],
+            ["Bitcoin", 1, core.BTCScriptType.Legacy],
+            ["Bitcoin", 3, core.BTCScriptType.Segwit],
+            ["Bitcoin", 2, core.BTCScriptType.SegwitNative],
+            ["Litecoin", 1, core.BTCScriptType.Legacy],
+            ["Litecoin", 1, core.BTCScriptType.Segwit],
+            ["Dash", 0, core.BTCScriptType.Legacy],
+            ["Dogecoin", 0, core.BTCScriptType.Legacy],
+            ["BitcoinCash", 0, core.BTCScriptType.Legacy],
+            ["BitcoinGold", 0, core.BTCScriptType.Legacy],
           ],
           async (args) => {
             const coin = args[0] as core.Coin;
             const accountIdx = args[1] as number;
-            const scriptType = args[2] as core.BTCInputScriptType;
+            const scriptType = args[2] as core.BTCScriptType;
             if (!wallet) return;
             // Non-EVM things are a pain to test with snaps on test env, this wasn't tested before and still isn't
             if (metamask.isMetaMask(wallet)) return;

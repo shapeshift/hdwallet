@@ -132,14 +132,14 @@ export class VultisigHDWalletInfo
     return vultisigSupportedCoins.includes(coin.toLowerCase());
   }
 
-  public async btcSupportsScriptType(coin: string, scriptType?: core.BTCInputScriptType | undefined): Promise<boolean> {
+  public async btcSupportsScriptType(coin: string, scriptType?: core.BTCScriptType | undefined): Promise<boolean> {
     if (!this.btcSupportsCoin(coin)) return false;
 
     const c = coin.toLowerCase();
     switch (scriptType) {
-      case core.BTCInputScriptType.SpendAddress:
+      case core.BTCScriptType.Legacy:
         return ["bitcoin"].includes(c);
-      case core.BTCInputScriptType.SpendWitness:
+      case core.BTCScriptType.SegwitNative:
         return ["bitcoin"].includes(c);
       default:
         return false;
