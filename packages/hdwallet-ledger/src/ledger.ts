@@ -6,6 +6,7 @@ import * as cosmos from "./cosmos";
 import * as eth from "./ethereum";
 import * as mayachain from "./mayachain";
 import * as solana from "./solana";
+import * as sui from "./sui";
 import * as thorchain from "./thorchain";
 import { LedgerTransport } from "./transport";
 import * as tron from "./tron";
@@ -148,6 +149,7 @@ export class LedgerHDWalletInfo
     core.MayachainWalletInfo,
     core.CosmosWalletInfo,
     core.SolanaWalletInfo,
+    core.SuiWalletInfo,
     core.TronWalletInfo
 {
   readonly _supportsBTCInfo = true;
@@ -156,6 +158,7 @@ export class LedgerHDWalletInfo
   readonly _supportsMayachainInfo = true;
   readonly _supportsCosmosInfo = true;
   readonly _supportsSolanaInfo = true;
+  readonly _supportsSuiInfo = true;
   readonly _supportsTronInfo = true;
 
   public getVendor(): string {
@@ -241,6 +244,14 @@ export class LedgerHDWalletInfo
     throw new Error("Method not implemented");
   }
 
+  public suiGetAccountPaths(msg: core.SuiGetAccountPaths): Array<core.SuiAccountPath> {
+    return sui.suiGetAccountPaths(msg);
+  }
+
+  public suiNextAccountPath(msg: core.SuiAccountPath): core.SuiAccountPath | undefined {
+    return sui.suiNextAccountPath(msg);
+  }
+
   public tronGetAccountPaths(msg: core.TronGetAccountPaths): Array<core.TronAccountPath> {
     return tron.tronGetAccountPaths(msg);
   }
@@ -294,6 +305,8 @@ export class LedgerHDWalletInfo
         return core.mayachainDescribePath(msg.path);
       case "Solana":
         return core.solanaDescribePath(msg.path);
+      case "Sui":
+        return core.suiDescribePath(msg.path);
       case "Tron":
         return core.tronDescribePath(msg.path);
       default:
@@ -373,6 +386,7 @@ export class LedgerHDWallet
     core.MayachainWallet,
     core.CosmosWallet,
     core.SolanaWallet,
+    core.SuiWallet,
     core.TronWallet
 {
   readonly _supportsBTC = true;
@@ -391,6 +405,7 @@ export class LedgerHDWallet
   readonly _supportsMayachain = true;
   readonly _supportsCosmos = true;
   readonly _supportsSolana = true;
+  readonly _supportsSui = true;
   readonly _supportsTron = true;
 
   _isLedger = true;
@@ -632,6 +647,16 @@ export class LedgerHDWallet
   public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
     await this.validateCurrentApp("Solana");
     return solana.solanaSignTx(this.transport, msg);
+  }
+
+  public async suiGetAddress(msg: core.SuiGetAddress): Promise<string> {
+    await this.validateCurrentApp("Sui");
+    return sui.suiGetAddress(this.transport, msg);
+  }
+
+  public async suiSignTx(msg: core.SuiSignTx): Promise<core.SuiSignedTx | null> {
+    await this.validateCurrentApp("Sui");
+    return sui.suiSignTx(this.transport, msg);
   }
 
   public async tronGetAddress(msg: core.TronGetAddress): Promise<string> {
