@@ -1688,7 +1688,7 @@
     rxjs "^7.8.1"
     semver "^7.3.5"
 
-"@ledgerhq/devices@8.7.0":
+"@ledgerhq/devices@8.7.0", "@ledgerhq/devices@^8.6.1":
   version "8.7.0"
   resolved "https://registry.npmjs.org/@ledgerhq/devices/-/devices-8.7.0.tgz#39e011c484c4251c92769f92cf8c23b8a0b4ce39"
   integrity sha512-3pSOULPUhClk2oOxa6UnoyXW8+05FK7r6cpq2WiTey4kyIUjmIraO7AX9lhz9IU73dGVtBMdU+NCPPO2RYJaTQ==
@@ -1716,7 +1716,7 @@
   resolved "https://registry.yarnpkg.com/@ledgerhq/errors/-/errors-6.23.0.tgz#fae7b61095ce4c033394d16085b5f14ca9f9d738"
   integrity sha512-bM7tPYShPThtBy1Y+9D28iquOeP5W5s4p7KKD/cUQoaVaPibrtC7Mm4u+IeSlH4WGvFJkTmv0vmZJajuZtM79A==
 
-"@ledgerhq/errors@^6.27.0":
+"@ledgerhq/errors@^6.26.0", "@ledgerhq/errors@^6.27.0":
   version "6.27.0"
   resolved "https://registry.npmjs.org/@ledgerhq/errors/-/errors-6.27.0.tgz#3acc978ed1dbbdd8049dcedccccf4a96968f583a"
   integrity sha512-EE2hATONHdNP3YWFe3rZwwpSEzI5oN+q/xTjOulnjHZo84TLjungegEJ54A/Pzld0woulkkeVA27FbW5SAO1aA==
@@ -1796,6 +1796,13 @@
   dependencies:
     "@ledgerhq/hw-transport" "6.31.13"
 
+"@ledgerhq/hw-bolos@^6.32.8":
+  version "6.32.9"
+  resolved "https://registry.npmjs.org/@ledgerhq/hw-bolos/-/hw-bolos-6.32.9.tgz#9d1ad6d33222b3b63c1a4e23896c3ca3c88770ce"
+  integrity sha512-4GDpBPPl0weqcvm/+gvYs01whsbwwl+HIiTtFi5iDfHa/6JmV7KxRaT8JfPRc8M4fSnJs5Z7NxHnrhEHu+tA2Q==
+  dependencies:
+    "@ledgerhq/hw-transport" "6.31.13"
+
 "@ledgerhq/hw-transport-mocker@^6.29.8":
   version "6.29.8"
   resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport-mocker/-/hw-transport-mocker-6.29.8.tgz#7188e0fe8dfa5df5451ce3b55c192c89007ccdea"
@@ -1825,7 +1832,7 @@
     "@ledgerhq/hw-transport" "^6.31.8"
     "@ledgerhq/logs" "^6.13.0"
 
-"@ledgerhq/hw-transport@6.31.13":
+"@ledgerhq/hw-transport@6.31.13", "@ledgerhq/hw-transport@^6.31.10":
   version "6.31.13"
   resolved "https://registry.npmjs.org/@ledgerhq/hw-transport/-/hw-transport-6.31.13.tgz#87e4a53bdcca257eeea6cbcc7a662c449a0cfa92"
   integrity sha512-MrJRDk74wY980ofiFPRpTHQBbRw1wDuKbdag1zqlO1xtJglymwwY03K2kvBNvkm1RTSCPUp/nAoNG+WThZuuew==
@@ -1845,6 +1852,38 @@
     "@ledgerhq/logs" "^6.13.0"
     events "^3.3.0"
 
+"@ledgerhq/ledger-cal-service@^1.6.0":
+  version "1.9.0"
+  resolved "https://registry.npmjs.org/@ledgerhq/ledger-cal-service/-/ledger-cal-service-1.9.0.tgz#b9797a71c17b8bf0f0a00ff9f84fa269b328540b"
+  integrity sha512-OuM5+pOcRYDs25VgTD1f5hzhc154g6Oh8dL3M+77MtpQOO3XCnLuWe7eFNS28r6jWrojN1v8I1aTYiVJh+vdeg==
+  dependencies:
+    "@ledgerhq/live-env" "2.21.0"
+    "@ledgerhq/live-network" "2.1.1"
+
+"@ledgerhq/ledger-trust-service@^0.3.14":
+  version "0.3.14"
+  resolved "https://registry.npmjs.org/@ledgerhq/ledger-trust-service/-/ledger-trust-service-0.3.14.tgz#37aaea4eb6c44196652ca478b104396ced801d24"
+  integrity sha512-Q83QXnLDFIDnm2Bv4WgWilurE1WGSX7gGaMEhVxb/BQXH1O78QlNgNRys8K35wnG7BxYKjBJGMoK9U6JdWwW2Q==
+  dependencies:
+    "@ledgerhq/live-env" "2.18.0"
+    "@ledgerhq/live-network" "2.0.19"
+
+"@ledgerhq/live-env@2.18.0":
+  version "2.18.0"
+  resolved "https://registry.npmjs.org/@ledgerhq/live-env/-/live-env-2.18.0.tgz#2669a80775c4217c47e02e25f179f1b33899c3ce"
+  integrity sha512-wasAK0IPyyX4ZAU0FLTZUsRzxJfdHlewyhkbz3HryYKbNofuMRwIWyaZ2xhpXXjEdP6qHb9HzewAZevjSn7DLQ==
+  dependencies:
+    rxjs "^7.8.1"
+    utility-types "^3.10.0"
+
+"@ledgerhq/live-env@2.21.0", "@ledgerhq/live-env@^2.18.0", "@ledgerhq/live-env@^2.21.0":
+  version "2.21.0"
+  resolved "https://registry.npmjs.org/@ledgerhq/live-env/-/live-env-2.21.0.tgz#ce9462e04493c0623d582dcc3ab93685e21dddf1"
+  integrity sha512-A/+lCW6HNE9TWMCVo3dluZ0qTp9l+LMV9vH62SXqeHNYL3MqE/gsdZ1sZEMimLx8fURkCIKlHdNd1lN/tY5t/A==
+  dependencies:
+    rxjs "^7.8.1"
+    utility-types "^3.10.0"
+
 "@ledgerhq/live-env@^2.12.0":
   version "2.12.0"
   resolved "https://registry.yarnpkg.com/@ledgerhq/live-env/-/live-env-2.12.0.tgz#d238595627211c669667c5d6b8042937e56288ac"
@@ -1852,6 +1891,30 @@
   dependencies:
     rxjs "^7.8.1"
     utility-types "^3.10.0"
+
+"@ledgerhq/live-network@2.0.19":
+  version "2.0.19"
+  resolved "https://registry.npmjs.org/@ledgerhq/live-network/-/live-network-2.0.19.tgz#4903f2e66eebb198c37c25b57f57c6af304397db"
+  integrity sha512-KVdqFDQcqEUNoC/TnaOJeo/I7TY39lQhzcVlnkAt2jbp5Xfv5YNuazL9lId5+bBb28jNPAv5uNJSlgvzpSSNIg==
+  dependencies:
+    "@ledgerhq/errors" "^6.26.0"
+    "@ledgerhq/live-env" "^2.18.0"
+    "@ledgerhq/live-promise" "^0.1.1"
+    "@ledgerhq/logs" "^6.13.0"
+    axios "1.11.0"
+    lru-cache "^7.14.1"
+
+"@ledgerhq/live-network@2.1.1":
+  version "2.1.1"
+  resolved "https://registry.npmjs.org/@ledgerhq/live-network/-/live-network-2.1.1.tgz#584ce5af8afd2a704c61631c8ab38108617e48aa"
+  integrity sha512-58YMh/dUyntKubtzOsToyBjVakIM58h3k7nEyrUXY7UpO0VWY1TvSF0D4mdPGVpbwNs9C2KP3Lf/kowbAYpVJA==
+  dependencies:
+    "@ledgerhq/errors" "^6.27.0"
+    "@ledgerhq/live-env" "^2.21.0"
+    "@ledgerhq/live-promise" "^0.1.1"
+    "@ledgerhq/logs" "^6.13.0"
+    axios "1.12.2"
+    lru-cache "^7.14.1"
 
 "@ledgerhq/live-network@^2.0.13":
   version "2.0.13"
@@ -3046,6 +3109,20 @@
   dependencies:
     "@types/set-cookie-parser" "^2.4.0"
     set-cookie-parser "^2.4.6"
+
+"@mysten/ledgerjs-hw-app-sui@^0.7.0":
+  version "0.7.0"
+  resolved "https://registry.npmjs.org/@mysten/ledgerjs-hw-app-sui/-/ledgerjs-hw-app-sui-0.7.0.tgz#e9f0398807a6d63bf541a6e146409f89fac69f6d"
+  integrity sha512-Z2ydxg35U2tk3pThsWzPewticDnHWqAeLlh2Vp4NhYU/YFyoVxK9obh21pnvU/hmRzL+BRpYlwbX5Nuo77+lwA==
+  dependencies:
+    "@ledgerhq/devices" "^8.6.1"
+    "@ledgerhq/errors" "^6.26.0"
+    "@ledgerhq/hw-bolos" "^6.32.8"
+    "@ledgerhq/hw-transport" "^6.31.10"
+    "@ledgerhq/ledger-cal-service" "^1.6.0"
+    "@ledgerhq/ledger-trust-service" "^0.3.14"
+    fast-sha256 "^1.3.0"
+    semver "^7"
 
 "@noble/ciphers@1.2.1":
   version "1.2.1"
@@ -6750,6 +6827,24 @@ axios@0.27.2:
   dependencies:
     follow-redirects "^1.14.9"
     form-data "^4.0.0"
+
+axios@1.11.0:
+  version "1.11.0"
+  resolved "https://registry.npmjs.org/axios/-/axios-1.11.0.tgz#c2ec219e35e414c025b2095e8b8280278478fdb6"
+  integrity sha512-1Lx3WLFQWm3ooKDYZD1eXmoGO9fxYQjrycfHFC8P0sCfQVXyROp0p9PFWBehewBOdCwHc+f/b8I0fMto5eSfwA==
+  dependencies:
+    follow-redirects "^1.15.6"
+    form-data "^4.0.4"
+    proxy-from-env "^1.1.0"
+
+axios@1.12.2:
+  version "1.12.2"
+  resolved "https://registry.npmjs.org/axios/-/axios-1.12.2.tgz#6c307390136cf7a2278d09cec63b136dfc6e6da7"
+  integrity sha512-vMJzPewAlRyOgxV2dU0Cuz2O8zzzx9VYtbJOaBgXFeLc4IV/Eg50n4LowmehOOR61S8ZMpc2K5Sa7g6A4jfkUw==
+  dependencies:
+    follow-redirects "^1.15.6"
+    form-data "^4.0.4"
+    proxy-from-env "^1.1.0"
 
 axios@1.7.7, axios@^1.0.0:
   version "1.7.7"
@@ -10484,6 +10579,11 @@ fast-safe-stringify@^2.0.6:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/fast-safe-stringify/-/fast-safe-stringify-2.1.1.tgz#c406a83b6e70d9e35ce3b30a81141df30aeba884"
   integrity sha512-W+KJc2dmILlPplD/H4K9l9LcAHAfPtP6BY84uVLXQ6Evcz9Lcg33Y2z1IVblT6xdY54PXYVHEv+0Wpq8Io6zkA==
+
+fast-sha256@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.npmjs.org/fast-sha256/-/fast-sha256-1.3.0.tgz#7916ba2054eeb255982608cccd0f6660c79b7ae6"
+  integrity sha512-n11RGP/lrWEFI/bWdygLxhI+pVeo1ZYIVwvvPkW7azl/rOy+F3HYRZ2K5zeE9mmkhQppyv9sQFx0JM9UabnpPQ==
 
 fast-stable-stringify@^1.0.0:
   version "1.0.0"
@@ -16603,6 +16703,11 @@ semver@^6.0.0, semver@^6.2.0, semver@^6.3.0, semver@^6.3.1:
   version "6.3.1"
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.1.tgz#556d2ef8689146e46dcea4bfdd095f3434dffcb4"
   integrity sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==
+
+semver@^7:
+  version "7.7.3"
+  resolved "https://registry.npmjs.org/semver/-/semver-7.7.3.tgz#4b5f4143d007633a8dc671cd0a6ef9147b8bb946"
+  integrity sha512-SdsKMrI9TdgjdweUSR9MweHA4EJ8YxHn8DFaDisvhVlUOe4BF1tLD7GAj0lIqWVl+dPb/rExr0Btby5loQm20Q==
 
 semver@~5.4.1:
   version "5.4.1"
