@@ -1,5 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import Base64 from "base64-js";
+import * as bchAddr from "bchaddrjs";
 
 import { TrezorTransport } from "./transport";
 import { handleError } from "./utils";
@@ -9,7 +10,7 @@ type BTCTrezorSignTxOutput = {
   address?: string;
   address_n?: core.BIP32Path | string;
   script_type?: string;
-  op_return_data?: Buffer;
+  op_return_data?: string;
 };
 
 function translateCoin(coin: core.Coin): string {
@@ -118,7 +119,7 @@ export async function btcSignTx(
 
     if (output.address) {
       return {
-        address: output.address,
+        address: msg.coin === "BitcoinCash" ? bchAddr.toCashAddress(output.address) : output.address,
         amount: output.amount,
         script_type: translateOutputScriptType(core.BTCOutputScriptType.PayToAddress),
       };
@@ -133,8 +134,8 @@ export async function btcSignTx(
     }
     outputs.push({
       amount: "0",
-      op_return_data: Buffer.from(msg.opReturnData),
-      script_type: "3", // Trezor firmware uses enumerated type with value of 3 for "PAYTOOPRETURN"
+      op_return_data: Buffer.from(msg.opReturnData).toString("hex"),
+      script_type: "PAYTOOPRETURN",
     });
   }
 

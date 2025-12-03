@@ -27,6 +27,24 @@ export async function ethGetAddress(transport: TrezorTransport, msg: core.ETHGet
   return res.payload.address;
 }
 
+export async function ethGetAddresses(transport: TrezorTransport, msgs: core.ETHGetAddress[]): Promise<string[]> {
+  if (!msgs.length) return [];
+
+  // Build bundle request for Trezor Connect
+  const bundle = msgs.map((msg) => ({
+    path: core.addressNListToBIP32(msg.addressNList),
+    showOnTrezor: false, // Never show on device for batch requests
+  }));
+
+  // Single popup for all addresses via Trezor Connect bundle parameter
+  const res = await transport.call("ethereumGetAddress", { bundle });
+
+  handleError(transport, res, "Could not get ETH addresses from Trezor");
+
+  // Response payload is array when using bundle
+  return (res.payload as Array<{ address: string }>).map((item) => item.address);
+}
+
 export async function ethSupportsSecureTransfer(): Promise<boolean> {
   return false;
 }
@@ -99,6 +117,24 @@ export async function ethVerifyMessage(transport: TrezorTransport, msg: core.ETH
 
 export function ethSupportsEIP1559(): boolean {
   return false;
+}
+
+export async function ethSignTypedData(
+  transport: TrezorTransport,
+  msg: core.ETHSignTypedData
+): Promise<core.ETHSignedTypedData> {
+  const res = await transport.call("ethereumSignTypedData", {
+    path: core.addressNListToBIP32(msg.addressNList),
+    data: msg.typedData,
+    metamask_v4_compat: true,
+  });
+
+  handleError(transport, res, "Could not sign typed data with Trezor");
+
+  return {
+    address: res.payload.address,
+    signature: res.payload.signature,
+  };
 }
 
 export function ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {

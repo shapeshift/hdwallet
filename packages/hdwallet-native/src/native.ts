@@ -13,12 +13,13 @@ import * as Isolation from "./crypto/isolation";
 import { MixinNativeETHWallet, MixinNativeETHWalletInfo } from "./ethereum";
 import { MixinNativeKavaWallet, MixinNativeKavaWalletInfo } from "./kava";
 import { MixinNativeMayachainWallet, MixinNativeMayachainWalletInfo } from "./mayachain";
-import { getNetwork } from "./networks";
 import { MixinNativeOsmosisWallet, MixinNativeOsmosisWalletInfo } from "./osmosis";
 import { MixinNativeSecretWallet, MixinNativeSecretWalletInfo } from "./secret";
 import { MixinNativeSolanaWallet, MixinNativeSolanaWalletInfo } from "./solana";
+import { MixinNativeSuiWallet, MixinNativeSuiWalletInfo } from "./sui";
 import { MixinNativeTerraWallet, MixinNativeTerraWalletInfo } from "./terra";
 import { MixinNativeThorchainWallet, MixinNativeThorchainWalletInfo } from "./thorchain";
+import { MixinNativeTronWallet, MixinNativeTronWalletInfo } from "./tron";
 
 export enum NativeEvents {
   MNEMONIC_REQUIRED = "MNEMONIC_REQUIRED",
@@ -127,12 +128,16 @@ class NativeHDWalletInfo
       MixinNativeCosmosWalletInfo(
         MixinNativeBinanceWalletInfo(
           MixinNativeSolanaWalletInfo(
-            MixinNativeThorchainWalletInfo(
-              MixinNativeMayachainWalletInfo(
-                MixinNativeSecretWalletInfo(
-                  MixinNativeTerraWalletInfo(
-                    MixinNativeKavaWalletInfo(
-                      MixinNativeArkeoWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase))
+            MixinNativeTronWalletInfo(
+              MixinNativeSuiWalletInfo(
+                MixinNativeThorchainWalletInfo(
+                  MixinNativeMayachainWalletInfo(
+                    MixinNativeSecretWalletInfo(
+                      MixinNativeTerraWalletInfo(
+                        MixinNativeKavaWalletInfo(
+                          MixinNativeArkeoWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase))
+                        )
+                      )
                     )
                   )
                 )
@@ -150,6 +155,8 @@ class NativeHDWalletInfo
     core.CosmosWalletInfo,
     core.BinanceWalletInfo,
     core.SolanaWalletInfo,
+    core.TronWalletInfo,
+    core.SuiWalletInfo,
     core.ThorchainWalletInfo,
     core.MayachainWalletInfo,
     core.SecretWalletInfo,
@@ -186,6 +193,8 @@ class NativeHDWalletInfo
         return core.mayachainDescribePath(msg.path);
       case "solana":
         return core.solanaDescribePath(msg.path);
+      case "sui":
+        return core.suiDescribePath(msg.path);
       case "secret":
       case "scrt":
       case "tscrt":
@@ -204,6 +213,9 @@ class NativeHDWalletInfo
         return core.osmosisDescribePath(msg.path);
       case "arkeo":
         return core.arkeoDescribePath(msg.path);
+      case "tron":
+      case "trx":
+        return core.tronDescribePath(msg.path);
       default:
         throw new Error("Unsupported path");
     }
@@ -216,11 +228,15 @@ export class NativeHDWallet
       MixinNativeCosmosWallet(
         MixinNativeBinanceWallet(
           MixinNativeSolanaWallet(
-            MixinNativeThorchainWallet(
-              MixinNativeMayachainWallet(
-                MixinNativeSecretWallet(
-                  MixinNativeTerraWallet(
-                    MixinNativeKavaWallet(MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo)))
+            MixinNativeTronWallet(
+              MixinNativeSuiWallet(
+                MixinNativeThorchainWallet(
+                  MixinNativeMayachainWallet(
+                    MixinNativeSecretWallet(
+                      MixinNativeTerraWallet(
+                        MixinNativeKavaWallet(MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo)))
+                      )
+                    )
                   )
                 )
               )
@@ -237,6 +253,8 @@ export class NativeHDWallet
     core.CosmosWallet,
     core.BinanceWallet,
     core.SolanaWallet,
+    core.TronWallet,
+    core.SuiWallet,
     core.ThorchainWallet,
     core.MayachainWallet,
     core.SecretWallet,
@@ -312,7 +330,7 @@ export class NativeHDWallet
               // TODO: return the xpub that's actually asked for, not the key of the hardened path
               // It's done this way for hilarious historical reasons and will break ETH if fixed
               const hardenedPath = core.hardenedPath(addressNList);
-              const network = getNetwork(coin, scriptType);
+              const network = core.getNetwork(coin, scriptType ?? core.BTCOutputScriptType.PayToMultisig);
 
               let node = await Isolation.Adapters.BIP32.create(secp256k1MasterKey, network);
               if (hardenedPath.length > 0) node = await node.derivePath(core.addressNListToBIP32(hardenedPath));
@@ -360,6 +378,7 @@ export class NativeHDWallet
           super.cosmosInitializeWallet(secp256k1MasterKey),
           super.osmosisInitializeWallet(secp256k1MasterKey),
           super.binanceInitializeWallet(secp256k1MasterKey),
+          super.tronInitializeWallet(secp256k1MasterKey),
           super.thorchainInitializeWallet(secp256k1MasterKey),
           super.mayachainInitializeWallet(secp256k1MasterKey),
           super.secretInitializeWallet(secp256k1MasterKey),
@@ -367,6 +386,7 @@ export class NativeHDWallet
           super.kavaInitializeWallet(secp256k1MasterKey),
           super.arkeoInitializeWallet(secp256k1MasterKey),
           super.solanaInitializeWallet(ed25519MasterKey),
+          super.suiInitializeWallet(ed25519MasterKey),
         ]);
 
         this.#initialized = true;
@@ -408,11 +428,13 @@ export class NativeHDWallet
     this.#ed25519MasterKey = undefined;
 
     super.solanaWipe();
+    super.suiWipe();
     super.btcWipe();
     super.ethWipe();
     super.cosmosWipe();
     super.osmosisWipe();
     super.binanceWipe();
+    super.tronWipe();
     super.thorchainWipe();
     super.mayachainWipe();
     super.secretWipe();

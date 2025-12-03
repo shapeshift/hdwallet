@@ -1,4 +1,4 @@
-import { PublicKey, VersionedTransaction } from "@solana/web3.js";
+import { PublicKey, TransactionSignature, VersionedTransaction } from "@solana/web3.js";
 import { providers } from "ethers";
 
 import { BtcAccount } from "./bitcoin";
@@ -28,5 +28,5 @@ export type PhantomSolanaProvider = providers.ExternalProvider & {
   publicKey?: PublicKey;
   connect(): Promise<SolanaAccount>;
   signTransaction(transaction: VersionedTransaction): Promise<VersionedTransaction>;
-  signAndSendTransaction(transaction: VersionedTransaction): Promise<{ signature: any }>;
+  signAndSendTransaction(transaction: VersionedTransaction): Promise<{ signature: TransactionSignature }>;
 };

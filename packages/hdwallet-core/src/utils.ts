@@ -157,6 +157,8 @@ export const slip44Table = Object.freeze({
   Terra: 330,
   Kava: 459,
   Solana: 501,
+  Tron: 195,
+  Sui: 784,
   // EVM chains all use the same SLIP44
   Ethereum: 60,
   Avalanche: 60,
@@ -167,6 +169,7 @@ export const slip44Table = Object.freeze({
   Arbitrum: 60,
   ArbitrumNova: 60,
   Base: 60,
+  Monad: 60,
 } as const);
 
 export type Slip44ByCoin<T> = T extends keyof typeof slip44Table ? (typeof slip44Table)[T] : number | undefined;

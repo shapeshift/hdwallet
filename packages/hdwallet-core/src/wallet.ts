@@ -13,9 +13,11 @@ import { OsmosisWallet, OsmosisWalletInfo } from "./osmosis";
 import { RippleWallet, RippleWalletInfo } from "./ripple";
 import { SecretWallet, SecretWalletInfo } from "./secret";
 import { SolanaWallet, SolanaWalletInfo } from "./solana";
+import { SuiWallet, SuiWalletInfo } from "./sui";
 import { TerraWallet, TerraWalletInfo } from "./terra";
 import { ThorchainWallet, ThorchainWalletInfo } from "./thorchain";
 import { Transport } from "./transport";
+import { TronWallet, TronWalletInfo } from "./tron";
 
 export type BIP32Path = Array<number>;
 
@@ -165,6 +167,10 @@ export function supportsBase(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsBase;
 }
 
+export function supportsMonad(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsMonad;
+}
+
 export function infoCosmos(info: HDWalletInfo): info is CosmosWalletInfo {
   return isObject(info) && (info as any)._supportsCosmosInfo;
 }
@@ -255,6 +261,22 @@ export function supportsSolana(wallet: HDWallet): wallet is SolanaWallet {
 
 export function infoSolana(info: HDWalletInfo): info is SolanaWalletInfo {
   return isObject(info) && (info as any)._supportsSolanaInfo;
+}
+
+export function supportsTron(wallet: HDWallet): wallet is TronWallet {
+  return isObject(wallet) && (wallet as any)._supportsTron;
+}
+
+export function infoTron(info: HDWalletInfo): info is TronWalletInfo {
+  return isObject(info) && (info as any)._supportsTronInfo;
+}
+
+export function supportsSui(wallet: HDWallet): wallet is SuiWallet {
+  return isObject(wallet) && (wallet as any)._supportsSui;
+}
+
+export function infoSui(info: HDWalletInfo): info is SuiWalletInfo {
+  return isObject(info) && (info as any)._supportsSuiInfo;
 }
 
 export function supportsDebugLink(wallet: HDWallet): wallet is DebugLinkWallet {
