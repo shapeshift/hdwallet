@@ -373,6 +373,7 @@ export class LedgerHDWallet
   readonly _supportsArbitrumNova = true;
   readonly _supportsBase = true;
   readonly _supportsMonad = false;
+  readonly _supportsPlasma = false;
   readonly _supportsThorchain = true;
   readonly _supportsMayachain = true;
   readonly _supportsCosmos = true;
