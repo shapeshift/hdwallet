@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-sandbox",
-  "version": "1.62.22-plasma.0",
+  "version": "1.62.23-plasma.0",
   "license": "MIT",
   "private": true,
   "browserslist": "> 0.5%, last 2 versions, not dead",

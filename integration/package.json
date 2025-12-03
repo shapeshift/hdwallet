@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/integration",
-  "version": "1.62.22-plasma.0",
+  "version": "1.62.23-plasma.0",
   "main": "index.js",
   "license": "MIT",
   "private": true,
