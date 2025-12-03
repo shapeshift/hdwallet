@@ -209,7 +209,10 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
           }
         })();
 
-        const psbt = new bitcoin.Psbt({ network: core.getNetwork(coin, core.BTCOutputScriptType.PayToMultisig), forkCoin });
+        const psbt = new bitcoin.Psbt({
+          network: core.getNetwork(coin, core.BTCOutputScriptType.PayToMultisig),
+          forkCoin,
+        });
 
         if (coin.toLowerCase() === "zcash") {
           const versionGroupId = ZCASH_VERSION_GROUP_ID[version ?? 5];

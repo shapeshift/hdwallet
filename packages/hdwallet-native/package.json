@@ -16,7 +16,7 @@
   "dependencies": {
     "@bitcoinerlab/secp256k1": "^1.1.1",
     "@noble/curves": "^1.4.0",
-    "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.1",
+    "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
     "@shapeshiftoss/hdwallet-core": "1.62.21",
     "@shapeshiftoss/proto-tx-builder": "0.10.0",
     "@zxing/text-encoding": "^0.9.0",

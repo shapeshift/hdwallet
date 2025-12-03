@@ -4085,10 +4085,10 @@
     valibot "^0.38.0"
     varuint-bitcoin "^2.0.0"
 
-"@shapeshiftoss/bitcoinjs-lib@7.0.0-shapeshift.1":
-  version "7.0.0-shapeshift.1"
-  resolved "https://registry.yarnpkg.com/@shapeshiftoss/bitcoinjs-lib/-/bitcoinjs-lib-7.0.0-shapeshift.1.tgz#37a0ed51fa8e2a397201ac92f3daf8339dd0be94"
-  integrity sha512-jKpf6Lw55yQc69+wDIXLE0ad6+Lwy7qWMxO9qZXF9Nwt5dO9R0OQzz0xlUqSv2DKi62bMawB4mVCOkKVAVD6Eg==
+"@shapeshiftoss/bitcoinjs-lib@7.0.0-shapeshift.2":
+  version "7.0.0-shapeshift.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/bitcoinjs-lib/-/bitcoinjs-lib-7.0.0-shapeshift.2.tgz#552a41907931708ae9f010cb2dbb2fe7c12bd1f7"
+  integrity sha512-cWlAQpb9InD1O0FnWyy1ancwkggCtfUFNQs01znoYNy8G0NzRCweGvdVNxRVTH1IAsxDB2AzRs9Zs9GT0tmsvQ==
   dependencies:
     "@noble/hashes" "^1.2.0"
     bech32 "^2.0.0"
