@@ -20,7 +20,7 @@
     "@ethereumjs/tx": "4.2.0",
     "@keepkey/device-protocol": "7.13.4",
     "@metamask/eth-sig-util": "^7.0.0",
-    "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.0",
+    "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.1",
     "@shapeshiftoss/hdwallet-core": "1.62.3",
     "@shapeshiftoss/proto-tx-builder": "0.10.0",
     "bignumber.js": "^9.0.1",

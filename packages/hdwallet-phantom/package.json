@@ -14,7 +14,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.0",
+    "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.1",
     "@shapeshiftoss/hdwallet-core": "1.62.3",
     "@solana/web3.js": "1.95.8",
     "base64-js": "^1.5.1",

@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@portis/web3": "3.0.10",
-    "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.0",
+    "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.1",
     "@shapeshiftoss/hdwallet-core": "1.62.3",
     "base64-js": "^1.5.1",
     "bip32": "^2.0.4",
