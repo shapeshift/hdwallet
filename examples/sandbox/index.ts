@@ -3745,6 +3745,6 @@ $zecTx.on("click", async (e) => {
     $zecResults.val(res.serializedTx);
   } else {
     const label = await wallet.getLabel();
-    $zecResults.val(label + " does not support Litecoin");
+    $zecResults.val(label + " does not support Zcash");
   }
 });
