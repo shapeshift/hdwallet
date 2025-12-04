@@ -731,7 +731,7 @@ $getXpubs.each(function () {
       {
         addressNList: [0x80000000 + 44, 0x80000000 + 133, 0x80000000 + 0],
         curve: "secp256k1",
-        showDisplay: true, // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+        showDisplay: true,
         coin: "Zcash",
         scriptType: core.BTCInputScriptType.SpendAddress,
       },
