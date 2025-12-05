@@ -11,15 +11,15 @@ export enum PublicKeyType {
 }
 
 export const accountTypeToVersion = (() => {
-  const Litecoin = {
-    [UtxoAccountType.P2pkh]: Buffer.from(PublicKeyType.Ltub, "hex"),
-    [UtxoAccountType.SegwitP2sh]: Buffer.from(PublicKeyType.Mtub, "hex"),
-    [UtxoAccountType.SegwitNative]: Buffer.from(PublicKeyType.zpub, "hex"),
-  };
+  // const Litecoin = {
+  //   [UtxoAccountType.P2pkh]: Buffer.from(PublicKeyType.Ltub, "hex"),
+  //   [UtxoAccountType.SegwitP2sh]: Buffer.from(PublicKeyType.Mtub, "hex"),
+  //   [UtxoAccountType.SegwitNative]: Buffer.from(PublicKeyType.zpub, "hex"),
+  // };
 
-  const Dogecoin = {
-    [UtxoAccountType.P2pkh]: Buffer.from(PublicKeyType.dgub, "hex"),
-  };
+  // const Dogecoin = {
+  //   [UtxoAccountType.P2pkh]: Buffer.from(PublicKeyType.dgub, "hex"),
+  // };
 
   const Bitcoin = {
     [UtxoAccountType.P2pkh]: Buffer.from(PublicKeyType.xpub, "hex"),
@@ -29,13 +29,13 @@ export const accountTypeToVersion = (() => {
 
   return (coin: string, type: UtxoAccountType) => {
     switch (coin) {
-      case "Litecoin":
-        return Litecoin[type];
+      // case "Litecoin":
+      //   return Litecoin[type];
       case "Bitcoin":
         return Bitcoin[type];
-      case "Dogecoin":
-        if (type !== UtxoAccountType.P2pkh) throw new Error("Unsupported account type");
-        return Dogecoin[type];
+      // case "Dogecoin":
+      //   if (type !== UtxoAccountType.P2pkh) throw new Error("Unsupported account type");
+      //   return Dogecoin[type];
       default:
         return Bitcoin[type];
     }
@@ -46,7 +46,7 @@ export const convertVersions = ["Ltub", "xpub", "dgub"];
 
 export const UTXO_NETWORK_PARAMS: Record<string, { pubKeyHash: number; scriptHash: number; bech32?: string }> = {
   Bitcoin: { pubKeyHash: 0x00, scriptHash: 0x05, bech32: "bc" },
-  Dogecoin: { pubKeyHash: 0x1e, scriptHash: 0x16 },
-  Litecoin: { pubKeyHash: 0x30, scriptHash: 0x32, bech32: "ltc" },
-  BitcoinCash: { pubKeyHash: 0x00, scriptHash: 0x05 },
+  // Dogecoin: { pubKeyHash: 0x1e, scriptHash: 0x16 },
+  // Litecoin: { pubKeyHash: 0x30, scriptHash: 0x32, bech32: "ltc" },
+  // BitcoinCash: { pubKeyHash: 0x00, scriptHash: 0x05 },
 };
