@@ -4085,6 +4085,19 @@
     valibot "^0.38.0"
     varuint-bitcoin "^2.0.0"
 
+"@shapeshiftoss/bitcoinjs-lib@7.0.0-shapeshift.2":
+  version "7.0.0-shapeshift.2"
+  resolved "https://registry.yarnpkg.com/@shapeshiftoss/bitcoinjs-lib/-/bitcoinjs-lib-7.0.0-shapeshift.2.tgz#552a41907931708ae9f010cb2dbb2fe7c12bd1f7"
+  integrity sha512-cWlAQpb9InD1O0FnWyy1ancwkggCtfUFNQs01znoYNy8G0NzRCweGvdVNxRVTH1IAsxDB2AzRs9Zs9GT0tmsvQ==
+  dependencies:
+    "@noble/hashes" "^1.2.0"
+    bech32 "^2.0.0"
+    bip174 "^3.0.0"
+    bs58check "^4.0.0"
+    uint8array-tools "^0.0.9"
+    valibot "^0.38.0"
+    varuint-bitcoin "^2.0.0"
+
 "@shapeshiftoss/blockbook@^9.3.0":
   version "9.3.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/blockbook/-/blockbook-9.3.0.tgz#9c93afe9b87013fb70c96f4921000e5d6860020a"
@@ -7169,6 +7182,14 @@ bip174@^2.0.1:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/bip174/-/bip174-2.1.0.tgz#cd3402581feaa5116f0f00a0eaee87a5843a2d30"
   integrity sha512-lkc0XyiX9E9KiVAS1ZiOqK1xfiwvf4FXDDdkDq5crcDzOq+xGytY+14qCsqz7kCiy8rpN1CRNfacRhf9G3JNSA==
+
+bip174@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/bip174/-/bip174-3.0.0.tgz#fbf60cc7a6e39dde17afdda0cf1a27e5508ae075"
+  integrity sha512-N3vz3rqikLEu0d6yQL8GTrSkpYb35NQKWMR7Hlza0lOj6ZOlvQ3Xr7N9Y+JPebaCVoEUHdBeBSuLxcHr71r+Lw==
+  dependencies:
+    uint8array-tools "^0.0.9"
+    varuint-bitcoin "^2.0.0"
 
 bip174@^3.0.0-rc.0:
   version "3.0.0-rc.1"
