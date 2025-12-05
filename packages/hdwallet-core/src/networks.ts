@@ -127,6 +127,27 @@ const networks: Networks = {
     },
     p2wpkh: bip32BTC.p2wpkh,
   },
+  zcash: {
+    base: {
+      messagePrefix: "\x19Zcash Signed Message:\n",
+      bech32: "",
+      pubKeyHash: 0x1cb8,
+      scriptHash: 0x1cbd,
+      wif: 0x80,
+    },
+    p2sh: {
+      bip32: {
+        public: 0x0488b21e,
+        private: 0x0488ade4,
+      },
+    },
+    p2pkh: {
+      bip32: {
+        public: 0x0488b21e,
+        private: 0x0488ade4,
+      },
+    },
+  },
   testnet: {
     base: {
       messagePrefix: "\x18Bitcoin Signed Message:\n",

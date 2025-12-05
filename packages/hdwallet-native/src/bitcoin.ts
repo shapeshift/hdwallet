@@ -6,9 +6,16 @@ import * as Isolation from "./crypto/isolation";
 import { NativeHDWalletBase } from "./native";
 import * as util from "./util";
 
-const supportedCoins = ["bitcoin", "dash", "digibyte", "dogecoin", "litecoin", "bitcoincash", "testnet"];
+const supportedCoins = ["bitcoin", "dash", "digibyte", "dogecoin", "litecoin", "bitcoincash", "zcash", "testnet"];
 
 const segwit = ["p2wpkh", "p2sh-p2wpkh", "bech32"];
+
+const ZCASH_VERSION_GROUP_ID: Record<number, number> = {
+  4: 0x892f2085,
+  5: 0x26a7270a,
+};
+
+const ZCASH_CONSENSUS_BRANCH_ID = 0x4dec4df0;
 
 type NonWitnessUtxo = Buffer;
 
@@ -79,6 +86,7 @@ export function MixinNativeBTCWalletInfo<TBase extends core.Constructor<core.HDW
         digibyte: [bip44, bip49, bip84],
         dogecoin: [bip44],
         litecoin: [bip44, bip49, bip84],
+        zcash: [bip44],
         testnet: [bip44, bip49, bip84],
       } as Partial<Record<string, Array<core.BTCAccountPath>>>;
 
@@ -190,12 +198,32 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const { coin, inputs, outputs, version, locktime } = msg;
 
+        const forkCoin = (() => {
+          switch (coin.toLowerCase()) {
+            case "bitcoincash":
+              return "bch";
+            case "zcash":
+              return "zec";
+            default:
+              return "none";
+          }
+        })();
+
         const psbt = new bitcoin.Psbt({
           network: core.getNetwork(coin, core.BTCOutputScriptType.PayToMultisig),
-          forkCoin: coin.toLowerCase() === "bitcoincash" ? "bch" : "none",
+          forkCoin,
         });
 
-        psbt.setVersion(version ?? 1);
+        if (coin.toLowerCase() === "zcash") {
+          const versionGroupId = ZCASH_VERSION_GROUP_ID[version ?? 5];
+          if (!versionGroupId) throw new Error(`Unsupported version: ${version}`);
+          psbt.setVersion(version ?? 5);
+          psbt.setVersionGroupId(versionGroupId);
+          psbt.setConsensusBranchId(ZCASH_CONSENSUS_BRANCH_ID);
+        } else {
+          psbt.setVersion(version ?? 1);
+        }
+
         locktime && psbt.setLocktime(locktime);
 
         await Promise.all(

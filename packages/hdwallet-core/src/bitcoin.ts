@@ -518,7 +518,10 @@ export function validateVoutOrdering(msg: BTCSignTxNative, tx: bitcoin.Transacti
   }
   // Check and make sure vout:2 has OP_RETURN data
   const opcode = bitcoin.script.decompile(tx.outs[2].script)?.[0];
-  if (Object.keys(bitcoin.script.OPS).find((k) => bitcoin.script.OPS[k] === opcode) != "OP_RETURN") {
+  if (
+    Object.keys(bitcoin.script.OPS).find((k) => bitcoin.script.OPS[k as keyof typeof bitcoin.script.OPS] === opcode) !=
+    "OP_RETURN"
+  ) {
     console.error("OP_RETURN output not found for transaction.");
     return false;
   }
