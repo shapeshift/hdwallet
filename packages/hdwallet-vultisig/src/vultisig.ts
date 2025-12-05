@@ -210,6 +210,7 @@ export class VultisigHDWallet
   readonly _supportsArbitrumNova = false;
   readonly _supportsBase = true;
   readonly _supportsMonad = false;
+  readonly _supportsPlasma = false;
   readonly _supportsBSC = true;
   readonly _supportsSolana = true;
   readonly _supportsThorchain = true;

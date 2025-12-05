@@ -62,6 +62,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     readonly _supportsArbitrumNova = true;
     readonly _supportsBase = true;
     readonly _supportsMonad = true;
+    readonly _supportsPlasma = true;
     readonly _supportsEthSwitchChain = false;
 
     #ethSigner: SignerAdapter | undefined;
