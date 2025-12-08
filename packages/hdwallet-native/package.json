@@ -26,6 +26,7 @@
     "bip32": "^2.0.5",
     "bip39": "^3.0.2",
     "bnb-javascript-sdk-nobroadcast": "2.16.15",
+    "bs58check": "^4.0.0",
     "crypto-js": "^4.0.0",
     "ecpair": "^3.0.0-rc.0",
     "eip-712": "^1.0.0",
