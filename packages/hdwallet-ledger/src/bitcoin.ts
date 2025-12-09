@@ -412,19 +412,11 @@ export async function btcSignTx(
   if (txs.length !== indexes.length) throw new Error("tx/index array length mismatch");
   const sequences = msg.coin === "Zcash" ? indexes.map(() => 0) : [];
 
-  // For Zcash, pass blockHeight of each input transaction as 5th parameter
-  // This is used by Ledger to determine the correct consensus branch ID per input
-  const blockHeights =
-    msg.coin === "Zcash" ? msg.inputs.map((input) => (input as any).blockHeight as number | undefined) : [];
-
-  console.log(`[${msg.coin} Ledger] blockHeights for inputs:`, blockHeights);
-
-  const inputs =
-    msg.coin === "Zcash"
-      ? (zip(txs, indexes, [], sequences, blockHeights) as Array<
-          [Transaction, number, undefined, number | undefined, number | undefined]
-        >)
-      : (zip(txs, indexes, [], sequences) as Array<[Transaction, number, undefined, number | undefined]>);
+  // For Zcash, DON'T pass blockHeight in inputs array since we pre-set consensusBranchId
+  // on the split transaction above
+  const inputs = (zip(txs, indexes, [], sequences) as Array<
+    [Transaction, number, undefined, number | undefined]
+  >);
 
   const txArgs: CreateTransactionArg = {
     inputs,
