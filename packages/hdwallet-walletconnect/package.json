@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-walletconnect",
-  "version": "1.62.24-alpha-ledger-tron.1",
+  "version": "1.62.24",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,10 +15,9 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.24-alpha-ledger-tron.1",
+    "@shapeshiftoss/hdwallet-core": "1.62.24",
     "@walletconnect/qrcode-modal": "^1.7.8",
     "@walletconnect/web3-provider": "^1.7.8",
     "ethers": "^5.6.5"
-  },
-  "gitHead": "929622fc6fadb86c39290ba653291893ce3e7662"
+  }
 }
