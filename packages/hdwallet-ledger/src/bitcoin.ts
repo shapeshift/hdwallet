@@ -8,7 +8,7 @@ import Base64 from "base64-js";
 import * as bchAddr from "bchaddrjs";
 import * as bitcoinMsg from "bitcoinjs-message";
 import zip from "lodash/zip";
-import { bitgo, networks as bitgoNetworks } from "@bitgo/utxo-lib";
+import { bitgo, networks as bitgoNetworks, address as zcashAddress } from "@bitgo/utxo-lib";
 import { ZcashTransaction, type ZcashPsbt } from "@bitgo/utxo-lib/dist/src/bitgo";
 
 import { currencies } from "./currencies";
@@ -222,7 +222,14 @@ export async function btcSignTx(
     if (msg.coin === "BitcoinCash" && bchAddr.isCashAddress(outputAddress)) {
       outputAddress = bchAddr.toLegacyAddress(outputAddress);
     }
-    psbt.addOutput({ address: outputAddress, value: BigInt(output.amount) });
+
+    // For Zcash, BitGo's PSBT expects { script, value } not { address, value }
+    if (msg.coin === "Zcash") {
+      const script = zcashAddress.toOutputScript(outputAddress, bitgoNetworks.zcash);
+      psbt.addOutput({ script: Buffer.from(script), value: BigInt(output.amount) });
+    } else {
+      psbt.addOutput({ address: outputAddress, value: BigInt(output.amount) });
+    }
   }
 
   if (msg.opReturnData) {

@@ -1,6 +1,6 @@
 {
   "lerna": "5.2.0",
-  "version": "1.62.24-ledger-zcash.22",
+  "version": "1.62.24-ledger-zcash.23",
   "npmClient": "yarn",
   "useWorkspaces": true,
   "command": {
