@@ -297,7 +297,8 @@ export async function btcSignTx(
 
   // For Zcash, set version defaults after all outputs are added
   if (msg.coin === "Zcash") {
-    (psbt as ZcashPsbt).setDefaultsForVersion(bitgoNetworks.zcash, ZcashTransaction.VERSION4_BRANCH_NU6_1);
+    // Try VERSION5_BRANCH_NU6_1 instead of VERSION4
+    (psbt as ZcashPsbt).setDefaultsForVersion(bitgoNetworks.zcash, ZcashTransaction.VERSION5_BRANCH_NU6_1);
   }
 
   // For Zcash, use the globalMap.unsignedTx like SwapKit does
