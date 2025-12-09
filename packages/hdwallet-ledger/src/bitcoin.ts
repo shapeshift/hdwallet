@@ -49,11 +49,30 @@ export async function btcGetAddress(transport: LedgerTransport, msg: core.BTCGet
     format: translateScriptType(scriptTypeish),
   };
 
-  const res = await transport.call("Btc", "getWalletPublicKey", bip32path, opts);
-  handleError(res, transport, "Unable to obtain BTC address from device");
+  console.log(`[${msg.coin} Ledger] btcGetAddress called with:`, {
+    addressNList: msg.addressNList,
+    bip32path,
+    scriptType: msg.scriptType,
+    showDisplay: !!msg.showDisplay,
+    opts,
+  });
 
-  const address = res.payload.bitcoinAddress;
-  return msg.coin.toLowerCase() === "bitcoincash" ? bchAddr.toCashAddress(address) : address;
+  try {
+    const res = await transport.call("Btc", "getWalletPublicKey", bip32path, opts);
+    handleError(res, transport, "Unable to obtain BTC address from device");
+
+    const address = res.payload.bitcoinAddress;
+    const finalAddress = msg.coin.toLowerCase() === "bitcoincash" ? bchAddr.toCashAddress(address) : address;
+
+    console.log(`[${msg.coin} Ledger] btcGetAddress result:`, {
+      address: finalAddress,
+    });
+
+    return finalAddress;
+  } catch (error) {
+    console.error(`[${msg.coin} Ledger] btcGetAddress error:`, error);
+    throw error;
+  }
 }
 
 // Adapted from https://github.com/LedgerHQ/ledger-wallet-webtool
@@ -143,6 +162,14 @@ export async function btcSignTx(
 ): Promise<core.BTCSignedTx> {
   const supportsSecureTransfer = await wallet.btcSupportsSecureTransfer();
   const slip44 = core.mustBeDefined(core.slip44ByCoin(msg.coin));
+
+  console.log(`[${msg.coin} Ledger] btcSignTx called with:`, {
+    coin: msg.coin,
+    inputsCount: msg.inputs.length,
+    outputsCount: msg.outputs.length,
+    slip44,
+    networkConfig: networksUtil[slip44],
+  });
   // instantiation of ecc lib required for taproot sends https://github.com/bitcoinjs/bitcoinjs-lib/issues/1889#issuecomment-1443792692
   bitcoin.initEccLib(ecc);
   const psbt = new bitcoin.Psbt({ network: networksUtil[slip44].bitcoinjs as bitcoin.Network });
@@ -189,11 +216,25 @@ export async function btcSignTx(
   }
 
   const unsignedHex = Buffer.from(psbt.data.getTransaction()).toString("hex");
+
+  console.log(`[${msg.coin} Ledger] Splitting unsigned transaction:`, {
+    unsignedHexLength: unsignedHex.length,
+    unsignedHexSample: unsignedHex.substring(0, 64),
+  });
+
   const splitTxRes = await transport.call("Btc", "splitTransaction", unsignedHex);
   handleError(splitTxRes, transport, "splitTransaction failed");
+
+  console.log(`[${msg.coin} Ledger] Split unsigned tx successful`);
+
   const outputScriptRes = await transport.call("Btc", "serializeTransactionOutputs", splitTxRes.payload);
   handleError(outputScriptRes, transport, "serializeTransactionOutputs failed");
   const outputScriptHex = outputScriptRes.payload.toString("hex");
+
+  console.log(`[${msg.coin} Ledger] Output script hex:`, {
+    outputScriptHexLength: outputScriptHex.length,
+    outputScriptHexSample: outputScriptHex.substring(0, 64),
+  });
 
   for (let i = 0; i < msg.inputs.length; i++) {
     if (
@@ -206,14 +247,30 @@ export async function btcSignTx(
 
     const vout = msg.inputs[i].vout;
 
+    console.log(`[${msg.coin} Ledger] Processing input ${i}:`, {
+      vout,
+      keySet,
+      scriptType: msg.inputs[i].scriptType,
+      inputHexLength: msg.inputs[i].hex.length,
+      inputHexSample: msg.inputs[i].hex.substring(0, 64),
+      splitTransactionParams: {
+        isSegwitSupported: networksUtil[slip44].isSegwitSupported,
+        hasExtraData: msg.coin === "Zcash" ? true : networksUtil[slip44].areTransactionTimestamped,
+        additionals: networksUtil[slip44].additionals || [],
+      },
+    });
+
     const tx = await transport.call(
       "Btc",
       "splitTransaction",
       msg.inputs[i].hex,
-      networksUtil[slip44].isSegwitSupported,
-      networksUtil[slip44].areTransactionTimestamped
+      msg.coin === "Zcash" ? true : networksUtil[slip44].isSegwitSupported,
+      msg.coin === "Zcash" ? true : networksUtil[slip44].areTransactionTimestamped,
+      networksUtil[slip44].additionals || []
     );
     handleError(tx, transport, "splitTransaction failed");
+
+    console.log(`[${msg.coin} Ledger] Input ${i} split successful`);
 
     indexes.push(vout);
     txs.push(tx.payload);
@@ -229,14 +286,21 @@ export async function btcSignTx(
     outputScriptHex,
     additionals: (() => {
       if (msg.coin === "BitcoinCash") return ["abc"];
-      if (msg.coin === "Zcash") return ["sapling"];
+      if (msg.coin === "Zcash") return ["zcash", "sapling"];
       if (msg.inputs.some((input) => input.scriptType === core.BTCInputScriptType.SpendWitness)) return ["bech32"];
 
       return [];
     })(),
     segwit,
     useTrustedInputForSegwit: Boolean(segwit),
-    expiryHeight: msg.coin === "Zcash" ? Buffer.from("00000000", "hex") : undefined,
+    expiryHeight: msg.coin === "Zcash"
+      ? (() => {
+          const expiryBlock = 3146425;
+          const buffer = Buffer.alloc(4);
+          buffer.writeUInt32LE(expiryBlock, 0);
+          return buffer;
+        })()
+      : undefined,
   };
 
   // "invalid data received" error from Ledger if not done this way:
@@ -244,13 +308,32 @@ export async function btcSignTx(
     txArgs.sigHashType = networksUtil[slip44].sigHash;
   }
 
-  const signedTx = await transport.call("Btc", "createPaymentTransaction", txArgs);
-  handleError(signedTx, transport, "Could not sign transaction with device");
+  console.log(`[${msg.coin} Ledger] Creating payment transaction with args:`, {
+    inputsCount: txArgs.inputs.length,
+    associatedKeysetsCount: txArgs.associatedKeysets.length,
+    additionals: txArgs.additionals,
+    segwit: txArgs.segwit,
+    expiryHeight: txArgs.expiryHeight?.toString("hex"),
+    sigHashType: txArgs.sigHashType,
+  });
 
-  return {
-    serializedTx: signedTx.payload,
-    signatures: [],
-  };
+  try {
+    const signedTx = await transport.call("Btc", "createPaymentTransaction", txArgs);
+    handleError(signedTx, transport, "Could not sign transaction with device");
+
+    console.log(`[${msg.coin} Ledger] Transaction signed successfully:`, {
+      serializedTxLength: signedTx.payload.length,
+      serializedTxSample: signedTx.payload.substring(0, 64),
+    });
+
+    return {
+      serializedTx: signedTx.payload,
+      signatures: [],
+    };
+  } catch (error) {
+    console.error(`[${msg.coin} Ledger] btcSignTx error:`, error);
+    throw error;
+  }
 }
 
 export async function btcSupportsSecureTransfer(): Promise<boolean> {

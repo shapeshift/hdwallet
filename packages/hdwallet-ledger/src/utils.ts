@@ -484,6 +484,7 @@ export const networksUtil: Record<number, NetworkMagic> = {
     isSegwitSupported: false,
     handleFeePerByte: false,
     areTransactionTimestamped: undefined,
+    additionals: ["zcash", "sapling"],
   },
   141: {
     name: "komodo",

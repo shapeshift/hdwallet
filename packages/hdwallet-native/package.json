@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-native",
-  "version": "1.62.23",
+  "version": "1.62.24-ledger-zcash.7",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -17,7 +17,7 @@
     "@bitcoinerlab/secp256k1": "^1.1.1",
     "@noble/curves": "^1.4.0",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
-    "@shapeshiftoss/hdwallet-core": "1.62.23",
+    "@shapeshiftoss/hdwallet-core": "^1.62.24-ledger-zcash.7",
     "@shapeshiftoss/proto-tx-builder": "0.10.0",
     "@zxing/text-encoding": "^0.9.0",
     "bchaddrjs": "^0.4.9",
@@ -26,6 +26,7 @@
     "bip32": "^2.0.5",
     "bip39": "^3.0.2",
     "bnb-javascript-sdk-nobroadcast": "2.16.15",
+    "bs58check": "^4.0.0",
     "crypto-js": "^4.0.0",
     "ecpair": "^3.0.0-rc.0",
     "eip-712": "^1.0.0",

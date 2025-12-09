@@ -1751,6 +1751,23 @@
     tiny-secp256k1 "1.1.6"
     varuint-bitcoin "1.1.2"
 
+"@ledgerhq/hw-app-btc@^10.13.0":
+  version "10.13.0"
+  resolved "http://127.0.0.1:4873/@ledgerhq/hw-app-btc/-/hw-app-btc-10.13.0.tgz#161171c9ba70ea3746a521cb0e4e53e99f6e8eee"
+  integrity sha512-zloeQj0yrAVbZBPxdkafihUPOb40sCh4hmDsMbwKRf8ik3binozzXKsluQQNFd6Pd77tIImXLdRZRHCwFOIVFQ==
+  dependencies:
+    "@ledgerhq/hw-transport" "6.31.13"
+    "@ledgerhq/logs" "^6.13.0"
+    "@noble/curves" "1.9.7"
+    "@noble/hashes" "1.8.0"
+    bip32-path "^0.4.2"
+    bitcoinjs-lib "^5.2.0"
+    bs58 "^4.0.1"
+    bs58check "^2.1.2"
+    invariant "^2.2.4"
+    semver "^7.3.5"
+    varuint-bitcoin "1.1.2"
+
 "@ledgerhq/hw-app-cosmos@^6.32.4":
   version "6.32.4"
   resolved "https://registry.yarnpkg.com/@ledgerhq/hw-app-cosmos/-/hw-app-cosmos-6.32.4.tgz#657863c6aabb53ab723058d2305fe62298b4a5b5"
@@ -3176,7 +3193,7 @@
   dependencies:
     "@noble/hashes" "1.8.0"
 
-"@noble/curves@^1.0.0":
+"@noble/curves@1.9.7", "@noble/curves@^1.0.0":
   version "1.9.7"
   resolved "https://registry.yarnpkg.com/@noble/curves/-/curves-1.9.7.tgz#79d04b4758a43e4bca2cbdc62e7771352fa6b951"
   integrity sha512-gbKGcRUYIjA3/zCCNaWDciTMFI0dCkvou3TL8Zmy5Nc7sJ47a0jtOeZoTaMxkuqRo9cRhjOdZJXegxYE5FN/xw==
@@ -4121,6 +4138,21 @@
     uuid "^8.3.2"
     ws "^8.8.0"
 
+"@shapeshiftoss/hdwallet-core@1.62.23", "@shapeshiftoss/hdwallet-core@^1.55.1":
+  version "1.62.23"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.62.23.tgz#59761309074f388b9a63ad92360fa5d6a5d7ffcb"
+  integrity sha512-QwEQ14hijNicVz2EDaC/VH9AFCocAonR70xBNxVpLm5w0RpCmKDJIBzXS3BRkIIY2VWItKmYCYJKXrRebExzXg==
+  dependencies:
+    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.2"
+    "@shapeshiftoss/proto-tx-builder" "0.10.0"
+    "@solana/web3.js" "1.95.8"
+    eip-712 "^1.0.0"
+    ethers "5.7.2"
+    eventemitter2 "^5.0.1"
+    lodash "^4.17.21"
+    rxjs "^6.4.0"
+    type-assertions "^1.1.0"
+
 "@shapeshiftoss/hdwallet-core@latest":
   version "1.56.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.56.0.tgz#6c14a2dc7eb394d1a927999f549c15eb8bd42421"
@@ -4134,6 +4166,36 @@
     lodash "^4.17.21"
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
+
+"@shapeshiftoss/hdwallet-native@^1.55.1":
+  version "1.62.23"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.62.23.tgz#e90db0b84f1c00f3bbba391f9bd7b46e473a2d4c"
+  integrity sha512-M2FGkC5HFOTIRyXkB+CFmW//OJT6DNPf2evT9yMurd0sf5RSHuCc2wk38ioEFrI9GPq3p1/sCSML1OdgkdFQ1w==
+  dependencies:
+    "@bitcoinerlab/secp256k1" "^1.1.1"
+    "@noble/curves" "^1.4.0"
+    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.2"
+    "@shapeshiftoss/hdwallet-core" "1.62.23"
+    "@shapeshiftoss/proto-tx-builder" "0.10.0"
+    "@zxing/text-encoding" "^0.9.0"
+    bchaddrjs "^0.4.9"
+    bech32 "^1.1.4"
+    bignumber.js "^9.0.1"
+    bip32 "^2.0.5"
+    bip39 "^3.0.2"
+    bnb-javascript-sdk-nobroadcast "2.16.15"
+    crypto-js "^4.0.0"
+    ecpair "^3.0.0-rc.0"
+    eip-712 "^1.0.0"
+    ethers "5.7.2"
+    eventemitter2 "^5.0.1"
+    funtypes "^3.0.1"
+    hash-wasm "^4.11.0"
+    lodash "^4.17.21"
+    node-fetch "^2.6.1"
+    p-lazy "^3.1.0"
+    scrypt-js "^3.0.1"
+    tendermint-tx-builder "1.0.16"
 
 "@shapeshiftoss/logger@^1.1.2", "@shapeshiftoss/logger@^1.1.3":
   version "1.1.3"
@@ -7577,7 +7639,7 @@ bs58@^5.0.0:
   dependencies:
     base-x "^4.0.0"
 
-bs58check@2.1.2, bs58check@<3.0.0, bs58check@^2.0.0, bs58check@^2.1.1, bs58check@^2.1.2:
+bs58check@<3.0.0, bs58check@^2.0.0, bs58check@^2.1.1, bs58check@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/bs58check/-/bs58check-2.1.2.tgz#53b018291228d82a5aa08e7d796fdafda54aebfc"
   integrity sha512-0TS1jicxdU09dwJMNZtVAfzPi6Q6QeN0pM1Fkzrjn+XYHvzMKPU3pHVpva+769iNVSfIYWf7LJ6WR+BuuMf8cA==

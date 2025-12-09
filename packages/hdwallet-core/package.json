@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-core",
-  "version": "1.62.23",
+  "version": "1.62.24-ledger-zcash.7",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -17,6 +17,7 @@
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
     "@shapeshiftoss/proto-tx-builder": "0.10.0",
     "@solana/web3.js": "1.95.8",
+    "bs58check": "^4.0.0",
     "eip-712": "^1.0.0",
     "ethers": "5.7.2",
     "eventemitter2": "^5.0.1",
