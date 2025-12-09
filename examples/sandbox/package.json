@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-sandbox",
-  "version": "1.62.26-ledger-zcash.14",
+  "version": "1.62.26-ledger-zcash.15",
   "license": "MIT",
   "private": true,
   "browserslist": "> 0.5%, last 2 versions, not dead",
