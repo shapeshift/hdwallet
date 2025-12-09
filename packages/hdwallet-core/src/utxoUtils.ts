@@ -1,4 +1,4 @@
-import { decode, encode } from "bs58check";
+import bs58check from "bs58check";
 
 import { BTCInputScriptType } from "./bitcoin";
 
@@ -70,7 +70,7 @@ export function convertXpubVersion(xpub: string, accountType: UtxoAccountType | 
   if (!accountType) return xpub;
   if (!convertVersions.includes(xpub.substring(0, 4))) return xpub;
 
-  const payload = decode(xpub);
+  const payload = Buffer.from(bs58check.decode(xpub));
   const version = payload.subarray(0, 4);
   const desiredVersion = accountTypeToVersion(coin, accountType);
 
@@ -78,7 +78,7 @@ export function convertXpubVersion(xpub: string, accountType: UtxoAccountType | 
     // Get the key without the version code at the front
     const key = payload.subarray(4);
 
-    return encode(Buffer.concat([desiredVersion, key]));
+    return bs58check.encode(Buffer.concat([desiredVersion, key]));
   }
 
   return xpub;
