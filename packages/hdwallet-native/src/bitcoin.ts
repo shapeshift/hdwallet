@@ -198,6 +198,14 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
       return this.needsMnemonic(!!this.#masterKey, async () => {
         const { coin, inputs, outputs, version, locktime } = msg;
 
+        console.log(`[${coin} Native] btcSignTx called:`, JSON.stringify({
+          coin,
+          inputsCount: inputs.length,
+          outputsCount: outputs.length,
+          version,
+          locktime,
+        }, null, 2));
+
         const forkCoin = (() => {
           switch (coin.toLowerCase()) {
             case "bitcoincash":
@@ -314,6 +322,15 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
             return Buffer.from(input.script.slice(1, sigLen)).toString("hex");
           }
         });
+
+        console.log(`[${coin} Native] Transaction built:`, JSON.stringify({
+          serializedTxLength: tx.toHex().length,
+          serializedTxSample: tx.toHex().substring(0, 64),
+          version: tx.version,
+          locktime: tx.locktime,
+        }, null, 2));
+
+        console.log(`[${coin} Native] FULL TRANSACTION HEX:`, tx.toHex());
 
         return {
           signatures,
