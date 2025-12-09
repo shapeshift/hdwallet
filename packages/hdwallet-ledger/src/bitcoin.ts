@@ -13,7 +13,7 @@ import { currencies } from "./currencies";
 import { LedgerTransport } from "./transport";
 import { handleError, networksUtil, translateScriptType } from "./utils";
 
-export const supportedCoins = ["Testnet", "Bitcoin", "BitcoinCash", "Litecoin", "Dash", "DigiByte", "Dogecoin"];
+export const supportedCoins = ["Testnet", "Bitcoin", "BitcoinCash", "Litecoin", "Dash", "DigiByte", "Dogecoin", "Zcash"];
 
 const segwitCoins = ["Bitcoin", "DigiByte", "Litecoin", "BitcoinGold", "Testnet"];
 
@@ -229,12 +229,14 @@ export async function btcSignTx(
     outputScriptHex,
     additionals: (() => {
       if (msg.coin === "BitcoinCash") return ["abc"];
+      if (msg.coin === "Zcash") return ["sapling"];
       if (msg.inputs.some((input) => input.scriptType === core.BTCInputScriptType.SpendWitness)) return ["bech32"];
 
       return [];
     })(),
     segwit,
     useTrustedInputForSegwit: Boolean(segwit),
+    expiryHeight: msg.coin === "Zcash" ? Buffer.from("00000000", "hex") : undefined,
   };
 
   // "invalid data received" error from Ledger if not done this way:
