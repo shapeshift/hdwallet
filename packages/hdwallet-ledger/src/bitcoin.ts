@@ -404,7 +404,10 @@ export async function btcSignTx(
   }
 
   if (txs.length !== indexes.length) throw new Error("tx/index array length mismatch");
-  const sequences = msg.coin === "Zcash" ? indexes.map(() => 0) : [];
+  
+  // For all coins (including Zcash), use empty sequences array to let Ledger use DEFAULT_SEQUENCE (0xffffffff)
+  // Setting sequence to 0 would enable RBF/locktime which causes issues
+  const sequences: number[] = [];
 
   // For Zcash, DON'T pass blockHeight in inputs array since we pre-set consensusBranchId
   // on the split transaction above
