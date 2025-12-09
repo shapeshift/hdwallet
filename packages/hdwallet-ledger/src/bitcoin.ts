@@ -3,9 +3,9 @@ import { address as zcashAddress, bitgo, networks as bitgoNetworks } from "@bitg
 import { type ZcashPsbt, ZcashTransaction } from "@bitgo/utxo-lib/dist/src/bitgo";
 import { CreateTransactionArg } from "@ledgerhq/hw-app-btc/lib/createTransaction";
 import { Transaction } from "@ledgerhq/hw-app-btc/lib/types";
+import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { BTCInputScriptType, convertXpubVersion, scriptTypeToAccountType } from "@shapeshiftoss/hdwallet-core";
-import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import Base64 from "base64-js";
 import * as bchAddr from "bchaddrjs";
 import * as bitcoinMsg from "bitcoinjs-message";
@@ -28,21 +28,27 @@ try {
     transport: any,
     indexLookup: number,
     transaction: Transaction & { _customZcashTxId?: string; _customZcashAmount?: string },
-    additionals: Array<string>
+    additionals: Array<string>,
+    ...args: any[]
   ) {
-    if (additionals && additionals.includes("zcash") && transaction._customZcashTxId && transaction._customZcashAmount) {
+    if (
+      additionals &&
+      additionals.includes("zcash") &&
+      transaction._customZcashTxId &&
+      transaction._customZcashAmount
+    ) {
       const txid = transaction._customZcashTxId;
       const amount = transaction._customZcashAmount;
 
-      const hash = Buffer.from(txid, 'hex').reverse();
+      const hash = Buffer.from(txid, "hex").reverse();
       const data = Buffer.alloc(4);
       data.writeUInt32LE(indexLookup, 0);
       const amountBuf = Buffer.alloc(8);
       amountBuf.writeBigUInt64LE(BigInt(amount));
 
-      return Buffer.concat([hash, data, amountBuf]).toString('hex');
+      return Buffer.concat([hash, data, amountBuf]).toString("hex");
     }
-    return originGetTrustedInputBIP143.apply(this, arguments);
+    return originGetTrustedInputBIP143.call(this, transport, indexLookup, transaction, additionals, ...args);
   };
 } catch (e) {
   console.error("[Zcash Ledger] Failed to patch getTrustedInputBIP143:", e);
@@ -50,7 +56,7 @@ try {
 
 import { currencies } from "./currencies";
 import { LedgerTransport } from "./transport";
-import { networksUtil, translateScriptType, handleError } from "./utils";
+import { handleError, networksUtil, translateScriptType } from "./utils";
 
 export const supportedCoins = [
   "Testnet",
@@ -97,16 +103,12 @@ export async function btcGetAddress(transport: LedgerTransport, msg: core.BTCGet
     format: translateScriptType(scriptTypeish),
   };
 
-
-
   try {
     const res = await transport.call("Btc", "getWalletPublicKey", bip32path, opts);
     handleError(res, transport, "Unable to obtain BTC address from device");
 
     const address = res.payload.bitcoinAddress;
     const finalAddress = msg.coin.toLowerCase() === "bitcoincash" ? bchAddr.toCashAddress(address) : address;
-
-
 
     return finalAddress;
   } catch (error) {
@@ -280,14 +282,16 @@ export async function btcSignTx(
   }
 
   // For Zcash, use the globalMap.unsignedTx like SwapKit does
-  const unsignedHex = msg.coin === "Zcash"
-    ? psbt.data.globalMap.unsignedTx.toBuffer().toString("hex")
-    : Buffer.from(psbt.data.getTransaction()).toString("hex");
+  const unsignedHex =
+    msg.coin === "Zcash"
+      ? psbt.data.globalMap.unsignedTx.toBuffer().toString("hex")
+      : Buffer.from(psbt.data.getTransaction()).toString("hex");
 
   // For Zcash, pass the same parameters as we do for input transactions
-  const splitTxRes = msg.coin === "Zcash"
-    ? await transport.call("Btc", "splitTransaction", unsignedHex, true, true, ["zcash", "sapling"])
-    : await transport.call("Btc", "splitTransaction", unsignedHex);
+  const splitTxRes =
+    msg.coin === "Zcash"
+      ? await transport.call("Btc", "splitTransaction", unsignedHex, true, true, ["zcash", "sapling"])
+      : await transport.call("Btc", "splitTransaction", unsignedHex);
   handleError(splitTxRes, transport, "splitTransaction failed");
 
   const outputScriptRes = await transport.call("Btc", "serializeTransactionOutputs", splitTxRes.payload);
@@ -336,13 +340,16 @@ export async function btcSignTx(
   // Build inputs array with 5 parameters: [tx, index, redeemScript, sequence, blockHeight]
   // For Zcash, the blockHeight (5th param) is CRITICAL - Ledger uses it to calculate consensusBranchId
   // for each input's signature validation
-  const inputs = msg.coin === "Zcash"
-    ? (Array.from({ length: txs.length }, (_, i) => [txs[i], indexes[i], undefined, undefined, blockHeights[i]]) as Array<
-      [Transaction, number, undefined, undefined, number | undefined]
-    >)
-    : (zip(txs, indexes, [], sequences) as Array<
-      [Transaction, number, undefined, number | undefined]
-    >);
+  const inputs =
+    msg.coin === "Zcash"
+      ? (Array.from({ length: txs.length }, (_, i) => [
+        txs[i],
+        indexes[i],
+        undefined,
+        undefined,
+        blockHeights[i],
+      ]) as Array<[Transaction, number, undefined, undefined, number | undefined]>)
+      : (zip(txs, indexes, [], sequences) as Array<[Transaction, number, undefined, number | undefined]>);
 
   // ZCASH MONKEY PATCH ACTIVATION:
   // We attach the correct TXID and Amount to the transaction object so our patched getTrustedInputBIP143 can find it.
@@ -372,9 +379,8 @@ export async function btcSignTx(
     useTrustedInputForSegwit: Boolean(segwit),
     // For Zcash, use the FIRST input's blockHeight as a reasonable current blockHeight
     // Ledger Live uses account.xpub.currentBlockHeight
-    blockHeight: msg.coin === "Zcash" && (msg.inputs[0] as any)?.blockHeight
-      ? (msg.inputs[0] as any).blockHeight
-      : undefined,
+    blockHeight:
+      msg.coin === "Zcash" && (msg.inputs[0] as any)?.blockHeight ? (msg.inputs[0] as any).blockHeight : undefined,
     expiryHeight: msg.coin === "Zcash" ? Buffer.alloc(4) : undefined,
   };
 
@@ -383,13 +389,9 @@ export async function btcSignTx(
     txArgs.sigHashType = networksUtil[slip44].sigHash;
   }
 
-
-
   try {
     const signedTx = await transport.call("Btc", "createPaymentTransaction", txArgs);
     handleError(signedTx, transport, "Could not sign transaction with device");
-
-
 
     return {
       serializedTx: signedTx.payload,

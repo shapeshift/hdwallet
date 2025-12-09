@@ -116,11 +116,11 @@ type BTCSignTxInputKKNonSegwit = BTCSignTxInputKKBase & {
   scriptType: Exclude<BTCInputScriptType, BTCSignTxInputKKSegwit["scriptType"]>;
 } & (
     | {
-      tx: BitcoinTx;
-    }
+        tx: BitcoinTx;
+      }
     | {
-      hex: string;
-    }
+        hex: string;
+      }
   );
 
 type BTCSignTxInputKKUnguarded = BTCSignTxInputKKNonSegwit | BTCSignTxInputKKSegwit;
