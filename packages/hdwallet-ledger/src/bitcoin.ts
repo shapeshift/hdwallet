@@ -1,4 +1,6 @@
 import ecc from "@bitcoinerlab/secp256k1";
+import { address as zcashAddress, bitgo, networks as bitgoNetworks } from "@bitgo/utxo-lib";
+import { type ZcashPsbt, ZcashTransaction } from "@bitgo/utxo-lib/dist/src/bitgo";
 import { CreateTransactionArg } from "@ledgerhq/hw-app-btc/lib/createTransaction";
 import { Transaction } from "@ledgerhq/hw-app-btc/lib/types";
 import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
@@ -8,14 +10,21 @@ import Base64 from "base64-js";
 import * as bchAddr from "bchaddrjs";
 import * as bitcoinMsg from "bitcoinjs-message";
 import zip from "lodash/zip";
-import { bitgo, networks as bitgoNetworks, address as zcashAddress } from "@bitgo/utxo-lib";
-import { ZcashTransaction, type ZcashPsbt } from "@bitgo/utxo-lib/dist/src/bitgo";
 
 import { currencies } from "./currencies";
 import { LedgerTransport } from "./transport";
 import { handleError, networksUtil, translateScriptType } from "./utils";
 
-export const supportedCoins = ["Testnet", "Bitcoin", "BitcoinCash", "Litecoin", "Dash", "DigiByte", "Dogecoin", "Zcash"];
+export const supportedCoins = [
+  "Testnet",
+  "Bitcoin",
+  "BitcoinCash",
+  "Litecoin",
+  "Dash",
+  "DigiByte",
+  "Dogecoin",
+  "Zcash",
+];
 
 const segwitCoins = ["Bitcoin", "DigiByte", "Litecoin", "BitcoinGold", "Testnet"];
 
@@ -51,13 +60,20 @@ export async function btcGetAddress(transport: LedgerTransport, msg: core.BTCGet
     format: translateScriptType(scriptTypeish),
   };
 
-  console.log(`[${msg.coin} Ledger] btcGetAddress called:`, JSON.stringify({
-    addressNList: msg.addressNList,
-    bip32path,
-    scriptType: msg.scriptType,
-    showDisplay: !!msg.showDisplay,
-    opts,
-  }, null, 2));
+  console.log(
+    `[${msg.coin} Ledger] btcGetAddress called:`,
+    JSON.stringify(
+      {
+        addressNList: msg.addressNList,
+        bip32path,
+        scriptType: msg.scriptType,
+        showDisplay: !!msg.showDisplay,
+        opts,
+      },
+      null,
+      2
+    )
+  );
 
   try {
     const res = await transport.call("Btc", "getWalletPublicKey", bip32path, opts);
@@ -66,9 +82,16 @@ export async function btcGetAddress(transport: LedgerTransport, msg: core.BTCGet
     const address = res.payload.bitcoinAddress;
     const finalAddress = msg.coin.toLowerCase() === "bitcoincash" ? bchAddr.toCashAddress(address) : address;
 
-    console.log(`[${msg.coin} Ledger] btcGetAddress result:`, JSON.stringify({
-      address: finalAddress,
-    }, null, 2));
+    console.log(
+      `[${msg.coin} Ledger] btcGetAddress result:`,
+      JSON.stringify(
+        {
+          address: finalAddress,
+        },
+        null,
+        2
+      )
+    );
 
     return finalAddress;
   } catch (error) {
@@ -165,33 +188,51 @@ export async function btcSignTx(
   const supportsSecureTransfer = await wallet.btcSupportsSecureTransfer();
   const slip44 = core.mustBeDefined(core.slip44ByCoin(msg.coin));
 
-  console.log(`[${msg.coin} Ledger] btcSignTx called:`, JSON.stringify({
-    coin: msg.coin,
-    inputsCount: msg.inputs.length,
-    outputsCount: msg.outputs.length,
-    slip44,
-  }, null, 2));
+  console.log(
+    `[${msg.coin} Ledger] btcSignTx called:`,
+    JSON.stringify(
+      {
+        coin: msg.coin,
+        inputsCount: msg.inputs.length,
+        outputsCount: msg.outputs.length,
+        slip44,
+      },
+      null,
+      2
+    )
+  );
 
-  console.log(`[${msg.coin} Ledger] Input details:`, JSON.stringify(msg.inputs.map((input, idx) => ({
-    index: idx,
-    vout: input.vout,
-    amount: input.amount,
-    blockHeight: (input as any).blockHeight,
-    addressNList: input.addressNList,
-    hexLength: input.hex?.length,
-    hexSample: input.hex?.substring(0, 100),
-  })), null, 2));
+  console.log(
+    `[${msg.coin} Ledger] Input details:`,
+    JSON.stringify(
+      msg.inputs.map((input, idx) => ({
+        index: idx,
+        vout: input.vout,
+        amount: input.amount,
+        blockHeight: (input as any).blockHeight,
+        addressNList: input.addressNList,
+        hexLength: input.hex?.length,
+        hexSample: input.hex?.substring(0, 100),
+      })),
+      null,
+      2
+    )
+  );
 
   // instantiation of ecc lib required for taproot sends https://github.com/bitcoinjs/bitcoinjs-lib/issues/1889#issuecomment-1443792692
   bitcoin.initEccLib(ecc);
 
   // For Zcash, use BitGo's PSBT which natively supports Zcash v5 transactions
-  const psbt = msg.coin === "Zcash"
-    ? bitgo.createPsbtForNetwork(
-        { network: bitgoNetworks.zcash },
-        { version: ZcashTransaction.VERSION4_BRANCH_NU6_1 }
-      ) as ZcashPsbt
-    : new bitcoin.Psbt({ network: networksUtil[slip44].bitcoinjs as bitcoin.Network });
+  const psbt =
+    msg.coin === "Zcash"
+      ? (bitgo.createPsbtForNetwork(
+          { network: bitgoNetworks.zcash },
+          { version: ZcashTransaction.VERSION4_BRANCH_NU6_1 }
+        ) as ZcashPsbt)
+      : new bitcoin.Psbt({ network: networksUtil[slip44].bitcoinjs as bitcoin.Network });
+
+  // eslint-disable-next-line no-console
+  console.log({ isZcash: msg.coin === "Zcash", psbt });
 
   const indexes: number[] = [];
   const txs: Transaction[] = [];
@@ -244,19 +285,23 @@ export async function btcSignTx(
 
   // For Zcash, set version defaults after all outputs are added
   if (msg.coin === "Zcash") {
-    (psbt as ZcashPsbt).setDefaultsForVersion(
-      bitgoNetworks.zcash,
-      ZcashTransaction.VERSION4_BRANCH_NU6_1
-    );
+    (psbt as ZcashPsbt).setDefaultsForVersion(bitgoNetworks.zcash, ZcashTransaction.VERSION4_BRANCH_NU6_1);
   }
 
   const unsignedTx = psbt.data.getTransaction();
   const unsignedHex = Buffer.from(unsignedTx).toString("hex");
 
-  console.log(`[${msg.coin} Ledger] Splitting unsigned transaction:`, JSON.stringify({
-    unsignedHexLength: unsignedHex.length,
-    unsignedHexSample: unsignedHex.substring(0, 64),
-  }, null, 2));
+  console.log(
+    `[${msg.coin} Ledger] Splitting unsigned transaction:`,
+    JSON.stringify(
+      {
+        unsignedHexLength: unsignedHex.length,
+        unsignedHexSample: unsignedHex.substring(0, 64),
+      },
+      null,
+      2
+    )
+  );
 
   const splitTxRes = await transport.call("Btc", "splitTransaction", unsignedHex);
   handleError(splitTxRes, transport, "splitTransaction failed");
@@ -267,10 +312,17 @@ export async function btcSignTx(
   handleError(outputScriptRes, transport, "serializeTransactionOutputs failed");
   const outputScriptHex = outputScriptRes.payload.toString("hex");
 
-  console.log(`[${msg.coin} Ledger] Output script hex:`, JSON.stringify({
-    outputScriptHexLength: outputScriptHex.length,
-    outputScriptHexSample: outputScriptHex.substring(0, 64),
-  }, null, 2));
+  console.log(
+    `[${msg.coin} Ledger] Output script hex:`,
+    JSON.stringify(
+      {
+        outputScriptHexLength: outputScriptHex.length,
+        outputScriptHexSample: outputScriptHex.substring(0, 64),
+      },
+      null,
+      2
+    )
+  );
 
   for (let i = 0; i < msg.inputs.length; i++) {
     if (
@@ -283,18 +335,25 @@ export async function btcSignTx(
 
     const vout = msg.inputs[i].vout;
 
-    console.log(`[${msg.coin} Ledger] Processing input ${i}:`, JSON.stringify({
-      vout,
-      keySet,
-      scriptType: msg.inputs[i].scriptType,
-      inputHexLength: msg.inputs[i].hex.length,
-      inputHexSample: msg.inputs[i].hex.substring(0, 64),
-      splitTransactionParams: {
-        isSegwitSupported: msg.coin === "Zcash" ? true : networksUtil[slip44].isSegwitSupported,
-        hasExtraData: msg.coin === "Zcash" ? true : networksUtil[slip44].areTransactionTimestamped,
-        additionals: networksUtil[slip44].additionals || [],
-      },
-    }, null, 2));
+    console.log(
+      `[${msg.coin} Ledger] Processing input ${i}:`,
+      JSON.stringify(
+        {
+          vout,
+          keySet,
+          scriptType: msg.inputs[i].scriptType,
+          inputHexLength: msg.inputs[i].hex.length,
+          inputHexSample: msg.inputs[i].hex.substring(0, 64),
+          splitTransactionParams: {
+            isSegwitSupported: msg.coin === "Zcash" ? true : networksUtil[slip44].isSegwitSupported,
+            hasExtraData: msg.coin === "Zcash" ? true : networksUtil[slip44].areTransactionTimestamped,
+            additionals: networksUtil[slip44].additionals || [],
+          },
+        },
+        null,
+        2
+      )
+    );
 
     const tx = await transport.call(
       "Btc",
@@ -318,15 +377,17 @@ export async function btcSignTx(
 
   // For Zcash, pass blockHeight of each input transaction as 5th parameter
   // This is used by Ledger to determine the correct consensus branch ID per input
-  const blockHeights = msg.coin === "Zcash"
-    ? msg.inputs.map((input) => (input as any).blockHeight as number | undefined)
-    : [];
+  const blockHeights =
+    msg.coin === "Zcash" ? msg.inputs.map((input) => (input as any).blockHeight as number | undefined) : [];
 
   console.log(`[${msg.coin} Ledger] blockHeights for inputs:`, blockHeights);
 
-  const inputs = msg.coin === "Zcash"
-    ? zip(txs, indexes, [], sequences, blockHeights) as Array<[Transaction, number, undefined, number | undefined, number | undefined]>
-    : zip(txs, indexes, [], sequences) as Array<[Transaction, number, undefined, number | undefined]>;
+  const inputs =
+    msg.coin === "Zcash"
+      ? (zip(txs, indexes, [], sequences, blockHeights) as Array<
+          [Transaction, number, undefined, number | undefined, number | undefined]
+        >)
+      : (zip(txs, indexes, [], sequences) as Array<[Transaction, number, undefined, number | undefined]>);
 
   const txArgs: CreateTransactionArg = {
     inputs,
@@ -350,25 +411,39 @@ export async function btcSignTx(
     txArgs.sigHashType = networksUtil[slip44].sigHash;
   }
 
-  console.log(`[${msg.coin} Ledger] createPaymentTransaction args:`, JSON.stringify({
-    inputsCount: txArgs.inputs.length,
-    associatedKeysetsCount: txArgs.associatedKeysets.length,
-    additionals: txArgs.additionals,
-    segwit: txArgs.segwit,
-    blockHeight: (txArgs as any).blockHeight,
-    expiryHeightHex: txArgs.expiryHeight?.toString("hex"),
-    expiryHeightDecimal: txArgs.expiryHeight?.readUInt32LE(0),
-    sigHashType: txArgs.sigHashType,
-  }, null, 2));
+  console.log(
+    `[${msg.coin} Ledger] createPaymentTransaction args:`,
+    JSON.stringify(
+      {
+        inputsCount: txArgs.inputs.length,
+        associatedKeysetsCount: txArgs.associatedKeysets.length,
+        additionals: txArgs.additionals,
+        segwit: txArgs.segwit,
+        blockHeight: (txArgs as any).blockHeight,
+        expiryHeightHex: txArgs.expiryHeight?.toString("hex"),
+        expiryHeightDecimal: txArgs.expiryHeight?.readUInt32LE(0),
+        sigHashType: txArgs.sigHashType,
+      },
+      null,
+      2
+    )
+  );
 
   try {
     const signedTx = await transport.call("Btc", "createPaymentTransaction", txArgs);
     handleError(signedTx, transport, "Could not sign transaction with device");
 
-    console.log(`[${msg.coin} Ledger] Transaction signed successfully:`, JSON.stringify({
-      serializedTxLength: signedTx.payload.length,
-      serializedTxSample: signedTx.payload.substring(0, 64),
-    }, null, 2));
+    console.log(
+      `[${msg.coin} Ledger] Transaction signed successfully:`,
+      JSON.stringify(
+        {
+          serializedTxLength: signedTx.payload.length,
+          serializedTxSample: signedTx.payload.substring(0, 64),
+        },
+        null,
+        2
+      )
+    );
 
     console.log(`[${msg.coin} Ledger] FULL TRANSACTION HEX:`, signedTx.payload);
 
