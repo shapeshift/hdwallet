@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-chromeusb",
-  "version": "1.62.26-ledger-zcash.8",
+  "version": "1.62.26-ledger-zcash.9",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.26-ledger-zcash.8",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.62.26-ledger-zcash.8"
+    "@shapeshiftoss/hdwallet-core": "^1.62.26-ledger-zcash.9",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.62.26-ledger-zcash.9"
   },
   "gitHead": "49c80282b955aa2cb35c387fa76df66428b73d29"
 }
