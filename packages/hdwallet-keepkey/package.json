@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey",
-  "version": "1.62.26-ledger-zcash.16",
+  "version": "1.62.25",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -21,7 +21,7 @@
     "@keepkey/device-protocol": "7.13.4",
     "@metamask/eth-sig-util": "^7.0.0",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
-    "@shapeshiftoss/hdwallet-core": "^1.62.26-ledger-zcash.16",
+    "@shapeshiftoss/hdwallet-core": "1.62.25",
     "@shapeshiftoss/proto-tx-builder": "0.10.0",
     "bignumber.js": "^9.0.1",
     "bnb-javascript-sdk-nobroadcast": "2.16.15",
@@ -44,6 +44,5 @@
     "@types/lodash": "^4.14.168",
     "@types/semver": "^6.2.2",
     "typedoc": "^0.20.36"
-  },
-  "gitHead": "7132cfe8dee1f2e809657df42542cd869bf7ee03"
+  }
 }

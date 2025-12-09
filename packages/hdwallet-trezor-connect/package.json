@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-trezor-connect",
-  "version": "1.62.26-ledger-zcash.16",
+  "version": "1.62.25",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,9 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.26-ledger-zcash.16",
-    "@shapeshiftoss/hdwallet-trezor": "^1.62.26-ledger-zcash.16",
+    "@shapeshiftoss/hdwallet-core": "1.62.25",
+    "@shapeshiftoss/hdwallet-trezor": "1.62.25",
     "@trezor/connect-web": "^9.6.4"
-  },
-  "gitHead": "7132cfe8dee1f2e809657df42542cd869bf7ee03"
+  }
 }
