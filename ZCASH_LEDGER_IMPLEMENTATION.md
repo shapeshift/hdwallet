@@ -4,8 +4,18 @@
 This document tracks the implementation of Zcash Ledger hardware wallet support in hdwallet, focusing on transparent address (t-address) transactions only.
 
 ## Current Status
-**Version**: 1.62.24-ledger-zcash.7
-**Status**: Testing - Upgraded hw-app-btc for NU6.1 support
+**Version**: 1.62.24-ledger-zcash.24
+**Status**: Implementing @bitgo/utxo-lib for proper Zcash v5 PSBT support
+
+### Latest Progress (Dec 9, 2025)
+- ✅ Switched to `@bitgo/utxo-lib` for Zcash Ledger (same approach as SwapKit)
+- ✅ BlockHeight passed per input for correct consensus branch ID
+- ✅ PSBT now creates Zcash v5 transactions (version `0x80000005`)
+- ⏳ Fixing output script format (BitGo PSBT requires `{ script, value }` not `{ address, value }`)
+
+### Debugging Tools
+- **Blockchair API**: Used as monkey-patch for broadcast testing (provides specific errors like "Missing inputs" vs unchained's generic "5000ms timeout")
+- **Transaction Analysis**: Comparing Native vs Ledger signed transactions byte-by-byte to identify differences
 
 ## Dependency Upgrade: @ledgerhq/hw-app-btc
 
