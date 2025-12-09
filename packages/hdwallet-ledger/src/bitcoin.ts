@@ -169,6 +169,16 @@ export async function btcSignTx(
     outputsCount: msg.outputs.length,
     slip44,
   }, null, 2));
+
+  console.log(`[${msg.coin} Ledger] Input details:`, JSON.stringify(msg.inputs.map((input, idx) => ({
+    index: idx,
+    vout: input.vout,
+    amount: input.amount,
+    addressNList: input.addressNList,
+    hexLength: input.hex?.length,
+    hexSample: input.hex?.substring(0, 100),
+  })), null, 2));
+
   // instantiation of ecc lib required for taproot sends https://github.com/bitcoinjs/bitcoinjs-lib/issues/1889#issuecomment-1443792692
   bitcoin.initEccLib(ecc);
   const psbt = new bitcoin.Psbt({ network: networksUtil[slip44].bitcoinjs as bitcoin.Network });
