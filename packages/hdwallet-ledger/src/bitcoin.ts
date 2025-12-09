@@ -226,9 +226,9 @@ export async function btcSignTx(
   const psbt =
     msg.coin === "Zcash"
       ? (bitgo.createPsbtForNetwork(
-          { network: bitgoNetworks.zcash },
-          { version: ZcashTransaction.VERSION4_BRANCH_NU6_1 }
-        ) as ZcashPsbt)
+        { network: bitgoNetworks.zcash },
+        { version: ZcashTransaction.VERSION4_BRANCH_NU6_1 }
+      ) as ZcashPsbt)
       : new bitcoin.Psbt({ network: networksUtil[slip44].bitcoinjs as bitcoin.Network });
 
   // eslint-disable-next-line no-console
@@ -237,6 +237,7 @@ export async function btcSignTx(
   const indexes: number[] = [];
   const txs: Transaction[] = [];
   const associatedKeysets: string[] = [];
+  const blockHeights: (number | undefined)[] = []; // For Zcash: blockHeight of each input
   let segwit = false;
 
   // DON'T add inputs to PSBT - Ledger handles inputs separately via splitTransaction
@@ -396,6 +397,11 @@ export async function btcSignTx(
         blockHeight,
         consensusBranchId: '0x' + branchId.toString('hex'),
       });
+
+      // Collect blockHeight for this input to pass as 5th parameter
+      blockHeights.push(blockHeight);
+    } else {
+      blockHeights.push(undefined);
     }
 
     indexes.push(vout);
@@ -404,16 +410,21 @@ export async function btcSignTx(
   }
 
   if (txs.length !== indexes.length) throw new Error("tx/index array length mismatch");
-  
+
   // For all coins (including Zcash), use empty sequences array to let Ledger use DEFAULT_SEQUENCE (0xffffffff)
   // Setting sequence to 0 would enable RBF/locktime which causes issues
   const sequences: number[] = [];
 
-  // For Zcash, DON'T pass blockHeight in inputs array since we pre-set consensusBranchId
-  // on the split transaction above
-  const inputs = (zip(txs, indexes, [], sequences) as Array<
-    [Transaction, number, undefined, number | undefined]
-  >);
+  // Build inputs array with 5 parameters: [tx, index, redeemScript, sequence, blockHeight]
+  // For Zcash, the blockHeight (5th param) is CRITICAL - Ledger uses it to calculate consensusBranchId
+  // for each input's signature validation
+  const inputs = msg.coin === "Zcash"
+    ? (Array.from({ length: txs.length }, (_, i) => [txs[i], indexes[i], undefined, undefined, blockHeights[i]]) as Array<
+      [Transaction, number, undefined, undefined, number | undefined]
+    >)
+    : (zip(txs, indexes, [], sequences) as Array<
+      [Transaction, number, undefined, number | undefined]
+    >);
 
   const txArgs: CreateTransactionArg = {
     inputs,
