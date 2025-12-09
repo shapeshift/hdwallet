@@ -15,18 +15,22 @@ import zip from "lodash/zip";
 // @ledgerhq/hw-app-btc calculates SHA256d hash for trusted inputs, but Zcash v5 uses ZIP-244 tree hash.
 // We patch getTrustedInputBIP143 to use the correct TXID provided by the adapter (via _customZcashTxId property)
 // instead of incorrectly re-hashing the simplified transaction buffer.
-/* eslint-disable @typescript-eslint/no-var-requires */
+//
+// NOTE: We use 'require' here because ES6 imports are read-only and immutable.
+// To successfully patch the function exported by the library so that internal calls use our version,
+// we must modify the CommonJS exports object directly.
 try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const getTrustedInputModule = require("@ledgerhq/hw-app-btc/lib/getTrustedInputBIP143");
   const originGetTrustedInputBIP143 = getTrustedInputModule.getTrustedInputBIP143;
 
   getTrustedInputModule.getTrustedInputBIP143 = function (
     transport: any,
     indexLookup: number,
-    transaction: any,
+    transaction: Transaction & { _customZcashTxId?: string; _customZcashAmount?: string },
     additionals: Array<string>
   ) {
-    if (additionals && additionals.includes("zcash") && transaction._customZcashTxId) {
+    if (additionals && additionals.includes("zcash") && transaction._customZcashTxId && transaction._customZcashAmount) {
       const txid = transaction._customZcashTxId;
       const amount = transaction._customZcashAmount;
 
@@ -43,7 +47,6 @@ try {
 } catch (e) {
   console.error("[Zcash Ledger] Failed to patch getTrustedInputBIP143:", e);
 }
-/* eslint-enable @typescript-eslint/no-var-requires */
 
 import { currencies } from "./currencies";
 import { LedgerTransport } from "./transport";
@@ -369,7 +372,8 @@ export async function btcSignTx(
     inputs.forEach((input, i) => {
       const tx = input[0] as any;
       if (tx && msg.inputs[i]) {
-        tx._customZcashTxId = msg.inputs[i].txid;
+        // Access txid via casting since it's not in the shared Ledger interface anymore
+        tx._customZcashTxId = (msg.inputs[i] as any).txid;
         tx._customZcashAmount = msg.inputs[i].amount;
       }
     });
