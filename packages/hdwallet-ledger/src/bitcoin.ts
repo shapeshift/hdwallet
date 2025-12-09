@@ -387,6 +387,13 @@ export async function btcSignTx(
 
     console.log(`[${msg.coin} Ledger] Input ${i} split successful`);
 
+    if (msg.coin === "Zcash") {
+      console.log(`[${msg.coin} Ledger] Split input ${i} consensusBranchId BEFORE createPaymentTransaction modifies it:`, JSON.stringify({
+        consensusBranchId: tx.payload.consensusBranchId ? '0x' + tx.payload.consensusBranchId.toString('hex') : 'undefined',
+        versionGroupId: tx.payload.nVersionGroupId ? '0x' + tx.payload.nVersionGroupId.toString('hex') : 'undefined',
+      }, null, 2));
+    }
+
     indexes.push(vout);
     txs.push(tx.payload);
     associatedKeysets.push(keySet);
