@@ -48,7 +48,6 @@
     "@types/bchaddrjs": "^0.4.0",
     "@types/big.js": "^6.0.2",
     "@types/bs58": "^4.0.1",
-    "@types/bs58check": "^2.1.0",
     "@types/crypto-js": "^4.0.0",
     "@types/elliptic": "^6.4.12",
     "@types/lodash": "^4.14.168",
