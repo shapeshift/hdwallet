@@ -481,9 +481,9 @@ export const networksUtil: Record<number, NetworkMagic> = {
       scriptHash: 0x1cbd,
       wif: 128,
     },
-    isSegwitSupported: false,
+    isSegwitSupported: true,
     handleFeePerByte: false,
-    areTransactionTimestamped: undefined,
+    areTransactionTimestamped: true,
     additionals: ["zcash", "sapling"],
   },
   141: {
