@@ -422,7 +422,11 @@ export async function btcSignTx(
     })(),
     segwit,
     useTrustedInputForSegwit: Boolean(segwit),
-    blockHeight: msg.coin === "Zcash" ? 3200000 : undefined,
+    // For Zcash, use the FIRST input's blockHeight as a reasonable current blockHeight
+    // Ledger Live uses account.xpub.currentBlockHeight
+    blockHeight: msg.coin === "Zcash" && (msg.inputs[0] as any)?.blockHeight
+      ? (msg.inputs[0] as any).blockHeight
+      : undefined,
     expiryHeight: msg.coin === "Zcash" ? Buffer.alloc(4) : undefined,
   };
 
