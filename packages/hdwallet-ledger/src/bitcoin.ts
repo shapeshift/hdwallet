@@ -300,8 +300,10 @@ export async function btcSignTx(
     (psbt as ZcashPsbt).setDefaultsForVersion(bitgoNetworks.zcash, ZcashTransaction.VERSION4_BRANCH_NU6_1);
   }
 
-  const unsignedTx = psbt.data.getTransaction();
-  const unsignedHex = Buffer.from(unsignedTx).toString("hex");
+  // For Zcash, use the globalMap.unsignedTx like SwapKit does
+  const unsignedHex = msg.coin === "Zcash"
+    ? psbt.data.globalMap.unsignedTx.toBuffer().toString("hex")
+    : Buffer.from(psbt.data.getTransaction()).toString("hex");
 
   console.log(
     `[${msg.coin} Ledger] Splitting unsigned transaction:`,
