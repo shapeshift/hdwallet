@@ -1,11 +1,11 @@
 import { pointCompress } from "@bitcoinerlab/secp256k1";
 import * as bech32 from "bech32";
-import * as bs58 from "bs58check";
+import bs58check from "bs58check";
 import CryptoJS from "crypto-js";
 
 export const getCompressedPubkey = (pubkey: string | Buffer): Buffer => {
   // Extended public key (xpub/ypub/zpub)
-  if (typeof pubkey === "string") return bs58.decode(pubkey).subarray(45, 78);
+  if (typeof pubkey === "string") return Buffer.from(bs58check.decode(pubkey).subarray(45, 78));
 
   // Already compressed public key (33 bytes)
   if (pubkey.length === 33) return pubkey;
