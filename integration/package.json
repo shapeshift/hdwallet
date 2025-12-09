@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/integration",
-  "version": "1.62.26-ledger-zcash.0",
+  "version": "1.62.26-ledger-zcash.2",
   "main": "index.js",
   "license": "MIT",
   "private": true,

@@ -239,6 +239,18 @@ export async function btcSignTx(
   const associatedKeysets: string[] = [];
   let segwit = false;
 
+  // For Zcash, add inputs to PSBT before outputs
+  if (msg.coin === "Zcash") {
+    for (const input of msg.inputs) {
+      // Add input to PSBT with nonWitnessUtxo (full transaction hex)
+      psbt.addInput({
+        hash: input.txid || "",
+        index: input.vout,
+        nonWitnessUtxo: Buffer.from(input.hex, "hex"),
+      });
+    }
+  }
+
   for (const output of msg.outputs) {
     let outputAddress: string;
     if (output.addressNList !== undefined && output.isChange) {
