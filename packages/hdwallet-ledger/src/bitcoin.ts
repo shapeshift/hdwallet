@@ -27,7 +27,6 @@ try {
     additionals: Array<string>
   ) {
     if (additionals && additionals.includes("zcash") && transaction._customZcashTxId) {
-      console.log("[Zcash Ledger] Using custom Zcash Trusted Input for TXID:", transaction._customZcashTxId);
       const txid = transaction._customZcashTxId;
       const amount = transaction._customZcashAmount;
 
@@ -42,7 +41,7 @@ try {
     return originGetTrustedInputBIP143.apply(this, arguments);
   };
 } catch (e) {
-  console.warn("[Zcash Ledger] Failed to patch getTrustedInputBIP143:", e);
+  console.error("[Zcash Ledger] Failed to patch getTrustedInputBIP143:", e);
 }
 /* eslint-enable @typescript-eslint/no-var-requires */
 
@@ -223,37 +222,6 @@ export async function btcSignTx(
   const supportsSecureTransfer = await wallet.btcSupportsSecureTransfer();
   const slip44 = core.mustBeDefined(core.slip44ByCoin(msg.coin));
 
-  console.log(
-    `[${msg.coin} Ledger] btcSignTx called:`,
-    JSON.stringify(
-      {
-        coin: msg.coin,
-        inputsCount: msg.inputs.length,
-        outputsCount: msg.outputs.length,
-        slip44,
-      },
-      null,
-      2
-    )
-  );
-
-  console.log(
-    `[${msg.coin} Ledger] Input details:`,
-    JSON.stringify(
-      msg.inputs.map((input, idx) => ({
-        index: idx,
-        vout: input.vout,
-        amount: input.amount,
-        blockHeight: (input as any).blockHeight,
-        addressNList: input.addressNList,
-        hexLength: input.hex?.length,
-        hexSample: input.hex?.substring(0, 100),
-      })),
-      null,
-      2
-    )
-  );
-
   // instantiation of ecc lib required for taproot sends https://github.com/bitcoinjs/bitcoinjs-lib/issues/1889#issuecomment-1443792692
   bitcoin.initEccLib(ecc);
 
@@ -265,9 +233,6 @@ export async function btcSignTx(
         { version: ZcashTransaction.VERSION4_BRANCH_NU6_1 }
       ) as ZcashPsbt)
       : new bitcoin.Psbt({ network: networksUtil[slip44].bitcoinjs as bitcoin.Network });
-
-  // eslint-disable-next-line no-console
-  console.log({ isZcash: msg.coin === "Zcash", psbt });
 
   const indexes: number[] = [];
   const txs: Transaction[] = [];
@@ -338,41 +303,15 @@ export async function btcSignTx(
     ? psbt.data.globalMap.unsignedTx.toBuffer().toString("hex")
     : Buffer.from(psbt.data.getTransaction()).toString("hex");
 
-  console.log(
-    `[${msg.coin} Ledger] Splitting unsigned transaction:`,
-    JSON.stringify(
-      {
-        unsignedHexLength: unsignedHex.length,
-        unsignedHexSample: unsignedHex.substring(0, 64),
-      },
-      null,
-      2
-    )
-  );
-
   // For Zcash, pass the same parameters as we do for input transactions
   const splitTxRes = msg.coin === "Zcash"
     ? await transport.call("Btc", "splitTransaction", unsignedHex, true, true, ["zcash", "sapling"])
     : await transport.call("Btc", "splitTransaction", unsignedHex);
   handleError(splitTxRes, transport, "splitTransaction failed");
 
-  console.log(`[${msg.coin} Ledger] Split unsigned tx successful`);
-
   const outputScriptRes = await transport.call("Btc", "serializeTransactionOutputs", splitTxRes.payload);
   handleError(outputScriptRes, transport, "serializeTransactionOutputs failed");
   const outputScriptHex = outputScriptRes.payload.toString("hex");
-
-  console.log(
-    `[${msg.coin} Ledger] Output script hex:`,
-    JSON.stringify(
-      {
-        outputScriptHexLength: outputScriptHex.length,
-        outputScriptHexSample: outputScriptHex.substring(0, 64),
-      },
-      null,
-      2
-    )
-  );
 
   for (let i = 0; i < msg.inputs.length; i++) {
     if (
@@ -385,26 +324,6 @@ export async function btcSignTx(
 
     const vout = msg.inputs[i].vout;
 
-    console.log(
-      `[${msg.coin} Ledger] Processing input ${i}:`,
-      JSON.stringify(
-        {
-          vout,
-          keySet,
-          scriptType: msg.inputs[i].scriptType,
-          inputHexLength: msg.inputs[i].hex.length,
-          inputHexSample: msg.inputs[i].hex.substring(0, 64),
-          splitTransactionParams: {
-            isSegwitSupported: msg.coin === "Zcash" ? true : networksUtil[slip44].isSegwitSupported,
-            hasExtraData: msg.coin === "Zcash" ? true : networksUtil[slip44].areTransactionTimestamped,
-            additionals: networksUtil[slip44].additionals || [],
-          },
-        },
-        null,
-        2
-      )
-    );
-
     const tx = await transport.call(
       "Btc",
       "splitTransaction",
@@ -415,26 +334,9 @@ export async function btcSignTx(
     );
     handleError(tx, transport, "splitTransaction failed");
 
-    console.log(`[${msg.coin} Ledger] Input ${i} split successful`);
-
-    // For Zcash, manually set consensusBranchId on the split transaction
-    // because splitTransaction doesn't parse it, and createPaymentTransaction will set it
-    // If we pre-set it to the correct value, createPaymentTransaction won't modify the transaction
-    // and the hash will remain correct
+    // Collect blockHeight for this input to pass as 5th parameter for Zcash
     if (msg.coin === "Zcash" && (msg.inputs[i] as any).blockHeight) {
-      const blockHeight = (msg.inputs[i] as any).blockHeight;
-      const branchId = Buffer.alloc(4);
-      // Use NU6.1 branch ID for blocks >= 3146400
-      branchId.writeUInt32LE(blockHeight >= 3146400 ? 0x4dec4df0 : 0xc8e71055, 0);
-      tx.payload.consensusBranchId = branchId;
-
-      console.log(`[${msg.coin} Ledger] Pre-set consensusBranchId on split input ${i}:`, {
-        blockHeight,
-        consensusBranchId: '0x' + branchId.toString('hex'),
-      });
-
-      // Collect blockHeight for this input to pass as 5th parameter
-      blockHeights.push(blockHeight);
+      blockHeights.push((msg.inputs[i] as any).blockHeight);
     } else {
       blockHeights.push(undefined);
     }
@@ -469,7 +371,6 @@ export async function btcSignTx(
       if (tx && msg.inputs[i]) {
         tx._customZcashTxId = msg.inputs[i].txid;
         tx._customZcashAmount = msg.inputs[i].amount;
-        console.log(`[Zcash Ledger] Attached custom props to input ${i}: txid=${msg.inputs[i].txid}, amount=${msg.inputs[i].amount}`);
       }
     });
   }
