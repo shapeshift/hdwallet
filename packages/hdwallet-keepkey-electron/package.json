@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-electron",
-  "version": "1.62.26-ledger-zcash.13",
+  "version": "1.62.26-ledger-zcash.16",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,7 +14,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-keepkey": "^1.62.26-ledger-zcash.13",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.62.26-ledger-zcash.16",
     "uuid": "^8.3.2"
   },
   "peerDependencies": {
@@ -24,5 +24,5 @@
     "@types/uuid": "^8.3.0",
     "electron": "^12.0.9"
   },
-  "gitHead": "5182720b7c5fcb48ca5f371c74f3cb9b820c2fa2"
+  "gitHead": "7132cfe8dee1f2e809657df42542cd869bf7ee03"
 }
