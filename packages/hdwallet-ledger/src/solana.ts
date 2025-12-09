@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { PublicKey } from "@solana/web3.js";
-import * as bs58 from "bs58";
+import bs58 from "bs58";
 
 import { LedgerTransport } from "./transport";
 import { handleError } from "./utils";
