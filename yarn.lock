@@ -4167,16 +4167,6 @@
     uuid "^8.3.2"
     ws "^8.8.0"
 
-"@shapeshiftoss/hdwallet-coinbase@^1.62.26-ledger-zcash.14":
-  version "1.62.26-ledger-zcash.14"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-coinbase/-/hdwallet-coinbase-1.62.26-ledger-zcash.14.tgz#ebe6e6a705e67ee76e74068f6dbd998c06cebf88"
-  integrity sha512-9ebhpb5XCraWcx2NTxbVl35/9CbHdV+GLg5c1sl7lAt4t9ui5UHIbRURiJErZz/7yqtJSN7H21TDyoA1/qTegQ==
-  dependencies:
-    "@coinbase/wallet-sdk" "^3.6.6"
-    "@shapeshiftoss/hdwallet-core" "^1.62.26-ledger-zcash.14"
-    eth-rpc-errors "^4.0.3"
-    lodash "^4.17.21"
-
 "@shapeshiftoss/hdwallet-core@1.62.23", "@shapeshiftoss/hdwallet-core@^1.55.1":
   version "1.62.23"
   resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.62.23.tgz#59761309074f388b9a63ad92360fa5d6a5d7ffcb"
@@ -4185,22 +4175,6 @@
     "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.2"
     "@shapeshiftoss/proto-tx-builder" "0.10.0"
     "@solana/web3.js" "1.95.8"
-    eip-712 "^1.0.0"
-    ethers "5.7.2"
-    eventemitter2 "^5.0.1"
-    lodash "^4.17.21"
-    rxjs "^6.4.0"
-    type-assertions "^1.1.0"
-
-"@shapeshiftoss/hdwallet-core@^1.62.26-ledger-zcash.14":
-  version "1.62.26-ledger-zcash.14"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.62.26-ledger-zcash.14.tgz#f58421efe5682d919658ac54a10a9d57aca18fab"
-  integrity sha512-QGWA7mYyZcem20fyridva8TJ9qYlZGVxKea/XSClm8pszXf0qDe9rIRwKVqBUOd1d2EBzpHTdRlVYAw1ozha4g==
-  dependencies:
-    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.2"
-    "@shapeshiftoss/proto-tx-builder" "0.10.0"
-    "@solana/web3.js" "1.95.8"
-    bs58check "^4.0.0"
     eip-712 "^1.0.0"
     ethers "5.7.2"
     eventemitter2 "^5.0.1"
@@ -4221,141 +4195,6 @@
     lodash "^4.17.21"
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
-
-"@shapeshiftoss/hdwallet-keepkey-nodewebusb@^1.62.26-ledger-zcash.14":
-  version "1.62.26-ledger-zcash.14"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-keepkey-nodewebusb/-/hdwallet-keepkey-nodewebusb-1.62.26-ledger-zcash.14.tgz#bd555c9e5cb065a7789a6c2c2758c1497220c3a8"
-  integrity sha512-IROjpqG6ipxcjd2mtTDwZZmoPVkTF8fszgdRJH47Rb8XDN295dvUkABy8BOjcUIZpOOxIKjAJoSNWPTq4iiB0g==
-  dependencies:
-    "@shapeshiftoss/hdwallet-core" "^1.62.26-ledger-zcash.14"
-    "@shapeshiftoss/hdwallet-keepkey" "^1.62.26-ledger-zcash.14"
-
-"@shapeshiftoss/hdwallet-keepkey-tcp@^1.62.26-ledger-zcash.14":
-  version "1.62.26-ledger-zcash.14"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-keepkey-tcp/-/hdwallet-keepkey-tcp-1.62.26-ledger-zcash.14.tgz#8df603e4cee851e8e3e61865dc7167989492aaff"
-  integrity sha512-nXLAZinnIEbZiAShHBhY3M/1DfnLE+ubHFul5ONhcX4WN2npBse3NR2ZXKlIkduMdMDKPHCKQu9l40nPbwXbLA==
-  dependencies:
-    "@shapeshiftoss/hdwallet-core" "^1.62.26-ledger-zcash.14"
-    "@shapeshiftoss/hdwallet-keepkey" "^1.62.26-ledger-zcash.14"
-    axios "^0.21.1"
-
-"@shapeshiftoss/hdwallet-keepkey-webusb@^1.62.26-ledger-zcash.14":
-  version "1.62.26-ledger-zcash.14"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-keepkey-webusb/-/hdwallet-keepkey-webusb-1.62.26-ledger-zcash.14.tgz#a5cba31c3dbfac004542b88d5b55b4010a3ee96c"
-  integrity sha512-wslzV/KLm4iW9aWt+5S4xY0ssZ2t5244uhaj96sJtpqt8oMwkjMc2btTPR6RAfnBSyzKL0tC78tlhVm+nLhOCA==
-  dependencies:
-    "@shapeshiftoss/hdwallet-core" "^1.62.26-ledger-zcash.14"
-    "@shapeshiftoss/hdwallet-keepkey" "^1.62.26-ledger-zcash.14"
-
-"@shapeshiftoss/hdwallet-keepkey@^1.62.26-ledger-zcash.14":
-  version "1.62.26-ledger-zcash.14"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-keepkey/-/hdwallet-keepkey-1.62.26-ledger-zcash.14.tgz#ef014657ca8c3367ff7daa125bfbe8ea47ec8fd6"
-  integrity sha512-TJri+8HEYogDyl0xu1gDo138LJQ9J15nUtbcI0aNGRHnC6/l5awECRljIkI6+M0R5/Q228fLRHcTrIQRsY7JYg==
-  dependencies:
-    "@bitcoinerlab/secp256k1" "^1.1.1"
-    "@ethereumjs/common" "3.2.0"
-    "@ethereumjs/tx" "4.2.0"
-    "@keepkey/device-protocol" "7.13.4"
-    "@metamask/eth-sig-util" "^7.0.0"
-    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.2"
-    "@shapeshiftoss/hdwallet-core" "^1.62.26-ledger-zcash.14"
-    "@shapeshiftoss/proto-tx-builder" "0.10.0"
-    bignumber.js "^9.0.1"
-    bnb-javascript-sdk-nobroadcast "2.16.15"
-    crypto-js "^4.0.0"
-    eip55 "^2.1.0"
-    google-protobuf "^3.15.8"
-    icepick "^2.4.0"
-    lodash "^4.17.21"
-    p-lazy "^3.1.0"
-    semver "^7.3.8"
-
-"@shapeshiftoss/hdwallet-keplr@^1.62.26-ledger-zcash.14":
-  version "1.62.26-ledger-zcash.14"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-keplr/-/hdwallet-keplr-1.62.26-ledger-zcash.14.tgz#ef5706531350bc78c5d6e0360524324b483c3691"
-  integrity sha512-N0/UO5zxxraE6wKkPz0KzmyAICKVLWEagkEHPhtrNQZ9XNyS8tP8MKO6B3KkBTbsYGWzNKiyTNfhtcJBsEcTGA==
-  dependencies:
-    "@cosmjs/amino" "^0.28.13"
-    "@cosmjs/stargate" "^0.28.13"
-    "@shapeshiftoss/caip" "8.15.0"
-    "@shapeshiftoss/hdwallet-core" "^1.62.26-ledger-zcash.14"
-    "@shapeshiftoss/proto-tx-builder" "0.10.0"
-    "@shapeshiftoss/types" "3.1.3"
-    base64-js "^1.5.1"
-    lodash "^4.17.21"
-
-"@shapeshiftoss/hdwallet-ledger-webhid@^1.62.26-ledger-zcash.14":
-  version "1.62.26-ledger-zcash.14"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-ledger-webhid/-/hdwallet-ledger-webhid-1.62.26-ledger-zcash.14.tgz#b57765e829c340c17f1be6b12d65bf8c78f7db1c"
-  integrity sha512-ZXFcJr8SgzZYFVcX/xi4PA1LBGbC5DH6i/0ydcGRTh/c8qaeMrezXm0yKKBGZwGnGu6qcX/iNPS9n/pODHsedA==
-  dependencies:
-    "@ledgerhq/hw-app-btc" "10.13.0"
-    "@ledgerhq/hw-app-eth" "7.0.0"
-    "@ledgerhq/hw-transport" "6.31.13"
-    "@ledgerhq/hw-transport-webhid" "6.30.6"
-    "@shapeshiftoss/hdwallet-core" "^1.62.26-ledger-zcash.14"
-    "@shapeshiftoss/hdwallet-ledger" "^1.62.26-ledger-zcash.14"
-    "@types/w3c-web-hid" "^1.0.2"
-
-"@shapeshiftoss/hdwallet-ledger-webusb@^1.62.26-ledger-zcash.14":
-  version "1.62.26-ledger-zcash.14"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-ledger-webusb/-/hdwallet-ledger-webusb-1.62.26-ledger-zcash.14.tgz#7d7f7c505a667b5f56c391133d152b2de1d226f9"
-  integrity sha512-H8lXrfP0i04F5VSGN7vhYoQoM7OTxjFI9e6upUR9DfIfGrvjwGwsX1A6wLPVdnLYPIP5NpyWfQVjS7q/MMWPoA==
-  dependencies:
-    "@ledgerhq/hw-app-btc" "10.13.0"
-    "@ledgerhq/hw-app-cosmos" "6.32.9"
-    "@ledgerhq/hw-app-eth" "7.0.0"
-    "@ledgerhq/hw-app-solana" "7.6.0"
-    "@ledgerhq/hw-transport" "6.31.13"
-    "@ledgerhq/hw-transport-webusb" "6.29.13"
-    "@shapeshiftoss/hdwallet-core" "^1.62.26-ledger-zcash.14"
-    "@shapeshiftoss/hdwallet-ledger" "^1.62.26-ledger-zcash.14"
-    "@types/w3c-web-usb" "^1.0.4"
-    p-queue "^7.4.1"
-
-"@shapeshiftoss/hdwallet-ledger@^1.62.26-ledger-zcash.14":
-  version "1.62.26-ledger-zcash.14"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-ledger/-/hdwallet-ledger-1.62.26-ledger-zcash.14.tgz#b596a44eefd0c99f79eefb13136196d9e0160c4d"
-  integrity sha512-05rSf4gf/lfBa9VMeE+Dpj1naCGgwX6GGFhcjR4Xv3o9qw3Ml/3+eF2Nz4fK5M+LUz7J3kw58Y4biWfC1Gjy2w==
-  dependencies:
-    "@bitgo/utxo-lib" "^11.18.0"
-    "@ethereumjs/common" "3.2.0"
-    "@ethereumjs/tx" "4.2.0"
-    "@ledgerhq/device-core" "0.6.9"
-    "@ledgerhq/hw-app-btc" "10.12.0"
-    "@ledgerhq/hw-app-cosmos" "6.32.9"
-    "@ledgerhq/hw-app-eth" "7.0.0"
-    "@ledgerhq/hw-app-solana" "7.6.0"
-    "@ledgerhq/hw-app-trx" "6.31.9"
-    "@ledgerhq/hw-transport" "6.31.13"
-    "@ledgerhq/logs" "6.13.0"
-    "@mysten/ledgerjs-hw-app-sui" "^0.7.0"
-    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.2"
-    "@shapeshiftoss/hdwallet-core" "^1.62.26-ledger-zcash.14"
-    "@solana/web3.js" "1.95.8"
-    base64-js "^1.5.1"
-    bchaddrjs "^0.4.4"
-    bitcoinjs-message "^2.0.0"
-    bs58check "^4.0.0"
-    ethereumjs-tx "1.3.7"
-    ethereumjs-util "^6.1.0"
-    ethers "5.7.2"
-    lodash "^4.17.21"
-
-"@shapeshiftoss/hdwallet-metamask-multichain@^1.62.26-ledger-zcash.14":
-  version "1.62.26-ledger-zcash.14"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-metamask-multichain/-/hdwallet-metamask-multichain-1.62.26-ledger-zcash.14.tgz#7cff4502cab7b1d889ea4d479b40c14f6a4f17b3"
-  integrity sha512-ItqPaY2em5Gt3r4bRrhm3vtr9S1fiAe7rbxPtetDf5YuQ8uFx4ejmt9TqzkuP7Sgx+QBe6d9/n9F+XpTFed0Uw==
-  dependencies:
-    "@metamask/detect-provider" "^1.2.0"
-    "@metamask/onboarding" "^1.0.1"
-    "@shapeshiftoss/common-api" "^9.3.0"
-    "@shapeshiftoss/hdwallet-core" "^1.62.26-ledger-zcash.14"
-    "@shapeshiftoss/metamask-snaps-adapter" "^1.0.12"
-    "@shapeshiftoss/metamask-snaps-types" "^1.0.12"
-    eth-rpc-errors "^4.0.3"
-    lodash "^4.17.21"
-    mipd "^0.0.7"
 
 "@shapeshiftoss/hdwallet-native@^1.55.1":
   version "1.62.23"
@@ -4386,121 +4225,6 @@
     p-lazy "^3.1.0"
     scrypt-js "^3.0.1"
     tendermint-tx-builder "1.0.16"
-
-"@shapeshiftoss/hdwallet-native@^1.62.26-ledger-zcash.14":
-  version "1.62.26-ledger-zcash.14"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.62.26-ledger-zcash.14.tgz#3a18650f130c6abc9a06246e5ce9e20ce34f94bc"
-  integrity sha512-cFO8DEJOjWESDfFwH/yIJjxOHfC69MMxVy5GgOA7eBalua0Mo9UL/DFpqR8zSWOmLx575vd4Abg+HEdT70cTbg==
-  dependencies:
-    "@bitcoinerlab/secp256k1" "^1.1.1"
-    "@noble/curves" "^1.4.0"
-    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.2"
-    "@shapeshiftoss/hdwallet-core" "^1.62.26-ledger-zcash.14"
-    "@shapeshiftoss/proto-tx-builder" "0.10.0"
-    "@zxing/text-encoding" "^0.9.0"
-    bchaddrjs "^0.4.9"
-    bech32 "^1.1.4"
-    bignumber.js "^9.0.1"
-    bip32 "^2.0.5"
-    bip39 "^3.0.2"
-    bnb-javascript-sdk-nobroadcast "2.16.15"
-    bs58check "^4.0.0"
-    crypto-js "^4.0.0"
-    ecpair "^3.0.0-rc.0"
-    eip-712 "^1.0.0"
-    ethers "5.7.2"
-    eventemitter2 "^5.0.1"
-    funtypes "^3.0.1"
-    hash-wasm "^4.11.0"
-    lodash "^4.17.21"
-    node-fetch "^2.6.1"
-    p-lazy "^3.1.0"
-    scrypt-js "^3.0.1"
-    tendermint-tx-builder "1.0.16"
-
-"@shapeshiftoss/hdwallet-phantom@^1.62.26-ledger-zcash.14":
-  version "1.62.26-ledger-zcash.14"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-phantom/-/hdwallet-phantom-1.62.26-ledger-zcash.14.tgz#5530b32b975b47af3e531faf54e276b266a06732"
-  integrity sha512-gWhFhesYUnltqiddQJNNIriaFCyMSpMWwbYJE2rE8fdqfGrEJ0cn7elU7AjQoI54xGEec8cwT/ZCHyhD8l7kjg==
-  dependencies:
-    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.2"
-    "@shapeshiftoss/hdwallet-core" "^1.62.26-ledger-zcash.14"
-    "@solana/web3.js" "1.95.8"
-    base64-js "^1.5.1"
-    bitcoinjs-message "^2.0.0"
-    ethers "5.7.2"
-    lodash "^4.17.21"
-
-"@shapeshiftoss/hdwallet-portis@^1.62.26-ledger-zcash.14":
-  version "1.62.26-ledger-zcash.14"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-portis/-/hdwallet-portis-1.62.26-ledger-zcash.14.tgz#aae0cf39fe9826d8627a0ab28802a4674043a1a7"
-  integrity sha512-cGlMxK+wHqgOJFFQUA0etQSMs84PtSPkNe4wCXTDrD1m5z1/qG7to8LcTDkndDflM42/s2SdFsznnG8fHm9b+Q==
-  dependencies:
-    "@portis/web3" "3.0.10"
-    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.2"
-    "@shapeshiftoss/hdwallet-core" "^1.62.26-ledger-zcash.14"
-    base64-js "^1.5.1"
-    bip32 "^2.0.4"
-    bitcoinjs-message "^2.1.0"
-    lodash "^4.17.15"
-    p-lazy "^3.1.0"
-    web3 "^1.5.1"
-
-"@shapeshiftoss/hdwallet-trezor-connect@^1.62.26-ledger-zcash.14":
-  version "1.62.26-ledger-zcash.14"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-trezor-connect/-/hdwallet-trezor-connect-1.62.26-ledger-zcash.14.tgz#27b856053df3c5832839b704451d2c0b1060a9cb"
-  integrity sha512-FnxeiiJHG8dhsp1yXU6ZSmYBKB90/aLf0P1JldeJ5MsCj80bGqUjUICfuCLepRIo9qGNEyKl6MOtdJn2XME3sA==
-  dependencies:
-    "@shapeshiftoss/hdwallet-core" "^1.62.26-ledger-zcash.14"
-    "@shapeshiftoss/hdwallet-trezor" "^1.62.26-ledger-zcash.14"
-    "@trezor/connect-web" "^9.6.4"
-
-"@shapeshiftoss/hdwallet-trezor@^1.62.26-ledger-zcash.14":
-  version "1.62.26-ledger-zcash.14"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-trezor/-/hdwallet-trezor-1.62.26-ledger-zcash.14.tgz#a3b691b13996b4928657e65e1ce2143e88f0aa56"
-  integrity sha512-aeMX3YrNFG9AbE+GzvYg8USqQkxQ0J2qC/2VBIAUryO6VNTbAQXmmiOlZ4p53yjd4cXE9oQar7yzEDzSZQrA1w==
-  dependencies:
-    "@ethereumjs/common" "3.2.0"
-    "@ethereumjs/tx" "4.2.0"
-    "@shapeshiftoss/hdwallet-core" "^1.62.26-ledger-zcash.14"
-    base64-js "^1.5.1"
-    bchaddrjs "^0.4.4"
-    lodash "^4.17.21"
-
-"@shapeshiftoss/hdwallet-vultisig@^1.62.26-ledger-zcash.14":
-  version "1.62.26-ledger-zcash.14"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-vultisig/-/hdwallet-vultisig-1.62.26-ledger-zcash.14.tgz#cc4391e70647b932f53c3ed6bc5e84adca35c4d5"
-  integrity sha512-JM3JuMv1f4Q3inUKBhYfNie1zjYvFnS3hjUo62kgY3II/iYqj41ZTMgSk8CLFl8G98vvgEuIOfw9nTNaNUiALg==
-  dependencies:
-    "@cosmjs/amino" "^0.28.13"
-    "@cosmjs/stargate" "^0.28.13"
-    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.2"
-    "@shapeshiftoss/hdwallet-core" "^1.62.26-ledger-zcash.14"
-    "@solana/web3.js" "1.95.8"
-    base64-js "^1.5.1"
-    bitcoinjs-message "^2.0.0"
-    ethers "5.7.2"
-    lodash "^4.17.21"
-
-"@shapeshiftoss/hdwallet-walletconnect@^1.62.26-ledger-zcash.14":
-  version "1.62.26-ledger-zcash.14"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-walletconnect/-/hdwallet-walletconnect-1.62.26-ledger-zcash.14.tgz#e15090e8d760b1df4291e7c2fea7e11dd30a9b4c"
-  integrity sha512-VhK2/705PGR0jhhWC0+dKeatAGMsegMgtWECg6hQrEkr7AzDMAwU35XlFSUyLjvo1eJAH1GfQ1+hz/HV57Rb9Q==
-  dependencies:
-    "@shapeshiftoss/hdwallet-core" "^1.62.26-ledger-zcash.14"
-    "@walletconnect/qrcode-modal" "^1.7.8"
-    "@walletconnect/web3-provider" "^1.7.8"
-    ethers "^5.6.5"
-
-"@shapeshiftoss/hdwallet-walletconnectv2@^1.62.26-ledger-zcash.14":
-  version "1.62.26-ledger-zcash.14"
-  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-walletconnectv2/-/hdwallet-walletconnectv2-1.62.26-ledger-zcash.14.tgz#c5515dfcb87ff899a8f65f793a8e0eef913f3fcf"
-  integrity sha512-SL0+ZJsEOOUArht4EaSdLB1FmV7PrCJp6ZdaVbnUNMB1cNbhRKyFn/OPDCESbt+5uLNc+dP2/sRNwBU8Z7LO3g==
-  dependencies:
-    "@shapeshiftoss/hdwallet-core" "^1.62.26-ledger-zcash.14"
-    "@walletconnect/ethereum-provider" "^2.20.2"
-    "@walletconnect/modal" "^2.6.2"
-    ethers "^5.6.5"
 
 "@shapeshiftoss/logger@^1.1.2", "@shapeshiftoss/logger@^1.1.3":
   version "1.1.3"
@@ -5487,6 +5211,13 @@
   dependencies:
     "@types/node" "*"
     base-x "^3.0.6"
+
+"@types/bs58check@^2.1.0":
+  version "2.1.2"
+  resolved "http://127.0.0.1:4873/@types/bs58check/-/bs58check-2.1.2.tgz#ca6264599cd9c0bdfeb839a0927f13a9cb77ba0f"
+  integrity sha512-xpXaQlOIY1KoXlA/ytHGHpEIU87PJt+g9SH7nC6HdCgaBwT2IEZIwBMHbjuX6BpnfbiUMlmwqurdLDwXpcdmSA==
+  dependencies:
+    "@types/node" "*"
 
 "@types/cacheable-request@^6.0.1", "@types/cacheable-request@^6.0.2":
   version "6.0.3"

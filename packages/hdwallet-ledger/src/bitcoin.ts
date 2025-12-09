@@ -12,6 +12,17 @@ import * as bchAddr from "bchaddrjs";
 import * as bitcoinMsg from "bitcoinjs-message";
 import zip from "lodash/zip";
 
+import { currencies } from "./currencies";
+import { LedgerTransport } from "./transport";
+import { handleError, networksUtil, translateScriptType } from "./utils";
+
+const ZCASH_VERSION_GROUP_ID: Record<number, number> = {
+  4: 0x892f2085,
+  5: 0x26a7270a,
+};
+
+const ZCASH_CONSENSUS_BRANCH_ID = 0x4dec4df0;
+
 type ZcashInput = core.BTCSignTxInputLedger & {
   txid?: string;
   blockHeight?: number;
@@ -69,17 +80,6 @@ try {
 } catch (e) {
   console.error("[Zcash Ledger] Failed to patch getTrustedInputBIP143:", e);
 }
-
-import { currencies } from "./currencies";
-import { LedgerTransport } from "./transport";
-import { handleError, networksUtil, translateScriptType } from "./utils";
-
-const ZCASH_VERSION_GROUP_ID: Record<number, number> = {
-  4: 0x892f2085,
-  5: 0x26a7270a,
-};
-
-const ZCASH_CONSENSUS_BRANCH_ID = 0x4dec4df0;
 
 export const supportedCoins = [
   "Testnet",
