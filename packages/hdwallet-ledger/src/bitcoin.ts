@@ -97,20 +97,7 @@ export async function btcGetAddress(transport: LedgerTransport, msg: core.BTCGet
     format: translateScriptType(scriptTypeish),
   };
 
-  console.log(
-    `[${msg.coin} Ledger] btcGetAddress called:`,
-    JSON.stringify(
-      {
-        addressNList: msg.addressNList,
-        bip32path,
-        scriptType: msg.scriptType,
-        showDisplay: !!msg.showDisplay,
-        opts,
-      },
-      null,
-      2
-    )
-  );
+
 
   try {
     const res = await transport.call("Btc", "getWalletPublicKey", bip32path, opts);
@@ -119,16 +106,7 @@ export async function btcGetAddress(transport: LedgerTransport, msg: core.BTCGet
     const address = res.payload.bitcoinAddress;
     const finalAddress = msg.coin.toLowerCase() === "bitcoincash" ? bchAddr.toCashAddress(address) : address;
 
-    console.log(
-      `[${msg.coin} Ledger] btcGetAddress result:`,
-      JSON.stringify(
-        {
-          address: finalAddress,
-        },
-        null,
-        2
-      )
-    );
+
 
     return finalAddress;
   } catch (error) {
@@ -405,41 +383,13 @@ export async function btcSignTx(
     txArgs.sigHashType = networksUtil[slip44].sigHash;
   }
 
-  console.log(
-    `[${msg.coin} Ledger] createPaymentTransaction args:`,
-    JSON.stringify(
-      {
-        inputsCount: txArgs.inputs.length,
-        associatedKeysetsCount: txArgs.associatedKeysets.length,
-        additionals: txArgs.additionals,
-        segwit: txArgs.segwit,
-        blockHeight: (txArgs as any).blockHeight,
-        expiryHeightHex: txArgs.expiryHeight?.toString("hex"),
-        expiryHeightDecimal: txArgs.expiryHeight?.readUInt32LE(0),
-        sigHashType: txArgs.sigHashType,
-      },
-      null,
-      2
-    )
-  );
+
 
   try {
     const signedTx = await transport.call("Btc", "createPaymentTransaction", txArgs);
     handleError(signedTx, transport, "Could not sign transaction with device");
 
-    console.log(
-      `[${msg.coin} Ledger] Transaction signed successfully:`,
-      JSON.stringify(
-        {
-          serializedTxLength: signedTx.payload.length,
-          serializedTxSample: signedTx.payload.substring(0, 64),
-        },
-        null,
-        2
-      )
-    );
 
-    console.log(`[${msg.coin} Ledger] FULL TRANSACTION HEX:`, signedTx.payload);
 
     return {
       serializedTx: signedTx.payload,
