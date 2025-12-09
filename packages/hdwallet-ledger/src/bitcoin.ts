@@ -387,11 +387,21 @@ export async function btcSignTx(
 
     console.log(`[${msg.coin} Ledger] Input ${i} split successful`);
 
-    if (msg.coin === "Zcash") {
-      console.log(`[${msg.coin} Ledger] Split input ${i} consensusBranchId BEFORE createPaymentTransaction modifies it:`, JSON.stringify({
-        consensusBranchId: tx.payload.consensusBranchId ? '0x' + tx.payload.consensusBranchId.toString('hex') : 'undefined',
-        versionGroupId: tx.payload.nVersionGroupId ? '0x' + tx.payload.nVersionGroupId.toString('hex') : 'undefined',
-      }, null, 2));
+    // For Zcash, manually set consensusBranchId on the split transaction
+    // because splitTransaction doesn't parse it, and createPaymentTransaction will set it
+    // If we pre-set it to the correct value, createPaymentTransaction won't modify the transaction
+    // and the hash will remain correct
+    if (msg.coin === "Zcash" && (msg.inputs[i] as any).blockHeight) {
+      const blockHeight = (msg.inputs[i] as any).blockHeight;
+      const branchId = Buffer.alloc(4);
+      // Use NU6.1 branch ID for blocks >= 3146400
+      branchId.writeUInt32LE(blockHeight >= 3146400 ? 0x4dec4df0 : 0xc8e71055, 0);
+      tx.payload.consensusBranchId = branchId;
+
+      console.log(`[${msg.coin} Ledger] Pre-set consensusBranchId on split input ${i}:`, {
+        blockHeight,
+        consensusBranchId: '0x' + branchId.toString('hex'),
+      });
     }
 
     indexes.push(vout);
