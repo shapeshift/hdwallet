@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-native-vault",
-  "version": "1.62.26-ledger-zcash.11",
+  "version": "1.62.26-ledger-zcash.13",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@bitcoinerlab/secp256k1": "^1.1.1",
-    "@shapeshiftoss/hdwallet-native": "^1.62.26-ledger-zcash.11",
+    "@shapeshiftoss/hdwallet-native": "^1.62.26-ledger-zcash.13",
     "bip39": "^3.0.4",
     "hash-wasm": "^4.11.0",
     "idb-keyval": "^6.0.3",
@@ -27,5 +27,5 @@
   "devDependencies": {
     "fake-indexeddb": "^3.1.7"
   },
-  "gitHead": "49c80282b955aa2cb35c387fa76df66428b73d29"
+  "gitHead": "5182720b7c5fcb48ca5f371c74f3cb9b820c2fa2"
 }

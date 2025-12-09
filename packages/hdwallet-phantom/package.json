@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-phantom",
-  "version": "1.62.26-ledger-zcash.11",
+  "version": "1.62.26-ledger-zcash.13",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
-    "@shapeshiftoss/hdwallet-core": "^1.62.26-ledger-zcash.11",
+    "@shapeshiftoss/hdwallet-core": "^1.62.26-ledger-zcash.13",
     "@solana/web3.js": "1.95.8",
     "base64-js": "^1.5.1",
     "bitcoinjs-message": "^2.0.0",
@@ -25,5 +25,5 @@
   "devDependencies": {
     "@types/lodash": "^4.14.168"
   },
-  "gitHead": "49c80282b955aa2cb35c387fa76df66428b73d29"
+  "gitHead": "5182720b7c5fcb48ca5f371c74f3cb9b820c2fa2"
 }

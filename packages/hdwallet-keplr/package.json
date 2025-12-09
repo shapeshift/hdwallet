@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keplr",
-  "version": "1.62.26-ledger-zcash.11",
+  "version": "1.62.26-ledger-zcash.13",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -17,7 +17,7 @@
     "@cosmjs/amino": "^0.28.13",
     "@cosmjs/stargate": "^0.28.13",
     "@shapeshiftoss/caip": "8.15.0",
-    "@shapeshiftoss/hdwallet-core": "^1.62.26-ledger-zcash.11",
+    "@shapeshiftoss/hdwallet-core": "^1.62.26-ledger-zcash.13",
     "@shapeshiftoss/proto-tx-builder": "0.10.0",
     "@shapeshiftoss/types": "3.1.3",
     "base64-js": "^1.5.1",
@@ -29,5 +29,5 @@
     "@keplr-wallet/types": "^0.12.35",
     "@types/lodash": "^4.14.168"
   },
-  "gitHead": "49c80282b955aa2cb35c387fa76df66428b73d29"
+  "gitHead": "5182720b7c5fcb48ca5f371c74f3cb9b820c2fa2"
 }

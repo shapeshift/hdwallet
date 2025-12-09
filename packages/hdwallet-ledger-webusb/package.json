@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger-webusb",
-  "version": "1.62.26-ledger-zcash.11",
+  "version": "1.62.26-ledger-zcash.13",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -20,12 +20,13 @@
     "@ledgerhq/hw-app-solana": "7.6.0",
     "@ledgerhq/hw-transport": "6.31.13",
     "@ledgerhq/hw-transport-webusb": "6.29.13",
-    "@shapeshiftoss/hdwallet-core": "^1.62.26-ledger-zcash.11",
-    "@shapeshiftoss/hdwallet-ledger": "^1.62.26-ledger-zcash.11",
+    "@shapeshiftoss/hdwallet-core": "^1.62.26-ledger-zcash.13",
+    "@shapeshiftoss/hdwallet-ledger": "^1.62.26-ledger-zcash.13",
     "@types/w3c-web-usb": "^1.0.4",
     "p-queue": "^7.4.1"
   },
   "devDependencies": {
     "@types/w3c-web-usb": "^1.0.6"
-  }
+  },
+  "gitHead": "5182720b7c5fcb48ca5f371c74f3cb9b820c2fa2"
 }

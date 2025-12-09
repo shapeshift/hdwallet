@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-walletconnect",
-  "version": "1.62.26-ledger-zcash.11",
+  "version": "1.62.26-ledger-zcash.13",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,10 +15,10 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.26-ledger-zcash.11",
+    "@shapeshiftoss/hdwallet-core": "^1.62.26-ledger-zcash.13",
     "@walletconnect/qrcode-modal": "^1.7.8",
     "@walletconnect/web3-provider": "^1.7.8",
     "ethers": "^5.6.5"
   },
-  "gitHead": "49c80282b955aa2cb35c387fa76df66428b73d29"
+  "gitHead": "5182720b7c5fcb48ca5f371c74f3cb9b820c2fa2"
 }

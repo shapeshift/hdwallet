@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-nodewebusb",
-  "version": "1.62.26-ledger-zcash.11",
+  "version": "1.62.26-ledger-zcash.13",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.26-ledger-zcash.11",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.62.26-ledger-zcash.11"
+    "@shapeshiftoss/hdwallet-core": "^1.62.26-ledger-zcash.13",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.62.26-ledger-zcash.13"
   },
   "peerDependencies": {
     "usb": "^2.3.1"
@@ -23,5 +23,5 @@
   "devDependencies": {
     "usb": "^2.3.1"
   },
-  "gitHead": "49c80282b955aa2cb35c387fa76df66428b73d29"
+  "gitHead": "5182720b7c5fcb48ca5f371c74f3cb9b820c2fa2"
 }
