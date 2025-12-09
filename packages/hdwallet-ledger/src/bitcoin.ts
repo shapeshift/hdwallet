@@ -426,6 +426,20 @@ export async function btcSignTx(
       [Transaction, number, undefined, number | undefined]
     >);
 
+  if (msg.coin === "Zcash") {
+    console.log(`[${msg.coin} Ledger] DEBUG - inputs array for createPaymentTransaction:`, {
+      inputsLength: inputs.length,
+      input0: inputs[0] ? {
+        txExists: !!inputs[0][0],
+        index: inputs[0][1],
+        redeemScript: inputs[0][2],
+        sequence: inputs[0][3],
+        blockHeight: inputs[0][4],
+        txHasConsensusBranchId: !!(inputs[0][0] as any)?.consensusBranchId,
+      } : 'NO INPUT 0',
+    });
+  }
+
   const txArgs: CreateTransactionArg = {
     inputs,
     associatedKeysets,
