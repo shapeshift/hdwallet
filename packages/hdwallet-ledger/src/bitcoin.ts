@@ -314,7 +314,10 @@ export async function btcSignTx(
     )
   );
 
-  const splitTxRes = await transport.call("Btc", "splitTransaction", unsignedHex);
+  // For Zcash, pass the same parameters as we do for input transactions
+  const splitTxRes = msg.coin === "Zcash"
+    ? await transport.call("Btc", "splitTransaction", unsignedHex, true, true, ["zcash", "sapling"])
+    : await transport.call("Btc", "splitTransaction", unsignedHex);
   handleError(splitTxRes, transport, "splitTransaction failed");
 
   console.log(`[${msg.coin} Ledger] Split unsigned tx successful`);
