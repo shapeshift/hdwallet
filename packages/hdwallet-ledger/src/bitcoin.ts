@@ -297,8 +297,13 @@ export async function btcSignTx(
 
   // For Zcash, set version defaults after all outputs are added
   if (msg.coin === "Zcash") {
-    // Try VERSION5_BRANCH_NU6_1 instead of VERSION4
-    (psbt as ZcashPsbt).setDefaultsForVersion(bitgoNetworks.zcash, ZcashTransaction.VERSION5_BRANCH_NU6_1);
+    // Use VERSION4_BRANCH_NU6_1 like SwapKit (hw-app-btc doesn't support v5 unsigned txs)
+    (psbt as ZcashPsbt).setDefaultsForVersion(bitgoNetworks.zcash, ZcashTransaction.VERSION4_BRANCH_NU6_1);
+
+    // Manually set versionGroupId and consensusBranchId because setDefaultsForVersion might not work
+    (psbt as any).tx.versionGroupId = 0x26a7270a; // NU6 version group ID
+    (psbt as any).tx.consensusBranchId = 0x4dec4df0; // NU6.1 consensus branch ID
+    (psbt as any).tx.overwintered = 1;
   }
 
   // For Zcash, use the globalMap.unsignedTx like SwapKit does
