@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-core",
-  "version": "1.62.24-ledger-zcash.24",
+  "version": "1.62.24-ledger-zcash.25",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
