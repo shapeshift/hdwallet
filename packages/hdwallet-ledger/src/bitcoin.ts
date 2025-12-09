@@ -174,6 +174,7 @@ export async function btcSignTx(
     index: idx,
     vout: input.vout,
     amount: input.amount,
+    blockHeight: (input as any).blockHeight,
     addressNList: input.addressNList,
     hexLength: input.hex?.length,
     hexSample: input.hex?.substring(0, 100),
@@ -294,6 +295,8 @@ export async function btcSignTx(
   const blockHeights = msg.coin === "Zcash"
     ? msg.inputs.map((input) => (input as any).blockHeight as number | undefined)
     : [];
+
+  console.log(`[${msg.coin} Ledger] blockHeights for inputs:`, blockHeights);
 
   const inputs = msg.coin === "Zcash"
     ? zip(txs, indexes, [], sequences, blockHeights) as Array<[Transaction, number, undefined, number | undefined, number | undefined]>
