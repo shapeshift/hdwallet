@@ -3,17 +3,52 @@ import { address as zcashAddress, bitgo, networks as bitgoNetworks } from "@bitg
 import { type ZcashPsbt, ZcashTransaction } from "@bitgo/utxo-lib/dist/src/bitgo";
 import { CreateTransactionArg } from "@ledgerhq/hw-app-btc/lib/createTransaction";
 import { Transaction } from "@ledgerhq/hw-app-btc/lib/types";
-import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { BTCInputScriptType, convertXpubVersion, scriptTypeToAccountType } from "@shapeshiftoss/hdwallet-core";
+import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import Base64 from "base64-js";
 import * as bchAddr from "bchaddrjs";
 import * as bitcoinMsg from "bitcoinjs-message";
 import zip from "lodash/zip";
 
+// MONKEY PATCH: Fix Zcash v5 Trusted Input Hashing
+// @ledgerhq/hw-app-btc calculates SHA256d hash for trusted inputs, but Zcash v5 uses ZIP-244 tree hash.
+// We patch getTrustedInputBIP143 to use the correct TXID provided by the adapter (via _customZcashTxId property)
+// instead of incorrectly re-hashing the simplified transaction buffer.
+/* eslint-disable @typescript-eslint/no-var-requires */
+try {
+  const getTrustedInputModule = require("@ledgerhq/hw-app-btc/lib/getTrustedInputBIP143");
+  const originGetTrustedInputBIP143 = getTrustedInputModule.getTrustedInputBIP143;
+
+  getTrustedInputModule.getTrustedInputBIP143 = function (
+    transport: any,
+    indexLookup: number,
+    transaction: any,
+    additionals: Array<string>
+  ) {
+    if (additionals && additionals.includes("zcash") && transaction._customZcashTxId) {
+      console.log("[Zcash Ledger] Using custom Zcash Trusted Input for TXID:", transaction._customZcashTxId);
+      const txid = transaction._customZcashTxId;
+      const amount = transaction._customZcashAmount;
+
+      const hash = Buffer.from(txid, 'hex').reverse();
+      const data = Buffer.alloc(4);
+      data.writeUInt32LE(indexLookup, 0);
+      const amountBuf = Buffer.alloc(8);
+      amountBuf.writeBigUInt64LE(BigInt(amount));
+
+      return Buffer.concat([hash, data, amountBuf]).toString('hex');
+    }
+    return originGetTrustedInputBIP143.apply(this, arguments);
+  };
+} catch (e) {
+  console.warn("[Zcash Ledger] Failed to patch getTrustedInputBIP143:", e);
+}
+/* eslint-enable @typescript-eslint/no-var-requires */
+
 import { currencies } from "./currencies";
 import { LedgerTransport } from "./transport";
-import { handleError, networksUtil, translateScriptType } from "./utils";
+import { networksUtil, translateScriptType, handleError } from "./utils";
 
 export const supportedCoins = [
   "Testnet",
@@ -426,17 +461,16 @@ export async function btcSignTx(
       [Transaction, number, undefined, number | undefined]
     >);
 
+  // ZCASH MONKEY PATCH ACTIVATION:
+  // We attach the correct TXID and Amount to the transaction object so our patched getTrustedInputBIP143 can find it.
   if (msg.coin === "Zcash") {
-    console.log(`[${msg.coin} Ledger] DEBUG - inputs array for createPaymentTransaction:`, {
-      inputsLength: inputs.length,
-      input0: inputs[0] ? {
-        txExists: !!inputs[0][0],
-        index: inputs[0][1],
-        redeemScript: inputs[0][2],
-        sequence: inputs[0][3],
-        blockHeight: inputs[0][4],
-        txHasConsensusBranchId: !!(inputs[0][0] as any)?.consensusBranchId,
-      } : 'NO INPUT 0',
+    inputs.forEach((input, i) => {
+      const tx = input[0] as any;
+      if (tx && msg.inputs[i]) {
+        tx._customZcashTxId = msg.inputs[i].txid;
+        tx._customZcashAmount = msg.inputs[i].amount;
+        console.log(`[Zcash Ledger] Attached custom props to input ${i}: txid=${msg.inputs[i].txid}, amount=${msg.inputs[i].amount}`);
+      }
     });
   }
 
