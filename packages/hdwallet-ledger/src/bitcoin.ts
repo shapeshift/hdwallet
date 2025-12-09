@@ -188,6 +188,43 @@ export async function btcSignTx(
   const associatedKeysets: string[] = [];
   let segwit = false;
 
+  // For Zcash, we need to manually construct a v5 unsigned transaction
+  // because bitcoinjs-lib PSBT creates Bitcoin v2 transactions
+  let unsignedHexOverride: string | undefined;
+  if (msg.coin === "Zcash") {
+    const buf: Buffer[] = [];
+    // Version (4 bytes) - 0x80000005 for Zcash v5
+    const version = Buffer.alloc(4);
+    version.writeUInt32LE(0x80000005, 0);
+    buf.push(version);
+
+    // Empty inputs for now (will be filled by Ledger)
+    buf.push(Buffer.from([0x00])); // 0 inputs
+
+    // Outputs
+    buf.push(Buffer.from([msg.outputs.length])); // output count
+    for (const output of msg.outputs) {
+      const value = Buffer.alloc(8);
+      value.writeBigInt64LE(BigInt(output.amount || "0"), 0);
+      buf.push(value);
+
+      const address = output.address || "";
+      const scriptUint8 = bitcoin.address.toOutputScript(address, networksUtil[slip44].bitcoinjs as bitcoin.Network);
+      const script = Buffer.from(scriptUint8);
+      buf.push(Buffer.from([script.length]));
+      buf.push(script);
+    }
+
+    // Locktime (4 bytes) - 0
+    buf.push(Buffer.alloc(4));
+
+    unsignedHexOverride = Buffer.concat(buf).toString("hex");
+    console.log(`[${msg.coin} Ledger] Manual Zcash v5 unsigned tx:`, {
+      length: unsignedHexOverride.length,
+      sample: unsignedHexOverride.substring(0, 100),
+    });
+  }
+
   for (const output of msg.outputs) {
     let outputAddress: string;
     if (output.addressNList !== undefined && output.isChange) {
@@ -225,11 +262,12 @@ export async function btcSignTx(
     psbt.addOutput({ script, value: BigInt(0) });
   }
 
-  const unsignedHex = Buffer.from(psbt.data.getTransaction()).toString("hex");
+  const unsignedHex = unsignedHexOverride || Buffer.from(psbt.data.getTransaction()).toString("hex");
 
   console.log(`[${msg.coin} Ledger] Splitting unsigned transaction:`, JSON.stringify({
     unsignedHexLength: unsignedHex.length,
     unsignedHexSample: unsignedHex.substring(0, 64),
+    usingOverride: !!unsignedHexOverride,
   }, null, 2));
 
   const splitTxRes = await transport.call("Btc", "splitTransaction", unsignedHex);
