@@ -17,5 +17,6 @@
     "@shapeshiftoss/hdwallet-core": "^1.62.24-alpha-ledger-tron.1",
     "@shapeshiftoss/hdwallet-trezor": "^1.62.24-alpha-ledger-tron.1",
     "@trezor/connect-web": "^9.6.4"
-  }
+  },
+  "gitHead": "929622fc6fadb86c39290ba653291893ce3e7662"
 }

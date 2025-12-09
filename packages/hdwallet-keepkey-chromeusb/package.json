@@ -16,5 +16,6 @@
   "dependencies": {
     "@shapeshiftoss/hdwallet-core": "^1.62.24-alpha-ledger-tron.1",
     "@shapeshiftoss/hdwallet-keepkey": "^1.62.24-alpha-ledger-tron.1"
-  }
+  },
+  "gitHead": "929622fc6fadb86c39290ba653291893ce3e7662"
 }

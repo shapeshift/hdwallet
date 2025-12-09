@@ -5,7 +5,7 @@ import * as Messages from "@keepkey/device-protocol/lib/messages_pb";
 import * as OsmosisMessages from "@keepkey/device-protocol/lib/messages-osmosis_pb";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { sortTxFields } from "@shapeshiftoss/hdwallet-core";
-import * as bs58check from "bs58check";
+import bs58check from "bs58check";
 import PLazy from "p-lazy";
 
 import { Transport } from "./transport";
@@ -46,7 +46,7 @@ export async function osmosisSignTx(transport: Transport, msg: core.OsmosisSignT
       msgTimeout: core.DEFAULT_TIMEOUT,
     })
   ).proto as Messages.PublicKey;
-  const pubkey = bs58check.decode(core.mustBeDefined(pubkeyMsg.getXpub())).slice(45);
+  const pubkey = Buffer.from(bs58check.decode(core.mustBeDefined(pubkeyMsg.getXpub())).slice(45));
 
   return transport.lockDuring(async () => {
     const signTx = new OsmosisMessages.OsmosisSignTx();
