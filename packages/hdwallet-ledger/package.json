@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger",
-  "version": "1.62.24-ledger-zcash.20",
+  "version": "1.62.24-ledger-zcash.21",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,6 +15,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
+    "@bitgo/utxo-lib": "^11.18.0",
     "@ethereumjs/common": "3.2.0",
     "@ethereumjs/tx": "4.2.0",
     "@ledgerhq/device-core": "0.6.9",
@@ -27,7 +28,7 @@
     "@ledgerhq/logs": "6.13.0",
     "@mysten/ledgerjs-hw-app-sui": "^0.7.0",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
-    "@shapeshiftoss/hdwallet-core": "^1.62.24-ledger-zcash.20",
+    "@shapeshiftoss/hdwallet-core": "^1.62.24-ledger-zcash.21",
     "@solana/web3.js": "1.95.8",
     "base64-js": "^1.5.1",
     "bchaddrjs": "^0.4.4",

@@ -8,6 +8,8 @@ import Base64 from "base64-js";
 import * as bchAddr from "bchaddrjs";
 import * as bitcoinMsg from "bitcoinjs-message";
 import zip from "lodash/zip";
+import { bitgo, networks as bitgoNetworks } from "@bitgo/utxo-lib";
+import { ZcashTransaction, type ZcashPsbt } from "@bitgo/utxo-lib/dist/src/bitgo";
 
 import { currencies } from "./currencies";
 import { LedgerTransport } from "./transport";
@@ -182,48 +184,19 @@ export async function btcSignTx(
 
   // instantiation of ecc lib required for taproot sends https://github.com/bitcoinjs/bitcoinjs-lib/issues/1889#issuecomment-1443792692
   bitcoin.initEccLib(ecc);
-  const psbt = new bitcoin.Psbt({ network: networksUtil[slip44].bitcoinjs as bitcoin.Network });
+
+  // For Zcash, use BitGo's PSBT which natively supports Zcash v5 transactions
+  const psbt = msg.coin === "Zcash"
+    ? bitgo.createPsbtForNetwork(
+        { network: bitgoNetworks.zcash },
+        { version: ZcashTransaction.VERSION4_BRANCH_NU6_1 }
+      ) as ZcashPsbt
+    : new bitcoin.Psbt({ network: networksUtil[slip44].bitcoinjs as bitcoin.Network });
+
   const indexes: number[] = [];
   const txs: Transaction[] = [];
   const associatedKeysets: string[] = [];
   let segwit = false;
-
-  // For Zcash, we need to manually construct a v5 unsigned transaction
-  // because bitcoinjs-lib PSBT creates Bitcoin v2 transactions
-  let unsignedHexOverride: string | undefined;
-  if (msg.coin === "Zcash") {
-    const buf: Buffer[] = [];
-    // Version (4 bytes) - 0x80000005 for Zcash v5
-    const version = Buffer.alloc(4);
-    version.writeUInt32LE(0x80000005, 0);
-    buf.push(version);
-
-    // Empty inputs for now (will be filled by Ledger)
-    buf.push(Buffer.from([0x00])); // 0 inputs
-
-    // Outputs
-    buf.push(Buffer.from([msg.outputs.length])); // output count
-    for (const output of msg.outputs) {
-      const value = Buffer.alloc(8);
-      value.writeBigInt64LE(BigInt(output.amount || "0"), 0);
-      buf.push(value);
-
-      const address = output.address || "";
-      const scriptUint8 = bitcoin.address.toOutputScript(address, networksUtil[slip44].bitcoinjs as bitcoin.Network);
-      const script = Buffer.from(scriptUint8);
-      buf.push(Buffer.from([script.length]));
-      buf.push(script);
-    }
-
-    // Locktime (4 bytes) - 0
-    buf.push(Buffer.alloc(4));
-
-    unsignedHexOverride = Buffer.concat(buf).toString("hex");
-    console.log(`[${msg.coin} Ledger] Manual Zcash v5 unsigned tx:`, {
-      length: unsignedHexOverride.length,
-      sample: unsignedHexOverride.substring(0, 100),
-    });
-  }
 
   for (const output of msg.outputs) {
     let outputAddress: string;
@@ -259,15 +232,23 @@ export async function btcSignTx(
     const script = bitcoin.script.compile([bitcoin.opcodes.OP_RETURN, Buffer.from(msg.opReturnData)]);
 
     // OP_RETURN_DATA outputs always have a value of 0
-    psbt.addOutput({ script, value: BigInt(0) });
+    psbt.addOutput({ script: Buffer.from(script), value: BigInt(0) });
   }
 
-  const unsignedHex = unsignedHexOverride || Buffer.from(psbt.data.getTransaction()).toString("hex");
+  // For Zcash, set version defaults after all outputs are added
+  if (msg.coin === "Zcash") {
+    (psbt as ZcashPsbt).setDefaultsForVersion(
+      bitgoNetworks.zcash,
+      ZcashTransaction.VERSION4_BRANCH_NU6_1
+    );
+  }
+
+  const unsignedTx = psbt.data.getTransaction();
+  const unsignedHex = Buffer.from(unsignedTx).toString("hex");
 
   console.log(`[${msg.coin} Ledger] Splitting unsigned transaction:`, JSON.stringify({
     unsignedHexLength: unsignedHex.length,
     unsignedHexSample: unsignedHex.substring(0, 64),
-    usingOverride: !!unsignedHexOverride,
   }, null, 2));
 
   const splitTxRes = await transport.call("Btc", "splitTransaction", unsignedHex);
