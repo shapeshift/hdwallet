@@ -5,7 +5,7 @@
   "author": "ShapeShift Open Source <oss@shapeshiftoss.io>",
   "license": "MIT",
   "engines": {
-    "node": ">=22.x"
+    "node": "22.x"
   },
   "workspaces": {
     "packages": [
