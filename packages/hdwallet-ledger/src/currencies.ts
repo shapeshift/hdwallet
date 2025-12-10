@@ -19,4 +19,8 @@ export const currencies: Record<string, Currency> = {
     name: "Litecoin",
     xpubVersion: 0x019da462,
   },
+  Zcash: {
+    name: "Zcash",
+    xpubVersion: 0x0488b21e,
+  },
 };
