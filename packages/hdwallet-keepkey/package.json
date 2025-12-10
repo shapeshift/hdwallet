@@ -23,6 +23,8 @@
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
     "@shapeshiftoss/hdwallet-core": "1.62.25",
     "@shapeshiftoss/proto-tx-builder": "0.10.0",
+    "bs58": "^5.0.0",
+    "bs58check": "^4.0.0",
     "bignumber.js": "^9.0.1",
     "bnb-javascript-sdk-nobroadcast": "2.16.15",
     "crypto-js": "^4.0.0",
