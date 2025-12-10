@@ -147,7 +147,7 @@ export async function btcSignTx(
   }
 
   const isZcash = msg.coin === "Zcash";
-  const version = isZcash ? (msg.version ?? 5) : undefined;
+  const version = isZcash ? msg.version ?? 5 : undefined;
 
   const res = await transport.call("signTransaction", {
     coin: translateCoin(msg.coin),
