@@ -170,6 +170,7 @@ export const slip44Table = Object.freeze({
   ArbitrumNova: 60,
   Base: 60,
   Monad: 60,
+  Plasma: 60,
 } as const);
 
 export type Slip44ByCoin<T> = T extends keyof typeof slip44Table ? (typeof slip44Table)[T] : number | undefined;
