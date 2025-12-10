@@ -1769,26 +1769,9 @@
     axios "1.12.2"
     crypto-js "4.2.0"
 
-"@ledgerhq/hw-app-btc@10.12.0":
-  version "10.12.0"
-  resolved "https://registry.npmjs.org/@ledgerhq/hw-app-btc/-/hw-app-btc-10.12.0.tgz#26a65eaa3b3fb76f81059b8702e660d06610419a"
-  integrity sha512-MI8UR0S8AZjjlPLZBsONKmG8a77nBLcJJPkXq1+Y3JY1Gj3CLL+WKA+LU5CNwWe6qGtk9ho79egzh2xAagVo1g==
-  dependencies:
-    "@ledgerhq/hw-transport" "6.31.13"
-    "@ledgerhq/logs" "^6.13.0"
-    "@noble/curves" "1.9.7"
-    "@noble/hashes" "1.8.0"
-    bip32-path "^0.4.2"
-    bitcoinjs-lib "^5.2.0"
-    bs58 "^4.0.1"
-    bs58check "^2.1.2"
-    invariant "^2.2.4"
-    semver "^7.3.5"
-    varuint-bitcoin "1.1.2"
-
 "@ledgerhq/hw-app-btc@10.13.0":
   version "10.13.0"
-  resolved "https://registry.npmjs.org/@ledgerhq/hw-app-btc/-/hw-app-btc-10.13.0.tgz#161171c9ba70ea3746a521cb0e4e53e99f6e8eee"
+  resolved "http://127.0.0.1:4873/@ledgerhq/hw-app-btc/-/hw-app-btc-10.13.0.tgz#161171c9ba70ea3746a521cb0e4e53e99f6e8eee"
   integrity sha512-zloeQj0yrAVbZBPxdkafihUPOb40sCh4hmDsMbwKRf8ik3binozzXKsluQQNFd6Pd77tIImXLdRZRHCwFOIVFQ==
   dependencies:
     "@ledgerhq/hw-transport" "6.31.13"

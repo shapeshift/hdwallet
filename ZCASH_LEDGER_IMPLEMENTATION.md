@@ -40,7 +40,7 @@ Zcash support on Ledger requires specific handling due to its unique transaction
 **Error**: `splitTransaction` failed with varint parsing error
 **Root Cause**: Missing `additionals` parameter when calling `splitTransaction`
 **Solution**: Pass `["zcash", "sapling"]` as 4th parameter
-**Reference**: https://github.com/LedgerHQ/ledger-live/blob/develop/libs/ledgerjs/packages/hw-app-btc/tests/splitTransaction.test.ts
+**Reference**: [Ledger splitTransaction tests](https://github.com/LedgerHQ/ledger-live/blob/develop/libs/ledgerjs/packages/hw-app-btc/tests/splitTransaction.test.ts)
 
 ### Issue 2: Ledger App Quits / USB Transfer Cancelled
 **Error**: `AbortError: Failed to execute 'transferIn' on 'USBDevice'`
@@ -52,7 +52,7 @@ Zcash support on Ledger requires specific handling due to its unique transaction
 **Error**: `transaction uses an incorrect consensus branch id`
 **Root Cause**: Zcash network upgraded to NU6.1 (0x4DEC4DF0), but older Ledger libraries defaulted to NU6.
 **Solution**:
-- Upgrade `@ledgerhq/hw-app-btc` to `^10.13.0`
+- Use `@ledgerhq/hw-app-btc` version `10.13.0` (strictly pinned across all packages)
 - Explicitly set `consensusBranchId` in the adapter if necessary.
 
 ### Issue 4: Invalid Trusted Input Hash (Zcash v5)
@@ -73,8 +73,9 @@ Zcash support on Ledger requires specific handling due to its unique transaction
 - Does **not** support z-addresses (shielded transactions)
 
 ### 2. Expiry Height Management
-- **Current**: Defaults to 0 (no expiry) or uses block height from input.
+- **Current**: Hardcoded to 0 (no expiry) using `Buffer.alloc(4)` in the implementation.
 - **Requirement**: Zcash transactions require `expiryHeight`. If 0, it means no expiry (valid per ZIP-203).
+- **Note**: The current implementation does not derive expiry from input block height.
 
 ---
 
