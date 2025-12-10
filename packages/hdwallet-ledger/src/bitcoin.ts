@@ -106,6 +106,7 @@ export async function btcSupportsScriptType(coin: core.Coin, scriptType?: core.B
       core.BTCInputScriptType.SpendP2SHWitness,
     ],
     BitcoinCash: [core.BTCInputScriptType.SpendAddress],
+    Zcash: [core.BTCInputScriptType.SpendAddress],
   } as Partial<Record<core.Coin, Array<core.BTCInputScriptType>>>;
 
   const scriptTypes = supported[coin];
