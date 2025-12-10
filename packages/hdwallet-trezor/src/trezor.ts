@@ -286,6 +286,7 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   readonly _supportsBase = true;
   readonly _supportsMonad = false;
   readonly _supportsPlasma = false;
+  readonly _supportsHyperEvm = false;
   readonly _supportsKavaInfo = true;
   readonly _supportsTerraInfo = true;
   readonly _supportsSolana = true;

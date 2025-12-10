@@ -175,6 +175,10 @@ export function supportsPlasma(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsPlasma;
 }
 
+export function supportsHyperEvm(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsHyperEvm;
+}
+
 export function infoCosmos(info: HDWalletInfo): info is CosmosWalletInfo {
   return isObject(info) && (info as any)._supportsCosmosInfo;
 }
