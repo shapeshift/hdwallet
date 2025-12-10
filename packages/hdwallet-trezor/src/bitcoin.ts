@@ -31,6 +31,13 @@ function translateCoin(coin: core.Coin): string {
 
 const segwitCoins = ["Bitcoin", "Litecoin", "BitcoinGold", "Testnet"];
 
+const ZCASH_VERSION_GROUP_ID: Record<number, number> = {
+  4: 0x892f2085,
+  5: 0x26a7270a,
+};
+
+const ZCASH_CONSENSUS_BRANCH_ID = 0x4dec4df0;
+
 function translateInputScriptType(scriptType?: core.BTCInputScriptType): string {
   switch (scriptType) {
     case core.BTCInputScriptType.SpendAddress:
@@ -139,11 +146,19 @@ export async function btcSignTx(
     });
   }
 
+  const isZcash = msg.coin === "Zcash";
+  const version = isZcash ? msg.version ?? 5 : undefined;
+
   const res = await transport.call("signTransaction", {
     coin: translateCoin(msg.coin),
     inputs: inputs,
     outputs: outputs,
     push: false,
+    ...(isZcash && {
+      version,
+      versionGroupId: ZCASH_VERSION_GROUP_ID[version!],
+      branchId: ZCASH_CONSENSUS_BRANCH_ID,
+    }),
   });
 
   handleError(transport, res, "Could not sign transaction with Trezor");
