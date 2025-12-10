@@ -108,6 +108,7 @@ export class CoinbaseHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsArbitrumNova = true;
   readonly _supportsBase = true;
   readonly _supportsMonad = false;
+  readonly _supportsHyperEvm = false;
   readonly _supportsOsmosisInfo = false;
   readonly _supportsOsmosis = false;
   readonly _supportsBinanceInfo = false;
