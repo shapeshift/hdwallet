@@ -1,6 +1,9 @@
 import ecc from "@bitcoinerlab/secp256k1";
+import { address as zcashAddress, bitgo, networks as bitgoNetworks } from "@bitgo/utxo-lib";
+import { type ZcashPsbt, ZcashTransaction } from "@bitgo/utxo-lib/dist/src/bitgo";
 import { CreateTransactionArg } from "@ledgerhq/hw-app-btc/lib/createTransaction";
 import { Transaction } from "@ledgerhq/hw-app-btc/lib/types";
+import Transport from "@ledgerhq/hw-transport";
 import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { BTCInputScriptType, convertXpubVersion, scriptTypeToAccountType } from "@shapeshiftoss/hdwallet-core";
@@ -13,7 +16,81 @@ import { currencies } from "./currencies";
 import { LedgerTransport } from "./transport";
 import { handleError, networksUtil, translateScriptType } from "./utils";
 
-export const supportedCoins = ["Testnet", "Bitcoin", "BitcoinCash", "Litecoin", "Dash", "DigiByte", "Dogecoin"];
+const ZCASH_VERSION_GROUP_ID: Record<number, number> = {
+  4: 0x892f2085,
+  5: 0x26a7270a,
+};
+
+const ZCASH_CONSENSUS_BRANCH_ID = 0x4dec4df0;
+
+type ZcashInput = core.BTCSignTxInputLedger & {
+  txid?: string;
+  blockHeight?: number;
+};
+
+type ZcashLedgerTransaction = Transaction & {
+  _customZcashTxId?: string;
+  _customZcashAmount?: string;
+};
+
+// Access hidden/protected property 'tx' on ZcashPsbt
+type ExposedZcashPsbt = {
+  tx: ZcashTransaction;
+};
+
+// MONKEY PATCH: Fix Zcash v5 Trusted Input Hashing
+// @ledgerhq/hw-app-btc calculates SHA256d hash for trusted inputs, but Zcash v5 uses ZIP-244 tree hash.
+// We patch getTrustedInputBIP143 to use the correct TXID provided by the adapter (via _customZcashTxId property)
+// instead of incorrectly re-hashing the simplified transaction buffer.
+//
+// NOTE: We use 'require' here because ES6 imports are read-only and immutable.
+// To successfully patch the function exported by the library so that internal calls use our version,
+// we must modify the CommonJS exports object directly.
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const getTrustedInputModule = require("@ledgerhq/hw-app-btc/lib/getTrustedInputBIP143");
+  const originGetTrustedInputBIP143 = getTrustedInputModule.getTrustedInputBIP143;
+
+  getTrustedInputModule.getTrustedInputBIP143 = function (
+    transport: Transport,
+    indexLookup: number,
+    transaction: Transaction & { _customZcashTxId?: string; _customZcashAmount?: string },
+    additionals: Array<string>,
+    ...args: any[]
+  ) {
+    if (
+      additionals &&
+      additionals.includes("zcash") &&
+      transaction._customZcashTxId &&
+      transaction._customZcashAmount
+    ) {
+      const txid = transaction._customZcashTxId;
+      const amount = transaction._customZcashAmount;
+
+      const hash = Buffer.from(txid, "hex").reverse();
+      const data = Buffer.alloc(4);
+      data.writeUInt32LE(indexLookup, 0);
+      const amountBuf = Buffer.alloc(8);
+      amountBuf.writeBigUInt64LE(BigInt(amount));
+
+      return Buffer.concat([hash, data, amountBuf]).toString("hex");
+    }
+    return originGetTrustedInputBIP143.call(this, transport, indexLookup, transaction, additionals, ...args);
+  };
+} catch (e) {
+  console.error("[Zcash Ledger] Failed to patch getTrustedInputBIP143:", e);
+}
+
+export const supportedCoins = [
+  "Testnet",
+  "Bitcoin",
+  "BitcoinCash",
+  "Litecoin",
+  "Dash",
+  "DigiByte",
+  "Dogecoin",
+  "Zcash",
+];
 
 const segwitCoins = ["Bitcoin", "DigiByte", "Litecoin", "BitcoinGold", "Testnet"];
 
@@ -29,6 +106,7 @@ export async function btcSupportsScriptType(coin: core.Coin, scriptType?: core.B
       core.BTCInputScriptType.SpendP2SHWitness,
     ],
     BitcoinCash: [core.BTCInputScriptType.SpendAddress],
+    Zcash: [core.BTCInputScriptType.SpendAddress],
   } as Partial<Record<core.Coin, Array<core.BTCInputScriptType>>>;
 
   const scriptTypes = supported[coin];
@@ -145,10 +223,20 @@ export async function btcSignTx(
   const slip44 = core.mustBeDefined(core.slip44ByCoin(msg.coin));
   // instantiation of ecc lib required for taproot sends https://github.com/bitcoinjs/bitcoinjs-lib/issues/1889#issuecomment-1443792692
   bitcoin.initEccLib(ecc);
-  const psbt = new bitcoin.Psbt({ network: networksUtil[slip44].bitcoinjs as bitcoin.Network });
+
+  // For Zcash, use BitGo's PSBT which natively supports Zcash v5 transactions
+  const psbt =
+    msg.coin === "Zcash"
+      ? (bitgo.createPsbtForNetwork(
+          { network: bitgoNetworks.zcash },
+          { version: ZcashTransaction.VERSION4_BRANCH_NU6_1 }
+        ) as ZcashPsbt)
+      : new bitcoin.Psbt({ network: networksUtil[slip44].bitcoinjs as bitcoin.Network });
+
   const indexes: number[] = [];
   const txs: Transaction[] = [];
   const associatedKeysets: string[] = [];
+  const blockHeights: (number | undefined)[] = []; // For Zcash: blockHeight of each input
   let segwit = false;
 
   for (const output of msg.outputs) {
@@ -175,7 +263,14 @@ export async function btcSignTx(
     if (msg.coin === "BitcoinCash" && bchAddr.isCashAddress(outputAddress)) {
       outputAddress = bchAddr.toLegacyAddress(outputAddress);
     }
-    psbt.addOutput({ address: outputAddress, value: BigInt(output.amount) });
+
+    // For Zcash, BitGo's PSBT expects { script, value } not { address, value }
+    if (msg.coin === "Zcash") {
+      const script = zcashAddress.toOutputScript(outputAddress, bitgoNetworks.zcash);
+      psbt.addOutput({ script: Buffer.from(script), value: BigInt(output.amount) });
+    } else {
+      psbt.addOutput({ address: outputAddress, value: BigInt(output.amount) });
+    }
   }
 
   if (msg.opReturnData) {
@@ -185,12 +280,33 @@ export async function btcSignTx(
     const script = bitcoin.script.compile([bitcoin.opcodes.OP_RETURN, Buffer.from(msg.opReturnData)]);
 
     // OP_RETURN_DATA outputs always have a value of 0
-    psbt.addOutput({ script, value: BigInt(0) });
+    psbt.addOutput({ script: Buffer.from(script), value: BigInt(0) });
   }
 
-  const unsignedHex = Buffer.from(psbt.data.getTransaction()).toString("hex");
-  const splitTxRes = await transport.call("Btc", "splitTransaction", unsignedHex);
+  // For Zcash, set version defaults after all outputs are added
+  if (msg.coin === "Zcash") {
+    // Use VERSION4_BRANCH_NU6_1 like SwapKit (hw-app-btc doesn't support v5 unsigned txs)
+    (psbt as ZcashPsbt).setDefaultsForVersion(bitgoNetworks.zcash, ZcashTransaction.VERSION4_BRANCH_NU6_1);
+
+    // Manually set versionGroupId and consensusBranchId because setDefaultsForVersion might not work
+    (psbt as unknown as ExposedZcashPsbt).tx.versionGroupId = ZCASH_VERSION_GROUP_ID[5]; // NU6 version group ID
+    (psbt as unknown as ExposedZcashPsbt).tx.consensusBranchId = ZCASH_CONSENSUS_BRANCH_ID; // NU6.1 consensus branch ID
+    (psbt as unknown as ExposedZcashPsbt).tx.overwintered = 1;
+  }
+
+  // For Zcash, use the globalMap.unsignedTx like SwapKit does
+  const unsignedHex =
+    msg.coin === "Zcash"
+      ? psbt.data.globalMap.unsignedTx.toBuffer().toString("hex")
+      : Buffer.from(psbt.data.getTransaction()).toString("hex");
+
+  // For Zcash, pass the same parameters as we do for input transactions
+  const splitTxRes =
+    msg.coin === "Zcash"
+      ? await transport.call("Btc", "splitTransaction", unsignedHex, true, true, ["zcash", "sapling"])
+      : await transport.call("Btc", "splitTransaction", unsignedHex);
   handleError(splitTxRes, transport, "splitTransaction failed");
+
   const outputScriptRes = await transport.call("Btc", "serializeTransactionOutputs", splitTxRes.payload);
   handleError(outputScriptRes, transport, "serializeTransactionOutputs failed");
   const outputScriptHex = outputScriptRes.payload.toString("hex");
@@ -211,9 +327,18 @@ export async function btcSignTx(
       "splitTransaction",
       msg.inputs[i].hex,
       networksUtil[slip44].isSegwitSupported,
-      networksUtil[slip44].areTransactionTimestamped
+      networksUtil[slip44].areTransactionTimestamped,
+      networksUtil[slip44].additionals || []
     );
     handleError(tx, transport, "splitTransaction failed");
+
+    // Collect blockHeight for this input to pass as 5th parameter for Zcash
+    const zcashInput = msg.inputs[i] as ZcashInput;
+    if (msg.coin === "Zcash" && zcashInput.blockHeight) {
+      blockHeights.push(zcashInput.blockHeight);
+    } else {
+      blockHeights.push(undefined);
+    }
 
     indexes.push(vout);
     txs.push(tx.payload);
@@ -221,7 +346,38 @@ export async function btcSignTx(
   }
 
   if (txs.length !== indexes.length) throw new Error("tx/index array length mismatch");
-  const inputs = zip(txs, indexes, [], []) as Array<[Transaction, number, undefined, undefined]>;
+
+  // For all coins (including Zcash), use empty sequences array to let Ledger use DEFAULT_SEQUENCE (0xffffffff)
+  // Setting sequence to 0 would enable RBF/locktime which causes issues
+  const sequences: number[] = [];
+
+  // Build inputs array with 5 parameters: [tx, index, redeemScript, sequence, blockHeight]
+  // For Zcash, the blockHeight (5th param) is CRITICAL - Ledger uses it to calculate consensusBranchId
+  // for each input's signature validation
+  const inputs =
+    msg.coin === "Zcash"
+      ? (Array.from({ length: txs.length }, (_, i) => [
+          txs[i],
+          indexes[i],
+          undefined,
+          undefined,
+          blockHeights[i],
+        ]) as Array<[Transaction, number, undefined, undefined, number | undefined]>)
+      : (zip(txs, indexes, [], sequences) as Array<[Transaction, number, undefined, number | undefined]>);
+
+  // ZCASH MONKEY PATCH ACTIVATION:
+  // We attach the correct TXID and Amount to the transaction object so our patched getTrustedInputBIP143 can find it.
+  if (msg.coin === "Zcash") {
+    inputs.forEach((input, i) => {
+      const tx = input[0] as ZcashLedgerTransaction;
+      const zcashInput = msg.inputs[i] as ZcashInput;
+      if (tx && zcashInput) {
+        // Access txid via casting since it's not in the shared Ledger interface anymore
+        tx._customZcashTxId = zcashInput.txid;
+        tx._customZcashAmount = zcashInput.amount;
+      }
+    });
+  }
 
   const txArgs: CreateTransactionArg = {
     inputs,
@@ -229,12 +385,20 @@ export async function btcSignTx(
     outputScriptHex,
     additionals: (() => {
       if (msg.coin === "BitcoinCash") return ["abc"];
+      if (msg.coin === "Zcash") return ["zcash", "sapling"];
       if (msg.inputs.some((input) => input.scriptType === core.BTCInputScriptType.SpendWitness)) return ["bech32"];
 
       return [];
     })(),
     segwit,
     useTrustedInputForSegwit: Boolean(segwit),
+    // For Zcash, use the FIRST input's blockHeight as a reasonable current blockHeight
+    // Ledger Live uses account.xpub.currentBlockHeight
+    blockHeight:
+      msg.coin === "Zcash" && (msg.inputs[0] as ZcashInput)?.blockHeight
+        ? (msg.inputs[0] as ZcashInput).blockHeight
+        : undefined,
+    expiryHeight: msg.coin === "Zcash" ? Buffer.alloc(4) : undefined,
   };
 
   // "invalid data received" error from Ledger if not done this way:

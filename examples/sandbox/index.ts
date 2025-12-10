@@ -727,6 +727,15 @@ $getXpubs.each(function () {
         scriptType: core.BTCInputScriptType.SpendAddress,
       },
     ];
+    const zcashGetPublicKeysInput = [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + 133, 0x80000000 + 0],
+        curve: "secp256k1",
+        showDisplay: true,
+        coin: "Zcash",
+        scriptType: core.BTCInputScriptType.SpendAddress,
+      },
+    ];
     const hardenedPathGetPublicKeysInput = [
       {
         addressNList: hardenedPath,
@@ -741,6 +750,7 @@ $getXpubs.each(function () {
       ...ltcGetPublicKeysInput,
       ...bchGetPublicKeysInput,
       ...dogeGetPublicKeysInput,
+      ...zcashGetPublicKeysInput,
       ...hardenedPathGetPublicKeysInput,
     ];
 
@@ -3660,4 +3670,81 @@ $btcTxSegWitNative.on("click", async (e) => {
 
   // set mnemonic back to alcohol abuse
   await wallet.loadDevice({ mnemonic });
+});
+
+/**
+ * Zcash
+ */
+
+const $zecAddr = $("#zecAddr");
+const $zecTx = $("#zecTx");
+const $zecResults = $("#zecResults");
+
+const zecBip44 = {
+  scriptType: core.BTCInputScriptType.SpendAddress,
+  addressNList: [0x80000000 + 44, 0x80000000 + 133, 0x80000000 + 0],
+};
+
+$zecAddr.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $zecResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsBTC(wallet)) {
+    const res = await wallet.btcGetAddress({
+      addressNList: zecBip44.addressNList.concat([0, 0]),
+      coin: "Zcash",
+      scriptType: zecBip44.scriptType,
+      showDisplay: true,
+    });
+    $zecResults.val(res);
+  } else {
+    const label = await wallet.getLabel();
+    $zecResults.val(label + " does not support Zcash");
+  }
+});
+
+$zecTx.on("click", async (e) => {
+  e.preventDefault();
+  if (!wallet) {
+    $zecResults.val("No wallet?");
+    return;
+  }
+  if (core.supportsBTC(wallet)) {
+    const txid = "3fdf3bdc14a24c02a1ba3b5610fe3d743fc27ad7b99b5a15577f290378b8a441";
+    const hex =
+      "050000800a27a7265510e7c80000000000000000017650edf257e6a63c8c30681a2cc074d1103486e8d8b69ef9169da7d6380c0ad2020000006b483045022100edf80562e29a877913297ec485801e7c29f2c2a2d87d6b4870df3eea14e7861902206b4c0cff78c3b29f75a8e5e1703f7b07c2f91dd87b2883cd29017a268d4fbbe8012102ef453a67db8d3a36ad12899b54899dd5d54f5c01cfb7d5f9b763ada476ae9e5effffffff03d28d0900000000001976a914c995b4ce5c3f15426c947b53e69a2d18e1a6cfbd88ac0000000000000000466a444f55543a423841444145304445463836373743303644323042363031453132374637343133444532423534413332304346363932353645354538384239424136323135439984270b9d0000001976a914fb39a8f9d044d4bb941d6c559f81cb144bf683dc88ac000000";
+
+    const inputs = [
+      {
+        addressNList: zecBip44.addressNList.concat([0, 0]),
+        scriptType: core.BTCInputScriptType.SpendAddress,
+        amount: String(626130),
+        vout: 0,
+        txid: txid,
+        hex,
+      },
+    ];
+
+    const outputs = [
+      {
+        address: "t1cFVAfga6NfFJGLYgUyCijxXHmu7ir7BPE",
+        addressType: core.BTCOutputAddressType.Spend,
+        scriptType: core.BTCOutputScriptType.PayToAddress,
+        amount: String(625130),
+        isChange: false,
+      },
+    ];
+
+    const res = await wallet.btcSignTx({
+      coin: "Zcash",
+      inputs,
+      outputs,
+    });
+    $zecResults.val(res.serializedTx);
+  } else {
+    const label = await wallet.getLabel();
+    $zecResults.val(label + " does not support Zcash");
+  }
 });

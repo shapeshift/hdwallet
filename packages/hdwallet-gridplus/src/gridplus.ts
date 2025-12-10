@@ -83,18 +83,38 @@ export class GridPlusWalletInfo
    * Bitcoin Wallet Info
    */
   async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
-    const supportedCoins = ["Bitcoin", "BitcoinCash", "Litecoin", "Dogecoin"];
+    // Note: BitcoinCash, Litecoin, and Dogecoin are disabled until first-class support is added
+    const supportedCoins = [
+      "Bitcoin",
+      // "BitcoinCash",
+      // "Litecoin",
+      // "Dogecoin",
+    ];
     return supportedCoins.includes(coin);
   }
 
   async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
+    // Note: BitcoinCash, Litecoin, and Dogecoin are disabled until first-class support is added
     switch (scriptType) {
       case core.BTCInputScriptType.SpendAddress:
-        return ["Bitcoin", "BitcoinCash", "Litecoin", "Dogecoin"].includes(coin);
+        return [
+          "Bitcoin",
+          // "BitcoinCash",
+          // "Litecoin",
+          // "Dogecoin",
+        ].includes(coin);
       case core.BTCInputScriptType.SpendP2SHWitness:
-        return ["Bitcoin", "BitcoinCash", "Litecoin"].includes(coin);
+        return [
+          "Bitcoin",
+          // "BitcoinCash",
+          // "Litecoin",
+        ].includes(coin);
       case core.BTCInputScriptType.SpendWitness:
-        return ["Bitcoin", "BitcoinCash", "Litecoin"].includes(coin);
+        return [
+          "Bitcoin",
+          // "BitcoinCash",
+          // "Litecoin",
+        ].includes(coin);
       default:
         return false;
     }
@@ -116,11 +136,12 @@ export class GridPlusWalletInfo
     const bip49 = core.segwitAccount(msg.coin, slip44, msg.accountIdx);
     const bip84 = core.segwitNativeAccount(msg.coin, slip44, msg.accountIdx);
 
+    // Note: BitcoinCash, Litecoin, and Dogecoin paths are disabled until first-class support is added
     const coinPaths: Record<string, Array<core.BTCAccountPath>> = {
       bitcoin: [bip44, bip49, bip84],
-      bitcoincash: [bip44, bip49, bip84],
-      dogecoin: [bip44],
-      litecoin: [bip44, bip49, bip84],
+      // bitcoincash: [bip44, bip49, bip84],
+      // dogecoin: [bip44],
+      // litecoin: [bip44, bip49, bip84],
     };
 
     const paths = coinPaths[msg.coin.toLowerCase()] || [];

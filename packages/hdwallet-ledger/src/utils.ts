@@ -463,28 +463,29 @@ export const networksUtil: Record<number, NetworkMagic> = {
     handleFeePerByte: false,
     areTransactionTimestamped: true,
   },
-  // 133: {
-  //   name: "zcash",
-  //   satoshi: 8,
-  //   unit: "ZEC",
-  //   apiName: "zec",
-  //   bitcoinjs: {
-  //     messagePrefix: "Zcash Signed Message:",
-  //     bip32: {
-  //       public: {
-  //         p2pkh: 76067358
-  //       },
-  //       private: 87393172
-  //     },
-  //     pubKeyHash: 7352,
-  //     scriptHash: 7357,
-  //     wif: 128
-  //   },
-  //   isSegwitSupported: false,
-  //   handleFeePerByte: false,
-  //   areTransactionTimestamped: undefined,
-  //   expiryHeight: Buffer.from("00000000", "hex")
-  // },
+  133: {
+    name: "zcash",
+    satoshi: 8,
+    unit: "ZEC",
+    apiName: "zec",
+    appName: "Zcash",
+    bitcoinjs: {
+      messagePrefix: "Zcash Signed Message:",
+      bip32: {
+        public: {
+          p2pkh: 76067358,
+        },
+        private: 87393172,
+      },
+      pubKeyHash: 0x1cb8,
+      scriptHash: 0x1cbd,
+      wif: 128,
+    },
+    isSegwitSupported: true,
+    handleFeePerByte: false,
+    areTransactionTimestamped: true,
+    additionals: ["zcash", "sapling"],
+  },
   141: {
     name: "komodo",
     satoshi: 8,
@@ -598,6 +599,7 @@ const appNameBySlip44: Record<number, string> = {
   20: "Digibyte",
   60: "Ethereum",
   118: "Cosmos",
+  133: "Zcash",
   145: "Bitcoin Cash",
   195: "Tron",
   501: "Solana",
