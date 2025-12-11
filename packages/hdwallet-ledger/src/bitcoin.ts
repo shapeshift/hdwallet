@@ -1,6 +1,4 @@
 import ecc from "@bitcoinerlab/secp256k1";
-import { address as zcashAddress, bitgo, networks as bitgoNetworks } from "@bitgo/utxo-lib";
-import { type ZcashPsbt, ZcashTransaction } from "@bitgo/utxo-lib/dist/src/bitgo";
 import { CreateTransactionArg } from "@ledgerhq/hw-app-btc/lib/createTransaction";
 import { Transaction } from "@ledgerhq/hw-app-btc/lib/types";
 import Transport from "@ledgerhq/hw-transport";
@@ -31,11 +29,6 @@ type ZcashInput = core.BTCSignTxInputLedger & {
 type ZcashLedgerTransaction = Transaction & {
   _customZcashTxId?: string;
   _customZcashAmount?: string;
-};
-
-// Access hidden/protected property 'tx' on ZcashPsbt
-type ExposedZcashPsbt = {
-  tx: ZcashTransaction;
 };
 
 // MONKEY PATCH: Fix Zcash v5 Trusted Input Hashing
@@ -224,14 +217,11 @@ export async function btcSignTx(
   // instantiation of ecc lib required for taproot sends https://github.com/bitcoinjs/bitcoinjs-lib/issues/1889#issuecomment-1443792692
   bitcoin.initEccLib(ecc);
 
-  // For Zcash, use BitGo's PSBT which natively supports Zcash v5 transactions
-  const psbt =
-    msg.coin === "Zcash"
-      ? (bitgo.createPsbtForNetwork(
-          { network: bitgoNetworks.zcash },
-          { version: ZcashTransaction.VERSION4_BRANCH_NU6_1 }
-        ) as ZcashPsbt)
-      : new bitcoin.Psbt({ network: networksUtil[slip44].bitcoinjs as bitcoin.Network });
+  const forkCoin = msg.coin === "Zcash" ? "zec" : "none";
+  const psbt = new bitcoin.Psbt({
+    network: networksUtil[slip44].bitcoinjs as bitcoin.Network,
+    forkCoin,
+  });
 
   const indexes: number[] = [];
   const txs: Transaction[] = [];
@@ -264,13 +254,7 @@ export async function btcSignTx(
       outputAddress = bchAddr.toLegacyAddress(outputAddress);
     }
 
-    // For Zcash, BitGo's PSBT expects { script, value } not { address, value }
-    if (msg.coin === "Zcash") {
-      const script = zcashAddress.toOutputScript(outputAddress, bitgoNetworks.zcash);
-      psbt.addOutput({ script: Buffer.from(script), value: BigInt(output.amount) });
-    } else {
-      psbt.addOutput({ address: outputAddress, value: BigInt(output.amount) });
-    }
+    psbt.addOutput({ address: outputAddress, value: BigInt(output.amount) });
   }
 
   if (msg.opReturnData) {
@@ -283,22 +267,14 @@ export async function btcSignTx(
     psbt.addOutput({ script: Buffer.from(script), value: BigInt(0) });
   }
 
-  // For Zcash, set version defaults after all outputs are added
+  // For Zcash, set transaction version and Zcash-specific parameters
   if (msg.coin === "Zcash") {
-    // Use VERSION4_BRANCH_NU6_1 like SwapKit (hw-app-btc doesn't support v5 unsigned txs)
-    (psbt as ZcashPsbt).setDefaultsForVersion(bitgoNetworks.zcash, ZcashTransaction.VERSION4_BRANCH_NU6_1);
-
-    // Manually set versionGroupId and consensusBranchId because setDefaultsForVersion might not work
-    (psbt as unknown as ExposedZcashPsbt).tx.versionGroupId = ZCASH_VERSION_GROUP_ID[5]; // NU6 version group ID
-    (psbt as unknown as ExposedZcashPsbt).tx.consensusBranchId = ZCASH_CONSENSUS_BRANCH_ID; // NU6.1 consensus branch ID
-    (psbt as unknown as ExposedZcashPsbt).tx.overwintered = 1;
+    psbt.setVersion(5);
+    psbt.setVersionGroupId(ZCASH_VERSION_GROUP_ID[5]);
+    psbt.setConsensusBranchId(ZCASH_CONSENSUS_BRANCH_ID);
   }
 
-  // For Zcash, use the globalMap.unsignedTx like SwapKit does
-  const unsignedHex =
-    msg.coin === "Zcash"
-      ? psbt.data.globalMap.unsignedTx.toBuffer().toString("hex")
-      : Buffer.from(psbt.data.getTransaction()).toString("hex");
+  const unsignedHex = Buffer.from(psbt.data.getTransaction()).toString("hex");
 
   // For Zcash, pass the same parameters as we do for input transactions
   const splitTxRes =
@@ -392,11 +368,15 @@ export async function btcSignTx(
     })(),
     segwit,
     useTrustedInputForSegwit: Boolean(segwit),
-    // For Zcash, use the FIRST input's blockHeight as a reasonable current blockHeight
-    // Ledger Live uses account.xpub.currentBlockHeight
+    // For Zcash, pass the current network blockHeight so Ledger uses correct consensus branch ID.
+    // Use the highest confirmed input blockHeight, or fallback to NU6 activation height.
+    // This ensures correct consensus branch ID (0x4dec4df0) even when spending unconfirmed outputs.
     blockHeight:
-      msg.coin === "Zcash" && (msg.inputs[0] as ZcashInput)?.blockHeight
-        ? (msg.inputs[0] as ZcashInput).blockHeight
+      msg.coin === "Zcash"
+        ? Math.max(
+            ...blockHeights.filter((h): h is number => h !== undefined && h > 0),
+            2726400
+          )
         : undefined,
     expiryHeight: msg.coin === "Zcash" ? Buffer.alloc(4) : undefined,
   };
