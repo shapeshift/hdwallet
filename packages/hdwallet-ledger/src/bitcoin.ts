@@ -373,10 +373,7 @@ export async function btcSignTx(
     // This ensures correct consensus branch ID (0x4dec4df0) even when spending unconfirmed outputs.
     blockHeight:
       msg.coin === "Zcash"
-        ? Math.max(
-            ...blockHeights.filter((h): h is number => h !== undefined && h > 0),
-            2726400
-          )
+        ? Math.max(...blockHeights.filter((h): h is number => h !== undefined && h > 0), 2726400)
         : undefined,
     expiryHeight: msg.coin === "Zcash" ? Buffer.alloc(4) : undefined,
   };
