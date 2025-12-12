@@ -28,5 +28,6 @@
   "devDependencies": {
     "@types/google-protobuf": "^3.15.1",
     "@types/lodash": "^4.14.168"
-  }
+  },
+  "gitHead": "c591a24b604cc73d464ddfb38f5e92c778bd1591"
 }

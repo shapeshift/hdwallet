@@ -21,5 +21,6 @@
     "@shapeshiftoss/hdwallet-core": "^1.62.29-second-class-mm.0",
     "@shapeshiftoss/hdwallet-ledger": "^1.62.29-second-class-mm.0",
     "@types/w3c-web-hid": "^1.0.2"
-  }
+  },
+  "gitHead": "c591a24b604cc73d464ddfb38f5e92c778bd1591"
 }
