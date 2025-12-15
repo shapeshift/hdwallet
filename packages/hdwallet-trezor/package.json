@@ -26,5 +26,6 @@
     "@types/bchaddrjs": "^0.4.0",
     "@types/lodash": "^4.14.168",
     "typedoc": "^0.20.36"
-  }
+  },
+  "gitHead": "62e99f0c706dc241e627f11b40528b68ea11d6c2"
 }

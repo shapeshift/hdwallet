@@ -21,5 +21,6 @@
     "@shapeshiftoss/hdwallet-core": "^1.62.29-phantom-cache.0",
     "@shapeshiftoss/hdwallet-ledger": "^1.62.29-phantom-cache.0",
     "@types/w3c-web-hid": "^1.0.2"
-  }
+  },
+  "gitHead": "62e99f0c706dc241e627f11b40528b68ea11d6c2"
 }
