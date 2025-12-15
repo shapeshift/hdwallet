@@ -180,7 +180,6 @@ export class PhantomHDWalletInfo
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public suiNextAccountPath(msg: core.SuiAccountPath): core.SuiAccountPath | undefined {
-    // Phantom doesn't support multiple accounts/derivation paths
     return undefined;
   }
 }
@@ -361,7 +360,7 @@ export class PhantomHDWallet
   public async ethGetChainId(): Promise<number | null> {
     try {
       const chainIdHex = await this.evmProvider.request({ method: "eth_chainId" });
-      return parseInt(chainIdHex as string, 16);
+      return parseInt(chainIdHex, 16);
     } catch (error) {
       console.error("Failed to get chain ID from Phantom:", error);
       return null;

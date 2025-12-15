@@ -42,8 +42,8 @@ export type PhantomSuiProvider = providers.ExternalProvider & {
   signMessage(message: Uint8Array, encoding?: string): Promise<{ signature: string }>;
   signPersonalMessage(message: Uint8Array): Promise<{ signature: string }>;
   signTransaction(params: {
-    transaction: any;  // The transaction object
-    address: string;   // Sender's address
-    networkID: string; // Network identifier
+    transaction: string;
+    address: string;
+    networkID: string;
   }): Promise<{ signature: string }>;
 };

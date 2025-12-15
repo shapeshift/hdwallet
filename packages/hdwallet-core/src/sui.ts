@@ -10,8 +10,8 @@ export interface SuiSignTx {
   addressNList: BIP32Path;
   /** Intent message bytes to sign (intent scope + version + app id + tx bytes) */
   intentMessageBytes: Uint8Array;
-  /** Optional transaction JSON for wallets that need it (e.g., Phantom) */
-  transactionJson?: string;
+  /** Transaction JSON string for wallet signing */
+  transactionJson: string;
 }
 
 export interface SuiSignedTx {
