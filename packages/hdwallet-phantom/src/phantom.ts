@@ -406,4 +406,14 @@ export class PhantomHDWallet
     const address = await this.solanaGetAddress();
     return address ? solanaSendTx(msg, this.solanaProvider, address) : null;
   }
+
+  public async solanaSignMessage(msg: core.SolanaSignMessage): Promise<string | null> {
+    try {
+      const { signature } = await this.solanaProvider.signMessage(msg.message);
+      return Buffer.from(signature).toString("base64");
+    } catch (error) {
+      console.error("Phantom solanaSignMessage error:", error);
+      return null;
+    }
+  }
 }
