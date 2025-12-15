@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-core",
-  "version": "1.62.29-phantom-sui-fix.1",
+  "version": "1.62.29-phantom-sui-fix.2",
   "license": "MIT",
   "publishConfig": {
     "access": "public"

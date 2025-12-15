@@ -68,41 +68,33 @@ export async function suiSignTx(
   });
 
   console.log("[hdwallet-phantom] Sui transaction signed:", result);
-  console.log("[hdwallet-phantom] Account publicKey:", account.publicKey);
+  console.log("[hdwallet-phantom] Signature from Phantom:", result.signature);
 
-  // Phantom returns a base64 signature, but chain adapter expects hex
-  // Convert base64 to hex
-  const signatureBuffer = Buffer.from(result.signature, 'base64');
-  const signatureHex = signatureBuffer.toString('hex');
+  // Phantom returns a base64 signature that includes flag + signature + publicKey (97 bytes total)
+  // We need to split it: flag (1) + signature (64) + publicKey (32)
+  const fullSignatureBuffer = Buffer.from(result.signature, 'base64');
 
-  // Convert publicKey from Uint8Array or object with numeric keys to hex string
-  let publicKeyBytes: Uint8Array;
-  if (account.publicKey instanceof Uint8Array) {
-    publicKeyBytes = account.publicKey;
-  } else if (typeof account.publicKey === 'object' && account.publicKey !== null) {
-    // Handle the case where it's an object with numeric keys
-    const values = Object.values(account.publicKey);
-    // Make sure we only get valid byte values
-    const validBytes = values.filter((v): v is number => typeof v === 'number' && v >= 0 && v <= 255);
-    publicKeyBytes = new Uint8Array(validBytes);
+  console.log(`[hdwallet-phantom] Full signature length: ${fullSignatureBuffer.length} bytes`);
+
+  if (fullSignatureBuffer.length === 97) {
+    // Extract parts from the full signature
+    // Skip flag at position 0
+    const signatureBytes = fullSignatureBuffer.slice(1, 65); // 64 bytes signature
+    const publicKeyBytes = fullSignatureBuffer.slice(65, 97); // 32 bytes publicKey
+
+    const signatureHex = signatureBytes.toString('hex');
+    const publicKeyHex = publicKeyBytes.toString('hex');
+
+    console.log("[hdwallet-phantom] Extracted signature (hex):", signatureHex);
+    console.log("[hdwallet-phantom] Extracted publicKey (hex):", publicKeyHex);
+
+    return {
+      signature: signatureHex, // Just the 64-byte signature (same format as native)
+      publicKey: publicKeyHex, // Just the 32-byte publicKey (same format as native)
+    };
   } else {
-    throw new Error("Invalid publicKey format");
+    throw new Error(`[hdwallet-phantom] Unexpected signature length: ${fullSignatureBuffer.length} bytes (expected 97)`);
   }
-
-  // Sui Ed25519 public keys should be 32 bytes
-  if (publicKeyBytes.length !== 32) {
-    console.warn(`[hdwallet-phantom] Unexpected publicKey length: ${publicKeyBytes.length} bytes (expected 32)`);
-  }
-
-  const publicKey = Buffer.from(publicKeyBytes).toString('hex');
-
-  console.log("[hdwallet-phantom] Returning signature (hex):", signatureHex);
-  console.log("[hdwallet-phantom] Returning publicKey (hex):", publicKey);
-
-  return {
-    signature: signatureHex, // Convert base64 to hex for chain adapter
-    publicKey,
-  };
 }
 
 export async function suiSignMessage(message: Uint8Array, provider: PhantomSuiProvider): Promise<string | null> {
