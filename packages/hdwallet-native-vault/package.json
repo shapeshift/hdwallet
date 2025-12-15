@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-native-vault",
-  "version": "1.62.29-bebop-solana-msg.0",
+  "version": "1.62.29-bebop-solana-msg.1",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@bitcoinerlab/secp256k1": "^1.1.1",
-    "@shapeshiftoss/hdwallet-native": "^1.62.29-bebop-solana-msg.0",
+    "@shapeshiftoss/hdwallet-native": "^1.62.29-bebop-solana-msg.1",
     "bip39": "^3.0.4",
     "hash-wasm": "^4.11.0",
     "idb-keyval": "^6.0.3",
@@ -26,5 +26,6 @@
   },
   "devDependencies": {
     "fake-indexeddb": "^3.1.7"
-  }
+  },
+  "gitHead": "044e43e2c48b4160ee0a74051784a0103bd65958"
 }

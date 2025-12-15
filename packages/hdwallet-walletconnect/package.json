@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-walletconnect",
-  "version": "1.62.29-bebop-solana-msg.0",
+  "version": "1.62.29-bebop-solana-msg.1",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,9 +15,10 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.29-bebop-solana-msg.0",
+    "@shapeshiftoss/hdwallet-core": "^1.62.29-bebop-solana-msg.1",
     "@walletconnect/qrcode-modal": "^1.7.8",
     "@walletconnect/web3-provider": "^1.7.8",
     "ethers": "^5.6.5"
-  }
+  },
+  "gitHead": "044e43e2c48b4160ee0a74051784a0103bd65958"
 }

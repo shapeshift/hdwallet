@@ -1,6 +1,6 @@
 {
   "lerna": "5.2.0",
-  "version": "1.62.29-bebop-solana-msg.0",
+  "version": "1.62.29-bebop-solana-msg.1",
   "npmClient": "yarn",
   "useWorkspaces": true,
   "command": {
