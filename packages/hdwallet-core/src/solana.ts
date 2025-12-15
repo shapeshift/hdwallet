@@ -99,6 +99,7 @@ export interface SolanaWallet extends SolanaWalletInfo, HDWallet {
   solanaSignTx(msg: SolanaSignTx): Promise<SolanaSignedTx | null>;
   solanaSendTx?(msg: SolanaSignTx): Promise<SolanaTxSignature | null>;
   solanaSignMessage?(msg: SolanaSignMessage): Promise<string | null>;
+  solanaSignRawTransaction?(serializedTx: string): Promise<string | null>;
 }
 
 export function solanaDescribePath(path: BIP32Path): PathDescription {

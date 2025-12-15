@@ -416,4 +416,20 @@ export class PhantomHDWallet
       return null;
     }
   }
+
+  public async solanaSignRawTransaction(serializedTx: string): Promise<string | null> {
+    try {
+      const { VersionedTransaction } = await import("@solana/web3.js");
+      const txBytes = Buffer.from(serializedTx, "base64");
+      const transaction = VersionedTransaction.deserialize(txBytes);
+
+      const signedTx = await this.solanaProvider.signTransaction(transaction);
+      const signature = signedTx.signatures[0];
+
+      return Buffer.from(signature).toString("base64");
+    } catch (error) {
+      console.error("Phantom solanaSignRawTransaction error:", error);
+      return null;
+    }
+  }
 }

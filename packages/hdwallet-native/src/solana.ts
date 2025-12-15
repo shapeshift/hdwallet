@@ -68,5 +68,19 @@ export function MixinNativeSolanaWallet<TBase extends core.Constructor<NativeHDW
         return Buffer.from(signature).toString("base64");
       });
     }
+
+    async solanaSignRawTransaction(serializedTx: string): Promise<string | null> {
+      return this.needsMnemonic(!!this.adapter, async () => {
+        const { VersionedTransaction } = await import("@solana/web3.js");
+        const txBytes = Buffer.from(serializedTx, "base64");
+        const transaction = VersionedTransaction.deserialize(txBytes);
+
+        const addressNList = core.bip32ToAddressNList("m/44'/501'/0'/0'");
+        const signedTx = await this.adapter!.signTransaction(transaction, addressNList);
+        const signature = signedTx.signatures[0];
+
+        return Buffer.from(signature).toString("base64");
+      });
+    }
   };
 }
