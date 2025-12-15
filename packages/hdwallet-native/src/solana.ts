@@ -61,5 +61,12 @@ export function MixinNativeSolanaWallet<TBase extends core.Constructor<NativeHDW
         };
       });
     }
+
+    async solanaSignMessage(msg: core.SolanaSignMessage): Promise<string | null> {
+      return this.needsMnemonic(!!this.adapter, async () => {
+        const signature = await this.adapter!.signMessage(msg.message, msg.addressNList);
+        return Buffer.from(signature).toString("base64");
+      });
+    }
   };
 }

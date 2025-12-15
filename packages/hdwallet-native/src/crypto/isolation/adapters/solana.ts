@@ -26,6 +26,12 @@ export class SolanaAdapter {
     transaction.addSignature(new PublicKey(publicKeyBuffer), signature);
     return transaction;
   }
+
+  async signMessage(message: Uint8Array, addressNList: core.BIP32Path): Promise<Uint8Array> {
+    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToHardenedBIP32(addressNList));
+    const signature = await nodeAdapter.node.sign(message);
+    return signature;
+  }
 }
 
 export default SolanaAdapter;
