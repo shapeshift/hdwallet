@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-core",
-  "version": "1.62.29-phantom-cache.13",
+  "version": "1.62.29-phantom-cache.14",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
