@@ -30,3 +30,13 @@ export type PhantomSolanaProvider = providers.ExternalProvider & {
   signTransaction(transaction: VersionedTransaction): Promise<VersionedTransaction>;
   signAndSendTransaction(transaction: VersionedTransaction): Promise<{ signature: TransactionSignature }>;
 };
+
+export type PhantomSuiProvider = providers.ExternalProvider & {
+  publicKey?: string;
+  connect(): Promise<{ publicKey: string }>;
+  signAndExecuteTransaction(input: { transactionBlockSerialized: string }): Promise<{
+    signature: string;
+    bytes: string;
+  }>;
+  signPersonalMessage(message: Uint8Array): Promise<{ signature: string }>;
+};

@@ -8,18 +8,20 @@ import isObject from "lodash/isObject";
 import * as btc from "./bitcoin";
 import * as eth from "./ethereum";
 import { solanaSendTx, solanaSignTx } from "./solana";
-import { PhantomEvmProvider, PhantomSolanaProvider, PhantomUtxoProvider } from "./types";
+import * as sui from "./sui";
+import { PhantomEvmProvider, PhantomSolanaProvider, PhantomSuiProvider, PhantomUtxoProvider } from "./types";
 
 export function isPhantom(wallet: core.HDWallet): wallet is PhantomHDWallet {
   return isObject(wallet) && (wallet as any)._isPhantom;
 }
 
 export class PhantomHDWalletInfo
-  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo, core.SolanaWalletInfo
+  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo, core.SolanaWalletInfo, core.SuiWalletInfo
 {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
   readonly _supportsSolanaInfo = true;
+  readonly _supportsSuiInfo = true;
 
   evmProvider: PhantomEvmProvider;
 
@@ -169,11 +171,23 @@ export class PhantomHDWalletInfo
   public solanaNextAccountPath(msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
     throw new Error("Method not implemented");
   }
+
+  /** Sui */
+
+  public suiGetAccountPaths(msg: core.SuiGetAccountPaths): Array<core.SuiAccountPath> {
+    return core.suiGetAccountPaths(msg);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public suiNextAccountPath(msg: core.SuiAccountPath): core.SuiAccountPath | undefined {
+    // Phantom doesn't support multiple accounts/derivation paths
+    return undefined;
+  }
 }
 
 export class PhantomHDWallet
   extends PhantomHDWalletInfo
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.SolanaWallet
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.SolanaWallet, core.SuiWallet
 {
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
@@ -190,26 +204,31 @@ export class PhantomHDWallet
   readonly _supportsHyperEvm = true;
   readonly _supportsBSC = false;
   readonly _supportsSolana = true;
+  readonly _supportsSui = true;
   readonly _isPhantom = true;
 
   evmProvider: PhantomEvmProvider;
   bitcoinProvider: PhantomUtxoProvider;
   solanaProvider: PhantomSolanaProvider;
+  suiProvider: PhantomSuiProvider;
 
   ethAddress?: Address | null;
   btcAddress?: string | null;
   solanaAddress?: string | null;
+  suiAddress?: string | null;
 
   constructor(
     evmProvider: PhantomEvmProvider,
     bitcoinProvider: PhantomUtxoProvider,
-    solanaProvider: PhantomSolanaProvider
+    solanaProvider: PhantomSolanaProvider,
+    suiProvider: PhantomSuiProvider
   ) {
     super(evmProvider);
 
     this.evmProvider = evmProvider;
     this.bitcoinProvider = bitcoinProvider;
     this.solanaProvider = solanaProvider;
+    this.suiProvider = suiProvider;
   }
 
   public async getDeviceID(): Promise<string> {
@@ -421,5 +440,23 @@ export class PhantomHDWallet
   public async solanaSendTx(msg: core.SolanaSignTx): Promise<core.SolanaTxSignature | null> {
     const address = await this.solanaGetAddress();
     return address ? solanaSendTx(msg, this.solanaProvider, address) : null;
+  }
+
+  /** Sui */
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async suiGetAddress(_msg: core.SuiGetAddress): Promise<string | null> {
+    // Use cached address if available to prevent rate limiting
+    if (this.suiAddress !== undefined) {
+      return this.suiAddress;
+    }
+
+    const address = await sui.suiGetAddress(this.suiProvider);
+    this.suiAddress = address;
+    return address;
+  }
+
+  public async suiSignTx(msg: core.SuiSignTx): Promise<core.SuiSignedTx | null> {
+    return sui.suiSignTx(msg, this.suiProvider);
   }
 }

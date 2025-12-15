@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
 import { PhantomHDWallet } from "./phantom";
-import { PhantomEvmProvider, PhantomSolanaProvider, PhantomUtxoProvider } from "./types";
+import { PhantomEvmProvider, PhantomSolanaProvider, PhantomSuiProvider, PhantomUtxoProvider } from "./types";
 
 declare global {
   interface Window {
@@ -9,6 +9,7 @@ declare global {
       ethereum?: PhantomEvmProvider;
       bitcoin?: PhantomUtxoProvider;
       solana?: PhantomSolanaProvider;
+      sui?: PhantomSuiProvider;
     };
   }
 }
@@ -32,8 +33,9 @@ export class PhantomAdapter {
     const evmProvider = window.phantom?.ethereum;
     const bitcoinProvider = window.phantom?.bitcoin;
     const solanaProvider = window.phantom?.solana;
+    const suiProvider = window.phantom?.sui;
 
-    if (!evmProvider || !bitcoinProvider || !solanaProvider) {
+    if (!evmProvider || !bitcoinProvider || !solanaProvider || !suiProvider) {
       window.open("https://phantom.app/", "_blank");
       console.error("Please install Phantom!");
       throw new Error("Phantom provider not found");
@@ -43,7 +45,7 @@ export class PhantomAdapter {
     // Note, we don't try and get EVM accounts below just yet - we only use the Solana account as a deviceID
     await solanaProvider.connect();
 
-    const wallet = new PhantomHDWallet(evmProvider, bitcoinProvider, solanaProvider);
+    const wallet = new PhantomHDWallet(evmProvider, bitcoinProvider, solanaProvider, suiProvider);
     await wallet.initialize();
     const deviceID = await wallet.getDeviceID();
     this.keyring.add(wallet, deviceID);
