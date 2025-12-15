@@ -34,7 +34,7 @@ export type PhantomSolanaProvider = providers.ExternalProvider & {
 
 export type PhantomSuiProvider = providers.ExternalProvider & {
   isPhantom: boolean;
-  requestAccount(): Promise<{ publicKey: string }>;
+  requestAccount(): Promise<{ address: string; publicKey: Uint8Array }>;
   signAndExecuteTransaction(input: { transactionBlockSerialized: string }): Promise<{
     signature: string;
     bytes: string;

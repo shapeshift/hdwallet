@@ -7,41 +7,16 @@ export async function suiGetAddress(provider: PhantomSuiProvider): Promise<strin
   const account = await provider.requestAccount();
 
   console.log("[hdwallet-phantom] Sui account from requestAccount:", account);
-  console.log("[hdwallet-phantom] Sui publicKey type:", typeof account.publicKey);
-  console.log("[hdwallet-phantom] Sui publicKey value:", account.publicKey);
 
-  // Check if publicKey is already a hex string with 0x prefix
-  if (typeof account.publicKey === 'string' && account.publicKey.startsWith('0x')) {
-    console.log("[hdwallet-phantom] Returning publicKey as-is (already 0x-prefixed)");
-    return account.publicKey;
+  // Phantom returns an object with both 'address' and 'publicKey' fields
+  // We need the 'address' field, not the publicKey
+  if (account && account.address) {
+    console.log("[hdwallet-phantom] Using account.address:", account.address);
+    return account.address;
   }
 
-  // If it's a string without 0x prefix, add it
-  if (typeof account.publicKey === 'string' && /^[0-9a-fA-F]{64}$/.test(account.publicKey)) {
-    const address = '0x' + account.publicKey;
-    console.log("[hdwallet-phantom] Adding 0x prefix, returning:", address);
-    return address;
-  }
-
-  // If publicKey looks like a comma-separated string of numbers, convert to hex
-  if (typeof account.publicKey === 'string' && account.publicKey.includes(',')) {
-    console.log("[hdwallet-phantom] Detected comma-separated format, converting to hex");
-    const bytes = account.publicKey.split(',').map(b => parseInt(b.trim()));
-    const hexString = '0x' + Buffer.from(bytes).toString('hex');
-    console.log("[hdwallet-phantom] Converted to hex:", hexString);
-    return hexString;
-  }
-
-  // If it's an array or Uint8Array, convert to hex
-  if (Array.isArray(account.publicKey) || (account.publicKey as any) instanceof Uint8Array) {
-    const bytes = Array.from(account.publicKey as any);
-    const hexString = '0x' + Buffer.from(bytes as number[]).toString('hex');
-    console.log("[hdwallet-phantom] Converted array to hex:", hexString);
-    return hexString;
-  }
-
-  console.warn("[hdwallet-phantom] Unexpected publicKey format, returning as-is:", account.publicKey);
-  return account.publicKey;
+  console.warn("[hdwallet-phantom] Unexpected account format - no address field:", account);
+  return null;
 }
 
 export async function suiSignTx(
@@ -58,20 +33,8 @@ export async function suiSignTx(
   // Get the public key for the response
   const account = await provider.requestAccount();
 
-  // Convert publicKey to proper hex format if needed
-  let publicKey = account.publicKey;
-
-  if (typeof publicKey === 'string' && publicKey.includes(',')) {
-    // Handle comma-separated format
-    const bytes = publicKey.split(',').map(b => parseInt(b.trim()));
-    publicKey = Buffer.from(bytes).toString('hex');
-  } else if (Array.isArray(publicKey) || (publicKey as any) instanceof Uint8Array) {
-    // Handle array format
-    publicKey = Buffer.from(Array.from(publicKey as any)).toString('hex');
-  } else if (typeof publicKey === 'string' && publicKey.startsWith('0x')) {
-    // Remove 0x prefix for the signature response
-    publicKey = publicKey.slice(2);
-  }
+  // Convert publicKey from Uint8Array to hex string (without 0x prefix for signature response)
+  const publicKey = Buffer.from(account.publicKey).toString('hex');
 
   return {
     signature: result.signature,
