@@ -33,9 +33,9 @@ export class PhantomAdapter {
     const evmProvider = window.phantom?.ethereum;
     const bitcoinProvider = window.phantom?.bitcoin;
     const solanaProvider = window.phantom?.solana;
-    const suiProvider = window.phantom?.sui;
+    const suiProvider = window.phantom?.sui; // Sui is optional
 
-    if (!evmProvider || !bitcoinProvider || !solanaProvider || !suiProvider) {
+    if (!evmProvider || !bitcoinProvider || !solanaProvider) {
       window.open("https://phantom.app/", "_blank");
       console.error("Please install Phantom!");
       throw new Error("Phantom provider not found");

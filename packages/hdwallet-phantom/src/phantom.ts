@@ -204,13 +204,15 @@ export class PhantomHDWallet
   readonly _supportsHyperEvm = true;
   readonly _supportsBSC = false;
   readonly _supportsSolana = true;
-  readonly _supportsSui = true;
+  get _supportsSui(): boolean {
+    return !!this.suiProvider;
+  }
   readonly _isPhantom = true;
 
   evmProvider: PhantomEvmProvider;
   bitcoinProvider: PhantomUtxoProvider;
   solanaProvider: PhantomSolanaProvider;
-  suiProvider: PhantomSuiProvider;
+  suiProvider?: PhantomSuiProvider;
 
   ethAddress?: Address | null;
   btcAddress?: string | null;
@@ -221,7 +223,7 @@ export class PhantomHDWallet
     evmProvider: PhantomEvmProvider,
     bitcoinProvider: PhantomUtxoProvider,
     solanaProvider: PhantomSolanaProvider,
-    suiProvider: PhantomSuiProvider
+    suiProvider?: PhantomSuiProvider
   ) {
     super(evmProvider);
 
@@ -470,6 +472,11 @@ export class PhantomHDWallet
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async suiGetAddress(_msg: core.SuiGetAddress): Promise<string | null> {
+    // Return null if Sui provider is not available
+    if (!this.suiProvider) {
+      return null;
+    }
+
     // Use cached address if available to prevent rate limiting
     if (this.suiAddress !== undefined) {
       return this.suiAddress;
@@ -481,6 +488,9 @@ export class PhantomHDWallet
   }
 
   public async suiSignTx(msg: core.SuiSignTx): Promise<core.SuiSignedTx | null> {
+    if (!this.suiProvider) {
+      return null;
+    }
     return sui.suiSignTx(msg, this.suiProvider);
   }
 }
