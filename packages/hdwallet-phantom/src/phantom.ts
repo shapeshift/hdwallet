@@ -370,38 +370,16 @@ export class PhantomHDWallet
 
   public async ethSwitchChain(params: core.AddEthereumChainParameter): Promise<void> {
     const parsedChainId = parseInt(params.chainId, 16);
-
-    // Only allow switching to chains that Phantom supports
-    const supportedChainIds = [
-      1,     // Ethereum Mainnet
-      8453,  // Base
-      137,   // Polygon
-      143,   // Monad
-      999,   // HyperEVM
-    ];
-
-    if (!supportedChainIds.includes(parsedChainId)) {
-      throw new Error(`Phantom does not support chain ID ${parsedChainId}`);
-    }
-
     const currentChainId = await this.ethGetChainId();
+
     if (currentChainId === parsedChainId) {
       return; // Already on the requested chain
     }
 
-    try {
-      await this.evmProvider.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: params.chainId }],
-      });
-    } catch (error: any) {
-      // If the error is about the chain not being added, we can't add it to Phantom
-      // Phantom only supports pre-configured chains
-      if (error.code === 4902) {
-        throw new Error(`Chain ${params.chainId} is not supported by Phantom wallet`);
-      }
-      throw error;
-    }
+    await this.evmProvider.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: params.chainId }],
+    });
   }
 
   /** Bitcoin */
