@@ -32,7 +32,7 @@ export type PhantomSolanaProvider = providers.ExternalProvider & {
   signAndSendTransaction(transaction: VersionedTransaction): Promise<{ signature: TransactionSignature }>;
 };
 
-export type PhantomSuiProvider = providers.ExternalProvider & {
+export type PhantomSuiProvider = {
   isPhantom: boolean;
   requestAccount(): Promise<{ address: string; publicKey: Uint8Array }>;
   signAndExecuteTransaction(input: { transactionBlockSerialized: string }): Promise<{
@@ -40,6 +40,5 @@ export type PhantomSuiProvider = providers.ExternalProvider & {
     bytes: string;
   }>;
   signMessage(message: Uint8Array, encoding?: string): Promise<{ signature: string }>;
-  signPersonalMessage(message: Uint8Array): Promise<{ signature: string }>;
   signTransaction(params: { transaction: string; address: string; networkID: string }): Promise<{ signature: string }>;
 };

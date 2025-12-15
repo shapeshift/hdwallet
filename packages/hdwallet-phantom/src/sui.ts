@@ -39,6 +39,6 @@ export async function suiSignTx(msg: core.SuiSignTx, provider: PhantomSuiProvide
 }
 
 export async function suiSignMessage(message: Uint8Array, provider: PhantomSuiProvider): Promise<string | null> {
-  const result = await provider.signPersonalMessage(message);
+  const result = await provider.signMessage(message);
   return result.signature;
 }
