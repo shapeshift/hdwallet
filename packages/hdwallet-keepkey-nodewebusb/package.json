@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-nodewebusb",
-  "version": "1.62.29-bebop-solana-msg.2",
+  "version": "1.62.29-bebop-solana-msg.4",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.29-bebop-solana-msg.2",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.62.29-bebop-solana-msg.2"
+    "@shapeshiftoss/hdwallet-core": "^1.62.29-bebop-solana-msg.4",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.62.29-bebop-solana-msg.4"
   },
   "peerDependencies": {
     "usb": "^2.3.1"
