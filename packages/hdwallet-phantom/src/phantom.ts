@@ -191,7 +191,7 @@ export class PhantomHDWallet
 {
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
-  readonly _supportsEthSwitchChain = false;
+  readonly _supportsEthSwitchChain = true;
   readonly _supportsAvalanche = false;
   readonly _supportsOptimism = false;
   readonly _supportsPolygon = true;
@@ -356,6 +356,51 @@ export class PhantomHDWallet
     if (!msg.signature.startsWith("0x")) msg.signature = `0x${msg.signature}`;
     const digest = keccak256(core.buildMessage(msg.message));
     return recoverAddress(digest, msg.signature) === msg.address;
+  }
+
+  public async ethGetChainId(): Promise<number | null> {
+    try {
+      const chainIdHex = await this.evmProvider.request({ method: "eth_chainId" });
+      return parseInt(chainIdHex as string, 16);
+    } catch (error) {
+      console.error("Failed to get chain ID from Phantom:", error);
+      return null;
+    }
+  }
+
+  public async ethSwitchChain(params: core.AddEthereumChainParameter): Promise<void> {
+    const parsedChainId = parseInt(params.chainId, 16);
+
+    // Only allow switching to chains that Phantom supports
+    const supportedChainIds = [
+      1,     // Ethereum Mainnet
+      8453,  // Base
+      137,   // Polygon
+      // Add Monad and HyperEVM chain IDs when known
+    ];
+
+    if (!supportedChainIds.includes(parsedChainId)) {
+      throw new Error(`Phantom does not support chain ID ${parsedChainId}`);
+    }
+
+    const currentChainId = await this.ethGetChainId();
+    if (currentChainId === parsedChainId) {
+      return; // Already on the requested chain
+    }
+
+    try {
+      await this.evmProvider.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: params.chainId }],
+      });
+    } catch (error: any) {
+      // If the error is about the chain not being added, we can't add it to Phantom
+      // Phantom only supports pre-configured chains
+      if (error.code === 4902) {
+        throw new Error(`Chain ${params.chainId} is not supported by Phantom wallet`);
+      }
+      throw error;
+    }
   }
 
   /** Bitcoin */

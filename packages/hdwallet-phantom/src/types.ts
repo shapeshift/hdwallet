@@ -8,6 +8,7 @@ export type PhantomEvmProvider = providers.ExternalProvider & {
   _metamask: {
     isUnlocked: () => boolean;
   };
+  request: (args: { method: string; params?: any[] }) => Promise<any>;
 };
 
 export type PhantomUtxoProvider = providers.ExternalProvider & {
