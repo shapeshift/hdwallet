@@ -204,9 +204,7 @@ export class PhantomHDWallet
   readonly _supportsHyperEvm = true;
   readonly _supportsBSC = false;
   readonly _supportsSolana = true;
-  get _supportsSui(): boolean {
-    return !!this.suiProvider;
-  }
+  readonly _supportsSui = false; // Disabled until Phantom's Sui API is stable
   readonly _isPhantom = true;
 
   evmProvider: PhantomEvmProvider;

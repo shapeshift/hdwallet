@@ -3,8 +3,9 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { PhantomSuiProvider } from "./types";
 
 export async function suiGetAddress(provider: PhantomSuiProvider): Promise<string | null> {
-  const { publicKey } = await provider.connect();
-  return publicKey;
+  // Phantom Sui uses requestAccount instead of connect
+  const account = await provider.requestAccount();
+  return account.publicKey;
 }
 
 export async function suiSignTx(
@@ -19,11 +20,11 @@ export async function suiSignTx(
   });
 
   // Get the public key for the response
-  const { publicKey } = await provider.connect();
+  const account = await provider.requestAccount();
 
   return {
     signature: result.signature,
-    publicKey: publicKey,
+    publicKey: account.publicKey,
   };
 }
 
