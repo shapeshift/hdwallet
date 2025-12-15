@@ -69,6 +69,10 @@ export async function suiSignTx(
 
   console.log("[hdwallet-phantom] Sui transaction signed:", result);
 
+  // Phantom returns a complete signature in base64 format
+  // The chain adapter will detect this and use it directly
+  // We still need to provide the public key for compatibility
+
   // Convert publicKey from Uint8Array or object with numeric keys to hex string
   let publicKeyBytes: Uint8Array;
   if (account.publicKey instanceof Uint8Array) {
@@ -83,7 +87,7 @@ export async function suiSignTx(
   const publicKey = Buffer.from(publicKeyBytes).toString('hex');
 
   return {
-    signature: result.signature,
+    signature: result.signature, // Keep as base64 from Phantom
     publicKey,
   };
 }
