@@ -180,14 +180,14 @@ export class PhantomHDWallet
   readonly _supportsEthSwitchChain = false;
   readonly _supportsAvalanche = false;
   readonly _supportsOptimism = false;
-  readonly _supportsPolygon = true; // Enabled for Phantom
+  readonly _supportsPolygon = true;
   readonly _supportsGnosis = false;
   readonly _supportsArbitrum = false;
   readonly _supportsArbitrumNova = false;
   readonly _supportsBase = true;
-  readonly _supportsMonad = true; // Enabled for Phantom
+  readonly _supportsMonad = true;
   readonly _supportsPlasma = false;
-  readonly _supportsHyperEvm = true; // Enabled for Phantom
+  readonly _supportsHyperEvm = true;
   readonly _supportsBSC = false;
   readonly _supportsSolana = true;
   readonly _isPhantom = true;
