@@ -59,8 +59,22 @@ export async function suiSignTx(
 
   console.log("[hdwallet-phantom] Sui transaction signed:", result);
 
-  // Convert publicKey from Uint8Array to hex string (without 0x prefix for signature response)
-  const publicKey = Buffer.from(account.publicKey).toString('hex');
+  // Convert publicKey from Uint8Array or object with numeric keys to hex string
+  let publicKeyBytes: Uint8Array;
+  if (account.publicKey instanceof Uint8Array) {
+    publicKeyBytes = account.publicKey;
+  } else if (typeof account.publicKey === 'object') {
+    // Handle the case where it's an object with numeric keys
+    const length = Object.keys(account.publicKey).length;
+    publicKeyBytes = new Uint8Array(length);
+    for (let i = 0; i < length; i++) {
+      publicKeyBytes[i] = (account.publicKey as any)[i];
+    }
+  } else {
+    throw new Error("Invalid publicKey format");
+  }
+
+  const publicKey = Buffer.from(publicKeyBytes).toString('hex');
 
   return {
     signature: result.signature,
