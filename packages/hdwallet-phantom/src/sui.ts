@@ -23,12 +23,31 @@ export async function suiSignTx(
   msg: core.SuiSignTx,
   provider: PhantomSuiProvider
 ): Promise<core.SuiSignedTx | null> {
+  // The intentMessageBytes comes as an object with numeric keys, convert to Uint8Array
+  let bytes: Uint8Array;
+  if (msg.intentMessageBytes instanceof Uint8Array) {
+    bytes = msg.intentMessageBytes;
+  } else if (typeof msg.intentMessageBytes === 'object') {
+    // Handle the case where it's an object with numeric keys (like {0: 0, 1: 0, ...})
+    const length = Object.keys(msg.intentMessageBytes).length;
+    bytes = new Uint8Array(length);
+    for (let i = 0; i < length; i++) {
+      bytes[i] = (msg.intentMessageBytes as any)[i];
+    }
+  } else {
+    throw new Error("Invalid intentMessageBytes format");
+  }
+
   // Convert Uint8Array to base64 for Phantom
-  const intentMessageB64 = Buffer.from(msg.intentMessageBytes).toString("base64");
+  const intentMessageB64 = Buffer.from(bytes).toString("base64");
+
+  console.log("[hdwallet-phantom] Executing Sui transaction with base64 data:", intentMessageB64);
 
   const result = await provider.signAndExecuteTransaction({
     transactionBlockSerialized: intentMessageB64,
   });
+
+  console.log("[hdwallet-phantom] Sui transaction executed:", result);
 
   // Get the public key for the response
   const account = await provider.requestAccount();
