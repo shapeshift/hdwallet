@@ -38,19 +38,26 @@ export async function suiSignTx(
     throw new Error("Invalid intentMessageBytes format");
   }
 
+  // Get the account for address
+  const account = await provider.requestAccount();
+
   // Convert Uint8Array to base64 for Phantom
   const intentMessageB64 = Buffer.from(bytes).toString("base64");
 
-  console.log("[hdwallet-phantom] Executing Sui transaction with base64 data:", intentMessageB64);
-
-  const result = await provider.signAndExecuteTransaction({
-    transactionBlockSerialized: intentMessageB64,
+  console.log("[hdwallet-phantom] Signing Sui transaction with params:", {
+    transactionPreview: intentMessageB64.substring(0, 50) + "...",
+    address: account.address,
+    networkID: "sui:mainnet"
   });
 
-  console.log("[hdwallet-phantom] Sui transaction executed:", result);
+  // Try using signTransaction with the format Phantom expects
+  const result = await provider.signTransaction({
+    transaction: { transactionBlockSerialized: intentMessageB64 }, // Wrapped in transaction object
+    address: account.address,
+    networkID: "sui:mainnet" // According to Phantom docs
+  });
 
-  // Get the public key for the response
-  const account = await provider.requestAccount();
+  console.log("[hdwallet-phantom] Sui transaction signed:", result);
 
   // Convert publicKey from Uint8Array to hex string (without 0x prefix for signature response)
   const publicKey = Buffer.from(account.publicKey).toString('hex');
