@@ -315,19 +315,17 @@ export class PhantomHDWallet
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async ethGetAddress(_msg: core.ETHGetAddress): Promise<core.Address | null> {
-    if (this.ethAddress) {
-      return this.ethAddress;
-    }
+    if (this.ethAddress) return this.ethAddress;
 
     const address = await eth.ethGetAddress(this.evmProvider);
 
     if (address) {
       this.ethAddress = address;
       return address;
-    } else {
-      this.ethAddress = null;
-      return null;
     }
+
+    this.ethAddress = null;
+    return null;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -371,9 +369,7 @@ export class PhantomHDWallet
     const parsedChainId = parseInt(params.chainId, 16);
     const currentChainId = await this.ethGetChainId();
 
-    if (currentChainId === parsedChainId) {
-      return;
-    }
+    if (currentChainId === parsedChainId) return;
 
     await this.evmProvider.request({
       method: "wallet_switchEthereumChain",
@@ -385,9 +381,7 @@ export class PhantomHDWallet
 
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
     // Use cached address if available to prevent rate limiting
-    if (this.btcAddress !== undefined) {
-      return this.btcAddress;
-    }
+    if (this.btcAddress !== undefined) return this.btcAddress;
 
     const value = await (async () => {
       switch (msg.coin) {
@@ -445,9 +439,7 @@ export class PhantomHDWallet
 
   public async solanaGetAddress(): Promise<string | null> {
     // Use cached address if available to prevent rate limiting
-    if (this.solanaAddress !== undefined) {
-      return this.solanaAddress;
-    }
+    if (this.solanaAddress !== undefined) return this.solanaAddress;
 
     const { publicKey } = await this.solanaProvider.connect();
     const address = publicKey.toString();
@@ -472,9 +464,7 @@ export class PhantomHDWallet
     if (!this.suiProvider) return null;
 
     // Use cached address if available to prevent rate limiting
-    if (this.suiAddress !== undefined) {
-      return this.suiAddress;
-    }
+    if (this.suiAddress !== undefined) return this.suiAddress;
 
     const address = await sui.suiGetAddress(this.suiProvider);
     this.suiAddress = address;

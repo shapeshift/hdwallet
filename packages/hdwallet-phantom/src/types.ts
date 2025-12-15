@@ -8,7 +8,7 @@ export type PhantomEvmProvider = providers.ExternalProvider & {
   _metamask: {
     isUnlocked: () => boolean;
   };
-  request: (args: { method: string; params?: any[] }) => Promise<any>;
+  request: (args: { method: string; params?: unknown[] | object }) => Promise<unknown>;
 };
 
 export type PhantomUtxoProvider = providers.ExternalProvider & {
@@ -33,12 +33,7 @@ export type PhantomSolanaProvider = providers.ExternalProvider & {
 };
 
 export type PhantomSuiProvider = {
-  isPhantom: boolean;
   requestAccount(): Promise<{ address: string; publicKey: Uint8Array }>;
-  signAndExecuteTransaction(input: { transactionBlockSerialized: string }): Promise<{
-    signature: string;
-    bytes: string;
-  }>;
   signMessage(message: Uint8Array, encoding?: string): Promise<{ signature: string }>;
   signTransaction(params: { transaction: string; address: string; networkID: string }): Promise<{ signature: string }>;
 };
