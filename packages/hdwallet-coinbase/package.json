@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-coinbase",
-  "version": "1.62.29-phantom-sui-fix.3",
+  "version": "1.62.28",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,12 +15,11 @@
   },
   "dependencies": {
     "@coinbase/wallet-sdk": "^3.6.6",
-    "@shapeshiftoss/hdwallet-core": "^1.62.29-phantom-sui-fix.3",
+    "@shapeshiftoss/hdwallet-core": "1.62.28",
     "eth-rpc-errors": "^4.0.3",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.168"
-  },
-  "gitHead": "62e99f0c706dc241e627f11b40528b68ea11d6c2"
+  }
 }

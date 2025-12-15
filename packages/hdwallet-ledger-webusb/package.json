@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger-webusb",
-  "version": "1.62.29-phantom-sui-fix.3",
+  "version": "1.62.28",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -20,13 +20,12 @@
     "@ledgerhq/hw-app-solana": "7.6.0",
     "@ledgerhq/hw-transport": "6.31.13",
     "@ledgerhq/hw-transport-webusb": "6.29.13",
-    "@shapeshiftoss/hdwallet-core": "^1.62.29-phantom-sui-fix.3",
-    "@shapeshiftoss/hdwallet-ledger": "^1.62.29-phantom-sui-fix.3",
+    "@shapeshiftoss/hdwallet-core": "1.62.28",
+    "@shapeshiftoss/hdwallet-ledger": "1.62.28",
     "@types/w3c-web-usb": "^1.0.4",
     "p-queue": "^7.4.1"
   },
   "devDependencies": {
     "@types/w3c-web-usb": "^1.0.6"
-  },
-  "gitHead": "62e99f0c706dc241e627f11b40528b68ea11d6c2"
+  }
 }

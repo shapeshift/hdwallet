@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey",
-  "version": "1.62.29-phantom-sui-fix.3",
+  "version": "1.62.28",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -21,7 +21,7 @@
     "@keepkey/device-protocol": "7.13.4",
     "@metamask/eth-sig-util": "^7.0.0",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
-    "@shapeshiftoss/hdwallet-core": "^1.62.29-phantom-sui-fix.3",
+    "@shapeshiftoss/hdwallet-core": "1.62.28",
     "@shapeshiftoss/proto-tx-builder": "0.10.0",
     "bignumber.js": "^9.0.1",
     "bnb-javascript-sdk-nobroadcast": "2.16.15",
@@ -46,6 +46,5 @@
     "@types/lodash": "^4.14.168",
     "@types/semver": "^6.2.2",
     "typedoc": "^0.20.36"
-  },
-  "gitHead": "62e99f0c706dc241e627f11b40528b68ea11d6c2"
+  }
 }
