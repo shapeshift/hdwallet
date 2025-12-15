@@ -423,7 +423,26 @@ export class PhantomHDWallet
       const txBytes = Buffer.from(serializedTx, "base64");
       const transaction = VersionedTransaction.deserialize(txBytes);
 
+      // Capture original messageBytes before signing
+      const originalMessageBytes = transaction.message.serialize();
+      const originalBlockhash = transaction.message.recentBlockhash;
+
+      // Sign the transaction to get the signature
       const signedTx = await this.solanaProvider.signTransaction(transaction);
+
+      // Check if messageBytes changed
+      const afterMessageBytes = signedTx.message.serialize();
+      const afterBlockhash = signedTx.message.recentBlockhash;
+
+      console.log("[Phantom solanaSignRawTransaction] Message integrity check:", {
+        originalMessageBytesLength: originalMessageBytes.length,
+        afterMessageBytesLength: afterMessageBytes.length,
+        messageBytesMatch: Buffer.from(originalMessageBytes).equals(Buffer.from(afterMessageBytes)),
+        originalBlockhash,
+        afterBlockhash,
+        blockhashChanged: originalBlockhash !== afterBlockhash,
+      });
+
       const signature = signedTx.signatures[0];
 
       return Buffer.from(signature).toString("base64");

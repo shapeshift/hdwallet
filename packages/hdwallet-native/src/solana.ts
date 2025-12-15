@@ -75,9 +75,22 @@ export function MixinNativeSolanaWallet<TBase extends core.Constructor<NativeHDW
         const txBytes = Buffer.from(serializedTx, "base64");
         const transaction = VersionedTransaction.deserialize(txBytes);
 
+        // Extract messageBytes (exactly like Bebop's tx.messageBytes)
+        const messageBytes = transaction.message.serialize();
+
+        console.log("[Native solanaSignRawTransaction] Signing messageBytes:", {
+          serializedTxLength: serializedTx.length,
+          messageBytesLength: messageBytes.length,
+          blockhash: transaction.message.recentBlockhash,
+        });
+
+        // Sign ONLY the messageBytes, don't modify the transaction
         const addressNList = core.bip32ToAddressNList("m/44'/501'/0'/0'");
-        const signedTx = await this.adapter!.signTransaction(transaction, addressNList);
-        const signature = signedTx.signatures[0];
+        const signature = await this.adapter!.signMessage(messageBytes, addressNList);
+
+        console.log("[Native solanaSignRawTransaction] Signature created:", {
+          signatureLength: signature.length,
+        });
 
         return Buffer.from(signature).toString("base64");
       });
