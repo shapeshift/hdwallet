@@ -33,7 +33,7 @@ export class PhantomAdapter {
     const evmProvider = window.phantom?.ethereum;
     const bitcoinProvider = window.phantom?.bitcoin;
     const solanaProvider = window.phantom?.solana;
-    const suiProvider = window.phantom?.sui; // Sui is optional
+    const suiProvider = window.phantom?.sui;
 
     if (!evmProvider || !bitcoinProvider || !solanaProvider) {
       window.open("https://phantom.app/", "_blank");

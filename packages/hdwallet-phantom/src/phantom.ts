@@ -372,7 +372,7 @@ export class PhantomHDWallet
     const currentChainId = await this.ethGetChainId();
 
     if (currentChainId === parsedChainId) {
-      return; // Already on the requested chain
+      return;
     }
 
     await this.evmProvider.request({
@@ -469,10 +469,7 @@ export class PhantomHDWallet
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async suiGetAddress(_msg: core.SuiGetAddress): Promise<string | null> {
-    // Return null if Sui provider is not available
-    if (!this.suiProvider) {
-      return null;
-    }
+    if (!this.suiProvider) return null;
 
     // Use cached address if available to prevent rate limiting
     if (this.suiAddress !== undefined) {
@@ -485,9 +482,7 @@ export class PhantomHDWallet
   }
 
   public async suiSignTx(msg: core.SuiSignTx): Promise<core.SuiSignedTx | null> {
-    if (!this.suiProvider) {
-      return null;
-    }
+    if (!this.suiProvider) return null;
     return sui.suiSignTx(msg, this.suiProvider);
   }
 }

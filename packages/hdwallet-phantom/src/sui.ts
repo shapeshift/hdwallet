@@ -5,9 +5,7 @@ import { PhantomSuiProvider } from "./types";
 export async function suiGetAddress(provider: PhantomSuiProvider): Promise<string | null> {
   const account = await provider.requestAccount();
 
-  if (account && account.address) {
-    return account.address;
-  }
+  if (account && account.address) return account.address;
 
   return null;
 }
@@ -15,30 +13,15 @@ export async function suiGetAddress(provider: PhantomSuiProvider): Promise<strin
 export async function suiSignTx(msg: core.SuiSignTx, provider: PhantomSuiProvider): Promise<core.SuiSignedTx | null> {
   const account = await provider.requestAccount();
 
-  let transaction: string;
-
-  if (msg.transactionJson) {
-    transaction = msg.transactionJson;
-  } else {
-    let bytes: Uint8Array;
-    if (msg.intentMessageBytes instanceof Uint8Array) {
-      bytes = msg.intentMessageBytes;
-    } else if (typeof msg.intentMessageBytes === "object") {
-      bytes = new Uint8Array(Object.values(msg.intentMessageBytes));
-    } else {
-      throw new Error("Invalid intentMessageBytes format");
-    }
-    transaction = Buffer.from(bytes).toString("base64");
-  }
-
   const result = await provider.signTransaction({
-    transaction,
+    transaction: msg.transactionJson,
     address: account.address,
     networkID: "sui:mainnet",
   });
 
   const fullSignatureBuffer = Buffer.from(result.signature, "base64");
 
+  // Phantom returns a 97-byte signature: 1 byte flag + 64 bytes signature + 32 bytes public key
   if (fullSignatureBuffer.length !== 97) {
     throw new Error(`Unexpected signature length: ${fullSignatureBuffer.length} bytes (expected 97)`);
   }
