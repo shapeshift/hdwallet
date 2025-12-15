@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-electron",
-  "version": "1.62.28",
+  "version": "1.62.29-bebop-solana-msg.5",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,7 +14,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-keepkey": "1.62.28",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.62.29-bebop-solana-msg.5",
     "uuid": "^8.3.2"
   },
   "peerDependencies": {
@@ -23,5 +23,6 @@
   "devDependencies": {
     "@types/uuid": "^8.3.0",
     "electron": "^12.0.9"
-  }
+  },
+  "gitHead": "a49a78029023f7cbe4865a7592196f9952fb8f78"
 }

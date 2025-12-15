@@ -406,4 +406,49 @@ export class PhantomHDWallet
     const address = await this.solanaGetAddress();
     return address ? solanaSendTx(msg, this.solanaProvider, address) : null;
   }
+
+  public async solanaSignMessage(msg: core.SolanaSignMessage): Promise<string | null> {
+    try {
+      const { signature } = await this.solanaProvider.signMessage(msg.message);
+      return Buffer.from(signature).toString("base64");
+    } catch (error) {
+      console.error("Phantom solanaSignMessage error:", error);
+      return null;
+    }
+  }
+
+  public async solanaSignRawTransaction(serializedTx: string): Promise<string | null> {
+    try {
+      const { VersionedTransaction } = await import("@solana/web3.js");
+      const txBytes = Buffer.from(serializedTx, "base64");
+      const transaction = VersionedTransaction.deserialize(txBytes);
+
+      // Capture original messageBytes before signing
+      const originalMessageBytes = transaction.message.serialize();
+      const originalBlockhash = transaction.message.recentBlockhash;
+
+      // Sign the transaction to get the signature
+      const signedTx = await this.solanaProvider.signTransaction(transaction);
+
+      // Check if messageBytes changed
+      const afterMessageBytes = signedTx.message.serialize();
+      const afterBlockhash = signedTx.message.recentBlockhash;
+
+      console.log("[Phantom solanaSignRawTransaction] Message integrity check:", {
+        originalMessageBytesLength: originalMessageBytes.length,
+        afterMessageBytesLength: afterMessageBytes.length,
+        messageBytesMatch: Buffer.from(originalMessageBytes).equals(Buffer.from(afterMessageBytes)),
+        originalBlockhash,
+        afterBlockhash,
+        blockhashChanged: originalBlockhash !== afterBlockhash,
+      });
+
+      const signature = signedTx.signatures[0];
+
+      return Buffer.from(signature).toString("base64");
+    } catch (error) {
+      console.error("Phantom solanaSignRawTransaction error:", error);
+      return null;
+    }
+  }
 }

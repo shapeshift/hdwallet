@@ -61,5 +61,39 @@ export function MixinNativeSolanaWallet<TBase extends core.Constructor<NativeHDW
         };
       });
     }
+
+    async solanaSignMessage(msg: core.SolanaSignMessage): Promise<string | null> {
+      return this.needsMnemonic(!!this.adapter, async () => {
+        const signature = await this.adapter!.signMessage(msg.message, msg.addressNList);
+        return Buffer.from(signature).toString("base64");
+      });
+    }
+
+    async solanaSignRawTransaction(serializedTx: string): Promise<string | null> {
+      return this.needsMnemonic(!!this.adapter, async () => {
+        const { VersionedTransaction } = await import("@solana/web3.js");
+        const txBytes = Buffer.from(serializedTx, "base64");
+        const transaction = VersionedTransaction.deserialize(txBytes);
+
+        // Extract messageBytes (exactly like Bebop's tx.messageBytes)
+        const messageBytes = transaction.message.serialize();
+
+        console.log("[Native solanaSignRawTransaction] Signing messageBytes:", {
+          serializedTxLength: serializedTx.length,
+          messageBytesLength: messageBytes.length,
+          blockhash: transaction.message.recentBlockhash,
+        });
+
+        // Sign ONLY the messageBytes, don't modify the transaction
+        const addressNList = core.bip32ToAddressNList("m/44'/501'/0'/0'");
+        const signature = await this.adapter!.signMessage(messageBytes, addressNList);
+
+        console.log("[Native solanaSignRawTransaction] Signature created:", {
+          signatureLength: signature.length,
+        });
+
+        return Buffer.from(signature).toString("base64");
+      });
+    }
   };
 }

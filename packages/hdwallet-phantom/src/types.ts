@@ -29,4 +29,5 @@ export type PhantomSolanaProvider = providers.ExternalProvider & {
   connect(): Promise<SolanaAccount>;
   signTransaction(transaction: VersionedTransaction): Promise<VersionedTransaction>;
   signAndSendTransaction(transaction: VersionedTransaction): Promise<{ signature: TransactionSignature }>;
+  signMessage(message: Uint8Array, display?: "hex" | "utf8"): Promise<{ signature: Uint8Array }>;
 };
