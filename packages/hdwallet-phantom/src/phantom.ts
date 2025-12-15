@@ -199,6 +199,8 @@ export class PhantomHDWallet
   solanaProvider: PhantomSolanaProvider;
 
   ethAddress?: Address | null;
+  btcAddress?: string | null;
+  solanaAddress?: string | null;
 
   constructor(
     evmProvider: PhantomEvmProvider,
@@ -342,6 +344,11 @@ export class PhantomHDWallet
   /** Bitcoin */
 
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
+    // Use cached address if available to prevent rate limiting
+    if (this.btcAddress !== undefined) {
+      return this.btcAddress;
+    }
+
     const value = await (async () => {
       switch (msg.coin) {
         case "Bitcoin": {
@@ -354,8 +361,12 @@ export class PhantomHDWallet
           return null;
       }
     })();
-    if (!value || typeof value !== "string") return null;
+    if (!value || typeof value !== "string") {
+      this.btcAddress = null;
+      return null;
+    }
 
+    this.btcAddress = value;
     return value;
   }
 
@@ -393,8 +404,15 @@ export class PhantomHDWallet
   /** Solana */
 
   public async solanaGetAddress(): Promise<string | null> {
+    // Use cached address if available to prevent rate limiting
+    if (this.solanaAddress !== undefined) {
+      return this.solanaAddress;
+    }
+
     const { publicKey } = await this.solanaProvider.connect();
-    return publicKey.toString();
+    const address = publicKey.toString();
+    this.solanaAddress = address;
+    return address;
   }
 
   public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
