@@ -180,16 +180,14 @@ export class PhantomHDWallet
   readonly _supportsEthSwitchChain = false;
   readonly _supportsAvalanche = false;
   readonly _supportsOptimism = false;
-  // Polygon is technically supported but is acting up on the Phantom side of things atm
-  // https://github.com/orgs/phantom/discussions/294
-  readonly _supportsPolygon = false;
+  readonly _supportsPolygon = true; // Enabled for Phantom
   readonly _supportsGnosis = false;
   readonly _supportsArbitrum = false;
   readonly _supportsArbitrumNova = false;
   readonly _supportsBase = true;
-  readonly _supportsMonad = false;
+  readonly _supportsMonad = true; // Enabled for Phantom
   readonly _supportsPlasma = false;
-  readonly _supportsHyperEvm = false;
+  readonly _supportsHyperEvm = true; // Enabled for Phantom
   readonly _supportsBSC = false;
   readonly _supportsSolana = true;
   readonly _isPhantom = true;
