@@ -376,7 +376,8 @@ export class PhantomHDWallet
       1,     // Ethereum Mainnet
       8453,  // Base
       137,   // Polygon
-      // Add Monad and HyperEVM chain IDs when known
+      143,   // Monad
+      999,   // HyperEVM
     ];
 
     if (!supportedChainIds.includes(parsedChainId)) {
