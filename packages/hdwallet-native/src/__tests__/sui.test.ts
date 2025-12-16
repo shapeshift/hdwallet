@@ -49,6 +49,7 @@ describe("NativeHDWallet SUI", () => {
     const signedTx = await wallet.suiSignTx({
       addressNList: core.suiGetAccountPaths({ accountIdx: 0 })[0].addressNList,
       intentMessageBytes: mockIntentMessage,
+      transactionJson: '{"mock": "transaction"}',
     });
 
     expect(signedTx).toBeTruthy();

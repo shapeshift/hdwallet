@@ -8,18 +8,20 @@ import isObject from "lodash/isObject";
 import * as btc from "./bitcoin";
 import * as eth from "./ethereum";
 import { solanaSendTx, solanaSignTx } from "./solana";
-import { PhantomEvmProvider, PhantomSolanaProvider, PhantomUtxoProvider } from "./types";
+import * as sui from "./sui";
+import { PhantomEvmProvider, PhantomSolanaProvider, PhantomSuiProvider, PhantomUtxoProvider } from "./types";
 
 export function isPhantom(wallet: core.HDWallet): wallet is PhantomHDWallet {
   return isObject(wallet) && (wallet as any)._isPhantom;
 }
 
 export class PhantomHDWalletInfo
-  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo, core.SolanaWalletInfo
+  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo, core.SolanaWalletInfo, core.SuiWalletInfo
 {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
   readonly _supportsSolanaInfo = true;
+  readonly _supportsSuiInfo = true;
 
   evmProvider: PhantomEvmProvider;
 
@@ -169,47 +171,63 @@ export class PhantomHDWalletInfo
   public solanaNextAccountPath(msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
     throw new Error("Method not implemented");
   }
+
+  /** Sui */
+
+  public suiGetAccountPaths(msg: core.SuiGetAccountPaths): Array<core.SuiAccountPath> {
+    return core.suiGetAccountPaths(msg);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public suiNextAccountPath(msg: core.SuiAccountPath): core.SuiAccountPath | undefined {
+    return undefined;
+  }
 }
 
 export class PhantomHDWallet
   extends PhantomHDWalletInfo
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.SolanaWallet
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.SolanaWallet, core.SuiWallet
 {
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
-  readonly _supportsEthSwitchChain = false;
+  readonly _supportsEthSwitchChain = true;
   readonly _supportsAvalanche = false;
   readonly _supportsOptimism = false;
-  // Polygon is technically supported but is acting up on the Phantom side of things atm
-  // https://github.com/orgs/phantom/discussions/294
-  readonly _supportsPolygon = false;
+  readonly _supportsPolygon = true;
   readonly _supportsGnosis = false;
   readonly _supportsArbitrum = false;
   readonly _supportsArbitrumNova = false;
   readonly _supportsBase = true;
-  readonly _supportsMonad = false;
+  readonly _supportsMonad = true;
   readonly _supportsPlasma = false;
-  readonly _supportsHyperEvm = false;
+  readonly _supportsHyperEvm = true;
   readonly _supportsBSC = false;
   readonly _supportsSolana = true;
+  readonly _supportsSui = true;
   readonly _isPhantom = true;
 
   evmProvider: PhantomEvmProvider;
   bitcoinProvider: PhantomUtxoProvider;
   solanaProvider: PhantomSolanaProvider;
+  suiProvider?: PhantomSuiProvider;
 
   ethAddress?: Address | null;
+  btcAddress?: string | null;
+  solanaAddress?: string | null;
+  suiAddress?: string | null;
 
   constructor(
     evmProvider: PhantomEvmProvider,
     bitcoinProvider: PhantomUtxoProvider,
-    solanaProvider: PhantomSolanaProvider
+    solanaProvider: PhantomSolanaProvider,
+    suiProvider?: PhantomSuiProvider
   ) {
     super(evmProvider);
 
     this.evmProvider = evmProvider;
     this.bitcoinProvider = bitcoinProvider;
     this.solanaProvider = solanaProvider;
+    this.suiProvider = suiProvider;
   }
 
   public async getDeviceID(): Promise<string> {
@@ -297,19 +315,17 @@ export class PhantomHDWallet
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async ethGetAddress(_msg: core.ETHGetAddress): Promise<core.Address | null> {
-    if (this.ethAddress) {
-      return this.ethAddress;
-    }
+    if (this.ethAddress) return this.ethAddress;
 
     const address = await eth.ethGetAddress(this.evmProvider);
 
     if (address) {
       this.ethAddress = address;
       return address;
-    } else {
-      this.ethAddress = null;
-      return null;
     }
+
+    this.ethAddress = null;
+    return null;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -339,9 +355,34 @@ export class PhantomHDWallet
     return recoverAddress(digest, msg.signature) === msg.address;
   }
 
+  public async ethGetChainId(): Promise<number | null> {
+    try {
+      const chainIdHex = await this.evmProvider.request({ method: "eth_chainId" });
+      return parseInt(chainIdHex, 16);
+    } catch (error) {
+      console.error("Failed to get chain ID from Phantom:", error);
+      return null;
+    }
+  }
+
+  public async ethSwitchChain(params: core.AddEthereumChainParameter): Promise<void> {
+    const parsedChainId = parseInt(params.chainId, 16);
+    const currentChainId = await this.ethGetChainId();
+
+    if (currentChainId === parsedChainId) return;
+
+    await this.evmProvider.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: params.chainId }],
+    });
+  }
+
   /** Bitcoin */
 
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
+    // Use cached address if available to prevent rate limiting
+    if (this.btcAddress !== undefined) return this.btcAddress;
+
     const value = await (async () => {
       switch (msg.coin) {
         case "Bitcoin": {
@@ -354,8 +395,12 @@ export class PhantomHDWallet
           return null;
       }
     })();
-    if (!value || typeof value !== "string") return null;
+    if (!value || typeof value !== "string") {
+      this.btcAddress = null;
+      return null;
+    }
 
+    this.btcAddress = value;
     return value;
   }
 
@@ -393,8 +438,13 @@ export class PhantomHDWallet
   /** Solana */
 
   public async solanaGetAddress(): Promise<string | null> {
+    // Use cached address if available to prevent rate limiting
+    if (this.solanaAddress !== undefined) return this.solanaAddress;
+
     const { publicKey } = await this.solanaProvider.connect();
-    return publicKey.toString();
+    const address = publicKey.toString();
+    this.solanaAddress = address;
+    return address;
   }
 
   public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
@@ -405,5 +455,24 @@ export class PhantomHDWallet
   public async solanaSendTx(msg: core.SolanaSignTx): Promise<core.SolanaTxSignature | null> {
     const address = await this.solanaGetAddress();
     return address ? solanaSendTx(msg, this.solanaProvider, address) : null;
+  }
+
+  /** Sui */
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async suiGetAddress(_msg: core.SuiGetAddress): Promise<string | null> {
+    if (!this.suiProvider) return null;
+
+    // Use cached address if available to prevent rate limiting
+    if (this.suiAddress !== undefined) return this.suiAddress;
+
+    const address = await sui.suiGetAddress(this.suiProvider);
+    this.suiAddress = address;
+    return address;
+  }
+
+  public async suiSignTx(msg: core.SuiSignTx): Promise<core.SuiSignedTx | null> {
+    if (!this.suiProvider) return null;
+    return sui.suiSignTx(msg, this.suiProvider);
   }
 }
