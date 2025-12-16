@@ -369,11 +369,11 @@ export async function btcSignTx(
     segwit,
     useTrustedInputForSegwit: Boolean(segwit),
     // For Zcash, pass the current network blockHeight so Ledger uses correct consensus branch ID.
-    // Use the highest confirmed input blockHeight, or fallback to NU6 activation height.
+    // Use the highest confirmed input blockHeight, or fallback to a height above NU6.1 activation (3146400).
     // This ensures correct consensus branch ID (0x4dec4df0) even when spending unconfirmed outputs.
     blockHeight:
       msg.coin === "Zcash"
-        ? Math.max(...blockHeights.filter((h): h is number => h !== undefined && h > 0), 2726400)
+        ? Math.max(...blockHeights.filter((h): h is number => h !== undefined && h > 0), 3150000)
         : undefined,
     expiryHeight: msg.coin === "Zcash" ? Buffer.alloc(4) : undefined,
   };
