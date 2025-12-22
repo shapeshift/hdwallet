@@ -13,6 +13,7 @@ import { OsmosisWallet, OsmosisWalletInfo } from "./osmosis";
 import { RippleWallet, RippleWalletInfo } from "./ripple";
 import { SecretWallet, SecretWalletInfo } from "./secret";
 import { SolanaWallet, SolanaWalletInfo } from "./solana";
+import { StarknetWallet, StarknetWalletInfo } from "./starknet";
 import { SuiWallet, SuiWalletInfo } from "./sui";
 import { TerraWallet, TerraWalletInfo } from "./terra";
 import { ThorchainWallet, ThorchainWalletInfo } from "./thorchain";
@@ -269,6 +270,14 @@ export function supportsSolana(wallet: HDWallet): wallet is SolanaWallet {
 
 export function infoSolana(info: HDWalletInfo): info is SolanaWalletInfo {
   return isObject(info) && (info as any)._supportsSolanaInfo;
+}
+
+export function supportsStarknet(wallet: HDWallet): wallet is StarknetWallet {
+  return isObject(wallet) && (wallet as any)._supportsStarknet;
+}
+
+export function infoStarknet(info: HDWalletInfo): info is StarknetWalletInfo {
+  return isObject(info) && (info as any)._supportsStarknetInfo;
 }
 
 export function supportsTron(wallet: HDWallet): wallet is TronWallet {

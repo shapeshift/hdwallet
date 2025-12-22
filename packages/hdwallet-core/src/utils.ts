@@ -157,6 +157,7 @@ export const slip44Table = Object.freeze({
   Terra: 330,
   Kava: 459,
   Solana: 501,
+  Starknet: 9004,
   Tron: 195,
   Sui: 784,
   // EVM chains all use the same SLIP44

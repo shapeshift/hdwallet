@@ -1,5 +1,6 @@
 import ecc from "@bitcoinerlab/secp256k1";
 import * as bip32crypto from "bip32/src/crypto";
+import * as starknet from "@scure/starknet";
 
 import { Core } from "../../../isolation";
 import { assertType, ByteArray, checkType, safeBufferFrom, Uint32 } from "../../types";
@@ -147,6 +148,20 @@ export class Node
     let out = Core.SecP256K1.CurvePoint.x(sharedFieldElement);
     if (digestAlgorithm !== undefined) out = Core.Digest.Algorithms[digestAlgorithm](out);
     return out;
+  }
+
+  async starknetGetPublicKey(): Promise<string> {
+    const groundPrivateKey = starknet.grindKey(this.#privateKey);
+    return starknet.getStarkKey(groundPrivateKey);
+  }
+
+  async starknetSign(txHash: string): Promise<{ r: string; s: string }> {
+    const groundPrivateKey = starknet.grindKey(this.#privateKey);
+    const signature = starknet.sign(txHash, groundPrivateKey);
+    return {
+      r: signature.r.toString(16),
+      s: signature.s.toString(16),
+    };
   }
 }
 
