@@ -18,6 +18,6 @@
     "@shapeshiftoss/hdwallet-keepkey": "1.62.32"
   },
   "devDependencies": {
-    "@types/w3c-web-usb": "^1.0.4"
+    "@types/w3c-web-usb": "1.0.4"
   }
 }

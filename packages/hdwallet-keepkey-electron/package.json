@@ -15,13 +15,13 @@
   },
   "dependencies": {
     "@shapeshiftoss/hdwallet-keepkey": "1.62.32",
-    "uuid": "^8.3.2"
+    "uuid": "8.3.2"
   },
   "peerDependencies": {
-    "electron": "^12.0.9"
+    "electron": "12.0.9"
   },
   "devDependencies": {
-    "@types/uuid": "^8.3.0",
-    "electron": "^12.0.9"
+    "@types/uuid": "8.3.0",
+    "electron": "12.0.9"
   }
 }

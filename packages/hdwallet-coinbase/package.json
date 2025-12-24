@@ -14,12 +14,12 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@coinbase/wallet-sdk": "^3.6.6",
+    "@coinbase/wallet-sdk": "3.6.6",
     "@shapeshiftoss/hdwallet-core": "1.62.32",
-    "eth-rpc-errors": "^4.0.3",
-    "lodash": "^4.17.21"
+    "eth-rpc-errors": "4.0.3",
+    "lodash": "4.17.21"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.168"
+    "@types/lodash": "4.14.168"
   }
 }

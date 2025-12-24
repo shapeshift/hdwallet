@@ -14,17 +14,17 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@bitcoinerlab/secp256k1": "^1.1.1",
+    "@bitcoinerlab/secp256k1": "1.1.1",
     "@shapeshiftoss/hdwallet-native": "1.62.32",
-    "bip39": "^3.0.4",
-    "hash-wasm": "^4.11.0",
-    "idb-keyval": "^6.0.3",
-    "jose": "^4.3.5",
-    "p-lazy": "^3.1.0",
-    "type-assertions": "^1.1.0",
-    "uuid": "^8.3.2"
+    "bip39": "3.0.4",
+    "hash-wasm": "4.11.0",
+    "idb-keyval": "6.0.3",
+    "jose": "4.3.5",
+    "p-lazy": "3.1.0",
+    "type-assertions": "1.1.0",
+    "uuid": "8.3.2"
   },
   "devDependencies": {
-    "fake-indexeddb": "^3.1.7"
+    "fake-indexeddb": "3.1.7"
   }
 }

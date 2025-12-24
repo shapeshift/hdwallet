@@ -17,12 +17,12 @@
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
     "@shapeshiftoss/hdwallet-core": "1.62.32",
     "@solana/web3.js": "1.95.8",
-    "base64-js": "^1.5.1",
-    "bitcoinjs-message": "^2.0.0",
+    "base64-js": "1.5.1",
+    "bitcoinjs-message": "2.0.0",
     "ethers": "5.7.2",
-    "lodash": "^4.17.21"
+    "lodash": "4.17.21"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.168"
+    "@types/lodash": "4.14.168"
   }
 }

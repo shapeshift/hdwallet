@@ -10,8 +10,8 @@
     "dev": "lerna run test --scope integration --parallel --include-filtered-dependencies"
   },
   "dependencies": {
-    "@bitcoinerlab/secp256k1": "^1.1.1",
-    "@bitgo/utxo-lib": "^11.18.0",
+    "@bitcoinerlab/secp256k1": "1.1.1",
+    "@bitgo/utxo-lib": "11.18.0",
     "@shapeshiftoss/hdwallet-core": "1.62.32",
     "@shapeshiftoss/hdwallet-keepkey": "1.62.32",
     "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "1.62.32",
@@ -22,8 +22,8 @@
     "@shapeshiftoss/hdwallet-portis": "1.62.32",
     "@shapeshiftoss/hdwallet-trezor": "1.62.32",
     "@shapeshiftoss/hdwallet-vultisig": "1.62.32",
-    "fast-json-stable-stringify": "^2.1.0",
-    "msw": "^0.27.1",
-    "whatwg-fetch": "^3.6.2"
+    "fast-json-stable-stringify": "2.1.0",
+    "msw": "0.27.1",
+    "whatwg-fetch": "3.6.2"
   }
 }
