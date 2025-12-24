@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-nodewebusb",
-  "version": "1.62.33-starknet.14",
+  "version": "1.62.32",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.33-starknet.14",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.62.33-starknet.14"
+    "@shapeshiftoss/hdwallet-core": "^1.62.32",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.62.32"
   },
   "peerDependencies": {
     "usb": "^2.3.1"

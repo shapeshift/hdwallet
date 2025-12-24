@@ -3174,7 +3174,7 @@
 
 "@noble/curves@1.7.0", "@noble/curves@~1.7.0":
   version "1.7.0"
-  resolved "https://registry.npmjs.org/@noble/curves/-/curves-1.7.0.tgz#0512360622439256df892f21d25b388f52505e45"
+  resolved "http://127.0.0.1:4873/@noble/curves/-/curves-1.7.0.tgz#0512360622439256df892f21d25b388f52505e45"
   integrity sha512-UTMhXK9SeDhFJVrHeUJ5uZlI6ajXg10O6Ddocf9S6GjbSBVZsJo88HzKwXznNfGpMTRDyJkqMjNDPYgf0qFWnw==
   dependencies:
     "@noble/hashes" "1.6.0"
@@ -3250,7 +3250,7 @@
 
 "@noble/hashes@1.6.0":
   version "1.6.0"
-  resolved "https://registry.npmjs.org/@noble/hashes/-/hashes-1.6.0.tgz#d4bfb516ad6e7b5111c216a5cc7075f4cf19e6c5"
+  resolved "http://127.0.0.1:4873/@noble/hashes/-/hashes-1.6.0.tgz#d4bfb516ad6e7b5111c216a5cc7075f4cf19e6c5"
   integrity sha512-YUULf0Uk4/mAA89w+k3+yUYh6NrEvxZa5T6SY3wlMvE2chHkxFUUIDI8/XW1QSC357iA5pSnqt7XEhvFOqmDyQ==
 
 "@noble/hashes@1.7.0":
@@ -3280,7 +3280,7 @@
 
 "@noble/hashes@~1.6.0":
   version "1.6.1"
-  resolved "https://registry.npmjs.org/@noble/hashes/-/hashes-1.6.1.tgz#df6e5943edcea504bac61395926d6fd67869a0d5"
+  resolved "http://127.0.0.1:4873/@noble/hashes/-/hashes-1.6.1.tgz#df6e5943edcea504bac61395926d6fd67869a0d5"
   integrity sha512-pq5D8h10hHBjyqX+cfBm0i8JUXJ0UhczFc4r74zbuT9XgewFo2E3J1cOaGtdZynILNmQ685YWGzGE1Zv6io50w==
 
 "@noble/secp256k1@1.6.3":
@@ -4059,7 +4059,7 @@
 
 "@scure/base@1.2.1":
   version "1.2.1"
-  resolved "https://registry.npmjs.org/@scure/base/-/base-1.2.1.tgz#dd0b2a533063ca612c17aa9ad26424a2ff5aa865"
+  resolved "http://127.0.0.1:4873/@scure/base/-/base-1.2.1.tgz#dd0b2a533063ca612c17aa9ad26424a2ff5aa865"
   integrity sha512-DGmGtC8Tt63J5GfHgfl5CuAXh96VF/LD8K9Hr/Gv0J2lAoRGlPOMpqMpMbCTOoOJMZCk2Xt+DskdDyn6dEFdzQ==
 
 "@scure/base@^1.0.0", "@scure/base@^1.1.1", "@scure/base@^1.1.3", "@scure/base@~1.1.3", "@scure/base@~1.1.6":
@@ -4125,7 +4125,7 @@
 
 "@scure/starknet@1.1.0":
   version "1.1.0"
-  resolved "https://registry.npmjs.org/@scure/starknet/-/starknet-1.1.0.tgz#d1902e053d98196e161b9b2c3996b20999094e7a"
+  resolved "http://127.0.0.1:4873/@scure/starknet/-/starknet-1.1.0.tgz#d1902e053d98196e161b9b2c3996b20999094e7a"
   integrity sha512-83g3M6Ix2qRsPN4wqLDqiRZ2GBNbjVWfboJE/9UjfG+MHr6oDSu/CWgy8hsBSJejr09DkkL+l0Ze4KVrlCIdtQ==
   dependencies:
     "@noble/curves" "~1.7.0"
@@ -4133,7 +4133,7 @@
 
 "@scure/starknet@^1.0.0":
   version "1.1.2"
-  resolved "https://registry.npmjs.org/@scure/starknet/-/starknet-1.1.2.tgz#3b9492d83e773092158a240fb1e2a437933d2a7e"
+  resolved "http://127.0.0.1:4873/@scure/starknet/-/starknet-1.1.2.tgz#3b9492d83e773092158a240fb1e2a437933d2a7e"
   integrity sha512-Qo2uNQJC/1IwfXC0f2BnDjtXnY1cVyfmK1WcGNFzfnktvlNmmmbjYeUNdYe3DBiDYyMzp1MhRUFllFW5moBaMg==
   dependencies:
     "@noble/curves" "~1.9.0"
@@ -4188,6 +4188,32 @@
     uuid "^8.3.2"
     ws "^8.8.0"
 
+"@shapeshiftoss/hdwallet-coinbase@^1.62.33-starknet.14":
+  version "1.62.33-starknet.14"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-coinbase/-/hdwallet-coinbase-1.62.33-starknet.14.tgz#ae5b88abd604a8c1abb1b9f21a749afb0a50a271"
+  integrity sha512-knWfsU3ht0nHQAPsRhRIAJImzLVgpxPjX/T5rQEK469+yKWxxiOm+OxussjyE9WNzBpkCsjUMvUFQLnA9Wpgxg==
+  dependencies:
+    "@coinbase/wallet-sdk" "^3.6.6"
+    "@shapeshiftoss/hdwallet-core" "^1.62.33-starknet.14"
+    eth-rpc-errors "^4.0.3"
+    lodash "^4.17.21"
+
+"@shapeshiftoss/hdwallet-core@^1.62.33-starknet.14":
+  version "1.62.33-starknet.14"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.62.33-starknet.14.tgz#e2d3d5dc7696e66bb5f39760c1937bdc68af433f"
+  integrity sha512-dh26U3G4R71MyoKSYYPB4a24f4SpNZknjDLiQd5cDPvf1BbnMzhyNgx6zv/Uogq89SgZqxxoRDy9ov1MfXK2fA==
+  dependencies:
+    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.2"
+    "@shapeshiftoss/proto-tx-builder" "0.10.0"
+    "@solana/web3.js" "1.95.8"
+    bs58check "^4.0.0"
+    eip-712 "^1.0.0"
+    ethers "5.7.2"
+    eventemitter2 "^5.0.1"
+    lodash "^4.17.21"
+    rxjs "^6.4.0"
+    type-assertions "^1.1.0"
+
 "@shapeshiftoss/hdwallet-core@latest":
   version "1.56.0"
   resolved "https://registry.yarnpkg.com/@shapeshiftoss/hdwallet-core/-/hdwallet-core-1.56.0.tgz#6c14a2dc7eb394d1a927999f549c15eb8bd42421"
@@ -4201,6 +4227,278 @@
     lodash "^4.17.21"
     rxjs "^6.4.0"
     type-assertions "^1.1.0"
+
+"@shapeshiftoss/hdwallet-gridplus@^1.62.33-starknet.14":
+  version "1.62.33-starknet.14"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-gridplus/-/hdwallet-gridplus-1.62.33-starknet.14.tgz#a90deb22069eaac5f7b272031e7e7a9b6032c9c5"
+  integrity sha512-dILP03K19i0je6mjDZIltz12yfFvLHA/VxOIGGsVyKHAP+2UZtcbzcbfhK2dVvgVQJwbzSZBo/9WuLZxctOWcw==
+  dependencies:
+    "@bitcoinerlab/secp256k1" "^1.1.1"
+    "@ethereumjs/common" "4.4.0"
+    "@ethereumjs/rlp" "5.0.2"
+    "@ethereumjs/tx" "5.4.0"
+    "@metamask/eth-sig-util" "^7.0.0"
+    "@shapeshiftoss/hdwallet-core" "^1.62.33-starknet.14"
+    bech32 "^1.1.4"
+    bs58 "^5.0.0"
+    bs58check "^4.0.0"
+    crypto-js "^4.2.0"
+    gridplus-sdk "^3.2.0"
+    lodash "^4.17.21"
+
+"@shapeshiftoss/hdwallet-keepkey-nodewebusb@^1.62.33-starknet.14":
+  version "1.62.33-starknet.14"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-keepkey-nodewebusb/-/hdwallet-keepkey-nodewebusb-1.62.33-starknet.14.tgz#07a9f1c07a61cbd41b2b046b3a71f40f371cca2e"
+  integrity sha512-6zgvVu108Rf8iknvKU5H1ahGQ298tvViB33LqirSLS3ZTg7wCAaki62akcUyX+be6QUeYVnFCN4dAlBKAc+Rag==
+  dependencies:
+    "@shapeshiftoss/hdwallet-core" "^1.62.33-starknet.14"
+    "@shapeshiftoss/hdwallet-keepkey" "^1.62.33-starknet.14"
+
+"@shapeshiftoss/hdwallet-keepkey-tcp@^1.62.33-starknet.14":
+  version "1.62.33-starknet.14"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-keepkey-tcp/-/hdwallet-keepkey-tcp-1.62.33-starknet.14.tgz#ad77e36603404878fb4da60a3a06dc2aa80c2620"
+  integrity sha512-0MoLsGCZhlD7YP3Pm56O30O2/s46Hqla7JIP41uOIi1+wBxW9Y1gVnzURPIGl4laKdfVc5l12U34WWe04yJsHQ==
+  dependencies:
+    "@shapeshiftoss/hdwallet-core" "^1.62.33-starknet.14"
+    "@shapeshiftoss/hdwallet-keepkey" "^1.62.33-starknet.14"
+    axios "^0.21.1"
+
+"@shapeshiftoss/hdwallet-keepkey-webusb@^1.62.33-starknet.14":
+  version "1.62.33-starknet.14"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-keepkey-webusb/-/hdwallet-keepkey-webusb-1.62.33-starknet.14.tgz#1ef97254ef1b7db70e5776026d350196c4b02c4b"
+  integrity sha512-WOGFFViTn7m9/uT686433LubT+XZ+oOEyLHwYLq/OmH0pEEZeVXTrFjj/asFNwuGjYMEA+Q0ajBlEWWNXHwjbw==
+  dependencies:
+    "@shapeshiftoss/hdwallet-core" "^1.62.33-starknet.14"
+    "@shapeshiftoss/hdwallet-keepkey" "^1.62.33-starknet.14"
+
+"@shapeshiftoss/hdwallet-keepkey@^1.62.33-starknet.14":
+  version "1.62.33-starknet.14"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-keepkey/-/hdwallet-keepkey-1.62.33-starknet.14.tgz#c9131060bf2c8a28f7467fbfd02f48480ad32dc9"
+  integrity sha512-rzUUai268rPHSvgdiWh7Dgc7UNu4OBcXqUrrHbGGmYYXEpyq4p5+JgXa4XFEEsfAR7a5Sq/RwQCsU2mjackzEg==
+  dependencies:
+    "@bitcoinerlab/secp256k1" "^1.1.1"
+    "@ethereumjs/common" "3.2.0"
+    "@ethereumjs/tx" "4.2.0"
+    "@keepkey/device-protocol" "7.13.4"
+    "@metamask/eth-sig-util" "^7.0.0"
+    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.2"
+    "@shapeshiftoss/hdwallet-core" "^1.62.33-starknet.14"
+    "@shapeshiftoss/proto-tx-builder" "0.10.0"
+    bignumber.js "^9.0.1"
+    bnb-javascript-sdk-nobroadcast "2.16.15"
+    bs58 "^5.0.0"
+    bs58check "^4.0.0"
+    crypto-js "^4.0.0"
+    eip55 "^2.1.0"
+    google-protobuf "^3.15.8"
+    icepick "^2.4.0"
+    lodash "^4.17.21"
+    p-lazy "^3.1.0"
+    semver "^7.3.8"
+
+"@shapeshiftoss/hdwallet-keplr@^1.62.33-starknet.14":
+  version "1.62.33-starknet.14"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-keplr/-/hdwallet-keplr-1.62.33-starknet.14.tgz#f1ccbf13d9ac600e55cf60270bc7f2575dbd7355"
+  integrity sha512-aXzvmjx6gq1lvUWR2rmFXoVfR72UfNoEF/vVsJxyMaaT5eYjTh0jSeFDnielVRBurmWdebPuEQ+unqWJw92mqA==
+  dependencies:
+    "@cosmjs/amino" "^0.28.13"
+    "@cosmjs/stargate" "^0.28.13"
+    "@shapeshiftoss/caip" "8.15.0"
+    "@shapeshiftoss/hdwallet-core" "^1.62.33-starknet.14"
+    "@shapeshiftoss/proto-tx-builder" "0.10.0"
+    "@shapeshiftoss/types" "3.1.3"
+    base64-js "^1.5.1"
+    lodash "^4.17.21"
+
+"@shapeshiftoss/hdwallet-ledger-webhid@^1.62.33-starknet.14":
+  version "1.62.33-starknet.14"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-ledger-webhid/-/hdwallet-ledger-webhid-1.62.33-starknet.14.tgz#2f8b98ea8fed2f18b29149beb882fb6f3fad2a70"
+  integrity sha512-xmFk5puQWqsUHY2O69gZhu7JhqFxnw5cWh2J9G0TfXQazWjsotFanE2tjHSzn8O1OMWRhsUlbYHnUKQU7juW2g==
+  dependencies:
+    "@ledgerhq/hw-app-btc" "10.13.0"
+    "@ledgerhq/hw-app-eth" "7.0.0"
+    "@ledgerhq/hw-transport" "6.31.13"
+    "@ledgerhq/hw-transport-webhid" "6.30.6"
+    "@shapeshiftoss/hdwallet-core" "^1.62.33-starknet.14"
+    "@shapeshiftoss/hdwallet-ledger" "^1.62.33-starknet.14"
+    "@types/w3c-web-hid" "^1.0.2"
+
+"@shapeshiftoss/hdwallet-ledger-webusb@^1.62.33-starknet.14":
+  version "1.62.33-starknet.14"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-ledger-webusb/-/hdwallet-ledger-webusb-1.62.33-starknet.14.tgz#e605589fb0421df32e7f3f23cc96b80b09c84cbd"
+  integrity sha512-8UTy0CDDeq+wegZ066lMQWKP5jYdh4s2BTel7gWREsSEUo15ypfJM7AqNpVcITobVPjbIxADh79Qb9CUJgJ1VQ==
+  dependencies:
+    "@ledgerhq/hw-app-btc" "10.13.0"
+    "@ledgerhq/hw-app-cosmos" "6.32.9"
+    "@ledgerhq/hw-app-eth" "7.0.0"
+    "@ledgerhq/hw-app-solana" "7.6.0"
+    "@ledgerhq/hw-transport" "6.31.13"
+    "@ledgerhq/hw-transport-webusb" "6.29.13"
+    "@shapeshiftoss/hdwallet-core" "^1.62.33-starknet.14"
+    "@shapeshiftoss/hdwallet-ledger" "^1.62.33-starknet.14"
+    "@types/w3c-web-usb" "^1.0.4"
+    p-queue "^7.4.1"
+
+"@shapeshiftoss/hdwallet-ledger@^1.62.33-starknet.14":
+  version "1.62.33-starknet.14"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-ledger/-/hdwallet-ledger-1.62.33-starknet.14.tgz#0175e259761d8c58ba7d5ac9b4367951c370e4e5"
+  integrity sha512-CSJ4PG4DrUjt9ZwPpU+QmlzNZrEWWoWz3MW66ryWWrII17gGq78ExyHNcn7TKxVm3k2oJb2f4uv9AxmAeCuFNw==
+  dependencies:
+    "@bitgo/utxo-lib" "^11.18.0"
+    "@ethereumjs/common" "3.2.0"
+    "@ethereumjs/tx" "4.2.0"
+    "@ledgerhq/device-core" "0.6.9"
+    "@ledgerhq/hw-app-btc" "10.13.0"
+    "@ledgerhq/hw-app-cosmos" "6.32.9"
+    "@ledgerhq/hw-app-eth" "7.0.0"
+    "@ledgerhq/hw-app-solana" "7.6.0"
+    "@ledgerhq/hw-app-trx" "6.31.9"
+    "@ledgerhq/hw-transport" "6.31.13"
+    "@ledgerhq/logs" "6.13.0"
+    "@mysten/ledgerjs-hw-app-sui" "^0.7.0"
+    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.2"
+    "@shapeshiftoss/hdwallet-core" "^1.62.33-starknet.14"
+    "@solana/web3.js" "1.95.8"
+    base64-js "^1.5.1"
+    bchaddrjs "^0.4.4"
+    bitcoinjs-message "^2.0.0"
+    bs58check "^4.0.0"
+    ethereumjs-tx "1.3.7"
+    ethereumjs-util "^6.1.0"
+    ethers "5.7.2"
+    lodash "^4.17.21"
+
+"@shapeshiftoss/hdwallet-metamask-multichain@^1.62.33-starknet.14":
+  version "1.62.33-starknet.14"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-metamask-multichain/-/hdwallet-metamask-multichain-1.62.33-starknet.14.tgz#9269cd777b0b6b7639cdba415e5d878819f4da94"
+  integrity sha512-549kyrSxY//4W391M05B5c7BmEOabVD84ad8YglQazAfB0TM9O8oymqESOOfhKRW49FYXz0h0whgAeI83VRq5w==
+  dependencies:
+    "@metamask/detect-provider" "^1.2.0"
+    "@metamask/onboarding" "^1.0.1"
+    "@shapeshiftoss/common-api" "^9.3.0"
+    "@shapeshiftoss/hdwallet-core" "^1.62.33-starknet.14"
+    "@shapeshiftoss/metamask-snaps-adapter" "^1.0.12"
+    "@shapeshiftoss/metamask-snaps-types" "^1.0.12"
+    eth-rpc-errors "^4.0.3"
+    lodash "^4.17.21"
+    mipd "^0.0.7"
+
+"@shapeshiftoss/hdwallet-native@^1.62.33-starknet.14":
+  version "1.62.33-starknet.14"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-native/-/hdwallet-native-1.62.33-starknet.14.tgz#502806840fce0650acb5fd9cb0936d26e394850c"
+  integrity sha512-tJGY54oR1xvTFO7ew9tRZ1rdxqxahh8UfDRpGlwjBppPjopvg2Vrfhkvv+MtjQSAoBrioQE/qDSH6SC4HzNtlw==
+  dependencies:
+    "@bitcoinerlab/secp256k1" "^1.1.1"
+    "@noble/curves" "^1.4.0"
+    "@scure/starknet" "^1.0.0"
+    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.2"
+    "@shapeshiftoss/hdwallet-core" "^1.62.33-starknet.14"
+    "@shapeshiftoss/proto-tx-builder" "0.10.0"
+    "@zxing/text-encoding" "^0.9.0"
+    bchaddrjs "^0.4.9"
+    bech32 "^1.1.4"
+    bignumber.js "^9.0.1"
+    bip32 "^2.0.5"
+    bip39 "^3.0.2"
+    bnb-javascript-sdk-nobroadcast "2.16.15"
+    bs58check "^4.0.0"
+    crypto-js "^4.0.0"
+    ecpair "^3.0.0-rc.0"
+    eip-712 "^1.0.0"
+    ethers "5.7.2"
+    eventemitter2 "^5.0.1"
+    funtypes "^3.0.1"
+    hash-wasm "^4.11.0"
+    lodash "^4.17.21"
+    node-fetch "^2.6.1"
+    p-lazy "^3.1.0"
+    scrypt-js "^3.0.1"
+    starknet "^6.11.0"
+    tendermint-tx-builder "1.0.16"
+
+"@shapeshiftoss/hdwallet-phantom@^1.62.33-starknet.14":
+  version "1.62.33-starknet.14"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-phantom/-/hdwallet-phantom-1.62.33-starknet.14.tgz#4ef3aab3cdc0a9ee88c1e4fe16bf36068bde25d5"
+  integrity sha512-UFl1Ag1opVUjhPYom5zCPqPyX43nkVWtRQbOQDJ/qwbK+qYZRiAExz2Vrn0EeDvUa4m3x9AOgefMnGxhSQIfDw==
+  dependencies:
+    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.2"
+    "@shapeshiftoss/hdwallet-core" "^1.62.33-starknet.14"
+    "@solana/web3.js" "1.95.8"
+    base64-js "^1.5.1"
+    bitcoinjs-message "^2.0.0"
+    ethers "5.7.2"
+    lodash "^4.17.21"
+
+"@shapeshiftoss/hdwallet-portis@^1.62.33-starknet.14":
+  version "1.62.33-starknet.14"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-portis/-/hdwallet-portis-1.62.33-starknet.14.tgz#4552ab977c779a6e00bba245d74684774b2c7a93"
+  integrity sha512-0WDzXa1A8Ui7Wl6OJL03AFw7TqnUBm+66YH9BZAfiHR6iTE4MRuH+ivQ1bb6R1QZjPqk3ae4fzLlmxU189YhsQ==
+  dependencies:
+    "@portis/web3" "3.0.10"
+    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.2"
+    "@shapeshiftoss/hdwallet-core" "^1.62.33-starknet.14"
+    base64-js "^1.5.1"
+    bip32 "^2.0.4"
+    bitcoinjs-message "^2.1.0"
+    lodash "^4.17.15"
+    p-lazy "^3.1.0"
+    web3 "^1.5.1"
+
+"@shapeshiftoss/hdwallet-trezor-connect@^1.62.33-starknet.14":
+  version "1.62.33-starknet.14"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-trezor-connect/-/hdwallet-trezor-connect-1.62.33-starknet.14.tgz#50bb8b245ce8d329f968e1dce3e368586372a8b3"
+  integrity sha512-KYSPyE8tfhjCCpXsT+Mj6kvFd/mGouCDbMiQMQgAu31Qqbi/6Efv+9g2m1berXBP4kC/2aiyc/6HyS+WuAuLMA==
+  dependencies:
+    "@shapeshiftoss/hdwallet-core" "^1.62.33-starknet.14"
+    "@shapeshiftoss/hdwallet-trezor" "^1.62.33-starknet.14"
+    "@trezor/connect-web" "^9.6.4"
+
+"@shapeshiftoss/hdwallet-trezor@^1.62.33-starknet.14":
+  version "1.62.33-starknet.14"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-trezor/-/hdwallet-trezor-1.62.33-starknet.14.tgz#a01171dcb86aff631da9e16fa93666cf25eb7f5c"
+  integrity sha512-TQfNeNYvbBV7E/xI9MZ7RjK3YbMMOfXLOO1/HKwEIiRTSHcqZ3Ib6M57bcIsFlflMvdPPo88ACqWMxEcIJdBbQ==
+  dependencies:
+    "@ethereumjs/common" "3.2.0"
+    "@ethereumjs/tx" "4.2.0"
+    "@shapeshiftoss/hdwallet-core" "^1.62.33-starknet.14"
+    base64-js "^1.5.1"
+    bchaddrjs "^0.4.4"
+    lodash "^4.17.21"
+
+"@shapeshiftoss/hdwallet-vultisig@^1.62.33-starknet.14":
+  version "1.62.33-starknet.14"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-vultisig/-/hdwallet-vultisig-1.62.33-starknet.14.tgz#2da1516422f2b91591f6c9cceebfc0a0af7378b7"
+  integrity sha512-BCPR+F64EGRjHXqDSMKI/sP6WyanFh/L0KMHhfCESQhxbNFd9M3JifWtjHay10IT5n2u6AEf8MwLnYptfNNIvw==
+  dependencies:
+    "@cosmjs/amino" "^0.28.13"
+    "@cosmjs/stargate" "^0.28.13"
+    "@shapeshiftoss/bitcoinjs-lib" "7.0.0-shapeshift.2"
+    "@shapeshiftoss/hdwallet-core" "^1.62.33-starknet.14"
+    "@solana/web3.js" "1.95.8"
+    base64-js "^1.5.1"
+    bitcoinjs-message "^2.0.0"
+    ethers "5.7.2"
+    lodash "^4.17.21"
+
+"@shapeshiftoss/hdwallet-walletconnect@^1.62.33-starknet.14":
+  version "1.62.33-starknet.14"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-walletconnect/-/hdwallet-walletconnect-1.62.33-starknet.14.tgz#6efc54784647e878cefd85c9ad33613abc139dea"
+  integrity sha512-sJhTffmlwZJPZlKcrHoJBIGl5Gy8NiFwF5NVONqBfX9zlSQgd0PmadiLXL4G7rUmV/0en4d7+WhsU0OKlwYqDA==
+  dependencies:
+    "@shapeshiftoss/hdwallet-core" "^1.62.33-starknet.14"
+    "@walletconnect/qrcode-modal" "^1.7.8"
+    "@walletconnect/web3-provider" "^1.7.8"
+    ethers "^5.6.5"
+
+"@shapeshiftoss/hdwallet-walletconnectv2@^1.62.33-starknet.14":
+  version "1.62.33-starknet.14"
+  resolved "http://127.0.0.1:4873/@shapeshiftoss/hdwallet-walletconnectv2/-/hdwallet-walletconnectv2-1.62.33-starknet.14.tgz#eb3b327c4f4806d6ba48b01d9b649279477aa336"
+  integrity sha512-/86cPZQ7v4gPlBYFIALP7r5k7XtoAG0g3aXbW1W2KDEzS+cqIiiWr04/64NlvjpLGOElKN54M30j6fAVOeZIvw==
+  dependencies:
+    "@shapeshiftoss/hdwallet-core" "^1.62.33-starknet.14"
+    "@walletconnect/ethereum-provider" "^2.20.2"
+    "@walletconnect/modal" "^2.6.2"
+    ethers "^5.6.5"
 
 "@shapeshiftoss/logger@^1.1.2", "@shapeshiftoss/logger@^1.1.3":
   version "1.1.3"
@@ -6409,7 +6707,7 @@ abbrev@1, abbrev@^1.0.0:
 
 abi-wan-kanabi@^2.2.3:
   version "2.2.4"
-  resolved "https://registry.npmjs.org/abi-wan-kanabi/-/abi-wan-kanabi-2.2.4.tgz#47ebbafbb7f8df81773efbdcca60cdda8008c821"
+  resolved "http://127.0.0.1:4873/abi-wan-kanabi/-/abi-wan-kanabi-2.2.4.tgz#47ebbafbb7f8df81773efbdcca60cdda8008c821"
   integrity sha512-0aA81FScmJCPX+8UvkXLki3X1+yPQuWxEkqXBVKltgPAK79J+NB+Lp5DouMXa7L6f+zcRlIA/6XO7BN/q9fnvg==
   dependencies:
     ansicolors "^0.3.2"
@@ -6624,7 +6922,7 @@ ansi-styles@^6.1.0:
 
 ansicolors@^0.3.2, ansicolors@~0.3.2:
   version "0.3.2"
-  resolved "https://registry.npmjs.org/ansicolors/-/ansicolors-0.3.2.tgz#665597de86a9ffe3aa9bfbe6cae5c6ea426b4979"
+  resolved "http://127.0.0.1:4873/ansicolors/-/ansicolors-0.3.2.tgz#665597de86a9ffe3aa9bfbe6cae5c6ea426b4979"
   integrity sha512-QXu7BPrP29VllRxH8GwB7x5iX5qWKAAMLqKQGWTeLWVlNHNOpVMJ91dsxQAIWXpjuW5wqvxu3Jd/nRjrJ+0pqg==
 
 anymatch@^2.0.0:
@@ -7987,7 +8285,7 @@ capture-exit@^2.0.0:
 
 cardinal@^2.1.1:
   version "2.1.1"
-  resolved "https://registry.npmjs.org/cardinal/-/cardinal-2.1.1.tgz#7cc1055d822d212954d07b085dea251cc7bc5505"
+  resolved "http://127.0.0.1:4873/cardinal/-/cardinal-2.1.1.tgz#7cc1055d822d212954d07b085dea251cc7bc5505"
   integrity sha512-JSr5eOgoEymtYHBjNWyjrMqet9Am2miJhlfKNdqLp6zoeAh0KN5dRAcxlecj5mAJrmQomgiOBj35xHLrFjqBpw==
   dependencies:
     ansicolors "~0.3.2"
@@ -10790,7 +11088,7 @@ feaxios@^0.0.23:
 
 fetch-cookie@~3.0.0:
   version "3.0.1"
-  resolved "https://registry.npmjs.org/fetch-cookie/-/fetch-cookie-3.0.1.tgz#6a77f7495e1a639ae019db916a234db8c85d5963"
+  resolved "http://127.0.0.1:4873/fetch-cookie/-/fetch-cookie-3.0.1.tgz#6a77f7495e1a639ae019db916a234db8c85d5963"
   integrity sha512-ZGXe8Y5Z/1FWqQ9q/CrJhkUD73DyBU9VF0hBQmEO/wPHe4A9PKTjplFDLeFX8aOsYypZUcX5Ji/eByn3VCVO3Q==
   dependencies:
     set-cookie-parser "^2.4.8"
@@ -11029,7 +11327,7 @@ fs-constants@^1.0.0:
 
 fs-extra@^10.0.0:
   version "10.1.0"
-  resolved "https://registry.npmjs.org/fs-extra/-/fs-extra-10.1.0.tgz#02873cfbc4084dde127eaa5f9905eef2325d1abf"
+  resolved "http://127.0.0.1:4873/fs-extra/-/fs-extra-10.1.0.tgz#02873cfbc4084dde127eaa5f9905eef2325d1abf"
   integrity sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==
   dependencies:
     graceful-fs "^4.2.0"
@@ -12564,7 +12862,7 @@ isobject@^3.0.0, isobject@^3.0.1:
 
 isomorphic-fetch@~3.0.0:
   version "3.0.0"
-  resolved "https://registry.npmjs.org/isomorphic-fetch/-/isomorphic-fetch-3.0.0.tgz#0267b005049046d2421207215d45d6a262b8b8b4"
+  resolved "http://127.0.0.1:4873/isomorphic-fetch/-/isomorphic-fetch-3.0.0.tgz#0267b005049046d2421207215d45d6a262b8b8b4"
   integrity sha512-qvUtwJ3j6qwsF3jLxkZ72qCgjMysPzDfeV240JHiGZsANBYd+EEuu35v7dfrJ9Up0Ak07D7GGSkGhCHTqg/5wA==
   dependencies:
     node-fetch "^2.6.1"
@@ -13843,7 +14141,7 @@ loose-envify@^1.0.0, loose-envify@^1.1.0:
 
 lossless-json@^4.0.1:
   version "4.3.0"
-  resolved "https://registry.npmjs.org/lossless-json/-/lossless-json-4.3.0.tgz#7d26864820ecf08aee800213fc193666e794802a"
+  resolved "http://127.0.0.1:4873/lossless-json/-/lossless-json-4.3.0.tgz#7d26864820ecf08aee800213fc193666e794802a"
   integrity sha512-ToxOC+SsduRmdSuoLZLYAr5zy1Qu7l5XhmPWM3zefCZ5IcrzW/h108qbJUKfOlDlhvhjUK84+8PSVX0kxnit0g==
 
 lowercase-keys@^1.0.0, lowercase-keys@^1.0.1:
@@ -15403,7 +15701,7 @@ pacote@^13.0.3, pacote@^13.6.1:
 
 pako@^2.0.4:
   version "2.1.0"
-  resolved "https://registry.npmjs.org/pako/-/pako-2.1.0.tgz#266cc37f98c7d883545d11335c00fbd4062c9a86"
+  resolved "http://127.0.0.1:4873/pako/-/pako-2.1.0.tgz#266cc37f98c7d883545d11335c00fbd4062c9a86"
   integrity sha512-w+eufiZ1WuJYgPXbV/PO3NCMEc3xqylkKHzp8bxp1uW4qaSNQUkwmLLEc3kKsfz8lpV1F8Ht3U1Cm+9Srog2ug==
 
 pako@~1.0.5:
@@ -16392,7 +16690,7 @@ redent@^3.0.0:
 
 redeyed@~2.1.0:
   version "2.1.1"
-  resolved "https://registry.npmjs.org/redeyed/-/redeyed-2.1.1.tgz#8984b5815d99cb220469c99eeeffe38913e6cc0b"
+  resolved "http://127.0.0.1:4873/redeyed/-/redeyed-2.1.1.tgz#8984b5815d99cb220469c99eeeffe38913e6cc0b"
   integrity sha512-FNpGGo1DycYAdnrKFxCMmKYgo/mILAqtRYbkdQD8Ep/Hk2PQ5+aEAEx+IU713RTDmuBaH0c8P5ZozurNu5ObRQ==
   dependencies:
     esprima "~4.0.0"
@@ -17058,7 +17356,7 @@ set-cookie-parser@^2.4.6:
 
 set-cookie-parser@^2.4.8:
   version "2.7.2"
-  resolved "https://registry.npmjs.org/set-cookie-parser/-/set-cookie-parser-2.7.2.tgz#ccd08673a9ae5d2e44ea2a2de25089e67c7edf68"
+  resolved "http://127.0.0.1:4873/set-cookie-parser/-/set-cookie-parser-2.7.2.tgz#ccd08673a9ae5d2e44ea2a2de25089e67c7edf68"
   integrity sha512-oeM1lpU/UvhTxw+g3cIfxXHyJRc/uidd3yK1P242gzHds0udQBYzs3y8j4gCCW+ZJ7ad0yctld8RYO+bdurlvw==
 
 set-function-length@^1.2.1, set-function-length@^1.2.2:
@@ -17505,12 +17803,12 @@ stack-utils@^2.0.2:
 
 "starknet-types-07@npm:@starknet-io/types-js@^0.7.10":
   version "0.7.10"
-  resolved "https://registry.npmjs.org/@starknet-io/types-js/-/types-js-0.7.10.tgz#d21dc973d0cd04d7b6293ce461f2f06a5873c760"
+  resolved "http://127.0.0.1:4873/@starknet-io/types-js/-/types-js-0.7.10.tgz#d21dc973d0cd04d7b6293ce461f2f06a5873c760"
   integrity sha512-1VtCqX4AHWJlRRSYGSn+4X1mqolI1Tdq62IwzoU2vUuEE72S1OlEeGhpvd6XsdqXcfHmVzYfj8k1XtKBQqwo9w==
 
 starknet@^6.11.0:
   version "6.24.1"
-  resolved "https://registry.npmjs.org/starknet/-/starknet-6.24.1.tgz#87333339795038e93ef32a20726b5272ddb78fe1"
+  resolved "http://127.0.0.1:4873/starknet/-/starknet-6.24.1.tgz#87333339795038e93ef32a20726b5272ddb78fe1"
   integrity sha512-g7tiCt73berhcNi41otlN3T3kxZnIvZhMi8WdC21Y6GC6zoQgbI2z1t7JAZF9c4xZiomlanwVnurcpyfEdyMpg==
   dependencies:
     "@noble/curves" "1.7.0"
