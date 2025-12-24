@@ -1,9 +1,9 @@
 import ecc from "@bitcoinerlab/secp256k1";
-import * as bip32crypto from "bip32/src/crypto";
 import * as starknet from "@scure/starknet";
+import * as bip32crypto from "bip32/src/crypto";
 
 import { Core } from "../../../isolation";
-import { assertType, ByteArray, checkType, safeBufferFrom, Uint32 } from "../../types";
+import { ByteArray, checkType, safeBufferFrom, Uint32 } from "../../types";
 import { Revocable, revocable } from "./revocable";
 
 export * from "../../core/stark";
@@ -59,8 +59,8 @@ export class Node extends Revocable(class {}) implements Core.Stark.Node {
     const groundPrivateKey = starknet.grindKey(this.#privateKey);
     const signature = starknet.sign(txHash, groundPrivateKey);
     return {
-      r: signature.r.toString(16).padStart(64, '0'),
-      s: signature.s.toString(16).padStart(64, '0'),
+      r: signature.r.toString(16).padStart(64, "0"),
+      s: signature.s.toString(16).padStart(64, "0"),
     };
   }
 

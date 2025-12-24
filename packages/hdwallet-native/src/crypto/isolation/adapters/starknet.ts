@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import * as core from "@shapeshiftoss/hdwallet-core";
 
 import { Isolation } from "../..";
@@ -19,10 +20,18 @@ export class StarknetAdapter {
    * Get Starknet public key from BIP32 path
    */
   async getPublicKey(addressNList: core.BIP32Path): Promise<string> {
-    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
+    console.log("[StarknetAdapter.getPublicKey] Input:", JSON.stringify({ addressNList }));
+    const bip32Path = core.addressNListToBIP32(addressNList);
+    console.log("[StarknetAdapter.getPublicKey] BIP32 path:", bip32Path);
+
+    const nodeAdapter = await this.nodeAdapter.derivePath(bip32Path);
+    console.log("[StarknetAdapter.getPublicKey] Node adapter derived");
 
     // Stark Node handles key grinding internally while keeping the private key isolated
-    return await nodeAdapter.getPublicKey();
+    const publicKey = await nodeAdapter.getPublicKey();
+    console.log("[StarknetAdapter.getPublicKey] Public key:", publicKey);
+
+    return publicKey;
   }
 
   /**
@@ -31,14 +40,21 @@ export class StarknetAdapter {
    * The address is computed as a contract address using the public key.
    */
   async getAddress(addressNList: core.BIP32Path): Promise<string> {
-    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
+    console.log("[StarknetAdapter.getAddress] Input:", JSON.stringify({ addressNList }));
+    const bip32Path = core.addressNListToBIP32(addressNList);
+    console.log("[StarknetAdapter.getAddress] BIP32 path:", bip32Path);
+
+    const nodeAdapter = await this.nodeAdapter.derivePath(bip32Path);
+    console.log("[StarknetAdapter.getAddress] Node adapter derived");
 
     // Stark Node handles key grinding internally while keeping the private key isolated
     const publicKey = await nodeAdapter.getPublicKey();
+    console.log("[StarknetAdapter.getAddress] Public key:", publicKey);
 
     // For now, return the public key as the address identifier
     // In practice, the actual address depends on the account contract deployment
     // This will be the "pre-computed" or "counterfactual" address
+    console.log("[StarknetAdapter.getAddress] Returning public key as address (TODO: compute actual contract address)");
     return publicKey;
   }
 
@@ -47,13 +63,21 @@ export class StarknetAdapter {
    * Starknet uses ECDSA on the STARK curve for transaction signing
    */
   async signTransaction(txHash: string, addressNList: core.BIP32Path): Promise<string[]> {
-    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
+    console.log("[StarknetAdapter.signTransaction] Input:", JSON.stringify({ txHash, addressNList }));
+    const bip32Path = core.addressNListToBIP32(addressNList);
+    console.log("[StarknetAdapter.signTransaction] BIP32 path:", bip32Path);
+
+    const nodeAdapter = await this.nodeAdapter.derivePath(bip32Path);
+    console.log("[StarknetAdapter.signTransaction] Node adapter derived");
 
     // Stark Node handles key grinding and signing internally while keeping the private key isolated
     const signature = await nodeAdapter.node.sign(txHash);
+    console.log("[StarknetAdapter.signTransaction] Signature:", JSON.stringify(signature));
 
     // Return signature as array of hex strings [r, s]
-    return [signature.r, signature.s];
+    const result = [signature.r, signature.s];
+    console.log("[StarknetAdapter.signTransaction] Result:", JSON.stringify(result));
+    return result;
   }
 }
 

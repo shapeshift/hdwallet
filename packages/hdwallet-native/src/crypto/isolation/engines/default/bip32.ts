@@ -4,8 +4,8 @@ import * as bip32crypto from "bip32/src/crypto";
 import { Core } from "../../../isolation";
 import { assertType, ByteArray, checkType, safeBufferFrom, Uint32 } from "../../types";
 import * as Ed25519 from "./ed25519";
-import * as Stark from "./stark";
 import { Revocable, revocable } from "./revocable";
+import * as Stark from "./stark";
 
 export * from "../../core/bip32";
 
@@ -149,7 +149,6 @@ export class Node
     if (digestAlgorithm !== undefined) out = Core.Digest.Algorithms[digestAlgorithm](out);
     return out;
   }
-
 }
 
 // https://github.com/satoshilabs/slips/blob/master/slip-0010.md

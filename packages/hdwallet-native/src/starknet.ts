@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import * as core from "@shapeshiftoss/hdwallet-core";
 
 import { Isolation } from "./crypto";
@@ -34,24 +35,37 @@ export function MixinNativeStarknetWallet<TBase extends core.Constructor<NativeH
     }
 
     async starknetGetAddress(msg: core.StarknetGetAddress): Promise<string | null> {
-      return this.needsMnemonic(!!this.starknetAdapter, () => {
-        return this.starknetAdapter!.getAddress(msg.addressNList);
+      console.log("[NativeStarknetWallet.starknetGetAddress] Called with:", JSON.stringify(msg));
+      console.log("[NativeStarknetWallet.starknetGetAddress] Adapter exists:", !!this.starknetAdapter);
+      return this.needsMnemonic(!!this.starknetAdapter, async () => {
+        const address = await this.starknetAdapter!.getAddress(msg.addressNList);
+        console.log("[NativeStarknetWallet.starknetGetAddress] Result:", address);
+        return address;
       });
     }
 
     async starknetGetPublicKey(msg: core.StarknetGetPublicKey): Promise<string | null> {
-      return this.needsMnemonic(!!this.starknetAdapter, () => {
-        return this.starknetAdapter!.getPublicKey(msg.addressNList);
+      console.log("[NativeStarknetWallet.starknetGetPublicKey] Called with:", JSON.stringify(msg));
+      console.log("[NativeStarknetWallet.starknetGetPublicKey] Adapter exists:", !!this.starknetAdapter);
+      return this.needsMnemonic(!!this.starknetAdapter, async () => {
+        const publicKey = await this.starknetAdapter!.getPublicKey(msg.addressNList);
+        console.log("[NativeStarknetWallet.starknetGetPublicKey] Result:", publicKey);
+        return publicKey;
       });
     }
 
     async starknetSignTx(msg: core.StarknetSignTx): Promise<core.StarknetSignedTx | null> {
+      console.log("[NativeStarknetWallet.starknetSignTx] Called with:", JSON.stringify(msg));
+      console.log("[NativeStarknetWallet.starknetSignTx] Adapter exists:", !!this.starknetAdapter);
       return this.needsMnemonic(!!this.starknetAdapter, async () => {
         const signature = await this.starknetAdapter!.signTransaction(msg.txHash, msg.addressNList);
+        console.log("[NativeStarknetWallet.starknetSignTx] Signature:", JSON.stringify(signature));
 
-        return {
+        const result = {
           signature,
         };
+        console.log("[NativeStarknetWallet.starknetSignTx] Result:", JSON.stringify(result));
+        return result;
       });
     }
   };
