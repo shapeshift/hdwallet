@@ -384,42 +384,44 @@ export class NativeHDWallet
   async clearSession(): Promise<void> {}
 
   async initialize(): Promise<boolean | null> {
-    return this.needsMnemonic(
-      !!this.#secp256k1MasterKey && !!this.#ed25519MasterKey && !!this.#starkMasterKey,
-      async () => {
-        const secp256k1MasterKey = await this.#secp256k1MasterKey!;
-        const ed25519MasterKey = await this.#ed25519MasterKey!;
-        const starkMasterKey = await this.#starkMasterKey!;
+    return this.needsMnemonic(!!this.#secp256k1MasterKey && !!this.#ed25519MasterKey, async () => {
+      const secp256k1MasterKey = await this.#secp256k1MasterKey!;
+      const ed25519MasterKey = await this.#ed25519MasterKey!;
+      const starkMasterKey = this.#starkMasterKey ? await this.#starkMasterKey : undefined;
 
-        try {
-          await Promise.all([
-            super.btcInitializeWallet(secp256k1MasterKey),
-            super.ethInitializeWallet(secp256k1MasterKey),
-            super.cosmosInitializeWallet(secp256k1MasterKey),
-            super.osmosisInitializeWallet(secp256k1MasterKey),
-            super.binanceInitializeWallet(secp256k1MasterKey),
-            super.starknetInitializeWallet(starkMasterKey),
-            super.tronInitializeWallet(secp256k1MasterKey),
-            super.thorchainInitializeWallet(secp256k1MasterKey),
-            super.mayachainInitializeWallet(secp256k1MasterKey),
-            super.secretInitializeWallet(secp256k1MasterKey),
-            super.terraInitializeWallet(secp256k1MasterKey),
-            super.kavaInitializeWallet(secp256k1MasterKey),
-            super.arkeoInitializeWallet(secp256k1MasterKey),
-            super.solanaInitializeWallet(ed25519MasterKey),
-            super.suiInitializeWallet(ed25519MasterKey),
-          ]);
+      const initPromises = [
+        super.btcInitializeWallet(secp256k1MasterKey),
+        super.ethInitializeWallet(secp256k1MasterKey),
+        super.cosmosInitializeWallet(secp256k1MasterKey),
+        super.osmosisInitializeWallet(secp256k1MasterKey),
+        super.binanceInitializeWallet(secp256k1MasterKey),
+        super.tronInitializeWallet(secp256k1MasterKey),
+        super.thorchainInitializeWallet(secp256k1MasterKey),
+        super.mayachainInitializeWallet(secp256k1MasterKey),
+        super.secretInitializeWallet(secp256k1MasterKey),
+        super.terraInitializeWallet(secp256k1MasterKey),
+        super.kavaInitializeWallet(secp256k1MasterKey),
+        super.arkeoInitializeWallet(secp256k1MasterKey),
+        super.solanaInitializeWallet(ed25519MasterKey),
+        super.suiInitializeWallet(ed25519MasterKey),
+      ];
 
-          this.#initialized = true;
-        } catch (e) {
-          console.error("NativeHDWallet:initialize:error", e);
-          this.#initialized = false;
-          await this.wipe();
-        }
-
-        return this.#initialized;
+      if (starkMasterKey) {
+        initPromises.push(super.starknetInitializeWallet(starkMasterKey));
       }
-    );
+
+      try {
+        await Promise.all(initPromises);
+
+        this.#initialized = true;
+      } catch (e) {
+        console.error("NativeHDWallet:initialize:error", e);
+        this.#initialized = false;
+        await this.wipe();
+      }
+
+      return this.#initialized;
+    });
   }
 
   async ping(msg: core.Ping): Promise<core.Pong> {
