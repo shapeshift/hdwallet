@@ -14,6 +14,9 @@ export interface Node extends Partial<Revocable>, SecP256K1.ECDSAKey, Partial<Se
   getPublicKey(): Promise<SecP256K1.CompressedPoint>;
   getChainCode(): Promise<ChainCode>;
   derive(index: number): Promise<this>;
+  // Starknet-specific methods
+  starknetGetPublicKey?(): Promise<string>;
+  starknetSign?(txHash: string): Promise<{ r: string; s: string }>;
 }
 
 export function nodeSupportsECDH<T extends Node>(x: T): x is T & SecP256K1.ECDHKey {

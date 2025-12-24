@@ -17,7 +17,8 @@ export class StarknetAdapter {
 
     // Use the node's Starknet-specific method to get the public key
     // The node handles key grinding internally while keeping the private key isolated
-    const publicKey = await (nodeAdapter.node as any).starknetGetPublicKey();
+    const publicKey = await nodeAdapter.node.starknetGetPublicKey?.();
+    if (!publicKey) throw new Error("Starknet methods not available on node");
 
     return publicKey;
   }
@@ -32,7 +33,8 @@ export class StarknetAdapter {
 
     // Use the node's Starknet-specific method to get the public key
     // The node handles key grinding internally while keeping the private key isolated
-    const publicKey = await (nodeAdapter.node as any).starknetGetPublicKey();
+    const publicKey = await nodeAdapter.node.starknetGetPublicKey?.();
+    if (!publicKey) throw new Error("Starknet methods not available on node");
 
     // For now, return the public key as the address identifier
     // In practice, the actual address depends on the account contract deployment
@@ -49,7 +51,8 @@ export class StarknetAdapter {
 
     // Use the node's Starknet-specific signing method
     // The node handles key grinding and signing internally while keeping the private key isolated
-    const signature = await (nodeAdapter.node as any).starknetSign(txHash);
+    const signature = await nodeAdapter.node.starknetSign?.(txHash);
+    if (!signature) throw new Error("Starknet methods not available on node");
 
     // Return signature as array of hex strings [r, s]
     return [signature.r, signature.s];

@@ -159,8 +159,8 @@ export class Node
     const groundPrivateKey = starknet.grindKey(this.#privateKey);
     const signature = starknet.sign(txHash, groundPrivateKey);
     return {
-      r: signature.r.toString(16),
-      s: signature.s.toString(16),
+      r: signature.r.toString(16).padStart(64, '0'),
+      s: signature.s.toString(16).padStart(64, '0'),
     };
   }
 }
