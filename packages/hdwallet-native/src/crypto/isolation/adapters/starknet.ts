@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { CallData, hash } from "starknet";
 
 import { Isolation } from "../..";
 
@@ -11,6 +12,9 @@ import { Isolation } from "../..";
  */
 export class StarknetAdapter {
   protected readonly nodeAdapter: Isolation.Adapters.Stark;
+
+  // OpenZeppelin account v0.15.0-rc.0 class hash (used by most wallets)
+  private readonly OZ_ACCOUNT_CLASS_HASH = "0x05b4b537eaa2399e3aa99c4e2e0208ebd6c71bc1467938cd52c798c601e43564";
 
   constructor(nodeAdapter: Isolation.Adapters.Stark) {
     this.nodeAdapter = nodeAdapter;
@@ -36,8 +40,7 @@ export class StarknetAdapter {
 
   /**
    * Get Starknet address from BIP32 path
-   * For Starknet, we derive the private key and compute the corresponding public key.
-   * The address is computed as a contract address using the public key.
+   * Computes the counterfactual contract address using OpenZeppelin account implementation
    */
   async getAddress(addressNList: core.BIP32Path): Promise<string> {
     console.log("[StarknetAdapter.getAddress] Input:", JSON.stringify({ addressNList }));
@@ -51,11 +54,18 @@ export class StarknetAdapter {
     const publicKey = await nodeAdapter.getPublicKey();
     console.log("[StarknetAdapter.getAddress] Public key:", publicKey);
 
-    // For now, return the public key as the address identifier
-    // In practice, the actual address depends on the account contract deployment
-    // This will be the "pre-computed" or "counterfactual" address
-    console.log("[StarknetAdapter.getAddress] Returning public key as address (TODO: compute actual contract address)");
-    return publicKey;
+    // Compute actual contract address using OpenZeppelin account contract
+    // This matches what the web is doing for deployment
+    const constructorCalldata = CallData.compile({ publicKey });
+    const contractAddress = hash.calculateContractAddressFromHash(
+      publicKey,                    // salt (use public key as salt)
+      this.OZ_ACCOUNT_CLASS_HASH,   // class hash
+      constructorCalldata,          // constructor calldata
+      0                             // deployer address (0 for counterfactual)
+    );
+    console.log("[StarknetAdapter.getAddress] Contract address:", contractAddress);
+
+    return contractAddress;
   }
 
   /**
