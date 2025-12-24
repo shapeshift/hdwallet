@@ -14,6 +14,7 @@
     "@metamask/eth-sig-util": "^7.0.0",
     "@shapeshiftoss/hdwallet-coinbase": "1.62.32",
     "@shapeshiftoss/hdwallet-core": "1.62.32",
+    "@shapeshiftoss/hdwallet-gridplus": "1.62.32",
     "@shapeshiftoss/hdwallet-keepkey": "1.62.32",
     "@shapeshiftoss/hdwallet-keepkey-tcp": "1.62.32",
     "@shapeshiftoss/hdwallet-keepkey-webusb": "1.62.32",
