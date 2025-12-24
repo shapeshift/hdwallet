@@ -282,7 +282,7 @@ export class NativeHDWallet
   #ed25519MasterKey: Promise<Isolation.Core.Ed25519.Node> | undefined = undefined;
   #starkMasterKey: Promise<Isolation.Core.Stark.Node> | undefined = undefined;
 
-  constructor({ mnemonic, deviceId, secp256k1MasterKey, ed25519MasterKey }: NativeAdapterArgs) {
+  constructor({ mnemonic, deviceId, secp256k1MasterKey, ed25519MasterKey, starkMasterKey }: NativeAdapterArgs) {
     super();
     if (mnemonic) {
       this.#secp256k1MasterKey = (async () => {
@@ -306,6 +306,7 @@ export class NativeHDWallet
     } else {
       if (secp256k1MasterKey) this.#secp256k1MasterKey = Promise.resolve(secp256k1MasterKey);
       if (ed25519MasterKey) this.#ed25519MasterKey = Promise.resolve(ed25519MasterKey);
+      if (starkMasterKey) this.#starkMasterKey = Promise.resolve(starkMasterKey);
     }
     this.#deviceId = deviceId;
   }

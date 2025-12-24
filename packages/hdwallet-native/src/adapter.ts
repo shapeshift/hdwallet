@@ -10,11 +10,13 @@ export type NativeAdapterArgs = {
       mnemonic?: string | Isolation.Core.BIP39.Mnemonic;
       secp256k1MasterKey?: never;
       ed25519MasterKey?: never;
+      starkMasterKey?: never;
     }
   | {
       mnemonic?: never;
       secp256k1MasterKey?: Isolation.Core.BIP32.Node;
       ed25519MasterKey?: Isolation.Core.Ed25519.Node;
+      starkMasterKey?: Isolation.Core.Stark.Node;
     }
 );
 
