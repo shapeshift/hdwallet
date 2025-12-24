@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bip39 from "bip39";
 import base58 from "bs58";

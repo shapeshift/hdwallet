@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import * as core from "@shapeshiftoss/hdwallet-core";
 import { CallData, hash } from "starknet";
 
@@ -46,17 +45,9 @@ export class StarknetAdapter {
    * Get Starknet public key from BIP32 path
    */
   async getPublicKey(addressNList: core.BIP32Path): Promise<string> {
-    console.log("[StarknetAdapter.getPublicKey] Input:", JSON.stringify({ addressNList }));
     const bip32Path = core.addressNListToBIP32(addressNList);
-    console.log("[StarknetAdapter.getPublicKey] BIP32 path:", bip32Path);
-
     const nodeAdapter = await this.nodeAdapter.derivePath(bip32Path);
-    console.log("[StarknetAdapter.getPublicKey] Node adapter derived");
-
-    // Stark Node handles key grinding internally while keeping the private key isolated
     const publicKey = await nodeAdapter.getPublicKey();
-    console.log("[StarknetAdapter.getPublicKey] Public key:", publicKey);
-
     return publicKey;
   }
 
@@ -65,34 +56,23 @@ export class StarknetAdapter {
    * Computes the counterfactual contract address using OpenZeppelin account implementation
    */
   async getAddress(addressNList: core.BIP32Path): Promise<string> {
-    console.log("[StarknetAdapter.getAddress] Input:", JSON.stringify({ addressNList }));
     const bip32Path = core.addressNListToBIP32(addressNList);
-    console.log("[StarknetAdapter.getAddress] BIP32 path:", bip32Path);
-
     const nodeAdapter = await this.nodeAdapter.derivePath(bip32Path);
-    console.log("[StarknetAdapter.getAddress] Node adapter derived");
-
-    // Stark Node handles key grinding internally while keeping the private key isolated
     const publicKey = await nodeAdapter.getPublicKey();
-    console.log("[StarknetAdapter.getAddress] Public key:", publicKey);
 
     // Compute actual contract address using OpenZeppelin account contract
-    // This matches what the web is doing for deployment
     const constructorCalldata = CallData.compile({ publicKey });
     const contractAddress = hash.calculateContractAddressFromHash(
-      publicKey, // salt (use public key as salt)
-      this.OZ_ACCOUNT_CLASS_HASH, // class hash
-      constructorCalldata, // constructor calldata
-      0 // deployer address (0 for counterfactual)
+      publicKey,
+      this.OZ_ACCOUNT_CLASS_HASH,
+      constructorCalldata,
+      0
     );
 
     // Ensure contract address is zero-padded to 64 hex chars (Starknet spec)
     const paddedAddress = contractAddress.startsWith("0x")
       ? "0x" + contractAddress.slice(2).padStart(64, "0")
       : "0x" + contractAddress.padStart(64, "0");
-
-    console.log("[StarknetAdapter.getAddress] Contract address (raw):", contractAddress);
-    console.log("[StarknetAdapter.getAddress] Contract address (padded):", paddedAddress);
 
     return paddedAddress;
   }
@@ -102,21 +82,10 @@ export class StarknetAdapter {
    * Starknet uses ECDSA on the STARK curve for transaction signing
    */
   async signTransaction(txHash: string, addressNList: core.BIP32Path): Promise<string[]> {
-    console.log("[StarknetAdapter.signTransaction] Input:", JSON.stringify({ txHash, addressNList }));
     const bip32Path = core.addressNListToBIP32(addressNList);
-    console.log("[StarknetAdapter.signTransaction] BIP32 path:", bip32Path);
-
     const nodeAdapter = await this.nodeAdapter.derivePath(bip32Path);
-    console.log("[StarknetAdapter.signTransaction] Node adapter derived");
-
-    // Stark Node handles key grinding and signing internally while keeping the private key isolated
     const signature = await nodeAdapter.node.sign(txHash);
-    console.log("[StarknetAdapter.signTransaction] Signature:", JSON.stringify(signature));
-
-    // Return signature as array of hex strings [r, s]
-    const result = [signature.r, signature.s];
-    console.log("[StarknetAdapter.signTransaction] Result:", JSON.stringify(result));
-    return result;
+    return [signature.r, signature.s];
   }
 }
 
