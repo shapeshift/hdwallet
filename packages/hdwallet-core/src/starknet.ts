@@ -6,6 +6,10 @@ export interface StarknetGetAddress {
   showDisplay?: boolean;
 }
 
+export interface StarknetGetPublicKey {
+  addressNList: BIP32Path;
+}
+
 export interface StarknetSignTx {
   addressNList: BIP32Path;
   txHash: string;
@@ -34,6 +38,7 @@ export interface StarknetWallet extends StarknetWalletInfo, HDWallet {
   readonly _supportsStarknet: boolean;
 
   starknetGetAddress(msg: StarknetGetAddress): Promise<string | null>;
+  starknetGetPublicKey(msg: StarknetGetPublicKey): Promise<string | null>;
   starknetSignTx(msg: StarknetSignTx): Promise<StarknetSignedTx | null>;
 }
 

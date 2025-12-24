@@ -10,6 +10,19 @@ export class StarknetAdapter {
   }
 
   /**
+   * Get Starknet public key from BIP32 path
+   */
+  async getPublicKey(addressNList: core.BIP32Path): Promise<string> {
+    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
+
+    // Use the node's Starknet-specific method to get the public key
+    // The node handles key grinding internally while keeping the private key isolated
+    const publicKey = await (nodeAdapter.node as any).starknetGetPublicKey();
+
+    return publicKey;
+  }
+
+  /**
    * Get Starknet address from BIP32 path
    * For Starknet, we derive the private key and compute the corresponding public key.
    * The address is computed as a contract address using the public key.

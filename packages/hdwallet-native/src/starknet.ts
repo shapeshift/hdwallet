@@ -39,6 +39,12 @@ export function MixinNativeStarknetWallet<TBase extends core.Constructor<NativeH
       });
     }
 
+    async starknetGetPublicKey(msg: core.StarknetGetPublicKey): Promise<string | null> {
+      return this.needsMnemonic(!!this.starknetAdapter, () => {
+        return this.starknetAdapter!.getPublicKey(msg.addressNList);
+      });
+    }
+
     async starknetSignTx(msg: core.StarknetSignTx): Promise<core.StarknetSignedTx | null> {
       return this.needsMnemonic(!!this.starknetAdapter, async () => {
         const signature = await this.starknetAdapter!.signTransaction(msg.txHash, msg.addressNList);
