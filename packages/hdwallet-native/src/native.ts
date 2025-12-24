@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import * as core from "@shapeshiftoss/hdwallet-core";
 import * as bip39 from "bip39";
 import base58 from "bs58";
@@ -383,11 +384,32 @@ export class NativeHDWallet
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   async clearSession(): Promise<void> {}
 
+  // eslint-disable-next-line no-console
   async initialize(): Promise<boolean | null> {
+    console.log("[NativeHDWallet.initialize] Starting initialization");
+    console.log("[NativeHDWallet.initialize] Master keys exist:", {
+      secp256k1: !!this.#secp256k1MasterKey,
+      ed25519: !!this.#ed25519MasterKey,
+      stark: !!this.#starkMasterKey,
+    });
+
     return this.needsMnemonic(!!this.#secp256k1MasterKey && !!this.#ed25519MasterKey, async () => {
+      console.log("[NativeHDWallet.initialize] Awaiting master keys...");
       const secp256k1MasterKey = await this.#secp256k1MasterKey!;
       const ed25519MasterKey = await this.#ed25519MasterKey!;
-      const starkMasterKey = this.#starkMasterKey ? await this.#starkMasterKey : undefined;
+      console.log("[NativeHDWallet.initialize] secp256k1 and ed25519 keys obtained");
+
+      let starkMasterKey: Isolation.Core.Stark.Node | undefined;
+      if (this.#starkMasterKey) {
+        try {
+          starkMasterKey = await this.#starkMasterKey;
+          console.log("[NativeHDWallet.initialize] Stark master key obtained");
+        } catch (err) {
+          console.error("[NativeHDWallet.initialize] Error getting stark master key:", err);
+        }
+      } else {
+        console.log("[NativeHDWallet.initialize] No stark master key promise");
+      }
 
       const initPromises = [
         super.btcInitializeWallet(secp256k1MasterKey),
@@ -407,10 +429,14 @@ export class NativeHDWallet
       ];
 
       if (starkMasterKey) {
+        console.log("[NativeHDWallet.initialize] Adding starknet initialization");
         initPromises.push(super.starknetInitializeWallet(starkMasterKey));
+      } else {
+        console.log("[NativeHDWallet.initialize] Skipping starknet initialization - no master key");
       }
 
       try {
+        console.log("[NativeHDWallet.initialize] Running Promise.all for wallet initializations...");
         await Promise.all(initPromises);
 
         this.#initialized = true;

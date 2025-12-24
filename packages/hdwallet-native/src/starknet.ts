@@ -26,8 +26,11 @@ export function MixinNativeStarknetWallet<TBase extends core.Constructor<NativeH
     starknetAdapter: StarknetAdapter | undefined;
 
     async starknetInitializeWallet(masterKey: Isolation.Core.Stark.Node): Promise<void> {
+      console.log("[MixinNativeStarknetWallet.starknetInitializeWallet] Called with masterKey:", !!masterKey);
       const nodeAdapter = new Isolation.Adapters.Stark(masterKey);
+      console.log("[MixinNativeStarknetWallet.starknetInitializeWallet] Node adapter created");
       this.starknetAdapter = new StarknetAdapter(nodeAdapter);
+      console.log("[MixinNativeStarknetWallet.starknetInitializeWallet] StarknetAdapter created and assigned");
     }
 
     starknetWipe() {
