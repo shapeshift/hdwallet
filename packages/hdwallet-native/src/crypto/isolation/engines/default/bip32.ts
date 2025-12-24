@@ -1,6 +1,6 @@
 import ecc from "@bitcoinerlab/secp256k1";
-import * as bip32crypto from "bip32/src/crypto";
 import * as starknet from "@scure/starknet";
+import * as bip32crypto from "bip32/src/crypto";
 
 import { Core } from "../../../isolation";
 import { assertType, ByteArray, checkType, safeBufferFrom, Uint32 } from "../../types";

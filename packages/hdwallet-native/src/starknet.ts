@@ -5,21 +5,21 @@ import { StarknetAdapter } from "./crypto/isolation/adapters/starknet";
 import { NativeHDWalletBase } from "./native";
 
 export function MixinNativeStarknetWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
-  return class MixinNativeStarknetWalletInfo extends Base implements core.StarknetWalletInfo {
+  return class MixinNativeStarknetWalletInfoClass extends Base implements core.StarknetWalletInfo {
     readonly _supportsStarknetInfo = true;
 
     starknetGetAccountPaths(msg: core.StarknetGetAccountPaths): Array<core.StarknetAccountPath> {
       return core.starknetGetAccountPaths(msg);
     }
 
-    starknetNextAccountPath(msg: core.StarknetAccountPath): core.StarknetAccountPath | undefined {
+    starknetNextAccountPath(): core.StarknetAccountPath | undefined {
       throw new Error("Method not implemented");
     }
   };
 }
 
 export function MixinNativeStarknetWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
-  return class MixinNativeStarknetWallet extends Base {
+  return class MixinNativeStarknetWalletClass extends Base {
     readonly _supportsStarknet = true;
 
     starknetAdapter: StarknetAdapter | undefined;
