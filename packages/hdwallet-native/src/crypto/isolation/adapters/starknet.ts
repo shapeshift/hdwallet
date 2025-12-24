@@ -85,9 +85,16 @@ export class StarknetAdapter {
       constructorCalldata, // constructor calldata
       0 // deployer address (0 for counterfactual)
     );
-    console.log("[StarknetAdapter.getAddress] Contract address:", contractAddress);
 
-    return contractAddress;
+    // Ensure contract address is zero-padded to 64 hex chars (Starknet spec)
+    const paddedAddress = contractAddress.startsWith("0x")
+      ? "0x" + contractAddress.slice(2).padStart(64, "0")
+      : "0x" + contractAddress.padStart(64, "0");
+
+    console.log("[StarknetAdapter.getAddress] Contract address (raw):", contractAddress);
+    console.log("[StarknetAdapter.getAddress] Contract address (padded):", paddedAddress);
+
+    return paddedAddress;
   }
 
   /**
