@@ -63,10 +63,15 @@ export class Node extends Revocable(class {}) implements Core.Stark.Node {
   /**
    * Get Stark public key
    * Applies Starknet-specific key grinding before deriving public key on STARK curve
+   * Returns zero-padded 64-character hex string (66 chars total with 0x prefix)
    */
   async getPublicKey(): Promise<string> {
     const groundPrivateKey = starknet.grindKey(this.#privateKey);
-    return starknet.getStarkKey(groundPrivateKey);
+    const publicKey = starknet.getStarkKey(groundPrivateKey);
+    // Ensure proper zero-padding to 64 hex characters per Starknet address spec
+    return publicKey.startsWith("0x")
+      ? "0x" + publicKey.slice(2).padStart(64, "0")
+      : "0x" + publicKey.padStart(64, "0");
   }
 
   async getChainCode() {

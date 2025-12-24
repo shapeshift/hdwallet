@@ -80,10 +80,10 @@ export class StarknetAdapter {
     // This matches what the web is doing for deployment
     const constructorCalldata = CallData.compile({ publicKey });
     const contractAddress = hash.calculateContractAddressFromHash(
-      publicKey,                    // salt (use public key as salt)
-      this.OZ_ACCOUNT_CLASS_HASH,   // class hash
-      constructorCalldata,          // constructor calldata
-      0                             // deployer address (0 for counterfactual)
+      publicKey, // salt (use public key as salt)
+      this.OZ_ACCOUNT_CLASS_HASH, // class hash
+      constructorCalldata, // constructor calldata
+      0 // deployer address (0 for counterfactual)
     );
     console.log("[StarknetAdapter.getAddress] Contract address:", contractAddress);
 
