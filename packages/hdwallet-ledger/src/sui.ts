@@ -66,6 +66,10 @@ export async function suiSignTx(transport: LedgerTransport, msg: core.SuiSignTx)
       publicKey,
     };
   } catch (error) {
+    // Check for blind signing error (status code 0x8)
+    if (error instanceof Error && error.message.includes("(0x8)")) {
+      throw new Error("Sui transaction requires blind signing");
+    }
     console.error("[Sui Ledger] suiSignTx error:", error);
     throw error;
   }
