@@ -41,31 +41,31 @@
   },
   "devDependencies": {
     "@types/inquirer": "9.0.3",
-    "@typescript-eslint/eslint-plugin": "6.7.3",
-    "@typescript-eslint/parser": "6.7.3",
-    "eslint": "8.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.3",
+    "@typescript-eslint/parser": "^6.7.3",
+    "eslint": "^8.10.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-jest": "26.1.1",
     "eslint-plugin-prettier": "4.0.0",
-    "eslint-plugin-simple-import-sort": "7.0.0",
-    "fake-indexeddb": "3.1.7",
-    "jest": "26.6.3",
-    "jest-environment-jsdom": "25.5.0",
-    "jest-junit": "12.0.0",
-    "lerna": "5.2.0",
-    "prettier": "2.0.5",
-    "ts-jest": "26.5.5",
-    "typescript": "5.2.2"
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "fake-indexeddb": "^3.1.7",
+    "jest": "^26.6.3",
+    "jest-environment-jsdom": "^25.5.0",
+    "jest-junit": "^12.0.0",
+    "lerna": "^5.2.0",
+    "prettier": "^2.0.5",
+    "ts-jest": "^26.5.5",
+    "typescript": "^5.2.2"
   },
   "resolutions": {
     "@types/eventsource": "1.1.8",
-    "p-queue": "6.6.2"
+    "p-queue": "^6.6.2"
   },
   "dependencies": {
-    "@types/jest": "26.0.23",
-    "@types/node": "22.13.14",
-    "patch-package": "6.2.2",
-    "postinstall-postinstall": "2.1.0"
+    "@types/jest": "^26.0.23",
+    "@types/node": "^22.13.14",
+    "patch-package": "^6.2.2",
+    "postinstall-postinstall": "^2.1.0"
   },
   "packageManager": "yarn@1.22.19"
 }

@@ -22,10 +22,10 @@
     "@ledgerhq/hw-transport-webusb": "6.29.13",
     "@shapeshiftoss/hdwallet-core": "1.62.32",
     "@shapeshiftoss/hdwallet-ledger": "1.62.32",
-    "@types/w3c-web-usb": "1.0.4",
-    "p-queue": "7.4.1"
+    "@types/w3c-web-usb": "^1.0.4",
+    "p-queue": "^7.4.1"
   },
   "devDependencies": {
-    "@types/w3c-web-usb": "1.0.6"
+    "@types/w3c-web-usb": "^1.0.6"
   }
 }

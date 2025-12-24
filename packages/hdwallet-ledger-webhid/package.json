@@ -20,6 +20,6 @@
     "@ledgerhq/hw-transport-webhid": "6.30.6",
     "@shapeshiftoss/hdwallet-core": "1.62.32",
     "@shapeshiftoss/hdwallet-ledger": "1.62.32",
-    "@types/w3c-web-hid": "1.0.2"
+    "@types/w3c-web-hid": "^1.0.2"
   }
 }

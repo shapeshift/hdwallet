@@ -14,19 +14,19 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@cosmjs/amino": "0.28.13",
-    "@cosmjs/stargate": "0.28.13",
+    "@cosmjs/amino": "^0.28.13",
+    "@cosmjs/stargate": "^0.28.13",
     "@shapeshiftoss/caip": "8.15.0",
     "@shapeshiftoss/hdwallet-core": "1.62.32",
     "@shapeshiftoss/proto-tx-builder": "0.10.0",
     "@shapeshiftoss/types": "3.1.3",
-    "base64-js": "1.5.1",
-    "lodash": "4.17.21"
+    "base64-js": "^1.5.1",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@cosmjs/amino": "0.28.13",
-    "@cosmjs/stargate": "0.28.13",
-    "@keplr-wallet/types": "0.12.35",
-    "@types/lodash": "4.14.168"
+    "@cosmjs/amino": "^0.28.13",
+    "@cosmjs/stargate": "^0.28.13",
+    "@keplr-wallet/types": "^0.12.35",
+    "@types/lodash": "^4.14.168"
   }
 }

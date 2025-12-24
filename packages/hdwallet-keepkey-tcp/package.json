@@ -16,6 +16,6 @@
   "dependencies": {
     "@shapeshiftoss/hdwallet-core": "1.62.32",
     "@shapeshiftoss/hdwallet-keepkey": "1.62.32",
-    "axios": "0.21.1"
+    "axios": "^0.21.1"
   }
 }

@@ -14,18 +14,18 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@metamask/detect-provider": "1.2.0",
-    "@metamask/onboarding": "1.0.1",
-    "@shapeshiftoss/common-api": "9.3.0",
+    "@metamask/detect-provider": "^1.2.0",
+    "@metamask/onboarding": "^1.0.1",
+    "@shapeshiftoss/common-api": "^9.3.0",
     "@shapeshiftoss/hdwallet-core": "1.62.32",
-    "@shapeshiftoss/metamask-snaps-adapter": "1.0.12",
-    "@shapeshiftoss/metamask-snaps-types": "1.0.12",
-    "eth-rpc-errors": "4.0.3",
-    "lodash": "4.17.21",
-    "mipd": "0.0.7"
+    "@shapeshiftoss/metamask-snaps-adapter": "^1.0.12",
+    "@shapeshiftoss/metamask-snaps-types": "^1.0.12",
+    "eth-rpc-errors": "^4.0.3",
+    "lodash": "^4.17.21",
+    "mipd": "^0.0.7"
   },
   "devDependencies": {
-    "@types/express": "4.17.17",
-    "@types/lodash": "4.14.168"
+    "@types/express": "^4.17.17",
+    "@types/lodash": "^4.14.168"
   }
 }
