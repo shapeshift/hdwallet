@@ -76,10 +76,16 @@ export class Node extends Revocable(class {}) implements Core.Stark.Node {
 
     const serP = Buffer.alloc(37);
     if (index < 0x80000000) {
-      // Non-hardened derivation: not supported for Starknet (should always use hardened)
-      // But we include for completeness per BIP32 spec
-      throw new Error("Starknet derivation requires hardened indices");
+      // Non-hardened derivation uses public key
+      // For Stark, we use secp256k1 public key for BIP32 derivation (industry standard)
+      // The grinding + Stark operations happen only in final getPublicKey/sign
+      const secp256k1PubKey = ecc.pointFromScalar(this.#privateKey, true);
+      if (secp256k1PubKey === null) {
+        throw new Error("Failed to generate public key from private key");
+      }
+      serP.set(secp256k1PubKey, 0);
     } else {
+      // Hardened derivation uses private key
       serP.set(this.#privateKey, 1);
     }
     serP.writeUInt32BE(index, 33);
