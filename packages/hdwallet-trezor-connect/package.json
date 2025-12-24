@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-trezor-connect",
-  "version": "1.62.33-starknet.3",
+  "version": "1.62.33-starknet.4",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,8 +14,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.33-starknet.3",
-    "@shapeshiftoss/hdwallet-trezor": "^1.62.33-starknet.3",
+    "@shapeshiftoss/hdwallet-core": "^1.62.33-starknet.4",
+    "@shapeshiftoss/hdwallet-trezor": "^1.62.33-starknet.4",
     "@trezor/connect-web": "^9.6.4"
   }
 }
