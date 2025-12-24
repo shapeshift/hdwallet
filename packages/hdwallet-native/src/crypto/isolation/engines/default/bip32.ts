@@ -186,6 +186,19 @@ export class Seed extends Revocable(class {}) implements Core.BIP32.Seed {
     return out;
   }
 
+  /**
+   * Create Stark master key for Starknet
+   *
+   * Uses "Bitcoin seed" HMAC key per SLIP-0010 because Starknet follows the
+   * industry standard of using secp256k1 BIP32 derivation math, then applying
+   * Stark-specific operations (grinding, STARK curve signing) only at the end.
+   *
+   * This matches implementations by Argent and Ledger.
+   *
+   * References:
+   * - https://github.com/argentlabs/argent-starknet-recover/blob/main/keyDerivation.ts
+   * - https://community.starknet.io/t/account-keys-and-addresses-derivation-standard/1230
+   */
   async toStarkMasterKey(): Promise<Core.Stark.Node> {
     // Use "Bitcoin seed" per SLIP-0010 standard for secp256k1-based derivation
     // Starknet uses standard BIP32 secp256k1 derivation, then applies grinding

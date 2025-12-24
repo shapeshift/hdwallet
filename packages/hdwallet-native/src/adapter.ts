@@ -3,6 +3,21 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import * as Isolation from "./crypto/isolation";
 import * as native from "./native";
 
+/**
+ * NativeAdapter arguments
+ *
+ * Supports two initialization modes:
+ * 1. From mnemonic: Wallet derives all master keys (secp256k1, ed25519, stark)
+ * 2. From master keys: Externally-provided master keys for each curve type
+ *
+ * MASTER KEY TYPES:
+ * - secp256k1MasterKey: For Bitcoin, Ethereum, Tron, Cosmos chains
+ * - ed25519MasterKey: For Solana, Sui chains
+ * - starkMasterKey: For Starknet (uses STARK curve, separate from secp256k1)
+ *
+ * Note: Starknet uses secp256k1 BIP32 derivation math but STARK curve for signing,
+ * requiring a separate master key type. See engines/default/stark.ts for details.
+ */
 export type NativeAdapterArgs = {
   deviceId: string;
 } & (
