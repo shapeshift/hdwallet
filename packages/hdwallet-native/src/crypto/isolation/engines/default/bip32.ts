@@ -1,10 +1,10 @@
 import ecc from "@bitcoinerlab/secp256k1";
-import * as starknet from "@scure/starknet";
 import * as bip32crypto from "bip32/src/crypto";
 
 import { Core } from "../../../isolation";
 import { assertType, ByteArray, checkType, safeBufferFrom, Uint32 } from "../../types";
 import * as Ed25519 from "./ed25519";
+import * as Stark from "./stark";
 import { Revocable, revocable } from "./revocable";
 
 export * from "../../core/bip32";
@@ -150,19 +150,6 @@ export class Node
     return out;
   }
 
-  async starknetGetPublicKey(): Promise<string> {
-    const groundPrivateKey = starknet.grindKey(this.#privateKey);
-    return starknet.getStarkKey(groundPrivateKey);
-  }
-
-  async starknetSign(txHash: string): Promise<{ r: string; s: string }> {
-    const groundPrivateKey = starknet.grindKey(this.#privateKey);
-    const signature = starknet.sign(txHash, groundPrivateKey);
-    return {
-      r: signature.r.toString(16).padStart(64, '0'),
-      s: signature.s.toString(16).padStart(64, '0'),
-    };
-  }
 }
 
 // https://github.com/satoshilabs/slips/blob/master/slip-0010.md
@@ -196,6 +183,18 @@ export class Seed extends Revocable(class {}) implements Core.BIP32.Seed {
     const IL = I.subarray(0, 32);
     const IR = I.subarray(32, 64);
     const out = await Ed25519.Node.create(IL, IR);
+    this.addRevoker(() => out.revoke?.());
+    return out;
+  }
+
+  async toStarkMasterKey(): Promise<Core.Stark.Node> {
+    // Use "Bitcoin seed" per SLIP-0010 standard for secp256k1-based derivation
+    // Starknet uses standard BIP32 secp256k1 derivation, then applies grinding
+    const hmacKey = safeBufferFrom(new TextEncoder().encode("Bitcoin seed"));
+    const I = safeBufferFrom(bip32crypto.hmacSHA512(safeBufferFrom(hmacKey), this.#seed));
+    const IL = I.subarray(0, 32);
+    const IR = I.subarray(32, 64);
+    const out = await Stark.Node.create(IL, IR);
     this.addRevoker(() => out.revoke?.());
     return out;
   }

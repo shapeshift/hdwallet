@@ -2,10 +2,16 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 
 import { Isolation } from "../..";
 
+/**
+ * Starknet adapter using Stark curve engine
+ *
+ * Uses dedicated Stark engine with STARK curve operations instead of
+ * polluting the generic BIP32 secp256k1 engine with chain-specific code.
+ */
 export class StarknetAdapter {
-  protected readonly nodeAdapter: Isolation.Adapters.BIP32;
+  protected readonly nodeAdapter: Isolation.Adapters.Stark;
 
-  constructor(nodeAdapter: Isolation.Adapters.BIP32) {
+  constructor(nodeAdapter: Isolation.Adapters.Stark) {
     this.nodeAdapter = nodeAdapter;
   }
 
@@ -15,12 +21,8 @@ export class StarknetAdapter {
   async getPublicKey(addressNList: core.BIP32Path): Promise<string> {
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
 
-    // Use the node's Starknet-specific method to get the public key
-    // The node handles key grinding internally while keeping the private key isolated
-    const publicKey = await nodeAdapter.node.starknetGetPublicKey?.();
-    if (!publicKey) throw new Error("Starknet methods not available on node");
-
-    return publicKey;
+    // Stark Node handles key grinding internally while keeping the private key isolated
+    return await nodeAdapter.getPublicKey();
   }
 
   /**
@@ -31,10 +33,8 @@ export class StarknetAdapter {
   async getAddress(addressNList: core.BIP32Path): Promise<string> {
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
 
-    // Use the node's Starknet-specific method to get the public key
-    // The node handles key grinding internally while keeping the private key isolated
-    const publicKey = await nodeAdapter.node.starknetGetPublicKey?.();
-    if (!publicKey) throw new Error("Starknet methods not available on node");
+    // Stark Node handles key grinding internally while keeping the private key isolated
+    const publicKey = await nodeAdapter.getPublicKey();
 
     // For now, return the public key as the address identifier
     // In practice, the actual address depends on the account contract deployment
@@ -49,10 +49,8 @@ export class StarknetAdapter {
   async signTransaction(txHash: string, addressNList: core.BIP32Path): Promise<string[]> {
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
 
-    // Use the node's Starknet-specific signing method
-    // The node handles key grinding and signing internally while keeping the private key isolated
-    const signature = await nodeAdapter.node.starknetSign?.(txHash);
-    if (!signature) throw new Error("Starknet methods not available on node");
+    // Stark Node handles key grinding and signing internally while keeping the private key isolated
+    const signature = await nodeAdapter.node.sign(txHash);
 
     // Return signature as array of hex strings [r, s]
     return [signature.r, signature.s];

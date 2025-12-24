@@ -3,6 +3,7 @@ export * as BIP39 from "./bip39";
 export * as Digest from "./digest";
 export * as SecP256K1 from "./secp256k1";
 export * as Ed25519 from "./ed25519";
+export * as Stark from "./stark";
 
 export class IsolationError extends Error {
   constructor(name: string) {

@@ -118,4 +118,8 @@ export class Seed implements Core.BIP32.Seed {
   async toEd25519MasterKey(): Promise<Core.Ed25519.Node> {
     throw new DummyEngineError();
   }
+
+  async toStarkMasterKey(): Promise<Core.Stark.Node> {
+    throw new DummyEngineError();
+  }
 }

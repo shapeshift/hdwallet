@@ -279,6 +279,7 @@ export class NativeHDWallet
   #initialized = false;
   #secp256k1MasterKey: Promise<Isolation.Core.BIP32.Node> | undefined = undefined;
   #ed25519MasterKey: Promise<Isolation.Core.Ed25519.Node> | undefined = undefined;
+  #starkMasterKey: Promise<Isolation.Core.Stark.Node> | undefined = undefined;
 
   constructor({ mnemonic, deviceId, secp256k1MasterKey, ed25519MasterKey }: NativeAdapterArgs) {
     super();
@@ -294,6 +295,12 @@ export class NativeHDWallet
           typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
         const seed = await isolatedMnemonic.toSeed();
         return await seed.toEd25519MasterKey();
+      })();
+      this.#starkMasterKey = (async () => {
+        const isolatedMnemonic =
+          typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
+        const seed = await isolatedMnemonic.toSeed();
+        return await seed.toStarkMasterKey();
       })();
     } else {
       if (secp256k1MasterKey) this.#secp256k1MasterKey = Promise.resolve(secp256k1MasterKey);
@@ -377,9 +384,10 @@ export class NativeHDWallet
   async clearSession(): Promise<void> {}
 
   async initialize(): Promise<boolean | null> {
-    return this.needsMnemonic(!!this.#secp256k1MasterKey && !!this.#ed25519MasterKey, async () => {
+    return this.needsMnemonic(!!this.#secp256k1MasterKey && !!this.#ed25519MasterKey && !!this.#starkMasterKey, async () => {
       const secp256k1MasterKey = await this.#secp256k1MasterKey!;
       const ed25519MasterKey = await this.#ed25519MasterKey!;
+      const starkMasterKey = await this.#starkMasterKey!;
 
       try {
         await Promise.all([
@@ -388,7 +396,7 @@ export class NativeHDWallet
           super.cosmosInitializeWallet(secp256k1MasterKey),
           super.osmosisInitializeWallet(secp256k1MasterKey),
           super.binanceInitializeWallet(secp256k1MasterKey),
-          super.starknetInitializeWallet(secp256k1MasterKey),
+          super.starknetInitializeWallet(starkMasterKey),
           super.tronInitializeWallet(secp256k1MasterKey),
           super.thorchainInitializeWallet(secp256k1MasterKey),
           super.mayachainInitializeWallet(secp256k1MasterKey),
