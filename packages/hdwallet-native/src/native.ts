@@ -40,11 +40,13 @@ type LoadDevice = Omit<core.LoadDevice, "mnemonic"> & {
         mnemonic: string | Isolation.Core.BIP39.Mnemonic;
         secp256k1MasterKey?: never;
         ed25519MasterKey?: never;
+        starkMasterKey?: never;
       }
     | {
         mnemonic?: never;
         secp256k1MasterKey: Isolation.Core.BIP32.Node;
         ed25519MasterKey: Isolation.Core.Ed25519.Node;
+        starkMasterKey: Isolation.Core.Stark.Node;
       }
   );
 
@@ -547,6 +549,28 @@ export class NativeHDWallet
         }
         throw new Error("Either [mnemonic] or [ed25519MasterKey] is required");
       })(msg?.mnemonic, msg?.ed25519MasterKey)
+    );
+
+    this.#starkMasterKey = Promise.resolve(
+      await (async (mnemonic, starkMasterKey) => {
+        if (starkMasterKey !== undefined) {
+          return starkMasterKey;
+        } else if (mnemonic !== undefined) {
+          const isolatedMnemonic = await (async () => {
+            if (isMnemonicInterface(mnemonic)) return mnemonic;
+            if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
+              return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
+            }
+            throw new Error("Required property [mnemonic] is invalid");
+          })();
+          const seed = await isolatedMnemonic.toSeed();
+          seed.addRevoker?.(() => isolatedMnemonic.revoke?.());
+          const out = await seed.toStarkMasterKey();
+          out.addRevoker?.(() => seed.revoke?.());
+          return out;
+        }
+        throw new Error("Either [mnemonic] or [starkMasterKey] is required");
+      })(msg?.mnemonic, msg?.starkMasterKey)
     );
 
     if (typeof msg?.deviceId === "string") this.#deviceId = msg?.deviceId;
