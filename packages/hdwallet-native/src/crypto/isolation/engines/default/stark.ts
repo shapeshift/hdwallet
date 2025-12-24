@@ -11,12 +11,34 @@ export * from "../../core/stark";
 /**
  * Stark curve Node for Starknet
  *
- * Uses standard BIP32 secp256k1 derivation (same as Bitcoin/Ethereum),
- * but applies Starknet-specific key grinding and uses STARK curve for
- * public key generation and signing operations.
+ * DERIVATION APPROACH:
+ * Uses standard BIP32 secp256k1 derivation (same as Bitcoin/Ethereum) per SLIP-0010,
+ * then applies Starknet-specific key grinding and uses STARK curve for final operations.
  *
- * This matches industry standard implementations (Argent, Ledger) which
- * derive using secp256k1 BIP32 math, then apply grinding for Stark operations.
+ * This matches industry standard implementations (Argent, Ledger) which derive using
+ * secp256k1 BIP32 math, then apply grinding for Stark operations.
+ *
+ * STARK CURVE SPECIFICATIONS:
+ * - Type: Weierstrass elliptic curve (y² = x³ + ax + b)
+ * - Prime field (p): 2^251 + 17×2^192 + 1 = 3618502788666131213697322783095070105623107215331596699973092056135872020481
+ * - Curve order (n): 3618502788666131213697322783095070105526743751716087489154079457884512865583
+ * - Parameters: a = 1, b = 3141592653589793238462643383279502884197169399375105820974944592307816406665
+ * - Bit length: 252 bits (vs 256 for secp256k1)
+ * - Generator: (874739451078007766457464989774322083649278607533249481151382481072868806602, 152666792071518830868575557812948353041420400780739481342941381225525861407)
+ *
+ * KEY GRINDING:
+ * Starknet requires "key grinding" to ensure derived private keys fall within the STARK curve order.
+ * The grinding algorithm iteratively hashes until finding a valid key: hash(key||i) mod stark_order.
+ * See: https://docs.starkware.co/starkex/crypto/key-derivation.html
+ *
+ * REFERENCES:
+ * - STARK Curve: https://docs.starkware.co/starkex/crypto/stark-curve.html
+ * - Key Derivation: https://docs.starkware.co/starkex/crypto/key-derivation.html
+ * - Community Standard (BIP-44 preferred): https://community.starknet.io/t/account-keys-and-addresses-derivation-standard/1230
+ * - Starknet Cryptography: https://docs.starknet.io/architecture/cryptography/
+ * - SLIP-0010 (HD wallet standard): https://github.com/satoshilabs/slips/blob/master/slip-0010.md
+ * - @scure/starknet (implementation): https://github.com/paulmillr/scure-starknet
+ * - Argent reference: https://github.com/argentlabs/argent-starknet-recover/blob/main/keyDerivation.ts
  */
 export class Node extends Revocable(class {}) implements Core.Stark.Node {
   readonly #privateKey: Buffer & ByteArray<32>;
