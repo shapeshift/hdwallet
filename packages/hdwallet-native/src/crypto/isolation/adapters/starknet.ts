@@ -74,6 +74,17 @@ export class StarknetAdapter {
       ? "0x" + contractAddress.slice(2).padStart(64, "0")
       : "0x" + contractAddress.padStart(64, "0");
 
+    console.log('[HDWALLET_STARKNET_DEBUG] getAddress:', JSON.stringify({
+      bip32Path,
+      publicKey,
+      publicKeyLength: publicKey.length,
+      constructorCalldata,
+      contractAddress,
+      contractAddressLength: contractAddress.length,
+      paddedAddress,
+      paddedAddressLength: paddedAddress.length,
+    }, null, 2));
+
     return paddedAddress;
   }
 
@@ -82,9 +93,27 @@ export class StarknetAdapter {
    * Starknet uses ECDSA on the STARK curve for transaction signing
    */
   async signTransaction(txHash: string, addressNList: core.BIP32Path): Promise<string[]> {
+    console.log('[HDWALLET_STARKNET_DEBUG] signTransaction input:', JSON.stringify({
+      txHash,
+      txHashLength: txHash.length,
+      addressNList,
+    }, null, 2));
+
     const bip32Path = core.addressNListToBIP32(addressNList);
+    console.log('[HDWALLET_STARKNET_DEBUG] bip32Path:', bip32Path);
+
     const nodeAdapter = await this.nodeAdapter.derivePath(bip32Path);
+    const publicKey = await nodeAdapter.getPublicKey();
+    console.log('[HDWALLET_STARKNET_DEBUG] publicKey for signing:', publicKey, 'length:', publicKey.length);
+
     const signature = await nodeAdapter.node.sign(txHash);
+    console.log('[HDWALLET_STARKNET_DEBUG] signature result:', JSON.stringify({
+      r: signature.r,
+      rLength: signature.r.length,
+      s: signature.s,
+      sLength: signature.s.length,
+    }, null, 2));
+
     return [signature.r, signature.s];
   }
 }

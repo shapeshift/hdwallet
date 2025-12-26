@@ -69,9 +69,18 @@ export class Node extends Revocable(class {}) implements Core.Stark.Node {
     const groundPrivateKey = starknet.grindKey(this.#privateKey);
     const publicKey = starknet.getStarkKey(groundPrivateKey);
     // Ensure proper zero-padding to 64 hex characters per Starknet address spec
-    return publicKey.startsWith("0x")
+    const paddedPublicKey = publicKey.startsWith("0x")
       ? "0x" + publicKey.slice(2).padStart(64, "0")
       : "0x" + publicKey.padStart(64, "0");
+
+    console.log('[HDWALLET_STARK_DEBUG] getPublicKey:', JSON.stringify({
+      rawPublicKey: publicKey,
+      rawPublicKeyLength: publicKey.length,
+      paddedPublicKey,
+      paddedPublicKeyLength: paddedPublicKey.length,
+    }, null, 2));
+
+    return paddedPublicKey;
   }
 
   async getChainCode() {
@@ -83,12 +92,28 @@ export class Node extends Revocable(class {}) implements Core.Stark.Node {
    * Applies key grinding and returns ECDSA signature with proper padding
    */
   async sign(txHash: string): Promise<{ r: string; s: string }> {
+    console.log('[HDWALLET_STARK_DEBUG] sign input txHash:', txHash, 'length:', txHash.length);
+
     const groundPrivateKey = starknet.grindKey(this.#privateKey);
     const signature = starknet.sign(txHash, groundPrivateKey);
-    return {
+
+    const result = {
       r: signature.r.toString(16).padStart(64, "0"),
       s: signature.s.toString(16).padStart(64, "0"),
     };
+
+    console.log('[HDWALLET_STARK_DEBUG] sign output:', JSON.stringify({
+      rawR: signature.r.toString(16),
+      rawRLength: signature.r.toString(16).length,
+      rawS: signature.s.toString(16),
+      rawSLength: signature.s.toString(16).length,
+      paddedR: result.r,
+      paddedRLength: result.r.length,
+      paddedS: result.s,
+      paddedSLength: result.s.length,
+    }, null, 2));
+
+    return result;
   }
 
   /**
