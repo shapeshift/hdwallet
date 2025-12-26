@@ -69,11 +69,9 @@ export class Node extends Revocable(class {}) implements Core.Stark.Node {
     const groundPrivateKey = starknet.grindKey(this.#privateKey);
     const publicKey = starknet.getStarkKey(groundPrivateKey);
     // Ensure proper zero-padding to 64 hex characters per Starknet address spec
-    const paddedPublicKey = publicKey.startsWith("0x")
+    return publicKey.startsWith("0x")
       ? "0x" + publicKey.slice(2).padStart(64, "0")
       : "0x" + publicKey.padStart(64, "0");
-
-    return paddedPublicKey;
   }
 
   async getChainCode() {
@@ -87,7 +85,6 @@ export class Node extends Revocable(class {}) implements Core.Stark.Node {
   async sign(txHash: string): Promise<{ r: string; s: string }> {
     const groundPrivateKey = starknet.grindKey(this.#privateKey);
     const signature = starknet.sign(txHash, groundPrivateKey);
-
     return {
       r: signature.r.toString(16).padStart(64, "0"),
       s: signature.s.toString(16).padStart(64, "0"),
