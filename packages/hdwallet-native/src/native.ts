@@ -13,6 +13,7 @@ import * as Isolation from "./crypto/isolation";
 import { MixinNativeETHWallet, MixinNativeETHWalletInfo } from "./ethereum";
 import { MixinNativeKavaWallet, MixinNativeKavaWalletInfo } from "./kava";
 import { MixinNativeMayachainWallet, MixinNativeMayachainWalletInfo } from "./mayachain";
+import { MixinNativeNearWallet, MixinNativeNearWalletInfo } from "./near";
 import { MixinNativeOsmosisWallet, MixinNativeOsmosisWalletInfo } from "./osmosis";
 import { MixinNativeSecretWallet, MixinNativeSecretWalletInfo } from "./secret";
 import { MixinNativeSolanaWallet, MixinNativeSolanaWalletInfo } from "./solana";
@@ -134,12 +135,14 @@ class NativeHDWalletInfo
             MixinNativeStarknetWalletInfo(
               MixinNativeTronWalletInfo(
                 MixinNativeSuiWalletInfo(
-                  MixinNativeThorchainWalletInfo(
-                    MixinNativeMayachainWalletInfo(
-                      MixinNativeSecretWalletInfo(
-                        MixinNativeTerraWalletInfo(
-                          MixinNativeKavaWalletInfo(
-                            MixinNativeArkeoWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase))
+                  MixinNativeNearWalletInfo(
+                    MixinNativeThorchainWalletInfo(
+                      MixinNativeMayachainWalletInfo(
+                        MixinNativeSecretWalletInfo(
+                          MixinNativeTerraWalletInfo(
+                            MixinNativeKavaWalletInfo(
+                              MixinNativeArkeoWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase))
+                            )
                           )
                         )
                       )
@@ -163,6 +166,7 @@ class NativeHDWalletInfo
     core.StarknetWalletInfo,
     core.TronWalletInfo,
     core.SuiWalletInfo,
+    core.NearWalletInfo,
     core.ThorchainWalletInfo,
     core.MayachainWalletInfo,
     core.SecretWalletInfo,
@@ -201,6 +205,8 @@ class NativeHDWalletInfo
         return core.solanaDescribePath(msg.path);
       case "sui":
         return core.suiDescribePath(msg.path);
+      case "near":
+        return core.nearDescribePath(msg.path);
       case "secret":
       case "scrt":
       case "tscrt":
@@ -240,11 +246,13 @@ export class NativeHDWallet
             MixinNativeStarknetWallet(
               MixinNativeTronWallet(
                 MixinNativeSuiWallet(
-                  MixinNativeThorchainWallet(
-                    MixinNativeMayachainWallet(
-                      MixinNativeSecretWallet(
-                        MixinNativeTerraWallet(
-                          MixinNativeKavaWallet(MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo)))
+                  MixinNativeNearWallet(
+                    MixinNativeThorchainWallet(
+                      MixinNativeMayachainWallet(
+                        MixinNativeSecretWallet(
+                          MixinNativeTerraWallet(
+                            MixinNativeKavaWallet(MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo)))
+                          )
                         )
                       )
                     )
@@ -267,6 +275,7 @@ export class NativeHDWallet
     core.StarknetWallet,
     core.TronWallet,
     core.SuiWallet,
+    core.NearWallet,
     core.ThorchainWallet,
     core.MayachainWallet,
     core.SecretWallet,
@@ -412,6 +421,7 @@ export class NativeHDWallet
             super.arkeoInitializeWallet(secp256k1MasterKey),
             super.solanaInitializeWallet(ed25519MasterKey),
             super.suiInitializeWallet(ed25519MasterKey),
+            super.nearInitializeWallet(ed25519MasterKey),
           ]);
 
           this.#initialized = true;
@@ -455,6 +465,7 @@ export class NativeHDWallet
 
     super.solanaWipe();
     super.suiWipe();
+    super.nearWipe();
     super.btcWipe();
     super.ethWipe();
     super.cosmosWipe();

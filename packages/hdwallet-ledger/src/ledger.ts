@@ -5,6 +5,7 @@ import * as btc from "./bitcoin";
 import * as cosmos from "./cosmos";
 import * as eth from "./ethereum";
 import * as mayachain from "./mayachain";
+import * as near from "./near";
 import * as solana from "./solana";
 import * as sui from "./sui";
 import * as thorchain from "./thorchain";
@@ -150,7 +151,8 @@ export class LedgerHDWalletInfo
     core.CosmosWalletInfo,
     core.SolanaWalletInfo,
     core.SuiWalletInfo,
-    core.TronWalletInfo
+    core.TronWalletInfo,
+    core.NearWalletInfo
 {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
@@ -160,6 +162,7 @@ export class LedgerHDWalletInfo
   readonly _supportsSolanaInfo = true;
   readonly _supportsSuiInfo = true;
   readonly _supportsTronInfo = true;
+  readonly _supportsNearInfo = true;
 
   public getVendor(): string {
     return "Ledger";
@@ -260,6 +263,14 @@ export class LedgerHDWalletInfo
     return tron.tronNextAccountPath(msg);
   }
 
+  public nearGetAccountPaths(msg: core.NearGetAccountPaths): Array<core.NearAccountPath> {
+    return near.nearGetAccountPaths(msg);
+  }
+
+  public nearNextAccountPath(msg: core.NearAccountPath): core.NearAccountPath | undefined {
+    return near.nearNextAccountPath(msg);
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public hasNativeShapeShift(srcCoin: core.Coin, dstCoin: core.Coin): boolean {
     return false;
@@ -309,6 +320,8 @@ export class LedgerHDWalletInfo
         return core.suiDescribePath(msg.path);
       case "Tron":
         return core.tronDescribePath(msg.path);
+      case "Near":
+        return core.nearDescribePath(msg.path);
       default:
         return describeUTXOPath(msg.path, msg.coin, msg.scriptType);
     }
@@ -387,7 +400,8 @@ export class LedgerHDWallet
     core.CosmosWallet,
     core.SolanaWallet,
     core.SuiWallet,
-    core.TronWallet
+    core.TronWallet,
+    core.NearWallet
 {
   readonly _supportsBTC = true;
   readonly _supportsETH = true;
@@ -409,6 +423,7 @@ export class LedgerHDWallet
   readonly _supportsSolana = true;
   readonly _supportsSui = true;
   readonly _supportsTron = true;
+  readonly _supportsNear = true;
 
   _isLedger = true;
 
@@ -669,6 +684,16 @@ export class LedgerHDWallet
   public async tronSignTx(msg: core.TronSignTx): Promise<core.TronSignedTx | null> {
     await this.validateCurrentApp("Tron");
     return tron.tronSignTx(this.transport, msg);
+  }
+
+  public async nearGetAddress(msg: core.NearGetAddress): Promise<string> {
+    await this.validateCurrentApp("Near");
+    return near.nearGetAddress(this.transport, msg);
+  }
+
+  public async nearSignTx(msg: core.NearSignTx): Promise<core.NearSignedTx | null> {
+    await this.validateCurrentApp("Near");
+    return near.nearSignTx(this.transport, msg);
   }
 
   public disconnect(): Promise<void> {

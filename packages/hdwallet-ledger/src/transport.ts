@@ -1,6 +1,7 @@
 import type Btc from "@ledgerhq/hw-app-btc";
 import type Cosmos from "@ledgerhq/hw-app-cosmos";
 import type Eth from "@ledgerhq/hw-app-eth";
+import type Near from "@ledgerhq/hw-app-near";
 import Solana from "@ledgerhq/hw-app-solana";
 import type Trx from "@ledgerhq/hw-app-trx";
 import type Transport from "@ledgerhq/hw-transport";
@@ -18,7 +19,16 @@ type MethodsOnly<T> = {
 type UnwrapPromise<T> = T extends Promise<infer R> ? R : T;
 type DefinitelyCallable<T> = T extends (...args: any) => any ? T : never;
 
-export type LedgerTransportCoinType = null | "Btc" | "Eth" | "Thorchain" | "Cosmos" | "Solana" | "Sui" | "Tron";
+export type LedgerTransportCoinType =
+  | null
+  | "Btc"
+  | "Eth"
+  | "Thorchain"
+  | "Cosmos"
+  | "Solana"
+  | "Sui"
+  | "Tron"
+  | "Near";
 type CurriedWithTransport<T extends (transport: Transport, ...args: any) => any> = T extends (
   transport: Transport,
   ...args: infer R
@@ -49,6 +59,8 @@ type LedgerTransportMethodMap<T extends LedgerTransportCoinType> = T extends nul
   ? MethodsOnly<Sui>
   : T extends "Tron"
   ? MethodsOnly<Trx>
+  : T extends "Near"
+  ? MethodsOnly<Near>
   : never;
 export type LedgerTransportMethodName<T extends LedgerTransportCoinType> = LedgerTransportMethodMap<T> extends never
   ? never
