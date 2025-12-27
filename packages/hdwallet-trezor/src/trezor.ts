@@ -3,7 +3,6 @@ import isObject from "lodash/isObject";
 
 import * as Btc from "./bitcoin";
 import * as Eth from "./ethereum";
-import * as Near from "./near";
 import * as Sol from "./solana";
 import { TrezorTransport } from "./transport";
 import { handleError } from "./utils";
@@ -125,12 +124,11 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
 }
 
 export class TrezorHDWalletInfo
-  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo, core.SolanaWalletInfo, core.NearWalletInfo
+  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo, core.SolanaWalletInfo
 {
   readonly _supportsBTCInfo = true;
   readonly _supportsETHInfo = true;
   readonly _supportsSolanaInfo = true;
-  readonly _supportsNearInfo = true;
 
   public getVendor(): string {
     return "Trezor";
@@ -185,14 +183,6 @@ export class TrezorHDWalletInfo
     throw new Error("Method not implemented");
   }
 
-  public nearGetAccountPaths(msg: core.NearGetAccountPaths): Array<core.NearAccountPath> {
-    return Near.nearGetAccountPaths(msg);
-  }
-
-  public nearNextAccountPath(msg: core.NearAccountPath): core.NearAccountPath | undefined {
-    return Near.nearNextAccountPath(msg);
-  }
-
   public hasOnDevicePinEntry(): boolean {
     return true;
   }
@@ -231,8 +221,6 @@ export class TrezorHDWalletInfo
     switch (msg.coin) {
       case "Ethereum":
         return describeETHPath(msg.path);
-      case "Near":
-        return core.nearDescribePath(msg.path);
       default:
         return describeUTXOPath(msg.path, msg.coin, msg.scriptType);
     }
@@ -282,9 +270,7 @@ export class TrezorHDWalletInfo
   }
 }
 
-export class TrezorHDWallet
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.SolanaWallet, core.NearWallet
-{
+export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.SolanaWallet {
   readonly _supportsETHInfo = true;
   readonly _supportsBTCInfo = true;
   readonly _supportsBTC = true;
@@ -305,8 +291,6 @@ export class TrezorHDWallet
   readonly _supportsTerraInfo = true;
   readonly _supportsSolana = true;
   readonly _supportsSolanaInfo = true;
-  readonly _supportsNear = true;
-  readonly _supportsNearInfo = true;
   readonly _isTrezor = true;
 
   transport: TrezorTransport;
@@ -632,26 +616,6 @@ export class TrezorHDWallet
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public solanaNextAccountPath(_msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
     throw new Error("Method not implemented");
-  }
-
-  public async nearGetAddress(msg: core.NearGetAddress): Promise<string | null> {
-    return Near.nearGetAddress(this.transport, msg);
-  }
-
-  public async nearGetAddresses(msgs: core.NearGetAddress[]): Promise<string[]> {
-    return Near.nearGetAddresses(this.transport, msgs);
-  }
-
-  public async nearSignTx(msg: core.NearSignTx): Promise<core.NearSignedTx | null> {
-    return Near.nearSignTx(this.transport, msg);
-  }
-
-  public nearGetAccountPaths(msg: core.NearGetAccountPaths): Array<core.NearAccountPath> {
-    return Near.nearGetAccountPaths(msg);
-  }
-
-  public nearNextAccountPath(msg: core.NearAccountPath): core.NearAccountPath | undefined {
-    return Near.nearNextAccountPath(msg);
   }
 }
 
