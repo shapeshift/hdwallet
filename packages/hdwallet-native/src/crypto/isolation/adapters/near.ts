@@ -68,8 +68,7 @@ export class NearAdapter {
   }
 
   /**
-   * Get public key for address verification
-   * Returns the public key in NEAR's ed25519 format: "ed25519:<base58-encoded-key>"
+   * Get public key as hex string. Caller converts to ed25519:base58 format if needed.
    */
   async getPublicKey(addressNList: core.BIP32Path): Promise<string> {
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToHardenedBIP32(addressNList));
