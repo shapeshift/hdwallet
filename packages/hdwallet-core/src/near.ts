@@ -1,4 +1,4 @@
-import { addressNListToBIP32, slip44ByCoin } from "./utils";
+import { addressNListToBIP32, ed25519Path, slip44ByCoin } from "./utils";
 import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
 
 export interface NearGetAddress {
@@ -83,4 +83,9 @@ export function nearGetAccountPaths(msg: NearGetAccountPaths): Array<NearAccount
       addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0x80000000 + 0, 0x80000000 + 0],
     },
   ];
+}
+
+// NEAR uses the Ed25519 elliptic curve for cryptographic operations, which requires all levels of the derivation path to be hardened.
+export function nearAddressNListToBIP32(addressNList: BIP32Path): string {
+  return addressNListToBIP32(ed25519Path(addressNList));
 }
