@@ -1,5 +1,4 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
-import bs58 from "bs58";
 
 import { LedgerTransport } from "./transport";
 import { handleError } from "./utils";
@@ -14,7 +13,9 @@ export async function nearGetAddress(transport: LedgerTransport, msg: core.NearG
   const res = await transport.call("Near", "getAddress", bip32Path, !!msg.showDisplay);
   handleError(res, transport, "Unable to obtain NEAR address from device.");
 
-  return res.payload.publicKey;
+  // @ledgerhq/hw-app-near returns { address: "64-char-hex", publicKey: "ed25519:base58..." }
+  // NEAR implicit accounts use the 64-char hex format (same as native hdwallet)
+  return res.payload.address;
 }
 
 export async function nearSignTx(transport: LedgerTransport, msg: core.NearSignTx): Promise<core.NearSignedTx> {
@@ -31,8 +32,11 @@ export async function nearSignTx(transport: LedgerTransport, msg: core.NearSignT
     throw new Error("NEAR transaction signing failed: no signature returned");
   }
 
+  // Convert signature Buffer to hex string (same format as native hdwallet)
+  const signatureHex = Buffer.from(res.payload).toString("hex");
+
   return {
-    signature: bs58.encode(res.payload),
+    signature: signatureHex,
     publicKey,
   };
 }
