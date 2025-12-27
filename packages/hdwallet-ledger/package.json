@@ -26,6 +26,7 @@
     "@ledgerhq/hw-app-trx": "6.31.9",
     "@ledgerhq/hw-transport": "6.31.13",
     "@ledgerhq/logs": "6.13.0",
+    "@ledgerhq/hw-app-near": "6.31.10",
     "@mysten/ledgerjs-hw-app-sui": "^0.7.0",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
     "@shapeshiftoss/hdwallet-core": "1.62.34",
