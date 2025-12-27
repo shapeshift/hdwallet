@@ -1,6 +1,7 @@
 import Btc from "@ledgerhq/hw-app-btc";
 import Cosmos from "@ledgerhq/hw-app-cosmos";
 import Eth from "@ledgerhq/hw-app-eth";
+import Near from "@ledgerhq/hw-app-near";
 import Solana from "@ledgerhq/hw-app-solana";
 import Trx from "@ledgerhq/hw-app-trx";
 import Transport from "@ledgerhq/hw-transport";
@@ -94,6 +95,11 @@ export function translateCoinAndMethod<T extends LedgerTransportCoinType, U exte
     case "Tron": {
       const trx = new Trx(transport as Transport);
       const methodInstance = trx[method as LedgerTransportMethodName<"Tron">].bind(trx);
+      return methodInstance as LedgerTransportMethod<T, U>;
+    }
+    case "Near": {
+      const near = new Near(transport as Transport);
+      const methodInstance = near[method as LedgerTransportMethodName<"Near">].bind(near);
       return methodInstance as LedgerTransportMethod<T, U>;
     }
     case null: {

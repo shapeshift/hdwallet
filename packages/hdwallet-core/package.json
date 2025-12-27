@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-core",
-  "version": "1.62.35-near-chain.2",
+  "version": "1.62.35-near-chain.3",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
