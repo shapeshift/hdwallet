@@ -16,6 +16,7 @@ import { MixinNativeMayachainWallet, MixinNativeMayachainWalletInfo } from "./ma
 import { MixinNativeOsmosisWallet, MixinNativeOsmosisWalletInfo } from "./osmosis";
 import { MixinNativeSecretWallet, MixinNativeSecretWalletInfo } from "./secret";
 import { MixinNativeSolanaWallet, MixinNativeSolanaWalletInfo } from "./solana";
+import { MixinNativeStarknetWallet, MixinNativeStarknetWalletInfo } from "./starknet";
 import { MixinNativeSuiWallet, MixinNativeSuiWalletInfo } from "./sui";
 import { MixinNativeTerraWallet, MixinNativeTerraWalletInfo } from "./terra";
 import { MixinNativeThorchainWallet, MixinNativeThorchainWalletInfo } from "./thorchain";
@@ -38,11 +39,13 @@ type LoadDevice = Omit<core.LoadDevice, "mnemonic"> & {
         mnemonic: string | Isolation.Core.BIP39.Mnemonic;
         secp256k1MasterKey?: never;
         ed25519MasterKey?: never;
+        starkMasterKey?: never;
       }
     | {
         mnemonic?: never;
         secp256k1MasterKey: Isolation.Core.BIP32.Node;
         ed25519MasterKey: Isolation.Core.Ed25519.Node;
+        starkMasterKey: Isolation.Core.Stark.Node;
       }
   );
 
@@ -128,14 +131,16 @@ class NativeHDWalletInfo
       MixinNativeCosmosWalletInfo(
         MixinNativeBinanceWalletInfo(
           MixinNativeSolanaWalletInfo(
-            MixinNativeTronWalletInfo(
-              MixinNativeSuiWalletInfo(
-                MixinNativeThorchainWalletInfo(
-                  MixinNativeMayachainWalletInfo(
-                    MixinNativeSecretWalletInfo(
-                      MixinNativeTerraWalletInfo(
-                        MixinNativeKavaWalletInfo(
-                          MixinNativeArkeoWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase))
+            MixinNativeStarknetWalletInfo(
+              MixinNativeTronWalletInfo(
+                MixinNativeSuiWalletInfo(
+                  MixinNativeThorchainWalletInfo(
+                    MixinNativeMayachainWalletInfo(
+                      MixinNativeSecretWalletInfo(
+                        MixinNativeTerraWalletInfo(
+                          MixinNativeKavaWalletInfo(
+                            MixinNativeArkeoWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase))
+                          )
                         )
                       )
                     )
@@ -155,6 +160,7 @@ class NativeHDWalletInfo
     core.CosmosWalletInfo,
     core.BinanceWalletInfo,
     core.SolanaWalletInfo,
+    core.StarknetWalletInfo,
     core.TronWalletInfo,
     core.SuiWalletInfo,
     core.ThorchainWalletInfo,
@@ -213,6 +219,9 @@ class NativeHDWalletInfo
         return core.osmosisDescribePath(msg.path);
       case "arkeo":
         return core.arkeoDescribePath(msg.path);
+      case "starknet":
+      case "strk":
+        return core.starknetDescribePath(msg.path);
       case "tron":
       case "trx":
         return core.tronDescribePath(msg.path);
@@ -228,13 +237,15 @@ export class NativeHDWallet
       MixinNativeCosmosWallet(
         MixinNativeBinanceWallet(
           MixinNativeSolanaWallet(
-            MixinNativeTronWallet(
-              MixinNativeSuiWallet(
-                MixinNativeThorchainWallet(
-                  MixinNativeMayachainWallet(
-                    MixinNativeSecretWallet(
-                      MixinNativeTerraWallet(
-                        MixinNativeKavaWallet(MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo)))
+            MixinNativeStarknetWallet(
+              MixinNativeTronWallet(
+                MixinNativeSuiWallet(
+                  MixinNativeThorchainWallet(
+                    MixinNativeMayachainWallet(
+                      MixinNativeSecretWallet(
+                        MixinNativeTerraWallet(
+                          MixinNativeKavaWallet(MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo)))
+                        )
                       )
                     )
                   )
@@ -253,6 +264,7 @@ export class NativeHDWallet
     core.CosmosWallet,
     core.BinanceWallet,
     core.SolanaWallet,
+    core.StarknetWallet,
     core.TronWallet,
     core.SuiWallet,
     core.ThorchainWallet,
@@ -269,8 +281,9 @@ export class NativeHDWallet
   #initialized = false;
   #secp256k1MasterKey: Promise<Isolation.Core.BIP32.Node> | undefined = undefined;
   #ed25519MasterKey: Promise<Isolation.Core.Ed25519.Node> | undefined = undefined;
+  #starkMasterKey: Promise<Isolation.Core.Stark.Node> | undefined = undefined;
 
-  constructor({ mnemonic, deviceId, secp256k1MasterKey, ed25519MasterKey }: NativeAdapterArgs) {
+  constructor({ mnemonic, deviceId, secp256k1MasterKey, ed25519MasterKey, starkMasterKey }: NativeAdapterArgs) {
     super();
     if (mnemonic) {
       this.#secp256k1MasterKey = (async () => {
@@ -285,9 +298,16 @@ export class NativeHDWallet
         const seed = await isolatedMnemonic.toSeed();
         return await seed.toEd25519MasterKey();
       })();
+      this.#starkMasterKey = (async () => {
+        const isolatedMnemonic =
+          typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
+        const seed = await isolatedMnemonic.toSeed();
+        return await seed.toStarkMasterKey();
+      })();
     } else {
       if (secp256k1MasterKey) this.#secp256k1MasterKey = Promise.resolve(secp256k1MasterKey);
       if (ed25519MasterKey) this.#ed25519MasterKey = Promise.resolve(ed25519MasterKey);
+      if (starkMasterKey) this.#starkMasterKey = Promise.resolve(starkMasterKey);
     }
     this.#deviceId = deviceId;
   }
@@ -366,38 +386,44 @@ export class NativeHDWallet
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   async clearSession(): Promise<void> {}
 
+  // eslint-disable-next-line no-console
   async initialize(): Promise<boolean | null> {
-    return this.needsMnemonic(!!this.#secp256k1MasterKey && !!this.#ed25519MasterKey, async () => {
-      const secp256k1MasterKey = await this.#secp256k1MasterKey!;
-      const ed25519MasterKey = await this.#ed25519MasterKey!;
+    return this.needsMnemonic(
+      !!this.#secp256k1MasterKey && !!this.#ed25519MasterKey && !!this.#starkMasterKey,
+      async () => {
+        const secp256k1MasterKey = await this.#secp256k1MasterKey!;
+        const ed25519MasterKey = await this.#ed25519MasterKey!;
+        const starkMasterKey = await this.#starkMasterKey!;
 
-      try {
-        await Promise.all([
-          super.btcInitializeWallet(secp256k1MasterKey),
-          super.ethInitializeWallet(secp256k1MasterKey),
-          super.cosmosInitializeWallet(secp256k1MasterKey),
-          super.osmosisInitializeWallet(secp256k1MasterKey),
-          super.binanceInitializeWallet(secp256k1MasterKey),
-          super.tronInitializeWallet(secp256k1MasterKey),
-          super.thorchainInitializeWallet(secp256k1MasterKey),
-          super.mayachainInitializeWallet(secp256k1MasterKey),
-          super.secretInitializeWallet(secp256k1MasterKey),
-          super.terraInitializeWallet(secp256k1MasterKey),
-          super.kavaInitializeWallet(secp256k1MasterKey),
-          super.arkeoInitializeWallet(secp256k1MasterKey),
-          super.solanaInitializeWallet(ed25519MasterKey),
-          super.suiInitializeWallet(ed25519MasterKey),
-        ]);
+        try {
+          await Promise.all([
+            super.btcInitializeWallet(secp256k1MasterKey),
+            super.ethInitializeWallet(secp256k1MasterKey),
+            super.cosmosInitializeWallet(secp256k1MasterKey),
+            super.osmosisInitializeWallet(secp256k1MasterKey),
+            super.binanceInitializeWallet(secp256k1MasterKey),
+            super.starknetInitializeWallet(starkMasterKey),
+            super.tronInitializeWallet(secp256k1MasterKey),
+            super.thorchainInitializeWallet(secp256k1MasterKey),
+            super.mayachainInitializeWallet(secp256k1MasterKey),
+            super.secretInitializeWallet(secp256k1MasterKey),
+            super.terraInitializeWallet(secp256k1MasterKey),
+            super.kavaInitializeWallet(secp256k1MasterKey),
+            super.arkeoInitializeWallet(secp256k1MasterKey),
+            super.solanaInitializeWallet(ed25519MasterKey),
+            super.suiInitializeWallet(ed25519MasterKey),
+          ]);
 
-        this.#initialized = true;
-      } catch (e) {
-        console.error("NativeHDWallet:initialize:error", e);
-        this.#initialized = false;
-        await this.wipe();
+          this.#initialized = true;
+        } catch (e) {
+          console.error("NativeHDWallet:initialize:error", e);
+          this.#initialized = false;
+          await this.wipe();
+        }
+
+        return this.#initialized;
       }
-
-      return this.#initialized;
-    });
+    );
   }
 
   async ping(msg: core.Ping): Promise<core.Pong> {
@@ -434,6 +460,7 @@ export class NativeHDWallet
     super.cosmosWipe();
     super.osmosisWipe();
     super.binanceWipe();
+    super.starknetWipe();
     super.tronWipe();
     super.thorchainWipe();
     super.mayachainWipe();
@@ -495,6 +522,28 @@ export class NativeHDWallet
         }
         throw new Error("Either [mnemonic] or [ed25519MasterKey] is required");
       })(msg?.mnemonic, msg?.ed25519MasterKey)
+    );
+
+    this.#starkMasterKey = Promise.resolve(
+      await (async (mnemonic, starkMasterKey) => {
+        if (starkMasterKey !== undefined) {
+          return starkMasterKey;
+        } else if (mnemonic !== undefined) {
+          const isolatedMnemonic = await (async () => {
+            if (isMnemonicInterface(mnemonic)) return mnemonic;
+            if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
+              return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
+            }
+            throw new Error("Required property [mnemonic] is invalid");
+          })();
+          const seed = await isolatedMnemonic.toSeed();
+          seed.addRevoker?.(() => isolatedMnemonic.revoke?.());
+          const out = await seed.toStarkMasterKey();
+          out.addRevoker?.(() => seed.revoke?.());
+          return out;
+        }
+        throw new Error("Either [mnemonic] or [starkMasterKey] is required");
+      })(msg?.mnemonic, msg?.starkMasterKey)
     );
 
     if (typeof msg?.deviceId === "string") this.#deviceId = msg?.deviceId;

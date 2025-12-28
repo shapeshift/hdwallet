@@ -1,6 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
-import { BIP32, ED25519 } from "./crypto/isolation/engines/default";
+import { BIP32, ED25519, Stark } from "./crypto/isolation/engines/default";
 import { fromB64ToArray } from "./crypto/utils";
 import * as native from "./native";
 
@@ -10,6 +10,8 @@ const SECP256K1_PRIVATE_KEY = "oe5ysT50Qkvnh1q9JwLULQuvK7flK664UkVA/srziyY="; //
 const SECP256K1_CHAIN_CODE = "UBS48IuLdtYu2dXcWEAQDfUWmcwYvdSIAPM3VgRd0tI="; // root chain code generated from the 'all all all' seed
 const ED25519_PRIVATE_KEY = "m1ePSnLVfJlUMtO6sdjQ6lEYSKZSdDImlpygUYoTqiM="; // root private key generated from the 'all all all' seed
 const ED25519_CHAIN_CODE = "FGt+sOOu5gvvu5mQqdQdG9RanoW0dgCfwtOduZZTZc8="; // root chain code generated from the 'all all all' seed
+const STARK_PRIVATE_KEY = "oe5ysT50Qkvnh1q9JwLULQuvK7flK664UkVA/srziyY="; // root private key generated from the 'all all all' seed
+const STARK_CHAIN_CODE = "UBS48IuLdtYu2dXcWEAQDfUWmcwYvdSIAPM3VgRd0tI="; // root chain code generated from the 'all all all' seed
 
 const mswMock = require("mswMock")().startServer();
 afterEach(() => expect(mswMock).not.toHaveBeenCalled());
@@ -173,10 +175,14 @@ describe("NativeHDWallet", () => {
         fromB64ToArray(ED25519_PRIVATE_KEY),
         fromB64ToArray(ED25519_CHAIN_CODE)
       );
-      const wallet = native.create({ deviceId: "native", secp256k1MasterKey, ed25519MasterKey });
+      const starkMasterKey = await Stark.Node.create(
+        fromB64ToArray(STARK_PRIVATE_KEY),
+        fromB64ToArray(STARK_CHAIN_CODE)
+      );
+      const wallet = native.create({ deviceId: "native", secp256k1MasterKey, ed25519MasterKey, starkMasterKey });
       expect(await wallet.isInitialized()).toBe(false);
       expect(await wallet.isLocked()).toBe(false);
-      await wallet.loadDevice({ secp256k1MasterKey, ed25519MasterKey });
+      await wallet.loadDevice({ secp256k1MasterKey, ed25519MasterKey, starkMasterKey });
       expect(await wallet.initialize()).toBe(true);
       expect(await wallet.isInitialized()).toBe(true);
       expect(await wallet.isLocked()).toBe(false);
@@ -250,7 +256,11 @@ describe("NativeHDWallet", () => {
       const wallet = native.create({ deviceId: "native", secp256k1MasterKey });
       expect(await wallet.isInitialized()).toBe(false);
       expect(await wallet.isLocked()).toBe(false);
-      await wallet.loadDevice({ secp256k1MasterKey, ed25519MasterKey: {} as ED25519.Node });
+      await wallet.loadDevice({
+        secp256k1MasterKey,
+        ed25519MasterKey: {} as ED25519.Node,
+        starkMasterKey: {} as Stark.Node,
+      });
       expect(await wallet.initialize()).toBe(true);
       expect(await wallet.isInitialized()).toBe(true);
       expect(await wallet.isLocked()).toBe(false);
@@ -279,7 +289,11 @@ describe("NativeHDWallet", () => {
       const wallet = native.create({ deviceId: "native", secp256k1MasterKey });
       expect(await wallet.isInitialized()).toBe(false);
       expect(await wallet.isLocked()).toBe(false);
-      await wallet.loadDevice({ secp256k1MasterKey, ed25519MasterKey: {} as ED25519.Node });
+      await wallet.loadDevice({
+        secp256k1MasterKey,
+        ed25519MasterKey: {} as ED25519.Node,
+        starkMasterKey: {} as Stark.Node,
+      });
       expect(await wallet.initialize()).toBe(true);
       expect(await wallet.isInitialized()).toBe(true);
       expect(await wallet.isLocked()).toBe(false);
@@ -307,7 +321,11 @@ describe("NativeHDWallet", () => {
       const wallet = native.create({ deviceId: "native", secp256k1MasterKey });
       expect(await wallet.isInitialized()).toBe(false);
       expect(await wallet.isLocked()).toBe(false);
-      await wallet.loadDevice({ secp256k1MasterKey, ed25519MasterKey: {} as ED25519.Node });
+      await wallet.loadDevice({
+        secp256k1MasterKey,
+        ed25519MasterKey: {} as ED25519.Node,
+        starkMasterKey: {} as Stark.Node,
+      });
       expect(await wallet.initialize()).toBe(true);
       expect(await wallet.isInitialized()).toBe(true);
       expect(await wallet.isLocked()).toBe(false);
@@ -333,7 +351,11 @@ describe("NativeHDWallet", () => {
       const wallet = native.create({ deviceId: "native", secp256k1MasterKey });
       expect(await wallet.isInitialized()).toBe(false);
       expect(await wallet.isLocked()).toBe(false);
-      await wallet.loadDevice({ secp256k1MasterKey, ed25519MasterKey: {} as ED25519.Node });
+      await wallet.loadDevice({
+        secp256k1MasterKey,
+        ed25519MasterKey: {} as ED25519.Node,
+        starkMasterKey: {} as Stark.Node,
+      });
       expect(await wallet.initialize()).toBe(true);
       expect(await wallet.isInitialized()).toBe(true);
       expect(await wallet.isLocked()).toBe(false);
@@ -356,7 +378,11 @@ describe("NativeHDWallet", () => {
       });
       expect(await wallet.isInitialized()).toBe(false);
       expect(await wallet.isLocked()).toBe(false);
-      await wallet.loadDevice({ secp256k1MasterKey: secp256k1Node, ed25519MasterKey: {} as ED25519.Node });
+      await wallet.loadDevice({
+        secp256k1MasterKey: secp256k1Node,
+        ed25519MasterKey: {} as ED25519.Node,
+        starkMasterKey: {} as Stark.Node,
+      });
       expect(await wallet.initialize()).toBe(true);
       expect(await wallet.isInitialized()).toBe(true);
       expect(await wallet.isLocked()).toBe(false);
@@ -462,7 +488,11 @@ describe("NativeHDWallet", () => {
       }),
       jest.spyOn(wallet, "wipe"),
     ];
-    await wallet.loadDevice({ secp256k1MasterKey, ed25519MasterKey: {} as ED25519.Node });
+    await wallet.loadDevice({
+      secp256k1MasterKey,
+      ed25519MasterKey: {} as ED25519.Node,
+      starkMasterKey: {} as Stark.Node,
+    });
     expect(await wallet.initialize()).toBeFalsy();
     mocks.forEach((x) => {
       expect(x).toHaveBeenCalled();
