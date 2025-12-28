@@ -12,7 +12,6 @@ module.exports = {
     "^@shapeshiftoss/hdwallet-(.*)": "<rootDir>/../../packages/hdwallet-$1/src",
     "^valibot$": require.resolve("valibot"),
     "^axios$": require.resolve("axios"),
-    "^@brandonblack/musig/base_crypto$": "<rootDir>/../../node_modules/@brandonblack/musig/lib/base_crypto.js",
   },
   globals: {
     "ts-jest": {
