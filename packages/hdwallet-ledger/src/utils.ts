@@ -602,6 +602,7 @@ const appNameBySlip44: Record<number, string> = {
   133: "Zcash",
   145: "Bitcoin Cash",
   195: "Tron",
+  397: "NEAR",
   501: "Solana",
   784: "Sui",
   931: "THORChain",
