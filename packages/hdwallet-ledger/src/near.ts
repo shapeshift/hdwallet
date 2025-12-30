@@ -48,18 +48,16 @@ export function nearGetAccountPaths(msg: core.NearGetAccountPaths): Array<core.N
 export function nearNextAccountPath(msg: core.NearAccountPath): core.NearAccountPath | undefined {
   const addressNList = msg.addressNList;
   if (
+    addressNList.length === 3 &&
     addressNList[0] === 0x80000000 + 44 &&
     addressNList[1] === 0x80000000 + core.slip44ByCoin("Near") &&
-    addressNList[3] === 0x80000000 + 0 &&
-    addressNList[4] === 0x80000000 + 0
+    (addressNList[2] & 0x80000000) >>> 0 === 0x80000000
   ) {
     return {
       addressNList: [
         0x80000000 + 44,
         0x80000000 + core.slip44ByCoin("Near"),
         addressNList[2] + 1,
-        0x80000000 + 0,
-        0x80000000 + 0,
       ],
     };
   }
