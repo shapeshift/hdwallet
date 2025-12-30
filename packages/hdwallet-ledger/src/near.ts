@@ -54,11 +54,7 @@ export function nearNextAccountPath(msg: core.NearAccountPath): core.NearAccount
     (addressNList[2] & 0x80000000) >>> 0 === 0x80000000
   ) {
     return {
-      addressNList: [
-        0x80000000 + 44,
-        0x80000000 + core.slip44ByCoin("Near"),
-        addressNList[2] + 1,
-      ],
+      addressNList: [0x80000000 + 44, 0x80000000 + core.slip44ByCoin("Near"), addressNList[2] + 1],
     };
   }
   return undefined;
