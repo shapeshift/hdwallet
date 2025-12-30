@@ -56,12 +56,10 @@ export function nearDescribePath(path: BIP32Path): PathDescription {
     isKnown: false,
   };
 
-  if (path.length != 5) return unknown;
+  if (path.length != 3) return unknown;
   if (path[0] != 0x80000000 + 44) return unknown;
   if (path[1] != 0x80000000 + slip44ByCoin("Near")) return unknown;
   if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
-  if ((path[3] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
-  if ((path[4] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
 
   const index = path[2] & 0x7fffffff;
   return {
@@ -73,14 +71,16 @@ export function nearDescribePath(path: BIP32Path): PathDescription {
   };
 }
 
-// The standard derivation path for NEAR is: m/44'/397'/<account>'/0'/0'
+// The standard derivation path for NEAR is: m/44'/397'/<account>'
+// This 3-level path matches Trust Wallet and other standard NEAR wallets
 // NEAR uses SLIP-0010 which requires all derivation to be hardened for Ed25519
 // https://docs.near.org/integrations/implicit-accounts
+// https://github.com/trustwallet/wallet-core/blob/master/registry.json
 export function nearGetAccountPaths(msg: NearGetAccountPaths): Array<NearAccountPath> {
   const slip44 = slip44ByCoin("Near");
   return [
     {
-      addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0x80000000 + 0, 0x80000000 + 0],
+      addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
     },
   ];
 }
