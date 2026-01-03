@@ -201,6 +201,7 @@ export class PhantomHDWallet
   readonly _supportsMonad = true;
   readonly _supportsPlasma = false;
   readonly _supportsHyperEvm = true;
+  readonly _supportsMegaEth = false;
   readonly _supportsBSC = false;
   readonly _supportsSolana = true;
   readonly _supportsSui = true;
