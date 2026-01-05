@@ -128,6 +128,7 @@ export class WalletConnectHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsBase = false;
   readonly _supportsMonad = false;
   readonly _supportsPlasma = false;
+  readonly _supportsKatana = false;
   readonly _supportsHyperEvm = false;
 
   info: WalletConnectWalletInfo & core.HDWalletInfo;
