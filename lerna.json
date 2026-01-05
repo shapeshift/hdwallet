@@ -1,6 +1,6 @@
 {
   "lerna": "5.2.0",
-  "version": "1.62.37-katana.0",
+  "version": "1.62.37-katana.1",
   "npmClient": "yarn",
   "useWorkspaces": true,
   "command": {
