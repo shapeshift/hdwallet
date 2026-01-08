@@ -14,6 +14,37 @@ export type SafeCardType = "external" | "internal";
 
 const isSafecardConnected = (uid?: Buffer): boolean => !!uid && `0x${uid.toString("hex")}` !== zeroHash;
 
+function describeETHPath(path: core.BIP32Path): core.PathDescription {
+  const pathStr = core.addressNListToBIP32(path);
+  const unknown: core.PathDescription = {
+    verbose: pathStr,
+    coin: "Ethereum",
+    isKnown: false,
+  };
+
+  if (path.length !== 5) return unknown;
+
+  if (path[0] !== 0x80000000 + 44) return unknown;
+
+  if (path[1] !== 0x80000000 + core.slip44ByCoin("Ethereum")) return unknown;
+
+  if (path[2] !== 0x80000000) return unknown;
+
+  if (path[3] !== 0) return unknown;
+
+  if ((path[4] & 0x80000000) !== 0) return unknown;
+
+  const accountIdx = path[4] & 0x7fffffff;
+  return {
+    verbose: `Ethereum Account #${accountIdx}`,
+    coin: "Ethereum",
+    accountIdx,
+    wholeAccount: true,
+    isKnown: true,
+    isPrefork: false,
+  };
+}
+
 export function isGridPlus(wallet: core.HDWallet): wallet is GridPlusHDWallet {
   return isObject(wallet) && (wallet as any)._isGridPlus;
 }
@@ -198,9 +229,9 @@ export class GridPlusWalletInfo
 
     return [
       {
-        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0],
-        hardenedPath: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
-        relPath: [0, 0],
+        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + 0, 0, msg.accountIdx],
+        hardenedPath: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + 0],
+        relPath: [0, msg.accountIdx],
         description: "GridPlus",
       },
     ];
@@ -208,20 +239,22 @@ export class GridPlusWalletInfo
 
   ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
     const addressNList = msg.hardenedPath.concat(msg.relPath);
-    const description = core.describeETHPath(addressNList);
-    if (!description.isKnown || description.accountIdx === undefined) {
+    const description = describeETHPath(addressNList);
+    if (!description.isKnown) {
       return undefined;
     }
 
-    const newAddressNList = [...addressNList];
-    newAddressNList[2] += 1;
+    if (addressNList[0] === 0x80000000 + 44) {
+      addressNList[4] += 1;
+      return {
+        ...msg,
+        addressNList,
+        hardenedPath: core.hardenedPath(addressNList),
+        relPath: core.relativePath(addressNList),
+      };
+    }
 
-    return {
-      addressNList: newAddressNList,
-      hardenedPath: [newAddressNList[0], newAddressNList[1], newAddressNList[2]],
-      relPath: [0, 0],
-      description: "GridPlus",
-    };
+    return undefined;
   }
 
   // Solana Wallet Info Methods
