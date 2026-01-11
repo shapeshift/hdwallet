@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-sandbox",
-  "version": "1.62.39-gridplus-evm.1",
+  "version": "1.62.38",
   "license": "MIT",
   "private": true,
   "browserslist": "> 0.5%, last 2 versions, not dead",
@@ -14,7 +14,7 @@
     "@metamask/eth-sig-util": "^7.0.0",
     "@shapeshiftoss/hdwallet-coinbase": "1.62.38",
     "@shapeshiftoss/hdwallet-core": "1.62.38",
-    "@shapeshiftoss/hdwallet-gridplus": "^1.62.39-gridplus-evm.1",
+    "@shapeshiftoss/hdwallet-gridplus": "1.62.38",
     "@shapeshiftoss/hdwallet-keepkey": "1.62.38",
     "@shapeshiftoss/hdwallet-keepkey-tcp": "1.62.38",
     "@shapeshiftoss/hdwallet-keepkey-webusb": "1.62.38",
