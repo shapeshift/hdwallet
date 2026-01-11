@@ -1,6 +1,6 @@
 {
   "lerna": "5.2.0",
-  "version": "1.62.39-gridplus-evm.0",
+  "version": "1.62.39-gridplus-evm.1",
   "npmClient": "yarn",
   "useWorkspaces": true,
   "command": {

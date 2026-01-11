@@ -5,11 +5,19 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { Client, Constants, Utils } from "gridplus-sdk";
 
 export async function ethGetAddress(client: Client, msg: core.ETHGetAddress): Promise<core.Address | null> {
+  const pathStr = core.addressNListToBIP32(msg.addressNList);
+  console.info("[GridPlus][hdwallet] ethGetAddress called", {
+    addressNList: msg.addressNList,
+    pathStr,
+    showDisplay: msg.showDisplay,
+  });
+
   const address = (await client.getAddresses({ startPath: msg.addressNList, n: 1 }))[0];
 
   if (!address) throw new Error("No address returned from device");
   if (typeof address !== "string") throw new Error("Invalid address");
 
+  console.info("[GridPlus][hdwallet] ethGetAddress result", { pathStr, address });
   return address as core.Address;
 }
 
