@@ -165,7 +165,7 @@ export class TonAdapter {
 
   private async computeWalletV4R2Address(publicKey: Uint8Array): Promise<Uint8Array> {
     const dataCell = this.buildDataCell(publicKey);
-    const codeCell = new CodeCell(this.hexToBytes(WALLET_V4R2_CODE_HASH_HEX), 1);
+    const codeCell = new CodeCell(this.hexToBytes(WALLET_V4R2_CODE_HASH_HEX), 7);
 
     const stateInitBits = new BitBuilder();
     stateInitBits.writeBit(0);
