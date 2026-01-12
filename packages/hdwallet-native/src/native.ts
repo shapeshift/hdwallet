@@ -21,6 +21,7 @@ import { MixinNativeStarknetWallet, MixinNativeStarknetWalletInfo } from "./star
 import { MixinNativeSuiWallet, MixinNativeSuiWalletInfo } from "./sui";
 import { MixinNativeTerraWallet, MixinNativeTerraWalletInfo } from "./terra";
 import { MixinNativeThorchainWallet, MixinNativeThorchainWalletInfo } from "./thorchain";
+import { MixinNativeTonWallet, MixinNativeTonWalletInfo } from "./ton";
 import { MixinNativeTronWallet, MixinNativeTronWalletInfo } from "./tron";
 
 export enum NativeEvents {
@@ -134,14 +135,16 @@ class NativeHDWalletInfo
           MixinNativeSolanaWalletInfo(
             MixinNativeStarknetWalletInfo(
               MixinNativeTronWalletInfo(
-                MixinNativeSuiWalletInfo(
-                  MixinNativeNearWalletInfo(
-                    MixinNativeThorchainWalletInfo(
-                      MixinNativeMayachainWalletInfo(
-                        MixinNativeSecretWalletInfo(
-                          MixinNativeTerraWalletInfo(
-                            MixinNativeKavaWalletInfo(
-                              MixinNativeArkeoWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase))
+                MixinNativeTonWalletInfo(
+                  MixinNativeSuiWalletInfo(
+                    MixinNativeNearWalletInfo(
+                      MixinNativeThorchainWalletInfo(
+                        MixinNativeMayachainWalletInfo(
+                          MixinNativeSecretWalletInfo(
+                            MixinNativeTerraWalletInfo(
+                              MixinNativeKavaWalletInfo(
+                                MixinNativeArkeoWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase))
+                              )
                             )
                           )
                         )
@@ -165,6 +168,7 @@ class NativeHDWalletInfo
     core.SolanaWalletInfo,
     core.StarknetWalletInfo,
     core.TronWalletInfo,
+    core.TonWalletInfo,
     core.SuiWalletInfo,
     core.NearWalletInfo,
     core.ThorchainWalletInfo,
@@ -231,6 +235,8 @@ class NativeHDWalletInfo
       case "tron":
       case "trx":
         return core.tronDescribePath(msg.path);
+      case "ton":
+        return core.tonDescribePath(msg.path);
       default:
         throw new Error("Unsupported path");
     }
@@ -245,13 +251,17 @@ export class NativeHDWallet
           MixinNativeSolanaWallet(
             MixinNativeStarknetWallet(
               MixinNativeTronWallet(
-                MixinNativeSuiWallet(
-                  MixinNativeNearWallet(
-                    MixinNativeThorchainWallet(
-                      MixinNativeMayachainWallet(
-                        MixinNativeSecretWallet(
-                          MixinNativeTerraWallet(
-                            MixinNativeKavaWallet(MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo)))
+                MixinNativeTonWallet(
+                  MixinNativeSuiWallet(
+                    MixinNativeNearWallet(
+                      MixinNativeThorchainWallet(
+                        MixinNativeMayachainWallet(
+                          MixinNativeSecretWallet(
+                            MixinNativeTerraWallet(
+                              MixinNativeKavaWallet(
+                                MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo))
+                              )
+                            )
                           )
                         )
                       )
@@ -274,6 +284,7 @@ export class NativeHDWallet
     core.SolanaWallet,
     core.StarknetWallet,
     core.TronWallet,
+    core.TonWallet,
     core.SuiWallet,
     core.NearWallet,
     core.ThorchainWallet,
@@ -422,6 +433,7 @@ export class NativeHDWallet
             super.solanaInitializeWallet(ed25519MasterKey),
             super.suiInitializeWallet(ed25519MasterKey),
             super.nearInitializeWallet(ed25519MasterKey),
+            super.tonInitializeWallet(ed25519MasterKey),
           ]);
 
           this.#initialized = true;
@@ -466,6 +478,7 @@ export class NativeHDWallet
     super.solanaWipe();
     super.suiWipe();
     super.nearWipe();
+    super.tonWipe();
     super.btcWipe();
     super.ethWipe();
     super.cosmosWipe();

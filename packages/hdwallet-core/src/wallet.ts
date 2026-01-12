@@ -17,6 +17,7 @@ import { StarknetWallet, StarknetWalletInfo } from "./starknet";
 import { SuiWallet, SuiWalletInfo } from "./sui";
 import { TerraWallet, TerraWalletInfo } from "./terra";
 import { ThorchainWallet, ThorchainWalletInfo } from "./thorchain";
+import { TonWallet, TonWalletInfo } from "./ton";
 import { Transport } from "./transport";
 import { TronWallet, TronWalletInfo } from "./tron";
 
@@ -298,6 +299,14 @@ export function supportsSui(wallet: HDWallet): wallet is SuiWallet {
 
 export function infoSui(info: HDWalletInfo): info is SuiWalletInfo {
   return isObject(info) && (info as any)._supportsSuiInfo;
+}
+
+export function supportsTon(wallet: HDWallet): wallet is TonWallet {
+  return isObject(wallet) && (wallet as any)._supportsTon;
+}
+
+export function infoTon(info: HDWalletInfo): info is TonWalletInfo {
+  return isObject(info) && (info as any)._supportsTonInfo;
 }
 
 export function supportsDebugLink(wallet: HDWallet): wallet is DebugLinkWallet {
