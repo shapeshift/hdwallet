@@ -584,6 +584,7 @@ export class NativeHDWallet
       await (async (mnemonic) => {
         if (mnemonic !== undefined) {
           const isolatedMnemonic = await (async () => {
+            if (isMnemonicInterface(mnemonic)) return mnemonic;
             if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
               return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
             }
