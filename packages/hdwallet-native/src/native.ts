@@ -302,6 +302,7 @@ export class NativeHDWallet
   #secp256k1MasterKey: Promise<Isolation.Core.BIP32.Node> | undefined = undefined;
   #ed25519MasterKey: Promise<Isolation.Core.Ed25519.Node> | undefined = undefined;
   #starkMasterKey: Promise<Isolation.Core.Stark.Node> | undefined = undefined;
+  #tonMasterKey: Promise<Isolation.Core.Ed25519.Node> | undefined = undefined;
 
   constructor({ mnemonic, deviceId, secp256k1MasterKey, ed25519MasterKey, starkMasterKey }: NativeAdapterArgs) {
     super();
@@ -323,6 +324,12 @@ export class NativeHDWallet
           typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
         const seed = await isolatedMnemonic.toSeed();
         return await seed.toStarkMasterKey();
+      })();
+      this.#tonMasterKey = (async () => {
+        const isolatedMnemonic =
+          typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
+        const tonSeed = await (isolatedMnemonic as Isolation.Engines.Default.BIP39.Mnemonic).toTonSeed();
+        return await tonSeed.toTonMasterKey();
       })();
     } else {
       if (secp256k1MasterKey) this.#secp256k1MasterKey = Promise.resolve(secp256k1MasterKey);
@@ -409,7 +416,7 @@ export class NativeHDWallet
   // eslint-disable-next-line no-console
   async initialize(): Promise<boolean | null> {
     return this.needsMnemonic(
-      !!this.#secp256k1MasterKey && !!this.#ed25519MasterKey && !!this.#starkMasterKey,
+      !!this.#secp256k1MasterKey && !!this.#ed25519MasterKey && !!this.#starkMasterKey && !!this.#tonMasterKey,
       async () => {
         const secp256k1MasterKey = await this.#secp256k1MasterKey!;
         const ed25519MasterKey = await this.#ed25519MasterKey!;
@@ -433,7 +440,7 @@ export class NativeHDWallet
             super.solanaInitializeWallet(ed25519MasterKey),
             super.suiInitializeWallet(ed25519MasterKey),
             super.nearInitializeWallet(ed25519MasterKey),
-            super.tonInitializeWallet(ed25519MasterKey),
+            this.#tonMasterKey ? super.tonInitializeWallet(await this.#tonMasterKey) : Promise.resolve(),
           ]);
 
           this.#initialized = true;
@@ -470,10 +477,12 @@ export class NativeHDWallet
   async wipe(): Promise<void> {
     const oldSecp256k1MasterKey = this.#secp256k1MasterKey;
     const oldEd25519MasterKey = this.#ed25519MasterKey;
+    const oldTonMasterKey = this.#tonMasterKey;
 
     this.#initialized = false;
     this.#secp256k1MasterKey = undefined;
     this.#ed25519MasterKey = undefined;
+    this.#tonMasterKey = undefined;
 
     super.solanaWipe();
     super.suiWipe();
@@ -495,6 +504,7 @@ export class NativeHDWallet
 
     (await oldSecp256k1MasterKey)?.revoke?.();
     (await oldEd25519MasterKey)?.revoke?.();
+    (await oldTonMasterKey)?.revoke?.();
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -568,6 +578,25 @@ export class NativeHDWallet
         }
         throw new Error("Either [mnemonic] or [starkMasterKey] is required");
       })(msg?.mnemonic, msg?.starkMasterKey)
+    );
+
+    this.#tonMasterKey = Promise.resolve(
+      await (async (mnemonic) => {
+        if (mnemonic !== undefined) {
+          const isolatedMnemonic = await (async () => {
+            if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
+              return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
+            }
+            throw new Error("Required property [mnemonic] is invalid");
+          })();
+          const tonSeed = await (isolatedMnemonic as Isolation.Engines.Default.BIP39.Mnemonic).toTonSeed();
+          tonSeed.addRevoker?.(() => isolatedMnemonic.revoke?.());
+          const out = await tonSeed.toTonMasterKey();
+          out.addRevoker?.(() => tonSeed.revoke?.());
+          return out;
+        }
+        throw new Error("[mnemonic] is required for TON");
+      })(msg?.mnemonic)
     );
 
     if (typeof msg?.deviceId === "string") this.#deviceId = msg?.deviceId;

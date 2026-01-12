@@ -1,10 +1,10 @@
 /// <reference types="bip32/types/crypto" />
 
-import { createSHA512, pbkdf2 } from "hash-wasm";
+import { createHMAC, createSHA512, pbkdf2 } from "hash-wasm";
 
 import type { Seed as SeedType } from "../../core/bip32";
 import type { Mnemonic as Bip39Mnemonic } from "../../core/bip39";
-import { Seed } from "./bip32";
+import { Seed, TonSeed } from "./bip32";
 import { Revocable, revocable } from "./revocable";
 
 export * from "../../core/bip39";
@@ -38,6 +38,29 @@ export class Mnemonic extends Revocable(class {}) implements Bip39Mnemonic {
         })
       )
     );
+    this.addRevoker(() => out.revoke?.());
+    return out;
+  }
+
+  async toTonSeed(password?: string): Promise<TonSeed> {
+    const mnemonic = this.#mnemonic;
+    const passwordBytes = new TextEncoder().encode(password ?? "");
+    const mnemonicBytes = new TextEncoder().encode(mnemonic);
+
+    const hmac = await createHMAC(createSHA512(), mnemonicBytes);
+    hmac.update(passwordBytes);
+    const entropy = hmac.digest("binary");
+
+    const seed = await pbkdf2({
+      password: entropy,
+      salt: new TextEncoder().encode("TON HD Keys seed"),
+      iterations: 100000,
+      hashLength: 64,
+      hashFunction: createSHA512(),
+      outputType: "binary",
+    });
+
+    const out = await TonSeed.create(Buffer.from(seed));
     this.addRevoker(() => out.revoke?.());
     return out;
   }

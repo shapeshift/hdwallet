@@ -211,3 +211,28 @@ export class Seed extends Revocable(class {}) implements Core.BIP32.Seed {
     return out;
   }
 }
+
+export class TonSeed extends Revocable(class {}) {
+  readonly #seed: Buffer;
+
+  protected constructor(seed: Uint8Array) {
+    super();
+    this.#seed = safeBufferFrom(seed);
+    this.addRevoker(() => this.#seed.fill(0));
+  }
+
+  static async create(seed: Uint8Array): Promise<TonSeed> {
+    const obj = new TonSeed(seed);
+    return revocable(obj, (x) => obj.addRevoker(x));
+  }
+
+  async toTonMasterKey(): Promise<Core.Ed25519.Node> {
+    const hmacKey = safeBufferFrom(new TextEncoder().encode("ed25519 seed"));
+    const I = safeBufferFrom(bip32crypto.hmacSHA512(hmacKey, this.#seed));
+    const IL = I.subarray(0, 32);
+    const IR = I.subarray(32, 64);
+    const out = await Ed25519.Node.create(IL, IR);
+    this.addRevoker(() => out.revoke?.());
+    return out;
+  }
+}
