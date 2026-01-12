@@ -325,12 +325,23 @@ export class NativeHDWallet
         const seed = await isolatedMnemonic.toSeed();
         return await seed.toStarkMasterKey();
       })();
-      this.#tonMasterKey = (async () => {
-        const isolatedMnemonic =
-          typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
-        const tonSeed = await (isolatedMnemonic as Isolation.Engines.Default.BIP39.Mnemonic).toTonSeed();
-        return await tonSeed.toTonMasterKey();
-      })();
+      this.#tonMasterKey = (async (): Promise<Isolation.Core.Ed25519.Node | undefined> => {
+        try {
+          const isolatedMnemonic =
+            typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
+          if (typeof (isolatedMnemonic as any).toTonSeed !== "function") {
+            console.warn("[hdwallet-native] TON support unavailable in constructor: toTonSeed method not found");
+            return undefined;
+          }
+          const tonSeed = await (isolatedMnemonic as Isolation.Engines.Default.BIP39.Mnemonic).toTonSeed();
+          return await tonSeed.toTonMasterKey();
+        } catch (e) {
+          console.warn("[hdwallet-native] TON initialization failed in constructor:", e);
+          return undefined;
+        }
+      })().then((result) => (result ? Promise.resolve(result) : undefined)) as
+        | Promise<Isolation.Core.Ed25519.Node>
+        | undefined;
     } else {
       if (secp256k1MasterKey) this.#secp256k1MasterKey = Promise.resolve(secp256k1MasterKey);
       if (ed25519MasterKey) this.#ed25519MasterKey = Promise.resolve(ed25519MasterKey);
@@ -416,7 +427,7 @@ export class NativeHDWallet
   // eslint-disable-next-line no-console
   async initialize(): Promise<boolean | null> {
     return this.needsMnemonic(
-      !!this.#secp256k1MasterKey && !!this.#ed25519MasterKey && !!this.#starkMasterKey && !!this.#tonMasterKey,
+      !!this.#secp256k1MasterKey && !!this.#ed25519MasterKey && !!this.#starkMasterKey,
       async () => {
         const secp256k1MasterKey = await this.#secp256k1MasterKey!;
         const ed25519MasterKey = await this.#ed25519MasterKey!;
@@ -580,39 +591,35 @@ export class NativeHDWallet
       })(msg?.mnemonic, msg?.starkMasterKey)
     );
 
-    this.#tonMasterKey = Promise.resolve(
-      await (async (mnemonic) => {
-        if (mnemonic !== undefined) {
-          const isolatedMnemonic = await (async () => {
-            if (isMnemonicInterface(mnemonic)) return mnemonic;
-            if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
-              return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
-            }
-            throw new Error("Required property [mnemonic] is invalid");
-          })();
-          // Debug logging
-          console.log("[TON DEBUG] isolatedMnemonic type:", typeof isolatedMnemonic);
-          console.log("[TON DEBUG] isolatedMnemonic:", isolatedMnemonic);
-          console.log("[TON DEBUG] isolatedMnemonic keys:", Object.keys(isolatedMnemonic));
-          console.log("[TON DEBUG] has toTonSeed:", "toTonSeed" in isolatedMnemonic);
-          console.log("[TON DEBUG] typeof toTonSeed:", typeof isolatedMnemonic.toTonSeed);
-          console.log("[TON DEBUG] toSeed:", typeof isolatedMnemonic.toSeed);
-
-          if (typeof isolatedMnemonic.toTonSeed !== "function") {
-            console.error("[TON DEBUG] toTonSeed is not a function! Creating fresh mnemonic...");
-            // Try to get the raw mnemonic string and create fresh
-            throw new Error(`toTonSeed is not available on mnemonic. Type: ${typeof isolatedMnemonic.toTonSeed}`);
+    this.#tonMasterKey = (await (async (mnemonic): Promise<Isolation.Core.Ed25519.Node | undefined> => {
+      if (mnemonic === undefined) {
+        return undefined;
+      }
+      try {
+        const isolatedMnemonic = await (async () => {
+          if (isMnemonicInterface(mnemonic)) return mnemonic;
+          if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
+            return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
           }
-
-          const tonSeed = await isolatedMnemonic.toTonSeed!();
-          tonSeed.addRevoker?.(() => isolatedMnemonic.revoke?.());
-          const out = await tonSeed.toTonMasterKey();
-          out.addRevoker?.(() => tonSeed.revoke?.());
-          return out;
+          throw new Error("Required property [mnemonic] is invalid");
+        })();
+        if (typeof isolatedMnemonic.toTonSeed !== "function") {
+          console.warn("[hdwallet-native] TON support unavailable: toTonSeed method not found on mnemonic");
+          return undefined;
         }
-        throw new Error("[mnemonic] is required for TON");
-      })(msg?.mnemonic)
-    );
+
+        const tonSeed = await isolatedMnemonic.toTonSeed();
+        tonSeed.addRevoker?.(() => isolatedMnemonic.revoke?.());
+        const out = await tonSeed.toTonMasterKey();
+        out.addRevoker?.(() => tonSeed.revoke?.());
+        return out;
+      } catch (e) {
+        console.warn("[hdwallet-native] TON initialization failed:", e);
+        return undefined;
+      }
+    })(msg?.mnemonic).then((result) => (result ? Promise.resolve(result) : undefined))) as
+      | Promise<Isolation.Core.Ed25519.Node>
+      | undefined;
 
     if (typeof msg?.deviceId === "string") this.#deviceId = msg?.deviceId;
 
