@@ -590,10 +590,7 @@ export class NativeHDWallet
             }
             throw new Error("Required property [mnemonic] is invalid");
           })();
-          if (typeof isolatedMnemonic.toTonSeed !== "function") {
-            throw new Error("Mnemonic implementation does not support TON");
-          }
-          const tonSeed = await isolatedMnemonic.toTonSeed();
+          const tonSeed = await isolatedMnemonic.toTonSeed!();
           tonSeed.addRevoker?.(() => isolatedMnemonic.revoke?.());
           const out = await tonSeed.toTonMasterKey();
           out.addRevoker?.(() => tonSeed.revoke?.());
