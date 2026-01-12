@@ -590,6 +590,20 @@ export class NativeHDWallet
             }
             throw new Error("Required property [mnemonic] is invalid");
           })();
+          // Debug logging
+          console.log("[TON DEBUG] isolatedMnemonic type:", typeof isolatedMnemonic);
+          console.log("[TON DEBUG] isolatedMnemonic:", isolatedMnemonic);
+          console.log("[TON DEBUG] isolatedMnemonic keys:", Object.keys(isolatedMnemonic));
+          console.log("[TON DEBUG] has toTonSeed:", "toTonSeed" in isolatedMnemonic);
+          console.log("[TON DEBUG] typeof toTonSeed:", typeof isolatedMnemonic.toTonSeed);
+          console.log("[TON DEBUG] toSeed:", typeof isolatedMnemonic.toSeed);
+
+          if (typeof isolatedMnemonic.toTonSeed !== "function") {
+            console.error("[TON DEBUG] toTonSeed is not a function! Creating fresh mnemonic...");
+            // Try to get the raw mnemonic string and create fresh
+            throw new Error(`toTonSeed is not available on mnemonic. Type: ${typeof isolatedMnemonic.toTonSeed}`);
+          }
+
           const tonSeed = await isolatedMnemonic.toTonSeed!();
           tonSeed.addRevoker?.(() => isolatedMnemonic.revoke?.());
           const out = await tonSeed.toTonMasterKey();
