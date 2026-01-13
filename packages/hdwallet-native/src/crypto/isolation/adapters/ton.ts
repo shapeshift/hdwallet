@@ -122,7 +122,7 @@ export class TonAdapter {
         .storeAddress(wallet.address)
         .storeCoins(0)
         .storeBit(true)
-        .storeBit(true)
+        .storeBit(false)
         .store(storeStateInit(wallet.init))
         .storeBit(true)
         .storeRef(transfer)
