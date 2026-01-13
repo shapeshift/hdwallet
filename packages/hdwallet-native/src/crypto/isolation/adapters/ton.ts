@@ -224,9 +224,7 @@ function crc32c(data: Uint8Array): number {
   return (crc ^ 0xffffffff) >>> 0;
 }
 
-// Serialize a cell tree to BOC format
 async function serializeToBoc(root: Cell): Promise<Uint8Array> {
-  // Collect all cells in topological order
   const cells: Cell[] = [];
   const cellHashes = new Map<string, number>();
 
@@ -237,7 +235,6 @@ async function serializeToBoc(root: Cell): Promise<Uint8Array> {
 
     if (cellHashes.has(hashHex)) return;
 
-    // Process refs first (children before parents)
     for (const ref of cell.refs) {
       await collectCells(ref);
     }
@@ -248,7 +245,6 @@ async function serializeToBoc(root: Cell): Promise<Uint8Array> {
 
   await collectCells(root);
 
-  // Reverse to have root first
   cells.reverse();
   const newHashMap = new Map<string, number>();
   for (let i = 0; i < cells.length; i++) {
@@ -258,15 +254,19 @@ async function serializeToBoc(root: Cell): Promise<Uint8Array> {
     newHashMap.set(hashHex, i);
   }
 
-  // Build cell data
+  const cellCount = cells.length;
+  const rootCount = 1;
+  const absentCount = 0;
+
+  const bitsForCellCount = cellCount > 0 ? Math.ceil(Math.log2(cellCount + 1)) : 1;
+  const sizeBytes = Math.max(Math.ceil(bitsForCellCount / 8), 1);
+
   const cellDatas: Uint8Array[] = [];
   for (const cell of cells) {
     const bitLen = cell.bits.length;
     const byteLen = Math.ceil(bitLen / 8);
 
-    // d1: refs_count (lower 3 bits)
     const d1 = cell.refs.length;
-    // d2: ceil(bitLen/8) + floor(bitLen/8)
     const d2 = Math.ceil(bitLen / 8) + Math.floor(bitLen / 8);
 
     const dataBytes = new Uint8Array(byteLen);
@@ -275,13 +275,11 @@ async function serializeToBoc(root: Cell): Promise<Uint8Array> {
         dataBytes[Math.floor(i / 8)] |= 1 << (7 - (i % 8));
       }
     }
-    // Add completion tag if not byte-aligned
     if (bitLen % 8 !== 0 && byteLen > 0) {
       const usedBits = bitLen % 8;
       dataBytes[byteLen - 1] |= 1 << (7 - usedBits);
     }
 
-    // Build ref indices
     const refIndices: number[] = [];
     for (const ref of cell.refs) {
       const refHashHex = Array.from(await ref.hash())
@@ -292,45 +290,24 @@ async function serializeToBoc(root: Cell): Promise<Uint8Array> {
       refIndices.push(refIdx);
     }
 
-    // Cell data: d1, d2, data bytes, ref indices (1 byte each for small BOCs)
-    const cellData = new Uint8Array(2 + byteLen + refIndices.length);
+    const cellData = new Uint8Array(2 + byteLen + refIndices.length * sizeBytes);
     cellData[0] = d1;
     cellData[1] = d2;
     cellData.set(dataBytes, 2);
     for (let i = 0; i < refIndices.length; i++) {
-      cellData[2 + byteLen + i] = refIndices[i];
+      for (let j = sizeBytes - 1; j >= 0; j--) {
+        cellData[2 + byteLen + i * sizeBytes + (sizeBytes - 1 - j)] = (refIndices[i] >> (j * 8)) & 0xff;
+      }
     }
 
     cellDatas.push(cellData);
   }
 
-  // Calculate total data size
   let totalDataSize = 0;
   for (const data of cellDatas) {
     totalDataSize += data.length;
   }
 
-  // BOC header
-  // Magic: B5EE9C72 (4 bytes)
-  // Flags: has_idx:1 has_crc32c:1 has_cache_bits:1 flags:2 size:(##3) = 1 byte
-  // off_bytes: size of offset integers
-  // cells:(##(size * 8))
-  // roots:(##(size * 8))
-  // absent:(##(size * 8))
-  // tot_cells_size:(##(off_bytes * 8))
-  // root_list:(roots * ##(size * 8))
-  // index:cells * ##(off_bytes * 8) [if has_idx]
-  // cell_data
-  // crc32c [if has_crc32c]
-
-  const cellCount = cells.length;
-  const rootCount = 1;
-  const absentCount = 0;
-
-  // Determine size byte count (how many bytes for cell indices)
-  const sizeBytes = cellCount <= 255 ? 1 : 2;
-
-  // Determine offset byte count
   const offBytes = totalDataSize <= 255 ? 1 : totalDataSize <= 65535 ? 2 : 4;
 
   // Calculate header size
@@ -356,57 +333,24 @@ async function serializeToBoc(root: Cell): Promise<Uint8Array> {
   boc[offset++] = 0x9c;
   boc[offset++] = 0x72;
 
-  // Flags byte: has_idx=0, has_crc32c=1, has_cache_bits=0, flags=0, size=sizeBytes-1
-  const flagsByte = (0 << 7) | (1 << 6) | (0 << 5) | ((sizeBytes - 1) & 0x07);
+  // Flags byte: has_idx=0, has_crc32c=1, has_cache_bits=0, flags=0, size=sizeBytes (NOT sizeBytes-1)
+  // ton-core writes sizeBytes directly into the 3-bit field
+  const flagsByte = (0 << 7) | (1 << 6) | (0 << 5) | (sizeBytes & 0x07);
   boc[offset++] = flagsByte;
 
-  // off_bytes
   boc[offset++] = offBytes;
 
-  // cells count
-  if (sizeBytes === 1) {
-    boc[offset++] = cellCount;
-  } else {
-    boc[offset++] = (cellCount >> 8) & 0xff;
-    boc[offset++] = cellCount & 0xff;
-  }
+  const writeSize = (value: number, bytes: number) => {
+    for (let i = bytes - 1; i >= 0; i--) {
+      boc[offset++] = (value >> (i * 8)) & 0xff;
+    }
+  };
 
-  // roots count
-  if (sizeBytes === 1) {
-    boc[offset++] = rootCount;
-  } else {
-    boc[offset++] = (rootCount >> 8) & 0xff;
-    boc[offset++] = rootCount & 0xff;
-  }
-
-  // absent count
-  if (sizeBytes === 1) {
-    boc[offset++] = absentCount;
-  } else {
-    boc[offset++] = (absentCount >> 8) & 0xff;
-    boc[offset++] = absentCount & 0xff;
-  }
-
-  // total cells size
-  if (offBytes === 1) {
-    boc[offset++] = totalDataSize;
-  } else if (offBytes === 2) {
-    boc[offset++] = (totalDataSize >> 8) & 0xff;
-    boc[offset++] = totalDataSize & 0xff;
-  } else {
-    boc[offset++] = (totalDataSize >> 24) & 0xff;
-    boc[offset++] = (totalDataSize >> 16) & 0xff;
-    boc[offset++] = (totalDataSize >> 8) & 0xff;
-    boc[offset++] = totalDataSize & 0xff;
-  }
-
-  // root list (just root index 0)
-  if (sizeBytes === 1) {
-    boc[offset++] = 0;
-  } else {
-    boc[offset++] = 0;
-    boc[offset++] = 0;
-  }
+  writeSize(cellCount, sizeBytes);
+  writeSize(rootCount, sizeBytes);
+  writeSize(absentCount, sizeBytes);
+  writeSize(totalDataSize, offBytes);
+  writeSize(0, sizeBytes);
 
   // Cell data
   for (const cellData of cellDatas) {
