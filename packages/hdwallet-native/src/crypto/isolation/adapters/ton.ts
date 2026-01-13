@@ -129,23 +129,7 @@ export class TonAdapter {
       )
       .endCell();
 
-    const boc = externalMessage.toBoc().toString("base64");
-
-    console.log("[TON] === Transaction Debug ===");
-    console.log("[TON] From (param):", params.from);
-    console.log("[TON] From (wallet):", wallet.address.toString({ bounceable: false }));
-    console.log("[TON] Address match:", params.from === wallet.address.toString({ bounceable: false }));
-    console.log("[TON] To:", params.to);
-    console.log("[TON] Value:", params.value);
-    console.log("[TON] Seqno:", params.seqno);
-    console.log("[TON] Init included:", params.seqno === 0);
-    console.log("[TON] Public key:", Buffer.from(publicKey).toString("hex"));
-    console.log("[TON] Init code hash:", wallet.init.code?.hash().toString("hex"));
-    console.log("[TON] Init data hash:", wallet.init.data?.hash().toString("hex"));
-    console.log("[TON] BOC length:", boc.length);
-    console.log("[TON] =========================");
-
-    return boc;
+    return externalMessage.toBoc().toString("base64");
   }
 
   async signTransaction(message: Uint8Array, addressNList: core.BIP32Path): Promise<string> {

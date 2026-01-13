@@ -1,6 +1,6 @@
 {
   "lerna": "5.2.0",
-  "version": "1.62.39-ton-chain.23",
+  "version": "1.62.39-ton-chain.24",
   "npmClient": "yarn",
   "useWorkspaces": true,
   "command": {
