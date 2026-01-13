@@ -44,6 +44,27 @@ export function MixinNativeTonWallet<TBase extends core.Constructor<NativeHDWall
 
     async tonSignTx(msg: core.TonSignTx): Promise<core.TonSignedTx | null> {
       return this.needsMnemonic(!!this.tonAdapter, async () => {
+        if (msg.rawMessages && msg.rawMessages.length > 0) {
+          const seqno = msg.seqno ?? 0;
+          const expireAt = msg.expireAt ?? Math.floor(Date.now() / 1000) + 300;
+
+          const bocBase64 = await this.tonAdapter!.createSignedRawTransferBoc(
+            msg.rawMessages,
+            seqno,
+            expireAt,
+            msg.addressNList
+          );
+
+          return {
+            signature: "",
+            serialized: bocBase64,
+          };
+        }
+
+        if (!msg.message) {
+          throw new Error("Either message or rawMessages must be provided");
+        }
+
         const messageJson = new TextDecoder().decode(msg.message);
         const txParams = JSON.parse(messageJson) as TonTransactionParams;
 

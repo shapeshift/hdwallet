@@ -6,10 +6,23 @@ export interface TonGetAddress {
   showDisplay?: boolean;
 }
 
+export interface TonRawMessage {
+  targetAddress: string;
+  sendAmount: string;
+  payload: string;
+  stateInit?: string;
+}
+
 export interface TonSignTx {
   addressNList: BIP32Path;
-  /** Raw message bytes to sign (BOC serialized) */
-  message: Uint8Array;
+  /** Raw message bytes to sign (BOC serialized) - used for simple transfers */
+  message?: Uint8Array;
+  /** Raw messages from external protocols like Stonfi - used for complex swaps */
+  rawMessages?: TonRawMessage[];
+  /** Sequence number for the wallet */
+  seqno?: number;
+  /** Transaction expiration timestamp */
+  expireAt?: number;
 }
 
 export interface TonSignedTx {
