@@ -1,7 +1,7 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
 
 import { Isolation } from "./crypto";
-import { TonAdapter } from "./crypto/isolation/adapters/ton";
+import { TonAdapter, TonTransactionParams } from "./crypto/isolation/adapters/ton";
 import { NativeHDWalletBase } from "./native";
 
 export function MixinNativeTonWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
@@ -44,11 +44,14 @@ export function MixinNativeTonWallet<TBase extends core.Constructor<NativeHDWall
 
     async tonSignTx(msg: core.TonSignTx): Promise<core.TonSignedTx | null> {
       return this.needsMnemonic(!!this.tonAdapter, async () => {
-        const signature = await this.tonAdapter!.signTransaction(msg.message, msg.addressNList);
+        const messageJson = new TextDecoder().decode(msg.message);
+        const txParams = JSON.parse(messageJson) as TonTransactionParams;
+
+        const bocBase64 = await this.tonAdapter!.createSignedTransferBoc(txParams, msg.addressNList);
 
         return {
-          signature,
-          serialized: Buffer.from(msg.message).toString("hex"),
+          signature: "",
+          serialized: bocBase64,
         };
       });
     }
