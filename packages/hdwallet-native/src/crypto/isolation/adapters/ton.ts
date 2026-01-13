@@ -657,7 +657,7 @@ export class TonAdapter {
     }
 
     const flagsByte = bocBytes[4];
-    const sizeBytes = (flagsByte & 0x07) + 1;
+    const sizeBytes = flagsByte & 0x07;
     const offBytes = bocBytes[5];
 
     let offset = 6;
