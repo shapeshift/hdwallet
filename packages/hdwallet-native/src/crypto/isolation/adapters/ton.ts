@@ -8,6 +8,12 @@ const WALLET_V4R2_SUBWALLET_ID = 698983191;
 
 const WALLET_V4R2_CODE_HASH_HEX = "feb5ff6820e2ff0d9483e7e0d62c817d846789fb4ae580c878866d959dabd5c0";
 
+const WALLET_V4R2_CODE_BOC_HEX =
+  "b5ee9c72410214010002d4000114ff00f4a413f4bcf2c80b010201200203020148040504f8f28308d71820d31fd31fd31f02f823bbf264ed44d0d31fd31fd3fff404d15143baf2a15151baf2a205f901541064f910f2a3f80024a4c8cb1f5240cb1f5230cbff5210f400c9ed54f80f01d30721c0009f6c519320d74a96d307d402fb00e830e021c001e30021c002e30001c0039130e30d03a4c8cb1f12cb1fcbff1011121302e6d001d0d3032171b0925f04e022d749c120925f04e002d31f218210706c7567bd22821064737472bdb0925f05e003fa403020fa4401c8ca07cbffc9d0ed44d0810140d721f404305c810108f40a6fa131b3925f07e005d33fc8258210706c7567ba923830e30d03821064737472ba925f06e30d06070201200809007801fa00f40430f8276f2230500aa121bef2e0508210706c7567831eb17080185004cb0526cf1658fa0219f400cb6917cb1f5260cb3f20c98040fb0006008a5004810108f45930ed44d0810140d720c801cf16f400c9ed540172b08e23821064737472831eb17080185005cb055003cf1623fa0213cb6acb1fcb3fc98040fb00925f03e20201200a0b0059bd242b6f6a2684080a06b90fa0218470d4080847a4937d29910ce6903e9ff9837812801b7810148987159f31840201580c0d0011b8c97ed44d0d70b1f8003db29dfb513420405035c87d010c00b23281f2fff274006040423d029be84c600201200e0f0019adce76a26840206b90eb85ffc00019af1df6a26840106b90eb858fc0006ed207fa00d4d422f90005c8ca0715cbffc9d077748018c8cb05cb0222cf165005fa0214cb6b12ccccc973fb00c84014810108f451f2a7020070810108d718fa00d33fc8542047810108f451f2a782106e6f746570748018c8cb05cb025006cf165004fa0214cb6a12cb1fcb3fc973fb0002006c810108d718fa00d33f305224810108f459f2a782106473747270748018c8cb05cb025005cf165003fa0213cb6acb1f12cb3fc973fb00000af400c9ed54";
+
+const JETTON_TRANSFER_OP = 0x0f8a7ea5;
+const JETTON_FORWARD_AMOUNT = BigInt(1);
+
 class BitBuilder {
   private bits: number[] = [];
 
@@ -425,7 +431,8 @@ export interface TonTransactionParams {
   seqno: number;
   expireAt: number;
   memo?: string;
-  contractAddress?: string; // for jetton transfers
+  contractAddress?: string; // for jetton transfers (jetton wallet address)
+  type?: "transfer" | "jetton_transfer";
 }
 
 export class TonAdapter {
@@ -483,140 +490,179 @@ export class TonAdapter {
       .join("");
   }
 
-  // Create and sign a complete TON transfer transaction, returning BOC
   async createSignedTransferBoc(params: TonTransactionParams, addressNList: core.BIP32Path): Promise<string> {
     const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToHardenedBIP32(addressNList));
     const publicKey = await nodeAdapter.getPublicKey();
 
-    // Parse destination address
-    const destAddr = this.parseAddress(params.to);
+    const isJettonTransfer = params.type === "jetton_transfer" || !!params.contractAddress;
 
-    // 1. Build internal message (the actual transfer)
+    let internalMsgCell: Cell;
+
+    if (isJettonTransfer && params.contractAddress) {
+      internalMsgCell = this.buildJettonTransferMessage(params);
+    } else {
+      internalMsgCell = this.buildTonTransferMessage(params);
+    }
+
+    const needsStateInit = params.seqno === 0;
+
+    return this.createExternalMessage(internalMsgCell, params, publicKey, nodeAdapter, needsStateInit);
+  }
+
+  private buildTonTransferMessage(params: TonTransactionParams): Cell {
+    const destAddr = this.parseAddress(params.to);
     const internalMsgBits = new BitBuilder();
 
-    // int_msg_info$0 ihr_disabled:Bool bounce:Bool bounced:Bool
-    // src:MsgAddressInt dest:MsgAddressInt
-    // value:CurrencyCollection ihr_fee:Grams fwd_fee:Grams
-    // created_lt:uint64 created_at:uint32
+    internalMsgBits.writeUint(0, 1);
+    internalMsgBits.writeBit(1);
+    internalMsgBits.writeBit(destAddr.workchain >= 0 ? 1 : 0);
+    internalMsgBits.writeBit(0);
 
-    // Use flags: 0x10 = ihr_disabled=0, bounce=1, bounced=0
-    // For non-bounceable: 0x18 = ihr_disabled=0, bounce=0, bounced=0, extra bits
-    internalMsgBits.writeUint(0, 1); // int_msg_info tag = 0
-    internalMsgBits.writeBit(1); // ihr_disabled = true
-    internalMsgBits.writeBit(destAddr.workchain >= 0 ? 1 : 0); // bounce (true for standard)
-    internalMsgBits.writeBit(0); // bounced = false
-
-    // src: addr_none$00 (will be filled by contract)
     internalMsgBits.writeBit(0);
     internalMsgBits.writeBit(0);
 
-    // dest: addr_std$10 anycast:(Maybe Anycast) workchain_id:int8 address:bits256
     internalMsgBits.writeAddress(destAddr.workchain, destAddr.hash);
-
-    // value: Grams as VarUInteger16
     internalMsgBits.writeCoins(BigInt(params.value));
-
-    // extra_currencies: empty dict (1 bit = 0)
+    internalMsgBits.writeBit(0);
+    internalMsgBits.writeCoins(BigInt(0));
+    internalMsgBits.writeCoins(BigInt(0));
+    internalMsgBits.writeUint(0, 64);
+    internalMsgBits.writeUint(0, 32);
     internalMsgBits.writeBit(0);
 
-    // ihr_fee, fwd_fee: 0
-    internalMsgBits.writeCoins(BigInt(0)); // ihr_fee
-    internalMsgBits.writeCoins(BigInt(0)); // fwd_fee
-
-    // created_lt and created_at (will be filled by validators): 0
-    internalMsgBits.writeUint(0, 64); // created_lt
-    internalMsgBits.writeUint(0, 32); // created_at
-
-    // init: Maybe (Either StateInit ^StateInit) = nothing
-    internalMsgBits.writeBit(0);
-
-    // body: Either X ^X
     if (params.memo) {
-      // Store body as reference
-      internalMsgBits.writeBit(1); // body is reference
+      internalMsgBits.writeBit(1);
 
-      // Create comment body cell
       const bodyBits = new BitBuilder();
-      bodyBits.writeUint(0, 32); // op = 0 for text comment
+      bodyBits.writeUint(0, 32);
       const memoBytes = new TextEncoder().encode(params.memo);
       bodyBits.writeBytes(memoBytes);
 
       const bodyCell = new Cell(bodyBits.getBits());
-      const internalMsgCell = new Cell(internalMsgBits.getBits(), [bodyCell]);
-
-      return this.createExternalMessage(internalMsgCell, params, publicKey, nodeAdapter);
+      return new Cell(internalMsgBits.getBits(), [bodyCell]);
     } else {
-      // body inline (empty or just a bit)
-      internalMsgBits.writeBit(0); // body inline
-      // Empty body
-
-      const internalMsgCell = new Cell(internalMsgBits.getBits());
-      return this.createExternalMessage(internalMsgCell, params, publicKey, nodeAdapter);
+      internalMsgBits.writeBit(0);
+      return new Cell(internalMsgBits.getBits());
     }
+  }
+
+  private buildJettonTransferMessage(params: TonTransactionParams): Cell {
+    const jettonWalletAddr = this.parseAddress(params.contractAddress!);
+    const destAddr = this.parseAddress(params.to);
+    const senderAddr = this.parseAddress(params.from);
+
+    const jettonBodyBits = new BitBuilder();
+    jettonBodyBits.writeUint(JETTON_TRANSFER_OP, 32);
+    jettonBodyBits.writeUint(0, 64);
+    jettonBodyBits.writeCoins(BigInt(params.value));
+    jettonBodyBits.writeAddress(destAddr.workchain, destAddr.hash);
+    jettonBodyBits.writeAddress(senderAddr.workchain, senderAddr.hash);
+    jettonBodyBits.writeBit(0);
+    jettonBodyBits.writeCoins(JETTON_FORWARD_AMOUNT);
+
+    if (params.memo) {
+      jettonBodyBits.writeBit(1);
+      const commentBits = new BitBuilder();
+      commentBits.writeUint(0, 32);
+      const memoBytes = new TextEncoder().encode(params.memo);
+      commentBits.writeBytes(memoBytes);
+      const commentCell = new Cell(commentBits.getBits());
+      const jettonBodyCell = new Cell(jettonBodyBits.getBits(), [commentCell]);
+      return this.buildInternalMessageToJettonWallet(jettonWalletAddr, jettonBodyCell);
+    } else {
+      jettonBodyBits.writeBit(0);
+      const jettonBodyCell = new Cell(jettonBodyBits.getBits());
+      return this.buildInternalMessageToJettonWallet(jettonWalletAddr, jettonBodyCell);
+    }
+  }
+
+  private buildInternalMessageToJettonWallet(
+    jettonWalletAddr: { workchain: number; hash: Uint8Array },
+    jettonBodyCell: Cell
+  ): Cell {
+    const JETTON_TRANSFER_GAS = BigInt(100000000);
+
+    const internalMsgBits = new BitBuilder();
+    internalMsgBits.writeUint(0, 1);
+    internalMsgBits.writeBit(1);
+    internalMsgBits.writeBit(1);
+    internalMsgBits.writeBit(0);
+
+    internalMsgBits.writeBit(0);
+    internalMsgBits.writeBit(0);
+
+    internalMsgBits.writeAddress(jettonWalletAddr.workchain, jettonWalletAddr.hash);
+    internalMsgBits.writeCoins(JETTON_TRANSFER_GAS);
+    internalMsgBits.writeBit(0);
+    internalMsgBits.writeCoins(BigInt(0));
+    internalMsgBits.writeCoins(BigInt(0));
+    internalMsgBits.writeUint(0, 64);
+    internalMsgBits.writeUint(0, 32);
+    internalMsgBits.writeBit(0);
+    internalMsgBits.writeBit(1);
+
+    return new Cell(internalMsgBits.getBits(), [jettonBodyCell]);
   }
 
   private async createExternalMessage(
     internalMsgCell: Cell,
     params: TonTransactionParams,
     publicKey: Uint8Array,
-    nodeAdapter: Isolation.Adapters.Ed25519
+    nodeAdapter: Isolation.Adapters.Ed25519,
+    needsStateInit: boolean = false
   ): Promise<string> {
-    // 2. Build wallet v4r2 signing message
     const signingBits = new BitBuilder();
-    signingBits.writeUint(WALLET_V4R2_SUBWALLET_ID, 32); // subwallet_id
-    signingBits.writeUint(params.expireAt, 32); // valid_until
-    signingBits.writeUint(params.seqno, 32); // seqno
-    signingBits.writeUint(0, 8); // op = 0 for simple send (wallet v4)
-    signingBits.writeUint(3, 8); // send_mode = 3 (pay fees separately, ignore errors)
+    signingBits.writeUint(WALLET_V4R2_SUBWALLET_ID, 32);
+    signingBits.writeUint(params.expireAt, 32);
+    signingBits.writeUint(params.seqno, 32);
+    signingBits.writeUint(0, 8);
+    signingBits.writeUint(3, 8);
 
     const signingCell = new Cell(signingBits.getBits(), [internalMsgCell]);
 
-    // 3. Sign the message hash
     const messageHash = await signingCell.hash();
     const signature = await nodeAdapter.node.sign(messageHash);
 
-    // 4. Build signed body: signature + signed message
     const bodyBits = new BitBuilder();
-    bodyBits.writeBytes(signature); // 512 bits (64 bytes)
+    bodyBits.writeBytes(signature);
 
-    // Copy signing cell bits
     for (const bit of signingCell.bits) {
       bodyBits.writeBit(bit);
     }
 
     const signedBodyCell = new Cell(bodyBits.getBits(), signingCell.refs);
 
-    // 5. Build external message
     const senderAddr = this.parseAddress(params.from);
 
     const extMsgBits = new BitBuilder();
-    // ext_in_msg_info$10 src:MsgAddressExt dest:MsgAddressInt import_fee:Grams
-    extMsgBits.writeBit(1); // ext_in_msg_info tag bit 1
-    extMsgBits.writeBit(0); // ext_in_msg_info tag bit 0
+    extMsgBits.writeBit(1);
+    extMsgBits.writeBit(0);
 
-    // src: addr_none$00
     extMsgBits.writeBit(0);
     extMsgBits.writeBit(0);
 
-    // dest: wallet address
     extMsgBits.writeAddress(senderAddr.workchain, senderAddr.hash);
 
-    // import_fee: 0
     extMsgBits.writeCoins(BigInt(0));
 
-    // init: Maybe (Either StateInit ^StateInit)
-    // For established wallets, no state init needed
-    extMsgBits.writeBit(0); // no state init
+    if (needsStateInit) {
+      extMsgBits.writeBit(1);
+      extMsgBits.writeBit(1);
+      const stateInitCell = await this.buildStateInitCell(publicKey);
+      extMsgBits.writeBit(1);
+      const externalMsgCell = new Cell(extMsgBits.getBits(), [stateInitCell, signedBodyCell]);
+      const boc = await serializeToBoc(externalMsgCell);
+      return this.bocToBase64(boc);
+    } else {
+      extMsgBits.writeBit(0);
+      extMsgBits.writeBit(1);
+      const externalMsgCell = new Cell(extMsgBits.getBits(), [signedBodyCell]);
+      const boc = await serializeToBoc(externalMsgCell);
+      return this.bocToBase64(boc);
+    }
+  }
 
-    // body: Either X ^X - store as reference
-    extMsgBits.writeBit(1); // body is reference
-
-    const externalMsgCell = new Cell(extMsgBits.getBits(), [signedBodyCell]);
-
-    // 6. Serialize to BOC
-    const boc = await serializeToBoc(externalMsgCell);
-
-    // Return as base64
+  private bocToBase64(boc: Uint8Array): string {
     let binary = "";
     for (let i = 0; i < boc.length; i++) {
       binary += String.fromCharCode(boc[i]);
@@ -645,6 +691,99 @@ export class TonAdapter {
 
     const stateInitCell = new Cell(stateInitBits.getBits(), [codeCell, dataCell]);
     return stateInitCell.hash();
+  }
+
+  private async buildStateInitCell(publicKey: Uint8Array): Promise<Cell> {
+    const dataCell = this.buildDataCell(publicKey);
+    const codeCell = await this.deserializeBocToCell(this.hexToBytes(WALLET_V4R2_CODE_BOC_HEX));
+
+    const stateInitBits = new BitBuilder();
+    stateInitBits.writeBit(0); // split_depth: Nothing
+    stateInitBits.writeBit(0); // special: Nothing
+    stateInitBits.writeBit(1); // code: Just
+    stateInitBits.writeBit(1); // data: Just
+    stateInitBits.writeBit(0); // library: Nothing
+
+    return new Cell(stateInitBits.getBits(), [codeCell, dataCell]);
+  }
+
+  private async deserializeBocToCell(bocBytes: Uint8Array): Promise<Cell> {
+    if (bocBytes[0] !== 0xb5 || bocBytes[1] !== 0xee || bocBytes[2] !== 0x9c || bocBytes[3] !== 0x72) {
+      throw new Error("Invalid BOC magic");
+    }
+
+    const flagsByte = bocBytes[4];
+    const sizeBytes = (flagsByte & 0x07) + 1;
+    const offBytes = bocBytes[5];
+
+    let offset = 6;
+
+    const readSize = (bytes: number): number => {
+      let val = 0;
+      for (let i = 0; i < bytes; i++) {
+        val = (val << 8) | bocBytes[offset++];
+      }
+      return val;
+    };
+
+    const cellCount = readSize(sizeBytes);
+    const rootCount = readSize(sizeBytes);
+    readSize(sizeBytes); // absent count
+    readSize(offBytes); // total cells size
+
+    const rootIndices: number[] = [];
+    for (let i = 0; i < rootCount; i++) {
+      rootIndices.push(readSize(sizeBytes));
+    }
+
+    const cellInfos: { d1: number; d2: number; data: Uint8Array; refIndices: number[] }[] = [];
+
+    for (let i = 0; i < cellCount; i++) {
+      const d1 = bocBytes[offset++];
+      const d2 = bocBytes[offset++];
+      const refsCount = d1 & 0x07;
+      const dataByteLen = Math.ceil(d2 / 2);
+
+      const data = bocBytes.slice(offset, offset + dataByteLen);
+      offset += dataByteLen;
+
+      const refIndices: number[] = [];
+      for (let j = 0; j < refsCount; j++) {
+        refIndices.push(readSize(sizeBytes));
+      }
+
+      cellInfos.push({ d1, d2, data, refIndices });
+    }
+
+    const cells: Cell[] = new Array(cellCount);
+
+    const buildCell = (idx: number): Cell => {
+      if (cells[idx]) return cells[idx];
+
+      const info = cellInfos[idx];
+      const refs = info.refIndices.map((refIdx) => buildCell(refIdx));
+
+      const bitLen = info.d2 * 4;
+      const bits: number[] = [];
+
+      for (let i = 0; i < bitLen && i < info.data.length * 8; i++) {
+        const byteIdx = Math.floor(i / 8);
+        const bitIdx = 7 - (i % 8);
+        bits.push((info.data[byteIdx] >> bitIdx) & 1);
+      }
+
+      while (bits.length > 0 && bits[bits.length - 1] === 0) {
+        bits.pop();
+      }
+      if (bits.length > 0) {
+        bits.pop();
+      }
+
+      cells[idx] = new Cell(bits, refs);
+      return cells[idx];
+    };
+
+    return buildCell(rootIndices[0]);
   }
 
   private buildDataCell(publicKey: Uint8Array): Cell {
