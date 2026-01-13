@@ -7,8 +7,8 @@ import {
   internal,
   MessageRelaxed,
   SendMode,
+  storeMessage,
   storeMessageRelaxed,
-  storeStateInit,
 } from "@ton/core";
 
 import { Isolation } from "../..";
@@ -115,30 +115,18 @@ export class TonAdapter {
       timeout: params.expireAt,
     });
 
-    if (params.seqno === 0) {
-      const externalMessage = beginCell()
-        .storeUint(0b10, 2)
-        .storeUint(0b00, 2)
-        .storeAddress(wallet.address)
-        .storeCoins(0)
-        .storeBit(true)
-        .storeBit(false)
-        .store(storeStateInit(wallet.init))
-        .storeBit(true)
-        .storeRef(transfer)
-        .endCell();
-
-      return externalMessage.toBoc().toString("base64");
-    }
-
     const externalMessage = beginCell()
-      .storeUint(0b10, 2)
-      .storeUint(0b00, 2)
-      .storeAddress(wallet.address)
-      .storeCoins(0)
-      .storeBit(false)
-      .storeBit(true)
-      .storeRef(transfer)
+      .store(
+        storeMessage({
+          info: {
+            type: "external-in",
+            dest: wallet.address,
+            importFee: BigInt(0),
+          },
+          init: params.seqno === 0 ? wallet.init : null,
+          body: transfer,
+        })
+      )
       .endCell();
 
     return externalMessage.toBoc().toString("base64");
