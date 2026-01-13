@@ -96,7 +96,7 @@ export class TonAdapter {
       internalMessage = internal({
         to: destination,
         value: BigInt(params.value),
-        bounce: true,
+        bounce: false,
         body: params.memo ? beginCell().storeUint(0, 32).storeStringTail(params.memo).endCell() : beginCell().endCell(),
       });
     }
@@ -131,15 +131,19 @@ export class TonAdapter {
 
     const boc = externalMessage.toBoc().toString("base64");
 
-    // Debug logging
-    console.log("[TON] createSignedTransferBoc debug:");
-    console.log("  seqno:", params.seqno);
-    console.log("  includesInit:", params.seqno === 0);
-    console.log("  walletAddress:", wallet.address.toString({ bounceable: false }));
-    console.log("  destAddress:", params.to);
-    console.log("  value:", params.value);
-    console.log("  bocLength:", boc.length);
-    console.log("  bocPrefix:", boc.substring(0, 50));
+    console.log("[TON] === Transaction Debug ===");
+    console.log("[TON] From (param):", params.from);
+    console.log("[TON] From (wallet):", wallet.address.toString({ bounceable: false }));
+    console.log("[TON] Address match:", params.from === wallet.address.toString({ bounceable: false }));
+    console.log("[TON] To:", params.to);
+    console.log("[TON] Value:", params.value);
+    console.log("[TON] Seqno:", params.seqno);
+    console.log("[TON] Init included:", params.seqno === 0);
+    console.log("[TON] Public key:", Buffer.from(publicKey).toString("hex"));
+    console.log("[TON] Init code hash:", wallet.init.code?.hash().toString("hex"));
+    console.log("[TON] Init data hash:", wallet.init.data?.hash().toString("hex"));
+    console.log("[TON] BOC length:", boc.length);
+    console.log("[TON] =========================");
 
     return boc;
   }
