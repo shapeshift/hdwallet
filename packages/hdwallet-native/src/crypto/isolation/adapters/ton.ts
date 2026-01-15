@@ -1,15 +1,6 @@
 import * as core from "@shapeshiftoss/hdwallet-core";
+import { Address, beginCell, Cell, internal, MessageRelaxed, SendMode, storeMessage } from "@ton/core";
 import { WalletContractV4 } from "@ton/ton";
-import {
-  Address,
-  beginCell,
-  Cell,
-  internal,
-  MessageRelaxed,
-  SendMode,
-  storeMessage,
-  storeMessageRelaxed,
-} from "@ton/core";
 
 import { Isolation } from "../..";
 

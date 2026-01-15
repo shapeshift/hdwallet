@@ -52,6 +52,7 @@ Proxy handler invariants (per MDN):
 
 export const revocable = _freeze(<T extends object>(x: T, addRevoker: (revoke: () => void) => void) => {
   const handler: ProxyHandler<T> = {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     get(target, prop, receiver) {
       const value = Reflect.get(x, prop, x);
       if (typeof value === "function") {
@@ -59,23 +60,29 @@ export const revocable = _freeze(<T extends object>(x: T, addRevoker: (revoke: (
       }
       return value;
     },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     has(target, prop) {
       return Reflect.has(x, prop);
     },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ownKeys(target) {
       return Reflect.ownKeys(x);
     },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     getOwnPropertyDescriptor(target, prop) {
       const desc = Reflect.getOwnPropertyDescriptor(x, prop);
       if (desc) desc.configurable = true;
       return desc;
     },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     getPrototypeOf(target) {
       return Reflect.getPrototypeOf(x);
     },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     isExtensible(target) {
       return true;
     },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     preventExtensions(target) {
       return false;
     },
