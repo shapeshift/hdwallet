@@ -44,7 +44,7 @@ export class Mnemonic extends Revocable(class {}) implements Bip39Mnemonic {
 
   async toTonSeed(password?: string): Promise<TonSeed> {
     const mnemonic = this.#mnemonic;
-    const passwordBytes = new TextEncoder().encode(password ?? "");
+    const passwordBytes = new TextEncoder().encode((password ?? "").normalize("NFKD"));
     const mnemonicBytes = new TextEncoder().encode(mnemonic);
 
     const hmac = await createHMAC(createSHA512(), mnemonicBytes);
@@ -53,7 +53,7 @@ export class Mnemonic extends Revocable(class {}) implements Bip39Mnemonic {
 
     const seed = await pbkdf2({
       password: entropy,
-      salt: new TextEncoder().encode("TON HD Keys seed"),
+      salt: new TextEncoder().encode("TON default seed"),
       iterations: 100000,
       hashLength: 64,
       hashFunction: createSHA512(),

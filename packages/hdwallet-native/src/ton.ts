@@ -66,7 +66,17 @@ export function MixinNativeTonWallet<TBase extends core.Constructor<NativeHDWall
         }
 
         const messageJson = new TextDecoder().decode(msg.message);
-        const txParams = JSON.parse(messageJson) as TonTransactionParams;
+        let txParams: TonTransactionParams;
+
+        try {
+          txParams = JSON.parse(messageJson) as TonTransactionParams;
+        } catch (error) {
+          throw new Error(
+            `Failed to parse TON transaction message: ${
+              error instanceof Error ? error.message : String(error)
+            }. Message: ${messageJson}`
+          );
+        }
 
         const bocBase64 = await this.tonAdapter!.createSignedTransferBoc(txParams, msg.addressNList);
 
