@@ -1,4 +1,12 @@
 {
-  "version": "independent",
-  "npmClient": "yarn"
+  "lerna": "5.2.0",
+  "version": "1.62.39",
+  "npmClient": "yarn",
+  "useWorkspaces": true,
+  "command": {
+    "publish": {
+      "message": "chore(release): publish %v"
+    }
+  },
+  "ignoreChanges": ["**/__fixtures__/**", "**/__tests__/**", "**/*.md", "**/.env"]
 }
