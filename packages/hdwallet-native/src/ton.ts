@@ -55,6 +55,8 @@ export function MixinNativeTonWallet<TBase extends core.Constructor<NativeHDWall
             msg.addressNList
           );
 
+          // signature is empty because TON embeds the signature inside the BOC (Bag of Cells).
+          // The serialized field contains the complete signed transaction ready for broadcast.
           return {
             signature: "",
             serialized: bocBase64,
@@ -80,6 +82,8 @@ export function MixinNativeTonWallet<TBase extends core.Constructor<NativeHDWall
 
         const bocBase64 = await this.tonAdapter!.createSignedTransferBoc(txParams, msg.addressNList);
 
+        // signature is empty because TON embeds the signature inside the BOC (Bag of Cells).
+        // The serialized field contains the complete signed transaction ready for broadcast.
         return {
           signature: "",
           serialized: bocBase64,
