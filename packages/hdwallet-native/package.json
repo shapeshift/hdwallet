@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-native",
-  "version": "1.62.40-ton-chain.7",
+  "version": "1.62.40-ton-chain.8",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -18,7 +18,7 @@
     "@noble/curves": "^1.4.0",
     "@scure/starknet": "^1.0.0",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
-    "@shapeshiftoss/hdwallet-core": "^1.62.40-ton-chain.7",
+    "@shapeshiftoss/hdwallet-core": "^1.62.40-ton-chain.8",
     "@shapeshiftoss/proto-tx-builder": "0.10.0",
     "@ton/core": "^0.62.1",
     "@ton/crypto": "^3.3.0",
@@ -62,5 +62,5 @@
     "cosmjs-types": "^0.4.1",
     "msw": "^0.27.1"
   },
-  "gitHead": "dd3c7dbc368f77e99c2a7ffa68e153020282d6f7"
+  "gitHead": "6909a46db0c0f1e6b2d83c980ba57d5972602981"
 }
