@@ -35,5 +35,6 @@
   "nohoist": [
     "@ethereumjs/common",
     "@ethereumjs/tx"
-  ]
+  ],
+  "gitHead": "9c737f6edb2ef231a8e55a1153b3af88acfb09cb"
 }

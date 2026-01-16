@@ -17,5 +17,6 @@
     "@shapeshiftoss/hdwallet-core": "^1.62.40-ton-chain.6",
     "@shapeshiftoss/hdwallet-keepkey": "^1.62.40-ton-chain.6",
     "axios": "^0.21.1"
-  }
+  },
+  "gitHead": "9c737f6edb2ef231a8e55a1153b3af88acfb09cb"
 }
