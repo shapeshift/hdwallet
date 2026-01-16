@@ -68,7 +68,8 @@ export function tonDescribePath(path: BIP32Path): PathDescription {
     isKnown: false,
   };
 
-  // TON uses a 3-level path like Stellar: m/44'/607'/<account>'
+  // TON uses m/44'/607'/<account>' - a 3-level path compatible with Trust Wallet.
+  // This differs from some wallets that use m/44'/607'/0' fixed path.
   const slip44 = slip44ByCoin("Ton");
   if (slip44 === undefined) return unknown;
   if (path.length != 3) return unknown;
