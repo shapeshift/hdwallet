@@ -337,10 +337,7 @@ export class NativeHDWallet
       this.#tonMasterKey = (async () => {
         const isolatedMnemonic =
           typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
-        if (!isolatedMnemonic.toTonSeed) {
-          throw new Error("Mnemonic implementation does not support TON key derivation");
-        }
-        const tonSeed = await isolatedMnemonic.toTonSeed();
+        const tonSeed = await isolatedMnemonic.toTonSeed!();
         return await tonSeed.toTonMasterKey();
       })();
     } else {
@@ -607,10 +604,7 @@ export class NativeHDWallet
           }
           throw new Error("Required property [mnemonic] is invalid");
         })();
-        if (!isolatedMnemonic.toTonSeed) {
-          throw new Error("Mnemonic implementation does not support TON key derivation");
-        }
-        const tonSeed = await isolatedMnemonic.toTonSeed();
+        const tonSeed = await isolatedMnemonic.toTonSeed!();
         tonSeed.addRevoker?.(() => isolatedMnemonic.revoke?.());
         const out = await tonSeed.toTonMasterKey();
         out.addRevoker?.(() => tonSeed.revoke?.());
