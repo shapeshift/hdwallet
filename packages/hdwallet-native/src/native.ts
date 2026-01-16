@@ -21,6 +21,7 @@ import { MixinNativeStarknetWallet, MixinNativeStarknetWalletInfo } from "./star
 import { MixinNativeSuiWallet, MixinNativeSuiWalletInfo } from "./sui";
 import { MixinNativeTerraWallet, MixinNativeTerraWalletInfo } from "./terra";
 import { MixinNativeThorchainWallet, MixinNativeThorchainWalletInfo } from "./thorchain";
+import { MixinNativeTonWallet, MixinNativeTonWalletInfo } from "./ton";
 import { MixinNativeTronWallet, MixinNativeTronWalletInfo } from "./tron";
 
 export enum NativeEvents {
@@ -41,12 +42,14 @@ type LoadDevice = Omit<core.LoadDevice, "mnemonic"> & {
         secp256k1MasterKey?: never;
         ed25519MasterKey?: never;
         starkMasterKey?: never;
+        tonMasterKey?: never;
       }
     | {
         mnemonic?: never;
         secp256k1MasterKey: Isolation.Core.BIP32.Node;
         ed25519MasterKey: Isolation.Core.Ed25519.Node;
         starkMasterKey: Isolation.Core.Stark.Node;
+        tonMasterKey?: Isolation.Core.Ed25519.Node;
       }
   );
 
@@ -134,14 +137,16 @@ class NativeHDWalletInfo
           MixinNativeSolanaWalletInfo(
             MixinNativeStarknetWalletInfo(
               MixinNativeTronWalletInfo(
-                MixinNativeSuiWalletInfo(
-                  MixinNativeNearWalletInfo(
-                    MixinNativeThorchainWalletInfo(
-                      MixinNativeMayachainWalletInfo(
-                        MixinNativeSecretWalletInfo(
-                          MixinNativeTerraWalletInfo(
-                            MixinNativeKavaWalletInfo(
-                              MixinNativeArkeoWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase))
+                MixinNativeTonWalletInfo(
+                  MixinNativeSuiWalletInfo(
+                    MixinNativeNearWalletInfo(
+                      MixinNativeThorchainWalletInfo(
+                        MixinNativeMayachainWalletInfo(
+                          MixinNativeSecretWalletInfo(
+                            MixinNativeTerraWalletInfo(
+                              MixinNativeKavaWalletInfo(
+                                MixinNativeArkeoWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase))
+                              )
                             )
                           )
                         )
@@ -165,6 +170,7 @@ class NativeHDWalletInfo
     core.SolanaWalletInfo,
     core.StarknetWalletInfo,
     core.TronWalletInfo,
+    core.TonWalletInfo,
     core.SuiWalletInfo,
     core.NearWalletInfo,
     core.ThorchainWalletInfo,
@@ -231,6 +237,8 @@ class NativeHDWalletInfo
       case "tron":
       case "trx":
         return core.tronDescribePath(msg.path);
+      case "ton":
+        return core.tonDescribePath(msg.path);
       default:
         throw new Error("Unsupported path");
     }
@@ -245,13 +253,17 @@ export class NativeHDWallet
           MixinNativeSolanaWallet(
             MixinNativeStarknetWallet(
               MixinNativeTronWallet(
-                MixinNativeSuiWallet(
-                  MixinNativeNearWallet(
-                    MixinNativeThorchainWallet(
-                      MixinNativeMayachainWallet(
-                        MixinNativeSecretWallet(
-                          MixinNativeTerraWallet(
-                            MixinNativeKavaWallet(MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo)))
+                MixinNativeTonWallet(
+                  MixinNativeSuiWallet(
+                    MixinNativeNearWallet(
+                      MixinNativeThorchainWallet(
+                        MixinNativeMayachainWallet(
+                          MixinNativeSecretWallet(
+                            MixinNativeTerraWallet(
+                              MixinNativeKavaWallet(
+                                MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo))
+                              )
+                            )
                           )
                         )
                       )
@@ -274,6 +286,7 @@ export class NativeHDWallet
     core.SolanaWallet,
     core.StarknetWallet,
     core.TronWallet,
+    core.TonWallet,
     core.SuiWallet,
     core.NearWallet,
     core.ThorchainWallet,
@@ -291,8 +304,16 @@ export class NativeHDWallet
   #secp256k1MasterKey: Promise<Isolation.Core.BIP32.Node> | undefined = undefined;
   #ed25519MasterKey: Promise<Isolation.Core.Ed25519.Node> | undefined = undefined;
   #starkMasterKey: Promise<Isolation.Core.Stark.Node> | undefined = undefined;
+  #tonMasterKey: Promise<Isolation.Core.Ed25519.Node> | undefined = undefined;
 
-  constructor({ mnemonic, deviceId, secp256k1MasterKey, ed25519MasterKey, starkMasterKey }: NativeAdapterArgs) {
+  constructor({
+    mnemonic,
+    deviceId,
+    secp256k1MasterKey,
+    ed25519MasterKey,
+    starkMasterKey,
+    tonMasterKey,
+  }: NativeAdapterArgs) {
     super();
     if (mnemonic) {
       this.#secp256k1MasterKey = (async () => {
@@ -313,10 +334,17 @@ export class NativeHDWallet
         const seed = await isolatedMnemonic.toSeed();
         return await seed.toStarkMasterKey();
       })();
+      this.#tonMasterKey = (async () => {
+        const isolatedMnemonic =
+          typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
+        const tonSeed = await isolatedMnemonic.toTonSeed!();
+        return await tonSeed.toTonMasterKey();
+      })();
     } else {
       if (secp256k1MasterKey) this.#secp256k1MasterKey = Promise.resolve(secp256k1MasterKey);
       if (ed25519MasterKey) this.#ed25519MasterKey = Promise.resolve(ed25519MasterKey);
       if (starkMasterKey) this.#starkMasterKey = Promise.resolve(starkMasterKey);
+      if (tonMasterKey) this.#tonMasterKey = Promise.resolve(tonMasterKey);
     }
     this.#deviceId = deviceId;
   }
@@ -405,7 +433,7 @@ export class NativeHDWallet
         const starkMasterKey = await this.#starkMasterKey!;
 
         try {
-          await Promise.all([
+          const initPromises = [
             super.btcInitializeWallet(secp256k1MasterKey),
             super.ethInitializeWallet(secp256k1MasterKey),
             super.cosmosInitializeWallet(secp256k1MasterKey),
@@ -422,7 +450,14 @@ export class NativeHDWallet
             super.solanaInitializeWallet(ed25519MasterKey),
             super.suiInitializeWallet(ed25519MasterKey),
             super.nearInitializeWallet(ed25519MasterKey),
-          ]);
+          ];
+
+          if (this.#tonMasterKey) {
+            const tonMasterKey = await this.#tonMasterKey;
+            initPromises.push(super.tonInitializeWallet(tonMasterKey));
+          }
+
+          await Promise.all(initPromises);
 
           this.#initialized = true;
         } catch (e) {
@@ -466,6 +501,7 @@ export class NativeHDWallet
     super.solanaWipe();
     super.suiWipe();
     super.nearWipe();
+    super.tonWipe();
     super.btcWipe();
     super.ethWipe();
     super.cosmosWipe();
@@ -556,6 +592,29 @@ export class NativeHDWallet
         throw new Error("Either [mnemonic] or [starkMasterKey] is required");
       })(msg?.mnemonic, msg?.starkMasterKey)
     );
+
+    const tonMasterKeyResult = await (async (mnemonic, tonMasterKey) => {
+      if (tonMasterKey !== undefined) {
+        return tonMasterKey;
+      } else if (mnemonic !== undefined) {
+        const isolatedMnemonic = await (async () => {
+          if (isMnemonicInterface(mnemonic)) return mnemonic;
+          if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
+            return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
+          }
+          throw new Error("Required property [mnemonic] is invalid");
+        })();
+        const tonSeed = await isolatedMnemonic.toTonSeed!();
+        tonSeed.addRevoker?.(() => isolatedMnemonic.revoke?.());
+        const out = await tonSeed.toTonMasterKey();
+        out.addRevoker?.(() => tonSeed.revoke?.());
+        return out;
+      }
+      return undefined;
+    })(msg?.mnemonic, msg?.tonMasterKey);
+    if (tonMasterKeyResult) {
+      this.#tonMasterKey = Promise.resolve(tonMasterKeyResult);
+    }
 
     if (typeof msg?.deviceId === "string") this.#deviceId = msg?.deviceId;
 

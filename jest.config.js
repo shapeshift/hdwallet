@@ -7,10 +7,13 @@ module.exports = {
   reporters: ["default", "jest-junit"],
   rootDir: "packages",
   testMatch: ["<rootDir>/**/*.test.ts"],
-  transformIgnorePatterns: ["node_modules/(?!(@shapeshiftoss/bitcoinjs-lib|valibot)/.*)"],
+  transformIgnorePatterns: [
+    "node_modules/(?!(@shapeshiftoss/bitcoinjs-lib|valibot|@ton/ton|@ton/core|@ton/crypto|axios)/.*)",
+  ],
   moduleNameMapper: {
     "^@shapeshiftoss/hdwallet-(.*)": "<rootDir>/hdwallet-$1/src",
     "^valibot$": require.resolve("valibot"),
+    "^@ton/ton$": "<rootDir>/hdwallet-native/__mocks__/@ton/ton.js",
   },
   globals: {
     "ts-jest": {

@@ -20,6 +20,7 @@ export * from "./solana";
 export * from "./starknet";
 export * from "./sui";
 export * from "./near";
+export * from "./ton";
 export * from "./transport";
 export * from "./tron";
 export * from "./utils";

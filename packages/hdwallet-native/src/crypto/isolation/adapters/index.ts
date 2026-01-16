@@ -10,4 +10,5 @@ export { default as Solana } from "./solana";
 export { default as Starknet } from "./starknet";
 export { default as Sui } from "./sui";
 export { default as Near } from "./near";
+export { default as Ton } from "./ton";
 export { default as Tron } from "./tron";
