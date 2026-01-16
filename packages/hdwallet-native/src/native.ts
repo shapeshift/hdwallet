@@ -6,6 +6,7 @@ import isObject from "lodash/isObject";
 
 import type { NativeAdapterArgs } from "./adapter";
 import { MixinNativeArkeoWallet, MixinNativeArkeoWalletInfo } from "./arkeo";
+import { MixinNativeAptosWallet, MixinNativeAptosWalletInfo } from "./aptos";
 import { MixinNativeBinanceWallet, MixinNativeBinanceWalletInfo } from "./binance";
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
 import { MixinNativeCosmosWallet, MixinNativeCosmosWalletInfo } from "./cosmos";
@@ -135,13 +136,15 @@ class NativeHDWalletInfo
             MixinNativeStarknetWalletInfo(
               MixinNativeTronWalletInfo(
                 MixinNativeSuiWalletInfo(
-                  MixinNativeNearWalletInfo(
-                    MixinNativeThorchainWalletInfo(
-                      MixinNativeMayachainWalletInfo(
-                        MixinNativeSecretWalletInfo(
-                          MixinNativeTerraWalletInfo(
-                            MixinNativeKavaWalletInfo(
-                              MixinNativeArkeoWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase))
+                  MixinNativeAptosWalletInfo(
+                    MixinNativeNearWalletInfo(
+                      MixinNativeThorchainWalletInfo(
+                        MixinNativeMayachainWalletInfo(
+                          MixinNativeSecretWalletInfo(
+                            MixinNativeTerraWalletInfo(
+                              MixinNativeKavaWalletInfo(
+                                MixinNativeArkeoWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase))
+                              )
                             )
                           )
                         )
@@ -166,6 +169,7 @@ class NativeHDWalletInfo
     core.StarknetWalletInfo,
     core.TronWalletInfo,
     core.SuiWalletInfo,
+    core.AptosWalletInfo,
     core.NearWalletInfo,
     core.ThorchainWalletInfo,
     core.MayachainWalletInfo,
@@ -205,6 +209,8 @@ class NativeHDWalletInfo
         return core.solanaDescribePath(msg.path);
       case "sui":
         return core.suiDescribePath(msg.path);
+      case "aptos":
+        return core.aptosDescribePath(msg.path);
       case "near":
         return core.nearDescribePath(msg.path);
       case "secret":
@@ -246,12 +252,14 @@ export class NativeHDWallet
             MixinNativeStarknetWallet(
               MixinNativeTronWallet(
                 MixinNativeSuiWallet(
-                  MixinNativeNearWallet(
-                    MixinNativeThorchainWallet(
-                      MixinNativeMayachainWallet(
-                        MixinNativeSecretWallet(
-                          MixinNativeTerraWallet(
-                            MixinNativeKavaWallet(MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo)))
+                  MixinNativeAptosWallet(
+                    MixinNativeNearWallet(
+                      MixinNativeThorchainWallet(
+                        MixinNativeMayachainWallet(
+                          MixinNativeSecretWallet(
+                            MixinNativeTerraWallet(
+                              MixinNativeKavaWallet(MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo)))
+                            )
                           )
                         )
                       )
@@ -275,6 +283,7 @@ export class NativeHDWallet
     core.StarknetWallet,
     core.TronWallet,
     core.SuiWallet,
+    core.AptosWallet,
     core.NearWallet,
     core.ThorchainWallet,
     core.MayachainWallet,
@@ -421,6 +430,7 @@ export class NativeHDWallet
             super.arkeoInitializeWallet(secp256k1MasterKey),
             super.solanaInitializeWallet(ed25519MasterKey),
             super.suiInitializeWallet(ed25519MasterKey),
+            super.aptosInitializeWallet(ed25519MasterKey),
             super.nearInitializeWallet(ed25519MasterKey),
           ]);
 
@@ -465,6 +475,7 @@ export class NativeHDWallet
 
     super.solanaWipe();
     super.suiWipe();
+    super.aptosWipe();
     super.nearWipe();
     super.btcWipe();
     super.ethWipe();
