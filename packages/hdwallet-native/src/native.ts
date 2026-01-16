@@ -42,12 +42,14 @@ type LoadDevice = Omit<core.LoadDevice, "mnemonic"> & {
         secp256k1MasterKey?: never;
         ed25519MasterKey?: never;
         starkMasterKey?: never;
+        tonMasterKey?: never;
       }
     | {
         mnemonic?: never;
         secp256k1MasterKey: Isolation.Core.BIP32.Node;
         ed25519MasterKey: Isolation.Core.Ed25519.Node;
         starkMasterKey: Isolation.Core.Stark.Node;
+        tonMasterKey: Isolation.Core.Ed25519.Node;
       }
   );
 
@@ -302,8 +304,16 @@ export class NativeHDWallet
   #secp256k1MasterKey: Promise<Isolation.Core.BIP32.Node> | undefined = undefined;
   #ed25519MasterKey: Promise<Isolation.Core.Ed25519.Node> | undefined = undefined;
   #starkMasterKey: Promise<Isolation.Core.Stark.Node> | undefined = undefined;
+  #tonMasterKey: Promise<Isolation.Core.Ed25519.Node> | undefined = undefined;
 
-  constructor({ mnemonic, deviceId, secp256k1MasterKey, ed25519MasterKey, starkMasterKey }: NativeAdapterArgs) {
+  constructor({
+    mnemonic,
+    deviceId,
+    secp256k1MasterKey,
+    ed25519MasterKey,
+    starkMasterKey,
+    tonMasterKey,
+  }: NativeAdapterArgs) {
     super();
     if (mnemonic) {
       this.#secp256k1MasterKey = (async () => {
@@ -324,10 +334,17 @@ export class NativeHDWallet
         const seed = await isolatedMnemonic.toSeed();
         return await seed.toStarkMasterKey();
       })();
+      this.#tonMasterKey = (async () => {
+        const isolatedMnemonic =
+          typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
+        const tonSeed = await isolatedMnemonic.toTonSeed!();
+        return await tonSeed.toTonMasterKey();
+      })();
     } else {
       if (secp256k1MasterKey) this.#secp256k1MasterKey = Promise.resolve(secp256k1MasterKey);
       if (ed25519MasterKey) this.#ed25519MasterKey = Promise.resolve(ed25519MasterKey);
       if (starkMasterKey) this.#starkMasterKey = Promise.resolve(starkMasterKey);
+      if (tonMasterKey) this.#tonMasterKey = Promise.resolve(tonMasterKey);
     }
     this.#deviceId = deviceId;
   }
@@ -409,11 +426,12 @@ export class NativeHDWallet
   // eslint-disable-next-line no-console
   async initialize(): Promise<boolean | null> {
     return this.needsMnemonic(
-      !!this.#secp256k1MasterKey && !!this.#ed25519MasterKey && !!this.#starkMasterKey,
+      !!this.#secp256k1MasterKey && !!this.#ed25519MasterKey && !!this.#starkMasterKey && !!this.#tonMasterKey,
       async () => {
         const secp256k1MasterKey = await this.#secp256k1MasterKey!;
         const ed25519MasterKey = await this.#ed25519MasterKey!;
         const starkMasterKey = await this.#starkMasterKey!;
+        const tonMasterKey = await this.#tonMasterKey!;
 
         try {
           await Promise.all([
@@ -433,7 +451,7 @@ export class NativeHDWallet
             super.solanaInitializeWallet(ed25519MasterKey),
             super.suiInitializeWallet(ed25519MasterKey),
             super.nearInitializeWallet(ed25519MasterKey),
-            super.tonInitializeWallet(ed25519MasterKey),
+            super.tonInitializeWallet(tonMasterKey),
           ]);
 
           this.#initialized = true;
@@ -568,6 +586,28 @@ export class NativeHDWallet
         }
         throw new Error("Either [mnemonic] or [starkMasterKey] is required");
       })(msg?.mnemonic, msg?.starkMasterKey)
+    );
+
+    this.#tonMasterKey = Promise.resolve(
+      await (async (mnemonic, tonMasterKey) => {
+        if (tonMasterKey !== undefined) {
+          return tonMasterKey;
+        } else if (mnemonic !== undefined) {
+          const isolatedMnemonic = await (async () => {
+            if (isMnemonicInterface(mnemonic)) return mnemonic;
+            if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
+              return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
+            }
+            throw new Error("Required property [mnemonic] is invalid");
+          })();
+          const tonSeed = await isolatedMnemonic.toTonSeed!();
+          tonSeed.addRevoker?.(() => isolatedMnemonic.revoke?.());
+          const out = await tonSeed.toTonMasterKey();
+          out.addRevoker?.(() => tonSeed.revoke?.());
+          return out;
+        }
+        throw new Error("Either [mnemonic] or [tonMasterKey] is required");
+      })(msg?.mnemonic, msg?.tonMasterKey)
     );
 
     if (typeof msg?.deviceId === "string") this.#deviceId = msg?.deviceId;

@@ -167,6 +167,8 @@ export class TonAdapter {
             code: stateInitSlice.loadRef(),
             data: stateInitSlice.loadRef(),
           };
+        } else {
+          console.warn("TON stateInit provided but missing code or data - init will be ignored");
         }
       }
 
