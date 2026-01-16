@@ -1,6 +1,7 @@
 import isObject from "lodash/isObject";
 
 import { ArkeoWallet, ArkeoWalletInfo } from "./arkeo";
+import { AptosWallet, AptosWalletInfo } from "./aptos";
 import { BinanceWallet, BinanceWalletInfo } from "./binance";
 import { BTCInputScriptType, BTCWallet, BTCWalletInfo } from "./bitcoin";
 import { CosmosWallet, CosmosWalletInfo } from "./cosmos";
@@ -302,6 +303,14 @@ export function infoSui(info: HDWalletInfo): info is SuiWalletInfo {
 
 export function supportsDebugLink(wallet: HDWallet): wallet is DebugLinkWallet {
   return isObject(wallet) && (wallet as any)._supportsDebugLink;
+}
+
+export function supportsAptos(wallet: HDWallet): wallet is AptosWallet {
+  return isObject(wallet) && (wallet as any)._supportsAptos;
+}
+
+export function infoAptos(info: HDWalletInfo): info is AptosWalletInfo {
+  return isObject(info) && (info as any)._supportsAptosInfo;
 }
 
 export interface HDWalletInfo {
