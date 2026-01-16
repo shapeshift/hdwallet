@@ -59,7 +59,7 @@ export const revocable = _freeze(<T extends object>(x: T, addRevoker: (revoke: (
           return (_t: any, p2: any, r: any) => {
             switch (p) {
               case "get": {
-                const out = Reflect.get(pseudoTarget, p2, r);
+                const out = Reflect.get(pseudoTarget, p2, x);
                 if (typeof out === "function") return out.bind(x);
                 return out;
               }

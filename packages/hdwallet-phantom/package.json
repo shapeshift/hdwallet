@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-phantom",
-  "version": "1.62.40-ton-chain.6",
+  "version": "1.62.40-ton-chain.7",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
-    "@shapeshiftoss/hdwallet-core": "^1.62.40-ton-chain.6",
+    "@shapeshiftoss/hdwallet-core": "^1.62.40-ton-chain.7",
     "@solana/web3.js": "1.95.8",
     "base64-js": "^1.5.1",
     "bitcoinjs-message": "^2.0.0",
@@ -25,5 +25,5 @@
   "devDependencies": {
     "@types/lodash": "^4.14.168"
   },
-  "gitHead": "dd3c7dbc368f77e99c2a7ffa68e153020282d6f7"
+  "gitHead": "4999088bab8c4a718d7166af62017da8a2f228c3"
 }

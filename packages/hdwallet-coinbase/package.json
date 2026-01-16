@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-coinbase",
-  "version": "1.62.40-ton-chain.6",
+  "version": "1.62.40-ton-chain.7",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,12 +15,12 @@
   },
   "dependencies": {
     "@coinbase/wallet-sdk": "^3.6.6",
-    "@shapeshiftoss/hdwallet-core": "^1.62.40-ton-chain.6",
+    "@shapeshiftoss/hdwallet-core": "^1.62.40-ton-chain.7",
     "eth-rpc-errors": "^4.0.3",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.168"
   },
-  "gitHead": "dd3c7dbc368f77e99c2a7ffa68e153020282d6f7"
+  "gitHead": "4999088bab8c4a718d7166af62017da8a2f228c3"
 }
