@@ -1,6 +1,6 @@
 /// <reference types="bip32/types/crypto" />
 
-import { createHMAC, createSHA512, pbkdf2 } from "hash-wasm";
+import { createSHA512, pbkdf2 } from "hash-wasm";
 
 import type { Seed as SeedType } from "../../core/bip32";
 import type { Mnemonic as Bip39Mnemonic } from "../../core/bip39";
@@ -44,17 +44,12 @@ export class Mnemonic extends Revocable(class {}) implements Bip39Mnemonic {
 
   async toTonSeed(password?: string): Promise<TonSeed> {
     const mnemonic = this.#mnemonic;
-    const passwordBytes = new TextEncoder().encode((password ?? "").normalize("NFKD"));
-    const mnemonicBytes = new TextEncoder().encode(mnemonic);
-
-    const hmac = await createHMAC(createSHA512(), mnemonicBytes);
-    hmac.update(passwordBytes);
-    const entropy = hmac.digest("binary");
+    const salt = new TextEncoder().encode(`mnemonic${password ?? ""}`.normalize("NFKD"));
 
     const seed = await pbkdf2({
-      password: entropy,
-      salt: new TextEncoder().encode("TON default seed"),
-      iterations: 100000,
+      password: mnemonic,
+      salt,
+      iterations: 2048,
       hashLength: 64,
       hashFunction: createSHA512(),
       outputType: "binary",
