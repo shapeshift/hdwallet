@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-core",
-  "version": "1.62.40-ton-chain.8",
+  "version": "1.62.40-ton-chain.9",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -29,5 +29,5 @@
     "@types/google-protobuf": "^3.15.1",
     "@types/lodash": "^4.14.168"
   },
-  "gitHead": "6909a46db0c0f1e6b2d83c980ba57d5972602981"
+  "gitHead": "a0666c4304a68ddb71d172b5c3d0fa386dbf6804"
 }
