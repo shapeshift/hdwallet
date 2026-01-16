@@ -22,5 +22,5 @@
     "@shapeshiftoss/hdwallet-ledger": "^1.62.40-ton-chain.6",
     "@types/w3c-web-hid": "^1.0.2"
   },
-  "gitHead": "9c737f6edb2ef231a8e55a1153b3af88acfb09cb"
+  "gitHead": "157d57ae7fa62353156291e7b65aa082210a16ad"
 }

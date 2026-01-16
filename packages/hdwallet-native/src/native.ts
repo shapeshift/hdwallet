@@ -335,17 +335,10 @@ export class NativeHDWallet
         return await seed.toStarkMasterKey();
       })();
       this.#tonMasterKey = (async () => {
-        try {
-          const isolatedMnemonic =
-            typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
-          if (!isolatedMnemonic.toTonSeed) {
-            throw new Error("TON seed derivation not supported");
-          }
-          const tonSeed = await isolatedMnemonic.toTonSeed();
-          return await tonSeed.toTonMasterKey();
-        } catch {
-          return undefined!;
-        }
+        const isolatedMnemonic =
+          typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
+        const tonSeed = await isolatedMnemonic.toTonSeed!();
+        return await tonSeed.toTonMasterKey();
       })();
     } else {
       if (secp256k1MasterKey) this.#secp256k1MasterKey = Promise.resolve(secp256k1MasterKey);
@@ -611,10 +604,7 @@ export class NativeHDWallet
           }
           throw new Error("Required property [mnemonic] is invalid");
         })();
-        if (!isolatedMnemonic.toTonSeed) {
-          throw new Error("TON seed derivation not supported");
-        }
-        const tonSeed = await isolatedMnemonic.toTonSeed();
+        const tonSeed = await isolatedMnemonic.toTonSeed!();
         tonSeed.addRevoker?.(() => isolatedMnemonic.revoke?.());
         const out = await tonSeed.toTonMasterKey();
         out.addRevoker?.(() => tonSeed.revoke?.());
