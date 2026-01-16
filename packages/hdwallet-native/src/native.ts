@@ -337,7 +337,10 @@ export class NativeHDWallet
       this.#tonMasterKey = (async () => {
         const isolatedMnemonic =
           typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
-        const tonSeed = await isolatedMnemonic.toTonSeed!();
+        if (!isolatedMnemonic.toTonSeed) {
+          throw new Error("Mnemonic implementation does not support TON key derivation");
+        }
+        const tonSeed = await isolatedMnemonic.toTonSeed();
         return await tonSeed.toTonMasterKey();
       })();
     } else {
@@ -426,15 +429,14 @@ export class NativeHDWallet
   // eslint-disable-next-line no-console
   async initialize(): Promise<boolean | null> {
     return this.needsMnemonic(
-      !!this.#secp256k1MasterKey && !!this.#ed25519MasterKey && !!this.#starkMasterKey && !!this.#tonMasterKey,
+      !!this.#secp256k1MasterKey && !!this.#ed25519MasterKey && !!this.#starkMasterKey,
       async () => {
         const secp256k1MasterKey = await this.#secp256k1MasterKey!;
         const ed25519MasterKey = await this.#ed25519MasterKey!;
         const starkMasterKey = await this.#starkMasterKey!;
-        const tonMasterKey = await this.#tonMasterKey!;
 
         try {
-          await Promise.all([
+          const initPromises = [
             super.btcInitializeWallet(secp256k1MasterKey),
             super.ethInitializeWallet(secp256k1MasterKey),
             super.cosmosInitializeWallet(secp256k1MasterKey),
@@ -451,8 +453,14 @@ export class NativeHDWallet
             super.solanaInitializeWallet(ed25519MasterKey),
             super.suiInitializeWallet(ed25519MasterKey),
             super.nearInitializeWallet(ed25519MasterKey),
-            super.tonInitializeWallet(tonMasterKey),
-          ]);
+          ];
+
+          if (this.#tonMasterKey) {
+            const tonMasterKey = await this.#tonMasterKey;
+            initPromises.push(super.tonInitializeWallet(tonMasterKey));
+          }
+
+          await Promise.all(initPromises);
 
           this.#initialized = true;
         } catch (e) {
@@ -600,7 +608,10 @@ export class NativeHDWallet
             }
             throw new Error("Required property [mnemonic] is invalid");
           })();
-          const tonSeed = await isolatedMnemonic.toTonSeed!();
+          if (!isolatedMnemonic.toTonSeed) {
+            throw new Error("Mnemonic implementation does not support TON key derivation");
+          }
+          const tonSeed = await isolatedMnemonic.toTonSeed();
           tonSeed.addRevoker?.(() => isolatedMnemonic.revoke?.());
           const out = await tonSeed.toTonMasterKey();
           out.addRevoker?.(() => tonSeed.revoke?.());
