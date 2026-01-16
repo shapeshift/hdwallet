@@ -49,7 +49,7 @@ type LoadDevice = Omit<core.LoadDevice, "mnemonic"> & {
         secp256k1MasterKey: Isolation.Core.BIP32.Node;
         ed25519MasterKey: Isolation.Core.Ed25519.Node;
         starkMasterKey: Isolation.Core.Stark.Node;
-        tonMasterKey: Isolation.Core.Ed25519.Node;
+        tonMasterKey?: Isolation.Core.Ed25519.Node;
       }
   );
 
@@ -596,30 +596,31 @@ export class NativeHDWallet
       })(msg?.mnemonic, msg?.starkMasterKey)
     );
 
-    this.#tonMasterKey = Promise.resolve(
-      await (async (mnemonic, tonMasterKey) => {
-        if (tonMasterKey !== undefined) {
-          return tonMasterKey;
-        } else if (mnemonic !== undefined) {
-          const isolatedMnemonic = await (async () => {
-            if (isMnemonicInterface(mnemonic)) return mnemonic;
-            if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
-              return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
-            }
-            throw new Error("Required property [mnemonic] is invalid");
-          })();
-          if (!isolatedMnemonic.toTonSeed) {
-            throw new Error("Mnemonic implementation does not support TON key derivation");
+    const tonMasterKeyResult = await (async (mnemonic, tonMasterKey) => {
+      if (tonMasterKey !== undefined) {
+        return tonMasterKey;
+      } else if (mnemonic !== undefined) {
+        const isolatedMnemonic = await (async () => {
+          if (isMnemonicInterface(mnemonic)) return mnemonic;
+          if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
+            return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
           }
-          const tonSeed = await isolatedMnemonic.toTonSeed();
-          tonSeed.addRevoker?.(() => isolatedMnemonic.revoke?.());
-          const out = await tonSeed.toTonMasterKey();
-          out.addRevoker?.(() => tonSeed.revoke?.());
-          return out;
+          throw new Error("Required property [mnemonic] is invalid");
+        })();
+        if (!isolatedMnemonic.toTonSeed) {
+          throw new Error("Mnemonic implementation does not support TON key derivation");
         }
-        throw new Error("Either [mnemonic] or [tonMasterKey] is required");
-      })(msg?.mnemonic, msg?.tonMasterKey)
-    );
+        const tonSeed = await isolatedMnemonic.toTonSeed();
+        tonSeed.addRevoker?.(() => isolatedMnemonic.revoke?.());
+        const out = await tonSeed.toTonMasterKey();
+        out.addRevoker?.(() => tonSeed.revoke?.());
+        return out;
+      }
+      return undefined;
+    })(msg?.mnemonic, msg?.tonMasterKey);
+    if (tonMasterKeyResult) {
+      this.#tonMasterKey = Promise.resolve(tonMasterKeyResult);
+    }
 
     if (typeof msg?.deviceId === "string") this.#deviceId = msg?.deviceId;
 
