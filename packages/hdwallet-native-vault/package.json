@@ -26,6 +26,5 @@
   },
   "devDependencies": {
     "fake-indexeddb": "^3.1.7"
-  },
-  "gitHead": "a0666c4304a68ddb71d172b5c3d0fa386dbf6804"
+  }
 }
