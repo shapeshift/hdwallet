@@ -51,43 +51,35 @@ Proxy handler invariants (per MDN):
 */
 
 export const revocable = _freeze(<T extends object>(x: T, addRevoker: (revoke: () => void) => void) => {
-  const handler: ProxyHandler<T> = {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    get(target, prop, receiver) {
-      const value = Reflect.get(x, prop, x);
-      if (typeof value === "function") {
-        return value.bind(x);
+  const universalProxyHandler = (pseudoTarget: object) =>
+    new Proxy(
+      {},
+      {
+        get(_, p) {
+          return (_t: any, p2: any, r: any) => {
+            switch (p) {
+              case "get": {
+                const out = Reflect.get(pseudoTarget, p2, r);
+                if (typeof out === "function") return out.bind(x);
+                return out;
+              }
+              case "getOwnPropertyDescriptor": {
+                const out = Reflect.getOwnPropertyDescriptor(pseudoTarget, p2);
+                if (out) out.configurable = true;
+                return out;
+              }
+              case "isExtensible":
+                return true;
+              case "preventExtensions":
+                return false;
+              default:
+                return (Reflect as any)[p](pseudoTarget, p2, r);
+            }
+          };
+        },
       }
-      return value;
-    },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    has(target, prop) {
-      return Reflect.has(x, prop);
-    },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ownKeys(target) {
-      return Reflect.ownKeys(x);
-    },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    getOwnPropertyDescriptor(target, prop) {
-      const desc = Reflect.getOwnPropertyDescriptor(x, prop);
-      if (desc) desc.configurable = true;
-      return desc;
-    },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    getPrototypeOf(target) {
-      return Reflect.getPrototypeOf(x);
-    },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    isExtensible(target) {
-      return true;
-    },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    preventExtensions(target) {
-      return false;
-    },
-  };
-  const { proxy, revoke } = _revocable({} as T, handler);
+    );
+  const { proxy, revoke } = _revocable({} as T, universalProxyHandler(x));
   addRevoker(revoke);
   return proxy;
 });
