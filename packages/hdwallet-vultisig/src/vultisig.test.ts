@@ -12,6 +12,7 @@ describe("VultisigHDWallet", () => {
       bitcoinProvider: core.untouchable("VultisigHDWallet:provider"),
       solanaProvider: core.untouchable("VultisigHDWallet:provider"),
       thorchainProvider: core.untouchable("VultisigHDWallet:provider"),
+      mayachainProvider: core.untouchable("VultisigHDWallet:provider"),
       cosmosProvider: core.untouchable("VultisigHDWallet:provider"),
     });
   });

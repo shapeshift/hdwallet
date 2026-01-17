@@ -8,6 +8,7 @@ import isObject from "lodash/isObject";
 import * as btc from "./bitcoin";
 import * as cosmos from "./cosmos";
 import * as eth from "./ethereum";
+import * as mayachain from "./mayachain";
 import { solanaSendTx, solanaSignTx } from "./solana";
 import * as thorchain from "./thorchain";
 import { VultisigEvmProvider, VultisigOfflineProvider, VultisigSolanaProvider, VultisigUtxoProvider } from "./types";
@@ -23,6 +24,7 @@ export class VultisigHDWalletInfo
     core.ETHWalletInfo,
     core.SolanaWalletInfo,
     core.ThorchainWalletInfo,
+    core.MayachainWalletInfo,
     core.CosmosWalletInfo
 {
   // TODO(gomes): turn me back once signPSBT is fixed upstream
@@ -30,6 +32,7 @@ export class VultisigHDWalletInfo
   readonly _supportsETHInfo = true;
   readonly _supportsSolanaInfo = true;
   readonly _supportsThorchainInfo = true;
+  readonly _supportsMayachainInfo = true;
   readonly _supportsCosmosInfo = true;
 
   constructor() {}
@@ -92,6 +95,8 @@ export class VultisigHDWalletInfo
         return core.cosmosDescribePath(msg.path);
       case "thorchain":
         return core.thorchainDescribePath(msg.path);
+      case "mayachain":
+        return core.mayachainDescribePath(msg.path);
       default:
         throw new Error(`Unsupported path for coin: ${msg.coin}`);
     }
@@ -184,6 +189,15 @@ export class VultisigHDWalletInfo
     throw new Error("Method not implemented.");
   }
 
+  public mayachainGetAccountPaths(msg: core.MayachainGetAccountPaths): Array<core.MayachainAccountPath> {
+    return mayachain.mayachainGetAccountPaths(msg);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public mayachainNextAccountPath(msg: core.MayachainAccountPath): core.MayachainAccountPath | undefined {
+    throw new Error("Method not implemented.");
+  }
+
   public cosmosGetAccountPaths(msg: core.CosmosGetAccountPaths): Array<core.CosmosAccountPath> {
     return cosmos.cosmosGetAccountPaths(msg);
   }
@@ -196,7 +210,7 @@ export class VultisigHDWalletInfo
 
 export class VultisigHDWallet
   extends VultisigHDWalletInfo
-  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.SolanaWallet, core.ThorchainWallet, core.CosmosWallet
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.SolanaWallet, core.ThorchainWallet, core.MayachainWallet, core.CosmosWallet
 {
   // TODO(gomes): turn me back once signPSBT is fixed upstream
   readonly _supportsBTC = false;
@@ -216,6 +230,7 @@ export class VultisigHDWallet
   readonly _supportsBSC = true;
   readonly _supportsSolana = true;
   readonly _supportsThorchain = true;
+  readonly _supportsMayachain = true;
   readonly _supportsCosmos = true;
   readonly _isVultisig = true;
 
@@ -223,6 +238,7 @@ export class VultisigHDWallet
   bitcoinProvider: VultisigUtxoProvider;
   solanaProvider: VultisigSolanaProvider;
   thorchainProvider: VultisigOfflineProvider;
+  mayachainProvider: VultisigOfflineProvider;
   cosmosProvider: VultisigOfflineProvider;
 
   ethAddress?: Address | null;
@@ -232,6 +248,7 @@ export class VultisigHDWallet
     bitcoinProvider: VultisigUtxoProvider;
     solanaProvider: VultisigSolanaProvider;
     thorchainProvider: VultisigOfflineProvider;
+    mayachainProvider: VultisigOfflineProvider;
     cosmosProvider: VultisigOfflineProvider;
   }) {
     super();
@@ -240,6 +257,7 @@ export class VultisigHDWallet
     this.bitcoinProvider = providers.bitcoinProvider;
     this.solanaProvider = providers.solanaProvider;
     this.thorchainProvider = providers.thorchainProvider;
+    this.mayachainProvider = providers.mayachainProvider;
     this.cosmosProvider = providers.cosmosProvider;
   }
 
@@ -448,6 +466,17 @@ export class VultisigHDWallet
 
   public async thorchainSignTx(msg: core.ThorchainSignTx): Promise<core.ThorchainSignedTx | null> {
     return thorchain.thorchainSignTx(this.thorchainProvider, msg);
+  }
+
+  /** Mayachain */
+
+  public async mayachainGetAddress(): Promise<string | null> {
+    const address = await mayachain.mayachainGetAddress(this.mayachainProvider);
+    return address || null;
+  }
+
+  public async mayachainSignTx(msg: core.MayachainSignTx): Promise<core.MayachainSignedTx | null> {
+    return mayachain.mayachainSignTx(this.mayachainProvider, msg);
   }
 
   /** Cosmos */
