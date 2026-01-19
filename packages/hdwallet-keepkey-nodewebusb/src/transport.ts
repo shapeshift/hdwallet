@@ -69,9 +69,10 @@ export class TransportDelegate implements keepkey.TransportDelegate {
   }
 
   async writeChunk(buf: Uint8Array, debugLink?: boolean): Promise<void> {
+    const sliced = new Uint8Array(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
     const result = await this.usbDevice.transferOut(
       debugLink ? 2 : 1,
-      core.toArrayBuffer(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength))
+      core.toArrayBuffer(sliced)
     );
     if (result.status !== "ok" || result.bytesWritten !== buf.length) throw new Error("bad write");
   }
