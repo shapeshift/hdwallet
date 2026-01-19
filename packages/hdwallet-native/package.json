@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-native",
-  "version": "1.62.43-evm-general.0",
+  "version": "1.62.44-evm-general.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -18,7 +18,7 @@
     "@noble/curves": "^1.4.0",
     "@scure/starknet": "^1.0.0",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
-    "@shapeshiftoss/hdwallet-core": "^1.62.43-evm-general.0",
+    "@shapeshiftoss/hdwallet-core": "^1.62.44-evm-general.0",
     "@shapeshiftoss/proto-tx-builder": "0.10.0",
     "@ton/core": "^0.62.1",
     "@ton/crypto": "^3.3.0",
