@@ -547,8 +547,6 @@ export class KeepKeyHDWallet
   readonly _supportsPlasma = false;
   readonly _supportsKatana = false;
   readonly _supportsHyperEvm = false;
-  readonly _supportsCelo = false;
-  readonly _supportsSei = false;
   readonly _supportsBTC = true;
   _supportsCosmos = true;
   _supportsOsmosis = true;
