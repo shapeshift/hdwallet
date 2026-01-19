@@ -17,5 +17,6 @@
     "@shapeshiftoss/hdwallet-core": "^1.62.41",
     "@shapeshiftoss/hdwallet-keepkey": "^1.62.41",
     "axios": "^0.21.1"
-  }
+  },
+  "gitHead": "e812811ec27f070bd86bfd8163efd225f3ca08c2"
 }

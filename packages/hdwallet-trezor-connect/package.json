@@ -17,5 +17,6 @@
     "@shapeshiftoss/hdwallet-core": "^1.62.41",
     "@shapeshiftoss/hdwallet-trezor": "^1.62.41",
     "@trezor/connect-web": "^9.6.4"
-  }
+  },
+  "gitHead": "e812811ec27f070bd86bfd8163efd225f3ca08c2"
 }
