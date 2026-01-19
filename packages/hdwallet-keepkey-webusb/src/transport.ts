@@ -66,9 +66,10 @@ export class TransportDelegate implements keepkey.TransportDelegate {
   }
 
   async writeChunk(buf: Uint8Array, debugLink: boolean): Promise<void> {
+    const sliced = new Uint8Array(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
     await this.usbDevice.transferOut(
       debugLink ? 2 : 1,
-      buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength)
+      core.toArrayBuffer(sliced)
     );
   }
 
