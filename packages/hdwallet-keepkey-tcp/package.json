@@ -18,5 +18,5 @@
     "@shapeshiftoss/hdwallet-keepkey": "^1.62.42-evm-general.0",
     "axios": "^0.21.1"
   },
-  "gitHead": "cd44fda451ca0c0c0bb4fb0734106d8331f73713"
+  "gitHead": "e6e37cca26ad8a4bc4a58d9f8ef876a66e78f778"
 }
