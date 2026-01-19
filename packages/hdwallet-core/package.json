@@ -29,5 +29,5 @@
     "@types/google-protobuf": "^3.15.1",
     "@types/lodash": "^4.14.168"
   },
-  "gitHead": "e6e37cca26ad8a4bc4a58d9f8ef876a66e78f778"
+  "gitHead": "500e72f64ccb2f875698aab66a797008755e3f28"
 }
