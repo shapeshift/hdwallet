@@ -5,7 +5,7 @@ import * as jose from "jose";
 import * as ta from "type-assertions";
 import * as uuid from "uuid";
 
-import { ArgonParams, IVaultBackedBy, IVaultFactory, VaultPrepareParams } from "./types";
+import { ArgonParams, AsyncCrypto, IVaultBackedBy, IVaultFactory, VaultPrepareParams } from "./types";
 import { crypto, encoder, keyStoreUUID, Revocable, revocable, setCrypto, setPerformance, vaultStoreUUID } from "./util";
 
 // This has to be outside the class so the static initializers for defaultArgonParams and #machineSeed can reference it.
@@ -45,7 +45,7 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
       return;
     }
 
-    setCrypto(params?.crypto ?? globalThis.crypto);
+    setCrypto(params?.crypto ?? (globalThis.crypto as AsyncCrypto));
     setPerformance(params?.performance ?? globalThis.performance);
 
     currentResolvers.keyStore?.(params?.keyStore ?? idb.createStore(keyStoreUUID, "keyval"));
@@ -130,7 +130,7 @@ export class RawVault extends Revocable(Object.freeze(class {})) implements IVau
         name: "HKDF",
         hash: "SHA-256",
         salt: idBuf,
-        info: argonKey,
+        info: new Uint8Array(argonKey),
       },
       machineSeed,
       {

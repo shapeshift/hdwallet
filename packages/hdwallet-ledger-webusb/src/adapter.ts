@@ -48,7 +48,7 @@ export class WebUSBLedgerAdapter {
   }
 
   public get(device: USBDevice): ledger.LedgerHDWallet {
-    return core.mustBeDefined(this.keyring.get<ledger.LedgerHDWallet>(device.serialNumber));
+    return core.mustBeDefined(this.keyring.get<ledger.LedgerHDWallet>(device.serialNumber ?? undefined));
   }
 
   // without unique device identifiers, we should only ever have one ledger device on the keyring at a time
@@ -59,7 +59,7 @@ export class WebUSBLedgerAdapter {
       new LedgerWebUsbTransport(transport.device, transport, this.keyring) as ledger.LedgerTransport
     );
 
-    this.keyring.add(wallet, transport.device.serialNumber);
+    this.keyring.add(wallet, transport.device.serialNumber ?? undefined);
 
     return Object.keys(this.keyring.wallets).length;
   }
@@ -71,6 +71,6 @@ export class WebUSBLedgerAdapter {
 
     await this.initialize(ledgerTransport);
 
-    return core.mustBeDefined(this.keyring.get<ledger.LedgerHDWallet>(device.serialNumber));
+    return core.mustBeDefined(this.keyring.get<ledger.LedgerHDWallet>(device.serialNumber ?? undefined));
   }
 }

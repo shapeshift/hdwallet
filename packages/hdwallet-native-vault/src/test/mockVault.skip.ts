@@ -5,7 +5,7 @@ import * as bip39 from "bip39";
 import * as ta from "type-assertions";
 import * as uuid from "uuid";
 
-import { ISealableVaultFactory, IVault, VaultPrepareParams } from "../types";
+import { AsyncCrypto, ISealableVaultFactory, IVault, VaultPrepareParams } from "../types";
 import { crypto, GENERATE_MNEMONIC, Revocable, setCrypto, shadowedMap } from "../util";
 
 ta.assert<ta.Extends<typeof MockVault, ISealableVaultFactory<MockVault>>>();
@@ -23,7 +23,7 @@ export class MockVault extends Revocable(Map) implements IVault, Map<string, Pro
   static async prepare(params?: VaultPrepareParams) {
     if (params) {
       if (this.prepared) throw new Error("can't call prepare with a parameters object after vault is already prepared");
-      setCrypto(params.crypto ?? window.crypto);
+      setCrypto(params.crypto ?? (window.crypto as AsyncCrypto));
     }
     this.prepared = true;
   }
