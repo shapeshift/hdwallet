@@ -145,8 +145,8 @@ export class Node
     );
     if (digestAlgorithm === null) return sharedFieldElement;
 
-    let out = Core.SecP256K1.CurvePoint.x(sharedFieldElement);
-    if (digestAlgorithm !== undefined) out = Core.Digest.Algorithms[digestAlgorithm](out);
+    let out: ByteArray<32> = Core.SecP256K1.CurvePoint.x(sharedFieldElement);
+    if (digestAlgorithm !== undefined) out = Core.Digest.Algorithms[digestAlgorithm](out) as ByteArray<32>;
     return out;
   }
 }

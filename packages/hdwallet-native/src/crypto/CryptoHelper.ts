@@ -166,7 +166,7 @@ export default class CryptoHelper {
     if (!(typeof data === "string" && data.length > 0)) throw new Error("Invalid data to hash");
     const digest = await this.#engine.digest(
       DigestAlgorithm.SHA256,
-      await this.#engine.digest(DigestAlgorithm.SHA512, Buffer.from(data))
+      await this.#engine.digest(DigestAlgorithm.SHA512, core.toArrayBuffer(Buffer.from(data)))
     );
 
     return utils.fromBufferToB64(digest);

@@ -211,8 +211,8 @@ const _recoverableSignatureStatic = {
     message: Uint8Array,
     publicKey: CurvePoint
   ): Promise<RecoverableSignature> => {
-    for (let recoveryParam: RecoveryParam = 0; recoveryParam < 4; recoveryParam++) {
-      const out = RecoverableSignature.from(x, recoveryParam);
+    for (let recoveryParam = 0; recoveryParam < 4; recoveryParam++) {
+      const out = RecoverableSignature.from(x, recoveryParam as RecoveryParam);
       if (!CurvePoint.equal(publicKey, await RecoverableSignature.recoverPublicKey(out, digestAlgorithm, message)))
         continue;
       return out;

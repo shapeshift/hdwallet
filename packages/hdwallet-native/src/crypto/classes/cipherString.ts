@@ -1,6 +1,8 @@
 /*
  Copied from portis: packages/portis-crypto/src/models/cipherString.ts
  */
+import * as core from "@shapeshiftoss/hdwallet-core";
+
 import { fromB64ToArray, fromBufferToB64 } from "../utils";
 import { EncryptedObject } from "./encryptedObject";
 import { EncryptionType } from "./encryptionType";
@@ -52,9 +54,9 @@ export class CipherString {
 
   toEncryptedObject(key: SymmetricCryptoKey): EncryptedObject {
     return new EncryptedObject({
-      data: fromB64ToArray(this.data),
-      iv: fromB64ToArray(this.iv),
-      mac: fromB64ToArray(this.mac),
+      data: core.toArrayBuffer(fromB64ToArray(this.data)),
+      iv: core.toArrayBuffer(fromB64ToArray(this.iv)),
+      mac: core.toArrayBuffer(fromB64ToArray(this.mac)),
       key,
     });
   }
