@@ -17,5 +17,8 @@
     "@shapeshiftoss/hdwallet-core": "^1.62.42-evm-general.0",
     "@shapeshiftoss/hdwallet-keepkey": "^1.62.42-evm-general.0"
   },
-  "gitHead": "3c7a4cd9bbedfec91913ee025000ecd6b5f7950f"
+  "devDependencies": {
+    "@types/w3c-web-usb": "^1.0.4"
+  },
+  "gitHead": "01dda1b2a861897177ddc7ef4a2323aa38a910e7"
 }
