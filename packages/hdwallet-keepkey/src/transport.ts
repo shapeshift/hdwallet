@@ -115,7 +115,7 @@ export class Transport extends core.Transport {
 
   public async getFirmwareHash(firmware: Uint8Array): Promise<Uint8Array> {
     if (typeof window !== "undefined" && window?.crypto) {
-      return new Uint8Array(await window.crypto.subtle.digest({ name: "SHA-256" }, firmware));
+      return new Uint8Array(await window.crypto.subtle.digest({ name: "SHA-256" }, core.toArrayBuffer(firmware)));
     }
     const hash = crypto.createHash("sha256");
     hash.update(firmware);

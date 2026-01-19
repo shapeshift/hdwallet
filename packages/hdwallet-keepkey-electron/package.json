@@ -24,5 +24,5 @@
     "@types/uuid": "^8.3.0",
     "electron": "^12.0.9"
   },
-  "gitHead": "75f82147d4c2f444f027656b0926333d8390a44a"
+  "gitHead": "bb4ac16ff7eca07de44c3e5780010d4e5319d506"
 }
