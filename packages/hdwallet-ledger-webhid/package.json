@@ -22,5 +22,5 @@
     "@shapeshiftoss/hdwallet-ledger": "^1.62.42-evm-general.0",
     "@types/w3c-web-hid": "^1.0.2"
   },
-  "gitHead": "340542b3ad8390250c1dad13da5d02245cc3861e"
+  "gitHead": "3c7a4cd9bbedfec91913ee025000ecd6b5f7950f"
 }

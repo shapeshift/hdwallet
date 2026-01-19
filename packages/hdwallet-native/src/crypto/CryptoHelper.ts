@@ -140,7 +140,7 @@ export default class CryptoHelper {
     const stretchedKey = await this.hkdfExpand(key, utils.fromUtf8ToArray("enc"), 32);
     const macKey = await this.hkdfExpand(key, utils.fromUtf8ToArray("mac"), 32);
 
-    return new SymmetricCryptoKey(hashKey, stretchedKey, macKey);
+    return new SymmetricCryptoKey(hashKey, core.toArrayBuffer(stretchedKey), core.toArrayBuffer(macKey));
   }
 
   async decrypt(cipherString: CipherString, key: SymmetricCryptoKey): Promise<string> {
