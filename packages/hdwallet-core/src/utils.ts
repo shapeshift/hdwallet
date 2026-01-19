@@ -202,7 +202,7 @@ export function ed25519Path(path: BIP32Path): BIP32Path {
 
 export function toArrayBuffer(x: ArrayBuffer | ArrayBufferView): ArrayBuffer {
   if (x instanceof ArrayBuffer) return x;
-  return x.buffer.slice(x.byteOffset, x.byteOffset + x.byteLength);
+  return x.buffer.slice(x.byteOffset, x.byteOffset + x.byteLength) as ArrayBuffer;
 }
 
 export function mustBeDefined<T>(x: T): NonNullable<T> {
