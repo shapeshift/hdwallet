@@ -2,7 +2,8 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "types": ["w3c-web-usb"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"],
