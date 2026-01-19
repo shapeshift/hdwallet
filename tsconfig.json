@@ -11,6 +11,7 @@
     "sourceMap": true,
     "composite": true,
     "isolatedModules": true,
+    "types": [],
     /* Strict Type-Checking Options */
     "strict": true,
 
