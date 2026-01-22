@@ -3,6 +3,38 @@ import * as core from "@shapeshiftoss/hdwallet-core";
 import { SeekerHDWallet } from "./seeker";
 import type { SeekerAdapterConfig, SeekerAuthorizationResult, SeekerProvider } from "./types";
 
+// MWA cluster type - matches the expected format for first overload
+type MwaCluster = "mainnet-beta" | "devnet" | "testnet";
+
+// MWA chain type - matches the expected format for second overload (with auth_token)
+type MwaChain = "solana:mainnet" | "solana:devnet" | "solana:testnet";
+
+// Convert our config cluster format to MWA cluster format
+function toMwaCluster(cluster?: string): MwaCluster {
+  switch (cluster) {
+    case "solana:devnet":
+      return "devnet";
+    case "solana:testnet":
+      return "testnet";
+    case "solana:mainnet":
+    default:
+      return "mainnet-beta";
+  }
+}
+
+// Convert our config cluster format to MWA chain format (for auth_token flow)
+function toMwaChain(cluster?: string): MwaChain {
+  switch (cluster) {
+    case "solana:devnet":
+      return "solana:devnet";
+    case "solana:testnet":
+      return "solana:testnet";
+    case "solana:mainnet":
+    default:
+      return "solana:mainnet";
+  }
+}
+
 /**
  * Creates a Seeker provider that wraps the Mobile Wallet Adapter transact function
  * 
@@ -15,12 +47,15 @@ async function createSeekerProvider(config: SeekerAdapterConfig): Promise<Seeker
   const { transact } = await import("@solana-mobile/mobile-wallet-adapter-protocol-web3js");
 
   let cachedAuthResult: SeekerAuthorizationResult | null = null;
+  const mwaCluster = toMwaCluster(config.cluster);
+  const mwaChain = toMwaChain(config.cluster);
 
   return {
-    async authorize(identity, cluster) {
+    async authorize(identity, _cluster) {
       const result = await transact(async (wallet) => {
+        // Use first overload (cluster without auth_token) for initial authorization
         const authResult = await wallet.authorize({
-          chain: cluster,
+          cluster: mwaCluster,
           identity: {
             name: identity.name,
             uri: identity.uri,
@@ -52,12 +87,18 @@ async function createSeekerProvider(config: SeekerAdapterConfig): Promise<Seeker
 
     async signTransactions(transactions) {
       return transact(async (wallet) => {
-        // Re-authorize if needed using cached auth token
+        // Re-authorize using second overload (chain with auth_token)
         if (cachedAuthResult?.authToken) {
           await wallet.authorize({
-            chain: config.cluster ?? "solana:mainnet",
             identity: config.appIdentity,
+            chain: mwaChain,
             auth_token: cachedAuthResult.authToken,
+          });
+        } else {
+          // Fall back to first overload if no cached auth
+          await wallet.authorize({
+            cluster: mwaCluster,
+            identity: config.appIdentity,
           });
         }
 
@@ -71,12 +112,18 @@ async function createSeekerProvider(config: SeekerAdapterConfig): Promise<Seeker
 
     async signAndSendTransactions(transactions) {
       return transact(async (wallet) => {
-        // Re-authorize if needed using cached auth token
+        // Re-authorize using second overload (chain with auth_token)
         if (cachedAuthResult?.authToken) {
           await wallet.authorize({
-            chain: config.cluster ?? "solana:mainnet",
             identity: config.appIdentity,
+            chain: mwaChain,
             auth_token: cachedAuthResult.authToken,
+          });
+        } else {
+          // Fall back to first overload if no cached auth
+          await wallet.authorize({
+            cluster: mwaCluster,
+            identity: config.appIdentity,
           });
         }
 

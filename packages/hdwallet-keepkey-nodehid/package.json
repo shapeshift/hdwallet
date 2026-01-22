@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-nodehid",
-  "version": "1.62.41",
+  "version": "1.62.42-seeker-poc.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,12 +14,13 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-keepkey": "^1.62.41"
+    "@shapeshiftoss/hdwallet-keepkey": "^1.62.42-seeker-poc.0"
   },
   "peerDependencies": {
     "node-hid": "^2.1.1"
   },
   "devDependencies": {
     "@types/node-hid": "^1.3.1"
-  }
+  },
+  "gitHead": "ad2a36985de53c9b803c375e0b0468f75119be1e"
 }
