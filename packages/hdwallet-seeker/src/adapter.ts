@@ -161,7 +161,6 @@ export class SeekerHDWallet implements HDWallet {
   }
 
   disconnect(): Promise<void> {
-    console.debug('[SeekerHDWallet] disconnect() called')
     return Promise.resolve()
   }
 
@@ -207,29 +206,5 @@ export class SeekerHDWallet implements HDWallet {
     }
 
     return { signature: result.signature }
-  }
-
-  async signTx(transaction: string): Promise<{ signature: string }> {
-    const result = await this.messageHandler.signTransaction(transaction)
-    if (!result.success || !result.signedTransaction) {
-      throw new Error(result.error ?? 'Failed to sign transaction')
-    }
-    return { signature: result.signedTransaction }
-  }
-
-  async signAndBroadcastTx(transaction: string): Promise<{ signature: string }> {
-    const result = await this.messageHandler.signAndSendTransaction(transaction)
-    if (!result.success || !result.signature) {
-      throw new Error(result.error ?? 'Failed to sign and broadcast transaction')
-    }
-    return { signature: result.signature }
-  }
-
-  async broadcastTransaction(hex: string): Promise<string> {
-    const result = await this.messageHandler.signAndSendTransaction(hex)
-    if (!result.success || !result.signature) {
-      throw new Error(result.error ?? 'Failed to broadcast transaction')
-    }
-    return result.signature
   }
 }

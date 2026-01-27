@@ -16,5 +16,6 @@
   "dependencies": {
     "@shapeshiftoss/hdwallet-core": "^1.62.42",
     "@solana/web3.js": "^1.95.8"
-  }
+  },
+  "gitHead": "2c07219b488c2c63d0abd54ac84a7c2ed3c94e7d"
 }
