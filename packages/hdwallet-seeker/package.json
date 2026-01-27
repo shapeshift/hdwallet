@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-seeker",
-  "version": "1.62.42",
+  "version": "1.62.42-seeker-poc.1",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
