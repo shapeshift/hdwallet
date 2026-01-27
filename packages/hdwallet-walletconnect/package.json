@@ -20,5 +20,5 @@
     "@walletconnect/web3-provider": "^1.7.8",
     "ethers": "^5.6.5"
   },
-  "gitHead": "2c07219b488c2c63d0abd54ac84a7c2ed3c94e7d"
+  "gitHead": "938e0b0fab2d3182549587374d015e351dec0c62"
 }
