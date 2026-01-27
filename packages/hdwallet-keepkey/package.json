@@ -47,5 +47,5 @@
     "@types/semver": "^6.2.2",
     "typedoc": "^0.20.36"
   },
-  "gitHead": "938e0b0fab2d3182549587374d015e351dec0c62"
+  "gitHead": "c2787232fea35db176479a63069053f1cc907b64"
 }

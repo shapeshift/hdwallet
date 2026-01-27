@@ -1,13 +1,10 @@
 {
-  "extends": "../../tsconfig.packages.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "src",
+    "outDir": "dist"
   },
-  "include": ["src"],
-  "references": [
-    {
-      "path": "../hdwallet-core"
-    }
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"],
+  "references": [{ "path": "../hdwallet-core" }]
 }
