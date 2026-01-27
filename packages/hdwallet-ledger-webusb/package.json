@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger-webusb",
-  "version": "1.62.42-seeker-poc.1",
+  "version": "1.62.41",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -20,8 +20,8 @@
     "@ledgerhq/hw-app-solana": "7.6.0",
     "@ledgerhq/hw-transport": "6.31.13",
     "@ledgerhq/hw-transport-webusb": "6.29.13",
-    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-poc.1",
-    "@shapeshiftoss/hdwallet-ledger": "^1.62.42-seeker-poc.1",
+    "@shapeshiftoss/hdwallet-core": "^1.62.41",
+    "@shapeshiftoss/hdwallet-ledger": "^1.62.41",
     "@types/w3c-web-usb": "^1.0.4",
     "p-queue": "^7.4.1"
   },

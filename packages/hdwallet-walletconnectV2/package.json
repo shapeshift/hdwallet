@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-walletconnectv2",
-  "version": "1.62.42-seeker-poc.1",
+  "version": "1.62.41",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,7 +15,7 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-poc.1",
+    "@shapeshiftoss/hdwallet-core": "^1.62.41",
     "@walletconnect/ethereum-provider": "^2.20.2",
     "@walletconnect/modal": "^2.6.2",
     "ethers": "^5.6.5"

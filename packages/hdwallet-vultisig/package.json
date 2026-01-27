@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-vultisig",
-  "version": "1.62.42-seeker-poc.1",
+  "version": "1.62.41",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -17,7 +17,7 @@
     "@cosmjs/amino": "^0.28.13",
     "@cosmjs/stargate": "^0.28.13",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
-    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-poc.1",
+    "@shapeshiftoss/hdwallet-core": "^1.62.41",
     "@solana/web3.js": "1.95.8",
     "base64-js": "^1.5.1",
     "bitcoinjs-message": "^2.0.0",
