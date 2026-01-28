@@ -1,0 +1,23 @@
+{
+  "name": "@shapeshiftoss/hdwallet-seeker",
+  "version": "1.62.41",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "dist/index.js",
+  "source": "src/index.ts",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo",
+    "prepublishOnly": "yarn clean && yarn build"
+  },
+  "dependencies": {
+    "@shapeshiftoss/hdwallet-core": "^1.62.41",
+    "@solana/web3.js": "^1.95.8"
+  }
+}
