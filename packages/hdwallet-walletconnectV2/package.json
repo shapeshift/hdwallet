@@ -19,6 +19,5 @@
     "@walletconnect/ethereum-provider": "^2.20.2",
     "@walletconnect/modal": "^2.6.2",
     "ethers": "^5.6.5"
-  },
-  "gitHead": "13750f432a9a5a2a846b24acd4b8dad81ca3bd1e"
+  }
 }

@@ -16,6 +16,5 @@
   "dependencies": {
     "@shapeshiftoss/hdwallet-core": "^1.62.41",
     "@shapeshiftoss/hdwallet-keepkey": "^1.62.41"
-  },
-  "gitHead": "13750f432a9a5a2a846b24acd4b8dad81ca3bd1e"
+  }
 }
