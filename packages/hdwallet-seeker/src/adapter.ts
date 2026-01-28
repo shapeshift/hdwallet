@@ -28,6 +28,7 @@ export class SeekerHDWallet implements HDWallet {
   private deviceId: string
   private pubkey: string
   private messageHandler: SeekerMessageHandler
+  private nearPubkey: string | null = null
 
   readonly _supportsSolana = true
   readonly _supportsSolanaInfo = true
@@ -217,17 +218,28 @@ export class SeekerHDWallet implements HDWallet {
   }
 
   // NEAR Protocol support
-  nearGetAddress(_msg: NearGetAddress): Promise<string | null> {
-    // For NEAR implicit accounts, convert the Solana base58 pubkey to hex format
-    // NEAR implicit accounts use the hex-encoded Ed25519 public key
+  async nearGetAddress(_msg: NearGetAddress): Promise<string | null> {
+    // NEAR uses a different derivation path than Solana: m/44'/397'/0'
+    // We need to request the public key from the Seed Vault for this specific path
     try {
-      const solanaPublicKey = new SolanaPublicKey(this.pubkey)
-      const publicKeyBytes = solanaPublicKey.toBytes()
-      const hexPublicKey = Buffer.from(publicKeyBytes).toString('hex')
-      return Promise.resolve(hexPublicKey)
+      // Cache the NEAR public key to avoid repeated authorization prompts
+      if (!this.nearPubkey) {
+        // Request NEAR public key using BIP32 URI format
+        const result = await this.messageHandler.getPublicKey('bip32:/m/44\'/397\'/0\'')
+        if (!result.publicKey) {
+          throw new Error('Failed to get NEAR public key from Seed Vault')
+        }
+        // Store the base58-encoded public key
+        this.nearPubkey = result.publicKey
+      }
+
+      // Convert base58 public key to hex format for NEAR implicit accounts
+      const publicKey = new SolanaPublicKey(this.nearPubkey)
+      const hexPublicKey = Buffer.from(publicKey.toBytes()).toString('hex')
+      return hexPublicKey
     } catch (error) {
-      console.error('Error converting Solana pubkey to NEAR address:', error)
-      return Promise.resolve(null)
+      console.error('Error getting NEAR address from Seed Vault:', error)
+      return null
     }
   }
 
