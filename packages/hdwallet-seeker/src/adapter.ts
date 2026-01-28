@@ -20,6 +20,7 @@ import type {
   SolanaTxSignature,
 } from '@shapeshiftoss/hdwallet-core'
 import { nearGetAccountPaths, solanaBuildTransaction } from '@shapeshiftoss/hdwallet-core'
+import { PublicKey as SolanaPublicKey } from '@solana/web3.js'
 
 import type { SeekerMessageHandler } from './types'
 
@@ -217,9 +218,17 @@ export class SeekerHDWallet implements HDWallet {
 
   // NEAR Protocol support
   nearGetAddress(_msg: NearGetAddress): Promise<string | null> {
-    // For NEAR, we derive the address from the public key
-    // The Seeker already stores the authorized public key
-    return Promise.resolve(this.pubkey)
+    // For NEAR implicit accounts, convert the Solana base58 pubkey to hex format
+    // NEAR implicit accounts use the hex-encoded Ed25519 public key
+    try {
+      const solanaPublicKey = new SolanaPublicKey(this.pubkey)
+      const publicKeyBytes = solanaPublicKey.toBytes()
+      const hexPublicKey = Buffer.from(publicKeyBytes).toString('hex')
+      return Promise.resolve(hexPublicKey)
+    } catch (error) {
+      console.error('Error converting Solana pubkey to NEAR address:', error)
+      return Promise.resolve(null)
+    }
   }
 
   nearGetAccountPaths(msg: NearGetAccountPaths): NearAccountPath[] {
