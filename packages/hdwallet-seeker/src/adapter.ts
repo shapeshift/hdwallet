@@ -3,6 +3,11 @@ import type {
   DescribePath,
   GetPublicKey,
   HDWallet,
+  NearAccountPath,
+  NearGetAccountPaths,
+  NearGetAddress,
+  NearSignedTx,
+  NearSignTx,
   PathDescription,
   Ping,
   Pong,
@@ -14,7 +19,7 @@ import type {
   SolanaSignTx,
   SolanaTxSignature,
 } from '@shapeshiftoss/hdwallet-core'
-import { solanaBuildTransaction } from '@shapeshiftoss/hdwallet-core'
+import { nearGetAccountPaths, solanaBuildTransaction } from '@shapeshiftoss/hdwallet-core'
 
 import type { SeekerMessageHandler } from './types'
 
@@ -25,6 +30,8 @@ export class SeekerHDWallet implements HDWallet {
 
   readonly _supportsSolana = true
   readonly _supportsSolanaInfo = true
+  readonly _supportsNear = true
+  readonly _supportsNearInfo = true
 
   constructor(deviceId: string, pubkey: string, messageHandler: SeekerMessageHandler) {
     this.deviceId = deviceId
@@ -206,5 +213,41 @@ export class SeekerHDWallet implements HDWallet {
     }
 
     return { signature: result.signature }
+  }
+
+  // NEAR Protocol support
+  nearGetAddress(_msg: NearGetAddress): Promise<string | null> {
+    // For NEAR, we derive the address from the public key
+    // The Seeker already stores the authorized public key
+    return Promise.resolve(this.pubkey)
+  }
+
+  nearGetAccountPaths(msg: NearGetAccountPaths): NearAccountPath[] {
+    return nearGetAccountPaths(msg)
+  }
+
+  nearNextAccountPath(_msg: NearAccountPath): NearAccountPath | undefined {
+    return undefined
+  }
+
+  async nearSignTx(msg: NearSignTx): Promise<NearSignedTx | null> {
+    // NEAR transactions are already Borsh-serialized in msg.txBytes
+    // Convert to base64 for transmission to Seeker
+    const txBase64 = Buffer.from(msg.txBytes).toString('base64')
+
+    const result = await this.messageHandler.signTransaction(txBase64)
+    if (!result.success || !result.signedTransaction) {
+      throw new Error(result.error ?? 'Failed to sign NEAR transaction')
+    }
+
+    // The signed transaction from Seeker includes the signature
+    // Extract the signature (first 64 bytes of the signed transaction)
+    const signedTxBytes = Buffer.from(result.signedTransaction, 'base64')
+    const signature = signedTxBytes.slice(0, 64).toString('hex')
+
+    return {
+      signature,
+      publicKey: this.pubkey,
+    }
   }
 }
