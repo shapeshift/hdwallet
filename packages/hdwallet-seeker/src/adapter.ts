@@ -32,8 +32,8 @@ export class SeekerHDWallet implements HDWallet {
 
   readonly _supportsSolana = true
   readonly _supportsSolanaInfo = true
-  readonly _supportsNear = false // TODO: Enable once mobile app implements seekerGetPublicKey handler
-  readonly _supportsNearInfo = false
+  readonly _supportsNear = true
+  readonly _supportsNearInfo = true
 
   constructor(deviceId: string, pubkey: string, messageHandler: SeekerMessageHandler) {
     this.deviceId = deviceId
