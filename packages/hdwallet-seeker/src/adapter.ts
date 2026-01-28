@@ -32,10 +32,10 @@ export class SeekerHDWallet implements HDWallet {
 
   readonly _supportsSolana = true
   readonly _supportsSolanaInfo = true
-  // NEAR support disabled: MWA protocol doesn't support requestPublicKey for custom derivation paths
-  // Will need native Seed Vault SDK integration or wait for MWA multi-chain support
-  readonly _supportsNear = false
-  readonly _supportsNearInfo = false
+  // NEAR support: Experimental - requestPublicKey may not be fully supported by all MWA implementations
+  // See SeekerWalletManager.getPublicKey() for implementation details
+  readonly _supportsNear = true
+  readonly _supportsNearInfo = true
 
   constructor(deviceId: string, pubkey: string, messageHandler: SeekerMessageHandler) {
     this.deviceId = deviceId
