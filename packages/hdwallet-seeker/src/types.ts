@@ -40,6 +40,7 @@ export interface SeekerMessageHandler {
   signTransaction(transaction: string): Promise<SeekerSignResult>
   signAndSendTransaction(transaction: string): Promise<SeekerSendResult>
   getPublicKey(derivationPath: string): Promise<{ publicKey: string }>
+  signMessage(message: string, derivationPath: string): Promise<{ signature: string }>
 }
 
 export interface SeekerAppIdentity {

@@ -249,28 +249,41 @@ export class SeekerHDWallet implements HDWallet {
     return nearGetAccountPaths(msg)
   }
 
-  nearNextAccountPath(_msg: NearAccountPath): NearAccountPath | undefined {
-    return undefined
+  nearNextAccountPath(msg: NearAccountPath): NearAccountPath | undefined {
+    const addressNList = msg.addressNList
+    if (!addressNList || addressNList.length < 3) return undefined
+
+    const accountIdx = (addressNList[2] & 0x7fffffff)
+    const nextAccountIdx = accountIdx + 1
+
+    return {
+      addressNList: [0x80000000 + 44, 0x80000000 + 397, 0x80000000 + nextAccountIdx],
+    }
   }
 
   async nearSignTx(msg: NearSignTx): Promise<NearSignedTx | null> {
-    // NEAR transactions are already Borsh-serialized in msg.txBytes
-    // Convert to base64 for transmission to Seeker
-    const txBase64 = Buffer.from(msg.txBytes).toString('base64')
+    // NEAR transactions need to be hashed before signing
+    // The Borsh-serialized transaction bytes are in msg.txBytes
+    const crypto = await import('crypto')
+    const txHash = crypto.createHash('sha256').update(Buffer.from(msg.txBytes)).digest()
+    const txHashBase64 = txHash.toString('base64')
 
-    const result = await this.messageHandler.signTransaction(txBase64)
-    if (!result.success || !result.signedTransaction) {
-      throw new Error(result.error ?? 'Failed to sign NEAR transaction')
+    const nearDerivationPath = 'bip32:/m/44\'/397\'/0\''
+
+    console.log('[SeekerHDWallet] Signing NEAR tx, hash length:', txHash.length)
+    const result = await this.messageHandler.signMessage(txHashBase64, nearDerivationPath)
+    if (!result.signature) {
+      throw new Error('Failed to sign NEAR transaction')
     }
 
-    // The signed transaction from Seeker includes the signature
-    // Extract the signature (first 64 bytes of the signed transaction)
-    const signedTxBytes = Buffer.from(result.signedTransaction, 'base64')
-    const signature = signedTxBytes.slice(0, 64).toString('hex')
+    // The signature from Seed Vault is base64-encoded Ed25519 signature bytes
+    const signatureBytes = Buffer.from(result.signature, 'base64')
+    const signature = signatureBytes.toString('hex')
 
+    console.log('[SeekerHDWallet] NEAR tx signed, signature length:', signatureBytes.length)
     return {
       signature,
-      publicKey: this.pubkey,
+      publicKey: this.nearPubkey || this.pubkey,
     }
   }
 }
