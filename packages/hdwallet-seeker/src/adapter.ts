@@ -19,7 +19,11 @@ import type {
   SolanaSignTx,
   SolanaTxSignature,
 } from '@shapeshiftoss/hdwallet-core'
-import { nearGetAccountPaths, solanaBuildTransaction } from '@shapeshiftoss/hdwallet-core'
+import {
+  nearGetAccountPaths,
+  nearAddressNListToBIP32,
+  solanaBuildTransaction,
+} from '@shapeshiftoss/hdwallet-core'
 import { PublicKey as SolanaPublicKey } from '@solana/web3.js'
 
 import type { SeekerMessageHandler } from './types'
@@ -28,7 +32,7 @@ export class SeekerHDWallet implements HDWallet {
   private deviceId: string
   private pubkey: string
   private messageHandler: SeekerMessageHandler
-  private nearPubkey: string | null = null
+  private nearPubkeyCache: Map<string, string> = new Map()
 
   readonly _supportsSolana = true
   readonly _supportsSolanaInfo = true
@@ -220,24 +224,35 @@ export class SeekerHDWallet implements HDWallet {
   }
 
   // NEAR Protocol support
-  async nearGetAddress(_msg: NearGetAddress): Promise<string | null> {
-    // NEAR uses a different derivation path than Solana: m/44'/397'/0'
-    // We need to request the public key from the Seed Vault for this specific path
+  async nearGetAddress(msg: NearGetAddress): Promise<string | null> {
+    // NEAR uses a different derivation path than Solana
+    // Convert the addressNList to BIP32 URI format (e.g., "bip32:/m/44'/397'/0'")
     try {
-      // Cache the NEAR public key to avoid repeated authorization prompts
-      if (!this.nearPubkey) {
-        // Request NEAR public key using BIP32 URI format
-        const result = await this.messageHandler.getPublicKey('bip32:/m/44\'/397\'/0\'')
-        if (!result.publicKey) {
-          throw new Error('Failed to get NEAR public key from Seed Vault')
-        }
-        // Store the base58-encoded public key
-        this.nearPubkey = result.publicKey
+      const derivationPath = 'bip32:/' + nearAddressNListToBIP32(msg.addressNList)
+      console.log('[SeekerHDWallet] Getting NEAR address for path:', derivationPath)
+
+      // Check cache first
+      const cachedPubkey = this.nearPubkeyCache.get(derivationPath)
+      if (cachedPubkey) {
+        console.log('[SeekerHDWallet] Using cached NEAR public key')
+        const publicKey = new SolanaPublicKey(cachedPubkey)
+        const hexPublicKey = Buffer.from(publicKey.toBytes()).toString('hex')
+        return hexPublicKey
       }
 
+      // Request NEAR public key using BIP32 URI format
+      const result = await this.messageHandler.getPublicKey(derivationPath)
+      if (!result.publicKey) {
+        throw new Error('Failed to get NEAR public key from Seed Vault')
+      }
+
+      // Cache the base58-encoded public key for this derivation path
+      this.nearPubkeyCache.set(derivationPath, result.publicKey)
+
       // Convert base58 public key to hex format for NEAR implicit accounts
-      const publicKey = new SolanaPublicKey(this.nearPubkey)
+      const publicKey = new SolanaPublicKey(result.publicKey)
       const hexPublicKey = Buffer.from(publicKey.toBytes()).toString('hex')
+      console.log('[SeekerHDWallet] NEAR address retrieved:', hexPublicKey)
       return hexPublicKey
     } catch (error) {
       console.error('Error getting NEAR address from Seed Vault:', error)
@@ -254,10 +269,6 @@ export class SeekerHDWallet implements HDWallet {
     if (!addressNList || addressNList.length < 3) return undefined
 
     const accountIdx = (addressNList[2] & 0x7fffffff)
-
-    // Only support up to 10 accounts for NEAR
-    if (accountIdx >= 9) return undefined
-
     const nextAccountIdx = accountIdx + 1
 
     return {
@@ -272,10 +283,11 @@ export class SeekerHDWallet implements HDWallet {
     const txHash = crypto.createHash('sha256').update(Buffer.from(msg.txBytes)).digest()
     const txHashBase64 = txHash.toString('base64')
 
-    const nearDerivationPath = 'bip32:/m/44\'/397\'/0\''
+    // Convert the addressNList to BIP32 URI format (e.g., "bip32:/m/44'/397'/0'")
+    const derivationPath = 'bip32:/' + nearAddressNListToBIP32(msg.addressNList)
 
-    console.log('[SeekerHDWallet] Signing NEAR tx, hash length:', txHash.length)
-    const result = await this.messageHandler.signMessage(txHashBase64, nearDerivationPath)
+    console.log('[SeekerHDWallet] Signing NEAR tx with path:', derivationPath, 'hash length:', txHash.length)
+    const result = await this.messageHandler.signMessage(txHashBase64, derivationPath)
     if (!result.signature) {
       throw new Error('Failed to sign NEAR transaction')
     }
@@ -284,10 +296,13 @@ export class SeekerHDWallet implements HDWallet {
     const signatureBytes = Buffer.from(result.signature, 'base64')
     const signature = signatureBytes.toString('hex')
 
+    // Get the public key for this derivation path
+    const cachedPubkey = this.nearPubkeyCache.get(derivationPath) || this.pubkey
+
     console.log('[SeekerHDWallet] NEAR tx signed, signature length:', signatureBytes.length)
     return {
       signature,
-      publicKey: this.nearPubkey || this.pubkey,
+      publicKey: cachedPubkey,
     }
   }
 }
