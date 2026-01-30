@@ -254,6 +254,10 @@ export class SeekerHDWallet implements HDWallet {
     if (!addressNList || addressNList.length < 3) return undefined
 
     const accountIdx = (addressNList[2] & 0x7fffffff)
+
+    // Only support up to 10 accounts for NEAR
+    if (accountIdx >= 9) return undefined
+
     const nextAccountIdx = accountIdx + 1
 
     return {
