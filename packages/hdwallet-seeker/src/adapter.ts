@@ -229,7 +229,7 @@ export class SeekerHDWallet implements HDWallet {
     // Convert the addressNList to BIP32 URI format (e.g., "bip32:/m/44'/397'/0'")
     try {
       const derivationPath = 'bip32:/' + nearAddressNListToBIP32(msg.addressNList)
-      console.log('[SeekerHDWallet] Getting NEAR address for path:', derivationPath)
+      console.log('[SeekerHDWallet] Getting NEAR address for path:', derivationPath, 'raw addressNList:', msg.addressNList)
 
       // Check cache first
       const cachedPubkey = this.nearPubkeyCache.get(derivationPath)
@@ -252,7 +252,7 @@ export class SeekerHDWallet implements HDWallet {
       // Convert base58 public key to hex format for NEAR implicit accounts
       const publicKey = new SolanaPublicKey(result.publicKey)
       const hexPublicKey = Buffer.from(publicKey.toBytes()).toString('hex')
-      console.log('[SeekerHDWallet] NEAR address retrieved:', hexPublicKey)
+      console.log('[SeekerHDWallet] NEAR address retrieved for', derivationPath, '- pubkey:', result.publicKey, '- hex:', hexPublicKey)
       return hexPublicKey
     } catch (error) {
       console.error('Error getting NEAR address from Seed Vault:', error)
@@ -270,6 +270,13 @@ export class SeekerHDWallet implements HDWallet {
 
     const accountIdx = (addressNList[2] & 0x7fffffff)
     const nextAccountIdx = accountIdx + 1
+
+    // Safety limit: stop after 100 accounts to prevent infinite loops
+    // Account discovery should be stopped by the calling code when no activity is found,
+    // but this prevents runaway derivation if that logic fails
+    if (nextAccountIdx >= 100) {
+      return undefined
+    }
 
     return {
       addressNList: [0x80000000 + 44, 0x80000000 + 397, 0x80000000 + nextAccountIdx],
