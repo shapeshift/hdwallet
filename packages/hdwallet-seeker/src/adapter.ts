@@ -269,15 +269,16 @@ export class SeekerHDWallet implements HDWallet {
     if (!addressNList || addressNList.length < 3) return undefined
 
     const accountIdx = (addressNList[2] & 0x7fffffff)
-    const nextAccountIdx = accountIdx + 1
 
-    // Safety limit: stop after 100 accounts to prevent infinite loops
-    // Account discovery should be stopped by the calling code when no activity is found,
-    // but this prevents runaway derivation if that logic fails
-    if (nextAccountIdx >= 100) {
+    // TEMPORARY: Only support account #0 until we verify derivation works properly
+    // Once we confirm different derivation paths return different addresses from Seed Vault,
+    // we can enable multi-account support
+    if (accountIdx >= 0) {
+      console.log('[SeekerHDWallet] NEAR account discovery stopped - only supporting account #0 until derivation verified')
       return undefined
     }
 
+    const nextAccountIdx = accountIdx + 1
     return {
       addressNList: [0x80000000 + 44, 0x80000000 + 397, 0x80000000 + nextAccountIdx],
     }

@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-phantom",
-  "version": "1.62.42-seeker-vault.5",
+  "version": "1.62.42-seeker-vault.6",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
-    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.5",
+    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.6",
     "@solana/web3.js": "1.95.8",
     "base64-js": "^1.5.1",
     "bitcoinjs-message": "^2.0.0",
@@ -24,5 +24,6 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.168"
-  }
+  },
+  "gitHead": "063ab3370fc1f1ceb662c072c5a367d9c66d4d08"
 }

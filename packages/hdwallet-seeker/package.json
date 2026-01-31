@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-seeker",
-  "version": "1.62.42-seeker-vault.5",
+  "version": "1.62.42-seeker-vault.6",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -17,7 +17,8 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.5",
+    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.6",
     "@solana/web3.js": "^1.95.8"
-  }
+  },
+  "gitHead": "063ab3370fc1f1ceb662c072c5a367d9c66d4d08"
 }

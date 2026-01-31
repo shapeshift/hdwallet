@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger",
-  "version": "1.62.42-seeker-vault.5",
+  "version": "1.62.42-seeker-vault.6",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -28,7 +28,7 @@
     "@ledgerhq/logs": "6.13.0",
     "@mysten/ledgerjs-hw-app-sui": "^0.7.0",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
-    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.5",
+    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.6",
     "@solana/web3.js": "1.95.8",
     "base64-js": "^1.5.1",
     "bchaddrjs": "^0.4.4",
@@ -45,5 +45,6 @@
     "@types/ethereumjs-util": "^6.1.0",
     "@types/ripemd160": "^2.0.2",
     "typedoc": "^0.20.36"
-  }
+  },
+  "gitHead": "063ab3370fc1f1ceb662c072c5a367d9c66d4d08"
 }
