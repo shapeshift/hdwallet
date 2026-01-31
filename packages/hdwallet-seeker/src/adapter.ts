@@ -308,9 +308,13 @@ export class SeekerHDWallet implements HDWallet {
     const cachedPubkey = this.nearPubkeyCache.get(derivationPath) || this.pubkey
 
     console.log('[SeekerHDWallet] NEAR tx signed, signature length:', signatureBytes.length)
-    return {
+    console.log('[SeekerHDWallet] NEAR signature type:', typeof signature, 'value:', signature.substring(0, 20) + '...')
+    console.log('[SeekerHDWallet] NEAR publicKey type:', typeof cachedPubkey, 'value:', cachedPubkey)
+    const returnValue = {
       signature,
       publicKey: cachedPubkey,
     }
+    console.log('[SeekerHDWallet] NEAR nearSignTx returning:', JSON.stringify(returnValue).substring(0, 100) + '...')
+    return returnValue
   }
 }
