@@ -18,11 +18,24 @@ import type {
   SolanaSignedTx,
   SolanaSignTx,
   SolanaTxSignature,
+  SuiAccountPath,
+  SuiGetAccountPaths,
+  SuiGetAddress,
+  SuiSignedTx,
+  SuiSignTx,
+  TonAccountPath,
+  TonGetAccountPaths,
+  TonGetAddress,
+  TonSignedTx,
+  TonSignTx,
 } from '@shapeshiftoss/hdwallet-core'
 import {
   nearGetAccountPaths,
   nearAddressNListToBIP32,
   solanaBuildTransaction,
+  suiGetAccountPaths,
+  tonGetAccountPaths,
+  addressNListToBIP32,
 } from '@shapeshiftoss/hdwallet-core'
 import { PublicKey as SolanaPublicKey } from '@solana/web3.js'
 
@@ -33,6 +46,8 @@ export class SeekerHDWallet implements HDWallet {
   private pubkey: string
   private messageHandler: SeekerMessageHandler
   private nearPubkeyCache: Map<string, string> = new Map()
+  private suiPubkeyCache: Map<string, string> = new Map()
+  private tonPubkeyCache: Map<string, string> = new Map()
 
   readonly _supportsSolana = true
   readonly _supportsSolanaInfo = true
@@ -40,6 +55,10 @@ export class SeekerHDWallet implements HDWallet {
   // See SeekerWalletManager.getPublicKey() for implementation details
   readonly _supportsNear = true
   readonly _supportsNearInfo = true
+  readonly _supportsSui = true
+  readonly _supportsSuiInfo = true
+  readonly _supportsTon = true
+  readonly _supportsTonInfo = true
 
   constructor(deviceId: string, pubkey: string, messageHandler: SeekerMessageHandler) {
     this.deviceId = deviceId
@@ -316,5 +335,149 @@ export class SeekerHDWallet implements HDWallet {
     }
     console.log('[SeekerHDWallet] NEAR nearSignTx returning:', JSON.stringify(returnValue).substring(0, 100) + '...')
     return returnValue
+  }
+
+  // SUI Protocol support
+  suiGetAccountPaths(msg: SuiGetAccountPaths): SuiAccountPath[] {
+    return suiGetAccountPaths(msg)
+  }
+
+  suiNextAccountPath(_msg: SuiAccountPath): SuiAccountPath | undefined {
+    // Only support account #0, same as NEAR until multi-chain derivation is verified
+    return undefined
+  }
+
+  async suiGetAddress(msg: SuiGetAddress): Promise<string | null> {
+    // SUI uses derivation path m/44'/784'/x'/0'/0' (all hardened)
+    try {
+      const derivationPath = 'bip32:/' + addressNListToBIP32(msg.addressNList)
+      console.log('[SeekerHDWallet] Getting SUI address for path:', derivationPath)
+
+      // Check cache first
+      const cachedPubkey = this.suiPubkeyCache.get(derivationPath)
+      if (cachedPubkey) {
+        console.log('[SeekerHDWallet] Using cached SUI public key')
+        const publicKey = new SolanaPublicKey(cachedPubkey)
+        const hexPublicKey = Buffer.from(publicKey.toBytes()).toString('hex')
+        return hexPublicKey
+      }
+
+      // Request SUI public key using BIP32 URI format
+      const result = await this.messageHandler.getPublicKey(derivationPath)
+      if (!result.publicKey) {
+        throw new Error('Failed to get SUI public key from Seed Vault')
+      }
+
+      // Cache the base58-encoded public key
+      this.suiPubkeyCache.set(derivationPath, result.publicKey)
+
+      // Convert base58 public key to hex format
+      const publicKey = new SolanaPublicKey(result.publicKey)
+      const hexPublicKey = Buffer.from(publicKey.toBytes()).toString('hex')
+      console.log('[SeekerHDWallet] SUI address retrieved:', hexPublicKey)
+      return hexPublicKey
+    } catch (error) {
+      console.error('Error getting SUI address from Seed Vault:', error)
+      return null
+    }
+  }
+
+  async suiSignTx(msg: SuiSignTx): Promise<SuiSignedTx | null> {
+    // SUI transactions: sign the intent message bytes (intent scope + version + app id + tx bytes)
+    const intentMessageBase64 = Buffer.from(msg.intentMessageBytes).toString('base64')
+    const derivationPath = 'bip32:/' + addressNListToBIP32(msg.addressNList)
+
+    console.log('[SeekerHDWallet] Signing SUI tx with path:', derivationPath)
+    const result = await this.messageHandler.signMessage(intentMessageBase64, derivationPath)
+    if (!result.signature) {
+      throw new Error('Failed to sign SUI transaction')
+    }
+
+    // The signature from Seed Vault is base64-encoded Ed25519 signature bytes
+    const signatureBytes = Buffer.from(result.signature, 'base64')
+    const signature = signatureBytes.toString('hex')
+
+    // Get the public key for this derivation path
+    const cachedPubkey = this.suiPubkeyCache.get(derivationPath) || this.pubkey
+    const publicKey = new SolanaPublicKey(cachedPubkey)
+    const pubkeyHex = Buffer.from(publicKey.toBytes()).toString('hex')
+
+    console.log('[SeekerHDWallet] SUI tx signed, signature length:', signatureBytes.length)
+    return {
+      signature,
+      publicKey: pubkeyHex,
+    }
+  }
+
+  // TON Protocol support
+  tonGetAccountPaths(msg: TonGetAccountPaths): TonAccountPath[] {
+    return tonGetAccountPaths(msg)
+  }
+
+  tonNextAccountPath(_msg: TonAccountPath): TonAccountPath | undefined {
+    // Only support account #0, same as NEAR/SUI until multi-chain derivation is verified
+    return undefined
+  }
+
+  async tonGetAddress(msg: TonGetAddress): Promise<string | null> {
+    // TON uses derivation path m/44'/607'/x' (3 levels, all hardened)
+    try {
+      const derivationPath = 'bip32:/' + addressNListToBIP32(msg.addressNList)
+      console.log('[SeekerHDWallet] Getting TON address for path:', derivationPath)
+
+      // Check cache first
+      const cachedPubkey = this.tonPubkeyCache.get(derivationPath)
+      if (cachedPubkey) {
+        console.log('[SeekerHDWallet] Using cached TON public key')
+        const publicKey = new SolanaPublicKey(cachedPubkey)
+        const hexPublicKey = Buffer.from(publicKey.toBytes()).toString('hex')
+        return hexPublicKey
+      }
+
+      // Request TON public key using BIP32 URI format
+      const result = await this.messageHandler.getPublicKey(derivationPath)
+      if (!result.publicKey) {
+        throw new Error('Failed to get TON public key from Seed Vault')
+      }
+
+      // Cache the base58-encoded public key
+      this.tonPubkeyCache.set(derivationPath, result.publicKey)
+
+      // Convert base58 public key to hex format
+      const publicKey = new SolanaPublicKey(result.publicKey)
+      const hexPublicKey = Buffer.from(publicKey.toBytes()).toString('hex')
+      console.log('[SeekerHDWallet] TON address retrieved:', hexPublicKey)
+      return hexPublicKey
+    } catch (error) {
+      console.error('Error getting TON address from Seed Vault:', error)
+      return null
+    }
+  }
+
+  async tonSignTx(msg: TonSignTx): Promise<TonSignedTx | null> {
+    // TON transactions: sign the message bytes (BOC serialized)
+    if (!msg.message) {
+      throw new Error('TON transaction message is required')
+    }
+
+    const messageBase64 = Buffer.from(msg.message).toString('base64')
+    const derivationPath = 'bip32:/' + addressNListToBIP32(msg.addressNList)
+
+    console.log('[SeekerHDWallet] Signing TON tx with path:', derivationPath)
+    const result = await this.messageHandler.signMessage(messageBase64, derivationPath)
+    if (!result.signature) {
+      throw new Error('Failed to sign TON transaction')
+    }
+
+    // The signature from Seed Vault is base64-encoded Ed25519 signature bytes
+    const signatureBytes = Buffer.from(result.signature, 'base64')
+    const signature = signatureBytes.toString('hex')
+
+    console.log('[SeekerHDWallet] TON tx signed, signature length:', signatureBytes.length)
+    // TON requires both signature and serialized (base64-encoded signed message)
+    return {
+      signature,
+      serialized: result.signature, // Return the base64-encoded signature as serialized
+    }
   }
 }
