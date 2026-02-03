@@ -38,6 +38,8 @@ import {
   addressNListToBIP32,
 } from '@shapeshiftoss/hdwallet-core'
 import { PublicKey as SolanaPublicKey } from '@solana/web3.js'
+import { Ed25519PublicKey } from '@mysten/sui/keypairs/ed25519'
+import { WalletContractV4 } from '@ton/ton'
 
 import type { SeekerMessageHandler } from './types'
 
@@ -358,8 +360,11 @@ export class SeekerHDWallet implements HDWallet {
       if (cachedPubkey) {
         console.log('[SeekerHDWallet] Using cached SUI public key')
         const publicKey = new SolanaPublicKey(cachedPubkey)
-        const hexPublicKey = Buffer.from(publicKey.toBytes()).toString('hex')
-        return hexPublicKey
+        const pubkeyBytes = Buffer.from(publicKey.toBytes())
+        const suiPublicKey = new Ed25519PublicKey(pubkeyBytes)
+        const suiAddress = suiPublicKey.toSuiAddress()
+        console.log('[SeekerHDWallet] SUI address derived from cached pubkey:', suiAddress)
+        return suiAddress
       }
 
       // Request SUI public key using BIP32 URI format
@@ -371,11 +376,13 @@ export class SeekerHDWallet implements HDWallet {
       // Cache the base58-encoded public key
       this.suiPubkeyCache.set(derivationPath, result.publicKey)
 
-      // Convert base58 public key to hex format
+      // Convert base58 public key to Ed25519PublicKey and derive SUI address
       const publicKey = new SolanaPublicKey(result.publicKey)
-      const hexPublicKey = Buffer.from(publicKey.toBytes()).toString('hex')
-      console.log('[SeekerHDWallet] SUI address retrieved:', hexPublicKey)
-      return hexPublicKey
+      const pubkeyBytes = Buffer.from(publicKey.toBytes())
+      const suiPublicKey = new Ed25519PublicKey(pubkeyBytes)
+      const suiAddress = suiPublicKey.toSuiAddress()
+      console.log('[SeekerHDWallet] SUI address retrieved:', suiAddress)
+      return suiAddress
     } catch (error) {
       console.error('Error getting SUI address from Seed Vault:', error)
       return null
@@ -430,8 +437,14 @@ export class SeekerHDWallet implements HDWallet {
       if (cachedPubkey) {
         console.log('[SeekerHDWallet] Using cached TON public key')
         const publicKey = new SolanaPublicKey(cachedPubkey)
-        const hexPublicKey = Buffer.from(publicKey.toBytes()).toString('hex')
-        return hexPublicKey
+        const pubkeyBytes = Buffer.from(publicKey.toBytes())
+
+        // Derive TON wallet address from public key
+        // TON uses WalletV4 contract by default with wallet_id 0x29a9a317 for mainnet
+        const wallet = WalletContractV4.create({ workchain: 0, publicKey: pubkeyBytes })
+        const tonAddress = wallet.address.toString()
+        console.log('[SeekerHDWallet] TON address derived from cached pubkey:', tonAddress)
+        return tonAddress
       }
 
       // Request TON public key using BIP32 URI format
@@ -443,11 +456,16 @@ export class SeekerHDWallet implements HDWallet {
       // Cache the base58-encoded public key
       this.tonPubkeyCache.set(derivationPath, result.publicKey)
 
-      // Convert base58 public key to hex format
+      // Convert base58 public key to bytes and derive TON wallet address
       const publicKey = new SolanaPublicKey(result.publicKey)
-      const hexPublicKey = Buffer.from(publicKey.toBytes()).toString('hex')
-      console.log('[SeekerHDWallet] TON address retrieved:', hexPublicKey)
-      return hexPublicKey
+      const pubkeyBytes = Buffer.from(publicKey.toBytes())
+
+      // Derive TON wallet address from public key
+      // TON uses WalletV4 contract by default with wallet_id 0x29a9a317 for mainnet
+      const wallet = WalletContractV4.create({ workchain: 0, publicKey: pubkeyBytes })
+      const tonAddress = wallet.address.toString()
+      console.log('[SeekerHDWallet] TON address retrieved:', tonAddress)
+      return tonAddress
     } catch (error) {
       console.error('Error getting TON address from Seed Vault:', error)
       return null
