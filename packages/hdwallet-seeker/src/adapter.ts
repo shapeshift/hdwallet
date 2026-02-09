@@ -39,6 +39,8 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 import { PublicKey as SolanaPublicKey } from '@solana/web3.js'
 import { Ed25519PublicKey } from '@mysten/sui/keypairs/ed25519'
+import type { MessageRelaxed } from '@ton/core'
+import { Address, beginCell, Cell, internal, SendMode, storeMessage } from '@ton/core'
 import { WalletContractV4 } from '@ton/ton'
 
 import type { SeekerMessageHandler } from './types'
@@ -421,7 +423,11 @@ export class SeekerHDWallet implements HDWallet {
   async suiSignTx(msg: SuiSignTx): Promise<SuiSignedTx | null> {
     // SUI transactions: sign the intent message bytes (intent scope + version + app id + tx bytes)
     const intentMessageBase64 = Buffer.from(msg.intentMessageBytes).toString('base64')
-    const derivationPath = 'bip32:/' + addressNListToBIP32(msg.addressNList)
+
+    // Remap to Seeker's 4-level path — Seed Vault only signs with the path used to derive the key
+    const accountIdx = (msg.addressNList[2] ?? 0) & 0x7fffffff
+    const seekerPath = this.suiGetAccountPaths({ accountIdx })[0]
+    const derivationPath = 'bip32:/' + addressNListToBIP32(seekerPath.addressNList)
 
     console.log('[SeekerHDWallet] Signing SUI tx with path:', derivationPath)
     const result = await this.messageHandler.signMessage(intentMessageBase64, derivationPath)
@@ -517,29 +523,210 @@ export class SeekerHDWallet implements HDWallet {
   }
 
   async tonSignTx(msg: TonSignTx): Promise<TonSignedTx | null> {
-    // TON transactions: sign the message bytes (BOC serialized)
+    // Remap to Seeker's 4-level path — Seed Vault only signs with the path used to derive the key
+    const accountIdx = (msg.addressNList[2] ?? 0) & 0x7fffffff
+    const seekerPath = this.tonGetAccountPaths({ accountIdx })[0]
+    const derivationPath = 'bip32:/' + addressNListToBIP32(seekerPath.addressNList)
+
+    // Get public key for this derivation path (from cache or Seed Vault)
+    const cacheKey = `${SeekerHDWallet.CACHE_VERSION}:${derivationPath}`
+    let pubkeyBase58 = this.tonPubkeyCache.get(cacheKey)
+    if (!pubkeyBase58) {
+      const pubResult = await this.messageHandler.getPublicKey(derivationPath)
+      if (!pubResult.publicKey) throw new Error('Failed to get TON public key from Seed Vault')
+      pubkeyBase58 = pubResult.publicKey
+      this.tonPubkeyCache.set(cacheKey, pubkeyBase58)
+    }
+    const pubkeyBytes = Buffer.from(new SolanaPublicKey(pubkeyBase58).toBytes())
+
+    // Create a signer function that routes through Seed Vault
+    const seedVaultSigner = async (message: Cell): Promise<Buffer> => {
+      const hash = message.hash()
+      const hashBase64 = hash.toString('base64')
+      const result = await this.messageHandler.signMessage(hashBase64, derivationPath)
+      if (!result.signature) throw new Error('Failed to sign TON transaction via Seed Vault')
+      return Buffer.from(result.signature, 'base64')
+    }
+
+    const wallet = WalletContractV4.create({ workchain: 0, publicKey: pubkeyBytes })
+
+    if (msg.rawMessages && msg.rawMessages.length > 0) {
+      // Swap transactions (e.g. Stonfi) provide rawMessages instead of message
+      const seqno = msg.seqno ?? 0
+      const expireAt = msg.expireAt ?? Math.floor(Date.now() / 1000) + 300
+
+      const internalMessages = msg.rawMessages.map((rawMsg) => {
+        const destination = Address.parse(rawMsg.targetAddress)
+        const value = BigInt(rawMsg.sendAmount)
+
+        let body: Cell
+        if (rawMsg.payload && rawMsg.payload.length > 0) {
+          const payloadBuffer = Buffer.from(rawMsg.payload, 'hex')
+          body = Cell.fromBoc(payloadBuffer)[0]
+        } else {
+          body = beginCell().endCell()
+        }
+
+        let init: { code: Cell; data: Cell } | undefined
+        if (rawMsg.stateInit && rawMsg.stateInit.length > 0) {
+          const stateInitBuffer = Buffer.from(rawMsg.stateInit, 'hex')
+          const stateInitCell = Cell.fromBoc(stateInitBuffer)[0]
+          const stateInitSlice = stateInitCell.beginParse()
+          const hasCode = stateInitSlice.loadBit()
+          const hasData = stateInitSlice.loadBit()
+          if (hasCode && hasData) {
+            init = {
+              code: stateInitSlice.loadRef(),
+              data: stateInitSlice.loadRef(),
+            }
+          }
+        }
+
+        return internal({
+          to: destination,
+          value,
+          bounce: true,
+          body,
+          init,
+        })
+      })
+
+      console.log('[SeekerHDWallet] Signing TON rawMessages tx with path:', derivationPath, 'messages:', internalMessages.length)
+
+      type CreateTransferSignable = (args: {
+        seqno: number
+        signer: (message: Cell) => Promise<Buffer>
+        messages: typeof internalMessages
+        sendMode: number
+        timeout: number
+      }) => Promise<Cell>
+
+      const createTransfer = wallet.createTransfer.bind(wallet) as unknown as CreateTransferSignable
+
+      const transfer = await createTransfer({
+        seqno,
+        signer: seedVaultSigner,
+        messages: internalMessages,
+        sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
+        timeout: expireAt,
+      })
+
+      const externalMessage = beginCell()
+        .store(
+          storeMessage({
+            info: {
+              type: 'external-in',
+              dest: wallet.address,
+              importFee: BigInt(0),
+            },
+            init: seqno === 0 ? wallet.init : null,
+            body: transfer,
+          })
+        )
+        .endCell()
+
+      const bocBase64 = externalMessage.toBoc().toString('base64')
+      console.log('[SeekerHDWallet] TON rawMessages tx signed, BOC length:', bocBase64.length)
+
+      return {
+        signature: '',
+        serialized: bocBase64,
+      }
+    }
+
     if (!msg.message) {
-      throw new Error('TON transaction message is required')
+      throw new Error('Either message or rawMessages must be provided')
     }
 
-    const messageBase64 = Buffer.from(msg.message).toString('base64')
-    const derivationPath = 'bip32:/' + addressNListToBIP32(msg.addressNList)
-
-    console.log('[SeekerHDWallet] Signing TON tx with path:', derivationPath)
-    const result = await this.messageHandler.signMessage(messageBase64, derivationPath)
-    if (!result.signature) {
-      throw new Error('Failed to sign TON transaction')
+    // Simple transfer: parse message JSON and build BOC
+    const messageJson = new TextDecoder().decode(msg.message)
+    let txParams: { from: string; to: string; value: string; seqno: number; expireAt: number; memo?: string; contractAddress?: string; type?: string }
+    try {
+      txParams = JSON.parse(messageJson)
+    } catch (error) {
+      throw new Error(`Failed to parse TON transaction message: ${error instanceof Error ? error.message : String(error)}`)
     }
 
-    // The signature from Seed Vault is base64-encoded Ed25519 signature bytes
-    const signatureBytes = Buffer.from(result.signature, 'base64')
-    const signature = signatureBytes.toString('hex')
+    const seqno = txParams.seqno ?? msg.seqno ?? 0
+    const expireAt = txParams.expireAt ?? msg.expireAt ?? Math.floor(Date.now() / 1000) + 300
+    const destination = Address.parse(txParams.to)
 
-    console.log('[SeekerHDWallet] TON tx signed, signature length:', signatureBytes.length)
-    // TON requires both signature and serialized (base64-encoded signed message)
+    let internalMessage: MessageRelaxed
+    if (txParams.type === 'jetton_transfer' && txParams.contractAddress) {
+      const jettonWalletAddress = Address.parse(txParams.contractAddress)
+      const forwardPayload = txParams.memo
+        ? beginCell().storeUint(0, 32).storeStringTail(txParams.memo).endCell()
+        : beginCell().endCell()
+
+      const jettonTransferBody = beginCell()
+        .storeUint(0x0f8a7ea5, 32)
+        .storeUint(0, 64)
+        .storeCoins(BigInt(txParams.value))
+        .storeAddress(destination)
+        .storeAddress(Address.parse(txParams.from))
+        .storeBit(false)
+        .storeCoins(BigInt(1))
+        .storeBit(true)
+        .storeRef(forwardPayload)
+        .endCell()
+
+      internalMessage = internal({
+        to: jettonWalletAddress,
+        value: BigInt(100000000),
+        bounce: true,
+        body: jettonTransferBody,
+      })
+    } else {
+      internalMessage = internal({
+        to: destination,
+        value: BigInt(txParams.value),
+        bounce: false,
+        body: txParams.memo
+          ? beginCell().storeUint(0, 32).storeStringTail(txParams.memo).endCell()
+          : beginCell().endCell(),
+      })
+    }
+
+    console.log('[SeekerHDWallet] Signing TON simple tx with path:', derivationPath)
+
+    type CreateTransferSignable = (args: {
+      seqno: number
+      signer: (message: Cell) => Promise<Buffer>
+      messages: MessageRelaxed[]
+      sendMode: number
+      timeout: number
+    }) => Promise<Cell>
+
+    const createTransferSimple = wallet.createTransfer.bind(wallet) as unknown as CreateTransferSignable
+
+    const transfer = await createTransferSimple({
+      seqno,
+      signer: seedVaultSigner,
+      messages: [internalMessage],
+      sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
+      timeout: expireAt,
+    })
+
+    const externalMessage = beginCell()
+      .store(
+        storeMessage({
+          info: {
+            type: 'external-in',
+            dest: wallet.address,
+            importFee: BigInt(0),
+          },
+          init: seqno === 0 ? wallet.init : null,
+          body: transfer,
+        })
+      )
+      .endCell()
+
+    const bocBase64 = externalMessage.toBoc().toString('base64')
+    console.log('[SeekerHDWallet] TON simple tx signed, BOC length:', bocBase64.length)
+
     return {
-      signature,
-      serialized: result.signature, // Return the base64-encoded signature as serialized
+      signature: '',
+      serialized: bocBase64,
     }
   }
 }
