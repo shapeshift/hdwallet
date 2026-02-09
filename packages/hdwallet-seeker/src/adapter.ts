@@ -47,6 +47,8 @@ export class SeekerHDWallet implements HDWallet {
   private deviceId: string
   private pubkey: string
   private messageHandler: SeekerMessageHandler
+  // Cache version to invalidate old entries when derivation paths change
+  private static readonly CACHE_VERSION = 'v2'
   private nearPubkeyCache: Map<string, string> = new Map()
   private suiPubkeyCache: Map<string, string> = new Map()
   private tonPubkeyCache: Map<string, string> = new Map()
@@ -255,12 +257,13 @@ export class SeekerHDWallet implements HDWallet {
     // Convert the addressNList to BIP32 URI format (e.g., "bip32:/m/44'/397'/0'")
     try {
       const derivationPath = 'bip32:/' + nearAddressNListToBIP32(msg.addressNList)
+      const cacheKey = `${SeekerHDWallet.CACHE_VERSION}:${derivationPath}`
       console.log('[SeekerHDWallet] NEAR - Requested derivation path:', derivationPath)
-      console.log('[SeekerHDWallet] NEAR - Cache key:', derivationPath)
+      console.log('[SeekerHDWallet] NEAR - Cache key:', cacheKey)
       console.log('[SeekerHDWallet] NEAR - Cache contents:', Array.from(this.nearPubkeyCache.entries()))
 
       // Check cache first
-      const cachedPubkey = this.nearPubkeyCache.get(derivationPath)
+      const cachedPubkey = this.nearPubkeyCache.get(cacheKey)
       if (cachedPubkey) {
         console.log('[SeekerHDWallet] NEAR - Using cached public key:', cachedPubkey)
         const publicKey = new SolanaPublicKey(cachedPubkey)
@@ -276,7 +279,7 @@ export class SeekerHDWallet implements HDWallet {
       }
 
       // Cache the base58-encoded public key for this derivation path
-      this.nearPubkeyCache.set(derivationPath, result.publicKey)
+      this.nearPubkeyCache.set(cacheKey, result.publicKey)
 
       // Convert base58 public key to hex format for NEAR implicit accounts
       const publicKey = new SolanaPublicKey(result.publicKey)
@@ -374,12 +377,13 @@ export class SeekerHDWallet implements HDWallet {
     // SUI uses derivation path m/44'/784'/x'/0'/0' (all hardened)
     try {
       const derivationPath = 'bip32:/' + addressNListToBIP32(msg.addressNList)
+      const cacheKey = `${SeekerHDWallet.CACHE_VERSION}:${derivationPath}`
       console.log('[SeekerHDWallet] SUI - Requested derivation path:', derivationPath)
-      console.log('[SeekerHDWallet] SUI - Cache key:', derivationPath)
+      console.log('[SeekerHDWallet] SUI - Cache key:', cacheKey)
       console.log('[SeekerHDWallet] SUI - Cache contents:', Array.from(this.suiPubkeyCache.entries()))
 
       // Check cache first
-      const cachedPubkey = this.suiPubkeyCache.get(derivationPath)
+      const cachedPubkey = this.suiPubkeyCache.get(cacheKey)
       if (cachedPubkey) {
         console.log('[SeekerHDWallet] SUI - Using cached public key:', cachedPubkey)
         const publicKey = new SolanaPublicKey(cachedPubkey)
@@ -399,7 +403,7 @@ export class SeekerHDWallet implements HDWallet {
       }
 
       // Cache the base58-encoded public key
-      this.suiPubkeyCache.set(derivationPath, result.publicKey)
+      this.suiPubkeyCache.set(cacheKey, result.publicKey)
 
       // Convert base58 public key to Ed25519PublicKey and derive SUI address
       const publicKey = new SolanaPublicKey(result.publicKey)
@@ -430,7 +434,8 @@ export class SeekerHDWallet implements HDWallet {
     const signature = signatureBytes.toString('hex')
 
     // Get the public key for this derivation path
-    const cachedPubkey = this.suiPubkeyCache.get(derivationPath) || this.pubkey
+    const cacheKey = `${SeekerHDWallet.CACHE_VERSION}:${derivationPath}`
+    const cachedPubkey = this.suiPubkeyCache.get(cacheKey) || this.pubkey
     const publicKey = new SolanaPublicKey(cachedPubkey)
     const pubkeyHex = Buffer.from(publicKey.toBytes()).toString('hex')
 
@@ -462,12 +467,13 @@ export class SeekerHDWallet implements HDWallet {
     // TON uses derivation path m/44'/607'/x' (3 levels, all hardened)
     try {
       const derivationPath = 'bip32:/' + addressNListToBIP32(msg.addressNList)
+      const cacheKey = `${SeekerHDWallet.CACHE_VERSION}:${derivationPath}`
       console.log('[SeekerHDWallet] TON - Requested derivation path:', derivationPath)
-      console.log('[SeekerHDWallet] TON - Cache key:', derivationPath)
+      console.log('[SeekerHDWallet] TON - Cache key:', cacheKey)
       console.log('[SeekerHDWallet] TON - Cache contents:', Array.from(this.tonPubkeyCache.entries()))
 
       // Check cache first
-      const cachedPubkey = this.tonPubkeyCache.get(derivationPath)
+      const cachedPubkey = this.tonPubkeyCache.get(cacheKey)
       if (cachedPubkey) {
         console.log('[SeekerHDWallet] TON - Using cached public key:', cachedPubkey)
         const publicKey = new SolanaPublicKey(cachedPubkey)
@@ -491,7 +497,7 @@ export class SeekerHDWallet implements HDWallet {
       }
 
       // Cache the base58-encoded public key
-      this.tonPubkeyCache.set(derivationPath, result.publicKey)
+      this.tonPubkeyCache.set(cacheKey, result.publicKey)
 
       // Convert base58 public key to bytes and derive TON wallet address
       const publicKey = new SolanaPublicKey(result.publicKey)
