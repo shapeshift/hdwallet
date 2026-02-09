@@ -24,5 +24,5 @@
     "@ton/crypto": "^3.3.0",
     "@ton/ton": "^13.11.2"
   },
-  "gitHead": "7df86a58499d48c602d6c89284c1736ca74b5965"
+  "gitHead": "7a480280e47ef3b6f62a86fd43677f7c3a00b4e2"
 }
