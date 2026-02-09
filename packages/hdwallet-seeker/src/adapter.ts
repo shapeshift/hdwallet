@@ -290,8 +290,7 @@ export class SeekerHDWallet implements HDWallet {
   }
 
   nearGetAccountPaths(msg: NearGetAccountPaths): NearAccountPath[] {
-    // Solana Mobile Seed Vault uses 4-level paths for all chains (matching Solana structure)
-    // m/44'/397'/<account>'/0' instead of standard 3-level m/44'/397'/<account>'
+    // Try 4-level path with account at level 2: m/44'/397'/<account>'/0'
     const slip44 = 397 // NEAR
     return [
       {
