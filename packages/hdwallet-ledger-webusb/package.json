@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger-webusb",
-  "version": "1.62.42-seeker-vault.9",
+  "version": "1.62.42-seeker-vault.12",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -20,13 +20,13 @@
     "@ledgerhq/hw-app-solana": "7.6.0",
     "@ledgerhq/hw-transport": "6.31.13",
     "@ledgerhq/hw-transport-webusb": "6.29.13",
-    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.9",
-    "@shapeshiftoss/hdwallet-ledger": "^1.62.42-seeker-vault.9",
+    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.12",
+    "@shapeshiftoss/hdwallet-ledger": "^1.62.42-seeker-vault.12",
     "@types/w3c-web-usb": "^1.0.4",
     "p-queue": "^7.4.1"
   },
   "devDependencies": {
     "@types/w3c-web-usb": "^1.0.6"
   },
-  "gitHead": "5e6c1cc787dd7455c0cba85ef605342623331cde"
+  "gitHead": "fbf1b08e2e2d98dbc2de8b4c940d1922f2795352"
 }

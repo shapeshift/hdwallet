@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-native-vault",
-  "version": "1.62.42-seeker-vault.9",
+  "version": "1.62.42-seeker-vault.12",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@bitcoinerlab/secp256k1": "^1.1.1",
-    "@shapeshiftoss/hdwallet-native": "^1.62.42-seeker-vault.9",
+    "@shapeshiftoss/hdwallet-native": "^1.62.42-seeker-vault.12",
     "bip39": "^3.0.4",
     "hash-wasm": "^4.11.0",
     "idb-keyval": "^6.0.3",
@@ -27,5 +27,5 @@
   "devDependencies": {
     "fake-indexeddb": "^3.1.7"
   },
-  "gitHead": "5e6c1cc787dd7455c0cba85ef605342623331cde"
+  "gitHead": "fbf1b08e2e2d98dbc2de8b4c940d1922f2795352"
 }

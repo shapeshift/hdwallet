@@ -453,8 +453,8 @@ export class SeekerHDWallet implements HDWallet {
         // Derive TON wallet address from public key
         // TON uses WalletV4 contract by default with wallet_id 0x29a9a317 for mainnet
         const wallet = WalletContractV4.create({ workchain: 0, publicKey: pubkeyBytes })
-        // Use bounceable format (UQ prefix) as the default for display
-        const tonAddress = wallet.address.toString({ bounceable: true })
+        // Use non-bounceable format (UQ prefix) as the default for display
+        const tonAddress = wallet.address.toString({ bounceable: false })
         console.log('[SeekerHDWallet] TON - Returning cached address:', tonAddress)
         return tonAddress
       }
@@ -475,8 +475,8 @@ export class SeekerHDWallet implements HDWallet {
       // Derive TON wallet address from public key
       // TON uses WalletV4 contract by default with wallet_id 0x29a9a317 for mainnet
       const wallet = WalletContractV4.create({ workchain: 0, publicKey: pubkeyBytes })
-      // Use bounceable format (UQ prefix) as the default for display
-      const tonAddress = wallet.address.toString({ bounceable: true })
+      // Use non-bounceable format (UQ prefix) as the default for display
+      const tonAddress = wallet.address.toString({ bounceable: false })
       console.log('[SeekerHDWallet] TON address retrieved:', tonAddress)
       return tonAddress
     } catch (error) {
