@@ -18,5 +18,5 @@
     "@shapeshiftoss/hdwallet-keepkey": "^1.62.42-seeker-vault.9",
     "axios": "^0.21.1"
   },
-  "gitHead": "063ab3370fc1f1ceb662c072c5a367d9c66d4d08"
+  "gitHead": "5e6c1cc787dd7455c0cba85ef605342623331cde"
 }

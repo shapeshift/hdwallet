@@ -250,14 +250,17 @@ export class SeekerHDWallet implements HDWallet {
     // Convert the addressNList to BIP32 URI format (e.g., "bip32:/m/44'/397'/0'")
     try {
       const derivationPath = 'bip32:/' + nearAddressNListToBIP32(msg.addressNList)
-      console.log('[SeekerHDWallet] Getting NEAR address for path:', derivationPath, 'raw addressNList:', msg.addressNList)
+      console.log('[SeekerHDWallet] NEAR - Requested derivation path:', derivationPath)
+      console.log('[SeekerHDWallet] NEAR - Cache key:', derivationPath)
+      console.log('[SeekerHDWallet] NEAR - Cache contents:', Array.from(this.nearPubkeyCache.entries()))
 
       // Check cache first
       const cachedPubkey = this.nearPubkeyCache.get(derivationPath)
       if (cachedPubkey) {
-        console.log('[SeekerHDWallet] Using cached NEAR public key')
+        console.log('[SeekerHDWallet] NEAR - Using cached public key:', cachedPubkey)
         const publicKey = new SolanaPublicKey(cachedPubkey)
         const hexPublicKey = Buffer.from(publicKey.toBytes()).toString('hex')
+        console.log('[SeekerHDWallet] NEAR - Returning cached hex address:', hexPublicKey)
         return hexPublicKey
       }
 
@@ -353,17 +356,21 @@ export class SeekerHDWallet implements HDWallet {
     // SUI uses derivation path m/44'/784'/x'/0'/0' (all hardened)
     try {
       const derivationPath = 'bip32:/' + addressNListToBIP32(msg.addressNList)
-      console.log('[SeekerHDWallet] Getting SUI address for path:', derivationPath)
+      console.log('[SeekerHDWallet] SUI - Requested derivation path:', derivationPath)
+      console.log('[SeekerHDWallet] SUI - Cache key:', derivationPath)
+      console.log('[SeekerHDWallet] SUI - Cache contents:', Array.from(this.suiPubkeyCache.entries()))
 
       // Check cache first
       const cachedPubkey = this.suiPubkeyCache.get(derivationPath)
       if (cachedPubkey) {
-        console.log('[SeekerHDWallet] Using cached SUI public key')
+        console.log('[SeekerHDWallet] SUI - Using cached public key:', cachedPubkey)
         const publicKey = new SolanaPublicKey(cachedPubkey)
         const pubkeyBytes = Buffer.from(publicKey.toBytes())
+        const hexPubKey = pubkeyBytes.toString('hex')
+        console.log('[SeekerHDWallet] SUI - Public key hex:', hexPubKey)
         const suiPublicKey = new Ed25519PublicKey(pubkeyBytes)
         const suiAddress = suiPublicKey.toSuiAddress()
-        console.log('[SeekerHDWallet] SUI address derived from cached pubkey:', suiAddress)
+        console.log('[SeekerHDWallet] SUI - Returning cached address:', suiAddress)
         return suiAddress
       }
 
@@ -430,20 +437,25 @@ export class SeekerHDWallet implements HDWallet {
     // TON uses derivation path m/44'/607'/x' (3 levels, all hardened)
     try {
       const derivationPath = 'bip32:/' + addressNListToBIP32(msg.addressNList)
-      console.log('[SeekerHDWallet] Getting TON address for path:', derivationPath)
+      console.log('[SeekerHDWallet] TON - Requested derivation path:', derivationPath)
+      console.log('[SeekerHDWallet] TON - Cache key:', derivationPath)
+      console.log('[SeekerHDWallet] TON - Cache contents:', Array.from(this.tonPubkeyCache.entries()))
 
       // Check cache first
       const cachedPubkey = this.tonPubkeyCache.get(derivationPath)
       if (cachedPubkey) {
-        console.log('[SeekerHDWallet] Using cached TON public key')
+        console.log('[SeekerHDWallet] TON - Using cached public key:', cachedPubkey)
         const publicKey = new SolanaPublicKey(cachedPubkey)
         const pubkeyBytes = Buffer.from(publicKey.toBytes())
+        const hexPubKey = pubkeyBytes.toString('hex')
+        console.log('[SeekerHDWallet] TON - Public key hex:', hexPubKey)
 
         // Derive TON wallet address from public key
         // TON uses WalletV4 contract by default with wallet_id 0x29a9a317 for mainnet
         const wallet = WalletContractV4.create({ workchain: 0, publicKey: pubkeyBytes })
-        const tonAddress = wallet.address.toString()
-        console.log('[SeekerHDWallet] TON address derived from cached pubkey:', tonAddress)
+        // Use bounceable format (UQ prefix) as the default for display
+        const tonAddress = wallet.address.toString({ bounceable: true })
+        console.log('[SeekerHDWallet] TON - Returning cached address:', tonAddress)
         return tonAddress
       }
 
@@ -463,7 +475,8 @@ export class SeekerHDWallet implements HDWallet {
       // Derive TON wallet address from public key
       // TON uses WalletV4 contract by default with wallet_id 0x29a9a317 for mainnet
       const wallet = WalletContractV4.create({ workchain: 0, publicKey: pubkeyBytes })
-      const tonAddress = wallet.address.toString()
+      // Use bounceable format (UQ prefix) as the default for display
+      const tonAddress = wallet.address.toString({ bounceable: true })
       console.log('[SeekerHDWallet] TON address retrieved:', tonAddress)
       return tonAddress
     } catch (error) {

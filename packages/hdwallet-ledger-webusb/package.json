@@ -28,5 +28,5 @@
   "devDependencies": {
     "@types/w3c-web-usb": "^1.0.6"
   },
-  "gitHead": "063ab3370fc1f1ceb662c072c5a367d9c66d4d08"
+  "gitHead": "5e6c1cc787dd7455c0cba85ef605342623331cde"
 }
