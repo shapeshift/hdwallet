@@ -566,6 +566,7 @@ export class SeekerHDWallet implements HDWallet {
       }
 
       const seedVaultSigner = async (message: Cell): Promise<Buffer> => {
+        alert(`[TON signer] ⚠️ SIGNER CALLED! Starting signature process...`)
         try {
           const hash = message.hash()
           const hashHex = hash.toString('hex')
@@ -599,7 +600,16 @@ export class SeekerHDWallet implements HDWallet {
         }
       }
 
-      const wallet = WalletContractV4.create({ workchain: 0, publicKey: pubkeyBytes })
+      alert(`[TON] Creating WalletContractV4 with pubkey len: ${pubkeyBytes.length}`)
+      let wallet
+      try {
+        wallet = WalletContractV4.create({ workchain: 0, publicKey: pubkeyBytes })
+        alert(`[TON] ✓ WalletContractV4 created successfully, address: ${wallet.address.toString({ bounceable: false })}`)
+      } catch (error) {
+        const errMsg = error instanceof Error ? error.message : String(error)
+        alert(`[TON] ✗ WalletContractV4.create FAILED: ${errMsg}`)
+        throw error
+      }
 
       if (msg.rawMessages && msg.rawMessages.length > 0) {
         const seqno = msg.seqno ?? 0
@@ -653,13 +663,23 @@ export class SeekerHDWallet implements HDWallet {
 
         const createTransfer = wallet.createTransfer.bind(wallet) as unknown as CreateTransferSignable
 
-        const transfer = await createTransfer({
-          seqno,
-          signer: seedVaultSigner,
-          messages: internalMessages,
-          sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
-          timeout: expireAt,
-        })
+        alert(`[TON] About to call createTransfer with seqno: ${seqno}, timeout: ${expireAt}`)
+        let transfer
+        try {
+          transfer = await createTransfer({
+            seqno,
+            signer: seedVaultSigner,
+            messages: internalMessages,
+            sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
+            timeout: expireAt,
+          })
+          alert(`[TON] ✓ createTransfer completed successfully`)
+        } catch (error) {
+          const errMsg = error instanceof Error ? error.message : String(error)
+          const stack = error instanceof Error ? error.stack : ''
+          alert(`[TON] ✗ createTransfer FAILED: ${errMsg}\n\nStack: ${stack?.substring(0, 200)}`)
+          throw error
+        }
 
         const externalMessage = beginCell()
           .store(
@@ -748,13 +768,23 @@ export class SeekerHDWallet implements HDWallet {
 
       const createTransferSimple = wallet.createTransfer.bind(wallet) as unknown as CreateTransferSignable
 
-      const transfer = await createTransferSimple({
-        seqno,
-        signer: seedVaultSigner,
-        messages: [internalMessage],
-        sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
-        timeout: expireAt,
-      })
+      alert(`[TON] About to call createTransfer (simple) with seqno: ${seqno}, timeout: ${expireAt}`)
+      let transfer
+      try {
+        transfer = await createTransferSimple({
+          seqno,
+          signer: seedVaultSigner,
+          messages: [internalMessage],
+          sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
+          timeout: expireAt,
+        })
+        alert(`[TON] ✓ createTransfer (simple) completed successfully`)
+      } catch (error) {
+        const errMsg = error instanceof Error ? error.message : String(error)
+        const stack = error instanceof Error ? error.stack : ''
+        alert(`[TON] ✗ createTransfer (simple) FAILED: ${errMsg}\n\nStack: ${stack?.substring(0, 200)}`)
+        throw error
+      }
 
       const externalMessage = beginCell()
         .store(
