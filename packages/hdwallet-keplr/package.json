@@ -29,5 +29,5 @@
     "@keplr-wallet/types": "^0.12.35",
     "@types/lodash": "^4.14.168"
   },
-  "gitHead": "7b84e440bf7c68c3d70bf2440887bb0c28ccd40b"
+  "gitHead": "cd64f7f2ec6302a7ecd79b535cf2fa65e3e5cdce"
 }
