@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-seeker",
-  "version": "1.62.42-seeker-vault.21",
+  "version": "1.62.42-seeker-vault.23",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -12,9 +12,9 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc --build",
+    "build": "yarn clean && tsc",
     "clean": "rm -rf dist tsconfig.tsbuildinfo",
-    "prepublishOnly": "yarn clean && yarn build"
+    "prepublishOnly": "yarn build"
   },
   "dependencies": {
     "@mysten/sui": "1.45.0",
@@ -22,7 +22,10 @@
     "@solana/web3.js": "^1.95.8",
     "@ton/core": "^0.62.1",
     "@ton/crypto": "^3.3.0",
-    "@ton/ton": "^13.11.2"
+    "@ton/ton": "^16.1.0"
+  },
+  "devDependencies": {
+    "@types/ethereumjs-util": "^6.1.0"
   },
   "gitHead": "cd64f7f2ec6302a7ecd79b535cf2fa65e3e5cdce"
 }
