@@ -556,27 +556,47 @@ export class SeekerHDWallet implements HDWallet {
       }
       const pubkeyBytes = Buffer.from(new SolanaPublicKey(pubkeyBase58).toBytes())
 
+      alert(`[TON] pubkey base58: ${pubkeyBase58}, bytes len: ${pubkeyBytes.length}, hex: ${pubkeyBytes.toString('hex').substring(0, 20)}...`)
+
       // Ed25519 public keys must be exactly 32 bytes
       if (pubkeyBytes.length !== 32) {
-        throw new Error(`Bad public key size for TON signing: expected 32 bytes, got ${pubkeyBytes.length} bytes`)
+        const errMsg = `Bad public key size for TON signing: expected 32 bytes, got ${pubkeyBytes.length} bytes`
+        alert(`[TON ERROR] ${errMsg}`)
+        throw new Error(errMsg)
       }
 
       const seedVaultSigner = async (message: Cell): Promise<Buffer> => {
-        const hash = message.hash()
-        const hashBase64 = hash.toString('base64')
-        alert(`[TON signer] signing hash len: ${hash.length}, path: ${derivationPath}`)
-        const result = await this.messageHandler.signMessage(hashBase64, derivationPath)
-        if (!result.signature) throw new Error('Failed to sign TON transaction via Seed Vault')
+        try {
+          const hash = message.hash()
+          const hashHex = hash.toString('hex')
+          const hashBase64 = hash.toString('base64')
+          alert(`[TON signer] Signing hash - len: ${hash.length}, hex: ${hashHex.substring(0, 32)}..., b64 len: ${hashBase64.length}, path: ${derivationPath}`)
 
-        const signatureBuffer = Buffer.from(result.signature, 'base64')
-        alert(`[TON signer] signature received, len: ${signatureBuffer.length}`)
+          const result = await this.messageHandler.signMessage(hashBase64, derivationPath)
+          if (!result.signature) {
+            const errMsg = 'Failed to sign TON transaction via Seed Vault - no signature returned'
+            alert(`[TON signer ERROR] ${errMsg}`)
+            throw new Error(errMsg)
+          }
 
-        // Ed25519 signatures must be exactly 64 bytes
-        if (signatureBuffer.length !== 64) {
-          throw new Error(`Bad signature size for TON signing: expected 64 bytes, got ${signatureBuffer.length} bytes`)
+          const signatureBuffer = Buffer.from(result.signature, 'base64')
+          const sigHex = signatureBuffer.toString('hex')
+          alert(`[TON signer] Signature received - len: ${signatureBuffer.length}, hex: ${sigHex.substring(0, 32)}...`)
+
+          // Ed25519 signatures must be exactly 64 bytes
+          if (signatureBuffer.length !== 64) {
+            const errMsg = `Bad signature size for TON signing: expected 64 bytes, got ${signatureBuffer.length} bytes`
+            alert(`[TON signer ERROR] ${errMsg}`)
+            throw new Error(errMsg)
+          }
+
+          alert(`[TON signer] ✓ Signature OK, returning ${signatureBuffer.length} bytes`)
+          return signatureBuffer
+        } catch (error) {
+          const errMsg = error instanceof Error ? error.message : String(error)
+          alert(`[TON signer EXCEPTION] ${errMsg}`)
+          throw error
         }
-
-        return signatureBuffer
       }
 
       const wallet = WalletContractV4.create({ workchain: 0, publicKey: pubkeyBytes })
