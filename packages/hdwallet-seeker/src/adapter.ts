@@ -42,6 +42,7 @@ import { Ed25519PublicKey } from '@mysten/sui/keypairs/ed25519'
 import type { MessageRelaxed } from '@ton/core'
 import { Address, beginCell, Cell, internal, SendMode, storeMessage } from '@ton/core'
 import { WalletContractV4 } from '@ton/ton'
+import { createBLAKE2b } from 'hash-wasm'
 
 import type { SeekerMessageHandler } from './types'
 
@@ -422,16 +423,24 @@ export class SeekerHDWallet implements HDWallet {
 
   async suiSignTx(msg: SuiSignTx): Promise<SuiSignedTx | null> {
     try {
-      const intentMessageBase64 = Buffer.from(msg.intentMessageBytes).toString('base64')
+      // Following native wallet pattern: hash intent message with BLAKE2b-256 before signing
+      // Native: packages/hdwallet-native/src/crypto/isolation/adapters/sui.ts:59-77
+      const blake2b = await createBLAKE2b(256)
+      blake2b.init()
+      blake2b.update(msg.intentMessageBytes)
+      const messageHash = blake2b.digest('binary')
+
+      const messageHashBase64 = Buffer.from(messageHash).toString('base64')
 
       // Remap to Seeker's 4-level path — Seed Vault only signs with the path used to derive the key
       const accountIdx = (msg.addressNList[2] ?? 0) & 0x7fffffff
       const seekerPath = this.suiGetAccountPaths({ accountIdx })[0]
       const derivationPath = 'bip32:/' + addressNListToBIP32(seekerPath.addressNList)
 
-      alert(`[SUI] path: ${derivationPath}, intentMsg len: ${intentMessageBase64.length}, addressNList: ${JSON.stringify(msg.addressNList)}`)
+      alert(`[SUI] path: ${derivationPath}, hash len: ${messageHash.length}, addressNList: ${JSON.stringify(msg.addressNList)}`)
 
-      const result = await this.messageHandler.signMessage(intentMessageBase64, derivationPath)
+      // Sign the BLAKE2b-256 hash (not the raw intent message)
+      const result = await this.messageHandler.signMessage(messageHashBase64, derivationPath)
       if (!result.signature) {
         throw new Error('Failed to sign SUI transaction')
       }
