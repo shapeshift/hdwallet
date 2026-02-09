@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-metamask-multichain",
-  "version": "1.62.42-seeker-vault.12",
+  "version": "1.62.42-seeker-vault.13",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -17,7 +17,7 @@
     "@metamask/detect-provider": "^1.2.0",
     "@metamask/onboarding": "^1.0.1",
     "@shapeshiftoss/common-api": "^9.3.0",
-    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.12",
+    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.13",
     "@shapeshiftoss/metamask-snaps-adapter": "^1.0.12",
     "@shapeshiftoss/metamask-snaps-types": "^1.0.12",
     "eth-rpc-errors": "^4.0.3",
@@ -28,5 +28,5 @@
     "@types/express": "^4.17.17",
     "@types/lodash": "^4.14.168"
   },
-  "gitHead": "fbf1b08e2e2d98dbc2de8b4c940d1922f2795352"
+  "gitHead": "7df86a58499d48c602d6c89284c1736ca74b5965"
 }

@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-gridplus",
-  "version": "1.62.42-seeker-vault.12",
+  "version": "1.62.42-seeker-vault.13",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -20,7 +20,7 @@
     "@ethereumjs/rlp": "5.0.2",
     "@ethereumjs/tx": "5.4.0",
     "@metamask/eth-sig-util": "^7.0.0",
-    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.12",
+    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.13",
     "bech32": "^1.1.4",
     "bs58": "^5.0.0",
     "bs58check": "^4.0.0",
@@ -36,5 +36,5 @@
     "@ethereumjs/common",
     "@ethereumjs/tx"
   ],
-  "gitHead": "fbf1b08e2e2d98dbc2de8b4c940d1922f2795352"
+  "gitHead": "7df86a58499d48c602d6c89284c1736ca74b5965"
 }

@@ -208,9 +208,14 @@ export class SeekerHDWallet implements HDWallet {
     return Promise.resolve(this.pubkey)
   }
 
-  solanaGetAccountPaths(_msg: SolanaGetAccountPaths): SolanaAccountPath[] {
-    const SOLANA_BIP44_PATH: BIP32Path = [0x80000000 + 44, 0x80000000 + 501, 0x80000000 + 0]
-    return [{ addressNList: SOLANA_BIP44_PATH }]
+  solanaGetAccountPaths(msg: SolanaGetAccountPaths): SolanaAccountPath[] {
+    // Solana Mobile Seed Vault uses 4-level paths: m/44'/501'/<account>'/0'
+    const slip44 = 501 // Solana
+    return [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0x80000000 + 0],
+      },
+    ]
   }
 
   solanaNextAccountPath(_msg: SolanaAccountPath): SolanaAccountPath | undefined {
@@ -285,7 +290,14 @@ export class SeekerHDWallet implements HDWallet {
   }
 
   nearGetAccountPaths(msg: NearGetAccountPaths): NearAccountPath[] {
-    return nearGetAccountPaths(msg)
+    // Solana Mobile Seed Vault uses 4-level paths for all chains (matching Solana structure)
+    // m/44'/397'/<account>'/0' instead of standard 3-level m/44'/397'/<account>'
+    const slip44 = 397 // NEAR
+    return [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0x80000000 + 0],
+      },
+    ]
   }
 
   nearNextAccountPath(msg: NearAccountPath): NearAccountPath | undefined {
@@ -344,7 +356,14 @@ export class SeekerHDWallet implements HDWallet {
 
   // SUI Protocol support
   suiGetAccountPaths(msg: SuiGetAccountPaths): SuiAccountPath[] {
-    return suiGetAccountPaths(msg)
+    // Solana Mobile Seed Vault uses 4-level paths for all chains (matching Solana structure)
+    // m/44'/784'/<account>'/0' instead of standard 5-level m/44'/784'/<account>'/0'/0'
+    const slip44 = 784 // SUI
+    return [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0x80000000 + 0],
+      },
+    ]
   }
 
   suiNextAccountPath(_msg: SuiAccountPath): SuiAccountPath | undefined {
@@ -425,7 +444,14 @@ export class SeekerHDWallet implements HDWallet {
 
   // TON Protocol support
   tonGetAccountPaths(msg: TonGetAccountPaths): TonAccountPath[] {
-    return tonGetAccountPaths(msg)
+    // Solana Mobile Seed Vault uses 4-level paths for all chains (matching Solana structure)
+    // m/44'/607'/<account>'/0' instead of standard 3-level m/44'/607'/<account>'
+    const slip44 = 607 // TON
+    return [
+      {
+        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0x80000000 + 0],
+      },
+    ]
   }
 
   tonNextAccountPath(_msg: TonAccountPath): TonAccountPath | undefined {

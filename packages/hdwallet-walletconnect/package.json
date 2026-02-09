@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-walletconnect",
-  "version": "1.62.42-seeker-vault.12",
+  "version": "1.62.42-seeker-vault.13",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,10 +15,10 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.12",
+    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.13",
     "@walletconnect/qrcode-modal": "^1.7.8",
     "@walletconnect/web3-provider": "^1.7.8",
     "ethers": "^5.6.5"
   },
-  "gitHead": "fbf1b08e2e2d98dbc2de8b4c940d1922f2795352"
+  "gitHead": "7df86a58499d48c602d6c89284c1736ca74b5965"
 }
