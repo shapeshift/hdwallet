@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-trezor",
-  "version": "1.62.42-seeker-vault.17",
+  "version": "1.62.42-seeker-vault.18",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -17,7 +17,7 @@
   "dependencies": {
     "@ethereumjs/common": "3.2.0",
     "@ethereumjs/tx": "4.2.0",
-    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.17",
+    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.18",
     "base64-js": "^1.5.1",
     "bchaddrjs": "^0.4.4",
     "lodash": "^4.17.21"
@@ -27,5 +27,5 @@
     "@types/lodash": "^4.14.168",
     "typedoc": "^0.20.36"
   },
-  "gitHead": "7a480280e47ef3b6f62a86fd43677f7c3a00b4e2"
+  "gitHead": "7b84e440bf7c68c3d70bf2440887bb0c28ccd40b"
 }

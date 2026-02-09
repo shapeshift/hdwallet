@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey-webusb",
-  "version": "1.62.42-seeker-vault.17",
+  "version": "1.62.42-seeker-vault.18",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,11 +14,11 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.17",
-    "@shapeshiftoss/hdwallet-keepkey": "^1.62.42-seeker-vault.17"
+    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.18",
+    "@shapeshiftoss/hdwallet-keepkey": "^1.62.42-seeker-vault.18"
   },
   "devDependencies": {
     "@types/w3c-web-usb": "^1.0.4"
   },
-  "gitHead": "7a480280e47ef3b6f62a86fd43677f7c3a00b4e2"
+  "gitHead": "7b84e440bf7c68c3d70bf2440887bb0c28ccd40b"
 }

@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-native",
-  "version": "1.62.42-seeker-vault.17",
+  "version": "1.62.42-seeker-vault.18",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -18,7 +18,7 @@
     "@noble/curves": "^1.4.0",
     "@scure/starknet": "^1.0.0",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
-    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.17",
+    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.18",
     "@shapeshiftoss/proto-tx-builder": "0.10.0",
     "@ton/core": "^0.62.1",
     "@ton/crypto": "^3.3.0",
@@ -62,5 +62,5 @@
     "cosmjs-types": "^0.4.1",
     "msw": "^0.27.1"
   },
-  "gitHead": "7a480280e47ef3b6f62a86fd43677f7c3a00b4e2"
+  "gitHead": "7b84e440bf7c68c3d70bf2440887bb0c28ccd40b"
 }

@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-ledger-webhid",
-  "version": "1.62.42-seeker-vault.17",
+  "version": "1.62.42-seeker-vault.18",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -18,9 +18,9 @@
     "@ledgerhq/hw-app-eth": "7.0.0",
     "@ledgerhq/hw-transport": "6.31.13",
     "@ledgerhq/hw-transport-webhid": "6.30.6",
-    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.17",
-    "@shapeshiftoss/hdwallet-ledger": "^1.62.42-seeker-vault.17",
+    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.18",
+    "@shapeshiftoss/hdwallet-ledger": "^1.62.42-seeker-vault.18",
     "@types/w3c-web-hid": "^1.0.2"
   },
-  "gitHead": "7a480280e47ef3b6f62a86fd43677f7c3a00b4e2"
+  "gitHead": "7b84e440bf7c68c3d70bf2440887bb0c28ccd40b"
 }
