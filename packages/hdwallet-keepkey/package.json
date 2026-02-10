@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-keepkey",
-  "version": "1.62.42-seeker-vault.26",
+  "version": "1.62.42-seeker-vault.34",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
