@@ -43,6 +43,7 @@ import type { MessageRelaxed } from '@ton/core'
 import { Address, beginCell, Cell, internal, SendMode, storeMessage } from '@ton/core'
 import { WalletContractV4 } from '@ton/ton'
 import { createBLAKE2b } from 'hash-wasm'
+import nacl from 'tweetnacl'
 
 import type { SeekerMessageHandler } from './types'
 
@@ -434,13 +435,8 @@ export class SeekerHDWallet implements HDWallet {
 
       const messageHashBase64 = Buffer.from(messageHash).toString('base64')
 
-      // Remap to Seeker's 4-level path — Seed Vault only signs with the path used to derive the key
-      const accountIdx = (msg.addressNList[2] ?? 0) & 0x7fffffff
-      const seekerPath = this.suiGetAccountPaths({ accountIdx })[0]
-      const derivationPath = 'bip32:/' + addressNListToBIP32(seekerPath.addressNList)
-
-      // Sign the BLAKE2b-256 hash (not the raw intent message)
-      alert(`[SUI] About to sign with path: ${derivationPath}, hash: ${messageHashBase64.substring(0, 20)}...`)
+      const derivationPath = 'bip32:/' + addressNListToBIP32(msg.addressNList)
+      alert(`[SUI] Using raw input path: ${derivationPath} (${msg.addressNList.length} levels), hash: ${messageHashBase64.substring(0, 20)}...`)
       const signResult = await this.messageHandler.signMessage(messageHashBase64, derivationPath)
       alert(`[SUI] ✓ Signature received from vault, length: ${signResult.signature?.length || 0}`)
 
@@ -510,11 +506,10 @@ export class SeekerHDWallet implements HDWallet {
   }
 
   async tonGetAddress(msg: TonGetAddress): Promise<string | null> {
-    // Remap to Seeker's 4-level path to match tonSignTx behavior
     try {
-      const accountIdx = (msg.addressNList[2] ?? 0) & 0x7fffffff
-      const seekerPath = this.tonGetAccountPaths({ accountIdx })[0]
-      const derivationPath = 'bip32:/' + addressNListToBIP32(seekerPath.addressNList)
+      // Use raw input path directly (same pattern as NEAR which works)
+      const derivationPath = 'bip32:/' + addressNListToBIP32(msg.addressNList)
+      alert(`[TON] tonGetAddress using raw input path: ${derivationPath} (${msg.addressNList.length} levels)`)
       const cacheKey = `${SeekerHDWallet.CACHE_VERSION}:${derivationPath}`
       console.log('[SeekerHDWallet] TON - Requested derivation path:', derivationPath)
       console.log('[SeekerHDWallet] TON - Cache key:', cacheKey)
@@ -578,10 +573,8 @@ export class SeekerHDWallet implements HDWallet {
     alert('[TON] ===== tonSignTx CALLED =====')
     console.log('[TON] ===== tonSignTx CALLED =====', { hasRawMessages: !!msg.rawMessages, hasMessage: !!msg.message })
     try {
-      // Remap to Seeker's 4-level path — Seed Vault only signs with the path used to derive the key
-      const accountIdx = (msg.addressNList[2] ?? 0) & 0x7fffffff
-      const seekerPath = this.tonGetAccountPaths({ accountIdx })[0]
-      const derivationPath = 'bip32:/' + addressNListToBIP32(seekerPath.addressNList)
+      const derivationPath = 'bip32:/' + addressNListToBIP32(msg.addressNList)
+      alert(`[TON] tonSignTx using raw input path: ${derivationPath} (${msg.addressNList.length} levels)`)
 
       const cacheKey = `${SeekerHDWallet.CACHE_VERSION}:${derivationPath}`
       let pubkeyBase58 = this.tonPubkeyCache.get(cacheKey)
@@ -621,14 +614,43 @@ export class SeekerHDWallet implements HDWallet {
         }
 
         alert('[TON] ✓ Signature size valid (64 bytes)')
+
+        // === DIAGNOSTIC: Verify ed25519 signature matches pubkey + hash ===
+        const isValidSig = nacl.sign.detached.verify(
+          new Uint8Array(hash),          // the 32-byte cell hash we asked Vault to sign
+          new Uint8Array(signatureBuffer), // the 64-byte signature from Vault
+          new Uint8Array(pubkeyBytes),     // the 32-byte pubkey from Vault at same derivation path
+        )
+        alert(`[TON] DIAGNOSTIC: ed25519 verify(hash, sig, pubkey) = ${isValidSig}`)
+        console.log('[TON] DIAGNOSTIC ed25519 verify:', {
+          isValid: isValidSig,
+          hashHex: hash.toString('hex').substring(0, 40) + '...',
+          sigHex: signatureBuffer.toString('hex').substring(0, 40) + '...',
+          pubkeyHex: pubkeyBytes.toString('hex'),
+          derivationPath,
+        })
+        if (!isValidSig) {
+          alert('[TON] ✗ SIGNATURE INVALID! The Seed Vault signature does NOT verify against the pubkey+hash. This means either:\n1) Vault signed different data (double-hashing?)\n2) Vault used a different key than the pubkey we got\n3) Base64 encoding/decoding corrupted the data')
+        }
+        // === END DIAGNOSTIC ===
+
         return signatureBuffer
       }
 
       const wallet = WalletContractV4.create({ workchain: 0, publicKey: pubkeyBytes })
       const walletAddress = wallet.address.toString({ bounceable: true })
+      const walletAddressNonBounce = wallet.address.toString({ bounceable: false })
       const pubkeyHex = pubkeyBytes.toString('hex')
-      alert(`[TON] Wallet address: ${walletAddress}\nPubkey (hex): ${pubkeyHex}`)
-      console.log('[TON] Wallet created:', { address: walletAddress, workchain: 0, publicKeyHex: pubkeyHex })
+      const inputPathStr = addressNListToBIP32(msg.addressNList)
+      alert(`[TON] DIAGNOSTIC PATH:\n  Input addressNList: ${inputPathStr} (${msg.addressNList.length} levels)\n  Seeker remapped to: ${derivationPath}\n  Wallet (bounceable): ${walletAddress}\n  Wallet (non-bounce): ${walletAddressNonBounce}\n  Pubkey: ${pubkeyHex}`)
+      console.log('[TON] DIAGNOSTIC wallet info:', {
+        inputPath: inputPathStr,
+        inputPathLevels: msg.addressNList.length,
+        seekerPath: derivationPath,
+        walletAddressBounceable: walletAddress,
+        walletAddressNonBounceable: walletAddressNonBounce,
+        publicKeyHex: pubkeyHex,
+      })
 
       if (msg.rawMessages && msg.rawMessages.length > 0) {
         const seqno = msg.seqno ?? 0
@@ -730,15 +752,23 @@ export class SeekerHDWallet implements HDWallet {
           throw new Error('[TON] Generated BOC is empty!')
         }
 
-        alert(`[TON] Generated BOC length: ${bocBase64.length} chars`)
-
-        // Verify BOC is valid base64
         try {
           const bocBytes = Buffer.from(bocBase64, 'base64')
-          alert(`[TON] ✓ BOC is valid base64 (${bocBytes.length} bytes)`)
-          console.log('[TON] BOC info:', { base64Length: bocBase64.length, bytesLength: bocBytes.length })
+          const roundTrip = Cell.fromBoc(bocBytes)[0]
+          const transferBody = roundTrip.refs.length > 0 ? roundTrip.refs[0] : null
+          const transferHash = transferBody ? transferBody.hash().toString('hex').substring(0, 40) : 'NO_BODY'
+          alert(`[TON] DIAGNOSTIC BOC (rawMessages):\n  BOC size: ${bocBytes.length} bytes\n  Round-trip parse: OK\n  Transfer body hash: ${transferHash}...\n  seqno: ${seqno}, init included: ${seqno === 0}`)
+          console.log('[TON] DIAGNOSTIC BOC:', {
+            bocBytesLength: bocBytes.length,
+            base64Length: bocBase64.length,
+            roundTripOk: true,
+            transferBodyHash: transferHash,
+            seqno,
+            initIncluded: seqno === 0,
+          })
         } catch (e) {
-          throw new Error(`[TON] Generated BOC is not valid base64: ${e}`)
+          alert(`[TON] ✗ BOC verification FAILED: ${e}`)
+          throw new Error(`[TON] Generated BOC is invalid: ${e}`)
         }
 
         const result = {
