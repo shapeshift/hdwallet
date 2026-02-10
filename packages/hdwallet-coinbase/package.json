@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-coinbase",
-  "version": "1.62.42-seeker-vault.23",
+  "version": "1.62.42-seeker-vault.24",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -15,12 +15,12 @@
   },
   "dependencies": {
     "@coinbase/wallet-sdk": "^3.6.6",
-    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.23",
+    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.24",
     "eth-rpc-errors": "^4.0.3",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.168"
   },
-  "gitHead": "cd64f7f2ec6302a7ecd79b535cf2fa65e3e5cdce"
+  "gitHead": "0d6c34ab811d8d1ae7469001b4e5eed179f9e3f5"
 }

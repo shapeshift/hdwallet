@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-trezor-connect",
-  "version": "1.62.42-seeker-vault.23",
+  "version": "1.62.42-seeker-vault.24",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,9 +14,9 @@
     "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.23",
-    "@shapeshiftoss/hdwallet-trezor": "^1.62.42-seeker-vault.23",
+    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.24",
+    "@shapeshiftoss/hdwallet-trezor": "^1.62.42-seeker-vault.24",
     "@trezor/connect-web": "^9.6.4"
   },
-  "gitHead": "cd64f7f2ec6302a7ecd79b535cf2fa65e3e5cdce"
+  "gitHead": "0d6c34ab811d8d1ae7469001b4e5eed179f9e3f5"
 }

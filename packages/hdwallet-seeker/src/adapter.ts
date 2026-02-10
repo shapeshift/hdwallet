@@ -494,11 +494,12 @@ export class SeekerHDWallet implements HDWallet {
 
   // TON Protocol support
   tonGetAccountPaths(msg: TonGetAccountPaths): TonAccountPath[] {
-    // TON uses standard 3-level path: m/44'/607'/<account>' (Trust Wallet compatible)
+    // Solana Mobile Seed Vault requires 4-level paths for all chains: m/44'/607'/<account>'/0'
+    // This matches Solana (m/44'/501'/<account>'/0'), NEAR (m/44'/397'/<account>'/0'), and SUI patterns
     const slip44 = 607 // TON
     return [
       {
-        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
+        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0x80000000 + 0],
       },
     ]
   }
