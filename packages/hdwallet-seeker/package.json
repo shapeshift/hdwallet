@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-seeker",
-  "version": "1.62.42-seeker-vault.38",
+  "version": "1.62.41",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@mysten/sui": "1.45.0",
-    "@shapeshiftoss/hdwallet-core": "^1.62.42-seeker-vault.24",
+    "@shapeshiftoss/hdwallet-core": "^1.62.41",
     "@solana/web3.js": "^1.95.8",
     "@ton/core": "^0.62.1",
     "@ton/crypto": "^3.3.0",
@@ -27,6 +27,5 @@
   },
   "devDependencies": {
     "@types/ethereumjs-util": "^6.1.0"
-  },
-  "gitHead": "cd64f7f2ec6302a7ecd79b535cf2fa65e3e5cdce"
+  }
 }

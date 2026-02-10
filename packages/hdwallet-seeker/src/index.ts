@@ -1,4 +1,4 @@
-export { SeekerHDWallet } from './adapter'
+export { SeekerHDWallet } from "./adapter";
 export type {
   SeekerMessageHandler,
   SeekerAvailabilityResult,
@@ -9,4 +9,4 @@ export type {
   SeekerSendResult,
   SeekerAppIdentity,
   SeekerConfig,
-} from './types'
+} from "./types";
