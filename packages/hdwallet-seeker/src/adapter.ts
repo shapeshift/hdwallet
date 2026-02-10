@@ -422,6 +422,8 @@ export class SeekerHDWallet implements HDWallet {
   }
 
   async suiSignTx(msg: SuiSignTx): Promise<SuiSignedTx | null> {
+    alert('[SUI] ===== suiSignTx CALLED =====')
+    console.log('[SUI] ===== suiSignTx CALLED =====')
     try {
       // Following native wallet pattern: hash intent message with BLAKE2b-256 before signing
       // Native: packages/hdwallet-native/src/crypto/isolation/adapters/sui.ts:59-77
@@ -437,42 +439,66 @@ export class SeekerHDWallet implements HDWallet {
       const seekerPath = this.suiGetAccountPaths({ accountIdx })[0]
       const derivationPath = 'bip32:/' + addressNListToBIP32(seekerPath.addressNList)
 
-      alert(`[SUI] path: ${derivationPath}, hash len: ${messageHash.length}, addressNList: ${JSON.stringify(msg.addressNList)}`)
-
       // Sign the BLAKE2b-256 hash (not the raw intent message)
-      const result = await this.messageHandler.signMessage(messageHashBase64, derivationPath)
-      if (!result.signature) {
+      alert(`[SUI] About to sign with path: ${derivationPath}, hash: ${messageHashBase64.substring(0, 20)}...`)
+      const signResult = await this.messageHandler.signMessage(messageHashBase64, derivationPath)
+      alert(`[SUI] ✓ Signature received from vault, length: ${signResult.signature?.length || 0}`)
+
+      if (!signResult.signature) {
+        alert('[SUI] ✗ No signature returned from vault!')
         throw new Error('Failed to sign SUI transaction')
       }
 
-      const signatureBytes = Buffer.from(result.signature, 'base64')
+      const signatureBytes = Buffer.from(signResult.signature, 'base64')
+      alert(`[SUI] Signature bytes length: ${signatureBytes.length} (expected 64)`)
+
+      // Ed25519 signatures MUST be exactly 64 bytes
+      if (signatureBytes.length !== 64) {
+        throw new Error(`Invalid signature length for SUI: got ${signatureBytes.length} bytes, expected 64`)
+      }
+
       const signature = signatureBytes.toString('hex')
+      alert(`[SUI] Signature hex length: ${signature.length} (expected 128)`)
 
       const cacheKey = `${SeekerHDWallet.CACHE_VERSION}:${derivationPath}`
       const cachedPubkey = this.suiPubkeyCache.get(cacheKey) || this.pubkey
       const publicKey = new SolanaPublicKey(cachedPubkey)
-      const pubkeyHex = Buffer.from(publicKey.toBytes()).toString('hex')
+      const pubkeyBytes = publicKey.toBytes()
+      alert(`[SUI] Public key bytes length: ${pubkeyBytes.length} (expected 32)`)
 
-      alert(`[SUI] signed OK, sig len: ${signatureBytes.length}`)
-      return {
+      // Ed25519 public keys MUST be exactly 32 bytes
+      if (pubkeyBytes.length !== 32) {
+        throw new Error(`Invalid public key length for SUI: got ${pubkeyBytes.length} bytes, expected 32`)
+      }
+
+      const pubkeyHex = Buffer.from(pubkeyBytes).toString('hex')
+      alert(`[SUI] Public key hex length: ${pubkeyHex.length} (expected 64)`)
+
+      const result = {
         signature,
         publicKey: pubkeyHex,
       }
+
+      alert(`[SUI] ✓ VALID - Returning sig=${signature.substring(0, 20)}... (${signature.length} chars), pubkey=${pubkeyHex.substring(0, 20)}... (${pubkeyHex.length} chars)`)
+      console.log('[SUI] Final return:', JSON.stringify({ ...result, signature: result.signature.substring(0, 40) + '...', publicKey: result.publicKey.substring(0, 40) + '...' }))
+
+      return result
     } catch (error) {
-      const msg2 = error instanceof Error ? error.message : String(error)
-      alert(`[SUI signTx ERROR] ${msg2}`)
+      const errMsg = error instanceof Error ? error.message : String(error)
+      const stack = error instanceof Error ? error.stack : ''
+      alert(`[SUI] ✗ ERROR: ${errMsg}\n\nStack: ${stack?.substring(0, 300)}`)
+      console.error('[SUI] ERROR:', error)
       throw error
     }
   }
 
   // TON Protocol support
   tonGetAccountPaths(msg: TonGetAccountPaths): TonAccountPath[] {
-    // Solana Mobile Seed Vault uses 4-level paths for all chains (matching Solana structure)
-    // m/44'/607'/<account>'/0' instead of standard 3-level m/44'/607'/<account>'
+    // TON uses standard 3-level path: m/44'/607'/<account>' (Trust Wallet compatible)
     const slip44 = 607 // TON
     return [
       {
-        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0x80000000 + 0],
+        addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
       },
     ]
   }
@@ -483,9 +509,11 @@ export class SeekerHDWallet implements HDWallet {
   }
 
   async tonGetAddress(msg: TonGetAddress): Promise<string | null> {
-    // TON uses derivation path m/44'/607'/x' (3 levels, all hardened)
+    // Remap to Seeker's 4-level path to match tonSignTx behavior
     try {
-      const derivationPath = 'bip32:/' + addressNListToBIP32(msg.addressNList)
+      const accountIdx = (msg.addressNList[2] ?? 0) & 0x7fffffff
+      const seekerPath = this.tonGetAccountPaths({ accountIdx })[0]
+      const derivationPath = 'bip32:/' + addressNListToBIP32(seekerPath.addressNList)
       const cacheKey = `${SeekerHDWallet.CACHE_VERSION}:${derivationPath}`
       console.log('[SeekerHDWallet] TON - Requested derivation path:', derivationPath)
       console.log('[SeekerHDWallet] TON - Cache key:', cacheKey)
@@ -546,14 +574,13 @@ export class SeekerHDWallet implements HDWallet {
   }
 
   async tonSignTx(msg: TonSignTx): Promise<TonSignedTx | null> {
+    alert('[TON] ===== tonSignTx CALLED =====')
+    console.log('[TON] ===== tonSignTx CALLED =====', { hasRawMessages: !!msg.rawMessages, hasMessage: !!msg.message })
     try {
       // Remap to Seeker's 4-level path — Seed Vault only signs with the path used to derive the key
       const accountIdx = (msg.addressNList[2] ?? 0) & 0x7fffffff
       const seekerPath = this.tonGetAccountPaths({ accountIdx })[0]
       const derivationPath = 'bip32:/' + addressNListToBIP32(seekerPath.addressNList)
-
-      const hasRaw = msg.rawMessages && msg.rawMessages.length > 0
-      alert(`[TON] path: ${derivationPath}, rawMessages: ${hasRaw ? msg.rawMessages!.length : 'none'}, addressNList: ${JSON.stringify(msg.addressNList)}`)
 
       const cacheKey = `${SeekerHDWallet.CACHE_VERSION}:${derivationPath}`
       let pubkeyBase58 = this.tonPubkeyCache.get(cacheKey)
@@ -565,66 +592,59 @@ export class SeekerHDWallet implements HDWallet {
       }
       const pubkeyBytes = Buffer.from(new SolanaPublicKey(pubkeyBase58).toBytes())
 
-      alert(`[TON] pubkey base58: ${pubkeyBase58}, bytes len: ${pubkeyBytes.length}, hex: ${pubkeyBytes.toString('hex').substring(0, 20)}...`)
-
       // Ed25519 public keys must be exactly 32 bytes
       if (pubkeyBytes.length !== 32) {
-        const errMsg = `Bad public key size for TON signing: expected 32 bytes, got ${pubkeyBytes.length} bytes`
-        alert(`[TON ERROR] ${errMsg}`)
-        throw new Error(errMsg)
+        throw new Error(`Bad public key size for TON signing: expected 32 bytes, got ${pubkeyBytes.length} bytes`)
       }
 
       const seedVaultSigner = async (message: Cell): Promise<Buffer> => {
-        alert(`[TON signer] ⚠️ SIGNER CALLED! Starting signature process...`)
-        try {
-          const hash = message.hash()
-          const hashHex = hash.toString('hex')
-          const hashBase64 = hash.toString('base64')
-          alert(`[TON signer] Signing hash - len: ${hash.length}, hex: ${hashHex.substring(0, 32)}..., b64 len: ${hashBase64.length}, path: ${derivationPath}`)
+        const hash = message.hash()
+        const hashBase64 = hash.toString('base64')
 
-          const result = await this.messageHandler.signMessage(hashBase64, derivationPath)
-          if (!result.signature) {
-            const errMsg = 'Failed to sign TON transaction via Seed Vault - no signature returned'
-            alert(`[TON signer ERROR] ${errMsg}`)
-            throw new Error(errMsg)
-          }
+        alert(`[TON] Signer called - hash: ${hashBase64.substring(0, 20)}..., path: ${derivationPath}`)
+        const result = await this.messageHandler.signMessage(hashBase64, derivationPath)
+        alert(`[TON] ✓ Vault returned signature, length: ${result.signature?.length || 0}`)
 
-          const signatureBuffer = Buffer.from(result.signature, 'base64')
-          const sigHex = signatureBuffer.toString('hex')
-          alert(`[TON signer] Signature received - len: ${signatureBuffer.length}, hex: ${sigHex.substring(0, 32)}...`)
-
-          // Ed25519 signatures must be exactly 64 bytes
-          if (signatureBuffer.length !== 64) {
-            const errMsg = `Bad signature size for TON signing: expected 64 bytes, got ${signatureBuffer.length} bytes`
-            alert(`[TON signer ERROR] ${errMsg}`)
-            throw new Error(errMsg)
-          }
-
-          alert(`[TON signer] ✓ Signature OK, returning ${signatureBuffer.length} bytes`)
-          return signatureBuffer
-        } catch (error) {
-          const errMsg = error instanceof Error ? error.message : String(error)
-          alert(`[TON signer EXCEPTION] ${errMsg}`)
-          throw error
+        if (!result.signature) {
+          alert('[TON] ✗ No signature returned from vault!')
+          throw new Error('Failed to sign TON transaction via Seed Vault - no signature returned')
         }
+
+        const signatureBuffer = Buffer.from(result.signature, 'base64')
+        alert(`[TON] Signature buffer length: ${signatureBuffer.length} bytes (expected 64)`)
+
+        // Ed25519 signatures must be exactly 64 bytes
+        if (signatureBuffer.length !== 64) {
+          alert(`[TON] ✗ Bad signature size: ${signatureBuffer.length} bytes!`)
+          throw new Error(`Bad signature size for TON signing: expected 64 bytes, got ${signatureBuffer.length} bytes`)
+        }
+
+        alert('[TON] ✓ Signature size valid (64 bytes)')
+        return signatureBuffer
       }
 
-      alert(`[TON] Creating WalletContractV4 with pubkey len: ${pubkeyBytes.length}`)
-      let wallet
-      try {
-        wallet = WalletContractV4.create({ workchain: 0, publicKey: pubkeyBytes })
-        alert(`[TON] ✓ WalletContractV4 created successfully, address: ${wallet.address.toString({ bounceable: false })}`)
-      } catch (error) {
-        const errMsg = error instanceof Error ? error.message : String(error)
-        alert(`[TON] ✗ WalletContractV4.create FAILED: ${errMsg}`)
-        throw error
-      }
+      const wallet = WalletContractV4.create({ workchain: 0, publicKey: pubkeyBytes })
+      const walletAddress = wallet.address.toString({ bounceable: true })
+      const pubkeyHex = pubkeyBytes.toString('hex')
+      alert(`[TON] Wallet address: ${walletAddress}\nPubkey (hex): ${pubkeyHex}`)
+      console.log('[TON] Wallet created:', { address: walletAddress, workchain: 0, publicKeyHex: pubkeyHex })
 
       if (msg.rawMessages && msg.rawMessages.length > 0) {
         const seqno = msg.seqno ?? 0
         const expireAt = msg.expireAt ?? Math.floor(Date.now() / 1000) + 300
+        const currentTime = Math.floor(Date.now() / 1000)
 
-        const internalMessages = msg.rawMessages.map((rawMsg) => {
+        alert(`[TON] TX params - seqno: ${seqno}, expireAt: ${expireAt}, currentTime: ${currentTime}, ttl: ${expireAt - currentTime}s, msgs: ${msg.rawMessages.length}`)
+        console.log('[TON] Transaction parameters:', { seqno, expireAt, currentTime, timeToLive: expireAt - currentTime, messageCount: msg.rawMessages.length })
+
+        const internalMessages = msg.rawMessages.map((rawMsg, idx) => {
+          alert(`[TON] rawMsg[${idx}]: to=${rawMsg.targetAddress.substring(0, 10)}..., amount=${rawMsg.sendAmount}, hasPayload=${!!(rawMsg.payload && rawMsg.payload.length > 0)}, hasStateInit=${!!(rawMsg.stateInit && rawMsg.stateInit.length > 0)}`)
+          console.log(`[TON] Processing rawMessage ${idx}:`, {
+            to: rawMsg.targetAddress,
+            amount: rawMsg.sendAmount,
+            payloadLength: rawMsg.payload?.length || 0,
+            stateInitLength: rawMsg.stateInit?.length || 0
+          })
           const destination = Address.parse(rawMsg.targetAddress)
           const value = BigInt(rawMsg.sendAmount)
 
@@ -660,8 +680,6 @@ export class SeekerHDWallet implements HDWallet {
           })
         })
 
-        alert(`[TON] rawMessages built: ${internalMessages.length}, seqno: ${seqno}, calling createTransfer...`)
-
         type CreateTransferSignable = (args: {
           seqno: number
           signer: (message: Cell) => Promise<Buffer>
@@ -672,7 +690,7 @@ export class SeekerHDWallet implements HDWallet {
 
         const createTransfer = wallet.createTransfer.bind(wallet) as unknown as CreateTransferSignable
 
-        alert(`[TON] About to call createTransfer with seqno: ${seqno}, timeout: ${expireAt}`)
+        alert(`[TON] rawMessages path - about to call createTransfer with seqno: ${seqno}, messages: ${internalMessages.length}`)
         let transfer
         try {
           transfer = await createTransfer({
@@ -682,11 +700,12 @@ export class SeekerHDWallet implements HDWallet {
             sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
             timeout: expireAt,
           })
-          alert(`[TON] ✓ createTransfer completed successfully`)
+          alert('[TON] ✓ createTransfer completed successfully (rawMessages path)')
         } catch (error) {
           const errMsg = error instanceof Error ? error.message : String(error)
           const stack = error instanceof Error ? error.stack : ''
-          alert(`[TON] ✗ createTransfer FAILED: ${errMsg}\n\nStack: ${stack?.substring(0, 200)}`)
+          alert(`[TON] ✗ createTransfer FAILED (rawMessages path): ${errMsg}\n\nStack: ${stack?.substring(0, 200)}`)
+          console.error('[TON] createTransfer FAILED (rawMessages path):', error)
           throw error
         }
 
@@ -705,12 +724,31 @@ export class SeekerHDWallet implements HDWallet {
           .endCell()
 
         const bocBase64 = externalMessage.toBoc().toString('base64')
-        alert(`[TON] rawMessages tx signed OK, BOC len: ${bocBase64.length}`)
 
-        return {
+        if (!bocBase64 || bocBase64.length === 0) {
+          throw new Error('[TON] Generated BOC is empty!')
+        }
+
+        alert(`[TON] Generated BOC length: ${bocBase64.length} chars`)
+
+        // Verify BOC is valid base64
+        try {
+          const bocBytes = Buffer.from(bocBase64, 'base64')
+          alert(`[TON] ✓ BOC is valid base64 (${bocBytes.length} bytes)`)
+          console.log('[TON] BOC info:', { base64Length: bocBase64.length, bytesLength: bocBytes.length })
+        } catch (e) {
+          throw new Error(`[TON] Generated BOC is not valid base64: ${e}`)
+        }
+
+        const result = {
           signature: '',
           serialized: bocBase64,
         }
+
+        alert(`[TON] ✓ VALID - Returning BOC: ${bocBase64.substring(0, 40)}... (total length: ${bocBase64.length})`)
+        console.log('[TON] Final return (rawMessages):', JSON.stringify({ ...result, serialized: result.serialized.substring(0, 100) + `... (${result.serialized.length} total chars)` }))
+
+        return result
       }
 
       if (!msg.message) {
@@ -727,10 +765,37 @@ export class SeekerHDWallet implements HDWallet {
 
       const seqno = txParams.seqno ?? msg.seqno ?? 0
       const expireAt = txParams.expireAt ?? msg.expireAt ?? Math.floor(Date.now() / 1000) + 300
+      const currentTime = Math.floor(Date.now() / 1000)
       const destination = Address.parse(txParams.to)
+
+      alert(`[TON] Simple path - seqno: ${seqno}, expireAt: ${expireAt}, currentTime: ${currentTime}, ttl: ${expireAt - currentTime}s, type: ${txParams.type || 'transfer'}`)
+      alert(`[TON] Simple path - from: ${txParams.from.substring(0, 10)}..., to: ${txParams.to.substring(0, 10)}..., value: ${txParams.value}`)
+      console.log('[TON] Simple transaction parameters:', {
+        seqno,
+        expireAt,
+        currentTime,
+        timeToLive: expireAt - currentTime,
+        type: txParams.type || 'transfer',
+        from: txParams.from,
+        to: txParams.to,
+        value: txParams.value,
+        memo: txParams.memo,
+        contractAddress: txParams.contractAddress
+      })
+
+      // Verify wallet address matches the sender address
+      const fromAddressNormalized = Address.parse(txParams.from).toString({ bounceable: true })
+      if (walletAddress !== fromAddressNormalized) {
+        alert(`[TON] ⚠️ ADDRESS MISMATCH!\nWallet: ${walletAddress}\nFrom: ${fromAddressNormalized}`)
+        console.warn('[TON] Address mismatch detected:', { walletAddress, fromAddress: fromAddressNormalized })
+      } else {
+        alert('[TON] ✓ Wallet address matches sender address')
+      }
 
       let internalMessage: MessageRelaxed
       if (txParams.type === 'jetton_transfer' && txParams.contractAddress) {
+        alert(`[TON] Building JETTON transfer to contract: ${txParams.contractAddress.substring(0, 10)}...`)
+        console.log('[TON] Building jetton transfer:', { jettonWalletAddress: txParams.contractAddress })
         const jettonWalletAddress = Address.parse(txParams.contractAddress)
         const forwardPayload = txParams.memo
           ? beginCell().storeUint(0, 32).storeStringTail(txParams.memo).endCell()
@@ -765,8 +830,6 @@ export class SeekerHDWallet implements HDWallet {
         })
       }
 
-      alert(`[TON] simple tx built, type: ${txParams.type ?? 'transfer'}, seqno: ${seqno}, calling createTransfer...`)
-
       type CreateTransferSignable = (args: {
         seqno: number
         signer: (message: Cell) => Promise<Buffer>
@@ -777,7 +840,7 @@ export class SeekerHDWallet implements HDWallet {
 
       const createTransferSimple = wallet.createTransfer.bind(wallet) as unknown as CreateTransferSignable
 
-      alert(`[TON] About to call createTransfer (simple) with seqno: ${seqno}, timeout: ${expireAt}`)
+      alert(`[TON] simple path - about to call createTransfer with seqno: ${seqno}, type: ${txParams.type || 'transfer'}`)
       let transfer
       try {
         transfer = await createTransferSimple({
@@ -787,11 +850,12 @@ export class SeekerHDWallet implements HDWallet {
           sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
           timeout: expireAt,
         })
-        alert(`[TON] ✓ createTransfer (simple) completed successfully`)
+        alert('[TON] ✓ createTransfer completed successfully (simple path)')
       } catch (error) {
         const errMsg = error instanceof Error ? error.message : String(error)
         const stack = error instanceof Error ? error.stack : ''
-        alert(`[TON] ✗ createTransfer (simple) FAILED: ${errMsg}\n\nStack: ${stack?.substring(0, 200)}`)
+        alert(`[TON] ✗ createTransfer FAILED (simple path): ${errMsg}\n\nStack: ${stack?.substring(0, 200)}`)
+        console.error('[TON] createTransfer FAILED (simple path):', error)
         throw error
       }
 
@@ -810,15 +874,35 @@ export class SeekerHDWallet implements HDWallet {
         .endCell()
 
       const bocBase64 = externalMessage.toBoc().toString('base64')
-      alert(`[TON] simple tx signed OK, BOC len: ${bocBase64.length}`)
 
-      return {
+      if (!bocBase64 || bocBase64.length === 0) {
+        throw new Error('[TON] Generated BOC is empty!')
+      }
+
+      alert(`[TON] Generated BOC length: ${bocBase64.length} chars`)
+
+      // Verify BOC is valid base64
+      try {
+        Buffer.from(bocBase64, 'base64')
+        alert('[TON] ✓ BOC is valid base64')
+      } catch (e) {
+        throw new Error(`[TON] Generated BOC is not valid base64: ${e}`)
+      }
+
+      const result = {
         signature: '',
         serialized: bocBase64,
       }
+
+      alert(`[TON] ✓ VALID - Returning BOC: ${bocBase64.substring(0, 40)}... (total length: ${bocBase64.length})`)
+      console.log('[TON] Final return (simple):', JSON.stringify({ ...result, serialized: result.serialized.substring(0, 100) + `... (${result.serialized.length} total chars)` }))
+
+      return result
     } catch (error) {
-      const msg2 = error instanceof Error ? error.message : String(error)
-      alert(`[TON signTx ERROR] ${msg2}`)
+      const errMsg = error instanceof Error ? error.message : String(error)
+      const stack = error instanceof Error ? error.stack : ''
+      alert(`[TON] ✗ TOP-LEVEL ERROR: ${errMsg}\n\nStack: ${stack?.substring(0, 300)}`)
+      console.error('[TON] TOP-LEVEL ERROR:', error)
       throw error
     }
   }
