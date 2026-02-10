@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/hdwallet-core",
-  "version": "1.62.42-seeker-vault.22",
+  "version": "1.62.42-seeker-vault.23",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
